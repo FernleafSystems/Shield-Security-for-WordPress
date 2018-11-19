@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseUpdate extends BaseInsert {
+class Update extends Insert {
 
 	/**
 	 * @var array
@@ -52,14 +52,14 @@ class BaseUpdate extends BaseInsert {
 	}
 
 	/**
-	 * @param BaseEntryVO $oEntry
-	 * @param array       $aUpdateData
+	 * @param EntryVO $oEntry
+	 * @param array   $aUpdateData
 	 * @return bool
 	 */
 	public function updateEntry( $oEntry, $aUpdateData = array() ) {
 		$bSuccess = false;
 
-		if ( $oEntry instanceof BaseEntryVO) {
+		if ( $oEntry instanceof EntryVO) {
 			$bSuccess = $this->updateById( $oEntry->id, $aUpdateData );
 			// TODO: run through update data and determine if anything actually needs updating
 			if ( $bSuccess ) {

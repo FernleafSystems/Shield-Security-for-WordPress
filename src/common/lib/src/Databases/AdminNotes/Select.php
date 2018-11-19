@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	/**
 	 * @return string[]
@@ -19,12 +19,5 @@ class Select extends BaseSelect {
 	 */
 	public function filterByUsername( $sUsername ) {
 		return $this->addWhereEquals( 'wp_username', trim( $sUsername ) );
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

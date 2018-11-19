@@ -4,17 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseSelect extends BaseQuery {
+class Select extends BaseQuery {
 
 	/**
 	 * @var array
 	 */
 	protected $aColumnsToSelect;
-
-	/**
-	 * @var array
-	 */
-	protected $aColumnsDefinition;
 
 	/**
 	 * @var bool
@@ -101,7 +96,7 @@ class BaseSelect extends BaseQuery {
 	}
 
 	/**
-	 * @return BaseEntryVO|\stdClass|null
+	 * @return EntryVO|\stdClass|null
 	 */
 	public function first() {
 		$aR = $this->query();
@@ -163,13 +158,6 @@ class BaseSelect extends BaseQuery {
 	}
 
 	/**
-	 * @return BaseEntryVO
-	 */
-	public function getVo() {
-		return new BaseEntryVO();
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function hasColumnsToSelect() {
@@ -199,7 +187,7 @@ class BaseSelect extends BaseQuery {
 
 	/**
 	 * Handle COUNT, DISTINCT, & normal SELECT
-	 * @return int|string[]|array[]|BaseEntryVO[]
+	 * @return int|string[]|array[]|EntryVO[]
 	 */
 	public function query() {
 		if ( $this->isCount() ) {
@@ -220,7 +208,7 @@ class BaseSelect extends BaseQuery {
 			$mData = $this->querySelect();
 			if ( $this->isResultsAsVo() ) {
 				foreach ( $mData as $nKey => $oAudit ) {
-					$mData[ $nKey ] = $this->getVo()->setRawData( $oAudit );
+					$mData[ $nKey ] = $this->getDbH()->getVo()->setRawData( $oAudit );
 				}
 			}
 		}
@@ -257,7 +245,7 @@ class BaseSelect extends BaseQuery {
 	public function setColumnsToSelect( $aColumns ) {
 		if ( is_array( $aColumns ) ) {
 			$aColumns = array_filter( array_map( 'trim', $aColumns ) );
-			$aDef = $this->getColumnsDefinition();
+			$aDef = $this->getDbH()->getColumnsDefinition();
 			if ( !empty( $aDef ) ) {
 				foreach ( $aColumns as $nKey => $sCol ) {
 					if ( !in_array( $sCol, $aDef ) ) {

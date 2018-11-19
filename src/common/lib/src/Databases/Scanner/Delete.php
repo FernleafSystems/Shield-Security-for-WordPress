@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Delete extends BaseDelete {
+class Delete extends Base\Delete {
 
 	/**
 	 * @param string $sHash
@@ -36,12 +36,5 @@ class Delete extends BaseDelete {
 		return $this->reset()
 					->filterByScan( $sScan )
 					->query();
-	}
-
-	/**
-	 * @return Select
-	 */
-	protected function getSelector() {
-		return ( new Select() )->setTable( $this->getTable() );
 	}
 }

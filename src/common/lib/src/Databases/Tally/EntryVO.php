@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
@@ -11,5 +11,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
  * @property int    tally
  * @property int    modified_at
  */
-class EntryVO extends Databases\Base\BaseEntryVO {
+class EntryVO extends Base\EntryVO {
 }

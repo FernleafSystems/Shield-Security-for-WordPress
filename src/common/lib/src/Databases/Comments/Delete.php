@@ -2,22 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Delete extends BaseDelete {
-
-	/**
-	 * @param EntryVO $oToken
-	 * @return bool
-	 */
-	public function deleteToken( $oToken ) {
-		return $this->deleteEntry( $oToken );
-	}
-
-	/**
-	 * @return Select
-	 */
-	protected function getSelector() {
-		return ( new Select() )->setTable( $this->getTable() );
-	}
+class Delete extends Base\Delete {
 }

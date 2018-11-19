@@ -96,8 +96,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
-		$oScanPro = $oPro->getSubProcessorScanner();
-		$oSelector = $oScanPro->getQuerySelector();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
+		$oSelector = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
 								 ->query();

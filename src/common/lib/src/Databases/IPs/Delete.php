@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Delete extends BaseDelete {
+class Delete extends Base\Delete {
 
 	/**
 	 * @param string $sIp
@@ -19,12 +19,5 @@ class Delete extends BaseDelete {
 				 ->addWhereEquals( 'list', $sList );
 		}
 		return $this->hasWheres() ? $this->query() : false;
-	}
-
-	/**
-	 * @return Select
-	 */
-	protected function getSelector() {
-		return ( new Select() )->setTable( $this->getTable() );
 	}
 }

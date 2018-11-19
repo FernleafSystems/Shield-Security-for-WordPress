@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	/**
 	 * @return string[]
@@ -85,19 +85,5 @@ class Select extends BaseSelect {
 		return $this->reset()
 					->filterByContext( $sContext )
 					->query();
-	}
-
-	/**
-	 * @return EntryVO[]
-	 */
-	public function query() {
-		return parent::query();
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

@@ -116,6 +116,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	protected function repairItem( $sItemId ) {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
+					   ->getDbHandler()
 					   ->getQuerySelector()
 					   ->byId( $sItemId );
 		if ( empty( $oEntry ) ) {

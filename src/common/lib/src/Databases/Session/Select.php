@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	/**
 	 * @return string[]
@@ -89,12 +89,5 @@ class Select extends BaseSelect {
 		/** @var EntryVO[] $aRes */
 		$aRes = $this->setOrderBy( 'last_activity_at', 'DESC' )->query();
 		return $aRes;
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

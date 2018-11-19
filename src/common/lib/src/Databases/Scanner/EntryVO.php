@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
@@ -14,7 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO;
  * @property int    ignored_at
  * @property int    updated_at
  */
-class EntryVO extends BaseEntryVO {
+class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @param string $sKey

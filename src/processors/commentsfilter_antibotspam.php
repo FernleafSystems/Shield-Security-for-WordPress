@@ -172,10 +172,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function initCommentFormToken() {
 		/** @var Comments\EntryVO $oToken */
-		$oToken = $this->getQuerySelector()->getVo();
+		$oToken = $this->getDbHandler()->getVo();
 		$oToken->post_id = $this->loadWp()->getCurrentPostId();
 		$oToken->unique_token = md5( $this->getController()->getUniqueRequestId( false ) );
-		return $this->getQueryInserter()->insert( $oToken ) ? $oToken : null;
+		return $this->getDbHandler()
+					->getQueryInserter()
+					->insert( $oToken ) ? $oToken : null;
 	}
 
 	/**
@@ -329,8 +331,9 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 						   && ( $nExpires < 1 || $nAge < $nExpires );
 
 			// Tokens are 1 time only.
-			$this->getQueryDeleter()
-				 ->deleteToken( $oToken );
+			$this->getDbHandler()
+				 ->getQueryDeleter()
+				 ->deleteEntry( $oToken );
 		}
 
 		return $bValidToken;
@@ -342,8 +345,9 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return Comments\EntryVO|null
 	 */
 	private function getPostCommentToken( $sCommentToken, $sPostId ) {
-		return $this->getQuerySelector()
-					->getTokenForPost( $sCommentToken, $sPostId, $this->ip() );
+		/** @var Comments\Select $oSel */
+		$oSel = $this->getDbHandler()->getQuerySelector();
+		return $oSel->getTokenForPost( $sCommentToken, $sPostId, $this->ip() );
 	}
 
 	/**
@@ -405,27 +409,32 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler
+	 */
+	public function getDbHandler() {
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler() )
+			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
+			->setTable( $this->getTableName() );
+	}
+
+	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Delete
 	 */
 	public function getQueryDeleter() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Delete() )
-			->setTable( $this->getTableName() );
+		return parent::getQueryDeleter();
 	}
 
 	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Insert
 	 */
 	public function getQueryInserter() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Insert() )
-			->setTable( $this->getTableName() );
+		return parent::getQueryInserter();
 	}
 
 	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Select
 	 */
 	public function getQuerySelector() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Select() )
-			->setTable( $this->getTableName() )
-			->setResultsAsVo( true );
+		return parent::getQuerySelector();
 	}
 }

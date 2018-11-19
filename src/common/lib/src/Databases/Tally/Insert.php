@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Insert extends \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert {
+class Insert extends Base\Insert {
 
 	/**
 	 * @param EntryVO $oTally

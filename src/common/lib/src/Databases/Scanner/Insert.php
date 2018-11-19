@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Insert extends BaseInsert {
+class Insert extends Base\Insert {
 
 	/**
 	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry

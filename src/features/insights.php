@@ -24,18 +24,28 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
-		/** @var ICWP_WPSF_Processor_TrafficLogger $oTrafficPro */
-		$oTrafficPro = $oTrafficMod->getProcessor()->getProcessorLogger();
+		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
+		$oTrafficPro = $oTrafficMod->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Select $oTrafficSelector */
+		$oTrafficSelector = $oTrafficPro->getProcessorLogger()
+										->getDbHandler()
+										->getQuerySelector();
+
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
 		$oAuditMod = $oCon->getModule( 'audit_trail' );
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditPro */
 		$oAuditPro = $oAuditMod->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select $oAuditSelect */
+		$oAuditSelect = $oAuditPro->getDbHandler()->getQuerySelector();
+
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oModSessions */
-		$oModSessions = $oCon->getModule( 'sessions' );
+
 		/** @var ICWP_WPSF_Processor_Sessions $oProSessions */
-		$oProSessions = $oModSessions->getProcessor();
+		$oProSessions = $oCon->getModule( 'sessions' )->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSessionSelect */
+		$oSessionSelect = $oProSessions->getDbHandler()->getQuerySelector();
+
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oCon->getModule( 'user_management' );
 		/** @var ICWP_WPSF_Processor_HackProtect $oProHp */
@@ -59,8 +69,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					),
 					'vars'    => array(
 						'contexts_for_select' => $oAuditMod->getAllContexts(),
-						'unique_ips'          => $oAuditPro->getQuerySelector()->getDistinctIps(),
-						'unique_users'        => $oAuditPro->getQuerySelector()->getDistinctUsernames(),
+						'unique_ips'          => $oAuditSelect->getDistinctIps(),
+						'unique_users'        => $oAuditSelect->getDistinctUsernames(),
 					),
 				);
 				break;
@@ -115,9 +125,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
 					),
 					'vars'    => array(
-						'unique_ips'       => $oTrafficPro->getQuerySelector()->getDistinctIps(),
-						'unique_responses' => $oTrafficPro->getQuerySelector()->getDistinctCodes(),
-						'unique_users'     => $oTrafficPro->getQuerySelector()->getDistinctUsernames(),
+						'unique_ips'       => $oTrafficSelector->getDistinctIps(),
+						'unique_responses' => $oTrafficSelector->getDistinctCodes(),
+						'unique_users'     => $oTrafficSelector->getDistinctUsernames(),
 					),
 				);
 				break;
@@ -142,8 +152,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'title_filter_form' => _wpsf__( 'Sessions Table Filters' ),
 					),
 					'vars'    => array(
-						'unique_ips'   => $oProSessions->getQuerySelector()->getDistinctIps(),
-						'unique_users' => $oProSessions->getQuerySelector()->getDistinctUsernames(),
+						'unique_ips'   => $oSessionSelect->getDistinctIps(),
+						'unique_users' => $oSessionSelect->getDistinctUsernames(),
 					),
 				);
 				break;
@@ -545,6 +555,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_Processor_Ips $oIPs */
 		$oIPs = $oConn->getModule( 'ips' )->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select $oSelect */
+		$oSelect = $oIPs->getDbHandler()->getQuerySelector();
 
 		$aStats = $oStats->getInsightsStats();
 		return array(
@@ -580,9 +592,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
-				'val'     => $oIPs->getQuerySelector()
-								  ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
-								  ->count(),
+				'val'     => $oSelect->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+									 ->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
 			//			'pro'            => array(

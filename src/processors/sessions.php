@@ -210,35 +210,11 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return Session\Insert
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler
 	 */
-	public function getQueryInserter() {
-		return ( new Session\Insert() )
-			->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return Session\Delete
-	 */
-	public function getQueryDeleter() {
-		return ( new Session\Delete() )
-			->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return Session\Select
-	 */
-	public function getQuerySelector() {
-		return ( new Session\Select() )
-			->setTable( $this->getTableName() )
-			->setResultsAsVo( true );
-	}
-
-	/**
-	 * @return Session\Update
-	 */
-	public function getQueryUpdater() {
-		return ( new Session\Update() )
+	public function getDbHandler() {
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler() )
+			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
 			->setTable( $this->getTableName() );
 	}
 
@@ -252,7 +228,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			return null;
 		}
 
-		$bSuccess = $this->getQueryInserter()->create( $sSessionId, $sUsername );
+		/** @var Session\Insert $oInsert */
+		$oInsert = $this->getDbHandler()->getQueryInserter();
+		$bSuccess = $oInsert->create( $sSessionId, $sUsername );
 		if ( $bSuccess ) {
 			$this->doStatIncrement( 'user.session.start' );
 		}
@@ -266,8 +244,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return Session\EntryVO|null
 	 */
 	protected function queryGetSession( $sSessionId, $sUsername = '' ) {
-		return $this->getQuerySelector()
-					->retrieveUserSession( $sSessionId, $sUsername );
+		/** @var Session\Select $oSel */
+		$oSel = $this->getDbHandler()->getQuerySelector();
+		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
 	}
 
 	/**
@@ -280,7 +259,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$this->doStatIncrement( 'user.session.terminate' );
 
-		return $this->getQueryDeleter()
+		return $this->getDbHandler()
+					->getQueryDeleter()
 					->deleteEntry( $oSession );
 	}
 
@@ -297,5 +277,34 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getAutoExpirePeriod() {
 		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
+	}
+
+	/**
+	 * @return Session\Insert
+	 */
+	public function getQueryInserter() {
+		return parent::getQuerySelector();
+	}
+
+	/**
+	 * @return Session\Delete
+	 */
+	public function getQueryDeleter() {
+		return parent::getQuerySelector();
+	}
+
+	/**
+	 * @return Session\Select
+	 */
+	public function getQuerySelector() {
+		return parent::getQuerySelector();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Session\Update
+	 */
+	public function getQueryUpdater() {
+		return parent::getQueryUpdater();
 	}
 }

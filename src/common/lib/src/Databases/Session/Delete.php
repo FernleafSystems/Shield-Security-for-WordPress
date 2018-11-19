@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Delete extends BaseDelete {
+class Delete extends Base\Delete {
 
 	/**
 	 * @param int $bOlderThan
@@ -34,12 +34,5 @@ class Delete extends BaseDelete {
 		return $this->reset()
 					->addWhereEquals( 'wp_username', $sWpUsername )
 					->query();
-	}
-
-	/**
-	 * @return Select
-	 */
-	protected function getSelector() {
-		return ( new Select() )->setTable( $this->getTable() );
 	}
 }

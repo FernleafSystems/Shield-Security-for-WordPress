@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Insert extends BaseInsert {
+class Insert extends Base\Insert {
 
 	/**
 	 * @param string $sNote

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
@@ -10,5 +10,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
  * @property string unique_token
  * @property string ip
  */
-class EntryVO extends Databases\Base\BaseEntryVO {
+class EntryVO extends Base\EntryVO {
 }

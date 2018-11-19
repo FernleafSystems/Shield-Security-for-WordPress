@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	/**
 	 * @param string $sToken
@@ -27,12 +27,5 @@ class Select extends BaseSelect {
 		}
 
 		return $oToken;
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

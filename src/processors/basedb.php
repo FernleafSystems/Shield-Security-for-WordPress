@@ -99,19 +99,9 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler
 	 */
-	abstract protected function getQueryDeleter();
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert
-	 */
-	abstract protected function getQueryInserter();
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect
-	 */
-	abstract protected function getQuerySelector();
+	abstract protected function getDbHandler();
 
 	/**
 	 * @return string
@@ -274,5 +264,37 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->bTableStructureIsValid = $this->testTableStructure();
 		}
 		return $this->bTableStructureIsValid;
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete
+	 */
+	protected function getQueryDeleter() {
+		return $this->getDbHandler()->getQueryDeleter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Insert
+	 */
+	protected function getQueryInserter() {
+		return $this->getDbHandler()->getQueryInserter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Select
+	 */
+	protected function getQuerySelector() {
+		return $this->getDbHandler()->getQuerySelector();
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Update
+	 */
+	protected function getQueryUpdater() {
+		return $this->getDbHandler()->getQueryUpdater();
 	}
 }

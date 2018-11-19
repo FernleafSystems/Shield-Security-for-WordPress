@@ -2,13 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Delete extends BaseDelete {
-	/**
-	 * @return Select
-	 */
-	protected function getSelector() {
-		return ( new Select() )->setTable( $this->getTable() );
-	}
+class Delete extends Base\Delete {
 }

@@ -42,27 +42,35 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Handler
+	 */
+	public function getDbHandler() {
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Handler() )
+			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
+			->setTable( $this->getTableName() );
+	}
+
+	/**
+	 * @deprecated
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Insert
 	 */
 	public function getQueryInserter() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Insert() )
-			->setTable( $this->getTableName() );
+		return parent::getQueryInserter();
 	}
 
 	/**
+	 * @deprecated
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Delete
 	 */
 	public function getQueryDeleter() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Delete() )
-			->setTable( $this->getTableName() );
+		return parent::getQueryDeleter();
 	}
 
 	/**
+	 * @deprecated
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Select
 	 */
 	public function getQuerySelector() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Select() )
-			->setTable( $this->getTableName() )
-			->setResultsAsVo( true );
+		return parent::getQuerySelector();
 	}
 }

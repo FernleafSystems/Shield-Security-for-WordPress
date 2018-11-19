@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	use BaseTraffic;
 
@@ -50,12 +50,5 @@ class Select extends BaseSelect {
 		) );
 		asort( $a );
 		return $a;
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

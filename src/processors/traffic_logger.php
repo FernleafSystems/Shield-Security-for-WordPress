@@ -36,7 +36,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getMod();
 		try {
-			$this->getQueryDeleter()
+			$this->getDbHandler()
+				 ->getQueryDeleter()
 				 ->deleteExcess( $oFO->getMaxEntries() );
 		}
 		catch ( Exception $oE ) {
@@ -131,7 +132,9 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		// For multisites that are separated by sub-domains we also show the host.
 		$sLeadingPath = $this->loadWp()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
 
-		$oEntry = $this->getQuerySelector()->getVo();
+		/** @var Traffic\EntryVO $oEntry */
+		$oEntry = $this->getDbHandler()->getQuerySelector()->getVo();
+
 		$oEntry->rid = $this->getController()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
@@ -141,32 +144,18 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->ua = $oReq->getUserAgent();
 		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
 
-		$this->getQueryInserter()->insert( $oEntry );
+		$this->getDbHandler()
+			 ->getQueryInserter()
+			 ->insert( $oEntry );
 	}
 
 	/**
-	 * @return Traffic\Delete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Handler
 	 */
-	public function getQueryDeleter() {
-		return ( new Traffic\Delete() )
+	public function getDbHandler() {
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Handler() )
+			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
 			->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return Traffic\Insert
-	 */
-	public function getQueryInserter() {
-		return ( new Traffic\Insert() )
-			->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return Traffic\Select
-	 */
-	public function getQuerySelector() {
-		return ( new Traffic\Select() )
-			->setTable( $this->getTableName() )
-			->setResultsAsVo( true );
 	}
 
 	/**
@@ -205,5 +194,21 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'traffic_table_columns' );
 		return is_array( $aDef ) ? $aDef : array();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Traffic\Insert
+	 */
+	public function getQueryInserter() {
+		return parent::getQueryInserter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Traffic\Select
+	 */
+	public function getQuerySelector() {
+		return parent::getQuerySelector();
 	}
 }

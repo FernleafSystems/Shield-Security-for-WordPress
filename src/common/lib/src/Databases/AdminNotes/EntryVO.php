@@ -2,11 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * @property string note
  * @property string wp_username
  */
-class EntryVO extends BaseEntryVO {
+class EntryVO extends Base\EntryVO {
 }

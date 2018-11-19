@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 class BaseBuild {
 
 	/**
-	 * @var Databases\Base\BaseSelect
+	 * @var Databases\Base\Select
 	 */
 	protected $oQuerySelector;
 
@@ -148,14 +148,14 @@ class BaseBuild {
 	}
 
 	/**
-	 * @return Databases\Base\BaseSelect
+	 * @return Databases\Base\Select
 	 */
 	public function getQuerySelector() {
 		return $this->oQuerySelector;
 	}
 
 	/**
-	 * @param Databases\Base\BaseSelect $oQuerySelector
+	 * @param Databases\Base\Select $oQuerySelector
 	 * @return $this
 	 */
 	public function setQuerySelector( $oQuerySelector ) {

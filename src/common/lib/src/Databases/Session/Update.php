@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseUpdate;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Update extends BaseUpdate {
+class Update extends Base\Update {
 
 	/**
 	 * @param EntryVO $oSession

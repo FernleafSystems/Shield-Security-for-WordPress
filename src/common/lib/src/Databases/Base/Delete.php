@@ -2,12 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-abstract class BaseDelete extends BaseQuery {
-
-	/**
-	 * @return BaseSelect
-	 */
-	abstract protected function getSelector();
+class Delete extends BaseQuery {
 
 	/**
 	 * @return bool
@@ -28,7 +23,7 @@ abstract class BaseDelete extends BaseQuery {
 	}
 
 	/**
-	 * @param BaseEntryVO $oEntry
+	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
 	public function deleteEntry( $oEntry ) {
@@ -51,7 +46,8 @@ abstract class BaseDelete extends BaseQuery {
 		$nEntriesDeleted = 0;
 
 		// The same WHEREs should apply
-		$nTotal = $this->getSelector()
+		$nTotal = $this->getDbH()
+					   ->getQuerySelector()
 					   ->setWheres( $this->getWheres() )
 					   ->count();
 		$nToDelete = $nTotal - $nMaxEntries;

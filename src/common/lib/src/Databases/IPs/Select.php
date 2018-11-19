@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	/**
 	 * @param string $sIp
@@ -43,12 +43,5 @@ class Select extends BaseSelect {
 					 ->filterByList( $sList )
 					 ->query();
 		return $aRes;
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

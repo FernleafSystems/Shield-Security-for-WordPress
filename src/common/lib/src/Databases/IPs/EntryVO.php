@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
  * @property int    last_access_at
  * @property int    transgressions
  */
-class EntryVO extends Databases\Base\BaseEntryVO {
+class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @return string

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseInsert extends BaseQuery {
+class Insert extends BaseQuery {
 
 	/**
 	 * @var array
@@ -19,7 +19,7 @@ class BaseInsert extends BaseQuery {
 	}
 
 	/**
-	 * @param BaseEntryVO $oEntry
+	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
 	public function insert( $oEntry ) {

@@ -90,7 +90,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @param Shield\Scans\Base\BaseResultsSet $oToDelete
 	 */
 	protected function deleteResultsSet( $oToDelete ) {
-		$oDeleter = $this->getScannerDb()->getQueryDeleter();
+		/** @var Shield\Databases\Scanner\Delete $oDeleter */
+		$oDeleter = $this->getScannerDb()->getDbHandler()->getQueryDeleter();
 		foreach ( $oToDelete->getAllItems() as $oItem ) {
 			$oDeleter->reset()
 					 ->filterByScan( static::SCAN_SLUG )
@@ -103,7 +104,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	protected function readScanResultsFromDb() {
-		$oSelector = $this->getScannerDb()->getQuerySelector();
+		/** @var Shield\Databases\Scanner\Select $oSelector */
+		$oSelector = $this->getScannerDb()->getDbHandler()->getQuerySelector();
 		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
 	}
 
@@ -111,7 +113,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function storeNewScanResults( $oResults ) {
-		$oInsert = $this->getScannerDb()->getQueryInserter();
+		$oInsert = $this->getScannerDb()->getDbHandler()->getQueryInserter();
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oInsert->insert( $oVo );
 		}
@@ -121,7 +123,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function updateExistingScanResults( $oResults ) {
-		$oUp = $this->getScannerDb()->getQueryUpdater();
+		$oUp = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oUp->reset()
 				->setUpdateData( $oVo->getRawData() )
@@ -137,7 +139,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseEntryVO[] $aVos
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVO[] $aVos
 	 */
 	abstract protected function convertResultsToVos( $oResults );
 
@@ -198,16 +200,19 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	protected function ignoreItem( $sItemId ) {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
+					   ->getDbHandler()
 					   ->getQuerySelector()
 					   ->byId( $sItemId );
 		if ( empty( $oEntry ) ) {
 			throw new Exception( 'Item could not be found to ignore.' );
 		}
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
-		$bSuccess = $this->getScannerDb()
-						 ->getQueryUpdater()
-						 ->setIgnored( $oEntry );
+		/** @var Shield\Databases\Scanner\Update $oUp */
+		$oUp = $this->getScannerDb()
+					->getDbHandler()
+					->getQueryUpdater();
+		$bSuccess = $oUp->setIgnored( $oEntry );
+
 		if ( !$bSuccess ) {
 			throw new Exception( 'Item could not be ignored at this time.' );
 		}
@@ -238,9 +243,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 
 		$this->doScan();
 
-		$aRes = $this->getScannerDb()
-					 ->getQuerySelector()
-					 ->filterByNotIgnored()
+		/** @var Shield\Databases\Scanner\Select $oSel */
+		$oSel = $this->getScannerDb()->getDbHandler()->getQuerySelector();
+		$aRes = $oSel->filterByNotIgnored()
 					 ->filterByScan( static::SCAN_SLUG )
 					 ->query();
 		if ( !empty( $aRes ) ) {

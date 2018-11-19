@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
@@ -15,7 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
  * @property string verb
  * @property bool   trans
  */
-class EntryVO extends Databases\Base\BaseEntryVO {
+class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @param string $sProperty

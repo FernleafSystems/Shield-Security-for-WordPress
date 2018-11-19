@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
  * @property string session_id
  * @property int    secadmin_at
  */
-class EntryVO extends Databases\Base\BaseEntryVO {
+class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @return string

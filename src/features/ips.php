@@ -103,7 +103,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = _wpsf__( "Invalid entry selected" );
 		}
-		else if ( $oProcessor->getQueryDeleter()->deleteById( $nId ) ) {
+		else if ( $oProcessor->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = _wpsf__( "IP address deleted" );
 			$bSuccess = true;
 		}
@@ -171,9 +171,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->getProcessor();
 
-		if ( $oPro->getQuerySelector()->count() > 0 ) {
+		if ( $oPro->getDbHandler()->getQuerySelector()->count() > 0 ) {
 			$sRendered = ( new Shield\Tables\Build\Ip() )
-				->setQuerySelector( $oPro->getQuerySelector() )
+				->setQuerySelector( $oPro->getDbHandler()->getQuerySelector() )
 				->buildTable();
 		}
 		else {

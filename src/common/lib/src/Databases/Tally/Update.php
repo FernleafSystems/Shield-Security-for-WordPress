@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseUpdate;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Update extends BaseUpdate {
+class Update extends Base\Update {
 
 	/**
 	 * @param EntryVO $oStat

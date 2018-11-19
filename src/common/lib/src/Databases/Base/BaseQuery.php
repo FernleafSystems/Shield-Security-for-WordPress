@@ -7,6 +7,11 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseQuery {
 
 	/**
+	 * @var Handler
+	 */
+	protected $oDbH;
+
+	/**
 	 * @var array
 	 */
 	protected $aWheres;
@@ -180,6 +185,22 @@ abstract class BaseQuery {
 	}
 
 	/**
+	 * @return Handler
+	 */
+	public function getDbH() {
+		return $this->oDbH;
+	}
+
+	/**
+	 * @param Handler $oDbH
+	 * @return $this
+	 */
+	public function setDbH( $oDbH ) {
+		$this->oDbH = $oDbH;
+		return $this;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function query() {
@@ -198,7 +219,7 @@ abstract class BaseQuery {
 	 * @return string
 	 */
 	public function getTable() {
-		return $this->sTable;
+		return $this->getDbH()->getTable();
 	}
 
 	/**
@@ -336,7 +357,7 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param BaseEntryVO $oVo
+	 * @param EntryVO $oVo
 	 * @return $this
 	 */
 	public function setWheresFromVo( $oVo ) {

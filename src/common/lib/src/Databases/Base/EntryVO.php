@@ -8,7 +8,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property int deleted_at
  * @property int id
  */
-class BaseEntryVO {
+class EntryVO {
 
 	/**
 	 * @var array

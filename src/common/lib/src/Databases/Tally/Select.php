@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	/**
 	 * @param string $sKey
@@ -35,12 +35,5 @@ class Select extends BaseSelect {
 				   ->setOrderBy( 'created_at', 'DESC' )
 				   ->first();
 		return $oR;
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

@@ -650,14 +650,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function ajaxExec_BuildTableScan() {
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->loadProcessor();
-		$oScanPro = $oPro->getSubProcessorScanner();
+		$oPro = $this->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
+		$oSel = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
 
 		$sScan = $this->loadRequest()->post( 'fScan' );
 
-		$nCount = $oScanPro->getQuerySelector()
-						   ->filterByScan( $sScan )
-						   ->count();
+		$nCount = $oSel->filterByScan( $sScan )
+					   ->count();
 		if ( $nCount ) {
 
 			switch ( $sScan ) {
@@ -676,7 +676,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 
 			$sRendered = $oTableBuilder
-				->setQuerySelector( $oScanPro->getQuerySelector() )
+				->setQuerySelector( $oSel )
 				->buildTable();
 		}
 		else {
@@ -791,95 +791,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'page_reload' => $bReloadPage,
 			'message'     => $sMessage,
 		);
-	}
-
-	/**
-	 * @param $aParams
-	 * @return false|string
-	 */
-	protected function renderTable( $aParams ) {
-
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
-			}
-		}
-		$aParams = array_merge(
-			array(
-				'orderby' => 'created_at',
-				'order'   => 'DESC',
-				'paged'   => 1,
-				'fScan'   => 'wcf',
-			),
-			$aParams
-		);
-		$nPage = (int)$aParams[ 'paged' ];
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->loadProcessor();
-		$oScanPro = $oPro->getSubProcessorScanner();
-		$oSelector = $oScanPro->getQuerySelector()
-							  ->setPage( $nPage )
-							  ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-							  ->setLimit( 25 )
-							  ->setResultsAsVo( true );
-		// Filters
-		{
-			if ( empty( $aParams[ 'scan' ] ) ) {
-				$aParams[ 'scan' ] = 'wcf';
-			}
-			$oSelector->filterByScan( $aParams[ 'scan' ] );
-		}
-		$aEntries = $oSelector->query();
-
-		$oTable = $this->getTableRenderer()
-					   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-					   ->setPerPage( 25 )
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
-	}
-
-	/**
-	 * Move to table
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aEntries
-	 * @return array
-	 * 'path_fragment' => 'File',
-	 * 'status'        => 'Status',
-	 * 'ignored'       => 'Ignored',
-	 */
-	public function formatEntriesForDisplay( $aEntries ) {
-		if ( is_array( $aEntries ) ) {
-			$oWp = $this->loadWp();
-			$oCarbon = new \Carbon\Carbon();
-
-			$nTs = $this->loadRequest()->ts();
-			foreach ( $aEntries as $nKey => $oEntry ) {
-				$oIt = ( new Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
-				$aE = $oEntry->getRawData();
-				$aE[ 'path_fragment' ] = $oIt->path_fragment;
-				$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : $oIt->is_missing ? 'Missing' : 'Unknown';
-				$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
-				$aE[ 'created_at' ] = $oCarbon->setTimestamp( $oEntry->getCreatedAt() )->diffForHumans()
-									  .'<br/><small>'.$oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ).'</small>';
-				$aEntries[ $nKey ] = $aE;
-			}
-		}
-		return $aEntries;
-	}
-
-	/**
-	 * @return ScanTableBase
-	 */
-	protected function getTableRenderer() {
-		$this->requireCommonLib( 'Components/Tables/ScanBaseTable.php' );
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->loadProcessor();
-//		$nCount = $oPro->countAuditEntriesForContext();
-		$nCount = 10;
-		$oTable = new ScanTableBase();
-		return $oTable->setTotalRecords( $nCount );
 	}
 
 	/**

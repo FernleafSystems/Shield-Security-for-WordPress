@@ -290,6 +290,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$oPro = $this->getProcessor();
 			try {
 				$bSuccess = $oPro->getSubProcessorNotes()
+								 ->getDbHandler()
 								 ->getQueryDeleter()
 								 ->deleteById( $sItemId );
 
@@ -328,9 +329,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		else {
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
 			$oP = $this->getProcessor();
-			$bSuccess = $oP->getSubProcessorNotes()
-						   ->getQueryInserter()
-						   ->create( $sNote );
+			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
+			$oInserter = $oP->getSubProcessorNotes()
+							->getDbHandler()
+							->getQueryInserter();
+			$bSuccess = $oInserter->create( $sNote );
 			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );
 		}
 		return array(
@@ -347,9 +350,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$oPro = $this->getProcessor();
 		$oNotesPro = $oPro->getSubProcessorNotes();
 
-		if ( $oNotesPro->getQuerySelector()->count() > 0 ) {
+		if ( $oNotesPro->getDbHandler()->getQuerySelector()->count() > 0 ) {
 			$sRendered = ( new Shield\Tables\Build\AdminNotes() )
-				->setQuerySelector( $oNotesPro->getQuerySelector() )
+				->setQuerySelector( $oNotesPro->getDbHandler()->getQuerySelector() )
 				->buildTable();
 		}
 		else {

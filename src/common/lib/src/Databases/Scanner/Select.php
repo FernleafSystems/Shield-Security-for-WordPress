@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Select extends BaseSelect {
+class Select extends Base\Select {
 
 	/**
 	 * @return string[]
@@ -68,12 +68,5 @@ class Select extends BaseSelect {
 		return $this->reset()
 					->filterByScan( $sScan )
 					->query();
-	}
-
-	/**
-	 * @return EntryVO
-	 */
-	public function getVo() {
-		return Handler::getVo();
 	}
 }

@@ -112,35 +112,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
-	 * @return Scanner\Delete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Handler
 	 */
-	public function getQueryDeleter() {
-		return ( new Scanner\Delete() )
-			->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return Scanner\Insert
-	 */
-	public function getQueryInserter() {
-		return ( new Scanner\Insert() )
-			->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return Scanner\Select
-	 */
-	public function getQuerySelector() {
-		return ( new Scanner\Select() )
-			->setTable( $this->getTableName() )
-			->setResultsAsVo( true );
-	}
-
-	/**
-	 * @return Scanner\Update
-	 */
-	public function getQueryUpdater() {
-		return ( new Scanner\Update() )
+	public function getDbHandler() {
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Handler() )
+			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
 			->setTable( $this->getTableName() );
 	}
 
@@ -168,5 +144,37 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'table_columns_scanner' );
 		return ( is_array( $aDef ) ? $aDef : array() );
+	}
+
+	/**
+	 * @deprecated
+	 * @return Scanner\Delete
+	 */
+	public function getQueryDeleter() {
+		return parent::getQueryDeleter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Scanner\Insert
+	 */
+	public function getQueryInserter() {
+		return parent::getQueryInserter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Scanner\Select
+	 */
+	public function getQuerySelector() {
+		return parent::getQuerySelector();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Scanner\Update
+	 */
+	public function getQueryUpdater() {
+		return parent::getQueryUpdater();
 	}
 }

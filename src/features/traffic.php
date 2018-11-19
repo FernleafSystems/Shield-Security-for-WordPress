@@ -203,10 +203,11 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	private function ajaxExec_BuildTableTraffic() {
 		/** @var ICWP_WPSF_Processor_Traffic $oPro */
 		$oPro = $this->getProcessor();
+		$oDbh = $oPro->getProcessorLogger()->getDbHandler();
 
-		if ( $oPro->getProcessorLogger()->getQuerySelector()->count() > 0 ) {
+		if ( $oDbh->getQuerySelector()->count() > 0 ) {
 			$sRendered = ( new Shield\Tables\Build\Traffic() )
-				->setQuerySelector( $oPro->getProcessorLogger()->getQuerySelector() )
+				->setQuerySelector( $oDbh->getQuerySelector() )
 				->setGeoIpDbSource( $this->getConn()->getPath_Assets( 'db/GeoIp2/GeoLite2-Country.mmdb' ) )
 				->buildTable();
 		}

@@ -43,9 +43,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
 		$oPro = $this->getProcessor();
 
-		if ( $oPro->getQuerySelector()->count() > 0 ) {
+		$oDbh = $oPro->getDbHandler();
+		if ( $oDbh->getQuerySelector()->count() > 0 ) {
 			$sRendered = ( new Shield\Tables\Build\AuditTrail() )
-				->setQuerySelector( $oPro->getQuerySelector() )
+				->setQuerySelector( $oDbh->getQuerySelector() )
 				->buildTable();
 		}
 		else {
@@ -183,7 +184,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 
 		try {
-			$oFinder = $oProc->getQuerySelector()
+			$oFinder = $oProc->getDbHandler()
+							 ->getQuerySelector()
 							 ->addWhereSearch( 'wp_username', $oUser->user_login )
 							 ->setResultsAsVo( true );
 
@@ -220,7 +222,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		try {
 			$oThisUsername = $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login;
-			$oProc->getQueryDeleter()
+			$oProc->getDbHandler()
+				  ->getQueryDeleter()
 				  ->addWhereSearch( 'wp_username', $oThisUsername )
 				  ->all();
 			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getConn()->getHumanName() );

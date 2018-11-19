@@ -2,12 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
 
-class Handler {
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+
+class Handler extends Base\Handler {
 
 	/**
-	 * @return EntryVO
+	 * @return string
 	 */
-	static public function getVo() {
-		return new EntryVO();
+	protected function getNameSpace() {
+		return __NAMESPACE__;
 	}
 }

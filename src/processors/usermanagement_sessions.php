@@ -129,7 +129,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	public function cleanExpiredSessions() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete $oTerminator */
 		$oTerminator = $oFO->getSessionsProcessor()
+						   ->getDbHandler()
 						   ->getQueryDeleter();
 
 		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
@@ -148,17 +150,18 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	public function getActiveSessions() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$oQ = $oFO->getSessionsProcessor()->getQuerySelector();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSel */
+		$oSel = $oFO->getSessionsProcessor()->getDbHandler()->getQuerySelector();
 
 		if ( $oFO->hasSessionTimeoutInterval() ) {
-			$oQ->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
+			$oSel->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
 		}
 		if ( $oFO->hasSessionIdleTimeout() ) {
-			$oQ->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
+			$oSel->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
 		}
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO[] $aS */
-		$aS = $oQ->query();
+		$aS = $oSel->query();
 		return $aS;
 	}
 
@@ -246,6 +249,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 			$oFO = $this->getMod();
 			try {
 				$oFO->getSessionsProcessor()
+					->getDbHandler()
 					->getQueryDeleter()
 					->addWhere( 'wp_username', $oUser->user_login )
 					->deleteExcess( $nSessionLimit, 'last_activity_at', true );

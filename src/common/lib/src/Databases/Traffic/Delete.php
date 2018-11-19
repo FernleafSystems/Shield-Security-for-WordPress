@@ -2,16 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-class Delete extends BaseDelete {
-
+class Delete extends Base\Delete {
 	use BaseTraffic;
-
-	/**
-	 * @return Select
-	 */
-	protected function getSelector() {
-		return ( new Select() )->setTable( $this->getTable() );
-	}
 }

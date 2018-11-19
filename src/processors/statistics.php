@@ -12,7 +12,10 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Statistics $oFO */
 		$oFO = $this->getMod();
 		if ( $this->isReadyToRun() ) {
-			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array( $this, 'gatherStatsSummaryWidgetContent' ), 10 );
+			add_filter( $oFO->prefix( 'dashboard_widget_content' ), array(
+				$this,
+				'gatherStatsSummaryWidgetContent'
+			), 10 );
 		}
 		$this->getTallyProcessor()
 			 ->run();
@@ -224,6 +227,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getAllTallys() {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally\EntryVO[] $aRes */
 		$aRes = $this->getTallyProcessor()
+					 ->getDbHandler()
 					 ->getQuerySelector()
 					 ->setColumnsToSelect( array( 'stat_key', 'tally' ) )
 					 ->query();

@@ -49,7 +49,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		else if ( $this->getSession()->id === $nId ) {
 			$sMessage = _wpsf__( 'Please logout if you want to delete your own session.' );
 		}
-		else if ( $oProcessor->getQueryDeleter()->deleteById( $nId ) ) {
+		else if ( $oProcessor->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = _wpsf__( 'User session deleted' );
 			$bSuccess = true;
 		}
@@ -69,8 +69,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oPro = $this->getProcessor();
 		$oPro->getProcessorSessions()->cleanExpiredSessions();
 
+		/** @var Shield\Databases\Session\Select $oSel */
+		$oSel = $this->getSessionsProcessor()->getDbHandler()->getQuerySelector();
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
-			->setQuerySelector( $this->getSessionsProcessor()->getQuerySelector() );
+			->setQuerySelector( $oSel );
 
 		return array(
 			'success' => true,

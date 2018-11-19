@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
-class Handler {
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-	/**
-	 * @return EntryVO
-	 */
-	static public function getVo() {
-		return new EntryVO();
+class Handler extends Base\Handler {
+
+	protected function getNameSpace() {
+		return __NAMESPACE__;
 	}
 }
