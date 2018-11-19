@@ -234,11 +234,4 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select() )
 			->setTable( $this->getTableName() );
 	}
-
-	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'audittrail/';
-	}
 }

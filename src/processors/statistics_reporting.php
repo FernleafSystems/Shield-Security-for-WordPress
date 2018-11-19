@@ -160,11 +160,4 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 */
 	public function deleteTable() {
 	} //override and do not delete
-
-	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'statistics/';
-	}
 }

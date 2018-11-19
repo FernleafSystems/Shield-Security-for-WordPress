@@ -428,11 +428,4 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true );
 	}
-
-	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'comments/';
-	}
 }

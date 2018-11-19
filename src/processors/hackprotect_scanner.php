@@ -147,13 +147,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	/**
 	 * @return string
 	 */
-	protected function queryGetDir() {
-		return path_join( parent::queryGetDir(), 'scanner/' );
-	}
-
-	/**
-	 * @return string
-	 */
 	protected function getCreateTableSql() {
 		$sSqlTables = "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,

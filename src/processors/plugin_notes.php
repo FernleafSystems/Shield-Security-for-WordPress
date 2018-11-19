@@ -65,11 +65,4 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 			->setTable( $this->getTableName() )
 			->setResultsAsVo( true );
 	}
-
-	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'notes/';
-	}
 }

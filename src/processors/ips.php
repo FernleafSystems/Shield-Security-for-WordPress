@@ -568,13 +568,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'ips/';
-	}
-
-	/**
 	 * @return int
 	 */
 	protected function getAutoExpirePeriod() {
