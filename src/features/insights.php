@@ -532,30 +532,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getNotes() {
-		/** @var ICWP_WPSF_Processor_Plugin $oProc */
-		$oProc = $this->getConn()->getModule( 'plugin' )->getProcessor();
-
-		$oRetriever = $oProc->getSubProcessorNotes()
-							->getQuerySelector();
-		/** @var stdClass[] $aNotes */
-		$aNotes = $oRetriever->setLimit( 10 )
-							 ->setResultsAsVo( false )
-							 ->query();
-
-		$oWP = $this->loadWp();
-		foreach ( $aNotes as $oItem ) {
-			$oItem->created_at = $oWP->getTimeStampForDisplay( $oItem->created_at );
-			$oItem->note = stripslashes( sanitize_text_field( $oItem->note ) );
-			$oItem->wp_username = sanitize_text_field( $oItem->wp_username );
-		}
-
-		return $aNotes;
-	}
-
-	/**
 	 * @return array[]
 	 */
 	protected function getStats() {
@@ -639,31 +615,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		return $aStats;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getRecentAuditTrailEntries() {
-		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-		$oProc = $this->getConn()
-					  ->getModule( 'audit_trail' )
-					  ->getProcessor();
-		try {
-			$aItems = $oProc->getQuerySelector()
-							->setLimit( 20 )
-							->query();
-		}
-		catch ( Exception $oE ) {
-			$aItems = array();
-		}
-		$oWP = $this->loadWp();
-		foreach ( $aItems as $oItem ) {
-			$oItem->created_at = $oWP->getTimeStringForDisplay( $oItem->created_at );
-			$oItem->message = stripslashes( sanitize_text_field( $oItem->message ) );
-		}
-
-		return $aItems;
 	}
 
 	/**

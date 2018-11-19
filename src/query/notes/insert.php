@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_PluginNotes_Insert', false ) ) {
 
 require_once( dirname( __DIR__ ).'/base/insert.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_PluginNotes_Insert extends ICWP_WPSF_Query_BaseInsert {
 
 	/**

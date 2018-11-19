@@ -6,6 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Query_PluginNotes_Delete', false ) ) {
 
 require_once( dirname( __DIR__ ).'/base/delete.php' );
 
+/**
+ * @deprecated
+ */
 class ICWP_WPSF_Query_PluginNotes_Delete extends ICWP_WPSF_Query_BaseDelete {
 
 	/**
