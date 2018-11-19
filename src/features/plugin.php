@@ -343,70 +343,23 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	protected function ajaxExec_RenderTableAdminNotes() {
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFilters );
-		$aParams = array_intersect_key(
-			array_merge( $_POST, array_map( 'trim', $aFilters ) ),
-			array_flip( array(
-				'paged',
-				'order',
-				'orderby',
-			) )
-		);
-		return array(
-			'success' => true,
-			'html'    => $this->renderTable( $aParams )
-		);
-	}
-
-	/**
-	 * @param $aParams
-	 * @return string
-	 */
-	protected function renderTable( $aParams ) {
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_\s]#i', $sKey ) || preg_match( '#[^a-z0-9._-\s]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
-			}
-		}
-		$aParams = array_merge(
-			array(
-				'orderby' => 'created_at',
-				'order'   => 'DESC',
-				'paged'   => 1,
-			),
-			$aParams
-		);
-		$nPage = (int)$aParams[ 'paged' ];
 		/** @var ICWP_WPSF_Processor_Plugin $oPro */
 		$oPro = $this->getProcessor();
-		$aEntries = $oPro->getSubProcessorNotes()
-						 ->getQuerySelector()
-						 ->setPage( $nPage )
-						 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-						 ->setResultsAsVo( true )
-						 ->query();
+		$oNotesPro = $oPro->getSubProcessorNotes();
 
-		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
-			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
+		if ( $oNotesPro->getQuerySelector()->count() > 0 ) {
+			$sRendered = ( new Shield\Tables\Build\AdminNotes() )
+				->setQuerySelector( $oNotesPro->getQuerySelector() )
+				->buildTable();
 		}
 		else {
-			$oTable = $this->getTableRenderer()
-						   ->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-						   ->setTotalRecords( count( $aEntries ) )
-						   ->prepare_items();
-			ob_start();
-			$oTable->display();
-			$sRendered = ob_get_clean();
+			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
 		}
-		return $sRendered;
-	}
 
-	/**
-	 * @return Shield\Tables\Render\AdminNotes
-	 */
-	protected function getTableRenderer() {
-		return new Shield\Tables\Render\AdminNotes();
+		return array(
+			'success' => true,
+			'html'    => $sRendered
+		);
 	}
 
 	/**

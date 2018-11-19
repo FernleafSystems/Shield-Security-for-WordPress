@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 class Base {
 
@@ -17,66 +18,113 @@ class Base {
 	protected $aBuildParams;
 
 	public function buildTable() {
-		$this->applyDefaultParameters()
-			 ->applyQueryFilters();
+		$aParams = $this->getParams();
+		$nPerPage = isset( $aParams[ 'limit' ] ) ? $aParams[ 'limit' ] : 25;
+
+		$oTable = $this->getTableRenderer()
+					   ->setItemEntries( $this->getEntriesFormatted() )
+					   ->setPerPage( $nPerPage )
+					   ->prepare_items();
+		ob_start();
+		$oTable->display();
+		return ob_get_clean();
 	}
 
+	/**
+	 * @return array[]|int|string[]
+	 */
+	protected function getEntriesFormatted() {
+		return $this->getEntriesRaw();
+	}
+
+	/**
+	 * @param int $nTimestamp
+	 * @return string
+	 */
+	protected function formatTimestampField( $nTimestamp ) {
+		return ( new \Carbon\Carbon() )->setTimestamp( $nTimestamp )->diffForHumans()
+			   .'<br/><span class="timestamp-small">'.Services::WpGeneral()
+															  ->getTimeStringForDisplay( $nTimestamp ).'</span>';
+	}
+
+	/**
+	 * @return array[]|int|string[]|\ICWP_WPSF_BaseEntryVO[]
+	 */
+	protected function getEntriesRaw() {
+		return $this->applyDefaultParameters()
+					->applyQueryFilters()
+					->getQuerySelector()
+					->query();
+	}
+
+	/**
+	 * @return Tables\Render\Base
+	 */
+	protected function getTableRenderer() {
+		return new Tables\Render\Base();
+	}
+
+	/**
+	 * @return $this
+	 */
 	protected function applyDefaultParameters() {
-		$aParams = $this->getFilteredAllowedBuildParams();
-		$this->getQuerySelector()
-			 ->setPage( $aParams[ 'paged' ] )
-			 ->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] )
-			 ->setLimit( $aParams[ 'limit' ] )
-			 ->setResultsAsVo( true );
+		$aParams = $this->getParams();
+		$oSelect = $this->getQuerySelector();
+
+		if ( isset( $aParams[ 'paged' ] ) ) {
+			$oSelect->setPage( $aParams[ 'paged' ] );
+		}
+		if ( isset( $aParams[ 'orderby' ] ) && isset( $aParams[ 'order' ] ) ) {
+			$oSelect->setOrderBy( $aParams[ 'orderby' ], $aParams[ 'order' ] );
+		}
+		if ( isset( $aParams[ 'limit' ] ) ) {
+			$oSelect->setLimit( $aParams[ 'limit' ] );
+		}
+		$oSelect->setResultsAsVo( true );
 		return $this;
 	}
 
 	/**
+	 * Override this to apply table-specific query filters.
+	 * @return $this
 	 */
 	protected function applyQueryFilters() {
-		$aParams = $this->getFilteredAllowedBuildParams();
 		return $this;
 	}
 
 	/**
-	 * Filters all $_POSTed parameters against a list of allowable parameters
 	 * @return array
 	 */
-	protected function getFilteredAllowedBuildParams() {
-
+	protected function getParams() {
 		if ( empty( $this->aBuildParams ) ) {
-
-			$aPostedParams = array_merge( $_POST, array_map( 'trim', $this->getFormParams() ) );
-			$aFilteredPostedParams = array_intersect_key(
-				$aPostedParams,
-				array_flip( array_merge(
-					array_keys( $this->getDefaultParams() ), array_keys( $this->getCustomParams() )
-				) )
+			$this->aBuildParams = array_merge(
+				$this->getParamDefaults(),
+				array_merge( $_POST, $this->getFormParams() )
 			);
-
-			$this->aBuildParams = array_merge( $this->getDefaultParams(), $aFilteredPostedParams );
 		}
-
 		return $this->aBuildParams;
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getFormParams() {
+	private function getFormParams() {
 		parse_str( Services::Request()->post( 'form_params', '' ), $aFormParams );
-		return $aFormParams;
+		return array_map( 'trim', $aFormParams );
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getDefaultParams() {
-		return array(
-			'paged'   => 1,
-			'order'   => 'DESC',
-			'orderby' => 'created_at',
-			'limit'   => 25,
+	private function getParamDefaults() {
+		return array_merge(
+			array(
+				'paged'   => 1,
+				'order'   => 'DESC',
+				'orderby' => 'created_at',
+				'limit'   => 25,
+			),
+			$this->getCustomParams()
 		);
 	}
 
