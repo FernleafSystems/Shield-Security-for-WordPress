@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return ICWP_WPSF_SessionVO|null
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO|null
 	 */
 	public function getSession() {
 		$oP = $this->getSessionsProcessor();
@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function hasSession() {
-		return ( $this->getSession() instanceof ICWP_WPSF_SessionVO );
+		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
 	}
 
 	public function insertCustomJsVars_Admin() {

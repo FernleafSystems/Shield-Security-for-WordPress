@@ -57,11 +57,15 @@ class BaseUpdate extends BaseInsert {
 	 * @return bool
 	 */
 	public function updateEntry( $oEntry, $aUpdateData = array() ) {
-		$bSuccess = $this->updateById( $oEntry->id, $aUpdateData );
-		// TODO: run through update data and determine if anything actually needs updating
-		if ( $bSuccess ) {
-			foreach ( $aUpdateData as $sCol => $mVal ) {
-				$oEntry->{$sCol} = $mVal;
+		$bSuccess = false;
+
+		if ( $oEntry instanceof BaseEntryVO) {
+			$bSuccess = $this->updateById( $oEntry->id, $aUpdateData );
+			// TODO: run through update data and determine if anything actually needs updating
+			if ( $bSuccess ) {
+				foreach ( $aUpdateData as $sCol => $mVal ) {
+					$oEntry->{$sCol} = $mVal;
+				}
 			}
 		}
 		return $bSuccess;

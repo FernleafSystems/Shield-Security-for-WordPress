@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -55,12 +56,12 @@ class Sessions extends Base {
 
 		$sYou = Services::IP()->getRequestIp();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var \ICWP_WPSF_SessionVO $oEntry */
+			/** @var EntryVO $oEntry */
 			$aE = $oEntry->getRawData();
 			$aE[ 'is_secadmin' ] = ( $oEntry->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
 			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $oEntry->last_activity_at );
 			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $oEntry->logged_in_at );
-			if ( $oEntry->getIp() == $sYou ) {
+			if ( $oEntry->ip == $sYou ) {
 				$aE[ 'your_ip' ] = '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
 			}
 			else {

@@ -196,11 +196,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	protected function setLoginIntentExpiresAt( $nExpirationTime ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		$oSession = $oFO->getSession();
-		if ( $oSession instanceof ICWP_WPSF_SessionVO ) {
+		if ( $oFO->hasSession() ) {
 			$oFO->getSessionsProcessor()
 				->getQueryUpdater()
-				->updateLoginIntentExpiresAt( $oSession, $nExpirationTime );
+				->updateLoginIntentExpiresAt( $oFO->getSession(), $nExpirationTime );
 		}
 		return $this;
 	}
@@ -223,8 +222,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	protected function getLoginIntentExpiresAt() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		$oSess = $oFO->getSession();
-		return ( $oSess instanceof ICWP_WPSF_SessionVO ) ? $oSess->getLoginIntentExpiresAt() : 0;
+		return $oFO->hasSession() ? $oFO->getSession()->login_intent_expires_at : 0;
 	}
 
 	/**

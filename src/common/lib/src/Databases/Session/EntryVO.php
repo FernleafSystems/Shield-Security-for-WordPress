@@ -1,9 +1,11 @@
 <?php
 
-require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 
 /**
- * Class ICWP_WPSF_SessionVO
+ * Class EntryVO
  * @property string ip
  * @property string browser
  * @property string wp_username
@@ -13,44 +15,8 @@ require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
  * @property string li_code_email
  * @property string session_id
  * @property int    secadmin_at
- * @deprecated
  */
-class ICWP_WPSF_SessionVO extends ICWP_WPSF_BaseEntryVO {
-
-	/**
-	 * @return string
-	 */
-	public function getBrowser() {
-		return (string)$this->browser;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getIp() {
-		return (string)$this->ip;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLastActivityAt() {
-		return (int)$this->last_activity_at;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLoggedInAt() {
-		return (int)$this->logged_in_at;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLoginIntentExpiresAt() {
-		return (int)$this->login_intent_expires_at;
-	}
+class EntryVO extends Databases\Base\BaseEntryVO {
 
 	/**
 	 * @return string

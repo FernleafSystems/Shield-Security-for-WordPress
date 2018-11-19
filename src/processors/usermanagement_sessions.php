@@ -143,21 +143,23 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	}
 
 	/**
-	 * @return ICWP_WPSF_SessionVO[]
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO[]
 	 */
 	public function getActiveSessions() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
+		$oQ = $oFO->getSessionsProcessor()->getQuerySelector();
 
-		$oQ = $oFO->getSessionsProcessor()
-				  ->getQuerySelector();
 		if ( $oFO->hasSessionTimeoutInterval() ) {
 			$oQ->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
 		}
 		if ( $oFO->hasSessionIdleTimeout() ) {
 			$oQ->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
 		}
-		return $oQ->query();
+
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO[] $aS */
+		$aS = $oQ->query();
+		return $aS;
 	}
 
 	/**
@@ -207,14 +209,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
 
 			// timeout interval
-			if ( $oFO->hasSessionTimeoutInterval() && ( $nTime - $oSess->getLoggedInAt() > $oFO->getSessionTimeoutInterval() ) ) {
+			if ( $oFO->hasSessionTimeoutInterval() && ( $nTime - $oSess->logged_in_at > $oFO->getSessionTimeoutInterval() ) ) {
 				$nForceLogOutCode = 1;
 			} // idle timeout interval
-			else if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->getLastActivityAt() > $oFO->getIdleTimeoutInterval() ) ) {
+			else if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oFO->getIdleTimeoutInterval() ) ) {
 				$oFO->setOptInsightsAt( 'last_idle_logout_at' );
 				$nForceLogOutCode = 2;
 			} // login ip address lock
-			else if ( $oFO->isLockToIp() && ( $this->ip() != $oSess->getIp() ) ) { //TODO: sha1
+			else if ( $oFO->isLockToIp() && ( $this->ip() != $oSess->ip ) ) { //TODO: sha1
 				$nForceLogOutCode = 3;
 			}
 		}

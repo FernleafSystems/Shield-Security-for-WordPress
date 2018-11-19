@@ -269,8 +269,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getSecAdminTimeLeft() {
 		$nLeft = 0;
 		if ( $this->isReadyToExecute() && $this->hasSession() ) {
-			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()
-																					   ->getSecAdminAt() );
+			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()->secadmin_at );
 		}
 		return max( 0, $nLeft );
 	}
@@ -423,11 +422,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = array(
-			'strings'  => array(
+			'strings'      => array(
 				'title' => _wpsf__( 'Security Admin' ),
 				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
 			),
-			'key_opts' => array(),
+			'key_opts'     => array(),
 			'href_options' => $this->getUrl_AdminPage()
 		);
 

@@ -1,15 +1,11 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Sessions_Select', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
-require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseSelect;
+use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
+class Select extends BaseSelect {
 
 	/**
 	 * @return string[]
@@ -30,14 +26,14 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByIp( $sIp ) {
-		if ( $this->loadIpService()->isValidIp( $sIp ) ) {
+		if ( Services::IP()->isValidIp( $sIp ) ) {
 			$this->addWhereEquals( 'ip', trim( $sIp ) );
 		}
 		return $this;
 	}
 
 	/**
-	 * @return ICWP_WPSF_SessionVO[]|stdClass[]
+	 * @return EntryVO[]|\stdClass[]
 	 */
 	public function all() {
 		return $this->selectForUserSession();
@@ -70,7 +66,7 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	/**
 	 * @param string $sSessionId
 	 * @param string $sWpUsername
-	 * @return ICWP_WPSF_SessionVO|null
+	 * @return EntryVO|null
 	 */
 	public function retrieveUserSession( $sSessionId, $sWpUsername = '' ) {
 		$aData = $this->selectForUserSession( $sSessionId, $sWpUsername );
@@ -80,7 +76,7 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 	/**
 	 * @param string $sSessionId
 	 * @param string $sWpUsername
-	 * @return ICWP_WPSF_SessionVO[]
+	 * @return EntryVO[]
 	 */
 	protected function selectForUserSession( $sSessionId = '', $sWpUsername = '' ) {
 		if ( !empty( $sWpUsername ) ) {
@@ -90,15 +86,15 @@ class ICWP_WPSF_Query_Sessions_Select extends ICWP_WPSF_Query_BaseSelect {
 			$this->addWhereEquals( 'session_id', $sSessionId );
 		}
 
-		/** @var ICWP_WPSF_SessionVO[] $aRes */
+		/** @var EntryVO[] $aRes */
 		$aRes = $this->setOrderBy( 'last_activity_at', 'DESC' )->query();
 		return $aRes;
 	}
 
 	/**
-	 * @return string
+	 * @return EntryVO
 	 */
-	protected function getVoName() {
-		return 'ICWP_WPSF_SessionVO';
+	public function getVo() {
+		return Handler::getVo();
 	}
 }

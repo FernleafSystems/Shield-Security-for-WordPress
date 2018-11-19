@@ -1,26 +1,22 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Sessions_Update', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
-require_once( dirname( dirname( __FILE__ ) ).'/base/update.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseUpdate;
+use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
+class Update extends BaseUpdate {
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param EntryVO $oSession
 	 * @return bool
 	 */
 	public function startSecurityAdmin( $oSession ) {
-		return $this->updateSession( $oSession, array( 'secadmin_at' => $this->loadRequest()->ts() ) );
+		return $this->updateSession( $oSession, array( 'secadmin_at' => Services::Request()->ts() ) );
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param EntryVO $oSession
 	 * @return bool
 	 */
 	public function terminateSecurityAdmin( $oSession ) {
@@ -28,11 +24,11 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param EntryVO $oSession
 	 * @return bool
 	 */
 	public function updateLastActivity( $oSession ) {
-		$oR = $this->loadRequest();
+		$oR = Services::Request();
 		return $this->updateSession(
 			$oSession,
 			array(
@@ -43,8 +39,8 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @param int                 $nExpiresAt
+	 * @param EntryVO $oSession
+	 * @param int     $nExpiresAt
 	 * @return bool
 	 */
 	public function updateLoginIntentExpiresAt( $oSession, $nExpiresAt ) {
@@ -55,7 +51,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param EntryVO $oSession
 	 * @return bool
 	 */
 	public function clearLoginIntentCodeEmail( $oSession ) {
@@ -63,8 +59,8 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @param string              $sCode
+	 * @param EntryVO $oSession
+	 * @param string  $sCode
 	 * @return bool
 	 */
 	public function setLoginIntentCodeEmail( $oSession, $sCode ) {
@@ -72,11 +68,11 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @param array               $aUpdateData
+	 * @param EntryVO $oSession
+	 * @param array   $aUpdateData
 	 * @return bool
 	 */
 	public function updateSession( $oSession, $aUpdateData = array() ) {
-		return ( $oSession instanceof ICWP_WPSF_SessionVO ) && parent::updateEntry( $oSession, $aUpdateData );
+		return parent::updateEntry( $oSession, $aUpdateData );
 	}
 }

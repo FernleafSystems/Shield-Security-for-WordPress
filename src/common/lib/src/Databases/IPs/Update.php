@@ -49,6 +49,6 @@ class Update extends BaseUpdate {
 	 * @return bool
 	 */
 	public function updateIp( $oIp, $aUpdateData = array() ) {
-		return ( $oIp instanceof EntryVO ) && parent::updateEntry( $oIp, $aUpdateData );
+		return parent::updateEntry( $oIp, $aUpdateData );
 	}
 }

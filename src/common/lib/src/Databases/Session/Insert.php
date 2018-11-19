@@ -1,15 +1,11 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Sessions_Insert', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
-require_once( dirname( dirname( __FILE__ ) ).'/base/insert.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseInsert;
+use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * @deprecated
- */
-class ICWP_WPSF_Query_Sessions_Insert extends ICWP_WPSF_Query_BaseInsert {
+class Insert extends BaseInsert {
 
 	/**
 	 * @param string $sSessionId
@@ -17,12 +13,12 @@ class ICWP_WPSF_Query_Sessions_Insert extends ICWP_WPSF_Query_BaseInsert {
 	 * @return bool
 	 */
 	public function create( $sSessionId, $sUsername ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$nTimeStamp = $oReq->ts();
 
 		$aData = array(
 			'session_id'              => $sSessionId,
-			'ip'                      => $this->loadIpService()->getRequestIp(), // TODO: SHA1
+			'ip'                      => Services::IP()->getRequestIp(), // TODO: SHA1
 			'browser'                 => md5( $oReq->getUserAgent() ),
 			'wp_username'             => $sUsername,
 			'logged_in_at'            => $nTimeStamp,
