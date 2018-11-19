@@ -1,12 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseUpdate', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-require_once( dirname( __FILE__ ).'/insert.php' );
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
+class BaseUpdate extends BaseInsert {
 
 	/**
 	 * @var array
@@ -54,8 +52,8 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
 	}
 
 	/**
-	 * @param ICWP_WPSF_BaseEntryVO $oEntry
-	 * @param array                 $aUpdateData
+	 * @param BaseEntryVO $oEntry
+	 * @param array       $aUpdateData
 	 * @return bool
 	 */
 	public function updateEntry( $oEntry, $aUpdateData = array() ) {
@@ -91,11 +89,11 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
 	 * @return int|false
 	 */
 	public function query() {
-		return $this->loadDbProcessor()
-					->updateRowsFromTableWhere(
-						$this->getTable(),
-						$this->getUpdateData(),
-						$this->getUpdateWheres()
-					);
+		return Services::WpDb()
+					   ->updateRowsFromTableWhere(
+						   $this->getTable(),
+						   $this->getUpdateData(),
+						   $this->getUpdateWheres()
+					   );
 	}
 }

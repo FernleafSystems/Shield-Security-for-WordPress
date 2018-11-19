@@ -1,12 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseInsert', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-require_once( dirname( __FILE__ ).'/query.php' );
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
+class BaseInsert extends BaseQuery {
 
 	/**
 	 * @var array
@@ -21,13 +19,13 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @param ICWP_WPSF_BaseEntryVO $oEntry
+	 * @param BaseEntryVO $oEntry
 	 * @return bool
 	 */
 	public function insert( $oEntry ) {
 		$aData = array_merge(
 			array(
-				'created_at' => $this->loadRequest()->ts(),
+				'created_at' => Services::Request()->ts(),
 			),
 			$oEntry->getRawData()
 		);
@@ -40,7 +38,7 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	 */
 	public function setInsertData( $aData ) {
 		if ( !isset( $aData[ 'updated_at' ] ) && $this->hasCol( 'updated_at' ) ) {
-			$aData[ 'updated_at' ] = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
+			$aData[ 'updated_at' ] = Services::Request()->ts();
 		}
 		$this->aInsertData = $aData;
 		return $this;
@@ -50,11 +48,11 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	 * @return false|int
 	 */
 	public function query() {
-		return $this->loadDbProcessor()
-					->insertDataIntoTable(
-						$this->getTable(),
-						$this->getInsertData()
-					);
+		return Services::WpDb()
+					   ->insertDataIntoTable(
+						   $this->getTable(),
+						   $this->getInsertData()
+					   );
 	}
 
 	/**

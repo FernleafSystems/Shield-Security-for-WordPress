@@ -1,12 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseSelect', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-require_once( dirname( __FILE__ ).'/query.php' );
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
+class BaseSelect extends BaseQuery {
 
 	/**
 	 * @var array
@@ -49,7 +47,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return stdClass[]
+	 * @return array[]|int|string[]
 	 */
 	public function all() {
 		return $this->reset()->query();
@@ -57,7 +55,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
 	 * @param int $nId
-	 * @return stdClass
+	 * @return \stdClass
 	 */
 	public function byId( $nId ) {
 		$aItems = $this->reset()
@@ -103,7 +101,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return ICWP_WPSF_BaseEntryVO|stdClass|null
+	 * @return BaseEntryVO|\stdClass|null
 	 */
 	public function first() {
 		$aR = $this->query();
@@ -165,7 +163,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	}
 
 	/**
-	 * @return ICWP_WPSF_BaseEntryVO
+	 * @return BaseEntryVO
 	 */
 	public function getVo() {
 		$sClass = $this->getVoName();
@@ -245,22 +243,21 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 * @return array[]
 	 */
 	protected function querySelect() {
-		return $this->loadDbProcessor()
-					->selectCustom( $this->buildQuery(), $this->getSelectDataFormat() );
+		return Services::WpDb()->selectCustom( $this->buildQuery(), $this->getSelectDataFormat() );
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function queryCount() {
-		return $this->loadDbProcessor()->getVar( $this->buildQuery() );
+		return Services::WpDb()->getVar( $this->buildQuery() );
 	}
 
 	/**
 	 * @return array[]
 	 */
 	protected function queryDistinct() {
-		return $this->loadDbProcessor()->selectCustom( $this->buildQuery() );
+		return Services::WpDb()->selectCustom( $this->buildQuery() );
 	}
 
 	/**

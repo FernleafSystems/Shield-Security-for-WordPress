@@ -1,15 +1,11 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseDelete', false ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
-require_once( dirname( __FILE__ ).'/query.php' );
-
-abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
+abstract class BaseDelete extends BaseQuery {
 
 	/**
-	 * @return ICWP_WPSF_Query_BaseSelect
+	 * @return BaseSelect
 	 */
 	abstract protected function getSelector();
 
@@ -37,11 +33,11 @@ abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 	 * @param string $sSortColumn
 	 * @param bool   $bOldestFirst
 	 * @return int
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function deleteExcess( $nMaxEntries, $sSortColumn = 'created_at', $bOldestFirst = true ) {
 		if ( is_null( $nMaxEntries ) ) {
-			throw new Exception( 'Max Entries not specified for table excess delete.' );
+			throw new \Exception( 'Max Entries not specified for table excess delete.' );
 		}
 
 		$nEntriesDeleted = 0;
