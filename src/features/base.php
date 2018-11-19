@@ -213,6 +213,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getAjaxFormParams() {
+		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFormParams );
+		return is_array( $aFormParams ) ? $aFormParams : array();
+	}
+
+	/**
 	 * @param array $aAdminNotices
 	 * @return array
 	 */

@@ -316,9 +316,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function ajaxExec_AdminNotesInsert() {
 		$bSuccess = false;
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFormParams );
-		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
+		$aFormParams = $this->getAjaxFormParams();
 
+		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
 		if ( !$this->getCanAdminNotes() ) {
 			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
 		}

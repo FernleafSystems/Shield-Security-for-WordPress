@@ -121,7 +121,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
 
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFormParams );
+		$aFormParams = $this->getAjaxFormParams();
 
 		$bSuccess = false;
 		$sIp = isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '';

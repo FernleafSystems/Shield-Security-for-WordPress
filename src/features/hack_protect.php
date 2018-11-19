@@ -692,11 +692,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function ajaxExec_StartScans() {
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $this->getProcessor();
-		$oReq = $this->loadRequest();
 		$oScanPro = $oP->getSubProcessorScanner();
 
-		parse_str( $oReq->post( 'form_params', '' ), $aFormParams );
-
+		$aFormParams = $this->getAjaxFormParams();
 		if ( empty( $aFormParams ) ) {
 			$bSuccess = false;
 			$bPageReload = false;
