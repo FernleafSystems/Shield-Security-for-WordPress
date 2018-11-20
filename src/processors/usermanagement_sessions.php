@@ -4,13 +4,14 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/cronbase.php' );
+class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
 
-class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_CronBase {
+	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 
 	public function run() {
 		if ( $this->isReadyToRun() ) {
 			parent::run();
+			$this->setupCron();
 			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
@@ -18,10 +19,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 	}
 
 	/**
-	 * @return callable
+	 * Cron callback
 	 */
-	protected function getCronCallback() {
-		return array( $this, 'cron_runSessionsCleanup' );
+	public function runCron() {
+		$this->cleanExpiredSessions();
 	}
 
 	/**
@@ -186,13 +187,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Cr
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		return $this->time() - $oFO->getIdleTimeoutInterval();
-	}
-
-	/**
-	 * A cron that will automatically cleanout expired/idle sessions.
-	 */
-	public function cron_runSessionsCleanup() {
-		$this->cleanExpiredSessions();
 	}
 
 	/**

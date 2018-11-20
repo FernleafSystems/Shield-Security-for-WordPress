@@ -115,13 +115,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	abstract protected function getTableColumnsByDefinition();
 
 	/**
-	 * @return string
-	 */
-	public function getTableName() {
-		return $this->sFullTableName;
-	}
-
-	/**
 	 * Will setup the cleanup cron to clean out old entries. This should be overridden per implementation.
 	 */
 	protected function createCleanupCron() {

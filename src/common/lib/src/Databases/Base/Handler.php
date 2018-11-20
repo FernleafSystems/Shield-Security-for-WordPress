@@ -82,19 +82,6 @@ class Handler {
 	/**
 	 * @return string
 	 */
-	protected function getNameSpace() {
-		try {
-			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
-		}
-		catch ( \Exception $oE ) {
-			$sName = __NAMESPACE__;
-		}
-		return $sName;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getTable() {
 		return $this->sTable;
 	}
@@ -103,7 +90,7 @@ class Handler {
 	 * @return Insert
 	 */
 	public function getQueryInserter() {
-		$sClass = $this->getNameSpace().'\\Insert';
+		$sClass = $this->getNamespace().'\\Insert';
 		/** @var Insert $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
@@ -113,7 +100,7 @@ class Handler {
 	 * @return Delete
 	 */
 	public function getQueryDeleter() {
-		$sClass = $this->getNameSpace().'\\Delete';
+		$sClass = $this->getNamespace().'\\Delete';
 		/** @var Delete $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
@@ -123,7 +110,7 @@ class Handler {
 	 * @return Select
 	 */
 	public function getQuerySelector() {
-		$sClass = $this->getNameSpace().'\\Select';
+		$sClass = $this->getNamespace().'\\Select';
 		/** @var Select $o */
 		$o = new $sClass();
 		return $o->setDbH( $this )
@@ -134,7 +121,7 @@ class Handler {
 	 * @return Update
 	 */
 	public function getQueryUpdater() {
-		$sClass = $this->getNameSpace().'\\Update';
+		$sClass = $this->getNamespace().'\\Update';
 		/** @var Update $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
@@ -144,7 +131,7 @@ class Handler {
 	 * @return EntryVO
 	 */
 	public function getVo() {
-		$sClass = $this->getNameSpace().'\\EntryVO';
+		$sClass = $this->getNamespace().'\\EntryVO';
 		return new $sClass();
 	}
 
@@ -265,5 +252,18 @@ class Handler {
 		$aColActual = $this->getColumnsActual();
 		return ( count( array_diff( $aColActual, $aColDef ) ) <= 0
 				 && ( count( array_diff( $aColDef, $aColActual ) ) <= 0 ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getNamespace() {
+		try {
+			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
+		}
+		catch ( \Exception $oE ) {
+			$sName = __NAMESPACE__;
+		}
+		return $sName;
 	}
 }

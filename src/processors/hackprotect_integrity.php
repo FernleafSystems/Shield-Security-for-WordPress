@@ -4,14 +4,15 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Integrity' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/cronbase.php' );
+class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_BaseWpsf {
 
-class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_CronBase {
+	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 
 	/**
 	 */
 	public function run() {
 		parent::run();
+		$this->setupCron();
 		$this->setupSnapshots();
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -139,15 +140,8 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Cron
 	/**
 	 * Cron callback
 	 */
-	public function cron_runIntegrityScan() {
+	public function runCron() {
 		$this->verifyUsers();
-	}
-
-	/**
-	 * @return callable
-	 */
-	protected function getCronCallback() {
-		return array( $this, 'cron_runIntegrityScan' );
 	}
 
 	/**

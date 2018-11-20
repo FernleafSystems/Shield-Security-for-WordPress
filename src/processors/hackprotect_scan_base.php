@@ -4,11 +4,11 @@ if ( class_exists( 'ICWP_WPSF_Processor_ScanBase', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/cronbase.php' );
-
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase {
+abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
+
+	use Shield\Crons\StandardCron;
 
 	const SCAN_SLUG = 'base';
 
@@ -22,6 +22,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	public function run() {
 		parent::run();
 		$this->loadAutoload();
+		$this->setupCron();
 	}
 
 	/**
@@ -230,13 +231,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_CronBase
 	}
 
 	/**
-	 * @return callable
+	 * Cron callback
 	 */
-	protected function getCronCallback() {
-		return array( $this, 'cronScan' );
+	public function runCron() {
+		$this->cronScan();
 	}
 
-	public function cronScan() {
+	private function cronScan() {
 		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
 			return;
 		}

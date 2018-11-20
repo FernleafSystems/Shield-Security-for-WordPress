@@ -1,35 +1,27 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_CronBase' ) ) {
-	return;
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Crons;
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_Processor_CronBase extends ICWP_WPSF_Processor_BaseWpsf {
-
-	/**
-	 */
-	public function run() {
-		$this->setupCron();
-	}
+trait StandardCron {
 
 	protected function setupCron() {
 		try {
 			$sRecurrence = $this->getCronRecurrence();
 			if ( strpos( $sRecurrence, 'per-day' ) > 0 ) {
 				// It's a custom schedule so we need to set the next run time more specifically
-				$nNext = $this->loadRequest()->ts() + ( DAY_IN_SECONDS/$this->getCronFrequency() );
+				$nNext = Services::Request()->ts() + ( DAY_IN_SECONDS/$this->getCronFrequency() );
 			}
 			else {
 				$nNext = null;
 			}
-			$this->loadWpCronProcessor()
+			Services::WpCron()
 				 ->setRecurrence( $sRecurrence )
 				 ->setNextRun( $nNext )
-				 ->createCronJob( $this->getCronName(), $this->getCronCallback() );
+				 ->createCronJob( $this->getCronName(), array( $this, 'runCron' ) );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 		}
 		add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
 	}
@@ -44,11 +36,6 @@ abstract class ICWP_WPSF_Processor_CronBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return callable
-	 */
-	abstract protected function getCronCallback();
-
-	/**
 	 * @return int|string
 	 */
 	protected function getCronFrequency() {
@@ -57,12 +44,21 @@ abstract class ICWP_WPSF_Processor_CronBase extends ICWP_WPSF_Processor_BaseWpsf
 
 	/**
 	 * @return string
+	 * @throws \Exception
 	 */
-	abstract protected function getCronName();
+	protected function getCronName() {
+		throw new \Exception( 'This getCronName() should be over-ridden' );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function deleteCron() {
+		Services::WpCron()->deleteCronJob( $this->getCronName() );
+	}
 
 	/**
 	 */
-	public function deleteCron() {
-		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
+	public function runCron() {
 	}
 }

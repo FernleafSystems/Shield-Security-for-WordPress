@@ -179,7 +179,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * Override to set what this processor does when it's "run"
 	 */
-	abstract public function run();
+	public function run() {
+	}
 
 	/**
 	 * @param array $aNoticeData
