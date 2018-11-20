@@ -31,13 +31,6 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getStatisticsTableName() {
-		return $this->prefix( $this->getDef( 'statistics_table_name' ), '_' );
-	}
-
-	/**
 	 * @param array $aOptionsParams
 	 * @return array
 	 * @throws Exception

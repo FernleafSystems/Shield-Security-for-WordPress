@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getAuditTrailTableName() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'audit_trail_table_name' ) );
 	}
 
 	/**
@@ -175,7 +175,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	protected function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			rid varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID',
 			ip varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address',
@@ -189,7 +189,6 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
 		) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -218,10 +217,8 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Handler
 	 */
-	public function getDbHandler() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Handler() )
-			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
-			->setTable( $this->getTableName() );
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Handler();
 	}
 
 	/**

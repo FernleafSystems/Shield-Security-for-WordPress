@@ -95,7 +95,7 @@ class Update extends Insert {
 	public function query() {
 		return Services::WpDb()
 					   ->updateRowsFromTableWhere(
-						   $this->getTable(),
+						   $this->getDbH()->getTable(),
 						   $this->getUpdateData(),
 						   $this->getUpdateWheres()
 					   );

@@ -36,16 +36,6 @@ abstract class BaseQuery {
 	 */
 	protected $sOrderBy;
 
-	/**
-	 * @var string
-	 */
-	protected $sTable;
-
-	/**
-	 * @var array
-	 */
-	protected $aColumns;
-
 	public function __construct() {
 		$this->customInit();
 	}
@@ -171,7 +161,7 @@ abstract class BaseQuery {
 	 */
 	public function buildQuery() {
 		return sprintf( $this->getBaseQuery(),
-			$this->getTable(),
+			$this->getDbH()->getTable(),
 			$this->buildWhere(),
 			$this->buildExtras()
 		);
@@ -216,13 +206,6 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getTable() {
-		return $this->getDbH()->getTable();
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getWheres() {
@@ -244,25 +227,6 @@ abstract class BaseQuery {
 	 */
 	public function getPage() {
 		return max( (int)$this->nPage, 1 );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getColumns() {
-		if ( !isset( $this->aColumns ) ) {
-			$aCols = Services::WpDb()->getColumnsForTable( $this->getTable(), 'strtolower' );
-			$this->aColumns = is_array( $aCols ) ? $aCols : array();
-		}
-		return $this->aColumns;
-	}
-
-	/**
-	 * @param string $sColumn
-	 * @return bool
-	 */
-	public function hasCol( $sColumn ) {
-		return in_array( $sColumn, $this->getColumns() );
 	}
 
 	/**
@@ -335,15 +299,6 @@ abstract class BaseQuery {
 	 */
 	public function setPage( $nPage ) {
 		$this->nPage = $nPage;
-		return $this;
-	}
-
-	/**
-	 * @param string $sTable
-	 * @return $this
-	 */
-	public function setTable( $sTable ) {
-		$this->sTable = $sTable;
 		return $this;
 	}
 

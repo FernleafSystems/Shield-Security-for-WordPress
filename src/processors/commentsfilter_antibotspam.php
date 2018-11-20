@@ -30,7 +30,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @param ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getCommentsFilterTableName() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'spambot_comments_filter_table_name' ) );
 	}
 
 	/**
@@ -354,7 +354,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			post_id int(11) NOT NULL DEFAULT 0,
 			unique_token VARCHAR(32) NOT NULL DEFAULT '',
@@ -363,7 +363,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
 		) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -372,18 +371,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'spambot_comments_filter_table_columns' );
 		return is_array( $aDef ) ? $aDef : array();
-	}
-
-	/**
-	 * @param int|null $sPostId
-	 * @return bool|int
-	 */
-	protected function deleteOldPostCommentTokens( $sPostId = null ) {
-		$aWhere = array(
-			'ip'      => $this->ip(),
-			'post_id' => empty( $sPostId ) ? $this->loadWp()->getCurrentPostId() : $sPostId
-		);
-		return $this->loadDbProcessor()->deleteRowsFromTableWhere( $this->getTableName(), $aWhere );
 	}
 
 	/**
@@ -411,10 +398,8 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler
 	 */
-	public function getDbHandler() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler() )
-			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
-			->setTable( $this->getTableName() );
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler();
 	}
 
 	/**

@@ -37,7 +37,7 @@ class Insert extends BaseQuery {
 	 * @return $this
 	 */
 	public function setInsertData( $aData ) {
-		if ( !isset( $aData[ 'updated_at' ] ) && $this->hasCol( 'updated_at' ) ) {
+		if ( !isset( $aData[ 'updated_at' ] ) && $this->getDbH()->hasColumn( 'updated_at' ) ) {
 			$aData[ 'updated_at' ] = Services::Request()->ts();
 		}
 		$this->aInsertData = $aData;
@@ -50,7 +50,7 @@ class Insert extends BaseQuery {
 	public function query() {
 		return Services::WpDb()
 					   ->insertDataIntoTable(
-						   $this->getTable(),
+						   $this->getDbH()->getTable(),
 						   $this->getInsertData()
 					   );
 	}

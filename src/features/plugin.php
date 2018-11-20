@@ -835,13 +835,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->isPremium() && $this->loadWpUsers()->isUserAdmin();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getDbNameNotes() {
-		return $this->prefixOptionKey( $this->getDef( 'db_notes_name' ) );
-	}
-
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 

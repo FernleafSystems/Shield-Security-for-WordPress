@@ -19,13 +19,6 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getSessionsTableName() {
-		return $this->prefix( $this->getDef( 'sessions_table_name' ), '_' );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isAutoAddSessions() {

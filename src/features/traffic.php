@@ -118,13 +118,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getTrafficTableName() {
-		return $this->prefix( $this->getDef( 'traffic_table_name' ), '_' );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isAutoDisable() {

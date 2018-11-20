@@ -234,13 +234,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getAuditTrailTableName() {
-		return $this->prefix( $this->getDef( 'audit_trail_table_name' ), '_' );
-	}
-
-	/**
 	 * @param array $aAllData
 	 * @return array
 	 */

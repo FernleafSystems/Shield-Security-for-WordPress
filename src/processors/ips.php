@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param ICWP_WPSF_FeatureHandler_Ips $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Ips $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getIpListsTableName() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'ip_lists_table_name' ) );
 	}
 
 	/**
@@ -517,7 +517,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 				ip varchar(40) NOT NULL DEFAULT '',
 				label varchar(255) NOT NULL DEFAULT '',
@@ -530,7 +530,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				PRIMARY KEY  (id)
 			) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -538,7 +537,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'ip_list_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : array() );
+		return is_array( $aDef ) ? $aDef : array();
 	}
 
 	/**
@@ -556,10 +555,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Handler
 	 */
-	public function getDbHandler() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Handler() )
-			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
-			->setTable( $this->getTableName() );
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Handler();
 	}
 
 	/**

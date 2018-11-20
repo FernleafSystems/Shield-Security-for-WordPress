@@ -65,7 +65,7 @@ class Select extends BaseQuery {
 	public function buildQuery() {
 		return sprintf( $this->getBaseQuery(),
 			$this->buildSelect(),
-			$this->getTable(),
+			$this->getDbH()->getTable(),
 			$this->buildWhere(),
 			$this->buildExtras()
 		);
@@ -80,7 +80,8 @@ class Select extends BaseQuery {
 			$sSubstitute = 'COUNT(*)';
 		}
 		else if ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
-			$sSubstitute = sprintf( 'DISTINCT %s', $this->getColumnsToSelect()[ 0 ] );
+			$aCols = $this->getColumnsToSelect();
+			$sSubstitute = sprintf( 'DISTINCT %s', array_pop( $aCols ) );
 		}
 		else if ( $this->hasColumnsToSelect() ) {
 			$sSubstitute = implode( ',', $this->getColumnsToSelect() );
@@ -237,16 +238,10 @@ class Select extends BaseQuery {
 	 */
 	public function setColumnsToSelect( $aColumns ) {
 		if ( is_array( $aColumns ) ) {
-			$aColumns = array_filter( array_map( 'trim', $aColumns ) );
-			$aDef = $this->getDbH()->getColumnsDefinition();
-			if ( !empty( $aDef ) ) {
-				foreach ( $aColumns as $nKey => $sCol ) {
-					if ( !in_array( $sCol, $aDef ) ) {
-						unset( $aColumns[ $nKey ] );
-					}
-				}
-			}
-			$this->aColumnsToSelect = array_unique( $aColumns );
+			$this->aColumnsToSelect = array_intersect(
+				$this->getDbH()->getColumnsActual(),
+				array_map( 'strtolower', $aColumns )
+			);
 		}
 		return $this;
 	}

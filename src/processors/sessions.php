@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param ICWP_WPSF_Processor_Sessions $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getSessionsTableName() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'sessions_table_name' ) );
 	}
 
 	public function run() {
@@ -158,7 +158,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			session_id varchar(32) NOT NULL DEFAULT '',
 			wp_username varchar(255) NOT NULL DEFAULT '',
@@ -174,7 +174,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
 		) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -212,10 +211,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler
 	 */
-	public function getDbHandler() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler() )
-			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
-			->setTable( $this->getTableName() );
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler();
 	}
 
 	/**

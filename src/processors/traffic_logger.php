@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @param ICWP_WPSF_Processor_Traffic $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Traffic $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getTrafficTableName() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'traffic_table_name' ) );
 	}
 
 	public function run() {
@@ -152,10 +152,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Handler
 	 */
-	public function getDbHandler() {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Handler() )
-			->setColumnsDefinition( $this->getTableColumnsByDefinition() )
-			->setTable( $this->getTableName() );
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Handler();
 	}
 
 	/**
@@ -171,7 +169,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	protected function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			rid varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID',
 			uid int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'User ID',
@@ -185,7 +183,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
 		) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**

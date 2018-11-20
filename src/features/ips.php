@@ -51,13 +51,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getIpListsTableName() {
-		return $this->prefix( $this->getDef( 'ip_lists_table_name' ), '_' );
-	}
-
-	/**
 	 * @premium
 	 * @return bool
 	 */
