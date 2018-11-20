@@ -133,7 +133,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$sLeadingPath = $this->loadWp()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
 
 		/** @var Traffic\EntryVO $oEntry */
-		$oEntry = $this->getDbHandler()->getQuerySelector()->getVo();
+		$oEntry = $this->getDbHandler()->getVo();
 
 		$oEntry->rid = $this->getController()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();

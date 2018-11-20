@@ -118,13 +118,6 @@ class Select extends BaseQuery {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getColumnsDefinition() {
-		return is_array( $this->aColumnsDefinition ) ? $this->aColumnsDefinition : array();
-	}
-
-	/**
 	 * @param string $sColumn
 	 * @return array
 	 */
@@ -255,15 +248,6 @@ class Select extends BaseQuery {
 			}
 			$this->aColumnsToSelect = array_unique( $aColumns );
 		}
-		return $this;
-	}
-
-	/**
-	 * @param string[] $aColumns
-	 * @return $this
-	 */
-	public function setColumnsDefinition( $aColumns ) {
-		$this->aColumnsDefinition = $aColumns;
 		return $this;
 	}
 

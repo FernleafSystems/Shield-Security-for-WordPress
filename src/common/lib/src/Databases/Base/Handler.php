@@ -18,6 +18,11 @@ class Handler {
 	 */
 	protected $sTable;
 
+	/**
+	 * @var string
+	 */
+	protected $sNamespace;
+
 	public function __construct() {
 	}
 
@@ -32,7 +37,13 @@ class Handler {
 	 * @return string
 	 */
 	protected function getNameSpace() {
-		return __NAMESPACE__;
+		try {
+			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
+		}
+		catch ( \Exception $oE ) {
+			$sName = __NAMESPACE__;
+		}
+		return $sName;
 	}
 
 	/**
