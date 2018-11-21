@@ -1040,7 +1040,7 @@ table.odp-table.scan-table td.column-path code {
 	font-size: 0.7rem;
 }
 .tablenav.top, .tablenav.bottom {
-	display: none;
+	/*display: none;*/
 }
 /** END TABLES SCANS **/
 .insights_section.keys .alert {

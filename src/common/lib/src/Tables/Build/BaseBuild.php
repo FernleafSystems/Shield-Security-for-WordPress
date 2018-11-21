@@ -22,7 +22,7 @@ class BaseBuild {
 
 	public function buildTable() {
 		$aParams = $this->getParams();
-		$nPerPage = isset( $aParams[ 'limit' ] ) ? $aParams[ 'limit' ] : 25;
+		$nPerPage = empty( $aParams[ 'limit' ] ) ? 25 : $aParams[ 'limit' ];
 
 		$oTable = $this->getTableRenderer()
 					   ->setItemEntries( $this->getEntriesFormatted() )
