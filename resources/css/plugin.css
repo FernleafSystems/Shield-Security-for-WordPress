@@ -979,6 +979,11 @@ td.cell_delete_note {
 #SectionModuleSummaries table tr.row-key_opt {
 }
 /** TABLES **/
+.icwpAjaxTableContainer {
+}
+.icwpAjaxTableContainer .tablenav {
+	height: auto;
+}
 th.column-created_at,
 th.column-last_access_at,
 th.column-logged_in_at,

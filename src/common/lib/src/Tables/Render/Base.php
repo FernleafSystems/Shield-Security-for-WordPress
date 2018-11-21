@@ -38,7 +38,7 @@ class Base extends \WP_List_Table {
 	}
 
 	protected function extra_tablenav( $which ) {
-		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn tableActionRefresh">%s</a>', _wpsf__( 'Refresh' ) );
+		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn btn-sm tableActionRefresh">%s</a>', _wpsf__( 'Refresh' ) );
 	}
 
 	/**
