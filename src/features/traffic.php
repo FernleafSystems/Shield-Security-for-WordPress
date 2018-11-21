@@ -201,16 +201,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			->setDbHandler( $oPro->getProcessorLogger()->getDbHandler() )
 			->setGeoIpDbSource( $this->getConn()->getPath_Assets( 'db/GeoIp2/GeoLite2-Country.mmdb' ) );
 
-		if ( $oTableBuilder->countTotal() > 0 ) {
-			$sRendered = $oTableBuilder->buildTable();
-		}
-		else {
-			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
-		}
-
 		return array(
 			'success' => true,
-			'html'    => $sRendered
+			'html'    => $oTableBuilder->buildTable()
 		);
 	}
 

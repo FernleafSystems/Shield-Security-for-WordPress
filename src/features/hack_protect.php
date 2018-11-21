@@ -657,7 +657,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function ajaxExec_BuildTableScan() {
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->getProcessor();
-		$oDbh = $oPro->getSubProcessorScanner()->getDbHandler();
 
 		switch ( $this->loadRequest()->post( 'fScan' ) ) {
 			case 'ptg':
@@ -673,20 +672,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
 				break;
 		}
+
 		$oTableBuilder
 			->setMod( $this )
-			->setDbHandler( $oDbh );
-
-		if ( $oTableBuilder->countTotal() ) {
-			$sRendered = $oTableBuilder->buildTable();
-		}
-		else {
-			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
-		}
+			->setDbHandler( $oPro->getSubProcessorScanner()->getDbHandler() );
 
 		return array(
 			'success' => true,
-			'html'    => $sRendered
+			'html'    => $oTableBuilder->buildTable()
 		);
 	}
 

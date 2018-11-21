@@ -20,15 +20,33 @@ class BaseBuild {
 	 */
 	protected $aBuildParams;
 
+	/**
+	 * @return string
+	 */
 	public function buildTable() {
-		$oTable = $this->getTableRenderer()
-					   ->setItemEntries( $this->getEntriesFormatted() )
-					   ->setPerPage( $this->getParams()[ 'limit' ] )
-					   ->setTotalRecords( $this->countTotal() )
-					   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
+
+		if ( $this->countTotal() > 0 ) {
+			$oTable = $this->getTableRenderer()
+						   ->setItemEntries( $this->getEntriesFormatted() )
+						   ->setPerPage( $this->getParams()[ 'limit' ] )
+						   ->setTotalRecords( $this->countTotal() )
+						   ->prepare_items();
+			ob_start();
+			$oTable->display();
+			$sRendered = ob_get_clean();
+		}
+		else {
+			$sRendered = $this->buildEmpty();
+		}
+
+		return empty( $sRendered ) ? 'There was an error retrieving entries.' : $sRendered;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function buildEmpty() {
+		return sprintf( '<div class="alert alert-info m-0">%s</div>', _wpsf__( 'No entries to display.' ) );
 	}
 
 	/**

@@ -167,16 +167,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			->setMod( $this )
 			->setDbHandler( $oPro->getDbHandler() );
 
-		if ( $oTableBuilder->countTotal() > 0 ) {
-			$sRendered = $oTableBuilder->buildTable();
-		}
-		else {
-			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';
-		}
-
 		return array(
 			'success' => true,
-			'html'    => $sRendered
+			'html'    => $oTableBuilder->buildTable()
 		);
 	}
 

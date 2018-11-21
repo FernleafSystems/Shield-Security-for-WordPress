@@ -64,9 +64,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function ajaxExec_BuildTableTraffic() {
-		// first clean out the expired sessions before display
 		/** @var ICWP_WPSF_Processor_UserManagement $oPro */
 		$oPro = $this->getProcessor();
+
+		// first clean out the expired sessions before display
 		$oPro->getProcessorSessions()->cleanExpiredSessions();
 
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
