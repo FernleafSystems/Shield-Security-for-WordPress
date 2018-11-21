@@ -243,6 +243,7 @@
     {
       "key":         "text_firewalldie",
       "section":     "section_user_messages",
+      "sensitive":   true,
       "premium":     true,
       "default":     "default",
       "type":        "text",

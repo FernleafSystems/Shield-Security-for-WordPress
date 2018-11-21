@@ -1,6 +1,6 @@
 {
   "properties":   {
-    "version":                 "6.10.5",
+    "version":                 "6.10.6",
     "release_timestamp":       1542814400,
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",

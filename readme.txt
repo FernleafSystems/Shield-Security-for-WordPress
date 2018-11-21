@@ -354,16 +354,17 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.10.5 - Current Release =
+= 6.10.6 - Current Release =
 *Released: 21st November, 2018* - [Release Notes](https://icwp.io/dg)
 
-* **(v.5)**  ADDED:		New option to control plugin automatic updates.
-* **(v.5)**  IMPROVED:	Enhancements to the experimental bot JS.
-* **(v.5)**  IMPROVED:	Support for Easy Digital Downloads forms.
+* **(v.6)**  ADDED:		New option to control plugin automatic updates.
+* **(v.6)**  IMPROVED:	Enhancements to the experimental bot JS.
+* **(v.6)**  IMPROVED:	Support for Easy Digital Downloads forms.
 
 = 6.10 - Series =
 *Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 
+* **(v.5)**  Release skipped.
 * **(v.4)**  FIXED:		Couldn't deactivate plugin.
 * **(v.3)**  ADDED:		Support for Ultimate Member forms
 * **(v.3)**  ADDED:		Support for LearnPress login/registration forms

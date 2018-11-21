@@ -164,7 +164,7 @@
     {
       "key":           "autoupdate_plugin_self",
       "section":       "section_options",
-      "default":       "default",
+      "default":       "auto",
       "type":          "select",
       "value_options": [
         {
