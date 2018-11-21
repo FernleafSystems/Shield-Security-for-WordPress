@@ -173,25 +173,39 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aThemes[ $sSlug ] = $aProfile;
 		}
 
+		$bIsPremium = $oMod->isPremium();
 		$oCarbon = new \Carbon\Carbon();
 		$aData = array(
-			'ajax'  => array(
+			'ajax'    => array(
 				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
 				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
 				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),
 			),
-			'strings'=>array(
-				'options' => _wpsf__( 'Scan Options' ),
+			'flags'   => array(
+				'is_premium' => $bIsPremium
 			),
-			'scans' => array(
+			'hrefs'   => array(
+				'go_pro' => 'https://icwp.io/shieldgoprofeature',
+			),
+			'strings' => array(
+				'never'          => _wpsf__( 'Never' ),
+				'go_pro'         => 'Go Pro!',
+				'options'        => _wpsf__( 'Scan Options' ),
+				'not_available'  => _wpsf__( 'Sorry, this scan is not available.' ),
+				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to add this scan and many more features.' ),
+			),
+			'scans'   => array(
 				'wcf' => array(
-					'hrefs' => array(
+					'flags'        => array(
+						'is_available'  => true,
+						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
+					),
+					'hrefs'        => array(
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
 					),
-					'vars' => array(
-					),
+					'vars'         => array(),
 					'count'        => $oSelector->countForScan( 'wcf' ),
 					'last_scan_at' => sprintf(
 						_wpsf__( 'Last Scan: %s' ),
@@ -199,11 +213,14 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 				),
 				'ufc' => array(
-					'hrefs' => array(
+					'flags'        => array(
+						'is_available'  => true,
+						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
+					),
+					'hrefs'        => array(
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
 					),
-					'vars' => array(
-					),
+					'vars'         => array(),
 					'count'        => $oSelector->countForScan( 'ufc' ),
 					'last_scan_at' => sprintf(
 						_wpsf__( 'Last Scan: %s' ),
@@ -211,20 +228,21 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 				),
 				'ptg' => array(
-					'hrefs' => array(
+					'flags'        => array(
+						'is_available'  => !$bIsPremium,
+						'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
+						'has_items'     => $oFullResults->hasItems(),
+						'has_plugins'   => !empty( $aPlugins ),
+						'has_themes'    => !empty( $aThemes ),
+					),
+					'hrefs'        => array(
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' )
 					),
-					'vars' => array(
-					),
+					'vars'         => array(),
 					'count'        => $oSelector->countForScan( 'ptg' ),
 					'last_scan_at' => sprintf(
 						_wpsf__( 'Last Scan: %s' ),
 						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
-					),
-					'flags'        => array(
-						'has_items'   => $oFullResults->hasItems(),
-						'has_plugins' => !empty( $aPlugins ),
-						'has_themes'  => !empty( $aThemes ),
 					),
 					'assets'       => array_merge( $aPlugins, $aThemes ),
 					'strings'      => array(
