@@ -1990,7 +1990,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	protected function setOptAt( $sOpt, $nAt = null ) {
-		return $this->setOpt( $sOpt, is_null( $nAt ) ? $this->loadRequest()->ts() : max( 0, (int)$nAt ) );
+		$nAt = is_null( $nAt ) ? $this->loadRequest()->ts() : max( 0, (int)$nAt );
+		return $this->setOpt( $sOpt, $nAt );
 	}
 
 	/**

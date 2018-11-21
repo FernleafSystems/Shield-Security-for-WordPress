@@ -161,6 +161,31 @@
       "description": "Shield will delay upgrades until the new update has been available for the set number of days."
     },
     {
+      "key":           "autoupdate_plugin_self",
+      "section":       "section_options",
+      "default":       "default",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "auto",
+          "text":      "Let Shield Decide"
+        },
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "immediate",
+          "text":      "As Soon As Possible"
+        }
+      ],
+      "link_info":     "https://icwp.io/3x",
+      "link_blog":     "",
+      "name":          "WordPress Core Updates",
+      "summary":       "Decide how the WordPress Core will automatically update, if at all",
+      "description":   "At least automatically upgrading minor versions is recommended (and is the WordPress default)."
+    },
+    {
       "key":         "enable_upgrade_notification_email",
       "section":     "section_options",
       "default":     "",

@@ -98,6 +98,12 @@
       "section":      "section_non_ui"
     },
     {
+      "key":          "last_deactivated_email_sent_at",
+      "transferable": false,
+      "default":      0,
+      "section":      "section_non_ui"
+    },
+    {
       "key":          "is_shield_central",
       "sensitive":    true,
       "transferable": false,

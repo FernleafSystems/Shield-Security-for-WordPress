@@ -319,9 +319,9 @@
       "type":        "text",
       "link_info":   "https://icwp.io/shld5",
       "link_blog":   "",
-      "name":        "reCAPTCHA Secret",
-      "summary":     "Google reCAPTCHA Secret Key",
-      "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
+      "name":        "reCAPTCHA Site Key",
+      "summary":     "Google reCAPTCHA Site Key",
+      "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
     },
     {
       "key":         "google_recaptcha_secret_key",
@@ -331,9 +331,9 @@
       "type":        "text",
       "link_info":   "https://icwp.io/shld5",
       "link_blog":   "",
-      "name":        "reCAPTCHA Site Key",
-      "summary":     "Google reCAPTCHA Site Key",
-      "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
+      "name":        "reCAPTCHA Secret",
+      "summary":     "Google reCAPTCHA Secret Key",
+      "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
     },
     {
       "key":          "tracking_last_sent_at",

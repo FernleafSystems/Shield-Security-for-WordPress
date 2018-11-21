@@ -857,10 +857,7 @@ input:checked + .icwp-slider:before {
 }
 
 .icon-flag {
-	width: 16px;
-	height: 12px;
-	border: 1px solid black;
-	vertical-align: unset;
+	vertical-align: bottom;
 }
 
 /** TABLE: Audit trail **/

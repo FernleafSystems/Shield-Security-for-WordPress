@@ -9,7 +9,10 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_filter( $this->getConn()->getPremiumLicenseFilterName(), array( $this, 'hasValidWorkingLicense' ), PHP_INT_MAX );
+		add_filter( $this->getConn()->getPremiumLicenseFilterName(), array(
+			$this,
+			'hasValidWorkingLicense'
+		), PHP_INT_MAX );
 	}
 
 	public function action_doFeatureShutdown() {
@@ -271,6 +274,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		// If your last license verification has expired and it's been 4hrs since your last check.
 		$bCheck = $bForceCheck
+				  || ( $this->isLicenseMaybeExpiring() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) )
 				  || ( $this->isLicenseActive() && !$oCurrent->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )
 				  || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
 					   && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) );
@@ -300,9 +304,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 						$this->sendLicenseWarningEmail();
 						$oPro->addToAuditEntry( 'License check failed. Sending Warning Email.', 2, 'license_check_failed' );
 					}
-					else if ( $bForceCheck || $this->isLastVerifiedGraceExpired() ) {
+					else if ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
 						$oCurrent = $oLookupLicense;
-						$this->deactivate( sprintf( _wpsf__( 'Automatic license verification failed after %s days.' ), 6 ) );
+						$this->deactivate( _wpsf__( 'Automatic license verification failed.' ) );
 						$this->sendLicenseDeactivatedEmail();
 						$oPro->addToAuditEntry( 'License check failed. Deactivating Pro.', 3, 'license_check_failed' );
 					}
@@ -318,15 +322,21 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 			$this->setLicenseData( $oCurrent )
 				 ->savePluginOptions();
-
-			try {
-			}
-			catch ( Exception $oE ) {
-//				$oCurrent->setLastErrors( 'Could not find a valid license' );
-			}
 		}
 
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isLicenseMaybeExpiring() {
+		$bNearly = $this->isLicenseActive() &&
+				   (
+					   abs( $this->loadRequest()->ts() - $this->loadLicense()->getExpiresAt() )
+					   < ( DAY_IN_SECONDS/2 )
+				   );
+		return $bNearly;
 	}
 
 	/**
@@ -347,6 +357,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$bCanSend = $nNow - $this->getOpt( 'last_warning_email_sent_at' ) > DAY_IN_SECONDS;
 
 		if ( $bCanSend ) {
+			$this->setOptAt( 'last_warning_email_sent_at' )->savePluginOptions();
 			$aMessage = array(
 				_wpsf__( 'Attempts to verify Shield Pro license has just failed.' ),
 				sprintf( _wpsf__( 'Please check your license on-site: %s' ), $this->getUrl_AdminPage() ),
@@ -364,17 +375,22 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	private function sendLicenseDeactivatedEmail() {
-		$aMessage = array(
-			_wpsf__( 'All attempts to verify Shield Pro license have failed.' ),
-			sprintf( _wpsf__( 'Please check your license on-site: %s' ), $this->getUrl_AdminPage() ),
-			sprintf( _wpsf__( 'If this problem persists, please contact support: %s' ), 'https://support.onedollarplugin.com/' )
-		);
-		$this->getEmailProcessor()
-			 ->sendEmailWithWrap(
-				 $this->getPluginDefaultRecipientAddress(),
-				 '[Action May Be Required] Pro License Has Been Deactivated',
-				 $aMessage
-			 );
+		$nNow = $this->loadRequest()->ts();
+
+		if ( ( $nNow - $this->getOpt( 'last_deactivated_email_sent_at' ) ) > DAY_IN_SECONDS ) {
+			$this->setOptAt( 'last_deactivated_email_sent_at' )->savePluginOptions();
+			$aMessage = array(
+				_wpsf__( 'All attempts to verify Shield Pro license have failed.' ),
+				sprintf( _wpsf__( 'Please check your license on-site: %s' ), $this->getUrl_AdminPage() ),
+				sprintf( _wpsf__( 'If this problem persists, please contact support: %s' ), 'https://support.onedollarplugin.com/' )
+			);
+			$this->getEmailProcessor()
+				 ->sendEmailWithWrap(
+					 $this->getPluginDefaultRecipientAddress(),
+					 '[Action May Be Required] Pro License Has Been Deactivated',
+					 $aMessage
+				 );
+		}
 	}
 
 	/**
@@ -541,7 +557,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isWithinVerifiedGraceExpired() {
-		return false;//$this->isLastVerifiedExpired() && !$this->isLastVerifiedGraceExpired();
+		return $this->isLastVerifiedExpired() && !$this->isLastVerifiedGraceExpired();
 	}
 
 	/**
