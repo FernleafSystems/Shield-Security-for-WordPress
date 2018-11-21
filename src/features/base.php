@@ -487,7 +487,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sSection
 	 * @return string
 	 */
-	protected function getUrl_DirectLinkToSection( $sSection ) {
+	public function getUrl_DirectLinkToSection( $sSection ) {
 		if ( $sSection == 'primary' ) {
 			$aSec = $this->getOptionsVo()->getPrimarySection();
 			$sSection = $aSec[ 'slug' ];

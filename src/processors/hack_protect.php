@@ -175,51 +175,67 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$oCarbon = new \Carbon\Carbon();
 		$aData = array(
-			'ajax' => array(
+			'ajax'  => array(
 				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
 				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
 				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),
 			),
-			'vars' => array(
-				'scanvars' => array(
-					'wcf' => array(
-						'count'        => $oSelector->countForScan( 'wcf' ),
-						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
-						),
+			'strings'=>array(
+				'options' => _wpsf__( 'Scan Options' ),
+			),
+			'scans' => array(
+				'wcf' => array(
+					'hrefs' => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
 					),
-					'ufc' => array(
-						'count'        => $oSelector->countForScan( 'ufc' ),
-						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
-						),
+					'vars' => array(
 					),
-					'ptg' => array(
-						'count'        => $oSelector->countForScan( 'ptg' ),
-						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
-						),
-						'flags'        => array(
-							'has_items'   => $oFullResults->hasItems(),
-							'has_plugins' => !empty( $aPlugins ),
-							'has_themes'  => !empty( $aThemes ),
-						),
-						'assets'       => array_merge( $aPlugins, $aThemes ),
-						'strings'      => array(
-							'files_with_problems' => _wpsf__( 'Files with problems' ),
-							'root_dir'            => _wpsf__( 'Root directory' ),
-							'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
-							'reinstall'           => _wpsf__( 'Re-Install' ),
-							'deactivate'          => __( 'Deactivate and Ignore' ),
-							'accept'              => _wpsf__( 'Accept' ),
-							'update'              => _wpsf__( 'Upgrade' ),
-						)
+					'count'        => $oSelector->countForScan( 'wcf' ),
+					'last_scan_at' => sprintf(
+						_wpsf__( 'Last Scan: %s' ),
+						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
 					),
+				),
+				'ufc' => array(
+					'hrefs' => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
+					),
+					'vars' => array(
+					),
+					'count'        => $oSelector->countForScan( 'ufc' ),
+					'last_scan_at' => sprintf(
+						_wpsf__( 'Last Scan: %s' ),
+						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
+					),
+				),
+				'ptg' => array(
+					'hrefs' => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' )
+					),
+					'vars' => array(
+					),
+					'count'        => $oSelector->countForScan( 'ptg' ),
+					'last_scan_at' => sprintf(
+						_wpsf__( 'Last Scan: %s' ),
+						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
+					),
+					'flags'        => array(
+						'has_items'   => $oFullResults->hasItems(),
+						'has_plugins' => !empty( $aPlugins ),
+						'has_themes'  => !empty( $aThemes ),
+					),
+					'assets'       => array_merge( $aPlugins, $aThemes ),
+					'strings'      => array(
+						'files_with_problems' => _wpsf__( 'Files with problems' ),
+						'root_dir'            => _wpsf__( 'Root directory' ),
+						'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
+						'reinstall'           => _wpsf__( 'Re-Install' ),
+						'deactivate'          => __( 'Deactivate and Ignore' ),
+						'accept'              => _wpsf__( 'Accept' ),
+						'update'              => _wpsf__( 'Upgrade' ),
+					)
 				),
 			),
 		);

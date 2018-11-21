@@ -1,4 +1,3 @@
-
-{% for scankey, scanvars in vars.scanvars %}
+{% for scankey, scan in scans %}
 	{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'.twig' %}
 {% endfor %}
