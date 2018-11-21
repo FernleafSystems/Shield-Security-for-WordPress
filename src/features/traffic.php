@@ -371,7 +371,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					$sCountry = _wpsf__( 'Unknown' );
 				}
 				else {
-					$sFlag = $oCon->getPluginUrl_Image( 'flags/'.strtolower( $oGeo->countryIso( $sIp ) ).'.png' );
+					$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $oGeo->countryIso( $sIp ) ) );
 					$sCountry = sprintf( '<img class="icon-flag" src="%s"/> %s', $sFlag, $sCountry );
 				}
 
