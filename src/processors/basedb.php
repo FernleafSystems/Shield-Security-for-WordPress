@@ -14,22 +14,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected $oDbh;
 
 	/**
-	 * The full database table name.
-	 * @var string
-	 */
-	protected $sFullTableName;
-
-	/**
-	 * @var boolean
-	 */
-	protected $bTableExists;
-
-	/**
-	 * @var bool
-	 */
-	private $bTableStructureIsValid;
-
-	/**
 	 * @var integer
 	 */
 	protected $nAutoExpirePeriod = null;
@@ -173,7 +157,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\BaseDelete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Delete
 	 */
 	protected function getQueryDeleter() {
 		return $this->getDbHandler()->getQueryDeleter();

@@ -15,6 +15,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 */
+	protected function updateHandler() {
+		$this->clearCrons();
+	}
+
+	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */

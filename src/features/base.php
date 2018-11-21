@@ -101,7 +101,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( $this->getModuleMeetRequirements() ) {
 
 			$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
-			// Handle any upgrades as necessary (only go near this if it's the admin area)
 			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
 			add_action( 'init', array( $this, 'onWpInit' ), 1 );
 			add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );

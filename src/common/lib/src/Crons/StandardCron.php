@@ -17,9 +17,9 @@ trait StandardCron {
 				$nNext = null;
 			}
 			Services::WpCron()
-				 ->setRecurrence( $sRecurrence )
-				 ->setNextRun( $nNext )
-				 ->createCronJob( $this->getCronName(), array( $this, 'runCron' ) );
+					->setRecurrence( $sRecurrence )
+					->setNextRun( $nNext )
+					->createCronJob( $this->getCronName(), array( $this, 'runCron' ) );
 		}
 		catch ( \Exception $oE ) {
 		}
