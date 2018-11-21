@@ -42,13 +42,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	protected function ajaxExec_BuildTableAuditTrail() {
 		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
 		$oPro = $this->getProcessor();
+		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
+			->setMod( $this )
+			->setDbHandler( $oPro->getDbHandler() );
 
-		$oDbh = $oPro->getDbHandler();
-		if ( $oDbh->getQuerySelector()->count() > 0 ) {
-			$sRendered = ( new Shield\Tables\Build\AuditTrail() )
-				->setMod( $this )
-				->setQuerySelector( $oDbh->getQuerySelector() )
-				->buildTable();
+		if ( $oTableBuilder->countTotal() > 0 ) {
+			$sRendered = $oTableBuilder->buildTable();
 		}
 		else {
 			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';

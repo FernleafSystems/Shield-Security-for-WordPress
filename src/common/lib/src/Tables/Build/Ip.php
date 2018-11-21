@@ -15,12 +15,10 @@ class Ip extends BaseBuild {
 	 * Override this to apply table-specific query filters.
 	 * @return $this
 	 */
-	protected function applyQueryFilters() {
+	protected function applyCustomQueryFilters() {
 		/** @var \ICWP_WPSF_Query_Ips_Select $oSelector */
-		$oSelector = $this->getQuerySelector();
-
-		$sList = $this->getParams()[ 'fList' ];
-		$oSelector->filterByList( $sList );
+		$oSelector = $this->getWorkingSelector();
+		$oSelector->filterByList( $this->getParams()[ 'fList' ] );
 		return $this;
 	}
 

@@ -657,34 +657,28 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function ajaxExec_BuildTableScan() {
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->getProcessor();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
+		$oDbh = $oPro->getSubProcessorScanner()->getDbHandler();
 
-		$sScan = $this->loadRequest()->post( 'fScan' );
+		switch ( $this->loadRequest()->post( 'fScan' ) ) {
+			case 'ptg':
+				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanPtg();
+				break;
 
-		$nCount = $oSel->filterByScan( $sScan )
-					   ->count();
-		if ( $nCount ) {
+			case 'ufc':
+				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanUfc();
+				break;
 
-			switch ( $sScan ) {
-				case 'ptg':
-					$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanPtg();
-					break;
+			case 'wcf':
+			default:
+				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
+				break;
+		}
+		$oTableBuilder
+			->setMod( $this )
+			->setDbHandler( $oDbh );
 
-				case 'ufc':
-					$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanUfc();
-					break;
-
-				case 'wcf':
-				default:
-					$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
-					break;
-			}
-
-			$sRendered = $oTableBuilder
-				->setMod( $this )
-				->setQuerySelector( $oSel )
-				->buildTable();
+		if ( $oTableBuilder->countTotal() ) {
+			$sRendered = $oTableBuilder->buildTable();
 		}
 		else {
 			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';

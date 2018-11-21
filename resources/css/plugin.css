@@ -862,6 +862,12 @@ td.column-message textarea {
 	box-shadow: none;
 	border-color: rgba(0, 0, 0, 0.05);
 }
+
+.table-side-filter {
+	position: sticky;
+	top: 120px;
+}
+
 /** TABLE: TRAFFIC **/
 th.column-visitor {
 }

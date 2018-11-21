@@ -16,9 +16,9 @@ class Sessions extends BaseBuild {
 	 * Override this to apply table-specific query filters.
 	 * @return $this
 	 */
-	protected function applyQueryFilters() {
+	protected function applyCustomQueryFilters() {
 		/** @var \ICWP_WPSF_Query_Sessions_Select $oSelector */
-		$oSelector = $this->getQuerySelector();
+		$oSelector = $this->getWorkingSelector();
 
 		$aParams = $this->getParams();
 

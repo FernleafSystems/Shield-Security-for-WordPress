@@ -15,10 +15,10 @@ class AuditTrail extends BaseBuild {
 	 * Override this to apply table-specific query filters.
 	 * @return $this
 	 */
-	protected function applyQueryFilters() {
+	protected function applyCustomQueryFilters() {
 		$aParams = $this->getParams();
 		/** @var \ICWP_WPSF_Query_AuditTrail_Select $oSelector */
-		$oSelector = $this->getQuerySelector();
+		$oSelector = $this->getWorkingSelector();
 
 		$oSelector->filterByContext( $aParams[ 'fContext' ] );
 

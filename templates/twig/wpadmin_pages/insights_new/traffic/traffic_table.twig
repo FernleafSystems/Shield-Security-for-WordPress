@@ -16,9 +16,9 @@
 
 	<div class="col-lg-2 col-md-3 col-sm-4">
 
-		<h6 class="mt-3">{{ strings.title_filter_form }}</h6>
-		<div class="" id="">
-			<form id="TrafficFilter">
+		<div id="TrafficFilter" class="table-side-filter">
+			<h6 class="mt-3">{{ strings.title_filter_form }}</h6>
+			<form id="TrafficFilterForm">
 				<div class="form-group">
 					<label for="_fIp">IP Address</label>
 					<select id="_fIp" name="fIp" class="form-control">
@@ -97,7 +97,7 @@
 	jQuery( document ).icwpWpsfTableWithFilter(
 		{
 			'table': $oTableTraffic,
-			'selector_filter_form':'form#TrafficFilter'
+			'selector_filter_form':'form#TrafficFilterForm'
 		}
 	);
 </script>

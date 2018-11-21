@@ -69,11 +69,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oPro = $this->getProcessor();
 		$oPro->getProcessorSessions()->cleanExpiredSessions();
 
-		/** @var Shield\Databases\Session\Select $oSel */
-		$oSel = $this->getSessionsProcessor()->getDbHandler()->getQuerySelector();
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $this )
-			->setQuerySelector( $oSel );
+			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() );
 
 		return array(
 			'success' => true,

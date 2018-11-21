@@ -4,16 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 class BaseBuild {
 
-	use Shield\Modules\ModConsumer;
+	use Shield\Modules\ModConsumer,
+		Shield\Databases\Base\HandlerConsumer;
 
 	/**
 	 * @var Shield\Databases\Base\Select
 	 */
-	protected $oQuerySelector;
+	protected $oWorkingSelector;
 
 	/**
 	 * @var array
@@ -21,12 +21,10 @@ class BaseBuild {
 	protected $aBuildParams;
 
 	public function buildTable() {
-		$aParams = $this->getParams();
-		$nPerPage = empty( $aParams[ 'limit' ] ) ? 25 : $aParams[ 'limit' ];
-
 		$oTable = $this->getTableRenderer()
 					   ->setItemEntries( $this->getEntriesFormatted() )
-					   ->setPerPage( $nPerPage )
+					   ->setPerPage( $this->getParams()[ 'limit' ] )
+					   ->setTotalRecords( $this->countTotal() )
 					   ->prepare_items();
 		ob_start();
 		$oTable->display();
@@ -54,9 +52,10 @@ class BaseBuild {
 	 * @return array[]|int|string[]|Shield\Databases\Base\EntryVO[]
 	 */
 	protected function getEntriesRaw() {
-		$aEntries = $this->applyDefaultParameters()
-						 ->applyQueryFilters()
-						 ->getQuerySelector()
+		$aEntries = $this->startQueryProcess()
+						 ->applyDefaultQueryFilters()
+						 ->applyCustomQueryFilters()
+						 ->getWorkingSelector()
 						 ->query();
 		return $this->postSelectEntriesFilter( $aEntries );
 	}
@@ -71,18 +70,36 @@ class BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\Base
+	 * @return Shield\Tables\Render\Base
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\Base();
+		return new Shield\Tables\Render\Base();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function countTotal() {
+		return $this->startQueryProcess()
+					->applyCustomQueryFilters()
+					->getWorkingSelector()
+					->count();
+	}
+
+	/**
+	 * Override this to apply table-specific query filters.
+	 * @return $this
+	 */
+	protected function applyCustomQueryFilters() {
+		return $this;
 	}
 
 	/**
 	 * @return $this
 	 */
-	protected function applyDefaultParameters() {
+	protected function applyDefaultQueryFilters() {
 		$aParams = $this->getParams();
-		$oSelect = $this->getQuerySelector();
+		$oSelect = $this->getWorkingSelector();
 
 		if ( isset( $aParams[ 'paged' ] ) ) {
 			$oSelect->setPage( $aParams[ 'paged' ] );
@@ -94,14 +111,6 @@ class BaseBuild {
 			$oSelect->setLimit( $aParams[ 'limit' ] );
 		}
 		$oSelect->setResultsAsVo( true );
-		return $this;
-	}
-
-	/**
-	 * Override this to apply table-specific query filters.
-	 * @return $this
-	 */
-	protected function applyQueryFilters() {
 		return $this;
 	}
 
@@ -152,16 +161,18 @@ class BaseBuild {
 	/**
 	 * @return Shield\Databases\Base\Select
 	 */
-	public function getQuerySelector() {
-		return $this->oQuerySelector;
+	public function getWorkingSelector() {
+		if ( empty( $this->oWorkingSelector ) ) {
+			$this->oWorkingSelector = $this->getDbHandler()->getQuerySelector();
+		}
+		return $this->oWorkingSelector;
 	}
 
 	/**
-	 * @param Shield\Databases\Base\Select $oQuerySelector
 	 * @return $this
 	 */
-	public function setQuerySelector( $oQuerySelector ) {
-		$this->oQuerySelector = $oQuerySelector;
+	protected function startQueryProcess() {
+		unset( $this->oWorkingSelector );
 		return $this;
 	}
 }

@@ -163,12 +163,12 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function ajaxExec_BuildTableIps() {
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->getProcessor();
+		$oTableBuilder = ( new Shield\Tables\Build\Ip() )
+			->setMod( $this )
+			->setDbHandler( $oPro->getDbHandler() );
 
-		if ( $oPro->getDbHandler()->getQuerySelector()->count() > 0 ) {
-			$sRendered = ( new Shield\Tables\Build\Ip() )
-				->setMod( $this )
-				->setQuerySelector( $oPro->getDbHandler()->getQuerySelector() )
-				->buildTable();
+		if ( $oTableBuilder->countTotal() > 0 ) {
+			$sRendered = $oTableBuilder->buildTable();
 		}
 		else {
 			$sRendered = '<div class="alert alert-info m-0">No items discovered</div>';

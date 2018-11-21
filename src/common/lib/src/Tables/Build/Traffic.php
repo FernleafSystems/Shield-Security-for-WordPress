@@ -20,10 +20,10 @@ class Traffic extends BaseBuild {
 	 * Override this to apply table-specific query filters.
 	 * @return $this
 	 */
-	protected function applyQueryFilters() {
+	protected function applyCustomQueryFilters() {
 		$aParams = $this->getParams();
 		/** @var \ICWP_WPSF_Query_TrafficEntry_Select $oSelector */
-		$oSelector = $this->getQuerySelector();
+		$oSelector = $this->getWorkingSelector();
 
 		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
