@@ -557,6 +557,15 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink[ 'href' ], "_blank", $aMetaLink[ 'name' ] );;
 				array_push( $aPluginMeta, $sSettingsLink );
 			}
+
+			if ( !$this->loadDP()->getPhpVersionIsAtLeast( '5.4' ) ) {
+				$aPluginMeta[] = sprintf(
+					'<a href="%s" target="_blank" title="%s" style="color: red;">%s</a>',
+					'https://icwp.io/dj',
+					'Upgrades Not Available',
+					'PHP Too Old!'
+				);
+			}
 		}
 		return $aPluginMeta;
 	}
@@ -734,7 +743,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$sFile = $this->getPluginBaseFile();
 		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
 			if ( version_compare( $oUpdates->response[ $sFile ]->new_version, '7.0.0', '>=' )
-				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.3.0' ) ) {
+				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' ) ) {
 				unset( $oUpdates->response[ $sFile ] );
 			}
 		}
@@ -1641,7 +1650,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getUniqueRequestId( $bSetIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
-				$this->getSessionId( $bSetIfNeeded ).$this->loadIpService()->getRequestIp().$this->loadRequest()->ts().wp_rand()
+				$this->getSessionId( $bSetIfNeeded ).$this->loadIpService()->getRequestIp().$this->loadRequest()
+																								 ->ts().wp_rand()
 			);
 		}
 		return self::$sRequestId;
