@@ -51,14 +51,11 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( empty( $sTableName ) ) {
 			throw new Exception( 'Table name is empty' );
 		}
-		$this->oDbh = $this->getDbHandler()
-						   ->setTable( $this->getMod()->prefixOptionKey( $sTableName ) )
-						   ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
-						   ->setSqlCreate( $this->getCreateTableSql() );
-
-		if ( $this->oDbh->tableInit() ) {
-			$this->createCleanupCron();
-		}
+		$this->getDbHandler()
+			 ->setTable( $this->getMod()->prefixOptionKey( $sTableName ) )
+			 ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
+			 ->setSqlCreate( $this->getCreateTableSql() )
+			 ->tableInit();
 	}
 
 	/**
@@ -98,17 +95,14 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	abstract protected function getTableColumnsByDefinition();
 
-	/**
-	 * Will setup the cleanup cron to clean out old entries. This should be overridden per implementation.
-	 */
-	protected function createCleanupCron() {
-		$sFullHookName = $this->getDbCleanupHookName();
-		if ( !wp_next_scheduled( $sFullHookName ) && !defined( 'WP_INSTALLING' ) ) {
-			$nNextRun = strtotime( 'tomorrow 6am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS;
-			wp_schedule_event( $nNextRun, 'daily', $sFullHookName );
+	public function runDailyCron() {
+		try {
+			if ( $this->getDbHandler()->isReady() ) {
+				$this->cleanupDatabase();
+			}
 		}
-		$sFullHookName = $this->getDbCleanupHookName();
-		add_action( $sFullHookName, array( $this, 'cleanupDatabase' ) );
+		catch ( Exception $oE ) {
+		}
 	}
 
 	/**

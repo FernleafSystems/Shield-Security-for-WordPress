@@ -221,7 +221,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function getUfcCronName() {
-		return $this->prefixOptionKey( $this->getDef( 'unrecognisedscan_cron_name' ) );
+		return $this->prefix( $this->getDef( 'cron_scan_ufc' ) );
 	}
 
 	/**
@@ -317,7 +317,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function getWcfCronName() {
-		return $this->prefixOptionKey( $this->getDef( 'corechecksum_cron_name' ) );
+		return $this->prefix( $this->getDef( 'cron_scan_wcf' ) );
 	}
 
 	/**
@@ -457,7 +457,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function getPtgCronName() {
-		return $this->prefixOptionKey( $this->getDef( 'ptg_cronname' ) );
+		return $this->prefix( $this->getDef( 'cron_scan_ptg' ) );
 	}
 
 	/**

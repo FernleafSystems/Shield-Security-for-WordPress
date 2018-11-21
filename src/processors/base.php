@@ -41,6 +41,8 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
 
+		add_action( $oModCon->prefix( 'daily-cron' ), array( $this, 'runDailyCron' ) );
+
 		$this->init();
 	}
 
@@ -73,6 +75,9 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function isLoginCaptured() {
 		return (bool)$this->bLoginCaptured;
+	}
+
+	public function runDailyCron() {
 	}
 
 	/**

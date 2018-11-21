@@ -8,6 +8,8 @@ require_once( dirname( __FILE__ ).'/base_plugin.php' );
 
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
+	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+
 	/**
 	 * @var ICWP_WPSF_Processor_Plugin_Badge
 	 */
@@ -24,6 +26,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
+		$this->setupCron();
 
 		$this->removePluginConflicts();
 		$this->getBadgeProcessor()
@@ -59,11 +62,25 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		add_action( 'admin_footer', array( $this, 'printPluginDeactivateSurvey' ), 100, 0 );
 	}
 
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
+	protected function getCronName() {
+		return $this->getMod()->prefix( 'daily' );
+	}
+
+	/**
+	 * Use the included action to hook into the plugin's daily cron
+	 */
+	public function runCron() {
+		do_action( $this->getMod()->prefix( 'daily-cron' ) );
+	}
+
 	public function onWpLoaded() {
 		if ( $this->getController()->isValidAdminArea() ) {
 			$this->maintainPluginLoadPosition();
 		}
-		$this->setupTestCron();
 	}
 
 	/**
@@ -174,31 +191,10 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		echo $oFO->renderTemplate( 'snippets/plugin_tracking_data_dump.php', $aRenderData );
 	}
 
-	protected function setupTestCron() {
-		try {
-			$this->loadWpCronProcessor()
-				 ->setRecurrence( 'daily' )
-				 ->createCronJob(
-					 $this->prefix( 'testcron' ),
-					 array( $this, 'cron_TestCron' )
-				 );
-		}
-		catch ( Exception $oE ) {
-		}
-		add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
-	public function cron_TestCron() {
+	public function runDailyCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$oFO->updateTestCronLastRunAt();
-	}
-
-	/**
-	 */
-	public function deleteCron() {
-		$this->loadWpCronProcessor()
-			 ->deleteCronJob( $this->prefix( 'testcron' ) );
 	}
 
 	/**

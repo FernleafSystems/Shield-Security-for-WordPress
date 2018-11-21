@@ -11,12 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 */
-	protected function updateHandler() {
-		$this->loadWpCronProcessor()->deleteCronJob( $this->prefix( $this->getDef( 'cron_name_sessionscleanup' ) ) );
-	}
-
-	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */

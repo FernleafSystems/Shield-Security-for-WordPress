@@ -8,6 +8,8 @@ require_once( dirname( __FILE__ ).'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_BaseWpsf {
 
+	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+
 	/**
 	 * @var string
 	 */
@@ -39,13 +41,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		$oFO = $this->getMod();
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', array( $this, 'autoupdateVulnerablePlugins' ), PHP_INT_MAX, 2 );
-		}
-
-		try {
-			$this->setupVulnScanCron();
-		}
-		catch ( Exception $oE ) {
-			error_log( $oE->getMessage() );
 		}
 	}
 
@@ -231,7 +226,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		return $bSendSuccess;
 	}
 
-	public function cron_dailyWpVulnScan() {
+	public function runCron() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
@@ -391,15 +386,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * @throws Exception
-	 */
-	protected function setupVulnScanCron() {
-		$this->loadWpCronProcessor()
-			 ->createCronJob( $this->getCronName(), array( $this, 'cron_dailyWpVulnScan' ) );
-		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getApiRootUrl() {
@@ -414,6 +400,6 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function getCronName() {
 		$oFO = $this->getMod();
-		return $oFO->prefixOptionKey( $oFO->getDef( 'wpvulnscan_cron_name' ) );
+		return $oFO->prefix( $oFO->getDef( 'cron_scan_wpv' ) );
 	}
 }

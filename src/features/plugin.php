@@ -19,6 +19,26 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 */
+	protected function updateHandler() {
+		$this->deleteAllPluginCrons();
+	}
+
+	private function deleteAllPluginCrons() {
+		$oWpCron = $this->loadWpCronProcessor();
+
+		foreach ( $oWpCron->getCrons() as $nKey => $aCronArgs ) {
+			foreach ( $aCronArgs as $sHook => $aCron ) {
+				if ( strpos( $sHook, $this->prefix() ) === 0
+					 || strpos( $sHook, $this->prefixOptionKey() ) === 0 ) {
+					$oWpCron->deleteCronJob( $sHook );
+				}
+			}
+		}
+	}
+
+
+	/**
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {

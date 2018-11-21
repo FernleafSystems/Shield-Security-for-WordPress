@@ -12,7 +12,6 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	 */
 	public function run() {
 		parent::run();
-		$this->setupCron();
 		$this->setupSnapshots();
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */

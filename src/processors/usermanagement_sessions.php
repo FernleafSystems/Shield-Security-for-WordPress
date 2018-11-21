@@ -6,12 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
 
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
-
 	public function run() {
 		if ( $this->isReadyToRun() ) {
 			parent::run();
-			$this->setupCron();
 			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
 			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
 			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 1 ); // Check the current every page load.
@@ -21,17 +18,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	/**
 	 * Cron callback
 	 */
-	public function runCron() {
+	public function runDailyCron() {
 		$this->cleanExpiredSessions();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDef( 'cron_name_sessionscleanup' ) );
 	}
 
 	/**

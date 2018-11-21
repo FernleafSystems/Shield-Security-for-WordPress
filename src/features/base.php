@@ -1428,7 +1428,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param $sKey
 	 * @return string
 	 */
-	public function prefixOptionKey( $sKey ) {
+	public function prefixOptionKey( $sKey = '' ) {
 		return $this->prefix( $sKey, '_' );
 	}
 
