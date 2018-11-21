@@ -72,6 +72,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		/** @var Shield\Databases\Session\Select $oSel */
 		$oSel = $this->getSessionsProcessor()->getDbHandler()->getQuerySelector();
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
+			->setMod( $this )
 			->setQuerySelector( $oSel );
 
 		return array(

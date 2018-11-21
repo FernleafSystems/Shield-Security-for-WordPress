@@ -974,7 +974,9 @@ td.cell_delete_note {
 }
 /** TABLES **/
 th.column-created_at,
+th.column-last_access_at,
 th.column-logged_in_at,
+th.column-expires_at,
 th.column-last_activity_at {
 	max-width: 165px;
 	width: 165px;

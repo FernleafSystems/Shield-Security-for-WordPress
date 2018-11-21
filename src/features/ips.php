@@ -166,6 +166,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		if ( $oPro->getDbHandler()->getQuerySelector()->count() > 0 ) {
 			$sRendered = ( new Shield\Tables\Build\Ip() )
+				->setMod( $this )
 				->setQuerySelector( $oPro->getDbHandler()->getQuerySelector() )
 				->buildTable();
 		}

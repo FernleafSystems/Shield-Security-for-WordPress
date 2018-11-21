@@ -682,6 +682,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 
 			$sRendered = $oTableBuilder
+				->setMod( $this )
 				->setQuerySelector( $oSel )
 				->buildTable();
 		}

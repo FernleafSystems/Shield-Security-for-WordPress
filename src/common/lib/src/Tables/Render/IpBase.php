@@ -13,6 +13,14 @@ class IpBase extends Base {
 	}
 
 	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_ip( $aItem ) {
+		return $this->getIpWhoisLookupLink( $aItem[ 'ip' ] );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function get_columns() {

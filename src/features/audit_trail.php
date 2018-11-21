@@ -46,6 +46,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		$oDbh = $oPro->getDbHandler();
 		if ( $oDbh->getQuerySelector()->count() > 0 ) {
 			$sRendered = ( new Shield\Tables\Build\AuditTrail() )
+				->setMod( $this )
 				->setQuerySelector( $oDbh->getQuerySelector() )
 				->buildTable();
 		}

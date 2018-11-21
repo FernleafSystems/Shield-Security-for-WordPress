@@ -92,6 +92,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					),
 					'flags'   => array(),
 					'strings' => array(
+						'trans_limit'       => sprintf(
+							'Transgressions required for IP block: %s',
+							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpMod->getOptTransgressionLimit() )
+						),
 						'title_whitelist'   => _wpsf__( 'IP Whitelist' ),
 						'title_blacklist'   => _wpsf__( 'IP Blacklist' ),
 						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),

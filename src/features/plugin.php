@@ -372,6 +372,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		if ( $oNotesPro->getDbHandler()->getQuerySelector()->count() > 0 ) {
 			$sRendered = ( new Shield\Tables\Build\AdminNotes() )
+				->setMod( $this )
 				->setQuerySelector( $oNotesPro->getDbHandler()->getQuerySelector() )
 				->buildTable();
 		}

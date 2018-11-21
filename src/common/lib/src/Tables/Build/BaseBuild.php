@@ -2,14 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 class BaseBuild {
 
+	use Shield\Modules\ModConsumer;
+
 	/**
-	 * @var Databases\Base\Select
+	 * @var Shield\Databases\Base\Select
 	 */
 	protected $oQuerySelector;
 
@@ -49,7 +51,7 @@ class BaseBuild {
 	}
 
 	/**
-	 * @return array[]|int|string[]|\ICWP_WPSF_BaseEntryVO[]
+	 * @return array[]|int|string[]|Shield\Databases\Base\EntryVO[]
 	 */
 	protected function getEntriesRaw() {
 		$aEntries = $this->applyDefaultParameters()
@@ -148,14 +150,14 @@ class BaseBuild {
 	}
 
 	/**
-	 * @return Databases\Base\Select
+	 * @return Shield\Databases\Base\Select
 	 */
 	public function getQuerySelector() {
 		return $this->oQuerySelector;
 	}
 
 	/**
-	 * @param Databases\Base\Select $oQuerySelector
+	 * @param Shield\Databases\Base\Select $oQuerySelector
 	 * @return $this
 	 */
 	public function setQuerySelector( $oQuerySelector ) {

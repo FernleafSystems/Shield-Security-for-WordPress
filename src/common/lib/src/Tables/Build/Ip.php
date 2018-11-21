@@ -38,15 +38,22 @@ class Ip extends BaseBuild {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
+		$nTransLimit = $oMod->getOptTransgressionLimit();
+
 		$aEntries = array();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var EntryVO $oEntry */
 			$aE = $oEntry->getRawData();
+			$bBlocked = $oEntry->transgressions >= $nTransLimit;
+			$aE[ 'last_trans_at' ] = ( new \Carbon\Carbon() )->setTimestamp( $oEntry->last_access_at )->diffForHumans();
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );
+			$aE[ 'expires_at' ] = $this->formatTimestampField( $oEntry->last_access_at + $oMod->getAutoExpireTime() );
 			$aEntries[ $nKey ] = $aE;
 		}
-
 		return $aEntries;
 	}
 
