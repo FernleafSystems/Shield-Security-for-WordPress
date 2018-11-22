@@ -22,10 +22,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		parent::run();
 		$this->loadAutoload();
 		$this->setupCron();
-
-		if ( isset( $_GET[ 'test' ] ) ) {
-			$this->runCron();
-		}
 	}
 
 	/**
