@@ -51,6 +51,14 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_cb( $aItem ) {
+		return sprintf( '<input type="checkbox" name="ids" value="%s" />', $aItem['id'] );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function get_sortable_columns() {

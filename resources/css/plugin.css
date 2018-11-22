@@ -1060,7 +1060,7 @@ table.odp-table.scan-table td.column-path code {
 }
 .container-scantable .tablenav.top,
 .container-scantable .tablenav.bottom {
-	display: none;
+	/*display: none;*/
 }
 /** END TABLES SCANS **/
 .insights_section.keys .alert {

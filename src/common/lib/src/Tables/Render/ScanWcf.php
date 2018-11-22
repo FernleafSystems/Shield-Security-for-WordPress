@@ -14,4 +14,24 @@ class ScanWcf extends ScanBase {
 		return $this->getActionButton_Repair( $aItem[ 'id' ] )
 			   .$this->getActionButton_Ignore( $aItem[ 'id' ] );
 	}
+
+	/**
+	 * @return array
+	 */
+	protected function get_bulk_actions() {
+		return array(
+			'repair' => 'Repair',
+			'ignore' => 'Ignore',
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_columns() {
+		return array_merge(
+			[ 'cb' => '&nbsp;' ],
+			parent::get_columns()
+		);
+	}
 }

@@ -14,4 +14,24 @@ class ScanUfc extends ScanBase {
 		return $this->getActionButton_Delete( $aItem[ 'id' ] )
 			   .$this->getActionButton_Ignore( $aItem[ 'id' ] );
 	}
+
+	/**
+	 * @return array
+	 */
+	protected function get_bulk_actions() {
+		return array(
+			'delete' => 'Delete',
+			'ignore' => 'Ignore',
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function get_columns() {
+		return array_merge(
+			[ 'cb' => '&nbsp;' ],
+			parent::get_columns()
+		);
+	}
 }

@@ -248,26 +248,30 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$oConn = $this->getConn();
 
 				$aStdDeps = array( $this->prefix( 'plugin' ) );
-				switch ( $this->loadRequest()->query( 'subnav' ) ) {
+				$sSubnav = $this->loadRequest()->query( 'subnav' );
+				switch ( $sSubnav ) {
 
 					case 'scans':
-						$sAsset = 'shield-scans';
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script(
-							$sUnique,
-							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							$aStdDeps,
-							$oConn->getVersion(),
-							false
-						);
-						wp_enqueue_script( $sUnique );
-						break;
-
 					case 'audit':
 					case 'ips':
 					case 'notes':
 					case 'traffic':
 					case 'users':
+
+						if ( $sSubnav == 'scans' ) {
+							$sAsset = 'shield-scans';
+							$sUnique = $this->prefix( $sAsset );
+							wp_register_script(
+								$sUnique,
+								$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+								$aStdDeps,
+								$oConn->getVersion(),
+								false
+							);
+							wp_enqueue_script( $sUnique );
+							break;
+						}
+
 						$sAsset = 'shield-tables';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(

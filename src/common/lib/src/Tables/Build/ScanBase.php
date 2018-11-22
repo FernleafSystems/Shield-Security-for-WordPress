@@ -38,4 +38,13 @@ class ScanBase extends BaseBuild {
 			'fIgnored' => 'N',
 		);
 	}
+
+	/**
+	 * @return array
+	 */
+	protected function getParamDefaults() {
+		$aP = parent::getParamDefaults();
+		$aP[ 'limit' ] = PHP_INT_MAX;
+		return $aP;
+	}
 }

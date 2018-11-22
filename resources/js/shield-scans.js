@@ -26,6 +26,7 @@
 			},
 			buildCache: function () {
 				this.$element = $( this.element );
+				this.$bulkAction = $( 'select[name=action]' );
 			},
 			bindEvents: function () {
 				var plugin = this;
@@ -59,6 +60,31 @@
 						plugin.repairEntry.call( plugin );
 					}
 				);
+
+				plugin.$element.on(
+					'click' + '.' + plugin._name,
+					'.tablenav.top input[type=submit].button.action',
+					function ( evt ) {
+						evt.preventDefault();
+						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
+						if ( sAction !== "-1" ) {
+
+							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
+								function () {
+									return $( this ).val()
+								} ).get();
+							if ( aCheckedIds.length < 1 ) {
+								alert( 'Nothing selected.' );
+							}
+
+							plugin.options[ 'req_params' ][ 'bulk_action' ] = sAction;
+							plugin.options[ 'req_params' ][ 'ids' ] = aCheckedIds;
+							plugin.bulkAction.call( plugin );
+						}
+						return false;
+					}
+				);
+
 			},
 			unbindEvents: function () {
 				/*
@@ -66,6 +92,11 @@
 					to "this.$element".
 				*/
 				this.$element.off( '.' + this._name );
+			},
+
+			bulkAction: function () {
+				var aRequestData = this.options[ 'ajax_bulk_action' ];
+				this.sendReq( aRequestData );
 			},
 
 			deleteEntry: function () {

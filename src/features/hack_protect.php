@@ -25,12 +25,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function handleAuthAjax( $aAjaxResponse ) {
+		$oReq = $this->loadRequest();
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( $oReq->request( 'exec' ) ) {
 
 				case 'start_scans':
 					$aAjaxResponse = $this->ajaxExec_StartScans();
+					break;
+
+				case 'bulk_action':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'bulk_action' ) );
 					break;
 
 				case 'item_delete':
@@ -729,6 +734,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		);
 	}
 
+	public function ajaxExec_ScanBulkAction( $sAction ) {
+
+	}
+
 	/**
 	 * @param string $sAction
 	 * @return array
@@ -761,19 +770,34 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		$sItemId = $oReq->post( 'rid' );
+		$aItemIds = $oReq->post( 'ids' );
 		if ( empty( $oTablePro ) ) {
 			$sMessage = _wpsf__( 'Unsupported action' );
 		}
-		else if ( empty( $sItemId ) ) {
-			$sMessage = _wpsf__( 'Unsupported item selected' );
+		else if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
+			$sMessage = _wpsf__( 'Unsupported item(s) selected' );
 		}
 		else {
+			if ( empty( $aItemIds ) ) {
+				$aItemIds = array( $sItemId );
+			}
 			try {
-				$bSuccess = $oTablePro->executeItemAction( $sItemId, $sAction );
-				if ( $bSuccess ) {
-					$oTablePro->doScan();
+				$bSuccess = true;
+				$aSuccessfulItems = array();
+				foreach ( $aItemIds as $sId ) {
+					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
+						$aSuccessfulItems[] = $sId;
+					}
 				}
-				$sMessage = 'Success';
+
+				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
+					$bSuccess = true;
+					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
+				}
+				else {
+					$sMessage = 'An error occurred. Re-scanning and reloading ...';
+				}
+				$oTablePro->doScan();
 			}
 			catch ( Exception $oE ) {
 				$sMessage = $oE->getMessage();

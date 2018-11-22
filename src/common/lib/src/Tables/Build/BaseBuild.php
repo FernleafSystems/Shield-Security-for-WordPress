@@ -156,7 +156,7 @@ class BaseBuild {
 	/**
 	 * @return array
 	 */
-	private function getParamDefaults() {
+	protected function getParamDefaults() {
 		return array_merge(
 			array(
 				'paged'   => 1,
