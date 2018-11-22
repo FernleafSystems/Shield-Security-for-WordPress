@@ -229,7 +229,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				),
 				'ptg' => array(
 					'flags'        => array(
-						'is_available'  => !$bIsPremium,
+						'is_available'  => $bIsPremium,
 						'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
 						'has_items'     => $oFullResults->hasItems(),
 						'has_plugins'   => !empty( $aPlugins ),

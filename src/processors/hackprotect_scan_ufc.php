@@ -13,24 +13,8 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'ufc';
 
 	/**
-	 */
-	public function run() {
-		parent::run();
-
-		if ( $this->loadWpUsers()->isUserAdmin() ) {
-			$oReq = $this->loadRequest();
-
-			switch ( $oReq->query( 'shield_action' ) ) {
-				case 'delete_unrecognised_file':
-					$sPath = '/'.$oReq->query( 'repair_file_path' ); // "/" prevents esc_url() from prepending http.
-					break;
-			}
-		}
-	}
-
-	/**
 	 * @param Shield\Scans\UnrecognisedCore\ResultsSet $oResults
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function convertResultsToVos( $oResults ) {
 		return ( new Shield\Scans\UnrecognisedCore\ConvertResultsToVos() )->convert( $oResults );
@@ -45,7 +29,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @param Shield\Databases\Scanner\EntryVO $oVo
 	 * @return Shield\Scans\UnrecognisedCore\ResultItem
 	 */
 	protected function convertVoToResultItem( $oVo ) {
@@ -146,7 +130,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( '[%s] %s', _wpsf__( 'Warning' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
+				 sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
 				 $this->buildEmailBodyFromFiles( $aFiles )
 			 );
 
@@ -168,12 +152,12 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
 		$aContent = array(
 			sprintf( _wpsf__( 'The %s Unrecognised File Scanner found files which you need to review.' ), $sName ),
+			'',
 			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-			''
 		);
 
 		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() || !$oFO->canRunWizards() ) {
-			$aContent[] = _wpsf__( 'Files that were discovered' ).':';
+			$aContent[] = _wpsf__( 'Files discovered' ).':';
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}
@@ -185,18 +169,12 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			}
 		}
 
-		if ( $oFO->canRunWizards() ) {
-			$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
-			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-				$oFO->getUrl_Wizard( 'ufc' ),
-				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-				_wpsf__( 'Run Scanner' )
-			);
-			$aContent[] = '';
-		}
+		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+		$aContent[] = $this->getScannerButtonForEmail();
+		$aContent[] = '';
 
 		if ( !$oFO->getConn()->isRelabelled() ) {
-			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+			$aContent[] = sprintf( '[ <a href="https://icwp.io/moreinfoufc">%s</a> ]', _wpsf__( 'More Info On This Scanner' ) );
 		}
 
 		return $aContent;
