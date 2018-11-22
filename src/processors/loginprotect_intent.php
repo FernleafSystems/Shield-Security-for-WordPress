@@ -129,6 +129,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
 	private function processLoginIntent() {
+		$oWp = $this->loadWp();
 		$oWpUsers = $this->loadWpUsers();
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
@@ -140,13 +141,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$bIsLoginIntentSubmission = $oReq->request( $oFO->getLoginIntentRequestFlag() ) == 1;
 			if ( $bIsLoginIntentSubmission ) {
 
+
 				if ( $oReq->post( 'cancel' ) == 1 ) {
 					$oWpUsers->logoutUser(); // clears the login and login intent
-					$this->loadWp()->redirectToLogin();
-					return;
+					$sRedirectHref = $oReq->post( 'cancel_href' );
+					empty( $sRedirectHref ) ? $oWp->redirectToLogin() : $oWp->doRedirect( rawurldecode( $sRedirectHref ) );
 				}
+				else if ( $this->isLoginIntentValid() ) {
 
-				if ( $this->isLoginIntentValid() ) {
 					if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
 						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
 					}
@@ -160,11 +162,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 					$oFO->setFlashAdminNotice( $sFlash )
 						->setOptInsightsAt( 'last_2fa_login_at' );
+
+					$sRedirectHref = $oReq->post( 'redirect_to' );
+					empty( $sRedirectHref ) ? $oWp->redirectHere() : $oWp->doRedirect( rawurldecode( $sRedirectHref ) );
 				}
 				else {
 					$oFO->setFlashAdminNotice( _wpsf__( 'One or more of your authentication codes failed or was missing' ), true );
+					$this->loadWp()->redirectHere();
 				}
-				$this->loadWp()->redirectHere();
+				return; // we've redirected anyway.
 			}
 			if ( $this->printLoginIntentForm() ) {
 				die();
@@ -248,6 +254,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 		$oCon = $this->getController();
+		$oReq = $this->loadRequest();
 		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
 		if ( empty( $aLoginIntentFields ) ) {
@@ -271,7 +278,26 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$sMessageType = 'warning';
 		}
 
-		$sRedirectTo = rawurlencode( $this->loadRequest()->getUri() ); // not actually used
+		$sReferUrl = $oReq->server( 'HTTP_REFERER', '' );
+		if ( strpos( $sReferUrl, '?' ) ) {
+			list( $sReferUrl, $sReferQuery ) = explode( '?', $sReferUrl, 2 );
+		}
+		else {
+			$sReferQuery = '';
+		}
+
+		$sRedirectTo = $oReq->post( 'redirect_to', '' );
+		if ( !empty( $sReferQuery ) ) {
+			parse_str( $sReferQuery, $aReferQueryItems );
+			if ( !empty( $aReferQueryItems[ 'redirect_to' ] ) ) {
+				$sRedirectTo = rawurlencode( $aReferQueryItems[ 'redirect_to' ] );
+			}
+		}
+
+		$sCancelHref = $oReq->post( 'cancel_href', '' );
+		if ( empty( $sCancelHref ) && $this->loadDP()->isValidUrl( $sReferUrl ) ) {
+			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
+		}
 
 		$aLabels = $oCon->getPluginLabels();
 		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
@@ -300,12 +326,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'login_intent_flag' => $oFO->getLoginIntentRequestFlag()
 			),
 			'hrefs'   => array(
-				'form_action'   => $this->loadRequest()->getUri(),
+				'form_action'   => $oReq->getUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min.js' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
+				'cancel_href'   => $sCancelHref
 			),
 			'imgs'    => array(
 				'banner'  => $sBannerUrl,
