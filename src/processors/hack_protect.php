@@ -93,6 +93,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function buildInsightsVars() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		$oCon = $this->getController();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
@@ -123,7 +124,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'slug'           => $sSlug,
 				'is_wporg'       => $bIsWpOrg,
 				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => $bInstalled,
+				'can_deactivate' => $bInstalled && ( $sSlug !== $oCon->getPluginBaseFile() ),
 				'has_update'     => $bHasUpdate,
 				'count_files'    => $oItemRS->countItems(),
 				'date_snapshot'  => 'TODODODO',

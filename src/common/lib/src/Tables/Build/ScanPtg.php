@@ -59,9 +59,9 @@ class ScanPtg extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanUfc
+	 * @return Shield\Tables\Render\ScanPtg
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanUfc();
+		return new Shield\Tables\Render\ScanPtg();
 	}
 }

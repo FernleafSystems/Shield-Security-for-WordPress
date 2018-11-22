@@ -100,6 +100,35 @@ class ResultsSet extends Base\BaseResultsSet {
 	}
 
 	/**
+	 * @param string $sContext
+	 * @return ResultsSet
+	 */
+	public function getResultsForContext( $sContext ) {
+		$oRs = new ResultsSet();
+		foreach ( $this->getAllItems() as $oItem ) {
+			/** @var ResultItem $oItem */
+			if ( $oItem->context == $sContext ) {
+				$oRs->addItem( $oItem );
+			}
+		}
+		return $oRs;
+	}
+
+	/**
+	 * @return ResultsSet
+	 */
+	public function getResultsForPluginsContext() {
+		return $this->getResultsForContext( ScannerPlugins::CONTEXT );
+	}
+
+	/**
+	 * @return ResultsSet
+	 */
+	public function getResultsForThemesContext() {
+		return $this->getResultsForContext( ScannerThemes::CONTEXT );
+	}
+
+	/**
 	 * Provides a collection of ResultsSets for Themes.
 	 * @return ResultsSet[]
 	 */
@@ -127,6 +156,19 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @return string[]
 	 */
 	public function getUniqueSlugs() {
+		return array_unique( array_map(
+			function ( $oItem ) {
+				/** @var ResultItem $oItem */
+				return $oItem->slug;
+			},
+			$this->getItems()
+		) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getUniqueSlugsForPlugins() {
 		return array_unique( array_map(
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */

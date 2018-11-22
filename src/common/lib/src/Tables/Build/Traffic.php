@@ -82,9 +82,7 @@ class Traffic extends BaseBuild {
 		$oIp = Services::IP();
 		$sYou = $oIp->getRequestIp();
 
-		$aUsers = array(
-			0 => _wpsf__( 'No' ),
-		);
+		$aUsers = array( 0 => _wpsf__( 'No' ) );
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var \ICWP_WPSF_TrafficEntryVO $oEntry */
 			$sIp = $oEntry->ip;

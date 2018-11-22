@@ -543,12 +543,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Databases\Scanner\EntryVO[]
+	 * @param Shield\Scans\PTGuard\ResultsSet $oRes
 	 */
-	protected function handleScanResults( $aRes ) {
-		return; // TODO
-		if ( $this->canSendResults( $aRes ) ) {
-			$this->emailResults( $aRes );
+	protected function handleScanResults( $oRes ) {
+		if ( true || $this->canSendResults( $oRes ) ) { // TODO
+			$this->emailResults( $oRes );
 		}
 		else {
 			$this->addToAuditEntry( _wpsf__( 'Silenced repeated email alert from Plugin/Theme Scan Guard' ) );
@@ -556,63 +555,33 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * Cron callback
+	 * @param Shield\Scans\PTGuard\ResultsSet $oRes
 	 */
-	public function cron_runGuardScan() {
-		$aPs = $this->scanPlugins();
-		$aTs = $this->scanThemes();
-
-		$aResults = array();
-		if ( !empty( $aPs ) ) {
-			$aResults[ self::CONTEXT_PLUGINS ] = $aPs;
-		}
-		if ( !empty( $aTs ) ) {
-			$aResults[ self::CONTEXT_THEMES ] = $aTs;
-		}
-
-		// Only email if there's results
-		if ( !empty( $aResults ) ) {
-
-			if ( $this->canSendResults( $aResults ) ) {
-				$this->emailResults( $aResults );
-			}
-			else {
-				$this->addToAuditEntry( _wpsf__( 'Silenced repeated email alert from Plugin/Theme Scan Guard' ) );
-			}
-		}
-	}
-
-	/**
-	 * @param array[][] $aResults
-	 */
-	protected function emailResults( $aResults ) {
+	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
+		$oWpPlugins = Services\Services::WpPlugins();
+		$oWpThemes = Services\Services::WpThemes();
 
-		// Plugins
 		$aAllPlugins = array();
-		if ( isset( $aResults[ self::CONTEXT_PLUGINS ] ) ) {
-			$oPlgs = $this->loadWpPlugins();
-			$aAllPlugins = array_filter( array_map(
-				function ( $sBaseFile ) use ( $oPlgs ) {
-					$aData = $oPlgs->getPlugin( $sBaseFile );
-					return sprintf( '%s: v%s', $aData[ 'Name' ], ltrim( $aData[ 'Version' ], 'v' ) );
-				},
-				array_keys( $aResults[ self::CONTEXT_PLUGINS ] )
-			) );
+		foreach ( $oRes->getResultsForPluginsContext()->getUniqueSlugs() as $sBaseFile ) {
+			$oP = $oWpPlugins->getPluginAsVo( $sBaseFile );
+			if ( !empty( $oP ) ) {
+				$sVersion = $oP->Version;
+				if ( !empty( $sVersion ) ) {
+					$sVersion = ': v'.ltrim( $sVersion, 'v' );
+				}
+				$aAllPlugins[] = sprintf( '%s%s', $oP->Name, $sVersion );
+			}
 		}
 
-		// Themes
 		$aAllThemes = array();
-		if ( isset( $aResults[ self::CONTEXT_THEMES ] ) ) {
-			$oThms = $this->loadWpThemes();
-			$aAllThemes = array_filter( array_map(
-				function ( $sBaseFile ) use ( $oThms ) {
-					$oTheme = $oThms->getTheme( $sBaseFile );
-					return sprintf( '%s: v%s', $oTheme->get( 'Name' ), ltrim( $oTheme->get( 'Version' ), 'v' ) );
-				},
-				array_keys( $aResults[ self::CONTEXT_THEMES ] )
-			) );
+		foreach ( $oRes->getResultsForThemesContext()->getUniqueSlugs() as $sBaseFile ) {
+			$oTheme = $oWpThemes->getTheme( $sBaseFile );
+			if ( !empty( $oTheme ) ) {
+				$sVersion = empty( $oTheme->version ) ? '' : ': v'.ltrim( $oTheme->version, 'v' );
+				$aAllThemes[] = sprintf( '%s%s', $oTheme->get( 'Name' ), $sVersion );
+			}
 		}
 
 		$sName = $this->getController()->getHumanName();
@@ -765,59 +734,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			},
 			$this->loadSnapshotData( $sContext )
 		);
-
 		return $this->getContextScanner( $sContext )->run( $aSnaps );
-
-		foreach ( $this->loadSnapshotData( $sContext ) as $sBaseName => $aSnap ) {
-			$aItemResults = array();
-
-			// First grab all the current hashes.
-			try {
-				$aLiveHashes = $this->hashFiles( $sBaseName, $sContext );
-			}
-			catch ( Exception $oE ) {
-				// happens when a plugin/theme no longer exists on disk and we try to get its hashes.
-				// an exception is thrown by the recursive directory iterator
-//				$this->deleteItemFromSnapshot( $sBaseName, $sContext );
-
-				// We now imagine the whole folder is "missing" and we list all files as missing.
-				$aLiveHashes = array();
-			}
-
-			// todo: array_diff_assoc ?
-			$aDifferent = array();
-			foreach ( $aSnap[ 'hashes' ] as $sFile => $sHash ) {
-				if ( isset( $aLiveHashes[ $sFile ] ) && $aLiveHashes[ $sFile ] != $sHash ) {
-					$aDifferent[] = $sFile;
-				}
-			}
-			if ( !empty( $aDifferent ) ) {
-				$aItemResults[ 'different' ] = $aDifferent;
-			}
-
-			// 2nd: Identify live files that exist but not in the cache.
-			$aUnrecog = array_diff_key( $aLiveHashes, $aSnap[ 'hashes' ] );
-			if ( !empty( $aUnrecog ) ) {
-				$aItemResults[ 'unrecognised' ] = array_keys( $aUnrecog );
-			}
-
-			// 3rd: Identify files in the cache but have disappeared from live
-			$aMiss = array_diff_key( $aSnap[ 'hashes' ], $aLiveHashes );
-			if ( !empty( $aMiss ) ) {
-				$aItemResults[ 'missing' ] = array_keys( $aMiss );
-			}
-
-			if ( !empty( $aItemResults ) ) {
-				$bProblemDiscovered = true;
-				$aItemResults[ 'meta' ] = $aSnap[ 'meta' ];
-				$aResults[ $sBaseName ] = $aItemResults;
-			}
-		}
-
-		$bProblemDiscovered ? $oFO->setLastScanProblemAt( 'ptg' ) : $oFO->clearLastScanProblemAt( 'ptg' );
-		$oFO->setLastScanAt( 'ptg' );
-
-		return $aResults;
 	}
 
 	/**

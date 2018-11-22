@@ -1065,6 +1065,9 @@ table.odp-table.scan-table td.column-path code {
 .container-scantable .tablenav.bottom {
 	display: none;
 }
+#SectionScanResultsPtg .card-scan_results table.table td {
+	padding: 0;
+}
 /** END TABLES SCANS **/
 .insights_section.keys .alert {
 	margin-bottom: 0;

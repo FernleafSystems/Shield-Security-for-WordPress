@@ -22,6 +22,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		parent::run();
 		$this->loadAutoload();
 		$this->setupCron();
+
+		if ( isset( $_GET[ 'test' ] ) ) {
+			$this->runCron();
+		}
 	}
 
 	/**
@@ -144,13 +148,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function convertResultsToVos( $oResults );
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
+	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	abstract protected function convertVosToResults( $aVos );
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @param Shield\Databases\Scanner\EntryVO $oVo
 	 * @return Shield\Scans\Base\BaseResultItem
 	 */
 	abstract protected function convertVoToResultItem( $oVo );
@@ -249,14 +253,14 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 					 ->filterByScan( static::SCAN_SLUG )
 					 ->query();
 		if ( !empty( $aRes ) ) {
-			$this->handleScanResults( $aRes );
+			$this->handleScanResults( $this->convertVosToResults( $aRes ) );
 		}
 	}
 
 	/**
-	 * @param Shield\Databases\Scanner\EntryVO[]
+	 * @param Shield\Scans\Base\BaseResultsSet $oRes
 	 */
-	protected function handleScanResults( $aRes ) {
+	protected function handleScanResults( $oRes ) {
 	}
 
 	/**

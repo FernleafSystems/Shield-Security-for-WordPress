@@ -131,13 +131,11 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aRes
+	 * @param Shield\Scans\WpCore\ResultsSet $oRes
 	 */
-	protected function handleScanResults( $aRes ) {
+	protected function handleScanResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-
-		$oRes = $this->convertVosToResults( $aRes );
 
 		if ( $oFO->isWcfScanAutoRepair() ) {
 			$this->getRepairer()->repairResultsSet( $oRes );
