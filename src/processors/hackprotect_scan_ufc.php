@@ -12,6 +12,14 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
 	const SCAN_SLUG = 'ufc';
 
+	public function run() {
+		parent::run();
+
+		if ( isset( $_GET[ 'test' ] ) ) {
+			$this->runCron();
+		}
+	}
+
 	/**
 	 * @param Shield\Scans\UnrecognisedCore\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]

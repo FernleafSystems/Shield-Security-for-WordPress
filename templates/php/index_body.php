@@ -2,7 +2,7 @@
 	<div class="col">
 		<a class="btn btn-block btn-lg btn-info font-weight-bold"
 		   href="<?php echo $hrefs[ 'back_to_dashboard' ]; ?>">
-			&larr; Back To Dashboard
+			&larr; <?php echo $strings[ 'back_to_dashboard' ]; ?>
 		</a>
 	</div>
 </div>

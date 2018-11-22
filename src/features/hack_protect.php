@@ -826,7 +826,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
 					'title'   => 'WP Core Files',
 					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
-					'href'    => $this->getUrl_AdminPage().'#pills-section_core_file_integrity_scan',
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic WordPress Core File scanner should be turned-on.' )
 				);
@@ -847,7 +847,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ufc' ] = array(
 					'title'   => 'Unrecognised Files',
 					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
-					'href'    => $this->getUrl_AdminPage().'#pills-section_unrecognised_file_scan',
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic scanning for non-WordPress core files is recommended.' )
 				);
@@ -868,7 +868,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ptg' ] = array(
 					'title'   => 'Plugin/Theme Guard',
 					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
-					'href'    => $this->getUrl_AdminPage().'#pills-section_pluginthemes_guard',
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic detection of plugin/theme modifications is recommended.' )
 				);
@@ -889,7 +889,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'wpv' ] = array(
 					'title'   => 'Vulnerability Scanner',
 					'message' => _wpsf__( 'Plugin Vulnerability Scanner is not enabled.' ),
-					'href'    => $this->getUrl_AdminPage().'#pills-section_wpvuln_scan',
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic detection of plugin vulnerabilities is recommended.' )
 				);

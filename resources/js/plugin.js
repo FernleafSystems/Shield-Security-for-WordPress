@@ -16,9 +16,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 	var moveCarousel2 = function ( event ) {
 		moveCarousel( 2 );
 	};
-	var moveCarousel3 = function ( event ) {
-		moveCarousel( 3 );
-	};
 
 	var moveCarousel = function ( nSlide ) {
 		jQuery( '.icwp-carousel' ).carousel( nSlide );
@@ -30,7 +27,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 			jQuery( document ).on( "click", "a.icwp-carousel-0", moveCarousel0 );
 			jQuery( document ).on( "click", "a.icwp-carousel-1", moveCarousel1 );
 			jQuery( document ).on( "click", "a.icwp-carousel-2", moveCarousel2 );
-			jQuery( document ).on( "click", "a.icwp-carousel-3", moveCarousel3 );
 
 			/** Track active tab */
 			jQuery( document ).on( "click", "#ModuleOptionsNav a.nav-link", function ( e ) {

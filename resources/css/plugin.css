@@ -1053,6 +1053,14 @@ table.odp-table.scan-table td.column-path code {
 .tablenav.top, .tablenav.bottom {
 	/*display: none;*/
 }
+.container-scantable {
+	max-height: 300px;
+	overflow: auto;
+}
+.container-scantable .tablenav.top,
+.container-scantable .tablenav.bottom {
+	display: none;
+}
 /** END TABLES SCANS **/
 .insights_section.keys .alert {
 	margin-bottom: 0;

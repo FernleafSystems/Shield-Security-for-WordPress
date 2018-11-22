@@ -206,6 +206,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
+				'back_to_dashboard' => sprintf( _wpsf__( 'Back To %s Dashboard' ), $this->getConn()->getHumanName() ),
 				'go_to_settings'    => _wpsf__( 'Settings' ),
 				'on'                => _wpsf__( 'On' ),
 				'off'               => _wpsf__( 'Off' ),
