@@ -258,6 +258,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					case 'traffic':
 					case 'users':
 
+						$sAsset = 'shield-tables';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+
+						$aStdDeps[] = $sUnique;
 						if ( $sSubnav == 'scans' ) {
 							$sAsset = 'shield-scans';
 							$sUnique = $this->prefix( $sAsset );
@@ -269,19 +281,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								false
 							);
 							wp_enqueue_script( $sUnique );
-							break;
 						}
 
-						$sAsset = 'shield-tables';
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script(
-							$sUnique,
-							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							$aStdDeps,
-							$oConn->getVersion(),
-							false
-						);
-						wp_enqueue_script( $sUnique );
 						break;
 				}
 			}

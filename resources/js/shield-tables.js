@@ -46,15 +46,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 		this.element = element;
 		this._name = pluginName;
 		this._defaults = $.fn.icwpWpsfTableActions.defaults;
-		this.options = $.extend(
-			{
-				'forms': {
-					'insert': ''
-				}
-			},
-			this._defaults,
-			options
-		);
+		this.options = $.extend( {}, this._defaults, options );
 		this.init();
 	}
 
@@ -71,7 +63,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			},
 			buildCache: function () {
 				this.$element = $( this.element );
-				this.$oFormInsert = this.options[ 'forms' ][ 'insert' ];
 			},
 			bindEvents: function () {
 				var plugin = this;
@@ -96,16 +87,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					}
 				);
 
-				if ( typeof this.$oFormInsert !== 'undefined' && this.$oFormInsert.length ) {
-					this.$oFormInsert.on(
-						'submit' + '.' + plugin._name,
-						function ( evt ) {
-							evt.preventDefault();
-							plugin.insertEntry.call( plugin );
-						}
-					);
-				}
-
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.repair',
@@ -115,6 +96,31 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						plugin.repairEntry.call( plugin );
 					}
 				);
+
+				plugin.$element.on(
+					'click' + '.' + plugin._name,
+					'.tablenav.top input[type=submit].button.action',
+					function ( evt ) {
+						evt.preventDefault();
+						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
+						if ( sAction !== "-1" ) {
+
+							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
+								function () {
+									return $( this ).val()
+								} ).get();
+							if ( aCheckedIds.length < 1 ) {
+								alert( 'Nothing selected.' );
+							}
+
+							plugin.options[ 'req_params' ][ 'bulk_action' ] = sAction;
+							plugin.options[ 'req_params' ][ 'ids' ] = aCheckedIds;
+							plugin.bulkAction.call( plugin );
+						}
+						return false;
+					}
+				);
+
 			},
 			unbindEvents: function () {
 				/*
@@ -122,6 +128,11 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					to "this.$element".
 				*/
 				this.$element.off( '.' + this._name );
+			},
+
+			bulkAction: function () {
+				var aRequestData = this.options[ 'ajax_bulk_action' ];
+				this.sendReq( aRequestData );
 			},
 
 			deleteEntry: function () {
@@ -132,12 +143,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			ignoreEntry: function () {
 				var aRequestData = this.options[ 'ajax_item_ignore' ];
 				this.sendReq( aRequestData );
-			},
-
-			insertEntry: function () {
-				var requestData = this.options[ 'ajax_item_insert' ];
-				requestData[ 'form_params' ] = this.$oFormInsert.serialize();
-				this.sendReq( requestData );
 			},
 
 			repairEntry: function () {

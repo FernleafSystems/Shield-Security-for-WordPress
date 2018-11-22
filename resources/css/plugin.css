@@ -1059,8 +1059,11 @@ table.odp-table.scan-table td.column-path code {
 	overflow: auto;
 }
 .container-scantable .tablenav.top,
-.container-scantable .tablenav.bottom {
+.container-scantable .tablenav.top {
 	/*display: none;*/
+}
+.container-scantable .tablenav.bottom {
+	display: none;
 }
 /** END TABLES SCANS **/
 .insights_section.keys .alert {
