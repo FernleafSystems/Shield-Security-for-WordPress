@@ -280,7 +280,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
-		if ( $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
 		}
 	}

@@ -93,6 +93,7 @@
             <form action="<?php echo $hrefs[ 'form_action' ]; ?>" method="post" class="form-horizontal">
                 <input type="hidden" name="<?php echo $data[ 'login_intent_flag' ]; ?>" value="1" />
                 <input type="hidden" name="redirect_to" value="<?php echo $hrefs[ 'redirect_to' ]; ?>" />
+                <input type="hidden" name="cancel_href" value="<?php echo $hrefs[ 'cancel_href' ]; ?>" />
 
 				<?php foreach ( $data[ 'login_fields' ] as $aField ) : ?>
 					<div class="form-row">
