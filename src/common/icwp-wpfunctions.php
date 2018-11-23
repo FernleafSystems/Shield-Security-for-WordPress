@@ -728,7 +728,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	public function isRest() {
 		$bIsRest = ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || !empty( $_REQUEST[ 'rest_route' ] );
 
-		if ( !$bIsRest && function_exists( 'rest_url' ) ) {
+		global $wp_rewrite;
+		if ( !$bIsRest && function_exists( 'rest_url' ) && is_object( $wp_rewrite ) ) {
 			$sRestUrlBase = get_rest_url( get_current_blog_id(), '/' );
 			$sRestPath = trim( parse_url( $sRestUrlBase, PHP_URL_PATH ), '/' );
 			$sRequestPath = trim( $this->loadRequest()->getPath(), '/' );
