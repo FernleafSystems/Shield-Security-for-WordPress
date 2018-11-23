@@ -567,10 +567,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		foreach ( $oRes->getResultsForPluginsContext()->getUniqueSlugs() as $sBaseFile ) {
 			$oP = $oWpPlugins->getPluginAsVo( $sBaseFile );
 			if ( !empty( $oP ) ) {
-				$sVersion = $oP->Version;
-				if ( !empty( $sVersion ) ) {
-					$sVersion = ': v'.ltrim( $sVersion, 'v' );
-				}
+				$sVersion = empty( $oP->Version ) ? '' : ': v'.ltrim( $oP->Version, 'v' );
 				$aAllPlugins[] = sprintf( '%s%s', $oP->Name, $sVersion );
 			}
 		}
@@ -613,14 +610,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			}
 		}
 
-		if ( $oFO->canRunWizards() ) {
-			$aContent[] = sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-				$oFO->getUrl_Wizard( 'ptg' ),
-				'border:1px solid;padding:20px;line-height:19px;margin:10px 20px;display:inline-block;text-align:center;width:290px;font-size:18px;',
-				_wpsf__( 'Run the scanner' )
-			);
-			$aContent[] = '';
-		}
+		$aContent[] = $this->getScannerButtonForEmail();
+		$aContent[] = '';
 
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$sEmailSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Plugins/Themes Have Been Altered' ) );
