@@ -20,9 +20,9 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
 			 && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
 
-			$oFO->getSessionsProcessor()
-				->getQueryUpdater()
-				->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
+			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
+			$oUpd->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
 			$this->doStatIncrement( 'login.twofactor.started' )
@@ -65,9 +65,9 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		if ( $bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getMod();
-			$oFO->getSessionsProcessor()
-				->getQueryUpdater()
-				->clearLoginIntentCodeEmail( $oFO->getSession() );
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
+			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
+			$oUpd->clearLoginIntentCodeEmail( $oFO->getSession() );
 		}
 		return $bValid;
 	}

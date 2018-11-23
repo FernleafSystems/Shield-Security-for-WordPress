@@ -75,11 +75,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
 			$oFO = $this->getMod();
 			if ( $oFO->hasSession() ) {
-				$this->getQueryUpdater()
-					 ->updateLastActivity( $this->getCurrentSession() );
+				/** @var Session\Update $oUpd */
+				$oUpd = $this->getDbHandler()->getQueryUpdater();
+				$oUpd->updateLastActivity( $this->getCurrentSession() );
 			}
 		}
-		
+
 		parent::onModuleShutdown();
 	}
 
