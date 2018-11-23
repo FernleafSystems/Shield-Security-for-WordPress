@@ -567,13 +567,17 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @param Shield\Scans\PTGuard\ResultsSet $oRes
 	 */
-	protected function handleScanResults( $oRes ) {
-		if ( true || $this->canSendResults( $oRes ) ) { // TODO
-			$this->emailResults( $oRes );
-		}
-		else {
-			$this->addToAuditEntry( _wpsf__( 'Silenced repeated email alert from Plugin/Theme Scan Guard' ) );
-		}
+	protected function runCronAutoRepair( $oRes ) {
+		// no autorepair
+	}
+
+	/**
+	 * @param Shield\Scans\PTGuard\ResultsSet $oRes
+	 * @return bool
+	 */
+	protected function runCronUserNotify( $oRes ) {
+		$this->emailResults( $oRes );
+		return true;
 	}
 
 	/**
@@ -646,38 +650,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		else {
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin/Theme Guard email alert to: %s' ), $sTo ) );
 		}
-	}
-
-	/**
-	 * @param array $aResults
-	 * @return bool
-	 */
-	private function canSendResults( $aResults ) {
-		return ( $this->getResultsHashTime( md5( serialize( $aResults ) ) ) === 0 );
-	}
-
-	/**
-	 * @param string $sResultHash
-	 * @return int
-	 */
-	private function getResultsHashTime( $sResultHash ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$aTracking = $oFO->getPtgEmailTrackData();
-
-		$nSent = isset( $aTracking[ $sResultHash ] ) ? $aTracking[ $sResultHash ] : 0;
-
-		if ( $this->time() - $nSent > WEEK_IN_SECONDS ) { // reset
-			$nSent = 0;
-		}
-
-		if ( $nSent == 0 ) { // we've seen this changeset before.
-			$aTracking[ $sResultHash ] = $this->time();
-			$oFO->setPtgEmailTrackData( $aTracking );
-		}
-
-		return $nSent;
 	}
 
 	/**

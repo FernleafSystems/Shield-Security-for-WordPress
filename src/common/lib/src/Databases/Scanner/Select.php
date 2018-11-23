@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Select extends Base\Select {
 
@@ -36,6 +37,28 @@ class Select extends Base\Select {
 	 */
 	public function filterByNotIgnored() {
 		return $this->addWhereEquals( 'ignored_at', 0 );
+	}
+
+	/**
+	 * @param int $nInterval
+	 * @return $this
+	 */
+	public function filterByNotRecentlyNotified( $nInterval = null ) {
+		if ( is_null( $nInterval ) ) {
+			$nInterval = WEEK_IN_SECONDS;
+		}
+		return $this->addWhereOlderThan( Services::Request()->ts() - $nInterval, 'notified_at' );
+	}
+
+	/**
+	 * @param int $nInterval
+	 * @return $this
+	 */
+	public function filterByIsRecentlyNotified( $nInterval = null ) {
+		if ( is_null( $nInterval ) ) {
+			$nInterval = WEEK_IN_SECONDS;
+		}
+		return $this->addWhereNewerThan( Services::Request()->ts() - $nInterval, 'notified_at' );
 	}
 
 	/**

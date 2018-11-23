@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property int    severity
  * @property int    discovered_at
  * @property int    ignored_at
- * @property int    updated_at
+ * @property int    notified_at
  */
 class EntryVO extends Base\EntryVO {
 

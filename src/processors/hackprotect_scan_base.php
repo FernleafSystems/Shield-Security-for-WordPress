@@ -240,23 +240,60 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
 			return;
 		}
-
 		$this->doScan();
+		$this->cronProcessScanResults();
+		die();
+	}
 
+	/**
+	 * Because it's the cron and we'll maybe be notifying user, we look
+	 * only for items that have not been notified recently.
+	 */
+	protected function cronProcessScanResults() {
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $this->getScannerDb()->getDbHandler()->getQuerySelector();
-		$aRes = $oSel->filterByNotIgnored()
-					 ->filterByScan( static::SCAN_SLUG )
+		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
+		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
+					 ->filterByNotRecentlyNotified()
+					 ->filterByNotIgnored()
 					 ->query();
+
+		var_dump( $aRes );
 		if ( !empty( $aRes ) ) {
-			$this->handleScanResults( $this->convertVosToResults( $aRes ) );
+			$oRes = $this->convertVosToResults( $aRes );
+
+			$this->runCronAutoRepair( $oRes );
+
+			if ( $this->runCronUserNotify( $oRes ) ) {
+				$this->updateLastNotifiedAt( $aRes );
+			}
 		}
 	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultsSet $oRes
 	 */
-	protected function handleScanResults( $oRes ) {
+	protected function runCronAutoRepair( $oRes ) {
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultsSet $oRes
+	 * @return bool - true if user notified
+	 */
+	protected function runCronUserNotify( $oRes ) {
+		return false;
+	}
+
+	/**
+	 * @param Shield\Databases\Scanner\EntryVO[] $aRes
+	 */
+	private function updateLastNotifiedAt( $aRes ) {
+		/** @var Shield\Databases\Scanner\Update $oUpd */
+		$oUpd = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
+		foreach ( $aRes as $oVo ) {
+			$oUpd->reset()
+				 ->setNotified( $oVo );
+		}
 	}
 
 	/**

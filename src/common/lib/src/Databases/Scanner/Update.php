@@ -8,12 +8,19 @@ use FernleafSystems\Wordpress\Services\Services;
 class Update extends Base\Update {
 
 	/**
-	 * Also updates last access at
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
 	public function setIgnored( $oEntry ) {
 		return $this->updateEntry( $oEntry, array( 'ignored_at' => Services::Request()->ts() ) );
+	}
+
+	/**
+	 * @param EntryVO $oEntry
+	 * @return bool
+	 */
+	public function setNotified( $oEntry ) {
+		return $this->updateEntry( $oEntry, array( 'notified_at' => Services::Request()->ts() ) );
 	}
 
 	/**

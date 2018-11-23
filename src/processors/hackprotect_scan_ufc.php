@@ -104,23 +104,32 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @param Shield\Scans\UnrecognisedCore\ResultsSet $oRes
 	 */
-	protected function handleScanResults( $oRes ) {
+	protected function runCronAutoRepair( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-
 		if ( $oFO->isUfcDeleteFiles() ) {
 			$this->getRepairer()->repairResultsSet( $oRes );
-		}
-
-		if ( $oFO->isUfcSendReport() ) {
-			$this->emailResults( $oRes->getItemsPathsFull() );
 		}
 	}
 
 	/**
-	 * @param array $aFiles
+	 * @param Shield\Scans\UnrecognisedCore\ResultsSet $oRes
+	 * @return bool - true if user notified
 	 */
-	protected function emailResults( $aFiles ) {
+	protected function runCronUserNotify( $oRes ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		$bSend = $oFO->isUfcSendReport();
+		if ( $bSend ) {
+			$this->emailResults( $oRes );
+		}
+		return $bSend;
+	}
+
+	/**
+	 * @param Shield\Scans\UnrecognisedCore\ResultsSet $oRes
+	 */
+	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
@@ -129,7 +138,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			 ->sendEmailWithWrap(
 				 $sTo,
 				 sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
-				 $this->buildEmailBodyFromFiles( $aFiles )
+				 $this->buildEmailBodyFromFiles( $oRes->getItemsPathsFull() )
 			 );
 
 		$this->addToAuditEntry(

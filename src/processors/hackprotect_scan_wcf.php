@@ -133,17 +133,21 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @param Shield\Scans\WpCore\ResultsSet $oRes
 	 */
-	protected function handleScanResults( $oRes ) {
+	protected function runCronAutoRepair( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-
 		if ( $oFO->isWcfScanAutoRepair() ) {
 			$this->getRepairer()->repairResultsSet( $oRes );
 		}
+	}
 
-		if ( $oFO->isUfcSendReport() ) {
-			$this->emailResults( $oRes );
-		}
+	/**
+	 * @param Shield\Scans\WpCore\ResultsSet $oRes
+	 * @return bool
+	 */
+	protected function runCronUserNotify( $oRes ) {
+		$this->emailResults( $oRes );
+		return true;
 	}
 
 	/**

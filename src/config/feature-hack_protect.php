@@ -409,12 +409,6 @@
       "value":        false
     },
     {
-      "key":          "ptg_email_track",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "value":        []
-    },
-    {
       "key":          "snapshot_users",
       "transferable": false,
       "sensitive":    true,
@@ -487,6 +481,7 @@
       "scan",
       "severity",
       "ignored_at",
+      "notified_at",
       "created_at",
       "deleted_at"
     ],
