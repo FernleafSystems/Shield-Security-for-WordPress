@@ -14,14 +14,14 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param Shield\Scans\WpCore\ResultsSet $oResults
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function convertResultsToVos( $oResults ) {
 		return ( new Shield\Scans\WpCore\ConvertResultsToVos() )->convert( $oResults );
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
+	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Shield\Scans\WpCore\ResultsSet
 	 */
 	protected function convertVosToResults( $aVos ) {
@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @param Shield\Databases\Scanner\EntryVO $oVo
 	 * @return Shield\Scans\WpCore\ResultItem
 	 */
 	protected function convertVoToResultItem( $oVo ) {
@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws Exception
 	 */
 	protected function repairItem( $sItemId ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
 					   ->getDbHandler()
 					   ->getQuerySelector()

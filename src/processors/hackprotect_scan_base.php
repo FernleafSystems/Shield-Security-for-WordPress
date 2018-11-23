@@ -139,7 +139,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\EntryVO[] $aVos
+	 * @return Shield\Databases\Base\EntryVO[] $aVos
 	 */
 	abstract protected function convertResultsToVos( $oResults );
 
@@ -198,7 +198,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @throws Exception
 	 */
 	protected function ignoreItem( $sItemId ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
 					   ->getDbHandler()
 					   ->getQuerySelector()

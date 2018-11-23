@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
+	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Shield\Scans\UnrecognisedCore\ResultsSet
 	 */
 	protected function convertVosToResults( $aVos ) {
@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws Exception
 	 */
 	protected function repairItem( $sItemId ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
 					   ->getDbHandler()
 					   ->getQuerySelector()
