@@ -113,9 +113,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	protected function getContextScanner( $sContext = self::CONTEXT_PLUGINS ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
+
 		$oScanner = ( $sContext == self::CONTEXT_PLUGINS ) ?
 			new Shield\Scans\PTGuard\ScannerPlugins()
 			: new Shield\Scans\PTGuard\ScannerThemes();
+
 		return $oScanner->setDepth( $oFO->getPtgDepth() )
 						->setFileExts( $oFO->getPtgFileExtensions() );
 	}
@@ -721,57 +723,5 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		$sMsg = sprintf( '[%s]: %s', _wpsf__( 'Plugin/Theme Guard' ), $sMsg );
 		parent::addToAuditEntry( $sMsg, $nCategory, $sEvent, $sWpUsername );
 		return $this;
-	}
-}
-
-class GuardRecursiveFilterIterator extends RecursiveFilterIterator {
-
-	/**
-	 * @var bool
-	 */
-	private $bHasExtensions;
-
-	/**
-	 * @var array
-	 */
-	private $aExtensions;
-
-	/**
-	 * @return string[]
-	 */
-	public function getExtensions() {
-		return is_array( $this->aExtensions ) ? $this->aExtensions : array();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasExtensions() {
-		if ( !isset( $this->bHasExtensions ) ) {
-			$aExt = $this->getExtensions();
-			$this->bHasExtensions = !empty( $aExt );
-		}
-		return $this->bHasExtensions;
-	}
-
-	/**
-	 * @param string[] $aExtensions
-	 * @return GuardRecursiveFilterIterator
-	 */
-	public function setExtensions( $aExtensions ) {
-		$this->aExtensions = $aExtensions;
-		return $this;
-	}
-
-	public function accept() {
-		/** @var SplFileInfo $oCurrent */
-		$oCurrent = $this->current();
-
-		$bConsumeFile = !in_array( $oCurrent->getFilename(), array( '.', '..' ) );
-		if ( $bConsumeFile && $oCurrent->isFile() && $this->hasExtensions() ) {
-			$bConsumeFile = in_array( $oCurrent->getExtension(), $this->getExtensions() );
-		}
-
-		return $bConsumeFile;
 	}
 }

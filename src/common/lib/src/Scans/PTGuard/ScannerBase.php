@@ -68,7 +68,7 @@ abstract class ScannerBase {
 	 * @return $this
 	 */
 	public function setDepth( $nDepth ) {
-		$this->nDepth = min( 0, (int)$nDepth );
+		$this->nDepth = max( 0, (int)$nDepth );
 		return $this;
 	}
 
