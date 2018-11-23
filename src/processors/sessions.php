@@ -67,7 +67,11 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function onWpLoaded() {
 		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRest() ) {
 			$this->autoAddSession();
+		}
+	}
 
+	public function onModuleShutdown() {
+		if ( !$this->loadWp()->isRest() ) {
 			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
 			$oFO = $this->getMod();
 			if ( $oFO->hasSession() ) {
@@ -75,6 +79,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 					 ->updateLastActivity( $this->getCurrentSession() );
 			}
 		}
+		
+		parent::onModuleShutdown();
 	}
 
 	private function autoAddSession() {
