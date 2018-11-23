@@ -80,7 +80,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 		$sStatPart = $this->buildStatKeyQuery();
 		return sprintf( $sQuery,
 			$bIsCount ? 'COUNT(*) AS total' : '*',
-			$this->getFeature()->getFullReportingTableName(),
+			$this->getMod()->getFullReportingTableName(),
 			$this->getDateFrom(),
 			$this->getDateTo(),
 			$this->isSelectDeleted() ? '>' : '=',
@@ -106,7 +106,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 
 		$sStatPart = $this->buildStatKeyQuery();
 		return sprintf( $sQuery,
-			$this->getFeature()->getFullReportingTableName(),
+			$this->getMod()->getFullReportingTableName(),
 			$this->getDateFrom(),
 			$this->getDateTo(),
 			empty( $sStatPart ) ? $sStatPart : 'AND '.$sStatPart
@@ -241,7 +241,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 	/**
 	 * @return ICWP_WPSF_FeatureHandler_Statistics
 	 */
-	protected function getFeature() {
+	protected function getMod() {
 		return $this->oFO;
 	}
 

@@ -287,14 +287,14 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return Session\Insert
 	 */
 	public function getQueryInserter() {
-		return parent::getQuerySelector();
+		return parent::getQueryInserter();
 	}
 
 	/**
 	 * @return Session\Delete
 	 */
 	public function getQueryDeleter() {
-		return parent::getQuerySelector();
+		return parent::getQueryDeleter();
 	}
 
 	/**

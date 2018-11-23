@@ -160,12 +160,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		return true;
 	}
 
-	/**
-	 * @deprecated remove next release
-	 */
-	public function action_doFeatureProcessorShutdown() {
-	}
-
 	public function onModuleShutdown() {
 	}
 
@@ -273,13 +267,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			$this->aSubPros = array();
 		}
 		return $this->aSubPros;
-	}
-
-	/**
-	 * @return ICWP_UserMeta
-	 */
-	protected function getCurrentUserMeta() {
-		return $this->getController()->getCurrentUserMeta();
 	}
 
 	/**

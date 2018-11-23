@@ -158,14 +158,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$aExistingCodes = $oErrors->get_error_code();
 		if ( empty( $aExistingCodes ) ) {
 			$sPassword = $this->getLoginPassword();
-
 			if ( !empty( $sPassword ) ) {
 				try {
 					$this->applyPasswordChecks( $sPassword );
-
-					$oWpUser = $this->loadWpUsers();
-					if ( $oWpUser->isUserLoggedIn() ) {
-						$this->getCurrentUserMeta()->pass_check_failed_at = 0;
+					if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+						$this->getController()->getCurrentUserMeta()->pass_check_failed_at = 0;
 					}
 				}
 				catch ( Exception $oE ) {

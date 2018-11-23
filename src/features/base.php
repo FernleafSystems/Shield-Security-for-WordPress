@@ -2052,63 +2052,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated since 6.9
-	 * @param $oUser WP_User
-	 * @return ICWP_UserMeta
-	 */
-	public function getUserMeta( $oUser ) {
-		return $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
-	}
-
-	/**
-	 * @deprecated since 6.9
-	 * @return ICWP_UserMeta
-	 */
-	public function getCurrentUserMeta() {
-		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
-	}
-
-	/**
-	 * @deprecated
-	 * @return string
-	 */
-	public function getVersion() {
-		return self::getConn()->getVersion();
-	}
-
-	/**
-	 * @deprecated
-	 * @param string  $sOptionKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
-	 * @return bool
-	 */
-	public function getOptIs( $sOptionKey, $mValueToTest, $bStrict = false ) {
-		return $this->isOpt( $sOptionKey, $mValueToTest, $bStrict );
-	}
-
-	/**
-	 * @deprecated
-	 * @return string
-	 */
-	protected function collateAllFormInputsForAllOptions() {
-
-		$aOptions = $this->buildOptions();
-
-		$aToJoin = array();
-		foreach ( $aOptions as $aOptionsSection ) {
-
-			if ( empty( $aOptionsSection ) ) {
-				continue;
-			}
-			foreach ( $aOptionsSection[ 'options' ] as $aOption ) {
-				$aToJoin[] = $aOption[ 'type' ].':'.$aOption[ 'key' ];
-			}
-		}
-		return implode( '--SEP--', $aToJoin );
-	}
-
-	/**
 	 * @deprecated v7
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */

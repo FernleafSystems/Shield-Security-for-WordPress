@@ -290,12 +290,4 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		}
 		return $oError;
 	}
-
-	/**
-	 * @deprecated
-	 * @return bool
-	 */
-	protected function isLockToIp() {
-		return $this->getMod()->isOpt( 'session_lock_location', 'Y' );
-	}
 }
