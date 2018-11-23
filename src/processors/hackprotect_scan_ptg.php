@@ -16,31 +16,40 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	const CONTEXT_THEMES = 'themes';
 
 	/**
+	 * @var Shield\Scans\PTGuard\Snapshots\Store
+	 */
+	private $oSnapshotPlugins;
+
+	/**
+	 * @var Shield\Scans\PTGuard\Snapshots\Store
+	 */
+	private $oSnapshotThemes;
+
+	/**
 	 */
 	public function run() {
 		parent::run();
-
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
+
+		$this->initSnapshots();
+
+		$bStoresExists = $this->getStore_Plugins()->getSnapStoreExists()
+						 && $this->getStore_Themes()->getSnapStoreExists();
+
+		// If a build is indicated as required and the store exists, mark them as built.
+		if ( $oFO->isPtgBuildRequired() && $bStoresExists ) {
+			$oFO->setPtgLastBuildAt();
+		}
+		else if ( !$bStoresExists ) {
+			$oFO->setPtgLastBuildAt( 0 );
+		}
+
 		if ( $oFO->isPtgReadyToScan() ) {
-
-			if ( !$this->storeExists( self::CONTEXT_PLUGINS ) ) {
-				$this->snapshotPlugins();
-			}
-			if ( !$this->storeExists( self::CONTEXT_THEMES ) ) {
-				$this->snapshotThemes();
-			}
-
 			add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
 			add_action( 'activated_plugin', array( $this, 'onActivatePlugin' ), 10 );
 			add_action( 'deactivated_plugin', array( $this, 'onDeactivatePlugin' ), 10 );
 			add_action( 'switch_theme', array( $this, 'onActivateTheme' ), 10, 0 );
-		}
-		else if ( $oFO->isPtgBuildRequired() ) {
-			$this->rebuildSnapshots();
-			if ( $this->storeExists( self::CONTEXT_PLUGINS ) && $this->storeExists( self::CONTEXT_THEMES ) ) {
-				$oFO->setPtgLastBuildAt();
-			}
 		}
 
 		if ( $oFO->isPtgReinstallLinks() ) {
@@ -60,14 +69,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param Shield\Scans\PTGuard\ResultsSet $oResults
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[]
+	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function convertResultsToVos( $oResults ) {
 		return ( new Shield\Scans\PTGuard\ConvertResultsToVos() )->convert( $oResults );
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aVos
+	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Shield\Scans\PTGuard\ResultsSet
 	 */
 	protected function convertVosToResults( $aVos ) {
@@ -75,7 +84,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oVo
+	 * @param Shield\Databases\Scanner\EntryVO $oVo
 	 * @return Shield\Scans\PTGuard\ResultItem
 	 */
 	protected function convertVoToResultItem( $oVo ) {
@@ -223,21 +232,21 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @param string $sBaseName
 	 */
 	public function onActivatePlugin( $sBaseName ) {
-		$this->updateItemInSnapshot( $sBaseName, self::CONTEXT_PLUGINS );
+		$this->updatePluginSnapshot( $sBaseName );
 	}
 
 	/**
+	 * When activating a theme we completely rebuild the themes snapshot.
 	 */
 	public function onActivateTheme() {
-		$this->deleteStore( self::CONTEXT_THEMES )
-			 ->snapshotThemes();
+		$this->snapshotThemes();
 	}
 
 	/**
 	 * @param string $sBaseName
 	 */
 	public function onDeactivatePlugin( $sBaseName ) {
-		$this->deleteItemFromSnapshot( $sBaseName, self::CONTEXT_PLUGINS );
+		$this->deletePluginFromSnapshot( $sBaseName );
 	}
 
 	/**
@@ -304,7 +313,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			}
 		}
 
-		// update snaptshots
+		// update snapshots
 		if ( is_array( $aSlugs ) ) {
 			foreach ( $aSlugs as $sSlug ) {
 				$this->updateItemInSnapshot( $sSlug, $sContext );
@@ -313,18 +322,78 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sSlug - the basename for plugin, or stylesheet for theme.
-	 * @param string $sContext
+	 * @param string $sBaseName - the basename for plugin
 	 * @return $this
 	 */
-	public function deleteItemFromSnapshot( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
-		$aSnapshot = $this->loadSnapshotData( $sContext );
-		if ( isset( $aSnapshot[ $sSlug ] ) ) {
-			unset( $aSnapshot[ $sSlug ] );
-			$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for item "%s"' ), $sSlug ) )
-				 ->storeSnapshot( $aSnapshot, $sContext );
+	private function deletePluginFromSnapshot( $sBaseName ) {
+
+		$oStore = $this->getStore_Plugins();
+		if ( $oStore->itemExists( $sBaseName ) ) {
+			try {
+				$oStore->removeItemSnapshot( $sBaseName )
+					   ->save();
+				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for plugin "%s"' ), $sBaseName ) );
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
+
 		return $this;
+	}
+
+	/**
+	 * Will also remove a plugin if it's found to be in-active
+	 * Careful: Cannot use this for the activate and deactivate hooks as the WP option
+	 * wont be updated
+	 * @param string $sBaseName
+	 */
+	public function updatePluginSnapshot( $sBaseName ) {
+		$oStore = $this->getStore_Plugins();
+
+		if ( $this->loadWpPlugins()->isActive( $sBaseName ) ) {
+			try {
+				$oStore->addSnapItem( $sBaseName, $this->buildSnapshotPlugin( $sBaseName ) )
+					   ->save();
+				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for plugin "%s"' ), $sBaseName ) );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		else {
+			try {
+				$oStore->removeItemSnapshot( $sBaseName )
+					   ->save();
+				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for theme "%s"' ), $sBaseName ) );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+	}
+
+	/**
+	 * @param string $sSlug
+	 */
+	public function updateThemeSnapshot( $sSlug ) {
+		$oStore = $this->getStore_Themes();
+
+		if ( $this->loadWpThemes()->isActive( $sSlug, true ) ) {
+			try {
+				$oStore->addSnapItem( $sSlug, $this->buildSnapshotTheme( $sSlug ) )
+					   ->save();
+				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for theme "%s"' ), $sSlug ) );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		else {
+			try {
+				$oStore->removeItemSnapshot( $sSlug )
+					   ->save();
+				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for theme "%s"' ), $sSlug ) );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
 	}
 
 	/**
@@ -336,45 +405,35 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	public function updateItemInSnapshot( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
 
 		$aNewSnapData = null;
-		if ( $sContext == self::CONTEXT_PLUGINS && $this->loadWpPlugins()->isActive( $sSlug ) ) {
-			$aNewSnapData = $this->snapshotPlugin( $sSlug );
+		if ( $sContext == self::CONTEXT_THEMES ) {
+			$this->updateThemeSnapshot( $sSlug );
 		}
-		if ( $sContext == self::CONTEXT_THEMES && $this->loadWpThemes()->isActive( $sSlug, true ) ) {
-			$aNewSnapData = $this->snapshotTheme( $sSlug );
-		}
-
-		if ( $aNewSnapData ) {
-			$aSnapshot = $this->loadSnapshotData( $sContext );
-			$aSnapshot[ $sSlug ] = $aNewSnapData;
-			$this->storeSnapshot( $aSnapshot, $sContext )
-				 ->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for item "%s"' ), $sSlug ) );
+		else if ( $sContext == self::CONTEXT_PLUGINS ) {
+			$this->updatePluginSnapshot( $sSlug );
 		}
 
 		return $this;
 	}
 
 	/**
-	 * @return $this
 	 */
-	public function rebuildSnapshots() {
-		return $this->deleteStores()
-					->setupSnapshots();
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function setupSnapshots() {
-		$this->snapshotPlugins();
-		$this->snapshotThemes();
-		return $this;
+	private function initSnapshots() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		$bRebuild = $oFO->isPtgBuildRequired();
+		if ( $bRebuild || !$this->getStore_Plugins()->getSnapStoreExists() ) {
+			$this->snapshotPlugins();
+		}
+		if ( $bRebuild || !$this->getStore_Themes()->getSnapStoreExists() ) {
+			$this->snapshotThemes();
+		}
 	}
 
 	/**
 	 * @param string $sBaseFile
 	 * @return array
 	 */
-	private function snapshotPlugin( $sBaseFile ) {
+	private function buildSnapshotPlugin( $sBaseFile ) {
 		$aPlugin = $this->loadWpPlugins()
 						->getPlugin( $sBaseFile );
 
@@ -384,7 +443,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 				'version' => $aPlugin[ 'Version' ],
 				'ts'      => $this->loadRequest()->ts(),
 			),
-			'hashes' => $this->hashPluginFiles( $sBaseFile )
+			'hashes' => $this->getContextScanner( self::CONTEXT_PLUGINS )->hashAssetFiles( $sBaseFile )
 		);
 	}
 
@@ -392,16 +451,17 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @param string $sSlug
 	 * @return array
 	 */
-	private function snapshotTheme( $sSlug ) {
+	private function buildSnapshotTheme( $sSlug ) {
 		$oTheme = $this->loadWpThemes()
 					   ->getTheme( $sSlug );
+
 		return array(
 			'meta'   => array(
 				'name'    => $oTheme->get( 'Name' ),
 				'version' => $oTheme->get( 'Version' ),
 				'ts'      => $this->loadRequest()->ts(),
 			),
-			'hashes' => $this->hashThemeFiles( $sSlug )
+			'hashes' => $this->getContextScanner( self::CONTEXT_THEMES )->hashAssetFiles( $sSlug )
 		);
 	}
 
@@ -409,137 +469,97 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @return $this
 	 */
 	private function snapshotPlugins() {
-		$oWpPl = $this->loadWpPlugins();
-
-		$aSnapshot = array();
-		foreach ( $oWpPl->getInstalledBaseFiles() as $sBaseName ) {
-			if ( $oWpPl->isActive( $sBaseName ) ) {
-				$aSnapshot[ $sBaseName ] = $this->snapshotPlugin( $sBaseName );
+		try {
+			$oStore = $this->getStore_Plugins()
+						   ->deleteSnapshots();
+			foreach ( $this->loadWpPlugins()->getActivePlugins() as $sBaseName ) {
+				$oStore->addSnapItem( $sBaseName, $this->buildSnapshotPlugin( $sBaseName ) );
 			}
+			$oStore->save();
 		}
-		return $this->storeSnapshot( $aSnapshot, self::CONTEXT_PLUGINS );
+		catch ( \Exception $oE ) {
+		}
+		return $this;
 	}
 
 	/**
-	 * @return $this
-	 */
-	private function snapshotThemes() {
-		$oWpThemes = $this->loadWpThemes();
-
-		$oActiveTheme = $oWpThemes->getCurrent();
-		$aThemes = array(
-			$oActiveTheme->get_stylesheet() => $oActiveTheme
-		);
-
-		if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
-			$oParent = $oWpThemes->getCurrentParent();
-			$aThemes[ $oActiveTheme->get_template() ] = $oParent;
-		}
-
-		$aSnapshot = array();
-		/** @var $oTheme WP_Theme */
-		foreach ( $aThemes as $sSlug => $oTheme ) {
-			$aSnapshot[ $sSlug ] = $this->snapshotTheme( $sSlug );
-		}
-		return $this->storeSnapshot( $aSnapshot, self::CONTEXT_THEMES );
-	}
-
-	/**
-	 * @param string $sContext
 	 * @return bool
 	 */
-	protected function storeExists( $sContext = self::CONTEXT_PLUGINS ) {
-		return $this->loadFS()
-					->isFile( path_join( $this->getSnapsBaseDir(), $sContext.'.txt' ) );
-	}
+	private function snapshotThemes() {
+		$bSuccess = true;
 
-	/**
-	 * @return $this
-	 */
-	public function deleteStores() {
-		return $this->deleteStore( self::CONTEXT_PLUGINS )
-					->deleteStore( self::CONTEXT_THEMES );
-	}
+		$oWpThemes = $this->loadWpThemes();
+		try {
+			$oSnap = $this->getStore_Themes()
+						  ->deleteSnapshots();
 
-	/**
-	 * @param string $sContext
-	 * @return $this
-	 */
-	public function deleteStore( $sContext = self::CONTEXT_PLUGINS ) {
-		$this->loadFS()
-			 ->deleteDir( path_join( $this->getSnapsBaseDir(), $sContext.'.txt' ) );
-		return $this;
-	}
+			$oActiveTheme = $oWpThemes->getCurrent();
+			$aThemes = array(
+				$oActiveTheme->get_stylesheet() => $oActiveTheme
+			);
 
-	/**
-	 * @param array  $aSnapshot
-	 * @param string $sContext
-	 * @return $this
-	 */
-	private function storeSnapshot( $aSnapshot, $sContext = self::CONTEXT_PLUGINS ) {
-		$oWpFs = $this->loadFS();
-		$sDir = $this->getSnapsBaseDir();
-		$sSnap = path_join( $sDir, $sContext.'.txt' );
-		$oWpFs->mkdir( $sDir );
-		$oWpFs->putFileContent( $sSnap, base64_encode( json_encode( $aSnapshot ) ) );
-		return $this;
-	}
+			if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
+				$oParent = $oWpThemes->getCurrentParent();
+				$aThemes[ $oActiveTheme->get_template() ] = $oParent;
+			}
 
-	/**
-	 * @param string $sContext
-	 * @return array
-	 */
-	private function loadSnapshotData( $sContext = self::CONTEXT_PLUGINS ) {
-		$aDecoded = array();
-
-		$sSnap = path_join( $this->getSnapsBaseDir(), $sContext.'.txt' );
-
-		$sRaw = $this->loadFS()
-					 ->getFileContent( $sSnap );
-		if ( !empty( $sRaw ) ) {
-			$aDecoded = json_decode( base64_decode( $sRaw ), true );
+			/** @var $oTheme WP_Theme */
+			foreach ( $aThemes as $sSlug => $oTheme ) {
+				$oSnap->addSnapItem( $sSlug, $this->buildSnapshotTheme( $sSlug ) );
+			}
+			$oSnap->save();
 		}
-		return $aDecoded;
-	}
-
-	/**
-	 * @param string $sSlugBaseName
-	 * @return string[]
-	 */
-	protected function hashPluginFiles( $sSlugBaseName ) {
-		return $this->getContextScanner( self::CONTEXT_PLUGINS )
-					->hashAssetFiles( $sSlugBaseName );
-	}
-
-	/**
-	 * @param string $sSlugStylesheet
-	 * @return string[]
-	 */
-	protected function hashThemeFiles( $sSlugStylesheet ) {
-		return $this->getContextScanner( self::CONTEXT_THEMES )
-					->hashAssetFiles( $sSlugStylesheet );
-	}
-
-	/**
-	 * @param string $sSlug
-	 * @param string $sContext
-	 * @return string[]
-	 */
-	protected function hashFiles( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
-		switch ( $sContext ) {
-
-			case self::CONTEXT_PLUGINS:
-				return $this->hashPluginFiles( $sSlug );
-				break;
-
-			case self::CONTEXT_THEMES:
-				return $this->hashThemeFiles( $sSlug );
-				break;
-
-			default:
-				return array();
-				break;
+		catch ( \Exception $oE ) {
+			$bSuccess = false;
 		}
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @param $sContext
+	 * @return Shield\Scans\PTGuard\Snapshots\Store
+	 */
+	private function getStore( $sContext ) {
+		return ( $sContext == self::CONTEXT_PLUGINS ) ? $this->getStore_Plugins() : $this->getStore_Themes();
+	}
+
+	/**
+	 * @return Shield\Scans\PTGuard\Snapshots\Store
+	 */
+	private function getStore_Plugins() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		if ( !isset( $this->oSnapshotPlugins ) ) {
+			try {
+				$this->oSnapshotPlugins = ( new Shield\Scans\PTGuard\Snapshots\Store() )
+					->setStorePath( $oFO->getPtgSnapsBaseDir() )
+					->setContext( self::CONTEXT_PLUGINS );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $this->oSnapshotPlugins;
+	}
+
+	/**
+	 * @return Shield\Scans\PTGuard\Snapshots\Store
+	 */
+	private function getStore_Themes() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		if ( !isset( $this->oSnapshotThemes ) ) {
+			try {
+				$this->oSnapshotThemes = ( new Shield\Scans\PTGuard\Snapshots\Store() )
+					->setStorePath( $oFO->getPtgSnapsBaseDir() )
+					->setContext( self::CONTEXT_THEMES );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $this->oSnapshotThemes;
 	}
 
 	/**
@@ -673,59 +693,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\PTGuard\ResultsSet $oResults
-	 * @return array[]
-	 */
-	protected function organiseScanDataForDisplay( $oResults ) {
-
-		$aResults = array();
-		foreach ( $oResults->getUniqueSlugs() as $sSlug ) {
-			$aItemResults = array();
-
-			$oResSlug = $oResults->getResultsSetForSlug( $sSlug );
-			if ( $oResSlug->countDifferent() > 0 ) {
-				$aItemResults[ 'different' ] = array_map(
-					function ( $sPath ) {
-						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
-					},
-					$oResSlug->filterItemsForPaths( $oResSlug->getDifferentItems() )
-				);
-			}
-
-			if ( $oResSlug->countUnrecognised() > 0 ) {
-				$aItemResults[ 'unrecognised' ] = array_map(
-					function ( $sPath ) {
-						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
-					},
-					$oResSlug->filterItemsForPaths( $oResSlug->getUnrecognisedItems() )
-				);
-			}
-
-			if ( $oResSlug->countDifferent() > 0 ) {
-				$aItemResults[ 'missing' ] = array_map(
-					function ( $sPath ) {
-						return ltrim( str_replace( WP_CONTENT_DIR, '', $sPath ), '/' );
-					},
-					$oResSlug->filterItemsForPaths( $oResSlug->getMissingItems() )
-				);
-			}
-			$aResults[ $sSlug ] = $aItemResults;
-		}
-		return $aResults;
-	}
-
-	/**
 	 * @param string $sContext
 	 * @return Shield\Scans\PTGuard\ResultsSet
 	 */
-	protected function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
-		$aSnaps = array_map(
-			function ( $aSnap ) {
-				return $aSnap[ 'hashes' ];
-			},
-			$this->loadSnapshotData( $sContext )
-		);
-		return $this->getContextScanner( $sContext )->run( $aSnaps );
+	private function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
+		$aSnapHashes = $this->getStore( $sContext )->getSnapDataHashesOnly();
+		return $this->getContextScanner( $sContext )->run( $aSnapHashes );
 	}
 
 	/**
@@ -735,15 +708,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getPtgCronName();
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getSnapsBaseDir() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getPtgSnapsBaseDir();
 	}
 
 	/**

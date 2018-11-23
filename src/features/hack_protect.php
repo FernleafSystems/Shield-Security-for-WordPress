@@ -50,10 +50,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'repair' );
 					break;
 
-				case 'plugin_reinstall':
-					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
-					break;
-
 				case 'render_table_scan':
 					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
 					break;
@@ -68,7 +64,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
-
 		$this->clearIcSnapshots();
 		$this->clearCrons();
 		$this->cleanFileExclusions();
@@ -76,11 +71,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$oOpts = $this->getOptionsVo();
 		if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$oP->getSubProcessorScanner()
-			   ->getSubProcessorPtg()
-			   ->deleteStores();
 			$this->setPtgLastBuildAt( 0 );
 		}
 
@@ -560,33 +550,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setPtgEnabledOption( $sValue ) {
 		return $this->setOpt( 'ptg_enable', $sValue );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_PluginReinstall() {
-		$oReq = $this->loadRequest();
-		$bReinstall = (bool)$oReq->post( 'reinstall' );
-		$bActivate = (bool)$oReq->post( 'activate' );
-		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
-		$oWpP = $this->loadWpPlugins();
-
-		if ( $bReinstall ) {
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$bActivate = $oP->getSubProcessorScanner()
-							->getSubProcessorPtg()
-							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_Ptg::CONTEXT_PLUGINS )
-						 && $bActivate;
-		}
-		if ( $bActivate ) {
-			$oWpP->activate( $sFile );
-		}
-
-		return array(
-			'success' => true
-		);
 	}
 
 	public function insertCustomJsVars_Admin() {

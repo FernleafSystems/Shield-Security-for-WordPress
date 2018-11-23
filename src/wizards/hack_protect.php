@@ -283,14 +283,14 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'reinstall':
 					if ( $bWpOrg ) {
-						$bSuccess = $oGuard->reinstall( $sSlug, $sContext );
+						$bSuccess = $oGuard->reinstall_DEP( $sSlug, $sContext );
 						$sMessage = 'The item has been re-installed from WordPress.org sources.';
 					}
 					break;
 
 				case 'ignore':
 					if ( empty( $mAsset ) ) {
-						$oGuard->deleteItemFromSnapshot( $sSlug, $sContext );
+						$oGuard->deleteItemFromSnapshot_DEP( $sSlug, $sContext );
 					}
 					else {
 						$oGuard->updateItemInSnapshot( $sSlug, $sContext );
