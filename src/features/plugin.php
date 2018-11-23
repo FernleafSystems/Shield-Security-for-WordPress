@@ -47,31 +47,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		$bCanWizard = $this->canRunWizards();
-		$bCanWizardWelcome = $bCanWizard;
-		$bCanWizardImport = $bCanWizard && $this->isPremium();
-
-		return array(
-			'strings' => $this->getDisplayStrings(),
-			'hrefs'   => array(
-				'wizard_welcome' => $bCanWizardWelcome ? $this->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
-				'wizard_import'  => $bCanWizardImport ? $this->getUrl_Wizard( 'import' ) : 'javascript:{event.preventDefault();}',
-			),
-			'flags'   => array(
-				'can_php54'   => $bCanWizard,
-				'can_welcome' => $bCanWizardWelcome,
-				'can_import'  => $bCanWizardImport
-			),
-			'data'    => array(
-				'phpversion' => $this->loadDP()->getPhpVersion(),
-			)
-		);
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {

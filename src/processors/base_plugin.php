@@ -83,8 +83,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 
-		$bCanWizardWelcome = $oFO->canRunWizards();
-
 		$sName = $oFO->getConn()->getHumanName();
 		$aRenderData = array(
 			'notice_attributes' => $aNoticeAttributes,
@@ -95,11 +93,9 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'no_setup' => sprintf( _wpsf__( "%s has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+" ), $sName ),
 			),
 			'hrefs'             => array(
-				'wizard' => $bCanWizardWelcome ? $oFO->getUrl_Wizard( 'welcome' ) : 'javascript:{event.preventDefault();}',
+				'wizard' => $oFO->getUrl_Wizard( 'welcome' ),
 			),
-			'flags'             => array(
-				'can_wizard' => $bCanWizardWelcome,
-			)
+			'flags'             => array()
 		);
 		$this->insertAdminNotice( $aRenderData );
 	}

@@ -154,7 +154,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		);
 
-		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() || !$oFO->canRunWizards() ) {
+		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() ) {
 			$aContent[] = _wpsf__( 'Files discovered' ).':';
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - '.$sFile;

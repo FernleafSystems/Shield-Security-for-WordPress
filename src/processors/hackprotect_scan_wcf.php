@@ -182,7 +182,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			''
 		);
 
-		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() || !$oFO->canRunWizards() ) {
+		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() ) {
 			$aContent = $this->buildListOfFilesForEmail( $oResults );
 			$aContent[] = '';
 
@@ -198,11 +198,9 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			$aContent[] = '';
 		}
 
-		if ( $oFO->canRunWizards() ) {
-			$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
-			$aContent[] = $this->getScannerButtonForEmail();
-			$aContent[] = '';
-		}
+		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+		$aContent[] = $this->getScannerButtonForEmail();
+		$aContent[] = '';
 
 		if ( !$oFO->getConn()->isRelabelled() ) {
 			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';

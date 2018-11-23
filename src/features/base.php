@@ -171,14 +171,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					break;
 
 				case 'wiz_process_step':
-					if ( $this->canRunWizards() && $this->hasWizard() ) {
+					if ( $this->hasWizard() ) {
 						$aAjaxResponse = $this->getWizardHandler()
 											  ->ajaxExec_WizProcessStep();
 					}
 					break;
 
 				case 'wiz_render_step':
-					if ( $this->canRunWizards() && $this->hasWizard() ) {
+					if ( $this->hasWizard() ) {
 						$aAjaxResponse = $this->getWizardHandler()
 											  ->ajaxExec_WizRenderStep();
 					}
@@ -1379,7 +1379,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function runWizards() {
-		if ( $this->canRunWizards() && $this->isWizardPage() && $this->hasWizard() ) {
+		if ( $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();
 			if ( $oWiz instanceof ICWP_WPSF_Wizard_Base ) {
 				$oWiz->init();
@@ -1535,7 +1535,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_standard_options' => true,
 				'show_content_help'     => true,
 				'show_alt_content'      => false,
-				'can_wizard'            => $this->canRunWizards(),
 				'has_wizard'            => $this->hasWizard(),
 			),
 			'hrefs'           => array(
@@ -1558,7 +1557,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aData[ 'content' ] = array(
 				'options_form'   => 'no form',
 				'alt'            => '',
-				'actions'        => $this->getContentCustomActions(),
 				'help'           => $this->getContentHelp(),
 				'wizard_landing' => $this->getContentWizardLanding()
 			);
@@ -1589,24 +1587,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	protected function getContentCustomActions() {
-		return $this->renderTemplate( 'snippets/module-actions-template.php',
-			$this->loadDP()->mergeArraysRecursive(
-				$this->getContentCustomActionsData(),
-				$this->getBaseDisplayData( false )
-			) );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getContentCustomActionsData() {
-		return $this->getBaseDisplayData( false );
-	}
-
-	/**
-	 * @return string
-	 */
 	protected function getContentHelp() {
 		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData( false ) );
 	}
@@ -1616,7 +1596,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getContentWizardLanding() {
 		$aData = $this->getBaseDisplayData( false );
-		if ( $this->hasWizard() && $this->canRunWizards() ) {
+		if ( $this->hasWizard() ) {
 			$aData[ 'content' ][ 'wizard_landing' ] = $this->getWizardHandler()->renderWizardLandingSnippet();
 		}
 		return $this->renderTemplate( 'snippets/module-wizard-template.php', $aData );
@@ -1764,13 +1744,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 																 ->getHasPermissionToView() : true;
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function canRunWizards() {
-		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
-	}
-
 	public function onWpEnqueueJs() {
 	}
 
@@ -1915,11 +1888,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $aData;
 	}
 
-	/** Help Video options */
-
 	/**
 	 * @return array
 	 */
+
+	/** Help Video options */
 
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOpt( 'help_video_options', array() );
@@ -2057,5 +2030,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	static public function getController() {
 		return self::getConn();
+	}
+
+	/**
+	 * @deprecated since v7 as all are 5.4+
+	 * @return bool
+	 */
+	public function canRunWizards() {
+		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
 	}
 }

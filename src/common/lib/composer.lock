@@ -109,16 +109,16 @@
         },
         {
             "name": "fernleafsystems/utilities",
-            "version": "1.1.1",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FernleafSystems/Utilities.git",
-                "reference": "242addd267f4e22e9dcdb80e9c31187d39c90af9"
+                "reference": "866868412149ac827acfa57b063e15b08899c9c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FernleafSystems/Utilities/zipball/242addd267f4e22e9dcdb80e9c31187d39c90af9",
-                "reference": "242addd267f4e22e9dcdb80e9c31187d39c90af9",
+                "url": "https://api.github.com/repos/FernleafSystems/Utilities/zipball/866868412149ac827acfa57b063e15b08899c9c3",
+                "reference": "866868412149ac827acfa57b063e15b08899c9c3",
                 "shasum": ""
             },
             "require": {
@@ -139,7 +139,7 @@
                 }
             ],
             "description": "Collection of simple utilities and traits",
-            "time": "2018-07-24T13:24:35+00:00"
+            "time": "2018-11-23T11:41:53+00:00"
         },
         {
             "name": "fernleafsystems/wordpress-services",
@@ -382,16 +382,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.35.1",
+            "version": "1.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "5c05a2be472b22f63291d192410df9f0e0de3b19"
+                "reference": "63da8cdf89d7a5efe43aabc794365f6e7b7b8983"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/5c05a2be472b22f63291d192410df9f0e0de3b19",
-                "reference": "5c05a2be472b22f63291d192410df9f0e0de3b19",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/63da8cdf89d7a5efe43aabc794365f6e7b7b8983",
+                "reference": "63da8cdf89d7a5efe43aabc794365f6e7b7b8983",
                 "shasum": ""
             },
             "require": {
@@ -436,7 +436,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2018-11-14T21:55:58+00:00"
+            "time": "2018-11-22T18:23:02+00:00"
         },
         {
             "name": "pimple/pimple",
