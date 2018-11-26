@@ -210,6 +210,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function getSpamBlacklistFile() {
-		return $this->getMod()->getResourcesDir().'spamblacklist.txt';
+		return $this->getController()->getPath_Assets( 'spamblacklist.txt' );
 	}
 }

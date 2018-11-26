@@ -22,6 +22,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function onWpInit() {
 		parent::onWpInit();
 		$this->getImportExportSecretKey();
+		$this->storeIndependentInstallationDate();
+	}
+
+	private function storeIndependentInstallationDate() {
+		$oWP = $this->loadWp();
+		$sOptKey = $this->prefixOptionKey( 'install_date' );
+		$nDate = $oWP->getOption( $sOptKey );
+		if ( empty( $nDate ) ) {
+			$oWP->updateOption( $sOptKey, $this->getPluginInstallationTime() );
+		}
 	}
 
 	/**
