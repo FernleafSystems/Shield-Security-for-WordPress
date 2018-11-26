@@ -300,22 +300,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return string
 	 */
 	protected function getScannerButtonForEmail() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
 		return sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-			$this->getUrlManualScan(),
+			$oFO->getUrlManualScan(),
 			'border:2px solid #e66900;padding:20px;line-height:19px;margin:15px 20px 10px;display:inline-block;text-align:center;width:200px;font-size:18px;color: #e66900;border-radius:3px;',
 			_wpsf__( 'Run Scanner' )
-		);
-	}
-
-	/**
-	 * TODO: build better/dynamic direct linking to insights sub-pages
-	 */
-	protected function getUrlManualScan() {
-		return add_query_arg(
-			[
-				'subnav' => 'scans'
-			],
-			$this->getController()->getModule( 'insights' )->getUrl_AdminPage()
 		);
 	}
 

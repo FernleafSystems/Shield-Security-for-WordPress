@@ -37,7 +37,7 @@
 								</td>
 								<td class="text-right text-nowrap">
 									{% if notice.href is not empty %}
-										<a href="{{ notice.href }}" target="_blank">
+										<a href="{{ notice.href }}">
 											{{ notice.action|default( strings.more_info ) }} &nearr;
 										</a>
 									{% endif %}

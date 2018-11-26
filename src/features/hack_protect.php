@@ -806,7 +806,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'wcf' ] = array(
 					'title'   => 'WP Core Files',
 					'message' => _wpsf__( 'Modified WordPress core files found.' ),
-					'href'    => $this->getUrl_Wizard( 'wcf' ),
+					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Scan WP core files and repair any files that are flagged as modified.' )
 				);
@@ -827,7 +827,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ufc' ] = array(
 					'title'   => 'Unrecognised Files',
 					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
-					'href'    => $this->getUrl_Wizard( 'ufc' ),
+					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Scan and remove any files that are not meant to be in the WP core directories.' )
 				);
@@ -848,7 +848,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ptg' ] = array(
 					'title'   => 'Plugin/Theme Guard',
 					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
-					'href'    => $this->getUrl_Wizard( 'ptg' ),
+					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Reviewing modifications to your plugins/themes is recommended.' )
 				);
@@ -991,6 +991,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * TODO: build better/dynamic direct linking to insights sub-pages
+	 */
+	public function getUrlManualScan() {
+		return add_query_arg(
+			[ 'subnav' => 'scans' ],
+			$this->getConn()->getModule( 'insights' )->getUrl_AdminPage()
+		);
 	}
 
 	/**
