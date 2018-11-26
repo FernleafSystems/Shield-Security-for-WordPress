@@ -100,13 +100,14 @@
       "key":         "sec_admin_users",
       "section":     "section_admin_access_restriction_settings",
       "sensitive":   true,
+      "premium":     true,
       "default":     "",
       "type":        "array",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/dk",
       "link_blog":   "",
-      "name":        "Security Admin Users",
-      "summary":     "Security Admin Users",
-      "description": "All emails, usernames, or user IDs entered here will automatically be Security Admins."
+      "name":        "Security Admins",
+      "summary":     "Persistent Security Admins",
+      "description": "All emails, usernames, or user IDs entered here will always be Security Admins."
     },
     {
       "key":         "admin_access_timeout",
