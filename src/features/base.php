@@ -551,13 +551,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getPluginInstallationTime() {
-		return $this->getOpt( 'installation_time', 0 );
-	}
-
-	/**
 	 * @param array $aItems
 	 * @return array
 	 */
