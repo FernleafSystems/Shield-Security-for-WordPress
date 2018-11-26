@@ -223,7 +223,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$oPro->addToAuditEntry( 'Pro License check succeeded.', 1, 'license_check_success' );
 			}
 			else {
-				$oCurrent->setLastRequestAt( $this->loadRequest()->ts() );
 				if ( $oCurrent->isValid() ) { // we have something valid previously stored
 
 					if ( !$bForceCheck && $this->isWithinVerifiedGraceExpired() ) {
@@ -246,6 +245,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				}
 			}
 
+			$oCurrent->setLastRequestAt( $this->loadRequest()->ts() );
 			$this->setLicenseData( $oCurrent )
 				 ->savePluginOptions();
 		}
@@ -525,27 +525,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param string $sEmail
-	 * @return string
-	 */
-	protected function setOfficialLicenseRegisteredEmail( $sEmail ) {
-		return $this->setOpt( 'license_registered_email', $sEmail );
-	}
-
-	/**
 	 * @param int $nAt
 	 * @return $this
 	 */
 	protected function setLicenseLastCheckedAt( $nAt = null ) {
 		return $this->setOptAt( 'license_last_checked_at', $nAt );
-	}
-
-	/**
-	 * @param int $nAt
-	 * @return $this
-	 */
-	protected function setLicenseLastRequestedAt( $nAt = null ) {
-		return $this->setOptAt( 'license_last_request_at', $nAt );
 	}
 
 	/**
