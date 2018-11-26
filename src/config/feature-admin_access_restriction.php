@@ -97,6 +97,18 @@
       "description": "Careful: If you forget this, you could potentially lock yourself out from using this plugin."
     },
     {
+      "key":         "sec_admin_users",
+      "section":     "section_admin_access_restriction_settings",
+      "sensitive":   true,
+      "default":     "",
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Security Admin Users",
+      "summary":     "Security Admin Users",
+      "description": "All emails, usernames, or user IDs entered here will automatically be Security Admins."
+    },
+    {
       "key":         "admin_access_timeout",
       "section":     "section_admin_access_restriction_settings",
       "default":     30,

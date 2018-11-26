@@ -16,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return $this->hasAccessKey() && parent::isReadyToExecute();
+		return ( $this->hasAccessKey() || $this->hasSecAdminUsers() ) && parent::isReadyToExecute();
 	}
 
 	/**
@@ -117,11 +117,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function doCheckHasPermissionToSubmit( $bHasPermission = true ) {
 
 		$this->bHasPermissionToSubmit = $bHasPermission;
-		if ( $this->isModuleEnabled() ) {
-			$sAccessKey = $this->getAccessKeyHash();
-			if ( !empty( $sAccessKey ) ) {
-				$this->bHasPermissionToSubmit = $this->isSecAdminSessionValid() || $this->checkAdminAccessKeySubmission();
-			}
+		if ( $this->isModuleEnabled() && ( $this->hasAccessKey() || $this->hasSecAdminUsers() ) ) {
+			$this->bHasPermissionToSubmit = $this->isSecAdminUser()
+											|| $this->isSecAdminSessionValid()
+											|| $this->checkAdminAccessKeySubmission();
 		}
 		return $this->bHasPermissionToSubmit;
 	}
@@ -179,6 +178,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getSecurityAdminUsers() {
+		$aU = $this->getOpt( 'sec_admin_users', array() );
+		return is_array( $aU ) ? $aU : array();
+	}
+
+	/**
 	 * TODO: Bug where if $sType is defined, it'll be set to 'wp' anyway
 	 * @param string $sType - wp or wpms
 	 * @return array
@@ -210,6 +217,23 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
+	public function hasSecAdminUsers() {
+		$aUsers = $this->getSecurityAdminUsers();
+		return !empty( $aUsers );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSecAdminUser() {
+		$oUser = $this->loadWpUsers()->getCurrentWpUser();
+		return $oUser instanceof WP_User &&
+			   in_array( $oUser->user_login, $this->getSecurityAdminUsers() );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isAdminAccessAdminUsersEnabled() {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
 	}
@@ -236,6 +260,44 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				}
 			}
 		}
+
+		$this->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $this->getSecurityAdminUsers() ) );
+	}
+
+	/**
+	 * Ensures that all entries are valid users. The array keys are the user IDs
+	 * @param string[] $aSecUsers
+	 * @return string[]
+	 */
+	private function verifySecAdminUsers( $aSecUsers ) {
+		$oDP = $this->loadDP();
+		$oWpUsers = $this->loadWpUsers();
+
+		$aFiltered = array();
+		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
+			if ( $oDP->validEmail( $sUsernameOrEmail ) ) {
+				$oUser = $oWpUsers->getUserByEmail( $sUsernameOrEmail );
+			}
+			else {
+				$oUser = $oWpUsers->getUserByUsername( $sUsernameOrEmail );
+				if ( is_null( $oUser ) && is_numeric( $sUsernameOrEmail ) ) {
+					$oUser = $oWpUsers->getUserById( $sUsernameOrEmail );
+				}
+			}
+
+			if ( $oUser instanceof WP_User && $oUser->ID > 0 && $oWpUsers->isUserAdmin( $oUser ) ) {
+				$aFiltered[ $oUser->ID ] = $oUser;
+			}
+		}
+
+		// We now run a bit of a sanity check to ensure that the current user is
+		// not adding users here that aren't themselves without a key to still gain access
+		$oCurrent = $oWpUsers->getCurrentWpUser();
+		if ( !empty( $aFiltered ) && !$this->hasAccessKey() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
+			$aFiltered[ $oCurrent->ID ] = $oCurrent->user_login;
+		}
+
+		return $aFiltered;
 	}
 
 	protected function setSaveUserResponse() {
@@ -269,7 +331,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function getSecAdminTimeLeft() {
 		$nLeft = 0;
 		if ( $this->isReadyToExecute() && $this->hasSession() ) {
-			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()->getSecAdminAt() );
+
+			$nSecAdminAt = $this->getSession()->getSecAdminAt();
+			if ( $this->isSecAdminUser() ) {
+				$nLeft = PHP_INT_MAX;
+			}
+			else if ( $nSecAdminAt > 0 ) {
+				$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $nSecAdminAt );
+			}
 		}
 		return max( 0, $nLeft );
 	}
@@ -421,7 +490,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		);
 
 		{//sec admin
-			if ( !( $this->isModuleEnabled() && $this->hasAccessKey() ) ) {
+			if ( !( $this->isModuleEnabled() && ( $this->hasAccessKey() || $this->hasSecAdminUsers() ) ) ) {
 				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(
@@ -445,7 +514,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isEnabledForUiSummary() {
-		return parent::isEnabledForUiSummary() && $this->hasAccessKey() && $this->getSecAdminTimeout() > 0;
+		return parent::isEnabledForUiSummary() && ( $this->getSecAdminTimeout() > 0 )
+			   && ( $this->hasAccessKey() || $this->hasSecAdminUsers() );
 	}
 
 	/**
@@ -536,6 +606,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
 								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>'
 								.( $this->hasAccessKey() ? '<br/>'.sprintf( _wpsf__( 'To delete the current security key, type exactly "%s" and save.' ), '<strong>DELETE</strong>' ) : '' );
+				break;
+
+			case 'sec_admin_users' :
+				$sName = _wpsf__( 'Security Admin Users' );
+				$sSummary = _wpsf__( 'Security Admin Users' );
+				$sDescription = _wpsf__( "All users provided will be security admins and wont need a security access key." )
+								.'<br/>'._wpsf__( 'Enter a username, email or user ID per-line.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'All entries will be converted to usernames.' ) );
 				break;
 
 			case 'admin_access_timeout' :
