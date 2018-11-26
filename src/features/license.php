@@ -203,16 +203,14 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oCurrent = $this->loadLicense();
 
 		// If your last license verification has expired and it's been 4hrs since your last check.
-		$bCheck = $bForceCheck
-				  || ( $this->isLicenseMaybeExpiring() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) )
-				  || ( $this->isLicenseActive() && !$oCurrent->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )
-				  || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
-					   && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) );
+		$bCheck = $bForceCheck || $this->isLicenseCheckRequired();
+		$bCanCheck = $bForceCheck || $this->canLicenseCheck();
 
 		// 1 check in 20 seconds
-		if ( $bCheck && $this->getIsLicenseNotCheckedFor( 20 ) ) {
+		if ( $bCheck && $bCanCheck && $this->getIsLicenseNotCheckedFor( 20 ) ) {
 
-			$this->setLicenseLastCheckedAt()
+			$this->touchLicenseCheckFileFlag()
+				 ->setLicenseLastCheckedAt()
 				 ->savePluginOptions();
 
 			/** @var ICWP_WPSF_Processor_License $oPro */
@@ -254,6 +252,44 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				 ->savePluginOptions();
 		}
 
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isLicenseCheckRequired() {
+		return ( $this->isLicenseMaybeExpiring() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) )
+			   || ( $this->isLicenseActive()
+					&& !$this->loadLicense()->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )
+			   || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
+					&& $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function canLicenseCheck() {
+		$sShieldAction = $this->loadRequest()->query( 'shield_action' );
+		return !in_array( $sShieldAction, array( 'keyless_handshake', 'license_check' ) )
+			   && $this->canLicenseCheck_FileFlag();
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function canLicenseCheck_FileFlag() {
+		$oFs = $this->loadFS();
+		$sFileFlag = $this->getConn()->getPath_Flags( 'license_check' );
+		$nMtime = $oFs->exists( $sFileFlag ) ? $oFs->getModifiedTime( $sFileFlag ) : 0;
+		return ( $this->loadRequest()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
+	}
+
+	/**
+	 * @return $this
+	 */
+	private function touchLicenseCheckFileFlag() {
+		$this->loadFS()->touch( $this->getConn()->getPath_Flags( 'license_check' ) );
 		return $this;
 	}
 
