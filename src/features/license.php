@@ -199,15 +199,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	public function verifyLicense( $bForceCheck = true ) {
-		$nNow = $this->loadRequest()->ts();
-		$oCurrent = $this->loadLicense();
-
-		// If your last license verification has expired and it's been 4hrs since your last check.
-		$bCheck = $bForceCheck || $this->isLicenseCheckRequired();
-		$bCanCheck = $bForceCheck || $this->canLicenseCheck();
+		// Is a check actually required and permitted
+		$bCheckReq = $this->isLicenseCheckRequired() && $this->canLicenseCheck();
 
 		// 1 check in 20 seconds
-		if ( $bCheck && $bCanCheck && $this->getIsLicenseNotCheckedFor( 20 ) ) {
+		if ( ( $bForceCheck || $bCheckReq ) && $this->getIsLicenseNotCheckedFor( 20 ) ) {
+
+			$oCurrent = $this->loadLicense();
 
 			$this->touchLicenseCheckFileFlag()
 				 ->setLicenseLastCheckedAt()
@@ -225,7 +223,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$oPro->addToAuditEntry( 'Pro License check succeeded.', 1, 'license_check_success' );
 			}
 			else {
-				$oCurrent->setLastRequestAt( $nNow );
+				$oCurrent->setLastRequestAt( $this->loadRequest()->ts() );
 				if ( $oCurrent->isValid() ) { // we have something valid previously stored
 
 					if ( !$bForceCheck && $this->isWithinVerifiedGraceExpired() ) {
