@@ -476,10 +476,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function doPrePluginOptionsSave() {
 
-		$nInstalledAt = $this->getPluginInstallationTime();
-		if ( empty( $nInstalledAt ) || $nInstalledAt <= 0 ) {
-			$this->setOpt( 'installation_time', $this->loadRequest()->ts() );
-		}
+		$this->storeRealInstallDate();
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
 			$this->setOpt( 'tracking_permission_set_at', $this->loadRequest()->ts() );
@@ -492,6 +489,46 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->cleanImportExportMasterImportUrl();
 
 		$this->setPluginInstallationId();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getFirstInstallDate() {
+		return $this->loadWp()->getOption( $this->prefixOptionKey( 'install_date' ) );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getInstallDate() {
+		return $this->getOpt( 'installation_time', 0 );
+	}
+
+	/**
+	 * @return int - the real install timestamp
+	 */
+	public function storeRealInstallDate() {
+		$oWP = $this->loadWp();
+		$nNow = $this->loadRequest()->ts();
+
+		$sOptKey = $this->prefixOptionKey( 'install_date' );
+
+		$nWpDate = $oWP->getOption( $sOptKey );
+		if ( empty( $nWpDate ) ) {
+			$nWpDate = $nNow;
+		}
+
+		$nPluginDate = $this->getInstallDate();
+		if ( $nPluginDate == 0 ) {
+			$nPluginDate = $nNow;
+		}
+
+		$nFinal = min( $nPluginDate, $nWpDate );
+		$oWP->updateOption( $sOptKey, $nFinal );
+		$this->setOpt( 'installation_time', $nPluginDate );
+
+		return $nFinal;
 	}
 
 	/**
@@ -542,7 +579,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function genInstallId() {
 		return sha1(
-			$this->getPluginInstallationTime()
+			$this->getInstallDate()
 			.$this->loadWp()->getWpUrl()
 			.$this->loadDbProcessor()->getPrefix()
 		);

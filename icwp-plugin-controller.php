@@ -1312,7 +1312,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).DIRECTORY_SEPARATOR.$sAsset;
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) );
+		return empty( $sAsset ) ? $sBase : path_join( $sBase, $sAsset );
 	}
 
 	/**
@@ -1320,7 +1321,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Flags( $sFlag = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).DIRECTORY_SEPARATOR.$sFlag;
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
+		return empty( $sFlag ) ? $sBase : path_join( $sBase, $sFlag );
 	}
 
 	/**
@@ -1328,12 +1330,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
+		$sTempPath = null;
 		$oFs = $this->loadFS();
-		$sTempPath = $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR;
-		if ( $oFs->mkdir( $sTempPath ) ) {
-			return $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR.$sTmpFile;
+
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'temp' ) );
+		if ( $oFs->mkdir( $sBase ) ) {
+			$sTempPath = $sBase;
 		}
-		return null;
+		return empty( $sTmpFile ) ? $sTempPath : path_join( $sTempPath, $sTmpFile );
 	}
 
 	/**
@@ -1361,43 +1365,18 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getPath_Config() {
-		return $this->getPath_Source().'config/';
-	}
-
-	/**
 	 * @param string $sSlug
 	 * @return string
 	 */
 	public function getPath_ConfigFile( $sSlug ) {
-		return $this->getPath_Config().sprintf( 'feature-%s.php', $sSlug );
+		return $this->getPath_SourceFile( sprintf( 'config/feature-%s.php', $sSlug ) );
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
 	 * @return string
 	 */
 	public function getPath_Languages() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
-	}
-
-	/**
-	 * get the root directory for the plugin with the trailing slash
-	 * @return string
-	 */
-	public function getPath_Source() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).DIRECTORY_SEPARATOR;
-	}
-
-	/**
-	 * Get the directory for the plugin source files with the trailing slash
-	 * @param string $sSourceFile
-	 * @return string
-	 */
-	public function getPath_SourceFile( $sSourceFile = '' ) {
-		return $this->getPath_Source().$sSourceFile;
+		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ).'/';
 	}
 
 	/**
@@ -1406,14 +1385,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_LibFile( $sLibFile = '' ) {
-		return $this->getPath_Source().'lib/'.$sLibFile;
+		return $this->getPath_SourceFile( 'lib/'.$sLibFile );
+	}
+
+	/**
+	 * Get the directory for the plugin source files with the trailing slash
+	 * @param string $sSourceFile
+	 * @return string
+	 */
+	public function getPath_SourceFile( $sSourceFile = '' ) {
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) ).'/';
+		return empty( $sSourceFile ) ? $sBase : path_join( $sBase, $sSourceFile );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getPath_Templates() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).DIRECTORY_SEPARATOR;
+		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
 	}
 
 	/**
@@ -1421,14 +1410,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates().$sTemplate;
+		return path_join( $this->getPath_Templates(), $sTemplate );
 	}
 
 	/**
 	 * @return string
 	 */
 	private function getPathPluginSpec() {
-		return $this->getRootDir().'plugin-spec.php';
+		return path_join( $this->getRootDir(), 'plugin-spec.php' );
 	}
 
 	/**
