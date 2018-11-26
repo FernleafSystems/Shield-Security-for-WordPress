@@ -286,7 +286,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			}
 
 			if ( $oUser instanceof WP_User && $oUser->ID > 0 && $oWpUsers->isUserAdmin( $oUser ) ) {
-				$aFiltered[ $oUser->ID ] = $oUser;
+				$aFiltered[] = $oUser->user_login;
 			}
 		}
 
@@ -294,10 +294,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		// not adding users here that aren't themselves without a key to still gain access
 		$oCurrent = $oWpUsers->getCurrentWpUser();
 		if ( !empty( $aFiltered ) && !$this->hasAccessKey() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
-			$aFiltered[ $oCurrent->ID ] = $oCurrent->user_login;
+			$aFiltered[] = $oCurrent->user_login;
 		}
 
-		return $aFiltered;
+		natsort( $aFiltered );
+		return array_unique( $aFiltered );
 	}
 
 	protected function setSaveUserResponse() {
