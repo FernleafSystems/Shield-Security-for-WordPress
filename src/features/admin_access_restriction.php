@@ -596,9 +596,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			case 'sec_admin_users' :
 				$sName = _wpsf__( 'Security Admins' );
 				$sSummary = _wpsf__( 'Persistent Security Admins' );
-				$sDescription = _wpsf__( "All usernames provided will be security admins and wont need a security access key." )
-								.'<br/>'._wpsf__( 'Enter 1 username, email or user ID per-line.' )
-								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'All entries will be converted to usernames.' ) );
+				$sDescription = _wpsf__( "Users provided will be security admins automatically, without needing the security key." )
+								.'<br/>'._wpsf__( 'Enter admin username, email or ID.' ).' '._wpsf__( '1 entry per-line.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'Verified users will be converted to usernames.' ) );
 				break;
 
 			case 'admin_access_timeout' :
