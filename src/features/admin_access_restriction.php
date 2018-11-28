@@ -10,8 +10,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
-	private $bHasPermissionToSubmit;
-
 	/**
 	 * @return bool
 	 */
@@ -31,6 +29,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				case 'sec_admin_check':
 					$aAjaxResponse = $this->ajaxExec_SecAdminCheck();
 					break;
+
 				case 'sec_admin_login':
 				case 'restricted_access':
 					$aAjaxResponse = $this->ajaxExec_SecAdminLogin();
@@ -108,21 +107,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			)
 		);
 		return $this->renderTemplate( 'snippets/admin_access_login', $aData );
-	}
-
-	/**
-	 * @param bool $bHasPermission
-	 * @return bool
-	 */
-	public function doCheckHasPermissionToSubmit( $bHasPermission = true ) {
-
-		$this->bHasPermissionToSubmit = $bHasPermission;
-		if ( $this->isModuleEnabled() && $this->isEnabledSecurityAdmin() ) {
-			$this->bHasPermissionToSubmit = $this->isSecAdminUser()
-											|| $this->isSecAdminSessionValid()
-											|| $this->checkAdminAccessKeySubmission();
-		}
-		return $this->bHasPermissionToSubmit;
 	}
 
 	/**
@@ -223,13 +207,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * No checking of admin capabilities in-case of infinite loop with admin access caps check
 	 * @return bool
 	 */
-	public function isSecAdminUser() {
-		$oWpUsers = $this->loadWpUsers();
-		$oUser = $oWpUsers->getCurrentWpUser();
-		return $oUser instanceof WP_User && $oWpUsers->isUserAdmin( $oUser ) &&
-			   in_array( $oUser->user_login, $this->getSecurityAdminUsers() );
+	public function isRegisteredSecAdminUser() {
+		$sUser = $this->loadWpUsers()->getCurrentWpUsername();
+		return !empty( $sUser ) && in_array( $sUser, $this->getSecurityAdminUsers() );
 	}
 
 	/**
@@ -266,7 +249,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * Ensures that all entries are valid users. The array keys are the user IDs
+	 * Ensures that all entries are valid users.
 	 * @param string[] $aSecUsers
 	 * @return string[]
 	 */
@@ -304,7 +287,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	protected function setSaveUserResponse() {
 		if ( $this->isAccessKeyRequest() ) {
-			$bSuccess = $this->doCheckHasPermissionToSubmit();
+			$bSuccess = $this->checkAdminAccessKeySubmission();
 
 			if ( $bSuccess ) {
 				$sMessage = _wpsf__( 'Security Admin key accepted.' );
@@ -332,11 +315,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function getSecAdminTimeLeft() {
 		$nLeft = 0;
-		if ( $this->isReadyToExecute() && $this->hasSession() ) {
-			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()->secadmin_at );
+		if ( $this->hasSession() ) {
 
 			$nSecAdminAt = $this->getSession()->getSecAdminAt();
-			if ( $this->isSecAdminUser() ) {
+			if ( $this->isRegisteredSecAdminUser() ) {
 				$nLeft = 0;
 			}
 			else if ( $nSecAdminAt > 0 ) {
@@ -377,7 +359,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
-	protected function checkAdminAccessKeySubmission() {
+	public function checkAdminAccessKeySubmission() {
 		$sAccessKeyRequest = $this->loadRequest()->post( 'admin_access_key_request', '' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
@@ -471,11 +453,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @throws Exception
 	 */
 	public function setNewAccessKeyManually( $sKey ) {
-		if ( !$this->doCheckHasPermissionToSubmit() ) {
-			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
-		}
 		if ( empty( $sKey ) ) {
 			throw new Exception( 'Attempting to set an empty Security Admin Access Key.' );
+		}
+		if ( !$this->getConn()->isPluginAdmin() ) {
+			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
 		$this->setIsMainFeatureEnabled( true )
@@ -846,5 +828,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				array_unique( array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) ) )
 			);
 		}
+	}
+
+	/**
+	 * @deprecated v6.10.7
+	 * @return bool
+	 */
+	public function doCheckHasPermissionToSubmit() {
+		return $this->getConn()->isPluginAdmin();
 	}
 }

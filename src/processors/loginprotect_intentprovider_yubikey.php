@@ -27,7 +27,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$aData = array(
 			'has_validated_profile' => $bValidatedProfile,
 			'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
-			'i_am_valid_admin'      => $oCon->getHasPermissionToManage(),
+			'i_am_valid_admin'      => $oCon->isPluginAdmin(),
 			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
 			'strings'               => array(
 				'description_otp_code'     => _wpsf__( 'This is your unique Yubikey Device ID.' ),
