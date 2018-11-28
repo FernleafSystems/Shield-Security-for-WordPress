@@ -384,7 +384,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function isWpvulnPluginsHighlightEnabled() {
 		$sOpt = $this->getWpvulnPluginsHighlightOption();
 		return ( $sOpt != 'disabled' ) && $this->loadWpUsers()->isUserAdmin()
-			   && ( ( $sOpt != 'enabled_securityadmin' ) || $this->getConn()->getHasPermissionToManage() );
+			   && ( ( $sOpt != 'enabled_securityadmin' ) || $this->getConn()->isPluginAdmin() );
 	}
 
 	/**

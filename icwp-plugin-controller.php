@@ -91,7 +91,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var boolean
 	 */
-	protected $bMeetsBasePermissions = false;
+	private $bMeetsBasePermissions;
 
 	/**
 	 * @var string
@@ -260,7 +260,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpDeactivatePlugin() {
-		if ( current_user_can( $this->getBasePermissions() ) && apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
+		if ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 			do_action( $this->prefix( 'delete_plugin' ) );
 			$this->deletePluginControllerOptions();
 		}
@@ -277,7 +277,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function doRegisterHooks() {
 		$this->registerActivationHooks();
 
-		add_action( 'init', array( $this, 'onWpInit' ), 0 );
+		add_action( 'init', array( $this, 'onWpInit' ), -1000 );
 		add_action( 'admin_init', array( $this, 'onWpAdminInit' ) );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 
@@ -337,8 +337,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpInit() {
+		$this->getMeetsBasePermissions();
 		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueFrontendCss' ), 99 );
-		$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
 	}
 
 	/**
@@ -364,32 +364,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function displayDashboardWidget() {
 		$aContent = apply_filters( $this->prefix( 'dashboard_widget_content' ), array() );
 		echo implode( '', $aContent );
-	}
-
-	/**
-	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
-	 * so we removed the "current_user_can()" or any such sub-call within this function
-	 * @return bool
-	 */
-	public function getHasPermissionToManage() {
-		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {
-			return true;
-		}
-		return ( $this->getMeetsBasePermissions() && apply_filters( $this->prefix( 'has_permission_to_manage' ), true ) );
-	}
-
-	/**
-	 * Must be simple and cannot contain anything that would call filter "user_has_cap", e.g. current_user_can()
-	 * @return boolean
-	 */
-	public function getMeetsBasePermissions() {
-		return (bool)$this->bMeetsBasePermissions;
-	}
-
-	/**
-	 */
-	public function getHasPermissionToView() {
-		return $this->getHasPermissionToManage(); // TODO: separate view vs manage
 	}
 
 	/**
@@ -1098,9 +1072,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @param bool $bCheckUserPerms - do we check the logged-in user permissions
 	 * @return bool
 	 */
-	public function isValidAdminArea( $bCheckUserPerms = true ) {
-		if ( $bCheckUserPerms && $this->loadWpTrack()->getWpActionHasFired( 'init' )
-			 && !$this->getMeetsBasePermissions() ) {
+	public function isValidAdminArea( $bCheckUserPerms = false ) {
+		if ( $bCheckUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
 			return false;
 		}
 
@@ -1112,6 +1085,30 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * only ever consider after WP INIT (when a logged-in user is recognised)
+	 * @return bool
+	 */
+	public function isPluginAdmin() {
+		return $this->getMeetsBasePermissions() // takes care of did_action('init)
+			   && (
+				   apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false )
+				   || apply_filters( $this->prefix( 'has_permission_to_manage' ), true )
+			   );
+	}
+
+	/**
+	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
+	 * current_user_can() never gets caught up in an infinite loop of permissions checking
+	 * @return boolean
+	 */
+	public function getMeetsBasePermissions() {
+		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
+			$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
+		}
+		return isset( $this->bMeetsBasePermissions ) ? $this->bMeetsBasePermissions : false;
 	}
 
 	/**
@@ -1574,7 +1571,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function deactivateSelf() {
-		if ( $this->isValidAdminArea() && function_exists( 'deactivate_plugins' ) ) {
+		if ( $this->isPluginAdmin() && function_exists( 'deactivate_plugins' ) ) {
 			deactivate_plugins( $this->getPluginBaseFile() );
 		}
 	}
@@ -1881,5 +1878,18 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
 		}
 		return $aResult;
+	}
+
+	/**
+	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
+	 * so we removed the "current_user_can()" or any such sub-call within this function
+	 * @deprecated v6.10.7
+	 * @return bool
+	 */
+	public function getHasPermissionToManage() {
+		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {
+			return true;
+		}
+		return ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'has_permission_to_manage' ), true ) );
 	}
 }

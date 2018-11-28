@@ -297,7 +297,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function importOptions() {
 		// So we don't poll for the file every page load.
 		if ( $this->loadRequest()->query( 'icwp_shield_import' ) == 1 ) {
-			$aOptions = self::getConn()->getOptionsImportFromFile();
+			$aOptions = $this->getConn()->getOptionsImportFromFile();
 			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
 				$this
@@ -356,7 +356,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
-			include_once( self::getConn()
+			include_once( $this->getConn()
 							  ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
 			if ( !class_exists( $sClassName, false ) ) {
@@ -372,7 +372,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getProcessorClassName() {
-		return ucwords( self::getConn()->getOptionStoragePrefix() ).'Processor_'.
+		return ucwords( $this->getConn()->getOptionStoragePrefix() ).'Processor_'.
 			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) );
 	}
 
@@ -381,7 +381,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getWizardClassName() {
-		return ucwords( self::getConn()->getOptionStoragePrefix() ).'Wizard_'.
+		return ucwords( $this->getConn()->getOptionStoragePrefix() ).'Wizard_'.
 			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) );
 	}
 
@@ -390,7 +390,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
-			$oCon = self::getConn();
+			$oCon = $this->getConn();
 			$this->oOptions = ICWP_WPSF_Factory::OptionsVo();
 			$this->oOptions
 				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
@@ -414,8 +414,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isUpgrading() {
-//			return $this->getVersion() != self::getController()->getVersion();
-		return self::getConn()->getIsRebuildOptionsFromFile() || $this->getOptionsVo()->getRebuildFromFile();
+//			return $this->getVersion() != $this->getController()->getVersion();
+		return $this->getConn()->getIsRebuildOptionsFromFile() || $this->getOptionsVo()->getRebuildFromFile();
 	}
 
 	/**
@@ -460,7 +460,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $this->loadWp()
 					->getUrl_AdminPage(
 						$this->getModSlug(),
-						self::getConn()->getIsWpmsNetworkAdminOnly()
+						$this->getConn()->getIsWpmsNetworkAdminOnly()
 					);
 	}
 
@@ -470,7 +470,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getEmailHandler() {
 		if ( is_null( self::$oEmailHandler ) ) {
-			self::$oEmailHandler = self::getConn()->loadFeatureHandler( array( 'slug' => 'email' ) );
+			self::$oEmailHandler = $this->getConn()->loadFeatureHandler( array( 'slug' => 'email' ) );
 		}
 		return self::$oEmailHandler;
 	}
@@ -505,7 +505,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
 			$bEnabled = false;
 		}
-		else if ( self::getConn()->getIfForceOffActive() ) {
+		else if ( $this->getConn()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
 		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
@@ -561,7 +561,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 		if ( !empty( $sMenuTitleName ) ) {
 
-			$sHumanName = self::getConn()->getHumanName();
+			$sHumanName = $this->getConn()->getHumanName();
 
 			$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
 			if ( $bMenuHighlighted ) {
@@ -870,7 +870,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getWizardHandler() {
 		if ( !isset( $this->oWizard ) ) {
-			include_once( self::getConn()->getPath_SourceFile( sprintf( 'wizards/%s.php', $this->getSlug() ) ) );
+			include_once( $this->getConn()->getPath_SourceFile( sprintf( 'wizards/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getWizardClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;
@@ -900,7 +900,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	private function store() {
 		add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
-		$this->getOptionsVo()->doOptionsSave( self::getConn()->getIsResetPlugin() );
+		$this->getOptionsVo()->doOptionsSave( $this->getConn()->getIsResetPlugin() );
 		remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
 	}
 
@@ -920,7 +920,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function buildOptions() {
 
-		$bPremiumEnabled = self::getConn()->isPremiumExtensionsEnabled();
+		$bPremiumEnabled = $this->getConn()->isPremiumExtensionsEnabled();
 
 		$oOptsVo = $this->getOptionsVo();
 		$aOptions = $oOptsVo->getOptionsForPluginUse();
@@ -1070,10 +1070,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Deletes all the options including direct save.
 	 */
 	public function deletePluginOptions() {
-		if ( self::getConn()->getHasPermissionToManage() ) {
-			$this->getOptionsVo()->doOptionsDelete();
-			$this->bPluginDeleting = true;
-		}
+		$this->getOptionsVo()->doOptionsDelete();
+		$this->bPluginDeleting = true;
 	}
 
 	/**
@@ -1098,7 +1096,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function ajaxExec_ModOptions() {
 
-		$sName = self::getConn()->getHumanName();
+		$sName = $this->getConn()->getHumanName();
 
 		try {
 			$this->saveOptionsSubmit();
@@ -1146,7 +1144,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	protected function saveOptionsSubmit() {
-		if ( !self::getConn()->getHasPermissionToManage() ) {
+		if ( !$this->getConn()->isPluginAdmin() ) {
 			throw new Exception( _wpsf__( "You don't currently have permission to save settings." ) );
 		}
 		$this->doSaveStandardOptions();
@@ -1154,13 +1152,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function verifyFormSubmit() {
-		if ( !self::getConn()->getHasPermissionToManage() ) {
-//				TODO: manage how we react to prohibited submissions
-			return false;
-		}
-
-		// Now verify this is really a valid submission.
-		return check_admin_referer( self::getConn()->getPluginPrefix() );
+		return $this->getConn()->isPluginAdmin()
+			   && check_admin_referer( $this->getConn()->getPluginPrefix() );
 	}
 
 	/**
@@ -1186,7 +1179,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function setFlashAdminNotice( $sMsg, $bError = false ) {
 		$this->loadWpNotices()
-			 ->addFlashUserMessage( sprintf( '[%s] %s', self::getConn()->getHumanName(), $sMsg ), $bError );
+			 ->addFlashUserMessage( sprintf( '[%s] %s', $this->getConn()->getHumanName(), $sMsg ), $bError );
 		return $this;
 	}
 
@@ -1368,7 +1361,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return self::getConn()->prefix( $sSuffix, $sGlue );
+		return $this->getConn()->prefix( $sSuffix, $sGlue );
 	}
 
 	/**
@@ -1376,7 +1369,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getOptionStoragePrefix() {
-		return self::getConn()->getOptionStoragePrefix();
+		return $this->getConn()->getOptionStoragePrefix();
 	}
 
 	/**
@@ -1420,7 +1413,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getBaseDisplayData( $bRenderEmbeddedContent = false ) {
-		$oCon = self::getConn();
+		$oCon = $this->getConn();
 		self::$sActivelyDisplayedModuleOptions = $this->getSlug();
 
 		$aData = array(
@@ -1676,7 +1669,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		// Get the same Base Data as normal display
 		try {
-			return $this->loadRenderer( self::getConn()->getPath_Templates() )
+			return $this->loadRenderer( $this->getConn()->getPath_Templates() )
 						->setTemplate( $sTemplate )
 						->setRenderVars( $this->getBaseDisplayData( true ) )
 						->render();
@@ -1690,8 +1683,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function canDisplayOptionsForm() {
-		return $this->getOptionsVo()->isAccessRestricted() ? self::getConn()
-																 ->getHasPermissionToView() : true;
+		return $this->getOptionsVo()->isAccessRestricted() ? $this->getConn()->isPluginAdmin() : true;
 	}
 
 	/**
@@ -1762,7 +1754,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
-			$oRndr = $this->loadRenderer( self::getConn()->getPath_Templates() );
+			$oRndr = $this->loadRenderer( $this->getConn()->getPath_Templates() );
 			if ( $bUseTwig ) {
 				$oRndr->setTemplateEngineTwig();
 			}
@@ -2007,7 +1999,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getVersion() {
-		return self::getConn()->getVersion();
+		return $this->getConn()->getVersion();
 	}
 
 	/**

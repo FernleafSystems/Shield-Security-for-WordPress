@@ -316,9 +316,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @param string $sPlugin
 	 */
 	public function onWpHookDeactivatePlugin( $sPlugin ) {
-		$oCon = self::getConn();
+		$oCon = $this->getConn();
 		if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
-			if ( !$oCon->getHasPermissionToManage() ) {
+			if ( !$oCon->isPluginAdmin() ) {
 				$this->loadWp()->wpDie(
 					_wpsf__( 'Sorry, you do not have permission to disable this plugin.' )
 					.' '._wpsf__( 'You need to authenticate first.' )
@@ -874,13 +874,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
+		$sPlugName = $this->getConn()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'global_enable_plugin_features' :
 				$sName = _wpsf__( 'Enable/Disable Plugin Modules' );
 				$sSummary = _wpsf__( 'Enable/Disable All Plugin Modules' );
-				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getConn()
-																										   ->getHumanName() );
+				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), $sPlugName );
 				break;
 
 			case 'enable_notes' :
