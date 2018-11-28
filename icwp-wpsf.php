@@ -28,6 +28,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
+	global $sIcwpWpsfPluginFile;
+	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
+	include_once( dirname( __FILE__ ).'/unsupported.php' );
+	return;
+}
+
 if ( !defined( 'ICWP_DS' ) ) {
 	define( 'ICWP_DS', DIRECTORY_SEPARATOR );
 }
