@@ -1,12 +1,14 @@
 {% extends '/wpadmin_pages/base.twig' %}
 
-{% block h1heading %}<h1>{{ strings.page_title }}</h1>{% endblock %}
+{% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
 
 {% block body_head %}
 	<div class="row">
 		<div class="col-12">
 			<nav class="navbar navbar-expand-md navbar-light bg-light">
-				<a class="navbar-brand" href="{{ hrefs.nav_home }}">Shield Security</a>
+				<a class="navbar-brand" href="{{ hrefs.nav_home }}"
+				style="background: url('{{ hrefs.img_banner }}'); width: 170px; display: inline-block;"
+				>&nbsp;</a>
 				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
 						aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>

@@ -228,8 +228,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								  'page_container' => 'page-insights page-'.$sSubNavSection
 							  ),
 							  'hrefs'   => array(
-								  'nav_home' => $this->getUrl_AdminPage(),
-								  'top_nav'  => $aTopNav,
+								  'nav_home'   => $this->getUrl_AdminPage(),
+								  'top_nav'    => $aTopNav,
+								  'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
 							  ),
 							  'strings' => $this->getDisplayStrings(),
 						  ),
