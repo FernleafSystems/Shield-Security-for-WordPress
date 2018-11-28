@@ -16,11 +16,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'adjustUserAdminPermissions' ) );
 
-		if ( !$oFO->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
-			add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
-		}
+		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'adjustUserAdminPermissions' ) );
 
 		if ( $oFO->isWlEnabled() ) {
 			$this->runWhiteLabel();
@@ -43,9 +40,13 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		parent::onWpInit();
 
 		$oCon = $this->getController();
-		if ( $oCon->isPluginAdmin() ) {
+		if ( !$oCon->isPluginAdmin() ) {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 			$oFO = $this->getMod();
+
+			if ( !$oFO->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
+				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
+			}
 
 			if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
 				add_filter( 'editable_roles', array( $this, 'restrictEditableRoles' ), 100, 1 );
@@ -371,17 +372,12 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
 
-		$bSavingIsPermitted = true;
-
 		if ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) {
-			$bSavingIsPermitted = $this->getController()->isPluginAdmin();
-
-			if ( !$bSavingIsPermitted ) {
-				$this->doStatIncrement( 'option.save.blocked' );
-			}
+			$this->doStatIncrement( 'option.save.blocked' );
+			$mNewOptionValue = $mOldValue;
 		}
 
-		return $bSavingIsPermitted ? $mNewOptionValue : $mOldValue;
+		return $mNewOptionValue;
 	}
 
 	/**
