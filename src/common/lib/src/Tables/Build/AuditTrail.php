@@ -70,7 +70,7 @@ class AuditTrail extends BaseBuild {
 			$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
 			$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->message ) );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			if ( $oEntry->getIp() == $sYou ) {
+			if ( $oEntry->ip == $sYou ) {
 				$aE[ 'your_ip' ] = '<br /><small>('._wpsf__( 'Your IP' ).')</small>';
 			}
 			else {

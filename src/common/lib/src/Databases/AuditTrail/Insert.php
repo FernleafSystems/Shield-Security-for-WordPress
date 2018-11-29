@@ -8,17 +8,28 @@ use FernleafSystems\Wordpress\Services\Services;
 class Insert extends Base\Insert {
 
 	/**
-	 * Requires IP and List to be set on VO.
-	 * @param EntryVO $oEntry
-	 * @return bool
+	 * @return $this
+	 * @throws \Exception
 	 */
-	public function insert( $oEntry ) {
-		if ( !isset( $oEntry->ip ) ) {
-			$oEntry->ip = Services::IP()->getRequestIp();
+	protected function verifyInsertData() {
+		parent::verifyInsertData();
+
+		$aData = $this->getInsertData();
+
+		if ( !isset( $aData[ 'ip' ] ) ) {
+			$aData[ 'ip' ] = Services::IP()->getRequestIp();
 		}
-		if ( is_array( $oEntry->message ) ) {
-			$oEntry->message = implode( ' ', $oEntry->message );
+		if ( is_array( $aData[ 'message' ] ) ) {
+			$aData[ 'message' ] = implode( ' ', $aData[ 'message' ] );
 		}
-		return parent::insert( $oEntry );
+		if ( isset( $aData[ 'data' ] ) && !is_string( $aData[ 'data' ] ) ) {
+			$aData[ 'data' ] = '';
+		}
+		if ( empty( $aData[ 'wp_username' ] ) ) {
+			$oWpUsers = Services::WpUsers();
+			$aData[ 'wp_username' ] = $oWpUsers->isUserLoggedIn() ? $oWpUsers->getCurrentWpUsername() : 'unknown';
+		}
+
+		return $this->setInsertData( $aData );
 	}
 }

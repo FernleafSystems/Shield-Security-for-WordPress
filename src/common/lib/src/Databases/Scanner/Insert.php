@@ -7,13 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class Insert extends Base\Insert {
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry
-	 * @return bool
+	 * @return $this
+	 * @throws \Exception
 	 */
-	public function insert( $oEntry ) {
-		if ( !is_string( $oEntry->data ) || strpos( $oEntry->data, '{' ) === false ) {
-			$oEntry->data = json_encode( $oEntry->data );
+	protected function verifyInsertData() {
+		parent::verifyInsertData();
+
+		$aData = $this->getInsertData();
+		if ( !is_string( $aData[ 'data' ] ) || strpos( $aData[ 'data' ], '{' ) === false ) {
+			$aData[ 'data' ] = json_encode( $aData[ 'data' ] );
 		}
-		return parent::insert( $oEntry );
+
+		return $this->setInsertData( $aData );
 	}
 }

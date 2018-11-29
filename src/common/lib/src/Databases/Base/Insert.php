@@ -23,40 +23,60 @@ class Insert extends BaseQuery {
 	 * @return bool
 	 */
 	public function insert( $oEntry ) {
-		$aData = array_merge(
-			array(
-				'created_at' => Services::Request()->ts(),
-			),
-			$oEntry->getRawDataAsArray()
-		);
-		return $this->setInsertData( $aData )->query() === 1;
+		return $this->setInsertData( $oEntry->getRawDataAsArray() )->query() === 1;
 	}
 
 	/**
 	 * @param array $aData
 	 * @return $this
 	 */
-	public function setInsertData( $aData ) {
-		if ( !isset( $aData[ 'updated_at' ] ) && $this->getDbH()->hasColumn( 'updated_at' ) ) {
-			$aData[ 'updated_at' ] = Services::Request()->ts();
-		}
+	protected function setInsertData( $aData ) {
 		$this->aInsertData = $aData;
 		return $this;
 	}
 
 	/**
-	 * @return false|int
+	 * @return $this
+	 * @throws \Exception
+	 */
+	protected function verifyInsertData() {
+		$aData = $this->getInsertData();
+
+		if ( !is_array( $aData ) ) {
+			$aData = array();
+		}
+		$aData = array_merge(
+			array( 'created_at' => Services::Request()->ts(), ),
+			$aData
+		);
+		if ( !isset( $aData[ 'updated_at' ] ) && $this->getDbH()->hasColumn( 'updated_at' ) ) {
+			$aData[ 'updated_at' ] = Services::Request()->ts();
+		}
+
+		return $this->setInsertData( $aData );
+	}
+
+	/**
+	 * @return bool|int
 	 */
 	public function query() {
-		return Services::WpDb()
-					   ->insertDataIntoTable(
-						   $this->getDbH()->getTable(),
-						   $this->getInsertData()
-					   );
+		try {
+			$this->verifyInsertData();
+			$bSuccess = Services::WpDb()
+								->insertDataIntoTable(
+									$this->getDbH()->getTable(),
+									$this->getInsertData()
+								);
+		}
+		catch ( \Exception $oE ) {
+			$bSuccess = false;
+		}
+		return $bSuccess;
 	}
 
 	/**
 	 * Offset never applies
+	 *
 	 * @return string
 	 */
 	protected function buildOffsetPhrase() {

@@ -8,15 +8,26 @@ use FernleafSystems\Wordpress\Services\Services;
 class Insert extends Base\Insert {
 
 	/**
+	 * @return $this
+	 * @throws \Exception
+	 */
+	protected function verifyInsertData() {
+		parent::verifyInsertData();
+
+		$aData = $this->getInsertData();
+		if ( empty( $aData[ 'wp_username' ] ) ) {
+			$sUser = Services::WpUsers()->getCurrentWpUsername();
+			$aData[ 'wp_username' ] = empty( $sUser ) ? 'unknown' : $sUser;
+		}
+
+		return $this->setInsertData( $aData );
+	}
+
+	/**
 	 * @param string $sNote
 	 * @return bool
 	 */
 	public function create( $sNote ) {
-		$oUser = Services::WpUsers()->getCurrentWpUser();
-		$aData = array(
-			'wp_username' => ( $oUser instanceof \WP_User ) ? $oUser->user_login : 'unknown',
-			'note'        => esc_sql( $sNote ),
-		);
-		return $this->setInsertData( $aData )->query() === 1;
+		return $this->setInsertData( array( 'note' => esc_sql( $sNote ) ) )->query() === 1;
 	}
 }

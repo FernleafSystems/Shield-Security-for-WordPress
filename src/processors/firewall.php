@@ -23,15 +23,11 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @var array
 	 */
-	protected $aFirewallTripData;
-
-	/**
-	 * @var array
-	 */
 	protected $aPatterns;
 
 	/**
 	 * After any parameter whitelisting has been accounted for
+	 *
 	 * @var array
 	 */
 	protected $aPageParams;
@@ -154,7 +150,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'EXE File Uploads' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
 				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
-				$this->setFirewallTrip_Class( $sKey );
 			}
 		}
 		return !$bFAIL;
@@ -162,12 +157,13 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Returns false when check fails - that is, it should be blocked by the firewall.
-	 * @param string $sTermsKey
+	 *
+	 * @param string $sBlockKey
 	 * @return boolean
 	 */
-	private function doPassCheck( $sTermsKey ) {
+	private function doPassCheck( $sBlockKey ) {
 
-		$aMatchTerms = $this->getFirewallPatterns( $sTermsKey );
+		$aMatchTerms = $this->getFirewallPatterns( $sBlockKey );
 		$aParamValues = $this->getParamsToCheck();
 		if ( empty( $aMatchTerms ) || empty( $aParamValues ) ) {
 			return true;
@@ -203,16 +199,24 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( $bFAIL ) {
 			$this->addToFirewallDieMessage( _wpsf__( "Something in the URL, Form or Cookie data wasn't appropriate." ) );
-			$sAuditMessage = _wpsf__( 'Page parameter failed firewall check.' )
-							 .' '.sprintf( _wpsf__( 'The offending parameter was "%s" with a value of "%s".' ), $sParam, $mValue );
-			$this->addToAuditEntry( $sAuditMessage, 3 );
-			$this->setFirewallTrip_Parameter( $sParam );
-			$this->setFirewallTrip_Value( $mValue );
 
-			$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), $this->getFirewallBlockKeyName( $sTermsKey ) );
-			$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-			$this->doStatIncrement( 'firewall.blocked.'.$sTermsKey );
-			$this->setFirewallTrip_Class( $sTermsKey );
+			$sAuditMessage = implode( "\n",
+				array(
+					sprintf( _wpsf__( 'Firewall Trigger: %s.' ), $this->getFirewallBlockKeyName( $sBlockKey ) ),
+					_wpsf__( 'Page parameter failed firewall check.' ),
+					sprintf( _wpsf__( 'The offending parameter was "%s" with a value of "%s".' ), $sParam, $mValue )
+				)
+			);
+
+			$this->addToAuditEntry(
+				$sAuditMessage, 3, 'firewall_block',
+				array(
+					'param'    => $sParam,
+					'val'      => $mValue,
+					'blockkey' => $sBlockKey,
+				)
+			);
+			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
 		}
 
 		return !$bFAIL;
@@ -429,61 +433,25 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	protected function sendBlockEmail( $sRecipient ) {
+		$oLastAudit = $this->getAuditor()->getLastAudit();
 
-		$sIp = $this->ip();
-		$aMessage = array(
-			sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getController()->getHumanName() ),
-			_wpsf__( 'Log details for this visitor are below:' ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIp )
-		);
-		$aMessage = array_merge( $aMessage, $this->getRawAuditMessage( '- ' ) );
-		// TODO: Get audit trail messages
-		$aMessage[] = sprintf( _wpsf__( 'You can look up the offending IP Address here: %s' ), 'http://ip-lookup.net/?ip='.$sIp );
-		$sEmailSubject = _wpsf__( 'Firewall Block Alert' );
+		if ( !empty( $oLastAudit ) ) {
 
-		return $this->getEmailProcessor()
-					->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aMessage );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getFirewallTripData() {
-		if ( !isset( $this->aFirewallTripData ) || !is_array( $this->aFirewallTripData ) ) {
-			$this->aFirewallTripData = array(
-				'parameter' => '',
-				'value'     => '',
-				'class'     => ''
+			$aMessage = array(
+				sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getController()
+																					  ->getHumanName() ),
+				_wpsf__( 'Log details for this visitor are below:' ),
+				'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
+				$oLastAudit->message
 			);
+
+			// TODO: Get audit trail messages
+			$aMessage[] = sprintf( _wpsf__( 'You can look up the offending IP Address here: %s' ), 'http://ip-lookup.net/?ip='.$this->ip() );
+			$sEmailSubject = _wpsf__( 'Firewall Block Alert' );
+
+			return $this->getEmailProcessor()
+						->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aMessage );
 		}
-		return $this->aFirewallTripData;
-	}
-
-	/**
-	 * @param string $sData
-	 */
-	protected function setFirewallTrip_Parameter( $sData ) {
-		$aData = $this->getFirewallTripData();
-		$aData[ 'parameter' ] = $sData;
-		$this->aFirewallTripData = $aData;
-	}
-
-	/**
-	 * @param string $sData
-	 */
-	protected function setFirewallTrip_Value( $sData ) {
-		$aData = $this->getFirewallTripData();
-		$aData[ 'value' ] = $sData;
-		$this->aFirewallTripData = $aData;
-	}
-
-	/**
-	 * @param string $sData
-	 */
-	protected function setFirewallTrip_Class( $sData ) {
-		$aData = $this->getFirewallTripData();
-		$aData[ 'class' ] = $sData;
-		$this->aFirewallTripData = $aData;
 	}
 
 	/**

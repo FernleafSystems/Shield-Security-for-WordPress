@@ -8,13 +8,17 @@ use FernleafSystems\Wordpress\Services\Services;
 class Insert extends Base\Insert {
 
 	/**
-	 * @param EntryVO $oToken
-	 * @return bool
+	 * @return $this
+	 * @throws \Exception
 	 */
-	public function insert( $oToken ) {
-		if ( !isset( $oToken->ip ) ) {
-			$oToken->ip = Services::IP()->getRequestIp();
+	protected function verifyInsertData() {
+		parent::verifyInsertData();
+
+		$aData = $this->getInsertData();
+		if ( !isset( $aData[ 'ip' ] ) ) {
+			$aData[ 'ip' ] = Services::IP()->getRequestIp();
 		}
-		return parent::insert( $oToken );
+
+		return $this->setInsertData( $aData );
 	}
 }

@@ -8,16 +8,24 @@ use FernleafSystems\Wordpress\Services\Services;
 class Insert extends Base\Insert {
 
 	/**
-	 * Requires IP and List to be set on VO.
-	 * @param EntryVO $oIp
-	 * @return bool
+	 * @return $this
+	 * @throws \Exception
 	 */
-	public function insert( $oIp ) {
-		$bSuccess = false;
-		if ( Services::IP()->isValidIpOrRange( $oIp->ip ) && !empty( $oIp->list ) ) {
-			$oIp->is_range = strpos( $oIp->ip, '/' ) !== false;
-			$bSuccess = parent::insert( $oIp );
+	protected function verifyInsertData() {
+		parent::verifyInsertData();
+		$aData = $this->getInsertData();
+
+		if ( Services::IP()->isValidIpOrRange( $aData[ 'ip' ] ) ) {
+			throw new \Exception( 'IP address provided is not valid' );
 		}
-		return $bSuccess;
+		if ( empty( $aData[ 'list' ] ) ) {
+			throw new \Exception( 'An IP address must be assigned to a list' );
+		}
+
+		if ( strpos( $aData[ 'ip' ], '/' ) !== false ) {
+			$aData[ 'is_range' ] = true;
+		}
+
+		return $this->setInsertData( $aData );
 	}
 }

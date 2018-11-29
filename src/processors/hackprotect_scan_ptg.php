@@ -688,12 +688,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @param string $sMsg
 	 * @param int    $nCategory
 	 * @param string $sEvent
-	 * @param string $sWpUsername
 	 * @return $this
 	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '' ) {
 		$sMsg = sprintf( '[%s]: %s', _wpsf__( 'Plugin/Theme Guard' ), $sMsg );
-		parent::addToAuditEntry( $sMsg, $nCategory, $sEvent, $sWpUsername );
+		parent::addToAuditEntry( $sMsg, $nCategory, $sEvent );
 		return $this;
 	}
 }

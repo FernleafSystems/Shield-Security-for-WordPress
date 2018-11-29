@@ -18,13 +18,6 @@ class EntryVO extends Base\EntryVO {
 	/**
 	 * @return string
 	 */
-	public function getIp() {
-		return (string)$this->ip;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getLabel() {
 		return (string)$this->label;
 	}

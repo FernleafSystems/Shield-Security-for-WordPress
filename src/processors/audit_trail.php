@@ -148,25 +148,17 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * TODO: maybe create audit Entry VO at the time of registering entries
 	 */
 	protected function commitAuditTrial() {
-
-		$aEntries = apply_filters(
-			$this->getMod()->prefix( 'collect_audit_trail' ),
-			$this->getBaseAuditor()->getAuditTrailEntries( true )
-		);
-
-		if ( !empty( $aEntries ) && is_array( $aEntries ) ) {
+		$aEntries = $this->getAuditor()->getAudits();
+		if ( !empty( $aEntries ) ) {
 			$sReqId = $this->getController()->getShortRequestId();
-
 			$oDbh = $this->getDbHandler();
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Insert $oInsert */
 			$oInsert = $oDbh->getQueryInserter();
-			foreach ( $aEntries as $aE ) {
-				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO $oEntry */
-				$oEntry = $oDbh->getVo()->applyFromArray( $aE );
-				$oEntry->rid = $sReqId;
-				$oInsert->insert( $oEntry );
+			foreach ( $aEntries as $oE ) {
+				$oE->rid = $sReqId;
+				$oInsert->insert( $oE );
 			}
 		}
 	}
