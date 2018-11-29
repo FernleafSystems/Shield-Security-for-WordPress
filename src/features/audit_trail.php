@@ -29,11 +29,59 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					$aAjaxResponse = $this->ajaxExec_BuildTableAuditTrail();
 					break;
 
+				case 'item_addparamwhite':
+					$aAjaxResponse = $this->ajaxExec_AddParamToFirewallWhitelist();
+					break;
+
 				default:
 					break;
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_AddParamToFirewallWhitelist() {
+		$bSuccess = false;
+
+		$nId = $this->loadRequest()->post( 'rid' );
+		if ( empty( $nId ) || !is_numeric( $nId ) || $nId < 1 ) {
+			$sMessage = _wpsf__( 'Invalid audit entry selected for this action' );
+		}
+		else {
+			/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
+			$oPro = $this->getProcessor();
+			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
+			$oEntry = $oPro->getDbHandler()
+						   ->getQuerySelector()
+						   ->byId( $nId );
+
+			if ( empty( $oEntry ) ) {
+				$sMessage = _wpsf__( 'Audit entry could not be loaded.' );
+			}
+			else {
+				$aData = $oEntry->getAuditData();
+				$sParam = isset( $aData[ 'param' ] ) ? $aData[ 'param' ] : '';
+				$sUri = isset( $aData[ 'uri' ] ) ? $aData[ 'uri' ] : '*';
+				if ( empty( $sParam ) ) {
+					$sMessage = _wpsf__( 'Parameter associated with this audit entry could not be found.' );
+				}
+				else {
+					/** @var ICWP_WPSF_FeatureHandler_Firewall $oModFire */
+					$oModFire = $this->getConn()->getModule( 'firewall' );
+					$oModFire->addParamToWhitelist( $sParam, $sUri );
+					$sMessage = sprintf( _wpsf__( 'Parameter "%s" whitelisted successfully' ), $sParam );
+					$bSuccess = true;
+				}
+			}
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage
+		);
 	}
 
 	/**
@@ -159,6 +207,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
+	 *
 	 * @param array  $aExportItems
 	 * @param string $sEmail
 	 * @param int    $nPage
@@ -204,6 +253,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyErase()
+	 *
 	 * @param array  $aData
 	 * @param string $sEmail
 	 * @param int    $nPage

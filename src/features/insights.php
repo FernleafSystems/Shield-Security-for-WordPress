@@ -41,6 +41,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );
 
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFire */
+		$oFire = $oCon->getModule( 'firewall' );
+
 		/** @var ICWP_WPSF_Processor_Sessions $oProSessions */
 		$oProSessions = $oCon->getModule( 'sessions' )->getProcessor();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSessionSelect */
@@ -61,7 +64,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'audit':
 				$aData = array(
 					'ajax'    => array(
-						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true )
+						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true ),
+						'item_addparamwhite'      => $oAuditMod->getAjaxActionData( 'item_addparamwhite', true )
 					),
 					'flags'   => array(),
 					'strings' => array(

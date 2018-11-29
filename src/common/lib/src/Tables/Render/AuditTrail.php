@@ -8,6 +8,33 @@ class AuditTrail extends Base {
 	 * @param array $aItem
 	 * @return string
 	 */
+	public function column_actions( $aItem ) {
+		$sContent = '';
+
+		$aData = $aItem[ 'data' ];
+		if ( isset( $aData[ 'param' ] ) ) {
+			$sContent = $this->getActionButton_AddParam( $aItem[ 'id' ] );
+		}
+
+		return $sContent;
+	}
+
+	/**
+	 * @param int $nId
+	 * @return string
+	 */
+	protected function getActionButton_AddParam( $nId ) {
+		return sprintf( '<button title="%s"'.
+						' class="btn btn-sm btn-outline-warning action custom-action"' .
+						' data-rid="%s" data-custom-action="%s">'.
+						'<span class="dashicons dashicons-plus-alt"></span></button>',
+			_wpsf__( 'Add Parameter To Whitelist' ), $nId, 'item_addparamwhite' );
+	}
+
+	/**
+	 * @param array $aItem
+	 * @return string
+	 */
 	public function column_message( $aItem ) {
 		return sprintf( '<textarea readonly rows="%s">%s</textarea>',
 			max( 2, (int)( strlen( $aItem[ 'message' ] )/50 ) ),
@@ -36,7 +63,7 @@ class AuditTrail extends Base {
 			'message'    => 'Message',
 			'event'      => 'Event',
 			'created_at' => 'Date',
-			//			'context'     => 'Context',
+			'actions'    => $this->getColumnHeader_Actions(),
 		);
 	}
 }

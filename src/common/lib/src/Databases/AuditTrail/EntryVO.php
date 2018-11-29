@@ -26,7 +26,7 @@ class EntryVO extends Base\EntryVO {
 		if ( is_string( $this->data ) ) {
 			$sData = base64_decode( $this->data, true );
 			if ( !empty( $sData ) ) {
-				$aData = @json_decode( $sData );
+				$aData = @json_decode( $sData, true );
 			}
 		}
 		return is_array( $aData ) ? $aData : [];

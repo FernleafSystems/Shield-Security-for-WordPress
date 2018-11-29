@@ -85,7 +85,15 @@
 	jQuery( document ).icwpWpsfTableWithFilter(
 		{
 			'table': $oTableAuditTrail,
-			'selector_filter_form':'form#AuditFilterForm'
+			'selector_filter_form': 'form#AuditFilterForm'
+		}
+	);
+	jQuery( '#SectionAuditTable' ).icwpWpsfTableActions(
+		{
+			'table': $oTableAuditTrail,
+			'custom_actions_ajax': {
+				'item_addparamwhite': {{ ajax.item_addparamwhite|raw }}
+			}
 		}
 	);
 </script>

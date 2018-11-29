@@ -121,6 +121,21 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					}
 				);
 
+				plugin.$element.on(
+					'click' + '.' + plugin._name,
+					'button.action.custom-action',
+					function ( evt ) {
+						evt.preventDefault();
+						var $oButt = $( this );
+						var sCustomAction = $oButt.data( 'custom-action' );
+						if ( sCustomAction in plugin.options[ 'custom_actions_ajax' ] ) {
+							plugin.options[ 'working_custom_action' ] = plugin.options[ 'custom_actions_ajax' ][ sCustomAction ];
+							plugin.options[ 'working_custom_action' ][ 'rid' ] = $oButt.data( 'rid' );
+							plugin.customAction.call( plugin );
+						}
+					}
+				);
+
 			},
 			unbindEvents: function () {
 				/*
@@ -136,25 +151,32 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			},
 
 			deleteEntry: function () {
-				var requestData = this.options[ 'ajax_item_delete' ];
-				this.sendReq( requestData );
+				var aRequestData = this.options[ 'ajax_item_delete' ];
+				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
+				this.sendReq( aRequestData );
 			},
 
 			ignoreEntry: function () {
 				var aRequestData = this.options[ 'ajax_item_ignore' ];
+				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
 				this.sendReq( aRequestData );
 			},
 
 			repairEntry: function () {
-				var requestData = this.options[ 'ajax_item_repair' ];
-				this.sendReq( requestData );
+				var aRequestData = this.options[ 'ajax_item_repair' ];
+				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
+				this.sendReq( aRequestData );
+			},
+
+			customAction: function () {
+				var aRequestData = this.options[ 'working_custom_action' ];
+				this.sendReq( aRequestData );
 			},
 
 			sendReq: function ( aRequestData ) {
 				iCWP_WPSF_BodyOverlay.show();
 
 				var plugin = this;
-				aRequestData[ 'rid' ] = plugin.options[ 'working_rid' ];
 
 				$.post( ajaxurl, $.extend( aRequestData, plugin.options[ 'req_params' ] ),
 					function ( oResponse ) {
@@ -197,6 +219,8 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 		);
 	};
 
-	$.fn.icwpWpsfTableActions.defaults = {};
+	$.fn.icwpWpsfTableActions.defaults = {
+		'custom_actions_ajax': {}
+	};
 
 })( jQuery );

@@ -17,6 +17,25 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @param string $sParam
+	 * @param string $sPage
+	 * @return ICWP_WPSF_FeatureHandler_Firewall
+	 */
+	public function addParamToWhitelist( $sParam, $sPage = '*' ) {
+		if ( empty( $sPage ) ) {
+			$sPage = '*';
+		}
+
+		$aW = $this->getCustomWhitelist();
+		$aParams = isset( $aW[ $sPage ] ) ? $aW[ $sPage ] : array();
+		$aParams[] = $sParam;
+		natsort( $aParams );
+		$aW[ $sPage ] = array_unique( $aParams );
+
+		return $this->setOpt( 'page_params_whitelist', $aW );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getCustomWhitelist() {
