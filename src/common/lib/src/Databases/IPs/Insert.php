@@ -15,7 +15,7 @@ class Insert extends Base\Insert {
 		parent::verifyInsertData();
 		$aData = $this->getInsertData();
 
-		if ( Services::IP()->isValidIpOrRange( $aData[ 'ip' ] ) ) {
+		if ( !Services::IP()->isValidIpOrRange( $aData[ 'ip' ] ) ) {
 			throw new \Exception( 'IP address provided is not valid' );
 		}
 		if ( empty( $aData[ 'list' ] ) ) {
