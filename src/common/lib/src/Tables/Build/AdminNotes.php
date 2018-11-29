@@ -19,7 +19,7 @@ class AdminNotes extends BaseBuild {
 
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var EntryVO $oEntry */
-			$aE = $oEntry->getRawData();
+			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aEntries[ $nKey ] = $aE;
 		}
