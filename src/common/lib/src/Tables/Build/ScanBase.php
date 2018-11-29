@@ -21,6 +21,7 @@ class ScanBase extends BaseBuild {
 		$oSelector = $this->getWorkingSelector();
 
 		$oSelector->filterByScan( $aParams[ 'fScan' ] );
+
 		if ( $aParams[ 'fIgnored' ] !== 'Y' ) {
 			$oSelector->filterByNotIgnored();
 		}

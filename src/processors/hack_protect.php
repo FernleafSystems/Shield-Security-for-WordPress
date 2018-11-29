@@ -53,6 +53,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Addresses this vulnerability: http://klikki.fi/adv/wordpress2.html
+	 *
 	 * @param string $sCommentContent
 	 * @return string
 	 */
@@ -93,12 +94,87 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function buildInsightsVars() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $oMod->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
+		$oSelector = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
+
+		$oCarbon = new \Carbon\Carbon();
+		$aData = array(
+			'ajax'    => array(
+				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
+				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
+				'bulk_action'       => $oMod->getAjaxActionData( 'bulk_action', true ),
+				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
+				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
+				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),
+			),
+			'flags'   => array(
+				'is_premium' => $oMod->isPremium()
+			),
+			'hrefs'   => array(
+				'go_pro' => 'https://icwp.io/shieldgoprofeature',
+			),
+			'strings' => array(
+				'never'          => _wpsf__( 'Never' ),
+				'go_pro'         => 'Go Pro!',
+				'options'        => _wpsf__( 'Scan Options' ),
+				'not_available'  => _wpsf__( 'Sorry, this scan is not available.' ),
+				'not_enabled'    => _wpsf__( 'Sorry, this scan is not currently enabled.' ),
+				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to add this scan and many more features.' ),
+				'please_enable'  => _wpsf__( 'Please turn on this scan in the options.' ),
+			),
+			'scans'   => array(
+				'wcf' => array(
+					'flags'        => array(
+						'is_enabled'    => true,
+						'is_available'  => true,
+						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
+					),
+					'hrefs'        => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
+					),
+					'vars'         => array(),
+					'count'        => $oSelector->countForScan( 'wcf' ),
+					'last_scan_at' => sprintf(
+						_wpsf__( 'Last Scan: %s' ),
+						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
+					),
+				),
+				'ufc' => array(
+					'flags'        => array(
+						'is_enabled'    => true,
+						'is_available'  => true,
+						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
+					),
+					'hrefs'        => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
+					),
+					'vars'         => array(),
+					'count'        => $oSelector->countForScan( 'ufc' ),
+					'last_scan_at' => sprintf(
+						_wpsf__( 'Last Scan: %s' ),
+						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
+					),
+				),
+				'ptg' => $this->getInsightVarsScan_Ptg(),
+			),
+		);
+
+		return $aData;
+	}
+
+	private function getInsightVarsScan_Ptg() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		$oCon = $this->getController();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
+
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
@@ -174,92 +250,36 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aThemes[ $sSlug ] = $aProfile;
 		}
 
-		$bIsPremium = $oMod->isPremium();
 		$oCarbon = new \Carbon\Carbon();
-		$aData = array(
-			'ajax'    => array(
-				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
-				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
-				'bulk_action'       => $oMod->getAjaxActionData( 'bulk_action', true ),
-				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
-				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
-				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),
+		return array(
+			'flags'        => array(
+				'is_enabled'    => $oMod->isPtgEnabled(),
+				'is_available'  => $oMod->isPremium(),
+				'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
+				'has_items'     => $oFullResults->hasItems(),
+				'has_plugins'   => !empty( $aPlugins ),
+				'has_themes'    => !empty( $aThemes ),
 			),
-			'flags'   => array(
-				'is_premium' => $bIsPremium
+			'hrefs'        => array(
+				'options' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
+				'enable'  => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 			),
-			'hrefs'   => array(
-				'go_pro' => 'https://icwp.io/shieldgoprofeature',
+			'vars'         => array(),
+			'count'        => $oSelector->countForScan( 'ptg' ),
+			'last_scan_at' => sprintf(
+				_wpsf__( 'Last Scan: %s' ),
+				$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 			),
-			'strings' => array(
-				'never'          => _wpsf__( 'Never' ),
-				'go_pro'         => 'Go Pro!',
-				'options'        => _wpsf__( 'Scan Options' ),
-				'not_available'  => _wpsf__( 'Sorry, this scan is not available.' ),
-				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to add this scan and many more features.' ),
-			),
-			'scans'   => array(
-				'wcf' => array(
-					'flags'        => array(
-						'is_available'  => true,
-						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
-					),
-					'hrefs'        => array(
-						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
-					),
-					'vars'         => array(),
-					'count'        => $oSelector->countForScan( 'wcf' ),
-					'last_scan_at' => sprintf(
-						_wpsf__( 'Last Scan: %s' ),
-						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
-					),
-				),
-				'ufc' => array(
-					'flags'        => array(
-						'is_available'  => true,
-						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
-					),
-					'hrefs'        => array(
-						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
-					),
-					'vars'         => array(),
-					'count'        => $oSelector->countForScan( 'ufc' ),
-					'last_scan_at' => sprintf(
-						_wpsf__( 'Last Scan: %s' ),
-						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
-					),
-				),
-				'ptg' => array(
-					'flags'        => array(
-						'is_available'  => $bIsPremium,
-						'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
-						'has_items'     => $oFullResults->hasItems(),
-						'has_plugins'   => !empty( $aPlugins ),
-						'has_themes'    => !empty( $aThemes ),
-					),
-					'hrefs'        => array(
-						'options' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' )
-					),
-					'vars'         => array(),
-					'count'        => $oSelector->countForScan( 'ptg' ),
-					'last_scan_at' => sprintf(
-						_wpsf__( 'Last Scan: %s' ),
-						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
-					),
-					'assets'       => array_merge( $aPlugins, $aThemes ),
-					'strings'      => array(
-						'files_with_problems' => _wpsf__( 'Files with problems' ),
-						'root_dir'            => _wpsf__( 'Root directory' ),
-						'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
-						'reinstall'           => _wpsf__( 'Re-Install' ),
-						'deactivate'          => __( 'Deactivate and Ignore' ),
-						'accept'              => _wpsf__( 'Accept' ),
-						'update'              => _wpsf__( 'Upgrade' ),
-					)
-				),
-			),
+			'assets'       => array_merge( $aPlugins, $aThemes ),
+			'strings'      => array(
+				'files_with_problems' => _wpsf__( 'Files with problems' ),
+				'root_dir'            => _wpsf__( 'Root directory' ),
+				'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
+				'reinstall'           => _wpsf__( 'Re-Install' ),
+				'deactivate'          => __( 'Deactivate and Ignore' ),
+				'accept'              => _wpsf__( 'Accept' ),
+				'update'              => _wpsf__( 'Upgrade' ),
+			)
 		);
-
-		return $aData;
 	}
 }

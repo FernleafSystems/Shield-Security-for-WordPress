@@ -11,10 +11,16 @@
 
 			<div class="card-body">
 				{% if scan.flags.is_available %}
-					{% if not scan.flags.has_items %}
-						<div class="alert alert-info m-0">No items discovered</div>
+					{% if scan.flags.is_enabled %}
+
+						{% if not scan.flags.has_items %}
+							<div class="alert alert-info m-0">No items discovered</div>
+						{% else %}
+							{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'_table.twig' %}
+						{% endif %}
+
 					{% else %}
-						{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'_table.twig' %}
+						{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'_disabled.twig' %}
 					{% endif %}
 				{% else %}
 					{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'_unavailable.twig' %}
