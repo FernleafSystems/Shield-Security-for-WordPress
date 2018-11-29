@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -22,7 +23,7 @@ class Traffic extends BaseBuild {
 	 */
 	protected function applyCustomQueryFilters() {
 		$aParams = $this->getParams();
-		/** @var \ICWP_WPSF_Query_TrafficEntry_Select $oSelector */
+		/** @var Databases\Traffic\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
 		$oIp = Services::IP();
@@ -84,7 +85,7 @@ class Traffic extends BaseBuild {
 
 		$aUsers = array( 0 => _wpsf__( 'No' ) );
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var \ICWP_WPSF_TrafficEntryVO $oEntry */
+			/** @var Databases\Traffic\EntryVO $oEntry */
 			$sIp = $oEntry->ip;
 
 			list( $sPreQuery, $sQuery ) = explode( '?', $oEntry->path.'?', 2 );
@@ -100,7 +101,7 @@ class Traffic extends BaseBuild {
 				$sCodeType = 'warning';
 			}
 
-			$aEntry = $oEntry->getRawData();
+			$aEntry = $oEntry->getRawDataAsArray();
 			$aEntry[ 'path' ] = $sPath;
 			$aEntry[ 'code' ] = sprintf( '<span class="badge badge-%s">%s</span>', $sCodeType, $oEntry->code );
 			$aEntry[ 'trans' ] = sprintf(
@@ -126,8 +127,9 @@ class Traffic extends BaseBuild {
 				$sCountry = _wpsf__( 'Unknown' );
 			}
 			else {
-				$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $oGeo->countryIso( $sIp ) ) );
-				$sCountry = sprintf( '<img class="icon-flag" src="%s"/> %s', $sFlag, $sCountry );
+				$sCountryIso = $oGeo->countryIso( $sIp );
+				$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $sCountryIso ) );
+				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $sCountry );
 			}
 
 			$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',

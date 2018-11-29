@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,7 +17,7 @@ class Sessions extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		/** @var \ICWP_WPSF_Query_Sessions_Select $oSelector */
+		/** @var Session\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
 		$aParams = $this->getParams();
@@ -56,8 +56,8 @@ class Sessions extends BaseBuild {
 
 		$sYou = Services::IP()->getRequestIp();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var EntryVO $oEntry */
-			$aE = $oEntry->getRawData();
+			/** @var Session\EntryVO $oEntry */
+			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'is_secadmin' ] = ( $oEntry->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
 			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $oEntry->last_activity_at );
 			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $oEntry->logged_in_at );

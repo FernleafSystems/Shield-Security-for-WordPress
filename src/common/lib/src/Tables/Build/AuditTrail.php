@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,7 +18,7 @@ class AuditTrail extends BaseBuild {
 	 */
 	protected function applyCustomQueryFilters() {
 		$aParams = $this->getParams();
-		/** @var \ICWP_WPSF_Query_AuditTrail_Select $oSelector */
+		/** @var Databases\AuditTrail\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
 		$oSelector->filterByContext( $aParams[ 'fContext' ] );
@@ -64,8 +65,8 @@ class AuditTrail extends BaseBuild {
 
 		$sYou = Services::IP()->getRequestIp();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var \ICWP_WPSF_AuditTrailEntryVO $oEntry */
-			$aE = $oEntry->getRawData();
+			/** @var Databases\AuditTrail\EntryVO $oEntry */
+			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
 			$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->message ) );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );

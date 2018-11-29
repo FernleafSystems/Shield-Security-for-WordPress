@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 /**
@@ -16,7 +17,7 @@ class ScanBase extends BaseBuild {
 	 */
 	protected function applyCustomQueryFilters() {
 		$aParams = $this->getParams();
-		/** @var \ICWP_WPSF_Query_Scanner_Select $oSelector */
+		/** @var Scanner\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
 		$oSelector->filterByScan( $aParams[ 'fScan' ] );

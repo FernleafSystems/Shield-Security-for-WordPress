@@ -126,7 +126,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		$oUp = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oUp->reset()
-				->setUpdateData( $oVo->getRawData() )
+				->setUpdateData( $oVo->getRawDataAsArray() )
 				->setUpdateWheres(
 					[
 						'scan' => static::SCAN_SLUG,

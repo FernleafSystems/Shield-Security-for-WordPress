@@ -21,7 +21,7 @@ class ScanWcf extends ScanBase {
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oIt = ( new Shield\Scans\WpCore\ConvertVosToResults() )->convertItem( $oEntry );
-			$aE = $oEntry->getRawData();
+			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'path' ] = $oIt->path_fragment;
 			$aE[ 'status' ] = $oIt->is_checksumfail ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unknown' );
 			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';

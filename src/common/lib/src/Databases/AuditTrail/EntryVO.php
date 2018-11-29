@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property string wp_username
  * @property string rid
  * @property string event
+ * @property array data
  */
 class EntryVO extends Base\EntryVO {
 

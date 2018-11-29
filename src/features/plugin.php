@@ -403,6 +403,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * Hooked to 'deactivate_plugin' and can be used to interrupt the deactivation of this plugin.
+	 *
 	 * @param string $sPlugin
 	 */
 	public function onWpHookDeactivatePlugin( $sPlugin ) {
@@ -464,9 +465,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param string $sEmail
 	 * @return string
 	 */
-	public function supplyPluginReportEmail( $sEmail ) {
+	public function supplyPluginReportEmail( $sEmail = '' ) {
 		$sE = $this->getOpt( 'block_send_email_address' );
 		return $this->loadDP()->validEmail( $sE ) ? $sE : $sEmail;
 	}
@@ -549,6 +551,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * Ensure we always a valid installation ID.
+	 *
 	 * @deprecated but still used because it aligns with stats collection
 	 * @return string
 	 */

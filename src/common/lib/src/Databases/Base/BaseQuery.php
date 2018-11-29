@@ -316,7 +316,7 @@ abstract class BaseQuery {
 	 * @return $this
 	 */
 	public function setWheresFromVo( $oVo ) {
-		foreach ( $oVo->getRawData() as $sCol => $mVal ) {
+		foreach ( $oVo->getRawDataAsArray() as $sCol => $mVal ) {
 			$this->addWhereEquals( $sCol, $mVal );
 		}
 		return $this;

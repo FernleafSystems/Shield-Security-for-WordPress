@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\EntryVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 /**
@@ -16,7 +16,7 @@ class Ip extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
-		/** @var \ICWP_WPSF_Query_Ips_Select $oSelector */
+		/** @var IPs\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 		$oSelector->filterByList( $this->getParams()[ 'fList' ] );
 		return $this;
@@ -42,8 +42,8 @@ class Ip extends BaseBuild {
 
 		$aEntries = array();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var EntryVO $oEntry */
-			$aE = $oEntry->getRawData();
+			/** @var IPs\EntryVO $oEntry */
+			$aE = $oEntry->getRawDataAsArray();
 			$bBlocked = $oEntry->transgressions >= $nTransLimit;
 			$aE[ 'last_trans_at' ] = ( new \Carbon\Carbon() )->setTimestamp( $oEntry->last_access_at )->diffForHumans();
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );

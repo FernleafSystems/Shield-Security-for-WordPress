@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 
 /**
@@ -17,7 +18,7 @@ class AdminNotes extends BaseBuild {
 		$aEntries = array();
 
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var \ICWP_WPSF_NoteVO $oEntry */
+			/** @var EntryVO $oEntry */
 			$aE = $oEntry->getRawData();
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aEntries[ $nKey ] = $aE;

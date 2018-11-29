@@ -176,6 +176,7 @@
       "category",
       "message",
       "immutable",
+      "data",
       "created_at",
       "deleted_at"
     ]

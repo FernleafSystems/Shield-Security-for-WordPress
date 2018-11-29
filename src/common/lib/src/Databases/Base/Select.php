@@ -202,7 +202,7 @@ class Select extends BaseQuery {
 			$mData = $this->querySelect();
 			if ( $this->isResultsAsVo() ) {
 				foreach ( $mData as $nKey => $oAudit ) {
-					$mData[ $nKey ] = $this->getDbH()->getVo()->setRawData( $oAudit );
+					$mData[ $nKey ] = $this->getDbH()->getVo()->applyFromArray( $oAudit );
 				}
 			}
 		}

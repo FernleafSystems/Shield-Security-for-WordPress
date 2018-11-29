@@ -27,7 +27,7 @@ class Insert extends BaseQuery {
 			array(
 				'created_at' => Services::Request()->ts(),
 			),
-			$oEntry->getRawData()
+			$oEntry->getRawDataAsArray()
 		);
 		return $this->setInsertData( $aData )->query() === 1;
 	}
