@@ -46,12 +46,19 @@ class ScanPtg extends ScanBase {
 				->convert( $aEntries )
 				->getResultsSetForSlug( $aParams[ 'fSlug' ] );
 
-			foreach ( $oSlugResults->getAllItems() as $oItem ) {
-				foreach ( $aEntries as $key => $oEntry ) {
-					if ( $oItem->hash !== $oEntry->hash ) {
-						unset( $aEntries[ $key ] );
+			foreach ( $aEntries as $key => $oVo ) {
+
+				$bRemoveEntry = true;
+				foreach ( $oSlugResults->getAllItems() as $oItem ) {
+					if ( $oItem->hash == $oVo->hash ) {
+						$bRemoveEntry = false;
+						break;
 					}
 				}
+				if ( $bRemoveEntry ) {
+					unset( $aEntries[ $key ] );
+				}
+
 			}
 		}
 
