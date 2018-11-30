@@ -180,7 +180,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @param $sItemId
+	 * @param string $sItemId
 	 * @return bool
 	 * @throws Exception
 	 */
@@ -189,7 +189,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @param $sItemId
+	 * @param string $sItemId
 	 * @return bool
 	 * @throws Exception
 	 */
@@ -217,7 +217,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @param $sItemId
+	 * @param string $sItemId
 	 * @return bool
 	 * @throws Exception
 	 */

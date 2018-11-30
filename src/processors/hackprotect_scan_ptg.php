@@ -159,35 +159,33 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param $sItemId - plugin/theme slug
+	 * @param string $sItemId - plugin/theme slug
 	 * @return true
 	 * @throws Exception
 	 */
 	protected function ignoreItem( $sItemId ) {
-		$sContext = $this->getContextFromSlug( $sItemId );
-		if ( empty( $sContext ) ) {
-			throw new Exception( 'Could not find the item for processing.' );
-		}
-
-		$this->updateItemInSnapshot( $sItemId, $sContext );
-
+		// we run it for both since it doesn't matter which context it's in, it'll be removed
+		$this->updatePluginSnapshot( $sItemId );
+		$this->updateThemeSnapshot( $sItemId );
 		return true;
 	}
 
 	/**
-	 * @param $sItemId
+	 * @param string $sItemId
 	 * @return bool
 	 * @throws Exception
 	 */
 	protected function repairItem( $sItemId ) {
 		$sContext = $this->getContextFromSlug( $sItemId );
 		if ( empty( $sContext ) ) {
-			throw new Exception( 'Could not find the item for processing.' );
+			throw new Exception( 'Could not find the item to reinstall.' );
 		}
-		$oService = $this->getServiceFromContext( $sContext );
-		if ( !$oService->isActive( $sItemId ) ) {
-			throw new Exception( 'Could not find the item for processing.' );
+
+		if ( !$this->getServiceFromContext( $sContext )->isActive( $sItemId ) ) {
+			$this->updateItemInSnapshot( $sItemId, $sContext );
+			throw new Exception( 'The item is not currently active. Removing from scan...' );
 		}
+
 		if ( !$this->reinstall( $sItemId, $sContext ) ) {
 			throw new Exception( 'The re-install process has reported as failed.' );
 		}
@@ -219,10 +217,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	private function getContextFromSlug( $sSlug ) {
 		$sContext = null;
-		if ( Services\Services::WpPlugins()->isActive( $sSlug ) ) {
+		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {
 			$sContext = self::CONTEXT_PLUGINS;
 		}
-		else if ( Services\Services::WpThemes()->isActive( $sSlug ) ) {
+		else if ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
 			$sContext = self::CONTEXT_THEMES;
 		}
 		return $sContext;

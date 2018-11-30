@@ -729,13 +729,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aItemIds = array( $sItemId );
 			}
 			try {
-				$bSuccess = true;
 				$aSuccessfulItems = array();
 				foreach ( $aItemIds as $sId ) {
 					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
 						$aSuccessfulItems[] = $sId;
 					}
 				}
+
+				$bSuccess = true;
 
 				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
 					$bSuccess = true;
