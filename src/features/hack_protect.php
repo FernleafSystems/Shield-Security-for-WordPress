@@ -70,7 +70,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->cleanPtgFileExtensions();
 
 		$oOpts = $this->getOptionsVo();
-		if ( !$this->isPtgEnabled() || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
+		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 			$this->setPtgLastBuildAt( 0 );
 		}
 

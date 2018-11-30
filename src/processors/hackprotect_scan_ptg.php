@@ -100,6 +100,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * Shouldn't really be used in this case as it'll only scan the plugins
+	 *
 	 * @return Shield\Scans\PTGuard\ScannerPlugins
 	 */
 	protected function getScanner() {
@@ -347,6 +348,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * Will also remove a plugin if it's found to be in-active
 	 * Careful: Cannot use this for the activate and deactivate hooks as the WP option
 	 * wont be updated
+	 *
 	 * @param string $sBaseName
 	 */
 	public function updatePluginSnapshot( $sBaseName ) {
@@ -400,6 +402,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * Only snaps active.
+	 *
 	 * @param string $sSlug - the basename for plugin, or stylesheet for theme.
 	 * @param string $sContext
 	 * @return $this
@@ -418,16 +421,34 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * When initiating snapshots, we must clean old results before creating a clean snapshot
 	 */
 	private function initSnapshots() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		$bRebuild = $oFO->isPtgBuildRequired();
-		if ( $bRebuild || !$this->getStore_Plugins()->getSnapStoreExists() ) {
-			$this->snapshotPlugins();
-		}
-		if ( $bRebuild || !$this->getStore_Themes()->getSnapStoreExists() ) {
-			$this->snapshotThemes();
+
+		$bPluginsRebuildReqd = $oFO->isPtgBuildRequired() || !$this->getStore_Plugins()->getSnapStoreExists();
+		$bThemesRebuildReqd = $oFO->isPtgBuildRequired() || !$this->getStore_Themes()->getSnapStoreExists();
+
+		if ( $bPluginsRebuildReqd || $bThemesRebuildReqd ) {
+			// grab all the existing results
+			$aRes = ( new Shield\Scans\Base\ScanResults\Retrieve() )
+				->setDbHandler( $this->getScannerDb()->getDbHandler() )
+				->setScan( static::SCAN_SLUG )
+				->forAll();
+
+			$oCleaner = ( new Shield\Scans\PTGuard\ScanResults\Clean() )
+				->setDbHandler( $this->getScannerDb()->getDbHandler() )
+				->setWorkingResultsSet( $this->convertVosToResults( $aRes ) );
+
+			if ( $bPluginsRebuildReqd ) {
+				$oCleaner->forPlugins();
+				$this->snapshotPlugins();
+			}
+			if ( $bThemesRebuildReqd ) {
+				$oCleaner->forThemes();
+				$this->snapshotThemes();
+			}
 		}
 	}
 

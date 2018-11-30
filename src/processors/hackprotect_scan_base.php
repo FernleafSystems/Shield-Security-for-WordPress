@@ -90,14 +90,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param Shield\Scans\Base\BaseResultsSet $oToDelete
 	 */
 	protected function deleteResultsSet( $oToDelete ) {
-		/** @var Shield\Databases\Scanner\Delete $oDeleter */
-		$oDeleter = $this->getScannerDb()->getDbHandler()->getQueryDeleter();
-		foreach ( $oToDelete->getAllItems() as $oItem ) {
-			$oDeleter->reset()
-					 ->filterByScan( static::SCAN_SLUG )
-					 ->filterByHash( $oItem->hash )
-					 ->query();
-		}
+		( new Shield\Scans\Base\ScanResults\Clean() )
+			->setDbHandler( $this->getScannerDb()->getDbHandler() )
+			->deleteResults( $oToDelete );
 	}
 
 	/**
@@ -124,6 +119,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function updateExistingScanResults( $oResults ) {
 		$oUp = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
+		/** @var Shield\Databases\Scanner\EntryVO $oVo */
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oUp->reset()
 				->setUpdateData( $oVo->getRawDataAsArray() )
@@ -250,13 +246,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * only for items that have not been notified recently.
 	 */
 	protected function cronProcessScanResults() {
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()->getDbHandler()->getQuerySelector();
-		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
-		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterByNotRecentlyNotified()
-					 ->filterByNotIgnored()
-					 ->query();
+		$aRes = ( new Shield\Scans\Base\ScanResults\Retrieve() )
+			->setDbHandler( $this->getScannerDb()->getDbHandler() )
+			->setScan( static::SCAN_SLUG )
+			->forCron();
 
 		if ( !empty( $aRes ) ) {
 			$oRes = $this->convertVosToResults( $aRes );
