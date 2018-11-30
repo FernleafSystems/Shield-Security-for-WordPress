@@ -31,9 +31,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		parent::onWpInit();
 
 		$oCon = $this->getController();
-		if ( $oCon->getHasPermissionToManage() ) {
-			add_action( $oCon->prefix( 'delete_plugin' ), array( $this, 'deleteTable' ) );
-		}
+		add_action( $oCon->prefix( 'delete_plugin' ), array( $this, 'deleteTable' ) );
 	}
 
 	/**
