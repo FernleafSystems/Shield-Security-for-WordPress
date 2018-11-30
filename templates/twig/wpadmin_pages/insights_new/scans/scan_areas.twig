@@ -1,14 +1,16 @@
 <form id="StartScans">
 	<div class="card">
 		<div class="card-header">
-			<h5 class="card-title">Scan Now</h5>
-			<h6 class="card-subtitle mb-2 text-muted">Select which areas of your site to scan</h6>
+			<h5 class="card-title mb-0">Scan Your Site</h5>
 		</div>
 		<div class="card-body pb-2">
 
 			<div class="row">
-				<div class="col-xl-10 col-lg-10 col-md-9 insights_widget">
+				<div class="col-xl-10 col-lg-10 col-md-9">
 					<div class="row">
+						<div class="col-12">
+							<h6 class="mt-0 mb-2">Select Scans</h6>
+						</div>
 
 						<div class="col-xl-4 col-lg-6 col-sm-6">
 							<div class="scan-select pl-2 text-nowrap">
@@ -71,9 +73,50 @@
 				</div>
 
 				<div class="col-xl-2 col-lg-2 col-md-3">
-					<button class="btn btn-primary" type="submit" id="StartScans">Start Scan &rarr;</button>
+					<button class="btn btn-primary" type="submit" id="StartScans">Run Scans &rarr;</button>
 				</div>
 
+			</div>
+
+			<div class="row">
+				<div class="col-xl-10 col-lg-10 col-md-9">
+
+					<div class="row">
+						<div class="col-12">
+							<h6 class="mt-2 mb-2">Scan Options</h6>
+						</div>
+
+						<div class="col-xl-4 col-lg-6 col-sm-6">
+							<div class="scan-select pl-2 text-nowrap">
+								<label for="_opt_clear_ignore" class="col-form-label">
+									<input type="checkbox" class="form-control text-right"
+										   name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />
+									Clear Ignore Flags
+									<br />
+									<small class="form-text text-muted">
+										Previously ignored results will be revealed (for the selected scans).
+									</small>
+								</label>
+							</div>
+						</div>
+
+						<div class="col-xl-4 col-lg-6 col-sm-6">
+							<div class="scan-select pl-2 text-nowrap">
+								<label for="_opt_clear_notification" class="col-form-label">
+									<input type="checkbox" class="form-control text-right"
+										   name="opt_clear_notification" id="_opt_clear_notification" value="Y" />
+									Clear Notification Flags
+									<br />
+									<small class="form-text text-muted">
+										Allow notification emails to be resent (for the selected scans).
+									</small>
+								</label>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<div class="col-xl-2 col-lg-2 col-md-3"></div>
 			</div>
 		</div>
 		<div class="card-footer">

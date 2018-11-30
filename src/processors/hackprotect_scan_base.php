@@ -151,6 +151,40 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function convertVoToResultItem( $oVo );
 
 	/**
+	 * @return $this
+	 */
+	public function resetIgnoreStatus() {
+		/** @var Shield\Databases\Scanner\Handler $oUpd */
+		$oDbh = $this->getScannerDb()->getDbHandler();
+		/** @var Shield\Databases\Scanner\Select $oSel */
+		$oSel = $oDbh->getQuerySelector();
+
+		/** @var Shield\Databases\Scanner\Update $oUpd */
+		$oUpd = $oDbh->getQueryUpdater();
+		foreach ( $oSel->forScan( static::SCAN_SLUG ) as $oEntry ) {
+			$oUpd->reset()->setNotIgnored( $oEntry );
+		}
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function resetNotifiedStatus() {
+		/** @var Shield\Databases\Scanner\Handler $oUpd */
+		$oDbh = $this->getScannerDb()->getDbHandler();
+		/** @var Shield\Databases\Scanner\Select $oSel */
+		$oSel = $oDbh->getQuerySelector();
+
+		/** @var Shield\Databases\Scanner\Update $oUpd */
+		$oUpd = $oDbh->getQueryUpdater();
+		foreach ( $oSel->forScan( static::SCAN_SLUG ) as $oEntry ) {
+			$oUpd->reset()->setNotNotified( $oEntry );
+		}
+		return $this;
+	}
+
+	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool

@@ -24,11 +24,18 @@ class Update extends Base\Update {
 	}
 
 	/**
-	 * Also updates last access at
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
 	public function setNotIgnored( $oEntry ) {
 		return $this->updateEntry( $oEntry, array( 'ignored_at' => 0 ) );
+	}
+
+	/**
+	 * @param EntryVO $oEntry
+	 * @return bool
+	 */
+	public function setNotNotified( $oEntry ) {
+		return $this->updateEntry( $oEntry, array( 'notified_at' => 0 ) );
 	}
 }

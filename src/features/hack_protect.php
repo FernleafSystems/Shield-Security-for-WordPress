@@ -647,6 +647,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$sMessage = _wpsf__( 'No scans were selected' );
 		}
 		else {
+			$bResetIgnore = isset( $aFormParams[ 'opt_clear_ignore' ] );
+			$bResetNotification = isset( $aFormParams[ 'opt_clear_notification' ] );
 			foreach ( array_keys( $aFormParams ) as $sScan ) {
 				switch ( $sScan ) {
 					case 'ptg':
@@ -667,6 +669,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				}
 				if ( !empty( $oTablePro ) ) {
 					$oTablePro->doScan();
+
+					if ( $bResetIgnore ) {
+						$oTablePro->resetIgnoreStatus();
+					}
+					if ( $bResetNotification ) {
+						$oTablePro->resetNotifiedStatus();
+					}
+
 				}
 			}
 			$bSuccess = true;
