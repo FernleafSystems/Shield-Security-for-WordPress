@@ -363,8 +363,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
-	 * revert the option to save to the previous one.
+	 * Need to always re-test isPluginAdmin() because there's a dynamic filter in there to
+	 * permit saving by the plugin itself.
+	 *
+	 * Right before a plugin option is due to update it will check that we have permissions to do so
+	 * and if not, will * revert the option to save to the previous one.
 	 * @param mixed  $mNewOptionValue
 	 * @param string $sOptionKey
 	 * @param mixed  $mOldValue
@@ -372,7 +375,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
 
-		if ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) {
+		if ( !$this->getController()->isPluginAdmin()
+			 && ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) ) {
 			$this->doStatIncrement( 'option.save.blocked' );
 			$mNewOptionValue = $mOldValue;
 		}
