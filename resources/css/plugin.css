@@ -998,6 +998,11 @@ th.column-last_activity_at {
 td .timestamp-small {
 	font-size: smaller;
 }
+
+.odp-table td.check-column input[type=checkbox],
+.odp-table th.check-column input[type=checkbox] {
+	margin: 0 4px;
+}
 /** END TABLES **/
 
 /** Sessions Table **/
