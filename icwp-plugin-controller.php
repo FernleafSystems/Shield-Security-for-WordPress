@@ -1091,10 +1091,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPluginAdmin() {
-		return $this->getMeetsBasePermissions() // takes care of did_action('init)
-			   && (
-				   apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false )
-				   || apply_filters( $this->prefix( 'has_permission_to_manage' ), true )
+		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false )
+			   || ( $this->getMeetsBasePermissions() // takes care of did_action('init)
+					&& apply_filters( $this->prefix( 'is_plugin_admin' ), true )
 			   );
 	}
 
@@ -1536,9 +1535,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function saveCurrentPluginControllerOptions() {
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
-			add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true' );
+			add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 			$this->loadWp()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
-			remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true' );
+			remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 		}
 	}
 
@@ -1889,6 +1888,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {
 			return true;
 		}
-		return ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'has_permission_to_manage' ), true ) );
+		return ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'is_plugin_admin' ), true ) );
 	}
 }

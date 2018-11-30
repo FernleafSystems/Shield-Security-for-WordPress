@@ -357,7 +357,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
 			include_once( $this->getConn()
-							  ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getSlug() ) ) );
+							   ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;
@@ -899,9 +899,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	private function store() {
-		add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
-		$this->getOptionsVo()->doOptionsSave( $this->getConn()->getIsResetPlugin() );
-		remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true', 1000 );
+		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+		$bSuccess = $this->getOptionsVo()->doOptionsSave( $this->getConn()->getIsResetPlugin() );
+		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
 	/**

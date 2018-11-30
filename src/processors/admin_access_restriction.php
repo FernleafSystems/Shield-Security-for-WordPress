@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 
-		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'adjustUserAdminPermissions' ) );
+		add_filter( $oFO->prefix( 'is_plugin_admin' ), array( $this, 'adjustUserAdminPermissions' ) );
 
 		if ( $oFO->isWlEnabled() ) {
 			$this->runWhiteLabel();
