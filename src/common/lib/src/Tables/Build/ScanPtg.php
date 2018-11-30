@@ -47,18 +47,9 @@ class ScanPtg extends ScanBase {
 				->getResultsSetForSlug( $aParams[ 'fSlug' ] );
 
 			foreach ( $aEntries as $key => $oVo ) {
-
-				$bRemoveEntry = true;
-				foreach ( $oSlugResults->getAllItems() as $oItem ) {
-					if ( $oItem->hash == $oVo->hash ) {
-						$bRemoveEntry = false;
-						break;
-					}
-				}
-				if ( $bRemoveEntry ) {
+				if ( !$oSlugResults->getItemExists( $oVo->hash ) ) {
 					unset( $aEntries[ $key ] );
 				}
-
 			}
 		}
 
