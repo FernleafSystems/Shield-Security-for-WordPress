@@ -169,9 +169,11 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oCon = $this->getController();
+		$oCarbon = new \Carbon\Carbon();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
+		$oProPtg = $oPro->getSubProcessorScanner()->getSubProcessorPtg();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
 
@@ -193,23 +195,35 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
 			$bIsWpOrg = $bInstalled && $oWpPlugins->isWpOrg( $sSlug );
 			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
+
+			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
+			if ( !empty( $aMeta[ 'ts' ] ) ) {
+				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
+			}
 			$aProfile = array(
 				'name'           => _wpsf__( 'unknown' ),
 				'version'        => _wpsf__( 'unknown' ),
-				'root_dir'       => _wpsf__( 'unknown' ),
+				'root_dir'       => $oWpPlugins->getInstallationDir( $oIT->slug ),
 				'slug'           => $sSlug,
 				'is_wporg'       => $bIsWpOrg,
 				'can_reinstall'  => $bIsWpOrg,
 				'can_deactivate' => $bInstalled && ( $sSlug !== $oCon->getPluginBaseFile() ),
 				'has_update'     => $bHasUpdate,
 				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => 'TODODODO',
+				'date_snapshot'  => isset( $aMeta[ 'ts' ] ) ? $aMeta[ 'ts' ] : _wpsf__( 'unknown' ),
 			);
+
 			if ( $bInstalled ) {
 				$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
 				$aProfile[ 'name' ] = $oP->Name;
 				$aProfile[ 'version' ] = $oP->Version;
-				$aProfile[ 'root_dir' ] = $oWpPlugins->getInstallationDir( $oIT->slug );
+			}
+			else {
+				// MISSING!
+				if ( is_array( $aMeta ) ) {
+					$aProfile[ 'name' ] = isset( $aMeta[ 'name' ] ) ? $aMeta[ 'name' ] : _wpsf__( 'unknown' );
+					$aProfile[ 'version' ] = isset( $aMeta[ 'version' ] ) ? $aMeta[ 'version' ] : _wpsf__( 'unknown' );
+				}
 			}
 			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Plugin' ), $aProfile[ 'name' ] );
 
@@ -250,7 +264,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aThemes[ $sSlug ] = $aProfile;
 		}
 
-		$oCarbon = new \Carbon\Carbon();
 		return array(
 			'flags'        => array(
 				'is_enabled'    => $oMod->isPtgEnabled(),

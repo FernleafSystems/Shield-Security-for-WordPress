@@ -8,13 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Select extends Base\Select {
 
 	/**
-	 * @return string[]
-	 */
-	public function getDistinctSeverity() {
-		return $this->getDistinct_FilterAndSort( 'severity' );
-	}
-
-	/**
 	 * @param string $sHash
 	 * @return $this
 	 */
@@ -70,6 +63,21 @@ class Select extends Base\Select {
 			$this->addWhereEquals( 'scan', strtolower( $sScan ) );
 		}
 		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterForCron() {
+		return $this->filterByNotRecentlyNotified()
+					->filterByNotIgnored();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getDistinctSeverity() {
+		return $this->getDistinct_FilterAndSort( 'severity' );
 	}
 
 	/**

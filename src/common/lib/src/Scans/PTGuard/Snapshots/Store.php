@@ -69,7 +69,7 @@ class Store {
 	}
 
 	/**
-	 * @param $sKey
+	 * @param string $sKey
 	 * @return array|null
 	 */
 	public function getSnapItem( $sKey ) {

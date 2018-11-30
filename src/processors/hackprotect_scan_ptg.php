@@ -143,6 +143,22 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param string $sItem
+	 * @return array|null
+	 */
+	public function getSnapshotItemMeta( $sItem ) {
+		$aItem = null;
+		if ( $this->getStore_Plugins()->itemExists( $sItem ) ) {
+			$aItem = $this->getStore_Plugins()->getSnapItem( $sItem );
+		}
+		else if ( $this->getStore_Themes()->itemExists( $sItem ) ) {
+			$aItem = $this->getStore_Themes()->getSnapItem( $sItem );
+		}
+		$aMeta = is_array( $aItem ) && !empty( $aItem[ 'meta' ] ) ? $aItem[ 'meta' ] : null;
+		return $aMeta;
+	}
+
+	/**
 	 * @param $sItemId - plugin/theme slug
 	 * @return true
 	 * @throws Exception
@@ -432,13 +448,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 		if ( $bPluginsRebuildReqd || $bThemesRebuildReqd ) {
 			// grab all the existing results
-			$aRes = ( new Shield\Scans\Base\ScanResults\Retrieve() )
-				->setDbHandler( $this->getScannerDb()->getDbHandler() )
-				->setScan( static::SCAN_SLUG )
-				->forAll();
+			$oDbH = $this->getScannerDb()->getDbHandler();
+			/** @var Shield\Databases\Scanner\Select $oSel */
+			$oSel = $oDbH->getQuerySelector();
+			/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
+			$aRes = $oSel->filterByScan( static::SCAN_SLUG )->all();
 
 			$oCleaner = ( new Shield\Scans\PTGuard\ScanResults\Clean() )
-				->setDbHandler( $this->getScannerDb()->getDbHandler() )
+				->setDbHandler( $oDbH )
 				->setWorkingResultsSet( $this->convertVosToResults( $aRes ) );
 
 			if ( $bPluginsRebuildReqd ) {
