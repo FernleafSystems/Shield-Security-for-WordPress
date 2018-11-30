@@ -184,7 +184,6 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function ajaxExec_WizProcessStep() {
-		$this->loadAutoload(); // for Response
 		$oResponse = $this->processWizardStep( $this->loadRequest()->post( 'wizard-step' ) );
 		if ( !empty( $oResponse ) ) {
 			$this->buildWizardResponse( $oResponse );

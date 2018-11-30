@@ -154,7 +154,6 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @return Twig_Environment
 	 */
 	protected function getTwigEnvironment() {
-		self::loadAutoload();
 		return new Twig_Environment( $this->getTwigLoader(),
 			array(
 				'debug'            => true,
@@ -167,7 +166,6 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @return Twig_Loader_Filesystem
 	 */
 	protected function getTwigLoader() {
-		self::loadAutoload();
 		if ( !isset( $this->oTwigLoader ) ) {
 			$this->oTwigLoader = new Twig_Loader_Filesystem( $this->getTemplateRootMain() );
 		}

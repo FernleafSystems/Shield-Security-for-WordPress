@@ -10,11 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doPostConstruction() {
-		parent::doPostConstruction();
-		$this->loadAutoload();
-	}
-
 	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */

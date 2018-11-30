@@ -1051,19 +1051,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_core_file_integrity_scan' :
-				$sTitle = _wpsf__( 'Core File Integrity Scanner' );
+				$sTitle = _wpsf__( 'WordPress Core File Scanner' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress core files for changes compared to official WordPress files.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Core File Integrity Scanner' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
 				);
-				$sTitleShort = _wpsf__( 'Core File Scanner' );
+				$sTitleShort = _wpsf__( 'WP Core File Scanner' );
 				break;
 
 			case 'section_unrecognised_file_scan' :
 				$sTitle = _wpsf__( 'Unrecognised Files Scanner' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( "Regularly scan your WordPress core folders for files that don't belong." ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Unrecognised Files Scanner' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
 				);
 				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
 				break;
@@ -1149,8 +1149,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'enable_core_file_integrity_scan' :
-				$sName = _wpsf__( 'Core File Scanner' );
-				$sSummary = _wpsf__( 'Scans WordPress Core Files For Alterations' );
+				$sName = _wpsf__( 'WP Core File Scanner' );
+				$sSummary = _wpsf__( 'Automatically Scans WordPress Core Files For Changes' );
 				$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' )
 								.'<br />'._wpsf__( 'WordPress Core files should never be altered for any reason.' );
 				break;
@@ -1163,7 +1163,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'enable_unrecognised_file_cleaner_scan' :
 				$sName = _wpsf__( 'Unrecognised Files Scanner' );
-				$sSummary = _wpsf__( 'Daily Scan For Unrecognised Files In Core Directories' );
+				$sSummary = _wpsf__( 'Automatically Scans For Unrecognised Files In Core Directories' );
 				$sDescription = _wpsf__( 'Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation.' );
 				break;
 

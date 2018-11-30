@@ -63,7 +63,6 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 	 * @return int
 	 */
 	public function getFirstOfThisMonth() {
-		$this->loadAutoload();
 		$oNow = new \Carbon\Carbon();
 		try {
 			$oNow->setTimezone( $this->loadWp()->getOption( 'timezone_string' ) );
@@ -80,7 +79,6 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 	 * @return int
 	 */
 	public function getFirstOfLastMonth() {
-		$this->loadAutoload();
 		$oNow = new \Carbon\Carbon();
 		try {
 			$oNow->setTimezone( $this->loadWp()->getOption( 'timezone_string' ) );

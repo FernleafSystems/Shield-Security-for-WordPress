@@ -26,8 +26,8 @@
     },
     {
       "slug":        "section_core_file_integrity_scan",
-      "title":       "Core File Integrity Scanner",
-      "title_short": "Core File Scanner",
+      "title":       "WordPress Core File Scanner",
+      "title_short": "WP Core File Scanner",
       "summary":     [
         "Purpose - Regularly scan your WordPress core files for changes compared to official WordPress files.",
         "Recommendation - Keep the Core File Integrity Scanner feature turned on."
@@ -173,8 +173,8 @@
       "type":        "checkbox",
       "link_info":   "https://icwp.io/wpsf36",
       "link_blog":   "https://icwp.io/wpsf37",
-      "name":        "Core File Scanner",
-      "summary":     "Scans WordPress Core Files For Alterations",
+      "name":        "WP Core File Scanner",
+      "summary":     "Automatically Scans WordPress Core Files For Alterations",
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
