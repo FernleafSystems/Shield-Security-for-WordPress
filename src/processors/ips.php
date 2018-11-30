@@ -45,7 +45,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
-//		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $this, 'isCurrentIpWhitelisted' ), 30, 0 );
 		add_action( 'template_redirect', array( $this, 'doTrack404' ) );
 	}
 
