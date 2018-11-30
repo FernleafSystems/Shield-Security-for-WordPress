@@ -57,13 +57,14 @@
 	jQuery( '#SectionUserSessions' ).icwpWpsfTableActions(
 		{
 			'table': $oTableSessions,
-			'ajax_item_delete':{{ ajax.item_delete|raw }}
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_bulk_action':{{ ajax.bulk_action|raw }}
 		}
 	);
 	jQuery( document ).icwpWpsfTableWithFilter(
 		{
 			'table': $oTableSessions,
-			'selector_filter_form':'form#SessionsFilter'
+			'selector_filter_form': 'form#SessionsFilter'
 		}
 	);
 </script>

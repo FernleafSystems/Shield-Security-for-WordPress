@@ -153,6 +153,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'ajax'    => array(
 						'render_table_sessions' => $oModUsers->getAjaxActionData( 'render_table_sessions', true ),
 						'item_delete'           => $oModUsers->getAjaxActionData( 'session_delete', true ),
+						'bulk_action'           => $oModUsers->getAjaxActionData( 'bulk_action', true ),
 
 					),
 					'flags'   => array(),

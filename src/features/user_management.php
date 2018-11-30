@@ -27,6 +27,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					$aAjaxResponse = $this->ajaxExec_SessionDelete();
 					break;
 
+				case 'bulk_action':
+					$aAjaxResponse = $this->ajaxExec_BulkItemAction();
+					break;
+
 				default:
 					break;
 			}
@@ -37,7 +41,55 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return array
 	 */
-	public function ajaxExec_SessionDelete() {
+	private function ajaxExec_BulkItemAction() {
+		$oReq = $this->loadRequest();
+		$oProcessor = $this->getSessionsProcessor();
+
+		$bSuccess = false;
+
+		$aIds = $oReq->post( 'ids' );
+		if ( empty( $aIds ) || !is_array( $aIds ) ) {
+			$bSuccess = false;
+			$sMessage = _wpsf__( 'No items selected.' );
+		}
+		else if ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
+			$sMessage = _wpsf__( 'Not a supported action.' );
+		}
+		else {
+			$nYourId = $oProcessor->getCurrentSession()->id;
+			$bIncludesYourSession = in_array( $nYourId, $aIds );
+
+			if ( $bIncludesYourSession && ( count( $aIds ) == 1 ) ) {
+				$sMessage = _wpsf__( 'Please logout if you want to delete your own session.' );
+			}
+			else {
+				$bSuccess = true;
+
+				/** @var Shield\Databases\Session\Delete $oDel */
+				$oDel = $oProcessor->getDbHandler()->getQueryDeleter();
+				foreach ( $aIds as $nId ) {
+					if ( is_numeric( $nId ) && ( $nId != $nYourId ) ) {
+						$oDel->deleteById( $nId );
+					}
+				}
+				$sMessage = _wpsf__( 'Selected items were deleted.' );
+				if ( $bIncludesYourSession ) {
+					$sMessage .= ' *'._wpsf__( 'Your session was retained' );
+				}
+			}
+
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage,
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_SessionDelete() {
 		$oReq = $this->loadRequest();
 		$oProcessor = $this->getSessionsProcessor();
 
@@ -63,7 +115,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		);
 	}
 
-	protected function ajaxExec_BuildTableTraffic() {
+	private function ajaxExec_BuildTableTraffic() {
 		/** @var ICWP_WPSF_Processor_UserManagement $oPro */
 		$oPro = $this->getProcessor();
 

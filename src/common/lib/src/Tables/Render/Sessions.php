@@ -27,8 +27,18 @@ class Sessions extends Base {
 	/**
 	 * @return array
 	 */
+	protected function get_bulk_actions() {
+		return array(
+			'delete' => 'Delete',
+		);
+	}
+
+	/**
+	 * @return array
+	 */
 	public function get_columns() {
 		return array(
+			'cb'               => '&nbsp;',
 			'details'          => 'Details',
 			'is_secadmin'      => 'Security Admin',
 			'logged_in_at'     => 'Logged In',

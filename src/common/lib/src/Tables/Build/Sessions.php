@@ -34,6 +34,8 @@ class Sessions extends BaseBuild {
 			}
 		}
 
+		$oSelector->setOrderBy( 'last_activity_at' );
+
 		return $this;
 	}
 

@@ -245,7 +245,8 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 	};
 
 	$.fn.icwpWpsfTableActions.defaults = {
-		'custom_actions_ajax': {}
+		'custom_actions_ajax': {},
+		'req_params': {}
 	};
 
 })( jQuery );
