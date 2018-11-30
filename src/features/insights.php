@@ -116,6 +116,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
 						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
 						'item_insert'             => $oModPlugin->getAjaxActionData( 'note_insert', true ),
+						'bulk_action'             => $oModPlugin->getAjaxActionData( 'bulk_action', true ),
 					),
 					'flags' => array(
 						'can_notes' => $this->isPremium() //not the way to determine

@@ -122,19 +122,25 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					function ( evt ) {
 						evt.preventDefault();
 						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
-						if ( sAction !== "-1" ) {
 
+
+						if ( sAction === "-1" ) {
+							alert( 'Please first select an action to perform' );
+						}
+						else {
 							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
 								function () {
 									return $( this ).val()
 								} ).get();
-							if ( aCheckedIds.length < 1 ) {
-								alert( 'Nothing selected.' );
-							}
 
-							plugin.options[ 'req_params' ][ 'bulk_action' ] = sAction;
-							plugin.options[ 'req_params' ][ 'ids' ] = aCheckedIds;
-							plugin.bulkAction.call( plugin );
+							if ( aCheckedIds.length < 1 ) {
+								alert( 'No rows currently selected' );
+							}
+							else {
+								plugin.options[ 'req_params' ][ 'bulk_action' ] = sAction;
+								plugin.options[ 'req_params' ][ 'ids' ] = aCheckedIds;
+								plugin.bulkAction.call( plugin );
+							}
 						}
 						return false;
 					}

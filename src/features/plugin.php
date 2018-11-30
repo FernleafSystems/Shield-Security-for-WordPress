@@ -165,14 +165,17 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
+
 				case 'plugin_badge_close':
 					$aAjaxResponse = $this->ajaxExec_PluginBadgeClose();
 					break;
+
 				case 'set_plugin_tracking_perm':
 					if ( !$this->isTrackingPermissionSet() ) {
 						$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
 					}
 					break;
+
 				case 'send_deactivate_survey':
 					$aAjaxResponse = $this->ajaxExec_SendDeactivateSurvey();
 					break;
@@ -189,6 +192,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
+
+				case 'bulk_action':
+					$aAjaxResponse = $this->ajaxExec_BulkItemAction();
+					break;
 
 				case 'delete_forceoff':
 					$aAjaxResponse = $this->ajaxExec_DeleteForceOff();
@@ -211,6 +218,43 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_BulkItemAction() {
+		$oReq = $this->loadRequest();
+
+		$bSuccess = false;
+
+		$aIds = $oReq->post( 'ids' );
+		if ( empty( $aIds ) || !is_array( $aIds ) ) {
+			$bSuccess = false;
+			$sMessage = _wpsf__( 'No items selected.' );
+		}
+		else if ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
+			$sMessage = _wpsf__( 'Not a supported action.' );
+		}
+		else {
+
+			/** @var ICWP_WPSF_Processor_Plugin $oPro */
+			$oPro = $this->getProcessor();
+			/** @var Shield\Databases\AdminNotes\Delete $oDel */
+			$oDel = $oPro->getSubProcessorNotes()->getDbHandler()->getQueryDeleter();
+			foreach ( $aIds as $nId ) {
+				if ( is_numeric( $nId ) ) {
+					$oDel->deleteById( $nId );
+				}
+			}
+			$bSuccess = true;
+			$sMessage = _wpsf__( 'Selected items were deleted.' );
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage,
+		);
 	}
 
 	/**

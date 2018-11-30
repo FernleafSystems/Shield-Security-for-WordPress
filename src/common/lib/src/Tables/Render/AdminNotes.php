@@ -15,8 +15,18 @@ class AdminNotes extends Base {
 	/**
 	 * @return array
 	 */
+	protected function get_bulk_actions() {
+		return array(
+			'delete' => 'Delete',
+		);
+	}
+
+	/**
+	 * @return array
+	 */
 	public function get_columns() {
 		return array(
+			'cb'          => '&nbsp;',
 			'note'        => 'Note',
 			'wp_username' => 'Username',
 			'created_at'  => 'Date',

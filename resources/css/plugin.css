@@ -1064,6 +1064,8 @@ table.odp-table.scan-table td.column-path code {
 .container-scantable .tablenav.top {
 	/*display: none;*/
 }
+
+#TableAdminNotes .tablenav.bottom,
 .container-scantable .tablenav.bottom {
 	display: none;
 }
