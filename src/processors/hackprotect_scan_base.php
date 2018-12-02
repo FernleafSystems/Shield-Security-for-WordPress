@@ -271,7 +271,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		}
 		$this->doScan();
 		$this->cronProcessScanResults();
-		die();
 	}
 
 	/**
@@ -286,7 +285,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
 		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
 					 ->filterForCron()
-					 ->all();
+					 ->query();
 
 		if ( !empty( $aRes ) ) {
 			$oRes = $this->convertVosToResults( $aRes );
