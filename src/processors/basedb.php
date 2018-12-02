@@ -27,20 +27,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->initializeTable( $sTableName );
 	}
 
-	public function onWpInit() {
-		parent::onWpInit();
-
-		$oCon = $this->getController();
-		add_action( $oCon->prefix( 'delete_plugin' ), array( $this, 'deleteTable' ) );
-	}
-
-	/**
-	 */
-	public function deleteTable() {
-		$this->deleteCleanupCron();
-		$this->getDbHandler()->deleteTable();
-	}
-
 	/**
 	 * @param string $sTableName
 	 * @throws Exception
@@ -54,6 +40,8 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			 ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
 			 ->setSqlCreate( $this->getCreateTableSql() )
 			 ->tableInit();
+
+		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this->getDbHandler(), 'deleteTable' ) );
 	}
 
 	/**
@@ -104,20 +92,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * Will setup the cleanup cron to clean out old entries. This should be overridden per implementation.
-	 */
-	protected function deleteCleanupCron() {
-		wp_clear_scheduled_hook( $this->getDbCleanupHookName() );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getDbCleanupHookName() {
-		return $this->getController()->prefix( $this->getMod()->getSlug().'_db_cleanup' );
-	}
-
-	/**
 	 * @return bool|int
 	 */
 	public function cleanupDatabase() {
@@ -130,7 +104,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * 1 in 10 page loads will clean the databases. This ensures that even if the crons don't run
+	 * 1 in 20 page loads will clean the databases. This ensures that even if the crons don't run
 	 * correctly, we'll keep it trim.
 	 */
 	public function onModuleShutdown() {

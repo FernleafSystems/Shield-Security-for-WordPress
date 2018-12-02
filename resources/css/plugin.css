@@ -400,6 +400,7 @@ label input[type=checkbox] {
 	.feature-summary-blocks .summary-state p {
 		font-size: 8px;
 	}
+
 	.feature-summary-blocks .feature-icon:before {
 		font-size: 16px;
 	}
@@ -802,8 +803,8 @@ input:checked + .icwp-slider:before {
 	background-color: white;
 	padding: 40px;
 	margin: 120px 0 40px;
-	box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
-	border: 1px solid rgba(0,0,0,0.2);
+	box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(0, 0, 0, 0.2);
 }
 .card.gopro-card {
 	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/
@@ -812,17 +813,20 @@ input:checked + .icwp-slider:before {
 	#ColumnModules {
 		max-width: 81px;
 	}
+
 	#TopPluginIcon {
 		height: 76px;
 		width: 76px;
 		background-size: 76px 76px;
 	}
+
 	.modules a.module {
 		font-size: 0.7rem;
 		font-weight: normal;
 		letter-spacing: -1px;
 		padding: 0.4rem 0.6rem 0.4rem 0.8rem;
 	}
+
 	.modules .module-name .dashicons {
 		font-size: 16px;
 		left: -17px;
@@ -1071,6 +1075,7 @@ table.odp-table.scan-table td.column-path code {
 }
 
 #TableAdminNotes .tablenav.bottom,
+#TableSessions .tablenav.bottom,
 .container-scantable .tablenav.bottom {
 	display: none;
 }

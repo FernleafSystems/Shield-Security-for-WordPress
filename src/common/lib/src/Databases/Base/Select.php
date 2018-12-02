@@ -123,7 +123,8 @@ class Select extends BaseQuery {
 	 * @return array
 	 */
 	public function getDistinctForColumn( $sColumn ) {
-		return $this->addColumnToSelect( $sColumn )
+		return $this->reset()
+					->addColumnToSelect( $sColumn )
 					->setIsDistinct( true )
 					->query();
 	}
@@ -229,6 +230,16 @@ class Select extends BaseQuery {
 	 */
 	protected function queryDistinct() {
 		return Services::WpDb()->selectCustom( $this->buildQuery() );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function reset() {
+		parent::reset();
+		return $this->setIsCount( false )
+					->setIsDistinct( false )
+					->setColumnsToSelect( [] );
 	}
 
 	/**

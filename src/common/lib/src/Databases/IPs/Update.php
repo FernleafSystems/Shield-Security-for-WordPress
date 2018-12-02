@@ -13,7 +13,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function incrementTransgressions( $oIp ) {
-		return $this->updateIp(
+		return $this->updateEntry(
 			$oIp,
 			array(
 				'transgressions' => $oIp->getTransgressions() + 1,
@@ -28,7 +28,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function updateLabel( $oIp, $sLabel ) {
-		return $this->updateIp( $oIp, array( 'label' => trim( $sLabel ) ) );
+		return $this->updateEntry( $oIp, array( 'label' => trim( $sLabel ) ) );
 	}
 
 	/**
@@ -37,18 +37,6 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function updateLastAccessAt( $oIp ) {
-		return $this->updateIp(
-			$oIp,
-			array( 'last_access_at' => Services::Request()->ts() )
-		);
-	}
-
-	/**
-	 * @param EntryVO $oIp
-	 * @param array   $aUpdateData
-	 * @return bool
-	 */
-	public function updateIp( $oIp, $aUpdateData = array() ) {
-		return parent::updateEntry( $oIp, $aUpdateData );
+		return $this->updateEntry( $oIp, array( 'last_access_at' => Services::Request()->ts() ) );
 	}
 }

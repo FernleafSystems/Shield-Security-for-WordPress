@@ -59,7 +59,7 @@ class Update extends Insert {
 	public function updateEntry( $oEntry, $aUpdateData = array() ) {
 		$bSuccess = false;
 
-		if ( $oEntry instanceof EntryVO) {
+		if ( $oEntry instanceof EntryVO ) {
 			$bSuccess = $this->updateById( $oEntry->id, $aUpdateData );
 			// TODO: run through update data and determine if anything actually needs updating
 			if ( $bSuccess ) {
