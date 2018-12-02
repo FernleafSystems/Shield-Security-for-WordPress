@@ -262,6 +262,18 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$oMeta = $this->getConn()->getUserMeta( $oUser );
 			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
 		}
+		else {
+			/**
+			 * TODO: remove the HTTP_REFERER bit once iCWP plugin is updated.
+			 * We want logins from iCWP to skip 2FA. To achieve this, iCWP plugin needs
+			 * to add a TRUE filter on 'odp-shield-2fa_skip' at the point of login.
+			 * Until then, we'll use the HTTP referrer as an indicator
+			 */
+			$bCanSkip = apply_filters(
+				'odp-shield-2fa_skip',
+				strpos( $this->loadRequest()->server( 'HTTP_REFERER' ), 'https://app.icontrolwp.com/' ) === 0
+			);
+		}
 		return $bCanSkip;
 	}
 
@@ -502,7 +514,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$aWarnings[] =
 				_wpsf__( '2FA by email demands that your WP site is properly configured to send email.' )
 				.'<br/>'._wpsf__( 'This is a common problem and you may get locked out in the future if you ignore this.' )
-				.' '.sprintf( '<a href="%s" target="_blank" style="font-weight: bolder">%s</a>', 'https://icwp.io/dd', _wpsf__( 'Learn More.' ) );
+				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://icwp.io/dd', _wpsf__( 'Learn More.' ) );
 		}
 
 		return $aWarnings;
