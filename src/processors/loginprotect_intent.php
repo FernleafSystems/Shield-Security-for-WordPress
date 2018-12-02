@@ -110,6 +110,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param WP_User|WP_Error $oUser
 	 */
 	protected function initLoginIntent( $oUser ) {
+
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
 			 && $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
 
@@ -138,9 +139,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
 			$oReq = $this->loadRequest();
 
-			$bIsLoginIntentSubmission = $oReq->request( $oFO->getLoginIntentRequestFlag() ) == 1;
-			if ( $bIsLoginIntentSubmission ) {
-
+			// Is 2FA/login-intent submit
+			if ( $oReq->request( $oFO->getLoginIntentRequestFlag() ) == 1 ) {
 
 				if ( $oReq->post( 'cancel' ) == 1 ) {
 					$oWpUsers->logoutUser(); // clears the login and login intent
@@ -191,7 +191,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * Use this ONLY when the login intent has been successfully verified.
 	 * @return $this
 	 */
-	protected function removeLoginIntent() {
+	private function removeLoginIntent() {
 		return $this->setLoginIntentExpiresAt( 0 );
 	}
 
