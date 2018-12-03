@@ -32,11 +32,12 @@ class EntryVO {
 	 */
 	public function __get( $sProperty ) {
 
+		$mVal = $this->__adapterGet( $sProperty );
+
 		switch ( $sProperty ) {
 
 			case 'meta':
-				$mVal = $this->__adapterGet( $sProperty );
-				if ( is_string( $mVal ) ) {
+				if ( is_string( $mVal ) && !empty( $mVal ) ) {
 					$mVal = base64_decode( $mVal );
 					if ( !empty( $mVal ) ) {
 						$mVal = @json_decode( $mVal, true );
@@ -49,7 +50,6 @@ class EntryVO {
 				break;
 
 			default:
-				$mVal = $this->__adapterGet( $sProperty );
 				break;
 		}
 
