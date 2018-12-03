@@ -468,6 +468,12 @@
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
+    },
+    {
+      "key":          "rebuild_self",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      false
     }
   ],
   "definitions": {

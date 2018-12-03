@@ -18,6 +18,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function updateHandler() {
 		$this->clearCrons();
+		$this->setPtgRebuildSelfRequired( true ); // this is permanently required until a better solution is found
 	}
 
 	/**
@@ -77,6 +78,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 	}
 
+	/**
+	 * @return $this
+	 */
 	protected function clearCrons() {
 		$aCrons = array(
 			$this->getIcCronName(),
@@ -88,6 +92,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		foreach ( $aCrons as $sCron ) {
 			$oCron->deleteCronJob( $sCron );
 		}
+		return $this;
 	}
 
 	/**
@@ -498,6 +503,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param bool $bIsRequired
+	 * @return $this
+	 */
+	public function setPtgRebuildSelfRequired( $bIsRequired ) {
+		return $this->setOpt( 'rebuild_self', (bool)$bIsRequired );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgRebuildSelfRequired() {
+		return $this->isOpt( 'rebuild_self', true );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
@@ -676,7 +696,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					if ( $bResetNotification ) {
 						$oTablePro->resetNotifiedStatus();
 					}
-
 				}
 			}
 			$bSuccess = true;
