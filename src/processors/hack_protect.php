@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( __DIR__.'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -26,14 +26,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
-	protected function runPluginVulnerabilities() {
-		require_once( dirname( __FILE__ ).'/hackprotect_pluginvulnerabilities.php' );
-		$oPv = new ICWP_WPSF_Processor_HackProtect_PluginVulnerabilities( $this->getMod() );
-		$oPv->run();
-	}
-
-	/**
-	 */
 	protected function runScanner() {
 		$this->getSubProcessorScanner()->run();
 	}
@@ -44,7 +36,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function getSubProcessorScanner() {
 		$oProc = $this->getSubPro( 'scanner' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/hackprotect_scanner.php' );
+			require_once( __DIR__.'/hackprotect_scanner.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_Scanner( $this->getMod() );
 			$this->aSubPros[ 'scanner' ] = $oProc;
 		}

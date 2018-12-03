@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Sessions', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/basedb.php' );
+require_once( __DIR__.'/basedb.php' );
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 

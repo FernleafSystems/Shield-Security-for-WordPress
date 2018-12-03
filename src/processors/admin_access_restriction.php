@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_AdminAccessRestriction', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( __DIR__.'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	protected function getSubProcessorWhitelabel() {
 		$oProc = $this->getSubPro( 'wl' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/adminaccess_whitelabel.php' );
+			require_once( __DIR__.'/adminaccess_whitelabel.php' );
 			$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getMod() );
 			$this->aSubPros[ 'wl' ] = $oProc;
 		}

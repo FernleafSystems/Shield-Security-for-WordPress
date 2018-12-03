@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_Autoupdates' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( __DIR__.'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 

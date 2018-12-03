@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_CommentsFilter', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( __DIR__.'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -24,19 +24,19 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isEnabledGaspCheck() ) {
-			require_once( dirname( __FILE__ ).'/commentsfilter_antibotspam.php' );
+			require_once( __DIR__.'/commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
 			$oBotSpamProcessor->run();
 		}
 
 		if ( $oFO->isEnabledHumanCheck() && $this->loadWpComments()->isCommentPost() ) {
-			require_once( dirname( __FILE__ ).'/commentsfilter_humanspam.php' );
+			require_once( __DIR__.'/commentsfilter_humanspam.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
 			$oHumanSpamProcessor->run();
 		}
 
 		if ( $oFO->isGoogleRecaptchaEnabled() ) {
-			require_once( dirname( __FILE__ ).'/commentsfilter_googlerecaptcha.php' );
+			require_once( __DIR__.'/commentsfilter_googlerecaptcha.php' );
 			$oReCap = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
 			$oReCap->run();
 		}

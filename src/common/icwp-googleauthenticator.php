@@ -54,7 +54,7 @@ class ICWP_WPSF_GoogleAuthenticator {
 	 */
 	protected function loadGoogleAuthenticatorLib() {
 		if ( !class_exists( 'PHPGangsta_GoogleAuthenticator', false ) ) {
-			require_once( dirname( __FILE__ ).'/googleauthenticator/googleauthenticator.php' );
+			require_once( __DIR__.'/googleauthenticator/googleauthenticator.php' );
 		}
 		return class_exists( 'PHPGangsta_GoogleAuthenticator', false );
 	}

@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ptg' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/hackprotect_scan_base.php' );
+require_once( __DIR__.'/hackprotect_scan_base.php' );
 
 use FernleafSystems\Wordpress\Plugin\Shield,
 	FernleafSystems\Wordpress\Services;

@@ -137,7 +137,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @return ICWP_EDD_LicenseVO
 	 */
 	public function getLicenseVoFromData( $mData ) {
-		require_once( dirname( __FILE__ ).'/easydigitaldownloads/ICWP_EDD_LicenseVO.php' );
+		require_once( __DIR__.'/easydigitaldownloads/ICWP_EDD_LicenseVO.php' );
 		if ( is_array( $mData ) ) {
 			$mData = $this->loadDP()->convertArrayToStdClass( $mData );
 		}

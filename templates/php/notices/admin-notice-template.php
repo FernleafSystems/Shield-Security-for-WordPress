@@ -1,4 +1,4 @@
-<?php $sBaseDirName = dirname( __FILE__ ).DIRECTORY_SEPARATOR; ?>
+<?php $sBaseDirName = __DIR__.DIRECTORY_SEPARATOR; ?>
 
 <div id="<?php echo $unique_render_id; ?>"
 	 class="<?php echo $notice_classes; ?> odp-admin-notice notice is-dismissible notice-<?php echo $icwp_admin_notice_template; ?>">

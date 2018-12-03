@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Email', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+require_once( __DIR__.'/base_wpsf.php' );
 
 class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function init() {
 		parent::init();
-		self::$sModeFile_EmailThrottled = dirname( __FILE__ ).'/../mode.email_throttled';
+		self::$sModeFile_EmailThrottled = path_join( __DIR__, '/../mode.email_throttled' );
 	}
 
 	public function run() {

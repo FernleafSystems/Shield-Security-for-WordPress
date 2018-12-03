@@ -246,7 +246,7 @@ class ICWP_WPSF_WpFilesystem {
 	}
 
 	public function getCanDiskWrite() {
-		$sFilePath = dirname( __FILE__ ).'/testfile.'.rand().'txt';
+		$sFilePath = __DIR__.'/testfile.'.rand().'txt';
 		$sContents = "Testing icwp file read and write.";
 
 		// Write, read, verify, delete.

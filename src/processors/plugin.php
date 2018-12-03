@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base_plugin.php' );
+require_once( __DIR__.'/base_plugin.php' );
 
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getBadgeProcessor() {
 		if ( !isset( $this->oBadgeProcessor ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_badge.php' );
+			require_once( __DIR__.'/plugin_badge.php' );
 			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getMod() );
 		}
 		return $this->oBadgeProcessor;
@@ -99,7 +99,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getTrackingProcessor() {
 		if ( !isset( $this->oTrackingProcessor ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_tracking.php' );
+			require_once( __DIR__.'/plugin_tracking.php' );
 			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getMod() );
 		}
 		return $this->oTrackingProcessor;
@@ -111,7 +111,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function getSubProcessorImportExport() {
 		$oProc = $this->getSubPro( 'importexport' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_importexport.php' );
+			require_once( __DIR__.'/plugin_importexport.php' );
 			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getMod() );
 			$this->aSubPros[ 'importexport' ] = $oProc;
 		}
@@ -124,7 +124,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function getSubProcessorNotes() {
 		$oProc = $this->getSubPro( 'notes' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_notes.php' );
+			require_once( __DIR__.'/plugin_notes.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 			$oMod = $this->getMod();
 			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $oMod );

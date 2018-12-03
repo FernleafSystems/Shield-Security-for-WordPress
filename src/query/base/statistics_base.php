@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Query_Statistics_Base', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/base.php' );
+require_once( __DIR__.'/base.php' );
 
 class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 
@@ -48,7 +48,7 @@ class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 
 		// TODO: NOT PHP 5.2!
 		if ( is_array( $mResult ) ) {
-			include_once( dirname( __FILE__ ).'/StatisticsReportingVO.php' );
+			include_once( __DIR__.'/StatisticsReportingVO.php' );
 			$mResult = array_map(
 				function ( $oData ) {
 					return new StatisticsReportingVO( $oData );

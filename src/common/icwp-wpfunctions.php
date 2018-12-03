@@ -45,7 +45,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return null|string
 	 */
 	public function findWpCoreFile( $sFilename ) {
-		$sLoaderPath = dirname( __FILE__ );
+		$sLoaderPath = __DIR__;
 		$nLimiter = 0;
 		$nMaxLimit = count( explode( DIRECTORY_SEPARATOR, trim( $sLoaderPath, DIRECTORY_SEPARATOR ) ) );
 		$bFound = false;

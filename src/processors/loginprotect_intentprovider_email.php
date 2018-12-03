@@ -4,7 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
+require_once( __DIR__.'/loginprotect_intentprovider_base.php' );
 
 class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
