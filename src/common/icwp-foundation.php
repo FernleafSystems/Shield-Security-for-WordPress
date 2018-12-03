@@ -307,13 +307,6 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 */
-	static public function loadAutoload() {
-		self::requireCommonLib( 'lib/vendor/autoload.php' );
-		\FernleafSystems\Wordpress\Services\Services::GetInstance();
-	}
-
-	/**
 	 * @param string $sFile
 	 */
 	static public function requireCommonLib( $sFile ) {

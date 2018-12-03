@@ -22,6 +22,7 @@
   },
   "paths":        {
     "source":    "src",
+    "autoload":  "lib/vendor/autoload.php",
     "assets":    "resources",
     "languages": "languages",
     "templates": "templates",

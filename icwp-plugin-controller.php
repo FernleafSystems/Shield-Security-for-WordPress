@@ -109,8 +109,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected $aModules;
 
 	/**
-	 * @param $sRootFile
+	 * @param string $sRootFile
 	 * @return ICWP_WPSF_Plugin_Controller
+	 * @throws Exception
 	 */
 	public static function GetInstance( $sRootFile ) {
 		if ( !isset( self::$oInstance ) ) {
@@ -125,11 +126,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	private function __construct( $sRootFile ) {
 		self::$sRootFile = $sRootFile;
-		$this->checkMinimumRequirements();
 		$this->loadAutoload();
+		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
 		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
 		$this->doLoadTextDomain();
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	private function loadAutoload() {
+		$sAuto = $this->getPath_Autoload();
+		if ( empty( $sAuto ) || !realpath( $sAuto ) ) {
+			throw new \Exception( 'Could not locate the autoloader' );
+		}
+		require_once( $sAuto );
+		\FernleafSystems\Wordpress\Services\Services::GetInstance();
 	}
 
 	/**
@@ -1375,6 +1388,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_LibFile( $sLibFile = '' ) {
 		return $this->getPath_SourceFile( 'lib/'.$sLibFile );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_Autoload() {
+		return $this->getPath_SourceFile( $this->getPluginSpec_Path( 'autoload' ) );
 	}
 
 	/**
