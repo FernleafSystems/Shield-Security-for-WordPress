@@ -322,7 +322,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function formatEntriesForDisplay( $aEntries ) {
 
 		if ( is_array( $aEntries ) ) {
-			$oCon = $this->getController();
 			$oWpUsers = $this->loadWpUsers();
 			$oGeo = $this->loadGeoIp2();
 			$sYou = $this->loadIpService()->getRequestIp();

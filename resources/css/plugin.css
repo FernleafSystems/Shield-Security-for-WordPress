@@ -802,7 +802,9 @@ input:checked + .icwp-slider:before {
 #IcwpWpsfSecurityAdmin {
 	background-color: white;
 	padding: 40px;
-	margin: 40px 0;
+	margin: 120px 0 40px;
+	box-shadow: 6px 6px 0 rgba(0,0,0,0.2);
+	border: 1px solid rgba(0,0,0,0.2);
 }
 .card.gopro-card {
 	padding: 0; /* fix to override for bootstrap4 cuz WP has a .card style*/

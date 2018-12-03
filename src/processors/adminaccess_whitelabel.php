@@ -25,8 +25,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 		$oFO = $this->getMod();
 		$oCon = $this->getController();
 
-		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates()
-			 && !$oCon->getHasPermissionToManage() ) {
+		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$oCon->isPluginAdmin() ) {
 			$this->hideUpdates();
 		}
 	}

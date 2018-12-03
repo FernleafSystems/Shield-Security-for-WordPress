@@ -51,7 +51,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	public function deleteTable() {
-		if ( self::getController()->getHasPermissionToManage() && $this->getTableExists() ) {
+		if ( $this->getTableExists() ) {
 			$this->deleteCleanupCron();
 			$this->loadDbProcessor()->doDropTable( $this->getTableName() );
 		}

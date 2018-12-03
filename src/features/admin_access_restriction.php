@@ -10,13 +10,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
-	private $bHasPermissionToSubmit;
-
 	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return $this->hasAccessKey() && parent::isReadyToExecute();
+		return ( $this->hasAccessKey() || $this->hasSecAdminUsers() ) && parent::isReadyToExecute();
 	}
 
 	/**
@@ -31,6 +29,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				case 'sec_admin_check':
 					$aAjaxResponse = $this->ajaxExec_SecAdminCheck();
 					break;
+
 				case 'sec_admin_login':
 				case 'restricted_access':
 					$aAjaxResponse = $this->ajaxExec_SecAdminLogin();
@@ -111,22 +110,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @param bool $bHasPermission
-	 * @return bool
-	 */
-	public function doCheckHasPermissionToSubmit( $bHasPermission = true ) {
-
-		$this->bHasPermissionToSubmit = $bHasPermission;
-		if ( $this->isModuleEnabled() ) {
-			$sAccessKey = $this->getAccessKeyHash();
-			if ( !empty( $sAccessKey ) ) {
-				$this->bHasPermissionToSubmit = $this->isSecAdminSessionValid() || $this->checkAdminAccessKeySubmission();
-			}
-		}
-		return $this->bHasPermissionToSubmit;
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getAccessKeyHash() {
@@ -179,6 +162,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getSecurityAdminUsers() {
+		$aU = $this->getOpt( 'sec_admin_users', array() );
+		return ( is_array( $aU ) && $this->isPremium() ) ? $aU : array();
+	}
+
+	/**
 	 * TODO: Bug where if $sType is defined, it'll be set to 'wp' anyway
 	 * @param string $sType - wp or wpms
 	 * @return array
@@ -210,6 +201,23 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
+	public function hasSecAdminUsers() {
+		$aUsers = $this->getSecurityAdminUsers();
+		return !empty( $aUsers );
+	}
+
+	/**
+	 * No checking of admin capabilities in-case of infinite loop with admin access caps check
+	 * @return bool
+	 */
+	public function isRegisteredSecAdminUser() {
+		$sUser = $this->loadWpUsers()->getCurrentWpUsername();
+		return !empty( $sUser ) && in_array( $sUser, $this->getSecurityAdminUsers() );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isAdminAccessAdminUsersEnabled() {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
 	}
@@ -236,11 +244,50 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				}
 			}
 		}
+
+		$this->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $this->getSecurityAdminUsers() ) );
+	}
+
+	/**
+	 * Ensures that all entries are valid users.
+	 * @param string[] $aSecUsers
+	 * @return string[]
+	 */
+	private function verifySecAdminUsers( $aSecUsers ) {
+		$oDP = $this->loadDP();
+		$oWpUsers = $this->loadWpUsers();
+
+		$aFiltered = array();
+		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
+			if ( $oDP->validEmail( $sUsernameOrEmail ) ) {
+				$oUser = $oWpUsers->getUserByEmail( $sUsernameOrEmail );
+			}
+			else {
+				$oUser = $oWpUsers->getUserByUsername( $sUsernameOrEmail );
+				if ( is_null( $oUser ) && is_numeric( $sUsernameOrEmail ) ) {
+					$oUser = $oWpUsers->getUserById( $sUsernameOrEmail );
+				}
+			}
+
+			if ( $oUser instanceof WP_User && $oUser->ID > 0 && $oWpUsers->isUserAdmin( $oUser ) ) {
+				$aFiltered[] = $oUser->user_login;
+			}
+		}
+
+		// We now run a bit of a sanity check to ensure that the current user is
+		// not adding users here that aren't themselves without a key to still gain access
+		$oCurrent = $oWpUsers->getCurrentWpUser();
+		if ( !empty( $aFiltered ) && !$this->hasAccessKey() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
+			$aFiltered[] = $oCurrent->user_login;
+		}
+
+		natsort( $aFiltered );
+		return array_unique( $aFiltered );
 	}
 
 	protected function setSaveUserResponse() {
 		if ( $this->isAccessKeyRequest() ) {
-			$bSuccess = $this->doCheckHasPermissionToSubmit();
+			$bSuccess = $this->checkAdminAccessKeySubmission();
 
 			if ( $bSuccess ) {
 				$sMessage = _wpsf__( 'Security Admin key accepted.' );
@@ -268,8 +315,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function getSecAdminTimeLeft() {
 		$nLeft = 0;
-		if ( $this->isReadyToExecute() && $this->hasSession() ) {
-			$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $this->getSession()->getSecAdminAt() );
+		if ( $this->hasSession() ) {
+
+			$nSecAdminAt = $this->getSession()->getSecAdminAt();
+			if ( $this->isRegisteredSecAdminUser() ) {
+				$nLeft = 0;
+			}
+			else if ( $nSecAdminAt > 0 ) {
+				$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $nSecAdminAt );
+			}
 		}
 		return max( 0, $nLeft );
 	}
@@ -295,7 +349,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
-	protected function checkAdminAccessKeySubmission() {
+	public function checkAdminAccessKeySubmission() {
 		$sAccessKeyRequest = $this->loadRequest()->post( 'admin_access_key_request', '' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
@@ -389,11 +443,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @throws Exception
 	 */
 	public function setNewAccessKeyManually( $sKey ) {
-		if ( !$this->doCheckHasPermissionToSubmit() ) {
-			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
-		}
 		if ( empty( $sKey ) ) {
 			throw new Exception( 'Attempting to set an empty Security Admin Access Key.' );
+		}
+		if ( !$this->getConn()->isPluginAdmin() ) {
+			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
 		$this->setIsMainFeatureEnabled( true )
@@ -421,7 +475,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		);
 
 		{//sec admin
-			if ( !( $this->isModuleEnabled() && $this->hasAccessKey() ) ) {
+			if ( !( $this->isModuleEnabled() && ( $this->hasAccessKey() || $this->hasSecAdminUsers() ) ) ) {
 				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(
@@ -445,7 +499,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isEnabledForUiSummary() {
-		return parent::isEnabledForUiSummary() && $this->hasAccessKey() && $this->getSecAdminTimeout() > 0;
+		return parent::isEnabledForUiSummary() && ( $this->getSecAdminTimeout() > 0 )
+			   && ( $this->hasAccessKey() || $this->hasSecAdminUsers() );
 	}
 
 	/**
@@ -536,6 +591,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
 								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>'
 								.( $this->hasAccessKey() ? '<br/>'.sprintf( _wpsf__( 'To delete the current security key, type exactly "%s" and save.' ), '<strong>DELETE</strong>' ) : '' );
+				break;
+
+			case 'sec_admin_users' :
+				$sName = _wpsf__( 'Security Admins' );
+				$sSummary = _wpsf__( 'Persistent Security Admins' );
+				$sDescription = _wpsf__( "Users provided will be security admins automatically, without needing the security key." )
+								.'<br/>'._wpsf__( 'Enter admin username, email or ID.' ).' '._wpsf__( '1 entry per-line.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'Verified users will be converted to usernames.' ) );
 				break;
 
 			case 'admin_access_timeout' :
@@ -701,5 +764,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				array_unique( array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) ) )
 			);
 		}
+	}
+
+	/**
+	 * @deprecated v6.10.7
+	 * @return bool
+	 */
+	public function doCheckHasPermissionToSubmit() {
+		return $this->getConn()->isPluginAdmin();
 	}
 }

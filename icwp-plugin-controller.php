@@ -91,7 +91,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var boolean
 	 */
-	protected $bMeetsBasePermissions = false;
+	private $bMeetsBasePermissions;
 
 	/**
 	 * @var string
@@ -127,7 +127,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		self::$sRootFile = $sRootFile;
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
-		$this->loadWpTrack();
 		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
 		$this->doLoadTextDomain();
 
@@ -260,7 +259,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpDeactivatePlugin() {
-		if ( current_user_can( $this->getBasePermissions() ) && apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
+		if ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 			do_action( $this->prefix( 'delete_plugin' ) );
 			$this->deletePluginControllerOptions();
 		}
@@ -277,7 +276,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function doRegisterHooks() {
 		$this->registerActivationHooks();
 
-		add_action( 'init', array( $this, 'onWpInit' ), 0 );
+		add_action( 'init', array( $this, 'onWpInit' ), -1000 );
 		add_action( 'admin_init', array( $this, 'onWpAdminInit' ) );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 
@@ -337,8 +336,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpInit() {
+		$this->getMeetsBasePermissions();
 		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueFrontendCss' ), 99 );
-		$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
 	}
 
 	/**
@@ -364,32 +363,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function displayDashboardWidget() {
 		$aContent = apply_filters( $this->prefix( 'dashboard_widget_content' ), array() );
 		echo implode( '', $aContent );
-	}
-
-	/**
-	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
-	 * so we removed the "current_user_can()" or any such sub-call within this function
-	 * @return bool
-	 */
-	public function getHasPermissionToManage() {
-		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {
-			return true;
-		}
-		return ( $this->getMeetsBasePermissions() && apply_filters( $this->prefix( 'has_permission_to_manage' ), true ) );
-	}
-
-	/**
-	 * Must be simple and cannot contain anything that would call filter "user_has_cap", e.g. current_user_can()
-	 * @return boolean
-	 */
-	public function getMeetsBasePermissions() {
-		return (bool)$this->bMeetsBasePermissions;
-	}
-
-	/**
-	 */
-	public function getHasPermissionToView() {
-		return $this->getHasPermissionToManage(); // TODO: separate view vs manage
 	}
 
 	/**
@@ -1098,9 +1071,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @param bool $bCheckUserPerms - do we check the logged-in user permissions
 	 * @return bool
 	 */
-	public function isValidAdminArea( $bCheckUserPerms = true ) {
-		if ( $bCheckUserPerms && $this->loadWpTrack()->getWpActionHasFired( 'init' )
-			 && !$this->getMeetsBasePermissions() ) {
+	public function isValidAdminArea( $bCheckUserPerms = false ) {
+		if ( $bCheckUserPerms && did_action( 'init' ) && !$this->isPluginAdmin() ) {
 			return false;
 		}
 
@@ -1112,6 +1084,29 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * only ever consider after WP INIT (when a logged-in user is recognised)
+	 * @return bool
+	 */
+	public function isPluginAdmin() {
+		return apply_filters( $this->prefix( 'bypass_is_plugin_admin' ), false )
+			   || ( $this->getMeetsBasePermissions() // takes care of did_action('init)
+					&& apply_filters( $this->prefix( 'is_plugin_admin' ), true )
+			   );
+	}
+
+	/**
+	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
+	 * current_user_can() never gets caught up in an infinite loop of permissions checking
+	 * @return boolean
+	 */
+	public function getMeetsBasePermissions() {
+		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
+			$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
+		}
+		return isset( $this->bMeetsBasePermissions ) ? $this->bMeetsBasePermissions : false;
 	}
 
 	/**
@@ -1312,7 +1307,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Assets( $sAsset = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'assets' ).DIRECTORY_SEPARATOR.$sAsset;
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'assets' ) );
+		return empty( $sAsset ) ? $sBase : path_join( $sBase, $sAsset );
 	}
 
 	/**
@@ -1320,7 +1316,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Flags( $sFlag = '' ) {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'flags' ).DIRECTORY_SEPARATOR.$sFlag;
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'flags' ) );
+		return empty( $sFlag ) ? $sBase : path_join( $sBase, $sFlag );
 	}
 
 	/**
@@ -1328,12 +1325,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
+		$sTempPath = null;
 		$oFs = $this->loadFS();
-		$sTempPath = $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR;
-		if ( $oFs->mkdir( $sTempPath ) ) {
-			return $this->getRootDir().$this->getPluginSpec_Path( 'temp' ).DIRECTORY_SEPARATOR.$sTmpFile;
+
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'temp' ) );
+		if ( $oFs->mkdir( $sBase ) ) {
+			$sTempPath = $sBase;
 		}
-		return null;
+		return empty( $sTmpFile ) ? $sTempPath : path_join( $sTempPath, $sTmpFile );
 	}
 
 	/**
@@ -1361,43 +1360,18 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getPath_Config() {
-		return $this->getPath_Source().'config/';
-	}
-
-	/**
 	 * @param string $sSlug
 	 * @return string
 	 */
 	public function getPath_ConfigFile( $sSlug ) {
-		return $this->getPath_Config().sprintf( 'feature-%s.php', $sSlug );
+		return $this->getPath_SourceFile( sprintf( 'config/feature-%s.php', $sSlug ) );
 	}
 
 	/**
-	 * get the root directory for the plugin with the trailing slash
 	 * @return string
 	 */
 	public function getPath_Languages() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'languages' ).DIRECTORY_SEPARATOR;
-	}
-
-	/**
-	 * get the root directory for the plugin with the trailing slash
-	 * @return string
-	 */
-	public function getPath_Source() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'source' ).DIRECTORY_SEPARATOR;
-	}
-
-	/**
-	 * Get the directory for the plugin source files with the trailing slash
-	 * @param string $sSourceFile
-	 * @return string
-	 */
-	public function getPath_SourceFile( $sSourceFile = '' ) {
-		return $this->getPath_Source().$sSourceFile;
+		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'languages' ) ).'/';
 	}
 
 	/**
@@ -1406,14 +1380,24 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_LibFile( $sLibFile = '' ) {
-		return $this->getPath_Source().'lib/'.$sLibFile;
+		return $this->getPath_SourceFile( 'lib/'.$sLibFile );
+	}
+
+	/**
+	 * Get the directory for the plugin source files with the trailing slash
+	 * @param string $sSourceFile
+	 * @return string
+	 */
+	public function getPath_SourceFile( $sSourceFile = '' ) {
+		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'source' ) ).'/';
+		return empty( $sSourceFile ) ? $sBase : path_join( $sBase, $sSourceFile );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getPath_Templates() {
-		return $this->getRootDir().$this->getPluginSpec_Path( 'templates' ).DIRECTORY_SEPARATOR;
+		return path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'templates' ) ).'/';
 	}
 
 	/**
@@ -1421,14 +1405,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPath_TemplatesFile( $sTemplate ) {
-		return $this->getPath_Templates().$sTemplate;
+		return path_join( $this->getPath_Templates(), $sTemplate );
 	}
 
 	/**
 	 * @return string
 	 */
 	private function getPathPluginSpec() {
-		return $this->getRootDir().'plugin-spec.php';
+		return path_join( $this->getRootDir(), 'plugin-spec.php' );
 	}
 
 	/**
@@ -1551,9 +1535,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function saveCurrentPluginControllerOptions() {
 		$oOptions = $this->getPluginControllerOptions();
 		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
-			add_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true' );
+			add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 			$this->loadWp()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
-			remove_filter( $this->prefix( 'bypass_permission_to_manage' ), '__return_true' );
+			remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 		}
 	}
 
@@ -1585,7 +1569,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function deactivateSelf() {
-		if ( $this->isValidAdminArea() && function_exists( 'deactivate_plugins' ) ) {
+		if ( $this->isPluginAdmin() && function_exists( 'deactivate_plugins' ) ) {
 			deactivate_plugins( $this->getPluginBaseFile() );
 		}
 	}
@@ -1892,5 +1876,18 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
 		}
 		return $aResult;
+	}
+
+	/**
+	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
+	 * so we removed the "current_user_can()" or any such sub-call within this function
+	 * @deprecated v6.10.7
+	 * @return bool
+	 */
+	public function getHasPermissionToManage() {
+		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {
+			return true;
+		}
+		return ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'is_plugin_admin' ), true ) );
 	}
 }

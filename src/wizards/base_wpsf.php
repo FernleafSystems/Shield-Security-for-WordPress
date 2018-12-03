@@ -18,7 +18,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 	protected function getUserCanSlide( $sSlide ) {
 		$aSlide = $this->getStepsDefinition()[ $sSlide ];
 		$bRestricted = !isset( $aSlide[ 'security_admin' ] ) || $aSlide[ 'security_admin' ];
-		return !$bRestricted || $this->getPluginCon()->getHasPermissionToManage();
+		return !$bRestricted || $this->getPluginCon()->isPluginAdmin();
 	}
 
 	/**

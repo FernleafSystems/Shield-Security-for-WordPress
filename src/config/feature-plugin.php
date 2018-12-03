@@ -377,19 +377,19 @@
       "transferable": false,
       "sensitive":    true,
       "section":      "section_non_ui",
-      "value":        ""
+      "default":      ""
     },
     {
       "key":          "this_server_ip_last_check_at",
       "transferable": false,
       "section":      "section_non_ui",
-      "value":        0
+      "default":      0
     },
     {
       "key":          "insights_test_cron_last_run_at",
       "transferable": false,
       "section":      "section_non_ui",
-      "value":        0
+      "default":      0
     }
   ],
   "definitions":   {

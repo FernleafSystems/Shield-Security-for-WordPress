@@ -316,9 +316,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @param string $sPlugin
 	 */
 	public function onWpHookDeactivatePlugin( $sPlugin ) {
-		$oCon = self::getConn();
+		$oCon = $this->getConn();
 		if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
-			if ( !$oCon->getHasPermissionToManage() ) {
+			if ( !$oCon->isPluginAdmin() ) {
 				$this->loadWp()->wpDie(
 					_wpsf__( 'Sorry, you do not have permission to disable this plugin.' )
 					.' '._wpsf__( 'You need to authenticate first.' )
@@ -385,10 +385,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function doPrePluginOptionsSave() {
 
-		$nInstalledAt = $this->getPluginInstallationTime();
-		if ( empty( $nInstalledAt ) || $nInstalledAt <= 0 ) {
-			$this->setOpt( 'installation_time', $this->loadRequest()->ts() );
-		}
+		$this->storeRealInstallDate();
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
 			$this->setOpt( 'tracking_permission_set_at', $this->loadRequest()->ts() );
@@ -401,6 +398,46 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->cleanImportExportMasterImportUrl();
 
 		$this->setPluginInstallationId();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getFirstInstallDate() {
+		return $this->loadWp()->getOption( $this->prefixOptionKey( 'install_date' ) );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getInstallDate() {
+		return $this->getOpt( 'installation_time', 0 );
+	}
+
+	/**
+	 * @return int - the real install timestamp
+	 */
+	public function storeRealInstallDate() {
+		$oWP = $this->loadWp();
+		$nNow = $this->loadRequest()->ts();
+
+		$sOptKey = $this->prefixOptionKey( 'install_date' );
+
+		$nWpDate = $oWP->getOption( $sOptKey );
+		if ( empty( $nWpDate ) ) {
+			$nWpDate = $nNow;
+		}
+
+		$nPluginDate = $this->getInstallDate();
+		if ( $nPluginDate == 0 ) {
+			$nPluginDate = $nNow;
+		}
+
+		$nFinal = min( $nPluginDate, $nWpDate );
+		$oWP->updateOption( $sOptKey, $nFinal );
+		$this->setOpt( 'installation_time', $nPluginDate );
+
+		return $nFinal;
 	}
 
 	/**
@@ -451,7 +488,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function genInstallId() {
 		return sha1(
-			$this->getPluginInstallationTime()
+			$this->getInstallDate()
 			.$this->loadWp()->getWpUrl()
 			.$this->loadDbProcessor()->getPrefix()
 		);
@@ -720,9 +757,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function updateTestCronLastRunAt() {
-		$this->setOptInsightsAt( 'test_cron_last_run_at' )
-			 ->savePluginOptions();
-		return $this;
+		return $this->setOptInsightsAt( 'test_cron_last_run_at' );
 	}
 
 	/**
@@ -837,13 +872,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
+		$sPlugName = $this->getConn()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'global_enable_plugin_features' :
 				$sName = _wpsf__( 'Enable/Disable Plugin Modules' );
 				$sSummary = _wpsf__( 'Enable/Disable All Plugin Modules' );
-				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), self::getConn()
-																										   ->getHumanName() );
+				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), $sPlugName );
 				break;
 
 			case 'enable_notes' :

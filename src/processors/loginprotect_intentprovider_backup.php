@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 			'has_validated_profile'            => $bValidatedProfile,
 			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
 			'is_my_user_profile'               => ( $oUser->ID == $this->loadWpUsers()->getCurrentWpUserId() ),
-			'i_am_valid_admin'                 => $oCon->getHasPermissionToManage(),
+			'i_am_valid_admin'                 => $oCon->isPluginAdmin(),
 			'user_to_edit_is_admin'            => $this->loadWpUsers()->isUserAdmin( $oUser ),
 			'strings'                          => array(
 				'button_gen_code'       => _wpsf__( 'Generate ONE-Time Backup 2FA Login Code' ),

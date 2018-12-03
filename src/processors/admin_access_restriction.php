@@ -17,24 +17,36 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 
-		add_filter( $oFO->prefix( 'has_permission_to_manage' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
-		add_filter( $oFO->prefix( 'has_permission_to_view' ), array( $oFO, 'doCheckHasPermissionToSubmit' ) );
-
-		if ( !$oFO->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
-			add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
-		}
+		add_filter( $oFO->prefix( 'is_plugin_admin' ), array( $this, 'adjustUserAdminPermissions' ) );
 
 		if ( $oFO->isWlEnabled() ) {
 			$this->runWhiteLabel();
 		}
 	}
 
+	/**
+	 * @param bool $bHasPermission
+	 * @return bool
+	 */
+	public function adjustUserAdminPermissions( $bHasPermission = true ) {
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		$oFO = $this->getMod();
+		return $bHasPermission &&
+			   ( $oFO->isRegisteredSecAdminUser() || $oFO->isSecAdminSessionValid()
+				 || $oFO->checkAdminAccessKeySubmission() );
+	}
+
 	public function onWpInit() {
 		parent::onWpInit();
 
-		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->isSecurityAdmin() ) {
+		$oCon = $this->getController();
+		if ( !$oCon->isPluginAdmin() ) {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 			$oFO = $this->getMod();
+
+			if ( !$oFO->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
+				add_filter( 'pre_update_option', array( $this, 'blockOptionsSaves' ), 1, 3 );
+			}
 
 			if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
 				add_filter( 'editable_roles', array( $this, 'restrictEditableRoles' ), 100, 1 );
@@ -105,13 +117,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				= empty( $aData[ $sSlug ][ 'options' ][ $sKeyToBoolean ] ) ? 0 : 1;
 		}
 		return $aData;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isSecurityAdmin() {
-		return self::getController()->getHasPermissionToManage();
 	}
 
 	/**
@@ -276,7 +281,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		if ( $oFO->doCheckHasPermissionToSubmit() ) {
+		if ( $oFO->getConn()->isPluginAdmin() ) {
 			return;
 		}
 
@@ -312,7 +317,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @throws Exception
 	 */
 	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
-		if ( $this->isSecurityAdmin() ) {
+		$oCon = $this->getController();
+		if ( $oCon->isPluginAdmin() ) {
 			return;
 		}
 
@@ -324,7 +330,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			return;
 		}
 
-		$sName = $this->getController()->getHumanName();
+		$sName = $oCon->getHumanName();
 		$aRenderData = array(
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => array(
@@ -357,8 +363,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * Right before a plugin option is due to update it will check that we have permissions to do so and if not, will
-	 * revert the option to save to the previous one.
+	 * Need to always re-test isPluginAdmin() because there's a dynamic filter in there to
+	 * permit saving by the plugin itself.
+	 *
+	 * Right before a plugin option is due to update it will check that we have permissions to do so
+	 * and if not, will * revert the option to save to the previous one.
 	 * @param mixed  $mNewOptionValue
 	 * @param string $sOptionKey
 	 * @param mixed  $mOldValue
@@ -366,17 +375,13 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
 
-		$bSavingIsPermitted = true;
-
-		if ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) {
-			$bSavingIsPermitted = $this->isSecurityAdmin();
-
-			if ( !$bSavingIsPermitted ) {
-				$this->doStatIncrement( 'option.save.blocked' );
-			}
+		if ( !$this->getController()->isPluginAdmin()
+			 && ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) ) {
+			$this->doStatIncrement( 'option.save.blocked' );
+			$mNewOptionValue = $mOldValue;
 		}
 
-		return $bSavingIsPermitted ? $mNewOptionValue : $mOldValue;
+		return $mNewOptionValue;
 	}
 
 	/**
@@ -447,8 +452,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function disableThemeManipulation( $aAllCaps, $cap, $aArgs ) {
 		// If we're registered with Admin Access we don't modify anything
-		$bHasAdminAccess = self::getController()->getHasPermissionToManage();
-		if ( $bHasAdminAccess ) {
+		if ( $this->getController()->isPluginAdmin() ) {
 			return $aAllCaps;
 		}
 
@@ -482,9 +486,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function disablePostsManipulation( $aAllCaps, $cap, $aArgs ) {
-		// If we're registered with Admin Access we don't modify anything
-		$bHasAdminAccess = self::getController()->getHasPermissionToManage();
-		if ( $bHasAdminAccess ) {
+		if ( $this->getController()->isPluginAdmin() ) {
 			return $aAllCaps;
 		}
 
@@ -571,5 +573,13 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			_wpsf__( 'Security Admin Login' ),
 			$sLinkText
 		);
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	protected function isSecurityAdmin() {
+		return $this->getController()->isPluginAdmin();
 	}
 }

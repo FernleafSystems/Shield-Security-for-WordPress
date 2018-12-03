@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 
 			case 'license_check':
 				if ( !wp_next_scheduled( $oFO->prefix( 'adhoc_cron_license_check' ) ) ) {
-					wp_schedule_single_event( $oReq->ts() + 12, $oFO->prefix( 'adhoc_cron_license_check' ), array( true ) );
+					wp_schedule_single_event( $oReq->ts() + 20, $oFO->prefix( 'adhoc_cron_license_check' ), array( true ) );
 				}
 				break;
 		}

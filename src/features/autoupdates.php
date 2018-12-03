@@ -180,6 +180,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
+		$sPlugName = $this->getConn()->getHumanName();
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_automatic_updates_control' :
@@ -203,8 +204,10 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_automatic_plugin_self_update' :
 				$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
 				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), self::getConn()
-																																									->getHumanName() ) ),
+					sprintf( '%s - %s',
+						_wpsf__( 'Purpose' ),
+						sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), $sPlugName )
+					),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this option turned on.' ) )
 				);
 				$sTitleShort = _wpsf__( 'Self-Update' );

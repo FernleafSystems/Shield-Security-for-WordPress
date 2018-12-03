@@ -52,41 +52,7 @@
       "section":      "section_non_ui"
     },
     {
-      "key":          "license_last_request_at",
-      "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
-    },
-    {
-      "key":          "license_verified_at",
-      "sensitive":    true,
-      "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
-    },
-    {
-      "key":          "license_expires_at",
-      "sensitive":    true,
-      "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
-    },
-    {
-      "key":          "license_official_status",
-      "sensitive":    true,
-      "transferable": false,
-      "default":      "",
-      "section":      "section_non_ui"
-    },
-    {
       "key":          "license_deactivated_reason",
-      "transferable": false,
-      "default":      "",
-      "section":      "section_non_ui"
-    },
-    {
-      "key":          "license_registered_email",
-      "sensitive":    true,
       "transferable": false,
       "default":      "",
       "section":      "section_non_ui"
@@ -101,13 +67,6 @@
       "key":          "last_deactivated_email_sent_at",
       "transferable": false,
       "default":      0,
-      "section":      "section_non_ui"
-    },
-    {
-      "key":          "is_shield_central",
-      "sensitive":    true,
-      "transferable": false,
-      "default":      false,
       "section":      "section_non_ui"
     },
     {

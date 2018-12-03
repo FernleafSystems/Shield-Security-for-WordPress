@@ -56,21 +56,18 @@ class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 	 */
 	public function onWpPluginActionLinks( $aActionLinks, $sPluginFile ) {
 		$oCon = $this->getController();
-		if ( !$oCon->isValidAdminArea() ) {
-			return $aActionLinks;
-		}
 
-		if ( $sPluginFile == $oCon->getPluginBaseFile() ) {
-			if ( !$oCon->getHasPermissionToManage() ) {
+		if ( $oCon->isValidAdminArea() && !$oCon->isPluginAdmin()
+			 && $sPluginFile == $oCon->getPluginBaseFile() ) {
 
-				if ( array_key_exists( 'edit', $aActionLinks ) ) {
-					unset( $aActionLinks[ 'edit' ] );
-				}
-				if ( array_key_exists( 'deactivate', $aActionLinks ) ) {
-					unset( $aActionLinks[ 'deactivate' ] );
-				}
+			if ( array_key_exists( 'edit', $aActionLinks ) ) {
+				unset( $aActionLinks[ 'edit' ] );
+			}
+			if ( array_key_exists( 'deactivate', $aActionLinks ) ) {
+				unset( $aActionLinks[ 'deactivate' ] );
 			}
 		}
+
 		return $aActionLinks;
 	}
 }

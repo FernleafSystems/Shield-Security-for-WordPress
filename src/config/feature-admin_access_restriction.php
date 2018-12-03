@@ -97,6 +97,19 @@
       "description": "Careful: If you forget this, you could potentially lock yourself out from using this plugin."
     },
     {
+      "key":         "sec_admin_users",
+      "section":     "section_admin_access_restriction_settings",
+      "sensitive":   true,
+      "premium":     true,
+      "default":     "",
+      "type":        "array",
+      "link_info":   "https://icwp.io/dk",
+      "link_blog":   "",
+      "name":        "Security Admins",
+      "summary":     "Persistent Security Admins",
+      "description": "All emails, usernames, or user IDs entered here will always be Security Admins."
+    },
+    {
       "key":         "admin_access_timeout",
       "section":     "section_admin_access_restriction_settings",
       "default":     30,

@@ -203,7 +203,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			'user_has_email_authentication_active'   => $bValidatedProfile,
 			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
 			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
-			'i_am_valid_admin'                       => $this->getController()->isValidAdminArea( true ),
+			'i_am_valid_admin'                       => $this->getController()->isPluginAdmin(),
 			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
 			'strings'                                => array(
 				'label_email_authentication'                => _wpsf__( 'Email Authentication' ),

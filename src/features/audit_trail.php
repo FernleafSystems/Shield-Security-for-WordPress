@@ -331,8 +331,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @throws Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
-
-		$oCon = self::getConn();
+		$oCon = $this->getConn();
 
 		$sKey = $aOptionsParams[ 'key' ];
 		switch ( $sKey ) {

@@ -147,7 +147,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 */
 	public function dumpTrackingData() {
-		if ( $this->getController()->isValidAdminArea() ) {
+		if ( $this->getController()->isPluginAdmin() ) {
 			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
 																	  ->collectTrackingData(), true ) );
 			die();
@@ -160,18 +160,16 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 
-		if ( !$this->getController()->isValidAdminArea() ) {
-			return;
+		if ( $oFO->getConn()->isValidAdminArea() ) {
+			$aRenderData = array(
+				'strings'     => array(
+					'tracking_data' => print_r( $this->getTrackingProcessor()->collectTrackingData(), true ),
+				),
+				'js_snippets' => array()
+			);
+			add_thickbox();
+			echo $oFO->renderTemplate( 'snippets/plugin_tracking_data_dump.php', $aRenderData );
 		}
-
-		$aRenderData = array(
-			'strings'     => array(
-				'tracking_data' => print_r( $this->getTrackingProcessor()->collectTrackingData(), true ),
-			),
-			'js_snippets' => array()
-		);
-		add_thickbox();
-		echo $oFO->renderTemplate( 'snippets/plugin_tracking_data_dump.php', $aRenderData );
 	}
 
 	protected function setupTestCron() {
