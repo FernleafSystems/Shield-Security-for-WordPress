@@ -10,9 +10,7 @@ class AuditTrail extends Base {
 	 */
 	public function column_actions( $aItem ) {
 		$sContent = '';
-
-		$aData = $aItem[ 'data' ];
-		if ( isset( $aData[ 'param' ] ) ) {
+		if ( isset( $aItem[ 'meta' ][ 'param' ] ) ) {
 			$sContent = $this->getActionButton_AddParam( $aItem[ 'id' ] );
 		}
 

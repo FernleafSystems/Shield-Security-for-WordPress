@@ -7,13 +7,17 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 /**
  * Class BaseEntryVO
  *
- * @property int created_at
- * @property int deleted_at
- * @property int id
+ * @property array meta
+ * @property int   created_at
+ * @property int   deleted_at
+ * @property int   id
  */
 class EntryVO {
 
-	use StdClassAdapter;
+	use StdClassAdapter {
+		__get as __adapterGet;
+		__set as __adapterSet;
+	}
 
 	/**
 	 * @param array $aRow
@@ -23,9 +27,69 @@ class EntryVO {
 	}
 
 	/**
+	 * @param string $sProperty
+	 * @return mixed
+	 */
+	public function __get( $sProperty ) {
+
+		switch ( $sProperty ) {
+
+			case 'meta':
+				$mVal = $this->__adapterGet( $sProperty );
+				if ( is_string( $mVal ) ) {
+					$mVal = base64_decode( $mVal );
+					if ( !empty( $mVal ) ) {
+						$mVal = @json_decode( $mVal, true );
+					}
+				}
+
+				if ( !is_array( $mVal ) ) {
+					$mVal = array();
+				}
+				break;
+
+			default:
+				$mVal = $this->__adapterGet( $sProperty );
+				break;
+		}
+
+		return $mVal;
+	}
+
+	/**
+	 * @param string $sProperty
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	public function __set( $sProperty, $mValue ) {
+
+		switch ( $sProperty ) {
+
+			case 'meta':
+				if ( !is_array( $mValue ) ) {
+					$mValue = array();
+				}
+				$mValue = base64_encode( json_encode( $mValue ) );
+				break;
+
+			default:
+				break;
+		}
+
+		return $this->__adapterSet( $sProperty, $mValue );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getCreatedAt() {
+		return (int)$this->created_at;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getMeta() {
 		return (int)$this->created_at;
 	}
 

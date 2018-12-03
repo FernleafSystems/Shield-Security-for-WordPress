@@ -22,25 +22,6 @@ class EntryVO extends Base\EntryVO {
 	 * @return array
 	 */
 	public function getAuditData() {
-		$aData = array();
-		if ( is_string( $this->data ) ) {
-			$sData = base64_decode( $this->data, true );
-			if ( !empty( $sData ) ) {
-				$aData = @json_decode( $sData, true );
-			}
-		}
-		return is_array( $aData ) ? $aData : [];
-	}
-
-	/**
-	 * @param array $aData
-	 * @return $this
-	 */
-	public function setAuditData( $aData ) {
-		if ( !is_array( $aData ) ) {
-			$aData = array();
-		}
-		$this->data = base64_encode( json_encode( $aData ) );
-		return $this;
+		return $this->meta;
 	}
 }

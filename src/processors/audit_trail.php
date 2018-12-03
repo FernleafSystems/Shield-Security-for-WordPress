@@ -176,7 +176,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 			event varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Specific Audit Event',
 			category int(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Severity',
 			message text COMMENT 'Audit Event Description',
-			data text COMMENT 'Audit Event Data',
+			meta text COMMENT 'Audit Event Data',
 			immutable tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'May Be Deleted',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,

@@ -15,7 +15,8 @@ class Insert extends BaseQuery {
 	 * @return array
 	 */
 	public function getInsertData() {
-		return is_array( $this->aInsertData ) ? $this->aInsertData : array();
+		$aD = is_array( $this->aInsertData ) ? $this->aInsertData : array();
+		return array_intersect_key( $aD, array_flip( $this->getDbH()->getColumnsActual() ) );
 	}
 
 	/**
@@ -27,11 +28,15 @@ class Insert extends BaseQuery {
 	}
 
 	/**
+	 * Verifies insert data keys against actual table columns
 	 * @param array $aData
 	 * @return $this
 	 */
 	protected function setInsertData( $aData ) {
-		$this->aInsertData = $aData;
+		if ( !is_array( $aData ) ) {
+			$aData = array();
+		}
+		$this->aInsertData = array_intersect_key( $aData, array_flip( $this->getDbH()->getColumnsActual() ) );
 		return $this;
 	}
 

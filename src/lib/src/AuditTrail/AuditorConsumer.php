@@ -40,7 +40,7 @@ trait AuditorConsumer {
 		$oEntry->message = $sMsg;
 		$oEntry->category = $nCategory;
 		$oEntry->event = $sEvent;
-		$oEntry->setAuditData( $aEventData );
+		$oEntry->meta = $aEventData;
 		if ( Services::WpGeneral()->getIsCron() ) {
 			$oEntry->wp_username = 'WP Cron';
 		}

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 /**
  * Class EntryVO
  * @property string hash
- * @property array  data
+ * @property array  meta
  * @property string scan
  * @property int    severity
  * @property int    discovered_at
@@ -15,44 +15,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property int    notified_at
  */
 class EntryVO extends Base\EntryVO {
-
-	/**
-	 * @param string $sKey
-	 * @return mixed
-	 */
-	public function __get( $sKey ) {
-		$mVal = parent::__get( $sKey );
-
-		switch ( $sKey ) {
-			case 'data':
-				if ( is_string( $mVal ) && strpos( $mVal, '{' ) === 0 ) {
-					$mVal = json_decode( $mVal, true );
-				}
-				break;
-			default:
-				break;
-		}
-
-		return $mVal;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @param mixed  $mValue
-	 * @return $this
-	 */
-	public function __set( $sKey, $mValue ) {
-		switch ( $sKey ) {
-			case 'data':
-				if ( !is_string( $mValue ) || strpos( $mValue, '{' ) === false ) {
-					$mValue = json_encode( $mValue );
-				}
-				break;
-			default:
-				break;
-		}
-
-		parent::__set( $sKey, $mValue );
-		return $this;
-	}
 }

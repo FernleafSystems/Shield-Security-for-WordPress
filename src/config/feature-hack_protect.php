@@ -477,7 +477,7 @@
     "table_columns_scanner":                [
       "id",
       "hash",
-      "data",
+      "meta",
       "scan",
       "severity",
       "ignored_at",

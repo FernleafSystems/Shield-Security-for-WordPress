@@ -67,7 +67,7 @@ class AuditTrail extends BaseBuild {
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\AuditTrail\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'data' ] = $oEntry->getAuditData();
+			$aE[ 'meta' ] = $oEntry->meta;
 			$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
 			$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->message ) );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );

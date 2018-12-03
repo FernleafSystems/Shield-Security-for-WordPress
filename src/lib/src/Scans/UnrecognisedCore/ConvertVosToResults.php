@@ -28,6 +28,6 @@ class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 	 * @return ResultItem
 	 */
 	public function convertItem( $oVo ) {
-		return ( new ResultItem() )->applyFromArray( $oVo->data );
+		return ( new ResultItem() )->applyFromArray( $oVo->meta );
 	}
 }

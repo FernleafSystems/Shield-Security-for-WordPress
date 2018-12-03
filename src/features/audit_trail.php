@@ -62,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$sMessage = _wpsf__( 'Audit entry could not be loaded.' );
 			}
 			else {
-				$aData = $oEntry->getAuditData();
+				$aData = $oEntry->meta;
 				$sParam = isset( $aData[ 'param' ] ) ? $aData[ 'param' ] : '';
 				$sUri = isset( $aData[ 'uri' ] ) ? $aData[ 'uri' ] : '*';
 				if ( empty( $sParam ) ) {
