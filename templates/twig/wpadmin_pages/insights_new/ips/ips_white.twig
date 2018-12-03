@@ -1,15 +1,11 @@
 {% block section_table %}
 	<div class="row insights_widget" id="SectionIpsWhite">
-		{% block section_form_addip %}
-			<div class="col-12">
-			</div>
-		{% endblock %}
 		<div class="col-12">
 
 			<div class="card">
 				<div class="card-header">
 					<h5 class="card-title">{{ strings.title_whitelist }}</h5>
-					<h6 class="card-subtitle mb-2 text-muted">{{ strings.summary_whitelist }}</h6>
+					<h6 class="card-subtitle text-muted">{{ strings.summary_whitelist }}</h6>
 				</div>
 				<div class="card-body">
 					<form class="form-inline m-0 add-ip" id="NewWhiteIp" action="#" method="post" autocomplete="off">
