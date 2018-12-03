@@ -9,14 +9,24 @@ class Update extends Base\Update {
 
 	/**
 	 * Also updates last access at
+	 * @param int     $nIncrement
 	 * @param EntryVO $oIp
 	 * @return bool
 	 */
-	public function incrementTransgressions( $oIp ) {
+	public function incrementTransgressions( $oIp, $nIncrement = 1 ) {
+		return $this->updateTransgressions( $oIp, $oIp->getTransgressions() + $nIncrement );
+	}
+
+	/**
+	 * @param EntryVO $oIp
+	 * @param int     $nTransCount
+	 * @return bool
+	 */
+	public function updateTransgressions( $oIp, $nTransCount ) {
 		return $this->updateEntry(
 			$oIp,
 			array(
-				'transgressions' => $oIp->getTransgressions() + 1,
+				'transgressions' => max( 0, $nTransCount ),
 				'last_access_at' => Services::Request()->ts()
 			)
 		);

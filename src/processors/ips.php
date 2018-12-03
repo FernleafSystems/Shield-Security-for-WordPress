@@ -582,10 +582,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function cleanupDatabase() {
 		if ( $this->getDbHandler()->isTable() ) {
 			/** @var IPs\Delete $oDel */
-			$this->getDbHandler()
-				 ->getQueryDeleter()
-				 ->addWhere( 'list', self::LIST_AUTO_BLACK )
-				 ->addWhereOlderThan( $this->time() - $this->getAutoExpirePeriod(), 'last_access_at' )
+			$oDel = $this->getDbHandler()->getQueryDeleter();
+			$oDel->filterByLists( [ self::LIST_AUTO_BLACK, self::LIST_MANUAL_BLACK ] )
+				 ->filterByLastAccessBefore( $this->time() - $this->getAutoExpirePeriod() )
 				 ->query();
 		}
 		return true;

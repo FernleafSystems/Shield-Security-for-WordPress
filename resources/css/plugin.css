@@ -1015,8 +1015,12 @@ th.column-is_secadmin {
 }
 /** End Sessions Table **/
 /** IPS Insights **/
-#NewIp button.add {
-	padding: 9px 8px 3px 8px;
+form.add-ip button.add {
+	padding: 5px 6px;
+	vertical-align: text-bottom;
+}
+form.add-ip button.add .dashicons {
+	vertical-align: inherit;
 }
 th.column-actions,
 td.column-actions {

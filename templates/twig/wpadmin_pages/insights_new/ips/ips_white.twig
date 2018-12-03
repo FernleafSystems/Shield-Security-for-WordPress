@@ -12,7 +12,7 @@
 					<h6 class="card-subtitle mb-2 text-muted">{{ strings.summary_whitelist }}</h6>
 				</div>
 				<div class="card-body">
-					<form class="form-inline m-0" id="NewIp" action="#" method="post" autocomplete="off">
+					<form class="form-inline m-0 add-ip" id="NewWhiteIp" action="#" method="post" autocomplete="off">
 						<input type="hidden" name="list" value="MW" />
 						<label class="sr-only" for="IpAddress">IpAddress</label>
 						<div class="input-group w-100">
@@ -44,7 +44,7 @@
 			{
 				'ajax_render':{{ ajax.render_table_ip|raw }},
 				'req_params': {
-					'fList': 'MW'
+					'fLists': [ 'MW' ]
 				}
 			}
 		);
@@ -54,7 +54,7 @@
 				'ajax_item_delete':{{ ajax.item_delete|raw }},
 				'ajax_item_insert':{{ ajax.item_insert|raw }},
 				'forms': {
-					'insert': jQuery( 'form#NewIp' )
+					'insert': jQuery( 'form#NewWhiteIp' )
 				}
 			}
 		);

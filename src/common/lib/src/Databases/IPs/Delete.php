@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Delete extends Base\Delete {
 
+	use CommonFilters;
+
 	/**
 	 * @param string $sIp
 	 * @param string $sList

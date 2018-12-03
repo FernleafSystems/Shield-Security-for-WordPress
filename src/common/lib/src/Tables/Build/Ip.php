@@ -18,7 +18,7 @@ class Ip extends BaseBuild {
 	protected function applyCustomQueryFilters() {
 		/** @var IPs\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
-		$oSelector->filterByList( $this->getParams()[ 'fList' ] );
+		$oSelector->filterByLists( $this->getParams()[ 'fLists' ] );
 		return $this;
 	}
 
@@ -28,7 +28,7 @@ class Ip extends BaseBuild {
 	 */
 	protected function getCustomParams() {
 		return array(
-			'fList' => '',
+			'fLists' => '',
 		);
 	}
 
@@ -59,8 +59,8 @@ class Ip extends BaseBuild {
 	 * @return Tables\Render\IpBlack|Tables\Render\IpWhite
 	 */
 	protected function getTableRenderer() {
-		$sList = $this->getParams()[ 'fList' ];
-		if ( empty( $sList ) || $sList == \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE ) {
+		$aLists = $this->getParams()[ 'fLists' ];
+		if ( empty( $aLists ) || in_array( \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE, $aLists ) ) {
 			$sTable = new Tables\Render\IpWhite();
 		}
 		else {

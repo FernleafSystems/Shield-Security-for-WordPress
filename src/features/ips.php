@@ -113,30 +113,49 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function ajaxExec_AddIp() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
+		$oIp = $this->loadIpService();
 
 		$aFormParams = $this->getAjaxFormParams();
 
 		$bSuccess = false;
+		$sMessage = _wpsf__( "IP address wasn't added to the list" );
+
 		$sIp = isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '';
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
+
+		$bIsBlackList = $sList == self::LIST_MANUAL_BLACK;
 		if ( empty( $sIp ) ) {
 			$sMessage = _wpsf__( "IP address not provided" );
 		}
 		else if ( empty( $sList ) ) {
 			$sMessage = _wpsf__( "IP list not provided" );
 		}
-		else if ( !$this->loadIpService()->isValidIp( $sIp ) ) {
+		else if ( !$oIp->isValidIp( $sIp ) ) {
 			$sMessage = _wpsf__( "IP address isn't valid" );
+		}
+		else if ( $oIp->checkIp( $sIp, $oIp->getRequestIp() ) && $bIsBlackList ) {
+			$sMessage = _wpsf__( "We don't support manually black listing your current IP address." );
+		}
+		else if ( !$this->isPremium() && $bIsBlackList ) {
+			$sMessage = _wpsf__( "Please upgrade to Pro if you'd like to add IPs to the black list manually." );
 		}
 		else {
 			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';
 			switch ( $sList ) {
+
 				case self::LIST_MANUAL_WHITE:
 					$oIp = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
 					break;
+
 				case self::LIST_MANUAL_BLACK:
 					$oIp = $oProcessor->addIpToBlackList( $sIp, $sLabel );
+					if ( !empty( $oIp ) ) {
+						/** @var Shield\Databases\IPs\Update $oUpd */
+						$oUpd = $oProcessor->getDbHandler()->getQueryUpdater();
+						$oUpd->updateTransgressions( $oIp, $this->getOptTransgressionLimit() );
+					}
 					break;
+
 				default:
 					$oIp = null;
 					break;
@@ -147,7 +166,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$bSuccess = true;
 			}
 			else {
-				$sMessage = _wpsf__( "IP address wasn't added to the list" );
 			}
 		}
 
@@ -163,6 +181,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function ajaxExec_BuildTableIps() {
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->getProcessor();
+
+		// First Clean
+		$oPro->cleanupDatabase();
+
 		$oTableBuilder = ( new Shield\Tables\Build\Ip() )
 			->setMod( $this )
 			->setDbHandler( $oPro->getDbHandler() );

@@ -57,14 +57,19 @@ abstract class BaseQuery {
 			return $this; // Exception?
 		}
 
-		$mValue = esc_sql( $mValue );
-
-		if ( strcasecmp( $sOperator, 'LIKE' ) === 0 ) {
-			$mValue = sprintf( '%%%s%%', $mValue );
+		if ( is_array( $mValue ) ) {
+			$mValue = array_map( 'esc_sql', $mValue );
+			$mValue = "('".implode( "','", $mValue )."')";
 		}
+		else {
+			$mValue = esc_sql( $mValue );
 
-		if ( is_string( $mValue ) ) {
-			$mValue = sprintf( "'%s'", $mValue );
+			if ( strcasecmp( $sOperator, 'LIKE' ) === 0 ) {
+				$mValue = sprintf( '%%%s%%', $mValue );
+			}
+			if ( is_string( $mValue ) ) {
+				$mValue = sprintf( "'%s'", $mValue );
+			}
 		}
 
 		$aWhere = $this->getWheres();
@@ -79,6 +84,18 @@ abstract class BaseQuery {
 	 */
 	public function addWhereEquals( $sColumn, $mValue ) {
 		return $this->addWhere( $sColumn, $mValue, '=' );
+	}
+
+	/**
+	 * @param string $sColumn
+	 * @param array  $aValues
+	 * @return $this
+	 */
+	public function addWhereIn( $sColumn, $aValues ) {
+		if ( !empty( $aValues ) && is_array( $aValues ) ) {
+			$this->addWhere( $sColumn, $aValues, 'IN' );
+		}
+		return $this;
 	}
 
 	/**
@@ -330,7 +347,7 @@ abstract class BaseQuery {
 	protected function isValidComparisonOperator( $sOp ) {
 		return in_array(
 			strtoupper( $sOp ),
-			array( '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'LIKE', 'NOT LIKE' )
+			array( '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' )
 		);
 	}
 }

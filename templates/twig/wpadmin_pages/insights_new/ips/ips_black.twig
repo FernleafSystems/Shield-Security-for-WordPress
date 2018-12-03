@@ -12,10 +12,42 @@
 					<h6 class="card-subtitle mb-2 text-muted">{{ strings.summary_blacklist }}</h6>
 				</div>
 				<div class="card-body">
+
+					<form class="form-inline m-0 add-ip" id="NewBlackIp" action="#" method="post" autocomplete="off">
+						<input type="hidden" name="list" value="MB" />
+						<label class="sr-only" for="IpAddress">IpAddress</label>
+						<div class="input-group w-100">
+							<div class="input-group-prepend">
+								<div class="input-group-text" style="border-radius: 0">New IP:</div>
+							</div>
+							<input type="text" class="form-control" id="IpAddress" name="ip"
+									{% if flags.can_blacklist %}
+										placeholder="enter IP to block"
+									{% else %}
+										readonly
+										placeholder="Manual IP Blocking Is A Pro Feature"
+									{% endif %}
+							/>
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-warning add" style="border-radius: 0;"
+										name="subbutt"
+										{% if flags.can_blacklist %}
+											title="Block IP"
+										{% else %}
+											disabled="disabled"
+											title="Manual IP Blocking Is A Pro Feature"
+										{% endif %}
+										title="Block IP"><span class="dashicons dashicons-plus"></span>
+									<span>Block IP</span></button>
+							</div>
+						</div>
+					</form>
+
 					<div id="TableIpsBlack"></div>
 				</div>
 				<div class="card-footer">
 					{{ strings.trans_limit|raw }}
+					<br/>{{ strings.auto_expire|raw }}
 				</div>
 			</div>
 		</div>
@@ -28,7 +60,7 @@
 			{
 				'ajax_render':{{ ajax.render_table_ip|raw }},
 				'req_params': {
-					'fList': 'AB'
+					'fLists': [ 'AB', 'MB' ]
 				}
 			}
 		);
@@ -38,7 +70,7 @@
 				'ajax_item_delete':{{ ajax.item_delete|raw }},
 				'ajax_item_insert':{{ ajax.item_insert|raw }},
 				'forms': {
-					'insert': jQuery( 'form#NewIp' )
+					'insert': jQuery( 'form#NewBlackIp' )
 				}
 			}
 		);

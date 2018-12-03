@@ -13,6 +13,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function displayModulePage( $aData = array() ) {
 		$oCon = $this->getConn();
+		$oReq = $this->loadRequest();
 		$aSecNotices = $this->getNotices();
 
 		$nNoticesCount = 0;
@@ -41,9 +42,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );
 
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFire */
-		$oFire = $oCon->getModule( 'firewall' );
-
 		/** @var ICWP_WPSF_Processor_Sessions $oProSessions */
 		$oProSessions = $oCon->getModule( 'sessions' )->getProcessor();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSessionSelect */
@@ -58,6 +56,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
 		$oModPlugin = $oCon->getModule( 'plugin' );
 
+		$oCarbon = new \Carbon\Carbon();
 		$nPluginName = $oCon->getHumanName();
 		switch ( $sSubNavSection ) {
 
@@ -94,12 +93,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'item_insert'     => $oIpMod->getAjaxActionData( 'ip_insert', true ),
 						'item_delete'     => $oIpMod->getAjaxActionData( 'ip_delete', true ),
 					),
-					'flags'   => array(),
+					'flags'   => array(
+						'can_blacklist' => false// $this->isPremium()
+					),
 					'strings' => array(
 						'trans_limit'       => sprintf(
 							'Transgressions required for IP block: %s',
 							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpMod->getOptTransgressionLimit() )
 						),
+						'auto_expire'       => sprintf(
+							'IP blocks expire after: %s',
+							sprintf( '<a href="%s" target="_blank">%s</a>',
+								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ), $oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 1 )
+																							 ->diffForHumans( null, true )
+							) ),
 						'title_whitelist'   => _wpsf__( 'IP Whitelist' ),
 						'title_blacklist'   => _wpsf__( 'IP Blacklist' ),
 						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),
@@ -608,8 +615,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
-				'val'     => $oSelect->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
-									 ->count(),
+				'val'     => $oSelect
+					->filterByLists(
+						[
+							ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+							ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+						]
+					)->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
 			//			'pro'            => array(

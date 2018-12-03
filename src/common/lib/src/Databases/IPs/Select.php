@@ -6,32 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 class Select extends Base\Select {
 
-	/**
-	 * @param string $sIp
-	 * @return $this
-	 */
-	public function filterByIp( $sIp ) {
-		return $this->addWhereEquals( 'ip', $sIp );
-	}
-
-	/**
-	 * @param string $nLastAccessAfter
-	 * @return $this
-	 */
-	public function filterByLastAccessAfter( $nLastAccessAfter ) {
-		return $this->addWhereNewerThan( $nLastAccessAfter, 'last_access_at' );
-	}
-
-	/**
-	 * @param string $sList
-	 * @return $this
-	 */
-	public function filterByList( $sList ) {
-		if ( !empty( $sList ) ) {
-			$this->addWhereEquals( 'list', $sList );
-		}
-		return $this;
-	}
+	use CommonFilters;
 
 	/**
 	 * @param string $sList
