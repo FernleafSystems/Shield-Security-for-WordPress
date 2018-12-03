@@ -8,6 +8,7 @@ if ( isset( $oICWP_Wpsf ) ) {
 }
 
 // By requiring this file here, we assume we wont need to require it anywhere else.
+require_once( __DIR__.'/src/common/icwp-foundation.php' );
 require_once( __DIR__.'/icwp-plugin-controller.php' );
 
 class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {

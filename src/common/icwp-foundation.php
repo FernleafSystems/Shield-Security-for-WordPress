@@ -208,18 +208,6 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpTrack
-	 */
-	static public function loadWpTrack() {
-		$sKey = 'wp-track';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
-			self::setService( $sKey, ICWP_WPSF_WpTrack::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 */
 	static public function loadFactory() {
 		self::requireCommonLib( 'icwp-factory.php' );
@@ -244,18 +232,6 @@ class ICWP_WPSF_Foundation {
 			$oR->setTemplateRoot( $sTemplatePath );
 		}
 		return ( clone $oR );
-	}
-
-	/**
-	 * @return ICWP_WPSF_YamlProcessor
-	 */
-	static public function loadYamlProcessor() {
-		$sKey = 'icwp-yaml';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
-			self::setService( $sKey, ICWP_WPSF_YamlProcessor::GetInstance() );
-		}
-		return self::getService( $sKey );
 	}
 
 	/**
@@ -310,7 +286,7 @@ class ICWP_WPSF_Foundation {
 	 * @param string $sFile
 	 */
 	static public function requireCommonLib( $sFile ) {
-		require_once( __DIR__.'/'.$sFile );
+		require_once( path_join( __DIR__, $sFile ) );
 	}
 
 	/**

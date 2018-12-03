@@ -72,7 +72,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
 					'title'   => 'Code Editor',
 					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
-					'href'    => $this->getUrl_AdminPage(),
+					'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'WP Plugin file editing should be disabled.' )
 				);

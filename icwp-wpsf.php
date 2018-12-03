@@ -35,10 +35,6 @@ if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
 	return;
 }
 
-if ( !defined( 'ICWP_DS' ) ) {
-	define( 'ICWP_DS', DIRECTORY_SEPARATOR );
-}
-
 if ( !function_exists( '_wpsf_e' ) ) {
 	function _wpsf_e( $sStr ) {
 		_e( $sStr, 'wp-simple-firewall' );
@@ -49,9 +45,6 @@ if ( !function_exists( '_wpsf__' ) ) {
 		return __( $sStr, 'wp-simple-firewall' );
 	}
 }
-
-// makes it available to the extension also.
-require_once( dirname( __FILE__ ).'/src/common/icwp-foundation.php' );
 
 add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 function icwp_wpsf_init() {
