@@ -17,7 +17,7 @@
     "enable_premium":          true
   },
   "requirements": {
-    "php":       "5.2.4",
+    "php":       "5.4.0",
     "wordpress": "3.5.0"
   },
   "paths":        {

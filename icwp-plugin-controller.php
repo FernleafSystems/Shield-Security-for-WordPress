@@ -56,11 +56,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	private $sPluginUrl;
-
-	/**
-	 * @var string
-	 */
 	private $sPluginBaseFile;
 
 	/**
@@ -175,7 +170,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		$sMinimumPhp = $this->getPluginSpec_Requirement( 'php' );
 		if ( !empty( $sMinimumPhp ) ) {
-			if ( version_compare( phpversion(), $sMinimumPhp, '<' ) ) {
+			if ( version_compare( $this->loadDP()->getPhpVersion(), $sMinimumPhp, '<' ) ) {
 				$aRequirementsMessages[] = sprintf( 'PHP does not meet minimum version. Your version: %s.  Required Version: %s.', PHP_VERSION, $sMinimumPhp );
 				$bMeetsRequirements = false;
 			}
@@ -249,7 +244,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRequirementsMessages() {
 		if ( !isset( $this->aRequirementsMessages ) ) {
-			$this->aRequirementsMessages = array();
+			$this->aRequirementsMessages = array(
+				'<h4>Shield Security Plugin - minimum site requirements are not met:</h4>'
+			);
 		}
 		return $this->aRequirementsMessages;
 	}
@@ -1258,10 +1255,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl( $sPath = '' ) {
-		if ( empty( $this->sPluginUrl ) ) {
-			$this->sPluginUrl = plugins_url( '/', $this->getRootFile() );
-		}
-		return add_query_arg( array( 'ver' => $this->getVersion() ), $this->sPluginUrl.$sPath );
+		return add_query_arg( array( 'ver' => $this->getVersion() ), plugins_url( $sPath, $this->getRootFile() ) );
 	}
 
 	/**

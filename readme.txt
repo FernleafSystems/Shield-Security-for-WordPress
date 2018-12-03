@@ -5,8 +5,8 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: security, all in one, scan, firewall, two factor authentication, spam, wordfence, cerber, ithemes
 Requires at least: 3.5.0
-Requires PHP: 5.2.4
-Recommended PHP: 5.4
+Requires PHP: 5.4.0
+Recommended PHP: 7.0
 Tested up to: 5.0
 Stable tag: 6.10.7
 
