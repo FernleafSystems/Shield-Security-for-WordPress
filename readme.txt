@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.2.4
 Recommended PHP: 5.4
 Tested up to: 5.0
-Stable tag: 6.10.5
+Stable tag: 6.10.7
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -354,16 +354,20 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 6.10.6 - Current Release =
-*Released: 21st November, 2018* - [Release Notes](https://icwp.io/dg)
+= 6.10.7 - Current Release =
+*Released: 27th November, 2018* - [Release Notes](https://icwp.io/dg)
 
-* **(v.6)**  ADDED:		New option to control plugin automatic updates.
-* **(v.6)**  IMPROVED:	Enhancements to the experimental bot JS.
-* **(v.6)**  IMPROVED:	Support for Easy Digital Downloads forms.
+* **(v.7)**  ADDED:		[**PRO**] New option to specify usernames for Security Admin role.
+* **(v.7)**  IMPROVED:	Idle user detection.
+* **(v.7)**  IMPROVED:	Support for redirect/cancel URLs in 2FA login page.
+* **(v.7)**  CHANGED:	Final release before Shield v7. Small warning shown on plugins page if PHP < 5.4
 
 = 6.10 - Series =
 *Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 
+* **(v.6)**  ADDED:		New option to control plugin automatic updates.
+* **(v.6)**  IMPROVED:	Enhancements to the experimental bot JS.
+* **(v.6)**  IMPROVED:	Support for Easy Digital Downloads forms.
 * **(v.5)**  Release skipped.
 * **(v.4)**  FIXED:		Couldn't deactivate plugin.
 * **(v.3)**  ADDED:		Support for Ultimate Member forms
