@@ -10,9 +10,9 @@
 				<div class="input-group-prepend">
 					<div class="input-group-text" style="border-radius: 0">New Note:</div>
 				</div>
-				<textarea class="form-control" id="AdminNote" name="admin_note" rows="2"
-						  placeholder="{% if flags.can_notes %}Enter new note here{% else %}Sorry, Admin Notes is a Pro-only feature{% endif %}"
-				></textarea>
+				<input class="form-control" id="AdminNote" name="admin_note" type="text"
+					   placeholder="{% if flags.can_notes %}Enter new note here{% else %}Sorry, Admin Notes is a Pro-only feature{% endif %}"
+				/>
 				<div class="input-group-append">
 					<button type="submit" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
 							{% if not flags.can_notes %}disabled="disabled"{% endif %}
