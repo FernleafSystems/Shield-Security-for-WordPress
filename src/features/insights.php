@@ -94,7 +94,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'item_delete'     => $oIpMod->getAjaxActionData( 'ip_delete', true ),
 					),
 					'flags'   => array(
-						'can_blacklist' => false// $this->isPremium()
+						'can_blacklist' => $this->isPremium()
 					),
 					'strings' => array(
 						'trans_limit'       => sprintf(
