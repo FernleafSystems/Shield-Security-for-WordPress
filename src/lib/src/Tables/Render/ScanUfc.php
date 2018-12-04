@@ -10,15 +10,6 @@ class ScanUfc extends ScanBase {
 	 * @param array $aItem
 	 * @return string
 	 */
-	public function column_actions( $aItem ) {
-		return $this->getActionButton_Delete( $aItem[ 'id' ] )
-			   .$this->getActionButton_Ignore( $aItem[ 'id' ] );
-	}
-
-	/**
-	 * @param array $aItem
-	 * @return string
-	 */
 	public function column_path( $aItem ) {
 		return parent::column_path( $aItem )
 			   .$this->buildActions(

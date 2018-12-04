@@ -5,27 +5,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 class AuditTrail extends Base {
 
 	/**
-	 * @param array $aItem
-	 * @return string
-	 */
-	public function column_actions( $aItem ) {
-		$sContent = '';
-		if ( isset( $aItem[ 'meta' ][ 'param' ] ) ) {
-			$sContent = $this->getActionButton_AddParam( $aItem[ 'id' ] );
-		}
-
-		return $sContent;
-	}
-
-	/**
 	 * @param int $nId
 	 * @return string
 	 */
 	protected function getActionButton_AddParam( $nId ) {
-		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-link action custom-action"'.
-						' data-rid="%s" data-custom-action="%s">%s</button>',
-			_wpsf__( 'Add Parameter To Whitelist' ), $nId, 'item_addparamwhite', _wpsf__( 'Whitelist Param' ) );
+		return $this->buildActionButton_Custom(
+			_wpsf__( 'Whitelist Param' ),
+			[ 'custom-action' ],
+			[
+				'rid'           => $nId,
+				'custom-action' => 'item_addparamwhite'
+			],
+			_wpsf__( 'Add Parameter To Whitelist' )
+		);
 	}
 
 	/**
@@ -62,7 +54,7 @@ class AuditTrail extends Base {
 		return array(
 			'details'    => 'Details',
 			'message'    => 'Message',
-//			'event'      => 'Event',
+			//			'event'      => 'Event',
 			'created_at' => 'Date',
 		);
 	}

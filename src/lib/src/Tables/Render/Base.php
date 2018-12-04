@@ -161,6 +161,28 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
+	 * @param array  $aClasses
+	 * @param array  $aData
+	 * @param string $sText
+	 * @param string $sTitle
+	 * @return string
+	 */
+	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) {
+		if ( empty( $sTitle ) ) {
+			$sTitle = $sText;
+		}
+
+		$aClasses[] = 'action';
+
+		$aDataAttrs = array();
+		foreach ( $aData as $sKey => $sValue ) {
+			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
+		}
+		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
+			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $sText );
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getColumnHeader_Actions() {
@@ -172,9 +194,11 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function getActionButton_Delete( $nId ) {
-		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-link text-danger action delete" data-rid="%s">%s</button>',
-			_wpsf__( 'Delete' ), $nId, _wpsf__( 'Delete' ) );
+		return $this->buildActionButton_Custom(
+			_wpsf__( 'Delete' ),
+			[ 'delete', 'text-danger' ],
+			[ 'rid' => $nId, ]
+		);
 	}
 
 	/**
@@ -182,9 +206,11 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function getActionButton_Repair( $nId ) {
-		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-link text-success action repair" data-rid="%s">%s</button>',
-			_wpsf__( 'Repair' ), $nId, _wpsf__( 'Repair' ) );
+		return $this->buildActionButton_Custom(
+			_wpsf__( 'Repair' ),
+			[ 'repair', 'text-success' ],
+			[ 'rid' => $nId, ]
+		);
 	}
 
 	/**
@@ -192,9 +218,11 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function getActionButton_Ignore( $nId ) {
-		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-link action ignore" data-rid="%s">%s</button>',
-			_wpsf__( 'Ignore' ), $nId, _wpsf__( 'Ignore' ) );
+		return $this->buildActionButton_Custom(
+			_wpsf__( 'Ignore' ),
+			[ 'ignore' ],
+			[ 'rid' => $nId, ]
+		);
 	}
 
 	/**

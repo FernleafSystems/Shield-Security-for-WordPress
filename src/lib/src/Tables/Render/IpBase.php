@@ -8,14 +8,6 @@ class IpBase extends Base {
 	 * @param array $aItem
 	 * @return string
 	 */
-	public function column_actions( $aItem ) {
-		return $this->getActionButton_Delete( $aItem[ 'id' ] );
-	}
-
-	/**
-	 * @param array $aItem
-	 * @return string
-	 */
 	public function column_ip( $aItem ) {
 		return $this->getIpWhoisLookupLink( $aItem[ 'ip' ] )
 			   .$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] );
