@@ -55,11 +55,42 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
 					break;
 
+				case 'plugin_reinstall':
+					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
+					break;
+
 				default:
 					break;
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_PluginReinstall() {
+		$oReq = $this->loadRequest();
+		$bReinstall = (bool)$oReq->post( 'reinstall' );
+		$bActivate = (bool)$oReq->post( 'activate' );
+		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
+		$oWpP = $this->loadWpPlugins();
+
+		if ( $bReinstall ) {
+			/** @var ICWP_WPSF_Processor_HackProtect $oP */
+			$oP = $this->getProcessor();
+			$bActivate = $oP->getSubProcessorScanner()
+							->getSubProcessorPtg()
+							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_Ptg::CONTEXT_PLUGINS )
+						 && $bActivate;
+		}
+		if ( $bActivate ) {
+			$oWpP->activate( $sFile );
+		}
+
+		return array(
+			'success' => true
+		);
 	}
 
 	/**
