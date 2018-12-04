@@ -235,6 +235,19 @@
       "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
+      "key":         "notification_interval",
+      "section":     "section_scan_options",
+      "premium":     true,
+      "default":     "7",
+      "min":         0,
+      "type":        "integer",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Repeat Notifications",
+      "summary":     "Item Repeat Notifications Suppression Interval",
+      "description": "How long the automated scans should wait before repeating a notification about an item."
+    },
+    {
       "key":         "email_files_list",
       "section":     "section_scan_options",
       "premium":     true,

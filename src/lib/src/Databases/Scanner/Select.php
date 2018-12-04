@@ -66,10 +66,11 @@ class Select extends Base\Select {
 	}
 
 	/**
+	 * @param int $nNotifiedInterval
 	 * @return $this
 	 */
-	public function filterForCron() {
-		return $this->filterByNotRecentlyNotified()
+	public function filterForCron( $nNotifiedInterval ) {
+		return $this->filterByNotRecentlyNotified( $nNotifiedInterval )
 					->filterByNotIgnored();
 	}
 

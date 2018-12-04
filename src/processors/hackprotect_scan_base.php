@@ -278,13 +278,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * only for items that have not been notified recently.
 	 */
 	protected function cronProcessScanResults() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $this->getScannerDb()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
 		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterForCron()
+					 ->filterForCron( $oFO->getScanNotificationInterval() )
 					 ->query();
 
 		if ( !empty( $aRes ) ) {

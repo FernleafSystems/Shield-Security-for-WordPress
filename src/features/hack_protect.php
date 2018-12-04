@@ -121,6 +121,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getScanNotificationInterval() {
+		return DAY_IN_SECONDS*$this->getOpt( 'notification_interval' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isIncludeFileLists() {
@@ -1145,6 +1152,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sSummary = _wpsf__( 'Number Of Times To Automatically Run File Scan In 24hrs' );
 				$sDescription = sprintf( '%s: %s', _wpsf__( 'Default' ), _wpsf__( 'Once every 24hrs.' ) )
 								.'<br/>'._wpsf__( 'To improve security, increase the number of scans per day.' );
+				break;
+
+			case 'notification_interval' :
+				$sName = _wpsf__( 'Repeat Notifications' );
+				$sSummary = _wpsf__( 'Item Repeat Notifications Suppression Interval' );
+				$sDescription = _wpsf__( 'How long the automated scans should wait before repeating a notification about an item.' )
+								.'<br/>'._wpsf__( 'Specify the number of days to suppress repeat notifications.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'This is per discovered item or file, not per scan.' ) );
 				break;
 
 			case 'email_files_list' :
