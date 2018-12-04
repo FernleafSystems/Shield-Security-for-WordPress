@@ -2020,6 +2020,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function canRunWizards() {
-		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' );
+		return true;
 	}
 }

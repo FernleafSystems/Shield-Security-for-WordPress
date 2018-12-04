@@ -236,18 +236,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getCanMfaSkip() {
-		return;
-	}
-
-	/**
 	 * @param WP_User $oUser
 	 * @return bool
 	 */
 	public function canUserMfaSkip( $oUser ) {
-		$bCanSkip = false;
 
 		if ( $this->getMfaSkipEnabled() ) {
 			$aHashes = $this->getMfaLoginHashes( $oUser );

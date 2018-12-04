@@ -9,14 +9,6 @@ require_once( __DIR__.'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' )
-			   && parent::isReadyToExecute();
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getReportingTableName() {

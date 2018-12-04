@@ -534,15 +534,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink[ 'href' ], "_blank", $aMetaLink[ 'name' ] );;
 				array_push( $aPluginMeta, $sSettingsLink );
 			}
-
-			if ( !$this->loadDP()->getPhpVersionIsAtLeast( '5.4' ) ) {
-				$aPluginMeta[] = sprintf(
-					'<a href="%s" target="_blank" title="%s" style="color: red;">%s</a>',
-					'https://icwp.io/dj',
-					'Upgrades Not Available',
-					'PHP Too Old!'
-				);
-			}
 		}
 		return $aPluginMeta;
 	}

@@ -178,7 +178,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @throws Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oPlugin */
+		$oPlugin = $this->getConn()->getModule( 'plugin' );
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
@@ -205,7 +206,10 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Adds Google reCAPTCHA to the Comment Forms.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this turned on.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings." ) ),
+					sprintf( '%s - %s (%s)', _wpsf__( 'Important' ),
+						_wpsf__( "You'll need to supply your Google reCAPTCHA keys." ),
+						sprintf( '<a href="%s" target="_blank">%s</a>', $oPlugin->getUrl_DirectLinkToSection( 'section_third_party_google' ), _wpsf__( "Enter Google reCAPTCHA keys" ) )
+					),
 				);
 				break;
 
@@ -294,8 +298,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 			case 'enable_comments_gasp_protection' :
 				$sName = _wpsf__( 'SPAM Bot Protection' );
-				$sSummary = _wpsf__( 'Block Automatic Comment SPAM By Bots' );
-				$sDescription = _wpsf__( 'Simple, yet highly effective SPAM Bot protection for your WordPress comments.' );
+				$sSummary = _wpsf__( 'Block 100% Comment SPAM From Automated Bots' );
+				$sDescription = _wpsf__( 'Highly effective detection for the most common types of comment SPAM.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Bonus' ), _wpsf__( "Unlike Akismet, your data is never sent off-site to 3rd party processing servers." ) );
 				break;
 
 			case 'comments_default_action_spam_bot' :

@@ -101,36 +101,6 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * removed
-	 * @see autoAddToAdminNotices()
-	 * @param array $aAttr
-	 * @throws Exception
-	 */
-	protected function addNotice_php54_version_warning( $aAttr ) {
-		$oDp = $this->loadDP();
-		if ( $oDp->getPhpVersionIsAtLeast( '5.4.0' ) ) {
-			return;
-		}
-
-		$oCon = $this->getController();
-		$aRenderData = array(
-			'notice_attributes' => $aAttr,
-			'strings'           => array(
-				'title'         => sprintf( _wpsf__( 'Your PHP version is very old: %s' ), $oDp->getPhpVersion() ),
-				'not_supported' => sprintf( _wpsf__( 'Newer features of %s do not support your PHP version.' ), $oCon->getHumanName() ),
-				'ask_host'      => _wpsf__( 'You should ask your host to upgrade or provide a much newer PHP version.' ),
-				'questions'     => _wpsf__( 'Please read here for further information:' ),
-				'dismiss'       => _wpsf__( 'Dismiss this notice' ),
-				'help'          => _wpsf__( 'Dropping support for PHP 5.2 and 5.3' )
-			),
-			'hrefs'             => array(
-				'help' => 'https://icwp.io/aq',
-			)
-		);
-		$this->insertAdminNotice( $aRenderData );
-	}
-
-	/**
 	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
 	 * @throws Exception

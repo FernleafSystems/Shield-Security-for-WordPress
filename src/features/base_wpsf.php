@@ -124,7 +124,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function isGoogleRecaptchaReady() {
 		$sKey = $this->getGoogleRecaptchaSiteKey();
 		$sSecret = $this->getGoogleRecaptchaSecretKey();
-		return ( !empty( $sSecret ) && !empty( $sKey ) && $this->loadDP()->getPhpSupportsNamespaces() );
+		return ( !empty( $sSecret ) && !empty( $sKey ) );
 	}
 
 	/**
