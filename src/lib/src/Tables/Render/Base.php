@@ -55,7 +55,7 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	public function column_cb( $aItem ) {
-		return sprintf( '<input type="checkbox" name="ids" value="%s" />', $aItem['id'] );
+		return sprintf( '<input type="checkbox" name="ids" value="%s" />', $aItem[ 'id' ] );
 	}
 
 	/**
@@ -153,6 +153,14 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
+	 * @param string|string[] $aButtons
+	 * @return string
+	 */
+	protected function buildActions( $aButtons ) {
+		return sprintf( '<div class="actions-block">%s</div>', implode( ' | ', (array)$aButtons ) );
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getColumnHeader_Actions() {
@@ -165,9 +173,8 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getActionButton_Delete( $nId ) {
 		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-outline-danger action delete" data-rid="%s">'.
-						'<span class="dashicons dashicons-dismiss"></span></button>',
-			_wpsf__( 'Delete' ), $nId );
+						' class="btn btn-sm btn-link text-danger action delete" data-rid="%s">%s</button>',
+			_wpsf__( 'Delete' ), $nId, _wpsf__( 'Delete' ) );
 	}
 
 	/**
@@ -176,9 +183,8 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getActionButton_Repair( $nId ) {
 		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-outline-success action repair" data-rid="%s">'.
-						'<span class="dashicons dashicons-image-rotate"></span></button>',
-			_wpsf__( 'Repair' ), $nId );
+						' class="btn btn-sm btn-link text-success action repair" data-rid="%s">%s</button>',
+			_wpsf__( 'Repair' ), $nId, _wpsf__( 'Repair' ) );
 	}
 
 	/**
@@ -187,9 +193,8 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getActionButton_Ignore( $nId ) {
 		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-outline-info action ignore" data-rid="%s">'.
-						'<span class="dashicons dashicons-hidden"></span></button>',
-			_wpsf__( 'Ignore' ), $nId );
+						' class="btn btn-sm btn-link action ignore" data-rid="%s">%s</button>',
+			_wpsf__( 'Ignore' ), $nId, _wpsf__( 'Ignore' ) );
 	}
 
 	/**
@@ -198,7 +203,7 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function getIpWhoisLookupLink( $sIp ) {
-		return sprintf( '<a href="%s" target="_blank">%s</a>',
+		return sprintf( '<a href="%s" target="_blank" class="ip-whois">%s</a>',
 			Services::IP()->getIpWhoisLookup( $sIp ),
 			$sIp
 		);

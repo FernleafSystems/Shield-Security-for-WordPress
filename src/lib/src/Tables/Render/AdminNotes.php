@@ -13,6 +13,14 @@ class AdminNotes extends Base {
 	}
 
 	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_note( $aItem ) {
+		return $aItem[ 'note' ].$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ] ) );
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
@@ -30,7 +38,6 @@ class AdminNotes extends Base {
 			'note'        => 'Note',
 			'wp_username' => 'Username',
 			'created_at'  => 'Date',
-			'actions'     => $this->getColumnHeader_Actions(),
 		);
 	}
 }

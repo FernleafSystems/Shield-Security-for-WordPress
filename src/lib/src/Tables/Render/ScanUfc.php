@@ -16,6 +16,20 @@ class ScanUfc extends ScanBase {
 	}
 
 	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_path( $aItem ) {
+		return parent::column_path( $aItem )
+			   .$this->buildActions(
+				[
+					$this->getActionButton_Ignore( $aItem[ 'id' ] ),
+					$this->getActionButton_Delete( $aItem[ 'id' ] ),
+				]
+			);
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function get_bulk_actions() {

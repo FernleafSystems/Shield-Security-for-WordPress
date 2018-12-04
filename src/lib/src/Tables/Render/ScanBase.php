@@ -33,7 +33,6 @@ class ScanBase extends Base {
 			'path'       => 'File',
 			'status'     => 'Status',
 			'created_at' => 'Discovered',
-			'actions'    => $this->getColumnHeader_Actions(),
 		);
 	}
 }

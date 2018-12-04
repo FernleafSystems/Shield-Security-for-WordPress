@@ -12,7 +12,6 @@ class IpWhite extends IpBase {
 			'ip'         => 'IP Address',
 			'label'      => 'Label',
 			'created_at' => 'Added',
-			'actions'    => $this->getColumnHeader_Actions(),
 		);
 	}
 }

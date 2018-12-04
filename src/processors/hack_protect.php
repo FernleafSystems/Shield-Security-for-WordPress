@@ -113,7 +113,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'go_pro'         => 'Go Pro!',
 				'options'        => _wpsf__( 'Scan Options' ),
 				'not_available'  => _wpsf__( 'Sorry, this scan is not available.' ),
-				'not_enabled'    => _wpsf__( 'Sorry, this scan is not currently enabled.' ),
+				'not_enabled'    => _wpsf__( 'This scan is not currently enabled.' ),
 				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to add this scan and many more features.' ),
 				'please_enable'  => _wpsf__( 'Please turn on this scan in the options.' ),
 			),

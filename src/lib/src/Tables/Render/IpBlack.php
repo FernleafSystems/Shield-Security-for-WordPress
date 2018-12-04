@@ -13,7 +13,8 @@ class IpBlack extends IpBase {
 			sprintf( '%s: %s', _wpsf__( 'Blocked' ), $aItem[ 'blocked' ] ),
 			sprintf( '%s: %s', _wpsf__( 'Transgressions' ), $aItem[ 'transgressions' ] ),
 			sprintf( '%s: %s', _wpsf__( 'Last Transgression' ), $aItem[ 'last_trans_at' ] ),
-			sprintf( '%s: %s', _wpsf__( 'IP' ), $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ) )
+			sprintf( '%s: %s', _wpsf__( 'IP' ), $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ) ),
+			$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] )
 		);
 		return implode( '<br/>', $aDetails );
 	}
@@ -23,9 +24,8 @@ class IpBlack extends IpBase {
 	 */
 	public function get_columns() {
 		return array(
-			'details'        => 'Details',
-			'expires_at'     => 'Auto Expires',
-			'actions'        => $this->getColumnHeader_Actions(),
+			'details'    => 'Details',
+			'expires_at' => 'Auto Expires',
 		);
 	}
 }

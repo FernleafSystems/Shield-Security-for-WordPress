@@ -1007,6 +1007,9 @@ td .timestamp-small {
 .odp-table th.check-column input[type=checkbox] {
 	margin: 0 4px;
 }
+a.ip-whois {
+	color: #739e31;
+}
 /** END TABLES **/
 
 /** Sessions Table **/
@@ -1022,12 +1025,25 @@ form.add-ip button.add {
 form.add-ip button.add .dashicons {
 	vertical-align: inherit;
 }
+.odp-table .actions-block {
+	font-size: 0.75rem;
+	opacity: 0.6;
+}
+.odp-table tr:hover .actions-block {
+	opacity: 1;
+}
+.odp-table .actions-block button.btn {
+	font-size: 0.75rem;
+	padding-left: 0;
+	padding-right: 0;
+}
+/** unused
 th.column-actions,
 td.column-actions {
 	text-align: center;
 	width: 100px;
 }
-td.column-actions button.btn {
+td.column-actions .actions-block button.btn {
 	margin: 0 3px;
 	height: 32px;
 	width: 32px;
@@ -1035,7 +1051,7 @@ td.column-actions button.btn {
 }
 td.column-actions button > span {
 	font-size: 20px;
-}
+} */
 /** END IPS Insights **/
 
 /** TABLES SCANS **/
@@ -1065,6 +1081,7 @@ table.odp-table.scan-table {
 }
 table.odp-table.scan-table td.column-path code {
 	font-size: 0.7rem;
+	padding: 0;
 }
 .tablenav.top, .tablenav.bottom {
 	/*display: none;*/

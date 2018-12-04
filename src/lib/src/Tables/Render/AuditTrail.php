@@ -23,10 +23,9 @@ class AuditTrail extends Base {
 	 */
 	protected function getActionButton_AddParam( $nId ) {
 		return sprintf( '<button title="%s"'.
-						' class="btn btn-sm btn-outline-warning action custom-action"' .
-						' data-rid="%s" data-custom-action="%s">'.
-						'<span class="dashicons dashicons-plus-alt"></span></button>',
-			_wpsf__( 'Add Parameter To Whitelist' ), $nId, 'item_addparamwhite' );
+						' class="btn btn-sm btn-link action custom-action"'.
+						' data-rid="%s" data-custom-action="%s">%s</button>',
+			_wpsf__( 'Add Parameter To Whitelist' ), $nId, 'item_addparamwhite', _wpsf__( 'Whitelist Param' ) );
 	}
 
 	/**
@@ -45,11 +44,15 @@ class AuditTrail extends Base {
 	 * @return string
 	 */
 	public function column_details( $aItem ) {
-		return sprintf( '%s<br />%s%s',
+		$sContent = sprintf( '%s<br />%s%s',
 			$aItem[ 'wp_username' ],
 			$this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
 			$aItem[ 'your_ip' ]
 		);
+		if ( isset( $aItem[ 'meta' ][ 'param' ] ) ) {
+			$sContent .= $this->buildActions( $this->getActionButton_AddParam( $aItem[ 'id' ] ) );
+		}
+		return $sContent;
 	}
 
 	/**
@@ -59,9 +62,8 @@ class AuditTrail extends Base {
 		return array(
 			'details'    => 'Details',
 			'message'    => 'Message',
-			'event'      => 'Event',
+//			'event'      => 'Event',
 			'created_at' => 'Date',
-			'actions'    => $this->getColumnHeader_Actions(),
 		);
 	}
 }

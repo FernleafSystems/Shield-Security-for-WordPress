@@ -17,7 +17,8 @@ class IpBase extends Base {
 	 * @return string
 	 */
 	public function column_ip( $aItem ) {
-		return $this->getIpWhoisLookupLink( $aItem[ 'ip' ] );
+		return $this->getIpWhoisLookupLink( $aItem[ 'ip' ] )
+			   .$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] );
 	}
 
 	/**

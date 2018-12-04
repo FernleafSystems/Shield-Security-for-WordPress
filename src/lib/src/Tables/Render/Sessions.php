@@ -17,10 +17,11 @@ class Sessions extends Base {
 	 * @return string
 	 */
 	public function column_details( $aItem ) {
-		return sprintf( '%s<br />%s%s',
+		return sprintf( '%s<br />%s%s%s',
 			$aItem[ 'wp_username' ],
 			$this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
-			$aItem[ 'your_ip' ]
+			$aItem[ 'your_ip' ],
+			$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ] ) )
 		);
 	}
 
@@ -43,7 +44,6 @@ class Sessions extends Base {
 			'is_secadmin'      => 'Security Admin',
 			'logged_in_at'     => 'Logged In',
 			'last_activity_at' => 'Last Activity',
-			'actions'          => $this->getColumnHeader_Actions(),
 		);
 	}
 }
