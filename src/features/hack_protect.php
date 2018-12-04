@@ -571,8 +571,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
 				array(
-					'ajax_reinstall' => $this->getAjaxActionData( 'plugin_reinstall' ),
-					'reinstallable'  => $this->getReinstallablePlugins()
+					'ajax_plugin_reinstall' => $this->getAjaxActionData( 'plugin_reinstall' ),
+					'reinstallable'         => $this->getReinstallablePlugins()
 				)
 			);
 			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...

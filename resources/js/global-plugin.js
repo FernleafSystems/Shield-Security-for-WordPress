@@ -135,7 +135,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 		var reinstall_plugin = function ( bReinstall ) {
 			iCWP_WPSF_BodyOverlay.show();
 
-			var $aData = icwp_wpsf_vars_hp.ajax_reinstall;
+			var $aData = icwp_wpsf_vars_hp.ajax_plugin_reinstall;
 			$aData[ 'file' ] = sActiveFile;
 			$aData[ 'reinstall' ] = bReinstall;
 			$aData[ 'activate' ] = bActivate;
