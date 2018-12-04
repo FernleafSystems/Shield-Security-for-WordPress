@@ -59,16 +59,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function isUserSubjectToLoginIntent( $oUser = null ) {
-		$oWpUsers = $this->loadWpUsers();
-		if ( !is_a( $oUser, 'WP_User' ) ) {
-			if ( $oWpUsers->isUserLoggedIn() ) {
-				$oUser = $oWpUsers->getCurrentWpUser();
-			}
-			else {
-				return false; // If we can't get a valid WP_User, then always false.
-			}
+		$bIsSubject = false;
+
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getCurrentWpUser();
 		}
-		return apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
+		if ( $oUser instanceof WP_User ) {
+			$bIsSubject = apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
+		}
+
+		return $bIsSubject;
 	}
 
 	/**

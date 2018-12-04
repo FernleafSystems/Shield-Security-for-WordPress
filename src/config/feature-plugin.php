@@ -1,8 +1,8 @@
 {
   "properties":    {
     "slug":                  "plugin",
-    "name":                  "General",
-    "show_module_menu_item": false,
+    "name":                  "Full Options",
+    "show_module_menu_item": true,
     "show_module_options":   true,
     "storage_key":           "plugin",
     "tagline":               "General Plugin Settings",
