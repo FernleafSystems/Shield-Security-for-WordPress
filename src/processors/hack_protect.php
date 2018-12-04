@@ -105,16 +105,12 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'flags'   => array(
 				'is_premium' => $oMod->isPremium()
 			),
-			'hrefs'   => array(
-				'go_pro' => 'https://icwp.io/shieldgoprofeature',
-			),
 			'strings' => array(
 				'never'          => _wpsf__( 'Never' ),
 				'go_pro'         => 'Go Pro!',
 				'options'        => _wpsf__( 'Scan Options' ),
 				'not_available'  => _wpsf__( 'Sorry, this scan is not available.' ),
 				'not_enabled'    => _wpsf__( 'This scan is not currently enabled.' ),
-				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to add this scan and many more features.' ),
 				'please_enable'  => _wpsf__( 'Please turn on this scan in the options.' ),
 			),
 			'scans'   => array(
@@ -259,15 +255,15 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		return array(
 			'flags'        => array(
 				'is_enabled'    => $oMod->isPtgEnabled(),
-				'is_available'  => $oMod->isPremium(),
+				'is_available'  => false,//$oMod->isPremium(),
 				'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
 				'has_items'     => $oFullResults->hasItems(),
 				'has_plugins'   => !empty( $aPlugins ),
 				'has_themes'    => !empty( $aThemes ),
 			),
 			'hrefs'        => array(
-				'options' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-				'enable'  => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
+				'options'       => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
+				'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 			),
 			'vars'         => array(),
 			'count'        => $oSelector->countForScan( 'ptg' ),

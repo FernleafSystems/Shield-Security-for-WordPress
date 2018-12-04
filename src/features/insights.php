@@ -56,6 +56,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
 		$oModPlugin = $oCon->getModule( 'plugin' );
 
+		$bIsPro = $this->isPremium();
 		$oCarbon = new \Carbon\Carbon();
 		$nPluginName = $oCon->getHumanName();
 		switch ( $sSubNavSection ) {
@@ -94,7 +95,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'item_delete'     => $oIpMod->getAjaxActionData( 'ip_delete', true ),
 					),
 					'flags'   => array(
-						'can_blacklist' => $this->isPremium()
+						'can_blacklist' => $bIsPro
 					),
 					'strings' => array(
 						'trans_limit'       => sprintf(
@@ -126,7 +127,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'bulk_action'             => $oModPlugin->getAjaxActionData( 'bulk_action', true ),
 					),
 					'flags' => array(
-						'can_notes' => $this->isPremium() //not the way to determine
+						'can_notes' => $bIsPro //not the way to determine
 					)
 				);
 				break;
@@ -136,7 +137,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'ajax'    => array(
 						'render_table_traffic' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
 					),
-					'flags'   => array(),
+					'flags'   => array(
+						'can_traffic' => false && $this->isPremium(),
+						'is_enabled'  => $oTrafficMod->isModOptEnabled(),
+					),
+					'hrefs'   => array(
+						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_traffic' ),
+					),
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
 					),
@@ -241,6 +248,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								  'page_container' => 'page-insights page-'.$sSubNavSection
 							  ),
 							  'hrefs'   => array(
+								  'go_pro'     => 'https://icwp.io/shieldgoprofeature',
 								  'nav_home'   => $this->getUrl_AdminPage(),
 								  'top_nav'    => $aTopNav,
 								  'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
@@ -249,7 +257,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						  ),
 						  $aData
 					  );
-
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
 
@@ -315,7 +322,16 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'recommendation'      => ucfirst( _wpsf__( 'recommendation' ) ),
 				'suggestion'          => ucfirst( _wpsf__( 'suggestion' ) ),
 				'box_welcome_title'   => sprintf( _wpsf__( 'Welcome To %s Security Insights Dashboard' ), $sName ),
-				'box_receve_subtitle' => sprintf( _wpsf__( 'Some of the most recent %s events' ), $sName )
+				'box_receve_subtitle' => sprintf( _wpsf__( 'Some of the most recent %s events' ), $sName ),
+
+				'never'          => _wpsf__( 'Never' ),
+				'go_pro'         => 'Go Pro!',
+				'options'        => _wpsf__( 'Options' ),
+				'not_available'  => _wpsf__( 'Sorry, this feature is not available.' ),
+				'not_enabled'    => _wpsf__( "This feature isn't currently enabled." ),
+				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to add this feature along with many more to your security plugin.' ),
+				'please_enable'  => _wpsf__( 'Please turn on this feature in the options.' ),
+				'only_1_dollar'  => _wpsf__( 'for just $1/month' ),
 			)
 		);
 	}
