@@ -42,8 +42,8 @@ class Sessions extends Base {
 			'cb'               => '&nbsp;',
 			'details'          => 'Details',
 			'is_secadmin'      => 'Security Admin',
-			'logged_in_at'     => 'Logged In',
 			'last_activity_at' => 'Last Activity',
+			'logged_in_at'     => 'Logged In',
 		);
 	}
 }
