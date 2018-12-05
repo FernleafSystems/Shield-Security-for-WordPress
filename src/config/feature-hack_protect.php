@@ -459,24 +459,6 @@
       "default":      0
     },
     {
-      "key":          "last_scan_problem_ufc_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "default":      0
-    },
-    {
-      "key":          "last_scan_problem_wcf_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "default":      0
-    },
-    {
-      "key":          "last_scan_problem_ptg_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "default":      0
-    },
-    {
       "key":          "last_scan_problem_wpv_at",
       "transferable": false,
       "section":      "section_non_ui",

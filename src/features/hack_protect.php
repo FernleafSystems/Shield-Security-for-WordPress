@@ -173,8 +173,23 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function getScanHasProblem( $sScan ) {
-		$nLastProb = $this->getLastScanProblemAt( $sScan );
-		return ( $nLastProb > 0 ) && ( $nLastProb - $this->getLastScanAt( $sScan ) >= 0 );
+		if ( $sScan != 'wpv' ) {
+			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+			$oPro = $this->getProcessor();
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
+			$oSel = $oPro->getSubProcessorScanner()
+						 ->getDbHandler()
+						 ->getQuerySelector();
+			$nTotal = $oSel->filterByNotIgnored()
+						   ->filterByScan( $sScan )
+						   ->count();
+			$bProblem = $nTotal > 0;
+		}
+		else {
+			$nLastProb = $this->getLastScanProblemAt( $sScan );
+			$bProblem = ( $nLastProb > 0 ) && ( $nLastProb - $this->getLastScanAt( $sScan ) >= 0 );
+		}
+		return $bProblem;
 	}
 
 	/**
