@@ -4,12 +4,12 @@ if ( class_exists( 'ICWP_WPSF_Processor_Base', false ) ) {
 	return;
 }
 
+use \FernleafSystems\Wordpress\Plugin\Shield;
+
 abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
-	/**
-	 * @var ICWP_WPSF_FeatureHandler_Base
-	 */
-	protected $oModCon;
+	use Shield\Modules\ModConsumer,
+		Shield\AuditTrail\Auditor;
 
 	/**
 	 * @var int
@@ -30,7 +30,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 */
 	public function __construct( $oModCon ) {
-		$this->oModCon = $oModCon;
+		$this->setMod( $oModCon );
 		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
 		add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 		if ( method_exists( $this, 'addToAdminNotices' ) ) {
@@ -233,13 +233,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getEmailProcessor() {
 		return $this->getMod()->getEmailProcessor();
-	}
-
-	/**
-	 * @return ICWP_WPSF_FeatureHandler_Base
-	 */
-	protected function getMod() {
-		return $this->oModCon;
 	}
 
 	/**

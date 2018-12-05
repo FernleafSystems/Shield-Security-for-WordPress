@@ -8,13 +8,7 @@ require_once( __DIR__.'/base.php' );
 
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\AuditTrail\AuditorConsumer;
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
-
-	/**
-	 * @var array
-	 */
-	private $aAuditEntry;
 
 	/**
 	 * @var array

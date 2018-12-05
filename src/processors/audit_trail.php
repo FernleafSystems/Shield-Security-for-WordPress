@@ -9,11 +9,6 @@ require_once( __DIR__.'/basedb.php' );
 class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
-	 * @var ICWP_WPSF_AuditTrail_Auditor_Base
-	 */
-	protected $oAuditor;
-
-	/**
 	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
@@ -21,21 +16,11 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_AuditTrail_Auditor_Base
+	 * Resets the object values to be re-used anew
 	 */
-	public function getBaseAuditor() {
-		if ( !isset( $this->oAuditor ) ) {
-			require_once( __DIR__.'/audit_trail_auditor_base.php' );
-			$this->oAuditor = new ICWP_WPSF_AuditTrail_Auditor_Base();
-		}
-		return $this->oAuditor;
-	}
-
-	public function onModuleShutdown() {
-		parent::onModuleShutdown();
-		if ( !$this->getMod()->isPluginDeleting() ) {
-			$this->commitAuditTrial();
-		}
+	public function init() {
+		parent::init();
+		add_action( $this->getMod()->prefix( 'add_new_audit_entry' ), array( $this, 'addAuditTrialEntry' ) );
 	}
 
 	public function cleanupDatabase() {
@@ -148,18 +133,14 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO $oEntryVo
 	 */
-	protected function commitAuditTrial() {
-		$aEntries = $this->getAuditor()->getAudits();
-		if ( !empty( $aEntries ) ) {
-			$sReqId = $this->getController()->getShortRequestId();
-			$oDbh = $this->getDbHandler();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Insert $oInsert */
-			$oInsert = $oDbh->getQueryInserter();
-			foreach ( $aEntries as $oE ) {
-				$oE->rid = $sReqId;
-				$oInsert->insert( $oE );
-			}
+	public function addAuditTrialEntry( $oEntryVo ) {
+		if ( $oEntryVo instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO ) {
+			$oEntryVo->rid = $this->getController()->getShortRequestId();
+			$this->getDbHandler()
+				 ->getQueryInserter()
+				 ->insert( $oEntryVo );
 		}
 	}
 
