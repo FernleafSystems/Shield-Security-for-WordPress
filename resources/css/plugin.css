@@ -1101,7 +1101,7 @@ table.odp-table.scan-table td.column-path code {
 	display: none;
 }
 #SectionScanResultsPtg .card-scan_results table.table td {
-	padding: 0;
+	padding: 2px 0.75rem;
 }
 /** END TABLES SCANS **/
 .insights_section.keys .alert {

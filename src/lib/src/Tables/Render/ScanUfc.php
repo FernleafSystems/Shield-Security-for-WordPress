@@ -11,13 +11,14 @@ class ScanUfc extends ScanBase {
 	 * @return string
 	 */
 	public function column_path( $aItem ) {
-		return parent::column_path( $aItem )
-			   .$this->buildActions(
-				[
-					$this->getActionButton_Ignore( $aItem[ 'id' ] ),
-					$this->getActionButton_Delete( $aItem[ 'id' ] ),
-				]
-			);
+		$aButtons = [
+			$this->getActionButton_Ignore( $aItem[ 'id' ] ),
+			$this->getActionButton_Delete( $aItem[ 'id' ] ),
+		];
+		if ( !empty( $aItem[ 'href_download' ] ) ) {
+			$aButtons[] = $this->getActionButton_DownloadFile( $aItem[ 'href_download' ] );
+		}
+		return parent::column_path( $aItem ).$this->buildActions( $aButtons );
 	}
 
 	/**

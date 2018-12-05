@@ -17,6 +17,9 @@ class ScanPtg extends ScanBase {
 	protected function getEntriesFormatted() {
 		$aEntries = array();
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
@@ -26,6 +29,7 @@ class ScanPtg extends ScanBase {
 			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unrecognised' );
 			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+			$aE[ 'href_download' ] = $oIt->is_missing ? false : $oMod->createFileDownloadLink( $oEntry );
 			$aEntries[ $nKey ] = $aE;
 		}
 

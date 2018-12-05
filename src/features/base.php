@@ -99,6 +99,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		// before proceeding, we must now test the system meets the minimum requirements.
 		if ( $this->getModuleMeetRequirements() ) {
+			$oReq = $this->loadRequest();
 
 			$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
@@ -110,6 +111,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				add_filter( $this->prefix( 'ajaxAction' ), array( $this, 'handleAjax' ) );
 				add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthAjax' ) );
 				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
+
+				if ( $oReq->query( 'action' ) == $this->prefix()
+					 && check_admin_referer( $oReq->query( 'exec' ), 'exec_nonce' )
+				) {
+					add_action( $this->prefix( 'mod_request' ), array( $this, 'handleModRequest' ) );
+				}
 			}
 
 			$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
@@ -330,6 +337,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
+		do_action( $this->prefix( 'mod_request' ) );
+
 		$this->runWizards();
 
 		// GDPR
@@ -876,14 +885,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getAjaxActionData( $sAction = '', $bAsJsonEncodedObject = false ) {
-		$aData = array(
+		$aData = $this->getNonceActionData( $sAction );
+		$aData[ 'ajaxurl' ] = admin_url( 'admin-ajax.php' );
+		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
+	}
+
+	/**
+	 * @param string $sAction
+	 * @return array
+	 */
+	public function getNonceActionData( $sAction = '' ) {
+		return array(
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $sAction,
 			'exec_nonce' => $this->genNonce( $sAction ),
 			'mod_slug'   => $this->getModSlug(),
-			'ajaxurl'    => admin_url( 'admin-ajax.php' ),
 		);
-		return $bAsJsonEncodedObject ? json_encode( (object)$aData ) : $aData;
 	}
 
 	/**
@@ -1175,6 +1192,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'html'    => $sForm,
 			'message' => $sMessage
 		);
+	}
+
+	/**
+	 */
+	public function handleModRequest() {
 	}
 
 	/**

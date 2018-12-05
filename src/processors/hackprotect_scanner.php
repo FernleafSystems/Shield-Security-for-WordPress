@@ -119,6 +119,28 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
+	 * Based on the Ajax Download File pathway (hence the cookie)
+	 * @param string $sItemId
+	 */
+	public function downloadItemFile( $sItemId ) {
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getDbHandler()
+					   ->getQuerySelector()
+					   ->byId( (int)$sItemId );
+		if ( !empty( $oEntry ) ) {
+			$sPath = $oEntry->meta[ 'path_full' ];
+			$oFs = $this->loadFS();
+			if ( $oFs->isFile( $sPath ) ) {
+				header( 'Set-Cookie: fileDownload=true; path=/' );
+				$this->loadRequest()
+					 ->downloadStringAsFile( $oFs->getFileContent( $sPath ), basename( $sPath ) );
+			}
+		}
+
+		wp_die( "Something about this request wasn't right" );
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getCreateTableSql() {

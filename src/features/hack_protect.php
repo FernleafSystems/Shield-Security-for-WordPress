@@ -22,6 +22,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 */
+	public function handleModRequest() {
+		$oReq = $this->loadRequest();
+		switch ( $oReq->query( 'exec' ) && $this->getConn()->isPluginAdmin() ) {
+			case  'scan_file_download':
+				/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+				$oPro = $this->getProcessor();
+				$oPro->getSubProcessorScanner()->downloadItemFile( $oReq->query( 'rid' ) );
+				break;
+			default:
+				break;
+		}
+	}
+
+	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
@@ -64,6 +79,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntryVo
+	 * @return string
+	 */
+	public function createFileDownloadLink( $oEntryVo ) {
+		$aActionNonce = $this->getAjaxActionData( 'scan_file_download', false );
+		$aActionNonce[ 'rid' ] = $oEntryVo->id;
+		unset( $aActionNonce[ 'ajaxurl' ] );
+		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
 	}
 
 	/**

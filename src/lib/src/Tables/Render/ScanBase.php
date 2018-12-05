@@ -26,6 +26,18 @@ class ScanBase extends Base {
 	}
 
 	/**
+	 * @param string $sHref
+	 * @return string
+	 */
+	protected function getActionButton_DownloadFile( $sHref ) {
+		return $this->buildActionButton_Custom(
+			_wpsf__( 'Download' ),
+			[ 'href-download', 'text-info' ],
+			[ 'href-download' => $sHref ]
+		);
+	}
+
+	/**
 	 * @return array
 	 */
 	public function get_columns() {

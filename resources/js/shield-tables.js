@@ -123,7 +123,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						evt.preventDefault();
 						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
 
-
 						if ( sAction === "-1" ) {
 							alert( 'Please first select an action to perform' );
 						}
@@ -157,6 +156,20 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 							plugin.options[ 'working_custom_action' ] = plugin.options[ 'custom_actions_ajax' ][ sCustomAction ];
 							plugin.options[ 'working_custom_action' ][ 'rid' ] = $oButt.data( 'rid' );
 							plugin.customAction.call( plugin );
+						}
+					}
+				);
+
+				plugin.$element.on(
+					'click' + '.' + plugin._name,
+					'button.action.href-download',
+					function ( evt ) {
+						evt.preventDefault();
+						var $oButt = $( this );
+						var sHref = $oButt.data( 'href-download' );
+						if ( sHref !== undefined ) {
+							plugin.options[ 'working_href_download' ] = sHref;
+							plugin.hrefDownload.call( plugin );
 						}
 					}
 				);
@@ -202,6 +215,14 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			customAction: function () {
 				var aRequestData = this.options[ 'working_custom_action' ];
 				this.sendReq( aRequestData );
+			},
+
+			hrefDownload: function () {
+				$.fileDownload( this.options[ 'working_href_download' ], {
+					preparingMessageHtml: "Downloading file, please wait...",
+					failMessageHtml: "There was a problem downloading the file."
+				} );
+				return false;
 			},
 
 			sendReq: function ( aRequestData ) {

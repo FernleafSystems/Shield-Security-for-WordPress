@@ -48,7 +48,8 @@
         "bootstrap4.bundle.min",
         "jquery",
         "plugin",
-        "featherlight"
+        "featherlight",
+        "jquery.fileDownload"
       ]
     },
     "frontend":     {
