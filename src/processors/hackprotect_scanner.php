@@ -30,11 +30,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		if ( $oFO->isUfcEnabled() ) {
 			$this->getSubProcessorUfc()->run();
 		}
-		if ( $oFO->isWpvulnEnabled() ) {
-			$this->getSubProcessorVuln()->run();
-		}
 		if ( $oFO->isPtgEnabled() ) {
 			$this->getSubProcessorPtg()->run();
+		}
+		if ( $oFO->isWpvulnEnabled() ) {
+			$this->getSubProcessorWpv()->run();
 		}
 		if ( $oFO->isIcEnabled() ) {
 //			$this->getSubProcessorIntegrity()->run();
@@ -100,7 +100,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_Wpv
 	 */
-	protected function getSubProcessorVuln() {
+	public function getSubProcessorWpv() {
 		$oProc = $this->getSubPro( 'wpv' );
 		if ( is_null( $oProc ) ) {
 			require_once( __DIR__.'/hackprotect_scan_wpv.php' );

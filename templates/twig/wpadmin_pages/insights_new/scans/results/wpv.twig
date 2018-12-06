@@ -1,17 +1,16 @@
-<div class="row insights_widget" id="SectionScanResultsWcf">
+<div class="row insights_widget" id="SectionScanResultsWpv">
 	<div class="col-12">
 		<div class="card card-scan_results mt-4">
 
 			<div class="card-header">
-				<h5 class="card-title">WordPress Core File Integrity</h5>
-				<h6 class="card-subtitle text-muted">
-					Files either missing or modified in some way
-					when compared with the official distribution from WordPress.org
+				<h5 class="card-title">Plugins Vulnerabilities</h5>
+				<h6 class="card-subtitle mb-2 text-muted">
+					Get alerted to the presence of known security vulnerabilities inside your plugins
 				</h6>
 			</div>
 
 			<div class="card-body">
-				<div id="TableScanWcf" class="container-scantable"></div>
+				<div id="TableScanWpv" class="container-scantable"></div>
 			</div>
 
 			<div class="card-footer">
@@ -33,25 +32,27 @@
 		</div>
 	</div>
 </div>
-
 <script>
-	var $oTableScanWcf = jQuery( '#TableScanWcf' ).icwpWpsfAjaxTable(
+	var $oTableScanWpv = jQuery( '#TableScanWpv' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_scan|raw }},
 			'req_params': {
-				'fScan': 'wcf'
+				'fScan': 'wpv'
 			}
 		}
 	);
-	jQuery( '#SectionScanResultsWcf' ).icwpWpsfTableActions(
+	jQuery( '#SectionScanResultsWpv' ).icwpWpsfTableActions(
 		{
-			'table': $oTableScanWcf,
+			'table': $oTableScanWpv,
 			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
-			'ajax_item_delete':{{ ajax.item_delete|raw }},
 			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
 			'ajax_item_repair':{{ ajax.item_repair|raw }},
+			'custom_actions_ajax': {
+				'item_applyupdate': {{ ajax.item_applyupdate|raw }},
+				'item_deactivate': {{ ajax.item_deactivate|raw }}
+			},
 			'req_params': {
-				'fScan': 'wcf'
+				'fScan': 'wpv'
 			}
 		}
 	);

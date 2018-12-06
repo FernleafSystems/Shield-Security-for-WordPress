@@ -110,6 +110,63 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param string $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function applyUpdateItem( $sItemId ) {
+		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getDbHandler()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		$sSlug = $this->convertVoToResultItem( $oEntry )->slug;
+
+		$oWpPlugins = $this->loadWpPlugins();
+		if ( $oWpPlugins->isUpdateAvailable( $sSlug ) ) {
+			$oWpPlugins->update( $sSlug );
+		}
+		else {
+			throw new Exception( 'Update not available.' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param string $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deactivateItem( $sItemId ) {
+		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+		$oEntry = $this->getScannerDb()
+					   ->getDbHandler()
+					   ->getQuerySelector()
+					   ->byId( $sItemId );
+		$sSlug = $this->convertVoToResultItem( $oEntry )->slug;
+
+		$oWpPlugins = $this->loadWpPlugins();
+		if ( $oWpPlugins->isActive( $sSlug ) ) {
+			$oWpPlugins->deactivate( $sSlug );
+		}
+		else {
+			throw new Exception( 'Items is already deactivated.' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param $sItemId - database row ID
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function repairItem( $sItemId ) {
+		return $this->applyUpdateItem( $sItemId );
+	}
+
+	/**
 	 * @param bool            $bDoAutoUpdate
 	 * @param StdClass|string $mItem
 	 * @return boolean

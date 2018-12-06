@@ -14,4 +14,9 @@
 	<div class="col-12">
 		{% include '/wpadmin_pages/insights_new/scans/results/ptg.twig' %}
 	</div>
+	{% set scankey = 'wpv' %}
+	{% set scan = attribute(scans, scankey) %}
+	<div class="col-12">
+		{% include '/wpadmin_pages/insights_new/scans/results/wpv.twig' %}
+	</div>
 </div>

@@ -66,6 +66,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'repair' );
 					break;
 
+				case 'item_applyupdate':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'applyupdate' );
+					break;
+
+				case 'item_deactivate':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'deactivate' );
+					break;
+
 				case 'render_table_scan':
 					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
 					break;
@@ -712,12 +720,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return array
+	 * @throws Exception
 	 */
 	protected function ajaxExec_BuildTableScan() {
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->getProcessor();
 
 		switch ( $this->loadRequest()->post( 'fScan' ) ) {
+
+			case 'wcf':
+				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
+				break;
+
 			case 'ptg':
 				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanPtg();
 				break;
@@ -726,10 +740,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanUfc();
 				break;
 
-			case 'wcf':
-			default:
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
+			case 'wpv':
+				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWpv();
 				break;
+
+			default:
+				throw new Exception( 'SCAN SLUG NOT SPECIFIED' );
 		}
 
 		$oTableBuilder
@@ -768,6 +784,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 					case 'wcf':
 						$oTablePro = $oScanPro->getSubProcessorWcf();
+						break;
+
+					case 'wpv':
+						$oTablePro = $oScanPro->getSubProcessorWpv();
 						break;
 
 					default:
@@ -827,6 +847,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$oTablePro = $oScanPro->getSubProcessorWcf();
 				break;
 
+			case 'wpv':
+				$oTablePro = $oScanPro->getSubProcessorWpv();
+				break;
+
 			default:
 				$oTablePro = null;
 				break;
@@ -859,7 +883,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
 				}
 				else {
-					$sMessage = 'An error occurred. Re-scanning and reloading ...';
+					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
 				}
 				$oTablePro->doScan();
 			}
