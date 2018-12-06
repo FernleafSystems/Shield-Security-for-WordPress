@@ -174,6 +174,10 @@ class Base extends \WP_List_Table {
 
 		$aClasses[] = 'action';
 
+		if ( !in_array( 'disabled', $aClasses ) ) {
+			$aClasses[] = 'font-weight-bold';
+		}
+
 		$aDataAttrs = array();
 		foreach ( $aData as $sKey => $sValue ) {
 			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );

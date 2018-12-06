@@ -19,24 +19,32 @@ class ScanWpv extends ScanBase {
 
 		$aButtons = [];
 
+		$bHasUpdate = $aItem[ 'has_update' ];
 		$aButtons[] = $this->buildActionButton_Custom(
-			$aItem[ 'has_update' ] ? _wpsf__( 'Apply Update' ) : _wpsf__( 'No Update Available' ),
-			[ ( $aItem[ 'has_update' ] ? 'custom-action' : 'disabled' ) ],
+			$bHasUpdate ? _wpsf__( 'Apply Update' ) : _wpsf__( 'No Update Available' ),
+			[
+				( $bHasUpdate ? 'custom-action' : 'disabled' ),
+				( $bHasUpdate ? 'text-success' : 'text-danger' ),
+			],
 			[
 				'rid'           => $aItem[ 'id' ],
 				'custom-action' => 'item_applyupdate'
 			]
 		);
 
+		$bIsActive = $aItem[ 'is_active' ];
 		$aButtons[] = $this->buildActionButton_Custom(
-			$aItem[ 'is_active' ] ? _wpsf__( 'Deactivate' ) : _wpsf__( 'Already Deactivated' ),
-			[ ( $aItem[ 'is_active' ] ? 'custom-action' : 'disabled' ) ],
+			$bIsActive ? _wpsf__( 'Deactivate' ) : _wpsf__( 'Already Deactivated' ),
+			[
+				( $bIsActive ? 'custom-action' : 'disabled' ),
+				'text-dark',
+			],
 			[
 				'rid'           => $aItem[ 'id' ],
 				'custom-action' => 'item_deactivate'
 			]
 		);
-		
+
 		return $sContent.$this->buildActions( $aButtons );
 	}
 
