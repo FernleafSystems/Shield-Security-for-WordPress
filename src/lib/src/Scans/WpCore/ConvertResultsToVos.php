@@ -16,9 +16,7 @@ class ConvertResultsToVos extends Scans\Base\BaseConvertResultsToVos {
 	 * @return EntryVO
 	 */
 	public function convertItem( $oIt ) {
-		$oVo = new EntryVO();
-		$oVo->hash = $oIt->hash;
-		$oVo->meta = $oIt->getData();
+		$oVo = parent::convertItem( $oIt );
 		$oVo->scan = $oIt::SCAN_RESULT_TYPE;
 		return $oVo;
 	}

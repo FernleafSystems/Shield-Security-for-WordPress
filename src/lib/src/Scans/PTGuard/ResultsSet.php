@@ -38,13 +38,6 @@ class ResultsSet extends Base\BaseResultsSet {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getContext() {
-		return $this->sContext;
-	}
-
-	/**
 	 * @param string $sSlug
 	 * @return ResultItem[]
 	 */
@@ -146,7 +139,7 @@ class ResultsSet extends Base\BaseResultsSet {
 		$aCollection = array();
 		foreach ( $this->getAllResultsSetsForUniqueSlugs() as $sSlug => $oRS ) {
 			if ( $oRS->getItems()[ 0 ]->context == $sContext ) {
-				$aCollection[ $sSlug ] = $oRS->setContext( $sContext );
+				$aCollection[ $sSlug ] = $oRS;
 			}
 		}
 		return $aCollection;
@@ -156,19 +149,6 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @return string[]
 	 */
 	public function getUniqueSlugs() {
-		return array_unique( array_map(
-			function ( $oItem ) {
-				/** @var ResultItem $oItem */
-				return $oItem->slug;
-			},
-			$this->getItems()
-		) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getUniqueSlugsForPlugins() {
 		return array_unique( array_map(
 			function ( $oItem ) {
 				/** @var ResultItem $oItem */
@@ -242,15 +222,6 @@ class ResultsSet extends Base\BaseResultsSet {
 			},
 			$this->getItems()
 		);
-	}
-
-	/**
-	 * @param string $sContext
-	 * @return $this
-	 */
-	public function setContext( $sContext ) {
-		$this->sContext = $sContext;
-		return $this;
 	}
 
 	/**

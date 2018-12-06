@@ -115,35 +115,63 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			),
 			'scans'   => array(
 				'wcf' => array(
-					'flags'        => array(
+					'flags'   => array(
 						'is_enabled'    => true,
 						'is_available'  => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
 					),
-					'hrefs'        => array(
+					'hrefs'   => array(
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
 					),
-					'vars'         => array(),
-					'count'        => $oSelector->countForScan( 'wcf' ),
-					'last_scan_at' => sprintf(
-						_wpsf__( 'Last Scan: %s' ),
-						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
+					'vars'    => array(
+						'last_scan_at' => sprintf(
+							_wpsf__( 'Last Scan: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
+						),
+					),
+					'count'   => $oSelector->countForScan( 'wcf' ),
+					'strings' => array(
+						'subtitle' => _wpsf__( "Detects changes to core WordPress files" )
 					),
 				),
 				'ufc' => array(
-					'flags'        => array(
+					'flags'   => array(
 						'is_enabled'    => true,
 						'is_available'  => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
 					),
-					'hrefs'        => array(
+					'hrefs'   => array(
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
 					),
-					'vars'         => array(),
-					'count'        => $oSelector->countForScan( 'ufc' ),
-					'last_scan_at' => sprintf(
-						_wpsf__( 'Last Scan: %s' ),
-						$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
+					'vars'    => array(
+						'last_scan_at' => sprintf(
+							_wpsf__( 'Last Scan: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
+						),
+					),
+					'count'   => $oSelector->countForScan( 'ufc' ),
+					'strings' => array(
+						'subtitle' => _wpsf__( "Detects files that maybe shouldn't be there" )
+					),
+				),
+				'wpv' => array(
+					'flags'   => array(
+						'is_enabled'    => $oMod->isWpvulnEnabled(),
+						'is_available'  => $oMod->isPremium(),
+						'has_last_scan' => $oMod->getLastScanAt( 'wpv' ) > 0
+					),
+					'hrefs'   => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_wpvuln_scan' )
+					),
+					'vars'    => array(
+						'last_scan_at' => sprintf(
+							_wpsf__( 'Last Scan: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wpv' ) )->diffForHumans()
+						),
+					),
+					'count'   => $oSelector->countForScan( 'wpv' ),
+					'strings' => array(
+						'subtitle' => _wpsf__( "Alerts on known security vulnerabilities" )
 					),
 				),
 				'ptg' => $this->getInsightVarsScan_Ptg(),
@@ -253,7 +281,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		return array(
-			'flags'        => array(
+			'flags'   => array(
 				'is_enabled'    => $oMod->isPtgEnabled(),
 				'is_available'  => $oMod->isPremium(),
 				'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
@@ -261,18 +289,20 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'has_plugins'   => !empty( $aPlugins ),
 				'has_themes'    => !empty( $aThemes ),
 			),
-			'hrefs'        => array(
+			'hrefs'   => array(
 				'options'       => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 				'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 			),
-			'vars'         => array(),
-			'count'        => $oSelector->countForScan( 'ptg' ),
-			'last_scan_at' => sprintf(
-				_wpsf__( 'Last Scan: %s' ),
-				$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
+			'vars'    => array(
+				'last_scan_at' => sprintf(
+					_wpsf__( 'Last Scan: %s' ),
+					$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
+				)
 			),
-			'assets'       => array_merge( $aPlugins, $aThemes ),
-			'strings'      => array(
+			'count'   => $oSelector->countForScan( 'ptg' ),
+			'assets'  => array_merge( $aPlugins, $aThemes ),
+			'strings' => array(
+				'subtitle'            => _wpsf__( "Detects unauthorized changes to plugins/themes" ),
 				'files_with_problems' => _wpsf__( 'Files with problems' ),
 				'root_dir'            => _wpsf__( 'Root directory' ),
 				'date_snapshot'       => _wpsf__( 'Snapshot taken' ),

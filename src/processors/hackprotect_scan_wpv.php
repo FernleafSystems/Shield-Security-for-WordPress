@@ -1,19 +1,16 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_WpVulnScan', false ) ) {
+if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wpv', false ) ) {
 	return;
 }
 
-require_once( __DIR__.'/base_wpsf.php' );
+use \FernleafSystems\Wordpress\Plugin\Shield;
 
-class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_BaseWpsf {
+require_once( __DIR__.'/hackprotect_scan_base.php' );
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 
-	/**
-	 * @var string
-	 */
-	protected $sApiRootUrl;
+	const SCAN_SLUG = 'wpv';
 
 	/**
 	 * @var
@@ -21,18 +18,14 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	protected $aNotifEmail;
 
 	/**
-	 * @var ICWP_WPSF_WpVulnVO[][]
-	 */
-	protected $aPluginVulnerabilities;
-
-	/**
 	 * @var int
 	 */
-	protected $nColumnsCount;
+	private $nColumnsCount;
 
 	/**
 	 */
 	public function run() {
+		parent::run();
 
 		// For display on the Plugins page
 		add_action( 'load-plugins.php', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
@@ -45,6 +38,78 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
+	 * @param Shield\Scans\Wpv\ResultsSet $oResults
+	 * @return Shield\Databases\Scanner\EntryVO[]
+	 */
+	protected function convertResultsToVos( $oResults ) {
+		return ( new Shield\Scans\Wpv\ConvertResultsToVos() )->convert( $oResults );
+	}
+
+	/**
+	 * @param mixed|Shield\Databases\Scanner\EntryVO[] $aVos
+	 * @return Shield\Scans\Wpv\ResultsSet
+	 */
+	protected function convertVosToResults( $aVos ) {
+		return ( new Shield\Scans\Wpv\ConvertVosToResults() )->convert( $aVos );
+	}
+
+	/**
+	 * @param Shield\Databases\Scanner\EntryVO $oVo
+	 * @return Shield\Scans\Wpv\ResultItem
+	 */
+	protected function convertVoToResultItem( $oVo ) {
+		return ( new Shield\Scans\Wpv\ConvertVosToResults() )->convertItem( $oVo );
+	}
+
+	/**
+	 * @return Shield\Scans\Wpv\Repair
+	 */
+	protected function getRepairer() {
+		return new Shield\Scans\Wpv\Repair();
+	}
+
+	/**
+	 * @return Shield\Scans\Wpv\Scanner
+	 */
+	protected function getScanner() {
+		return new Shield\Scans\Wpv\Scanner();
+	}
+
+	/**
+	 * @param $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deleteItem( $sItemId ) {
+		return $this->repairItem( $sItemId );
+	}
+
+	/**
+	 * @param Shield\Scans\Wpv\ResultsSet $oRes
+	 */
+	protected function runCronAutoRepair( $oRes ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
+			$this->getRepairer()->repairResultsSet( $oRes );
+		}
+	}
+
+	/**
+	 * @param Shield\Scans\Wpv\ResultsSet $oRes
+	 * @return bool - true if user notified
+	 */
+	protected function runCronUserNotify( $oRes ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		$bSend = $oFO->isWpvulnSendEmail();
+		if ( $bSend ) {
+			$this->emailResults( $oRes );
+		}
+		return $bSend;
+	}
+
+	/**
 	 * @param bool            $bDoAutoUpdate
 	 * @param StdClass|string $mItem
 	 * @return boolean
@@ -52,7 +117,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
 		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
 		// TODO Audit.
-		return $bDoAutoUpdate || $this->getPluginHasVulnerabilities( $sItemFile );
+		return $bDoAutoUpdate || ( $this->getPluginVulnerabilities( $sItemFile ) > 0 );
 	}
 
 	/**
@@ -70,7 +135,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->getHasVulnerablePlugins() ) {
+		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {
 			// These 3 add the 'Vulnerable' plugin status view.
 			// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
 			add_action( 'pre_current_active_plugins', array( $this, 'addVulnerablePluginStatusView' ), 1000 );
@@ -100,11 +165,13 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	public function addPluginsStatusViewLink( $aViews ) {
 		global $status;
 
-		$nTotalVulnerable = number_format_i18n( count( $this->getVulnerablePlugins() ) );
 		$aViews[ 'vulnerable' ] = sprintf( "<a href='%s' %s>%s</a>",
 			add_query_arg( 'plugin_status', 'vulnerable', 'plugins.php' ),
 			( 'vulnerable' === $status ) ? ' class="current"' : '',
-			sprintf( '%s <span class="count">(%s)</span>', _wpsf__( 'Vulnerable' ), $nTotalVulnerable )
+			sprintf( '%s <span class="count">(%s)</span>',
+				_wpsf__( 'Vulnerable' ),
+				number_format_i18n( $this->countVulnerablePlugins() )
+			)
 		);
 		return $aViews;
 	}
@@ -118,7 +185,7 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		if ( $this->loadRequest()->query( 'plugin_status' ) == 'vulnerable' ) {
 			global $status;
 			$status = 'vulnerable';
-			$aPlugins = array_intersect_key( $aPlugins, $this->getVulnerablePlugins() );
+			$aPlugins = array_intersect_key( $aPlugins, array_flip( $this->getVulnerablePlugins() ) );
 		}
 		return $aPlugins;
 	}
@@ -191,9 +258,10 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
+	 * @param Shield\Scans\Wpv\ResultsSet $oRes
 	 * @return bool
 	 */
-	protected function sendVulnerabilityNotification() {
+	protected function emailResults( $oRes ) {
 		if ( empty( $this->aNotifEmail ) ) {
 			return true;
 		}
@@ -226,180 +294,54 @@ class ICWP_WPSF_Processor_HackProtect_WpVulnScan extends ICWP_WPSF_Processor_Bas
 		return $bSendSuccess;
 	}
 
-	public function runCron() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$this->scanPlugins();
-		$this->scanThemes();
-
-		$this->getHasVulnerablePlugins() ? $oFO->setLastScanProblemAt( 'wpv' ) : $oFO->clearLastScanProblemAt( 'wpv' );
-		$oFO->setLastScanAt( 'wpv' );
-	}
-
-	protected function scanPlugins() {
-
-		foreach ( $this->getVulnerablePlugins() as $sFile => $aVulnerabilities ) {
-			foreach ( $aVulnerabilities as $oVuln ) {
-				$this->addVulnToEmail( $sFile, $oVuln );
-			}
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isWpvulnSendEmail() ) {
-			$this->sendVulnerabilityNotification();
-		}
-	}
-
 	/**
-	 * @return ICWP_WPSF_WpVulnVO[][]
+	 * @return string[]
 	 */
 	protected function getVulnerablePlugins() {
+		return $this->getAllVulnerabilities()->getUniqueSlugs();
+	}
 
-		if ( !isset( $this->aPluginVulnerabilities ) || !is_array( $this->aPluginVulnerabilities ) ) {
-			$this->aPluginVulnerabilities = array();
-
-			foreach ( $this->loadWpPlugins()->getInstalledBaseFiles() as $sFile ) {
-
-				$aThisVulns = $this->getPluginVulnerabilities( $sFile );
-				if ( !empty( $aThisVulns ) ) {
-					$this->aPluginVulnerabilities[ $sFile ] = $aThisVulns;
-				}
-			}
-		}
-
-		return $this->aPluginVulnerabilities;
+	/**
+	 * @return Shield\Scans\Wpv\ResultsSet
+	 */
+	protected function getAllVulnerabilities() {
+		/** @var Shield\Databases\Scanner\Select $oSel */
+		$oSel = $this->getScannerDb()
+					 ->getDbHandler()
+					 ->getQuerySelector();
+		$aVos = $oSel->filterByScan( static::SCAN_SLUG )
+					 ->filterByNotIgnored()
+					 ->query();
+		return $this->convertVosToResults( $aVos );
 	}
 
 	/**
 	 * @param string $sFile
-	 * @return ICWP_WPSF_WpVulnVO[]
+	 * @return Shield\Scans\Wpv\WpVulnDb\WpVulnVO[]
 	 */
 	protected function getPluginVulnerabilities( $sFile ) {
-		$aThisVulns = array();
-		$this->requireCommonLib( 'wpvulndb/WpVulnVO.php' );
-
-		$aData = $this->loadWpPlugins()->getPlugin( $sFile );
-
-		if ( !empty( $aData[ 'Version' ] ) ) {
-			$sSlug = empty( $aData[ 'slug' ] ) ? substr( $sFile, 0, strpos( $sFile, '/' ) ) : $aData[ 'slug' ];
-
-			/** @var stdClass $oVulnerabilityData */
-			foreach ( $this->getVulnerabilityDataForPlugin( $sSlug ) as $oSingleVulnerabilityData ) {
-				if ( $this->isVulnerable( $aData[ 'Version' ], $oSingleVulnerabilityData ) ) {
-					$aThisVulns[] = new ICWP_WPSF_WpVulnVO( $oSingleVulnerabilityData );
-				}
-			}
-		}
-
-		return $aThisVulns;
-	}
-
-	/**
-	 * @param string $sFile
-	 * @return bool
-	 */
-	protected function getPluginHasVulnerabilities( $sFile ) {
-		return count( $this->getPluginVulnerabilities( $sFile ) ) > 0;
+		return array_map(
+			function ( $oItem ) {
+				/** @var Shield\Scans\Wpv\ResultItem $oItem */
+				return $oItem->getWpVulnVo();
+			},
+			$this->getAllVulnerabilities()->getItemsForSlug( $sFile )
+		);
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function getHasVulnerablePlugins() {
-		return count( $this->getVulnerablePlugins() ) > 0;
-	}
-
-	protected function scanThemes() {
-		//TODO
-	}
-
-	/**
-	 * @param $sVersion
-	 * @param $oVulnerabilityData
-	 * @return mixed
-	 */
-	protected function isVulnerable( $sVersion, $oVulnerabilityData ) {
-		$sFixedVersion = empty( $oVulnerabilityData->fixed_in ) ? '0' : $oVulnerabilityData->fixed_in;
-		return version_compare( $sVersion, $sFixedVersion, '<' );
-	}
-
-	/**
-	 * wpvulndb_api_url_wordpress: 'https://wpvulndb.com/api/v2/wordpresses/'
-	 * wpvulndb_api_url_plugins: 'https://wpvulndb.com/api/v2/plugins/'
-	 * wpvulndb_api_url_themes: 'https://wpvulndb.com/api/v2/themes/'
-	 * @param string $sSlug
-	 * @return array
-	 */
-	protected function getVulnerabilityDataForPlugin( $sSlug ) {
-
-		$oWp = $this->loadWp();
-		$sTransientKey = $this->getMod()->prefixOptionKey( 'wpvulnplugin-'.$sSlug );
-
-		$sFullContent = $oWp->getTransient( $sTransientKey );
-		if ( $sFullContent === false ) {
-			$sUrl = $this->getApiRootUrl().'plugins/'.$sSlug;
-			$sFullContent = $this->loadFS()->getUrlContent( $sUrl );
-			if ( empty( $sFullContent ) ) {
-				$sFullContent = 'not available';
-			}
-		}
-
-		$oWp->setTransient( $sTransientKey, $sFullContent, DAY_IN_SECONDS );
-
-		$aVulns = array();
-		if ( !empty( $sFullContent ) && $sFullContent != 'not available' ) {
-			$oData = @json_decode( $sFullContent );
-			if ( isset( $oData->{$sSlug} ) && !empty( $oData->{$sSlug}->vulnerabilities ) && is_array( $oData->{$sSlug}->vulnerabilities ) ) {
-				$aVulns = $oData->{$sSlug}->vulnerabilities;
-			}
-		}
-		return $aVulns;
-	}
-
-	/**
-	 * @param WP_Theme $oTheme
-	 * @return array
-	 */
-	protected function getVulnerabilityDataForTheme( $oTheme ) {
-
-		$sSlug = $oTheme->get_stylesheet();
-		$oWp = $this->loadWp();
-		$sTransientKey = $this->getMod()->prefixOptionKey( 'wpvulntheme-'.$sSlug );
-
-		$sFullContent = $oWp->getTransient( $sTransientKey );
-		if ( empty( $sFullContent ) ) {
-			$sUrl = $this->getApiRootUrl().'themes/'.$sSlug;
-			$sFullContent = $this->loadFS()->getUrlContent( $sUrl );
-		}
-
-		$oWp->setTransient( $sTransientKey, $sFullContent, DAY_IN_SECONDS );
-
-		if ( !empty( $sFullContent ) ) {
-			$oData = json_decode( $sFullContent );
-			if ( isset( $oData->{$sSlug} ) && !empty( $oData->{$sSlug}->vulnerabilities ) && is_array( $oData->{$sSlug}->vulnerabilities ) ) {
-				return $oData->{$sSlug}->vulnerabilities;
-			}
-		}
-		return array();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getApiRootUrl() {
-		if ( empty( $this->sApiRootUrl ) ) {
-			$this->sApiRootUrl = rtrim( $this->getMod()->getDef( 'wpvulndb_api_url_root' ), '/' ).'/';
-		}
-		return $this->sApiRootUrl;
+	protected function countVulnerablePlugins() {
+		return $this->getAllVulnerabilities()->countUniqueSlugsForPluginsContext();
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getCronName() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDef( 'cron_scan_wpv' ) );
+		return $oFO->getWpvCronName();
 	}
 }

@@ -143,6 +143,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$this->getIcCronName(),
 			$this->getUfcCronName(),
 			$this->getWcfCronName(),
+			$this->getWpvCronName(),
 			$this->getPtgCronName()
 		);
 		$oCron = $this->loadWpCronProcessor();
@@ -455,6 +456,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function getWpvulnNotifiedIds() {
 		$a = $this->getOpt( 'wpvuln_notified_ids', array() );
 		return is_array( $a ) ? $a : array();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWpvCronName() {
+		return $this->prefix( $this->getDef( 'cron_scan_wpv' ) );
 	}
 
 	/**

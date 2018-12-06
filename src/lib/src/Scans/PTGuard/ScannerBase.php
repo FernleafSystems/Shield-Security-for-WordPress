@@ -43,7 +43,7 @@ abstract class ScannerBase {
 			$oCopy->copyTo( $oRes, $oFinalResults );
 		}
 
-		return $oFinalResults->setContext( static::CONTEXT );
+		return $oFinalResults;
 	}
 
 	/**

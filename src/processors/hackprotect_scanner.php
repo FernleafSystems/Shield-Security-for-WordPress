@@ -98,15 +98,15 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_WpVulnScan
+	 * @return ICWP_WPSF_Processor_HackProtect_Wpv
 	 */
 	protected function getSubProcessorVuln() {
-		$oProc = $this->getSubPro( 'vuln' );
+		$oProc = $this->getSubPro( 'wpv' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_wpvulnscan.php' );
-			$oProc = ( new ICWP_WPSF_Processor_HackProtect_WpVulnScan( $this->getMod() ) );
-//				->setScannerDb( $this->getSubProcessorScanner() );
-			$this->aSubPros[ 'vuln' ] = $oProc;
+			require_once( __DIR__.'/hackprotect_scan_wpv.php' );
+			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Wpv( $this->getMod() ) )
+				->setScannerDb( $this );
+			$this->aSubPros[ 'wpv' ] = $oProc;
 		}
 		return $oProc;
 	}

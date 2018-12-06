@@ -27,5 +27,10 @@ abstract class BaseConvertResultsToVos {
 	 * @param BaseResultItem $oIt
 	 * @return Scanner\EntryVO
 	 */
-	abstract public function convertItem( $oIt );
+	public function convertItem( $oIt ) {
+		$oVo = new Scanner\EntryVO();
+		$oVo->hash = $oIt->hash;
+		$oVo->meta = $oIt->getData();
+		return $oVo;
+	}
 }

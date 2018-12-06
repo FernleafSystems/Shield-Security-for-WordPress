@@ -31,7 +31,7 @@
 				<div class="row">
 					<div class="col-sm-6">
 						{% if scan.flags.has_last_scan %}
-							{{ scan.last_scan_at }}
+							{{ scan.vars.last_scan_at }}
 						{% else %}
 							{{ strings.never }}
 						{% endif %}
