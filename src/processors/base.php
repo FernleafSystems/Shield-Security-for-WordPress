@@ -31,20 +31,24 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function __construct( $oModCon ) {
 		$this->oModCon = $oModCon;
-		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
-		add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
-		if ( method_exists( $this, 'addToAdminNotices' ) ) {
-			add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
-		}
 
 		add_action( 'init', array( $this, 'onWpInit' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
 
 		$this->init();
 	}
 
 	public function onWpInit() {
+		$oMod = $this->getMod();
+		$oCon = $oMod->getConn();
+		if ( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) {
+			add_action( $oMod->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+			if ( method_exists( $this, 'addToAdminNotices' ) ) {
+				add_action( $oMod->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
+			}
+		}
 	}
 
 	/**
@@ -106,8 +110,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	public function autoAddToAdminNotices() {
-		$oCon = $this->getController();
-
 		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
 			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
@@ -115,9 +117,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			}
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
-			if ( method_exists( $this, $sMethodName ) && isset( $aAttrs[ 'valid_admin' ] )
-				 && $aAttrs[ 'valid_admin' ] && $oCon->isValidAdminArea() ) {
-
+			if ( method_exists( $this, $sMethodName ) ) {
 				$aAttrs[ 'id' ] = $sNoticeId;
 				$aAttrs[ 'notice_id' ] = $sNoticeId;
 				call_user_func( array( $this, $sMethodName ), $aAttrs );

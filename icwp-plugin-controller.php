@@ -343,7 +343,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpAdminMenu() {
-		if ( $this->isValidAdminArea() ) {
+		if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
 			$this->createPluginMenu();
 		}
 	}
@@ -351,7 +351,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpDashboardSetup() {
-		if ( $this->isValidAdminArea() ) {
+		if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
 			wp_add_dashboard_widget(
 				$this->prefix( 'dashboard_widget' ),
 				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
@@ -1704,7 +1704,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$bSuccess = true;
 			}
 			catch ( Exception $oE ) {
-				if ( $this->isValidAdminArea() ) {
+				if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
 					$this->sAdminNoticeError = $oE->getMessage();
 					add_action( 'admin_notices', array( $this, 'adminNoticePluginFailedToLoad' ) );
 					add_action( 'network_admin_notices', array( $this, 'adminNoticePluginFailedToLoad' ) );

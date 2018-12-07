@@ -68,6 +68,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function onWpInit() {
 		parent::onWpInit();
+
 		if ( $this->loadWp()->isRest() ) {
 			$this->processRestApi();
 		}

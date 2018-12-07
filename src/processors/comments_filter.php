@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		// We only warn when the human spam filter is running
-		if ( $oFO->isOpt( 'enable_comments_human_spam_filter', 'Y' ) && $oFO->getConn()->isValidAdminArea() ) {
+		if ( $oFO->isOpt( 'enable_comments_human_spam_filter', 'Y' ) ) {
 
 			$oWpPlugins = $this->loadWpPlugins();
 			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );
