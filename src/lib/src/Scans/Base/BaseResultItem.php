@@ -8,7 +8,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * Class BaseResultItem
  * @property string hash
  * @property bool   is_excluded
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
 class BaseResultItem {
 

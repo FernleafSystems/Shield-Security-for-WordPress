@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property string is_unrecognised
  * @property string is_different
  * @property string is_missing
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  */
 class ResultItem extends Base\BaseResultItem {
 

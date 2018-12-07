@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * Class ResultsSet
  * @property ResultItem[] $aItems
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
 class ResultsSet extends Base\BaseResultsSet {
 

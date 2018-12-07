@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\Snapshots;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Snapshots;
 
 use FernleafSystems\Wordpress\Services\Services;
 

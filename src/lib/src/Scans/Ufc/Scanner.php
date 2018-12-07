@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class Scanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
  */
 class Scanner {
 

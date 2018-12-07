@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class RepairItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore#
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf#
  */
 class Repair extends Scans\Base\BaseRepair {
 

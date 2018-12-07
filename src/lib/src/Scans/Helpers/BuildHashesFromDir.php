@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
 /**
  * Class BuildHashesFromDir
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  */
 class BuildHashesFromDir {
 

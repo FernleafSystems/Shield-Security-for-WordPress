@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore\ResultsSet;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf\ResultsSet;
 
 /**
  * Class DiffResultForStorage
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
 class DiffResultForStorage {
 

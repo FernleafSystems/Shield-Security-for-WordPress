@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * Class ResultsSet
  * @property ResultItem[] $aItems
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
  */
 class ResultsSet extends Base\BaseResultsSet {
 

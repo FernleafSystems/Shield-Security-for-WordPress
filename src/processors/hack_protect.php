@@ -198,7 +198,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
 								 ->query();
-		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ConvertVosToResults() )
+		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ConvertVosToResults() )
 			->convert( $aPtgResults );
 
 		// Process Plugins
@@ -206,7 +206,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
 		foreach ( $aPlugins as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ResultItem $oIT */
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
 			$oIT = array_pop( $aItems );
 
 			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
@@ -252,7 +252,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();;
 		foreach ( $aThemes as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard\ResultItem $oIT */
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
 			$oIT = array_pop( $aItems );
 
 			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );

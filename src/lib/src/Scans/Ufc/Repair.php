@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class RepairItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore#
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf#
  */
 class Repair extends Scans\Base\BaseRepair {
 

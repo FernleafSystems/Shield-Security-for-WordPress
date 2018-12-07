@@ -1,10 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 /**
  * Class DiffHashes
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  */
 class DiffHashes {
 

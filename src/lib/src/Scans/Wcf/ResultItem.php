@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property string md5_file_wp
  * @property bool   is_checksumfail
  * @property bool   is_missing
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\WpCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
 class ResultItem extends Base\BaseResultItem {
 

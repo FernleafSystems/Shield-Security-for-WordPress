@@ -13,34 +13,34 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'wcf';
 
 	/**
-	 * @param Shield\Scans\WpCore\ResultsSet $oResults
+	 * @param Shield\Scans\Wcf\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
 	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\WpCore\ConvertResultsToVos() )->convert( $oResults );
+		return ( new Shield\Scans\Wcf\ConvertResultsToVos() )->convert( $oResults );
 	}
 
 	/**
 	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\WpCore\ResultsSet
+	 * @return Shield\Scans\Wcf\ResultsSet
 	 */
 	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\WpCore\ConvertVosToResults() )->convert( $aVos );
+		return ( new Shield\Scans\Wcf\ConvertVosToResults() )->convert( $aVos );
 	}
 
 	/**
 	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\WpCore\ResultItem
+	 * @return Shield\Scans\Wcf\ResultItem
 	 */
 	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\WpCore\ConvertVosToResults() )->convertItem( $oVo );
+		return ( new Shield\Scans\Wcf\ConvertVosToResults() )->convertItem( $oVo );
 	}
 
 	/**
-	 * @return Shield\Scans\WpCore\Repair|mixed
+	 * @return Shield\Scans\Wcf\Repair|mixed
 	 */
 	protected function getRepairer() {
-		return new Shield\Scans\WpCore\Repair();
+		return new Shield\Scans\Wcf\Repair();
 	}
 
 	/**
@@ -51,10 +51,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 */
 
 	/**
-	 * @return Shield\Scans\WpCore\Scanner
+	 * @return Shield\Scans\Wcf\Scanner
 	 */
 	protected function getScanner() {
-		return ( new Shield\Scans\WpCore\Scanner() )
+		return ( new Shield\Scans\Wcf\Scanner() )
 			->setExclusions( $this->getFullExclusions() )
 			->setMissingExclusions( $this->getMissingOnlyExclusions() );
 	}
@@ -83,18 +83,18 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\WpCore\ResultItem $oItem
+	 * @param Shield\Scans\Wcf\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
 	protected function repairItem( $oItem ) {
-		( new Shield\Scans\WpCore\Repair() )->repairItem( $oItem );
+		( new Shield\Scans\Wcf\Repair() )->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' );
 		return true;
 	}
 
 	/**
-	 * @param Shield\Scans\WpCore\ResultsSet $oRes
+	 * @param Shield\Scans\Wcf\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -105,7 +105,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\WpCore\ResultsSet $oRes
+	 * @param Shield\Scans\Wcf\ResultsSet $oRes
 	 * @return bool
 	 */
 	protected function runCronUserNotify( $oRes ) {
@@ -114,7 +114,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\WpCore\ResultsSet $oResults
+	 * @param Shield\Scans\Wcf\ResultsSet $oResults
 	 */
 	protected function emailResults( $oResults ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\WpCore\ResultsSet $oResults
+	 * @param Shield\Scans\Wcf\ResultsSet $oResults
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
@@ -176,7 +176,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\WpCore\ResultsSet $oResult
+	 * @param Shield\Scans\Wcf\ResultsSet $oResult
 	 * @return array
 	 */
 	private function buildListOfFilesForEmail( $oResult ) {

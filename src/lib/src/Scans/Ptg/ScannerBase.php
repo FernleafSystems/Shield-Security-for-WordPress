@@ -1,12 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * Class BaseScanner
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\PTGuard
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  */
 abstract class ScannerBase {
 

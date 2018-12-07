@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * Class ConvertVosToResults
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  */
 class ConvertVosToResults extends Scans\Base\BaseConvertVosToResults {
 

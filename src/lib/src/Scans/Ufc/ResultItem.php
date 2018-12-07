@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * Class ResultItem
  * @property string path_full
  * @property string path_fragment
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
  */
 class ResultItem extends Base\BaseResultItem {
 

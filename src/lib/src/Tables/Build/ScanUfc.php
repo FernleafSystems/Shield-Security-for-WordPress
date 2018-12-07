@@ -23,7 +23,7 @@ class ScanUfc extends ScanBase {
 		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oIt = ( new Shield\Scans\UnrecognisedCore\ConvertVosToResults() )->convertItem( $oEntry );
+			$oIt = ( new Shield\Scans\Ufc\ConvertVosToResults() )->convertItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'path' ] = $oIt->path_fragment;
 			$aE[ 'status' ] = 'Unrecognised File';

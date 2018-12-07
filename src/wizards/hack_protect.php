@@ -430,7 +430,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'scanresult':
-					/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\UnrecognisedCore\ResultsSet $oRes */
+					/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc\ResultsSet $oRes */
 					$oRes = $oProc->getSubProcessorScanner()
 								  ->getSubProcessorUfc()
 								  ->doScan();
