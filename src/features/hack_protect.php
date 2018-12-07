@@ -90,9 +90,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function createFileDownloadLink( $oEntryVo ) {
-		$aActionNonce = $this->getAjaxActionData( 'scan_file_download', false );
+		$aActionNonce = $this->getNonceActionData( 'scan_file_download' );
 		$aActionNonce[ 'rid' ] = $oEntryVo->id;
-		unset( $aActionNonce[ 'ajaxurl' ] );
 		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
 	}
 
