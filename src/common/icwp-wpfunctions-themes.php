@@ -311,6 +311,14 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return boolean
+	 */
+	public function isUpdateAvailable( $sSlug ) {
+		return !is_null( $this->getUpdateInfo( $sSlug ) );
+	}
+
+	/**
 	 * @param string $sBaseName
 	 * @return bool
 	 */

@@ -174,8 +174,8 @@ class Base extends \WP_List_Table {
 
 		$aClasses[] = 'action';
 
-		if ( !in_array( 'disabled', $aClasses ) ) {
-			$aClasses[] = 'font-weight-bold';
+		if ( in_array( 'disabled', $aClasses ) ) {
+			$aClasses[] = 'text-dark';
 		}
 
 		$aDataAttrs = array();

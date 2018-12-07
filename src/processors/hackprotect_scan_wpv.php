@@ -120,11 +120,15 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 					   ->getDbHandler()
 					   ->getQuerySelector()
 					   ->byId( $sItemId );
-		$sSlug = $this->convertVoToResultItem( $oEntry )->slug;
+		$oItem = $this->convertVoToResultItem( $oEntry );
 
 		$oWpPlugins = $this->loadWpPlugins();
-		if ( $oWpPlugins->isUpdateAvailable( $sSlug ) ) {
-			$oWpPlugins->update( $sSlug );
+		$oWpThemes = $this->loadWpThemes();
+		if ( $oItem->context == 'plugins' && $oWpPlugins->isUpdateAvailable( $oItem->slug ) ) {
+			$oWpPlugins->update( $oItem->slug );
+		}
+		else if ( $oItem->context == 'themes' && $oWpThemes->isUpdateAvailable( $oItem->slug ) ) {
+			$oWpThemes->update( $oItem->slug );
 		}
 		else {
 			throw new Exception( 'Update not available.' );

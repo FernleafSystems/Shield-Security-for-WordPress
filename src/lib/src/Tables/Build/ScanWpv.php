@@ -18,15 +18,29 @@ class ScanWpv extends ScanBase {
 		$aEntries = array();
 
 		$oWpPlugins = Services::WpPlugins();
+		$oWpThemes = Services::WpThemes();
 
 		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oIt = ( new Shield\Scans\Wpv\ConvertVosToResults() )->convertItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'asset' ] = $oWpPlugins->getPluginAsVo( $oIt->slug );
-			$aE[ 'has_update' ] = $oWpPlugins->isUpdateAvailable( $oIt->slug );
-			$aE[ 'is_active' ] = $oWpPlugins->isActive( $oIt->slug );
+			if ( $oIt->context == 'plugins' ) {
+				$oAsset = $oWpPlugins->getPluginAsVo( $oIt->slug );
+				$aE[ 'asset' ] = $oAsset;
+				$aE[ 'asset_name' ] = $oAsset->Name;
+				$aE[ 'asset_version' ] = $oAsset->Version;
+				$aE[ 'can_deactivate' ] = $oWpPlugins->isActive( $oIt->slug );
+				$aE[ 'has_update' ] = $oWpPlugins->isUpdateAvailable( $oIt->slug );
+			}
+			else {
+				$oAsset = $oWpThemes->getTheme( $oIt->slug );
+				$aE[ 'asset' ] = $oAsset;
+				$aE[ 'asset_name' ] = $oAsset->get( 'Name' );
+				$aE[ 'asset_version' ] = $oAsset->get( 'Version' );
+				$aE[ 'can_deactivate' ] = false;
+				$aE[ 'has_update' ] = $oWpThemes->isUpdateAvailable( $oIt->slug );
+			}
 			$aE[ 'wpvuln_vo' ] = $oIt->getWpVulnVo();
 			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );

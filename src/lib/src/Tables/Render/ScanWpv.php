@@ -12,10 +12,8 @@ class ScanWpv extends ScanBase {
 	 * @return string
 	 */
 	public function column_asset( $aItem ) {
-		/** @var WpPluginVo $oAsset */
-		$oAsset = $aItem[ 'asset' ];
 		$sContent = sprintf( '<span class="asset-title font-weight-bold">%s</span> v%s',
-			$oAsset->Name, ltrim( $oAsset->Version, 'v' ) );
+			$aItem[ 'asset_name' ], ltrim( $aItem[ 'asset_version' ], 'v' ) );
 
 		$aButtons = [];
 
@@ -23,8 +21,7 @@ class ScanWpv extends ScanBase {
 		$aButtons[] = $this->buildActionButton_Custom(
 			$bHasUpdate ? _wpsf__( 'Apply Update' ) : _wpsf__( 'No Update Available' ),
 			[
-				( $bHasUpdate ? 'custom-action' : 'disabled' ),
-				( $bHasUpdate ? 'text-success' : 'text-danger' ),
+				( $bHasUpdate ? 'custom-action text-success' : 'disabled' ),
 			],
 			[
 				'rid'           => $aItem[ 'id' ],
@@ -32,18 +29,16 @@ class ScanWpv extends ScanBase {
 			]
 		);
 
-		$bIsActive = $aItem[ 'is_active' ];
-		$aButtons[] = $this->buildActionButton_Custom(
-			$bIsActive ? _wpsf__( 'Deactivate' ) : _wpsf__( 'Already Deactivated' ),
-			[
-				( $bIsActive ? 'custom-action' : 'disabled' ),
-				'text-dark',
-			],
-			[
-				'rid'           => $aItem[ 'id' ],
-				'custom-action' => 'item_deactivate'
-			]
-		);
+		if ( $aItem[ 'can_deactivate' ] ) {
+			$aButtons[] = $this->buildActionButton_Custom(
+				_wpsf__( 'Deactivate' ),
+				[ 'custom-action' ],
+				[
+					'rid'           => $aItem[ 'id' ],
+					'custom-action' => 'item_deactivate'
+				]
+			);
+		}
 
 		return $sContent.$this->buildActions( $aButtons );
 	}
