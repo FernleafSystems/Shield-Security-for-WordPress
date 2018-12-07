@@ -281,7 +281,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		if ( $oFO->getConn()->isPluginAdmin() ) {
+		if ( $this->getController()->isPluginAdmin() ) {
 			return;
 		}
 

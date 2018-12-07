@@ -21,6 +21,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 
 	public function onWpInit() {
 		parent::onWpInit();
+
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 		$oCon = $this->getController();
