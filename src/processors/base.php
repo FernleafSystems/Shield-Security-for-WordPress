@@ -116,7 +116,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
 			if ( method_exists( $this, $sMethodName ) && isset( $aAttrs[ 'valid_admin' ] )
-				 && $aAttrs[ 'valid_admin' ] && $oCon->isValidAdminArea() ) {
+				 && $aAttrs[ 'valid_admin' ] && $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) {
 
 				$aAttrs[ 'id' ] = $sNoticeId;
 				$aAttrs[ 'notice_id' ] = $sNoticeId;

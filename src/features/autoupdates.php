@@ -112,9 +112,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
 				case 'toggle_plugin_autoupdate':
-					if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->isValidAdminArea() ) {
-						$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
-					}
+					$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
 					break;
 
 				default:
@@ -128,24 +126,26 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function ajaxExec_TogglePluginAutoupdate() {
-
 		$bSuccess = false;
+		$sMessage = _wpsf__( 'You do not have permissions to perform this action.' );
 
-		$oWpPlugins = $this->loadWpPlugins();
-		$sFile = $this->loadRequest()->post( 'pluginfile' );
-		if ( $oWpPlugins->isInstalled( $sFile ) ) {
-			$this->setPluginToAutoUpdate( $sFile );
+		if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->isPluginAdmin() ) {
+			$oWpPlugins = $this->loadWpPlugins();
+			$sFile = $this->loadRequest()->post( 'pluginfile' );
+			if ( $oWpPlugins->isInstalled( $sFile ) ) {
+				$this->setPluginToAutoUpdate( $sFile );
 
-			$aPlugin = $oWpPlugins->getPlugin( $sFile );
-			$sMessage = sprintf( _wpsf__( 'Plugin "%s" will %s.' ),
-				$aPlugin[ 'Name' ],
-				$this->loadWp()
-					 ->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
-			);
-			$bSuccess = true;
-		}
-		else {
-			$sMessage = _wpsf__( 'Failed to change the update status of the plugin.' );
+				$aPlugin = $oWpPlugins->getPlugin( $sFile );
+				$sMessage = sprintf( _wpsf__( 'Plugin "%s" will %s.' ),
+					$aPlugin[ 'Name' ],
+					$this->loadWp()
+						 ->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
+				);
+				$bSuccess = true;
+			}
+			else {
+				$sMessage = _wpsf__( 'Failed to change the update status of the plugin.' );
+			}
 		}
 
 		return array(
