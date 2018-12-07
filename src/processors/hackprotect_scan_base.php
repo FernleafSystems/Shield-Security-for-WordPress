@@ -200,11 +200,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 				$bSuccess = $this->repairItem( $sItemId );
 				break;
 
-				// WPV-specific actions
-			case 'applyupdate':
-				$bSuccess = $this->applyUpdateItem( $sItemId );
-				break;
-
 			case 'deactivate':
 				$bSuccess = $this->deactivateItem( $sItemId );
 				break;
@@ -252,15 +247,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		}
 
 		return $bSuccess;
-	}
-
-	/**
-	 * @param string $sItemId
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function applyUpdateItem( $sItemId ) {
-		throw new Exception( 'Unsupported Action' );
 	}
 
 	/**

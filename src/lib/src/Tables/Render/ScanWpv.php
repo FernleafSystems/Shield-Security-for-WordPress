@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 
 class ScanWpv extends ScanBase {
 
@@ -20,13 +19,8 @@ class ScanWpv extends ScanBase {
 		$bHasUpdate = $aItem[ 'has_update' ];
 		$aButtons[] = $this->buildActionButton_Custom(
 			$bHasUpdate ? _wpsf__( 'Apply Update' ) : _wpsf__( 'No Update Available' ),
-			[
-				( $bHasUpdate ? 'custom-action text-success' : 'disabled' ),
-			],
-			[
-				'rid'           => $aItem[ 'id' ],
-				'custom-action' => 'item_applyupdate'
-			]
+			[ ( $bHasUpdate ? 'repair text-success' : 'disabled' ) ],
+			[ 'rid' => $aItem[ 'id' ], ]
 		);
 
 		if ( $aItem[ 'can_deactivate' ] ) {

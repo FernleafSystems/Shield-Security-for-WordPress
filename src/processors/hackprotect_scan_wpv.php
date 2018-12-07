@@ -76,15 +76,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param $sItemId
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function deleteItem( $sItemId ) {
-		return $this->repairItem( $sItemId );
-	}
-
-	/**
 	 * @param Shield\Scans\Wpv\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
@@ -114,7 +105,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function applyUpdateItem( $sItemId ) {
+	private function applyUpdateItem( $sItemId ) {
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
 					   ->getDbHandler()

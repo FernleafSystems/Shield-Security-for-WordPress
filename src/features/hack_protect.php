@@ -66,10 +66,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'repair' );
 					break;
 
-				case 'item_applyupdate':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'applyupdate' );
-					break;
-
 				case 'item_deactivate':
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'deactivate' );
 					break;

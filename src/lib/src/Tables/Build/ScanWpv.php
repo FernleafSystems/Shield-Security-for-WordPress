@@ -20,6 +20,10 @@ class ScanWpv extends ScanBase {
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
 
+		// so that any available update will show
+		$oWpPlugins->getUpdates( true );
+		$oWpThemes->getUpdates( true );
+
 		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
