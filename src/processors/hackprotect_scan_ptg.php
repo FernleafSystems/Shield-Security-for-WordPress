@@ -381,7 +381,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			try {
 				$oStore->removeItemSnapshot( $sBaseName )
 					   ->save();
-				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for theme "%s"' ), $sBaseName ) );
+				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for plugin "%s"' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -407,7 +407,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			try {
 				$oStore->removeItemSnapshot( $sSlug )
 					   ->save();
-				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for theme "%s"' ), $sSlug ) );
+				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for theme "%s"' ), $sSlug ) );
 			}
 			catch ( \Exception $oE ) {
 			}

@@ -105,27 +105,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 * @throws Exception
 	 */
-	private function applyUpdateItem( $oItem ) {
-		$oWpPlugins = $this->loadWpPlugins();
-		$oWpThemes = $this->loadWpThemes();
-		if ( $oItem->context == 'plugins' && $oWpPlugins->isUpdateAvailable( $oItem->slug ) ) {
-			$oWpPlugins->update( $oItem->slug );
-		}
-		else if ( $oItem->context == 'themes' && $oWpThemes->isUpdateAvailable( $oItem->slug ) ) {
-			$oWpThemes->update( $oItem->slug );
-		}
-		else {
-			throw new Exception( 'Update not available.' );
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param Shield\Scans\Wpv\ResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
 	protected function deactivateItem( $oItem ) {
 		$oWpPlugins = $this->loadWpPlugins();
 		if ( $oWpPlugins->isActive( $oItem->slug ) ) {
@@ -144,7 +123,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws Exception
 	 */
 	protected function repairItem( $oItem ) {
-		return $this->applyUpdateItem( $oItem );
+		return $this->getRepairer()->repairItem( $oItem );
 	}
 
 	/**

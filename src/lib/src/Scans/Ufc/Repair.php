@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class RepairItem
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf#
+ * Class Repair
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
  */
 class Repair extends Scans\Base\BaseRepair {
 

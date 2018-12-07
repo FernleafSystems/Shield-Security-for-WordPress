@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws Exception
 	 */
 	protected function repairItem( $oItem ) {
-		( new Shield\Scans\Ufc\Repair() )->repairItem( $oItem );
+		$this->getRepairer()->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' ); //TODO
 		return true;
 	}

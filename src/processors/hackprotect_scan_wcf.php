@@ -88,7 +88,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws Exception
 	 */
 	protected function repairItem( $oItem ) {
-		( new Shield\Scans\Wcf\Repair() )->repairItem( $oItem );
+		$this->getRepairer()->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' );
 		return true;
 	}
