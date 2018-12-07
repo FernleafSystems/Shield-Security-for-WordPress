@@ -187,52 +187,66 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @throws Exception
 	 */
 	public function executeItemAction( $sItemId, $sAction ) {
-		switch ( $sAction ) {
-			case 'delete':
-				$bSuccess = $this->deleteItem( $sItemId );
-				break;
 
-			case 'ignore':
-				$bSuccess = $this->ignoreItem( $sItemId );
-				break;
+		if ( is_numeric( $sItemId ) ) {
+			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+			$oEntry = $this->getScannerDb()
+						   ->getDbHandler()
+						   ->getQuerySelector()
+						   ->byId( $sItemId );
+			if ( empty( $oEntry ) ) {
+				throw new Exception( 'Item could not be found to ignore.' );
+			}
 
-			case 'repair':
-				$bSuccess = $this->repairItem( $sItemId );
-				break;
+			$oItem = $this->convertVoToResultItem( $oEntry );
 
-			case 'deactivate':
-				$bSuccess = $this->deactivateItem( $sItemId );
-				break;
+			switch ( $sAction ) {
+				case 'delete':
+					$bSuccess = $this->deleteItem( $oItem );
+					break;
 
-			default:
-				$bSuccess = false;
-				break;
+				case 'ignore':
+					$bSuccess = $this->ignoreItem( $oItem );
+					break;
+
+				case 'repair':
+					$bSuccess = $this->repairItem( $oItem );
+					break;
+
+				case 'deactivate':
+					$bSuccess = $this->deactivateItem( $oItem );
+					break;
+
+				default:
+					$bSuccess = false;
+					break;
+			}
 		}
 
 		return $bSuccess;
 	}
 
 	/**
-	 * @param string $sItemId
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deleteItem( $sItemId ) {
+	protected function deleteItem( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
 	/**
-	 * @param string $sItemId
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function ignoreItem( $sItemId ) {
+	protected function ignoreItem( $oItem ) {
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getScannerDb()
 					   ->getDbHandler()
 					   ->getQuerySelector()
-					   ->byId( $sItemId );
-		if ( empty( $oEntry ) ) {
+					   ->byId( $oItem );
+		if ( empty( $oItem ) ) {
 			throw new Exception( 'Item could not be found to ignore.' );
 		}
 
@@ -250,20 +264,20 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @param string $sItemId
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deactivateItem( $sItemId ) {
+	protected function deactivateItem( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
 	/**
-	 * @param string $sItemId
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $sItemId ) {
+	protected function repairItem( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 

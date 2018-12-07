@@ -101,18 +101,11 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sItemId
+	 * @param Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	private function applyUpdateItem( $sItemId ) {
-		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getScannerDb()
-					   ->getDbHandler()
-					   ->getQuerySelector()
-					   ->byId( $sItemId );
-		$oItem = $this->convertVoToResultItem( $oEntry );
-
+	private function applyUpdateItem( $oItem ) {
 		$oWpPlugins = $this->loadWpPlugins();
 		$oWpThemes = $this->loadWpThemes();
 		if ( $oItem->context == 'plugins' && $oWpPlugins->isUpdateAvailable( $oItem->slug ) ) {
@@ -129,21 +122,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sItemId
+	 * @param Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deactivateItem( $sItemId ) {
-		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getScannerDb()
-					   ->getDbHandler()
-					   ->getQuerySelector()
-					   ->byId( $sItemId );
-		$sSlug = $this->convertVoToResultItem( $oEntry )->slug;
-
+	protected function deactivateItem( $oItem ) {
 		$oWpPlugins = $this->loadWpPlugins();
-		if ( $oWpPlugins->isActive( $sSlug ) ) {
-			$oWpPlugins->deactivate( $sSlug );
+		if ( $oWpPlugins->isActive( $oItem->slug ) ) {
+			$oWpPlugins->deactivate( $oItem->slug );
 		}
 		else {
 			throw new Exception( 'Items is already deactivated.' );
@@ -153,12 +139,12 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param $sItemId - database row ID
+	 * @param Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $sItemId ) {
-		return $this->applyUpdateItem( $sItemId );
+	protected function repairItem( $oItem ) {
+		return $this->applyUpdateItem( $oItem );
 	}
 
 	/**

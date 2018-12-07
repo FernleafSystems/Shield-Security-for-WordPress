@@ -716,11 +716,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return array
-	 * @throws Exception
 	 */
 	protected function ajaxExec_BuildTableScan() {
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->getProcessor();
 
 		switch ( $this->loadRequest()->post( 'fScan' ) ) {
 
@@ -741,33 +738,37 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			default:
-				throw new Exception( 'SCAN SLUG NOT SPECIFIED' );
+				break;
 		}
 
-		$oTableBuilder
-			->setMod( $this )
-			->setDbHandler( $oPro->getSubProcessorScanner()->getDbHandler() );
+		if ( empty( $oTableBuilder ) ) {
+			$sHtml = 'SCAN SLUG NOT SPECIFIED';
+		}
+		else {
+			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+			$oPro = $this->getProcessor();
+			$sHtml = $oTableBuilder
+				->setMod( $this )
+				->setDbHandler( $oPro->getSubProcessorScanner()->getDbHandler() )
+				->buildTable();
+		}
 
 		return array(
-			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
+			'success' => !empty( $oTableBuilder ),
+			'html'    => $sHtml
 		);
 	}
 
 	public function ajaxExec_StartScans() {
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oScanPro = $oP->getSubProcessorScanner();
-
+		$bSuccess = false;
+		$bPageReload = false;
+		$sMessage = _wpsf__( 'No scans were selected' );
 		$aFormParams = $this->getAjaxFormParams();
-		if ( empty( $aFormParams ) ) {
-			$bSuccess = false;
-			$bPageReload = false;
-			$sMessage = _wpsf__( 'No scans were selected' );
-		}
-		else {
-			$bResetIgnore = isset( $aFormParams[ 'opt_clear_ignore' ] );
-			$bResetNotification = isset( $aFormParams[ 'opt_clear_notification' ] );
+
+		if ( !empty( $aFormParams ) ) {
+			/** @var ICWP_WPSF_Processor_HackProtect $oP */
+			$oP = $this->getProcessor();
+			$oScanPro = $oP->getSubProcessorScanner();
 			foreach ( array_keys( $aFormParams ) as $sScan ) {
 				switch ( $sScan ) {
 					case 'ptg':
@@ -790,20 +791,22 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						$oTablePro = null;
 						break;
 				}
+
 				if ( !empty( $oTablePro ) ) {
 					$oTablePro->doScan();
 
-					if ( $bResetIgnore ) {
+					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
 						$oTablePro->resetIgnoreStatus();
 					}
-					if ( $bResetNotification ) {
+					if ( isset( $aFormParams[ 'opt_clear_notification' ] ) ) {
 						$oTablePro->resetNotifiedStatus();
 					}
+
+					$bSuccess = true;
+					$bPageReload = true;
+					$sMessage = _wpsf__( 'Scans completed.' ).' '._wpsf__( 'Reloading page' ).'...';
 				}
 			}
-			$bSuccess = true;
-			$bPageReload = true;
-			$sMessage = _wpsf__( 'Scans completed.' ).' '._wpsf__( 'Reloading page' ).'...';
 		}
 
 		return array(
@@ -811,10 +814,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'page_reload' => $bPageReload,
 			'message'     => $sMessage,
 		);
-	}
-
-	public function ajaxExec_ScanBulkAction( $sAction ) {
-
 	}
 
 	/**

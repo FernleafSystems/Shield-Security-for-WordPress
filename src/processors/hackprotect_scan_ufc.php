@@ -71,33 +71,22 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param $sItemId
+	 * @param Shield\Scans\UnrecognisedCore\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deleteItem( $sItemId ) {
-		return $this->repairItem( $sItemId );
+	protected function deleteItem( $oItem ) {
+		return $this->repairItem( $oItem );
 	}
 
 	/**
-	 * @param $sItemId - database row ID
+	 * @param Shield\Scans\UnrecognisedCore\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $sItemId ) {
-		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getScannerDb()
-					   ->getDbHandler()
-					   ->getQuerySelector()
-					   ->byId( $sItemId );
-		if ( empty( $oEntry ) ) {
-			throw new Exception( 'Item could not be found for repair.' );
-		}
-		$oItem = $this->convertVoToResultItem( $oEntry );
-
+	protected function repairItem( $oItem ) {
 		( new Shield\Scans\UnrecognisedCore\Repair() )->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' ); //TODO
-
 		return true;
 	}
 

@@ -83,24 +83,13 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param $sItemId - database row ID
+	 * @param Shield\Scans\WpCore\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $sItemId ) {
-		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getScannerDb()
-					   ->getDbHandler()
-					   ->getQuerySelector()
-					   ->byId( $sItemId );
-		if ( empty( $oEntry ) ) {
-			throw new Exception( 'Item could not be found for repair.' );
-		}
-		$oItem = $this->convertVoToResultItem( $oEntry );
-
+	protected function repairItem( $oItem ) {
 		( new Shield\Scans\WpCore\Repair() )->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' );
-
 		return true;
 	}
 

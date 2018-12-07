@@ -159,55 +159,55 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sItemId - plugin/theme slug
+	 * @param Shield\Scans\PTGuard\ResultItem $oItem
 	 * @return true
 	 * @throws Exception
 	 */
-	protected function ignoreItem( $sItemId ) {
+	protected function ignoreItem( $oItem ) {
 		// we run it for both since it doesn't matter which context it's in, it'll be removed
-		$this->updatePluginSnapshot( $sItemId );
-		$this->updateThemeSnapshot( $sItemId );
+		$this->updatePluginSnapshot( $oItem->slug );
+		$this->updateThemeSnapshot( $oItem->slug );
 		return true;
 	}
 
 	/**
-	 * @param string $sItemId
+	 * @param Shield\Scans\PTGuard\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $sItemId ) {
-		$sContext = $this->getContextFromSlug( $sItemId );
+	protected function repairItem( $oItem ) {
+		$sContext = $this->getContextFromSlug( $oItem->slug );
 		if ( empty( $sContext ) ) {
 			throw new Exception( 'Could not find the item to reinstall.' );
 		}
 
-		if ( !$this->getServiceFromContext( $sContext )->isActive( $sItemId ) ) {
-			$this->updateItemInSnapshot( $sItemId, $sContext );
+		if ( !$this->getServiceFromContext( $sContext )->isActive( $oItem->slug ) ) {
+			$this->updateItemInSnapshot( $oItem->slug, $sContext );
 			throw new Exception( 'The item is not currently active. Removing from scan...' );
 		}
 
-		if ( !$this->reinstall( $sItemId, $sContext ) ) {
+		if ( !$this->reinstall( $oItem->slug, $sContext ) ) {
 			throw new Exception( 'The re-install process has reported as failed.' );
 		}
 		return true;
 	}
 
 	/**
-	 * @param $sItemId
+	 * @param Shield\Scans\PTGuard\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deleteItem( $sItemId ) {
-		$sContext = $this->getContextFromSlug( $sItemId );
+	protected function deleteItem( $oItem ) {
+		$sContext = $this->getContextFromSlug( $oItem->slug );
 		if ( $sContext !== self::CONTEXT_PLUGINS ) {
 			throw new Exception( 'Could not find the item for processing.' );
 		}
 		$oService = $this->getServiceFromContext( $sContext );
-		if ( !$oService->isActive( $sItemId ) ) {
+		if ( !$oService->isActive( $oItem->slug ) ) {
 			throw new Exception( 'Could not find the item for processing.' );
 		}
 
-		$oService->deactivate( $sItemId );
+		$oService->deactivate( $oItem->slug );
 		return true;
 	}
 
