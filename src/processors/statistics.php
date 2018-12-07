@@ -209,7 +209,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 		);
 
 		$aDisplayData = array(
-			'sHeading'  => sprintf( _wpsf__( '%s Statistics' ), $this->getController()->getHumanName() ),
+			'sHeading'  => sprintf( _wpsf__( '%s Statistics' ), $this->getCon()->getHumanName() ),
 			'aAllStats' => $aAllStats,
 			'aKeyStats' => $aKeyStats,
 		);

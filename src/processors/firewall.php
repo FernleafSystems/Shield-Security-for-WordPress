@@ -438,7 +438,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !empty( $oLastAudit ) ) {
 
 			$aMessage = array(
-				sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getController()
+				sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getCon()
 																					  ->getHumanName() ),
 				_wpsf__( 'Log details for this visitor are below:' ),
 				'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),

@@ -20,7 +20,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		$oWpUsers = $this->loadWpUsers();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );

@@ -135,7 +135,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		/** @var Traffic\EntryVO $oEntry */
 		$oEntry = $this->getDbHandler()->getVo();
 
-		$oEntry->rid = $this->getController()->getShortRequestId();
+		$oEntry->rid = $this->getCon()->getShortRequestId();
 		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
 		$oEntry->verb = $oReq->getMethod();

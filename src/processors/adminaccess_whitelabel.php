@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$oCon->isPluginAdmin() ) {
 			$this->hideUpdates();
@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 */
 	public function adjustUpdateDataCount( $aUpdateData ) {
 
-		$sFile = $this->getController()->getPluginBaseFile();
+		$sFile = $this->getCon()->getPluginBaseFile();
 		if ( $this->loadWpPlugins()->isUpdateAvailable( $sFile ) ) {
 			$aUpdateData[ 'counts' ][ 'total' ]--;
 			$aUpdateData[ 'counts' ][ 'plugins' ]--;
@@ -62,7 +62,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	}
 
 	public function hideFromPluginEditor() {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		$sJs = $this->loadDP()->readFileContentsUsingInclude( $oCon->getPath_AssetJs( 'whitelabel.js' ) );
 		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $sJs, $oCon->getPluginBaseFile() ) );
 	}
@@ -117,7 +117,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function fRemoveDetailsMetaLink( $aPluginMeta, $sPluginBaseFileName ) {
-		if ( $sPluginBaseFileName == $this->getController()->getPluginBaseFile() ) {
+		if ( $sPluginBaseFileName == $this->getCon()->getPluginBaseFile() ) {
 			unset( $aPluginMeta[ 2 ] ); // View details
 			unset( $aPluginMeta[ 3 ] ); // Rate 5*
 		}
@@ -130,7 +130,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * @return stdClass
 	 */
 	public function hidePluginUpdatesFromUI( $oPlugins ) {
-		$sFile = $this->getController()->getPluginBaseFile();
+		$sFile = $this->getCon()->getPluginBaseFile();
 		if ( isset( $oPlugins->response[ $sFile ] ) ) {
 			unset( $oPlugins->response[ $sFile ] );
 		}

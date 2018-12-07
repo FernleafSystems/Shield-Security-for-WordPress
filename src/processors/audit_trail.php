@@ -137,7 +137,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function addAuditTrialEntry( $oEntryVo ) {
 		if ( $oEntryVo instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO ) {
-			$oEntryVo->rid = $this->getController()->getShortRequestId();
+			$oEntryVo->rid = $this->getCon()->getShortRequestId();
 			$this->getDbHandler()
 				 ->getQueryInserter()
 				 ->insert( $oEntryVo );

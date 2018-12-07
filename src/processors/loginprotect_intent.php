@@ -39,7 +39,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function onWcSocialLogin( $nUserId ) {
 		$oUser = $this->loadWpUsers()->getUserById( $nUserId );
 		if ( $oUser instanceof WP_User ) {
-			$this->getController()->getUserMeta( $oUser )->wc_social_login_valid = true;
+			$this->getCon()->getUserMeta( $oUser )->wc_social_login_valid = true;
 		}
 	}
 
@@ -253,7 +253,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function printLoginIntentForm() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		$oReq = $this->loadRequest();
 		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
@@ -344,7 +344,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			)
 		);
 
-		$this->loadRenderer( $this->getController()->getPath_Templates() )
+		$this->loadRenderer( $this->getCon()->getPath_Templates() )
 			 ->setTemplate( 'page/login_intent' )
 			 ->setRenderVars( $aDisplayData )
 			 ->display();
@@ -362,7 +362,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		// support for WooCommerce Social Login
 		if ( $oFO->getIfSupport3rdParty() ) {
-			$this->getController()->getCurrentUserMeta()->wc_social_login_valid = false;
+			$this->getCon()->getCurrentUserMeta()->wc_social_login_valid = false;
 		}
 	}
 

@@ -6,10 +6,7 @@ if ( class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ) {
 
 abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
-	/**
-	 * @var ICWP_WPSF_Plugin_Controller
-	 */
-	static protected $oPluginController;
+	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 	/**
 	 * @var boolean
@@ -86,7 +83,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			throw new Exception();
 		}
 		else if ( empty( self::$oPluginController ) ) {
-			self::$oPluginController = $oPluginController;
+			$this->setCon( $oPluginController );
 		}
 
 		if ( isset( $aModProps[ 'storage_key' ] ) ) {

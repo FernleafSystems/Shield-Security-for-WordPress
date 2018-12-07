@@ -94,7 +94,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	private function setPasswordStartedAt( $oUser ) {
-		$oMeta = $this->getController()->getUserMeta( $oUser );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 
 		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 6, 4 );
 		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		$oMeta = $this->getController()->getUserMeta( $oUser );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$oMeta->last_login_at = $this->time();
 		return $this;
 	}
@@ -196,7 +196,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$aMessage = array(
 			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),
-				$this->getController()->getHumanName(),
+				$this->getCon()->getHumanName(),
 				$sHumanName
 			),
 			'',
@@ -227,7 +227,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function sendUserLoginEmailNotification( $oUser ) {
 		$aMessage = array(
-			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getController()
+			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getCon()
 																											 ->getHumanName() ),
 			'',
 			_wpsf__( 'Details for this login are below:' ),
@@ -281,6 +281,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getUserLastLoginKey() {
-		return $this->getController()->prefixOption( 'last_login_at' );
+		return $this->getCon()->prefixOption( 'last_login_at' );
 	}
 }

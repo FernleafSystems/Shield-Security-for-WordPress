@@ -275,7 +275,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
 			$bDoAutoUpdate = true;
 		}
-		else if ( $sFile === $this->getController()->getPluginBaseFile() ) {
+		else if ( $sFile === $this->getCon()->getPluginBaseFile() ) {
 			$sAuto = $oFO->getSelfAutoUpdateOpt();
 			if ( $sAuto === 'immediate' ) {
 				$bDoAutoUpdate = true;
@@ -415,7 +415,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function fAddPluginsListAutoUpdateColumn( $aColumns ) {
-		if ( $this->getController()->isPluginAdmin() && !isset( $aColumns[ 'icwp_autoupdate' ] ) ) {
+		if ( $this->getCon()->isPluginAdmin() && !isset( $aColumns[ 'icwp_autoupdate' ] ) ) {
 			$aColumns[ 'icwp_autoupdate' ] = 'Auto Update';
 			add_action( 'manage_plugins_custom_column',
 				array( $this, 'aPrintPluginsListAutoUpdateColumnContent' ),
@@ -455,7 +455,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		$aEmailContent = array(
 			sprintf(
 				_wpsf__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.' ),
-				$this->getController()->getHumanName()
+				$this->getCon()->getHumanName()
 			),
 			''
 		);

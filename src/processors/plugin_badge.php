@@ -34,7 +34,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	public function gatherPluginWidgetContent( $aContent ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		$aLabels = $oCon->getPluginLabels();
 		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(),

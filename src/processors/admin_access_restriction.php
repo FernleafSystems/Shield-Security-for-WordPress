@@ -39,8 +39,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function onWpInit() {
 		parent::onWpInit();
 
-		$oCon = $this->getController();
-		if ( !$oCon->isPluginAdmin() ) {
+		if ( !$this->getCon()->isPluginAdmin() ) {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 			$oFO = $this->getMod();
 
@@ -72,7 +71,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				add_filter( 'user_has_cap', array( $this, 'disablePostsManipulation' ), 0, 3 );
 			}
 
-			if ( !$this->getController()->isThisPluginModuleRequest() ) {
+			if ( !$this->getCon()->isThisPluginModuleRequest() ) {
 				add_action( 'admin_footer', array( $this, 'printAdminAccessAjaxForm' ) );
 			}
 		}
@@ -281,7 +280,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		if ( $this->getController()->isPluginAdmin() ) {
+		if ( $this->getCon()->isPluginAdmin() ) {
 			return;
 		}
 
@@ -291,7 +290,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			return;
 		}
 
-		$sName = $this->getController()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 		$aRenderData = array(
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => array(
@@ -317,7 +316,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @throws Exception
 	 */
 	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		if ( $oCon->isPluginAdmin() ) {
 			return;
 		}
@@ -375,7 +374,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function blockOptionsSaves( $mNewOptionValue, $sOptionKey, $mOldValue ) {
 
-		if ( !$this->getController()->isPluginAdmin()
+		if ( !$this->getCon()->isPluginAdmin()
 			 && ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) ) {
 			$this->doStatIncrement( 'option.save.blocked' );
 			$mNewOptionValue = $mOldValue;
@@ -452,7 +451,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	public function disableThemeManipulation( $aAllCaps, $cap, $aArgs ) {
 		// If we're registered with Admin Access we don't modify anything
-		if ( $this->getController()->isPluginAdmin() ) {
+		if ( $this->getCon()->isPluginAdmin() ) {
 			return $aAllCaps;
 		}
 
@@ -486,7 +485,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function disablePostsManipulation( $aAllCaps, $cap, $aArgs ) {
-		if ( $this->getController()->isPluginAdmin() ) {
+		if ( $this->getCon()->isPluginAdmin() ) {
 			return $aAllCaps;
 		}
 
@@ -580,6 +579,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return bool
 	 */
 	protected function isSecurityAdmin() {
-		return $this->getController()->isPluginAdmin();
+		return $this->getCon()->isPluginAdmin();
 	}
 }

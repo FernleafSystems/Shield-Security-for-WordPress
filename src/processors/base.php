@@ -106,13 +106,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		return $this;
 	}
 
-	/**
-	 * @return ICWP_WPSF_Plugin_Controller
-	 */
-	public function getController() {
-		return $this->getMod()->getConn();
-	}
-
 	public function autoAddToAdminNotices() {
 		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 

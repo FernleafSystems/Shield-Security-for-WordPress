@@ -39,7 +39,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return int
 	 */
 	protected function getInstallationDays() {
-		$nTimeInstalled = $this->getController()
+		$nTimeInstalled = $this->getCon()
 							   ->loadCorePluginFeatureHandler()
 							   ->getInstallDate();
 		if ( empty( $nTimeInstalled ) ) {
@@ -270,7 +270,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		if ( $this->isRecaptchaEnqueue() ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 			$oFO = $this->getMod();
-			echo $this->loadRenderer( $this->getController()->getPath_Templates() )
+			echo $this->loadRenderer( $this->getCon()->getPath_Templates() )
 					  ->setTemplateEnginePhp()
 					  ->setRenderVars(
 						  array(

@@ -80,7 +80,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	private function processExpiredPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$oMeta = $this->getController()->getCurrentUserMeta();
+		$oMeta = $this->getCon()->getCurrentUserMeta();
 
 		$nExpireTimeout = $oFO->getPassExpireTimeout();
 		if ( $nExpireTimeout > 0 && $oMeta->pass_started_at > 0 ) {
@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	private function processFailedCheckPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$oMeta = $this->getController()->getCurrentUserMeta();
+		$oMeta = $this->getCon()->getCurrentUserMeta();
 
 		$bPassCheckFailed = $oFO->isPassForceUpdateExisting()
 							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
@@ -160,7 +160,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 				try {
 					$this->applyPasswordChecks( $sPassword );
 					if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-						$this->getController()->getCurrentUserMeta()->pass_check_failed_at = 0;
+						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 					}
 				}
 				catch ( Exception $oE ) {
@@ -400,7 +400,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @return $this
 	 */
 	private function setPasswordFailedFlag( $oUser, $bFailed = false ) {
-		$oMeta = $this->getController()->getUserMeta( $oUser );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$oMeta->pass_check_failed_at = $bFailed ? $this->time() : 0;
 		return $this;
 	}

@@ -58,7 +58,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 * @return string
 	 */
 	protected function getLastLoginTimeFilePath() {
-		return path_join( $this->getController()->getRootDir(), 'mode.login_throttled' );
+		return path_join( $this->getCon()->getRootDir(), 'mode.login_throttled' );
 	}
 
 	/**

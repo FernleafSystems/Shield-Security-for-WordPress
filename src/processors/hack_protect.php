@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function secXss64kb( $sCommentContent ) {
 		// Comments shouldn't be any longer than 64KB
 		if ( strlen( $sCommentContent ) >= ( 64*1024 ) ) {
-			$sCommentContent = sprintf( _wpsf__( '%s escaped HTML the following comment due to its size: %s' ), $this->getController()
+			$sCommentContent = sprintf( _wpsf__( '%s escaped HTML the following comment due to its size: %s' ), $this->getCon()
 																													 ->getHumanName(), esc_html( $sCommentContent ) );
 		}
 		return $sCommentContent;
@@ -185,7 +185,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	private function getInsightVarsScan_Ptg() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		$oCarbon = new \Carbon\Carbon();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */

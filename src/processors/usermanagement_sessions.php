@@ -268,7 +268,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 					break;
 
 				case 4:
-					$sMessage = sprintf( _wpsf__( 'You do not currently have a %s user session.' ), $this->getController()
+					$sMessage = sprintf( _wpsf__( 'You do not currently have a %s user session.' ), $this->getCon()
 																										 ->getHumanName() );
 					break;
 

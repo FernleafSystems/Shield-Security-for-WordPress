@@ -236,7 +236,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 
 		$aVuln = $this->getPluginVulnerabilities( $sPluginFile );
 		if ( count( $aVuln ) ) {
-			$sOurName = $this->getController()->getHumanName();
+			$sOurName = $this->getCon()->getHumanName();
 			$aRenderData = array(
 				'strings'  => array(
 					'known_vuln'     => sprintf( _wpsf__( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.' ),
@@ -306,7 +306,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$oWp = $this->loadWp();
-		$oConn = $this->getController();
+		$oConn = $this->getCon();
 
 		$aPreamble = array(
 			sprintf( _wpsf__( '%s has detected plugins with known security vulnerabilities.' ), $oConn->getHumanName() ),

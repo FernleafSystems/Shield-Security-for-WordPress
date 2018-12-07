@@ -80,7 +80,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param array $aNoticeAttributes
 	 */
 	public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		if ( $oCon->getIsPage_PluginAdmin() && $this->isCurrentIpWhitelisted() ) {
 			$aRenderData = array(
@@ -232,7 +232,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$this->loadWp()
 				 ->wpDie(
 					 '<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
-						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()
+						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
 																											 ->getHumanName().'</a>'
 					 ).'</h3>'
 					 .'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() )

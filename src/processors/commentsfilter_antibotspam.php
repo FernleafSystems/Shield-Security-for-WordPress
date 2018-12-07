@@ -174,7 +174,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		/** @var Comments\EntryVO $oToken */
 		$oToken = $this->getDbHandler()->getVo();
 		$oToken->post_id = $this->loadWp()->getCurrentPostId();
-		$oToken->unique_token = md5( $this->getController()->getUniqueRequestId( false ) );
+		$oToken->unique_token = md5( $this->getCon()->getUniqueRequestId( false ) );
 		return $this->getDbHandler()
 					->getQueryInserter()
 					->insert( $oToken ) ? $oToken : null;
@@ -380,7 +380,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$this->sCommentStatusExplanation =
 			'[* '.sprintf(
 				_wpsf__( '%s plugin marked this comment as "%s".' ).' '._wpsf__( 'Reason: %s' ),
-				$this->getController()->getHumanName(),
+				$this->getCon()->getHumanName(),
 				$this->sCommentStatus,
 				$sExplanation
 			)." *]\n";

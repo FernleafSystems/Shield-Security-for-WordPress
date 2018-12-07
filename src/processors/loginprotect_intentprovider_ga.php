@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
@@ -87,7 +87,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
 
 		// Can only edit other users if you're admin/security-admin
-		if ( $this->getController()->isPluginAdmin() ) {
+		if ( $this->getCon()->isPluginAdmin() ) {
 			$oWpUsers = $this->loadWpUsers();
 			$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
@@ -244,7 +244,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 
 		// Session IDs must be the same
 		$sSessionId = $this->loadRequest()->query( 'sessionid' );
-		if ( empty( $sSessionId ) || ( $sSessionId !== $this->getController()->getSessionId() ) ) {
+		if ( empty( $sSessionId ) || ( $sSessionId !== $this->getCon()->getSessionId() ) ) {
 			return;
 		}
 
@@ -306,7 +306,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	protected function generateGaRemovalConfirmationLink() {
 		$aQueryArgs = array(
 			'shield_action' => 'garemovalconfirm',
-			'sessionid'     => $this->getController()->getSessionId()
+			'sessionid'     => $this->getCon()->getSessionId()
 		);
 		return add_query_arg( $aQueryArgs, $this->loadWp()->getUrl_WpAdmin() );
 	}

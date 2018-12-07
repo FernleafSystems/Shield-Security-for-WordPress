@@ -468,7 +468,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 		if ( $oFO->isPtgRebuildSelfRequired() ) {
 			// rebuilt self when the plugin itself upgrades
-			$this->updatePluginSnapshot( $this->getController()->getPluginBaseFile() );
+			$this->updatePluginSnapshot( $this->getCon()->getPluginBaseFile() );
 			$oFO->setPtgRebuildSelfRequired( false );
 		}
 	}
@@ -649,7 +649,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			}
 		}
 
-		$sName = $this->getController()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
 		$aContent = array(

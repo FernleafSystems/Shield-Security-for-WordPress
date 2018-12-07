@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(

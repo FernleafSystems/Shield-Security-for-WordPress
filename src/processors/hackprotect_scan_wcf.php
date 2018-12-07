@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	private function buildEmailBodyFromFiles( $oResults ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		$sName = $this->getController()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
 		$aContent = array(

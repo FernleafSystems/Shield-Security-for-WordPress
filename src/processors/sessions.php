@@ -144,7 +144,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	private function getSessionId() {
-		return $this->getController()->getSessionId();
+		return $this->getCon()->getSessionId();
 	}
 
 	/**
@@ -156,7 +156,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
-		$this->getController()->clearSession();
+		$this->getCon()->clearSession();
 		$this->clearCurrentSession();
 		return $mResult;
 	}

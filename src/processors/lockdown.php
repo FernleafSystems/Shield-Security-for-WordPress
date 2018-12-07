@@ -103,7 +103,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !$bAlreadyAuthenticated && !is_wp_error( $mCurrentStatus ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
 			$mCurrentStatus = new WP_Error(
 				'shield_block_anon_restapi',
-				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getController()
+				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getCon()
 																												  ->getHumanName() ),
 				array( 'status' => rest_authorization_required_code() ) );
 			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
@@ -218,7 +218,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 						'https://icwp.io/7l',
 						_wpsf__( 'Learn More.' )
 					),
-					$this->getController()->getHumanName()
+					$this->getCon()->getHumanName()
 				) );
 			}
 		}

@@ -106,7 +106,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @throws Exception
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
-		$oPlugin = $this->getController();
+		$oPlugin = $this->getCon();
 		$oNotices = $this->loadWpNotices();
 
 		if ( $oNotices->isDismissed( 'plugin-update-available' ) ) {
@@ -128,7 +128,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'notice_attributes' => $aNoticeAttributes,
 				'render_slug'       => 'plugin-update-available',
 				'strings'           => array(
-					'title'        => sprintf( _wpsf__( 'Update available for the %s plugin.' ), $this->getController()
+					'title'        => sprintf( _wpsf__( 'Update available for the %s plugin.' ), $this->getCon()
 																									  ->getHumanName() ),
 					'click_update' => _wpsf__( 'Please click to update immediately' ),
 					'dismiss'      => _wpsf__( 'Dismiss this notice' )
@@ -151,7 +151,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
 					'title'        => 'Você não fala Inglês? No hablas Inglés? Heeft u geen Engels spreekt?',
-					'like_to_help' => sprintf( _wpsf__( "Can you help translate the %s plugin?" ), $this->getController()
+					'like_to_help' => sprintf( _wpsf__( "Can you help translate the %s plugin?" ), $this->getCon()
 																										->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
 					'site_url'     => 'translate.icontrolwp.com',

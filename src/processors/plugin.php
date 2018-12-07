@@ -78,7 +78,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getController()->isValidAdminArea() ) {
+		if ( $this->getCon()->isValidAdminArea() ) {
 			$this->maintainPluginLoadPosition();
 		}
 	}
@@ -164,7 +164,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 */
 	public function dumpTrackingData() {
-		if ( $this->getController()->isPluginAdmin() ) {
+		if ( $this->getCon()->isPluginAdmin() ) {
 			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
 																	  ->collectTrackingData(), true ) );
 			die();
@@ -182,7 +182,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function maintainPluginLoadPosition() {
 		$oWpPlugins = $this->loadWpPlugins();
-		$sBaseFile = $this->getController()->getPluginBaseFile();
+		$sBaseFile = $this->getCon()->getPluginBaseFile();
 		$nLoadPosition = $oWpPlugins->getActivePluginLoadPosition( $sBaseFile );
 		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
 			$oWpPlugins->setActivePluginLoadFirst( $sBaseFile );
@@ -203,7 +203,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		if ( $oCon->getIfForceOffActive() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
@@ -230,7 +230,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
 		$oModCon = $this->getMod();
-		$sName = $this->getController()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 
 		$nDays = $this->getInstallationDays();
 		if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {

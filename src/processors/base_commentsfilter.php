@@ -92,7 +92,7 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 		self::$sCommentStatusExplanation =
 			'[* '.sprintf(
 				_wpsf__( '%s plugin marked this comment as "%s".' ).' '._wpsf__( 'Reason: %s' ),
-				$this->getController()->getHumanName(),
+				$this->getCon()->getHumanName(),
 				self::$sCommentStatus,
 				$sExplanation
 			)." *]\n";

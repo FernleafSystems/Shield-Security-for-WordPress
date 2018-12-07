@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'             => $this->getController()->getHumanName()
+					'title'             => $this->getCon()->getHumanName()
 										   .': '._wpsf__( 'Please verify email has been received' ),
 					'need_you_confirm'  => _wpsf__( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails." ),
 					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
