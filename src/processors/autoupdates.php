@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( $oFO->isDisableAllAutoUpdates() ) {
-			add_filter( 'automatic_updater_disabled', '__return_true', $nFilterPriority );
+			$this->disableAllAutoUpdates();
 		}
 
 		//more parameter options here for later
@@ -78,6 +78,13 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		add_action( 'set_site_transient_update_core', array( $this, 'trackUpdateTimesCore' ) );
 		add_action( 'set_site_transient_update_plugins', array( $this, 'trackUpdateTimesPlugins' ) );
 		add_action( 'set_site_transient_update_themes', array( $this, 'trackUpdateTimesThemes' ) );
+	}
+
+	protected function disableAllAutoUpdates() {
+		add_filter( 'automatic_updater_disabled', '__return_true', PHP_INT_MAX );
+		if ( !defined( 'WP_AUTO_UPDATE_CORE' ) ) {
+			define( 'WP_AUTO_UPDATE_CORE', false );
+		}
 	}
 
 	/**
@@ -194,16 +201,21 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 
-		if ( !$oFO->isDelayUpdates() ) {
-			if ( $oFO->isOpt( 'autoupdate_core', 'core_never' ) ) {
-				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
-				$bUpdate = false;
-			}
-			else if ( $oFO->isOpt( 'autoupdate_core', 'core_major' ) ) {
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bUpdate = false;
+		}
+		else if ( !$oFO->isDelayUpdates() ) { // the delay is handles elsewhere
+
+			if ( $oFO->isAutoUpdateCoreMajor() ) {
 				$this->doStatIncrement( 'autoupdates.core.major.allowed' );
 				$bUpdate = true;
 			}
+			else {
+				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
+				$bUpdate = false;
+			}
 		}
+
 		return $bUpdate;
 	}
 
@@ -217,14 +229,18 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 
-		if ( !$oFO->isDelayUpdates() ) {
-			if ( $oFO->isOpt( 'autoupdate_core', 'core_never' ) ) {
-				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
-				$bUpdate = false;
-			}
-			else if ( $oFO->isOpt( 'autoupdate_core', 'core_minor' ) ) {
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bUpdate = false;
+		}
+		else if ( !$oFO->isDelayUpdates() ) {//TODO delay
+
+			if ( $oFO->isAutoUpdateCoreMinor() ) {
 				$this->doStatIncrement( 'autoupdates.core.minor.allowed' );
 				$bUpdate = true;
+			}
+			else {
+				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
+				$bUpdate = false;
 			}
 		}
 		return $bUpdate;
@@ -246,9 +262,16 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	public function autoupdate_core( $bDoAutoUpdate, $oCoreUpdate ) {
-		if ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getMod();
+
+		if ( $oFO->isDisableAllAutoUpdates() ) {
 			$bDoAutoUpdate = false;
 		}
+		else if ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
+			$bDoAutoUpdate = false;
+		}
+
 		return $bDoAutoUpdate;
 	}
 
@@ -261,27 +284,32 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 
-		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bDoAutoUpdate = false;
+		}
+		else {
+			$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
 
-		if ( $this->isDelayed( $sFile, 'plugins' ) ) {
-			return false;
-		}
+			if ( $this->isDelayed( $sFile, 'plugins' ) ) {
+				return false;
+			}
 
-		// first, is global auto updates for plugins set
-		if ( $oFO->isAutoupdateAllPlugins() ) {
-			$this->doStatIncrement( 'autoupdates.plugins.all' );
-			$bDoAutoUpdate = true;
-		}
-		else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
-			$bDoAutoUpdate = true;
-		}
-		else if ( $sFile === $this->getCon()->getPluginBaseFile() ) {
-			$sAuto = $oFO->getSelfAutoUpdateOpt();
-			if ( $sAuto === 'immediate' ) {
+			// first, is global auto updates for plugins set
+			if ( $oFO->isAutoupdateAllPlugins() ) {
+				$this->doStatIncrement( 'autoupdates.plugins.all' );
 				$bDoAutoUpdate = true;
 			}
-			else if ( $sAuto === 'disabled' ) {
-				$bDoAutoUpdate = false;
+			else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
+				$bDoAutoUpdate = true;
+			}
+			else if ( $sFile === $this->getCon()->getPluginBaseFile() ) {
+				$sAuto = $oFO->getSelfAutoUpdateOpt();
+				if ( $sAuto === 'immediate' ) {
+					$bDoAutoUpdate = true;
+				}
+				else if ( $sAuto === 'disabled' ) {
+					$bDoAutoUpdate = false;
+				}
 			}
 		}
 
@@ -294,22 +322,29 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getMod();
 
-		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
-
-		if ( $this->isDelayed( $sFile, 'themes' ) ) {
-			return false;
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bDoAutoUpdate = false;
 		}
+		else {
+			$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
 
-		// first, is global auto updates for themes set
-		if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
-			$this->doStatIncrement( 'autoupdates.themes.all' );
-			return true;
-		}
+			if ( $this->isDelayed( $sFile, 'themes' ) ) {
+				return false;
+			}
 
-		$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', array() );
-		if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
-			$bDoAutoUpdate = true;
+			// first, is global auto updates for themes set
+			if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
+				$this->doStatIncrement( 'autoupdates.themes.all' );
+				return true;
+			}
+
+			$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', array() );
+			if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
+				$bDoAutoUpdate = true;
+			}
 		}
 		return $bDoAutoUpdate;
 	}

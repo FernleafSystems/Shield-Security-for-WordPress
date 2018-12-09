@@ -169,6 +169,20 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isAutoUpdateCoreMinor() {
+		return !$this->isOpt( 'autoupdate_core', 'core_never' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAutoUpdateCoreMajor() {
+		return $this->isOpt( 'autoupdate_core', 'core_major' );
+	}
+
+	/**
 	 * @param string $sPluginFile
 	 * @return $this
 	 */
@@ -195,17 +209,16 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			'title'    => _wpsf__( 'Automatic Updates' ),
 			'messages' => array()
 		);
-
 		{ //really disabled?
 			$oWp = $this->loadWp();
 			if ( $this->isModOptEnabled() ) {
 				if ( $this->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
 					$aNotices[ 'messages' ][ 'disabled_auto' ] = array(
-						'title'   => 'Automatic Updates Not Disabled',
+						'title'   => 'Auto Updates Not Really Disabled',
 						'message' => _wpsf__( 'Automatic Updates Are Not Disabled As Expected.' ),
 						'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
 						'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-						'rec'     => _wpsf__( 'A plugin/theme other than %s is affecting your automatic update settings.' )
+						'rec'     => sprintf( _wpsf__( 'A plugin/theme other than %s is affecting your automatic update settings.' ), $this->getCon()->getHumanName() )
 					);
 				}
 			}
@@ -213,7 +226,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
 
-		$aAllNotices[ 'lockdown' ] = $aNotices;
+		$aAllNotices[ 'autoupdates' ] = $aNotices;
 		return $aAllNotices;
 	}
 
