@@ -68,7 +68,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function isAllAutomaticUpdatesDisabled() {
+	public function isDisableAllAutoUpdates() {
 		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
 	}
 
@@ -146,7 +146,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				$sMessage = sprintf( _wpsf__( 'Plugin "%s" will %s.' ),
 					$aPlugin[ 'Name' ],
 					$this->loadWp()
-						 ->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
+						 ->isPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
 				);
 				$bSuccess = true;
 			}
@@ -187,6 +187,37 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param array $aAllNotices
+	 * @return array
+	 */
+	public function addInsightsNoticeData( $aAllNotices ) {
+		$aNotices = array(
+			'title'    => _wpsf__( 'Automatic Updates' ),
+			'messages' => array()
+		);
+
+		{ //really disabled?
+			$oWp = $this->loadWp();
+			if ( $this->isModOptEnabled() ) {
+				if ( $this->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
+					$aNotices[ 'messages' ][ 'disabled_auto' ] = array(
+						'title'   => 'Automatic Updates Not Disabled',
+						'message' => _wpsf__( 'Automatic Updates Are Not Disabled As Expected.' ),
+						'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
+						'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+						'rec'     => _wpsf__( 'A plugin/theme other than %s is affecting your automatic update settings.' )
+					);
+				}
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+
+		$aAllNotices[ 'lockdown' ] = $aNotices;
+		return $aAllNotices;
+	}
+
+	/**
 	 * @param array $aAllData
 	 * @return array
 	 */
@@ -205,7 +236,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		}
 		else {
 
-			$bAllDisabled = $this->isAllAutomaticUpdatesDisabled();
+			$bAllDisabled = $this->isDisableAllAutoUpdates();
 			if ( $bAllDisabled ) {
 				$aThis[ 'key_opts' ][ 'disabled' ] = array(
 					'name'    => _wpsf__( 'Disabled All' ),

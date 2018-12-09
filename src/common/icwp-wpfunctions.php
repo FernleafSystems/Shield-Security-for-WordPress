@@ -357,7 +357,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param string $sPluginBaseFilename
 	 * @return boolean
 	 */
-	public function getIsPluginAutomaticallyUpdated( $sPluginBaseFilename ) {
+	public function isPluginAutomaticallyUpdated( $sPluginBaseFilename ) {
 		$oUpdater = $this->getWpAutomaticUpdater();
 		if ( !$oUpdater ) {
 			return false;
