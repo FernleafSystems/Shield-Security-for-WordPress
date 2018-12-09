@@ -54,26 +54,27 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isDisableAllAutoUpdates() ) {
 			$this->disableAllAutoUpdates();
 		}
+		else {
 
-		//more parameter options here for later
-		add_filter( 'auto_core_update_send_email', array( $this, 'autoupdate_send_email' ), $nFilterPriority, 1 );
-		add_filter( 'auto_core_update_email', array( $this, 'autoupdate_email_override' ), $nFilterPriority, 1 );
+			add_action( 'wp_loaded', array( $this, 'force_run_autoupdates' ) );
+			//more parameter options here for later
+			add_filter( 'auto_core_update_send_email', array( $this, 'autoupdate_send_email' ), $nFilterPriority, 1 );
+			add_filter( 'auto_core_update_email', array( $this, 'autoupdate_email_override' ), $nFilterPriority, 1 );
 
-		add_action( 'wp_loaded', array( $this, 'force_run_autoupdates' ) );
+			add_action( 'set_site_transient_update_core', array( $this, 'trackUpdateTimesCore' ) );
+			add_action( 'set_site_transient_update_plugins', array( $this, 'trackUpdateTimesPlugins' ) );
+			add_action( 'set_site_transient_update_themes', array( $this, 'trackUpdateTimesThemes' ) );
 
-		if ( $oFO->isSendAutoupdatesNotificationEmail() ) {
-			$this->trackAssetsVersions();
-			add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
+			if ( $oFO->isSendAutoupdatesNotificationEmail() ) {
+				$this->trackAssetsVersions();
+				add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
+			}
+
+			if ( $oFO->isAutoupdateIndividualPlugins() ) {
+				// Adds automatic update indicator column to all plugins in plugin listing.
+				add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
+			}
 		}
-
-		if ( $oFO->isAutoupdateIndividualPlugins() ) {
-			// Adds automatic update indicator column to all plugins in plugin listing.
-			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
-		}
-
-		add_action( 'set_site_transient_update_core', array( $this, 'trackUpdateTimesCore' ) );
-		add_action( 'set_site_transient_update_plugins', array( $this, 'trackUpdateTimesPlugins' ) );
-		add_action( 'set_site_transient_update_themes', array( $this, 'trackUpdateTimesThemes' ) );
 	}
 
 	protected function disableAllAutoUpdates() {
