@@ -95,7 +95,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @return Shield\Scans\Wcf\Repair|mixed
 	 */
 	protected function getRepairer() {
-//		return new Scans\WpCore\Repair();
+		return new Shield\Scans\Ptg\Repair();
 	}
 
 	/**
@@ -454,6 +454,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 			$oCleaner = ( new Shield\Scans\Ptg\ScanResults\Clean() )
 				->setDbHandler( $oDbH )
+				->setScannerProfile( $this->getScannerProfile() )
 				->setWorkingResultsSet( $this->convertVosToResults( $aRes ) );
 
 			if ( $bPluginsRebuildReqd ) {
@@ -737,5 +738,25 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 		$sMsg = sprintf( '[%s]: %s', _wpsf__( 'Plugin/Theme Guard' ), $sMsg );
 		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
 		return $this;
+	}
+
+	/**
+	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
+	 * are unreliable after the plugin has been deactivated.
+	 */
+	public function deactivatePlugin() {
+		try {
+			// clear the snapshots
+			$this->getStore_Themes()->deleteSnapshots();
+			$this->getStore_Plugins()->deleteSnapshots();
+
+			// clear the results
+			( new Shield\Scans\Ptg\ScanResults\Clean() )
+				->setDbHandler( $this->getScannerDb()->getDbHandler() )
+				->setScannerProfile( $this->getScannerProfile() )
+				->deleteAllForScan();
+		}
+		catch ( \Exception $oE ) {
+		}
 	}
 }

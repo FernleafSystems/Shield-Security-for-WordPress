@@ -263,9 +263,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpDeactivatePlugin() {
-		if ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
-			do_action( $this->prefix( 'delete_plugin' ) );
-			$this->deletePluginControllerOptions();
+		if ( $this->isPluginAdmin() ) {
+			do_action( $this->prefix( 'deactivate_plugin' ) );
+			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
+				do_action( $this->prefix( 'delete_plugin' ) );
+				$this->deletePluginControllerOptions();
+			}
 		}
 		$this->deleteCronJobs();
 	}

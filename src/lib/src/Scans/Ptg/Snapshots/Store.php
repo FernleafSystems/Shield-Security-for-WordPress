@@ -194,7 +194,24 @@ class Store {
 	 * @return bool
 	 */
 	public function getSnapStoreExists() {
-		return Services::WpFs()->exists( $this->getSnapStorePath() );
+		return Services::WpFs()->exists( $this->getSnapStorePath() ) && $this->isSnapStoreRelevant();
+	}
+
+	/**
+	 * We try to capture periods wherein which the plugin may have been deactivated and tracking has paused.
+	 * @return bool
+	 */
+	public function isSnapStoreRelevant() {
+		$bRelevant = true;
+		$oFs = Services::WpFs();
+		$mTime = Services::Request()->ts() - $oFs->getModifiedTime( $this->getSnapStorePath() );
+		if ( $mTime > DAY_IN_SECONDS ) {
+			$bRelevant = false;
+		}
+		else if ( $mTime > DAY_IN_SECONDS/2 ) {
+			$oFs->touch( $this->getSnapStorePath() );
+		}
+		return $bRelevant;
 	}
 
 	/**

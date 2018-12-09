@@ -122,6 +122,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_filter( $this->prefix( 'collect_notices' ), array( $this, 'addInsightsNoticeData' ) );
 			add_filter( $this->prefix( 'collect_summary' ), array( $this, 'addInsightsConfigData' ), $nRunPriority );
 			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
+			add_action( $this->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
 			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
 			add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
 
@@ -1132,6 +1133,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
+	}
+
+	/**
+	 */
+	public function deactivatePlugin() {
 	}
 
 	/**

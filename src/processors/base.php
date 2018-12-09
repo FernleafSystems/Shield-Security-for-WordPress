@@ -37,6 +37,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
 		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
 		add_action( $oModCon->prefix( 'daily-cron' ), array( $this, 'runDailyCron' ) );
+		add_action( $oModCon->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
 
 		$this->init();
 	}
@@ -276,6 +277,11 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function time() {
 		return $this->loadRequest()->ts();
+	}
+
+	/**
+	 */
+	public function deactivatePlugin() {
 	}
 
 	/**

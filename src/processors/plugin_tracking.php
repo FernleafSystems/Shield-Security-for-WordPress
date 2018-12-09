@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 		if ( $oFO->isTrackingEnabled() ) {
 			$this->createTrackingCollectionCron();
 		}
-		add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $oFO->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**

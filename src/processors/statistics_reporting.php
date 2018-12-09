@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 				 $this->getCronName(),
 				 array( $this, 'cron_dailyReportingConsolidation' )
 			 );
-		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->getMod()->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**

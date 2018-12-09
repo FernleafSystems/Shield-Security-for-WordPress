@@ -8,7 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
 
-	use Shield\Crons\StandardCron;
+	use Shield\Crons\StandardCron,
+		Shield\Scans\Base\ScannerProfileConsumer;
 	const SCAN_SLUG = 'base';
 
 	/**
@@ -20,6 +21,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function run() {
 		parent::run();
+		$this->getScannerProfile()->scan_slug = static::SCAN_SLUG;
 		$this->setupCron();
 	}
 

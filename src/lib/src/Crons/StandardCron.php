@@ -23,7 +23,7 @@ trait StandardCron {
 		}
 		catch ( \Exception $oE ) {
 		}
-		add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
