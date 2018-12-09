@@ -66,10 +66,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
 		}
 
-		if ( isset( $_GET[ 'auto' ] ) ) {
-			$this->loadWp()->doForceRunAutomaticUpdates();
-		}
-
 		if ( $oFO->isAutoupdateIndividualPlugins() ) {
 			// Adds automatic update indicator column to all plugins in plugin listing.
 			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
