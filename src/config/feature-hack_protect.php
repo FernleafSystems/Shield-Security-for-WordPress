@@ -123,8 +123,8 @@
           "text":      "Enabled - No Email Notification"
         }
       ],
-      "link_info":     "https://icwp.io/ah",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/du",
+      "link_blog":     "https://icwp.io/ah",
       "name":          "Vulnerability Scanner",
       "summary":       "Enable The Vulnerability Scanner",
       "description":   "Scan all your WordPress assets for known security vulnerabilities."

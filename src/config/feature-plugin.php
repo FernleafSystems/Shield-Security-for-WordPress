@@ -166,7 +166,7 @@
           "text":      "HTTP_CLIENT_IP"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/dn",
       "link_blog":     "",
       "name":          "Visitor IP Address",
       "summary":       "Which Address Is Yours",
@@ -223,8 +223,8 @@
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://icwp.io/do",
+      "link_blog":   "https://icwp.io/dp",
       "name":        "Allow Import/Export",
       "summary":     "Allow Import Of Options To, And Export Of Options From, This Site",
       "description": "Uncheck this box to completely disable import and export of options."
@@ -307,7 +307,7 @@
           "text":      "Invisible reCAPTCHA"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/dq",
       "link_blog":     "",
       "name":          "reCAPTCHA Style",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",

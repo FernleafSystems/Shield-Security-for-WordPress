@@ -41,7 +41,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		}
 
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
-		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
 
 		switch ( $this->loadRequest()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
@@ -189,12 +188,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		}
 	}
 
-	public function printVisitorIpFooter() {
-		if ( apply_filters( 'icwp_wpsf_print_admin_ip_footer', true ) ) {
-			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
-		}
-	}
-
 	/**
 	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
@@ -263,6 +256,16 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function removePluginConflicts() {
 		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
 			remove_action( 'init', array( $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ), 0 );
+		}
+	}
+
+	/**
+	 * unused
+	 * @deprecated v7
+	 */
+	public function printVisitorIpFooter() {
+		if ( apply_filters( 'icwp_wpsf_print_admin_ip_footer', true ) ) {
+			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
 		}
 	}
 }

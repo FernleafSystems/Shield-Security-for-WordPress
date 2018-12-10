@@ -155,7 +155,7 @@
       "premium":     true,
       "default":     "0",
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e5",
       "link_blog":   "",
       "name":        "Update Delay",
       "summary":     "Delay Automatic Updates For Period Of Stability",

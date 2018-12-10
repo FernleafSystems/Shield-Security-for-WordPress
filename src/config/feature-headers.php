@@ -54,7 +54,7 @@
       "section":     "section_enable_plugin_feature_headers",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/7c",
+      "link_info":   "https://icwp.io/aj",
       "link_blog":   "https://icwp.io/7c",
       "name":        "Enable HTTP Headers",
       "summary":     "Enable (or Disable) The HTTP Headers module",

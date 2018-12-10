@@ -74,7 +74,7 @@
       "section":     "section_apixml",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e6",
       "link_blog":   "",
       "name":        "Disable XML-RPC",
       "summary":     "Disable The XML-RPC System",

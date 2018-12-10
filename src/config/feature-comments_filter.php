@@ -262,7 +262,7 @@
           "text":      "Invisible reCAPTCHA"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/e4",
       "link_blog":     "",
       "name":          "reCAPTCHA Style",
       "summary":       "How Google reCAPTCHA Will Be Displayed",
