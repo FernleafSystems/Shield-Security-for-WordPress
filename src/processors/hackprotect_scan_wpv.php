@@ -250,6 +250,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 
 		$aContent = array(
 			sprintf( _wpsf__( '%s has detected items with known security vulnerabilities.' ), $oCon->getHumanName() ),
+			_wpsf__( 'You should update or remove these items at your earliest convenience.' ),
 			_wpsf__( 'Details for the items(s) are below:' ),
 			'',
 		);
@@ -276,8 +277,8 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 			) );
 		}
 
-		$aContent[] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
-		$aContent[] = sprintf( _wpsf__( 'Go To Your Plugins: %s' ), $oWp->getAdminUrl_Plugins( $oCon->getIsWpmsNetworkAdminOnly() ) );
+		$aContent[] = $this->getScannerButtonForEmail();
+		$aContent[] = '';
 
 		$sSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();

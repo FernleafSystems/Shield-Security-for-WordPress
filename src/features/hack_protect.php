@@ -994,10 +994,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( !$this->isWpvulnEnabled() ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = array(
 					'title'   => 'Vulnerability Scanner',
-					'message' => _wpsf__( 'Plugin Vulnerability Scanner is not enabled.' ),
+					'message' => _wpsf__( 'Vulnerability Scanner is not enabled.' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of plugin vulnerabilities is recommended.' )
+					'rec'     => _wpsf__( 'Automatic detection of vulnerabilities is recommended.' )
 				);
 			}
 			else if ( $this->getScanHasProblem( 'wpv' ) ) {
@@ -1169,19 +1169,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Plugin Vulnerabilities Scanner' ) ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) ),
 					_wpsf__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.' )
 				);
 				$sTitleShort = _wpsf__( 'Vulnerabilities Scanner' );
 				break;
 
 			case 'section_plugin_vulnerabilities_scan' :
-				$sTitle = _wpsf__( 'Plugin Vulnerabilities Scanner' );
+				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your plugins against a database of known vulnerabilities.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Plugin Vulnerabilities Scanner' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) )
 				);
-				$sTitleShort = _wpsf__( 'Plugin Vulnerabilities' );
+				$sTitleShort = _wpsf__( 'Vulnerabilities' );
 				break;
 
 			case 'section_core_file_integrity_scan' :
@@ -1266,7 +1266,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'enable_plugin_vulnerabilities_scan' :
-				$sName = _wpsf__( 'Plugin Vulnerabilities Scanner' );
+				$sName = _wpsf__( 'Vulnerabilities Scanner' );
 				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) );
 				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.' );
 				break;

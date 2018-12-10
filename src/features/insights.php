@@ -681,7 +681,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_scan_ufc_at'             => _wpsf__( 'Unrecognised Files Scan' ),
 			'insights_last_scan_wcf_at'             => _wpsf__( 'WordPress Core Files Scan' ),
 			'insights_last_scan_ptg_at'             => _wpsf__( 'Plugin/Themes Guard Scan' ),
-			'insights_last_scan_wpv_at'             => _wpsf__( 'Plugin Vulnerabilities Scan' ),
+			'insights_last_scan_wpv_at'             => _wpsf__( 'Vulnerabilities Scan' ),
 			'insights_last_2fa_login_at'            => _wpsf__( 'Successful 2-FA Login' ),
 			'insights_last_login_block_at'          => _wpsf__( 'Login Block' ),
 			'insights_last_register_block_at'       => _wpsf__( 'User Registration Block' ),
