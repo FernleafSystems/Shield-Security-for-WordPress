@@ -156,6 +156,22 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function convertVoToResultItem( $oVo );
 
 	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return Shield\Databases\Scanner\EntryVO|null
+	 */
+	protected function getVoFromResultItem( $oItem ) {
+		/** @var Shield\Databases\Scanner\Select $oSel */
+		$oSel = $this->getScannerDb()
+					 ->getDbHandler()
+					 ->getQuerySelector();
+		/** @var Shield\Databases\Scanner\EntryVO $oVo */
+		$oVo = $oSel->filterByHash( $oItem->hash )
+					->filterByScan( $this->getScannerProfile()->scan_slug )
+					->first();
+		return $oVo;
+	}
+
+	/**
 	 * @return $this
 	 */
 	public function resetIgnoreStatus() {
@@ -251,11 +267,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function ignoreItem( $oItem ) {
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getScannerDb()
-					   ->getDbHandler()
-					   ->getQuerySelector()
-					   ->byId( $oItem );
-		if ( empty( $oItem ) ) {
+		$oEntry = $this->getVoFromResultItem( $oItem );
+		if ( empty( $oEntry ) ) {
 			throw new Exception( 'Item could not be found to ignore.' );
 		}
 
