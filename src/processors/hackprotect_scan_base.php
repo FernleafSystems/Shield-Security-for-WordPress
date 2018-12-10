@@ -211,6 +211,24 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * Only plugins may be deactivated, of course.
+	 * @param string $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function deactivateAsset( $sItemId ) {
+		$oWpPlugins = $this->loadWpPlugins();
+		if ( $oWpPlugins->isInstalled( $sItemId ) ) {
+			$oWpPlugins->deactivate( $sItemId );
+		}
+		else {
+			throw new Exception( 'Items is not currently installed.' );
+		}
+
+		return true;
+	}
+
+	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool

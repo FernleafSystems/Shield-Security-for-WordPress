@@ -28,8 +28,8 @@ class ScanWpv extends ScanBase {
 				_wpsf__( 'Deactivate' ),
 				[ 'custom-action' ],
 				[
-					'rid'           => $aItem[ 'id' ],
-					'custom-action' => 'item_deactivate'
+					'rid'           => $aItem[ 'slug' ],
+					'custom-action' => 'asset_deactivate'
 				]
 			);
 		}

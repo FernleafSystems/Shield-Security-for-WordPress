@@ -60,7 +60,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				case 'item_ignore':
 				case 'item_repair':
 				case 'item_accept':
-				case 'item_deactivate':
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sExecAction ) );
 					break;
 
@@ -805,7 +804,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
 				}
 				else {
-					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
+					$sMessage = 'An error occurred. Re-scanning and reloading ...';
 				}
 				$oTablePro->doScan();
 			}

@@ -234,23 +234,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sAssetSlug
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function deactivateAsset( $sAssetSlug ) {
-		$sContext = $this->getContextFromSlug( $sAssetSlug );
-		if ( $sContext !== self::CONTEXT_PLUGINS ) {
-			throw new Exception( 'Could not find the item for processing.' );
-		}
-
-		$this->getServiceFromContext( $sContext )
-			 ->deactivate( $sAssetSlug );
-
-		return true;
-	}
-
-	/**
 	 * @param string $sSlug
 	 * @return null|string
 	 */

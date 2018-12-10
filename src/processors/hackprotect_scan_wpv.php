@@ -98,17 +98,22 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Wpv\ResultItem $oItem
+	 * @param string $sItemId
+	 * @param string $sAction
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deactivateItem( $oItem ) {
-		$oWpPlugins = $this->loadWpPlugins();
-		if ( $oWpPlugins->isActive( $oItem->slug ) ) {
-			$oWpPlugins->deactivate( $oItem->slug );
-		}
-		else {
-			throw new Exception( 'Items is already deactivated.' );
+	public function executeAssetAction( $sItemId, $sAction ) {
+
+		switch ( $sAction ) {
+
+			case 'deactivate':
+				$this->deactivateAsset( $sItemId );
+				break;
+
+			default:
+				throw new Exception( 'Unsupported Action' );
+				break;
 		}
 
 		return true;
