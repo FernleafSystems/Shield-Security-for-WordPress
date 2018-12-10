@@ -166,34 +166,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return int
-	 */
-	public function getLastScanProblemAt( $sScan ) {
-		return (int)$this->getOpt( sprintf( 'last_scan_problem_%s_at', $sScan ), 0 );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
 	 * @return bool
 	 */
 	public function getScanHasProblem( $sScan ) {
-		if ( $sScan != 'wpv' ) {
-			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
-			$oSel = $oPro->getSubProcessorScanner()
-						 ->getDbHandler()
-						 ->getQuerySelector();
-			$nTotal = $oSel->filterByNotIgnored()
-						   ->filterByScan( $sScan )
-						   ->count();
-			$bProblem = $nTotal > 0;
-		}
-		else {
-			$nLastProb = $this->getLastScanProblemAt( $sScan );
-			$bProblem = ( $nLastProb > 0 ) && ( $nLastProb - $this->getLastScanAt( $sScan ) >= 0 );
-		}
-		return $bProblem;
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
+		$oSel = $oPro->getSubProcessorScanner()
+					 ->getDbHandler()
+					 ->getQuerySelector();
+		$nTotal = $oSel->filterByNotIgnored()
+					   ->filterByScan( $sScan )
+					   ->count();
+		return $nTotal > 0;
 	}
 
 	/**
@@ -216,22 +201,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setLastScanAt( $sScan ) {
 		return $this->setOptInsightsAt( sprintf( 'last_scan_%s_at', $sScan ) );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return $this
-	 */
-	public function setLastScanProblemAt( $sScan ) {
-		return $this->setOptAt( sprintf( 'last_scan_problem_%s_at', $sScan ) );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return $this
-	 */
-	public function clearLastScanProblemAt( $sScan ) {
-		return $this->setOptAt( sprintf( 'last_scan_problem_%s_at', $sScan ), 0 );
 	}
 
 	/**
@@ -434,19 +403,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param int $nId
-	 * @return $this
-	 */
-	public function addWpvulnNotifiedId( $nId ) {
-		if ( !$this->isWpvulnIdAlreadyNotified( $nId ) ) {
-			$aIds = $this->getWpvulnNotifiedIds();
-			$aIds[] = (int)$nId;
-			$this->setOpt( 'wpvuln_notified_ids', $aIds );
-		}
-		return $this;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isWpvulnEnabled() {
@@ -454,26 +410,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getWpvulnNotifiedIds() {
-		$a = $this->getOpt( 'wpvuln_notified_ids', array() );
-		return is_array( $a ) ? $a : array();
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getWpvCronName() {
 		return $this->prefix( $this->getDef( 'cron_scan_wpv' ) );
-	}
-
-	/**
-	 * @param int $nId
-	 * @return bool
-	 */
-	public function isWpvulnIdAlreadyNotified( $nId ) {
-		return in_array( $nId, $this->getWpvulnNotifiedIds() );
 	}
 
 	/**
@@ -1002,11 +942,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 			else if ( $this->getScanHasProblem( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = array(
-					'title'   => 'Vulnerable Plugins',
-					'message' => _wpsf__( 'At least 1 plugin has known vulnerabilities.' ),
-					'href'    => $this->loadWp()->getAdminUrl_Plugins( true ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Plugins' ) ),
-					'rec'     => _wpsf__( 'Plugins with known vulnerabilities should be updated, removed, or replaced.' )
+					'title'   => 'Vulnerable Items',
+					'message' => _wpsf__( 'At least 1 item has known vulnerabilities.' ),
+					'href'    => $this->getUrlManualScan(),
+					'action'  => _wpsf__( 'Run Scan' ),
+					'rec'     => _wpsf__( 'Items with known vulnerabilities should be updated, removed, or replaced.' )
 				);
 			}
 		}
