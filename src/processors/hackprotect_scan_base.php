@@ -201,13 +201,23 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * @param string $sItemId
+	 * @param string $sAction
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function executeAssetAction( $sItemId, $sAction ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
 	 * @throws Exception
 	 */
 	public function executeItemAction( $sItemId, $sAction ) {
-
+		$bSuccess = false;
 		if ( is_numeric( $sItemId ) ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oEntry = $this->getScannerDb()
@@ -235,6 +245,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 				case 'deactivate':
 					$bSuccess = $this->deactivateItem( $oItem );
+					break;
+
+				case 'accept':
+					$bSuccess = $this->acceptItem( $oItem );
 					break;
 
 				default:
@@ -278,6 +292,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		}
 
 		return $bSuccess;
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function acceptItem( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
 	}
 
 	/**

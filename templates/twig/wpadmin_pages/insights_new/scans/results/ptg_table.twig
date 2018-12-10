@@ -11,9 +11,10 @@
 						<li>{{ scan.strings.date_snapshot }}: {{ asset_data.date_snapshot }}</li>
 					</ul>
 					<div class="actions-group">
-						<button class="btn btn-sm btn-primary action repair"
+						<button class="btn btn-sm btn-primary action custom-action"
 								{% if asset_data.can_reinstall %}
 									data-rid="{{ asset_data.slug }}"
+									data-custom-action="asset_reinstall"
 								{% else %}
 									disabled="disabled"
 								{% endif %}
@@ -25,13 +26,14 @@
 							{% endif %}
 						</button>
 
-						<button class="btn btn-sm btn-info action ignore"
-								data-rid="{{ asset_data.slug }}"
+						<button class="btn btn-sm btn-info action custom-action"
+								data-rid="{{ asset_data.slug }}" data-custom-action="asset_accept"
 						>{{ scan.strings.accept }}</button>
 
-						<button class="btn btn-sm btn-warning action delete"
+						<button class="btn btn-sm btn-warning action custom-action"
 								{% if asset_data.can_deactivate %}
 									data-rid="{{ asset_data.slug }}"
+									data-custom-action="asset_deactivate"
 								{% else %}
 									disabled="disabled"
 								{% endif %}

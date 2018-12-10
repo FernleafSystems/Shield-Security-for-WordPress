@@ -44,7 +44,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oReq = $this->loadRequest();
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $oReq->request( 'exec' ) ) {
+
+			$sExecAction = $oReq->request( 'exec' );
+			switch ( $sExecAction ) {
 
 				case 'start_scans':
 					$aAjaxResponse = $this->ajaxExec_StartScans();
@@ -55,19 +57,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					break;
 
 				case 'item_delete':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'delete' );
-					break;
-
 				case 'item_ignore':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'ignore' );
-					break;
-
 				case 'item_repair':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'repair' );
+				case 'item_accept':
+				case 'item_deactivate':
+					$aAjaxResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sExecAction ) );
 					break;
 
-				case 'item_deactivate':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( 'deactivate' );
+				case 'asset_accept':
+				case 'asset_deactivate':
+				case 'asset_reinstall':
+					$aAjaxResponse = $this->ajaxExec_AssetAction( str_replace( 'asset_', '', $sExecAction ) );
 					break;
 
 				case 'render_table_scan':
@@ -759,7 +759,74 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @param string $sAction
 	 * @return array
 	 */
-	public function ajaxExec_ScanItemAction( $sAction ) {
+	private function ajaxExec_AssetAction( $sAction ) {
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $this->getProcessor();
+		$oReq = $this->loadRequest();
+		$oScanPro = $oP->getSubProcessorScanner();
+
+		$bSuccess = false;
+		$bReloadPage = false;
+		switch ( $oReq->post( 'fScan' ) ) {
+			case 'ptg':
+				$bReloadPage = true;
+				$oTablePro = $oScanPro->getSubProcessorPtg();
+				break;
+
+			case 'ufc':
+				$oTablePro = $oScanPro->getSubProcessorUfc();
+				break;
+
+			case 'wcf':
+				$oTablePro = $oScanPro->getSubProcessorWcf();
+				break;
+
+			case 'wpv':
+				$oTablePro = $oScanPro->getSubProcessorWpv();
+				break;
+
+			default:
+				$oTablePro = null;
+				break;
+		}
+
+		$sItemId = $oReq->post( 'rid' );
+
+		if ( empty( $oTablePro ) ) {
+			$sMessage = _wpsf__( 'Unsupported scanner' );
+		}
+		else if ( empty( $sItemId ) ) {
+			$sMessage = _wpsf__( 'Unsupported assets(s) selected' );
+		}
+		else {
+			try {
+				if ( $oTablePro->executeAssetAction( $sItemId, $sAction ) ) {
+					$bSuccess = true;
+					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
+				}
+				else {
+					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
+				}
+				$oTablePro->doScan();
+			}
+			catch ( Exception $oE ) {
+				$sMessage = $oE->getMessage();
+			}
+		}
+
+		return array(
+			'success'     => $bSuccess,
+			'page_reload' => $bReloadPage,
+			'message'     => $sMessage,
+		);
+
+	}
+
+	/**
+	 * @param string $sAction
+	 * @return array
+	 */
+	private function ajaxExec_ScanItemAction( $sAction ) {
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $this->getProcessor();
 		$oReq = $this->loadRequest();
@@ -793,7 +860,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$sItemId = $oReq->post( 'rid' );
 		$aItemIds = $oReq->post( 'ids' );
 		if ( empty( $oTablePro ) ) {
-			$sMessage = _wpsf__( 'Unsupported action' );
+			$sMessage = _wpsf__( 'Unsupported scanner' );
 		}
 		else if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
 			$sMessage = _wpsf__( 'Unsupported item(s) selected' );

@@ -159,6 +159,47 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param string $sItemId
+	 * @param string $sAction
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function executeAssetAction( $sItemId, $sAction ) {
+
+		$sContext = $this->getContextFromSlug( $sItemId );
+
+		switch ( $sAction ) {
+
+			case 'accept':
+				$this->updateItemInSnapshot( $sItemId, $sContext );
+				break;
+
+			case 'deactivate':
+				$this->deactivateAsset( $sItemId );
+				break;
+
+			case 'reinstall':
+				$this->reinstall( $sItemId, $sContext );
+				break;
+
+			default:
+				throw new Exception( 'Unsupported Action' );
+				break;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function acceptItem( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
 	 * @param Shield\Scans\Ptg\ResultItem $oItem
 	 * @return true
 	 * @throws Exception
@@ -193,21 +234,19 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Ptg\ResultItem $oItem
+	 * @param string $sAssetSlug
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deleteItem( $oItem ) {
-		$sContext = $this->getContextFromSlug( $oItem->slug );
+	protected function deactivateAsset( $sAssetSlug ) {
+		$sContext = $this->getContextFromSlug( $sAssetSlug );
 		if ( $sContext !== self::CONTEXT_PLUGINS ) {
 			throw new Exception( 'Could not find the item for processing.' );
 		}
-		$oService = $this->getServiceFromContext( $sContext );
-		if ( !$oService->isActive( $oItem->slug ) ) {
-			throw new Exception( 'Could not find the item for processing.' );
-		}
 
-		$oService->deactivate( $oItem->slug );
+		$this->getServiceFromContext( $sContext )
+			 ->deactivate( $sAssetSlug );
+
 		return true;
 	}
 
