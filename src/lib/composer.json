@@ -21,8 +21,11 @@
   "require":      {
     "fernleafsystems/wordpress-services": "dev-develop",
     "fernleafsystems/utilities":          "^1.0",
-    "nesbot/carbon":                      "^1.34.0",
+    "nesbot/carbon":                      "^1.36.0",
     "twig/twig":                          "^1.0",
+    "google/recaptcha":                   "1.1.2",
+    "symfony/translation":                "^2.8",
+    "symfony/yaml":                       "^2.8",
     "bjeavons/zxcvbn-php":                "^0.3"
   },
   "require-dev":  {

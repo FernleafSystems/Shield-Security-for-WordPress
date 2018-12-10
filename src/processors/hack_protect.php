@@ -98,9 +98,13 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
 				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'bulk_action'       => $oMod->getAjaxActionData( 'bulk_action', true ),
+				'asset_accept'      => $oMod->getAjaxActionData( 'asset_accept', true ),
+				'asset_deactivate'  => $oMod->getAjaxActionData( 'asset_deactivate', true ),
+				'asset_reinstall'   => $oMod->getAjaxActionData( 'asset_reinstall', true ),
 				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
 				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),
+				'item_accept'       => $oMod->getAjaxActionData( 'item_accept', true ),
 				'item_deactivate'   => $oMod->getAjaxActionData( 'item_deactivate', true ),
 			),
 			'flags'   => array(

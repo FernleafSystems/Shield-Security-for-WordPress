@@ -58,13 +58,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	public function doScanAndFullRepair() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
 		$oResultSet = $this->doScan();
 		$this->getRepairer()->repairResultsSet( $oResultSet );
-		$oFO->clearLastScanProblemAt( static::SCAN_SLUG );
-
 		return $oResultSet;
 	}
 
@@ -156,6 +151,22 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function convertVoToResultItem( $oVo );
 
 	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return Shield\Databases\Scanner\EntryVO|null
+	 */
+	protected function getVoFromResultItem( $oItem ) {
+		/** @var Shield\Databases\Scanner\Select $oSel */
+		$oSel = $this->getScannerDb()
+					 ->getDbHandler()
+					 ->getQuerySelector();
+		/** @var Shield\Databases\Scanner\EntryVO $oVo */
+		$oVo = $oSel->filterByHash( $oItem->hash )
+					->filterByScan( $this->getScannerProfile()->scan_slug )
+					->first();
+		return $oVo;
+	}
+
+	/**
 	 * @return $this
 	 */
 	public function resetIgnoreStatus() {
@@ -190,13 +201,23 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * @param string $sItemId
+	 * @param string $sAction
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function executeAssetAction( $sItemId, $sAction ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
 	 * @throws Exception
 	 */
 	public function executeItemAction( $sItemId, $sAction ) {
-
+		$bSuccess = false;
 		if ( is_numeric( $sItemId ) ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oEntry = $this->getScannerDb()
@@ -226,6 +247,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 					$bSuccess = $this->deactivateItem( $oItem );
 					break;
 
+				case 'accept':
+					$bSuccess = $this->acceptItem( $oItem );
+					break;
+
 				default:
 					$bSuccess = false;
 					break;
@@ -251,11 +276,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function ignoreItem( $oItem ) {
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getScannerDb()
-					   ->getDbHandler()
-					   ->getQuerySelector()
-					   ->byId( $oItem );
-		if ( empty( $oItem ) ) {
+		$oEntry = $this->getVoFromResultItem( $oItem );
+		if ( empty( $oEntry ) ) {
 			throw new Exception( 'Item could not be found to ignore.' );
 		}
 
@@ -270,6 +292,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		}
 
 		return $bSuccess;
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function acceptItem( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
 	}
 
 	/**

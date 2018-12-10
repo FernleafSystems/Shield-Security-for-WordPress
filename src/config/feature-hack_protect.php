@@ -429,12 +429,6 @@
       "value":        []
     },
     {
-      "key":          "wpvuln_notified_ids",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "default":      []
-    },
-    {
       "key":          "insights_last_scan_ufc_at",
       "transferable": false,
       "section":      "section_non_ui",
@@ -454,12 +448,6 @@
     },
     {
       "key":          "insights_last_scan_wpv_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "default":      0
-    },
-    {
-      "key":          "last_scan_problem_wpv_at",
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
