@@ -3,10 +3,11 @@
   "properties":  {
     "slug":                  "license",
     "name":                  "Pro Security",
+    "menu_title":            "Go Pro!",
+    "show_module_menu_item": true,
+    "highlight_menu_item":   true,
     "tagline":               "The Best In WordPress Security, Only Better.",
     "auto_enabled":          true,
-    "show_module_menu_item": false,
-    "highlight_menu_item":   false,
     "storage_key":           "license",
     "show_central":          false,
     "premium":               false,

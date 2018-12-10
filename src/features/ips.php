@@ -289,7 +289,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
-		$sPlugName = $this->getConn()->getHumanName();
+		$sPlugName = $this->getCon()->getHumanName();
 		switch ( $aOptionsParams[ 'key' ] ) {
 
 			case 'enable_ips' :

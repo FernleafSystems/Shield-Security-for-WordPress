@@ -64,7 +64,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function getSecAdminTimeLeft() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getConn()
+		$oFO = $this->getCon()
 					->getModule( 'admin_access_restriction' );
 		return $oFO->getSecAdminTimeLeft();
 	}
@@ -206,7 +206,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
-				'back_to_dashboard' => sprintf( _wpsf__( 'Back To %s Dashboard' ), $this->getConn()->getHumanName() ),
+				'back_to_dashboard' => sprintf( _wpsf__( 'Back To %s Dashboard' ), $this->getCon()->getHumanName() ),
 				'go_to_settings'    => _wpsf__( 'Settings' ),
 				'on'                => _wpsf__( 'On' ),
 				'off'               => _wpsf__( 'Off' ),
@@ -261,7 +261,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function isVisitorWhitelisted() {
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getConn()
+		$oPro = $this->getCon()
 					 ->getModule( 'ips' )
 					 ->getProcessor();
 		return $oPro->isCurrentIpWhitelisted();
@@ -296,7 +296,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function isXmlrpcBypass() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getConn()
+		$oFO = $this->getCon()
 					->getModule( 'plugin' );
 		return $oFO->isXmlrpcBypass();
 	}

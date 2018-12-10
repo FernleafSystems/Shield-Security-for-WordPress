@@ -144,7 +144,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		if ( !$oFO->isPremium() ) {
 			$nCode = 1;
-			$sMessage = sprintf( _wpsf__( 'Not currently running %s Pro.' ), $oFO->getConn()->getHumanName() );
+			$sMessage = sprintf( _wpsf__( 'Not currently running %s Pro.' ), $this->getCon()->getHumanName() );
 		}
 		else if ( !$oFO->isImportExportPermitted() ) {
 			$nCode = 2;

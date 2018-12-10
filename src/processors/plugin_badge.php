@@ -55,10 +55,12 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	public function addPluginBadgeWidget() {
-		$this->loadWpWidgets();
-		require_once( __DIR__.'/plugin_badgewidget.php' );
-		ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getMod() );
-		register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
+		if ( $this->loadWp()->getWordpressIsAtLeastVersion( '4.6.0' ) ) {
+			$this->loadWpWidgets();
+			require_once( __DIR__.'/plugin_badgewidget.php' );
+			$oWidget = new ICWP_WPSF_Processor_Plugin_BadgeWidget( $this->getMod() );
+			register_widget( $oWidget );
+		}
 	}
 
 	/**

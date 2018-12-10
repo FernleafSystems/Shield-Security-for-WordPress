@@ -143,7 +143,8 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	private function buildEmailBodyFromFiles( $aFiles ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		$sName = $this->getCon()->getHumanName();
+		$oCon = $this->getCon();
+		$sName = $oCon->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
 		$aContent = array(
@@ -169,7 +170,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$aContent[] = $this->getScannerButtonForEmail();
 		$aContent[] = '';
 
-		if ( !$oFO->getConn()->isRelabelled() ) {
+		if ( !$oCon->isRelabelled() ) {
 			$aContent[] = sprintf( '[ <a href="https://icwp.io/moreinfoufc">%s</a> ]', _wpsf__( 'More Info On This Scanner' ) );
 		}
 

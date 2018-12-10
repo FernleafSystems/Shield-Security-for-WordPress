@@ -18,10 +18,17 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	protected $oScanner;
 
 	/**
+	 * Resets the object values to be re-used anew
+	 */
+	public function init() {
+		parent::init();
+		$this->getScannerProfile()->scan_slug = static::SCAN_SLUG;
+	}
+
+	/**
 	 */
 	public function run() {
 		parent::run();
-		$this->getScannerProfile()->scan_slug = static::SCAN_SLUG;
 		$this->setupCron();
 	}
 

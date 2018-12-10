@@ -89,7 +89,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
 			$this->queryCreateSession(
-				$oFO->getConn()->getSessionId( true ),
+				$this->getCon()->getSessionId( true ),
 				$this->loadWpUsers()->getCurrentWpUsername()
 			);
 		}

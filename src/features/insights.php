@@ -12,7 +12,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @param array $aData
 	 */
 	protected function displayModulePage( $aData = array() ) {
-		$oCon = $this->getConn();
+		$oCon = $this->getCon();
 		$oReq = $this->loadRequest();
 		$aSecNotices = $this->getNotices();
 
@@ -219,7 +219,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aTopNav = array(
 			'insights' => _wpsf__( 'At A Glance' ),
 			'config'   => _wpsf__( 'Settings' ),
-			'scans'    => _wpsf__( 'Scan' ),
+			'scans'    => _wpsf__( 'Scans' ),
 			'ips'      => _wpsf__( 'IP Lists' ),
 			'audit'    => _wpsf__( 'Audit Trail' ),
 			'traffic'  => _wpsf__( 'Traffic' ),
@@ -236,7 +236,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		} );
 
 		$aTopNav[ 'full_options' ] = array(
-			'href'   => $this->getConn()->loadCorePluginFeatureHandler()->getUrl_AdminPage(),
+			'href'   => $this->getCon()->loadCorePluginFeatureHandler()->getUrl_AdminPage(),
 			'name'   => _wpsf__( 'Full Options' ),
 			'active' => false
 		);
@@ -266,7 +266,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		if ( $this->isThisModulePage() ) {
 
 			if ( $this->isThisModulePage() ) {
-				$oConn = $this->getConn();
+				$oConn = $this->getCon();
 
 				$aStdDeps = array( $this->prefix( 'plugin' ) );
 				$sSubnav = $this->loadRequest()->query( 'subnav' );
@@ -314,7 +314,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		$sName = $this->getConn()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
@@ -569,7 +569,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'updates_auto' ] = array(
 					'title'   => 'Auto Updates',
 					'message' => _wpsf__( 'WordPress does not automatically install updates.' ),
-					'href'    => $this->getConn()->getModule( 'autoupdates' )->getUrl_AdminPage(),
+					'href'    => $this->getCon()->getModule( 'autoupdates' )->getUrl_AdminPage(),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Minor WordPress upgrades should be applied automatically.' )
 				);
@@ -584,7 +584,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getStats() {
-		$oConn = $this->getConn();
+		$oConn = $this->getCon();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oConn->getModule( 'user_management' );
 		/** @var ICWP_WPSF_Processor_UserManagement $oProUsers */
@@ -652,7 +652,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getRecentEvents() {
-		$oConn = $this->getConn();
+		$oConn = $this->getCon();
 
 		$aStats = array();
 		foreach ( $oConn->getModules() as $oModule ) {
@@ -692,7 +692,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_comment_block_at'        => _wpsf__( 'Comment SPAM Block' ),
 			'insights_xml_block_at'                 => _wpsf__( 'XML-RPC Block' ),
 			'insights_restapi_block_at'             => _wpsf__( 'Anonymous Rest API Block' ),
-			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getConn()
+			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getCon()
 																									->getHumanName() ),
 			'insights_last_ip_block_at'             => _wpsf__( 'IP Connection Blocked' ),
 		);

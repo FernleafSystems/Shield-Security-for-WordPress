@@ -874,6 +874,15 @@ td.column-message textarea {
 	top: 120px;
 }
 
+#SectionNotices tr.title_row th {
+	padding: 0.25rem 1.0rem;
+	border-bottom: 0 none;
+	letter-spacing: 0.1px;
+}
+#SectionNotices tr.title_row th h6 {
+	font-size: 0.85rem;
+}
+
 /** TABLE: TRAFFIC **/
 th.column-visitor {
 }

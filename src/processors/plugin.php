@@ -74,7 +74,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * Use the included action to hook into the plugin's daily cron
 	 */
 	public function runCron() {
-		do_action( $this->getMod()->prefix( 'daily-cron' ) );
+		do_action( $this->getMod()->prefix( 'daily_cron' ) );
 	}
 
 	public function onWpLoaded() {

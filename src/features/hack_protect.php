@@ -25,7 +25,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function handleModRequest() {
 		$oReq = $this->loadRequest();
-		switch ( $oReq->query( 'exec' ) && $this->getConn()->isPluginAdmin() ) {
+		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
 			case  'scan_file_download':
 				/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 				$oPro = $this->getProcessor();
@@ -503,7 +503,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function isWpvulnPluginsHighlightEnabled() {
 		$sOpt = $this->getWpvulnPluginsHighlightOption();
 		return ( $sOpt != 'disabled' ) && $this->loadWpUsers()->isUserAdmin()
-			   && ( ( $sOpt != 'enabled_securityadmin' ) || $this->getConn()->isPluginAdmin() );
+			   && ( ( $sOpt != 'enabled_securityadmin' ) || $this->getCon()->isPluginAdmin() );
 	}
 
 	/**
@@ -1134,7 +1134,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function getUrlManualScan() {
 		return add_query_arg(
 			[ 'subnav' => 'scans' ],
-			$this->getConn()->getModule( 'insights' )->getUrl_AdminPage()
+			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage()
 		);
 	}
 

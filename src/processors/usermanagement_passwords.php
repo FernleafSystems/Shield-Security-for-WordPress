@@ -256,13 +256,13 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	protected function sendRequestToPwned( $sPass ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$oConn = $oFO->getConn();
+		$oCon = $this->getCon();
 
 		$aResponse = $this->loadFS()->requestUrl(
 			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
 			array(
 				'headers' => array(
-					'user-agent' => sprintf( '%s WP Plugin-v%s', $oConn->getHumanName(), $oConn->getVersion() )
+					'user-agent' => sprintf( '%s WP Plugin-v%s', $oCon->getHumanName(), $oCon->getVersion() )
 				)
 			),
 			true
@@ -318,7 +318,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	protected function sendRequestToPwnedRange( $sPass ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$oConn = $oFO->getConn();
+		$oCon = $this->getCon();
 
 		$sPassHash = strtoupper( hash( 'sha1', $sPass ) );
 		$sSubHash = substr( $sPassHash, 0, 5 );
@@ -327,7 +327,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
 			array(
 				'headers' => array(
-					'user-agent' => sprintf( '%s WP Plugin-v%s', $oConn->getHumanName(), $oConn->getVersion() )
+					'user-agent' => sprintf( '%s WP Plugin-v%s', $oCon->getHumanName(), $oCon->getVersion() )
 				)
 			),
 			true

@@ -423,10 +423,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$sLogoUrl = $this->getOpt( $sKey );
 		}
 		if ( !empty( $sLogoUrl ) && !$oDp->isValidUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
-			$sLogoUrl = $this->getConn()->getPluginUrl_Image( $sLogoUrl );
+			$sLogoUrl = $this->getCon()->getPluginUrl_Image( $sLogoUrl );
 			if ( empty( $sLogoUrl ) ) {
 				$oOpts->resetOptToDefault( $sKey );
-				$sLogoUrl = $this->getConn()->getPluginUrl_Image( $this->getOpt( $sKey ) );
+				$sLogoUrl = $this->getCon()->getPluginUrl_Image( $this->getOpt( $sKey ) );
 			}
 		}
 
@@ -456,7 +456,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		if ( empty( $sKey ) ) {
 			throw new Exception( 'Attempting to set an empty Security Admin Access Key.' );
 		}
-		if ( !$this->getConn()->isPluginAdmin() ) {
+		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
@@ -545,7 +545,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(
 						_wpsf__( "The Security Admin protection is not active." ),
-						$this->getConn()->getHumanName()
+						$this->getCon()->getHumanName()
 					),
 					'href'    => $this->getUrl_AdminPage(),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
@@ -575,7 +575,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		$sPluginName = $this->getConn()->getHumanName();
+		$sPluginName = $this->getCon()->getHumanName();
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
@@ -640,7 +640,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
-		$sPluginName = $this->getConn()->getHumanName();
+		$sPluginName = $this->getCon()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'enable_admin_access_restriction' :
@@ -835,6 +835,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function doCheckHasPermissionToSubmit() {
-		return $this->getConn()->isPluginAdmin();
+		return $this->getCon()->isPluginAdmin();
 	}
 }

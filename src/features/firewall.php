@@ -61,7 +61,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'text_firewalldie':
 				$sText = sprintf(
 					_wpsf__( "You were blocked by the %s." ),
-					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getConn()
+					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
 																										->getHumanName().'</a>'
 				);
 				break;

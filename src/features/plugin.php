@@ -305,7 +305,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_DeleteForceOff() {
-		$bStillActive = $this->getConn()
+		$bStillActive = $this->getCon()
 							 ->deleteForceOffFile()
 							 ->getIfForceOffActive();
 		if ( $bStillActive ) {
@@ -451,7 +451,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @param string $sPlugin
 	 */
 	public function onWpHookDeactivatePlugin( $sPlugin ) {
-		$oCon = $this->getConn();
+		$oCon = $this->getCon();
 		if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
 			if ( !$oCon->isPluginAdmin() ) {
 				$this->loadWp()->wpDie(
@@ -833,7 +833,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @throws Exception
 	 */
 	public function renderPluginBadge() {
-		$oCon = $this->getConn();
+		$oCon = $this->getCon();
 
 		$aData = array(
 			'ajax' => array(
@@ -909,7 +909,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		parent::insertCustomJsVars_Admin();
 
 		if ( $this->loadWp()->isCurrentPage( 'plugins.php' ) ) {
-			$sFile = $this->getConn()->getPluginBaseFile();
+			$sFile = $this->getCon()->getPluginBaseFile();
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
@@ -989,7 +989,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-		$sName = $this->getConn()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_global_security_options' :
@@ -1057,7 +1057,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
-		$sPlugName = $this->getConn()->getHumanName();
+		$sPlugName = $this->getCon()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'global_enable_plugin_features' :

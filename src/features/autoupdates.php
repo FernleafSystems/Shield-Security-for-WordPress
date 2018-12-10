@@ -136,7 +136,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		$bSuccess = false;
 		$sMessage = _wpsf__( 'You do not have permissions to perform this action.' );
 
-		if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->isPluginAdmin() ) {
+		if ( $this->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
 			$oWpPlugins = $this->loadWpPlugins();
 			$sFile = $this->loadRequest()->post( 'pluginfile' );
 			if ( $oWpPlugins->isInstalled( $sFile ) ) {
@@ -285,7 +285,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 					'href'    => $this->getUrl_DirectLinkToOption( 'update_delay' ),
 				);
 
-				$sName = $this->getConn()->getHumanName();
+				$sName = $this->getCon()->getHumanName();
 				$bSelfAuto = $this->isModOptEnabled()
 							 && in_array( $this->getSelfAutoUpdateOpt(), [ 'auto', 'immediate' ] );
 				$aThis[ 'key_opts' ][ 'self' ] = array(
@@ -312,7 +312,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		$sPlugName = $this->getConn()->getHumanName();
+		$sPlugName = $this->getCon()->getHumanName();
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_automatic_updates_control' :
@@ -379,7 +379,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
-		$sPlugName = $this->getConn()->getHumanName();
+		$sPlugName = $this->getCon()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'enable_autoupdates' :

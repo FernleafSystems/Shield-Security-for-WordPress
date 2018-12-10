@@ -9,10 +9,17 @@ require_once( __DIR__.'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_filter( $this->getConn()->getPremiumLicenseFilterName(), array(
+		add_filter( $this->getCon()->getPremiumLicenseFilterName(), array(
 			$this,
 			'hasValidWorkingLicense'
 		), PHP_INT_MAX );
+
+		if ( $this->isThisModulePage() ) {
+			$this->loadWp()->doRedirect(
+				$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+				[ 'subnav' => 'license' ]
+			);
+		}
 	}
 
 	public function action_doFeatureShutdown() {
@@ -278,7 +285,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	private function canLicenseCheck_FileFlag() {
 		$oFs = $this->loadFS();
-		$sFileFlag = $this->getConn()->getPath_Flags( 'license_check' );
+		$sFileFlag = $this->getCon()->getPath_Flags( 'license_check' );
 		$nMtime = $oFs->exists( $sFileFlag ) ? $oFs->getModifiedTime( $sFileFlag ) : 0;
 		return ( $this->loadRequest()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
 	}
@@ -287,7 +294,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	private function touchLicenseCheckFileFlag() {
-		$this->loadFS()->touch( $this->getConn()->getPath_Flags( 'license_check' ) );
+		$this->loadFS()->touch( $this->getCon()->getPath_Flags( 'license_check' ) );
 		return $this;
 	}
 
@@ -639,7 +646,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$nExpiresAt = $oCurrent->getExpiresAt();
 		if ( $nExpiresAt > 0 && $nExpiresAt != PHP_INT_MAX ) {
 			$sExpiresAt = $oCarbon->setTimestamp( $nExpiresAt )->diffForHumans()
-						.sprintf( '<br/><small>%s</small>', $oWp->getTimeStampForDisplay( $nExpiresAt ) );
+						  .sprintf( '<br/><small>%s</small>', $oWp->getTimeStampForDisplay( $nExpiresAt ) );
 		}
 		else {
 			$sExpiresAt = 'n/a';
@@ -706,7 +713,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
-		$sName = $this->getConn()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_license_options' :

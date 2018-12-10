@@ -179,7 +179,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oPlugin */
-		$oPlugin = $this->getConn()->getModule( 'plugin' );
+		$oPlugin = $this->getCon()->getModule( 'plugin' );
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :

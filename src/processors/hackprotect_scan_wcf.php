@@ -167,7 +167,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
 		$aContent[] = $this->getScannerButtonForEmail();
 
-		if ( !$oFO->getConn()->isRelabelled() ) {
+		if ( !$this->getCon()->isRelabelled() ) {
 			$aContent[] = '';
 			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
 		}

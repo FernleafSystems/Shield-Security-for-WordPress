@@ -7,7 +7,6 @@
     "show_module_options":   true,
     "storage_key":           "admin_access_restriction",
     "tagline":               "Protect your Security Plugin, not just your WordPress site",
-    "menu_title":            "Security Admin",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,

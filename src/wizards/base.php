@@ -109,7 +109,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function renderWizardLandingPage() {
 		try {
-			$sContent = $this->loadRenderer( $this->getModCon()->getConn()->getPath_Templates() )
+			$sContent = $this->loadRenderer( $this->getModCon()->getCon()->getPath_Templates() )
 							 ->setTemplate( 'wizard/pages/landing.twig' )
 							 ->setRenderVars( $this->getRenderData_PageWizardLanding() )
 							 ->setTemplateEngineTwig()
@@ -126,7 +126,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function renderWizardLandingSnippet() {
 		try {
-			$sContent = $this->loadRenderer( $this->getModCon()->getConn()->getPath_Templates() )
+			$sContent = $this->loadRenderer( $this->getModCon()->getCon()->getPath_Templates() )
 							 ->setTemplate( 'wizard/snippets/wizard_landing.twig' )
 							 ->setRenderVars( $this->getRenderData_PageWizardLanding() )
 							 ->setTemplateEngineTwig()
@@ -233,7 +233,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function renderWizard() {
 		remove_all_actions( 'wp_footer' ); // FIX: nextgen gallery forces this to run.
-		return $this->loadRenderer( $this->getModCon()->getConn()->getPath_Templates() )
+		return $this->loadRenderer( $this->getModCon()->getCon()->getPath_Templates() )
 					->setTemplate( 'wizard/pages/wizard.twig' )
 					->setRenderVars( $this->getRenderData_PageWizard() )
 					->setTemplateEngineTwig()
@@ -303,7 +303,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getRenderData_TwigPageBase() {
-		$oCon = $this->getModCon()->getConn();
+		$oCon = $this->getModCon()->getCon();
 		return array(
 			'strings' => array(
 				'page_title'  => 'Twig Page',
@@ -338,7 +338,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getRenderData_PageWizard() {
-		$oCon = $this->getModCon()->getConn();
+		$oCon = $this->getModCon()->getCon();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getModCon();
 		return $this->loadDP()->mergeArraysRecursive(
@@ -370,7 +370,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Wizard' ), $this->getModCon()->getConn()->getHumanName() );
+		return sprintf( _wpsf__( '%s Wizard' ), $this->getModCon()->getCon()->getHumanName() );
 	}
 
 	/**
@@ -442,7 +442,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRenderData_SlideBase() {
 		$oFO = $this->getModCon();
-		$oCon = $this->getModCon()->getConn();
+		$oCon = $this->getModCon()->getCon();
 		$aWizards = $this->getModuleWizardsForRender();
 		return array(
 			'strings' => array(
@@ -485,7 +485,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 			$sTemplateSlug = sprintf( '%s/%s', $sBase, $sSlug );
 		}
 
-		return $this->loadRenderer( $this->getModCon()->getConn()->getPath_Templates() )
+		return $this->loadRenderer( $this->getModCon()->getCon()->getPath_Templates() )
 					->setTemplate( sprintf( 'wizard/slides/%s.twig', $sTemplateSlug ) )
 					->setRenderVars( $this->getRenderData_Slide( $sSlug ) )
 					->setTemplateEngineTwig()
@@ -571,6 +571,6 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Plugin_Controller
 	 */
 	protected function getPluginCon() {
-		return $this->getModCon()->getConn();
+		return $this->getModCon()->getCon();
 	}
 }

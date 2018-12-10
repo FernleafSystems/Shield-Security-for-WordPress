@@ -251,7 +251,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 		else if ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
-			$oMeta = $this->getConn()->getUserMeta( $oUser );
+			$oMeta = $this->getCon()->getUserMeta( $oUser );
 			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
 		}
 		else {
@@ -277,7 +277,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oReq = $this->loadRequest();
 		$aHashes = $this->getMfaLoginHashes( $oUser );
 		$aHashes[ md5( $oReq->getUserAgent() ) ] = $oReq->ts();
-		$this->getConn()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
+		$this->getCon()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
 		return $this;
 	}
 
@@ -286,7 +286,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function getMfaLoginHashes( $oUser ) {
-		$oMeta = $this->getConn()->getUserMeta( $oUser );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$aHashes = $oMeta->hash_loginmfa;
 		if ( !is_array( $aHashes ) ) {
 			$aHashes = array();
@@ -613,7 +613,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		parent::onWpEnqueueJs();
 
 		if ( $this->isEnabledBotJs() ) {
-			$oConn = $this->getConn();
+			$oConn = $this->getCon();
 
 			$sAsset = 'shield-antibot';
 			$sUnique = $this->prefix( $sAsset );

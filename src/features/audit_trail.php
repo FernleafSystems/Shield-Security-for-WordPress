@@ -70,7 +70,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				}
 				else {
 					/** @var ICWP_WPSF_FeatureHandler_Firewall $oModFire */
-					$oModFire = $this->getConn()->getModule( 'firewall' );
+					$oModFire = $this->getCon()->getModule( 'firewall' );
 					$oModFire->addParamToWhitelist( $sParam, $sUri );
 					$sMessage = sprintf( _wpsf__( 'Parameter "%s" whitelisted successfully' ), $sParam );
 					$bSuccess = true;
@@ -170,7 +170,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	public function getAllContexts() {
 		return array(
 			'all'       => 'All', //special
-			'wpsf'      => $this->getConn()->getHumanName(),
+			'wpsf'      => $this->getCon()->getHumanName(),
 			'wordpress' => 'WordPress',
 			'users'     => 'Users',
 			'posts'     => 'Posts',
@@ -221,7 +221,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$aExportItem = array(
 			'group_id'    => $this->prefix(),
-			'group_label' => sprintf( _wpsf__( '[%s] Audit Trail Entries' ), $this->getConn()->getHumanName() ),
+			'group_label' => sprintf( _wpsf__( '[%s] Audit Trail Entries' ), $this->getCon()->getHumanName() ),
 			'item_id'     => $this->prefix( 'audit-trail' ),
 			'data'        => array(),
 		);
@@ -270,7 +270,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				  ->getQueryDeleter()
 				  ->addWhereSearch( 'wp_username', $oThisUsername )
 				  ->all();
-			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getConn()->getHumanName() );
+			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getCon()->getHumanName() );
 		}
 		catch ( Exception $oE ) {
 		}
@@ -405,7 +405,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @throws Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
-		$oCon = $this->getConn();
+		$oCon = $this->getCon();
 
 		$sKey = $aOptionsParams[ 'key' ];
 		switch ( $sKey ) {
