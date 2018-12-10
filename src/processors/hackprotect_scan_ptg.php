@@ -377,7 +377,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			catch ( \Exception $oE ) {
 			}
 		}
-		else {
+		else if ( $oStore->itemExists( $sBaseName ) ) {
 			try {
 				$oStore->removeItemSnapshot( $sBaseName )
 					   ->save();
@@ -403,7 +403,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			catch ( \Exception $oE ) {
 			}
 		}
-		else {
+		else if ( $oStore->itemExists( $sSlug ) ) {
 			try {
 				$oStore->removeItemSnapshot( $sSlug )
 					   ->save();

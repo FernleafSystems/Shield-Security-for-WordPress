@@ -147,12 +147,12 @@
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/FernleafSystems/wordpress-services.git",
-                "reference": "f691fb9c6518d1b5e5af572c3e88923409eea666"
+                "reference": "31f85d1b258987f27a79694dbe6a5413c8cb98f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/f691fb9c6518d1b5e5af572c3e88923409eea666.zip",
-                "reference": "f691fb9c6518d1b5e5af572c3e88923409eea666",
+                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/31f85d1b258987f27a79694dbe6a5413c8cb98f5.zip",
+                "reference": "31f85d1b258987f27a79694dbe6a5413c8cb98f5",
                 "shasum": ""
             },
             "require": {
@@ -179,7 +179,7 @@
                 }
             ],
             "homepage": "https://bitbucket.org/FernleafSystems/wordpress-services",
-            "time": "2018-12-06T12:03:39+00:00"
+            "time": "2018-12-10T12:03:24+00:00"
         },
         {
             "name": "geoip2/geoip2",
@@ -706,7 +706,7 @@
         },
         {
             "name": "symfony/translation",
-            "version": "v2.8.48",
+            "version": "v2.8.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
@@ -770,7 +770,7 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.8.48",
+            "version": "v2.8.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
