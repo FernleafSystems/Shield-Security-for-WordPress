@@ -13,11 +13,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'wpv';
 
 	/**
-	 * @var
-	 */
-	protected $aNotifEmail;
-
-	/**
 	 * @var int
 	 */
 	private $nColumnsCount;
@@ -234,39 +229,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string             $sFile
-	 * @param ICWP_WPSF_WpVulnVO $oVuln
-	 * @return $this
-	 */
-	protected function addVulnToEmail( $sFile, $oVuln ) {
-		if ( !isset( $this->aNotifEmail ) ) {
-			$this->aNotifEmail = array();
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->isWpvulnIdAlreadyNotified( $oVuln->getId() ) ) {
-
-			$oFO->addWpvulnNotifiedId( $oVuln->getId() );
-
-			$aPlugin = $this->loadWpPlugins()->getPlugin( $sFile );
-			$this->aNotifEmail = array_merge(
-				$this->aNotifEmail,
-				array(
-					'- '.sprintf( _wpsf__( 'Plugin Name: %s' ), $aPlugin[ 'Name' ] ),
-					'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->getTitle() ),
-					'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->getType() ),
-					'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->getVersionFixedIn() ),
-					'- '.sprintf( _wpsf__( 'Further Information: %s' ), $oVuln->getUrl() ),
-					'',
-				)
-			);
-		}
-
-		return $this;
-	}
-
-	/**
 	 * @param stdClass $oVuln
 	 * @return string
 	 */
@@ -279,28 +241,48 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	protected function emailResults( $oRes ) {
-		if ( empty( $this->aNotifEmail ) ) {
-			return true;
-		}
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$oWp = $this->loadWp();
-		$oConn = $this->getCon();
+		$oWpPlugins = $this->loadWpPlugins();
+		$oWpThemes = $this->loadWpThemes();
+		$oCon = $this->getCon();
 
-		$aPreamble = array(
-			sprintf( _wpsf__( '%s has detected plugins with known security vulnerabilities.' ), $oConn->getHumanName() ),
-			_wpsf__( 'Details for the plugin(s) are below:' ),
+		$aContent = array(
+			sprintf( _wpsf__( '%s has detected items with known security vulnerabilities.' ), $oCon->getHumanName() ),
+			_wpsf__( 'Details for the items(s) are below:' ),
 			'',
 		);
-		$this->aNotifEmail = array_merge( $aPreamble, $this->aNotifEmail );
 
-		$this->aNotifEmail[] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
-		$this->aNotifEmail[] = sprintf( _wpsf__( 'Go To Your Plugins: %s' ), $oWp->getAdminUrl_Plugins( $oConn->getIsWpmsNetworkAdminOnly() ) );
+		/** @var Shield\Scans\Wpv\ResultItem $oItem */
+		foreach ( $oRes->getItems() as $oItem ) {
+
+			if ( $oItem->context == 'plugins' ) {
+				$aPlugin = $oWpPlugins->getPlugin( $oItem->slug );
+				$sName = sprintf( '%s - %s', _wpsf__( 'Plugin' ), empty( $aPlugin ) ? 'Unknown' : $aPlugin[ 'Name' ] );
+			}
+			else {
+				$sName = sprintf( '%s - %s', _wpsf__( 'Theme' ), $oWpThemes->getCurrentThemeName() );
+			}
+
+			$oVuln = $oItem->getWpVulnVo();
+			$aContent[] = implode( "<br />", array(
+				sprintf( '%s: %s', _wpsf__( 'Item' ), $sName ),
+				'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->title ),
+				'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->vuln_type ),
+				'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->fixed_in ),
+				'- '.sprintf( _wpsf__( 'Further Information: %s' ), $oVuln->getUrl() ),
+				'',
+			) );
+		}
+
+		$aContent[] = _wpsf__( 'You should update or remove these plugins at your earliest convenience.' );
+		$aContent[] = sprintf( _wpsf__( 'Go To Your Plugins: %s' ), $oWp->getAdminUrl_Plugins( $oCon->getIsWpmsNetworkAdminOnly() ) );
 
 		$sSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $sTo, $sSubject, $this->aNotifEmail );
+							 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
 
 		if ( $bSendSuccess ) {
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sTo ) );

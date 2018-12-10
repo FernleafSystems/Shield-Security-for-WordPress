@@ -266,7 +266,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool|int|string
+	 * @return string
 	 */
 	protected function ip() {
 		return $this->loadIpService()->getRequestIp();

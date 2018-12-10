@@ -742,7 +742,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
-	 * are unreliable after the plugin has been deactivated.
+	 * are unreliable once the plugin has been deactivated.
 	 */
 	public function deactivatePlugin() {
 		try {
