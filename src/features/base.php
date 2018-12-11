@@ -79,10 +79,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	public function __construct( $oPluginController, $aModProps = array() ) {
-		if ( empty( $oPluginController ) ) {
-			throw new Exception();
-		}
-		else if ( empty( self::$oPluginController ) ) {
+		if ( empty( self::$oPluginController ) ) {
+			if ( !$oPluginController instanceof ICWP_WPSF_Plugin_Controller ) {
+				throw new \Exception( 'Plugin controller not supplied to Module' );
+			}
 			$this->setCon( $oPluginController );
 		}
 
@@ -1224,7 +1224,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function saveOptionsSubmit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new Exception( _wpsf__( "You don't currently have permission to save settings." ) );
+			throw new \Exception( _wpsf__( "You don't currently have permission to save settings." ) );
 		}
 		$this->doSaveStandardOptions();
 		$this->doExtraSubmitProcessing();
@@ -1339,7 +1339,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 					$sConfirm = $oReq->post( $sOptionKey.'_confirm', '' );
 					if ( $sTempValue !== $sConfirm ) {
-						throw new Exception( _wpsf__( 'Password values do not match.' ) );
+						throw new \Exception( _wpsf__( 'Password values do not match.' ) );
 					}
 
 					$sOptionValue = md5( $sTempValue );
@@ -1771,7 +1771,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function renderAdminNotice( $aData ) {
 		if ( empty( $aData[ 'notice_attributes' ] ) ) {
-			throw new Exception( 'notice_attributes is empty' );
+			throw new \Exception( 'notice_attributes is empty' );
 		}
 
 		if ( !isset( $aData[ 'icwp_admin_notice_template' ] ) ) {

@@ -40,16 +40,6 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 	}
 
 	/**
-	 * @param Shield\Scans\Ptg\ResultItem|Shield\Scans\Wpv\ResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function assetUpgrade( $oItem ) {
-		$oExecutor = $this->getServiceFromContext( $this->getContextFromSlug( $oItem->slug ) );
-		return empty( $oExecutor ) ? false : is_array( $oExecutor->update( $oItem->slug ) );
-	}
-
-	/**
 	 * @param string $sSlug
 	 * @return null|string
 	 */

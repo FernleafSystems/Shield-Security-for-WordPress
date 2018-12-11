@@ -261,10 +261,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 					$bSuccess = $this->itemRepair( $oItem );
 					break;
 
-				case 'deactivate':
-					$bSuccess = $this->itemDeactivate( $oItem );
-					break;
-
 				case 'accept':
 					$bSuccess = $this->itemAccept( $oItem );
 					break;
@@ -281,10 +277,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 					$bSuccess = $this->assetReinstall( $oItem );
 					break;
 
-				case 'asset_upgrade':
-					$bSuccess = $this->assetUpgrade( $oItem );
-					break;
-
 				default:
 					$bSuccess = false;
 					break;
@@ -295,12 +287,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * Only plugins may be deactivated, of course.
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function assetAccept( $sItemId ) {
+	protected function assetAccept( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
@@ -328,7 +319,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function assetUpgrade( $oItem ) {
+	protected function itemAccept( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
@@ -357,31 +348,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		$oUp = $this->getScannerDb()
 					->getDbHandler()
 					->getQueryUpdater();
-		$bSuccess = $oUp->setIgnored( $oEntry );
 
-		if ( !$bSuccess ) {
+		if ( !$oUp->setIgnored( $oEntry ) ) {
 			throw new Exception( 'Item could not be ignored at this time.' );
 		}
 
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function itemAccept( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function itemDeactivate( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
+		return true;
 	}
 
 	/**

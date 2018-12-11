@@ -22,7 +22,7 @@ class ScanWpv extends ScanBase {
 			[ ( $bHasUpdate ? 'custom-action text-success' : 'disabled' ) ],
 			[
 				'rid'           => $aItem[ 'id' ],
-				'custom-action' => 'item_asset_upgrade'
+				'custom-action' => 'item_repair'
 			]
 		);
 

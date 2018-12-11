@@ -59,11 +59,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				case 'item_asset_accept':
 				case 'item_asset_deactivate':
 				case 'item_asset_reinstall':
-				case 'item_asset_upgrade':
 				case 'item_delete':
 				case 'item_ignore':
 				case 'item_repair':
-				case 'item_accept':
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sExecAction ) );
 					break;
 
@@ -799,8 +797,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( empty( $aItemIds ) ) {
 				$aItemIds = array( $sItemId );
 			}
+
 			try {
 				$aSuccessfulItems = array();
+
 				foreach ( $aItemIds as $sId ) {
 					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
 						$aSuccessfulItems[] = $sId;
@@ -1158,7 +1158,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -1304,7 +1304,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;
