@@ -101,6 +101,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'asset_accept'      => $oMod->getAjaxActionData( 'asset_accept', true ),
 				'asset_deactivate'  => $oMod->getAjaxActionData( 'asset_deactivate', true ),
 				'asset_reinstall'   => $oMod->getAjaxActionData( 'asset_reinstall', true ),
+				'asset_upgrade'     => $oMod->getAjaxActionData( 'asset_upgrade', true ),
 				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
 				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),

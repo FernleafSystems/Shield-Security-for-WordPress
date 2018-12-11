@@ -111,6 +111,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 				$this->deactivateAsset( $sItemId );
 				break;
 
+			case 'upgrade':
+				$this->upgradeAsset( $sItemId );
+				break;
+
 			default:
 				throw new Exception( 'Unsupported Action' );
 				break;

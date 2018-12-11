@@ -66,9 +66,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				case 'asset_accept':
 				case 'asset_deactivate':
 				case 'asset_reinstall':
+				case 'asset_upgrade':
 					$aAjaxResponse = $this->ajaxExec_AssetAction( str_replace( 'asset_', '', $sExecAction ) );
 					break;
-
 				case 'render_table_scan':
 					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
 					break;

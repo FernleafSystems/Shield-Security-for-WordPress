@@ -12,8 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield,
 class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	const SCAN_SLUG = 'ptg';
-	const CONTEXT_PLUGINS = 'plugins';
-	const CONTEXT_THEMES = 'themes';
 
 	/**
 	 * @var Shield\Scans\Ptg\Snapshots\Store
@@ -231,29 +229,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 			throw new Exception( 'The re-install process has reported as failed.' );
 		}
 		return true;
-	}
-
-	/**
-	 * @param string $sSlug
-	 * @return null|string
-	 */
-	private function getContextFromSlug( $sSlug ) {
-		$sContext = null;
-		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {
-			$sContext = self::CONTEXT_PLUGINS;
-		}
-		else if ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
-			$sContext = self::CONTEXT_THEMES;
-		}
-		return $sContext;
-	}
-
-	/**
-	 * @param string $sContext
-	 * @return Services\Core\Plugins|Services\Core\Themes
-	 */
-	private function getServiceFromContext( $sContext ) {
-		return ( $sContext == self::CONTEXT_THEMES ) ? Services\Services::WpThemes() : Services\Services::WpPlugins();
 	}
 
 	public function printPluginReinstallDialogs() {

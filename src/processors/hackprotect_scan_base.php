@@ -4,6 +4,7 @@ if ( class_exists( 'ICWP_WPSF_Processor_ScanBase', false ) ) {
 	return;
 }
 
+use FernleafSystems\Wordpress\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
@@ -11,6 +12,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	use Shield\Crons\StandardCron,
 		Shield\Scans\Base\ScannerProfileConsumer;
 	const SCAN_SLUG = 'base';
+	const CONTEXT_PLUGINS = 'plugins';
+	const CONTEXT_THEMES = 'themes';
 
 	/**
 	 * @var ICWP_WPSF_Processor_HackProtect_Scanner
@@ -229,6 +232,24 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * @param string $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function upgradeAsset( $sItemId ) {
+		$oService = $this->getServiceFromContext( $this->getContextFromSlug( $sItemId ) );
+
+		if ( $oService->isInstalled( $sItemId ) && $oService->isUpdateAvailable( $sItemId ) ) {
+			$oService->update( $sItemId );
+		}
+		else {
+			throw new Exception( 'Items is not currently installed.' );
+		}
+
+		return true;
+	}
+
+	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
@@ -418,6 +439,30 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			'border:2px solid #e66900;padding:20px;line-height:19px;margin:15px 20px 10px;display:inline-block;text-align:center;width:200px;font-size:18px;color: #e66900;border-radius:3px;',
 			_wpsf__( 'Run Scanner' )
 		);
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return null|string
+	 */
+	protected function getContextFromSlug( $sSlug ) {
+		$sContext = null;
+		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {
+			$sContext = self::CONTEXT_PLUGINS;
+		}
+		else if ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
+			$sContext = self::CONTEXT_THEMES;
+		}
+		return $sContext;
+	}
+
+	/**
+	 * TODO: move to services
+	 * @param string $sContext
+	 * @return Services\Core\Plugins|Services\Core\Themes
+	 */
+	protected function getServiceFromContext( $sContext ) {
+		return ( $sContext == self::CONTEXT_THEMES ) ? Services\Services::WpThemes() : Services\Services::WpPlugins();
 	}
 
 	/**
