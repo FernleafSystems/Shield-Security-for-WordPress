@@ -4,7 +4,6 @@ if ( class_exists( 'ICWP_WPSF_Processor_ScanBase', false ) ) {
 	return;
 }
 
-use FernleafSystems\Wordpress\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
@@ -12,8 +11,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	use Shield\Crons\StandardCron,
 		Shield\Scans\Base\ScannerProfileConsumer;
 	const SCAN_SLUG = 'base';
-	const CONTEXT_PLUGINS = 'plugins';
-	const CONTEXT_THEMES = 'themes';
 
 	/**
 	 * @var ICWP_WPSF_Processor_HackProtect_Scanner
@@ -214,24 +211,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * Only plugins may be deactivated, of course.
-	 * @param string $sItemId
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function deactivateAsset( $sItemId ) {
-		$oWpPlugins = $this->loadWpPlugins();
-		if ( $oWpPlugins->isInstalled( $sItemId ) ) {
-			$oWpPlugins->deactivate( $sItemId );
-		}
-		else {
-			throw new Exception( 'Items is not currently installed.' );
-		}
-
-		return true;
-	}
-
-	/**
 	 * @param string $sItemId
 	 * @return bool
 	 * @throws Exception
@@ -264,30 +243,46 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 						   ->getQuerySelector()
 						   ->byId( $sItemId );
 			if ( empty( $oEntry ) ) {
-				throw new Exception( 'Item could not be found to ignore.' );
+				throw new Exception( 'Item could not be found.' );
 			}
 
 			$oItem = $this->convertVoToResultItem( $oEntry );
 
 			switch ( $sAction ) {
 				case 'delete':
-					$bSuccess = $this->deleteItem( $oItem );
+					$bSuccess = $this->itemDelete( $oItem );
 					break;
 
 				case 'ignore':
-					$bSuccess = $this->ignoreItem( $oItem );
+					$bSuccess = $this->itemIgnore( $oItem );
 					break;
 
 				case 'repair':
-					$bSuccess = $this->repairItem( $oItem );
+					$bSuccess = $this->itemRepair( $oItem );
 					break;
 
 				case 'deactivate':
-					$bSuccess = $this->deactivateItem( $oItem );
+					$bSuccess = $this->itemDeactivate( $oItem );
 					break;
 
 				case 'accept':
-					$bSuccess = $this->acceptItem( $oItem );
+					$bSuccess = $this->itemAccept( $oItem );
+					break;
+
+				case 'asset_accept':
+					$bSuccess = $this->assetAccept( $oItem );
+					break;
+
+				case 'asset_deactivate':
+					$bSuccess = $this->assetDeactivate( $oItem );
+					break;
+
+				case 'asset_reinstall':
+					$bSuccess = $this->assetReinstall( $oItem );
+					break;
+
+				case 'asset_upgrade':
+					$bSuccess = $this->assetUpgrade( $oItem );
 					break;
 
 				default:
@@ -300,11 +295,22 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * Only plugins may be deactivated, of course.
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deleteItem( $oItem ) {
+	protected function assetAccept( $sItemId ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * Only plugins may be deactivated, of course.
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function assetDeactivate( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
@@ -313,7 +319,34 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function ignoreItem( $oItem ) {
+	protected function assetReinstall( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function assetUpgrade( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function itemDelete( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function itemIgnore( $oItem ) {
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getVoFromResultItem( $oItem );
 		if ( empty( $oEntry ) ) {
@@ -338,7 +371,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function acceptItem( $oItem ) {
+	protected function itemAccept( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
@@ -347,7 +380,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deactivateItem( $oItem ) {
+	protected function itemDeactivate( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
@@ -356,7 +389,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $oItem ) {
+	protected function itemRepair( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
@@ -439,30 +472,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			'border:2px solid #e66900;padding:20px;line-height:19px;margin:15px 20px 10px;display:inline-block;text-align:center;width:200px;font-size:18px;color: #e66900;border-radius:3px;',
 			_wpsf__( 'Run Scanner' )
 		);
-	}
-
-	/**
-	 * @param string $sSlug
-	 * @return null|string
-	 */
-	protected function getContextFromSlug( $sSlug ) {
-		$sContext = null;
-		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {
-			$sContext = self::CONTEXT_PLUGINS;
-		}
-		else if ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
-			$sContext = self::CONTEXT_THEMES;
-		}
-		return $sContext;
-	}
-
-	/**
-	 * TODO: move to services
-	 * @param string $sContext
-	 * @return Services\Core\Plugins|Services\Core\Themes
-	 */
-	protected function getServiceFromContext( $sContext ) {
-		return ( $sContext == self::CONTEXT_THEMES ) ? Services\Services::WpThemes() : Services\Services::WpPlugins();
 	}
 
 	/**

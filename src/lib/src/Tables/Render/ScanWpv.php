@@ -21,8 +21,8 @@ class ScanWpv extends ScanBase {
 			$bHasUpdate ? _wpsf__( 'Apply Update' ) : _wpsf__( 'No Update Available' ),
 			[ ( $bHasUpdate ? 'custom-action text-success' : 'disabled' ) ],
 			[
-				'rid'           => $aItem[ 'slug' ],
-				'custom-action' => 'asset_upgrade'
+				'rid'           => $aItem[ 'id' ],
+				'custom-action' => 'item_asset_upgrade'
 			]
 		);
 
@@ -31,8 +31,8 @@ class ScanWpv extends ScanBase {
 				_wpsf__( 'Deactivate' ),
 				[ 'custom-action' ],
 				[
-					'rid'           => $aItem[ 'slug' ],
-					'custom-action' => 'asset_deactivate'
+					'rid'           => $aItem[ 'id' ],
+					'custom-action' => 'item_asset_deactivate'
 				]
 			);
 		}
@@ -62,9 +62,7 @@ class ScanWpv extends ScanBase {
 	 */
 	protected function get_bulk_actions() {
 		return array(
-			'ignore'     => 'Ignore',
-			'deactivate' => 'Deactivate',
-			'repair'     => 'Apply Updates',
+			'ignore'           => 'Ignore',
 		);
 	}
 

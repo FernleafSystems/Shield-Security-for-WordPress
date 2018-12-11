@@ -75,8 +75,8 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deleteItem( $oItem ) {
-		return $this->repairItem( $oItem );
+	protected function itemDelete( $oItem ) {
+		return $this->itemRepair( $oItem );
 	}
 
 	/**
@@ -84,7 +84,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $oItem ) {
+	protected function itemRepair( $oItem ) {
 		$this->getRepairer()->repairItem( $oItem );
 		$this->doStatIncrement( 'file.corechecksum.replaced' ); //TODO
 		return true;

@@ -56,6 +56,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'bulk_action' ) );
 					break;
 
+				case 'item_asset_accept':
+				case 'item_asset_deactivate':
+				case 'item_asset_reinstall':
+				case 'item_asset_upgrade':
 				case 'item_delete':
 				case 'item_ignore':
 				case 'item_repair':
@@ -63,12 +67,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sExecAction ) );
 					break;
 
-				case 'asset_accept':
-				case 'asset_deactivate':
-				case 'asset_reinstall':
-				case 'asset_upgrade':
-					$aAjaxResponse = $this->ajaxExec_AssetAction( str_replace( 'asset_', '', $sExecAction ) );
-					break;
 				case 'render_table_scan':
 					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
 					break;
@@ -752,73 +750,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'page_reload' => $bPageReload,
 			'message'     => $sMessage,
 		);
-	}
-
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	private function ajaxExec_AssetAction( $sAction ) {
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oReq = $this->loadRequest();
-		$oScanPro = $oP->getSubProcessorScanner();
-
-		$bSuccess = false;
-		$bReloadPage = false;
-		switch ( $oReq->post( 'fScan' ) ) {
-			case 'ptg':
-				$bReloadPage = true;
-				$oTablePro = $oScanPro->getSubProcessorPtg();
-				break;
-
-			case 'ufc':
-				$oTablePro = $oScanPro->getSubProcessorUfc();
-				break;
-
-			case 'wcf':
-				$oTablePro = $oScanPro->getSubProcessorWcf();
-				break;
-
-			case 'wpv':
-				$oTablePro = $oScanPro->getSubProcessorWpv();
-				break;
-
-			default:
-				$oTablePro = null;
-				break;
-		}
-
-		$sItemId = $oReq->post( 'rid' );
-
-		if ( empty( $oTablePro ) ) {
-			$sMessage = _wpsf__( 'Unsupported scanner' );
-		}
-		else if ( empty( $sItemId ) ) {
-			$sMessage = _wpsf__( 'Unsupported assets(s) selected' );
-		}
-		else {
-			try {
-				if ( $oTablePro->executeAssetAction( $sItemId, $sAction ) ) {
-					$bSuccess = true;
-					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
-				}
-				else {
-					$sMessage = 'An error occurred. Re-scanning and reloading ...';
-				}
-				$oTablePro->doScan();
-			}
-			catch ( Exception $oE ) {
-				$sMessage = $oE->getMessage();
-			}
-		}
-
-		return array(
-			'success'     => $bSuccess,
-			'page_reload' => $bReloadPage,
-			'message'     => $sMessage,
-		);
-
 	}
 
 	/**

@@ -6,9 +6,9 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wpv', false ) ) {
 
 use \FernleafSystems\Wordpress\Plugin\Shield;
 
-require_once( __DIR__.'/hackprotect_scan_base.php' );
+require_once( __DIR__.'/hackprotect_scan_assets_base.php' );
 
-class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
+class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
 
 	const SCAN_SLUG = 'wpv';
 
@@ -98,37 +98,11 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sItemId
-	 * @param string $sAction
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function executeAssetAction( $sItemId, $sAction ) {
-
-		switch ( $sAction ) {
-
-			case 'deactivate':
-				$this->deactivateAsset( $sItemId );
-				break;
-
-			case 'upgrade':
-				$this->upgradeAsset( $sItemId );
-				break;
-
-			default:
-				throw new Exception( 'Unsupported Action' );
-				break;
-		}
-
-		return true;
-	}
-
-	/**
 	 * @param Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function repairItem( $oItem ) {
+	protected function itemRepair( $oItem ) {
 		return $this->getRepairer()->repairItem( $oItem );
 	}
 

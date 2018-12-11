@@ -95,17 +95,17 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oCarbon = new \Carbon\Carbon();
 		$aData = array(
 			'ajax'    => array(
-				'start_scans'       => $oMod->getAjaxActionData( 'start_scans', true ),
-				'render_table_scan' => $oMod->getAjaxActionData( 'render_table_scan', true ),
-				'bulk_action'       => $oMod->getAjaxActionData( 'bulk_action', true ),
-				'asset_accept'      => $oMod->getAjaxActionData( 'asset_accept', true ),
-				'asset_deactivate'  => $oMod->getAjaxActionData( 'asset_deactivate', true ),
-				'asset_reinstall'   => $oMod->getAjaxActionData( 'asset_reinstall', true ),
-				'asset_upgrade'     => $oMod->getAjaxActionData( 'asset_upgrade', true ),
-				'item_delete'       => $oMod->getAjaxActionData( 'item_delete', true ),
-				'item_ignore'       => $oMod->getAjaxActionData( 'item_ignore', true ),
-				'item_repair'       => $oMod->getAjaxActionData( 'item_repair', true ),
-				'item_accept'       => $oMod->getAjaxActionData( 'item_accept', true ),
+				'start_scans'           => $oMod->getAjaxActionData( 'start_scans', true ),
+				'render_table_scan'     => $oMod->getAjaxActionData( 'render_table_scan', true ),
+				'bulk_action'           => $oMod->getAjaxActionData( 'bulk_action', true ),
+				'item_asset_accept'     => $oMod->getAjaxActionData( 'item_asset_accept', true ),
+				'item_asset_deactivate' => $oMod->getAjaxActionData( 'item_asset_deactivate', true ),
+				'item_asset_reinstall'  => $oMod->getAjaxActionData( 'item_asset_reinstall', true ),
+				'item_asset_upgrade'    => $oMod->getAjaxActionData( 'item_asset_upgrade', true ),
+				'item_delete'           => $oMod->getAjaxActionData( 'item_delete', true ),
+				'item_ignore'           => $oMod->getAjaxActionData( 'item_ignore', true ),
+				'item_repair'           => $oMod->getAjaxActionData( 'item_repair', true ),
+				'item_accept'           => $oMod->getAjaxActionData( 'item_accept', true ),
 			),
 			'flags'   => array(
 				'is_premium' => $oMod->isPremium()
@@ -222,6 +222,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
 			$aProfile = array(
+				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
 				'name'           => _wpsf__( 'unknown' ),
 				'version'        => _wpsf__( 'unknown' ),
 				'root_dir'       => $oWpPlugins->getInstallationDir( $oIT->slug ),

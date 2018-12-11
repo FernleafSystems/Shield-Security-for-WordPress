@@ -4,12 +4,12 @@ if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Ptg' ) ) {
 	return;
 }
 
-require_once( __DIR__.'/hackprotect_scan_base.php' );
+require_once( __DIR__.'/hackprotect_scan_assets_base.php' );
 
 use FernleafSystems\Wordpress\Plugin\Shield,
 	FernleafSystems\Wordpress\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
+class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
 
 	const SCAN_SLUG = 'ptg';
 
@@ -157,77 +157,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param string $sItemId
-	 * @param string $sAction
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function executeAssetAction( $sItemId, $sAction ) {
-
-		$sContext = $this->getContextFromSlug( $sItemId );
-
-		switch ( $sAction ) {
-
-			case 'accept':
-				$this->updateItemInSnapshot( $sItemId, $sContext );
-				break;
-
-			case 'deactivate':
-				$this->deactivateAsset( $sItemId );
-				break;
-
-			case 'reinstall':
-				$this->reinstall( $sItemId, $sContext );
-				break;
-
-			default:
-				throw new Exception( 'Unsupported Action' );
-				break;
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function acceptItem( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
-	}
-
-	/**
 	 * @param Shield\Scans\Ptg\ResultItem $oItem
 	 * @return true
 	 * @throws Exception
 	 */
-	protected function ignoreItem( $oItem ) {
+	protected function assetAccept( $oItem ) {
 		// we run it for both since it doesn't matter which context it's in, it'll be removed
 		$this->updatePluginSnapshot( $oItem->slug );
 		$this->updateThemeSnapshot( $oItem->slug );
-		return true;
-	}
-
-	/**
-	 * @param Shield\Scans\Ptg\ResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function repairItem( $oItem ) {
-		$sContext = $this->getContextFromSlug( $oItem->slug );
-		if ( empty( $sContext ) ) {
-			throw new Exception( 'Could not find the item to reinstall.' );
-		}
-
-		if ( !$this->getServiceFromContext( $sContext )->isActive( $oItem->slug ) ) {
-			$this->updateItemInSnapshot( $oItem->slug, $sContext );
-			throw new Exception( 'The item is not currently active. Removing from scan...' );
-		}
-
-		if ( !$this->reinstall( $oItem->slug, $sContext ) ) {
-			throw new Exception( 'The re-install process has reported as failed.' );
-		}
 		return true;
 	}
 
@@ -265,20 +202,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param string $sBaseName
-	 * @param string $sContext
 	 * @return bool
 	 */
-	public function reinstall( $sBaseName, $sContext = self::CONTEXT_PLUGINS ) {
-
-		if ( $sContext == self::CONTEXT_PLUGINS ) {
-			$oExecutor = $this->loadWpPlugins();
-		}
-		else {
-			$oExecutor = $this->loadWpThemes();
-		}
-
-		return $oExecutor->reinstall( $sBaseName, false )
-			   && $this->updateItemInSnapshot( $sBaseName, $sContext );
+	public function reinstall( $sBaseName ) {
+		return parent::reinstall( $sBaseName ) && $this->updateItemInSnapshot( $sBaseName );
 	}
 
 	/**
@@ -418,9 +345,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @param string $sContext
 	 * @return $this
 	 */
-	public function updateItemInSnapshot( $sSlug, $sContext = self::CONTEXT_PLUGINS ) {
+	public function updateItemInSnapshot( $sSlug, $sContext = null ) {
+		if ( empty( $sContext ) ) {
+			$sContext = $this->getContextFromSlug( $sSlug );
+		}
 
-		$aNewSnapData = null;
 		if ( $sContext == self::CONTEXT_THEMES ) {
 			$this->updateThemeSnapshot( $sSlug );
 		}
