@@ -17,6 +17,7 @@
 					<div class="navbar-nav">
 						{% for navkey,navdata in hrefs.top_nav %}
 							<a class="nav-item nav-link{% if navdata.active %} active{% endif %}"
+							   id="NavItem-{{ navkey }}"
 							   href="{{ navdata.href }}">{{ navdata.name }}
 								{% if navdata.active %} <span class="sr-only">(current){% endif %}</a>
 						{% endfor %}
