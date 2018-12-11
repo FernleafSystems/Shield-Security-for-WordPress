@@ -2,7 +2,7 @@
   "properties":    {
     "slug":                  "plugin",
     "name":                  "General",
-    "menu_title":            "Full Options",
+    "menu_title":            "Settings",
     "show_module_menu_item": true,
     "show_module_options":   true,
     "storage_key":           "plugin",

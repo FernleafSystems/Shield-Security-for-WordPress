@@ -2,10 +2,10 @@
 
 {% block h1heading %}<h1>{{ strings.page_title }}</h1>{% endblock %}
 
-{% block body_head %}
+{% block page_head %}
 {% endblock %}
 
-{% block body_main %}
+{% block page_main %}
 	<div class="row">
 		{#<div class="col-6">#}
 			{#{% include '/wpadmin_pages/insights_new/original/title.twig' %}#}
@@ -36,7 +36,7 @@
 	</div>
 {% endblock %}
 
-{% block body_foot %}
+{% block page_foot %}
 	{% include '/wpadmin_pages/insights_new/original/mod_summary.twig' %}
 {% endblock %}
 
@@ -97,7 +97,7 @@
 		#wpfooter {
 			display: none;
 		}
-		#odp-BodyFoot {
+		#odp-PageFoot {
 			position: sticky;
 			bottom: 0;
 			z-index: 2;

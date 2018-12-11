@@ -9,6 +9,7 @@ body {
 }
 #wpcontent .wrap {
 	margin: 0;
+	padding: 0;
 }
 .pluginlogo_16 {
 	background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
@@ -845,13 +846,14 @@ input:checked + .icwp-slider:before {
 	background: linear-gradient(to top, rgba(250, 250, 250, 0.95), rgba(250, 250, 250, 0.7));
 }
 #WizardBanner {
-	height: 100px;
+	height: 66px;
 	background-color: #eaffea;
 	border-top: 1px solid #bbbbbb;
 	padding-top: 10px;
 	text-align: center;
 	word-break: keep-all;
 	white-space: nowrap;
+	box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
 }
 #WizardBanner p {
 	margin: 0;
@@ -910,34 +912,36 @@ th.column-request_info {
 .tablenav-pages-navspan {
 	box-sizing: content-box;
 }
-#odp-BodyContainer .card {
+#odp-PageContainer {
+}
+#odp-PageContainer .card {
 	box-shadow: none;
 	margin-top: 0;
 	max-width: none;
 	padding: 0;
 }
-#odp-BodyHead {
+#odp-PageHead {
 }
-.page-insights #odp-BodyHead {
+.page-insights #odp-PageHead {
 	position: sticky;
 	top: 40px;
 	z-index: 3;
 }
-#odp-BodyHead .navbar {
+#odp-PageHead .navbar {
 	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
-#odp-BodyHead .nav-link {
+#odp-PageHead .nav-link {
 	/*border: 1px solid rgba(0, 0, 0, 0.1);*/
 	/*border-radius: 2px;*/
 	/*margin-left: 3px;*/
 }
-#odp-BodyHead .nav-link.active {
+#odp-PageHead .nav-link.active {
 	font-weight: bold;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 3px;
 	background-color: rgba(0, 0, 0, 0.04);
 }
-#odp-BodyMain {
+#odp-PageMain {
 	font-size: 13px;
 }
 .insights_section {
@@ -986,7 +990,7 @@ td.cell_delete_note {
 	font-size: x-large;
 	padding: 0.5rem;
 }
-#odp-BodyMain .card.config {
+#odp-PageMain .card.config {
 	margin-top: 20px;
 }
 #SectionModuleSummaries .card-body table {
