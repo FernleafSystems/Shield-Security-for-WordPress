@@ -454,10 +454,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function setNewAccessKeyManually( $sKey ) {
 		if ( empty( $sKey ) ) {
-			throw new Exception( 'Attempting to set an empty Security Admin Access Key.' );
+			throw new \Exception( 'Attempting to set an empty Security Admin Access Key.' );
 		}
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
+			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
 		$this->setIsMainFeatureEnabled( true )
@@ -624,7 +624,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -776,7 +776,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

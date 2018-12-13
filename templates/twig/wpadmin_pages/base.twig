@@ -1,29 +1,43 @@
 {% block inline_styles %}
 {% endblock %}
 
-<div class="wrap container-fluid">
+<div class="container-fluid">
 	<div id="odp-body-container" class="odp-admin-page {{ classes.page_container|default('') }}">
 		{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
-		<div id="odp-BodyContainer">
+		<div id="odp-PageContainer">
 		{% block body %}
-			<div class="row" id="odp-BodyHead">
+			<div class="row" id="odp-PageHead">
 				<div class="col">
-					{% block body_head %}Override this block for the header area{% endblock %}
+					{% block page_head %}Override this block for the header area{% endblock %}
 				</div>
 			</div>
 
-			<div class="row" id="odp-BodyMain">
+			<div class="row" id="odp-PageMain">
 				<div class="col">
-					{% block body_main %}Override this block for the body area{% endblock %}
+					{% block page_main %}Override this block for the body area{% endblock %}
 				</div>
 			</div>
 
-			<div class="row" id="odp-BodyFoot">
+			<div class="row" id="odp-PageFoot">
 				<div class="col">
-					{% block body_foot %}Override this block for the footer area{% endblock %}
+					{% block page_foot %}Override this block for the footer area{% endblock %}
 				</div>
 			</div>
 		{% endblock %}
 		</div>
 	</div>
 </div>
+{% if flags.show_promo %}
+	<div id="FooterWizardBanner" class="container-fluid">
+		<div id="WizardBanner" class="row">
+			<div class="col-xl-5 offset-xl-1 col-6">
+				<h6 class="text-left">Join The 1,000s Who've Already Taken Their Security Pro</h6>
+				   <p>Deeper, Automated Scans; Traffic Watcher; Better 2FA; Email Support +much, much more.</p>
+			</div>
+			<div class="offset-1 col-3">
+				<a href="{{ hrefs.go_pro }}" target="_blank" class="btn btn-success">
+					Get More Protection &rarr;</a>
+			</div>
+		</div>
+	</div>
+{% endif %}

@@ -19,8 +19,11 @@ class ScanWpv extends ScanBase {
 		$bHasUpdate = $aItem[ 'has_update' ];
 		$aButtons[] = $this->buildActionButton_Custom(
 			$bHasUpdate ? _wpsf__( 'Apply Update' ) : _wpsf__( 'No Update Available' ),
-			[ ( $bHasUpdate ? 'repair text-success' : 'disabled' ) ],
-			[ 'rid' => $aItem[ 'id' ], ]
+			[ ( $bHasUpdate ? 'custom-action text-success' : 'disabled' ) ],
+			[
+				'rid'           => $aItem[ 'id' ],
+				'custom-action' => 'item_repair'
+			]
 		);
 
 		if ( $aItem[ 'can_deactivate' ] ) {
@@ -29,7 +32,7 @@ class ScanWpv extends ScanBase {
 				[ 'custom-action' ],
 				[
 					'rid'           => $aItem[ 'id' ],
-					'custom-action' => 'item_deactivate'
+					'custom-action' => 'item_asset_deactivate'
 				]
 			);
 		}
@@ -59,9 +62,7 @@ class ScanWpv extends ScanBase {
 	 */
 	protected function get_bulk_actions() {
 		return array(
-			'ignore'     => 'Ignore',
-			'deactivate' => 'Deactivate',
-			'repair'     => 'Apply Updates',
+			'ignore'           => 'Ignore',
 		);
 	}
 

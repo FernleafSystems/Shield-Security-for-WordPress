@@ -56,18 +56,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'bulk_action' ) );
 					break;
 
+				case 'item_asset_accept':
+				case 'item_asset_deactivate':
+				case 'item_asset_reinstall':
 				case 'item_delete':
 				case 'item_ignore':
 				case 'item_repair':
-				case 'item_accept':
-				case 'item_deactivate':
 					$aAjaxResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sExecAction ) );
-					break;
-
-				case 'asset_accept':
-				case 'asset_deactivate':
-				case 'asset_reinstall':
-					$aAjaxResponse = $this->ajaxExec_AssetAction( str_replace( 'asset_', '', $sExecAction ) );
 					break;
 
 				case 'render_table_scan':
@@ -759,73 +754,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @param string $sAction
 	 * @return array
 	 */
-	private function ajaxExec_AssetAction( $sAction ) {
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oReq = $this->loadRequest();
-		$oScanPro = $oP->getSubProcessorScanner();
-
-		$bSuccess = false;
-		$bReloadPage = false;
-		switch ( $oReq->post( 'fScan' ) ) {
-			case 'ptg':
-				$bReloadPage = true;
-				$oTablePro = $oScanPro->getSubProcessorPtg();
-				break;
-
-			case 'ufc':
-				$oTablePro = $oScanPro->getSubProcessorUfc();
-				break;
-
-			case 'wcf':
-				$oTablePro = $oScanPro->getSubProcessorWcf();
-				break;
-
-			case 'wpv':
-				$oTablePro = $oScanPro->getSubProcessorWpv();
-				break;
-
-			default:
-				$oTablePro = null;
-				break;
-		}
-
-		$sItemId = $oReq->post( 'rid' );
-
-		if ( empty( $oTablePro ) ) {
-			$sMessage = _wpsf__( 'Unsupported scanner' );
-		}
-		else if ( empty( $sItemId ) ) {
-			$sMessage = _wpsf__( 'Unsupported assets(s) selected' );
-		}
-		else {
-			try {
-				if ( $oTablePro->executeAssetAction( $sItemId, $sAction ) ) {
-					$bSuccess = true;
-					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
-				}
-				else {
-					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
-				}
-				$oTablePro->doScan();
-			}
-			catch ( Exception $oE ) {
-				$sMessage = $oE->getMessage();
-			}
-		}
-
-		return array(
-			'success'     => $bSuccess,
-			'page_reload' => $bReloadPage,
-			'message'     => $sMessage,
-		);
-
-	}
-
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
 	private function ajaxExec_ScanItemAction( $sAction ) {
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $this->getProcessor();
@@ -869,8 +797,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( empty( $aItemIds ) ) {
 				$aItemIds = array( $sItemId );
 			}
+
 			try {
 				$aSuccessfulItems = array();
+
 				foreach ( $aItemIds as $sId ) {
 					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
 						$aSuccessfulItems[] = $sId;
@@ -1228,7 +1158,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -1374,7 +1304,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

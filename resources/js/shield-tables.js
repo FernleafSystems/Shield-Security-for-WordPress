@@ -157,6 +157,10 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 							plugin.options[ 'working_custom_action' ][ 'rid' ] = $oButt.data( 'rid' );
 							plugin.customAction.call( plugin );
 						}
+						else{
+							/** This should never be reached live: **/
+							alert( 'custom action not supported: ' + sCustomAction );
+						}
 					}
 				);
 

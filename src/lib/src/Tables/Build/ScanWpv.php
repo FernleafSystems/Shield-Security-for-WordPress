@@ -45,6 +45,7 @@ class ScanWpv extends ScanBase {
 				$aE[ 'can_deactivate' ] = false;
 				$aE[ 'has_update' ] = $oWpThemes->isUpdateAvailable( $oIt->slug );
 			}
+			$aE[ 'slug' ] = $oIt->slug;
 			$aE[ 'wpvuln_vo' ] = $oIt->getWpVulnVo();
 			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );

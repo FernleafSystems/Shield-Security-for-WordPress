@@ -217,8 +217,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$aTopNav = array(
-			'insights' => _wpsf__( 'At A Glance' ),
-			'config'   => _wpsf__( 'Settings' ),
+			'insights' => _wpsf__( 'Overview' ),
+			'config'   => _wpsf__( 'At A Glance' ),
 			'scans'    => _wpsf__( 'Scans' ),
 			'ips'      => _wpsf__( 'IP Lists' ),
 			'audit'    => _wpsf__( 'Audit Trail' ),
@@ -237,7 +237,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aTopNav[ 'full_options' ] = array(
 			'href'   => $this->getCon()->loadCorePluginFeatureHandler()->getUrl_AdminPage(),
-			'name'   => _wpsf__( 'Full Options' ),
+			'name'   => _wpsf__( 'Settings' ),
 			'active' => false
 		);
 
@@ -246,6 +246,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						  array(
 							  'classes' => array(
 								  'page_container' => 'page-insights page-'.$sSubNavSection
+							  ),
+							  'flags'   => array(
+								  'show_promo' => !$bIsPro
 							  ),
 							  'hrefs'   => array(
 								  'go_pro'     => 'https://icwp.io/shieldgoprofeature',

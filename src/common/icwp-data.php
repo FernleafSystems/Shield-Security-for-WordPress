@@ -100,6 +100,32 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sPrevious
+	 * @param string $sNew
+	 * @param string $sQueryType
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function isNewVersion( $sPrevious, $sNew, $sQueryType = 'minor' ) {
+		if ( substr_count( $sPrevious, '.' ) !== 2 || substr_count( $sNew, '.' ) !== 2 ) {
+			throw new \Exception( 'Version not of support type' );
+		}
+		$sPreviousBranch = implode( '.', array_slice( preg_split( '/[.-]/', $sPrevious ), 0, 2 ) ); // x.y
+		$sNewBranch = implode( '.', array_slice( preg_split( '/[.-]/', $sNew ), 0, 2 ) ); // x.y
+
+		$bIsType = false;
+		switch ( $sQueryType ) {
+			case 'minor':
+				$bIsType = ( $sPreviousBranch == $sNew );
+				break;
+			case 'major':
+				$bIsType = version_compare( $sPreviousBranch, $sNewBranch, '<' );
+				break;
+		}
+		return $bIsType;
+	}
+
+	/**
 	 * @param string $sUrl
 	 * @return string
 	 */

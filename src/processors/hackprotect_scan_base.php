@@ -211,6 +211,24 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * @param string $sItemId
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function upgradeAsset( $sItemId ) {
+		$oService = $this->getServiceFromContext( $this->getContextFromSlug( $sItemId ) );
+
+		if ( $oService->isInstalled( $sItemId ) && $oService->isUpdateAvailable( $sItemId ) ) {
+			$oService->update( $sItemId );
+		}
+		else {
+			throw new Exception( 'Items is not currently installed.' );
+		}
+
+		return true;
+	}
+
+	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
@@ -225,30 +243,38 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 						   ->getQuerySelector()
 						   ->byId( $sItemId );
 			if ( empty( $oEntry ) ) {
-				throw new Exception( 'Item could not be found to ignore.' );
+				throw new Exception( 'Item could not be found.' );
 			}
 
 			$oItem = $this->convertVoToResultItem( $oEntry );
 
 			switch ( $sAction ) {
 				case 'delete':
-					$bSuccess = $this->deleteItem( $oItem );
+					$bSuccess = $this->itemDelete( $oItem );
 					break;
 
 				case 'ignore':
-					$bSuccess = $this->ignoreItem( $oItem );
+					$bSuccess = $this->itemIgnore( $oItem );
 					break;
 
 				case 'repair':
-					$bSuccess = $this->repairItem( $oItem );
-					break;
-
-				case 'deactivate':
-					$bSuccess = $this->deactivateItem( $oItem );
+					$bSuccess = $this->itemRepair( $oItem );
 					break;
 
 				case 'accept':
-					$bSuccess = $this->acceptItem( $oItem );
+					$bSuccess = $this->itemAccept( $oItem );
+					break;
+
+				case 'asset_accept':
+					$bSuccess = $this->assetAccept( $oItem );
+					break;
+
+				case 'asset_deactivate':
+					$bSuccess = $this->assetDeactivate( $oItem );
+					break;
+
+				case 'asset_reinstall':
+					$bSuccess = $this->assetReinstall( $oItem );
 					break;
 
 				default:
@@ -265,7 +291,17 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function deleteItem( $oItem ) {
+	protected function assetAccept( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * Only plugins may be deactivated, of course.
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function assetDeactivate( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
@@ -274,7 +310,34 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function ignoreItem( $oItem ) {
+	protected function assetReinstall( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function itemAccept( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function itemDelete( $oItem ) {
+		throw new Exception( 'Unsupported Action' );
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @return bool
+	 * @throws Exception
+	 */
+	protected function itemIgnore( $oItem ) {
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getVoFromResultItem( $oItem );
 		if ( empty( $oEntry ) ) {
@@ -285,13 +348,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		$oUp = $this->getScannerDb()
 					->getDbHandler()
 					->getQueryUpdater();
-		$bSuccess = $oUp->setIgnored( $oEntry );
 
-		if ( !$bSuccess ) {
+		if ( !$oUp->setIgnored( $oEntry ) ) {
 			throw new Exception( 'Item could not be ignored at this time.' );
 		}
 
-		return $bSuccess;
+		return true;
 	}
 
 	/**
@@ -299,25 +361,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 * @throws Exception
 	 */
-	protected function acceptItem( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function deactivateItem( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function repairItem( $oItem ) {
+	protected function itemRepair( $oItem ) {
 		throw new Exception( 'Unsupported Action' );
 	}
 
