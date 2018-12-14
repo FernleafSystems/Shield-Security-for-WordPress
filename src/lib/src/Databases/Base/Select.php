@@ -208,6 +208,7 @@ class Select extends BaseQuery {
 			}
 		}
 
+		$this->reset();
 		return $mData;
 	}
 

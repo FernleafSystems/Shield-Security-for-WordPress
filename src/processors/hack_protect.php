@@ -210,15 +210,17 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
 			$oIT = array_pop( $aItems );
-
-			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oWpPlugins->isWpOrg( $sSlug );
-			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
-
 			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
 			if ( !empty( $aMeta[ 'ts' ] ) ) {
 				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
+			else {
+				$aMeta[ 'ts' ] = _wpsf__( 'unknown' );
+			}
+
+			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
+			$bIsWpOrg = $bInstalled && $oWpPlugins->isWpOrg( $sSlug );
+			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
 			$aProfile = array(
 				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
 				'name'           => _wpsf__( 'unknown' ),
@@ -230,7 +232,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'can_deactivate' => $bInstalled && ( $sSlug !== $oCon->getPluginBaseFile() ),
 				'has_update'     => $bHasUpdate,
 				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => isset( $aMeta[ 'ts' ] ) ? $aMeta[ 'ts' ] : _wpsf__( 'unknown' ),
+				'date_snapshot'  => $aMeta[ 'ts' ],
 			);
 
 			if ( $bInstalled ) {
@@ -257,6 +259,13 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
 			$oIT = array_pop( $aItems );
+			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
+			if ( !empty( $aMeta[ 'ts' ] ) ) {
+				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
+			}
+			else {
+				$aMeta[ 'ts' ] = _wpsf__( 'unknown' );
+			}
 
 			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );
 			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
@@ -272,7 +281,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'can_deactivate' => false,
 				'has_update'     => $bHasUpdate,
 				'count_files'    => $oItemRS->countItems(),
-				'date_snapshot'  => 'TODODODO',
+				'date_snapshot'  => $aMeta[ 'ts' ],
 			);
 			if ( $bInstalled ) {
 				$oT = $oWpThemes->getTheme( $oIT->slug );
