@@ -147,12 +147,12 @@
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/FernleafSystems/wordpress-services.git",
-                "reference": "55df5d1d8d744845722d94e02a88d985860557cc"
+                "reference": "2f52a4d08c2bffe8d6f55b45ae24c9d50f7d3423"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/55df5d1d8d744845722d94e02a88d985860557cc.zip",
-                "reference": "55df5d1d8d744845722d94e02a88d985860557cc",
+                "url": "https://bitbucket.org/FernleafSystems/wordpress-services/get/2f52a4d08c2bffe8d6f55b45ae24c9d50f7d3423.zip",
+                "reference": "2f52a4d08c2bffe8d6f55b45ae24c9d50f7d3423",
                 "shasum": ""
             },
             "require": {
@@ -179,7 +179,7 @@
                 }
             ],
             "homepage": "https://bitbucket.org/FernleafSystems/wordpress-services",
-            "time": "2018-12-14T08:17:21+00:00"
+            "time": "2018-12-14T11:07:51+00:00"
         },
         {
             "name": "geoip2/geoip2",
