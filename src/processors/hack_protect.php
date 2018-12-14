@@ -262,6 +262,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
 			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
 			$aProfile = array(
+				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
 				'name'           => _wpsf__( 'unknown' ),
 				'version'        => _wpsf__( 'unknown' ),
 				'root_dir'       => _wpsf__( 'unknown' ),
