@@ -11,7 +11,7 @@
 						<li>{{ scan.strings.date_snapshot }}: {{ asset_data.date_snapshot }}</li>
 					</ul>
 					<div class="actions-group">
-						<button class="btn btn-sm btn-primary action custom-action"
+						<button class="btn btn-sm btn-{% if not asset_data.can_reinstall %}outline-{% endif %}dark action custom-action"
 								{% if asset_data.can_reinstall %}
 									data-rid="{{ asset_data.id }}"
 									data-custom-action="item_asset_reinstall"
@@ -30,7 +30,7 @@
 								data-rid="{{ asset_data.id }}" data-custom-action="item_asset_accept"
 						>{{ scan.strings.accept }}</button>
 
-						<button class="btn btn-sm btn-warning action custom-action"
+						<button class="btn btn-sm btn-{% if not asset_data.can_deactivate %}outline-{% endif %}warning action custom-action"
 								{% if asset_data.can_deactivate %}
 									data-rid="{{ asset_data.id }}"
 									data-custom-action="item_asset_deactivate"

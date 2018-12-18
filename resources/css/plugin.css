@@ -1083,6 +1083,18 @@ td.column-actions button > span {
 table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
+
+/**
+PTG SCAN TABLES
+ */
+.scan-table-for-slug {
+	margin-top: 15px;
+}
+.scan-table-for-slug .tablenav.top {
+	display: none;
+}
+
+
 .card.card-scan_results {
 	/*background-color: transparent;*/
 	/*border: 0 none;*/
