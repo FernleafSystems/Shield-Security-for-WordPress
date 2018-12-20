@@ -1273,7 +1273,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPremium() {
-		return $this->getCon()->isPremiumActive();
+		return false;//$this->getCon()->isPremiumActive();
 	}
 
 	/**
@@ -1886,7 +1886,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
-
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOpt( 'help_video_options', array() );
 		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
@@ -1957,6 +1956,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function isHelpVideoDisplayable() {
 		$sId = $this->getHelpVideoId();
+		return false;
 		return !empty( $sId );
 	}
 

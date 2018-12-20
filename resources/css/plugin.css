@@ -260,7 +260,7 @@ p.code-description {
 .option_overlay:hover .overlay_message {
 	display: block;
 	color: #333333;
-	font-size: 24px;
+	font-size: 18px;
 	margin: 15px auto auto auto;
 	padding: 0 10px;
 	width: auto;
