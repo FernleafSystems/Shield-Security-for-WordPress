@@ -22,7 +22,7 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 		var insertPlaceHolder_Recap = function ( form ) {
 			var recap_div = document.createElement( 'div' );
 			recap_div.classList.add( 'icwpg-recaptcha' );
-			jQuery( recap_div ).insertBefore( '#' + form.id + ' :submit' );
+			jQuery( recap_div ).insertBefore( jQuery( ':submit', form ) );
 		};
 
 		/**
@@ -50,7 +50,7 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 			shieThe_lab.appendChild( shieThe_cb );
 			shieThe_lab.appendChild( shieThe_txt );
 
-			jQuery( shiep ).insertBefore( '#' + form.id + ' :submit' );
+			jQuery( shiep ).insertBefore( jQuery( ':submit', form ) );
 
 			form.onsubmit = function () {
 				if ( shieThe_cb.checked !== true ) {
