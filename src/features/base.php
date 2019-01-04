@@ -1273,7 +1273,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPremium() {
-		return false;//$this->getCon()->isPremiumActive();
+		return $this->getCon()->isPremiumActive();
 	}
 
 	/**
