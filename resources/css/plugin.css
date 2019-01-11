@@ -11,6 +11,15 @@ body {
 	margin: 0;
 	padding: 0;
 }
+
+/** Hide WordPress update nag **/
+.update-nag {
+	display: none;
+}
+#wpbody-content .odp-admin-notice.notice {
+	margin: 5px 15px;
+}
+
 .pluginlogo_16 {
 	background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }

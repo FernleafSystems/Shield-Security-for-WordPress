@@ -1,5 +1,9 @@
 @CHARSET "ISO-8859-1";
 
+#wpbody-content .odp-admin-notice.notice {
+	margin: 5px 0 15px;
+}
+
 #wpbody-content .icwp-admin-notice,
 #wpbody-content .icwp-admin-notice p {
 	text-shadow: -1px -1px 0 rgba(255, 255, 255, 0.4);
