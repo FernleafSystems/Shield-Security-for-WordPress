@@ -18,7 +18,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		add_action( 'user_profile_update_errors', array( $this, 'checkPassword' ), 100, 3 );
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
 		add_filter( 'login_message', array( $this, 'addPasswordResetMessage' ) );
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 	}
 
 	/**
