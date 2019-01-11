@@ -126,22 +126,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	/**
-	 * @uses wp_redirect()
-	 * @param string $sMessage
-	 */
-	private function redirectToProfile( $sMessage ) {
-		$sExtra = _wpsf__( 'For your security, please use the password section below to update your password.' );
-		$this->getMod()
-			 ->setFlashAdminNotice( $sMessage.' '.$sExtra );
-
-		$this->loadWp()
-			 ->doRedirect(
-				 self_admin_url( 'profile.php' ),
-				 array( $this->getMod()->prefix( 'force-user-password' ) => 1 )
-			 );
-	}
-
-	/**
 	 * IMPORTANT: User must be logged-in for this to work correctly
 	 * We have a 2 minute delay between redirects because some custom user forms redirect to custom
 	 * password reset pages. This prevents users following this flow.
