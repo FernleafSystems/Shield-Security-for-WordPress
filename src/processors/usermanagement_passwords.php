@@ -8,11 +8,12 @@ require_once( __DIR__.'/base_wpsf.php' );
 
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
- * Class ICWP_WPSF_Processor_UserManagement_Pwned
+ * Class ICWP_WPSF_Processor_UserManagement_Passwords
  */
 class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
+		/* add_action( 'password_reset', array( $this, 'onPasswordReset' ), 100, 1 ); really needed? */
 		add_filter( 'registration_errors', array( $this, 'checkPassword' ), 100, 3 );
 		add_action( 'user_profile_update_errors', array( $this, 'checkPassword' ), 100, 3 );
 		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
@@ -77,6 +78,18 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		return empty( $sFlushed ) ? $sMessage : sprintf( '<p class="message">%s</p>', $sFlushed );
 	}
 
+	/**
+	 * Really Needed?
+	 * @param WP_User $oUser
+	 */
+	public function onPasswordReset( $oUser ) {
+		if ( $oUser instanceof WP_User && $oUser->ID > 0 ) {
+			$oMeta = $this->getController()->getUserMeta( $oUser );
+			unset( $oMeta->pass_hash );
+			$oMeta->pass_started_at = 0;
+		}
+	}
+
 	private function processExpiredPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
@@ -129,22 +142,32 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	/**
+	 * IMPORTANT: User must be logged-in for this to work correctly
+	 * We have a 2 minute delay between redirects because some custom user forms redirect to custom
+	 * password reset pages. This prevents users following this flow.
 	 * @uses wp_redirect()
 	 * @param string $sMessage
 	 */
 	private function redirectToResetPassword( $sMessage ) {
 
-		$oWp = $this->loadWp();
-		$oWpUsers = $this->loadWpUsers();
-		$sAction = $this->loadRequest()->query( 'action' );
-		$oUser = $oWpUsers->getCurrentWpUser();
-		if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, array( 'rp', 'resetpass' ) ) ) ) {
+		$oMeta = $this->getCurrentUserMeta();
+		$nLastRedirect = (int)$oMeta->pass_reset_last_redirect_at;
+		if ( $this->time() - $nLastRedirect > MINUTE_IN_SECONDS * 2 ) {
 
-			$sMessage .= ' '._wpsf__( 'For your security, please use the password section below to update your password.' );
-			$this->getMod()
-				 ->setFlashAdminNotice( $sMessage );
+			$oMeta->pass_reset_last_redirect_at = $this->time();
 
-			$oWp->doRedirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
+			$oWp = $this->loadWp();
+			$oWpUsers = $this->loadWpUsers();
+			$sAction = $this->loadRequest()->query( 'action' );
+			$oUser = $oWpUsers->getCurrentWpUser();
+			if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, array( 'rp', 'resetpass' ) ) ) ) {
+
+				$sMessage .= ' '._wpsf__( 'For your security, please use the password section below to update your password.' );
+				$this->getMod()
+					 ->setFlashAdminNotice( $sMessage );
+
+				$oWp->doRedirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
+			}
 		}
 	}
 
