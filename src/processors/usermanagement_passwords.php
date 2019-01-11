@@ -84,7 +84,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	public function onPasswordReset( $oUser ) {
 		if ( $oUser instanceof WP_User && $oUser->ID > 0 ) {
-			$oMeta = $this->getController()->getUserMeta( $oUser );
+			$oMeta = $this->getCon()->getUserMeta( $oUser );
 			unset( $oMeta->pass_hash );
 			$oMeta->pass_started_at = 0;
 		}
@@ -150,7 +150,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	private function redirectToResetPassword( $sMessage ) {
 
-		$oMeta = $this->getCurrentUserMeta();
+		$oMeta = $this->getCon()->getCurrentUserMeta();
 		$nLastRedirect = (int)$oMeta->pass_reset_last_redirect_at;
 		if ( $this->time() - $nLastRedirect > MINUTE_IN_SECONDS * 2 ) {
 
