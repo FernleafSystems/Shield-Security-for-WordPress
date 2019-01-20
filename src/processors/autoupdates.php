@@ -33,6 +33,8 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
+	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
@@ -51,12 +53,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			add_filter( 'automatic_updates_is_vcs_checkout', array( $this, 'disable_for_vcs' ), 10, 2 );
 		}
 
-		if ( $oFO->isDisableAllAutoUpdates() ) {
-			$this->disableAllAutoUpdates();
-		}
-		else {
-
-			add_action( 'wp_loaded', array( $this, 'force_run_autoupdates' ) );
+		if ( !$oFO->isDisableAllAutoUpdates() ) {
 			//more parameter options here for later
 			add_filter( 'auto_core_update_send_email', array( $this, 'autoupdate_send_email' ), $nFilterPriority, 1 );
 			add_filter( 'auto_core_update_email', array( $this, 'autoupdate_email_override' ), $nFilterPriority, 1 );
@@ -77,7 +74,19 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 	}
 
-	protected function disableAllAutoUpdates() {
+	public function onWpLoaded() {
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getMod();
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$this->disableAllAutoUpdates();
+		}
+		else {
+			$this->forceRunAutoUpdates();
+		}
+	}
+
+	private function disableAllAutoUpdates() {
+		remove_all_filters( 'automatic_updater_disabled' );
 		add_filter( 'automatic_updater_disabled', '__return_true', PHP_INT_MAX );
 		if ( !defined( 'WP_AUTO_UPDATE_CORE' ) ) {
 			define( 'WP_AUTO_UPDATE_CORE', false );
@@ -181,7 +190,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * Will force-run the WordPress automatic updates process and then redirect to the updates screen.
 	 */
-	public function force_run_autoupdates() {
+	private function forceRunAutoUpdates() {
 		if ( $this->getIfForceRunAutoupdates() ) {
 			$this->doStatIncrement( 'autoupdates.forcerun' );
 			$this->loadWp()->doForceRunAutomaticUpdates();

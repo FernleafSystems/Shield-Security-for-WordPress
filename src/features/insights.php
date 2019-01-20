@@ -332,7 +332,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'options'        => _wpsf__( 'Options' ),
 				'not_available'  => _wpsf__( 'Sorry, this feature is not available.' ),
 				'not_enabled'    => _wpsf__( "This feature isn't currently enabled." ),
-				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to add this feature along with many more to your security plugin.' ),
+				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to activate this feature (along with many more).' ),
 				'please_enable'  => _wpsf__( 'Please turn on this feature in the options.' ),
 				'only_1_dollar'  => _wpsf__( 'for just $1/month' ),
 			)

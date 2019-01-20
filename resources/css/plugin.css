@@ -11,6 +11,15 @@ body {
 	margin: 0;
 	padding: 0;
 }
+
+/** Hide WordPress update nag **/
+.update-nag {
+	display: none;
+}
+#wpbody-content .odp-admin-notice.notice {
+	margin: 5px 15px;
+}
+
 .pluginlogo_16 {
 	background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
@@ -260,7 +269,7 @@ p.code-description {
 .option_overlay:hover .overlay_message {
 	display: block;
 	color: #333333;
-	font-size: 24px;
+	font-size: 18px;
 	margin: 15px auto auto auto;
 	padding: 0 10px;
 	width: auto;
@@ -1083,6 +1092,18 @@ td.column-actions button > span {
 table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
+
+/**
+PTG SCAN TABLES
+ */
+.scan-table-for-slug {
+	margin-top: 15px;
+}
+.scan-table-for-slug .tablenav.top {
+	display: none;
+}
+
+
 .card.card-scan_results {
 	/*background-color: transparent;*/
 	/*border: 0 none;*/

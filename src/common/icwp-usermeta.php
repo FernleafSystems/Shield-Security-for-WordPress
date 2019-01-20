@@ -13,6 +13,7 @@ if ( class_exists( 'ICWP_UserMeta', false ) ) {
  * @property array  $hash_loginmfa
  * @property string $pass_hash
  * @property int    $pass_started_at
+ * @property int    $pass_reset_last_redirect_at
  * @property int    $pass_check_failed_at
  * @property string $yubi_secret
  * @property bool   $yubi_validated

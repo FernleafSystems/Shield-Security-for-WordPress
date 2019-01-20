@@ -163,7 +163,7 @@
 							<div class="option_overlay">
 								<div class="overlay_message">
 									<a href="<?php echo $hrefs[ 'go_pro' ]; ?>" target="_blank">
-										Go Pro!</a>
+										Sorry, this is a premium-only feature</a>
 								</div>
 							</div>
 						<?php endif; ?>

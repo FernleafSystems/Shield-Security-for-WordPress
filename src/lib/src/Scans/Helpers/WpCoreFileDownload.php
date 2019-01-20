@@ -10,8 +10,10 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class WpCoreFileDownload {
 
-	const URL_WP_CORE_SVN = 'https://core.svn.wordpress.org';
-	const URL_WP_CORE_SVN_IL8N = 'https://i18n.svn.wordpress.org';
+	const URL_WP_CORE = 'https://core.svn.wordpress.org';
+	const URL_WP_CORE_IL8N = 'https://i18n.svn.wordpress.org';
+	const URL_CP_CORE = 'https://raw.githubusercontent.com/ClassicPress/ClassicPress-release';
+	const URL_CP_CORE_IL8N = 'https://raw.githubusercontent.com/ClassicPress/ClassicPress-release';
 
 	/**
 	 * @var string
@@ -27,19 +29,42 @@ class WpCoreFileDownload {
 		$sLocale = Services::WpGeneral()->getLocale( true );
 		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
 
-		$sFileUrl = sprintf(
-			'%s/tags/%s/%s',
-			$bUseInternational ? self::URL_WP_CORE_SVN_IL8N.'/'.$sLocale : self::URL_WP_CORE_SVN,
-			$this->getVersion(),
-			( $bUseInternational ? 'dist/' : '' ).$sPath
-		);
-
-		$sContent = (string)Services::WpFs()->getUrlContent( $sFileUrl );
+		$sContent = (string)Services::WpFs()->getUrlContent( $this->getFileUrl( $sPath, $bUseLocale ) );
 		if ( $bUseInternational && empty( $sContent ) ) {
 			$sContent = $this->run( $sPath, false );
 		} // try international retrieval and if it fails, we resort to en_US.
 
 		return $sContent;
+	}
+
+	/**
+	 * @param string $sPath
+	 * @param bool   $bUseLocale
+	 * @return string
+	 */
+	protected function getFileUrl( $sPath, $bUseLocale ) {
+		$oWp = Services::WpGeneral();
+		$sLocale = $oWp->getLocale( true );
+		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
+
+		if ( Services::WpGeneral()->isClassicPress() ) {
+			$sFileUrl = sprintf(
+				'%s/%s/%s',
+				$bUseInternational ? self::URL_CP_CORE : self::URL_CP_CORE_IL8N,
+				$this->getVersion(),
+				$sPath
+			);
+		}
+		else {
+			$sFileUrl = sprintf(
+				'%s/tags/%s/%s',
+				$bUseInternational ? self::URL_WP_CORE_IL8N.'/'.$sLocale : self::URL_WP_CORE,
+				$this->getVersion(),
+				( $bUseInternational ? 'dist/' : '' ).$sPath
+			);
+		}
+
+		return $sFileUrl;
 	}
 
 	/**

@@ -21,6 +21,7 @@
       "id":          "override-forceoff",
       "schedule":    "conditions",
       "valid_admin": true,
+      "plugin_page_only": false,
       "can_dismiss": false,
       "type":        "error"
     },

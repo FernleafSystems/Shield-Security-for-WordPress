@@ -33,6 +33,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$this->setMod( $oModCon );
 
 		add_action( 'init', array( $this, 'onWpInit' ) );
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
 		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
@@ -43,14 +44,10 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	public function onWpInit() {
-		$oMod = $this->getMod();
-		$oCon = $this->getCon();
-		if ( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) {
-			add_action( $oMod->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
-			if ( method_exists( $this, 'addToAdminNotices' ) ) {
-				add_action( $oMod->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
-			}
-		}
+		add_action( $this->getMod()->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+	}
+
+	public function onWpLoaded() {
 	}
 
 	/**
@@ -128,29 +125,36 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function getIfDisplayAdminNotice( $aAttrs ) {
+		$bDisplay = true;
+		$oCon = $this->getCon();
 		$oWpNotices = $this->loadWpNotices();
 
-		if ( empty( $aAttrs[ 'schedule' ] )
-			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version', 'never' ) ) ) {
-			$aAttrs[ 'schedule' ] = 'conditions';
+		$aAttrs = $this->loadDP()
+					   ->mergeArraysRecursive(
+						   [
+							   'schedule'         => 'conditions',
+							   'type'             => 'promo',
+							   'plugin_page_only' => true,
+							   'valid_admin'      => true,
+						   ],
+						   $aAttrs
+					   );
+
+		if ( $aAttrs[ 'valid_admin' ] && !( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) ) {
+			$bDisplay = false;
+		}
+		else if ( $aAttrs[ 'plugin_page_only' ] && !$this->getMod()->isModulePage() ) {
+			$bDisplay = false;
+		}
+		else if ( $aAttrs[ 'schedule' ] == 'once'
+				  && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
+			$bDisplay = false;
+		}
+		else if ( $aAttrs[ 'type' ] == 'promo' && $this->loadWp()->isMobile() ) {
+			$bDisplay = false;
 		}
 
-		if ( $aAttrs[ 'schedule' ] == 'never' ) {
-			return false;
-		}
-
-		if ( $aAttrs[ 'schedule' ] == 'once'
-			 && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) )
-		) {
-			return false;
-		}
-
-		if ( isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo' ) {
-			if ( $this->loadWp()->isMobile() ) {
-				return false;
-			}
-		}
-		return true;
+		return $bDisplay;
 	}
 
 	public function onModuleShutdown() {
@@ -218,7 +222,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaLocale() {
-		return str_replace( '_', '-', $this->loadWp()->getLocale() );
+		return $this->loadWp()->getLocale( '-' );
 	}
 
 	/**

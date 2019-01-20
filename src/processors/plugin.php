@@ -201,9 +201,9 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'   => sprintf( '%s - %s', _wpsf__( 'Warning' ), sprintf( _wpsf__( '%s plugin is not currently processing requests' ), $oCon->getHumanName() ) ),
+					'title'   => sprintf( '%s: %s', _wpsf__( 'Warning' ), sprintf( _wpsf__( '%s is not protecting your site' ), $oCon->getHumanName() ) ),
 					'message' => sprintf(
-						_wpsf__( 'Please delete the "%s" file to reactivate the %s protection' ),
+						_wpsf__( 'Please delete the "%s" file to reactivate %s protection' ),
 						'forceOff',
 						$oCon->getHumanName()
 					),
