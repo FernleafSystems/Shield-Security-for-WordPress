@@ -222,7 +222,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaLocale() {
-		return str_replace( '_', '-', $this->loadWp()->getLocale() );
+		return $this->loadWp()->getLocale( '-' );
 	}
 
 	/**

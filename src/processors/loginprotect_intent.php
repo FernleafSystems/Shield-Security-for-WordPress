@@ -323,7 +323,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'login_fields'      => $aLoginIntentFields,
 				'time_remaining'    => $this->getLoginIntentExpiresAt() - $this->time(),
 				'message_type'      => $sMessageType,
-				'login_intent_flag' => $oFO->getLoginIntentRequestFlag()
+				'login_intent_flag' => $oFO->getLoginIntentRequestFlag(),
+				'page_locale'       => $this->loadWp()->getLocale( '-' )
 			),
 			'hrefs'   => array(
 				'form_action'   => $oReq->getUri(),
@@ -339,8 +340,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			),
 			'flags'   => array(
-				'can_skip_mfa'      => $oFO->getMfaSkipEnabled(),
-				'show_what_is_this' => !$oFO->isPremium(), // white label mitigation
+				'can_skip_mfa'       => $oFO->getMfaSkipEnabled(),
+				'show_branded_links' => !$oFO->isWlEnabled(), // white label mitigation
 			)
 		);
 
