@@ -72,7 +72,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$this->setOpt( 'this_server_ip', $sThisServerIp );
 			}
 			// we always update so we don't forever check on every single page load
-			$this->setOpt( 'this_server_ip_last_check_at', $this->loadRequest()->ts() );
+			$this->setOptAt( 'this_server_ip_last_check_at' );
 		}
 		return $sThisServerIp;
 	}
@@ -100,31 +100,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$sIp = null;
 		$oIpService = $this->loadIpService();
 
+		$oDetector = ( new Shield\Utilities\VisitorIpDetection() )
+			->setPotentialHostIps(
+				[ $this->getMyServerIp(), $this->loadRequest()->server( 'SERVER_ADDR' ) ]
+			);
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
-
-			$sMaybeIp = $this->loadRequest()->server( $this->getVisitorAddressSource() );
-
-			if ( !empty( $sMaybeIp ) ) {
-				$aMaybeIps = array_map( 'trim', explode( ',', $sMaybeIp ) ); // TODO:streamline this comma handling
-				foreach ( $aMaybeIps as $sMaybeIp ) {
-					if ( $oIpService->isViablePublicVisitorIp( $sMaybeIp, $this->getMyServerIp() ) ) {
-						$oIpService->setRequestIpAddress( $sMaybeIp );
-						$sIp = $sMaybeIp;
-						break;
-					}
-				}
-			}
+			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
 		}
 
-		// If the address at this stage is null, then the current setting is failing for IP detection
-		// So we try and rediscover a more correct source for the Request IP Address.
-		if ( empty( $sIp ) ) {
-			$aSourceAndIp = $oIpService->setServerIpAddress( $this->getMyServerIp() )
-									   ->discoverViableRequestIpSource();
-			if ( !empty( $aSourceAndIp[ 'source' ] ) ) {
-				$oIpService->setRequestIpAddress( $aSourceAndIp[ 'ip' ] );
-				$this->setVisitorAddressSource( $aSourceAndIp[ 'source' ] );
-			}
+		list( $sIp, $sSource ) = $oDetector->detect();
+		if ( !empty( $sIp ) ) {
+			$oIpService->setRequestIpAddress( $sIp );
+//			$this->setVisitorAddressSource( $sSource );
 		}
 	}
 

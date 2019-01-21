@@ -19,16 +19,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected $oOptions;
 
 	/**
-	 * @var boolean
-	 */
-	protected $bModuleMeetsRequirements;
-
-	/**
-	 * @var boolean
-	 */
-	protected $bPluginDeleting = false;
-
-	/**
 	 * @var string
 	 */
 	private $sOptionsStoreKey;
@@ -46,17 +36,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var ICWP_WPSF_FeatureHandler_Email
 	 */
-	protected static $oEmailHandler;
+	private static $oEmailHandler;
 
 	/**
 	 * @var ICWP_WPSF_Processor_Base
 	 */
-	protected $oProcessor;
+	private $oProcessor;
 
 	/**
 	 * @var ICWP_WPSF_Wizard_Base
 	 */
-	protected $oWizard;
+	private $oWizard;
 
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
