@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
- * Class BaseScanner
+ * Class ScannerBase
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  */
 abstract class ScannerBase {

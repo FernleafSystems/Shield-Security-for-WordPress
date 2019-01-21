@@ -48,7 +48,8 @@ class DiffHashes {
 	 */
 	private function getNewItem( $sFile ) {
 		$oItem = new ResultItem();
-		$oItem->path_full = wp_normalize_path( $sFile );
+		// Add back the ABSPATH that was stripped previously when the file was originally hashed.
+		$oItem->path_full = wp_normalize_path( path_join( ABSPATH, $sFile ) );
 		$oItem->path_fragment = wp_normalize_path( $sFile ); // will eventually be overwritten
 		$oItem->is_unrecognised = false;
 		$oItem->is_different = false;

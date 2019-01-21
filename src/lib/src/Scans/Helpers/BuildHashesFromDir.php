@@ -19,6 +19,7 @@ class BuildHashesFromDir {
 	protected $aFileExts = array();
 
 	/**
+	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
 	 * @param string $sDir
 	 * @return string[]
 	 */
@@ -28,7 +29,9 @@ class BuildHashesFromDir {
 			$oDirIt = StandardDirectoryIterator::create( $sDir, $this->nDepth, $this->aFileExts );
 			foreach ( $oDirIt as $oFile ) {
 				/** @var \SplFileInfo $oFile */
-				$aSnaps[ $oFile->getPathname() ] = md5_file( $oFile->getPathname() );
+				$sFullPath = $oFile->getPathname();
+				$sKey = str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $sFullPath ) );
+				$aSnaps[ $sKey ] = md5_file( $sFullPath );
 			}
 		}
 		catch ( \Exception $oE ) {
