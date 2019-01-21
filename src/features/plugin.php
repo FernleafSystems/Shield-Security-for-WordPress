@@ -97,9 +97,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
-		$sIp = null;
-		$oIpService = $this->loadIpService();
-
 		$oDetector = ( new Shield\Utilities\VisitorIpDetection() )
 			->setPotentialHostIps(
 				[ $this->getMyServerIp(), $this->loadRequest()->server( 'SERVER_ADDR' ) ]
@@ -110,7 +107,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$sIp = $oDetector->detect();
 		if ( !empty( $sIp ) ) {
-			$oIpService->setRequestIpAddress( $sIp );
+			$this->loadIpService()->setRequestIpAddress( $sIp );
 			$this->setOpt( 'last_ip_detect_source', $oDetector->getLastSuccessfulSource() );
 		}
 	}

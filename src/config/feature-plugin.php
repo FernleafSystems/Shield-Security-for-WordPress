@@ -398,7 +398,7 @@
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
-      "default":      ''
+      "default":      ""
     }
   ],
   "definitions":   {
