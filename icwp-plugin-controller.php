@@ -49,9 +49,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected $sForceOffFile;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bResetPlugin;
+
+	/**
+	 * @var bool
+	 */
+	protected $bPluginDeleting = false;
 
 	/**
 	 * @var string
@@ -267,6 +272,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( $this->isPluginAdmin() ) {
 			do_action( $this->prefix( 'deactivate_plugin' ) );
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
+				$this->bPluginDeleting = true;
 				do_action( $this->prefix( 'delete_plugin' ) );
 				$this->deletePluginControllerOptions();
 			}
@@ -1097,6 +1103,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isPluginDeleting() {
+		return (bool)$this->bPluginDeleting;
+	}
+
+	/**
 	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
 	 * @return boolean
@@ -1684,6 +1697,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$this->loadFeatureHandler(
 				array(
 					'slug'          => 'plugin',
+					'storage_key'   => 'plugin',
 					'load_priority' => 10
 				)
 			);
@@ -1758,8 +1772,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return $oHandler;
 		}
 
-		if ( !empty( $aModProps[ 'min_php' ] ) && !$this->loadDP()
-														->getPhpVersionIsAtLeast( $aModProps[ 'min_php' ] ) ) {
+		if ( !empty( $aModProps[ 'min_php' ] )
+			 && !$this->loadDP()->getPhpVersionIsAtLeast( $aModProps[ 'min_php' ] ) ) {
 			return null;
 		}
 

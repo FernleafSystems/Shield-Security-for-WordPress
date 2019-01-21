@@ -28,11 +28,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @var boolean
 	 */
-	protected $bIsPremium;
-
-	/**
-	 * @var boolean
-	 */
 	protected $bRebuildFromFile = false;
 
 	/**
@@ -75,14 +70,15 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param bool $bDeleteFirst Used primarily with plugin reset
+	 * @param bool $bIsPremiumLicensed
 	 * @return bool
 	 */
-	public function doOptionsSave( $bDeleteFirst = false ) {
+	public function doOptionsSave( $bDeleteFirst = false, $bIsPremiumLicensed = false ) {
 		if ( !$this->getNeedSave() ) {
 			return true;
 		}
 		$this->cleanOptions();
-		if ( !$this->isPremiumLicensed() ) {
+		if ( !$bIsPremiumLicensed ) {
 			$this->resetPremiumOptsToDefault();
 		}
 		$this->setNeedSave( false );
@@ -653,13 +649,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isPremiumLicensed() {
-		return (bool)$this->bIsPremium;
-	}
-
-	/**
 	 * @param string $sOptionKey
 	 * @return boolean
 	 */
@@ -676,15 +665,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				$this->resetOptToDefault( $aOption[ 'key' ] );
 			}
 		}
-	}
-
-	/**
-	 * @param $bIsPremium
-	 * @return $this
-	 */
-	public function setIsPremiumLicensed( $bIsPremium ) {
-		$this->bIsPremium = $bIsPremium;
-		return $this;
 	}
 
 	/**
