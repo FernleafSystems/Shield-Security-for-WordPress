@@ -31,6 +31,37 @@ class VisitorIpDetection {
 	 * @return string
 	 */
 	public function detect() {
+		return $this->runNormalDetection();
+	}
+
+	/**
+	 * Progressively removes Host IPs from the list so that these don't interfere with detection.
+	 * @return string
+	 */
+	public function alternativeDetect() {
+		do {
+			$sIp = $this->runNormalDetection();
+			if ( !empty( $sIp ) ) {
+				break;
+			}
+
+			// Progressively remove a Host IP until there's none left.
+			$aHostIps = $this->getPotentialHostIps();
+			if ( empty( $aHostIps ) ) {
+				break;
+			}
+			array_shift( $aHostIps );
+			$this->setPotentialHostIps( $aHostIps );
+
+		} while ( empty( $sIp ) );
+
+		return $sIp;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function runNormalDetection() {
 		$sSource = '';
 		$aIps = $this->detectAndFilterFromSource( $this->getPreferredSource() );
 

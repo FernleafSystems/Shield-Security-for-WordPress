@@ -108,10 +108,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
 		}
 
-		list( $sIp, $sSource ) = $oDetector->detect();
+		$sIp = $oDetector->detect();
 		if ( !empty( $sIp ) ) {
 			$oIpService->setRequestIpAddress( $sIp );
-//			$this->setVisitorAddressSource( $sSource );
+			$this->setOpt( 'last_ip_detect_source', $oDetector->getLastSuccessfulSource() );
 		}
 	}
 
@@ -770,7 +770,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return array
 	 */
-	protected function buildIpAddressMap() {
+	private function buildIpAddressMap() {
 		$oReq = $this->loadRequest();
 		$oIp = $this->loadIpService();
 
@@ -783,7 +783,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
 				$sKey = 'Auto Detect';
-				$sIp = $oIp->getRequestIp();
+				$sIp = $oIp->getRequestIp().sprintf( ' (%s)', $this->getOpt( 'last_ip_detect_source' ) );
 			}
 			else {
 				$sIp = $oReq->server( $sKey );
@@ -1056,6 +1056,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sDescription = _wpsf__( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.' )
 								.'<br />'._wpsf__( 'If the option you select becomes unavailable, we will revert to auto detection.' )
 								.'<br />'.sprintf( _wpsf__( 'Current source is: %s' ), '<strong>'.$this->getVisitorAddressSource().'</strong>' )
+								.'<br />'
 								.'<br />'.implode( '<br />', $this->buildIpAddressMap() );
 				break;
 
