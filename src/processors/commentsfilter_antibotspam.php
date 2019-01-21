@@ -39,7 +39,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		if ( $this->isReadyToRun() ) {
 			// Add GASP checking to the comment form.
 			add_action( 'wp', array( $this, 'setupForm' ) );
-
 			add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 5 );
 			add_filter( $this->getMod()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
 			add_filter( $this->getMod()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
