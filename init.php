@@ -65,7 +65,7 @@ class ICWP_Wordpress_Simple_Firewall extends ICWP_WPSF_Foundation {
 				unset( $aActionLinks[ 'edit' ] );
 			}
 			if ( array_key_exists( 'deactivate', $aActionLinks ) ) {
-				unset( $aActionLinks[ 'deactivate' ] );
+//				unset( $aActionLinks[ 'deactivate' ] );
 			}
 		}
 

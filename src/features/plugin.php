@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
 		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'supplyPluginReportEmail' ) );
 		add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
 		add_filter( $this->prefix( 'google_recaptcha_config' ), array( $this, 'supplyGoogleRecaptchaConfig' ), 10, 0 );
@@ -443,23 +442,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			}
 		}
 		return $aPluginFeatures;
-	}
-
-	/**
-	 * Hooked to 'deactivate_plugin' and can be used to interrupt the deactivation of this plugin.
-	 *
-	 * @param string $sPlugin
-	 */
-	public function onWpHookDeactivatePlugin( $sPlugin ) {
-		$oCon = $this->getCon();
-		if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
-			if ( !$oCon->isPluginAdmin() ) {
-				$this->loadWp()->wpDie(
-					_wpsf__( 'Sorry, you do not have permission to disable this plugin.' )
-					.' '._wpsf__( 'You need to authenticate first.' )
-				);
-			}
-		}
 	}
 
 	/**

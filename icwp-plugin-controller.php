@@ -263,6 +263,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onWpDeactivatePlugin() {
+		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
 		if ( $this->isPluginAdmin() ) {
 			do_action( $this->prefix( 'deactivate_plugin' ) );
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
