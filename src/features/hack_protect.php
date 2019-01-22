@@ -105,7 +105,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oP = $this->getProcessor();
 			$bActivate = $oP->getSubProcessorScanner()
 							->getSubProcessorPtg()
-							->reinstall( $sFile, ICWP_WPSF_Processor_HackProtect_Ptg::CONTEXT_PLUGINS )
+							->reinstall( $sFile )
 						 && $bActivate;
 		}
 		if ( $bActivate ) {

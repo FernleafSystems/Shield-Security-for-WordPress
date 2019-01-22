@@ -41,7 +41,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 		$oResults = $this->getScannerResults();
 		$this->updateScanResultsStore( $oResults );
-		$oFO->setLastScanAt( static::SCAN_SLUG );
+		$oFO->setLastScanAt( static::SCAN_SLUG )
+			->setNextScanAt( static::SCAN_SLUG, $this->getNextCronRun() );
 
 		return $oResults;
 	}
