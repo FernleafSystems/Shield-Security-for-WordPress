@@ -29,14 +29,19 @@
 
 			<div class="card-footer">
 				<div class="row">
-					<div class="col-sm-6">
+					<div class="col-sm-4">
 						{% if scan.flags.has_last_scan %}
 							{{ scan.vars.last_scan_at }}
 						{% else %}
 							{{ strings.never }}
 						{% endif %}
 					</div>
-					<div class="col-sm-6 text-right">
+					<div class="col-sm-4">
+						{% if scan.flags.has_next_scan %}
+							{{ scan.vars.next_scan_at }}
+						{% endif %}
+					</div>
+					<div class="col-sm-4 text-right">
 						<a href="{{ scan.hrefs.options }}"
 						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
 					</div>
