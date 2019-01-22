@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), $nFilterPriority, 2 );
 
 		if ( $oFO->isOpt( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
-			add_filter( 'automatic_updates_is_vcs_checkout', array( $this, 'disable_for_vcs' ), 10, 2 );
+			add_filter( 'automatic_updates_is_vcs_checkout', '__return_false', $nFilterPriority );
 		}
 
 		if ( !$oFO->isDisableAllAutoUpdates() ) {
@@ -96,13 +96,16 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * This is hooked right after the autoupdater lock is saved.
 	 */
-	public function trackAssetsVersions() {
+	private function trackAssetsVersions() {
 		$aAssVers = $this->getTrackedAssetsVersions();
-		foreach ( $this->loadWpPlugins()->getUpdates() as $sFile => $oPlug ) {
-			$aAssVers[ 'plugins' ][ $sFile ] = isset( $oPlug->Version ) ? $oPlug->Version : '';
+
+		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
+		foreach ( array_keys( $oWpPlugins->getUpdates() ) as $sFile ) {
+			$aAssVers[ 'plugins' ][ $sFile ] = $oWpPlugins->getPluginAsVo( $sFile )->Version;
 		}
-		foreach ( $this->loadWpThemes()->getThemes() as $sFile => $oT ) {
-			$aAssVers[ 'themes' ][ $sFile ] = $oT->get( 'Version' );
+		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();
+		foreach ( array_keys( $oWpThemes->getUpdates() ) as $sFile ) {
+			$aAssVers[ 'themes' ][ $sFile ] = $oWpThemes->getTheme( $sFile )->get( 'Version' );
 		}
 		$this->aAssetsVersions = $aAssVers;
 	}
@@ -393,17 +396,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		return $bDelayed;
-	}
-
-	/**
-	 * This is a filter method designed to say whether WordPress automatic upgrades should be permitted
-	 * if a version control system is detected.
-	 * @param $checkout
-	 * @param $context
-	 * @return boolean
-	 */
-	public function disable_for_vcs( $checkout, $context ) {
-		return false;
 	}
 
 	/**
