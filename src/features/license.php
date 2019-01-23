@@ -9,17 +9,16 @@ require_once( __DIR__.'/base_wpsf.php' );
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_filter( $this->getCon()->getPremiumLicenseFilterName(), array(
-			$this,
-			'hasValidWorkingLicense'
-		), PHP_INT_MAX );
-
 		if ( $this->isThisModulePage() ) {
 			$this->loadWp()->doRedirect(
 				$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
 				[ 'subnav' => 'license' ]
 			);
 		}
+	}
+
+	protected function setupCustomHooks() {
+		add_filter( $this->getCon()->getPremiumLicenseFilterName(), [ $this, 'hasValidWorkingLicense' ], PHP_INT_MAX );
 	}
 
 	/**

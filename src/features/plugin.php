@@ -11,15 +11,15 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
-		add_action( 'deactivate_plugin', array( $this, 'onWpHookDeactivatePlugin' ), 1, 1 );
-		add_filter( $this->prefix( 'report_email_address' ), array( $this, 'supplyPluginReportEmail' ) );
-		add_filter( $this->prefix( 'globally_disabled' ), array( $this, 'filter_IsPluginGloballyDisabled' ) );
-		add_filter( $this->prefix( 'google_recaptcha_config' ), array( $this, 'supplyGoogleRecaptchaConfig' ), 10, 0 );
 		$this->setVisitorIp();
 	}
 
-	/**
-	 */
+	protected function setupCustomHooks() {
+		add_filter( $this->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
+		add_filter( $this->prefix( 'globally_disabled' ), [ $this, 'filter_IsPluginGloballyDisabled' ] );
+		add_filter( $this->prefix( 'google_recaptcha_config' ), [ $this, 'supplyGoogleRecaptchaConfig' ], 10, 0 );
+	}
+
 	protected function updateHandler() {
 		$this->deleteAllPluginCrons();
 	}
@@ -72,7 +72,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$this->setOpt( 'this_server_ip', $sThisServerIp );
 			}
 			// we always update so we don't forever check on every single page load
-			$this->setOpt( 'this_server_ip_last_check_at', $this->loadRequest()->ts() );
+			$this->setOptAt( 'this_server_ip_last_check_at' );
 		}
 		return $sThisServerIp;
 	}
@@ -97,34 +97,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
-		$sIp = null;
-		$oIpService = $this->loadIpService();
-
+		$oDetector = ( new Shield\Utilities\VisitorIpDetection() )
+			->setPotentialHostIps(
+				[ $this->getMyServerIp(), $this->loadRequest()->server( 'SERVER_ADDR' ) ]
+			);
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
-
-			$sMaybeIp = $this->loadRequest()->server( $this->getVisitorAddressSource() );
-
-			if ( !empty( $sMaybeIp ) ) {
-				$aMaybeIps = array_map( 'trim', explode( ',', $sMaybeIp ) ); // TODO:streamline this comma handling
-				foreach ( $aMaybeIps as $sMaybeIp ) {
-					if ( $oIpService->isViablePublicVisitorIp( $sMaybeIp, $this->getMyServerIp() ) ) {
-						$oIpService->setRequestIpAddress( $sMaybeIp );
-						$sIp = $sMaybeIp;
-						break;
-					}
-				}
-			}
+			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
 		}
 
-		// If the address at this stage is null, then the current setting is failing for IP detection
-		// So we try and rediscover a more correct source for the Request IP Address.
-		if ( empty( $sIp ) ) {
-			$aSourceAndIp = $oIpService->setServerIpAddress( $this->getMyServerIp() )
-									   ->discoverViableRequestIpSource();
-			if ( !empty( $aSourceAndIp[ 'source' ] ) ) {
-				$oIpService->setRequestIpAddress( $aSourceAndIp[ 'ip' ] );
-				$this->setVisitorAddressSource( $aSourceAndIp[ 'source' ] );
-			}
+		$sIp = $oDetector->detect();
+		if ( !empty( $sIp ) ) {
+			$this->loadIpService()->setRequestIpAddress( $sIp );
+			$this->setOpt( 'last_ip_detect_source', $oDetector->getLastSuccessfulSource() );
 		}
 	}
 
@@ -443,23 +427,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			}
 		}
 		return $aPluginFeatures;
-	}
-
-	/**
-	 * Hooked to 'deactivate_plugin' and can be used to interrupt the deactivation of this plugin.
-	 *
-	 * @param string $sPlugin
-	 */
-	public function onWpHookDeactivatePlugin( $sPlugin ) {
-		$oCon = $this->getCon();
-		if ( strpos( $oCon->getRootFile(), $sPlugin ) !== false ) {
-			if ( !$oCon->isPluginAdmin() ) {
-				$this->loadWp()->wpDie(
-					_wpsf__( 'Sorry, you do not have permission to disable this plugin.' )
-					.' '._wpsf__( 'You need to authenticate first.' )
-				);
-			}
-		}
 	}
 
 	/**
@@ -800,7 +767,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return array
 	 */
-	protected function buildIpAddressMap() {
+	private function buildIpAddressMap() {
 		$oReq = $this->loadRequest();
 		$oIp = $this->loadIpService();
 
@@ -813,7 +780,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
 				$sKey = 'Auto Detect';
-				$sIp = $oIp->getRequestIp();
+				$sIp = $oIp->getRequestIp().sprintf( ' (%s)', $this->getOpt( 'last_ip_detect_source' ) );
 			}
 			else {
 				$sIp = $oReq->server( $sKey );
@@ -1085,7 +1052,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sSummary = _wpsf__( 'Which IP Address Is Yours' );
 				$sDescription = _wpsf__( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.' )
 								.'<br />'._wpsf__( 'If the option you select becomes unavailable, we will revert to auto detection.' )
-								.'<br />'.sprintf( _wpsf__( 'Current source is: %s' ), '<strong>'.$this->getVisitorAddressSource().'</strong>' )
+								.'<br />'.sprintf(
+									_wpsf__( 'Current source is: %s (%s)' ),
+									'<strong>'.$this->getVisitorAddressSource().'</strong>',
+									$this->getOpt( 'last_ip_detect_source' )
+								)
+								.'<br />'
 								.'<br />'.implode( '<br />', $this->buildIpAddressMap() );
 				break;
 

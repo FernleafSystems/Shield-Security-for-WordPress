@@ -13,7 +13,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	private $aCommentData;
 
-	public function doPostConstruction() {
+	/**
+	 */
+	protected function setupCustomHooks() {
 		add_filter( 'preprocess_comment', array( $this, 'gatherRawCommentData' ), 1 );
 	}
 

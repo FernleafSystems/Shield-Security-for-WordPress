@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**

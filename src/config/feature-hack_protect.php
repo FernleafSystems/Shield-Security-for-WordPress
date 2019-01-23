@@ -453,6 +453,30 @@
       "default":      0
     },
     {
+      "key":          "next_scan_ufc_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "next_scan_wcf_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "next_scan_ptg_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
+      "key":          "next_scan_wpv_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      0
+    },
+    {
       "key":          "rebuild_self",
       "transferable": false,
       "section":      "section_non_ui",

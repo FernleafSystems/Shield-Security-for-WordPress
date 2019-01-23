@@ -19,24 +19,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected $oOptions;
 
 	/**
-	 * @var boolean
-	 */
-	protected $bModuleMeetsRequirements;
-
-	/**
-	 * @var boolean
-	 */
-	protected $bPluginDeleting = false;
-
-	/**
 	 * @var string
 	 */
-	protected $sOptionsStoreKey;
-
-	/**
-	 * @var string
-	 */
-	protected $sFeatureName;
+	private $sOptionsStoreKey;
 
 	/**
 	 * @var string
@@ -46,39 +31,29 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var boolean
 	 */
-	protected static $bForceOffFileExists;
-
-	/**
-	 * @var boolean
-	 */
 	protected $bImportExportWhitelistNotify = false;
 
 	/**
 	 * @var ICWP_WPSF_FeatureHandler_Email
 	 */
-	protected static $oEmailHandler;
+	private static $oEmailHandler;
 
 	/**
 	 * @var ICWP_WPSF_Processor_Base
 	 */
-	protected $oProcessor;
+	private $oProcessor;
 
 	/**
 	 * @var ICWP_WPSF_Wizard_Base
 	 */
-	protected $oWizard;
-
-	/**
-	 * @var string
-	 */
-	protected static $sActivelyDisplayedModuleOptions = '';
+	private $oWizard;
 
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
-	 * @param array                       $aModProps
+	 * @param array                       $aMod
 	 * @throws Exception
 	 */
-	public function __construct( $oPluginController, $aModProps = array() ) {
+	public function __construct( $oPluginController, $aMod = array() ) {
 		if ( empty( self::$oPluginController ) ) {
 			if ( !$oPluginController instanceof ICWP_WPSF_Plugin_Controller ) {
 				throw new \Exception( 'Plugin controller not supplied to Module' );
@@ -86,62 +61,82 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$this->setCon( $oPluginController );
 		}
 
-		if ( isset( $aModProps[ 'storage_key' ] ) ) {
-			$this->sOptionsStoreKey = $aModProps[ 'storage_key' ];
+		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
+			throw new Exception( 'Module storage key AND slug are undefined' );
 		}
 
-		if ( isset( $aModProps[ 'slug' ] ) ) {
-			$this->sModSlug = $aModProps[ 'slug' ];
+		$this->sOptionsStoreKey = empty( $aMod[ 'storage_key' ] ) ? $aMod[ 'slug' ] : $aMod[ 'storage_key' ];
+		if ( isset( $aMod[ 'slug' ] ) ) {
+			$this->sModSlug = $aMod[ 'slug' ];
 		}
 
-		// before proceeding, we must now test the system meets the minimum requirements.
-		if ( $this->getModuleMeetRequirements() ) {
-			$oReq = $this->loadRequest();
-
-			$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
-			add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
-			add_action( 'init', array( $this, 'onWpInit' ), 1 );
-			add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );
-
-			if ( $this->isModuleRequest() ) {
-				add_action( $this->prefix( 'form_submit' ), array( $this, 'handleOptionsSubmit' ) );
-				add_filter( $this->prefix( 'ajaxAction' ), array( $this, 'handleAjax' ) );
-				add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthAjax' ) );
-				add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
-
-				if ( $oReq->query( 'action' ) == $this->prefix()
-					 && check_admin_referer( $oReq->query( 'exec' ), 'exec_nonce' )
-				) {
-					add_action( $this->prefix( 'mod_request' ), array( $this, 'handleModRequest' ) );
-				}
-			}
-
-			$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-			add_filter( $this->prefix( 'submenu_items' ), array( $this, 'supplySubMenuItem' ), $nMenuPri );
-			add_filter( $this->prefix( 'collect_mod_summary' ), array( $this, 'addModuleSummaryData' ), $nMenuPri );
-			add_filter( $this->prefix( 'collect_notices' ), array( $this, 'addInsightsNoticeData' ) );
-			add_filter( $this->prefix( 'collect_summary' ), array( $this, 'addInsightsConfigData' ), $nRunPriority );
-			add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
-			add_action( $this->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
-			add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
-			add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
-
-			add_filter( $this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
-			add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
-
-			add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
-			add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 100 );
-
-			if ( $this->isAdminOptionsPage() ) {
-//				add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
-			}
-
+		if ( $this->verifyModuleMeetRequirements() ) {
+			$this->setupHooks( $aMod );
 			if ( $this->isUpgrading() ) {
 				$this->updateHandler();
 			}
-
 			$this->doPostConstruction();
 		}
+	}
+
+	/**
+	 * @param array $aModProps
+	 */
+	protected function setupHooks( $aModProps ) {
+		$oReq = $this->loadRequest();
+
+		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
+		add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
+		add_action( 'init', array( $this, 'onWpInit' ), 1 );
+		add_action( $this->prefix( 'import_options' ), array( $this, 'processImportOptions' ) );
+
+		if ( $this->isModuleRequest() ) {
+			add_action( $this->prefix( 'form_submit' ), array( $this, 'handleOptionsSubmit' ) );
+			add_filter( $this->prefix( 'ajaxAction' ), array( $this, 'handleAjax' ) );
+			add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthAjax' ) );
+			add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
+
+			if ( $oReq->query( 'action' ) == $this->prefix()
+				 && check_admin_referer( $oReq->query( 'exec' ), 'exec_nonce' )
+			) {
+				add_action( $this->prefix( 'mod_request' ), array( $this, 'handleModRequest' ) );
+			}
+		}
+
+		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
+		add_filter( $this->prefix( 'submenu_items' ), array( $this, 'supplySubMenuItem' ), $nMenuPri );
+		add_filter( $this->prefix( 'collect_mod_summary' ), array( $this, 'addModuleSummaryData' ), $nMenuPri );
+		add_filter( $this->prefix( 'collect_notices' ), array( $this, 'addInsightsNoticeData' ) );
+		add_filter( $this->prefix( 'collect_summary' ), array( $this, 'addInsightsConfigData' ), $nRunPriority );
+		add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'action_doFeatureShutdown' ) );
+		add_action( $this->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
+		add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deletePluginOptions' ) );
+		add_filter( $this->prefix( 'aggregate_all_plugin_options' ), array( $this, 'aggregateOptionsValues' ) );
+
+		add_filter( $this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
+		add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 100 );
+
+		if ( $this->isAdminOptionsPage() ) {
+//			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
+		}
+
+		$this->setupCustomHooks();
+	}
+
+	protected function setupCustomHooks() {
+	}
+
+	protected function doPostConstruction() {
+	}
+
+	/**
+	 * Should be over-ridden by each new class to handle upgrades.
+	 * Called upon construction and after plugin options are initialized.
+	 */
+	protected function updateHandler() {
 	}
 
 	/**
@@ -238,17 +233,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	protected function getModuleMeetRequirements() {
-		if ( !isset( $this->bModuleMeetsRequirements ) ) {
-			$this->bModuleMeetsRequirements = $this->verifyModuleMeetRequirements();
-		}
-		return $this->bModuleMeetsRequirements;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function verifyModuleMeetRequirements() {
+	private function verifyModuleMeetRequirements() {
 		$bMeetsReqs = true;
 
 		$aPhpReqs = $this->getOptionsVo()->getFeatureRequirement( 'php' );
@@ -273,15 +258,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $bMeetsReqs;
 	}
 
-	protected function doPostConstruction() {
-	}
-
 	/**
 	 */
 	public function onRunProcessors() {
-		$this->getOptionsVo()
-			 ->setIsPremiumLicensed( $this->isPremium() );
-
 		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
@@ -369,8 +348,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
-			include_once( $this->getCon()
-							   ->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getSlug() ) ) );
+			include_once( $this->getCon()->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
 			if ( !class_exists( $sClassName, false ) ) {
 				return null;
@@ -407,7 +385,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$this->oOptions = ICWP_WPSF_Factory::OptionsVo();
 			$this->oOptions
 				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
-				->setIsPremiumLicensed( $this->isPremium() )
 				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
 				->setOptionsStorageKey( $this->getOptionsStorageKey() )
@@ -435,27 +412,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function action_doFeatureShutdown() {
-		if ( !$this->isPluginDeleting() ) {
+		if ( !$this->getCon()->isPluginDeleting() ) {
 			$this->savePluginOptions();
 		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPluginDeleting() {
-		return $this->bPluginDeleting;
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getOptionsStorageKey() {
-		if ( !isset( $this->sOptionsStoreKey ) ) {
-			// not ideal as it doesn't take into account custom storage keys as when passed into the constructor
-			$this->sOptionsStoreKey = $this->getOptionsVo()->getFeatureProperty( 'storage_key' );
-		}
-
 		return $this->prefixOptionKey( $this->sOptionsStoreKey ).'_options';
 	}
 
@@ -579,10 +544,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getMainFeatureName() {
-		if ( !isset( $this->sFeatureName ) ) {
-			$this->sFeatureName = $this->getOptionsVo()->getFeatureProperty( 'name' );
-		}
-		return $this->sFeatureName;
+		return $this->getOptionsVo()->getFeatureProperty( 'name' );
 	}
 
 	/**
@@ -698,7 +660,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aSummary = array(
 			'enabled'    => $this->isEnabledForUiSummary(),
-			'active'     => self::$sActivelyDisplayedModuleOptions == $this->getSlug(),
+			'active'     => $this->isThisModulePage(),
 			'slug'       => $this->getSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
@@ -958,7 +920,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptionsVo()
-				 ->setIsPremiumLicensed( $this->isPremium() )
 				 ->setNeedSave( true );
 		}
 
@@ -969,7 +930,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	private function store() {
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$bSuccess = $this->getOptionsVo()->doOptionsSave( $this->getCon()->getIsResetPlugin() );
+		$this->getOptionsVo()
+			 ->doOptionsSave( $this->getCon()->getIsResetPlugin(), $this->isPremium() );
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
 
@@ -1145,7 +1107,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function deletePluginOptions() {
 		$this->getOptionsVo()->doOptionsDelete();
-		$this->bPluginDeleting = true;
 	}
 
 	/**
@@ -1371,13 +1332,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Should be over-ridden by each new class to handle upgrades.
-	 * Called upon construction and after plugin options are initialized.
-	 */
-	protected function updateHandler() {
-	}
-
-	/**
 	 */
 	protected function runWizards() {
 		if ( $this->isWizardPage() && $this->hasWizard() ) {
@@ -1493,7 +1447,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getBaseDisplayData( $bRenderEmbeddedContent = false ) {
 		$oCon = $this->getCon();
-		self::$sActivelyDisplayedModuleOptions = $this->getSlug();
 
 		$aData = array(
 			'sPluginName'     => $oCon->getHumanName(),
@@ -2047,5 +2000,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	static public function getController() {
 		return self::getConn();
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	protected function getModuleMeetRequirements() {
+		return $this->verifyModuleMeetRequirements();
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	public function isPluginDeleting() {
+		return $this->getCon()->isPluginDeleting();
 	}
 }

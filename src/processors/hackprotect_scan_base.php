@@ -41,7 +41,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 		$oResults = $this->getScannerResults();
 		$this->updateScanResultsStore( $oResults );
-		$oFO->setLastScanAt( static::SCAN_SLUG );
+		$oFO->setLastScanAt( static::SCAN_SLUG )
+			->setNextScanAt( static::SCAN_SLUG, $this->getNextCronRun() );
 
 		return $oResults;
 	}
@@ -198,34 +199,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			$oUpd->reset()->setNotNotified( $oEntry );
 		}
 		return $this;
-	}
-
-	/**
-	 * @param string $sItemId
-	 * @param string $sAction
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function executeAssetAction( $sItemId, $sAction ) {
-		throw new Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param string $sItemId
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function upgradeAsset( $sItemId ) {
-		$oService = $this->getServiceFromContext( $this->getContextFromSlug( $sItemId ) );
-
-		if ( $oService->isInstalled( $sItemId ) && $oService->isUpdateAvailable( $sItemId ) ) {
-			$oService->update( $sItemId );
-		}
-		else {
-			throw new Exception( 'Items is not currently installed.' );
-		}
-
-		return true;
 	}
 
 	/**

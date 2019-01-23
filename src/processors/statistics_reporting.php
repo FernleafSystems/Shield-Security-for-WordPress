@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( !$this->getMod()->isPluginDeleting() ) {
+		if ( !$this->getCon()->isPluginDeleting() ) {
 			$this->commit();
 		}
 	}

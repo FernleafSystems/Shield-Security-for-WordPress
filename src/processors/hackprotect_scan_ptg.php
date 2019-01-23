@@ -398,6 +398,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			$this->updatePluginSnapshot( $this->getCon()->getPluginBaseFile() );
 			$oFO->setPtgRebuildSelfRequired( false );
 		}
+
+		if ( $this->getCon()->isUpgrading() ) {
+			( new Shield\Scans\Ptg\Snapshots\StoreFormatUpgrade() )
+				->setStore( $this->getStore_Plugins() )->run()
+				->setStore( $this->getStore_Themes() )->run();
+		}
 	}
 
 	/**
@@ -410,9 +416,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		return array(
 			'meta'   => array(
-				'name'    => $aPlugin[ 'Name' ],
-				'version' => $aPlugin[ 'Version' ],
-				'ts'      => $this->loadRequest()->ts(),
+				'name'         => $aPlugin[ 'Name' ],
+				'version'      => $aPlugin[ 'Version' ],
+				'ts'           => $this->loadRequest()->ts(),
+				'snap_version' => $this->getCon()->getVersion(),
 			),
 			'hashes' => $this->getContextScanner( self::CONTEXT_PLUGINS )->hashAssetFiles( $sBaseFile )
 		);
@@ -428,9 +435,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		return array(
 			'meta'   => array(
-				'name'    => $oTheme->get( 'Name' ),
-				'version' => $oTheme->get( 'Version' ),
-				'ts'      => $this->loadRequest()->ts(),
+				'name'         => $oTheme->get( 'Name' ),
+				'version'      => $oTheme->get( 'Version' ),
+				'ts'           => $this->loadRequest()->ts(),
+				'snap_version' => $this->getCon()->getVersion(),
 			),
 			'hashes' => $this->getContextScanner( self::CONTEXT_THEMES )->hashAssetFiles( $sSlug )
 		);

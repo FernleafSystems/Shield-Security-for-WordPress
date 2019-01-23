@@ -8,7 +8,9 @@ require_once( __DIR__.'/base_wpsf.php' );
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doPostConstruction() {
+	/**
+	 */
+	protected function setupCustomHooks() {
 		// Force run automatic updates
 		if ( $this->loadRequest()->query( 'force_run_auto_updates' ) == 'now' ) {
 			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
@@ -218,7 +220,8 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 						'message' => _wpsf__( 'Automatic Updates Are Not Disabled As Expected.' ),
 						'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
 						'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-						'rec'     => sprintf( _wpsf__( 'A plugin/theme other than %s is affecting your automatic update settings.' ), $this->getCon()->getHumanName() )
+						'rec'     => sprintf( _wpsf__( 'A plugin/theme other than %s is affecting your automatic update settings.' ), $this->getCon()
+																																		   ->getHumanName() )
 					);
 				}
 			}

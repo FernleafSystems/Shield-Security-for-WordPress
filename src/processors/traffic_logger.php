@@ -17,14 +17,11 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		parent::__construct( $oModCon, $oModCon->getDef( 'traffic_table_name' ) );
 	}
 
-	public function run() {
-		add_action( $this->prefix( 'plugin_shutdown' ), array( $this, 'onWpShutdown' ) );
-	}
-
-	public function onWpShutdown() {
+	public function onModuleShutdown() {
 		if ( $this->getIfLogRequest() ) {
 			$this->logTraffic();
 		}
+		parent::onModuleShutdown();
 	}
 
 	public function cleanupDatabase() {
@@ -53,6 +50,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oWp = $this->loadWp();
 		$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
+			   && !$this->getCon()->isPluginDeleting()
 			   && ( $oFO->getMaxEntries() > 0 )
 			   && ( !$this->isCustomExcluded() )
 			   && ( $oFO->isIncluded_Simple() || count( $this->loadRequest()->getParams( false ) ) > 0 )

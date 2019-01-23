@@ -259,9 +259,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		if ( $this->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
 
 			// Never black mark IPs that are on the whitelist
-			$oIP = $this->loadIpService();
-			$bCanBlackMark = !$oFO->isPluginDeleting() && $oFO->isAutoBlackListFeatureEnabled()
-							 && ( $oIP->whatIsMyIp() !== $this->ip() );
+			$bCanBlackMark = $oFO->isAutoBlackListFeatureEnabled()
+							 && !$this->getCon()->isPluginDeleting()
+							 && ( $this->loadIpService()->whatIsMyIp() !== $this->ip() );
 
 			if ( $bCanBlackMark ) {
 				$this->processIpBlackMark( $this->ip() );

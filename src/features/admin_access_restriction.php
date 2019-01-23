@@ -11,6 +11,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
 	/**
+	 */
+	protected function setupCustomHooks() {
+		add_action( $this->prefix( 'pre_deactivate_plugin' ), array( $this, 'preDeactivatePlugin' ) );
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
@@ -350,7 +356,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
-		$oUpdater = $this->getSessionsProcessor()->getQueryUpdater();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpdater */
+		$oUpdater = $this->getSessionsProcessor()
+						 ->getDbHandler()
+						 ->getQueryUpdater();
 		return $bSetOn ?
 			$oUpdater->startSecurityAdmin( $this->getSession() )
 			: $oUpdater->terminateSecurityAdmin( $this->getSession() );
@@ -826,6 +835,21 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$this->setOpt(
 				'admin_access_restrict_posts',
 				array_unique( array_merge( $aPostRestrictions, array( 'create', 'publish', 'delete' ) ) )
+			);
+		}
+	}
+
+	/**
+	 */
+	public function preDeactivatePlugin() {
+		$oCon = $this->getCon();
+		if ( !$oCon->isPluginAdmin() ) {
+			$this->loadWp()->wpDie(
+				_wpsf__( "Sorry, this plugin is protected against unauthorised attempts to disable it." )
+				.'<br />'.sprintf( '<a href="%s">%s</a>',
+					$this->getUrl_AdminPage(),
+					_wpsf__( "You'll just need to authenticate first and try again." )
+				)
 			);
 		}
 	}

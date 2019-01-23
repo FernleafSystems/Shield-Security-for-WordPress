@@ -44,10 +44,15 @@ trait StandardCron {
 
 	/**
 	 * @return string
-	 * @throws \Exception
 	 */
-	protected function getCronName() {
-		throw new \Exception( 'This getCronName() should be over-ridden' );
+	abstract protected function getCronName();
+
+	/**
+	 * @return int
+	 */
+	protected function getNextCronRun() {
+		$nNext = wp_next_scheduled( $this->getCronName() );
+		return is_numeric( $nNext ) ? $nNext : 0;
 	}
 
 	/**
