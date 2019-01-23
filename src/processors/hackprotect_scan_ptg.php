@@ -655,37 +655,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return $this
 	 */
 	private function updateStoredSnapDataFormat( $sContext = self::CONTEXT_PLUGINS ) {
-		$aSnapData = $this->getStore( $sContext )->getSnapData();
-		// for version <7.0 we need to adjust the keys as they no longer contain ABSPATH
-
-		$bStoreRequired = false;
-		$sNormAbs = wp_normalize_path( ABSPATH );
-		foreach ( $aSnapData as $sSlug => $aSnap ) {
-
-			$sSnapVersion = isset( $aSnap[ 'meta' ][ 'snap_version' ] ) ? isset( $aSnap[ 'meta' ][ 'snap_version' ] ) : '0.0';
-			if ( version_compare( $sSnapVersion, '7.0.0', '<' ) ) {
-				$aSnap[ 'meta' ][ 'snap_version' ] = $this->getCon()->getVersion();
-				foreach ( $aSnap[ 'hashes' ] as $sOldPath => $sFileHash ) {
-					$sNewPath = str_replace( $sNormAbs, '', wp_normalize_path( $sOldPath ) );
-					$aSnap[ 'hashes' ][ $sNewPath ] = $sFileHash;
-					unset( $aSnap[ 'hashes' ][ $sOldPath ] );
-				}
-				$aSnapData[ $sSlug ] = $aSnap;
-				$bStoreRequired = true;
-			}
-		}
-
-		if ( $bStoreRequired ) {
-			try {
-				$this->getStore( $sContext )
-					 ->deleteSnapshots()
-					 ->setSnapData( $aSnapData )
-					 ->save();
-			}
-			catch ( Exception $oE ) {
-			}
-		}
-
+		( new Shield\Scans\Ptg\Snapshots\StoreFormatUpgrade() )
+			->setStore( $this->getStore( $sContext ) )
+			->run();
 		return $this;
 	}
 
