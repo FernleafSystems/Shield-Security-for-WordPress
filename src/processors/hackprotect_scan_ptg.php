@@ -410,9 +410,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		return array(
 			'meta'   => array(
-				'name'    => $aPlugin[ 'Name' ],
-				'version' => $aPlugin[ 'Version' ],
-				'ts'      => $this->loadRequest()->ts(),
+				'name'         => $aPlugin[ 'Name' ],
+				'version'      => $aPlugin[ 'Version' ],
+				'ts'           => $this->loadRequest()->ts(),
+				'snap_version' => $this->getCon()->getVersion(),
 			),
 			'hashes' => $this->getContextScanner( self::CONTEXT_PLUGINS )->hashAssetFiles( $sBaseFile )
 		);
@@ -428,9 +429,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		return array(
 			'meta'   => array(
-				'name'    => $oTheme->get( 'Name' ),
-				'version' => $oTheme->get( 'Version' ),
-				'ts'      => $this->loadRequest()->ts(),
+				'name'         => $oTheme->get( 'Name' ),
+				'version'      => $oTheme->get( 'Version' ),
+				'ts'           => $this->loadRequest()->ts(),
+				'snap_version' => $this->getCon()->getVersion(),
 			),
 			'hashes' => $this->getContextScanner( self::CONTEXT_THEMES )->hashAssetFiles( $sSlug )
 		);
@@ -640,8 +642,51 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return Shield\Scans\Ptg\ResultsSet
 	 */
 	private function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
-		$aSnapHashes = $this->getStore( $sContext )->getSnapDataHashesOnly();
+		$aSnapHashes = $this->updateStoredSnapDataFormat()
+							->getStore( $sContext )
+							->getSnapDataHashesOnly();
 		return $this->getContextScanner( $sContext )->run( $aSnapHashes );
+	}
+
+	/**
+	 * Handles the upgrades from 1 plugin version to another in the case where
+	 * the format of the stored data has changed.
+	 * @param string $sContext
+	 * @return $this
+	 */
+	private function updateStoredSnapDataFormat( $sContext = self::CONTEXT_PLUGINS ) {
+		$aSnapData = $this->getStore( $sContext )->getSnapData();
+		// for version <7.0 we need to adjust the keys as they no longer contain ABSPATH
+
+		$bStoreRequired = false;
+		$sNormAbs = wp_normalize_path( ABSPATH );
+		foreach ( $aSnapData as $sSlug => $aSnap ) {
+
+			$sSnapVersion = isset( $aSnap[ 'meta' ][ 'snap_version' ] ) ? isset( $aSnap[ 'meta' ][ 'snap_version' ] ) : '0.0';
+			if ( version_compare( $sSnapVersion, '7.0.0', '<' ) ) {
+				$aSnap[ 'meta' ][ 'snap_version' ] = $this->getCon()->getVersion();
+				foreach ( $aSnap[ 'hashes' ] as $sOldPath => $sFileHash ) {
+					$sNewPath = str_replace( $sNormAbs, '', wp_normalize_path( $sOldPath ) );
+					$aSnap[ 'hashes' ][ $sNewPath ] = $sFileHash;
+					unset( $aSnap[ 'hashes' ][ $sOldPath ] );
+				}
+				$aSnapData[ $sSlug ] = $aSnap;
+				$bStoreRequired = true;
+			}
+		}
+
+		if ( $bStoreRequired ) {
+			try {
+				$this->getStore( $sContext )
+					 ->deleteSnapshots()
+					 ->setSnapData( $aSnapData )
+					 ->save();
+			}
+			catch ( Exception $oE ) {
+			}
+		}
+
+		return $this;
 	}
 
 	/**
