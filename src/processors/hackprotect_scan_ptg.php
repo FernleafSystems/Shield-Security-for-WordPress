@@ -398,6 +398,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			$this->updatePluginSnapshot( $this->getCon()->getPluginBaseFile() );
 			$oFO->setPtgRebuildSelfRequired( false );
 		}
+
+		if ( $this->getCon()->isUpgrading() ) {
+			( new Shield\Scans\Ptg\Snapshots\StoreFormatUpgrade() )
+				->setStore( $this->getStore_Plugins() )->run()
+				->setStore( $this->getStore_Themes() )->run();
+		}
 	}
 
 	/**
@@ -642,23 +648,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return Shield\Scans\Ptg\ResultsSet
 	 */
 	private function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
-		$aSnapHashes = $this->updateStoredSnapDataFormat()
-							->getStore( $sContext )
-							->getSnapDataHashesOnly();
+		$aSnapHashes = $this->getStore( $sContext )->getSnapDataHashesOnly();
 		return $this->getContextScanner( $sContext )->run( $aSnapHashes );
-	}
-
-	/**
-	 * Handles the upgrades from 1 plugin version to another in the case where
-	 * the format of the stored data has changed.
-	 * @param string $sContext
-	 * @return $this
-	 */
-	private function updateStoredSnapDataFormat( $sContext = self::CONTEXT_PLUGINS ) {
-		( new Shield\Scans\Ptg\Snapshots\StoreFormatUpgrade() )
-			->setStore( $this->getStore( $sContext ) )
-			->run();
-		return $this;
 	}
 
 	/**

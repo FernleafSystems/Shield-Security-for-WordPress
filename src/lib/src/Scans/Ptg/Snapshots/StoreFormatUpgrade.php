@@ -13,6 +13,9 @@ class StoreFormatUpgrade {
 	 */
 	private $oStore;
 
+	/**
+	 * @return $this
+	 */
 	public function run() {
 		$aSnapData = $this->getStore()->getSnapData();
 
@@ -36,6 +39,8 @@ class StoreFormatUpgrade {
 			catch ( \Exception $oE ) {
 			}
 		}
+
+		return $this;
 	}
 
 	/**
