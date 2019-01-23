@@ -4,6 +4,8 @@ if ( class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ) {
 	return;
 }
 
+use \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
+
 require_once( __DIR__.'/basedb.php' );
 
 class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
@@ -100,7 +102,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array|bool
 	 */
 	public function countAuditEntriesForContext( $sContext = 'all' ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select $oCounter */
+		/** @var AuditTrail\Select $oCounter */
 		$oCounter = $this->getDbHandler()->getQuerySelector();
 		if ( $sContext != 'all' ) {
 			$oCounter->filterByContext( $sContext );
@@ -115,10 +117,10 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sOrder
 	 * @param int    $nPage
 	 * @param int    $nLimit
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO[]
+	 * @return AuditTrail\EntryVO[]
 	 */
 	public function getAuditEntriesForContext( $sContext = 'all', $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select $oSelect */
+		/** @var AuditTrail\Select $oSelect */
 		$oSelect = $this->getDbHandler()
 						->getQuerySelector()
 						->setResultsAsVo( true )
@@ -133,14 +135,15 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO $oEntryVo
+	 * @param AuditTrail\EntryVO $oEntryVo
 	 */
 	public function addAuditTrialEntry( $oEntryVo ) {
-		if ( $oEntryVo instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\EntryVO ) {
-			$oEntryVo->rid = $this->getCon()->getShortRequestId();
-			$this->getDbHandler()
-				 ->getQueryInserter()
-				 ->insert( $oEntryVo );
+		$oCon = $this->getCon();
+		if ( !$oCon->isPluginDeleting() && $oEntryVo instanceof AuditTrail\EntryVO ) {
+			$oEntryVo->rid = $oCon->getShortRequestId();
+			/** @var AuditTrail\Insert $oInsQ */
+			$oInsQ = $this->getDbHandler()->getQueryInserter();
+			$oInsQ->insert( $oEntryVo );
 		}
 	}
 
@@ -189,15 +192,15 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Handler
+	 * @return AuditTrail\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Handler();
+		return new AuditTrail\Handler();
 	}
 
 	/**
 	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Delete
+	 * @return AuditTrail\Delete
 	 */
 	public function getQueryDeleter() {
 		return parent::getQueryDeleter();
@@ -205,7 +208,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Insert
+	 * @return AuditTrail\Insert
 	 */
 	public function getQueryInserter() {
 		return parent::getQueryInserter();
@@ -213,7 +216,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select
+	 * @return AuditTrail\Select
 	 */
 	public function getQuerySelector() {
 		return parent::getQuerySelector();

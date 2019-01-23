@@ -539,7 +539,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 	/**
 	 * see form-billing.php
-	 * @param WP_Checkout $oCheckout
+	 * @param WC_Checkout $oCheckout
 	 * @return void
 	 */
 	public function printRegistrationFormItems_Woo( $oCheckout ) {

@@ -202,34 +202,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @param string $sItemId
-	 * @param string $sAction
-	 * @return bool
-	 * @throws Exception
-	 */
-	public function executeAssetAction( $sItemId, $sAction ) {
-		throw new Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param string $sItemId
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function upgradeAsset( $sItemId ) {
-		$oService = $this->getServiceFromContext( $this->getContextFromSlug( $sItemId ) );
-
-		if ( $oService->isInstalled( $sItemId ) && $oService->isUpdateAvailable( $sItemId ) ) {
-			$oService->update( $sItemId );
-		}
-		else {
-			throw new Exception( 'Items is not currently installed.' );
-		}
-
-		return true;
-	}
-
-	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
