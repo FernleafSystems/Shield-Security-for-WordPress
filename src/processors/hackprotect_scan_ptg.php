@@ -399,10 +399,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			$oFO->setPtgRebuildSelfRequired( false );
 		}
 
-		if ( $this->getCon()->isUpgrading() ) {
+		if ( $oFO->isPtgUpdateStoreFormat() ) {
 			( new Shield\Scans\Ptg\Snapshots\StoreFormatUpgrade() )
 				->setStore( $this->getStore_Plugins() )->run()
 				->setStore( $this->getStore_Themes() )->run();
+			$oFO->setPtgUpdateStoreFormat( false );
 		}
 	}
 
