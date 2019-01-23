@@ -44,17 +44,18 @@ class StoreFormatUpgrade {
 	}
 
 	/**
+	 * Will replace older absolute file paths with ABSPATH-relative paths.
 	 * @param array $aSnap
 	 * @return array
 	 */
 	private function upgradeSnap_Pre700( $aSnap ) {
 		$sNormAbs = wp_normalize_path( ABSPATH );
-		$aSnap[ 'meta' ][ 'snap_version' ] = '7.0.0';
-		foreach ( $aSnap[ 'hashes' ] as $sOldPath => $sFileHash ) {
-			$sNewPath = str_replace( $sNormAbs, '', wp_normalize_path( $sOldPath ) );
-			$aSnap[ 'hashes' ][ $sNewPath ] = $sFileHash;
-			unset( $aSnap[ 'hashes' ][ $sOldPath ] );
+		$aNew = [];
+		foreach ( $aSnap[ 'hashes' ] as $sOldPath => $sHash ) {
+			$aNew[ str_replace( $sNormAbs, '', wp_normalize_path( $sOldPath ) ) ] = $sHash;
 		}
+		$aSnap[ 'hashes' ] = $aNew;
+		$aSnap[ 'meta' ][ 'snap_version' ] = '7.0.0';
 		return $aSnap;
 	}
 
