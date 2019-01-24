@@ -183,8 +183,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function query() {
-		$mResult = $this->loadDbProcessor()->doSql( $this->buildQuery() );
-		return ( $mResult === false ) ? false : $mResult > 0;
+		return false;
 	}
 
 	/**
