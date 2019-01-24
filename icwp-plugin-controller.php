@@ -17,6 +17,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+use \FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
@@ -132,7 +134,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	private function loadServices() {
-		\FernleafSystems\Wordpress\Services\Services::GetInstance();
+		Services::GetInstance();
 	}
 
 	/**
@@ -1082,6 +1084,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isModulePage() {
+		return strpos( Services::Request()->query( 'page' ), $this->prefix() ) === 0;
 	}
 
 	/**

@@ -281,14 +281,16 @@ tr.icwp-plugin-vulnerability dd {
 	z-index: 10;
 }
 .icwp-waiting {
-	width: 200px;
-	height: 200px;
+	width: 40px;
+	height: 100%;
 	position: fixed;
 	top: 45%;
 	left: 50%;
-	background: url("https://media.giphy.com/media/LLd6Ma5vQtXyw/giphy.gif") no-repeat 0 0 transparent;
-	background: url("https://media.giphy.com/media/sxJ1nCeUoNSfe/giphy.gif") no-repeat 0 0 transparent;
-	background-size: 40px;
+}
+.icwp-toaster {
+	position: fixed;
+	bottom: 20px; right: 20px;
+	z-index: 12;
 }
 .icwpAjaxTableContainer .tablenav {
 	padding: 5px 8px 5px 3px;

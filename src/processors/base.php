@@ -139,7 +139,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		if ( $aAttrs[ 'valid_admin' ] && !( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) ) {
 			$bDisplay = false;
 		}
-		else if ( $aAttrs[ 'plugin_page_only' ] && !$this->getMod()->isModulePage() ) {
+		else if ( $aAttrs[ 'plugin_page_only' ] && !$this->getCon()->isModulePage() ) {
 			$bDisplay = false;
 		}
 		else if ( $aAttrs[ 'schedule' ] == 'once'

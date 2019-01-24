@@ -97,7 +97,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 					else {
 						sMessage = oResponse.data.message;
 					}
-					iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
+					iCWP_WPSF_Toaster.showMessage( sMessage, 'odpToast_OptionsSave', oResponse.success );
+					// iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 				}
 			).always( function () {
 					bRequestCurrentlyRunning = false;

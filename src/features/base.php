@@ -1348,15 +1348,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return bool
 	 */
-	public function isModulePage() {
-		return strpos( $this->loadRequest()->query( 'page' ), $this->prefix() ) === 0;
-	}
-
-	/**
-	 * @return bool
-	 */
 	protected function isThisModulePage() {
-		return $this->loadRequest()->query( 'page' ) == $this->getModSlug();
+		return $this->getCon()->isModulePage() && $this->loadRequest()->query( 'page' ) == $this->getModSlug();
 	}
 
 	/**
