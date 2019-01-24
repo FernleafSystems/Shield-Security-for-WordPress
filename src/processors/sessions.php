@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Sessions', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/basedb.php' );
-
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 
 class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {

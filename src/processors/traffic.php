@@ -1,13 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Traffic', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
-
 /**
- * Runs on PHP > 5.4
  * Class ICWP_WPSF_Processor_Traffic
  */
 class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {

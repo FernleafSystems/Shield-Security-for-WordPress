@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_WpCron', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_WpCron {
 

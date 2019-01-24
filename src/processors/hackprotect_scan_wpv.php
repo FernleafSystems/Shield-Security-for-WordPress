@@ -1,12 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Wpv', false ) ) {
-	return;
-}
-
 use \FernleafSystems\Wordpress\Plugin\Shield;
-
-require_once( __DIR__.'/hackprotect_scan_assets_base.php' );
 
 class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
 

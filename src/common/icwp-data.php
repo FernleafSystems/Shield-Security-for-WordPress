@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_DataProcessor', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 

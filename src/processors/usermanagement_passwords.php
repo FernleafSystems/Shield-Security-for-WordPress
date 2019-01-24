@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Passwords', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
-
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
  * Class ICWP_WPSF_Processor_UserManagement_Passwords

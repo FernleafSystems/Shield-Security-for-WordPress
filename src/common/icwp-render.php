@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_Render', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 
@@ -132,15 +129,6 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	public function display() {
 		echo $this->render();
 		return $this;
-	}
-
-	/**
-	 */
-	protected function autoload() {
-		if ( !class_exists( 'Twig_Autoloader', false ) ) {
-			require_once( $this->sAutoloaderPath );
-			Twig_Autoloader::register();
-		}
 	}
 
 	/**

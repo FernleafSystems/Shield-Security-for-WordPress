@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_WpUsers', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 
@@ -269,9 +266,6 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return ICWP_UserMeta
 	 */
 	public function metaVoForUser( $sPrefix, $nUserId = null ) {
-		if ( !class_exists( 'ICWP_UserMeta' ) ) {
-			$this->requireCommonLib( 'icwp-usermeta.php' );
-		}
 		if ( is_null( $nUserId ) ) {
 			$nUserId = $this->getCurrentWpUserId();
 		}

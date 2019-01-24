@@ -1,12 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_AuditTrail', false ) ) {
-	return;
-}
-
 use \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
-
-require_once( __DIR__.'/basedb.php' );
 
 class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 

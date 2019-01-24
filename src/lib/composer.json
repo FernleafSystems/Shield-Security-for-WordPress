@@ -31,8 +31,16 @@
   "require-dev":  {
   },
   "autoload":     {
-    "psr-4": {
+    "psr-4":    {
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\": "src"
-    }
+    },
+    "classmap": [
+      "../common/",
+      "../features/",
+      "../processors/",
+      "../query/",
+      "../wizards/",
+      "../../icwp-plugin-controller.php"
+    ]
   }
 }

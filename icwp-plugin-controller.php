@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018 One Dollar Plugin <support@onedollarplugin.com>
+ * Copyright (c) 2019 One Dollar Plugin <support@onedollarplugin.com>
  * All rights reserved.
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
  * General Public License, Version 2, June 1991. Copyright (C) 1989, 1991 Free
@@ -17,14 +17,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( class_exists( 'ICWP_WPSF_Plugin_Controller', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
-	 * @var stdClass
+	 * @var \stdClass
 	 */
 	private static $oControllerOptions;
 
@@ -36,7 +32,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	private static $sRootFile;
+	private $sRootFile;
 
 	/**
 	 * @var boolean
@@ -113,7 +109,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Plugin_Controller
 	 * @throws Exception
 	 */
-	public static function GetInstance( $sRootFile ) {
+	public static function GetInstance( $sRootFile = null ) {
 		if ( !isset( self::$oInstance ) ) {
 			self::$oInstance = new self( $sRootFile );
 		}
@@ -125,29 +121,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @throws Exception
 	 */
 	private function __construct( $sRootFile ) {
-		self::$sRootFile = $sRootFile;
-		$this->loadAutoload();
+		$this->sRootFile = $sRootFile;
+		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
-		$this->loadFactory(); // so we know it's loaded whenever we need it. Cuz we need it.
 		$this->doLoadTextDomain();
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	private function loadAutoload() {
-		$sAuto = $this->getPath_Autoload();
-		if ( empty( $sAuto ) || !realpath( $sAuto ) ) {
-			throw new \Exception( 'Could not locate the autoloader' );
-		}
-		require_once( $sAuto );
+	private function loadServices() {
 		\FernleafSystems\Wordpress\Services\Services::GetInstance();
 	}
 
 	/**
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	private function readPluginSpecification() {
 		$aSpec = array();
@@ -155,7 +145,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( !empty( $sContents ) ) {
 			$aSpec = json_decode( $sContents, true );
 			if ( empty( $aSpec ) ) {
-				throw new Exception( 'YAML parser could not load to process the plugin spec configuration.' );
+				throw new Exception( 'Could not load to process the plugin spec configuration.' );
 			}
 		}
 		return $aSpec;
@@ -556,6 +546,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( $this->isValidAdminArea() ) {
 
+			if ( array_key_exists( 'edit', $aActionLinks ) ) {
+				unset( $aActionLinks[ 'edit' ] );
+			}
+
 			$aLinksToAdd = $this->getPluginSpec_ActionLinks( 'add' );
 			if ( is_array( $aLinksToAdd ) ) {
 
@@ -697,8 +691,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * Displays a message in the plugins listing when a plugin has an update available.
 	 */
 	public function onWpPluginUpdateMessage() {
-		$sDefault = sprintf( 'Upgrade Now To Get The Latest Available %s Features.', $this->getHumanName() );
-		$sMessage = apply_filters( $this->prefix( 'plugin_update_message' ), $sDefault );
+		$sMessage = _wpsf__( 'Upgrade Now To Keep Your Security Up-To-Date With The Latest Features.' );
 		if ( empty( $sMessage ) ) {
 			$sMessage = '';
 		}
@@ -1450,10 +1443,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getRootFile() {
-		if ( !isset( self::$sRootFile ) ) {
-			self::$sRootFile = __FILE__;
+		if ( !isset( $this->sRootFile ) ) {
+			$this->sRootFile = __FILE__;
 		}
-		return self::$sRootFile;
+		return $this->sRootFile;
 	}
 
 	/**
@@ -1478,7 +1471,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return stdClass
+	 * @return mixed|stdClass
 	 */
 	protected function getPluginControllerOptions() {
 		if ( !isset( self::$oControllerOptions ) ) {
@@ -1787,19 +1780,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$sFeatureName = str_replace( ' ', '', ucwords( str_replace( '_', ' ', $sModSlug ) ) );
 		$sOptionsVarName = sprintf( 'oFeatureHandler%s', $sFeatureName ); // e.g. oFeatureHandlerPlugin
 
-		// e.g. features/firewall.php
-		$sSourceFile = $this->getPath_SourceFile( sprintf( 'features/%s.php', $sModSlug ) );
-		$sClassName = sprintf(
-			'%s_%s_FeatureHandler_%s',
-			strtoupper( $this->getParentSlug() ),
-			strtoupper( $this->getPluginSlug() ),
-			$sFeatureName
-		); // e.g. ICWP_WPSF_FeatureHandler_Plugin
+		// e.g. ICWP_WPSF_FeatureHandler_Plugin
+		$sClassName = sprintf( '%s_FeatureHandler_%s', strtoupper( $this->getPluginPrefix( '_' ) ), $sFeatureName );
 
 		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
-		$bIncluded = @include_once( $sSourceFile );
-		$bClassExists = class_exists( $sClassName, false );
-		if ( $bClassExists ) {
+		if ( class_exists( $sClassName ) ) {
 			if ( !isset( $this->{$sOptionsVarName} ) || $bRecreate ) {
 				$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
 			}
@@ -1808,8 +1793,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			}
 		}
 		else {
-			$sMessage = sprintf( 'Source file for feature %s %s. ', $sModSlug, $bIncluded ? 'exists' : 'missing' );
-			$sMessage .= sprintf( 'Class "%s" %s', $sClassName, $bClassExists ? 'exists' : 'missing' );
+			$sMessage = sprintf( 'Class "%s" is missing', $sClassName );
 			throw new Exception( $sMessage );
 		}
 

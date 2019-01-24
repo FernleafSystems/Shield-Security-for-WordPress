@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_WpIncludes', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_WpIncludes extends ICWP_WPSF_Foundation {
 

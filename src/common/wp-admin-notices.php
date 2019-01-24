@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_WpAdminNotices', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 

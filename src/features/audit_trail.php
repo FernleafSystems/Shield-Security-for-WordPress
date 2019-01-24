@@ -1,9 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 

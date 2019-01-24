@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_TrafficLogger', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/basedb.php' );
-
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
 class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {

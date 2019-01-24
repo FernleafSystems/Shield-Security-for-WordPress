@@ -11,7 +11,7 @@
  */
 
 /**
- * Copyright (c) 2018 One Dollar Plugin <support@onedollarplugin.com>
+ * Copyright (c) 2019 One Dollar Plugin <support@onedollarplugin.com>
  * All rights reserved.
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
  * General Public License, Version 2, June 1991. Copyright (C) 1989, 1991 Free
@@ -45,6 +45,8 @@ if ( !function_exists( '_wpsf__' ) ) {
 		return __( $sStr, 'wp-simple-firewall' );
 	}
 }
+
+require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 
 add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 function icwp_wpsf_init() {

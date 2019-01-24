@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Wizard_Base', false ) ) {
-	return;
-}
-
 /**
  * @uses php 5.4+
  * Class ICWP_WPSF_Wizard_Base

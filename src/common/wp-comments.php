@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_WpComments', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 

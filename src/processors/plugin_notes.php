@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Notes' ) ) {
-	return;
-}
-
-require_once( __DIR__.'/basedb.php' );
-
 class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 
 	/**

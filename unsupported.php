@@ -2,6 +2,7 @@
 
 add_action( 'admin_notices', 'icwp_wpsf_unsupported_php' );
 add_action( 'network_admin_notices', 'icwp_wpsf_unsupported_php' );
+
 function icwp_wpsf_unsupported_php() {
 	global $sIcwpWpsfPluginFile;
 	$aText = array(

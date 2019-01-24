@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Scanner', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/basedb.php' );
-
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
 class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor {

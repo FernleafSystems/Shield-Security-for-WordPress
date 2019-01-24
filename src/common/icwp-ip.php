@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_Ip', false ) ) {
-	return;
-}
 
 /**
  * This is taken straight out of https://github.com/symfony/HttpFoundation/blob/master/IpUtils.php

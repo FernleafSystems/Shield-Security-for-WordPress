@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @deprecated v7.0.0
  * Class ICWP_EDD_LicenseVO
  */
 class ICWP_EDD_LicenseVO {

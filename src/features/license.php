@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_License', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
@@ -53,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return ICWP_EDD_LicenseVO
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
 	protected function loadLicense() {
 		return $this->loadEdd()->getLicenseVoFromData( $this->getLicenseData() );
@@ -75,11 +69,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param ICWP_EDD_LicenseVO $oLic
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO $oLic
 	 * @return $this
 	 */
 	protected function setLicenseData( $oLic ) {
-		return $this->setOpt( 'license_data', $this->loadDP()->convertStdClassToArray( $oLic->getRaw() ) );
+		return $this->setOpt( 'license_data', $oLic->getRawDataAsArray() );
 	}
 
 	/**
@@ -371,7 +365,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return ICWP_EDD_LicenseVO|null
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
 	private function lookupOfficialLicense() {
 
