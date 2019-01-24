@@ -17,10 +17,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
-		if ( $oFO->isPasswordPoliciesEnabled() ) {
-			$this->getProcessorPasswords()->run();
-		}
-
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
@@ -31,6 +27,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 		if ( $oFO->isUserSessionsManagementEnabled() ) {
 			$this->getProcessorSessions()->run();
+		}
+
+		if ( $oFO->isPasswordPoliciesEnabled() ) {
+			$this->getProcessorPasswords()->run();
 		}
 	}
 
