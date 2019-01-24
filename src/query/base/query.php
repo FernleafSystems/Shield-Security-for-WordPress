@@ -336,9 +336,6 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function setWheresFromVo( $oVo ) {
-		foreach ( $this->loadDP()->convertStdClassToArray( $oVo->getRawData() ) as $sCol => $mVal ) {
-			$this->addWhereEquals( $sCol, $mVal );
-		}
 		return $this;
 	}
 

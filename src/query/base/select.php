@@ -43,10 +43,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 * @return stdClass
 	 */
 	public function byId( $nId ) {
-		$aItems = $this->reset()
-					   ->addWhereEquals( 'id', $nId )
-					   ->query();
-		return array_shift( $aItems );
+		return null;
 	}
 
 	/**

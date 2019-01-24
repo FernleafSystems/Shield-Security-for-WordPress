@@ -11,7 +11,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByIp( $sIp ) {
-		return $this->addWhereEquals( 'ip', $sIp );
+		return $this;
 	}
 
 	/**
@@ -19,7 +19,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByLastAccessAfter( $nLastAccessAfter ) {
-		return $this->addWhereNewerThan( $nLastAccessAfter, 'last_access_at' );
+		return $this;
 	}
 
 	/**
@@ -27,7 +27,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByList( $sList ) {
-		return $this->addWhereEquals( 'list', $sList );
+		return $this;
 	}
 
 	/**
