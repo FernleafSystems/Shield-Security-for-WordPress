@@ -17,8 +17,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 */
 	protected function updateHandler() {
-		$this->clearCrons();
-		$this->setPtgRebuildSelfRequired( true ); // this is permanently required until a better solution is found
+		$this->clearCrons()
+			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
+			 ->setPtgUpdateStoreFormat( true );
 	}
 
 	/**
@@ -553,10 +554,25 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param bool $bIsRequired
+	 * @return $this
+	 */
+	public function setPtgUpdateStoreFormat( $bIsRequired ) {
+		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isPtgRebuildSelfRequired() {
 		return $this->isOpt( 'rebuild_self', true );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgUpdateStoreFormat() {
+		return $this->isOpt( 'ptg_update_store_format', true );
 	}
 
 	/**

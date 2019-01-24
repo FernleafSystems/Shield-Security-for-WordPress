@@ -481,6 +481,12 @@
       "transferable": false,
       "section":      "section_non_ui",
       "default":      false
+    },
+    {
+      "key":          "ptg_update_store_format",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      false
     }
   ],
   "definitions": {
