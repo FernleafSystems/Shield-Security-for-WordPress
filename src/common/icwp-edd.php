@@ -124,8 +124,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 
 		$aContent = $this->loadFS()
 						 ->getUrl( $sStoreUrl, $aLicenseLookupParams );
-		$oDec = !empty( $aContent ) ? @json_decode( $aContent[ 'body' ] ) : new stdClass();
-		return $this->getLicenseVoFromData( $oDec )
+		return $this->getLicenseVoFromData( empty( $aContent ) ? [] : @json_decode( $aContent[ 'body' ], true ) )
 					->setLastRequestAt( $this->loadRequest()->ts() );
 	}
 
