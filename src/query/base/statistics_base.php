@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Statistics_Base', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base.php' );
-
 class ICWP_WPSF_Query_Statistics_Base extends ICWP_WPSF_Query_Base {
 
 	/**

@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin {
 
 	public function run() {

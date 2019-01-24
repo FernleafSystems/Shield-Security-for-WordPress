@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_HackProtect_Integrity' ) ) {
-	return;
-}
-
 class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_BaseWpsf {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;

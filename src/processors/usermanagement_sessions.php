@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_UserManagement_Sessions', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {

@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_UserMeta', false ) ) {
-	return;
-}
 
 /**
  * @property string $email_secret

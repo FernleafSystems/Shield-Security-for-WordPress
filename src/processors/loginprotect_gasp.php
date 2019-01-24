@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Gasp', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/loginprotect_base.php' );
-
 class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**

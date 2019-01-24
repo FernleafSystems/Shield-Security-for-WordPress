@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_AdminAccessRestriction' ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';

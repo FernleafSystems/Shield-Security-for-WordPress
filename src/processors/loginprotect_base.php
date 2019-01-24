@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Base', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
-
 abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**

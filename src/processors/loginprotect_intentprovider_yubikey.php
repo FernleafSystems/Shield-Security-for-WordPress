@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/loginprotect_intentprovider_base.php' );
-
 class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	const OTP_LENGTH = 12;

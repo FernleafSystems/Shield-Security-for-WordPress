@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_HackProtect', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
-
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {

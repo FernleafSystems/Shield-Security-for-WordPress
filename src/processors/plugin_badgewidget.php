@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_BadgeWidget', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;

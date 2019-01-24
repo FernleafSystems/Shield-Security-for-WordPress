@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ) {
-	return;
-}
-
-require_once( __DIR__.'/base_wpsf.php' );
-
 abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**

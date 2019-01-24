@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_ServiceProviders', false ) ) {
-	return;
-}
 
 /**
  * Class ICWP_WPSF_ServiceProviders

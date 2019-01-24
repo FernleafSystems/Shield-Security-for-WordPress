@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Base', false ) ) {
-	return;
-}
-
 use \FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {

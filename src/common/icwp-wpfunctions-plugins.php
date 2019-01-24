@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_WpFunctions_Plugins', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 
 	/**

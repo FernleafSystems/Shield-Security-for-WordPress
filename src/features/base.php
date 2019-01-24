@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_Base', false ) ) {
-	return;
-}
-
 abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -119,9 +115,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 100 );
 
-		if ( $this->isAdminOptionsPage() ) {
+//		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
-		}
+//		}
 
 		$this->setupCustomHooks();
 	}
@@ -348,9 +344,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
-			include_once( $this->getCon()->getPath_SourceFile( sprintf( 'processors/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getProcessorClassName();
-			if ( !class_exists( $sClassName, false ) ) {
+			if ( !class_exists( $sClassName ) ) {
 				return null;
 			}
 			$this->oProcessor = new $sClassName( $this );
@@ -363,8 +358,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getProcessorClassName() {
-		return ucwords( $this->getCon()->getOptionStoragePrefix() ).'Processor_'.
-			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) );
+		return implode( '_',
+			[
+				strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
+				'Processor',
+				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) )
+			]
+		);
 	}
 
 	/**
@@ -372,8 +372,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getWizardClassName() {
-		return ucwords( $this->getCon()->getOptionStoragePrefix() ).'Wizard_'.
-			   str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) );
+		return implode( '_',
+			[
+				strtoupper( $this->getCon()->getPluginPrefix( '_' ) ),
+				'Wizard',
+				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) )
+			]
+		);
 	}
 
 	/**
@@ -382,8 +387,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
 			$oCon = $this->getCon();
-			$this->oOptions = ICWP_WPSF_Factory::OptionsVo();
-			$this->oOptions
+			$this->oOptions = ( new ICWP_WPSF_OptionsVO )
 				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
 				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
@@ -901,9 +905,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getWizardHandler() {
 		if ( !isset( $this->oWizard ) ) {
-			include_once( $this->getCon()->getPath_SourceFile( sprintf( 'wizards/%s.php', $this->getSlug() ) ) );
 			$sClassName = $this->getWizardClassName();
-			if ( !class_exists( $sClassName, false ) ) {
+			if ( !class_exists( $sClassName ) ) {
 				return null;
 			}
 			$this->oWizard = new $sClassName( $this );
