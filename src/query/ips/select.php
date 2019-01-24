@@ -1,11 +1,9 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Ips_Select', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
-
+/**
+ * @deprecated v7.0.0
+ * Class ICWP_WPSF_Query_Ips_Select
+ */
 class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**

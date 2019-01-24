@@ -1,8 +1,7 @@
 <?php
 
-require_once( dirname( __FILE__ ).'/ICWP_WPSF_BaseEntryVO.php' );
-
 /**
+ * @deprecated v7.0.0
  * Class ICWP_WPSF_IpsEntryVO
  * @property string ip
  * @property bool   is_range

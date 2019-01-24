@@ -1,9 +1,9 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseQuery', false ) ) {
-	return;
-}
-
+/**
+ * @deprecated v7.0.0
+ * Class ICWP_WPSF_Query_BaseQuery
+ */
 abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 
 	/**
