@@ -35,11 +35,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return ICWP_WPSF_IpsEntryVO[]
 	 */
 	public function allFromList( $sList ) {
-		/** @var ICWP_WPSF_IpsEntryVO[] $aRes */
-		$aRes = $this->reset()
-					 ->filterByList( $sList )
-					 ->query();
-		return $aRes;
+		return [];
 	}
 
 	/**
