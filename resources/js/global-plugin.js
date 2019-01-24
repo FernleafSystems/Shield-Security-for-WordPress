@@ -249,19 +249,25 @@ var iCWP_WPSF_Autoupdates = new function () {
 var iCWP_WPSF_Growl = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
-		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
-		$oDiv.show().addClass( 'shown' );
-		setTimeout( function () {
-			$oDiv.html( sMessage );
-		}, 380 );
-		setTimeout( function () {
-			$oDiv.css( 'width', 0 );
 
+		if ( true ) {
+			iCWP_WPSF_Toaster.showMessage( sMessage, bSuccess );
+		}
+		else {
+			var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
+			$oDiv.show().addClass( 'shown' );
 			setTimeout( function () {
-				$oDiv.html( '' )
-					 .fadeOut();
-			}, 500 );
-		}, 4000 );
+				$oDiv.html( sMessage );
+			}, 380 );
+			setTimeout( function () {
+				$oDiv.css( 'width', 0 );
+
+				setTimeout( function () {
+					$oDiv.html( '' )
+						 .fadeOut();
+				}, 500 );
+			}, 4000 );
+		}
 	};
 
 	/**
@@ -277,15 +283,18 @@ var iCWP_WPSF_Growl = new function () {
 
 var iCWP_WPSF_Toaster = new function () {
 
-	this.showMessage = function ( sMessage, sId, bSuccess ) {
-		var newToast = jQuery( '#icwpWpsfOptionsToast' );
+	this.showMessage = function ( sMessage, bSuccess ) {
+		var $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
+		var $oBody = jQuery( '.toast-body', $oNewToast );
+		$oBody.html( '' );
 
 		jQuery( '<span></span>' ).html( sMessage )
 								 .addClass( bSuccess ? 'text-success' : 'text-danger' )
-								 .appendTo( jQuery( '.toast-body', newToast ) );
-		newToast.toast(
+								 .appendTo( $oBody );
+		$oNewToast.toast(
 			{
-				delay: 3000
+				autohide: true,
+				delay: 4000
 			}
 		).toast( 'show' );
 	};
