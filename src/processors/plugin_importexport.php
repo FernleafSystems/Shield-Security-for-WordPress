@@ -27,10 +27,22 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$aData = [
-
+			'hrefs' => array(
+				'export_file_download' => $this->createExportFileDownloadLink()
+			)
 		];
 
 		return $aData;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function createExportFileDownloadLink() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getMod();
+		$aActionNonce = $oFO->getNonceActionData( 'export_file_download' );
+		return add_query_arg( $aActionNonce, $oFO->getUrl_AdminPage() );
 	}
 
 	public function runWhitelistNotify() {
@@ -61,7 +73,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		try {
 			$oReq = $this->loadRequest();
-			switch ( $this->loadRequest()->query( 'shield_action' ) ) {
+			switch ( $oReq->query( 'shield_action' ) ) {
 
 				case 'importexport_export':
 					$this->executeExport( $oReq->query( 'method' ) );
@@ -138,7 +150,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( 'Not currently logged-in as admin' );
 		}
+		$this->doExportDownload();
+	}
 
+	public function doExportDownload() {
 		Services::Data()->downloadStringAsFile(
 			json_encode( $this->getExportData() ),
 			sprintf( 'shieldexport-%s-%s.json',

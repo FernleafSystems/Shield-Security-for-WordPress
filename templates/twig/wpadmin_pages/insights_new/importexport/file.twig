@@ -8,12 +8,10 @@
 			</div>
 			<div class="card-body p-4">
 				<div class="" id="">
-					<form id="ImportExportFileForm" autocomplete="off">
-						<div class="form-group text-right">
-							<label for="SubmitForm">Download Export File</label>
-							<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Download" />
-						</div>
-					</form>
+					<div class="form-group text-right">
+						<a id="ExportDownload" href="{{ hrefs.export_file_download }}"
+						   class="btn btn-info" type="submit">Download</a>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -26,7 +24,7 @@
 				<h6 class="card-subtitle text-muted">Supply a previously exported options file</h6>
 			</div>
 			<div class="card-body p-4">
-				<form id="ImportExportFileForm" autocomplete="off">
+				<form id="ImportExportFileForm" autocomplete="off" method="post">
 					<div class="form-group">
 						<label for="ImportFile">Select Options Import File</label>
 						<input name="import_file" type="file" class="form-control-file" id="ImportFile">
@@ -51,3 +49,17 @@
 	</div>
 
 </div>
+
+<script>
+		jQuery( document ).ready( function () {
+			jQuery( document ).on( "click", "a#ExportDownload", function () {
+				event.preventDefault();
+				jQuery.fileDownload( jQuery( this ).attr( 'href' ), {
+					preparingMessageHtml: "Downloading file, please wait...",
+					failMessageHtml: "There was a problem downloading the file."
+				} );
+				return false;
+			} );
+
+		} );
+</script>

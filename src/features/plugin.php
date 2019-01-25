@@ -199,6 +199,25 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 */
+	public function handleModRequest() {
+		$oReq = $this->loadRequest();
+		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
+
+			case 'export_file_download':
+				header( 'Set-Cookie: fileDownload=true; path=/' );
+				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				$oPro = $this->getProcessor();
+				$oPro->getSubProcessorImportExport()
+					 ->doExportDownload();
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/**
 	 * @return array
 	 */
 	private function ajaxExec_BulkItemAction() {
