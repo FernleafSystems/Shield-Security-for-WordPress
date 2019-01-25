@@ -285,12 +285,12 @@ var iCWP_WPSF_Toaster = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
 		var $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
-		var $oBody = jQuery( '.toast-body', $oNewToast );
-		$oBody.html( '' );
+		var $oToastBody = jQuery( '.toast-body', $oNewToast );
+		$oToastBody.html( '' );
 
 		jQuery( '<span></span>' ).html( sMessage )
-								 .addClass( bSuccess ? 'text-success' : 'text-danger' )
-								 .appendTo( $oBody );
+								 .addClass( bSuccess ? 'text-dark' : 'text-danger' )
+								 .appendTo( $oToastBody );
 		$oNewToast.toast(
 			{
 				autohide: true,

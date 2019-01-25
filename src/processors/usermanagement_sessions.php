@@ -61,22 +61,35 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		$oWp = $this->loadWp();
 		$oWpUsers = $this->loadWpUsers();
 
-		$nCode = $this->assessCurrentSession();
+		try {
+			$bSessionInvalid = !$this->assessCurrentSession();
+			$nCode = 0;
+			$sMessage = '';
+		}
+		catch ( \Exception $oE ) {
+			$bSessionInvalid = true;
+			$nCode = $oE->getCode();
+			$sMessage = $oE->getMessage();
+		}
 
-		if ( $nCode > 0 ) { // it's not admin, but the user looks logged into WordPress and not to Shield
+		if ( $bSessionInvalid ) { // it's not admin, but the user looks logged into WordPress and not to Shield
 
 			if ( is_admin() ) { // prevent any admin access on invalid Shield sessions.
 
 				switch ( $nCode ) {
 
-					case 7:
-						$oWpUsers->logoutUser( true );
+					case 1:
 						$this->addToAuditEntry(
-							sprintf( 'Browser signature has changed for this user "%s" session. Redirecting request.', $oWpUsers->getCurrentWpUser()->user_login ),
-							2,
-							'um_session_browser_lock_redirect'
+							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_expired_timeout'
 						);
-						$oWp->redirectToLogin();
+						$oWpUsers->logoutUser( true );
+						break;
+
+					case 2:
+						$this->addToAuditEntry(
+							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_idle_timeout'
+						);
+						$oWpUsers->logoutUser( true );
 						break;
 
 					case 3:
@@ -87,6 +100,23 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 							'um_session_ip_lock_redirect'
 						);
 						$oWp->redirectToHome();
+						break;
+
+					case 4:
+						$this->addToAuditEntry(
+							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_no_valid_found'
+						);
+						$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
+						break;
+
+					case 7:
+						$oWpUsers->logoutUser( true );
+						$this->addToAuditEntry(
+							sprintf( 'Browser signature has changed for this user "%s" session. Redirecting request.', $oWpUsers->getCurrentWpUser()->user_login ),
+							2,
+							'um_session_browser_lock_redirect'
+						);
+						$oWp->redirectToLogin();
 						break;
 
 					default:
@@ -173,35 +203,66 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	}
 
 	/**
-	 * @return int
+	 * @return true
+	 * @throws \Exception
 	 */
 	protected function assessCurrentSession() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 
 		if ( !$oFO->hasSession() ) {
-			$nForceLogOutCode = 4;
+			throw new \Exception( _wpsf__( 'Valid user session could not be found' ), 4 );
 		}
 		else {
 			$oSess = $oFO->getSession();
 			$nTime = $this->time();
 
-			$nForceLogOutCode = 0; // when it's == 0 it's a valid session
-
 			// timeout interval
 			if ( $oFO->hasSessionTimeoutInterval() && ( $nTime - $oSess->logged_in_at > $oFO->getSessionTimeoutInterval() ) ) {
-				$nForceLogOutCode = 1;
-			} // idle timeout interval
-			else if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oFO->getIdleTimeoutInterval() ) ) {
+				$nDays = (int)( $oFO->getSessionTimeoutInterval()/DAY_IN_SECONDS );
+				throw new \Exception(
+					sprintf(
+						_wpsf__( 'User session has expired after %s' ),
+						sprintf( _n( '%s day', '%s days', $nDays, 'wp-simple-firewall' ), $nDays )
+					),
+					1
+				);
+			}
+
+			// idle timeout interval
+			if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oFO->getIdleTimeoutInterval() ) ) {
 				$oFO->setOptInsightsAt( 'last_idle_logout_at' );
-				$nForceLogOutCode = 2;
-			} // login ip address lock
-			else if ( $oFO->isLockToIp() && ( $this->ip() != $oSess->ip ) ) { //TODO: sha1
-				$nForceLogOutCode = 3;
+				$nHours = (int)( $oFO->getIdleTimeoutInterval()/HOUR_IN_SECONDS );
+				throw new \Exception(
+					sprintf(
+						_wpsf__( 'User session has expired after %s' ),
+						sprintf( _n( '%s day', '%s days', $nHours, 'wp-simple-firewall' ), $nHours )
+					),
+					2
+				);
+			}
+
+			/**
+			 * We allow the original session IP, the SERVER_ADDR, and the "what is my IP"
+			 */
+			if ( $oFO->isLockToIp() ) {
+				/** @var ICWP_WPSF_FeatureHandler_Plugin $oPluginMod */
+				$oPluginMod = $this->getCon()->getModule( 'plugin' );
+				$aPossibleIps = [
+					$oSess->ip,
+					$this->loadRequest()->server( 'SERVER_ADDR' ),
+					$oPluginMod->getMyServerIp()
+				];
+				if ( !in_array( $this->ip(), $aPossibleIps ) ) {
+					throw new \Exception(
+						sprintf( 'Access to an established user session from a new IP address "%s".', $this->ip() ),
+						3
+					);
+				}
 			}
 		}
 
-		return $nForceLogOutCode;
+		return true;
 	}
 
 	/**
