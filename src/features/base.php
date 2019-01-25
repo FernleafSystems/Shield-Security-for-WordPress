@@ -278,22 +278,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * for now only import by file is supported
-	 */
-	protected function importOptions() {
-		// So we don't poll for the file every page load.
-		if ( $this->loadRequest()->query( 'icwp_shield_import' ) == 1 ) {
-			$aOptions = $this->getCon()->getOptionsImportFromFile();
-			if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-				$this->getOptionsVo()->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-				$this
-					->setBypassAdminProtection( true )
-					->savePluginOptions();
-			}
-		}
-	}
-
-	/**
 	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
 	 * functionality of the plugin.
 	 */
