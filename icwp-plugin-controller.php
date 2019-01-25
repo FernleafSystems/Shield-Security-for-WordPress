@@ -67,11 +67,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	private $aRequirementsMessages;
 
 	/**
-	 * @var array
-	 */
-	private $aImportedOptions;
-
-	/**
 	 * @var string
 	 */
 	protected static $sSessionId;
@@ -335,7 +330,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpLoaded() {
 		if ( $this->isValidAdminArea() ) {
 			$this->doPluginFormSubmit();
-			$this->downloadOptionsExport();
 		}
 	}
 
@@ -369,24 +363,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function displayDashboardWidget() {
 		$aContent = apply_filters( $this->prefix( 'dashboard_widget_content' ), array() );
 		echo implode( '', $aContent );
-	}
-
-	/**
-	 * @uses die()
-	 */
-	private function downloadOptionsExport() {
-		$oDp = $this->loadRequest();
-		if ( $oDp->query( 'icwp_shield_export' ) == 1 ) {
-			$aExportOptions = apply_filters( $this->prefix( 'gather_options_for_export' ), array() );
-			if ( !empty( $aExportOptions ) && is_array( $aExportOptions ) ) {
-				$oDp->downloadStringAsFile(
-					wp_json_encode( $aExportOptions ),
-					'shield_options_export-'
-					.$this->loadDP()->urlStripSchema( $this->loadWp()->getHomeUrl() )
-					.'-'.date( 'y-m-d__H-i-s' ).'.txt'
-				);
-			}
-		}
 	}
 
 	public function ajaxAction() {
@@ -424,30 +400,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getOptionsEncoding() {
 		$sEncoding = $this->getPluginSpec_Property( 'options_encoding' );
 		return in_array( $sEncoding, array( 'yaml', 'json' ) ) ? $sEncoding : 'yaml';
-	}
-
-	/**
-	 * @uses die()
-	 */
-	public function getOptionsImportFromFile() {
-
-		if ( !isset( $this->aImportedOptions ) ) {
-			$this->aImportedOptions = array();
-
-			$sFile = path_join( $this->getRootDir(), 'shield_options_export.txt' );
-			$oFS = $this->loadFS();
-			if ( $oFS->isFile( $sFile ) ) {
-				$sOptionsString = $oFS->getFileContent( $sFile );
-				if ( !empty( $sOptionsString ) && is_string( $sOptionsString ) ) {
-					$aOptions = json_decode( $sOptionsString, true );
-					if ( !empty( $aOptions ) && is_array( $aOptions ) ) {
-						$this->aImportedOptions = $aOptions;
-					}
-				}
-				$oFS->deleteFile( $sFile );
-			}
-		}
-		return $this->aImportedOptions;
 	}
 
 	/**
@@ -708,11 +660,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * We protect against providing updates for Shield v7.0.0
+	 * Use logic in here to prevent display of future incompatible updates
 	 * @param stdClass $oUpdates
 	 * @return stdClass
 	 */
 	public function blockIncompatibleUpdates( $oUpdates ) {
+		/*
+		 * No longer used: prevent upgrades to v7.0 for php < 5.4
 		$sFile = $this->getPluginBaseFile();
 		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
 			if ( version_compare( $oUpdates->response[ $sFile ]->new_version, '7.0.0', '>=' )
@@ -720,6 +674,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				unset( $oUpdates->response[ $sFile ] );
 			}
 		}
+		 */
 		return $oUpdates;
 	}
 
