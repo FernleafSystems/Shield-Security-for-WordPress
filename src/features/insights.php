@@ -49,6 +49,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oModLicense = $oCon->getModule( 'license' );
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
 		$oModPlugin = $oCon->getModule( 'plugin' );
+		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
+		$oProPlugin = $oModPlugin->getProcessor();
 
 		$bIsPro = $this->isPremium();
 		$oCarbon = new \Carbon\Carbon();
@@ -149,6 +151,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = $oProHp->buildInsightsVars();
 				break;
 
+			case 'importexport':
+				$aData = $oProPlugin->getSubProcessorImportExport()->buildInsightsVars();
+				break;
+
 			case 'users':
 				$aData = array(
 					'ajax'    => array(
@@ -204,14 +210,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$aTopNav = array(
-			'insights' => _wpsf__( 'Overview' ),
-			'scans'    => _wpsf__( 'Scans' ),
-			'ips'      => _wpsf__( 'IP Lists' ),
-			'audit'    => _wpsf__( 'Audit Trail' ),
-			'traffic'  => _wpsf__( 'Traffic' ),
-			'users'    => _wpsf__( 'Users' ),
-			'notes'    => _wpsf__( 'Notes' ),
-			'license'  => _wpsf__( 'Pro' ),
+			'insights'     => _wpsf__( 'Overview' ),
+			'scans'        => _wpsf__( 'Scans' ),
+			'ips'          => _wpsf__( 'IP Lists' ),
+			'audit'        => _wpsf__( 'Audit Trail' ),
+			'traffic'      => _wpsf__( 'Traffic' ),
+			'users'        => _wpsf__( 'Users' ),
+			'notes'        => _wpsf__( 'Notes' ),
+			'license'      => _wpsf__( 'Pro' ),
+			'importexport' => sprintf( '%s/%s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
 			$sName = array(

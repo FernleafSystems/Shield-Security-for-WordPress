@@ -1,0 +1,53 @@
+<div class="row" id="SectionImportExportFile">
+
+	<div class="col-12">
+		<div class="insights_widget card">
+			<div class="card-header">
+				<h5 class="card-title">Download Export File</h5>
+				<h6 class="card-subtitle text-muted">Use this file on another site to import options</h6>
+			</div>
+			<div class="card-body p-4">
+				<div class="" id="">
+					<form id="ImportExportFileForm" autocomplete="off">
+						<div class="form-group text-right">
+							<label for="SubmitForm">Download Export File</label>
+							<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Download" />
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-12 insights_section">
+		<div class="insights_widget card">
+			<div class="card-header">
+				<h5 class="card-title">Import Options From File</h5>
+				<h6 class="card-subtitle text-muted">Supply a previously exported options file</h6>
+			</div>
+			<div class="card-body p-4">
+				<form id="ImportExportFileForm" autocomplete="off">
+					<div class="form-group">
+						<label for="ImportFile">Select Options Import File</label>
+						<input name="import_file" type="file" class="form-control-file" id="ImportFile">
+					</div>
+					<div class="form-group">
+						<label for="_confirm" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   name="confirm" id="_confirm" value="Y" />
+							I Understand Existing Options Will Be Overwritten
+							<br />
+							<small class="form-text text-muted">
+								Please be sure that this is what you intend - it can't be undone.
+							</small>
+						</label>
+					</div>
+					<div class="form-group text-right">
+						<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Import Options" />
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+</div>

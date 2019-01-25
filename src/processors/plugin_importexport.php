@@ -20,6 +20,19 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		}
 	}
 
+	/**
+	 * @return array
+	 */
+	public function buildInsightsVars() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$aData = [
+
+		];
+
+		return $aData;
+	}
+
 	public function runWhitelistNotify() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
@@ -109,7 +122,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			switch ( $sMethod ) {
 				case 'file':
 				default:
-					$this->downloadExportToFile();
+					$this->importFromUploadFile();
 					break;
 			}
 		}
@@ -133,6 +146,39 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				$sFilename = date( 'YmdHis' )
 			)
 		);
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function importFromUploadFile() {
+		if ( !$this->getCon()->isPluginAdmin() ) {
+			throw new \Exception( 'Not currently logged-in as admin' );
+		}
+
+		$oFs = Services::WpFs();
+
+		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
+			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] )
+			 || $_FILES[ 'import_file' ][ 'size' ] == 0
+			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
+			 || !$oFs->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
+		) {
+			throw new \Exception( 'Uploading of file failed' );
+		}
+
+		$sContent = Services::WpFs()->getFileContent( $_FILES[ 'import_file' ][ 'tmp_name' ] );
+		if ( empty( $sContent ) ) {
+			throw new \Exception( 'File uploaded was empty' );
+		}
+
+		$aData = @json_decode( $sContent, true );
+		if ( empty( $aData ) || !is_array( $aData ) ) {
+			throw new \Exception( 'Uploaded file data was not of the correct format' );
+		}
+
+		$this->processDataImport( $aData, _wpsf__( 'uploaded file' ) );
+		$oFs->deleteFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 	}
 
 	/**
