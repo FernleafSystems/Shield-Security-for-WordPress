@@ -430,7 +430,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					}
 				}
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$aMessage = array(
 					'title'   => 'SSL Cert Expiration',
 					'message' => 'Failed to retrieve a valid SSL certificate.',

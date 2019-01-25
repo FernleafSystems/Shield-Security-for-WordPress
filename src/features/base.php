@@ -47,7 +47,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
 	 * @param array                       $aMod
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( $oPluginController, $aMod = array() ) {
 		if ( empty( self::$oPluginController ) ) {
@@ -58,7 +58,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
-			throw new Exception( 'Module storage key AND slug are undefined' );
+			throw new \Exception( 'Module storage key AND slug are undefined' );
 		}
 
 		$this->sOptionsStoreKey = empty( $aMod[ 'storage_key' ] ) ? $aMod[ 'slug' ] : $aMod[ 'storage_key' ];
@@ -472,7 +472,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * TODO: Get rid of this crap and/or handle the Exception thrown in loadFeatureHandler()
+	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
 	 * @return ICWP_WPSF_FeatureHandler_Email
 	 */
 	public function getEmailHandler() {
@@ -1141,7 +1141,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$bSuccess = true;
 			$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$bSuccess = false;
 			$sMessage = sprintf( _wpsf__( 'Failed to update %s plugin options.' ), $sName )
 						.' '.$oE->getMessage();
@@ -1151,7 +1151,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		try {
 			$sForm = $this->renderOptionsForm();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$sForm = 'Error during form render';
 		}
 		return array(
@@ -1176,7 +1176,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				$this->saveOptionsSubmit();
 				$this->setSaveUserResponse();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$bSuccess = false;
 			}
 		}
@@ -1184,7 +1184,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function saveOptionsSubmit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
@@ -1200,7 +1200,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function doSaveStandardOptions() {
 		$this->updatePluginOptionsFromSubmit();
@@ -1260,7 +1260,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function updatePluginOptionsFromSubmit() {
 		$oReq = $this->loadRequest();
@@ -1681,7 +1681,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 						->setRenderVars( $this->getBaseDisplayData( true ) )
 						->render();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			return 'Error rendering options form';
 		}
 	}
@@ -1716,7 +1716,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @param array $aData
 	 * @return string
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function renderAdminNotice( $aData ) {
 		if ( empty( $aData[ 'notice_attributes' ] ) ) {
@@ -1767,7 +1767,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 							 ->setRenderVars( $aData )
 							 ->render();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$sOutput = $oE->getMessage();
 			error_log( $oE->getMessage() );
 		}
