@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @param Shield\Scans\Wcf\ResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
 		$this->getRepairer()->repairItem( $oItem );

@@ -34,8 +34,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->getSubProcessorImportExport()->run();
 		}
 
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
-
 		switch ( $this->loadRequest()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
@@ -52,7 +50,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				break;
 		}
 
-		add_action( 'admin_footer', array( $this, 'printPluginDeactivateSurvey' ), 100, 0 );
+		add_action( 'admin_footer', array( $this, 'printAdminFooterItems' ), 100, 0 );
 	}
 
 	/**
@@ -126,7 +124,27 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		return $oProc;
 	}
 
-	public function printPluginDeactivateSurvey() {
+	public function printAdminFooterItems() {
+		$this->printPluginDeactivateSurvey();
+		$this->printToastTemplate();
+	}
+
+	/**
+	 * Sets this plugin to be the first loaded of all the plugins.
+	 */
+	private function printToastTemplate() {
+
+		$aRenderData = array(
+			'strings'     => array(
+				'title' => $this->getCon()->getHumanName(),
+			),
+			'js_snippets' => array()
+		);
+		echo $this->getMod()
+				  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
+	}
+
+	private function printPluginDeactivateSurvey() {
 		$oWp = $this->loadWp();
 		if ( $oWp->isCurrentPage( 'plugins.php' ) ) {
 

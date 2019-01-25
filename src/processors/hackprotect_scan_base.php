@@ -201,7 +201,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function executeItemAction( $sItemId, $sAction ) {
 		$bSuccess = false;
@@ -212,7 +212,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 						   ->getQuerySelector()
 						   ->byId( $sItemId );
 			if ( empty( $oEntry ) ) {
-				throw new Exception( 'Item could not be found.' );
+				throw new \Exception( 'Item could not be found.' );
 			}
 
 			$oItem = $this->convertVoToResultItem( $oEntry );
@@ -258,59 +258,59 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function assetAccept( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
+		throw new \Exception( 'Unsupported Action' );
 	}
 
 	/**
 	 * Only plugins may be deactivated, of course.
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function assetDeactivate( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
+		throw new \Exception( 'Unsupported Action' );
 	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function assetReinstall( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
+		throw new \Exception( 'Unsupported Action' );
 	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemAccept( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
+		throw new \Exception( 'Unsupported Action' );
 	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemDelete( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
+		throw new \Exception( 'Unsupported Action' );
 	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemIgnore( $oItem ) {
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getVoFromResultItem( $oItem );
 		if ( empty( $oEntry ) ) {
-			throw new Exception( 'Item could not be found to ignore.' );
+			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
 		/** @var Shield\Databases\Scanner\Update $oUp */
@@ -319,7 +319,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 					->getQueryUpdater();
 
 		if ( !$oUp->setIgnored( $oEntry ) ) {
-			throw new Exception( 'Item could not be ignored at this time.' );
+			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
 
 		return true;
@@ -328,10 +328,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
-		throw new Exception( 'Unsupported Action' );
+		throw new \Exception( 'Unsupported Action' );
 	}
 
 	/**

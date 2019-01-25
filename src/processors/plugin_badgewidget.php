@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	/**
 	 * @param array $aWidgetArguments
 	 * @param array $aWidgetInstance
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function widget( $aWidgetArguments, $aWidgetInstance ) {
 		echo $this->standardRender( $aWidgetArguments, _wpsf__( 'Site Secured' ), $this->renderBadge() );

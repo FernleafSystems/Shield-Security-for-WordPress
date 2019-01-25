@@ -35,7 +35,7 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 				 ->getQueryDeleter()
 				 ->deleteExcess( $oFO->getMaxEntries() );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 		}
 	}
 

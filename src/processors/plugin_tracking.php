@@ -116,7 +116,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function createTrackingCollectionCron() {
 		$sFullHookName = $this->getCronName();

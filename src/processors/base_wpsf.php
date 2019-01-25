@@ -77,7 +77,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function checkRequestRecaptcha() {
 		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
@@ -86,14 +86,14 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$sCaptchaResponse = $this->getRecaptchaResponse();
 
 		if ( empty( $sCaptchaResponse ) ) {
-			throw new Exception( _wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA was not submitted.' ), 1 );
+			throw new \Exception( _wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA was not submitted.' ), 1 );
 		}
 		else {
 			$oResponse = $this->loadGoogleRecaptcha()
 							  ->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() )
 							  ->verify( $sCaptchaResponse, $this->ip() );
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-				throw new Exception(
+				throw new \Exception(
 					_wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA verification failed.' )
 					.( $this->loadWp()->isAjax() ? ' '._wpsf__( 'Maybe refresh the page and try again.' ) : '' ),
 					2 );
@@ -257,7 +257,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	/**
 	 * If recaptcha is required, it prints the necessary snippet and does not remove the enqueue
 	 *
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
 

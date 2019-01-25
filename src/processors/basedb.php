@@ -16,7 +16,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 * ICWP_WPSF_BaseDbProcessor constructor.
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 * @param string                        $sTableName
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function __construct( $oModCon, $sTableName = null ) {
 		parent::__construct( $oModCon );
@@ -25,11 +25,11 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @param string $sTableName
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function initializeTable( $sTableName ) {
 		if ( empty( $sTableName ) ) {
-			throw new Exception( 'Table name is empty' );
+			throw new \Exception( 'Table name is empty' );
 		}
 		$this->getDbHandler()
 			 ->setTable( $this->getMod()->prefixOptionKey( $sTableName ) )
@@ -47,7 +47,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		try {
 			return ( parent::isReadyToRun() && $this->getDbHandler()->isReady() );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			return false;
 		}
 	}
@@ -83,7 +83,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 				$this->cleanupDatabase();
 			}
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 		}
 	}
 

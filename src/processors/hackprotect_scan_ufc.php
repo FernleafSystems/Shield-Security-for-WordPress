@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @param Shield\Scans\Ufc\ResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemDelete( $oItem ) {
 		return $this->itemRepair( $oItem );
@@ -76,7 +76,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @param Shield\Scans\Ufc\ResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
 		$this->getRepairer()->repairItem( $oItem );

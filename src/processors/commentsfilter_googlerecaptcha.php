@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			try {
 				$this->checkRequestRecaptcha();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$sStatKey = ( $oE->getCode() == 1 ) ? 'empty' : 'failed';
 				$sExplanation = $oE->getMessage();
 

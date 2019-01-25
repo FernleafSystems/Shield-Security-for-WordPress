@@ -94,7 +94,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	/**
 	 * @param Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
 		return $this->getRepairer()->repairItem( $oItem );

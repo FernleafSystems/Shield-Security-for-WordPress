@@ -249,19 +249,25 @@ var iCWP_WPSF_Autoupdates = new function () {
 var iCWP_WPSF_Growl = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
-		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
-		$oDiv.show().addClass( 'shown' );
-		setTimeout( function () {
-			$oDiv.html( sMessage );
-		}, 380 );
-		setTimeout( function () {
-			$oDiv.css( 'width', 0 );
 
+		if ( true ) {
+			iCWP_WPSF_Toaster.showMessage( sMessage, bSuccess );
+		}
+		else {
+			var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
+			$oDiv.show().addClass( 'shown' );
 			setTimeout( function () {
-				$oDiv.html( '' )
-					 .fadeOut();
-			}, 500 );
-		}, 4000 );
+				$oDiv.html( sMessage );
+			}, 380 );
+			setTimeout( function () {
+				$oDiv.css( 'width', 0 );
+
+				setTimeout( function () {
+					$oDiv.html( '' )
+						 .fadeOut();
+				}, 500 );
+			}, 4000 );
+		}
 	};
 
 	/**
@@ -273,6 +279,30 @@ var iCWP_WPSF_Growl = new function () {
 		return $oDiv;
 	};
 
+}();
+
+var iCWP_WPSF_Toaster = new function () {
+
+	this.showMessage = function ( sMessage, bSuccess ) {
+		var $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
+		var $oToastBody = jQuery( '.toast-body', $oNewToast );
+		$oToastBody.html( '' );
+
+		jQuery( '<span></span>' ).html( sMessage )
+								 .addClass( bSuccess ? 'text-dark' : 'text-danger' )
+								 .appendTo( $oToastBody );
+		$oNewToast.toast(
+			{
+				autohide: true,
+				delay: 4000
+			}
+		).toast( 'show' );
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+		} );
+	};
 }();
 
 var iCWP_WPSF_BodyOverlay = new function () {
@@ -289,7 +319,7 @@ var iCWP_WPSF_BodyOverlay = new function () {
 		jQuery( document ).ready( function () {
 			var $oDiv = jQuery( '<div />' )
 			.attr( 'id', 'icwp-fade-wrapper' )
-			.html( '<div class="icwp-waiting"></div>' )
+			.html( '<div class="icwp-waiting"><div style="width: 4rem; height: 4rem;" class="spinner-grow text-success"></div></div>' )
 			.appendTo( 'body' );
 		} );
 	};
@@ -298,6 +328,7 @@ var iCWP_WPSF_BodyOverlay = new function () {
 
 // iCWP_WPSF_Autoupdates.initialise();
 iCWP_WPSF_BodyOverlay.initialise();
+iCWP_WPSF_Toaster.initialise();
 iCWP_WPSF_SecurityAdmin.initialise();
 
 if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
@@ -374,7 +405,8 @@ if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 			);
 
 			jQuery.post( ajaxurl, $aData );
-			setTimeout( function () {}, 2000 ); // give the request time to complete
+			setTimeout( function () {
+			}, 2000 ); // give the request time to complete
 
 			return false;
 		};
