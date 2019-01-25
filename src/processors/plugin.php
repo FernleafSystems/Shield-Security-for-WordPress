@@ -133,15 +133,16 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * Sets this plugin to be the first loaded of all the plugins.
 	 */
 	private function printToastTemplate() {
-
-		$aRenderData = array(
-			'strings'     => array(
-				'title' => $this->getCon()->getHumanName(),
-			),
-			'js_snippets' => array()
-		);
-		echo $this->getMod()
-				  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
+		if ( $this->getCon()->isModulePage() ) {
+			$aRenderData = array(
+				'strings'     => array(
+					'title' => $this->getCon()->getHumanName(),
+				),
+				'js_snippets' => array()
+			);
+			echo $this->getMod()
+					  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
+		}
 	}
 
 	private function printPluginDeactivateSurvey() {

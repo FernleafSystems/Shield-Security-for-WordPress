@@ -73,14 +73,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				);
 				break;
 
-			case 'config':
-				$aData = array(
-					'vars' => array(
-						'config_cards' => $this->getConfigCardsData()
-					)
-				);
-				break;
-
 			case 'ips':
 				$aData = array(
 					'ajax'    => array(
@@ -182,6 +174,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sSubNavSection = 'insights';
 				$aData = array(
 					'vars'   => array(
+						'config_cards'          => $this->getConfigCardsData(),
 						'summary'               => $this->getInsightsModsSummary(),
 						'insight_events'        => $this->getRecentEvents(),
 						'insight_notices'       => $aSecNotices,
@@ -212,7 +205,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aTopNav = array(
 			'insights' => _wpsf__( 'Overview' ),
-			'config'   => _wpsf__( 'At A Glance' ),
 			'scans'    => _wpsf__( 'Scans' ),
 			'ips'      => _wpsf__( 'IP Lists' ),
 			'audit'    => _wpsf__( 'Audit Trail' ),
@@ -230,7 +222,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		} );
 
 		$aTopNav[ 'full_options' ] = array(
-			'href'   => $this->getCon()->loadCorePluginFeatureHandler()->getUrl_AdminPage(),
+			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),
 			'name'   => _wpsf__( 'Settings' ),
 			'active' => false
 		);

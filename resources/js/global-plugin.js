@@ -291,16 +291,15 @@ var iCWP_WPSF_Toaster = new function () {
 		jQuery( '<span></span>' ).html( sMessage )
 								 .addClass( bSuccess ? 'text-dark' : 'text-danger' )
 								 .appendTo( $oToastBody );
-		$oNewToast.toast(
-			{
-				autohide: true,
-				delay: 4000
-			}
-		).toast( 'show' );
+		$oNewToast.toast( 'show' );
 	};
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
+			jQuery( '.toast.icwp-toaster' ).toast( {
+				autohide: true,
+				delay: 3000
+			} );
 		} );
 	};
 }();
