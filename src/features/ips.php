@@ -107,7 +107,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function ajaxExec_AddIp() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		$oIp = $this->loadIpService();
+		$oIpServ = $this->loadIpService();
 
 		$aFormParams = $this->getAjaxFormParams();
 
@@ -117,20 +117,23 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$sIp = isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '';
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
 
-		$bIsBlackList = $sList == self::LIST_MANUAL_BLACK;
+		$bIsBlackList = $sList != self::LIST_MANUAL_WHITE;
 		if ( empty( $sIp ) ) {
 			$sMessage = _wpsf__( "IP address not provided" );
 		}
 		else if ( empty( $sList ) ) {
 			$sMessage = _wpsf__( "IP list not provided" );
 		}
-		else if ( !$oIp->isValidIp( $sIp ) ) {
+		else if ( !$oIpServ->isValidIp( $sIp ) ) {
 			$sMessage = _wpsf__( "IP address isn't valid" );
 		}
-		else if ( $oIp->checkIp( $sIp, $oIp->getRequestIp() ) && $bIsBlackList ) {
-			$sMessage = _wpsf__( "We don't support manually black listing your current IP address." );
+		else if ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
+			$sMessage = _wpsf__( "Manually black listing your current IP address is not supported." );
 		}
-		else if ( !$this->isPremium() && $bIsBlackList ) {
+		else if ( $bIsBlackList && in_array( $sIp, $this->getReservedIps() ) ) {
+			$sMessage = _wpsf__( "This IP is reserved and can't be blacklisted." );
+		}
+		else if ( $bIsBlackList && !$this->isPremium() ) {
 			$sMessage = _wpsf__( "Please upgrade to Pro if you'd like to add IPs to the black list manually." );
 		}
 		else {
@@ -158,8 +161,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			if ( !empty( $oIp ) ) {
 				$sMessage = _wpsf__( 'IP address added successfully' );
 				$bSuccess = true;
-			}
-			else {
 			}
 		}
 
@@ -198,6 +199,19 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
 		}
+	}
+
+	/**
+	 * IP addresses that should never be put on the black list.
+	 * @return string[]
+	 */
+	public function getReservedIps() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oPluginMod */
+		$oPluginMod = $this->getCon()->getModule( 'plugin' );
+		return [
+			$this->loadRequest()->server( 'SERVER_ADDR' ),
+			$oPluginMod->getMyServerIp()
+		];
 	}
 
 	/**

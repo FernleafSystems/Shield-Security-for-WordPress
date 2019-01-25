@@ -3,7 +3,7 @@
 class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function performCheckWithException() {
 
@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 
 				$this->setLoginAsFailed( 'login.cooldown.fail' )
 					 ->addToAuditEntry( _wpsf__( 'Cooldown triggered and request (login/register/lost-password) was blocked.' ) );
-				throw new Exception( $sErrorString );
+				throw new \Exception( $sErrorString );
 			}
 			else {
 				$this->updateLastLoginTime()

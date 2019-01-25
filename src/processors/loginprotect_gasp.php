@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function performCheckWithException() {
 		if ( $this->isFactorTested() ) {
@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 			$oFO = $this->getMod();
 			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
 			$this->setIpTransgressed(); // We now black mark this IP
-			throw new Exception( $sError );
+			throw new \Exception( $sError );
 		}
 	}
 
@@ -87,7 +87,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @param string $sUsername
 	 * @param string $sActionAttempted - one of 'login', 'register', 'reset-password'
 	 * @return bool - true if validation successful
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function doGaspChecks( $sUsername, $sActionAttempted = 'login' ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
@@ -125,7 +125,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 			$oFO = $this->getMod();
 			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
 			$this->setIpTransgressed(); // We now black mark this IP
-			throw new Exception( $sDieMessage );
+			throw new \Exception( $sDieMessage );
 		}
 
 		return $bValid;

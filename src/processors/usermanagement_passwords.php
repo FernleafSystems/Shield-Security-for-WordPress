@@ -45,7 +45,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 				$this->applyPasswordChecks( $sPassword );
 				$bFailed = false;
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$bFailed = true;
 			}
 			$this->setPasswordFailedFlag( $oUser, $bFailed );
@@ -162,7 +162,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 					}
 				}
-				catch ( Exception $oE ) {
+				catch ( \Exception $oE ) {
 					$sMessage = _wpsf__( 'Your security administrator has imposed requirements for password quality.' )
 								.'<br/>'.sprintf( _wpsf__( 'Reason' ).': '.$oE->getMessage() );
 					$oErrors->add( 'shield_password_policy', $sMessage );
@@ -184,7 +184,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 	/**
 	 * @param string $sPassword
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function applyPasswordChecks( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -200,7 +200,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	/**
 	 * @param string $sPassword
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function testPasswordMeetsMinimumStrength( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -212,7 +212,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$nScore = $aResults[ 'score' ];
 
 		if ( $nMin > 0 && $nScore < $nMin ) {
-			throw new Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
+			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 				$oFO->getPassStrengthName( $nScore ), $oFO->getPassStrengthName( $nMin ) ) );
 		}
 		return true;
@@ -221,7 +221,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	/**
 	 * @param string $sPassword
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function testPasswordMeetsMinimumLength( $sPassword ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -229,7 +229,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$nMin = $oFO->getPassMinLength();
 		$nLength = strlen( $sPassword );
 		if ( $nMin > 0 && $nLength < $nMin ) {
-			throw new Exception( sprintf( _wpsf__( 'Password length (%s) too short (min: %s characters)' ), $nLength, $nMin ) );
+			throw new \Exception( sprintf( _wpsf__( 'Password length (%s) too short (min: %s characters)' ), $nLength, $nMin ) );
 		}
 		return true;
 	}
@@ -241,7 +241,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		try {
 			$this->sendRequestToPwnedRange( 'P@ssw0rd' );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			return false;
 		}
 		return true;
@@ -250,7 +250,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	/**
 	 * @param string $sPass
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function sendRequestToPwned( $sPass ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -303,7 +303,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 
 		if ( !empty( $sError ) ) {
-			throw new Exception( $sError );
+			throw new \Exception( $sError );
 		}
 
 		return true;
@@ -312,7 +312,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	/**
 	 * @param string $sPass
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function sendRequestToPwnedRange( $sPass ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -370,7 +370,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 
 		if ( !empty( $sError ) ) {
-			throw new Exception( $sError );
+			throw new \Exception( $sError );
 		}
 
 		return true;

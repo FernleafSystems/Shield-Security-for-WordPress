@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			try {
 				$this->setupCronImport();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				error_log( $oE->getMessage() );
 			}
 		}
@@ -209,7 +209,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function setupCronImport() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */

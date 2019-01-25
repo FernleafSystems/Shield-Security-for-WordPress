@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		try {
 			echo $oFO->renderPluginBadge();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 		}
 	}
 }

@@ -12,12 +12,12 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 	 * Only plugins may be deactivated, of course.
 	 * @param Shield\Scans\Ptg\ResultItem|Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function assetDeactivate( $oItem ) {
 		$oWpPlugins = $this->loadWpPlugins();
 		if ( !$oWpPlugins->isInstalled( $oItem->slug ) ) {
-			throw new Exception( 'Items is not currently installed.' );
+			throw new \Exception( 'Items is not currently installed.' );
 		}
 		$oWpPlugins->deactivate( $oItem->slug );
 		return true;
@@ -26,7 +26,7 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 	/**
 	 * @param Shield\Scans\Ptg\ResultItem|Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function assetReinstall( $oItem ) {
 		$this->reinstall( $oItem->slug );

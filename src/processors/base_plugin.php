@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @param $aAttr
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function addNotice_rate_plugin( $aAttr ) {
 
@@ -71,7 +71,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @param array $aNoticeAttributes
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function addNotice_wizard_welcome( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 		$oPlugin = $this->getCon();

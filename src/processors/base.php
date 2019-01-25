@@ -176,7 +176,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param array $aNoticeData
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function insertAdminNotice( $aNoticeData ) {
 		$aAttrs = $aNoticeData[ 'notice_attributes' ];

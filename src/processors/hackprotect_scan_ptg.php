@@ -153,7 +153,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	/**
 	 * @param Shield\Scans\Ptg\ResultItem $oItem
 	 * @return true
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function assetAccept( $oItem ) {
 		// we run it for both since it doesn't matter which context it's in, it'll be removed

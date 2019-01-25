@@ -93,7 +93,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * Only show Go To Admin link for Authors and above.
 	 * @param string $sMessage
 	 * @return string
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function printLinkToAdmin( $sMessage = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */

@@ -269,7 +269,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param array $aNoticeAttributes
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
@@ -307,7 +307,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 	/**
 	 * @param array $aNoticeAttributes
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
 		$oCon = $this->getCon();

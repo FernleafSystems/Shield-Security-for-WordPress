@@ -292,7 +292,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 					->addWhere( 'wp_username', $oUser->user_login )
 					->deleteExcess( $nSessionLimit, 'last_activity_at', true );
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 			}
 		}
 	}
