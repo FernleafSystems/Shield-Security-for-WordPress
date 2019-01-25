@@ -1,24 +1,24 @@
 {
-  "name":         "shield requirement",
-  "description":  "shield requirement",
-  "authors":      [
+  "name":              "shield requirement",
+  "description":       "shield requirement",
+  "authors":           [
     {
       "name":     "Paul Goodchild",
       "email":    "paul@paulgoodchild.me",
       "homepage": "https://paulgoodchild.me"
     }
   ],
-  "license":      "MIT",
-  "keywords":     [
+  "license":           "MIT",
+  "keywords":          [
   ],
-  "repositories": [
+  "repositories":      [
   ],
-  "config":       {
+  "config":            {
     "platform": {
       "php": "5.4"
     }
   },
-  "require":      {
+  "require":           {
     "fernleafsystems/wordpress-services": "dev-develop",
     "fernleafsystems/utilities":          "^1.0",
     "nesbot/carbon":                      "^1.36.0",
@@ -28,9 +28,11 @@
     "symfony/yaml":                       "^2.8",
     "bjeavons/zxcvbn-php":                "^0.3"
   },
-  "require-dev":  {
+  "require-dev":       {
   },
-  "autoload":     {
+  "minimum-stability": "dev",
+  "prefer-stable":     true,
+  "autoload":          {
     "psr-4":    {
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\": "src"
     },

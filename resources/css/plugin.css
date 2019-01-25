@@ -988,6 +988,11 @@ td.cell_delete_note {
 .icon-sign {
 	font-size: 14px;
 }
+
+#collapseConfigSummaryTitle:hover {
+	cursor: pointer;
+}
+
 #SectionStats {
 	max-height: 300px;
 	overflow: auto;
