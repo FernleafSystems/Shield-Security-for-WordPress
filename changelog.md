@@ -1,3 +1,41 @@
+= 6.10 - Series =
+*Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
+
+* **(v.9)**  FIXED:		Admin notices displaying to non-admins.
+* **(v.7)**  ADDED:		[**PRO**] New option to specify usernames for Security Admin role.
+* **(v.7)**  IMPROVED:	Idle user detection.
+* **(v.7)**  IMPROVED:	Support for redirect/cancel URLs in 2FA login page.
+* **(v.7)**  CHANGED:	Final release before Shield v7. Small warning shown on plugins page if PHP < 5.4
+* **(v.6)**  ADDED:		New option to control plugin automatic updates.
+* **(v.6)**  IMPROVED:	Enhancements to the experimental bot JS.
+* **(v.6)**  IMPROVED:	Support for Easy Digital Downloads forms.
+* **(v.5)**  Release skipped.
+* **(v.4)**  FIXED:		Couldn't deactivate plugin.
+* **(v.3)**  ADDED:		Support for Ultimate Member forms
+* **(v.3)**  ADDED:		Support for LearnPress login/registration forms
+* **(v.3)**  FIXED:		Security Admin now correctly honours the WordPress Options zone setting.
+* **(v.3)**  IMPROVED:	Distinguish which sub-site (sub-domain) for WPMS installations on [Traffic Watcher](https://icwp.io/c1).
+* **(v.3)**  IMPROVED:	Server's own IP lookup is only attempted once.
+* **(v.3)**  ADDED:		Experimental feature to help with some custom 3rd party login/registration forms
+* **(v.2)**  IMPROVED:	Visitor IP address detection
+* **(v.2)**  IMPROVED:	Automatic whitelisting of Manage WP IP addresses
+* **(v.2)**  IMPROVED:	SPAM Comments code enhanced and optimised
+* **(v.2)**  IMPROVED:	IP Whitelisting code enhanced and optimised
+* **(v.2)**  IMPROVED:	Code cleaning and refactoring.
+* **(v.1)**  FIXED:		Googlebot PHP error notice.
+* **(v.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - all users can create a backup login code in-case their MFA factors are temporarily unavailable.
+* **(v.0)**  NEW:		[**PRO**] White Label - you can now specify custom image for 2FA login screen.
+* **(v.0)**  ADDED:		[**PRO**] Custom Exclusion Rules for Traffic Watcher so you can exclude certain User Agents and request paths.
+* **(v.0)**  ADDED:		Detection of official spiders/bots for Google, Bing, Apple and Yandex - these visitors will never get blacklisted.
+* **(v.0)**  IMPROVED:	Two-Factor Authentication system much improved (+ critical bug fix).
+* **(v.0)**  IMPROVED:	Audit Trail entries for 2FA login factors.
+* **(v.0)**  IMPROVED:	Fixes for Two-Factor Authentication wizard UX.
+* **(v.0)**  IMPROVED:	Traffic Watcher now honours the IP Whitelist.
+* **(v.0)**  IMPROVED:	Security Admin restriction for creating/editing/deleting Administrator users is much improved.
+* **(v.0)**  IMPROVED:	All Shield cookies are SSL-only by default for HTTPS sites.
+* **(v.0)**  FIXED:		GASP checkbox Javascript breaking in a particular scenario.
+* **(v.0)**  ADDED:		Optional plugin deactivation survey.
+
 = 6.9.0 - Series =
 *Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
 
