@@ -61,5 +61,10 @@
 				return false;
 			} );
 
+			jQuery( 'form#ImportExportFileForm' ).icwpWpsfImportExport(
+				{
+					'ajax_options_import':{{ ajax.options_import|raw }}
+				}
+			);
 		} );
 </script>

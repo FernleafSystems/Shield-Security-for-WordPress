@@ -27,6 +27,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$aData = [
+			'ajax'  => array(
+				'options_import' => $oMod->getAjaxActionData( 'options_import', true )
+			),
 			'hrefs' => array(
 				'export_file_download' => $this->createExportFileDownloadLink()
 			)
@@ -166,7 +169,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	/**
 	 * @throws \Exception
 	 */
-	private function importFromUploadFile() {
+	public function importFromUploadFile() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( 'Not currently logged-in as admin' );
 		}

@@ -2,7 +2,7 @@
  */
 jQuery.fn.icwpWpsfImportExport = function ( aOptions ) {
 
-	var startScans = function ( evt ) {
+	var importOptions = function ( evt ) {
 		evt.preventDefault();
 		sendReq( { 'form_params': $oThis.serialize() } );
 		return false;
@@ -11,8 +11,7 @@ jQuery.fn.icwpWpsfImportExport = function ( aOptions ) {
 	var sendReq = function ( aParams ) {
 		iCWP_WPSF_BodyOverlay.show();
 
-		var aReqData = aOpts[ 'ajax_start_scans' ];
-		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
+		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_options_import' ], aParams ),
 			function ( oResponse ) {
 
 				if ( oResponse.success ) {
@@ -21,7 +20,6 @@ jQuery.fn.icwpWpsfImportExport = function ( aOptions ) {
 						location.reload( true );
 					}
 					else {
-						plugin.options[ 'table' ].reloadTable();
 						iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
 					}
 				}
@@ -42,7 +40,7 @@ jQuery.fn.icwpWpsfImportExport = function ( aOptions ) {
 
 	var initialise = function () {
 		jQuery( document ).ready( function () {
-			$oThis.on( 'submit', startScans );
+			$oThis.on( 'submit', importOptions );
 		} );
 	};
 

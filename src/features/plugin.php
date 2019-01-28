@@ -191,6 +191,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$aAjaxResponse = $this->ajaxExec_AdminNotesInsert();
 					break;
 
+				case 'options_import':
+					$aAjaxResponse = $this->ajaxExec_ImportOptions();
+					break;
+
 				default:
 					break;
 			}
@@ -309,6 +313,20 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$this->setFlashAdminNotice( _wpsf__( 'File could not be automatically removed.' ), true );
 		}
 		return array( 'success' => !$bStillActive );
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_ImportOptions() {
+		/** @var ICWP_WPSF_Processor_Plugin $oPro */
+		$oPro = $this->getProcessor();
+		var_dump( $_POST );
+		var_dump( $_FILES );
+		$oPro->getSubProcessorImportExport()
+			 ->importFromUploadFile();
+
+		return array( 'success' => false );
 	}
 
 	/**
