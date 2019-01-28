@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseInsert', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/query.php' );
-
 class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
@@ -25,13 +19,7 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	 * @return bool
 	 */
 	public function insert( $oEntry ) {
-		$aData = array_merge(
-			array(
-				'created_at' => $this->loadRequest()->ts(),
-			),
-			$this->loadDP()->convertStdClassToArray( $oEntry->getRawData() )
-		);
-		return $this->setInsertData( $aData )->query() === 1;
+		return false;
 	}
 
 	/**
@@ -41,17 +29,6 @@ class ICWP_WPSF_Query_BaseInsert extends ICWP_WPSF_Query_BaseQuery {
 	public function setInsertData( $aInsertData ) {
 		$this->aInsertData = $aInsertData;
 		return $this;
-	}
-
-	/**
-	 * @return false|int
-	 */
-	public function query() {
-		return $this->loadDbProcessor()
-					->insertDataIntoTable(
-						$this->getTable(),
-						$this->getInsertData()
-					);
 	}
 
 	/**

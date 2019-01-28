@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Wizard_LoginProtect', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
@@ -162,9 +156,9 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabledMulti ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' )
 		);
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( true )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( true )
+			->setMessageText( $sMessage );
 	}
 
 	/**

@@ -1,17 +1,18 @@
 {
   "slug":        "hack_protect",
   "properties":  {
-    "slug":                   "hack_protect",
-    "name":                   "Hack Guard",
-    "show_module_menu_item":  true,
-    "storage_key":            "hack_protect",
-    "tagline": "Automatically detect and repair vulnerable and suspicious items",
-    "show_central":           true,
-    "access_restricted":      true,
-    "premium":                false,
-    "order":                  70,
-    "run_if_whitelisted":     true,
-    "run_if_verified_bot":    true
+    "slug":                  "hack_protect",
+    "name":                  "Hack Guard",
+    "show_module_menu_item": false,
+    "show_module_options":   true,
+    "storage_key":           "hack_protect",
+    "tagline":               "Automatically detect and repair vulnerable and suspicious items",
+    "show_central":          true,
+    "access_restricted":     true,
+    "premium":               false,
+    "order":                 70,
+    "run_if_whitelisted":    true,
+    "run_if_verified_bot":   true
   },
   "sections":    [
     {
@@ -25,8 +26,8 @@
     },
     {
       "slug":        "section_core_file_integrity_scan",
-      "title":       "Core File Integrity Scanner",
-      "title_short": "Core File Scanner",
+      "title":       "WordPress Core File Scanner",
+      "title_short": "WP Core File Scanner",
       "summary":     [
         "Purpose - Regularly scan your WordPress core files for changes compared to official WordPress files.",
         "Recommendation - Keep the Core File Integrity Scanner feature turned on."
@@ -43,13 +44,13 @@
     },
     {
       "slug":        "section_pluginthemes_guard",
-      "reqs" : {
+      "reqs":        {
         "php_min": "5.4"
       },
-      "help_video" : {
-        "provider": "vimeo",
+      "help_video":  {
+        "provider":  "vimeo",
         "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
-        "id": "256755089"
+        "id":        "256755089"
       },
       "title":       "Plugins/Themes Guard",
       "title_short": "Plugins/Themes Guard",
@@ -68,10 +69,10 @@
       ]
     },
     {
-      "slug": "section_integrity_checking",
-      "title": "Integrity Checks",
+      "slug":        "section_integrity_checking",
+      "title":       "Integrity Checks",
       "title_short": "Integrity Checks",
-      "summary": [
+      "summary":     [
         "Purpose - Monitor for unrecognised changes to your system.",
         "Recommendation - Enable these to automatically recover from unauthorized changes to your WordPress site."
       ]
@@ -122,8 +123,8 @@
           "text":      "Enabled - No Email Notification"
         }
       ],
-      "link_info":     "https://icwp.io/ah",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/du",
+      "link_blog":     "https://icwp.io/ah",
       "name":          "Vulnerability Scanner",
       "summary":       "Enable The Vulnerability Scanner",
       "description":   "Scan all your WordPress assets for known security vulnerabilities."
@@ -172,8 +173,8 @@
       "type":        "checkbox",
       "link_info":   "https://icwp.io/wpsf36",
       "link_blog":   "https://icwp.io/wpsf37",
-      "name":        "Core File Scanner",
-      "summary":     "Scans WordPress Core Files For Alterations",
+      "name":        "WP Core File Scanner",
+      "summary":     "Automatically Scans WordPress Core Files For Alterations",
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
@@ -188,8 +189,8 @@
       "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
     },
     {
-      "key":         "scan_frequency",
-      "section":     "section_scan_options",
+      "key":           "scan_frequency",
+      "section":       "section_scan_options",
       "premium":       true,
       "default":       1,
       "type":          "select",
@@ -227,11 +228,24 @@
           "text":      "24 Times (scan every hour)"
         }
       ],
-      "link_info":   "https://icwp.io/b2",
+      "link_info":     "https://icwp.io/b2",
+      "link_blog":     "",
+      "name":          "Scan Frequency",
+      "summary":       "Number Of Times To Automatically Scan Core Files In 24 Hours",
+      "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
+    },
+    {
+      "key":         "notification_interval",
+      "section":     "section_scan_options",
+      "premium":     true,
+      "default":     "7",
+      "min":         0,
+      "type":        "integer",
+      "link_info":   "",
       "link_blog":   "",
-      "name":        "Scan Frequency",
-      "summary":     "Number Of Times To Automatically Scan Core Files In 24 Hours",
-      "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
+      "name":        "Repeat Notifications",
+      "summary":     "Item Repeat Notifications Suppression Interval",
+      "description": "How long the automated scans should wait before repeating a notification about an item."
     },
     {
       "key":         "email_files_list",
@@ -306,30 +320,30 @@
       "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
     },
     {
-      "key": "ic_enabled",
-      "section": "section_non_ui",
-      "default": "N",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Enable Integrity Checking Scan",
-      "summary": "Scans For Critical Changes Made To Your WordPress Site",
+      "key":         "ic_enabled",
+      "section":     "section_non_ui",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Enable Integrity Checking Scan",
+      "summary":     "Scans For Critical Changes Made To Your WordPress Site",
       "description": "Detects changes made to your WordPress site outside of WordPress."
     },
     {
-      "key": "ic_users",
-      "section": "section_non_ui",
-      "default": "N",
-      "type": "checkbox",
-      "link_info": "",
-      "link_blog": "",
-      "name": "Monitor User Accounts",
-      "summary": "Scans For Critical Changes Made To User Accounts",
+      "key":         "ic_users",
+      "section":     "section_non_ui",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Monitor User Accounts",
+      "summary":     "Scans For Critical Changes Made To User Accounts",
       "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
-      "key": "ptg_enable",
-      "section": "section_pluginthemes_guard",
+      "key":           "ptg_enable",
+      "section":       "section_pluginthemes_guard",
       "premium":       true,
       "default":       "disabled",
       "type":          "select",
@@ -345,20 +359,20 @@
       ],
       "link_info":     "https://icwp.io/bl",
       "link_blog":     "https://icwp.io/bm",
-      "name": "Enable/Disable Guard",
-      "summary": "Enable The Guard For Plugin And Theme Files",
-      "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
+      "name":          "Enable/Disable Guard",
+      "summary":       "Enable The Guard For Plugin And Theme Files",
+      "description":   "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
-      "key": "ptg_depth",
-      "section": "section_pluginthemes_guard",
-      "type": "integer",
-      "default": 1,
-      "min": 0,
-      "link_info": "https://icwp.io/bn",
-      "link_blog": "https://icwp.io/bm",
-      "name": "Guard/Scan Depth",
-      "summary": "How Deep Into The Plugin Directories To Scan And Guard",
+      "key":         "ptg_depth",
+      "section":     "section_pluginthemes_guard",
+      "type":        "integer",
+      "default":     1,
+      "min":         0,
+      "link_info":   "https://icwp.io/bn",
+      "link_blog":   "https://icwp.io/bm",
+      "name":        "Guard/Scan Depth",
+      "summary":     "How Deep Into The Plugin Directories To Scan And Guard",
       "description": "The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times."
     },
     {
@@ -381,8 +395,8 @@
     {
       "key":         "ptg_reinstall_links",
       "section":     "section_pluginthemes_guard",
-      "type":		 "checkbox",
-      "default":	 "Y",
+      "type":        "checkbox",
+      "default":     "Y",
       "link_info":   "https://icwp.io/bp",
       "link_blog":   "",
       "name":        "Show Re-Install Links",
@@ -390,41 +404,29 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key": "ptg_last_build_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": 0
-    },
-    {
-      "key": "ptg_candiskwrite",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": false
-    },
-    {
-      "key": "ptg_candiskwrite_at",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": false
-    },
-    {
-      "key": "ptg_email_track",
-      "transferable": false,
-      "section": "section_non_ui",
-      "value": []
-    },
-    {
-      "key": "snapshot_users",
-      "transferable": false,
-      "sensitive": true,
-      "section": "section_non_ui",
-      "value": []
-    },
-    {
-      "key":          "wpvuln_notified_ids",
+      "key":          "ptg_last_build_at",
       "transferable": false,
       "section":      "section_non_ui",
-      "default":      []
+      "value":        0
+    },
+    {
+      "key":          "ptg_candiskwrite",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "value":        false
+    },
+    {
+      "key":          "ptg_candiskwrite_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "value":        false
+    },
+    {
+      "key":          "snapshot_users",
+      "transferable": false,
+      "sensitive":    true,
+      "section":      "section_non_ui",
+      "value":        []
     },
     {
       "key":          "insights_last_scan_ufc_at",
@@ -451,37 +453,61 @@
       "default":      0
     },
     {
-      "key":          "last_scan_problem_ufc_at",
+      "key":          "next_scan_ufc_at",
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
     },
     {
-      "key":          "last_scan_problem_wcf_at",
+      "key":          "next_scan_wcf_at",
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
     },
     {
-      "key":          "last_scan_problem_ptg_at",
+      "key":          "next_scan_ptg_at",
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
     },
     {
-      "key":          "last_scan_problem_wpv_at",
+      "key":          "next_scan_wpv_at",
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
+    },
+    {
+      "key":          "rebuild_self",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      false
+    },
+    {
+      "key":          "ptg_update_store_format",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      false
     }
   ],
   "definitions": {
     "plugin_vulnerabilities_data_source":   "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
     "notifications_cron_name":              "plugin-vulnerabilities-notification",
-    "wpvulnscan_cron_name":                 "wpvulnscan-notification",
-    "corechecksum_cron_name":               "core-checksum-notification",
-    "unrecognisedscan_cron_name":           "unrecognised-scan-notification",
-    "ptg_cronname":          				"cron-pluginthemesguard",
+    "table_name_scanner":                   "scanner",
+    "table_columns_scanner":                [
+      "id",
+      "hash",
+      "meta",
+      "scan",
+      "severity",
+      "ignored_at",
+      "notified_at",
+      "created_at",
+      "deleted_at"
+    ],
+    "cron_scan_wpv":                        "wpvulnscan-notification",
+    "cron_scan_wcf":                        "core-checksum-notification",
+    "cron_scan_ufc":                        "unrecognised-scan-notification",
+    "cron_scan_ptg":                        "cron-pluginthemesguard",
     "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n":           "https://svn.automattic.com/wordpress-i18n/",
@@ -504,37 +530,37 @@
     ],
     "wizards":                              {
       "ptg": {
-        "title": "Manually Run Plugin/Theme Guard Scanner",
-        "desc": "Walks you through the scanning for any changes to your plugins and themes.",
+        "title":                "Manually Run Plugin/Theme Guard Scanner",
+        "desc":                 "Walks you through the scanning for any changes to your plugins and themes.",
         "min_user_permissions": "manage_options",
         "steps":                {
-          "start":      {
+          "start":              {
             "security_admin": false,
-            "title":             "Start: Plugin/Theme Guard"
+            "title":          "Start: Plugin/Theme Guard"
           },
           "scanresult_plugins": {
             "title": "Scan Results - Plugins"
           },
-          "scanresult_themes": {
+          "scanresult_themes":  {
             "title": "Scan Results - Themes"
           },
-          "config":     {
+          "config":             {
             "title": "Setup Scan Automation"
           },
-          "finished":   {
+          "finished":           {
             "security_admin": false,
-            "title":             "Finished: Plugin/Theme Guard Scanner"
+            "title":          "Finished: Plugin/Theme Guard Scanner"
           }
         }
       },
       "ufc": {
-        "title": "Manually Run Unrecognised File Scanner",
-        "desc": "Walks you through the scanning for unrecognised files present in your WordPress core installation.",
+        "title":                "Manually Run Unrecognised File Scanner",
+        "desc":                 "Walks you through the scanning for unrecognised files present in your WordPress core installation.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
             "security_admin": false,
-            "title":             "Start: Unrecognised File Scanner"
+            "title":          "Start: Unrecognised File Scanner"
           },
           "exclusions": {
             "title": "Exclude Files"
@@ -547,18 +573,18 @@
           },
           "finished":   {
             "security_admin": false,
-            "title":             "Finished: Unrecognised File Scanner"
+            "title":          "Finished: Unrecognised File Scanner"
           }
         }
       },
       "wcf": {
-        "title": "Manually Run WordPress Core File Scanner",
-        "desc": "Walks you through the scanning for unintended changes to your official WordPress core files.",
+        "title":                "Manually Run WordPress Core File Scanner",
+        "desc":                 "Walks you through the scanning for unintended changes to your official WordPress core files.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":      {
             "security_admin": false,
-            "title":             "Start: WordPress Core File Scanner"
+            "title":          "Start: WordPress Core File Scanner"
           },
           "scanresult": {
             "title": "Scan Results"
@@ -568,7 +594,7 @@
           },
           "finished":   {
             "security_admin": false,
-            "title":             "Finished: WordPress Core File Scanner"
+            "title":          "Finished: WordPress Core File Scanner"
           }
         }
       }

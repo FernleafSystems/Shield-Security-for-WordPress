@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Yubikey', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
-
 class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	const OTP_LENGTH = 12;
@@ -20,7 +14,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		$oWpUsers = $this->loadWpUsers();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );

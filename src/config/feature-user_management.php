@@ -2,13 +2,13 @@
   "slug":        "user_management",
   "properties":  {
     "name":                  "User Management",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "user_management",
     "tagline":               "Control user sessions, duration, timeouts and account sharing",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "has_custom_actions":    true,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
     "order":                 40
@@ -66,7 +66,7 @@
       "section":     "section_enable_plugin_feature_user_accounts_management",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e3",
       "link_blog":   "",
       "name":        "Enable User Management",
       "summary":     "Enable (or Disable) The User Management module",
@@ -79,7 +79,7 @@
       "sensitive":   false,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e2",
       "link_blog":   "",
       "name":        "User Login Notification Email",
       "summary":     "Send Email Notification To Each User Upon Successful Login",
@@ -101,6 +101,7 @@
       "key":         "session_timeout_interval",
       "section":     "section_user_session_management",
       "default":     2,
+      "min":         0,
       "type":        "integer",
       "link_info":   "",
       "link_blog":   "",
@@ -112,8 +113,9 @@
       "key":         "session_idle_timeout_interval",
       "section":     "section_user_session_management",
       "default":     48,
+      "min":         0,
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "https://icontrolwp.freshdesk.com/support/solutions/articles/3000070590",
       "link_blog":   "",
       "name":        "Idle Timeout",
       "summary":     "Specify How Many Hours After Inactivity To Automatically Logout User",
@@ -146,8 +148,8 @@
       "section":     "section_passwords",
       "type":        "checkbox",
       "default":     "N",
-      "link_info":   "https://icwp.io/c4",
-      "link_blog":   "",
+      "link_info":   "https://icwp.io/e1",
+      "link_blog":   "https://icwp.io/c4",
       "name":        "Enable Password Policies",
       "summary":     "Enable The Password Policies Below",
       "description": "Turn on/off all password policies."
@@ -252,7 +254,6 @@
     }
   ],
   "definitions": {
-    "cron_name_sessionscleanup":     "sessionscleanup",
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
     "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/"
   }

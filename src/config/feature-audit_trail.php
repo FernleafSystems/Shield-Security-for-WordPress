@@ -3,13 +3,13 @@
   "properties":  {
     "slug":                  "audit_trail",
     "name":                  "Audit Trail",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "audit_trail",
     "tagline":               "Get a view on what happens on your site, when it happens",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "has_custom_actions":    true,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   false,
     "order":                 110
@@ -164,7 +164,6 @@
     }
   ],
   "definitions": {
-    "audit_trail_default_per_page":    25,
     "audit_trail_default_max_entries": 50,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [
@@ -177,6 +176,7 @@
       "category",
       "message",
       "immutable",
+      "meta",
       "created_at",
       "deleted_at"
     ]

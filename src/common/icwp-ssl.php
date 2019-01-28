@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_Ssl', false ) ) {
-	return;
-}
 
 /**
  */

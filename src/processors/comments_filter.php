@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_CommentsFilter', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -24,19 +18,19 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isEnabledGaspCheck() ) {
-			require_once( dirname( __FILE__ ).'/commentsfilter_antibotspam.php' );
+			require_once( __DIR__.'/commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
 			$oBotSpamProcessor->run();
 		}
 
-		if ( $oFO->isOpt( 'enable_comments_human_spam_filter', 'Y' ) && $this->loadWpComments()->isCommentPost() ) {
-			require_once( dirname( __FILE__ ).'/commentsfilter_humanspam.php' );
+		if ( $oFO->isEnabledHumanCheck() && $this->loadWpComments()->isCommentPost() ) {
+			require_once( __DIR__.'/commentsfilter_humanspam.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
 			$oHumanSpamProcessor->run();
 		}
 
-		if ( $oFO->isGoogleRecaptchaEnabled() && $oFO->isGoogleRecaptchaReady() ) {
-			require_once( dirname( __FILE__ ).'/commentsfilter_googlerecaptcha.php' );
+		if ( $oFO->isGoogleRecaptchaEnabled() ) {
+			require_once( __DIR__.'/commentsfilter_googlerecaptcha.php' );
 			$oReCap = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
 			$oReCap->run();
 		}
@@ -54,7 +48,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		// We only warn when the human spam filter is running
-		if ( $oFO->isOpt( 'enable_comments_human_spam_filter', 'Y' ) ) {
+		if ( $oFO->isEnabledHumanCheck() ) {
 
 			$oWpPlugins = $this->loadWpPlugins();
 			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );

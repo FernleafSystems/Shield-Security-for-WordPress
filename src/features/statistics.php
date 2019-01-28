@@ -1,20 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_Statistics', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
-
-	/**
-	 * @return bool
-	 */
-	protected function isReadyToExecute() {
-		return $this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' )
-			   && parent::isReadyToExecute();
-	}
 
 	/**
 	 * @return string
@@ -31,16 +17,9 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getStatisticsTableName() {
-		return $this->prefix( $this->getDef( 'statistics_table_name' ), '_' );
-	}
-
-	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
@@ -77,7 +56,7 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -88,7 +67,7 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
@@ -108,7 +87,7 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

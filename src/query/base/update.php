@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseUpdate', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/insert.php' );
-
 class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
 
 	/**
@@ -59,33 +53,6 @@ class ICWP_WPSF_Query_BaseUpdate extends ICWP_WPSF_Query_BaseInsert {
 	 * @return bool
 	 */
 	public function updateEntry( $oEntry, $aUpdateData = array() ) {
-		$bSuccess = false;
-
-		if ( !empty( $aUpdateData ) && $oEntry instanceof ICWP_WPSF_BaseEntryVO ) {
-			$mResult = $this
-				->setUpdateId( $oEntry->getId() )
-				->setUpdateData( $aUpdateData )
-				->query();
-
-			if ( $mResult === 1 ) {
-				$bSuccess = true;
-				foreach ( $aUpdateData as $sCol => $mVal ) {
-					$oEntry->{$sCol} = $mVal;
-				}
-			}
-		}
-		return $bSuccess;
-	}
-
-	/**
-	 * @return int|false
-	 */
-	public function query() {
-		return $this->loadDbProcessor()
-					->updateRowsFromTableWhere(
-						$this->getTable(),
-						$this->getUpdateData(),
-						$this->getUpdateWheres()
-					);
+		return false;
 	}
 }

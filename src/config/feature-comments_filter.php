@@ -3,7 +3,8 @@
   "properties":    {
     "slug":                  "comments_filter",
     "name":                  "Comments SPAM",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "commentsfilter",
     "tagline":               "Block comment SPAM and retain your privacy",
     "use_sessions":          true,
@@ -261,7 +262,7 @@
           "text":      "Invisible reCAPTCHA"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/e4",
       "link_blog":     "",
       "name":          "reCAPTCHA Style",
       "summary":       "How Google reCAPTCHA Will Be Displayed",

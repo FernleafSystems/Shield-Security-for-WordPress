@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Statistics_Reporting', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/basedb.php' );
-
 class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
@@ -36,7 +30,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 				 $this->getCronName(),
 				 array( $this, 'cron_dailyReportingConsolidation' )
 			 );
-		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->getMod()->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
@@ -73,7 +67,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( !$this->getMod()->isPluginDeleting() ) {
+		if ( !$this->getCon()->isPluginDeleting() ) {
 			$this->commit();
 		}
 	}
@@ -112,7 +106,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	 * @return string
 	 */
 	protected function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 				stat_key varchar(100) NOT NULL DEFAULT 0,
 				tally int(11) UNSIGNED NOT NULL DEFAULT 1,
@@ -120,7 +114,6 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				PRIMARY KEY  (id)
 			) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -137,34 +130,7 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 	}
 
 	/**
-	 * @return array|bool
-	 */
-	protected function query_deleteInvalidStatKeys() {
-		$sQuery = "
-				DELETE FROM `%s`
-				WHERE `stat_key` NOT LIKE '%%.%%'
-			";
-		return $this->selectCustom( sprintf( $sQuery, $this->getTableName() ) );
-	}
-
-	/**
-	 * We override this to clean out any strange statistics entries (Human spam words mostly)
-	 * @return bool|int
-	 */
-	public function cleanupDatabase() {
-		parent::cleanupDatabase();
-		return $this->query_deleteInvalidStatKeys();
-	}
-
-	/**
 	 */
 	public function deleteTable() {
 	} //override and do not delete
-
-	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'statistics/';
-	}
 }

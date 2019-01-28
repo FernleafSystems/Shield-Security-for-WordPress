@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseDelete', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/query.php' );
-
 abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
@@ -25,10 +19,7 @@ abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 	 * @return bool|int
 	 */
 	public function deleteById( $nId ) {
-		return $this->reset()
-					->addWhereEquals( 'id', (int)$nId )
-					->setLimit( 1 )//perhaps an unnecessary precaution
-					->query();
+		return $this->query();
 	}
 
 	/**
@@ -40,25 +31,7 @@ abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 	 * @throws Exception
 	 */
 	public function deleteExcess( $nMaxEntries, $sSortColumn = 'created_at', $bOldestFirst = true ) {
-		if ( is_null( $nMaxEntries ) ) {
-			throw new Exception( 'Max Entries not specified for table excess delete.' );
-		}
-
-		$nEntriesDeleted = 0;
-
-		// The same WHEREs should apply
-		$nTotal = $this->getSelector()
-					   ->setWheres( $this->getWheres() )
-					   ->count();
-		$nToDelete = $nTotal - $nMaxEntries;
-
-		if ( $nToDelete > 0 ) {
-			$nEntriesDeleted = $this->setOrderBy( $sSortColumn, $bOldestFirst ? 'ASC' : 'DESC' )
-									->setLimit( $nToDelete )
-									->query();
-		}
-
-		return $nEntriesDeleted;
+		return 0;
 	}
 
 	/**

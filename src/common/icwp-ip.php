@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_Ip', false ) ) {
-	return;
-}
 
 /**
  * This is taken straight out of https://github.com/symfony/HttpFoundation/blob/master/IpUtils.php
@@ -128,6 +125,14 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 			return 6;
 		}
 		return false;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return string
+	 */
+	public function getIpWhoisLookup( $sIp ) {
+		return sprintf( 'https://apps.db.ripe.net/db-web-ui/#/query?bflag&searchtext=%s#resultsSection', $sIp );
 	}
 
 	/**

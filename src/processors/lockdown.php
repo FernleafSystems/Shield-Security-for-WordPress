@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Lockdown' ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -14,7 +8,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isOpt( 'disable_file_editing', 'Y' ) ) {
+		if ( $oFO->isFileEditingDisabled() ) {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
 				define( 'DISALLOW_FILE_EDIT', true );
 			}
@@ -49,7 +43,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
 		}
 
-		if ( $oFO->isOpt( 'disable_xmlrpc', 'Y' ) ) {
+		if ( $oFO->isXmlrpcDisabled() ) {
 			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
 			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
 		}
@@ -87,7 +81,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function isRestApiAccessAllowed() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
-		return $oFO->isRestApiAnonymousAccessAllowed()
+		return !$oFO->isRestApiAnonymousAccessDisabled()
 			   || $this->loadWpUsers()->isUserLoggedIn()
 			   || in_array( $this->loadWp()->getRestNamespace(), $oFO->getRestApiAnonymousExclusions() );
 	}
@@ -103,7 +97,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !$bAlreadyAuthenticated && !is_wp_error( $mCurrentStatus ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
 			$mCurrentStatus = new WP_Error(
 				'shield_block_anon_restapi',
-				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getController()
+				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getCon()
 																												  ->getHumanName() ),
 				array( 'status' => rest_authorization_required_code() ) );
 			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
@@ -218,7 +212,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 						'https://icwp.io/7l',
 						_wpsf__( 'Learn More.' )
 					),
-					$this->getController()->getHumanName()
+					$this->getCon()->getHumanName()
 				) );
 			}
 		}

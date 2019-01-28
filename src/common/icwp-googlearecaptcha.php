@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_GoogleRecaptcha', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_GoogleRecaptcha {
 
@@ -26,20 +23,12 @@ class ICWP_WPSF_GoogleRecaptcha {
 	}
 
 	/**
-	 */
-	protected function loadGoogleRecaptchaLib() {
-		return require_once( dirname( __FILE__ ).'/googlerecaptcha/autoload.php' );
-	}
-
-	/**
 	 * @param string $sSecret
 	 * @return \ReCaptcha\ReCaptcha
 	 */
 	public function getGoogleRecaptchaLib( $sSecret ) {
 		if ( !isset( self::$oGR ) ) {
-			if ( $this->loadGoogleRecaptchaLib() ) {
-				self::$oGR = new \ReCaptcha\ReCaptcha( $sSecret, new \ReCaptcha\RequestMethod\WordpressPost() );
-			}
+			self::$oGR = new \ReCaptcha\ReCaptcha( $sSecret, new \ReCaptcha\RequestMethod\WordpressPost() );
 		}
 		return self::$oGR;
 	}

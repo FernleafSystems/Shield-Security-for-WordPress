@@ -1,0 +1,136 @@
+<form id="StartScans">
+	<div class="card">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Scan Your Site</h5>
+		</div>
+		<div class="card-body pb-2">
+
+			<div class="row">
+				<div class="col-12">
+					<h6 class="mt-0 mb-2">Select Scans</h6>
+				</div>
+
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_wcf" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   name="wcf" id="_wcf" value="Y" />
+							WordPress Core Files
+							<br />
+							<small class="form-text text-muted">
+								{{ scans.wcf.strings.subtitle }}
+							</small>
+						</label>
+					</div>
+				</div>
+
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_ufc" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   name="ufc" id="_ufc" value="Y" />
+							Unrecognised Core Files
+							<br />
+							<small class="form-text text-muted">
+								{{ scans.ufc.strings.subtitle }}
+							</small>
+						</label>
+					</div>
+				</div>
+
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_ptg" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+									{% if not scans.ptg.flags.is_enabled %}
+										disabled="disabled"
+									{% endif %}
+								   name="ptg" id="_ptg" value="Y" />
+							Plugin / Theme Modifications
+							<br />
+							<small class="form-text text-muted">
+								{% if not scans.ptg.flags.is_enabled %}
+									<small class="form-text text-muted">
+										Use the Scan Options link below to enable this scan.
+									</small>
+								{% endif %}
+								{{ scans.ptg.strings.subtitle }}
+							</small>
+						</label>
+					</div>
+				</div>
+
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_wpv" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+									{% if not scans.wpv.flags.is_enabled %}
+										disabled="disabled"
+									{% endif %}
+								   name="wpv" id="_wpv" value="Y" />
+							Plugin / Theme Vulnerabilities
+							<br />
+							<small class="form-text text-muted">
+								{% if not scans.wpv.flags.is_enabled %}
+									<small class="form-text text-muted">
+										Use the Scan Options link below to enable this scan.
+									</small>
+								{% endif %}
+								{{ scans.wpv.strings.subtitle }}
+							</small>
+						</label>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+
+					<h6 class="mt-2 mb-2">Scan Options</h6>
+				</div>
+
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_opt_clear_ignore" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />
+							Clear Ignore Flags
+							<br />
+							<small class="form-text text-muted">
+								Previously ignored results will be revealed (for the selected scans).
+							</small>
+						</label>
+					</div>
+				</div>
+
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_opt_clear_notification" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   name="opt_clear_notification" id="_opt_clear_notification" value="Y" />
+							Clear Notification Flags
+							<br />
+							<small class="form-text text-muted">
+								Allow notification emails to be resent (for the selected scans).
+							</small>
+						</label>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<div class="card-footer">
+			The more items that are selected, the longer the scan may take
+			<button class="btn btn-primary float-right" type="submit" id="StartScans">Run Scans &rarr;</button>
+		</div>
+	</div>
+</form>
+
+<script>
+	jQuery( 'form#StartScans' ).icwpWpsfStartScans(
+		{
+			'ajax_start_scans':{{ ajax.start_scans|raw }}
+		}
+	);
+</script>

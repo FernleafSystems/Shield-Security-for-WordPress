@@ -1,11 +1,9 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Ips_Select', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
-
+/**
+ * @deprecated v7.0.0
+ * Class ICWP_WPSF_Query_Ips_Select
+ */
 class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
@@ -13,7 +11,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByIp( $sIp ) {
-		return $this->addWhereEquals( 'ip', $sIp );
+		return $this;
 	}
 
 	/**
@@ -21,7 +19,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByLastAccessAfter( $nLastAccessAfter ) {
-		return $this->addWhereNewerThan( $nLastAccessAfter, 'last_access_at' );
+		return $this;
 	}
 
 	/**
@@ -29,7 +27,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByList( $sList ) {
-		return $this->addWhereEquals( 'list', $sList );
+		return $this;
 	}
 
 	/**
@@ -37,11 +35,7 @@ class ICWP_WPSF_Query_Ips_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return ICWP_WPSF_IpsEntryVO[]
 	 */
 	public function allFromList( $sList ) {
-		/** @var ICWP_WPSF_IpsEntryVO[] $aRes */
-		$aRes = $this->reset()
-					 ->filterByList( $sList )
-					 ->query();
-		return $aRes;
+		return [];
 	}
 
 	/**

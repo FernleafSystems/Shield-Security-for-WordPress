@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Autoupdates', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -33,6 +27,8 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
+	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
@@ -48,48 +44,62 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), $nFilterPriority, 2 );
 
 		if ( $oFO->isOpt( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
-			add_filter( 'automatic_updates_is_vcs_checkout', array( $this, 'disable_for_vcs' ), 10, 2 );
+			add_filter( 'automatic_updates_is_vcs_checkout', '__return_false', $nFilterPriority );
 		}
 
-		if ( $oFO->isOpt( 'enable_autoupdate_disable_all', 'Y' ) ) {
-			add_filter( 'automatic_updater_disabled', '__return_true', $nFilterPriority );
+		if ( !$oFO->isDisableAllAutoUpdates() ) {
+			//more parameter options here for later
+			add_filter( 'auto_core_update_send_email', array( $this, 'autoupdate_send_email' ), $nFilterPriority, 1 );
+			add_filter( 'auto_core_update_email', array( $this, 'autoupdate_email_override' ), $nFilterPriority, 1 );
+
+			add_action( 'set_site_transient_update_core', array( $this, 'trackUpdateTimesCore' ) );
+			add_action( 'set_site_transient_update_plugins', array( $this, 'trackUpdateTimesPlugins' ) );
+			add_action( 'set_site_transient_update_themes', array( $this, 'trackUpdateTimesThemes' ) );
+
+			if ( $oFO->isSendAutoupdatesNotificationEmail() ) {
+				$this->trackAssetsVersions();
+				add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
+			}
+
+			if ( $oFO->isAutoupdateIndividualPlugins() ) {
+				// Adds automatic update indicator column to all plugins in plugin listing.
+				add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
+			}
 		}
+	}
 
-		//more parameter options here for later
-		add_filter( 'auto_core_update_send_email', array( $this, 'autoupdate_send_email' ), $nFilterPriority, 1 );
-		add_filter( 'auto_core_update_email', array( $this, 'autoupdate_email_override' ), $nFilterPriority, 1 );
-
-		add_action( 'wp_loaded', array( $this, 'force_run_autoupdates' ) );
-
-		if ( $oFO->isSendAutoupdatesNotificationEmail() ) {
-			$this->trackAssetsVersions();
-			add_action( 'automatic_updates_complete', array( $this, 'sendNotificationEmail' ) );
+	public function onWpLoaded() {
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getMod();
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$this->disableAllAutoUpdates();
 		}
-
-		if ( isset( $_GET[ 'auto' ] ) ) {
-			$this->loadWp()->doForceRunAutomaticUpdates();
+		else {
+			$this->forceRunAutoUpdates();
 		}
+	}
 
-		if ( $oFO->isAutoupdateIndividualPlugins() ) {
-			// Adds automatic update indicator column to all plugins in plugin listing.
-			add_filter( 'manage_plugins_columns', array( $this, 'fAddPluginsListAutoUpdateColumn' ) );
+	private function disableAllAutoUpdates() {
+		remove_all_filters( 'automatic_updater_disabled' );
+		add_filter( 'automatic_updater_disabled', '__return_true', PHP_INT_MAX );
+		if ( !defined( 'WP_AUTO_UPDATE_CORE' ) ) {
+			define( 'WP_AUTO_UPDATE_CORE', false );
 		}
-
-		add_action( 'set_site_transient_update_core', array( $this, 'trackUpdateTimesCore' ) );
-		add_action( 'set_site_transient_update_plugins', array( $this, 'trackUpdateTimesPlugins' ) );
-		add_action( 'set_site_transient_update_themes', array( $this, 'trackUpdateTimesThemes' ) );
 	}
 
 	/**
 	 * This is hooked right after the autoupdater lock is saved.
 	 */
-	public function trackAssetsVersions() {
+	private function trackAssetsVersions() {
 		$aAssVers = $this->getTrackedAssetsVersions();
-		foreach ( $this->loadWpPlugins()->getUpdates() as $sFile => $oPlug ) {
-			$aAssVers[ 'plugins' ][ $sFile ] = isset( $oPlug->Version ) ? $oPlug->Version : '';
+
+		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
+		foreach ( array_keys( $oWpPlugins->getUpdates() ) as $sFile ) {
+			$aAssVers[ 'plugins' ][ $sFile ] = $oWpPlugins->getPluginAsVo( $sFile )->Version;
 		}
-		foreach ( $this->loadWpThemes()->getThemes() as $sFile => $oT ) {
-			$aAssVers[ 'themes' ][ $sFile ] = $oT->get( 'Version' );
+		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();
+		foreach ( array_keys( $oWpThemes->getUpdates() ) as $sFile ) {
+			$aAssVers[ 'themes' ][ $sFile ] = $oWpThemes->getTheme( $sFile )->get( 'Version' );
 		}
 		$this->aAssetsVersions = $aAssVers;
 	}
@@ -177,7 +187,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * Will force-run the WordPress automatic updates process and then redirect to the updates screen.
 	 */
-	public function force_run_autoupdates() {
+	private function forceRunAutoUpdates() {
 		if ( $this->getIfForceRunAutoupdates() ) {
 			$this->doStatIncrement( 'autoupdates.forcerun' );
 			$this->loadWp()->doForceRunAutomaticUpdates();
@@ -194,16 +204,21 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 
-		if ( !$oFO->isDelayUpdates() ) {
-			if ( $oFO->isOpt( 'autoupdate_core', 'core_never' ) ) {
-				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
-				$bUpdate = false;
-			}
-			else if ( $oFO->isOpt( 'autoupdate_core', 'core_major' ) ) {
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bUpdate = false;
+		}
+		else if ( !$oFO->isDelayUpdates() ) { // the delay is handles elsewhere
+
+			if ( $oFO->isAutoUpdateCoreMajor() ) {
 				$this->doStatIncrement( 'autoupdates.core.major.allowed' );
 				$bUpdate = true;
 			}
+			else {
+				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
+				$bUpdate = false;
+			}
 		}
+
 		return $bUpdate;
 	}
 
@@ -217,14 +232,18 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 
-		if ( !$oFO->isDelayUpdates() ) {
-			if ( $oFO->isOpt( 'autoupdate_core', 'core_never' ) ) {
-				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
-				$bUpdate = false;
-			}
-			else if ( $oFO->isOpt( 'autoupdate_core', 'core_minor' ) ) {
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bUpdate = false;
+		}
+		else if ( !$oFO->isDelayUpdates() ) {//TODO delay
+
+			if ( $oFO->isAutoUpdateCoreMinor() ) {
 				$this->doStatIncrement( 'autoupdates.core.minor.allowed' );
 				$bUpdate = true;
+			}
+			else {
+				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
+				$bUpdate = false;
 			}
 		}
 		return $bUpdate;
@@ -246,9 +265,16 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	public function autoupdate_core( $bDoAutoUpdate, $oCoreUpdate ) {
-		if ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getMod();
+
+		if ( $oFO->isDisableAllAutoUpdates() ) {
 			$bDoAutoUpdate = false;
 		}
+		else if ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
+			$bDoAutoUpdate = false;
+		}
+
 		return $bDoAutoUpdate;
 	}
 
@@ -261,27 +287,32 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 
-		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bDoAutoUpdate = false;
+		}
+		else {
+			$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
 
-		if ( $this->isDelayed( $sFile, 'plugins' ) ) {
-			return false;
-		}
+			if ( $this->isDelayed( $sFile, 'plugins' ) ) {
+				return false;
+			}
 
-		// first, is global auto updates for plugins set
-		if ( $oFO->isAutoupdateAllPlugins() ) {
-			$this->doStatIncrement( 'autoupdates.plugins.all' );
-			$bDoAutoUpdate = true;
-		}
-		else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
-			$bDoAutoUpdate = true;
-		}
-		else if ( $sFile === $this->getController()->getPluginBaseFile() ) {
-			$sAuto = $oFO->getOpt( 'autoupdate_plugin_self' );
-			if ( $sAuto === 'immediate' ) {
+			// first, is global auto updates for plugins set
+			if ( $oFO->isAutoupdateAllPlugins() ) {
+				$this->doStatIncrement( 'autoupdates.plugins.all' );
 				$bDoAutoUpdate = true;
 			}
-			else if ( $sAuto === 'disabled' ) {
-				$bDoAutoUpdate = false;
+			else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
+				$bDoAutoUpdate = true;
+			}
+			else if ( $sFile === $this->getCon()->getPluginBaseFile() ) {
+				$sAuto = $oFO->getSelfAutoUpdateOpt();
+				if ( $sAuto === 'immediate' ) {
+					$bDoAutoUpdate = true;
+				}
+				else if ( $sAuto === 'disabled' ) {
+					$bDoAutoUpdate = false;
+				}
 			}
 		}
 
@@ -294,22 +325,29 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
+		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		$oFO = $this->getMod();
 
-		$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
-
-		if ( $this->isDelayed( $sFile, 'themes' ) ) {
-			return false;
+		if ( $oFO->isDisableAllAutoUpdates() ) {
+			$bDoAutoUpdate = false;
 		}
+		else {
+			$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
 
-		// first, is global auto updates for themes set
-		if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
-			$this->doStatIncrement( 'autoupdates.themes.all' );
-			return true;
-		}
+			if ( $this->isDelayed( $sFile, 'themes' ) ) {
+				return false;
+			}
 
-		$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', array() );
-		if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
-			$bDoAutoUpdate = true;
+			// first, is global auto updates for themes set
+			if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
+				$this->doStatIncrement( 'autoupdates.themes.all' );
+				return true;
+			}
+
+			$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', array() );
+			if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
+				$bDoAutoUpdate = true;
+			}
 		}
 		return $bDoAutoUpdate;
 	}
@@ -355,17 +393,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * This is a filter method designed to say whether WordPress automatic upgrades should be permitted
-	 * if a version control system is detected.
-	 * @param $checkout
-	 * @param $context
-	 * @return boolean
-	 */
-	public function disable_for_vcs( $checkout, $context ) {
-		return false;
-	}
-
-	/**
 	 * A filter on whether or not a notification email is send after core upgrades are attempted.
 	 * @param boolean $bSendEmail
 	 * @return boolean
@@ -403,7 +430,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				return $aPluginMeta;
 			}
 		}
-		$bUpdate = $this->loadWp()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = $this->loadWp()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
 		$sHtml = $this->getPluginAutoupdateIconHtml( $bUpdate );
 		array_unshift( $aPluginMeta, sprintf( '%s', $sHtml ) );
 		return $aPluginMeta;
@@ -415,7 +442,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function fAddPluginsListAutoUpdateColumn( $aColumns ) {
-		if ( $this->getController()->isPluginAdmin() && !isset( $aColumns[ 'icwp_autoupdate' ] ) ) {
+		if ( $this->getCon()->isPluginAdmin() && !isset( $aColumns[ 'icwp_autoupdate' ] ) ) {
 			$aColumns[ 'icwp_autoupdate' ] = 'Auto Update';
 			add_action( 'manage_plugins_custom_column',
 				array( $this, 'aPrintPluginsListAutoUpdateColumnContent' ),
@@ -435,7 +462,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
-		$bUpdate = $this->loadWp()->getIsPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = $this->loadWp()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
 //		$bUpdate = in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
 		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
 		echo $this->getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bUpdate, $bDisabled );
@@ -455,7 +482,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		$aEmailContent = array(
 			sprintf(
 				_wpsf__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.' ),
-				$this->getController()->getHumanName()
+				$this->getCon()->getHumanName()
 			),
 			''
 		);

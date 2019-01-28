@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_Edd', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 
@@ -66,7 +63,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
 	public function activateLicense( $sStoreUrl, $sKey, $sItemId ) {
 		return $this->commonLicenseAction( 'activate_license', $sStoreUrl, $sKey, $sItemId );
@@ -75,7 +72,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sStoreUrl
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
 	public function activateLicenseKeyless( $sStoreUrl, $sItemId ) {
 		return $this->activateLicense( $sStoreUrl, '', $sItemId );
@@ -85,7 +82,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO|null
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO|null
 	 */
 	public function checkLicense( $sStoreUrl, $sKey, $sItemId ) {
 		return $this->commonLicenseAction( 'check_license', $sStoreUrl, $sKey, $sItemId );
@@ -95,7 +92,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO|null
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
 	public function deactivateLicense( $sStoreUrl, $sKey, $sItemId ) {
 		return $this->commonLicenseAction( 'deactivate_license', $sStoreUrl, $sKey, $sItemId );
@@ -106,7 +103,7 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
-	 * @return ICWP_EDD_LicenseVO
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
 	private function commonLicenseAction( $sAction, $sStoreUrl, $sKey, $sItemId ) {
 		$oLicense = null;
@@ -127,21 +124,16 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 
 		$aContent = $this->loadFS()
 						 ->getUrl( $sStoreUrl, $aLicenseLookupParams );
-		$oDec = !empty( $aContent ) ? @json_decode( $aContent[ 'body' ] ) : new stdClass();
-		return $this->getLicenseVoFromData( $oDec )
+		return $this->getLicenseVoFromData( empty( $aContent ) ? [] : @json_decode( $aContent[ 'body' ], true ) )
 					->setLastRequestAt( $this->loadRequest()->ts() );
 	}
 
 	/**
-	 * @param stdClass|array $mData
-	 * @return ICWP_EDD_LicenseVO
+	 * @param array $aData
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
-	public function getLicenseVoFromData( $mData ) {
-		require_once( dirname( __FILE__ ).'/easydigitaldownloads/ICWP_EDD_LicenseVO.php' );
-		if ( is_array( $mData ) ) {
-			$mData = $this->loadDP()->convertArrayToStdClass( $mData );
-		}
-		return new ICWP_EDD_LicenseVO( $mData );
+	public function getLicenseVoFromData( $aData ) {
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO() )->applyFromArray( $aData );
 	}
 
 	/**

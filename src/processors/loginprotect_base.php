@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Base', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -69,6 +63,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// MemberPress
 				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MePr' ), 100 );
+				add_filter( 'mepr-validate-login', array( $this, 'checkReqLogin_MePr' ), 100 );
 				// Ultimate Member
 				add_action( 'um_after_login_fields', array( $this, 'printFormItems_UltMem' ), 100 );
 				add_action( 'um_submit_form_login', array( $this, 'checkReqLogin_UltMem' ), 100 );
@@ -94,6 +89,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// MemberPress
 				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );
+				add_filter( 'mepr-validate-forgot-password', array( $this, 'checkReqLostPassword_MePr' ), 100 );
 				// Ultimate Member
 				add_action( 'um_after_password_reset_fields', array( $this, 'printFormItems_UltMem' ), 100 );
 				add_action( 'um_submit_form_password_reset', array( $this, 'checkReqLostPassword_UltMem' ), 5, 0 );
@@ -139,7 +135,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	abstract protected function performCheckWithException();
 
@@ -149,7 +145,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		try {
 			$this->performCheckWithException();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$this->loadWp()->wpDie( $oE->getMessage() );
 		}
 	}
@@ -164,7 +160,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				$this->setActionToAudit( 'learnpress-login' )
 					 ->performCheckWithException();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$sFieldNameOrError = new WP_Error( 'shield-fail-login', $oE->getMessage() );
 			}
 		}
@@ -182,7 +178,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				 ->setActionToAudit( 'woo-login' )
 				 ->performCheckWithException();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
@@ -205,7 +201,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 					 ->performCheckWithException();
 			}
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$oUserOrError = $this->giveMeWpError( $oUserOrError );
 			$oUserOrError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
@@ -213,7 +209,23 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 *
+	 * @param array $aErrors
+	 * @return array
+	 */
+	public function checkReqLogin_MePr( $aErrors ) {
+		if ( !empty( $aErrors ) && $this->isMemberPress() ) {
+			try {
+				$this->setActionToAudit( 'memberpress-login' )
+					 ->performCheckWithException();
+			}
+			catch ( \Exception $oE ) {
+				$aErrors[] = $oE->getMessage();
+			}
+		}
+		return $aErrors;
+	}
+
+	/**
 	 */
 	public function checkReqLogin_UltMem() {
 		if ( $this->isUltimateMember() ) {
@@ -221,7 +233,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				$this->setActionToAudit( 'ultimatemember-login' )
 					 ->performCheckWithException();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
 			}
 		}
@@ -237,11 +249,28 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				 ->setActionToAudit( 'reset-password' )
 				 ->performCheckWithException();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
+	}
+
+	/**
+	 * @param array $aErrors
+	 * @return array
+	 */
+	public function checkReqLostPassword_MePr( $aErrors ) {
+		if ( !empty( $aErrors ) && $this->isMemberPress() ) {
+			try {
+				$this->setActionToAudit( 'memberpress-lostpassword' )
+					 ->performCheckWithException();
+			}
+			catch ( \Exception $oE ) {
+				$aErrors[] = $oE->getMessage();
+			}
+		}
+		return $aErrors;
 	}
 
 	/**
@@ -252,7 +281,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				$this->setActionToAudit( 'ultimatemember-lostpassword' )
 					 ->performCheckWithException();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				UM()->form()->add_error( 'shield-fail-lostpassword', $oE->getMessage() );
 			}
 		}
@@ -273,7 +302,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 					 ->performCheckWithException();
 			}
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
@@ -312,7 +341,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$this->setActionToAudit( 'woo-checkout' )
 				 ->performCheckWithException();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
@@ -326,7 +355,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$this->setActionToAudit( 'edd-register' )
 				 ->performCheckWithException();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			if ( function_exists( 'edd_set_error' ) ) {
 				edd_set_error( $this->prefix( rand() ), $oE->getMessage() );
 			}
@@ -344,7 +373,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				 ->setActionToAudit( 'woo-register' )
 				 ->performCheckWithException();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
@@ -357,12 +386,12 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return string[]
 	 */
 	public function checkReqRegistration_MePr( $aErrors ) {
-		if ( !empty( $aErrors ) ) {
+		if ( !empty( $aErrors ) && $this->isMemberPress() ) {
 			try {
 				$this->setActionToAudit( 'memberpress-register' )
 					 ->performCheckWithException();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$aErrors[] = $oE->getMessage();
 			}
 		}
@@ -379,7 +408,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				$this->setActionToAudit( 'learnpress-register' )
 					 ->performCheckWithException();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$sFieldNameOrError = new WP_Error( 'shield-fail-register', $oE->getMessage() );
 			}
 		}
@@ -394,7 +423,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				$this->setActionToAudit( 'ultimatemember-register' )
 					 ->performCheckWithException();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				UM()->form()->add_error( 'shield-fail-register', $oE->getMessage() );
 			}
 		}
@@ -411,7 +440,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				 ->setActionToAudit( 'register' )
 				 ->performCheckWithException();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
 			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
 		}
@@ -436,10 +465,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return string
 	 */
 	protected function buildLoginFormItems() {
-		$sItems = '';
-		if ( $this->canPrintLoginFormElement() ) {
+		$sItems = $this->canPrintLoginFormElement() ? $this->buildFormItems() : '';
+		if ( !empty( $sItems ) ) {
 			$this->incrementLoginFormPrintCount();
-			$sItems = $this->buildFormItems();
 		}
 		return $sItems;
 	}
@@ -505,7 +533,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 	/**
 	 * see form-billing.php
-	 * @param WP_Checkout $oCheckout
+	 * @param WC_Checkout $oCheckout
 	 * @return void
 	 */
 	public function printRegistrationFormItems_Woo( $oCheckout ) {
@@ -592,6 +620,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function isFactorTested() {
 		return (bool)$this->bFactorTested;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isMemberPress() {
+		return defined( 'MEPR_LIB_PATH' ) || defined( 'MEPR_PLUGIN_NAME' );
 	}
 
 	/**

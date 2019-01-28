@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_Firewall', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -14,6 +8,25 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	public function getDefaultWhitelist() {
 		$aW = $this->getDef( 'default_whitelist' );
 		return is_array( $aW ) ? $aW : array();
+	}
+
+	/**
+	 * @param string $sParam
+	 * @param string $sPage
+	 * @return ICWP_WPSF_FeatureHandler_Firewall
+	 */
+	public function addParamToWhitelist( $sParam, $sPage = '*' ) {
+		if ( empty( $sPage ) ) {
+			$sPage = '*';
+		}
+
+		$aW = $this->getCustomWhitelist();
+		$aParams = isset( $aW[ $sPage ] ) ? $aW[ $sPage ] : array();
+		$aParams[] = $sParam;
+		natsort( $aParams );
+		$aW[ $sPage ] = array_unique( $aParams );
+
+		return $this->setOpt( 'page_params_whitelist', $aW );
 	}
 
 	/**
@@ -42,7 +55,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'text_firewalldie':
 				$sText = sprintf(
 					_wpsf__( "You were blocked by the %s." ),
-					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getConn()
+					'<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
 																										->getHumanName().'</a>'
 				);
 				break;
@@ -55,9 +68,61 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isIgnoreAdmin() {
+		return $this->isOpt( 'whitelist_admins', 'Y' );
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'      => array(
+				'title' => _wpsf__( 'Firewall' ),
+				'sub'   => _wpsf__( 'Block Malicious Requests' ),
+			),
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'mod' ] = array(
+				'name'    => _wpsf__( 'Firewall' ),
+				'enabled' => $this->isModOptEnabled(),
+				'summary' => $this->isModOptEnabled() ?
+					_wpsf__( 'Your site is protected against malicious requests' )
+					: _wpsf__( 'Your site is not protected against malicious requests' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
+			);
+
+			//ignoring admin isn't a good idea
+			$bAdminIncluded = !$this->isIgnoreAdmin();
+			$aThis[ 'key_opts' ][ 'admin' ] = array(
+				'name'    => _wpsf__( 'Ignore Admins' ),
+				'enabled' => $bAdminIncluded,
+				'summary' => $bAdminIncluded ?
+					_wpsf__( "Firewall rules are also applied to admins" )
+					: _wpsf__( "Firewall rules aren't applied to admins" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'whitelist_admins' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
@@ -113,7 +178,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
@@ -205,6 +270,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sDescription = _wpsf__( 'Authenticated administrator users will not be processed by the firewall rules.' );
 				break;
 
+			/** removed */
 			case 'ignore_search_engines' :
 				$sName = sprintf( _wpsf__( 'Ignore %s' ), _wpsf__( 'Search Engines' ) );
 				$sSummary = _wpsf__( 'Ignore Search Engine Bot Traffic' );
@@ -218,7 +284,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $aOptionsParams[ 'key' ] ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $aOptionsParams[ 'key' ] ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

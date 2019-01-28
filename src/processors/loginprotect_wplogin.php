@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_WpLogin', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -52,11 +46,11 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			$sMessage = _wpsf__( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.' );
 			$bConflicted = true;
 		}
-		else if ( class_exists( 'Rename_WP_Login', false ) ) {
+		else if ( class_exists( 'Rename_WP_Login' ) ) {
 			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.' ), 'Rename WP Login' );
 			$bConflicted = true;
 		}
-		else if ( class_exists( 'Theme_My_Login', false ) ) {
+		else if ( class_exists( 'Theme_My_Login' ) ) {
 			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.' ), 'Theme My Login' );
 			$bConflicted = true;
 		}
@@ -123,7 +117,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		if ( $bDoBlock ) {
 			// We now black mark this IP
-//			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+//			add_filter( $this->getMod()->prefix( 'ip_black_mark' ), '__return_true' );
 			$this->doWpLoginFailedRedirect404();
 		}
 	}
@@ -201,7 +195,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	public function aLoginFormAction() {
 		if ( !$this->loadWp()->isRequestLoginUrl() ) {
 			// We now black mark this IP
-//			add_filter( $this->getFeature()->prefix( 'ip_black_mark' ), '__return_true' );
+//			add_filter( $this->getMod()->prefix( 'ip_black_mark' ), '__return_true' );
 			$this->doWpLoginFailedRedirect404();
 			die();
 		}

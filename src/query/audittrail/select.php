@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_AuditTrail_Select', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base/select.php' );
-
 class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 
 	/**
@@ -13,24 +7,15 @@ class ICWP_WPSF_Query_AuditTrail_Select extends ICWP_WPSF_Query_BaseSelect {
 	 * @return $this
 	 */
 	public function filterByContext( $sContext ) {
-		return $this->addWhereEquals( 'context', $sContext );
+		return $this;
 	}
 
 	/**
-	 * @param string $sContext
-	 * @return ICWP_WPSF_AuditTrailEntryVO[]|stdClass[]
+	 * @param $sContext
+	 * @return int|stdClass[]
 	 */
 	public function forContext( $sContext ) {
-		return $this->reset()
-					->addWhereEquals( 'context', $sContext )
-					->query();
-	}
-
-	/**
-	 * @return int|stdClass[]|ICWP_WPSF_AuditTrailEntryVO[]
-	 */
-	public function query() {
-		return parent::query();
+		return $this->query();
 	}
 
 	/**

@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -64,7 +58,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'             => $this->getController()->getHumanName()
+					'title'             => $this->getCon()->getHumanName()
 										   .': '._wpsf__( 'Please verify email has been received' ),
 					'need_you_confirm'  => _wpsf__( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails." ),
 					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
@@ -84,7 +78,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
 	public function getProcessorLoginIntent() {
-		require_once( dirname( __FILE__ ).'/loginprotect_intent.php' );
+		require_once( __DIR__.'/loginprotect_intent.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getMod() );
 		return $oProc;
 	}
@@ -93,7 +87,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
-		require_once( dirname( __FILE__ ).'/loginprotect_cooldown.php' );
+		require_once( __DIR__.'/loginprotect_cooldown.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getMod() );
 		return $oProc;
 	}
@@ -102,7 +96,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Gasp
 	 */
 	protected function getProcessorGasp() {
-		require_once( dirname( __FILE__ ).'/loginprotect_gasp.php' );
+		require_once( __DIR__.'/loginprotect_gasp.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getMod() );
 		return $oProc;
 	}
@@ -111,7 +105,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
 	 */
 	protected function getProcessorWpLogin() {
-		require_once( dirname( __FILE__ ).'/loginprotect_wplogin.php' );
+		require_once( __DIR__.'/loginprotect_wplogin.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getMod() );
 		return $oProc;
 	}
@@ -120,7 +114,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
 	 */
 	protected function getProcessorGoogleRecaptcha() {
-		require_once( dirname( __FILE__ ).'/loginprotect_googlerecaptcha.php' );
+		require_once( __DIR__.'/loginprotect_googlerecaptcha.php' );
 		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getMod() );
 		return $oProc;
 	}

@@ -1,14 +1,10 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_Autoupdates' ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doPostConstruction() {
+	/**
+	 */
+	protected function setupCustomHooks() {
 		// Force run automatic updates
 		if ( $this->loadRequest()->query( 'force_run_auto_updates' ) == 'now' ) {
 			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
@@ -63,6 +59,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setDelayTracking( $aTrackingInfo ) {
 		return $this->setOpt( 'delay_tracking', $aTrackingInfo );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isDisableAllAutoUpdates() {
+		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
 	}
 
 	/**
@@ -129,7 +132,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		$bSuccess = false;
 		$sMessage = _wpsf__( 'You do not have permissions to perform this action.' );
 
-		if ( $this->isAutoupdateIndividualPlugins() && $this->getConn()->isPluginAdmin() ) {
+		if ( $this->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
 			$oWpPlugins = $this->loadWpPlugins();
 			$sFile = $this->loadRequest()->post( 'pluginfile' );
 			if ( $oWpPlugins->isInstalled( $sFile ) ) {
@@ -139,7 +142,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				$sMessage = sprintf( _wpsf__( 'Plugin "%s" will %s.' ),
 					$aPlugin[ 'Name' ],
 					$this->loadWp()
-						 ->getIsPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
+						 ->isPluginAutomaticallyUpdated( $sFile ) ? _wpsf__( 'update automatically' ) : _wpsf__( 'not update automatically' )
 				);
 				$bSuccess = true;
 			}
@@ -152,6 +155,27 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			'success' => $bSuccess,
 			'message' => $sMessage,
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSelfAutoUpdateOpt() {
+		return $this->getOpt( 'autoupdate_plugin_self' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAutoUpdateCoreMinor() {
+		return !$this->isOpt( 'autoupdate_core', 'core_never' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAutoUpdateCoreMajor() {
+		return $this->isOpt( 'autoupdate_core', 'core_major' );
 	}
 
 	/**
@@ -173,14 +197,119 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param array $aAllNotices
+	 * @return array
+	 */
+	public function addInsightsNoticeData( $aAllNotices ) {
+		$aNotices = array(
+			'title'    => _wpsf__( 'Automatic Updates' ),
+			'messages' => array()
+		);
+		{ //really disabled?
+			$oWp = $this->loadWp();
+			if ( $this->isModOptEnabled() ) {
+				if ( $this->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
+					$aNotices[ 'messages' ][ 'disabled_auto' ] = array(
+						'title'   => 'Auto Updates Not Really Disabled',
+						'message' => _wpsf__( 'Automatic Updates Are Not Disabled As Expected.' ),
+						'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
+						'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
+						'rec'     => sprintf( _wpsf__( 'A plugin/theme other than %s is affecting your automatic update settings.' ), $this->getCon()
+																																		   ->getHumanName() )
+					);
+				}
+			}
+		}
+
+		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
+
+		$aAllNotices[ 'autoupdates' ] = $aNotices;
+		return $aAllNotices;
+	}
+
+	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'      => array(
+				'title' => _wpsf__( 'Automatic Updates' ),
+				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
+			),
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+
+			$bAllDisabled = $this->isDisableAllAutoUpdates();
+			if ( $bAllDisabled ) {
+				$aThis[ 'key_opts' ][ 'disabled' ] = array(
+					'name'    => _wpsf__( 'Disabled All' ),
+					'enabled' => !$bAllDisabled,
+					'summary' => $bAllDisabled ?
+						_wpsf__( 'All automatic updates on this site are disabled' )
+						: _wpsf__( 'The automatic updates system is enabled' ),
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
+				);
+			}
+			else {
+				$oWp = $this->loadWp();
+				$bCanCore = $oWp->canCoreUpdateAutomatically();
+				$aThis[ 'key_opts' ][ 'core_minor' ] = array(
+					'name'    => _wpsf__( 'Core Updates' ),
+					'enabled' => $bCanCore,
+					'summary' => $bCanCore ?
+						_wpsf__( 'Minor WP Core updates will be installed automatically' )
+						: _wpsf__( 'Minor WP Core updates will not be installed automatically' ),
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToOption( 'autoupdate_core' ),
+				);
+
+				$bHasDelay = $this->isModOptEnabled() && $this->getDelayUpdatesPeriod();
+				$aThis[ 'key_opts' ][ 'delay' ] = array(
+					'name'    => _wpsf__( 'Update Delay' ),
+					'enabled' => $bHasDelay,
+					'summary' => $bHasDelay ?
+						_wpsf__( 'Automatic updates are applied after a short delay' )
+						: _wpsf__( 'Automatic updates are applied immediately' ),
+					'weight'  => 1,
+					'href'    => $this->getUrl_DirectLinkToOption( 'update_delay' ),
+				);
+
+				$sName = $this->getCon()->getHumanName();
+				$bSelfAuto = $this->isModOptEnabled()
+							 && in_array( $this->getSelfAutoUpdateOpt(), [ 'auto', 'immediate' ] );
+				$aThis[ 'key_opts' ][ 'self' ] = array(
+					'name'    => _wpsf__( 'Self Auto-Update' ),
+					'enabled' => $bSelfAuto,
+					'summary' => $bSelfAuto ?
+						sprintf( _wpsf__( '%s is automatically updated' ), $sName )
+						: sprintf( _wpsf__( "%s isn't automatically updated" ), $sName ),
+					'weight'  => 1,
+					'href'    => $this->getUrl_DirectLinkToOption( 'autoupdate_plugin_self' ),
+				);
+			}
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		$sPlugName = $this->getConn()->getHumanName();
+		$sPlugName = $this->getCon()->getHumanName();
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_automatic_updates_control' :
@@ -231,7 +360,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -242,12 +371,12 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
-		$sPlugName = $this->getConn()->getHumanName();
+		$sPlugName = $this->getCon()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'enable_autoupdates' :
@@ -327,7 +456,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

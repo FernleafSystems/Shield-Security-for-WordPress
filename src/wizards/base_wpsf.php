@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Wizard_Base', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base.php' );
-
 /**
  * Class ICWP_WPSF_Wizard_BaseWpsf
  */

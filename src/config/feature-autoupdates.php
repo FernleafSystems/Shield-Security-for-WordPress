@@ -3,7 +3,8 @@
   "properties":  {
     "slug":                  "autoupdates",
     "name":                  "Automatic Updates",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "autoupdates",
     "tagline":               "Take back full control of WordPress automatic updates",
     "show_central":          true,
@@ -154,7 +155,7 @@
       "premium":     true,
       "default":     "0",
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e5",
       "link_blog":   "",
       "name":        "Update Delay",
       "summary":     "Delay Automatic Updates For Period Of Stability",

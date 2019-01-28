@@ -1,0 +1,57 @@
+<div class="row insights_widget" id="SectionModuleSummaries">
+
+	{% for config_card in vars.config_cards %}
+		<div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+			<div class="card config">
+				<div class="card-header">
+					<h5 class="card-title">{{ config_card.strings.title }}</h5>
+					<h6 class="card-subtitle mb-2 text-muted">{{ config_card.strings.sub }}</h6>
+				</div>
+				<div class="card-body">
+					<div class="">
+						<table class="table table-borderless table-key_opts">
+							{% for opt_key,opt in config_card.key_opts|default([]) %}
+								<tr class="row-{{ opt_key }} row-key_opt
+
+								{% if opt.weight|default( 2 ) == 0 %}
+									table-info
+								{% else %}
+									{% if opt.enabled %}
+										{% if opt.weight|default( 2 ) == 1 %}
+											table-success
+										{% else %}
+											table-success
+										{% endif %}
+									{% else %}
+										{% if opt.weight|default( 2 ) == 1 %}
+											table-warning
+										{% else %}
+											table-danger
+										{% endif %}
+									{% endif %}
+								{% endif %}"
+								>
+									<th>{{ opt.name }}</th>
+									<td>{{ opt.summary }}</td>
+									<td>
+										{% if opt.href is defined %}
+											<a href="{{ opt.href }}" target="_blank"
+											   title="Go To Options">&nearr;</a>
+										{% endif %}
+									</td>
+								</tr>
+
+							{% endfor %}
+						</table>
+					</div>
+				</div>
+				<div class="card-footer text-right">
+					<a href="{{ config_card.href_options }}"
+					   class="btn btn-sm btn-outline-dark">Module Options &rarr;</a>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+
+
+</div>

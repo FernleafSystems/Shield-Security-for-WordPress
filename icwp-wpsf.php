@@ -3,7 +3,7 @@
  * Plugin Name: Shield Security
  * Plugin URI: https://icwp.io/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
- * Version: 6.10.9
+ * Version: 7.0.0
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages/
  * Author: One Dollar Plugin
@@ -11,7 +11,7 @@
  */
 
 /**
- * Copyright (c) 2018 One Dollar Plugin <support@onedollarplugin.com>
+ * Copyright (c) 2019 One Dollar Plugin <support@onedollarplugin.com>
  * All rights reserved.
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
  * General Public License, Version 2, June 1991. Copyright (C) 1989, 1991 Free
@@ -28,8 +28,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if ( !defined( 'ICWP_DS' ) ) {
-	define( 'ICWP_DS', DIRECTORY_SEPARATOR );
+if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
+	global $sIcwpWpsfPluginFile;
+	$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
+	include_once( dirname( __FILE__ ).'/unsupported.php' );
+	return;
 }
 
 if ( !function_exists( '_wpsf_e' ) ) {
@@ -43,8 +46,7 @@ if ( !function_exists( '_wpsf__' ) ) {
 	}
 }
 
-// makes it available to the extension also.
-require_once( dirname( __FILE__ ).'/src/common/icwp-foundation.php' );
+require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 
 add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 function icwp_wpsf_init() {

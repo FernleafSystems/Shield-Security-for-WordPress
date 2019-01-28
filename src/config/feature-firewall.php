@@ -3,7 +3,8 @@
   "properties":  {
     "slug":                  "firewall",
     "name":                  "Firewall",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "firewall",
     "tagline":               "Automatically block malicious URLs and data sent to your site",
     "show_central":          true,
@@ -238,17 +239,6 @@
       "name":        "Ignore Administrators",
       "summary":     "Ignore Administrators",
       "description": "Authenticated administrator users will not be processed by the firewall rules."
-    },
-    {
-      "key":         "ignore_search_engines",
-      "section":     "section_whitelist",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Ignore Search Engines",
-      "summary":     "Ignore Search Engine Bot Traffic",
-      "description": "The firewall will try to recognise search engine spiders/bots and not apply firewall rules to them."
     },
     {
       "key":         "text_firewalldie",

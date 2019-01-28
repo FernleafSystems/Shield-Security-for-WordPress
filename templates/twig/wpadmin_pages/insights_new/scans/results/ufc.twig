@@ -1,0 +1,57 @@
+<div class="row insights_widget" id="SectionScanResultsUfc">
+	<div class="col-12">
+		<div class="card card-scan_results mt-4">
+
+			<div class="card-header">
+				<h5 class="card-title">Unrecognised Core Files</h5>
+				<h6 class="card-subtitle text-muted">
+					Files found in the WordPress core files directories
+					but are not part of the official distribution from WordPress.org
+				</h6>
+			</div>
+
+			<div class="card-body">
+				<div id="TableScanUfc" class="container-scantable"></div>
+			</div>
+
+			<div class="card-footer">
+				<div class="row">
+					<div class="col-sm-6">
+						{% if scan.flags.has_last_scan %}
+							{{ scan.vars.last_scan_at }}
+						{% else %}
+							{{ strings.never }}
+						{% endif %}
+					</div>
+					<div class="col-sm-6 text-right">
+						<a href="{{ scan.hrefs.options }}"
+						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script>
+	var $oTableScanUfc = jQuery( '#TableScanUfc' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'ufc'
+			}
+		}
+	);
+	jQuery( '#SectionScanResultsUfc' ).icwpWpsfTableActions(
+		{
+			'table': $oTableScanUfc,
+			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'ajax_item_repair':{{ ajax.item_repair|raw }},
+			'req_params': {
+				'fScan': 'ufc'
+			}
+		}
+	);
+</script>

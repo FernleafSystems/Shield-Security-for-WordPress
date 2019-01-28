@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_Foundation', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_Foundation {
 
@@ -26,7 +23,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadDP() {
 		$sKey = 'icwp-data';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_DataProcessor::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -38,7 +34,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadFS() {
 		$sKey = 'icwp-wpfilesystem';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpFilesystem::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -50,7 +45,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadWp() {
 		$sKey = 'icwp-wpfunctions';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpFunctions::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -62,7 +56,6 @@ class ICWP_WPSF_Foundation {
 	public function loadWpPlugins() {
 		$sKey = 'icwp-wpfunctions-plugins';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpFunctions_Plugins::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -74,7 +67,6 @@ class ICWP_WPSF_Foundation {
 	public function loadWpThemes() {
 		$sKey = 'icwp-wpfunctions-themes';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpFunctions_Themes::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -86,7 +78,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadWpCronProcessor() {
 		$sKey = 'icwp-wpcron';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpCron::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -98,17 +89,9 @@ class ICWP_WPSF_Foundation {
 	static public function loadWpUpgrades() {
 		$sKey = 'icwp-wpupgrades';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpUpgrades::GetInstance() );
 		}
 		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return void
-	 */
-	static public function loadWpWidgets() {
-		self::requireCommonLib( 'wp-widget.php' );
 	}
 
 	/**
@@ -117,7 +100,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadDbProcessor() {
 		$sKey = 'icwp-wpdb';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpDb::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -129,7 +111,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadIpService() {
 		$sKey = 'icwp-ip';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_Ip::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -141,7 +122,6 @@ class ICWP_WPSF_Foundation {
 	public function loadRequest() {
 		$sKey = 'icwp-request';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_Request::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -153,7 +133,6 @@ class ICWP_WPSF_Foundation {
 	public function loadServiceProviders() {
 		$sKey = 'icwp-serviceproviders';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_ServiceProviders::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -165,7 +144,6 @@ class ICWP_WPSF_Foundation {
 	public function loadSslService() {
 		$sKey = 'icwp-ssl';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_Ssl::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -177,7 +155,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadGoogleAuthenticatorProcessor() {
 		$sKey = 'icwp-googleauthenticator';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_GoogleAuthenticator::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -189,7 +166,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadGoogleRecaptcha() {
 		$sKey = 'icwp-googlearecaptcha';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_GoogleRecaptcha::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -201,28 +177,9 @@ class ICWP_WPSF_Foundation {
 	static public function loadWpIncludes() {
 		$sKey = 'icwp-wpincludes';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpIncludes::GetInstance() );
 		}
 		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return ICWP_WPSF_WpTrack
-	 */
-	static public function loadWpTrack() {
-		$sKey = 'wp-track';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
-			self::setService( $sKey, ICWP_WPSF_WpTrack::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 */
-	static public function loadFactory() {
-		self::requireCommonLib( 'icwp-factory.php' );
 	}
 
 	/**
@@ -232,12 +189,10 @@ class ICWP_WPSF_Foundation {
 	static public function loadRenderer( $sTemplatePath = '' ) {
 		$sKey = 'icwp-render';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
-			$oR = ICWP_WPSF_Render::GetInstance()
-								  ->setAutoloaderPath( dirname( __FILE__ ).'/Twig/Autoloader.php' );
-			self::setService( $sKey, $oR );
+			self::setService( $sKey, ICWP_WPSF_Render::GetInstance() );
 		}
 
+		/** @var ICWP_WPSF_Render $oR */
 		$oR = self::getService( $sKey );
 		if ( !empty( $sTemplatePath ) ) {
 			$oR->setTemplateRoot( $sTemplatePath );
@@ -246,24 +201,11 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_YamlProcessor
-	 */
-	static public function loadYamlProcessor() {
-		$sKey = 'icwp-yaml';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
-			self::setService( $sKey, ICWP_WPSF_YamlProcessor::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return ICWP_WPSF_WpAdminNotices
 	 */
 	static public function loadWpNotices() {
 		$sKey = 'wp-admin-notices';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpAdminNotices::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -275,7 +217,6 @@ class ICWP_WPSF_Foundation {
 	static public function loadWpUsers() {
 		$sKey = 'wp-users';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpUsers::GetInstance() );
 		}
 		return self::getService( $sKey );
@@ -287,20 +228,7 @@ class ICWP_WPSF_Foundation {
 	static public function loadWpComments() {
 		$sKey = 'wp-comments';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_WpComments::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return ICWP_WPSF_GeoIp2
-	 */
-	static protected function loadGeoIp2() {
-		$sKey = 'icwp-geoip2';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
-			self::setService( $sKey, ICWP_WPSF_GeoIp2::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
@@ -311,23 +239,9 @@ class ICWP_WPSF_Foundation {
 	static public function loadEdd() {
 		$sKey = 'icwp-edd';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::requireCommonLib( $sKey.'.php' );
 			self::setService( $sKey, ICWP_WPSF_Edd::GetInstance() );
 		}
 		return self::getService( $sKey );
-	}
-
-	/**
-	 */
-	static public function loadAutoload() {
-		self::requireCommonLib( 'lib/vendor/autoload.php' );
-	}
-
-	/**
-	 * @param string $sFile
-	 */
-	static public function requireCommonLib( $sFile ) {
-		require_once( dirname( __FILE__ ).'/'.$sFile );
 	}
 
 	/**

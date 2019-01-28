@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @deprecated v7.0.0
  * Class ICWP_WPSF_BaseEntryVO
  * @property int created_at
  * @property int deleted_at

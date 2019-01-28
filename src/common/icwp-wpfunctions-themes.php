@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_WpFunctions_Themes', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 
 	/**
@@ -308,6 +304,14 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	 */
 	public function isInstalled( $sSlug ) {
 		return !empty( $sSlug ) && !is_null( $this->getTheme( $sSlug ) );
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return boolean
+	 */
+	public function isUpdateAvailable( $sSlug ) {
+		return !is_null( $this->getUpdateInfo( $sSlug ) );
 	}
 
 	/**

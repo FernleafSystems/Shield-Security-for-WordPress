@@ -1,9 +1,6 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_AuditTrail', false ) ) {
-	return;
-}
 
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -23,8 +20,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( $this->loadRequest()->request( 'exec' ) ) {
 
-				case 'render_audit_table':
-					$aAjaxResponse = $this->ajaxExec_RenderAuditTable();
+				case 'render_table_audittrail':
+					$aAjaxResponse = $this->ajaxExec_BuildTableAuditTrail();
+					break;
+
+				case 'item_addparamwhite':
+					$aAjaxResponse = $this->ajaxExec_AddParamToFirewallWhitelist();
 					break;
 
 				default:
@@ -34,78 +35,65 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
-	public function ajaxExec_RenderAuditTable() {
-		$sContext = $this->loadRequest()->post( 'auditcontext' );
-		$aParams = array_intersect_key( $_POST, array_flip( array( 'paged', 'order', 'orderby' ) ) );
-		return array(
-			'success' => true,
-			'html'    => $this->renderTableForContext( $sContext, $aParams )
-		);
-	}
-
 	/**
-	 * @param string $sContext
-	 * @return AuditTrailTable
+	 * @return array
 	 */
-	protected function getTableRendererForContext( $sContext ) {
-		$this->requireCommonLib( 'Components/Tables/AuditTrailTable.php' );
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadProcessor();
-		$nCount = $oAuditTrail->countAuditEntriesForContext( $sContext );
+	protected function ajaxExec_AddParamToFirewallWhitelist() {
+		$bSuccess = false;
 
-		$oTable = new AuditTrailTable();
-		return $oTable->setAuditContext( $sContext )
-					  ->setTotalRecords( $nCount );
-	}
+		$nId = $this->loadRequest()->post( 'rid' );
+		if ( empty( $nId ) || !is_numeric( $nId ) || $nId < 1 ) {
+			$sMessage = _wpsf__( 'Invalid audit entry selected for this action' );
+		}
+		else {
+			/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
+			$oPro = $this->getProcessor();
+			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
+			$oEntry = $oPro->getDbHandler()
+						   ->getQuerySelector()
+						   ->byId( $nId );
 
-	/**
-	 * @param string $sContext
-	 * @param array  $aParams
-	 * @return string
-	 */
-	protected function renderTableForContext( $sContext, $aParams = array() ) {
-		$oTable = $this->getTableRendererForContext( $sContext );
-
-		// clean any params of nonsense
-		foreach ( $aParams as $sKey => $sValue ) {
-			if ( preg_match( '#[^a-z0-9_]#i', $sKey ) || preg_match( '#[^a-z0-9_]#i', $sValue ) ) {
-				unset( $aParams[ $sKey ] );
+			if ( empty( $oEntry ) ) {
+				$sMessage = _wpsf__( 'Audit entry could not be loaded.' );
+			}
+			else {
+				$aData = $oEntry->meta;
+				$sParam = isset( $aData[ 'param' ] ) ? $aData[ 'param' ] : '';
+				$sUri = isset( $aData[ 'uri' ] ) ? $aData[ 'uri' ] : '*';
+				if ( empty( $sParam ) ) {
+					$sMessage = _wpsf__( 'Parameter associated with this audit entry could not be found.' );
+				}
+				else {
+					/** @var ICWP_WPSF_FeatureHandler_Firewall $oModFire */
+					$oModFire = $this->getCon()->getModule( 'firewall' );
+					$oModFire->addParamToWhitelist( $sParam, $sUri );
+					$sMessage = sprintf( _wpsf__( 'Parameter "%s" whitelisted successfully' ), $sParam );
+					$bSuccess = true;
+				}
 			}
 		}
 
-		$aParams = array_merge(
-			array(
-				'orderby' => 'created_at',
-				'order'   => 'DESC',
-				'paged'   => 1,
-			),
-			$aParams
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage
 		);
-		$nPage = (int)$aParams[ 'paged' ];
-
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditTrail */
-		$oAuditTrail = $this->loadProcessor();
-		$aEntries = $oAuditTrail->getAuditEntriesForContext(
-			$sContext,
-			$aParams[ 'orderby' ],
-			$aParams[ 'order' ],
-			$nPage,
-			$this->getDefaultPerPage()
-		);
-
-		$oTable->setItemEntries( $this->formatEntriesForDisplay( $aEntries ) )
-			   ->setPerPage( $this->getDefaultPerPage() )
-			   ->prepare_items();
-		ob_start();
-		$oTable->display();
-		return ob_get_clean();
 	}
 
 	/**
-	 * @return int
+	 * @return array
 	 */
-	protected function getDefaultPerPage() {
-		return $this->getDef( 'audit_trail_default_per_page' );
+	protected function ajaxExec_BuildTableAuditTrail() {
+		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
+		$oPro = $this->getProcessor();
+
+		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
+			->setMod( $this )
+			->setDbHandler( $oPro->getDbHandler() );
+
+		return array(
+			'success' => true,
+			'html'    => $oTableBuilder->buildTable()
+		);
 	}
 
 	/**
@@ -119,60 +107,71 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return int
 	 */
 	public function getMaxEntries() {
-		$nCustom = (int)$this->getOpt( 'audit_trail_max_entries' );
-		return $this->isPremium() ? $nCustom : $this->getDefaultMaxEntries();
+		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDefaultMaxEntries();
 	}
 
 	/**
-	 * Move to table
-	 * @param ICWP_WPSF_AuditTrailEntryVO[] $aEntries
-	 * @return array
+	 * @return bool
 	 */
-	public function formatEntriesForDisplay( $aEntries ) {
-		$oDp = $this->loadDP();
-		$sYou = $this->loadIpService()->getRequestIp();
-		if ( is_array( $aEntries ) ) {
-			foreach ( $aEntries as $nKey => $oEntry ) {
-				$aE = $oDp->convertStdClassToArray( $oEntry->getRawData() );
-				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->getEvent() ) );
-				$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->getMessage() ) );
-				$aE[ 'created_at' ] = $this->loadWp()->getTimeStringForDisplay( $oEntry->getCreatedAt() );
-				if ( $oEntry->getIp() == $sYou ) {
-					$aE[ 'ip' ] .= '<br /><div style="font-size: smaller;">('._wpsf__( 'Your IP' ).')</div>';
-				}
-				$aEntries[ $nKey ] = $aE;
-			}
-		}
-		return $aEntries;
+	public function isAuditEmails() {
+		return $this->isOpt( 'enable_audit_context_emails', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditPlugins() {
+		return $this->isOpt( 'enable_audit_context_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditPosts() {
+		return $this->isOpt( 'enable_audit_context_posts', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditShield() {
+		return $this->isOpt( 'enable_audit_context_wpsf', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditThemes() {
+		return $this->isOpt( 'enable_audit_context_themes', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditUsers() {
+		return $this->isOpt( 'enable_audit_context_users', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAuditWp() {
+		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getContentCustomActionsData() {
-		$aContexts = array(
+	public function getAllContexts() {
+		return array(
 			'all'       => 'All', //special
-			'wpsf'      => $this->getConn()->getHumanName(),
+			'wpsf'      => $this->getCon()->getHumanName(),
 			'wordpress' => 'WordPress',
 			'users'     => 'Users',
 			'posts'     => 'Posts',
 			'plugins'   => 'Plugins',
 			'themes'    => 'Themes',
 			'emails'    => 'Emails',
-		);
-
-		$aAuditTables = array();
-		foreach ( $aContexts as $sContext => $sTitle ) {
-			$aAuditTables[ $sContext ] = $this->renderTableForContext( $sContext );
-		}
-
-		return array(
-			'aAuditTables' => $aAuditTables,
-			'aContexts'    => $aContexts,
-			'sTitle'       => _wpsf__( 'Audit Trail Viewer' ),
-			'ajax'         => array(
-				'render_audit_table' => $this->getAjaxActionData( 'render_audit_table', true )
-			)
 		);
 	}
 
@@ -183,9 +182,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
-				'btn_actions'         => _wpsf__( 'Audit Trail Viewer' ),
-				'btn_actions_summary' => _wpsf__( 'Review audit trail logs ' ),
-
 				'at_users'            => _wpsf__( 'Users' ),
 				'at_plugins'          => _wpsf__( 'Plugins' ),
 				'at_themes'           => _wpsf__( 'Themes' ),
@@ -206,6 +202,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
+	 *
 	 * @param array  $aExportItems
 	 * @param string $sEmail
 	 * @param int    $nPage
@@ -219,13 +216,14 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$aExportItem = array(
 			'group_id'    => $this->prefix(),
-			'group_label' => sprintf( _wpsf__( '[%s] Audit Trail Entries' ), $this->getConn()->getHumanName() ),
+			'group_label' => sprintf( _wpsf__( '[%s] Audit Trail Entries' ), $this->getCon()->getHumanName() ),
 			'item_id'     => $this->prefix( 'audit-trail' ),
 			'data'        => array(),
 		);
 
 		try {
-			$oFinder = $oProc->getQuerySelector()
+			$oFinder = $oProc->getDbHandler()
+							 ->getQuerySelector()
 							 ->addWhereSearch( 'wp_username', $oUser->user_login )
 							 ->setResultsAsVo( true );
 
@@ -242,7 +240,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$aExportItems[] = $aExportItem;
 			}
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 		}
 
 		return $aExportItems;
@@ -250,6 +248,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * See plugin controller for the nature of $aData wpPrivacyErase()
+	 *
 	 * @param array  $aData
 	 * @param string $sEmail
 	 * @param int    $nPage
@@ -262,27 +261,97 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		try {
 			$oThisUsername = $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login;
-			$oProc->getQueryDeleter()
+			$oProc->getDbHandler()
+				  ->getQueryDeleter()
 				  ->addWhereSearch( 'wp_username', $oThisUsername )
 				  ->all();
-			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getConn()->getHumanName() );
+			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getCon()->getHumanName() );
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 		}
 		return $aData;
 	}
 
 	/**
-	 * @return string
+	 * @param array $aAllData
+	 * @return array
 	 */
-	public function getAuditTrailTableName() {
-		return $this->prefix( $this->getDef( 'audit_trail_table_name' ), '_' );
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'      => array(
+				'title' => _wpsf__( 'Activity Audit Log' ),
+				'sub'   => _wpsf__( 'Track Activity: What, Who, When, Where' ),
+			),
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aAudit = array();
+			$aNonAudit = array();
+			$this->isAuditShield() ? $aAudit[] = 'Shield' : $aNonAudit[] = 'Shield';
+			$this->isAuditUsers() ? $aAudit[] = _wpsf__( 'users' ) : $aNonAudit[] = _wpsf__( 'users' );
+			$this->isAuditPlugins() ? $aAudit[] = _wpsf__( 'plugins' ) : $aNonAudit[] = _wpsf__( 'plugins' );
+			$this->isAuditThemes() ? $aAudit[] = _wpsf__( 'themes' ) : $aNonAudit[] = _wpsf__( 'themes' );
+			$this->isAuditPosts() ? $aAudit[] = _wpsf__( 'posts' ) : $aNonAudit[] = _wpsf__( 'posts' );
+			$this->isAuditEmails() ? $aAudit[] = _wpsf__( 'emails' ) : $aNonAudit[] = _wpsf__( 'emails' );
+			$this->isAuditWp() ? $aAudit[] = 'WP' : $aNonAudit[] = 'WP';
+
+			if ( empty( $aNonAudit ) ) {
+				$aThis[ 'key_opts' ][ 'audit' ] = array(
+					'name'    => _wpsf__( 'Audit Areas' ),
+					'enabled' => true,
+					'summary' => _wpsf__( 'All important events on your site are being logged' ),
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
+				);
+			}
+			else if ( empty( $aAudit ) ) {
+				$aThis[ 'key_opts' ][ 'audit' ] = array(
+					'name'    => _wpsf__( 'Audit Areas' ),
+					'enabled' => false,
+					'summary' => sprintf( _wpsf__( 'No areas are set to be audited: %s' ), implode( ', ', $aAudit ) ),
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
+				);
+			}
+			else {
+//				$aThis[ 'key_opts' ][ 'audit' ] = array(
+//					'name'    => _wpsf__( 'Audit Areas' ),
+//					'enabled' => true,
+//					'summary' => sprintf( _wpsf__( 'Important areas are being audited: %s' ), implode( ', ', $aAudit ) ),
+//					'weight'  => 2,
+//					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
+//				);
+				$aThis[ 'key_opts' ][ 'nonaudit' ] = array(
+					'name'    => _wpsf__( 'Audit Events' ),
+					'enabled' => false,
+					'summary' => sprintf( _wpsf__( "Important events aren't being audited: %s" ), implode( ', ', $aNonAudit ) ),
+					'weight'  => 2,
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
+				);
+			}
+
+			$aThis[ 'key_opts' ][ 'length' ] = array(
+				'name'    => _wpsf__( 'Audit Trail' ),
+				'enabled' => true,
+				'summary' => sprintf( _wpsf__( 'Maximum Audit Trail entries limited to %s' ), $this->getMaxEntries() ),
+				'weight'  => 0,
+				'href'    => $this->getUrl_DirectLinkToOption( 'audit_trail_max_entries' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
 	}
 
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
@@ -317,7 +386,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -328,10 +397,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
-		$oCon = $this->getConn();
+		$oCon = $this->getCon();
 
 		$sKey = $aOptionsParams[ 'key' ];
 		switch ( $sKey ) {
@@ -345,7 +414,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			case 'audit_trail_max_entries' :
 				$sName = _wpsf__( 'Max Trail Length' );
 				$sSummary = _wpsf__( 'Maximum Audit Trail Length To Keep' );
-				$sDescription = _wpsf__( 'Automatically remove any audit trail entries when this limit is exceeded.' );
+				$sDescription = _wpsf__( 'Automatically remove any audit trail entries when this limit is exceeded.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Default' ), $this->getDefaultMaxEntries() );
 				break;
 
 			case 'audit_trail_auto_clean' :
@@ -397,7 +467,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

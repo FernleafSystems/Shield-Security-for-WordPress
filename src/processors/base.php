@@ -1,15 +1,11 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Base', false ) ) {
-	return;
-}
+use \FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
-	/**
-	 * @var ICWP_WPSF_FeatureHandler_Base
-	 */
-	protected $oModCon;
+	use Shield\Modules\ModConsumer,
+		Shield\AuditTrail\Auditor;
 
 	/**
 	 * @var int
@@ -19,7 +15,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @var ICWP_WPSF_Processor_Base[]
 	 */
-	protected $aSubProcessors;
+	protected $aSubPros;
 
 	/**
 	 * @var bool
@@ -30,25 +26,24 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 */
 	public function __construct( $oModCon ) {
-		$this->oModCon = $oModCon;
+		$this->setMod( $oModCon );
 
 		add_action( 'init', array( $this, 'onWpInit' ) );
+		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
 		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
+		add_action( $oModCon->prefix( 'daily_cron' ), array( $this, 'runDailyCron' ) );
+		add_action( $oModCon->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
 
 		$this->init();
 	}
 
 	public function onWpInit() {
-		$oMod = $this->getMod();
-		$oCon = $oMod->getConn();
-		if ( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) {
-			add_action( $oMod->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
-			if ( method_exists( $this, 'addToAdminNotices' ) ) {
-				add_action( $oMod->prefix( 'generate_admin_notices' ), array( $this, 'addToAdminNotices' ) );
-			}
-		}
+		add_action( $this->getMod()->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+	}
+
+	public function onWpLoaded() {
 	}
 
 	/**
@@ -79,6 +74,9 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		return (bool)$this->bLoginCaptured;
 	}
 
+	public function runDailyCron() {
+	}
+
 	/**
 	 * @return $this
 	 */
@@ -102,13 +100,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		return $this;
 	}
 
-	/**
-	 * @return ICWP_WPSF_Plugin_Controller
-	 */
-	public function getController() {
-		return $this->getMod()->getConn();
-	}
-
 	public function autoAddToAdminNotices() {
 		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
@@ -130,35 +121,36 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function getIfDisplayAdminNotice( $aAttrs ) {
+		$bDisplay = true;
+		$oCon = $this->getCon();
 		$oWpNotices = $this->loadWpNotices();
 
-		if ( empty( $aAttrs[ 'schedule' ] )
-			 || !in_array( $aAttrs[ 'schedule' ], array( 'once', 'conditions', 'version', 'never' ) ) ) {
-			$aAttrs[ 'schedule' ] = 'conditions';
+		$aAttrs = $this->loadDP()
+					   ->mergeArraysRecursive(
+						   [
+							   'schedule'         => 'conditions',
+							   'type'             => 'promo',
+							   'plugin_page_only' => true,
+							   'valid_admin'      => true,
+						   ],
+						   $aAttrs
+					   );
+
+		if ( $aAttrs[ 'valid_admin' ] && !( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) ) {
+			$bDisplay = false;
+		}
+		else if ( $aAttrs[ 'plugin_page_only' ] && !$this->getCon()->isModulePage() ) {
+			$bDisplay = false;
+		}
+		else if ( $aAttrs[ 'schedule' ] == 'once'
+				  && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
+			$bDisplay = false;
+		}
+		else if ( $aAttrs[ 'type' ] == 'promo' && $this->loadWp()->isMobile() ) {
+			$bDisplay = false;
 		}
 
-		if ( $aAttrs[ 'schedule' ] == 'never' ) {
-			return false;
-		}
-
-		if ( $aAttrs[ 'schedule' ] == 'once'
-			 && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) )
-		) {
-			return false;
-		}
-
-		if ( isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo' ) {
-			if ( $this->loadWp()->isMobile() ) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * @deprecated remove next release
-	 */
-	public function action_doFeatureProcessorShutdown() {
+		return $bDisplay;
 	}
 
 	public function onModuleShutdown() {
@@ -179,11 +171,12 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * Override to set what this processor does when it's "run"
 	 */
-	abstract public function run();
+	public function run() {
+	}
 
 	/**
 	 * @param array $aNoticeData
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function insertAdminNotice( $aNoticeData ) {
 		$aAttrs = $aNoticeData[ 'notice_attributes' ];
@@ -225,7 +218,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaLocale() {
-		return str_replace( '_', '-', $this->loadWp()->getLocale() );
+		return $this->loadWp()->getLocale( '-' );
 	}
 
 	/**
@@ -233,13 +226,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getEmailProcessor() {
 		return $this->getMod()->getEmailProcessor();
-	}
-
-	/**
-	 * @return ICWP_WPSF_FeatureHandler_Base
-	 */
-	protected function getMod() {
-		return $this->oModCon;
 	}
 
 	/**
@@ -254,7 +240,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sKey
 	 * @return ICWP_WPSF_Processor_Base|null
 	 */
-	protected function getSubProcessor( $sKey ) {
+	protected function getSubPro( $sKey ) {
 		$aProcessors = $this->getSubProcessors();
 		return isset( $aProcessors[ $sKey ] ) ? $aProcessors[ $sKey ] : null;
 	}
@@ -263,17 +249,10 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return ICWP_WPSF_Processor_Base[]
 	 */
 	protected function getSubProcessors() {
-		if ( !isset( $this->aSubProcessors ) ) {
-			$this->aSubProcessors = array();
+		if ( !isset( $this->aSubPros ) ) {
+			$this->aSubPros = array();
 		}
-		return $this->aSubProcessors;
-	}
-
-	/**
-	 * @return ICWP_UserMeta
-	 */
-	protected function getCurrentUserMeta() {
-		return $this->getController()->getCurrentUserMeta();
+		return $this->aSubPros;
 	}
 
 	/**
@@ -287,7 +266,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool|int|string
+	 * @return string
 	 */
 	protected function ip() {
 		return $this->loadIpService()->getRequestIp();
@@ -298,6 +277,11 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function time() {
 		return $this->loadRequest()->ts();
+	}
+
+	/**
+	 */
+	public function deactivatePlugin() {
 	}
 
 	/**

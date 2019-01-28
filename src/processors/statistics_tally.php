@@ -1,10 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Statistics_Tally', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/basedb.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally;
 
 class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 
@@ -12,50 +8,22 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 * @param ICWP_WPSF_FeatureHandler_Statistics $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getStatisticsTableName() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'statistics_table_name' ) );
 	}
 
 	public function run() {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Tally_Delete
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally\Handler
 	 */
-	public function getQueryDeleter() {
-		$this->queryRequireLib( 'tally_delete.php' );
-		return ( new ICWP_WPSF_Query_Tally_Delete() )->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Tally_Insert
-	 */
-	public function getQueryInserter() {
-		$this->queryRequireLib( 'tally_insert.php' );
-		return ( new ICWP_WPSF_Query_Tally_Insert() )->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Tally_Select
-	 */
-	public function getQuerySelector() {
-		$this->queryRequireLib( 'tally_select.php' );
-		return ( new ICWP_WPSF_Query_Tally_Select() )
-			->setTable( $this->getTableName() )
-			->setResultsAsVo( true )
-			->setColumnsDefinition( $this->getTableColumnsByDefinition() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Tally_Update
-	 */
-	public function getUpdater() {
-		$this->queryRequireLib( 'tally_update.php' );
-		return ( new ICWP_WPSF_Query_Tally_Update() )->setTable( $this->getTableName() );
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally\Handler();
 	}
 
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( !$this->getMod()->isPluginDeleting() ) {
+		if ( !$this->getCon()->isPluginDeleting() ) {
 			$this->commit();
 		}
 	}
@@ -76,8 +44,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 			return;
 		}
 
-		/** @var ICWP_WPSF_TallyVO $oStat */
-		$oSel = $this->getQuerySelector();
+		$oDbh = $this->getDbHandler();
 		foreach ( $aEntries as $aCollection ) {
 			foreach ( $aCollection as $sStatKey => $nTally ) {
 
@@ -86,18 +53,22 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 					list( $sStatKey, $sParentStatKey ) = explode( ':', $sStatKey, 2 );
 				}
 
-				$oStat = $this->getQuerySelector()
-							  ->retrieveStat( $sStatKey, $sParentStatKey );
+				/** @var Tally\Select $oSelect */
+				$oSelect = $this->getDbHandler()->getQuerySelector();
+				$oStat = $oSelect->retrieveStat( $sStatKey, $sParentStatKey );
 
 				if ( empty( $oStat ) ) {
-					$oStat = $oSel->getVo();
+					/** @var Tally\EntryVO $oStat */
+					$oStat = $oDbh->getVo();
 					$oStat->stat_key = $sStatKey;
 					$oStat->tally = $nTally;
 					$oStat->parent_stat_key = $sParentStatKey;
-					$this->getQueryInserter()->insert( $oStat );
+					$oDbh->getQueryInserter()->insert( $oStat );
 				}
 				else {
-					$this->getUpdater()->incrementTally( $oStat, $nTally );
+					/** @var Tally\Update $oUp */
+					$oUp = $oDbh->getQueryUpdater();
+					$oUp->incrementTally( $oStat, $nTally );
 				}
 			}
 		}
@@ -107,7 +78,7 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	protected function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 				stat_key varchar(100) NOT NULL DEFAULT 0,
 				parent_stat_key varchar(100) NOT NULL DEFAULT '',
@@ -117,7 +88,6 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				PRIMARY KEY  (id)
 			) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -130,9 +100,8 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 * Will consolidate multiple rows with the same stat_key into 1 row
 	 */
 	protected function consolidateDuplicateKeys() {
-		/** @var ICWP_WPSF_TallyVO[] $aAll */
-		$aAll = $this->getQuerySelector()
-					 ->all();
+		/** @var Tally\EntryVO[] $aAll */
+		$aAll = $this->getDbHandler()->getQuerySelector()->all();
 
 		$aKeys = array();
 		foreach ( $aAll as $oTally ) {
@@ -149,20 +118,24 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 			}
 		) );
 
+		$oDbh = $this->getDbHandler();
 		foreach ( $aKeys as $sKey ) {
-			/** @var ICWP_WPSF_TallyVO[] $aAll */
-			$aAll = $this->getQuerySelector()
-						 ->filterByStatKey( $sKey )
+			/** @var Tally\EntryVO[] $aAll */
+			/** @var Tally\Select $oSel */
+			$oSel = $this->getDbHandler()->getQuerySelector();
+			$aAll = $oSel->filterByStatKey( $sKey )
 						 ->query();
 			$oPrimary = array_pop( $aAll );
 
 			$nAdditionalTally = 0;
 			foreach ( $aAll as $oTally ) {
 				$nAdditionalTally += $oTally->tally;
-				$this->getQueryDeleter()->deleteById( $oTally->id );
+				$oDbh->getQueryDeleter()->deleteEntry( $oTally );
 			}
 
-			$this->getUpdater()->incrementTally( $oPrimary, $nAdditionalTally );
+			/** @var Tally\Update $oUp */
+			$oUp = $oDbh->getQueryUpdater();
+			$oUp->incrementTally( $oPrimary, $nAdditionalTally );
 		}
 	}
 
@@ -173,9 +146,26 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return string
+	 * @deprecated
+	 * @return Tally\Update
 	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'statistics/';
+	public function getUpdater() {
+		return parent::getQueryUpdater();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Tally\Insert
+	 */
+	public function getQueryInserter() {
+		return parent::getQueryInserter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return Tally\Select
+	 */
+	public function getQuerySelector() {
+		return parent::getQuerySelector();
 	}
 }

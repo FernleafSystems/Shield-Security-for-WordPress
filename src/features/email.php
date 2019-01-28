@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_Email', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -22,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
@@ -34,7 +28,7 @@ class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		return $aOptionsParams;
@@ -43,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
@@ -56,7 +50,7 @@ class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

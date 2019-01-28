@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_ServiceProviders', false ) ) {
-	return;
-}
 
 /**
  * Class ICWP_WPSF_ServiceProviders
@@ -357,7 +354,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	private function verifyIp_AppleBot( $sIp, $sUserAgent = '' ) {
 		return ( $this->loadIpService()->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
-			   && $this->isIpOfBot( 'Applebot/', '#.*\.applebot.apple.com\.?$#i', $sIp, $sUserAgent );
+			   && $this->isIpOfBot( [ 'Applebot/' ], '#.*\.applebot.apple.com\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -366,7 +363,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	private function verifyIp_BaiduBot( $sIp, $sUserAgent = '' ) {
-		return $this->isIpOfBot( 'baidu', '#.*\.crawl\.baidu\.(com|jp)\.?$#i', $sIp, $sUserAgent );
+		return $this->isIpOfBot( [ 'baidu' ], '#.*\.crawl\.baidu\.(com|jp)\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -375,7 +372,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	private function verifyIp_BingBot( $sIp, $sUserAgent = '' ) {
-		return $this->isIpOfBot( 'bingbot', '#.*\.search\.msn\.com\.?$#i', $sIp, $sUserAgent );
+		return $this->isIpOfBot( [ 'bingbot' ], '#.*\.search\.msn\.com\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -384,7 +381,10 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	private function verifyIp_GoogleBot( $sIp, $sUserAgent = '' ) {
-		return $this->isIpOfBot( 'Googlebot', '#.*\.google(bot)?\.com\.?$#i', $sIp, $sUserAgent );
+		return $this->isIpOfBot(
+			[ 'Googlebot', 'APIs-Google', 'AdsBot-Google', 'Mediapartners-Google' ],
+			'#.*\.google(bot)?\.com\.?$#i', $sIp, $sUserAgent
+		);
 	}
 
 	/**
@@ -393,7 +393,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	private function verifyIp_YandexBot( $sIp, $sUserAgent = '' ) {
-		return $this->isIpOfBot( 'yandex.com/bots', '#.*\.yandex?\.(com|ru|net)\.?$#i', $sIp, $sUserAgent );
+		return $this->isIpOfBot( [ 'yandex.com/bots' ], '#.*\.yandex?\.(com|ru|net)\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
@@ -402,28 +402,37 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	private function verifyIp_YahooBot( $sIp, $sUserAgent = '' ) {
-		return $this->isIpOfBot( 'yahoo!', '#.*\.crawl\.yahoo\.net\.?$#i', $sIp, $sUserAgent );
+		return $this->isIpOfBot( [ 'yahoo!' ], '#.*\.crawl\.yahoo\.net\.?$#i', $sIp, $sUserAgent );
 	}
 
 	/**
 	 * Will test useragent, then attempt to resolve to hostname and back again
 	 * https://www.elephate.com/detect-verify-crawlers/
-	 * @param string $sBotUserAgent
+	 * @param array  $aBotUserAgents
 	 * @param string $sBotHostPattern
 	 * @param string $sReqIp
 	 * @param string $sReqUserAgent
 	 * @return bool
 	 */
-	private function isIpOfBot( $sBotUserAgent, $sBotHostPattern, $sReqIp, $sReqUserAgent = '' ) {
+	private function isIpOfBot( $aBotUserAgents, $sBotHostPattern, $sReqIp, $sReqUserAgent = '' ) {
 		$bIsBot = false;
 
-		// We check the useragent if available
-		if ( is_null( $sReqUserAgent ) || stripos( $sReqUserAgent, $sBotUserAgent ) !== false ) {
+		$bCheckIpHost = is_null( $sReqUserAgent );
+		if ( !$bCheckIpHost ) {
+			$aBotUserAgents = array_map(
+				function ( $sAgent ) {
+					preg_quote( $sAgent, '#' );
+				},
+				$aBotUserAgents
+			);
+			$bCheckIpHost = (bool)preg_match( sprintf( '#%s#i', implode( '|', $aBotUserAgents ) ), $sReqUserAgent );
+		}
+
+		if ( $bCheckIpHost ) {
 			$sHost = @gethostbyaddr( $sReqIp ); // returns the ip on failure
-			if ( !empty( $sHost ) && ( $sHost != $sReqIp )
-				 && preg_match( $sBotHostPattern, $sHost ) && gethostbyname( $sHost ) === $sReqIp ) {
-				$bIsBot = true;
-			}
+			$bIsBot = !empty( $sHost ) && ( $sHost != $sReqIp )
+					  && preg_match( $sBotHostPattern, $sHost )
+					  && gethostbyname( $sHost ) === $sReqIp;
 		}
 		return $bIsBot;
 	}

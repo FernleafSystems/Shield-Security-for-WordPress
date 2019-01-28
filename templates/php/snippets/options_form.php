@@ -1,4 +1,5 @@
-<form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm" novalidate="novalidate" autocomplete="off">
+<form action="<?php echo $form_action; ?>" method="post" class="icwpOptionsForm" novalidate="novalidate"
+	  autocomplete="off">
 	<input type="hidden" id="_wpnonce" name="_wpnonce" value="<?php echo $data[ 'form_nonce' ] ?>">
     <input type="hidden" name="mod_slug" value="<?php echo $data[ 'mod_slug' ]; ?>" />
     <input type="hidden" name="plugin_form_submit" value="Y" />
@@ -25,32 +26,19 @@
 							   href="javascript:void(0)">
 								<?php echo $strings[ 'btn_options' ]; ?></a>
 
-							<?php if ( $flags[ 'can_wizard' ] && $flags[ 'has_wizard' ] ) : ?>
+							<?php if ( $flags[ 'has_wizard' ] ) : ?>
 								<a class="btn btn-outline-dark btn-icwp-wizard icwp-carousel-1"
 								   title="Launch Guided Walk-Through Wizards" href="javascript:void(0)">
 								<?php echo $strings[ 'btn_wizards' ]; ?></a>
 							<?php else : ?>
 								<a class="btn btn-outline-dark btn-icwp-wizard disabled"
 								   href="javascript:{}"
-									<?php if ( $flags[ 'can_wizard' ] ) : ?>
-										title="No Wizards for this module."
-									<?php else : ?>
-										title="Wizards are not available as your PHP version is too old."
-									<?php endif; ?>>
+								   title="No Wizards for this module."
 								<?php echo $strings[ 'btn_wizards' ]; ?></a>
 							<?php endif; ?>
 
 							<a class="btn btn-outline-info icwp-carousel-2" href="javascript:void(0)">
 								<?php echo $strings[ 'btn_help' ]; ?></a>
-
-							<?php if ( $flags[ 'show_content_actions' ] ) : ?>
-								<a class="btn btn-outline-secondary icwp-carousel-3" href="javascript:void(0)">
-									<?php echo $strings[ 'btn_actions' ]; ?></a>
-							<?php else : ?>
-								<a class="btn btn-outline-secondary disabled" href="javascript:void(0)">
-									<?php echo $strings[ 'btn_actions' ]; ?></a>
-							<?php endif; ?>
-
 						</div>
 					</div>
 					<small class="module-tagline"><?php echo $sTagline; ?></small>
@@ -175,7 +163,7 @@
 							<div class="option_overlay">
 								<div class="overlay_message">
 									<a href="<?php echo $hrefs[ 'go_pro' ]; ?>" target="_blank">
-										Go Pro!</a>
+										Sorry, this is a premium-only feature</a>
 								</div>
 							</div>
 						<?php endif; ?>

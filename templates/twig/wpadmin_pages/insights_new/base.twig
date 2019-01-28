@@ -1,0 +1,46 @@
+{% extends '/wpadmin_pages/base.twig' %}
+
+{% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
+
+{% block page_head %}
+	<div class="row">
+		<div class="col-12">
+			<nav class="navbar navbar-expand-lg navbar-light bg-light">
+				<a class="navbar-brand" href="{{ hrefs.nav_home }}" id="navbar-bannerlogo"
+				style="background-image: url('{{ hrefs.img_banner }}');"
+				>&nbsp;</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+						aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+					<div class="navbar-nav">
+						{% for navkey,navdata in hrefs.top_nav %}
+							<a class="nav-item nav-link{% if navdata.active %} active{% endif %}"
+							   id="NavItem-{{ navkey }}"
+							   href="{{ navdata.href }}">{{ navdata.name }}
+								{% if navdata.active %} <span class="sr-only">(current){% endif %}</a>
+						{% endfor %}
+					</div>
+				</div>
+				{#<form class="form-inline">#}
+					{#<input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">#}
+					{#<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>#}
+				{#</form>#}
+			</nav>
+		</div>
+	</div>
+{% endblock %}
+
+{% block page_main %}
+	<div class="row">
+		<div class="col">
+		</div>
+	</div>
+{% endblock %}
+
+{% block page_foot %}
+{% endblock %}
+
+{% block inline_styles %}
+{% endblock %}

@@ -1,12 +1,8 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_plugin.php' );
-
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
+
+	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 
 	/**
 	 * @var ICWP_WPSF_Processor_Plugin_Badge
@@ -24,6 +20,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
+		$this->setupCron();
 
 		$this->removePluginConflicts();
 		$this->getBadgeProcessor()
@@ -36,9 +33,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		if ( $oFO->isImportExportPermitted() ) {
 			$this->getSubProcessorImportExport()->run();
 		}
-
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
-		add_action( 'in_admin_footer', array( $this, 'printVisitorIpFooter' ) );
 
 		switch ( $this->loadRequest()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
@@ -56,14 +50,28 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				break;
 		}
 
-		add_action( 'admin_footer', array( $this, 'printPluginDeactivateSurvey' ), 100, 0 );
+		add_action( 'admin_footer', array( $this, 'printAdminFooterItems' ), 100, 0 );
+	}
+
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
+	protected function getCronName() {
+		return $this->getMod()->prefix( 'daily' );
+	}
+
+	/**
+	 * Use the included action to hook into the plugin's daily cron
+	 */
+	public function runCron() {
+		do_action( $this->getMod()->prefix( 'daily_cron' ) );
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getController()->isValidAdminArea() ) {
+		if ( $this->getCon()->isValidAdminArea() ) {
 			$this->maintainPluginLoadPosition();
 		}
-		$this->setupTestCron();
 	}
 
 	/**
@@ -71,7 +79,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getBadgeProcessor() {
 		if ( !isset( $this->oBadgeProcessor ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_badge.php' );
+			require_once( __DIR__.'/plugin_badge.php' );
 			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getMod() );
 		}
 		return $this->oBadgeProcessor;
@@ -82,7 +90,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getTrackingProcessor() {
 		if ( !isset( $this->oTrackingProcessor ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_tracking.php' );
+			require_once( __DIR__.'/plugin_tracking.php' );
 			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getMod() );
 		}
 		return $this->oTrackingProcessor;
@@ -92,11 +100,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
 	 */
 	public function getSubProcessorImportExport() {
-		$oProc = $this->getSubProcessor( 'importexport' );
+		$oProc = $this->getSubPro( 'importexport' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_importexport.php' );
+			require_once( __DIR__.'/plugin_importexport.php' );
 			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getMod() );
-			$this->aSubProcessors[ 'importexport' ] = $oProc;
+			$this->aSubPros[ 'importexport' ] = $oProc;
 		}
 		return $oProc;
 	}
@@ -105,18 +113,39 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * @return ICWP_WPSF_Processor_Plugin_Notes
 	 */
 	public function getSubProcessorNotes() {
-		$oProc = $this->getSubProcessor( 'notes' );
+		$oProc = $this->getSubPro( 'notes' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/plugin_notes.php' );
+			require_once( __DIR__.'/plugin_notes.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
 			$oMod = $this->getMod();
 			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $oMod );
-			$this->aSubProcessors[ 'notes' ] = $oProc;
+			$this->aSubPros[ 'notes' ] = $oProc;
 		}
 		return $oProc;
 	}
 
-	public function printPluginDeactivateSurvey() {
+	public function printAdminFooterItems() {
+		$this->printPluginDeactivateSurvey();
+		$this->printToastTemplate();
+	}
+
+	/**
+	 * Sets this plugin to be the first loaded of all the plugins.
+	 */
+	private function printToastTemplate() {
+		if ( $this->getCon()->isModulePage() ) {
+			$aRenderData = array(
+				'strings'     => array(
+					'title' => $this->getCon()->getHumanName(),
+				),
+				'js_snippets' => array()
+			);
+			echo $this->getMod()
+					  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
+		}
+	}
+
+	private function printPluginDeactivateSurvey() {
 		$oWp = $this->loadWp();
 		if ( $oWp->isCurrentPage( 'plugins.php' ) ) {
 
@@ -147,38 +176,17 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	/**
 	 */
 	public function dumpTrackingData() {
-		if ( $this->getController()->isPluginAdmin() ) {
+		if ( $this->getCon()->isPluginAdmin() ) {
 			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
 																	  ->collectTrackingData(), true ) );
 			die();
 		}
 	}
 
-	protected function setupTestCron() {
-		try {
-			$this->loadWpCronProcessor()
-				 ->setRecurrence( 'daily' )
-				 ->createCronJob(
-					 $this->prefix( 'testcron' ),
-					 array( $this, 'cron_TestCron' )
-				 );
-		}
-		catch ( Exception $oE ) {
-		}
-		add_action( $this->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
-	public function cron_TestCron() {
+	public function runDailyCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$oFO->updateTestCronLastRunAt();
-	}
-
-	/**
-	 */
-	public function deleteCron() {
-		$this->loadWpCronProcessor()
-			 ->deleteCronJob( $this->prefix( 'testcron' ) );
 	}
 
 	/**
@@ -186,16 +194,10 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function maintainPluginLoadPosition() {
 		$oWpPlugins = $this->loadWpPlugins();
-		$sBaseFile = $this->getController()->getPluginBaseFile();
+		$sBaseFile = $this->getCon()->getPluginBaseFile();
 		$nLoadPosition = $oWpPlugins->getActivePluginLoadPosition( $sBaseFile );
 		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
 			$oWpPlugins->setActivePluginLoadFirst( $sBaseFile );
-		}
-	}
-
-	public function printVisitorIpFooter() {
-		if ( apply_filters( 'icwp_wpsf_print_admin_ip_footer', true ) ) {
-			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
 		}
 	}
 
@@ -207,14 +209,14 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 		if ( $oCon->getIfForceOffActive() ) {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'   => sprintf( '%s - %s', _wpsf__( 'Warning' ), sprintf( _wpsf__( '%s plugin is not currently processing requests' ), $oCon->getHumanName() ) ),
+					'title'   => sprintf( '%s: %s', _wpsf__( 'Warning' ), sprintf( _wpsf__( '%s is not protecting your site' ), $oCon->getHumanName() ) ),
 					'message' => sprintf(
-						_wpsf__( 'Please delete the "%s" file to reactivate the %s protection' ),
+						_wpsf__( 'Please delete the "%s" file to reactivate %s protection' ),
 						'forceOff',
 						$oCon->getHumanName()
 					),
@@ -234,7 +236,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
 		$oModCon = $this->getMod();
-		$sName = $this->getController()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 
 		$nDays = $this->getInstallationDays();
 		if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {
@@ -267,6 +269,16 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function removePluginConflicts() {
 		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
 			remove_action( 'init', array( $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ), 0 );
+		}
+	}
+
+	/**
+	 * unused
+	 * @deprecated v7
+	 */
+	public function printVisitorIpFooter() {
+		if ( apply_filters( 'icwp_wpsf_print_admin_ip_footer', true ) ) {
+			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
 		}
 	}
 }

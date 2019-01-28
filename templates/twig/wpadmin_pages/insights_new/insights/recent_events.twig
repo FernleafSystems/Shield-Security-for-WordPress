@@ -1,0 +1,16 @@
+<div id="SectionRecentEvents" class="insights_widget card w-100">
+	<div class="card-header">
+		<h5 class="card-title">Recent Events Log</h5>
+		<h6 class="card-subtitle text-muted">{{ strings.box_receve_subtitle }}</h6>
+	</div>
+	<div class="card-body overflow_container">
+		<div class="overflow_inner">
+			{% for insight_event in vars.insight_events %}
+				<dl class="row">
+					<dt class="col-6">{{ insight_event.name }}:</dt>
+					<dd class="col-6">{{ insight_event.val }}</dd>
+				</dl>
+			{% endfor %}
+		</div>
+	</div>
+</div>

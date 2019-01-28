@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_WpFunctions_Plugins', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 
 	/**
@@ -486,7 +482,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sFile
-	 * @return boolean|stdClass
+	 * @return boolean
 	 */
 	public function isUpdateAvailable( $sFile ) {
 		return !is_null( $this->getUpdateInfo( $sFile ) );

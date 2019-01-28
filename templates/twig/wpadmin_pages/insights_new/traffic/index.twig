@@ -1,0 +1,17 @@
+{% extends '/wpadmin_pages/insights_new/base.twig' %}
+
+{% block page_main %}
+	<div class="row ">
+		<div class="col-12 insights_section">
+			{% if flags.can_traffic %}
+				{% if flags.is_enabled %}
+					{% include '/wpadmin_pages/insights_new/traffic/traffic_table.twig' %}
+				{% else %}
+					{% include '/wpadmin_pages/insights_new/traffic/traffic_disabled.twig' %}
+				{% endif %}
+			{% else %}
+				{% include '/wpadmin_pages/insights_new/traffic/traffic_unavailable.twig' %}
+			{% endif %}
+		</div>
+	</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 {
   "properties":   {
-    "version":                 "6.10.9",
-    "release_timestamp":       1544177090,
+    "version":                 "7.0.0",
+    "release_timestamp":       1548664000,
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
@@ -17,11 +17,12 @@
     "enable_premium":          true
   },
   "requirements": {
-    "php":       "5.2.4",
+    "php":       "5.4.0",
     "wordpress": "3.5.0"
   },
   "paths":        {
     "source":    "src",
+    "autoload":  "lib/vendor/autoload.php",
     "assets":    "resources",
     "languages": "languages",
     "templates": "templates",
@@ -47,7 +48,8 @@
         "bootstrap4.bundle.min",
         "jquery",
         "plugin",
-        "featherlight"
+        "featherlight",
+        "jquery.fileDownload"
       ]
     },
     "frontend":     {

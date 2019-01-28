@@ -1,19 +1,8 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_BaseWpsf', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base.php' );
-
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
-
-	/**
-	 * @var array
-	 */
-	private $aAuditEntry;
 
 	/**
 	 * @var array
@@ -36,7 +25,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	public function init() {
 		parent::init();
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'collect_audit_trail' ), array( $this, 'audit_Collect' ) );
 		add_filter( $oFO->prefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
 		add_filter( $oFO->prefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
 	}
@@ -45,7 +33,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return int
 	 */
 	protected function getInstallationDays() {
-		$nTimeInstalled = $this->getController()
+		$nTimeInstalled = $this->getCon()
 							   ->loadCorePluginFeatureHandler()
 							   ->getInstallDate();
 		if ( empty( $nTimeInstalled ) ) {
@@ -59,16 +47,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function isUserSubjectToLoginIntent( $oUser = null ) {
-		$oWpUsers = $this->loadWpUsers();
-		if ( !is_a( $oUser, 'WP_User' ) ) {
-			if ( $oWpUsers->isUserLoggedIn() ) {
-				$oUser = $oWpUsers->getCurrentWpUser();
-			}
-			else {
-				return false; // If we can't get a valid WP_User, then always false.
-			}
+		$bIsSubject = false;
+
+		if ( !$oUser instanceof WP_User ) {
+			$oUser = $this->loadWpUsers()->getCurrentWpUser();
 		}
-		return apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
+		if ( $oUser instanceof WP_User ) {
+			$bIsSubject = apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
+		}
+
+		return $bIsSubject;
 	}
 
 	/**
@@ -89,7 +77,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * @return bool
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function checkRequestRecaptcha() {
 		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
@@ -98,14 +86,14 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$sCaptchaResponse = $this->getRecaptchaResponse();
 
 		if ( empty( $sCaptchaResponse ) ) {
-			throw new Exception( _wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA was not submitted.' ), 1 );
+			throw new \Exception( _wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA was not submitted.' ), 1 );
 		}
 		else {
 			$oResponse = $this->loadGoogleRecaptcha()
 							  ->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() )
 							  ->verify( $sCaptchaResponse, $this->ip() );
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-				throw new Exception(
+				throw new \Exception(
 					_wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA verification failed.' )
 					.( $this->loadWp()->isAjax() ? ' '._wpsf__( 'Maybe refresh the page and try again.' ) : '' ),
 					2 );
@@ -173,6 +161,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * Used to mark an IP address for transgression/black-mark
+	 *
 	 * @return $this
 	 */
 	public function setIpTransgressed() {
@@ -182,6 +171,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * A filter used to collect all the stats gathered in the plugin.
+	 *
 	 * @param array $aStats
 	 * @return array
 	 */
@@ -225,6 +215,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * - it is not enabled by default.
 	 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain
 	 * identifiable data.
+	 *
 	 * @param $aData
 	 * @return array
 	 */
@@ -239,6 +230,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	/**
 	 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
+	 *
 	 * @param string $sStatKey
 	 * @param string $sParentStatKey
 	 * @return $this
@@ -251,94 +243,28 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @param array $aAuditEntries
-	 * @return array
-	 */
-	public function audit_Collect( $aAuditEntries ) {
-		if ( !is_array( $aAuditEntries ) ) {
-			$aAuditEntries = array();
-		}
-		if ( isset( $this->aAuditEntry ) && is_array( $this->aAuditEntry ) ) {
-			$aAuditEntries[] = $this->aAuditEntry;
-		}
-		return $aAuditEntries;
-	}
-
-	/**
 	 * @param string $sMsg
 	 * @param int    $nCategory
 	 * @param string $sEvent
-	 * @param string $sWpUsername
+	 * @param array  $aData
 	 * @return $this
 	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $sWpUsername = '' ) {
-		if ( !isset( $this->aAuditEntry ) ) {
-
-			if ( empty( $sWpUsername ) ) {
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
-				if ( $this->loadWp()->isCron() ) {
-					$sWpUsername = 'WP Cron';
-				}
-				else {
-					$sWpUsername = empty( $oUser ) ? 'unidentified' : $oUser->user_login;
-				}
-			}
-
-			$this->aAuditEntry = array(
-				'created_at'  => $this->time(),
-				'wp_username' => $sWpUsername,
-				'context'     => 'wpsf',
-				'event'       => $sEvent,
-				'category'    => $nCategory,
-				'message'     => array()
-			);
-		}
-
-		$this->aAuditEntry[ 'message' ][] = esc_sql( $sMsg );
-
-		if ( $nCategory > $this->aAuditEntry[ 'category' ] ) {
-			$this->aAuditEntry[ 'category' ] = $nCategory;
-		}
-		if ( !empty( $sEvent ) ) {
-			$this->aAuditEntry[ 'event' ] = $sEvent;
-		}
-
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = array() ) {
+		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
 		return $this;
 	}
 
 	/**
-	 * @param string $sSeparator
-	 * @return string
-	 */
-	protected function getAuditMessage( $sSeparator = ' ' ) {
-		return implode( $sSeparator, $this->getRawAuditMessage() );
-	}
-
-	/**
-	 * @param string $sLinePrefix
-	 * @return array
-	 */
-	protected function getRawAuditMessage( $sLinePrefix = '' ) {
-		if ( isset( $this->aAuditEntry[ 'message' ] ) && is_array( $this->aAuditEntry[ 'message' ] ) && !empty( $sLinePrefix ) ) {
-			$aAuditMessages = array();
-			foreach ( $this->aAuditEntry[ 'message' ] as $sMessage ) {
-				$aAuditMessages[] = $sLinePrefix.$sMessage;
-			}
-			return $aAuditMessages;
-		}
-		return isset( $this->aAuditEntry[ 'message' ] ) ? $this->aAuditEntry[ 'message' ] : array();
-	}
-
-	/**
 	 * If recaptcha is required, it prints the necessary snippet and does not remove the enqueue
-	 * @throws Exception
+	 *
+	 * @throws \Exception
 	 */
 	public function maybeDequeueRecaptcha() {
 
 		if ( $this->isRecaptchaEnqueue() ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 			$oFO = $this->getMod();
-			echo $this->loadRenderer( $this->getController()->getPath_Templates() )
+			echo $this->loadRenderer( $this->getCon()->getPath_Templates() )
 					  ->setTemplateEnginePhp()
 					  ->setRenderVars(
 						  array(
@@ -366,6 +292,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	/**
 	 * Note we don't provide a 'false' option here as if it's set to be needed somewhere,
 	 * it shouldn't be unset anywhere else.
+	 *
 	 * @return $this
 	 */
 	public function setRecaptchaToEnqueue() {

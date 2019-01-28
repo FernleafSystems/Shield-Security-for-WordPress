@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_IntentProviderBase', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -36,7 +30,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
 		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
 
-		if ( $this->getController()->isPluginAdmin() ) {
+		if ( $this->getCon()->isPluginAdmin() ) {
 			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserEditProfile' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
 		}

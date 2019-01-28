@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_OptionsVO', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
@@ -24,11 +21,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @var boolean
 	 */
 	protected $bNeedSave;
-
-	/**
-	 * @var boolean
-	 */
-	protected $bIsPremium;
 
 	/**
 	 * @var boolean
@@ -75,14 +67,15 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param bool $bDeleteFirst Used primarily with plugin reset
+	 * @param bool $bIsPremiumLicensed
 	 * @return bool
 	 */
-	public function doOptionsSave( $bDeleteFirst = false ) {
+	public function doOptionsSave( $bDeleteFirst = false, $bIsPremiumLicensed = false ) {
 		if ( !$this->getNeedSave() ) {
 			return true;
 		}
 		$this->cleanOptions();
-		if ( !$this->isPremiumLicensed() ) {
+		if ( !$bIsPremiumLicensed ) {
 			$this->resetPremiumOptsToDefault();
 		}
 		$this->setNeedSave( false );
@@ -256,6 +249,20 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getPrimarySection() {
+		$aSec = array();
+		foreach ( $this->getSections() as $aS ) {
+			if ( isset( $aS[ 'primary' ] ) && $aS[ 'primary' ] ) {
+				$aSec = $aS;
+				break;
+			}
+		}
+		return $aSec;
+	}
+
+	/**
 	 * @param string $sSlug
 	 * @return array
 	 */
@@ -422,6 +429,21 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $mDefault;
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return array
+	 */
+	public function getOptDefinition( $sOptionKey ) {
+		$aDef = array();
+		foreach ( $this->getRawData_AllOptions() as $aOption ) {
+			if ( $aOption[ 'key' ] == $sOptionKey ) {
+				$aDef = $aOption;
+				break;
+			}
+		}
+		return $aDef;
 	}
 
 	/**
@@ -624,13 +646,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isPremiumLicensed() {
-		return (bool)$this->bIsPremium;
-	}
-
-	/**
 	 * @param string $sOptionKey
 	 * @return boolean
 	 */
@@ -647,15 +662,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				$this->resetOptToDefault( $aOption[ 'key' ] );
 			}
 		}
-	}
-
-	/**
-	 * @param $bIsPremium
-	 * @return $this
-	 */
-	public function setIsPremiumLicensed( $bIsPremium ) {
-		$this->bIsPremium = $bIsPremium;
-		return $this;
 	}
 
 	/**
@@ -730,7 +736,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $mNewValue );
 		// basically if we're actually resetting back to the original value
 		$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $sOptKey )
-						   && ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
+						&& ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
 
 		if ( $bValueIsDifferent && $this->verifyCanSet( $sOptKey, $mNewValue ) ) {
 			$this->setNeedSave( true );

@@ -1,10 +1,6 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Ips', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/basedb.php' );
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
 class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
@@ -22,7 +18,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param ICWP_WPSF_FeatureHandler_Ips $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Ips $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getIpListsTableName() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'ip_lists_table_name' ) );
 	}
 
 	/**
@@ -76,9 +72,10 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param array $aNoticeAttributes
+	 * @throws \Exception
 	 */
 	public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		if ( $oCon->getIsPage_PluginAdmin() && $this->isCurrentIpWhitelisted() ) {
 			$aRenderData = array(
@@ -196,7 +193,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	private function getTransgressions( $sIp ) {
 		$oBlackIp = $this->getAutoBlackListIp( $sIp );
-		return ( $oBlackIp instanceof ICWP_WPSF_IpsEntryVO ) ? $oBlackIp->getTransgressions() : 0;
+		return ( $oBlackIp instanceof IPs\EntryVO ) ? $oBlackIp->getTransgressions() : 0;
 	}
 
 	protected function processBlacklist() {
@@ -223,13 +220,14 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				 ->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
 			$oFO->setOptInsightsAt( 'last_ip_block_at' );
 
-			$this->getQueryUpdater()
-				 ->updateLastAccessAt( $this->getAutoBlackListIp( $sIp ) );
+			/** @var IPs\Update $oUp */
+			$oUp = $this->getDbHandler()->getQueryUpdater();
+			$oUp->updateLastAccessAt( $this->getAutoBlackListIp( $sIp ) );
 
 			$this->loadWp()
 				 ->wpDie(
 					 '<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
-						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getController()
+						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
 																											 ->getHumanName().'</a>'
 					 ).'</h3>'
 					 .'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() )
@@ -256,9 +254,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		if ( $this->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
 
 			// Never black mark IPs that are on the whitelist
-			$oIP = $this->loadIpService();
-			$bCanBlackMark = !$oFO->isPluginDeleting() && $oFO->isAutoBlackListFeatureEnabled()
-							 && ( $oIP->whatIsMyIp() !== $this->ip() );
+			$bCanBlackMark = $oFO->isAutoBlackListFeatureEnabled()
+							 && !$this->getCon()->isPluginDeleting();
 
 			if ( $bCanBlackMark ) {
 				$this->processIpBlackMark( $this->ip() );
@@ -276,10 +273,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$this->doStatIncrement( 'ip.transgression.incremented' );
 
 		$oBlackIp = $this->getAutoBlackListIp( $sIp );
-		if ( $oBlackIp instanceof ICWP_WPSF_IpsEntryVO ) {
+		if ( $oBlackIp instanceof IPs\EntryVO ) {
 
-			$this->getQueryUpdater()
-				 ->incrementTransgressions( $oBlackIp );
+			/** @var IPs\Update $oUp */
+			$oUp = $this->getDbHandler()->getQueryUpdater();
+			$oUp->incrementTransgressions( $oBlackIp );
 
 			$sAuditMessage = sprintf(
 				_wpsf__( 'Auto Black List transgression counter was incremented from %s to %s.' ),
@@ -310,10 +308,12 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_IpsEntryVO[]
+	 * @return IPs\EntryVO[]
 	 */
 	public function getAutoBlacklistIpsData() {
-		return $this->getQuerySelector()->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
 	}
 
 	/**
@@ -322,16 +322,18 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function getAutoBlacklistIps() {
 		$aIps = array();
 		foreach ( $this->getAutoBlacklistIpsData() as $oIp ) {
-			$aIps[] = $oIp->getIp();
+			$aIps[] = $oIp->ip;
 		}
 		return $aIps;
 	}
 
 	/**
-	 * @return ICWP_WPSF_IpsEntryVO[]
+	 * @return IPs\EntryVO[]
 	 */
 	public function getWhitelistIpsData() {
-		return $this->getQuerySelector()->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
 	}
 
 	/**
@@ -340,7 +342,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function getWhitelistIps() {
 		$aIps = array();
 		foreach ( $this->getWhitelistIpsData() as $oIp ) {
-			$aIps[] = $oIp->getIp();
+			$aIps[] = $oIp->ip;
 		}
 		return $aIps;
 	}
@@ -369,7 +371,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		$oIp = $this->getAutoBlackListIp( $sIp );
-		return ( $oIp instanceof ICWP_WPSF_IpsEntryVO && $oIp->getTransgressions() >= $oFO->getOptTransgressionLimit() );
+		return ( $oIp instanceof IPs\EntryVO && $oIp->getTransgressions() >= $oFO->getOptTransgressionLimit() );
 	}
 
 	/**
@@ -380,14 +382,16 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	private function isIpOnList( $sIp, $sList ) {
 		$bOnList = false;
 
-		foreach ( $this->getQuerySelector()->allFromList( $sList ) as $oIp ) {
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		foreach ( $oSelect->allFromList( $sList ) as $oIp ) {
 			try {
-				if ( $this->loadIpService()->checkIp( $sIp, $oIp->getIp() ) ) {
+				if ( $this->loadIpService()->checkIp( $sIp, $oIp->ip ) ) {
 					$bOnList = true;
 					break;
 				}
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 			}
 		}
 
@@ -397,60 +401,95 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @param string $sIp
 	 * @param string $sLabel
-	 * @return ICWP_WPSF_IpsEntryVO|null
+	 * @return IPs\EntryVO|null
 	 */
 	public function addIpToWhiteList( $sIp, $sLabel = '' ) {
-		$sIp = trim( $sIp );
-
-		/** @var ICWP_WPSF_IpsEntryVO $oIp */
-		$oIp = $this->getQuerySelector()
-					->filterByIp( $sIp )
-					->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE )
-					->first();
-
-		if ( empty( $oIp ) ) {
-			$oIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE, $sLabel );
-		}
-		else if ( $sLabel != $oIp->getLabel() ) {
-			$this->getQueryUpdater()
-				 ->updateLabel( $oIp, $sLabel );
-		}
-		return $oIp;
+		return $this->addIpToManualList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE, $sLabel );
 	}
 
 	/**
 	 * @param string $sIp
-	 * @return bool
+	 * @param string $sLabel
+	 * @return IPs\EntryVO|null
 	 */
-	protected function addIpToAutoBlackList( $sIp ) {
-		$oIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
-		return ( $oIp instanceof ICWP_WPSF_IpsEntryVO ) && $this->getQueryUpdater()->incrementTransgressions( $oIp );
+	public function addIpToBlackList( $sIp, $sLabel = '' ) {
+		return $this->addIpToManualList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK, $sLabel );
 	}
 
 	/**
 	 * @param string $sIp
 	 * @param string $sList
 	 * @param string $sLabel
-	 * @return ICWP_WPSF_IpsEntryVO|null
+	 * @return IPs\EntryVO|null
+	 */
+	protected function addIpToManualList( $sIp, $sList, $sLabel = '' ) {
+		$sIp = trim( $sIp );
+
+		$oDbh = $this->getDbHandler();
+
+		/** @var IPs\Select $oSelect */
+		$oSelect = $oDbh->getQuerySelector();
+		/** @var IPs\EntryVO $oIp */
+		$oIp = $oSelect->filterByIp( $sIp )
+					   ->filterByList( $sList )
+					   ->first();
+
+		if ( empty( $oIp ) ) {
+			$oIp = $this->addIpToList( $sIp, $sList, $sLabel );
+		}
+		else if ( $sLabel != $oIp->getLabel() ) {
+			/** @var IPs\Update $oUp */
+			$oUp = $oDbh->getQueryUpdater();
+			$oUp->updateLabel( $oIp, $sLabel );
+		}
+		return $oIp;
+	}
+
+	/**
+	 * @param string $sIp
+	 */
+	private function addIpToAutoBlackList( $sIp ) {
+		$oIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
+		/** @var IPs\Update $oUp */
+		$oUp = $this->getDbHandler()->getQueryUpdater();
+		( $oIp instanceof IPs\EntryVO ) && $oUp->incrementTransgressions( $oIp );
+	}
+
+	/**
+	 * ADDITION OF ANY IP TO ANY LIST SHOULD GO THROUGH HERE.
+	 * @param string $sIp
+	 * @param string $sList
+	 * @param string $sLabel
+	 * @return IPs\EntryVO|null
 	 */
 	private function addIpToList( $sIp, $sList, $sLabel = '' ) {
 		$oIp = null;
 
-		// delete any previous old entries as we go.
-		$this->getQueryDeleter()
-			 ->deleteIpOnList( $sIp, $sList );
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
 
-		/** @var ICWP_WPSF_IpsEntryVO $oTempIp */
-		$oTempIp = $this->getQuerySelector()->getVo();
-		$oTempIp->ip = $sIp;
-		$oTempIp->list = $sList;
-		$oTempIp->label = empty( $sLabel ) ? _wpsf__( 'No Label' ) : $sLabel;
+		// Never add a reserved IP to any black list
+		if ( $sList == self::LIST_MANUAL_WHITE || !in_array( $sIp, $oFO->getReservedIps() ) ) {
+			$oDbh = $this->getDbHandler();
 
-		if ( $this->getQueryInserter()->insert( $oTempIp ) ) {
-			/** @var ICWP_WPSF_IpsEntryVO $oIp */
-			$oIp = $this->getQuerySelector()
-						->setWheresFromVo( $oTempIp )
-						->first();
+			// delete any previous old entries as we go.
+			/** @var IPs\Delete $oDel */
+			$oDel = $oDbh->getQueryDeleter();
+			$oDel->deleteIpOnList( $sIp, $sList );
+
+			/** @var IPs\EntryVO $oTempIp */
+			$oTempIp = $oDbh->getVo();
+			$oTempIp->ip = $sIp;
+			$oTempIp->list = $sList;
+			$oTempIp->label = empty( $sLabel ) ? _wpsf__( 'No Label' ) : trim( $sLabel );
+
+			if ( $oDbh->getQueryInserter()->insert( $oTempIp ) ) {
+				/** @var IPs\EntryVO $oIp */
+				$oIp = $this->getDbHandler()
+							->getQuerySelector()
+							->setWheresFromVo( $oTempIp )
+							->first();
+			}
 		}
 
 		return $oIp;
@@ -459,17 +498,18 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * The auto black list isn't a simple lookup, but rather has an auto expiration
 	 * @param string $sIp
-	 * @return ICWP_WPSF_IpsEntryVO|null
+	 * @return IPs\EntryVO|null
 	 */
 	protected function getAutoBlackListIp( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		/** @var ICWP_WPSF_IpsEntryVO $oIp */
-		$oIp = $this->getQuerySelector()
-					->filterByIp( $sIp )
-					->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
-					->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
-					->first();
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		/** @var IPs\EntryVO $oIp */
+		$oIp = $oSelect->filterByIp( $sIp )
+					   ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->first();
 		return $oIp;
 	}
 
@@ -477,7 +517,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 				ip varchar(40) NOT NULL DEFAULT '',
 				label varchar(255) NOT NULL DEFAULT '',
@@ -490,7 +530,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 				PRIMARY KEY  (id)
 			) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -498,62 +537,22 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'ip_list_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : array() );
+		return is_array( $aDef ) ? $aDef : array();
 	}
 
 	/**
-	 * @param int $nTimeStamp
-	 * @return bool|int
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Handler
 	 */
-	protected function deleteRowsOlderThan( $nTimeStamp ) {
-		return $this->getQueryDeleter()
-					->addWhereEquals( 'list', ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
-					->addWhereOlderThan( $nTimeStamp, 'last_access_at' )
-					->query();
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Handler();
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_Ips_Delete
-	 */
-	public function getQueryDeleter() {
-		$this->queryRequireLib( 'delete.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Delete();
-		return $oQ->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Ips_Insert
-	 */
-	public function getQueryInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Insert();
-		return $oQ->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Ips_Select
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select
 	 */
 	public function getQuerySelector() {
-		$this->queryRequireLib( 'select.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Select();
-		return $oQ->setTable( $this->getTableName() )
-				  ->setResultsAsVo( true );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_Ips_Update
-	 */
-	public function getQueryUpdater() {
-		$this->queryRequireLib( 'update.php' );
-		$oQ = new ICWP_WPSF_Query_Ips_Update();
-		return $oQ->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'ips/';
+		return $this->getDbHandler()->getQuerySelector();
 	}
 
 	/**
@@ -563,5 +562,44 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getAutoExpireTime();
+	}
+
+	/**
+	 * We only clean-up expired black list IPs
+	 * @return bool
+	 */
+	public function cleanupDatabase() {
+		if ( $this->getDbHandler()->isTable() ) {
+			/** @var IPs\Delete $oDel */
+			$oDel = $this->getDbHandler()->getQueryDeleter();
+			$oDel->filterByLists( [ self::LIST_AUTO_BLACK, self::LIST_MANUAL_BLACK ] )
+				 ->filterByLastAccessBefore( $this->time() - $this->getAutoExpirePeriod() )
+				 ->query();
+		}
+		return true;
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Delete
+	 */
+	public function getQueryDeleter() {
+		return parent::getQueryDeleter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Insert
+	 */
+	public function getQueryInserter() {
+		return parent::getQueryInserter();
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Update
+	 */
+	public function getQueryUpdater() {
+		return parent::getQueryUpdater();
 	}
 }

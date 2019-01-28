@@ -1,15 +1,9 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Sessions_Update', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base/update.php' );
-
 class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param $oSession
 	 * @return bool
 	 */
 	public function startSecurityAdmin( $oSession ) {
@@ -17,7 +11,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param $oSession
 	 * @return bool
 	 */
 	public function terminateSecurityAdmin( $oSession ) {
@@ -25,7 +19,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param $oSession
 	 * @return bool
 	 */
 	public function updateLastActivity( $oSession ) {
@@ -40,7 +34,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param  $oSession
 	 * @param int                 $nExpiresAt
 	 * @return bool
 	 */
@@ -52,7 +46,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param  $oSession
 	 * @return bool
 	 */
 	public function clearLoginIntentCodeEmail( $oSession ) {
@@ -60,7 +54,7 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
+	 * @param  $oSession
 	 * @param string              $sCode
 	 * @return bool
 	 */
@@ -69,11 +63,11 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param ICWP_WPSF_SessionVO $oSession
-	 * @param array               $aUpdateData
+	 * @param       $oSession
+	 * @param array $aUpdateData
 	 * @return bool
 	 */
 	public function updateSession( $oSession, $aUpdateData = array() ) {
-		return ( $oSession instanceof ICWP_WPSF_SessionVO ) && parent::updateEntry( $oSession, $aUpdateData );
+		return parent::updateEntry( $oSession, $aUpdateData );
 	}
 }

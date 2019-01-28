@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Sessions_Delete', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/base/delete.php' );
-
 class ICWP_WPSF_Query_Sessions_Delete extends ICWP_WPSF_Query_BaseDelete {
 
 	/**
@@ -13,9 +7,7 @@ class ICWP_WPSF_Query_Sessions_Delete extends ICWP_WPSF_Query_BaseDelete {
 	 * @return bool
 	 */
 	public function forExpiredLoginAt( $bOlderThan ) {
-		return $this->reset()
-					->addWhereOlderThan( $bOlderThan, 'logged_in_at' )
-					->query();
+		return $this->query();
 	}
 
 	/**
@@ -23,9 +15,7 @@ class ICWP_WPSF_Query_Sessions_Delete extends ICWP_WPSF_Query_BaseDelete {
 	 * @return bool
 	 */
 	public function forExpiredLoginIdle( $bOlderThan ) {
-		return $this->reset()
-					->addWhereOlderThan( $bOlderThan, 'last_activity_at' )
-					->query();
+		return $this->query();
 	}
 
 	/**
@@ -33,17 +23,13 @@ class ICWP_WPSF_Query_Sessions_Delete extends ICWP_WPSF_Query_BaseDelete {
 	 * @return false|int
 	 */
 	public function forUsername( $sWpUsername ) {
-		return $this->reset()
-					->addWhereEquals( 'wp_username', $sWpUsername )
-					->query();
+		return $this->query();
 	}
 
 	/**
 	 * @return ICWP_WPSF_Query_Sessions_Select
 	 */
 	protected function getSelector() {
-		require_once( dirname( __FILE__ ).'/select.php' );
-		$oCounter = new ICWP_WPSF_Query_Sessions_Select();
-		return $oCounter->setTable( $this->getTable() );
+		return ( new ICWP_WPSF_Query_Sessions_Select() )->setTable( $this->getTable() );
 	}
 }

@@ -1,0 +1,60 @@
+{% extends '/wpadmin_pages/insights_new/base.twig' %}
+
+{% block page_main %}
+	<div class="row">
+		<div class="col-12 insights_section">
+			{% include '/wpadmin_pages/insights_new/insights/stats.twig' %}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xl-6 col-lg-12 insights_section">
+			{% include '/wpadmin_pages/insights_new/insights/notices.twig' %}
+		</div>
+		<div class="col-xl-6 col-lg-12 insights_section">
+			{% include '/wpadmin_pages/insights_new/insights/recent_events.twig' %}
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-12 insights_section mb-3">
+			<h4 id="collapseConfigSummaryTitle" data-toggle="collapse"
+				href="#collapseConfigSummary" aria-expanded="false" aria-controls="">
+				Plugin Configuration Summary <small>(click to toggle &rarr;)</small>
+			</h4>
+		</div>
+	</div>
+
+	<div class="row collapse" id="collapseConfigSummary">
+		<div class="col-12">
+			<div class="row keys text-center">
+				<div class="col-sm-1">
+					<h6 style="line-height: 42px" class="mb-0">Key</h6>
+				</div>
+				<div class="col-sm-3">
+					<div class="alert alert-success">Positive security</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="alert alert-warning">Potential warning</div>
+				</div>
+				<div class="col-sm-3">
+					<div class="alert alert-danger">Potential danger</div>
+				</div>
+				<div class="col-sm-2">
+					<div class="alert alert-info">Information</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12 insights_section mt-0">
+					{% include '/wpadmin_pages/insights_new/config/module_summaries.twig' %}
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		jQuery( '#collapseConfigSummary' ).on( 'shown.bs.collapse', function () {
+			jQuery( 'html, body' ).animate( {
+				scrollTop: jQuery( "#collapseConfigSummaryTitle" ).offset().top - 115
+			}, 750 );
+		} )
+	</script>
+{% endblock %}

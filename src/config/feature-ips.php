@@ -3,13 +3,13 @@
   "properties":    {
     "slug":                  "ips",
     "name":                  "IP Manager",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "ips",
     "tagline":               "Manage Visitor IP Address",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "has_custom_actions":    true,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
     "order":                 100
@@ -86,8 +86,8 @@
       "section":     "section_enable_plugin_feature_ips",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/wpsf26",
-      "link_blog":   "",
+      "link_info":   "https://icwp.io/ea",
+      "link_blog":   "https://icwp.io/wpsf26",
       "name":        "Enable IP Manager",
       "summary":     "Enable (or Disable) The IP Manager module",
       "description": "Un-Checking this option will completely disable the IP Manager module"
@@ -139,7 +139,7 @@
       "premium":     true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e8",
       "link_blog":   "",
       "name":        "Login Failed",
       "summary":     "Visitor Triggers The IP Transgression System Through A Failed Login",
@@ -166,7 +166,7 @@
           "text":      "Increment Transgression"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/e7",
       "link_blog":     "",
       "name":          "Track 404s",
       "summary":       "Use 404s As An Transgression",
@@ -179,7 +179,7 @@
       "premium":     true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e9",
       "link_blog":   "",
       "name":        "Remaining Transgressions",
       "summary":     "Visitor Triggers The IP Transgression System Through A Firewall Block",

@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_BaseWpsf', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base.php' );
-
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
@@ -26,7 +20,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return ICWP_WPSF_SessionVO|null
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO|null
 	 */
 	public function getSession() {
 		$oP = $this->getSessionsProcessor();
@@ -37,7 +31,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function hasSession() {
-		return ( $this->getSession() instanceof ICWP_WPSF_SessionVO );
+		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -64,7 +58,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function getSecAdminTimeLeft() {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getConn()
+		$oFO = $this->getCon()
 					->getModule( 'admin_access_restriction' );
 		return $oFO->getSecAdminTimeLeft();
 	}
@@ -124,7 +118,17 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function isGoogleRecaptchaReady() {
 		$sKey = $this->getGoogleRecaptchaSiteKey();
 		$sSecret = $this->getGoogleRecaptchaSecretKey();
-		return ( !empty( $sSecret ) && !empty( $sKey ) && $this->loadDP()->getPhpSupportsNamespaces() );
+		return ( !empty( $sSecret ) && !empty( $sKey ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWlEnabled() {
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		$oFO = $this->getCon()
+					->getModule( 'admin_access_restriction' );
+		return $oFO->isWlEnabled();
 	}
 
 	/**
@@ -206,6 +210,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
+				'back_to_dashboard' => sprintf( _wpsf__( 'Back To %s Dashboard' ), $this->getCon()->getHumanName() ),
 				'go_to_settings'    => _wpsf__( 'Settings' ),
 				'on'                => _wpsf__( 'On' ),
 				'off'               => _wpsf__( 'Off' ),
@@ -260,7 +265,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function isVisitorWhitelisted() {
 		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getConn()
+		$oPro = $this->getCon()
 					 ->getModule( 'ips' )
 					 ->getProcessor();
 		return $oPro->isCurrentIpWhitelisted();
@@ -295,7 +300,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function isXmlrpcBypass() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getConn()
+		$oFO = $this->getCon()
 					->getModule( 'plugin' );
 		return $oFO->isXmlrpcBypass();
 	}
@@ -344,9 +349,22 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getModDisabledInsight() {
+		return array(
+			'name'    => _wpsf__( 'Module Disabled' ),
+			'enabled' => false,
+			'summary' => _wpsf__( 'All features of this module are completely disabled' ),
+			'weight'  => 2,
+			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
+		);
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitlesDefaults( $aOptionsParams ) {
 
@@ -363,7 +381,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
 		}
 
 		return array( $sTitle, $sTitleShort, $aSummary );

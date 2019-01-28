@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
-
 class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	/**
@@ -20,9 +14,9 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
 			 && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
 
-			$oFO->getSessionsProcessor()
-				->getQueryUpdater()
-				->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
+			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
+			$oUpd->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
 			$this->doStatIncrement( 'login.twofactor.started' )
@@ -65,9 +59,9 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		if ( $bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getMod();
-			$oFO->getSessionsProcessor()
-				->getQueryUpdater()
-				->clearLoginIntentCodeEmail( $oFO->getSession() );
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
+			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
+			$oUpd->clearLoginIntentCodeEmail( $oFO->getSession() );
 		}
 		return $bValid;
 	}
@@ -119,7 +113,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$oFO = $this->getMod();
 		return hash_hmac(
 			'sha1',
-			$this->getController()->getUniqueRequestId(),
+			$this->getCon()->getUniqueRequestId(),
 			$oFO->getTwoAuthSecretKey()
 		);
 	}
@@ -171,7 +165,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			'',
 		);
 
-		if ( !$this->getController()->isRelabelled() ) {
+		if ( !$this->getCon()->isRelabelled() ) {
 			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', _wpsf__( 'Why no login link?' ) );
 			$aContent[] = '';
 		}
@@ -203,13 +197,13 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			'user_has_email_authentication_active'   => $bValidatedProfile,
 			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
 			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
-			'i_am_valid_admin'                       => $this->getController()->isPluginAdmin(),
+			'i_am_valid_admin'                       => $this->getCon()->isPluginAdmin(),
 			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
 			'strings'                                => array(
 				'label_email_authentication'                => _wpsf__( 'Email Authentication' ),
 				'title'                                     => _wpsf__( 'Email Authentication' ),
 				'description_email_authentication_checkbox' => _wpsf__( 'Check the box to enable email-based login authentication.' ),
-				'provided_by'                               => sprintf( _wpsf__( 'Provided by %s' ), $this->getController()
+				'provided_by'                               => sprintf( _wpsf__( 'Provided by %s' ), $this->getCon()
 																										  ->getHumanName() )
 			)
 		);

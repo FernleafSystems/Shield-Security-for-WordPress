@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_BackupCodes', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/loginprotect_intentprovider_base.php' );
-
 class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	/**
@@ -14,7 +8,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(

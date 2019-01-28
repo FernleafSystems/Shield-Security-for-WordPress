@@ -1,28 +1,11 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_BaseDbProcessor', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
-	 * The full database table name.
-	 * @var string
+	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler
 	 */
-	protected $sFullTableName;
-
-	/**
-	 * @var boolean
-	 */
-	protected $bTableExists;
-
-	/**
-	 * @var bool
-	 */
-	protected $bTableStructureIsValid;
+	protected $oDbh;
 
 	/**
 	 * @var integer
@@ -30,79 +13,59 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected $nAutoExpirePeriod = null;
 
 	/**
+	 * ICWP_WPSF_BaseDbProcessor constructor.
 	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
 	 * @param string                        $sTableName
+	 * @throws \Exception
 	 */
 	public function __construct( $oModCon, $sTableName = null ) {
 		parent::__construct( $oModCon );
-		$this->setTableName( $sTableName );
-		$this->createCleanupCron();
-		$this->initializeTable();
-		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteTable' ) );
+		$this->initializeTable( $sTableName );
+	}
+
+	/**
+	 * @param string $sTableName
+	 * @throws \Exception
+	 */
+	protected function initializeTable( $sTableName ) {
+		if ( empty( $sTableName ) ) {
+			throw new \Exception( 'Table name is empty' );
+		}
+		$this->getDbHandler()
+			 ->setTable( $this->getMod()->prefixOptionKey( $sTableName ) )
+			 ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
+			 ->setSqlCreate( $this->getCreateTableSql() )
+			 ->tableInit();
+
+		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this->getDbHandler(), 'deleteTable' ) );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isReadyToRun() {
-		return ( parent::isReadyToRun() && $this->getTableExists() && $this->isTableStructureValid() );
-	}
-
-	/**
-	 */
-	public function deleteTable() {
-		if ( $this->getTableExists() ) {
-			$this->deleteCleanupCron();
-			$this->loadDbProcessor()->doDropTable( $this->getTableName() );
+		try {
+			return ( parent::isReadyToRun() && $this->getDbHandler()->isReady() );
+		}
+		catch ( \Exception $oE ) {
+			return false;
 		}
 	}
 
 	/**
-	 * @return bool|int
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler
 	 */
-	protected function createTable() {
-		$sSql = $this->getCreateTableSql();
-		if ( !empty( $sSql ) ) {
-			$this->clearTableIsValid();
-			return $this->loadDbProcessor()->dbDelta( $sSql );
-		}
-		return true;
-	}
+	abstract protected function createDbHandler();
 
 	/**
-	 * @return $this
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler
 	 */
-	protected function initializeTable() {
-		if ( $this->getTableExists() ) {
-			if ( !$this->isTableStructureValid() ) {
-				$this->createTable(); // First attempt the delta
-				if ( !$this->isTableStructureValid( true ) ) {
-					$this->recreateTable();
-				}
-			}
-			$sFullHookName = $this->getDbCleanupHookName();
-			add_action( $sFullHookName, array( $this, 'cleanupDatabase' ) );
+	public function getDbHandler() {
+		if ( !isset( $this->oDbh ) ) {
+			$this->oDbh = $this->createDbHandler();
 		}
-		else {
-			$this->createTable();
-		}
-		return $this;
+		return $this->oDbh;
 	}
-
-	/**
-	 * @param int $nTimeStamp
-	 * @return bool
-	 */
-	protected function deleteRowsOlderThan( $nTimeStamp ) {
-		return $this->getQueryDeleter()
-					->addWhereOlderThan( $nTimeStamp )
-					->query();
-	}
-
-	/**
-	 * @return ICWP_WPSF_Query_BaseDelete
-	 */
-	abstract protected function getQueryDeleter();
 
 	/**
 	 * @return string
@@ -110,95 +73,18 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	abstract protected function getCreateTableSql();
 
 	/**
-	 * Will recreate the whole table
-	 */
-	public function recreateTable() {
-		$this->loadDbProcessor()->doDropTable( $this->getTableName() );
-		$this->createTable();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function testTableStructure() {
-		$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
-		$aActualColumns = $this->loadDbProcessor()->getColumnsForTable( $this->getTableName(), 'strtolower' );
-		$bValid = ( count( array_diff( $aActualColumns, $aColumnsByDefinition ) ) <= 0
-					&& ( count( array_diff( $aColumnsByDefinition, $aActualColumns ) ) <= 0 ) );
-		return $bValid;
-	}
-
-	/**
 	 * @return array
 	 */
 	abstract protected function getTableColumnsByDefinition();
 
-	/**
-	 * @return string
-	 */
-	public function getTableName() {
-		return $this->sFullTableName;
-	}
-
-	/**
-	 * @param string $sTableName
-	 * @return string
-	 * @throws Exception
-	 */
-	private function setTableName( $sTableName = '' ) {
-		if ( empty( $sTableName ) ) {
-			throw new Exception( 'Database Table Name is EMPTY' );
+	public function runDailyCron() {
+		try {
+			if ( $this->getDbHandler()->isReady() ) {
+				$this->cleanupDatabase();
+			}
 		}
-		$this->sFullTableName = $this->loadDbProcessor()->getPrefix().esc_sql( $sTableName );
-		return $this->sFullTableName;
-	}
-
-	/**
-	 * Will setup the cleanup cron to clean out old entries. This should be overridden per implementation.
-	 */
-	protected function createCleanupCron() {
-		$sFullHookName = $this->getDbCleanupHookName();
-		if ( !wp_next_scheduled( $sFullHookName ) && !defined( 'WP_INSTALLING' ) ) {
-			$nNextRun = strtotime( 'tomorrow 6am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS;
-			wp_schedule_event( $nNextRun, 'daily', $sFullHookName );
+		catch ( \Exception $oE ) {
 		}
-	}
-
-	/**
-	 * Will setup the cleanup cron to clean out old entries. This should be overridden per implementation.
-	 */
-	protected function deleteCleanupCron() {
-		wp_clear_scheduled_hook( $this->getDbCleanupHookName() );
-	}
-
-	/**
-	 * @param string $sColumnName
-	 * @return bool
-	 */
-	protected function getHasColumn( $sColumnName ) {
-		$aColumnsByDefinition = array_map( 'strtolower', $this->getTableColumnsByDefinition() );
-		return in_array( $sColumnName, $aColumnsByDefinition );
-	}
-
-	/**
-	 * @param array $aColumns
-	 * @return array
-	 */
-	protected function validateColumnsParameter( $aColumns ) {
-		if ( !empty( $aColumns ) && is_array( $aColumns ) ) {
-			$aColumns = array_intersect( $this->getTableColumnsByDefinition(), $aColumns );
-		}
-		else {
-			$aColumns = array();
-		}
-		return $aColumns;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getDbCleanupHookName() {
-		return $this->getController()->prefix( $this->getMod()->getSlug().'_db_cleanup' );
 	}
 
 	/**
@@ -206,29 +92,15 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function cleanupDatabase() {
 		$nAutoExpirePeriod = $this->getAutoExpirePeriod();
-		if ( is_null( $nAutoExpirePeriod ) || !$this->getTableExists() ) {
+		if ( is_null( $nAutoExpirePeriod ) || !$this->getDbHandler()->isTable() ) {
 			return false;
 		}
 		$nTimeStamp = $this->time() - $nAutoExpirePeriod;
-		return $this->deleteRowsOlderThan( $nTimeStamp );
+		return $this->getDbHandler()->deleteRowsOlderThan( $nTimeStamp );
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function getTableExists() {
-
-		// only return true if this is true.
-		if ( $this->bTableExists === true ) {
-			return true;
-		}
-
-		$this->bTableExists = $this->loadDbProcessor()->getIfTableExists( $this->getTableName() );
-		return $this->bTableExists;
-	}
-
-	/**
-	 * 1 in 10 page loads will clean the databases. This ensures that even if the crons don't run
+	 * 1 in 20 page loads will clean the databases. This ensures that even if the crons don't run
 	 * correctly, we'll keep it trim.
 	 */
 	public function onModuleShutdown() {
@@ -246,35 +118,34 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return $this
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Delete
 	 */
-	protected function clearTableIsValid() {
-		unset( $this->bTableStructureIsValid );
-		return $this;
+	protected function getQueryDeleter() {
+		return $this->getDbHandler()->getQueryDeleter();
 	}
 
 	/**
-	 * @param bool $bRetest
-	 * @return bool
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Insert
 	 */
-	protected function isTableStructureValid( $bRetest = false ) {
-		if ( $bRetest || !isset( $this->bTableStructureIsValid ) ) {
-			$this->bTableStructureIsValid = $this->testTableStructure();
-		}
-		return $this->bTableStructureIsValid;
+	protected function getQueryInserter() {
+		return $this->getDbHandler()->getQueryInserter();
 	}
 
 	/**
-	 * @return string
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Select
 	 */
-	protected function queryGetDir() {
-		return dirname( dirname( __FILE__ ) ).'/query/';
+	protected function getQuerySelector() {
+		return $this->getDbHandler()->getQuerySelector();
 	}
 
 	/**
-	 * @param string $sFile
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Update
 	 */
-	protected function queryRequireLib( $sFile ) {
-		require_once( rtrim( $this->queryGetDir(), '/' ).'/'.$sFile );
+	protected function getQueryUpdater() {
+		return $this->getDbHandler()->getQueryUpdater();
 	}
 }

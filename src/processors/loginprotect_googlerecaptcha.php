@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/loginprotect_base.php' );
-
 class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
@@ -18,7 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function performCheckWithException() {
 
@@ -29,7 +23,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 				$this->setFactorTested( true );
 				$this->doStatIncrement( 'login.recaptcha.verified' );
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$this->setLoginAsFailed( 'login.recaptcha.fail' );
 				throw $oE;
 			}

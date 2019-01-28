@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_GoogleAuthenticator', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_GoogleAuthenticator {
 
@@ -51,22 +48,11 @@ class ICWP_WPSF_GoogleAuthenticator {
 	}
 
 	/**
-	 */
-	protected function loadGoogleAuthenticatorLib() {
-		if ( !class_exists( 'PHPGangsta_GoogleAuthenticator', false ) ) {
-			require_once( dirname( __FILE__ ).'/googleauthenticator/googleauthenticator.php' );
-		}
-		return class_exists( 'PHPGangsta_GoogleAuthenticator', false );
-	}
-
-	/**
 	 * @return PHPGangsta_GoogleAuthenticator
 	 */
 	protected function getGoogleAuthenticatorLib() {
 		if ( !isset( self::$oGA ) ) {
-			if ( $this->loadGoogleAuthenticatorLib() ) {
-				self::$oGA = new PHPGangsta_GoogleAuthenticator();
-			}
+			self::$oGA = new PHPGangsta_GoogleAuthenticator();
 		}
 		return self::$oGA;
 	}

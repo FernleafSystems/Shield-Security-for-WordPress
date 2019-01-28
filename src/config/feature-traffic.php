@@ -3,13 +3,13 @@
   "properties":   {
     "slug":                  "traffic",
     "name":                  "Traffic Watch",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "traffic",
     "tagline":               "Watch All Requests To Your Site",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               true,
-    "has_custom_actions":    true,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   true,
     "order":                 110
@@ -50,8 +50,8 @@
       "section":     "section_enable_plugin_feature_traffic",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://icwp.io/ed",
+      "link_blog":   "https://icwp.io/ee",
       "name":        "Enable Traffic Watch",
       "summary":     "Enable (or Disable) The Traffic Watch Module",
       "description": "Un-Checking this option will completely disable the Traffic Watch module."
@@ -96,7 +96,7 @@
           "text":      "Uptime Monitoring Services (i.e. StatusCake, Pingdom, UptimeRobot)"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/eb",
       "link_blog":     "",
       "name":          "Traffic Log Exclusions",
       "summary":       "Select Which Types Of Requests To Exclude",
@@ -107,7 +107,7 @@
       "section":     "section_traffic_options",
       "default":     [],
       "type":        "array",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/ec",
       "link_blog":   "",
       "name":        "Custom Exclusions",
       "summary":     "Provide Custom Traffic Exclusions",
@@ -155,7 +155,6 @@
     }
   ],
   "definitions":  {
-    "default_per_page":      25,
     "traffic_table_name":    "traffic",
     "traffic_table_columns": [
       "id",

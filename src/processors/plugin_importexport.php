@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_ImportExport', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
@@ -18,7 +12,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			try {
 				$this->setupCronImport();
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				error_log( $oE->getMessage() );
 			}
 		}
@@ -144,7 +138,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		if ( !$oFO->isPremium() ) {
 			$nCode = 1;
-			$sMessage = sprintf( _wpsf__( 'Not currently running %s Pro.' ), $oFO->getConn()->getHumanName() );
+			$sMessage = sprintf( _wpsf__( 'Not currently running %s Pro.' ), $this->getCon()->getHumanName() );
 		}
 		else if ( !$oFO->isImportExportPermitted() ) {
 			$nCode = 2;
@@ -215,7 +209,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function setupCronImport() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
@@ -225,7 +219,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			 ->createCronJob( $this->getCronName(), array( $this, 'cron_autoImport' ) );
 		// For auto update whitelist notifications:
 		add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'cron_autoImport' ) );
-		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->getMod()->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**

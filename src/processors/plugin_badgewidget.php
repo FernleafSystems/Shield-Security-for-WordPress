@@ -1,37 +1,25 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_BadgeWidget', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 
-	/**
-	 * @var ICWP_WPSF_FeatureHandler_Base
-	 */
-	protected static $oFeatureOptions;
+	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 	/**
 	 * ICWP_WPSF_Processor_Plugin_BadgeWidget constructor.
+	 * @param ICWP_WPSF_FeatureHandler_Base $oMod
 	 */
-	public function __construct() {
+	public function __construct( $oMod ) {
+		$this->setMod( $oMod );
 		parent::__construct(
-			self::$oFeatureOptions->prefixOptionKey( 'plugin_badge' ),
-			sprintf( _wpsf__( '%s Plugin Badge' ), self::$oFeatureOptions->getConn()->getHumanName() ),
+			$oMod->prefixOptionKey( 'plugin_badge' ),
+			sprintf( _wpsf__( '%s Plugin Badge' ), $this->getCon()->getHumanName() ),
 			array(
-				'description' => sprintf( _wpsf__( 'You can now help spread the word about the %s plugin anywhere on your site' ), self::$oFeatureOptions->getConn()
-																																						 ->getHumanName() ),
+				'description' => sprintf( _wpsf__( 'You can now help spread the word about the %s plugin anywhere on your site' ), $this->getCon()
+																																		->getHumanName() ),
 			)
 		);
 
 		add_shortcode( 'SHIELD_BADGE', array( $this, 'renderBadge' ) );
-	}
-
-	/**
-	 * @param $oFeatureOptions
-	 */
-	public static function SetFeatureOptions( $oFeatureOptions ) {
-		self::$oFeatureOptions = $oFeatureOptions;
 	}
 
 	/**
@@ -40,7 +28,7 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	 * @return array
 	 */
 	public function update( $aNewInstance, $aOldInstance ) {
-		parent::update( $aNewInstance, $aOldInstance );
+		return parent::update( $aNewInstance, $aOldInstance );
 //			$aInstance = array(
 //				'title' => empty( $aNewInstance['title'] ) ? '' : strip_tags( $aNewInstance['title'] )
 //			);
@@ -50,6 +38,7 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	/**
 	 * @param array $aWidgetArguments
 	 * @param array $aWidgetInstance
+	 * @throws \Exception
 	 */
 	public function widget( $aWidgetArguments, $aWidgetInstance ) {
 		echo $this->standardRender( $aWidgetArguments, _wpsf__( 'Site Secured' ), $this->renderBadge() );
@@ -57,9 +46,10 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 
 	/**
 	 * @return string
+	 * @throws \Exception
 	 */
 	public function renderBadge() {
-		$oCon = self::$oFeatureOptions->getConn();
+		$oCon = $this->getCon();
 		$aData = array(
 			'strings' => array(
 				'plugin_name' => $oCon->getHumanName(),
@@ -69,11 +59,11 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 			)
 		);
 
-		return self::$oFeatureOptions
-			->loadRenderer( $oCon->getPath_Templates().'php' )
-			->setRenderVars( $aData )
-			->setTemplate( 'snippets/plugin_badge_widget' )
-			->setTemplateEnginePhp()
-			->render();
+		return $this->getMod()
+					->loadRenderer( $oCon->getPath_Templates().'php' )
+					->setRenderVars( $aData )
+					->setTemplate( 'snippets/plugin_badge_widget' )
+					->setTemplateEnginePhp()
+					->render();
 	}
 }

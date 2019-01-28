@@ -1,11 +1,9 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseSelect', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/query.php' );
-
+/**
+ * @deprecated v7.0.0
+ * Class ICWP_WPSF_Query_BaseSelect
+ */
 class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
@@ -45,10 +43,7 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 * @return stdClass
 	 */
 	public function byId( $nId ) {
-		$aItems = $this->reset()
-					   ->addWhereEquals( 'id', $nId )
-					   ->query();
-		return array_shift( $aItems );
+		return null;
 	}
 
 	/**
@@ -149,30 +144,21 @@ class ICWP_WPSF_Query_BaseSelect extends ICWP_WPSF_Query_BaseQuery {
 	 * @return stdClass[]|int
 	 */
 	public function query() {
-		$mData = $this->isCount() ? $this->queryCount() : $this->querySelect();
-
-		if ( !$this->isCount() && $this->isResultsAsVo() ) {
-			foreach ( $mData as $nKey => $oAudit ) {
-				$mData[ $nKey ] = $this->getVo()->setRawData( $oAudit );
-			}
-		}
-
-		return $mData;
+		return $this->isCount() ? $this->queryCount() : $this->querySelect();
 	}
 
 	/**
-	 * @return stdClass[]
+	 * @return array
 	 */
 	protected function querySelect() {
-		return $this->loadDbProcessor()
-					->selectCustom( $this->buildQuery(), OBJECT_K );
+		return [];
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function queryCount() {
-		return $this->loadDbProcessor()->getVar( $this->buildQuery() );
+		return 0;
 	}
 
 	/**

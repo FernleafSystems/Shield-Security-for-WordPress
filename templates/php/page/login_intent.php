@@ -1,5 +1,5 @@
-<html>
-<head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="<?php echo $data[ 'page_locale' ]; ?>">
+<head profile="http://gmpg.org/xfn/11">
     <link rel="stylesheet" href="<?php echo $hrefs[ 'css_bootstrap' ]; ?>" />
     <title><?php echo $strings[ 'page_title' ]; ?></title>
     <link rel="icon" type="image/png" href="<?php echo $imgs[ 'favicon' ]; ?>" />
@@ -79,7 +79,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-8 offset-2 col-md-6 offset-md-3 text-center">
-            <img id="ShieldLogo" class="img-fluid" src="<?php echo $imgs[ 'banner' ]; ?>" />
+            <img id="ShieldLogo" class="img-fluid" src="<?php echo $imgs[ 'banner' ]; ?>" alt="logo"/>
         </div>
     </div>
     <div class="row">
@@ -114,19 +114,21 @@
 									endif;
 									?>
 								/>
-								<div class="input-group-append">
-									<div class="input-group-text">
-										<a href="<?php echo $aField[ 'help_link' ]; ?>"
-										   target="_blank" class="input-help">&quest;</a>
+								<?php if ( $flags[ 'show_branded_links' ] ) : ?>
+									<div class="input-group-append">
+										<div class="input-group-text">
+											<a href="<?php echo $aField[ 'help_link' ]; ?>"
+											   target="_blank" class="input-help">&quest;</a>
+										</div>
 									</div>
-								</div>
+								<?php endif; ?>
 							</div>
 						</div>
 					</div>
 				<?php endforeach; ?>
 
 				<?php if ( $flags[ 'can_skip_mfa' ] ) : ?>
-				<div class="form-row">
+					<div class="form-row">
 					<div class="form-group mb-0">
 						<div class="input-group">
 							<label for="skip_mfa">
@@ -158,7 +160,7 @@
 					</p>
 				</div>
 			</div>
-			<?php if ( $flags['show_what_is_this'] ) : ?>
+			<?php if ( $flags[ 'show_branded_links' ] ) : ?>
 				<div class="row">
 					<div class="col">
 						<p id="WhatIsThis" class="text-center">

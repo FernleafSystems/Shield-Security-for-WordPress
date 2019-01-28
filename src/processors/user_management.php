@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_UserManagement', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -23,10 +17,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'manage_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 		add_filter( 'wpmu_users_columns', array( $this, 'fAddUserListLastLoginColumn' ) );
 
-		if ( $oFO->isPasswordPoliciesEnabled() ) {
-			$this->getProcessorPasswords()->run();
-		}
-
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
@@ -37,6 +27,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 		if ( $oFO->isUserSessionsManagementEnabled() ) {
 			$this->getProcessorSessions()->run();
+		}
+
+		if ( $oFO->isPasswordPoliciesEnabled() ) {
+			$this->getProcessorPasswords()->run();
 		}
 	}
 
@@ -94,7 +88,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	private function setPasswordStartedAt( $oUser ) {
-		$oMeta = $this->getController()->getUserMeta( $oUser );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 
 		$sCurrentPassHash = substr( sha1( $oUser->user_pass ), 6, 4 );
 		if ( !isset( $oMeta->pass_hash ) || ( $oMeta->pass_hash != $sCurrentPassHash ) ) {
@@ -109,7 +103,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
-		$oMeta = $this->getController()->getUserMeta( $oUser );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$oMeta->last_login_at = $this->time();
 		return $this;
 	}
@@ -196,7 +190,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$aMessage = array(
 			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),
-				$this->getController()->getHumanName(),
+				$this->getCon()->getHumanName(),
 				$sHumanName
 			),
 			'',
@@ -227,7 +221,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function sendUserLoginEmailNotification( $oUser ) {
 		$aMessage = array(
-			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getController()
+			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getCon()
 																											 ->getHumanName() ),
 			'',
 			_wpsf__( 'Details for this login are below:' ),
@@ -255,11 +249,11 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_UserManagement_Passwords
 	 */
 	protected function getProcessorPasswords() {
-		$oProc = $this->getSubProcessor( 'passwords' );
+		$oProc = $this->getSubPro( 'passwords' );
 		if ( is_null( $oProc ) ) {
-			require_once( dirname( __FILE__ ).'/usermanagement_passwords.php' );
+			require_once( __DIR__.'/usermanagement_passwords.php' );
 			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getMod() );
-			$this->aSubProcessors[ 'passwords' ] = $oProc;
+			$this->aSubPros[ 'passwords' ] = $oProc;
 		}
 		return $oProc;
 	}
@@ -269,7 +263,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
-			require_once( dirname( __FILE__ ).'/usermanagement_sessions.php' );
+			require_once( __DIR__.'/usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getMod();
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );
@@ -281,6 +275,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	protected function getUserLastLoginKey() {
-		return $this->getController()->prefixOption( 'last_login_at' );
+		return $this->getCon()->prefixOption( 'last_login_at' );
 	}
 }

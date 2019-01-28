@@ -1,0 +1,22 @@
+<div class="row">
+	{% set scankey = 'wcf' %}
+	{% set scan = attribute(scans, scankey) %}
+	<div class="col-lg-12 col-xl-6">
+		{% include '/wpadmin_pages/insights_new/scans/results/wcf.twig' %}
+	</div>
+	{% set scankey = 'ufc' %}
+	{% set scan = attribute(scans, scankey) %}
+	<div class="col-lg-12 col-xl-6">
+		{% include '/wpadmin_pages/insights_new/scans/results/ufc.twig' %}
+	</div>
+	{% set scankey = 'ptg' %}
+	{% set scan = attribute(scans, scankey) %}
+	<div class="col-12">
+		{% include '/wpadmin_pages/insights_new/scans/results/ptg.twig' %}
+	</div>
+	{% set scankey = 'wpv' %}
+	{% set scan = attribute(scans, scankey) %}
+	<div class="col-12">
+		{% include '/wpadmin_pages/insights_new/scans/results/wpv.twig' %}
+	</div>
+</div>

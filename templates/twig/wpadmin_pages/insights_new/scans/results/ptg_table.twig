@@ -1,0 +1,50 @@
+<table class="table table-hover">
+	{% for asset_slug,asset_data in scan.assets %}
+		<tr><td>
+		<div class="row">
+			<div class="col-md-4">
+				<div class="ptg-asset-summary">
+					<p><strong>{{ asset_data.name }}</strong> <small>(v{{ asset_data.version }})</small></p>
+					<ul>
+						<li>{{ scan.strings.files_with_problems }}: {{ asset_data.count_files }}</li>
+						<li>{{ scan.strings.root_dir }}: <code>{{ asset_data.root_dir }}</code></li>
+						<li>{{ scan.strings.date_snapshot }}: {{ asset_data.date_snapshot }}</li>
+					</ul>
+					<div class="actions-group">
+						<button class="btn btn-sm btn-{% if not asset_data.can_reinstall %}outline-{% endif %}dark action custom-action"
+								{% if asset_data.can_reinstall %}
+									data-rid="{{ asset_data.id }}"
+									data-custom-action="item_asset_reinstall"
+								{% else %}
+									disabled="disabled"
+								{% endif %}
+						>
+							{% if asset_data.has_update %}
+								{{ scan.strings.update }}
+							{% else %}
+								{{ scan.strings.reinstall }}
+							{% endif %}
+						</button>
+
+						<button class="btn btn-sm btn-info action custom-action"
+								data-rid="{{ asset_data.id }}" data-custom-action="item_asset_accept"
+						>{{ scan.strings.accept }}</button>
+
+						<button class="btn btn-sm btn-{% if not asset_data.can_deactivate %}outline-{% endif %}warning action custom-action"
+								{% if asset_data.can_deactivate %}
+									data-rid="{{ asset_data.id }}"
+									data-custom-action="item_asset_deactivate"
+								{% else %}
+									disabled="disabled"
+								{% endif %}
+						>{{ scan.strings.deactivate }}</button>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="scan-table-for-slug container-scantable" data-slug="{{ asset_slug }}"></div>
+			</div>
+		</div>
+		</td></tr>
+	{% endfor %}
+</table>

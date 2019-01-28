@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Email', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 	const Slug = 'email';
@@ -49,7 +43,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function init() {
 		parent::init();
-		self::$sModeFile_EmailThrottled = dirname( __FILE__ ).'/../mode.email_throttled';
+		self::$sModeFile_EmailThrottled = path_join( __DIR__, '/../mode.email_throttled' );
 	}
 
 	public function run() {
@@ -72,8 +66,8 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		$sUrl = array(
 			'',
 			sprintf( _wpsf__( 'Email sent from the %s Plugin v%s, on %s.' ),
-				$this->getController()->getHumanName(),
-				$this->getController()->getVersion(),
+				$this->getCon()->getHumanName(),
+				$this->getCon()->getVersion(),
 				$this->loadWp()->getHomeUrl()
 			),
 			_wpsf__( 'Note: Email delays are caused by website hosting and email providers.' ),
@@ -181,7 +175,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		else {
 			$sFromName = sprintf( '%s - %s',
 				$this->loadWp()->getSiteName(),
-				$this->getController()->getHumanName()
+				$this->getCon()->getHumanName()
 			);
 		}
 		return $sFromName;

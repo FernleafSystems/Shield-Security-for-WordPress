@@ -1,9 +1,9 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_BaseQuery', false ) ) {
-	return;
-}
-
+/**
+ * @deprecated v7.0.0
+ * Class ICWP_WPSF_Query_BaseQuery
+ */
 abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 
 	/**
@@ -183,8 +183,7 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function query() {
-		$mResult = $this->loadDbProcessor()->doSql( $this->buildQuery() );
-		return ( $mResult === false ) ? false : $mResult > 0;
+		return false;
 	}
 
 	/**
@@ -337,9 +336,6 @@ abstract class ICWP_WPSF_Query_BaseQuery extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function setWheresFromVo( $oVo ) {
-		foreach ( $this->loadDP()->convertStdClassToArray( $oVo->getRawData() ) as $sCol => $mVal ) {
-			$this->addWhereEquals( $sCol, $mVal );
-		}
 		return $this;
 	}
 

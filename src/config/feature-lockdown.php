@@ -3,7 +3,8 @@
   "properties": {
     "slug":                  "lockdown",
     "name":                  "Lockdown",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "lockdown",
     "tagline":               "Harden the more loosely controlled settings of your site",
     "show_central":          true,
@@ -73,7 +74,7 @@
       "section":     "section_apixml",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/e6",
       "link_blog":   "",
       "name":        "Disable XML-RPC",
       "summary":     "Disable The XML-RPC System",

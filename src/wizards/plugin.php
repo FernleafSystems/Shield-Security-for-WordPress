@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Wizard_Plugin', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
@@ -393,9 +387,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = _wpsf__( $oE->getMessage() );
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -430,9 +424,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$sMessage = isset( $aErrors[ $nCode ] ) ? $aErrors[ $nCode ] : 'Unknown Error';
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $nCode === 0 )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $nCode === 0 )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -442,8 +436,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oReq = $this->loadRequest();
 		$sKey = $oReq->post( 'AccessKey' );
 		$sConfirm = $oReq->post( 'AccessKeyConfirm' );
-
-		$oResponse = new \FernleafSystems\Utilities\Response();
 
 		$bSuccess = false;
 		if ( empty( $sKey ) ) {
@@ -466,8 +458,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -498,9 +491,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -531,9 +524,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -567,9 +560,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -605,9 +598,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -650,10 +643,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sSearchList = sprintf( '<ul><li>%s</li></ul>', $sItems );
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( true )
-						 ->setData( [ 'sSearchList' => $sSearchList ] )
-						 ->setMessageText( _wpsf__( 'Search item added.' ) );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( true )
+			->setData( [ 'sSearchList' => $sSearchList ] )
+			->setMessageText( _wpsf__( 'Search item added.' ) );
 	}
 
 	private function wizardConfirmDelete() {
@@ -661,7 +654,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $bDelete ) {
 			/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
 			$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
-			$oDeleter = $oProc->getQueryDeleter();
+			$oDeleter = $oProc->getDbHandler()->getQueryDeleter();
 			foreach ( $this->getGdprSearchItems() as $sItem ) {
 				$oDeleter->reset()
 						 ->addWhereSearch( 'wp_username', $sItem )
@@ -676,9 +669,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$sMessage = _wpsf__( 'Please check the box to confirm deletion.' );
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bDelete )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bDelete )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -712,9 +705,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 		}
 
-		$oResponse = new \FernleafSystems\Utilities\Response();
-		return $oResponse->setSuccessful( $bSuccess )
-						 ->setMessageText( $sMessage );
+		return ( new \FernleafSystems\Utilities\Response() )
+			->setSuccessful( $bSuccess )
+			->setMessageText( $sMessage );
 	}
 
 	/**
@@ -753,7 +746,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function runGdprSearch() {
 		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
 		$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
-		$oFinder = $oProc->getQuerySelector()
+		$oFinder = $oProc->getDbHandler()
+						 ->getQuerySelector()
 						 ->setResultsAsVo( false );
 
 		$aItems = array();

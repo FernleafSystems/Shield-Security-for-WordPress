@@ -1,7 +1,4 @@
 <?php
-if ( class_exists( 'ICWP_WPSF_WpFunctions', false ) ) {
-	return;
-}
 
 class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 
@@ -45,7 +42,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return null|string
 	 */
 	public function findWpCoreFile( $sFilename ) {
-		$sLoaderPath = dirname( __FILE__ );
+		$sLoaderPath = __DIR__;
 		$nLimiter = 0;
 		$nMaxLimit = count( explode( DIRECTORY_SEPARATOR, trim( $sLoaderPath, DIRECTORY_SEPARATOR ) ) );
 		$bFound = false;
@@ -139,12 +136,12 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		$sCurrentVersion = $this->getVersion();
 
 		if ( function_exists( 'get_core_checksums' ) ) { // if it's loaded, we use it.
-			$aChecksumData = get_core_checksums( $sCurrentVersion, $this->getLocale( true ) );
+			$aChecksumData = get_core_checksums( $sCurrentVersion, $this->getLocaleForChecksums() );
 		}
 		else {
 			$aQueryArgs = array(
 				'version' => $sCurrentVersion,
-				'locale'  => $this->getLocale( true )
+				'locale'  => $this->getLocaleForChecksums()
 			);
 			$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
 			$sResponse = $this->loadFS()->getUrlContent( $sQueryUrl );
@@ -215,16 +212,19 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param bool $bForChecksums
+	 * @param string $sSeparator
 	 * @return string
 	 */
-	public function getLocale( $bForChecksums = false ) {
-		$sLocale = get_locale();
-		if ( $bForChecksums ) {
-			global $wp_local_package;
-			$sLocale = empty( $wp_local_package ) ? 'en_US' : $wp_local_package;
-		}
-		return $sLocale;
+	public function getLocale( $sSeparator = '_' ) {
+		return str_replace( '_', $sSeparator, get_locale() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLocaleForChecksums() {
+		global $wp_local_package;
+		return empty( $wp_local_package ) ? 'en_US' : $wp_local_package;
 	}
 
 	/**
@@ -357,7 +357,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param string $sPluginBaseFilename
 	 * @return boolean
 	 */
-	public function getIsPluginAutomaticallyUpdated( $sPluginBaseFilename ) {
+	public function isPluginAutomaticallyUpdated( $sPluginBaseFilename ) {
 		$oUpdater = $this->getWpAutomaticUpdater();
 		if ( !$oUpdater ) {
 			return false;
@@ -498,7 +498,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param bool   $bWpmsOnly
 	 * @return string
 	 */
-	public function getAdminUrl( $sPath, $bWpmsOnly = false ) {
+	public function getAdminUrl( $sPath = '', $bWpmsOnly = false ) {
 		return $bWpmsOnly ? network_admin_url( $sPath ) : admin_url( $sPath );
 	}
 

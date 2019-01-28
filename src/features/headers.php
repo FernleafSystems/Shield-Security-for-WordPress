@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_Headers', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -20,6 +14,27 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function isReferrerPolicyEnabled() {
 		return !$this->isOpt( 'x_referrer_policy', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledXFrame() {
+		return in_array( $this->getOpt( 'x_frame' ), array( 'on_sameorigin', 'on_deny' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledXssProtection() {
+		return $this->isOpt( 'x_xss_protect', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledContentTypeHeader() {
+		return $this->isOpt( 'x_content_type', 'Y' );
 	}
 
 	/**
@@ -107,9 +122,54 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'      => array(
+				'title' => _wpsf__( 'HTTP Security Headers' ),
+				'sub'   => _wpsf__( 'Protect Visitors With Powerful HTTP Headers' ),
+			),
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
+		);
+
+		if ( !$this->isModOptEnabled() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$bAllEnabled = $this->isEnabledXFrame() && $this->isEnabledXssProtection()
+						   && $this->isEnabledContentTypeHeader() && $this->isReferrerPolicyEnabled();
+			$aThis[ 'key_opts' ][ 'all' ] = array(
+				'name'    => _wpsf__( 'HTTP Headers' ),
+				'enabled' => $bAllEnabled,
+				'summary' => $bAllEnabled ?
+					_wpsf__( 'All important security Headers have been set' )
+					: _wpsf__( "At least one of the HTTP Headers hasn't been set" ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_security_headers' ),
+			);
+			$bCsp = $this->isContentSecurityPolicyEnabled();
+			$aThis[ 'key_opts' ][ 'csp' ] = array(
+				'name'    => _wpsf__( 'Content Security Policies' ),
+				'enabled' => $bCsp,
+				'summary' => $bCsp ?
+					_wpsf__( 'Content Security Policy is turned on' )
+					: _wpsf__( "Content Security Policies aren't active" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
+	}
+
+	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
@@ -144,7 +204,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -155,7 +215,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
@@ -240,7 +300,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

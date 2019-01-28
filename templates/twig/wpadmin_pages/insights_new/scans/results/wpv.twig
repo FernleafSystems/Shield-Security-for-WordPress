@@ -1,0 +1,58 @@
+<div class="row insights_widget" id="SectionScanResultsWpv">
+	<div class="col-12">
+		<div class="card card-scan_results mt-4">
+
+			<div class="card-header">
+				<h5 class="card-title">Plugin / Theme Vulnerabilities</h5>
+				<h6 class="card-subtitle text-muted">
+					Get alerted to the presence of known security vulnerabilities inside your Plugins and Themes
+				</h6>
+			</div>
+
+			<div class="card-body">
+				<div id="TableScanWpv" class="container-scantable"></div>
+			</div>
+
+			<div class="card-footer">
+				<div class="row">
+					<div class="col-sm-6">
+						{% if scan.flags.has_last_scan %}
+							{{ scan.vars.last_scan_at }}
+						{% else %}
+							{{ strings.never }}
+						{% endif %}
+					</div>
+					<div class="col-sm-6 text-right">
+						<a href="{{ scan.hrefs.options }}"
+						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script>
+	var $oTableScanWpv = jQuery( '#TableScanWpv' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'wpv'
+			}
+		}
+	);
+	jQuery( '#SectionScanResultsWpv' ).icwpWpsfTableActions(
+		{
+			'table': $oTableScanWpv,
+			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'custom_actions_ajax': {
+				'item_asset_deactivate': {{ ajax.item_asset_deactivate|raw }},
+				'item_repair': {{ ajax.item_repair|raw }}
+			},
+			'req_params': {
+				'fScan': 'wpv'
+			}
+		}
+	);
+</script>

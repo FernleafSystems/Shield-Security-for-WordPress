@@ -3,7 +3,8 @@
   "properties": {
     "slug":                  "headers",
     "name":                  "HTTP Headers",
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
+    "show_module_options":   true,
     "storage_key":           "headers",
     "tagline":               "Control HTTP Security Headers",
     "show_central":          true,
@@ -53,7 +54,7 @@
       "section":     "section_enable_plugin_feature_headers",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/7c",
+      "link_info":   "https://icwp.io/aj",
       "link_blog":   "https://icwp.io/7c",
       "name":        "Enable HTTP Headers",
       "summary":     "Enable (or Disable) The HTTP Headers module",

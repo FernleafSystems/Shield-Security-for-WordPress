@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Tracking', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin {
 
 	public function run() {
@@ -13,7 +9,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 		if ( $oFO->isTrackingEnabled() ) {
 			$this->createTrackingCollectionCron();
 		}
-		add_action( $oFO->prefix( 'delete_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $oFO->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
 	}
 
 	/**
@@ -24,7 +20,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
-			$oCon = $this->getController();
+			$oCon = $this->getCon();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
@@ -75,7 +71,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 				'httpversion' => '1.1',
 				'blocking'    => true,
 				'body'        => array( 'tracking_data' => $aData ),
-				'user-agent'  => 'SHIELD/'.$this->getController()->getVersion().';'
+				'user-agent'  => 'SHIELD/'.$this->getCon()->getVersion().';'
 			),
 			true
 		);
@@ -106,8 +102,8 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 				'options' => array(
 					'php'             => $oDP->getPhpVersionCleaned(),
 					'wordpress'       => $oWP->getVersion(),
-					'slug'            => $this->getController()->getPluginSlug(),
-					'version'         => $this->getController()->getVersion(),
+					'slug'            => $this->getCon()->getPluginSlug(),
+					'version'         => $this->getCon()->getVersion(),
 					'is_wpms'         => $oWP->isMultisite() ? 1 : 0,
 					'ssl'             => is_ssl() ? 1 : 0,
 					'locale'          => get_locale(),
@@ -120,7 +116,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function createTrackingCollectionCron() {
 		$sFullHookName = $this->getCronName();

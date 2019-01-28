@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Query_Statistics_Consolidation', false ) ) {
-	return;
-}
-
-require_once( dirname( dirname( __FILE__ ) ).'/statistics_base.php' );
-
 class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistics_Base {
 
 	/**
@@ -48,7 +42,7 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 		$oDB = $this->loadDbProcessor();
 		foreach ( $aStatKeyCounter as $sStatKey => $nTally ) {
 			$oDB->insertDataIntoTable(
-				$this->getFeature()->getFullReportingTableName(),
+				$this->getMod()->getFullReportingTableName(),
 				array(
 					'stat_key'   => $sStatKey,
 					'tally'      => 1,
@@ -63,7 +57,6 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 	 * @return int
 	 */
 	public function getFirstOfThisMonth() {
-		$this->loadAutoload();
 		$oNow = new \Carbon\Carbon();
 		try {
 			$oNow->setTimezone( $this->loadWp()->getOption( 'timezone_string' ) );
@@ -80,7 +73,6 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 	 * @return int
 	 */
 	public function getFirstOfLastMonth() {
-		$this->loadAutoload();
 		$oNow = new \Carbon\Carbon();
 		try {
 			$oNow->setTimezone( $this->loadWp()->getOption( 'timezone_string' ) );

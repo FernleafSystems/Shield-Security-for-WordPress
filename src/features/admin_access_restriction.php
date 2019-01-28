@@ -1,20 +1,20 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_AdminAccessRestriction' ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
 
 	/**
+	 */
+	protected function setupCustomHooks() {
+		add_action( $this->prefix( 'pre_deactivate_plugin' ), array( $this, 'preDeactivatePlugin' ) );
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->hasAccessKey() || $this->hasSecAdminUsers() ) && parent::isReadyToExecute();
+		return $this->isEnabledSecurityAdmin() && parent::isReadyToExecute();
 	}
 
 	/**
@@ -336,11 +336,24 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledSecurityAdmin() {
+		return $this->isModOptEnabled() &&
+			   ( $this->hasSecAdminUsers() ||
+				 ( $this->hasAccessKey() && $this->getSecAdminTimeout() > 0 )
+			   );
+	}
+
+	/**
 	 * @param bool $bSetOn
 	 * @return bool
 	 */
 	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
-		$oUpdater = $this->getSessionsProcessor()->getQueryUpdater();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpdater */
+		$oUpdater = $this->getSessionsProcessor()
+						 ->getDbHandler()
+						 ->getQueryUpdater();
 		return $bSetOn ?
 			$oUpdater->startSecurityAdmin( $this->getSession() )
 			: $oUpdater->terminateSecurityAdmin( $this->getSession() );
@@ -413,10 +426,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$sLogoUrl = $this->getOpt( $sKey );
 		}
 		if ( !empty( $sLogoUrl ) && !$oDp->isValidUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
-			$sLogoUrl = $this->getConn()->getPluginUrl_Image( $sLogoUrl );
+			$sLogoUrl = $this->getCon()->getPluginUrl_Image( $sLogoUrl );
 			if ( empty( $sLogoUrl ) ) {
 				$oOpts->resetOptToDefault( $sKey );
-				$sLogoUrl = $this->getConn()->getPluginUrl_Image( $this->getOpt( $sKey ) );
+				$sLogoUrl = $this->getCon()->getPluginUrl_Image( $this->getOpt( $sKey ) );
 			}
 		}
 
@@ -440,14 +453,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @param string $sKey
 	 * @return $this
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function setNewAccessKeyManually( $sKey ) {
 		if ( empty( $sKey ) ) {
-			throw new Exception( 'Attempting to set an empty Security Admin Access Key.' );
+			throw new \Exception( 'Attempting to set an empty Security Admin Access Key.' );
 		}
-		if ( !$this->getConn()->isPluginAdmin() ) {
-			throw new Exception( 'User does not have permission to update the Security Admin Access Key.' );
+		if ( !$this->getCon()->isPluginAdmin() ) {
+			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
 		$this->setIsMainFeatureEnabled( true )
@@ -464,6 +477,61 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @param array $aAllData
+	 * @return array
+	 */
+	public function addInsightsConfigData( $aAllData ) {
+		$aThis = array(
+			'strings'      => array(
+				'title' => _wpsf__( 'Security Admin' ),
+				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
+			),
+			'key_opts'     => array(),
+			'href_options' => $this->getUrl_AdminPage()
+		);
+
+		if ( !$this->isEnabledForUiSummary() ) {
+			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
+		}
+		else {
+			$aThis[ 'key_opts' ][ 'mod' ] = array(
+				'name'    => _wpsf__( 'Security Admin' ),
+				'enabled' => $this->isEnabledForUiSummary(),
+				'summary' => $this->isEnabledForUiSummary() ?
+					_wpsf__( 'Security plugin is protected against tampering' )
+					: _wpsf__( 'Security plugin is vulnerable to tampering' ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_key' ),
+			);
+
+			$bWpOpts = $this->getAdminAccessArea_Options();
+			$aThis[ 'key_opts' ][ 'wpopts' ] = array(
+				'name'    => _wpsf__( 'Important Options' ),
+				'enabled' => $bWpOpts,
+				'summary' => $bWpOpts ?
+					_wpsf__( 'Important WP options are protected against tampering' )
+					: _wpsf__( "Important WP options aren't protected against tampering" ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
+			);
+
+			$bUsers = $this->isAdminAccessAdminUsersEnabled();
+			$aThis[ 'key_opts' ][ 'adminusers' ] = array(
+				'name'    => _wpsf__( 'WP Admins' ),
+				'enabled' => $bUsers,
+				'summary' => $bUsers ?
+					_wpsf__( 'Admin users are protected against tampering' )
+					: _wpsf__( "Admin users aren't protected against tampering" ),
+				'weight'  => 1,
+				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
+			);
+		}
+
+		$aAllData[ $this->getSlug() ] = $aThis;
+		return $aAllData;
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
@@ -475,12 +543,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		);
 
 		{//sec admin
-			if ( !( $this->isModuleEnabled() && ( $this->hasAccessKey() || $this->hasSecAdminUsers() ) ) ) {
+			if ( !$this->isEnabledSecurityAdmin() ) {
 				$aNotices[ 'messages' ][ 'sec_admin' ] = array(
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(
 						_wpsf__( "The Security Admin protection is not active." ),
-						$this->getConn()->getHumanName()
+						$this->getCon()->getHumanName()
 					),
 					'href'    => $this->getUrl_AdminPage(),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
@@ -499,19 +567,18 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isEnabledForUiSummary() {
-		return parent::isEnabledForUiSummary() && ( $this->getSecAdminTimeout() > 0 )
-			   && ( $this->hasAccessKey() || $this->hasSecAdminUsers() );
+		return parent::isEnabledForUiSummary() && $this->isEnabledSecurityAdmin();
 	}
 
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		$sPluginName = $this->getConn()->getHumanName();
+		$sPluginName = $this->getCon()->getHumanName();
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
@@ -560,7 +627,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				break;
 
 			default:
-				throw new Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
@@ -571,12 +638,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @param array $aOptionsParams
 	 * @return array
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
 		$sKey = $aOptionsParams[ 'key' ];
-		$sPluginName = $this->getConn()->getHumanName();
+		$sPluginName = $this->getCon()->getHumanName();
 		switch ( $sKey ) {
 
 			case 'enable_admin_access_restriction' :
@@ -712,7 +779,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				break;
 
 			default:
-				throw new Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;
@@ -767,10 +834,25 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 */
+	public function preDeactivatePlugin() {
+		$oCon = $this->getCon();
+		if ( !$oCon->isPluginAdmin() ) {
+			$this->loadWp()->wpDie(
+				_wpsf__( "Sorry, this plugin is protected against unauthorised attempts to disable it." )
+				.'<br />'.sprintf( '<a href="%s">%s</a>',
+					$this->getUrl_AdminPage(),
+					_wpsf__( "You'll just need to authenticate first and try again." )
+				)
+			);
+		}
+	}
+
+	/**
 	 * @deprecated v6.10.7
 	 * @return bool
 	 */
 	public function doCheckHasPermissionToSubmit() {
-		return $this->getConn()->isPluginAdmin();
+		return $this->getCon()->isPluginAdmin();
 	}
 }

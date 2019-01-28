@@ -1,18 +1,12 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Notes' ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/basedb.php' );
-
 class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Plugin $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Plugin $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getDbNameNotes() );
+		parent::__construct( $oModCon, $oModCon->getDef( 'db_notes_name' ) );
 	}
 
 	public function run() {
@@ -22,7 +16,7 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	public function getCreateTableSql() {
-		$sSqlTables = "CREATE TABLE %s (
+		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			wp_username varchar(255) NOT NULL DEFAULT 'unknown',
 			note TEXT,
@@ -30,7 +24,6 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
  			PRIMARY KEY  (id)
 		) %s;";
-		return sprintf( $sSqlTables, $this->getTableName(), $this->loadDbProcessor()->getCharCollate() );
 	}
 
 	/**
@@ -42,36 +35,33 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_PluginNotes_Insert
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Handler
+	 */
+	protected function createDbHandler() {
+		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Handler();
+	}
+
+	/**
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Insert
 	 */
 	public function getQueryInserter() {
-		$this->queryRequireLib( 'insert.php' );
-		$oQ = new ICWP_WPSF_Query_PluginNotes_Insert();
-		return $oQ->setTable( $this->getTableName() );
+		return parent::getQueryInserter();
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_PluginNotes_Delete
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Delete
 	 */
 	public function getQueryDeleter() {
-		$this->queryRequireLib( 'delete.php' );
-		$oQ = new ICWP_WPSF_Query_PluginNotes_Delete();
-		return $oQ->setTable( $this->getTableName() );
+		return parent::getQueryDeleter();
 	}
 
 	/**
-	 * @return ICWP_WPSF_Query_PluginNotes_Select
+	 * @deprecated
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Select
 	 */
 	public function getQuerySelector() {
-		$this->queryRequireLib( 'select.php' );
-		$oQ = new ICWP_WPSF_Query_PluginNotes_Select();
-		return $oQ->setTable( $this->getTableName() );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function queryGetDir() {
-		return parent::queryGetDir().'notes/';
+		return parent::getQuerySelector();
 	}
 }

@@ -1,9 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_LoginProtect_Track', false ) ) {
-	return;
-}
-
 class ICWP_WPSF_Processor_LoginProtect_Track {
 
 	const Factor_Google_Authenticator = 'ga';

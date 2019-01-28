@@ -1,11 +1,5 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_Processor_Plugin_Badge', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -34,7 +28,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	public function gatherPluginWidgetContent( $aContent ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oCon = $this->getController();
+		$oCon = $this->getCon();
 
 		$aLabels = $oCon->getPluginLabels();
 		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(),
@@ -55,10 +49,11 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	public function addPluginBadgeWidget() {
-		$this->loadWpWidgets();
-		require_once( dirname( __FILE__ ).'/plugin_badgewidget.php' );
-		ICWP_WPSF_Processor_Plugin_BadgeWidget::SetFeatureOptions( $this->getMod() );
-		register_widget( 'ICWP_WPSF_Processor_Plugin_BadgeWidget' );
+		if ( $this->loadWp()->getWordpressIsAtLeastVersion( '4.6.0' ) ) {
+			require_once( __DIR__.'/plugin_badgewidget.php' );
+			$oWidget = new ICWP_WPSF_Processor_Plugin_BadgeWidget( $this->getMod() );
+			register_widget( $oWidget );
+		}
 	}
 
 	/**
@@ -70,7 +65,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		try {
 			echo $oFO->renderPluginBadge();
 		}
-		catch ( Exception $oE ) {
+		catch ( \Exception $oE ) {
 		}
 	}
 }

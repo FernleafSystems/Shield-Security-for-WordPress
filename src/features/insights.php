@@ -1,191 +1,309 @@
 <?php
 
-if ( class_exists( 'ICWP_WPSF_FeatureHandler_Insights', false ) ) {
-	return;
-}
-
-require_once( dirname( __FILE__ ).'/base_wpsf.php' );
-
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @param array $aData
 	 */
 	protected function displayModulePage( $aData = array() ) {
-
-		$aRecentAuditTrail = $this->getRecentAuditTrailEntries();
+		$oCon = $this->getCon();
+		$oReq = $this->loadRequest();
 		$aSecNotices = $this->getNotices();
-		$aNotes = $this->getNotes();
 
 		$nNoticesCount = 0;
 		foreach ( $aSecNotices as $aNoticeSection ) {
 			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
 		}
 
-		$aData = array(
-			'vars'    => array(
-				'summary'               => $this->getInsightsModsSummary(),
-				'audit_trail_recent'    => $aRecentAuditTrail,
-				'insight_events'        => $this->getRecentEvents(),
-				'insight_notices'       => $aSecNotices,
-				'insight_notices_count' => $nNoticesCount,
-				'insight_stats'         => $this->getStats(),
-				'insight_notes'         => $aNotes,
-			),
-			'inputs'  => array(
-				'license_key' => array(
-					'name'      => $this->prefixOptionKey( 'license_key' ),
-					'maxlength' => $this->getDef( 'license_key_length' ),
-				)
-			),
-			'ajax'    => array(
-				'admin_note_new'     => $this->getAjaxActionData( 'admin_note_new' ),
-				'admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-				'admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-			),
-			'hrefs'   => array(
-				'shield_pro_url'           => 'https://icwp.io/shieldpro',
-				'shield_pro_more_info_url' => 'https://icwp.io/shld1',
-			),
-			'flags'   => array(
-				'has_audit_trail_entries' => !empty( $aRecentAuditTrail ),
-				'show_ads'                => false,
-				'show_standard_options'   => false,
-				'show_alt_content'        => true,
-				'is_pro'                  => $this->isPremium(),
-				'has_notices'             => count( $aSecNotices ) > 0,
-				'has_notes'               => count( $aNotes ) > 0,
-				'can_notes'               => $this->isPremium() //not the way to determine
-			),
-			'strings' => $this->getDisplayStrings(),
+		$sSubNavSection = $this->loadRequest()->query( 'subnav' );
+
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
+		$oTrafficMod = $oCon->getModule( 'traffic' );
+		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
+		$oTrafficPro = $oTrafficMod->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Select $oTrafficSelector */
+		$oTrafficSelector = $oTrafficPro->getProcessorLogger()
+										->getDbHandler()
+										->getQuerySelector();
+
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
+		$oAuditMod = $oCon->getModule( 'audit_trail' );
+		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditPro */
+		$oAuditPro = $oAuditMod->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select $oAuditSelect */
+		$oAuditSelect = $oAuditPro->getDbHandler()->getQuerySelector();
+
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
+		$oIpMod = $oCon->getModule( 'ips' );
+
+		/** @var ICWP_WPSF_Processor_Sessions $oProSessions */
+		$oProSessions = $oCon->getModule( 'sessions' )->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSessionSelect */
+		$oSessionSelect = $oProSessions->getDbHandler()->getQuerySelector();
+
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
+		$oModUsers = $oCon->getModule( 'user_management' );
+		/** @var ICWP_WPSF_Processor_HackProtect $oProHp */
+		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
+		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
+		$oModLicense = $oCon->getModule( 'license' );
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
+		$oModPlugin = $oCon->getModule( 'plugin' );
+
+		$bIsPro = $this->isPremium();
+		$oCarbon = new \Carbon\Carbon();
+		$nPluginName = $oCon->getHumanName();
+		switch ( $sSubNavSection ) {
+
+			case 'audit':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true ),
+						'item_addparamwhite'      => $oAuditMod->getAjaxActionData( 'item_addparamwhite', true )
+					),
+					'flags'   => array(),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
+					),
+					'vars'    => array(
+						'contexts_for_select' => $oAuditMod->getAllContexts(),
+						'unique_ips'          => $oAuditSelect->getDistinctIps(),
+						'unique_users'        => $oAuditSelect->getDistinctUsernames(),
+					),
+				);
+				break;
+
+			case 'ips':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_ip' => $oIpMod->getAjaxActionData( 'render_table_ip', true ),
+						'item_insert'     => $oIpMod->getAjaxActionData( 'ip_insert', true ),
+						'item_delete'     => $oIpMod->getAjaxActionData( 'ip_delete', true ),
+					),
+					'flags'   => array(
+						'can_blacklist' => $bIsPro
+					),
+					'strings' => array(
+						'trans_limit'       => sprintf(
+							'Transgressions required for IP block: %s',
+							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpMod->getOptTransgressionLimit() )
+						),
+						'auto_expire'       => sprintf(
+							'Black listed IPs auto-expire after: %s',
+							sprintf( '<a href="%s" target="_blank">%s</a>',
+								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ), $oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 1 )
+																							 ->diffForHumans( null, true )
+							) ),
+						'title_whitelist'   => _wpsf__( 'IP Whitelist' ),
+						'title_blacklist'   => _wpsf__( 'IP Blacklist' ),
+						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),
+						'summary_blacklist' => sprintf( _wpsf__( 'IP addresses that have tripped %s defenses.' ), $nPluginName ),
+					),
+					'vars'    => array(),
+				);
+				break;
+
+			case 'notes':
+				$aData = array(
+					'vars'  => array(),
+					'ajax'  => array(
+						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
+						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
+						'item_insert'             => $oModPlugin->getAjaxActionData( 'note_insert', true ),
+						'bulk_action'             => $oModPlugin->getAjaxActionData( 'bulk_action', true ),
+					),
+					'flags' => array(
+						'can_notes' => $bIsPro //not the way to determine
+					)
+				);
+				break;
+
+			case 'traffic':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_traffic' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
+					),
+					'flags'   => array(
+						'can_traffic' => $this->isPremium(),
+						'is_enabled'  => $oTrafficMod->isModOptEnabled(),
+					),
+					'hrefs'   => array(
+						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_traffic' ),
+					),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
+					),
+					'vars'    => array(
+						'unique_ips'       => $oTrafficSelector->getDistinctIps(),
+						'unique_responses' => $oTrafficSelector->getDistinctCodes(),
+						'unique_users'     => $oTrafficSelector->getDistinctUsernames(),
+					),
+				);
+				break;
+
+			case 'license':
+				$aData = $oModLicense->buildInsightsVars();
+				break;
+
+			case 'scans':
+				$aData = $oProHp->buildInsightsVars();
+				break;
+
+			case 'users':
+				$aData = array(
+					'ajax'    => array(
+						'render_table_sessions' => $oModUsers->getAjaxActionData( 'render_table_sessions', true ),
+						'item_delete'           => $oModUsers->getAjaxActionData( 'session_delete', true ),
+						'bulk_action'           => $oModUsers->getAjaxActionData( 'bulk_action', true ),
+
+					),
+					'flags'   => array(),
+					'strings' => array(
+						'title_filter_form' => _wpsf__( 'Sessions Table Filters' ),
+					),
+					'vars'    => array(
+						'unique_ips'   => $oSessionSelect->getDistinctIps(),
+						'unique_users' => $oSessionSelect->getDistinctUsernames(),
+					),
+				);
+				break;
+
+			case 'insights':
+			case 'index':
+			default:
+				$sSubNavSection = 'insights';
+				$aData = array(
+					'vars'   => array(
+						'config_cards'          => $this->getConfigCardsData(),
+						'summary'               => $this->getInsightsModsSummary(),
+						'insight_events'        => $this->getRecentEvents(),
+						'insight_notices'       => $aSecNotices,
+						'insight_notices_count' => $nNoticesCount,
+						'insight_stats'         => $this->getStats(),
+					),
+					'inputs' => array(
+						'license_key' => array(
+							'name'      => $this->prefixOptionKey( 'license_key' ),
+							'maxlength' => $this->getDef( 'license_key_length' ),
+						)
+					),
+					'ajax'   => array(),
+					'hrefs'  => array(
+						'shield_pro_url'           => 'https://icwp.io/shieldpro',
+						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
+					),
+					'flags'  => array(
+						'show_ads'              => false,
+						'show_standard_options' => false,
+						'show_alt_content'      => true,
+						'is_pro'                => $this->isPremium(),
+						'has_notices'           => count( $aSecNotices ) > 0,
+					),
+				);
+				break;
+		}
+
+		$aTopNav = array(
+			'insights' => _wpsf__( 'Overview' ),
+			'scans'    => _wpsf__( 'Scans' ),
+			'ips'      => _wpsf__( 'IP Lists' ),
+			'audit'    => _wpsf__( 'Audit Trail' ),
+			'traffic'  => _wpsf__( 'Traffic' ),
+			'users'    => _wpsf__( 'Users' ),
+			'notes'    => _wpsf__( 'Notes' ),
+			'license'  => _wpsf__( 'Pro' ),
 		);
-		echo $this->renderTemplate( '/wpadmin_pages/insights/index.twig', $aData, true );
+		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
+			$sName = array(
+				'href'   => add_query_arg( [ 'subnav' => $sKey ], $this->getUrl_AdminPage() ),
+				'name'   => $sName,
+				'active' => $sKey === $sSubNavSection
+			);
+		} );
+
+		$aTopNav[ 'full_options' ] = array(
+			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),
+			'name'   => _wpsf__( 'Settings' ),
+			'active' => false
+		);
+
+		$aData = $this->loadDP()
+					  ->mergeArraysRecursive(
+						  array(
+							  'classes' => array(
+								  'page_container' => 'page-insights page-'.$sSubNavSection
+							  ),
+							  'flags'   => array(
+								  'show_promo' => !$bIsPro
+							  ),
+							  'hrefs'   => array(
+								  'go_pro'     => 'https://icwp.io/shieldgoprofeature',
+								  'nav_home'   => $this->getUrl_AdminPage(),
+								  'top_nav'    => $aTopNav,
+								  'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
+							  ),
+							  'strings' => $this->getDisplayStrings(),
+						  ),
+						  $aData
+					  );
+		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
 
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
 		if ( $this->isThisModulePage() ) {
-			wp_localize_script(
-				$this->prefix( 'plugin' ),
-				'icwp_wpsf_vars_insights',
-				array(
-					'ajax_admin_notes_render' => $this->getAjaxActionData( 'admin_notes_render' ),
-					'ajax_admin_notes_delete' => $this->getAjaxActionData( 'admin_notes_delete' ),
-				)
-			);
-		}
-	}
 
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
+			if ( $this->isThisModulePage() ) {
+				$oConn = $this->getCon();
 
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+				$aStdDeps = array( $this->prefix( 'plugin' ) );
+				$sSubnav = $this->loadRequest()->query( 'subnav' );
+				switch ( $sSubnav ) {
 
-				case 'admin_note_new':
-					$aAjaxResponse = $this->ajaxExec_AdminNoteNew();
-					break;
+					case 'scans':
+					case 'audit':
+					case 'ips':
+					case 'notes':
+					case 'traffic':
+					case 'users':
 
-				case 'admin_notes_delete':
-					$aAjaxResponse = $this->ajaxExec_AdminNotesDelete();
-					break;
+						$sAsset = 'shield-tables';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
 
-				case 'admin_notes_render':
-					$aAjaxResponse = $this->ajaxExec_AdminNotesRender();
-					break;
+						$aStdDeps[] = $sUnique;
+						if ( $sSubnav == 'scans' ) {
+							$sAsset = 'shield-scans';
+							$sUnique = $this->prefix( $sAsset );
+							wp_register_script(
+								$sUnique,
+								$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+								$aStdDeps,
+								$oConn->getVersion(),
+								false
+							);
+							wp_enqueue_script( $sUnique );
+						}
 
-				default:
-					break;
+						break;
+				}
 			}
 		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNoteNew() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getConn()->getModule( 'plugin' );
-		$sNote = $this->loadRequest()->post( 'admin_note', '' );
-		$bSuccess = false;
-		if ( !$oMod->getCanAdminNotes() ) {
-			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
-		}
-		else if ( empty( $sNote ) ) {
-			$sMessage = _wpsf__( 'Sorry, but it appears your note was empty.' );
-		}
-		else {
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $oMod->getProcessor();
-			$bSuccess = $oP->getSubProcessorNotes()
-						   ->getQueryInserter()
-						   ->create( $sNote ) !== false;
-
-			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );
-		}
-		return array(
-			'success' => $bSuccess,
-			'message' => $sMessage
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNotesDelete() {
-
-		$nNoteId = (int)$this->loadRequest()->post( 'note_id', 0 );
-		if ( $nNoteId >= 0 ) {
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-			$oMod = $this->getConn()->getModule( 'plugin' );
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $oMod->getProcessor();
-			$oP->getSubProcessorNotes()
-			   ->getQueryDeleter()
-			   ->deleteById( $nNoteId );
-		}
-
-		return array(
-			'success' => true
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNotesRender() {
-		$aNotes = $this->getNotes();
-		$sHtml = $this->renderTemplate(
-			'/wpadmin_pages/insights/admin_notes_table.twig',
-			array(
-				'vars'  => array(
-					'insight_notes' => $aNotes,
-				),
-				'flags' => array(
-					'has_notes' => count( $aNotes ) > 0,
-					'can_notes' => $this->isPremium() //not the way to determine
-				),
-			),
-			true
-		);
-
-		$bSuccess = true;
-		return array(
-			'success' => $bSuccess,
-			'html'    => $sHtml
-		);
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		$sName = $this->getConn()->getHumanName();
+		$sName = $this->getCon()->getHumanName();
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
@@ -193,7 +311,16 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'recommendation'      => ucfirst( _wpsf__( 'recommendation' ) ),
 				'suggestion'          => ucfirst( _wpsf__( 'suggestion' ) ),
 				'box_welcome_title'   => sprintf( _wpsf__( 'Welcome To %s Security Insights Dashboard' ), $sName ),
-				'box_receve_subtitle' => sprintf( _wpsf__( 'Some of the most recent %s events' ), $sName )
+				'box_receve_subtitle' => sprintf( _wpsf__( 'Some of the most recent %s events' ), $sName ),
+
+				'never'          => _wpsf__( 'Never' ),
+				'go_pro'         => 'Go Pro!',
+				'options'        => _wpsf__( 'Options' ),
+				'not_available'  => _wpsf__( 'Sorry, this feature is not available.' ),
+				'not_enabled'    => _wpsf__( "This feature isn't currently enabled." ),
+				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to activate this feature (along with many more).' ),
+				'please_enable'  => _wpsf__( 'Please turn on this feature in the options.' ),
+				'only_1_dollar'  => _wpsf__( 'for just $1/month' ),
 			)
 		);
 	}
@@ -214,8 +341,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return array[]
 	 */
-	protected function getNotices() {
+	protected function getConfigCardsData() {
+		return apply_filters( $this->prefix( 'collect_summary' ), array() );
+	}
 
+	/**
+	 * @return array[]
+	 */
+	protected function getNotices() {
 		$aAll = apply_filters(
 			$this->prefix( 'collect_notices' ),
 			array(
@@ -289,7 +422,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					}
 				}
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 				$aMessage = array(
 					'title'   => 'SSL Cert Expiration',
 					'message' => 'Failed to retrieve a valid SSL certificate.',
@@ -425,7 +558,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'updates_auto' ] = array(
 					'title'   => 'Auto Updates',
 					'message' => _wpsf__( 'WordPress does not automatically install updates.' ),
-					'href'    => $this->getConn()->getModule( 'autoupdates' )->getUrl_AdminPage(),
+					'href'    => $this->getCon()->getModule( 'autoupdates' )->getUrl_AdminPage(),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Minor WordPress upgrades should be applied automatically.' )
 				);
@@ -437,34 +570,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getNotes() {
-		/** @var ICWP_WPSF_Processor_Plugin $oProc */
-		$oProc = $this->getConn()->getModule( 'plugin' )->getProcessor();
-
-		$oRetriever = $oProc->getSubProcessorNotes()
-							->getQuerySelector();
-		/** @var stdClass[] $aNotes */
-		$aNotes = $oRetriever->setLimit( 10 )
-							 ->setResultsAsVo( false )
-							 ->query();
-
-		$oWP = $this->loadWp();
-		foreach ( $aNotes as $oItem ) {
-			$oItem->created_at = $oWP->getTimeStampForDisplay( $oItem->created_at );
-			$oItem->note = stripslashes( sanitize_text_field( $oItem->note ) );
-			$oItem->wp_username = sanitize_text_field( $oItem->wp_username );
-		}
-
-		return $aNotes;
-	}
-
-	/**
 	 * @return array[]
 	 */
 	protected function getStats() {
-		$oConn = $this->getConn();
+		$oConn = $this->getCon();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oConn->getModule( 'user_management' );
 		/** @var ICWP_WPSF_Processor_UserManagement $oProUsers */
@@ -474,19 +583,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_Processor_Ips $oIPs */
 		$oIPs = $oConn->getModule( 'ips' )->getProcessor();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select $oSelect */
+		$oSelect = $oIPs->getDbHandler()->getQuerySelector();
 
 		$aStats = $oStats->getInsightsStats();
 		return array(
-			'transgressions' => array(
-				'title'   => _wpsf__( 'Transgressions' ),
-				'val'     => $aStats[ 'ip.transgression.incremented' ],
-				'tooltip' => _wpsf__( 'Total transgression against the site.' )
-			),
-			'ip_blocks'      => array(
-				'title'   => _wpsf__( 'IP Blocks' ),
-				'val'     => $aStats[ 'ip.connection.killed' ],
-				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
-			),
 			'login'          => array(
 				'title'   => _wpsf__( 'Login Blocks' ),
 				'val'     => $aStats[ 'login.blocked.all' ],
@@ -502,23 +603,37 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'val'     => $aStats[ 'comments.blocked.all' ],
 				'tooltip' => _wpsf__( 'Total SPAM comments blocked.' )
 			),
-			'sessions'       => array(
-				'title'   => _wpsf__( 'Active Sessions' ),
-				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
-				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+			//			'sessions'       => array(
+			//				'title'   => _wpsf__( 'Active Sessions' ),
+			//				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
+			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
+			//			),
+			'transgressions' => array(
+				'title'   => _wpsf__( 'Transgressions' ),
+				'val'     => $aStats[ 'ip.transgression.incremented' ],
+				'tooltip' => _wpsf__( 'Total transgression against the site.' )
+			),
+			'ip_blocks'      => array(
+				'title'   => _wpsf__( 'IP Blocks' ),
+				'val'     => $aStats[ 'ip.connection.killed' ],
+				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
 			),
 			'blackips'       => array(
 				'title'   => _wpsf__( 'Blacklist IPs' ),
-				'val'     => $oIPs->getQuerySelector()
-								  ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
-								  ->count(),
+				'val'     => $oSelect
+					->filterByLists(
+						[
+							ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+							ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+						]
+					)->count(),
 				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
 			),
-			'pro'            => array(
-				'title'   => _wpsf__( 'Pro' ),
-				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
-				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
-			),
+			//			'pro'            => array(
+			//				'title'   => _wpsf__( 'Pro' ),
+			//				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
+			//				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
+			//			),
 		);
 	}
 
@@ -526,7 +641,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getRecentEvents() {
-		$oConn = $this->getConn();
+		$oConn = $this->getCon();
 
 		$aStats = array();
 		foreach ( $oConn->getModules() as $oModule ) {
@@ -547,31 +662,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return array[]
-	 */
-	protected function getRecentAuditTrailEntries() {
-		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-		$oProc = $this->getConn()
-					  ->getModule( 'audit_trail' )
-					  ->getProcessor();
-		try {
-			$aItems = $oProc->getQuerySelector()
-							->setLimit( 20 )
-							->query();
-		}
-		catch ( Exception $oE ) {
-			$aItems = array();
-		}
-		$oWP = $this->loadWp();
-		foreach ( $aItems as $oItem ) {
-			$oItem->created_at = $oWP->getTimeStringForDisplay( $oItem->created_at );
-			$oItem->message = stripslashes( sanitize_text_field( $oItem->message ) );
-		}
-
-		return $aItems;
-	}
-
-	/**
 	 * @return string[]
 	 */
 	private function getInsightStatNames() {
@@ -580,7 +670,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_scan_ufc_at'             => _wpsf__( 'Unrecognised Files Scan' ),
 			'insights_last_scan_wcf_at'             => _wpsf__( 'WordPress Core Files Scan' ),
 			'insights_last_scan_ptg_at'             => _wpsf__( 'Plugin/Themes Guard Scan' ),
-			'insights_last_scan_wpv_at'             => _wpsf__( 'Plugin Vulnerabilities Scan' ),
+			'insights_last_scan_wpv_at'             => _wpsf__( 'Vulnerabilities Scan' ),
 			'insights_last_2fa_login_at'            => _wpsf__( 'Successful 2-FA Login' ),
 			'insights_last_login_block_at'          => _wpsf__( 'Login Block' ),
 			'insights_last_register_block_at'       => _wpsf__( 'User Registration Block' ),
@@ -591,7 +681,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_comment_block_at'        => _wpsf__( 'Comment SPAM Block' ),
 			'insights_xml_block_at'                 => _wpsf__( 'XML-RPC Block' ),
 			'insights_restapi_block_at'             => _wpsf__( 'Anonymous Rest API Block' ),
-			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getConn()
+			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getCon()
 																									->getHumanName() ),
 			'insights_last_ip_block_at'             => _wpsf__( 'IP Connection Blocked' ),
 		);

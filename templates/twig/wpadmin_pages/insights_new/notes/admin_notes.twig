@@ -1,0 +1,45 @@
+<div id="SectionAdminNotes" class="insights_widget card w-100 p-0">
+	<div class="card-header">
+		<h5 class="card-title">Administrator Notes</h5>
+		<h6 class="card-subtitle mb-2 text-muted">Use this area to make ongoing notes and to-dos.</h6>
+	</div>
+	<div class="card-body">
+		<form class="form-inline" id="NewAdminNote" action="#" method="post" autocomplete="off">
+			<label class="sr-only" for="AdminNote">Note</label>
+			<div class="input-group w-100">
+				<div class="input-group-prepend">
+					<div class="input-group-text" style="border-radius: 0">New Note:</div>
+				</div>
+				<input class="form-control" id="AdminNote" name="admin_note" type="text"
+					   placeholder="{% if flags.can_notes %}Enter new note here{% else %}Sorry, Admin Notes is a Pro-only feature{% endif %}"
+				/>
+				<div class="input-group-append">
+					<button type="submit" class="btn btn-info action insert" style="border-radius: 0;" name="subbutt"
+							{% if not flags.can_notes %}disabled="disabled"{% endif %}
+					>Add Note</button>
+				</div>
+			</div>
+		</form>
+
+		<div id="TableAdminNotes" class="p-0"></div>
+
+	</div>
+</div>
+<script>
+	var $oTableAdminNotes = jQuery( '#TableAdminNotes' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_adminnotes|raw }}
+		}
+	);
+	jQuery( '#SectionAdminNotes' ).icwpWpsfTableActions(
+		{
+			'table': $oTableAdminNotes,
+			'ajax_item_delete':{{ ajax.item_delete|raw }},
+			'ajax_item_insert':{{ ajax.item_insert|raw }},
+			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
+			'forms': {
+				'insert': jQuery( 'form#NewAdminNote' )
+			}
+		}
+	);
+</script>
