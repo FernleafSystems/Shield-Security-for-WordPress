@@ -27,6 +27,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$aData = [
+			'vars'  => array(
+				'form_nonce'  => $oMod->getNonceActionData( 'import_file_upload' ),
+				'form_action' => $oMod->getUrl_AdminPage()
+			),
 			'ajax'  => array(
 				'options_import' => $oMod->getAjaxActionData( 'options_import', true )
 			),
@@ -174,13 +178,19 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			throw new \Exception( 'Not currently logged-in as admin' );
 		}
 
-		$oFs = Services::WpFs();
+		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
+			throw new \Exception( 'Please check the box to confirm your intent to overwrite settings' );
+		};
 
+		$oFs = Services::WpFs();
 		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
-			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] )
-			 || $_FILES[ 'import_file' ][ 'size' ] == 0
+			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
+			throw new \Exception( 'Please select a file to upload' );
+		}
+		if ( $_FILES[ 'import_file' ][ 'size' ] == 0
 			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
 			 || !$oFs->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
+			 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0
 		) {
 			throw new \Exception( 'Uploading of file failed' );
 		}

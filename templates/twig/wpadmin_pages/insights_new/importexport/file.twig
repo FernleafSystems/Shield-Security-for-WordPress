@@ -10,7 +10,7 @@
 				<div class="" id="">
 					<div class="form-group text-right">
 						<a id="ExportDownload" href="{{ hrefs.export_file_download }}"
-						   class="btn btn-info" type="submit">Download</a>
+						   class="btn btn-info" type="submit">Download Options Export File</a>
 					</div>
 				</div>
 			</div>
@@ -24,7 +24,11 @@
 				<h6 class="card-subtitle text-muted">Supply a previously exported options file</h6>
 			</div>
 			<div class="card-body p-4">
-				<form id="ImportExportFileForm" autocomplete="off" method="post">
+				<form id="ImportExportFileForm" autocomplete="off" method="post"
+					  action="{{ vars.form_action }}" enctype="multipart/form-data">
+					{% for input_name,input_value in vars.form_nonce %}
+						<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
+					{% endfor %}
 					<div class="form-group">
 						<label for="ImportFile">Select Options Import File</label>
 						<input name="import_file" type="file" class="form-control-file" id="ImportFile">
@@ -33,7 +37,7 @@
 						<label for="_confirm" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
 								   name="confirm" id="_confirm" value="Y" />
-							I Understand Existing Options Will Be Overwritten
+							Yes, I Understand Existing Options Will Be Overwritten
 							<br />
 							<small class="form-text text-muted">
 								Please be sure that this is what you intend - it can't be undone.
@@ -41,7 +45,8 @@
 						</label>
 					</div>
 					<div class="form-group text-right">
-						<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Import Options" />
+						<input id="SubmitForm" href="#" class="btn btn-info" type="submit"
+							   value="Import Options From File" />
 					</div>
 				</form>
 			</div>
@@ -60,11 +65,5 @@
 				} );
 				return false;
 			} );
-
-			jQuery( 'form#ImportExportFileForm' ).icwpWpsfImportExport(
-				{
-					'ajax_options_import':{{ ajax.options_import|raw }}
-				}
-			);
 		} );
 </script>

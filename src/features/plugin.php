@@ -191,10 +191,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$aAjaxResponse = $this->ajaxExec_AdminNotesInsert();
 					break;
 
-				case 'options_import':
-					$aAjaxResponse = $this->ajaxExec_ImportOptions();
-					break;
-
 				default:
 					break;
 			}
@@ -206,7 +202,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function handleModRequest() {
 		$oReq = $this->loadRequest();
-		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
+		switch ( $oReq->request( 'exec' ) ) {
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
@@ -216,9 +212,38 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					 ->doExportDownload();
 				break;
 
+			case 'import_file_upload':
+				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				$oPro = $this->getProcessor();
+				try {
+					$oPro->getSubProcessorImportExport()
+						 ->importFromUploadFile();
+					$bSuccess = true;
+					$sMessage = _wpsf__( 'Options imported successfully' );
+				}
+				catch ( \Exception $oE ) {
+					$bSuccess = false;
+					$sMessage = $oE->getMessage();
+				}
+				$this->loadWpNotices()
+					 ->addFlashUserMessage( $sMessage, !$bSuccess );
+				$this->loadWp()->doRedirect( $this->getUrlImportExport() );
+				break;
+
 			default:
 				break;
 		}
+	}
+
+	/**
+	 * TODO: build better/dynamic direct linking to insights sub-pages
+	 * see also hackprotect getUrlManualScan()
+	 */
+	private function getUrlImportExport() {
+		return add_query_arg(
+			[ 'subnav' => 'importexport' ],
+			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage()
+		);
 	}
 
 	/**
@@ -313,20 +338,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$this->setFlashAdminNotice( _wpsf__( 'File could not be automatically removed.' ), true );
 		}
 		return array( 'success' => !$bStillActive );
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_ImportOptions() {
-		/** @var ICWP_WPSF_Processor_Plugin $oPro */
-		$oPro = $this->getProcessor();
-		var_dump( $_POST );
-		var_dump( $_FILES );
-		$oPro->getSubProcessorImportExport()
-			 ->importFromUploadFile();
-
-		return array( 'success' => false );
 	}
 
 	/**
