@@ -1,5 +1,7 @@
 <?php
 
+require_once( dirname( dirname( __DIR__ ) ).'/lib/vendor/autoload.php' );
+
 /**
  * @deprecated v7.0.0
  * Class ICWP_WPSF_Query_Ips_Select

@@ -1,5 +1,7 @@
 <?php
 
+require_once( dirname( dirname( __DIR__ ) ).'/lib/vendor/autoload.php' );
+
 class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 
 	/**
@@ -34,8 +36,8 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param  $oSession
-	 * @param int                 $nExpiresAt
+	 * @param     $oSession
+	 * @param int $nExpiresAt
 	 * @return bool
 	 */
 	public function updateLoginIntentExpiresAt( $oSession, $nExpiresAt ) {
@@ -54,8 +56,8 @@ class ICWP_WPSF_Query_Sessions_Update extends ICWP_WPSF_Query_BaseUpdate {
 	}
 
 	/**
-	 * @param  $oSession
-	 * @param string              $sCode
+	 * @param        $oSession
+	 * @param string $sCode
 	 * @return bool
 	 */
 	public function setLoginIntentCodeEmail( $oSession, $sCode ) {

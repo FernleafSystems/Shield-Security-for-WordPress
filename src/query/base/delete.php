@@ -1,5 +1,7 @@
 <?php
 
+require_once( dirname( dirname( __DIR__ ) ).'/lib/vendor/autoload.php' );
+
 abstract class ICWP_WPSF_Query_BaseDelete extends ICWP_WPSF_Query_BaseQuery {
 
 	/**
