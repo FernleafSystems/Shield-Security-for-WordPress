@@ -268,6 +268,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$sSubnav = $this->loadRequest()->query( 'subnav' );
 				switch ( $sSubnav ) {
 
+					case 'importexport':
+						$sAsset = 'shield-importexport';
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$aStdDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+						break;
+
 					case 'scans':
 					case 'audit':
 					case 'ips':
@@ -293,7 +306,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							wp_register_script(
 								$sUnique,
 								$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-								$aStdDeps,
+								array_unique( $aStdDeps ),
 								$oConn->getVersion(),
 								false
 							);
