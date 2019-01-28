@@ -199,6 +199,54 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 */
+	public function handleModRequest() {
+		$oReq = $this->loadRequest();
+		switch ( $oReq->request( 'exec' ) ) {
+
+			case 'export_file_download':
+				header( 'Set-Cookie: fileDownload=true; path=/' );
+				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				$oPro = $this->getProcessor();
+				$oPro->getSubProcessorImportExport()
+					 ->doExportDownload();
+				break;
+
+			case 'import_file_upload':
+				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				$oPro = $this->getProcessor();
+				try {
+					$oPro->getSubProcessorImportExport()
+						 ->importFromUploadFile();
+					$bSuccess = true;
+					$sMessage = _wpsf__( 'Options imported successfully' );
+				}
+				catch ( \Exception $oE ) {
+					$bSuccess = false;
+					$sMessage = $oE->getMessage();
+				}
+				$this->loadWpNotices()
+					 ->addFlashUserMessage( $sMessage, !$bSuccess );
+				$this->loadWp()->doRedirect( $this->getUrlImportExport() );
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/**
+	 * TODO: build better/dynamic direct linking to insights sub-pages
+	 * see also hackprotect getUrlManualScan()
+	 */
+	private function getUrlImportExport() {
+		return add_query_arg(
+			[ 'subnav' => 'importexport' ],
+			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage()
+		);
+	}
+
+	/**
 	 * @return array
 	 */
 	private function ajaxExec_BulkItemAction() {

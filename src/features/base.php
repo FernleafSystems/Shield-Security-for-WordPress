@@ -92,8 +92,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			add_filter( $this->prefix( 'ajaxAuthAction' ), array( $this, 'handleAuthAjax' ) );
 			add_filter( $this->prefix( 'ajaxNonAuthAction' ), array( $this, 'handleNonAuthAjax' ) );
 
-			if ( $oReq->query( 'action' ) == $this->prefix()
-				 && check_admin_referer( $oReq->query( 'exec' ), 'exec_nonce' )
+			if ( $oReq->request( 'action' ) == $this->prefix()
+				 && check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' )
 			) {
 				add_action( $this->prefix( 'mod_request' ), array( $this, 'handleModRequest' ) );
 			}
