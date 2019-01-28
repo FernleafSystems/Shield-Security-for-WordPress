@@ -1,5 +1,7 @@
 <?php
 
+require_once( dirname( dirname( __DIR__ ) ).'/lib/vendor/autoload.php' );
+
 trait ICWP_WPSF_Query_TrafficEntry_Common {
 
 	/**
