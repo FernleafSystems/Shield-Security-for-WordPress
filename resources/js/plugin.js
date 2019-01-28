@@ -47,6 +47,30 @@ var iCWP_WPSF_OptionsPages = new function () {
 
 }();
 
+var iCWP_WPSF_Toaster = new function () {
+
+	this.showMessage = function ( sMessage, bSuccess ) {
+		var $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
+		var $oToastBody = jQuery( '.toast-body', $oNewToast );
+		$oToastBody.html( '' );
+
+		jQuery( '<span></span>' ).html( sMessage )
+								 .addClass( bSuccess ? 'text-dark' : 'text-danger' )
+								 .appendTo( $oToastBody );
+		$oNewToast.toast( 'show' );
+	};
+
+	this.initialise = function () {
+		jQuery( document ).ready( function () {
+			jQuery( '.toast.icwp-toaster' ).toast( {
+				autohide: true,
+				delay: 3000
+			} );
+		} );
+	};
+}();
+iCWP_WPSF_Toaster.initialise();
+
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	var bRequestCurrentlyRunning = false;
@@ -97,7 +121,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 					else {
 						sMessage = oResponse.data.message;
 					}
-					iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
+					iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
+					// iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
 				}
 			).always( function () {
 					bRequestCurrentlyRunning = false;
@@ -145,7 +170,8 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 
 						if ( !bWarningShown && nLeft < 20 && nLeft > 8 ) {
 							bWarningShown = true;
-							iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.nearly, false );
+							iCWP_WPSF_Toaster.showMessage( icwp_wpsf_vars_secadmin.strings.nearly, false );
+							// iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.nearly, false );
 						}
 
 						scheduleSecAdminCheck();
@@ -161,7 +187,8 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 								// Do nothing!
 							}
 						}, 1500 );
-						iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.expired, oResponse.success );
+						iCWP_WPSF_Toaster.showMessage( icwp_wpsf_vars_secadmin.strings.expired, oResponse.success );
+						// iCWP_WPSF_Growl.showMessage( icwp_wpsf_vars_secadmin.strings.expired, oResponse.success );
 					}
 
 				}
