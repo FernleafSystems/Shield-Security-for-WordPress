@@ -1,5 +1,7 @@
 <?php
 
+require_once( dirname( dirname( __DIR__ ) ).'/lib/vendor/autoload.php' );
+
 class ICWP_WPSF_Query_TrafficEntry_Delete extends ICWP_WPSF_Query_BaseDelete {
 
 	use ICWP_WPSF_Query_TrafficEntry_Common;
