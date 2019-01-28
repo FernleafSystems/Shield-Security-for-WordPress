@@ -16,13 +16,13 @@ jQuery.fn.icwpWpsfStartScans = function ( aOptions ) {
 			function ( oResponse ) {
 
 				if ( oResponse.success ) {
-					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+					iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
 					if ( oResponse.data.page_reload ) {
 						location.reload( true );
 					}
 					else {
 						plugin.options[ 'table' ].reloadTable();
-						iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+						iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
 					}
 				}
 				else {
