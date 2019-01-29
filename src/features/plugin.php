@@ -191,6 +191,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$aAjaxResponse = $this->ajaxExec_AdminNotesInsert();
 					break;
 
+				case 'import_from_site':
+					$aAjaxResponse = $this->ajaxExec_ImportFromSite();
+					break;
+
 				default:
 					break;
 			}
@@ -372,6 +376,37 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		return array(
 			'success' => true,
+			'message' => $sMessage
+		);
+	}
+
+	private function ajaxExec_ImportFromSite() {
+		$bSuccess = false;
+		$aFormParams = array_merge(
+			[
+				'confirm' => 'N'
+			],
+			$this->getAjaxFormParams()
+		);
+
+		// TODO: align with wizard AND combine with file upload errors
+		if ( $aFormParams[ 'confirm' ] !== 'Y' ) {
+			$sMessage = _wpsf__( 'Please check the box to confirm your intent to overwrite settings' );
+		}
+		else {
+			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
+			$sSecretKey = $aFormParams[ 'MasterSiteSecretKey' ];
+			$bEnabledNetwork = $aFormParams[ 'ShieldNetworkCheck' ] === 'Y';
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $this->getProcessor();
+			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
+			$nCode = $oP->getSubProcessorImportExport()
+						->runImport( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork );
+			$bSuccess = $nCode == 0;
+			$sMessage = $bSuccess ? _wpsf__( 'Options imported successfully' ) : _wpsf__( 'Options failed to import' );
+		}
+		return array(
+			'success' => $bSuccess,
 			'message' => $sMessage
 		);
 	}

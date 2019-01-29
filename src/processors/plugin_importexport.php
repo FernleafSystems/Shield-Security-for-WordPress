@@ -32,7 +32,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				'form_action' => $oMod->getUrl_AdminPage()
 			),
 			'ajax'  => array(
-				'options_import' => $oMod->getAjaxActionData( 'options_import', true )
+				'import_from_site' => $oMod->getAjaxActionData( 'import_from_site', true ),
 			),
 			'hrefs' => array(
 				'export_file_download' => $this->createExportFileDownloadLink()
@@ -179,7 +179,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
-			throw new \Exception( 'Please check the box to confirm your intent to overwrite settings' );
+			throw new \Exception( _wpsf__( 'Please check the box to confirm your intent to overwrite settings' ) );
 		};
 
 		$oFs = Services::WpFs();
