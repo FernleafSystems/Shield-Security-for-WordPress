@@ -261,47 +261,44 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		if ( $this->isThisModulePage() ) {
 
-			if ( $this->isThisModulePage() ) {
-				$oConn = $this->getCon();
+			$oConn = $this->getCon();
+			$aStdDeps = array( $this->prefix( 'plugin' ) );
+			$sSubnav = $this->loadRequest()->query( 'subnav' );
+			switch ( $sSubnav ) {
 
-				$aStdDeps = array( $this->prefix( 'plugin' ) );
-				$sSubnav = $this->loadRequest()->query( 'subnav' );
-				switch ( $sSubnav ) {
+				case 'scans':
+				case 'audit':
+				case 'ips':
+				case 'notes':
+				case 'traffic':
+				case 'users':
 
-					case 'scans':
-					case 'audit':
-					case 'ips':
-					case 'notes':
-					case 'traffic':
-					case 'users':
+					$sAsset = 'shield-tables';
+					$sUnique = $this->prefix( $sAsset );
+					wp_register_script(
+						$sUnique,
+						$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+						$aStdDeps,
+						$oConn->getVersion(),
+						false
+					);
+					wp_enqueue_script( $sUnique );
 
-						$sAsset = 'shield-tables';
+					$aStdDeps[] = $sUnique;
+					if ( $sSubnav == 'scans' ) {
+						$sAsset = 'shield-scans';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
 							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							$aStdDeps,
+							array_unique( $aStdDeps ),
 							$oConn->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
+					}
 
-						$aStdDeps[] = $sUnique;
-						if ( $sSubnav == 'scans' ) {
-							$sAsset = 'shield-scans';
-							$sUnique = $this->prefix( $sAsset );
-							wp_register_script(
-								$sUnique,
-								$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-								array_unique( $aStdDeps ),
-								$oConn->getVersion(),
-								false
-							);
-							wp_enqueue_script( $sUnique );
-						}
-
-						break;
-				}
+					break;
 			}
 		}
 	}
