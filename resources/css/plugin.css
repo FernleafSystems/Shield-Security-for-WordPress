@@ -1175,3 +1175,9 @@ table.odp-table.scan-table td.column-path code {
 		letter-spacing: 0;
 	}
 }
+.form-check input[type=radio] {
+	margin-top: 4px;
+}
+.form-check-label {
+	margin-left: 26px;
+}

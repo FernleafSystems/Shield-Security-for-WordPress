@@ -395,13 +395,13 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @param string $sMasterSiteUrl
-	 * @param string $sSecretKey
-	 * @param bool   $bEnableNetwork
-	 * @param string $sSiteResponse
+	 * @param string    $sMasterSiteUrl
+	 * @param string    $sSecretKey
+	 * @param bool|null $bEnableNetwork
+	 * @param string    $sSiteResponse
 	 * @return int
 	 */
-	public function runImport( $sMasterSiteUrl, $sSecretKey = '', $bEnableNetwork = false, &$sSiteResponse = '' ) {
+	public function runImport( $sMasterSiteUrl, $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$oDP = $this->loadDP();
@@ -447,7 +447,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					'url'           => $this->loadWp()->getHomeUrl()
 				);
 				// Don't send the network setup request if it's the cron.
-				if ( !$this->loadWp()->isCron() ) {
+				if ( !is_null( $bEnableNetwork ) && !$this->loadWp()->isCron() ) {
 					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
 				}
 
@@ -483,13 +483,16 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					}
 
 					// if it's network enabled, we save the new master URL.
-					if ( $bEnableNetwork ) {
+					if ( $bEnableNetwork === true ) {
 						$this->addToAuditEntry(
 							sprintf( _wpsf__( 'Master Site URL set to %s.' ), $sMasterSiteUrl ),
 							1,
 							'options_master_set'
 						);
 						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
+					}
+					else if ( $bEnableNetwork === false ) {
+						$oFO->setImportExportMasterImportUrl( '' );
 					}
 
 					$nErrorCode = 0;

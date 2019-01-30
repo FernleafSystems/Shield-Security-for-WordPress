@@ -397,11 +397,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
 			$sSecretKey = $aFormParams[ 'MasterSiteSecretKey' ];
 			$bEnabledNetwork = $aFormParams[ 'ShieldNetworkCheck' ] === 'Y';
+			$bDisableNetwork = $aFormParams[ 'ShieldNetworkCheck' ] === 'N';
+			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
+
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
 			$oP = $this->getProcessor();
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
 			$nCode = $oP->getSubProcessorImportExport()
-						->runImport( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork );
+						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? _wpsf__( 'Options imported successfully' ) : _wpsf__( 'Options failed to import' );
 		}
