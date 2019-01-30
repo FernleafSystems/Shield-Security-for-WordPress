@@ -114,27 +114,34 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$bSuccess = false;
 		$sMessage = _wpsf__( "IP address wasn't added to the list" );
 
-		$sIp = isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '';
+		$sIp = preg_replace( '#[^/:\.a-f\d#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
 
+		$bAcceptableIp = $oIpServ->isValidIp( $sIp ) || $oIpServ->isValidIp4Range( $sIp );
+
 		$bIsBlackList = $sList != self::LIST_MANUAL_WHITE;
+
+		// TODO: Bring this IP verification out of here and make it more accessible
 		if ( empty( $sIp ) ) {
 			$sMessage = _wpsf__( "IP address not provided" );
 		}
 		else if ( empty( $sList ) ) {
 			$sMessage = _wpsf__( "IP list not provided" );
 		}
-		else if ( !$oIpServ->isValidIp( $sIp ) ) {
-			$sMessage = _wpsf__( "IP address isn't valid" );
+		else if ( !$bAcceptableIp ) {
+			$sMessage = _wpsf__( "IP address isn't either a valid IP or a CIDR range" );
+		}
+		else if ( $bIsBlackList && !$this->isPremium() ) {
+			$sMessage = _wpsf__( "Please upgrade to Pro if you'd like to add IPs to the black list manually." );
+		}
+		else if ( $bIsBlackList && $oIpServ->isValidIp4Range( $sIp ) ) { // TODO
+			$sMessage = _wpsf__( "IP ranges aren't currently supported for blacklisting." );
 		}
 		else if ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
 			$sMessage = _wpsf__( "Manually black listing your current IP address is not supported." );
 		}
 		else if ( $bIsBlackList && in_array( $sIp, $this->getReservedIps() ) ) {
 			$sMessage = _wpsf__( "This IP is reserved and can't be blacklisted." );
-		}
-		else if ( $bIsBlackList && !$this->isPremium() ) {
-			$sMessage = _wpsf__( "Please upgrade to Pro if you'd like to add IPs to the black list manually." );
 		}
 		else {
 			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';

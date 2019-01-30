@@ -422,9 +422,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sLabel
 	 * @return IPs\EntryVO|null
 	 */
-	protected function addIpToManualList( $sIp, $sList, $sLabel = '' ) {
-		$sIp = trim( $sIp );
-
+	private function addIpToManualList( $sIp, $sList, $sLabel = '' ) {
 		$oDbh = $this->getDbHandler();
 
 		/** @var IPs\Select $oSelect */

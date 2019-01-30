@@ -187,6 +187,19 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 * @param string $sIp
 	 * @return boolean
 	 */
+	public function isValidIp4Range( $sIp ) {
+		$bIsRange = false;
+		if ( strpos( $sIp, '/' ) ) {
+			list( $sIp, $sCIDR ) = explode( '/', $sIp );
+			$bIsRange = $this->isValidIp( $sIp ) && ( (int)$sCIDR >= 0 && (int)$sCIDR <= 32 );
+		}
+		return $bIsRange;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return boolean
+	 */
 	public function isValidIpOrRange( $sIp ) {
 		return $this->isValidIp_PublicRemote( $sIp ) || $this->isValidIpRange( $sIp );
 	}
