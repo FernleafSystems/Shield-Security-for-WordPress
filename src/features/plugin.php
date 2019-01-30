@@ -396,8 +396,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		else {
 			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
 			$sSecretKey = $aFormParams[ 'MasterSiteSecretKey' ];
-			$bEnabledNetwork = $aFormParams[ 'ShieldNetworkCheck' ] === 'Y';
-			$bDisableNetwork = $aFormParams[ 'ShieldNetworkCheck' ] === 'N';
+			$bEnabledNetwork = $aFormParams[ 'ShieldNetwork' ] === 'Y';
+			$bDisableNetwork = $aFormParams[ 'ShieldNetwork' ] === 'N';
 			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
 
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
@@ -691,7 +691,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function hasImportExportMasterImportUrl() {
 		$sMaster = $this->getImportExportMasterImportUrl();
-		return !empty( $sMaster ) && ( rtrim( $this->loadWp()->getHomeUrl(), '/' ) != $sMaster );
+		return !empty( $sMaster );// && ( rtrim( $this->loadWp()->getHomeUrl(), '/' ) != $sMaster );
 	}
 
 	/**
