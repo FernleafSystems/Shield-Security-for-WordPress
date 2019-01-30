@@ -298,7 +298,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$oReq = $this->loadRequest();
 
 		$sSecretKey = $oReq->query( 'secret', '' );
-		$bNetwork = $oReq->query( 'network', '' ) === 'Y';
+
+		$sNetworkOpt = $oReq->query( 'network', '' );
+		$bDoNetwork = !empty( $sNetworkOpt );
 		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $oReq->query( 'url', '' ) );
 
 		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
@@ -330,13 +332,24 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				sprintf( _wpsf__( 'Options exported to site %s.' ), $sUrl ), 1, 'options_exported'
 			);
 
-			if ( $bNetwork ) {
-				$oFO->addUrlToImportExportWhitelistUrls( $sUrl );
-				$this->addToAuditEntry(
-					sprintf( _wpsf__( 'Site added to export white list: %s.' ), $sUrl ),
-					1,
-					'export_whitelist_site_added'
-				);
+			if ( $bDoNetwork ) {
+				if ( $sNetworkOpt === 'Y' ) {
+					$oFO->addUrlToImportExportWhitelistUrls( $sUrl );
+					$this->addToAuditEntry(
+						sprintf( _wpsf__( 'Site added to export white list: %s.' ), $sUrl ),
+						1,
+						'export_whitelist_site_added'
+					);
+				}
+				else {
+					$oFO->removeUrlFromImportExportWhitelistUrls( $sUrl );
+					$this->addToAuditEntry(
+						sprintf( _wpsf__( 'Site removed export white list: %s.' ), $sUrl ),
+						1,
+						'export_whitelist_site_removed'
+					);
+				}
+
 			}
 		}
 

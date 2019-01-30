@@ -773,6 +773,24 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param string $sUrl
+	 * @return $this
+	 */
+	public function removeUrlFromImportExportWhitelistUrls( $sUrl ) {
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		if ( $sUrl !== false ) {
+			$aWhitelistUrls = $this->getImportExportWhitelist();
+			$sKey = array_search( $sUrl, $aWhitelistUrls );
+			if ( $sKey !== false ) {
+				unset( $aWhitelistUrls[ $sKey ] );
+			}
+			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls )
+				 ->savePluginOptions();
+		}
+		return $this;
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return bool
 	 */
