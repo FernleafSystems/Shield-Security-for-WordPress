@@ -1,5 +1,7 @@
 <?php
 
+use \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
@@ -50,7 +52,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
 	 */
 	protected function loadLicense() {
-		return $this->loadEdd()->getLicenseVoFromData( $this->getLicenseData() );
+		return ( new EddLicenseVO() )->applyFromArray( $this->getLicenseData() );
 	}
 
 	/**
