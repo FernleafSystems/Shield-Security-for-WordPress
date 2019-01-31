@@ -1614,8 +1614,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getUniqueRequestId( $bSetIfNeeded = true ) {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
-				$this->getSessionId( $bSetIfNeeded ).$this->loadIpService()->getRequestIp().$this->loadRequest()
-																								 ->ts().wp_rand()
+				$this->getSessionId( $bSetIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()
 			);
 		}
 		return self::$sRequestId;

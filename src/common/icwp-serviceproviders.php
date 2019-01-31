@@ -1,9 +1,13 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 /**
  * Class ICWP_WPSF_ServiceProviders
  */
 class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
+
+	const URL_STATUS_CAKE_IPS = 'https://app.statuscake.com/Workfloor/Locations.php?format=json';
 
 	/**
 	 * @var string
@@ -82,7 +86,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return array[]
+	 * @return string[][]
 	 */
 	public function getIps_Pingdom() {
 		$oWp = $this->loadWp();
@@ -205,7 +209,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	public function isIp_Cloudflare( $sIp ) {
 		$bIs = false;
 		try {
-			$oIp = $this->loadIpService();
+			$oIp = Services::IP();
 			if ( $oIp->getIpVersion( $sIp ) == 4 ) {
 				$bIs = $oIp->checkIp( $sIp, $this->getIps_CloudFlareV4() );
 			}
@@ -279,7 +283,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$bIsIp = false;
 		if ( stripos( $sAgent, 'pingdom.com' ) !== false ) {
 			$aIps = $this->getIps_Pingdom();
-			$bIsIp = in_array( $sIp, $aIps[ $this->loadIpService()->getIpVersion( $sIp ) ] );
+			$bIsIp = in_array( $sIp, $aIps[ Services::IP()->getIpVersion( $sIp ) ] );
 		}
 		return $bIsIp;
 	}
@@ -293,7 +297,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$bIsIp = false;
 		if ( stripos( $sAgent, 'UptimeRobot' ) !== false ) {
 			$aIps = $this->getIps_UptimeRobot();
-			$bIsIp = in_array( $sIp, $aIps[ $this->loadIpService()->getIpVersion( $sIp ) ] );
+			$bIsIp = in_array( $sIp, $aIps[ Services::IP()->getIpVersion( $sIp ) ] );
 		}
 		return $bIsIp;
 	}
@@ -353,7 +357,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	private function verifyIp_AppleBot( $sIp, $sUserAgent = '' ) {
-		return ( $this->loadIpService()->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
+		return ( Services::IP()->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
 			   && $this->isIpOfBot( [ 'Applebot/' ], '#.*\.applebot.apple.com\.?$#i', $sIp, $sUserAgent );
 	}
 
@@ -465,8 +469,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	private function downloadServiceIps_StatusCake() {
 		$aIps = array();
-		$aData = @json_decode( $this->loadFS()
-									->getUrlContent( 'https://app.statuscake.com/Workfloor/Locations.php?format=json' ), true );
+		$aData = @json_decode( Services::HttpRequest()->getContent( self::URL_STATUS_CAKE_IPS ), true );
 		if ( is_array( $aData ) ) {
 			foreach ( $aData as $aItem ) {
 				if ( !empty( $aItem[ 'ip' ] ) ) {
@@ -495,9 +498,9 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 			if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
 				$sIpVersion = 4;
 			}
-			$sSourceUrl = $this->loadFS()->getUrlContent( sprintf( $sSourceUrl, $sIpVersion ) );
+			$sSourceUrl = Services::HttpRequest()->getContent( sprintf( $sSourceUrl, $sIpVersion ) );
 		}
-		$sRaw = $this->loadFS()->getUrlContent( $sSourceUrl );
+		$sRaw = Services::HttpRequest()->getContent( $sSourceUrl );
 		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
 		return array_filter( array_map( 'trim', $aIps ) );
 	}

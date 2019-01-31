@@ -169,16 +169,17 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	private function sendYubiOtpRequest( $sOTP ) {
 		$sOTP = trim( $sOTP );
-		$bSuccess = preg_match( '#^[a-z]{44}$#', $sOTP );
+		$bSuccess = false;
 
-		if ( $bSuccess ) {
-			$aParts = array(
+		if ( preg_match( '#^[a-z]{44}$#', $sOTP ) ) {
+			$aParts = [
 				'otp'   => $sOTP,
 				'nonce' => md5( uniqid( rand() ) ),
 				'id'    => $this->getOption( 'yubikey_app_id' )
-			);
-			$sYubiResponse = trim( $this->loadFS()
-										->getUrlContent( add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY ) ) );
+			];
+
+			$sReqUrl = add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY );
+			$sYubiResponse = \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( $sReqUrl );
 
 			unset( $aParts[ 'id' ] );
 			$aParts[ 'status' ] = 'OK';
@@ -240,7 +241,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			$this->addToAuditEntry(
 				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
 					$oUser->user_login, _wpsf__( 'Yubikey OTP' )
-				),2, 'login_protect_yubikey_failed'
+				), 2, 'login_protect_yubikey_failed'
 			);
 			$this->doStatIncrement( 'login.yubikey.failed' );
 		}

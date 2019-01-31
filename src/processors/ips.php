@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
@@ -107,7 +108,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return boolean
 	 */
 	protected function isValidIpOrRange( $sIp ) {
-		$oIP = $this->loadIpService();
+		$oIP = Services::IP();
 		return $oIP->isValidIp_PublicRemote( $sIp ) || $oIP->isValidIpRange( $sIp );
 	}
 
@@ -386,7 +387,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oSelect = $this->getDbHandler()->getQuerySelector();
 		foreach ( $oSelect->allFromList( $sList ) as $oIp ) {
 			try {
-				if ( $this->loadIpService()->checkIp( $sIp, $oIp->ip ) ) {
+				if ( Services::IP()->checkIp( $sIp, $oIp->ip ) ) {
 					$bOnList = true;
 					break;
 				}

@@ -219,6 +219,7 @@ class ICWP_WPSF_WpFilesystem {
 	}
 
 	/**
+	 * @deprecated
 	 * @param string $sUrl
 	 * @param array  $aRequestArgs
 	 * @return array|false

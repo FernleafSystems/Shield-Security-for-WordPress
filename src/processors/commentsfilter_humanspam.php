@@ -196,8 +196,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function doSpamBlacklistDownload() {
-		$oFs = $this->loadFS();
-		return $oFs->getUrlContent( self::Spam_Blacklist_Source );
+		return \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( self::Spam_Blacklist_Source );
 	}
 
 	/**

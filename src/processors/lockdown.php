@@ -159,7 +159,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// Get the new Salts
 		$sSaltsUrl = 'https://api.wordpress.org/secret-key/1.1/salt/';
-		$sSalts = $oWpFs->getUrlContent( $sSaltsUrl );
+		$sSalts = \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( $sSaltsUrl );
 
 		$sWpConfigContent = $oWpFs->getContent_WpConfig();
 		if ( is_null( $sWpConfigContent ) ) {

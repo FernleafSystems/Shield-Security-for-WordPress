@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -12,7 +13,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		$oIp = $this->loadIpService();
+		$oIp = Services::IP();
 		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
 	}
 
@@ -107,7 +108,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function ajaxExec_AddIp() {
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
-		$oIpServ = $this->loadIpService();
+		$oIpServ = Services::IP();
 
 		$aFormParams = $this->getAjaxFormParams();
 
