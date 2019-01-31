@@ -158,7 +158,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'section_whitelist' :
-				$sTitle = _wpsf__( 'Whitelists - IPs, Pages, Parameters, and Users that by-pass the Firewall' );
+				$sTitle = _wpsf__( 'Whitelists - Pages, Parameters, and Users that by-pass the Firewall' );
 				$aSummary = array(
 					_wpsf__( 'In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.' ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Do not whitelist anything unless you are confident in what you are doing.' ) )

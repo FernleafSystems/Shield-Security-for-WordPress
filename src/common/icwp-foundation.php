@@ -106,6 +106,7 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @deprecated
 	 * @return ICWP_WPSF_Ip
 	 */
 	static public function loadIpService() {

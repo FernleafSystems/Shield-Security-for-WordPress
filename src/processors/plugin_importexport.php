@@ -376,17 +376,13 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 * @param string $sUrl
 	 * @return bool
 	 */
-	protected function verifyUrlWithHandshake( $sUrl ) {
+	private function verifyUrlWithHandshake( $sUrl ) {
 		$bVerified = false;
 
 		if ( !empty( $sUrl ) ) {
-			$sFinalUrl = add_query_arg(
-				array( 'shield_action' => 'importexport_handshake' ),
-				$sUrl
-			);
-			$aParts = @json_decode( $this->loadFS()->getUrlContent( $sFinalUrl ), true );
-			$bVerified = !empty( $aParts ) && is_array( $aParts )
-						 && isset( $aParts[ 'success' ] ) && ( $aParts[ 'success' ] === true );
+			$sReqUrl = add_query_arg( array( 'shield_action' => 'importexport_handshake' ), $sUrl );
+			$aResp = @json_decode( Services::HttpRequest()->getContent( $sReqUrl ), true );
+			$bVerified = is_array( $aResp ) && isset( $aResp[ 'success' ] ) && ( $aResp[ 'success' ] === true );
 		}
 
 		return $bVerified;
@@ -465,7 +461,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
 				}
 
-				$sResponse = $this->loadFS()->getUrlContent( add_query_arg( $aData, $sMasterSiteUrl ) );
+				$sFinalUrl = add_query_arg( $aData, $sMasterSiteUrl );
+				$sResponse = Services::HttpRequest()->getContent( $sFinalUrl );
 				$aParts = @json_decode( $sResponse, true );
 
 				if ( empty( $aParts ) ) {

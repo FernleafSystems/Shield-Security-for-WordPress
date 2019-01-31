@@ -1,6 +1,9 @@
 <?php
 
-class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
+use \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use \FernleafSystems\Wordpress\Services\Services;
+
+class ICWP_WPSF_Edd {
 
 	/**
 	 * @var ICWP_WPSF_Edd
@@ -28,33 +31,23 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function ping( $sStoreUrl ) {
-		$oLicense = null;
-
-		$sStoreUrl = add_query_arg(
-			array( 'license_ping' => 'Y' ),
-			$sStoreUrl
-		);
-
+		$sStoreUrl = add_query_arg( [ 'license_ping' => 'Y' ], $sStoreUrl );
 		$aParams = array(
-			'method' => 'POST',
-			'body'   => array(
+			'body' => array(
 				'ping'    => 'pong',
 				'license' => 'abcdefghi',
 				'item_id' => '123',
-				'url'     => $this->loadWp()->getWpUrl()
+				'url'     => Services::WpGeneral()->getWpUrl()
 			)
 		);
 
-		$mResponse = $this->loadFS()
-						  ->requestUrl( $sStoreUrl, $aParams, true );
-
-		$sResult = 'Unknown error communicating with license server';
-		if ( is_array( $mResponse ) && !empty( $mResponse[ 'body' ] ) ) {
-			$aResult = @json_decode( $mResponse[ 'body' ], true );
+		$oHttpReq = Services::HttpRequest();
+		if ( $oHttpReq->post( $sStoreUrl, $aParams ) ) {
+			$aResult = @json_decode( $oHttpReq->lastResponse->body, true );
 			$sResult = ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) ? 'success' : 'unknown failure';
 		}
-		else if ( is_wp_error( $mResponse ) ) {
-			$sResult = $mResponse->get_error_message();
+		else {
+			$sResult = $oHttpReq->lastError->get_error_message();
 		}
 		return $sResult;
 	}
@@ -103,11 +96,10 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 	 * @param string $sStoreUrl
 	 * @param string $sKey
 	 * @param string $sItemId
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
+	 * @return EddLicenseVO
 	 */
 	private function commonLicenseAction( $sAction, $sStoreUrl, $sKey, $sItemId ) {
-		$oLicense = null;
-
+		$oWp = Services::WpGeneral();
 		$aLicenseLookupParams = array(
 			'timeout' => 30,
 			'body'    => array_merge(
@@ -115,17 +107,43 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 					'edd_action' => $sAction,
 					'license'    => $sKey,
 					'item_id'    => $sItemId,
-					'url'        => $this->loadWp()->getHomeUrl(),
-					'alt_url'    => $this->loadWp()->getWpUrl()
+					'url'        => $oWp->getHomeUrl(),
+					'alt_url'    => $oWp->getWpUrl()
 				),
 				$this->getRequestParams()
 			)
 		);
 
-		$aContent = $this->loadFS()
-						 ->getUrl( $sStoreUrl, $aLicenseLookupParams );
-		return $this->getLicenseVoFromData( empty( $aContent ) ? [] : @json_decode( $aContent[ 'body' ], true ) )
-					->setLastRequestAt( $this->loadRequest()->ts() );
+		return ( new EddLicenseVO() )
+			->applyFromArray( $this->sendReq( $sStoreUrl, $aLicenseLookupParams, false ) )
+			->setLastRequestAt( Services::Request()->ts() );
+	}
+
+	/**
+	 * first attempts GET, then POST if the GET is successful but the data is not right
+	 * @param string $sUrl
+	 * @param array  $aArgs
+	 * @param bool   $bAsPost
+	 * @return array
+	 */
+	private function sendReq( $sUrl, $aArgs, $bAsPost = false ) {
+		$aResponse = array();
+		$oHttpReq = Services::HttpRequest();
+
+		if ( $bAsPost ) {
+			if ( $oHttpReq->post( $sUrl, $aArgs ) ) {
+				$aResponse = empty( $oHttpReq->lastResponse->body ) ? [] : @json_decode( $oHttpReq->lastResponse->body, true );
+			}
+			return $aResponse;
+		}
+		else if ( $oHttpReq->get( $sUrl, $aArgs ) ) {
+			$aResponse = empty( $oHttpReq->lastResponse->body ) ? [] : @json_decode( $oHttpReq->lastResponse->body, true );
+			if ( empty( $aResponse ) ) {
+				$aResponse = $this->sendReq( $sUrl, $aArgs, true );
+			}
+		}
+
+		return $aResponse;
 	}
 
 	/**
