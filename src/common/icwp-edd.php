@@ -122,10 +122,35 @@ class ICWP_WPSF_Edd extends ICWP_WPSF_Foundation {
 			)
 		);
 
-		$aContent = $this->loadFS()
-						 ->getUrl( $sStoreUrl, $aLicenseLookupParams );
-		return $this->getLicenseVoFromData( empty( $aContent ) ? [] : @json_decode( $aContent[ 'body' ], true ) )
+		return $this->getLicenseVoFromData( $this->sendReq( $sStoreUrl, $aLicenseLookupParams, false ) )
 					->setLastRequestAt( $this->loadRequest()->ts() );
+	}
+
+	/**
+	 * first attempts GET, then POST if the GET is successful but the data is not right
+	 * @param string $sUrl
+	 * @param array  $aArgs
+	 * @param bool   $bAsPost
+	 * @return array
+	 */
+	private function sendReq( $sUrl, $aArgs, $bAsPost = false ) {
+		$aResponse = array();
+		$oHttpReq = \FernleafSystems\Wordpress\Services\Services::HttpRequest();
+
+		if ( $bAsPost ) {
+			if ( $oHttpReq->post( $sUrl, $aArgs ) ) {
+				$aResponse = empty( $oHttpReq->lastResponse->body ) ? [] : @json_decode( $oHttpReq->lastResponse->body, true );
+			}
+			return $aResponse;
+		}
+		else if ( $oHttpReq->get( $sUrl, $aArgs ) ) {
+			$aResponse = empty( $oHttpReq->lastResponse->body ) ? [] : @json_decode( $oHttpReq->lastResponse->body, true );
+			if ( empty( $aResponse ) ) {
+				$aResponse = $this->sendReq( $sUrl, $aArgs, true );
+			}
+		}
+
+		return $aResponse;
 	}
 
 	/**
