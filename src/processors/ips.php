@@ -469,7 +469,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function isIpToBeBlocked( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		$oIp = $this->getAutoBlackListIp( $sIp );
+		$oIp = $this->getBlackListIp( $sIp );
 		return ( $oIp instanceof IPs\EntryVO && $oIp->getTransgressions() >= $oFO->getOptTransgressionLimit() );
 	}
 
@@ -597,6 +597,27 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sIp
 	 * @return IPs\EntryVO|null
 	 */
+	protected function getBlackListIp( $sIp ) {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		/** @var IPs\EntryVO $oIp */
+		$oIp = $oSelect->filterByIp( $sIp )
+					   ->filterByLists( [
+						   ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+						   ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+					   ] )
+					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->first();
+		return $oIp;
+	}
+
+	/**
+	 * The auto black list isn't a simple lookup, but rather has an auto expiration
+	 * @param string $sIp
+	 * @return IPs\EntryVO|null
+	 */
 	protected function getAutoBlackListIp( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
@@ -605,6 +626,24 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var IPs\EntryVO $oIp */
 		$oIp = $oSelect->filterByIp( $sIp )
 					   ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->first();
+		return $oIp;
+	}
+
+	/**
+	 * The auto black list isn't a simple lookup, but rather has an auto expiration
+	 * @param string $sIp
+	 * @return IPs\EntryVO|null
+	 */
+	protected function getManualBlackListIp( $sIp ) {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		/** @var IPs\EntryVO $oIp */
+		$oIp = $oSelect->filterByIp( $sIp )
+					   ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK )
 					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
 					   ->first();
 		return $oIp;

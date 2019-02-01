@@ -47,9 +47,9 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param string $sColumn
-	 * @param string $mValue
-	 * @param string $sOperator
+	 * @param string       $sColumn
+	 * @param string|array $mValue
+	 * @param string       $sOperator
 	 * @return $this
 	 */
 	public function addWhere( $sColumn, $mValue, $sOperator = '=' ) {
