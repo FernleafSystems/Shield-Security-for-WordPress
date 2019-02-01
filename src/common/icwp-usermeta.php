@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 /**
  * @property string $email_secret
  * @property bool   $email_validated
