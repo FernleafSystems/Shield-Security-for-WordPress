@@ -133,6 +133,27 @@
       "description":   "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
     },
     {
+      "key":           "user_auto_recover",
+      "section":       "section_auto_black_list",
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "gasp",
+          "text":      "Shield GASP"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "User Auto Unblock",
+      "summary":       "Allow Visitors To Unblock Their IP",
+      "description":   "Allow visitors blocked by the plugin to automatically unblock themselves."
+    },
+    {
       "key":         "text_loginfailed",
       "section":     "section_user_messages",
       "sensitive":   true,
@@ -209,6 +230,12 @@
       "transferable": false,
       "section":      "section_non_ui",
       "default":      0
+    },
+    {
+      "key":          "autounblock_ips",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "default":      []
     }
   ],
   "definitions":   {

@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 class Ip extends BaseBuild {
 
 	/**
-	 * Override this to apply table-specific query filters.
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
