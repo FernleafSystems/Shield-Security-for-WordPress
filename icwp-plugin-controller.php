@@ -1765,18 +1765,26 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_UserMeta
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta
 	 */
 	public function getCurrentUserMeta() {
-		return $this->loadWpUsers()->metaVoForUser( $this->prefix() );
+		return $this->getUserMeta( Services::WpUsers()->getCurrentWpUser() );
 	}
 
 	/**
 	 * @param $oUser WP_User
-	 * @return ICWP_UserMeta
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta|mixed
 	 */
 	public function getUserMeta( $oUser ) {
-		return $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta = null;
+		try {
+			if ( $oUser instanceof \WP_User ) {
+				$oMeta = \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
+			}
+		}
+		catch ( \Exception $oE ) {
+		}
+		return $oMeta;
 	}
 
 	/**
