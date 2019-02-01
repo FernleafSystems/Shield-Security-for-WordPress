@@ -224,20 +224,39 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			/** @var IPs\Update $oUp */
 			$oUp = $this->getDbHandler()->getQueryUpdater();
 			$oUp->updateLastAccessAt( $this->getAutoBlackListIp( $sIp ) );
-
-			$this->loadWp()
-				 ->wpDie(
-					 '<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
-						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
-																											 ->getHumanName().'</a>'
-					 ).'</h3>'
-					 .'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() )
-					 .'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
-					 .'<p>'.sprintf( _wpsf__( 'Time remaining until you are automatically removed from the black list: %s minute(s)' ), floor( $oFO->getAutoExpireTime()/60 ) )
-					 .'<br />'._wpsf__( 'If you attempt to access the site within this period the counter will be reset.' )
-					 .'</p>'
-				 );
+			$this->renderKillPage();
 		}
+	}
+
+	private function renderKillPage() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		$oCon = $this->getCon();
+
+		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
+		$aData = [
+			'strings' => array(
+				'title'   => sprintf( _wpsf__( "You've been black listed by the %s plugin" ),
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						$oCon->getPluginSpec()[ 'urls' ][ 'repo_home' ],
+						$oCon->getHumanName()
+					)
+				),
+				'lines'   => array(
+					sprintf( _wpsf__( 'Time remaining on black list: %s' ),
+						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
+					),
+					sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() ),
+					sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner and quote your IP address below.' ) ),
+				),
+				'your_ip' => 'Your IP address',
+				'ip'      => $this->ip(),
+			)
+		];
+		$this->loadWp()
+			 ->wpDie(
+				 $oFO->renderTemplate( '/snippets/blacklist_die.twig', $aData, true )
+			 );
 	}
 
 	/**

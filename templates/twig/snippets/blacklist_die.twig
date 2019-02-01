@@ -1,0 +1,7 @@
+<h3 style="text-align: center;">{{ strings.title|raw }}</h3>
+<ul>
+	{% for line in strings.lines %}
+		<li>{{ line }}</li>
+	{% endfor %}
+</ul>
+<p style="text-align: center;">{{ strings.your_ip }}: <strong>{{ strings.ip }}</strong></p>

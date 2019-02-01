@@ -77,6 +77,9 @@
     "icon_url_32x32":   "pluginlogo_32x32.png",
     "icon_url_128x128": "pluginlogo_128x128.png"
   },
+  "urls":         {
+    "repo_home": "https://icwp.io/eh"
+  },
   "plugin_meta":  [
     {
       "name": "5&#10025; Rate This Plugin",
