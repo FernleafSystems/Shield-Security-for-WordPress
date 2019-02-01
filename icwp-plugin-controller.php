@@ -939,12 +939,19 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getPluginSpec() {
+		return $this->getPluginControllerOptions()->plugin_spec;
+	}
+
+	/**
 	 * @param string $sKey
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_ActionLinks( $sKey ) {
-		$oOpts = $this->getPluginControllerOptions();
-		return isset( $oOpts->plugin_spec[ 'action_links' ][ $sKey ] ) ? $oOpts->plugin_spec[ 'action_links' ][ $sKey ] : array();
+		$aData = $this->getPluginSpec()[ 'action_links' ];
+		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : array();
 	}
 
 	/**
@@ -952,8 +959,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Include( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'includes' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'includes' ][ $sKey ] : null;
+		$aData = $this->getPluginSpec()[ 'includes' ];
+		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
 	}
 
 	/**
@@ -961,14 +968,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return array|string
 	 */
 	protected function getPluginSpec_Labels( $sKey = '' ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		$aLabels = isset( $oConOptions->plugin_spec[ 'labels' ] ) ? $oConOptions->plugin_spec[ 'labels' ] : array();
+		$oSpec = $this->getPluginSpec();
+		$aLabels = isset( $oSpec[ 'labels' ] ) ? $oSpec[ 'labels' ] : array();
 
 		if ( empty( $sKey ) ) {
 			return $aLabels;
 		}
 
-		return isset( $oConOptions->plugin_spec[ 'labels' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'labels' ][ $sKey ] : null;
+		return isset( $oSpec[ 'labels' ][ $sKey ] ) ? $oSpec[ 'labels' ][ $sKey ] : null;
 	}
 
 	/**
@@ -976,8 +983,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Menu( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'menu' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'menu' ][ $sKey ] : null;
+		$aData = $this->getPluginSpec()[ 'menu' ];
+		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
 	}
 
 	/**
@@ -985,8 +992,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Path( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'paths' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'paths' ][ $sKey ] : null;
+		$aData = $this->getPluginSpec()[ 'paths' ];
+		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
 	}
 
 	/**
@@ -994,16 +1001,16 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Property( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'properties' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'properties' ][ $sKey ] : null;
+		$aData = $this->getPluginSpec()[ 'properties' ];
+		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getPluginSpec_PluginMeta() {
-		$oConOptions = $this->getPluginControllerOptions();
-		return ( isset( $oConOptions->plugin_spec[ 'plugin_meta' ] ) && is_array( $oConOptions->plugin_spec[ 'plugin_meta' ] ) ) ? $oConOptions->plugin_spec[ 'plugin_meta' ] : array();
+		$aSpec = $this->getPluginSpec();
+		return ( isset( $aSpec[ 'plugin_meta' ] ) && is_array( $aSpec[ 'plugin_meta' ] ) ) ? $aSpec : array();
 	}
 
 	/**
@@ -1011,8 +1018,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return mixed|null
 	 */
 	protected function getPluginSpec_Requirement( $sKey ) {
-		$oConOptions = $this->getPluginControllerOptions();
-		return isset( $oConOptions->plugin_spec[ 'requirements' ][ $sKey ] ) ? $oConOptions->plugin_spec[ 'requirements' ][ $sKey ] : null;
+		$aData = $this->getPluginSpec()[ 'requirements' ];
+		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
 	}
 
 	/**
