@@ -300,7 +300,7 @@ var iCWP_WPSF_BodyOverlay = new function () {
 iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_SecurityAdmin.initialise();
 
-if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
+if ( false && typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 	var iCWP_WPSF_Plugin_Deactivate_Survey = new function () {
 
