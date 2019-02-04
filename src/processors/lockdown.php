@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -38,14 +40,22 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
-		if ( $oFO->isOpt( 'block_author_discovery', 'Y' ) ) {
-			// jump in right before add_action( 'template_redirect', 'redirect_canonical' );
-			add_action( 'wp', array( $this, 'interceptCanonicalRedirects' ), 9 );
-		}
-
 		if ( $oFO->isXmlrpcDisabled() ) {
 			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
 			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
+		}
+	}
+
+	public function onWpInit() {
+		parent::onWpInit();
+		if ( !$this->loadWpUsers()->isUserLoggedIn() ) {
+			$this->interceptCanonicalRedirects();
+
+			// hook in before rest API processing. Remember always return $bDo
+			add_filter( 'do_parse_request', function ( $bDo ) {
+				$this->interceptAnonRestApi();
+				return $bDo;
+			}, 9 );
 		}
 	}
 
@@ -60,53 +70,67 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : array();
 	}
 
-	public function onWpInit() {
-		parent::onWpInit();
-
-		if ( $this->loadWp()->isRest() ) {
-			$this->processRestApi();
-		}
-	}
-
-	protected function processRestApi() {
-		if ( !$this->isRestApiAccessAllowed() ) {
+	/**
+	 * TODO: instead of filtering auth errors, perhaps create a valid json response
+	 */
+	private function interceptAnonRestApi() {
+		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+		$oFO = $this->getMod();
+		$oWpRest = \FernleafSystems\Wordpress\Services\Services::Rest();
+		if ( $oWpRest->isRest() && $oFO->isRestApiAnonymousAccessDisabled()
+			 && !$oFO->isPermittedAnonRestApiNamespace( $oWpRest->getNamespace() ) ) {
 			// 99 so that we jump in just before the always-on WordPress cookie auth.
 			add_filter( 'rest_authentication_errors', array( $this, 'disableAnonymousRestApi' ), 99 );
 		}
 	}
 
 	/**
-	 * @return bool
+	 * @uses wp_die()
 	 */
-	protected function isRestApiAccessAllowed() {
-		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getMod();
-		return !$oFO->isRestApiAnonymousAccessDisabled()
-			   || $this->loadWpUsers()->isUserLoggedIn()
-			   || in_array( $this->loadWp()->getRestNamespace(), $oFO->getRestApiAnonymousExclusions() );
+	private function interceptCanonicalRedirects() {
+
+		if ( $this->getMod()->isOpt( 'block_author_discovery', 'Y' ) ) {
+			$sAuthor = $this->loadRequest()->query( 'author', '' );
+			if ( !empty( $sAuthor ) ) {
+				$this->loadWp()->wpDie( sprintf(
+					_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
+					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
+						'https://icwp.io/7l',
+						_wpsf__( 'Learn More.' )
+					),
+					$this->getCon()->getHumanName()
+				) );
+			}
+		}
 	}
 
 	/**
 	 * Understand that if $mCurrentStatus is null, no check has been made. If true, something has
 	 * authenticated the request, and if WP_Error, then an error is already present
-	 * @param WP_Error|true|null $mCurrentStatus
+	 * @param WP_Error|true|null $mStatus
 	 * @return WP_Error
 	 */
-	public function disableAnonymousRestApi( $mCurrentStatus ) {
-		$bAlreadyAuthenticated = ( $mCurrentStatus === true );
-		if ( !$bAlreadyAuthenticated && !is_wp_error( $mCurrentStatus ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
-			$mCurrentStatus = new WP_Error(
+	public function disableAnonymousRestApi( $mStatus ) {
+
+		if ( $mStatus !== true && !is_wp_error( $mStatus ) ) {
+
+			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
 				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getCon()
 																												  ->getHumanName() ),
 				array( 'status' => rest_authorization_required_code() ) );
-			$this->addToAuditEntry( 'Blocked Anonymous API Access', 1, 'anonymous_api' );
+			$this->addToAuditEntry(
+				sprintf( 'Blocked Anonymous API Access through "%s" namespace', Services::Rest()->getNamespace() ),
+				1,
+				'anonymous_api'
+			);
 
 			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 			$oFO = $this->getMod();
 			$oFO->setOptInsightsAt( 'restapi_block_at' );
 		}
-		return $mCurrentStatus;
+
+		return $mStatus;
 	}
 
 	/**
@@ -196,25 +220,5 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		$aContent[ $nStartLine ] = $sSalts;
 		$oWpFs->putContent_WpConfig( implode( PHP_EOL, $aContent ) );
-	}
-
-	/**
-	 * @uses wp_die()
-	 */
-	public function interceptCanonicalRedirects() {
-
-		if ( $this->getMod()->isOpt( 'block_author_discovery', 'Y' ) && !$this->loadWpUsers()->isUserLoggedIn() ) {
-			$sAuthor = $this->loadRequest()->query( 'author', '' );
-			if ( !empty( $sAuthor ) ) {
-				$this->loadWp()->wpDie( sprintf(
-					_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
-					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
-						'https://icwp.io/7l',
-						_wpsf__( 'Learn More.' )
-					),
-					$this->getCon()->getHumanName()
-				) );
-			}
-		}
 	}
 }
