@@ -352,8 +352,14 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.0.2 - Current Release =
+= 7.0.3 - Current Release =
 *Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
+
+* **(v.0)**  NEW:		Automatically whitelist anonymous REST API Access for 3 plugins: Contact Form 7, WooCommerce, JetPack.
+* **(v.0)**  IMPROVED:	Admin notification for email sending 2FA verification easily lets you resend email.
+* **(v.0)**  FIX:		Allow use of IPv4 ranges in whitelist again.
+* **(v.0)**  FIX:		Allow use of IPv4 ranges in whitelist again.
+* **(v.0)**  CHANGED:	Numerous code refactoring and improvements building upon the major v7 release and prepping for v7.1.
 
 = 7.0 - Series =
 *Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
