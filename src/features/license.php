@@ -1,6 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 

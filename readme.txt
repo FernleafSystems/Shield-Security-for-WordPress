@@ -358,6 +358,7 @@ You will always be able to use Shield Security and its free features in-full.
 = 7.0 - Series =
 *Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
 
+* **(v.1-2)**  FIXED:	Some JS fixes.
 * **(v.0)**  NEW:		New primary UI for Shield site security management. Easy access to scans, audit trail, user sessions etc.
 * **(v.0)**  NEW:		Supports only PHP 5.4 or higher
 * **(v.0)**  NEW:		Rebuilt scans architecture and UI
