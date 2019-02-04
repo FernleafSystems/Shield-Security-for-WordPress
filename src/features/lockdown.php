@@ -3,10 +3,19 @@
 class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return array
+	 * @return string[]
 	 */
-	public function getRestApiAnonymousExclusions() {
-		return array();//$this->getOpt( 'api_namespace_exclusions' ); TODO: reenabled for next release
+	private function getRestApiAnonymousExclusions() {
+		$aExcl = $this->getOpt( 'api_namespace_exclusions' );
+		return is_array( $aExcl ) ? $aExcl : [];
+	}
+
+	/**
+	 * @param string $sNamespace
+	 * @return bool
+	 */
+	public function isPermittedAnonRestApiNamespace( $sNamespace ) {
+		return in_array( $sNamespace, $this->getRestApiAnonymousExclusions() );
 	}
 
 	/**
@@ -30,25 +39,20 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		return $this->isOpt( 'disable_xmlrpc', 'Y' );
 	}
 
+	protected function doExtraSubmitProcessing() {
+		$sMask = $this->getOpt( 'mask_wordpress_version' );
+		if ( !empty( $sMask ) ) {
+			$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );
+		}
+		$this->cleanApiExclusions();
+	}
+
 	/**
 	 * @return $this
 	 */
-	protected function cleanApiExclusions() {
+	private function cleanApiExclusions() {
 		$aExt = $this->cleanStringArray( $this->getRestApiAnonymousExclusions(), '#[^a-z0-9_-]#i' );
 		return $this->setOpt( 'api_namespace_exclusions', $aExt );
-	}
-
-	protected function doExtraSubmitProcessing() {
-
-		if ( $this->isModuleOptionsRequest() ) { // Move this IF to base
-
-			$sMask = $this->getOpt( 'mask_wordpress_version' );
-			if ( !empty( $sMask ) ) {
-				$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );
-			}
-
-			$this->cleanApiExclusions();
-		}
 	}
 
 	/**
