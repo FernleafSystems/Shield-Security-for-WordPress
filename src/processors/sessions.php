@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 

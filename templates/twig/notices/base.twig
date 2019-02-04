@@ -1,7 +1,40 @@
-
 {% block notice_wrapper %}
-	<div class="{% block notice_classes %}{% endblock %} odp-admin-notice">
-		{% block notice_body %}
-		{% endblock %}
+
+	<div id="{{ unique_render_id }}"
+		 class="{{ notice_classes }} odp-admin-notice notice is-dismissible
+		 notice-{{ icwp_admin_notice_template }}">
+
+		<div class="notice-icon">
+			<span class="dashicons dashicons-shield"></span>&nbsp;
+		</div>
+
+		<div class="notice-content">
+			<h3 class="notice-title">{{ strings.title }}</h3>
+			<div>
+				{% block notice_body %}{% endblock %}
+			</div>
+		</div>
+
+		<div class="dismiss-p">
+			<a class="icwp-notice-dismiss" href="#"><?php echo $strings[ 'dismiss' ]; ?></a>
+		</div>
+
+		<div style="clear:both;"></div>
 	</div>
+{% endblock %}
+
+{% block notice_js %}
+	<script type="text/javascript">
+		jQuery( document ).on(
+			'click',
+			'#{{ unique_render_id }} button.notice-dismiss, #{{ unique_render_id }} a.icwp-notice-dismiss',
+			function () {
+				var $oContainer = jQuery( '#{{ unique_render_id }}' );
+				jQuery.get( ajaxurl, {{ ajax.dismiss_admin_notice|raw }} );
+				$oContainer.fadeOut( 500, function () {
+					$oContainer.remove();
+				} );
+			}
+		);
+	</script>
 {% endblock %}

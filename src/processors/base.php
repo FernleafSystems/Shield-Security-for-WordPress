@@ -1,6 +1,7 @@
 <?php
 
 use \FernleafSystems\Wordpress\Plugin\Shield;
+use \FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
@@ -103,6 +104,18 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function autoAddToAdminNotices() {
 		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
+			$aAttrs = $this->loadDP()
+						   ->mergeArraysRecursive(
+							   [
+								   'schedule'         => 'conditions',
+								   'type'             => 'promo',
+								   'plugin_page_only' => true,
+								   'valid_admin'      => true,
+								   'twig'             => false,
+							   ],
+							   $aAttrs
+						   );
+
 			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
 				continue;
 			}
@@ -124,17 +137,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$bDisplay = true;
 		$oCon = $this->getCon();
 		$oWpNotices = $this->loadWpNotices();
-
-		$aAttrs = $this->loadDP()
-					   ->mergeArraysRecursive(
-						   [
-							   'schedule'         => 'conditions',
-							   'type'             => 'promo',
-							   'plugin_page_only' => true,
-							   'valid_admin'      => true,
-						   ],
-						   $aAttrs
-					   );
 
 		if ( $aAttrs[ 'valid_admin' ] && !( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) ) {
 			$bDisplay = false;
