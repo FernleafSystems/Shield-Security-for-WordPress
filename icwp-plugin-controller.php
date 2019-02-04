@@ -481,12 +481,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onPluginRowMeta( $aPluginMeta, $sPluginFile ) {
 
 		if ( $sPluginFile == $this->getPluginBaseFile() ) {
-			$aMeta = $this->getPluginSpec_PluginMeta();
-
-			$sLinkTemplate = '<strong><a href="%s" target="%s">%s</a></strong>';
-			foreach ( $aMeta as $aMetaLink ) {
-				$sSettingsLink = sprintf( $sLinkTemplate, $aMetaLink[ 'href' ], "_blank", $aMetaLink[ 'name' ] );;
-				array_push( $aPluginMeta, $sSettingsLink );
+			$sTemplate = '<strong><a href="%s" target="_blank">%s</a></strong>';
+			foreach ( $this->getPluginSpec_PluginMeta() as $aHref ) {
+				array_push( $aPluginMeta, sprintf( $sTemplate, $aHref[ 'href' ], $aHref[ 'name' ] ) );
 			}
 		}
 		return $aPluginMeta;
@@ -1010,7 +1007,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function getPluginSpec_PluginMeta() {
 		$aSpec = $this->getPluginSpec();
-		return ( isset( $aSpec[ 'plugin_meta' ] ) && is_array( $aSpec[ 'plugin_meta' ] ) ) ? $aSpec : array();
+		return ( isset( $aSpec[ 'plugin_meta' ] ) && is_array( $aSpec[ 'plugin_meta' ] ) ) ? $aSpec[ 'plugin_meta' ] : array();
 	}
 
 	/**
