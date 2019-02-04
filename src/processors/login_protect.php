@@ -64,11 +64,15 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
 					'email_sent_to'     => sprintf(
 						_wpsf__( "The email has been sent to you at blog admin address: %s" ),
-						'<strong>'.get_bloginfo( 'admin_email' ).'</strong>'
+						get_bloginfo( 'admin_email' )
 					),
-					'how_resend_email'  => _wpsf__( "To resend the email, re-save your Login Guard settings." ),
-					'how_turn_off'      => _wpsf__( "To turn this notice off, disable 2-Factor Authentication." ),
-				)
+					'how_resend_email'  => _wpsf__( "Resend verification email" ),
+					'how_turn_off'      => _wpsf__( "Disable 2FA by email" ),
+				),
+				'ajax'              => [
+					'resend_verification_email' => $oFO->getAjaxActionData( 'resend_verification_email', true ),
+					'disable_2fa_email'         => $oFO->getAjaxActionData( 'disable_2fa_email', true ),
+				]
 			);
 			$this->insertAdminNotice( $aRenderData );
 		}

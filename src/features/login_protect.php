@@ -1,31 +1,8 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
-
-	/**
-	 * A action added to WordPress 'init' hook
-	 */
-	public function onWpInit() {
-		parent::onWpInit();
-
-		$oReq = $this->loadRequest();
-		// User has clicked a link in their email to verify they can send email.
-		if ( $oReq->query( 'shield_action' ) == 'emailsendverify' ) {
-			if ( $oReq->query( 'authkey' ) == $this->getCanEmailVerifyCode() ) {
-				$this->setIfCanSendEmail( true )
-					 ->savePluginOptions();
-
-				if ( $this->getIfCanSendEmailVerified() ) {
-					$this->setFlashAdminNotice( _wpsf__( 'Email verification completed successfully.' ) );
-				}
-				else {
-					$this->setFlashAdminNotice( _wpsf__( 'Email verification could not be completed.' ), true );
-				}
-
-				$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
-			}
-		}
-	}
 
 	/**
 	 * @return bool
@@ -67,14 +44,41 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 */
+	public function handleModRequest() {
+		switch ( $this->loadRequest()->query( 'exec' ) ) {
+			case 'email_send_verify':
+				$this->processEmailSendVerify();
+				break;
+			default:
+				break;
+		}
+	}
+
+	/**
 	 * @return string
 	 */
-	protected function generateCanSendEmailVerifyLink() {
-		$aQueryArgs = array(
-			'authkey'       => $this->getCanEmailVerifyCode(),
-			'shield_action' => 'emailsendverify'
-		);
-		return add_query_arg( $aQueryArgs, $this->loadWp()->getHomeUrl() );
+	private function generateCanSendEmailVerifyLink() {
+		return add_query_arg( $this->getNonceActionData( 'email_send_verify' ), $this->getUrl_AdminPage() );
+	}
+
+	/**
+	 * @uses wp_redirect()
+	 */
+	private function processEmailSendVerify() {
+		$this->setIfCanSendEmail( true )
+			 ->savePluginOptions();
+
+		if ( $this->getIfCanSendEmailVerified() ) {
+			$bSuccess = true;
+			$sMessage = _wpsf__( 'Email verification completed successfully.' );
+		}
+		else {
+			$bSuccess = false;
+			$sMessage = _wpsf__( 'Email verification could not be completed.' );
+		}
+		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
+		$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
 	}
 
 	/**
@@ -418,8 +422,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		else {
 			$nDateAt = 0;
 		}
-		$this->setOpt( 'email_can_send_verified_at', $nDateAt );
-		return $this;
+		return $this->setOpt( 'email_can_send_verified_at', $nDateAt );
 	}
 
 	/**
@@ -559,6 +562,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					$aAjaxResponse = $this->ajaxExec_DeleteBackupCodes();
 					break;
 
+				case 'resend_verification_email':
+					$aAjaxResponse = $this->ajaxExec_ResendEmailVerification();
+					break;
+
+				case 'disable_2fa_email':
+					$aAjaxResponse = $this->ajaxExec_Disable2faEmail();
+					break;
+
 				default:
 					break;
 			}
@@ -649,7 +660,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_DeleteBackupCodes() {
+	private function ajaxExec_DeleteBackupCodes() {
 
 		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
 		$oPro = $this->loadProcessor();
@@ -659,6 +670,43 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$this->setFlashAdminNotice( _wpsf__( 'Multi-factor login backup code has been removed from your profile' ) );
 		return array(
 			'success' => true
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_Disable2faEmail() {
+		$this->setEnabled2FaEmail( false );
+		return array(
+			'success'     => true,
+			'message'     => _wpsf__( '2FA by email has been disabled' ),
+			'page_reload' => true
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_ResendEmailVerification() {
+		$bSuccess = true;
+
+		if ( !$this->isEmailAuthenticationOptionOn() ) {
+			$sMessage = _wpsf__( 'Email 2FA option is not currently enabled.' );
+			$bSuccess = false;
+		}
+		else if ( $this->getIfCanSendEmailVerified() ) {
+			$sMessage = _wpsf__( 'Email sending has already been verified.' );
+		}
+		else {
+			$sMessage = _wpsf__( 'Verification email resent.' );
+			$this->setIfCanSendEmail( false )
+				 ->sendEmailVerifyCanSend();
+		}
+
+		return array(
+			'success' => $bSuccess,
+			'message' => $sMessage
 		);
 	}
 
