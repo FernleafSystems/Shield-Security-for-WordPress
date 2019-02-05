@@ -48,9 +48,14 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		return $aContent;
 	}
 
+	/**
+	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
+	 */
 	public function addPluginBadgeWidget() {
-		if ( $this->loadWp()->getWordpressIsAtLeastVersion( '4.6.0' ) ) {
-			$oWidget = new ICWP_WPSF_Processor_Plugin_BadgeWidget( $this->getMod() );
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		$oFO = $this->getMod();
+		if ( !empty( $oFO ) && $this->loadWp()->getWordpressIsAtLeastVersion( '4.6.0' ) ) {
+			$oWidget = new ICWP_WPSF_Processor_Plugin_BadgeWidget( $oFO );
 			register_widget( $oWidget );
 		}
 	}
