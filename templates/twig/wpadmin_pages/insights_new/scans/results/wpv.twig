@@ -10,7 +10,26 @@
 			</div>
 
 			<div class="card-body">
-				<div id="TableScanWpv" class="container-scantable"></div>
+
+				{% if scan.flags.is_available %}
+
+					{% if scan.flags.is_enabled %}
+
+						{% if not scan.flags.has_items %}
+							<div class="alert alert-info m-0">No items discovered</div>
+						{% else %}
+							<div id="TableScanWpv" class="container-scantable"></div>
+						{% endif %}
+
+					{% else %}
+						{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'_disabled.twig' %}
+					{% endif %}
+
+				{% else %}
+					{% include '/wpadmin_pages/insights_new/scans/results/common_unavailable.twig' %}
+				{% endif %}
+
+
 			</div>
 
 			<div class="card-footer">
