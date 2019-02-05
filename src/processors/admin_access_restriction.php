@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		add_filter( $oFO->prefix( 'is_plugin_admin' ), array( $this, 'adjustUserAdminPermissions' ) );
 
 		if ( $oFO->isWlEnabled() ) {
-			$this->runWhiteLabel();
+			$this->getSubProWhitelabel()->run();
 		}
 	}
 
@@ -72,23 +72,19 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_AdminAccess_Whitelabel|mixed
 	 */
-	protected function runWhiteLabel() {
-		$this->getSubProcessorWhitelabel()
-			 ->run();
+	protected function getSubProWhitelabel() {
+		return $this->getSubPro( 'wl' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_AdminAccess_Whitelabel
+	 * @return array
 	 */
-	protected function getSubProcessorWhitelabel() {
-		$oProc = $this->getSubPro( 'wl' );
-		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/adminaccess_whitelabel.php' );
-			$oProc = new ICWP_WPSF_Processor_AdminAccess_Whitelabel( $this->getMod() );
-			$this->aSubPros[ 'wl' ] = $oProc;
-		}
-		return $oProc;
+	protected function getSubProMap() {
+		return [
+			'wl' => 'ICWP_WPSF_Processor_AdminAccess_Whitelabel',
+		];
 	}
 
 	/**

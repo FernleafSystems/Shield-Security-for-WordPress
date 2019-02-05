@@ -7,16 +7,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 
 	/**
-	 * @var ICWP_WPSF_Processor_Plugin_Badge
-	 */
-	protected $oBadgeProcessor;
-
-	/**
-	 * @var ICWP_WPSF_Processor_Plugin_Tracking
-	 */
-	protected $oTrackingProcessor;
-
-	/**
 	 */
 	public function run() {
 		parent::run();
@@ -25,15 +15,15 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$this->setupCron();
 
 		$this->removePluginConflicts();
-		$this->getBadgeProcessor()
+		$this->getSubProBadge()
 			 ->run();
 
 		if ( $oFO->isTrackingEnabled() || !$oFO->isTrackingPermissionSet() ) {
-			$this->getTrackingProcessor()->run();
+			$this->getSubProTracking()->run();
 		}
 
 		if ( $oFO->isImportExportPermitted() ) {
-			$this->getSubProcessorImportExport()->run();
+			$this->getSubProImportExport()->run();
 		}
 
 		switch ( $this->loadRequest()->query( 'shield_action', '' ) ) {
@@ -46,7 +36,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			case 'importexport_handshake':
 			case 'importexport_updatenotified':
 				if ( $oFO->isImportExportPermitted() ) {
-					add_action( 'init', [ $this->getSubProcessorImportExport(), 'runAction' ] );
+					add_action( 'init', [ $this->getSubProImportExport(), 'runAction' ] );
 				}
 				break;
 			default:
@@ -78,53 +68,43 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Badge
+	 * @return ICWP_WPSF_Processor_Plugin_Badge|mixed
 	 */
-	protected function getBadgeProcessor() {
-		if ( !isset( $this->oBadgeProcessor ) ) {
-			require_once( __DIR__.'/plugin_badge.php' );
-			$this->oBadgeProcessor = new ICWP_WPSF_Processor_Plugin_Badge( $this->getMod() );
-		}
-		return $this->oBadgeProcessor;
+	protected function getSubProBadge() {
+		return $this->getSubPro( 'badge' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Tracking
+	 * @return ICWP_WPSF_Processor_Plugin_Tracking|mixed
 	 */
-	protected function getTrackingProcessor() {
-		if ( !isset( $this->oTrackingProcessor ) ) {
-			require_once( __DIR__.'/plugin_tracking.php' );
-			$this->oTrackingProcessor = new ICWP_WPSF_Processor_Plugin_Tracking( $this->getMod() );
-		}
-		return $this->oTrackingProcessor;
+	protected function getSubProTracking() {
+		return $this->getSubPro( 'tracking' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
+	 * @return ICWP_WPSF_Processor_Plugin_ImportExport|mixed
 	 */
-	public function getSubProcessorImportExport() {
-		$oProc = $this->getSubPro( 'importexport' );
-		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/plugin_importexport.php' );
-			$oProc = new ICWP_WPSF_Processor_Plugin_ImportExport( $this->getMod() );
-			$this->aSubPros[ 'importexport' ] = $oProc;
-		}
-		return $oProc;
+	public function getSubProImportExport() {
+		return $this->getSubPro( 'importexport' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Notes
+	 * @return ICWP_WPSF_Processor_Plugin_Notes|mixed
 	 */
 	public function getSubProcessorNotes() {
-		$oProc = $this->getSubPro( 'notes' );
-		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/plugin_notes.php' );
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-			$oMod = $this->getMod();
-			$oProc = new ICWP_WPSF_Processor_Plugin_Notes( $oMod );
-			$this->aSubPros[ 'notes' ] = $oProc;
-		}
-		return $oProc;
+		return $this->getSubPro( 'notes' );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSubProMap() {
+		return [
+			'badge'        => 'ICWP_WPSF_Processor_Plugin_Badge',
+			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
+			'notes'        => 'ICWP_WPSF_Processor_Plugin_Notes',
+			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
+		];
 	}
 
 	public function printAdminFooterItems() {
@@ -180,7 +160,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	public function dumpTrackingData() {
 		if ( $this->getCon()->isPluginAdmin() ) {
-			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getTrackingProcessor()
+			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getSubProTracking()
 																	  ->collectTrackingData(), true ) );
 			die();
 		}

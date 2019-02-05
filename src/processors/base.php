@@ -244,7 +244,21 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getSubPro( $sKey ) {
 		$aProcessors = $this->getSubProcessors();
-		return isset( $aProcessors[ $sKey ] ) ? $aProcessors[ $sKey ] : null;
+		if ( !isset( $aProcessors[ $sKey ] ) ) {
+			$aMap = $this->getSubProMap();
+			if ( !isset( $aMap[ $sKey ] ) ) {
+				error_log( 'Sub processor key not set: '.$sKey );
+			}
+			$aProcessors[ $sKey ] = new $aMap[ $sKey ]( $this->getMod() );
+		}
+		return $aProcessors[ $sKey ];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSubProMap() {
+		return [];
 	}
 
 	/**

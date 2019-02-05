@@ -23,18 +23,18 @@ class WpCoreFileDownload {
 	/**
 	 * @param string $sPath
 	 * @param bool   $bUseLocale
-	 * @return string
+	 * @return string - path to downloaded file
 	 */
 	public function run( $sPath, $bUseLocale = true ) {
-		$sLocale = Services::WpGeneral()->getLocale( true );
+		$sLocale = Services::WpGeneral()->getLocaleForChecksums();
 		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
 
-		$sContent = (string)Services::WpFs()->getUrlContent( $this->getFileUrl( $sPath, $bUseLocale ) );
-		if ( $bUseInternational && empty( $sContent ) ) {
-			$sContent = $this->run( $sPath, false );
+		$sTmpFile = download_url( $this->getFileUrl( $sPath, $bUseLocale ) );
+		if ( $bUseInternational && empty( $sTmpFile ) ) {
+			$sTmpFile = $this->run( $sPath, false );
 		} // try international retrieval and if it fails, we resort to en_US.
 
-		return $sContent;
+		return ( !is_wp_error( $sTmpFile ) && Services::WpFs()->exists( $sTmpFile ) ) ? $sTmpFile : null;
 	}
 
 	/**

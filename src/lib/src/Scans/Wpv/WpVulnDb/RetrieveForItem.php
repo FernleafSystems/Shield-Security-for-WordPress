@@ -35,7 +35,7 @@ class RetrieveForItem {
 
 		$aD = $this->getCachedVo();
 		if ( empty( $aD ) ) {
-			$sRaw = Services::WpFs()->getUrlContent( $this->buildApiUrl() );
+			$sRaw = Services::HttpRequest()->getContent( $this->buildApiUrl() );
 			if ( empty( $sRaw ) ) {
 				$aD = array();
 			}

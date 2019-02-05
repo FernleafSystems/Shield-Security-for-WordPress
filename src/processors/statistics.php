@@ -230,32 +230,26 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * TODO: Not properly implemented
-	 * @return ICWP_WPSF_Processor_Statistics_Reporting
+	 * @return ICWP_WPSF_Processor_Statistics_Reporting|mixed
 	 */
 	protected function getReportingProcessor() {
-		$oProc = $this->getSubPro( 'reporting' );
-		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/statistics_reporting.php' );
-			/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
-			$oMod = $this->getMod();
-			$oProc = new ICWP_WPSF_Processor_Statistics_Reporting( $oMod );
-			$this->aSubPros[ 'reporting' ] = $oProc;
-		}
-		return $oProc;
+		return $this->getSubPro( 'reporting' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Statistics_Tally
+	 * @return ICWP_WPSF_Processor_Statistics_Tally|mixed
 	 */
 	protected function getTallyProcessor() {
-		$oProc = $this->getSubPro( 'tally' );
-		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/statistics_tally.php' );
-			/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
-			$oMod = $this->getMod();
-			$oProc = new ICWP_WPSF_Processor_Statistics_Tally( $oMod );
-			$this->aSubPros[ 'tally' ] = $oProc;
-		}
-		return $oProc;
+		return $this->getSubPro( 'tally' );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSubProMap() {
+		return [
+			'tally'     => 'ICWP_WPSF_Processor_Statistics_Tally',
+			'reporting' => 'ICWP_WPSF_Processor_Statistics_Reporting',
+		];
 	}
 }
