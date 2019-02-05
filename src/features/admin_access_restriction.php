@@ -53,7 +53,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_SecAdminCheck() {
+	private function ajaxExec_SecAdminCheck() {
 		return array(
 			'timeleft' => $this->getSecAdminTimeLeft(),
 			'success'  => $this->isSecAdminSessionValid()
@@ -63,31 +63,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_SecAdminLogin1() {
-		$aResponse = array();
-
-		if ( $this->checkAdminAccessKeySubmission() ) {
-
-			if ( $this->setSecurityAdminStatusOnOff( true ) ) {
-				$aResponse[ 'success' ] = true;
-				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
-									   .' '._wpsf__( 'Please wait' ).' ...';
-			}
-			else {
-				$aResponse[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
-			}
-		}
-		else {
-			$aResponse[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
-		}
-
-		return $aResponse;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_SecAdminLogin() {
+	private function ajaxExec_SecAdminLogin() {
 		$bSuccess = false;
 		$sHtml = '';
 
@@ -123,7 +99,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_SecAdminLoginBox() {
+	private function ajaxExec_SecAdminLoginBox() {
 		return array(
 			'success' => 'true',
 			'html'    => $this->renderAdminAccessAjaxLoginForm()
