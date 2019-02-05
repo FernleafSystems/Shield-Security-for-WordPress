@@ -178,7 +178,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sIp
 	 * @return string
 	 */
-	protected function getRemainingTransgressions( $sIp = '' ) {
+	public function getRemainingTransgressions( $sIp = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		if ( empty( $sIp ) ) {
@@ -193,7 +193,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return int
 	 */
 	private function getTransgressions( $sIp ) {
-		$oBlackIp = $this->getAutoBlackListIp( $sIp );
+		$oBlackIp = $this->getBlackListIp( $sIp );
 		return ( $oBlackIp instanceof IPs\EntryVO ) ? $oBlackIp->getTransgressions() : 0;
 	}
 
@@ -410,6 +410,15 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return IPs\EntryVO[]
 	 */
 	public function getAutoBlacklistIpsData() {
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
+	}
+
+	/**
+	 * @return IPs\EntryVO[]
+	 */
+	public function getBlacklistIpData( $sIpAddress ) {
 		/** @var IPs\Select $oSelect */
 		$oSelect = $this->getDbHandler()->getQuerySelector();
 		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );

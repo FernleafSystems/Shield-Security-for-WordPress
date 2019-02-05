@@ -1,6 +1,6 @@
 <div class="input-holder" id="AdminInputHolder-<?php echo $unique_render_id; ?>">
 	<label>
-		<?php echo $strings[ 'access_message' ]; ?>:
+		<?php echo $strings[ 'access_message' ]; ?>
 		<input type="password" name="admin_access_key_request" />
 		<button type="submit">Go!</button>
 	</label>
