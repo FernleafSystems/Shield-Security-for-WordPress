@@ -89,7 +89,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorScanner()
+			$oProc->getSubProScanner()
 				  ->getSubProcessorUfc()
 				  ->doScanAndFullRepair();
 
@@ -114,7 +114,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $this->loadRequest()->post( 'RestoreFiles' ) === 'Y' ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 			$oProc = $oFO->getProcessor();
-			$oProc->getSubProcessorScanner()
+			$oProc->getSubProScanner()
 				  ->getSubProcessorWcf()
 				  ->doScanAndFullRepair();
 
@@ -264,7 +264,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oFO->getProcessor();
-		$oGuard = $oP->getSubProcessorScanner()
+		$oGuard = $oP->getSubProScanner()
 					 ->getSubProcessorPtg();
 
 		$bSuccess = false;
@@ -425,7 +425,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 				case 'scanresult':
 					/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc\ResultsSet $oRes */
-					$oRes = $oProc->getSubProcessorScanner()
+					$oRes = $oProc->getSubProScanner()
 								  ->getSubProcessorUfc()
 								  ->doScan();
 					$aFiles = $oRes->getItemsPathsFragments();
@@ -444,7 +444,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			switch ( $sStep ) {
 				case 'scanresult':
-					$oResult = $oProc->getSubProcessorScanner()
+					$oResult = $oProc->getSubProScanner()
 									 ->getSubProcessorWcf()
 									 ->doScan();
 
@@ -488,7 +488,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function getPtgScanResults( $sContext ) {
 		/** @var ICWP_WPSF_Processor_HackProtect $oProc */
 		$oProc = $this->getModCon()->getProcessor();
-		$oP = $oProc->getSubProcessorScanner()->getSubProcessorPtg();
+		$oP = $oProc->getSubProScanner()->getSubProcessorPtg();
 		if ( $sContext == 'plugins' ) {
 			$oResults = $oP->scanPlugins();
 		}

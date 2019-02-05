@@ -248,15 +248,19 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Passwords
+	 * @return ICWP_WPSF_Processor_UserManagement_Passwords|mixed
 	 */
 	protected function getProcessorPasswords() {
-		$oProc = $this->getSubPro( 'passwords' );
-		if ( is_null( $oProc ) ) {
-			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getMod() );
-			$this->aSubPros[ 'passwords' ] = $oProc;
-		}
-		return $oProc;
+		return $this->getSubPro( 'passwords' );
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSubProMap() {
+		return [
+			'passwords' => 'ICWP_WPSF_Processor_UserManagement_Passwords',
+		];
 	}
 
 	/**

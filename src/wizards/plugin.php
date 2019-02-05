@@ -406,7 +406,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		/** @var ICWP_WPSF_Processor_Plugin $oProc */
 		$oProc = $oFO->getProcessor();
-		$nCode = $oProc->getSubProcessorImportExport()
+		$nCode = $oProc->getSubProImportExport()
 					   ->runImport( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork, $sSiteResponse );
 
 		$aErrors = array(
