@@ -83,8 +83,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$oIpPro = $this->getCon()
 						   ->getModule( 'ips' )
 						   ->getProcessor();
-			$sMsg = _wpsf__( 'Security access key incorrect.' ).' '
-					.sprintf( _wpsf__( 'Attempts remaining: %s' ), $oIpPro->getRemainingTransgressions() - 1 );
+			$nRemaining = $oIpPro->getRemainingTransgressions() - 1;
+			$sMsg = _wpsf__( 'Security access key incorrect.' ).' ';
+			if ( $nRemaining > 0 ) {
+				$sMsg .= sprintf( _wpsf__( 'Attempts remaining: %s.' ), $nRemaining );
+			}
+			else {
+				$sMsg .= _wpsf__( "No attempts remaining." );
+			}
 			$sHtml = $this->renderAdminAccessAjaxLoginForm( $sMsg );
 		}
 

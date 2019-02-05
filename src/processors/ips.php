@@ -236,7 +236,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
 		$aData = [
 			'strings' => array(
-				'title'   => sprintf( _wpsf__( "You've been black listed by the %s plugin" ),
+				'title'   => sprintf( _wpsf__( "You've been blocked by the %s plugin" ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$oCon->getPluginSpec()[ 'urls' ][ 'repo_home' ],
 						$oCon->getHumanName()
