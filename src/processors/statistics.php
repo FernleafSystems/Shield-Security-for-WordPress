@@ -235,7 +235,6 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getReportingProcessor() {
 		$oProc = $this->getSubPro( 'reporting' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/statistics_reporting.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
 			$oMod = $this->getMod();
 			$oProc = new ICWP_WPSF_Processor_Statistics_Reporting( $oMod );
@@ -250,7 +249,6 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getTallyProcessor() {
 		$oProc = $this->getSubPro( 'tally' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/statistics_tally.php' );
 			/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
 			$oMod = $this->getMod();
 			$oProc = new ICWP_WPSF_Processor_Statistics_Tally( $oMod );

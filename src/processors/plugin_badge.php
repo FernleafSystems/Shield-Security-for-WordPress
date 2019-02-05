@@ -50,7 +50,6 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function addPluginBadgeWidget() {
 		if ( $this->loadWp()->getWordpressIsAtLeastVersion( '4.6.0' ) ) {
-			require_once( __DIR__.'/plugin_badgewidget.php' );
 			$oWidget = new ICWP_WPSF_Processor_Plugin_BadgeWidget( $this->getMod() );
 			register_widget( $oWidget );
 		}

@@ -41,7 +41,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	public function getSubProcessorPtg() {
 		$oProc = $this->getSubPro( 'ptg' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_scan_ptg.php' );
 			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Ptg( $this->getMod() ) )
 				->setScannerDb( $this );
 			$this->aSubPros[ 'ptg' ] = $oProc;
@@ -55,7 +54,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	protected function getSubProcessorIntegrity() {
 		$oProc = $this->getSubPro( 'int' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_integrity.php' );
 			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Integrity( $this->getMod() ) );
 //				->setScannerDb( $this );
 			$this->aSubPros[ 'int' ] = $oProc;
@@ -69,7 +67,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	public function getSubProcessorUfc() {
 		$oProc = $this->getSubPro( 'ufc' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_scan_ufc.php' );
 			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Ufc( $this->getMod() ) )
 				->setScannerDb( $this );
 			$this->aSubPros[ 'ufc' ] = $oProc;
@@ -83,7 +80,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	public function getSubProcessorWcf() {
 		$oProc = $this->getSubPro( 'wcf' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_scan_wcf.php' );
 			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Wcf( $this->getMod() ) )
 				->setScannerDb( $this );
 			$this->aSubPros[ 'wcf' ] = $oProc;
@@ -97,7 +93,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	public function getSubProcessorWpv() {
 		$oProc = $this->getSubPro( 'wpv' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_scan_wpv.php' );
 			$oProc = ( new ICWP_WPSF_Processor_HackProtect_Wpv( $this->getMod() ) )
 				->setScannerDb( $this );
 			$this->aSubPros[ 'wpv' ] = $oProc;

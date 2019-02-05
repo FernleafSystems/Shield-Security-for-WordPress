@@ -253,7 +253,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getProcessorPasswords() {
 		$oProc = $this->getSubPro( 'passwords' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/usermanagement_passwords.php' );
 			$oProc = new ICWP_WPSF_Processor_UserManagement_Passwords( $this->getMod() );
 			$this->aSubPros[ 'passwords' ] = $oProc;
 		}
@@ -265,7 +264,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function getProcessorSessions() {
 		if ( !isset( $this->oProcessorSessions ) ) {
-			require_once( __DIR__.'/usermanagement_sessions.php' );
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getMod();
 			$this->oProcessorSessions = new ICWP_WPSF_Processor_UserManagement_Sessions( $oFO );

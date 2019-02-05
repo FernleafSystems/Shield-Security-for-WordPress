@@ -17,7 +17,6 @@ class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( is_null( $oPro ) ) {
 			/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 			$oFO = $this->getMod();
-			require_once( __DIR__.'/traffic_logger.php' );
 			$oPro = new ICWP_WPSF_Processor_TrafficLogger( $oFO );
 			$this->aSubPros[ 'traffic_logger' ] = $oPro;
 		}

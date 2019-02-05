@@ -50,43 +50,36 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isAuditUsers() ) {
-			require_once( __DIR__.'/audit_trail_users.php' );
 			$oUsers = new ICWP_WPSF_Processor_AuditTrail_Users();
 			$oUsers->run();
 		}
 
 		if ( $oFO->isAuditPlugins() ) {
-			require_once( __DIR__.'/audit_trail_plugins.php' );
 			$oPlugins = new ICWP_WPSF_Processor_AuditTrail_Plugins();
 			$oPlugins->run();
 		}
 
 		if ( $oFO->isAuditThemes() ) {
-			require_once( __DIR__.'/audit_trail_themes.php' );
 			$oThemes = new ICWP_WPSF_Processor_AuditTrail_Themes();
 			$oThemes->run();
 		}
 
 		if ( $oFO->isAuditWp() ) {
-			require_once( __DIR__.'/audit_trail_wordpress.php' );
 			$oWp = new ICWP_WPSF_Processor_AuditTrail_Wordpress();
 			$oWp->run();
 		}
 
 		if ( $oFO->isAuditPosts() ) {
-			require_once( __DIR__.'/audit_trail_posts.php' );
 			$oPosts = new ICWP_WPSF_Processor_AuditTrail_Posts();
 			$oPosts->run();
 		}
 
 		if ( $oFO->isAuditEmails() ) {
-			require_once( __DIR__.'/audit_trail_emails.php' );
 			$oEmails = new ICWP_WPSF_Processor_AuditTrail_Emails();
 			$oEmails->run();
 		}
 
 		if ( $oFO->isAuditShield() ) {
-			require_once( __DIR__.'/audit_trail_wpsf.php' );
 			$oWpsf = new ICWP_WPSF_Processor_AuditTrail_Wpsf();
 			$oWpsf->run();
 		}

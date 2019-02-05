@@ -32,7 +32,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function getSubProcessorScanner() {
 		$oProc = $this->getSubPro( 'scanner' );
 		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_scanner.php' );
 			$oProc = new ICWP_WPSF_Processor_HackProtect_Scanner( $this->getMod() );
 			$this->aSubPros[ 'scanner' ] = $oProc;
 		}

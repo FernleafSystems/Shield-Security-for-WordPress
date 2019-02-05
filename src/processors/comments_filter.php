@@ -18,19 +18,16 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isEnabledGaspCheck() ) {
-			require_once( __DIR__.'/commentsfilter_antibotspam.php' );
 			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
 			$oBotSpamProcessor->run();
 		}
 
 		if ( $oFO->isEnabledHumanCheck() && $this->loadWpComments()->isCommentPost() ) {
-			require_once( __DIR__.'/commentsfilter_humanspam.php' );
 			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
 			$oHumanSpamProcessor->run();
 		}
 
 		if ( $oFO->isGoogleRecaptchaEnabled() ) {
-			require_once( __DIR__.'/commentsfilter_googlerecaptcha.php' );
 			$oReCap = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
 			$oReCap->run();
 		}
