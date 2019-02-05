@@ -271,6 +271,9 @@
       "/wp-admin/page-new.php":        [],
       "/wp-admin/link-add.php":        [],
       "/wp-admin/media-upload.php":    [],
+      "/wp-admin/admin.php":            [
+        "page"
+      ],
       "/wp-admin/post.php":            [
         "content"
       ],
