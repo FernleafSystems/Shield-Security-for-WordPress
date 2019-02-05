@@ -63,7 +63,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_SecAdminLogin() {
+	protected function ajaxExec_SecAdminLogin1() {
 		$aResponse = array();
 
 		if ( $this->checkAdminAccessKeySubmission() ) {
@@ -82,6 +82,42 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 
 		return $aResponse;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_SecAdminLogin() {
+		$bSuccess = false;
+		$sHtml = '';
+
+		if ( $this->checkAdminAccessKeySubmission() ) {
+
+			if ( $this->setSecurityAdminStatusOnOff( true ) ) {
+				$bSuccess = true;
+				$sMsg = _wpsf__( 'Security Admin Access Key Accepted.' )
+						.' '._wpsf__( 'Please wait' ).' ...';
+			}
+			else {
+				$sMsg = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+			}
+		}
+		else {
+			/** @var ICWP_WPSF_Processor_Ips $oIpPro */
+			$oIpPro = $this->getCon()
+						   ->getModule( 'ips' )
+						   ->getProcessor();
+			$sMsg = _wpsf__( 'Security access key incorrect.' ).' '
+					.sprintf( _wpsf__( 'Attempts remaining: %s' ), $oIpPro->getRemainingTransgressions() - 1 );
+			$sHtml = $this->renderAdminAccessAjaxLoginForm( $sMsg );
+		}
+
+		return [
+			'success'     => $bSuccess,
+			'page_reload' => true,
+			'message'     => $sMsg,
+			'html'        => $sHtml,
+		];
 	}
 
 	/**
