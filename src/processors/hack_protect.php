@@ -114,6 +114,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'flags'   => array(
 						'is_enabled'    => true,
 						'is_available'  => true,
+						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
 					),
 					'hrefs'   => array(
@@ -134,6 +135,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'flags'   => array(
 						'is_enabled'    => true,
 						'is_available'  => true,
+						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
 					),
 					'hrefs'   => array(
@@ -154,6 +156,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'flags'   => array(
 						'is_enabled'    => $oMod->isWpvulnEnabled(),
 						'is_available'  => $oMod->isPremium(),
+						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'wpv' ) > 0
 					),
 					'hrefs'   => array(

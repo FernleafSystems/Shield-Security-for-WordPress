@@ -41,7 +41,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 	public function onWpInit() {
 		parent::onWpInit();
-
 		$this->setupLoginIntent();
 	}
 
