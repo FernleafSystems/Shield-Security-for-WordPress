@@ -29,7 +29,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function __construct( $oModCon ) {
 		$this->setMod( $oModCon );
 
-		add_action( 'init', array( $this, 'onWpInit' ) );
+		add_action( 'init', array( $this, 'onWpInit' ), 9 );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
