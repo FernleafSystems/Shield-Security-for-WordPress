@@ -121,6 +121,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->sRootFile = $sRootFile;
 		$this->loadServices();
 		$this->checkMinimumRequirements();
+		$this->buildPluginCacheDir();
 		$this->doRegisterHooks();
 		$this->doLoadTextDomain();
 	}
@@ -270,6 +271,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function onWpActivatePlugin() {
 		do_action( $this->prefix( 'plugin_activate' ) );
 		$this->loadAllFeatures( true, true );
+	}
+
+	private function buildPluginCacheDir() {
+		$sBase = $this->getPath_PluginCache();
+		$oFs = Services::WpFs();
+		if ( $oFs->mkdir( $sBase ) ) {
+			$sHt = path_join( $sBase, '.htaccess' );
+			$sHtContent = "Options -Indexes\ndeny from all";
+			if ( !$oFs->exists( $sHt ) || ( md5_file( $sHt ) != md5( $sHtContent ) ) ) {
+				$oFs->putFileContent( $sHt, $sHtContent );
+			}
+			$sIndex = path_join( $sBase, 'index.php' );
+			$sIndexContent = "<?php\nhttp_response_code(404);";
+			if ( !$oFs->exists( $sIndex ) || ( md5_file( $sIndex ) != md5( $sIndexContent ) ) ) {
+				$oFs->putFileContent( $sIndex, $sIndexContent );
+			}
+		}
 	}
 
 	/**
@@ -1365,6 +1383,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_Autoload() {
 		return $this->getPath_SourceFile( $this->getPluginSpec_Path( 'autoload' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPath_PluginCache() {
+		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
 	}
 
 	/**
