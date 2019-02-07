@@ -62,16 +62,22 @@ class Scanner {
 		$oWpThemes = Services::WpThemes();
 
 		$oActiveTheme = $oWpThemes->getCurrent();
-		$aThemes = array(
-			$oActiveTheme->get_stylesheet() => $oActiveTheme->get_stylesheet()
-		);
-		if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
-			$oParent = $oWpThemes->getCurrentParent();
-			$aThemes[ $oParent->get_stylesheet() ] = $oParent->get_stylesheet();
-		}
+		if ( $oActiveTheme instanceof \WP_Theme ) {
 
-		foreach ( $aThemes as $sBaseFile => $sSlug ) {
-			$aVulns[ $sBaseFile ] = $this->getThemeVulnerabilities( $sBaseFile );
+			$aThemes = array(
+				$oActiveTheme->get_stylesheet() => $oActiveTheme->get_stylesheet()
+			);
+
+			if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
+				$oParent = $oWpThemes->getCurrentParent();
+				if ( $oParent instanceof \WP_Theme ) {
+					$aThemes[ $oParent->get_stylesheet() ] = $oParent->get_stylesheet();
+				}
+			}
+
+			foreach ( $aThemes as $sBaseFile => $sSlug ) {
+				$aVulns[ $sBaseFile ] = $this->getThemeVulnerabilities( $sBaseFile );
+			}
 		}
 		return array_filter( $aVulns );
 	}
