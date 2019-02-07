@@ -46,6 +46,46 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return bool
+	 */
+	private function getMouseTrapResponseType() {
+		return $this->getOpt( 'mousetrap_bot_response' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getMouseTrapKey() {
+		$sKey = $this->getOpt( 'mousetrap_key' );
+		if ( empty( $sKey ) ) {
+			$sKey = substr( md5( wp_generate_password() ), 5, 6 );
+			$this->setOpt( 'mousetrap_key', $sKey );
+		}
+		return $sKey;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMouseTrapEnabled() {
+		return $this->isPremium() && ( $this->getMouseTrapResponseType() != 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMouseTrayBlock() {
+		return $this->getMouseTrapResponseType() === 'block';
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMouseTrapTransgression() {
+		return $this->getMouseTrapResponseType() === 'transgression';
+	}
+
+	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */

@@ -2,14 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Firewall;
 
+use FernleafSystems\Wordpress\Plugin\Shield\AuditTrail\Auditor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MouseTrap {
 
-	use ModConsumer;
+	use Auditor, ModConsumer;
 
 	public function run() {
+		add_action( 'init', [ $this, 'onWpInit' ] );
 	}
 
 	public function onWpInit() {
@@ -25,7 +27,9 @@ class MouseTrap {
 	 * @return string
 	 */
 	public function appendRobotsTxt( $sRobotsText ) {
-		$sRobotsText .= sprintf( "\nDisallow: %s", parse_url( $this->getTrapLink(), PHP_URL_PATH ) );
+		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
+			$sRobotsText .= sprintf( "\nDisallow: %s", parse_url( $this->getTrapLink(), PHP_URL_PATH ) );
+		}
 		return $sRobotsText;
 	}
 
@@ -34,18 +38,18 @@ class MouseTrap {
 			/** @var \ICWP_WPSF_FeatureHandler_Firewall $oFO */
 			$oFO = $this->getMod();
 
-			$bBlock = $oFO->isVenusResponseBlock();
 			$sAuditMessage = _wpsf__( 'MouseTrap found visitor to be a bot.' );
 
-			if ( $bBlock ) {
+			if ( $oFO->isMouseTrayBlock() ) {
+				$oFO->setIpBlocked();
 				$sAuditMessage .= ' '._wpsf__( 'IP set to be blocked.' );
 			}
 			else {
+				$oFO->setIpTransgressed();
 				$sAuditMessage .= ' '._wpsf__( 'Transgression counter set to increase.' );
 			}
 
-			$oFO->addToAuditEntry( $sAuditMessage, 2, 'venus_botfly_trapped' );
-			$bBlock ? $oFO->setIpBlocked() : $this->setIpTransgressed();
+			$this->createNewAudit( $sAuditMessage, 2, 'mouse_trapped' );
 			Services::WpGeneral()->wpDie( 'Did you really mean to come here?' );
 		}
 	}
@@ -56,7 +60,7 @@ class MouseTrap {
 
 		$oReq = Services::Request();
 		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
-			$bVenus = trim( $oReq->getPath(), '/' ) == sprintf( '%s-%s', $oFO->prefix( 'mouse' ), $oFO->getVenusKey() );
+			$bVenus = trim( $oReq->getPath(), '/' ) == sprintf( '%s-%s', $oFO->prefix( 'mouse' ), $oFO->getMouseTrapKey() );
 		}
 		else {
 			$bVenus = $oFO->prefix( $oReq->query( 'mouse' ) ) == 1;
@@ -81,10 +85,10 @@ class MouseTrap {
 
 		$oWp = Services::WpGeneral();
 		if ( $oWp->isPermalinksEnabled() ) {
-			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( 'mouse' ), $oFO->getVenusKey() ) );
+			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( 'mouse' ), $oFO->getMouseTrapKey() ) );
 		}
 		else {
-			$sLink = add_query_arg( array( $oFO->prefix( 'mouse' ) => $oFO->getVenusKey() ), $oWp->getHomeUrl() );
+			$sLink = add_query_arg( [ $oFO->prefix( 'mouse' ) => $oFO->getMouseTrapKey() ], $oWp->getHomeUrl() );
 		}
 		return $sLink;
 	}
