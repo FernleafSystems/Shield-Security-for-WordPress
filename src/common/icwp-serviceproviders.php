@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 
 	const URL_STATUS_CAKE_IPS = 'https://app.statuscake.com/Workfloor/Locations.php?format=json';
+	const URL_ICONTROLWP_IPS = 'https://www.icontrolwp.com/?icwp_ips';
 
 	/**
 	 * @var string
@@ -68,6 +69,23 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	public function getIps_DuckDuckGo() {
 		return array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' );
+	}
+
+	/**
+	 * @param bool $bFlat
+	 * @return array[]|string[]
+	 */
+	public function getIps_iControlWP( $bFlat = false ) {
+		$oWp = $this->loadWp();
+
+		$sStoreKey = $this->prefix( 'serviceips_icontrolwp' );
+		$aIps = $oWp->getTransient( $sStoreKey );
+		if ( empty( $aIps ) ) {
+			$aIps = $this->downloadServiceIps_iControlWP();
+			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*2 );
+		}
+
+		return $bFlat ? array_merge( $aIps[ 4 ], $aIps[ 6 ] ) : $aIps;
 	}
 
 	/**
@@ -209,7 +227,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	public function isIp_Cloudflare( $sIp ) {
 		$bIs = false;
 		try {
-			$oIp = \FernleafSystems\Wordpress\Services\Services::IP();
+			$oIp = Services::IP();
 			if ( $oIp->getIpVersion( $sIp ) == 4 ) {
 				$bIs = $oIp->checkIp( $sIp, $this->getIps_CloudFlareV4() );
 			}
@@ -233,6 +251,19 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		// We check the useragent if available
 		if ( is_null( $sUserAgent ) || stripos( $sUserAgent, 'DuckDuckBot' ) !== false ) {
 			$bIsBot = in_array( $sIp, $this->getIps_DuckDuckGo() );
+		}
+		return $bIsBot;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @param string $sAgent
+	 * @return bool
+	 */
+	public function isIp_iControlWP( $sIp, $sAgent = null ) { //TODO: Agent
+		$bIsBot = false;
+		if ( is_null( $sAgent ) || stripos( $sAgent, 'iControlWPApp' ) !== false ) {
+			$bIsBot = in_array( $sIp, $this->getIps_iControlWP( true ) );
 		}
 		return $bIsBot;
 	}
@@ -283,7 +314,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$bIsIp = false;
 		if ( stripos( $sAgent, 'pingdom.com' ) !== false ) {
 			$aIps = $this->getIps_Pingdom();
-			$bIsIp = in_array( $sIp, $aIps[ \FernleafSystems\Wordpress\Services\Services::IP()->getIpVersion( $sIp ) ] );
+			$bIsIp = in_array( $sIp, $aIps[ Services::IP()->getIpVersion( $sIp ) ] );
 		}
 		return $bIsIp;
 	}
@@ -297,7 +328,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$bIsIp = false;
 		if ( stripos( $sAgent, 'UptimeRobot' ) !== false ) {
 			$aIps = $this->getIps_UptimeRobot();
-			$bIsIp = in_array( $sIp, $aIps[ \FernleafSystems\Wordpress\Services\Services::IP()->getIpVersion( $sIp ) ] );
+			$bIsIp = in_array( $sIp, $aIps[ Services::IP()->getIpVersion( $sIp ) ] );
 		}
 		return $bIsIp;
 	}
@@ -357,7 +388,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	private function verifyIp_AppleBot( $sIp, $sUserAgent = '' ) {
-		return ( \FernleafSystems\Wordpress\Services\Services::IP()->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
+		return ( Services::IP()->getIpVersion( $sIp ) != 4 || strpos( $sIp, '17.' ) === 0 )
 			   && $this->isIpOfBot( [ 'Applebot/' ], '#.*\.applebot.apple.com\.?$#i', $sIp, $sUserAgent );
 	}
 
@@ -457,6 +488,14 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return array[]
+	 */
+	private function downloadServiceIps_iControlWP() {
+		$aIps = @json_decode( Services::HttpRequest()->getContent( self::URL_ICONTROLWP_IPS ), true );
+		return is_array( $aIps ) ? $aIps : [];
+	}
+
+	/**
 	 * @param int $sIpVersion
 	 * @return string[]
 	 */
@@ -469,7 +508,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	private function downloadServiceIps_StatusCake() {
 		$aIps = array();
-		$aData = @json_decode( \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( self::URL_STATUS_CAKE_IPS ), true );
+		$aData = @json_decode( Services::HttpRequest()->getContent( self::URL_STATUS_CAKE_IPS ), true );
 		if ( is_array( $aData ) ) {
 			foreach ( $aData as $aItem ) {
 				if ( !empty( $aItem[ 'ip' ] ) ) {
@@ -498,9 +537,9 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 			if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
 				$sIpVersion = 4;
 			}
-			$sSourceUrl = \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( sprintf( $sSourceUrl, $sIpVersion ) );
+			$sSourceUrl = Services::HttpRequest()->getContent( sprintf( $sSourceUrl, $sIpVersion ) );
 		}
-		$sRaw = \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( $sSourceUrl );
+		$sRaw = Services::HttpRequest()->getContent( $sSourceUrl );
 		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
 		return array_filter( array_map( 'trim', $aIps ) );
 	}

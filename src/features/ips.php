@@ -420,14 +420,22 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 */
 	protected function addFilterIpsToWhiteList() {
+		$aIps = [];
 		$oSp = $this->loadServiceProviders();
 
-		$aMwp = function_exists( 'mwp_init' ) ? array_flip( $oSp->getIps_ManageWp() ) : array();
-		foreach ( $aMwp as $sIp => $n ) {
-			$aMwp[ $sIp ] = 'ManageWP';
+		if ( function_exists( 'mwp_init' ) ) {
+			foreach ( array_flip( $oSp->getIps_ManageWp() ) as $sIp => $n ) {
+				$aIps[ $sIp ] = 'ManageWP';
+			}
 		}
 
-		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aMwp );
+		if ( class_exists( 'ICWP_Plugin' ) ) {
+			foreach ( array_flip( $oSp->getIps_iControlWP( true ) ) as $sIp => $n ) {
+				$aIps[ $sIp ] = 'iControlWP';
+			}
+		}
+
+		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
 
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
 			/** @var ICWP_WPSF_Processor_Ips $oPro */
