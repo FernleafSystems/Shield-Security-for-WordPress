@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.1
-Stable tag: 7.0.2
+Stable tag: 7.0.3
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -353,7 +353,7 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://icwp.io/aa).
 
 = 7.0.3 - Current Release =
-*Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
+*Released: 7th February, 2018* - [Release Notes](https://icwp.io/ef)
 
 * **(v.3)**  NEW:		Automatically whitelist anonymous REST API Access for 3 plugins: Contact Form 7, WooCommerce, JetPack.
 * **(v.3)**  IMPROVED:	Security admin login failure messages are clearer.
