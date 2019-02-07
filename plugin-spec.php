@@ -26,7 +26,8 @@
     "assets":    "resources",
     "languages": "languages",
     "templates": "templates",
-    "flags":     "flags"
+    "flags":     "flags",
+    "cache":     "shield"
   },
   "includes":     {
     "admin":        {
