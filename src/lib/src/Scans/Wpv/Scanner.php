@@ -97,7 +97,7 @@ class Scanner {
 				$aVos,
 				function ( $oVo ) use ( $oPlugin ) {
 					/** @var WpVulnVO $oVo */
-					$sFixed = $oVo->fixed_in;
+					$sFixed = (string)$oVo->fixed_in;
 					return ( empty ( $sFixed ) || version_compare( $oPlugin->Version, $sFixed, '<' ) );
 				}
 			);

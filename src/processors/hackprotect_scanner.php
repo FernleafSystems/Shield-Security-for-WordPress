@@ -86,7 +86,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 
 	/**
 	 * @param string $sKey
-	 * @return ICWP_WPSF_Processor_Base|null
+	 * @return ICWP_WPSF_Processor_ScanBase|null
 	 */
 	protected function getSubPro( $sKey ) {
 		/** @var ICWP_WPSF_Processor_ScanBase $oPro */
