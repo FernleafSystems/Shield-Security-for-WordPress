@@ -72,7 +72,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// LearnPress
 				add_action( 'learn-press/after-form-login-fields', array( $this, 'printFormItems_LearnPress' ), 100 );
-				add_action( 'learn-press/before-checkout-form-login-button', array( $this, 'printFormItems_LearnPress' ), 100 );
+				add_action( 'learn-press/before-checkout-form-login-button', array(
+					$this,
+					'printFormItems_LearnPress'
+				), 100 );
 				add_filter( 'learn-press/login-validate-field', array( $this, 'checkReqLogin_LearnPress' ), 100 );
 			}
 		}
@@ -115,8 +118,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'edd_process_register_form', array( $this, 'checkReqRegistration_Edd' ), 10 );
 
 				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
-				add_action( 'woocommerce_after_checkout_registration_form', array( $this, 'printRegistrationFormItems_Woo' ), 10 );
-				add_filter( 'woocommerce_process_registration_errors', array( $this, 'checkReqRegistration_Woo' ), 10, 2 );
+				add_action( 'woocommerce_after_checkout_registration_form', array(
+					$this,
+					'printRegistrationFormItems_Woo'
+				), 10 );
+				add_filter( 'woocommerce_process_registration_errors', array(
+					$this,
+					'checkReqRegistration_Woo'
+				), 10, 2 );
 
 				// MemberPress - Checkout == Registration
 				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MePr' ), 10 );
@@ -125,13 +134,22 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'um_after_register_fields', array( $this, 'printFormItems_UltMem' ), 100 );
 				add_action( 'um_submit_form_register', array( $this, 'checkReqRegistration_UltMem' ), 5, 0 );
 				// LearnPress
-				add_action( 'learn-press/after-form-register-fields', array( $this, 'printFormItems_LearnPress' ), 100 );
-				add_filter( 'learn-press/register-validate-field', array( $this, 'checkReqRegistration_LearnPress' ), 100, 1 );
+				add_action( 'learn-press/after-form-register-fields', array(
+					$this,
+					'printFormItems_LearnPress'
+				), 100 );
+				add_filter( 'learn-press/register-validate-field', array(
+					$this,
+					'checkReqRegistration_LearnPress'
+				), 100, 1 );
 			}
 		}
 
 		if ( $b3rdParty && $oFO->isProtect( 'checkout_woo' ) ) {
-			add_action( 'woocommerce_after_checkout_registration_form', array( $this, 'printRegistrationFormItems_Woo' ), 10 );
+			add_action( 'woocommerce_after_checkout_registration_form', array(
+				$this,
+				'printRegistrationFormItems_Woo'
+			), 10 );
 			add_action( 'woocommerce_after_checkout_validation', array( $this, 'checkReqCheckout_Woo' ), 10, 2 );
 		}
 	}
@@ -565,13 +583,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	protected function setLoginAsFailed( $sStatToIncrement ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		$oFO->setOptInsightsAt( 'last_login_block_at' );
+		$oFO->setOptInsightsAt( 'last_login_block_at' )
+			->setIpTransgressed();
 
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
 
-		$this->doStatIncrement( $sStatToIncrement );
-		return $this->setIpTransgressed(); // We now black mark this IP
+		return $this->doStatIncrement( $sStatToIncrement );
 	}
 
 	/**
