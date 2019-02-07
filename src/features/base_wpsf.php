@@ -388,4 +388,22 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 		return array( $sTitle, $sTitleShort, $aSummary );
 	}
+
+	/**
+	 * Used to mark an IP address for immediate block
+	 * @return $this
+	 */
+	public function setIpBlocked() {
+		add_filter( $this->prefix( 'ip_block_it' ), '__return_true' );
+		return $this;
+	}
+
+	/**
+	 * Used to mark an IP address for transgression/black-mark
+	 * @return $this
+	 */
+	public function setIpTransgressed() {
+		add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
+		return $this;
+	}
 }

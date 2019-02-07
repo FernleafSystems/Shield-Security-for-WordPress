@@ -106,7 +106,8 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getIfIpTransgressed() {
-		return apply_filters( $this->getMod()->prefix( 'ip_black_mark' ), false );
+		return apply_filters( $this->getMod()->prefix( 'ip_black_mark' ), false )
+			   || apply_filters( $this->getMod()->prefix( 'ip_block_it' ), false );
 	}
 
 	/**
@@ -160,13 +161,13 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * Used to mark an IP address for transgression/black-mark
-	 *
+	 * @deprecated
 	 * @return $this
 	 */
 	public function setIpTransgressed() {
-		add_filter( $this->getMod()->prefix( 'ip_black_mark' ), '__return_true' );
-		return $this;
+		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		$oFO = $this->getMod();
+		return $oFO->setIpTransgressed();
 	}
 
 	/**

@@ -35,8 +35,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 		if ( $oFO->isAutoBlackListFeatureEnabled() ) {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
-			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'action_blackMarkIp' ) );
-			add_action( 'wp_login_failed', array( $this, 'setIpTransgressed' ), 10, 0 );
+			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'doBlackMarkCurrentVisitor' ) );
+			add_action( 'wp_login_failed', array( $oFO, 'setIpTransgressed' ), 10, 0 );
 		}
 
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 		if ( $oFO->is404Tracking() && is_404() && !$oFO->isVerifiedBot() ) {
 			if ( $oFO->getOptTracking404() == 'assign-transgression' ) {
-				$this->setIpTransgressed(); // We now black mark this IP
+				$oFO->setIpTransgressed(); // We now black mark this IP
 			}
 			$this->addToAuditEntry(
 				sprintf( _wpsf__( '404 detected at "%s"' ), $this->loadRequest()->getPath() ),
@@ -153,7 +153,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bBlackMark ) {
-			$this->setIpTransgressed(); // We now black mark this IP
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+			$oFO = $this->getMod();
+			$oFO->setIpTransgressed(); // We now black mark this IP
 
 			if ( !is_wp_error( $oUserOrError ) ) {
 				$oUserOrError = new WP_Error();
@@ -215,7 +217,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bKill ) {
-			$sAuditMessage = sprintf( _wpsf__( 'Visitor was found to be on the Black List with IP address "%s" and their connection was killed.' ), $sIp );
+			$sAuditMessage = sprintf( _wpsf__( 'Visitor found on the Black List and their connection was killed.' ), $sIp );
 			$this->setIfLogRequest( false )// don't log traffic from killed requests
 				 ->doStatIncrement( 'ip.connection.killed' )
 				 ->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
@@ -261,59 +263,59 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 */
-	public function action_blackMarkIp() {
-		$this->blackMarkCurrentVisitor();
-	}
-
-	/**
-	 */
-	protected function blackMarkCurrentVisitor() {
+	public function doBlackMarkCurrentVisitor() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 
-		if ( $this->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
+		if ( $oFO->isAutoBlackListFeatureEnabled() && !$this->getCon()->isPluginDeleting()
+			 && $this->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
 
-			// Never black mark IPs that are on the whitelist
-			$bCanBlackMark = $oFO->isAutoBlackListFeatureEnabled()
-							 && !$this->getCon()->isPluginDeleting();
-
-			if ( $bCanBlackMark ) {
-				$this->processIpBlackMark( $this->ip() );
-			}
+			$this->processTransgression();
 		}
 	}
 
 	/**
-	 * @param string $sIp
 	 */
-	private function processIpBlackMark( $sIp ) {
+	private function processTransgression() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		$oFO->setOptInsightsAt( 'last_transgression_at' );
-		$this->doStatIncrement( 'ip.transgression.incremented' );
 
-		$oBlackIp = $this->getAutoBlackListIp( $sIp );
+		$oBlackIp = $this->getAutoBlackListIp( $this->ip() );
+		if ( !$oBlackIp instanceof IPs\EntryVO ) {
+			$oBlackIp = $this->addIpToList( $this->ip(), ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
+		}
+
 		if ( $oBlackIp instanceof IPs\EntryVO ) {
+			$nLimit = $oFO->getOptTransgressionLimit();
+			$nCurrentTrans = $oBlackIp->transgressions;
+			// At this stage we know it's a transgression. But is it an outright block?
+			$bBlock = apply_filters( $oFO->prefix( 'ip_block_it' ), false ) || ( $nLimit - $nCurrentTrans == 1 );
+			$nToIncrement = $bBlock ? ( $nLimit - $nCurrentTrans ) : 1;
 
 			/** @var IPs\Update $oUp */
 			$oUp = $this->getDbHandler()->getQueryUpdater();
-			$oUp->incrementTransgressions( $oBlackIp );
+			$oUp->incrementTransgressions( $oBlackIp, $nToIncrement );
 
-			$sAuditMessage = sprintf(
-				_wpsf__( 'Auto Black List transgression counter was incremented from %s to %s.' ),
-				$oBlackIp->getTransgressions() - 1,
-				$oBlackIp->getTransgressions()
-			);
-			$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_increment' );
-		}
-		else {
-			$this->addIpToAutoBlackList( $sIp );
+			$oFO->setOptInsightsAt( 'last_transgression_at' );
+			$this->doStatIncrement( 'ip.transgression.incremented' );
 
-			$sAuditMessage = sprintf(
-				_wpsf__( 'Auto Black List transgression counter was started for visitor.' ),
-				$sIp
-			);
-			$this->addToAuditEntry( $sAuditMessage, 2, 'transgression_counter_started' );
+			if ( $bBlock ) {
+				$oFO->setOptInsightsAt( 'last_ip_block_at' );
+				$sAuditMessage = sprintf(
+					_wpsf__( 'IP blocked after incrementing transgressions from %s to %s.' ),
+					$nCurrentTrans,
+					$oBlackIp->transgressions
+				);
+				$this->addToAuditEntry( $sAuditMessage, 2, 'ip_transgression_blocked' );
+			}
+			else {
+				$sAuditMessage = sprintf(
+					_wpsf__( 'Auto Black List transgression counter was incremented from %s to %s.' ),
+					$nCurrentTrans,
+					$oBlackIp->transgressions
+				);
+				$this->addToAuditEntry( $sAuditMessage, 2, 'ip_transgression_increment' );
+			}
 		}
 	}
 
@@ -470,16 +472,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$oUp->updateLabel( $oIp, $sLabel );
 		}
 		return $oIp;
-	}
-
-	/**
-	 * @param string $sIp
-	 */
-	private function addIpToAutoBlackList( $sIp ) {
-		$oIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
-		/** @var IPs\Update $oUp */
-		$oUp = $this->getDbHandler()->getQueryUpdater();
-		( $oIp instanceof IPs\EntryVO ) && $oUp->incrementTransgressions( $oIp );
 	}
 
 	/**
@@ -667,5 +659,31 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function getQueryUpdater() {
 		return parent::getQueryUpdater();
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public function action_blackMarkIp() {
+		$this->doBlackMarkCurrentVisitor();
+	}
+
+	/**
+	 * @deprecated
+	 * @param string $sIp
+	 */
+	private function addIpToAutoBlackList( $sIp ) {
+		$oIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
+		/** @var IPs\Update $oUp */
+		$oUp = $this->getDbHandler()->getQueryUpdater();
+		( $oIp instanceof IPs\EntryVO ) && $oUp->incrementTransgressions( $oIp );
+	}
+
+	/**
+	 * @deprecated
+	 * @param string $sIp
+	 */
+	private function processIpBlackMark( $sIp ) {
+		$this->processTransgression();
 	}
 }
