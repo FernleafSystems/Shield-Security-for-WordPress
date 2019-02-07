@@ -18,6 +18,7 @@
     "email-verification-sent": {
       "once":        false,
       "valid_admin": true,
+      "twig":        true,
       "type":        "warning"
     }
   },

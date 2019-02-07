@@ -13,7 +13,7 @@ class Sessions extends Base {
 			$aItem[ 'wp_username' ],
 			$this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
 			$aItem[ 'your_ip' ],
-			$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ] ) )
+			$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ], _wpsf__( 'Discard' ) ) )
 		);
 	}
 
@@ -21,9 +21,9 @@ class Sessions extends Base {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
-			'delete' => 'Delete',
-		);
+		return [
+			'delete' => _wpsf__( 'Discard' ),
+		];
 	}
 
 	/**

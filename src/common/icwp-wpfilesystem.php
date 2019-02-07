@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_WpFilesystem {
 
 	/**
@@ -219,6 +221,7 @@ class ICWP_WPSF_WpFilesystem {
 	}
 
 	/**
+	 * @deprecated
 	 * @param string $sUrl
 	 * @param array  $aRequestArgs
 	 * @return array|false

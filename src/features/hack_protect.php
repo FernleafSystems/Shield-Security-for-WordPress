@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -24,7 +25,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			case  'scan_file_download':
 				/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 				$oPro = $this->getProcessor();
-				$oPro->getSubProcessorScanner()->downloadItemFile( $oReq->query( 'rid' ) );
+				$oPro->getSubProScanner()->downloadItemFile( $oReq->query( 'rid' ) );
 				break;
 			default:
 				break;
@@ -98,7 +99,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( $bReinstall ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
 			$oP = $this->getProcessor();
-			$bActivate = $oP->getSubProcessorScanner()
+			$bActivate = $oP->getSubProScanner()
 							->getSubProcessorPtg()
 							->reinstall( $sFile )
 						 && $bActivate;
@@ -170,7 +171,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->getProcessor();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oPro->getSubProcessorScanner()
+		$oSel = $oPro->getSubProScanner()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		$nTotal = $oSel->filterByNotIgnored()
@@ -710,7 +711,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oPro = $this->getProcessor();
 			$sHtml = $oTableBuilder
 				->setMod( $this )
-				->setDbHandler( $oPro->getSubProcessorScanner()->getDbHandler() )
+				->setDbHandler( $oPro->getSubProScanner()->getDbHandler() )
 				->buildTable();
 		}
 
@@ -729,7 +730,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		if ( !empty( $aFormParams ) ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
 			$oP = $this->getProcessor();
-			$oScanPro = $oP->getSubProcessorScanner();
+			$oScanPro = $oP->getSubProScanner();
 			foreach ( array_keys( $aFormParams ) as $sScan ) {
 				switch ( $sScan ) {
 					case 'ptg':
@@ -785,7 +786,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $this->getProcessor();
 		$oReq = $this->loadRequest();
-		$oScanPro = $oP->getSubProcessorScanner();
+		$oScanPro = $oP->getSubProScanner();
 
 		$bSuccess = false;
 		$bReloadPage = false;

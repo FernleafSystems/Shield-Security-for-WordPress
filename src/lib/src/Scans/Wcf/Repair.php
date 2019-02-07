@@ -26,11 +26,12 @@ class Repair extends Scans\Base\BaseRepair {
 		}
 
 		$sFullPath = $oHashes->getAbsolutePathFromFragment( $sPath );
-		$sContent = ( new Scans\Helpers\WpCoreFileDownload() )->run( $sPath, true );
-		if ( !empty( $sContent ) ) {
-			Services::WpFs()->mkdir( dirname( $sFullPath ) );
+		$sFile = ( new Scans\Helpers\WpCoreFileDownload() )->run( $sPath, true );
+		if ( !empty( $sFile ) ) {
+			$oFs = Services::WpFs();
+			$oFs->mkdir( dirname( $sFullPath ) );
 			clearstatcache();
-			$bSuccess = Services::WpFs()->putFileContent( $sFullPath, $sContent )
+			$bSuccess = $oFs->move( $sFile, $sFullPath )
 						&& ( $oHashes->getFileHash( $sPath ) === md5_file( $sFullPath ) );
 		}
 

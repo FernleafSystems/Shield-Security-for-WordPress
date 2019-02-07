@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -60,8 +61,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
 		if ( $this->getLastCheckServerIpAtHasExpired() ) {
-			$oIp = $this->loadIpService();
-			$sThisServerIp = $oIp->whatIsMyIp();
+			$sThisServerIp = Services::IP()->whatIsMyIp();
 			if ( !empty( $sThisServerIp ) ) {
 				$this->setOpt( 'this_server_ip', $sThisServerIp );
 			}
@@ -101,7 +101,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$sIp = $oDetector->detect();
 		if ( !empty( $sIp ) ) {
-			$this->loadIpService()->setRequestIpAddress( $sIp );
+			Services::IP()->setRequestIpAddress( $sIp );
 			$this->setOpt( 'last_ip_detect_source', $oDetector->getLastSuccessfulSource() );
 		}
 	}
@@ -763,7 +763,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	private function buildIpAddressMap() {
 		$oReq = $this->loadRequest();
-		$oIp = $this->loadIpService();
 
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
@@ -774,7 +773,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
 				$sKey = 'Auto Detect';
-				$sIp = $oIp->getRequestIp().sprintf( ' (%s)', $this->getOpt( 'last_ip_detect_source' ) );
+				$sIp = Services::IP()->getRequestIp().sprintf( ' (%s)', $this->getOpt( 'last_ip_detect_source' ) );
 			}
 			else {
 				$sIp = $oReq->server( $sKey );

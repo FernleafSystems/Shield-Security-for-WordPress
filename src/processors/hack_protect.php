@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -15,26 +17,23 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		// not probably necessary any longer since it's patched in the Core
 		add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
-		$this->runScanner();
+		$this->getSubProScanner()->run();
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Scanner|mixed
 	 */
-	protected function runScanner() {
-		$this->getSubProcessorScanner()->run();
+	public function getSubProScanner() {
+		return $this->getSubPro( 'scanner' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
+	 * @return array
 	 */
-	public function getSubProcessorScanner() {
-		$oProc = $this->getSubPro( 'scanner' );
-		if ( is_null( $oProc ) ) {
-			require_once( __DIR__.'/hackprotect_scanner.php' );
-			$oProc = new ICWP_WPSF_Processor_HackProtect_Scanner( $this->getMod() );
-			$this->aSubPros[ 'scanner' ] = $oProc;
-		}
-		return $oProc;
+	protected function getSubProMap() {
+		return [
+			'scanner' => 'ICWP_WPSF_Processor_HackProtect_Scanner',
+		];
 	}
 
 	/**
@@ -84,7 +83,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
+		$oSelector = $oPro->getSubProScanner()->getDbHandler()->getQuerySelector();
 
 		$oCarbon = new \Carbon\Carbon();
 		$aData = array(
@@ -115,6 +114,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'flags'   => array(
 						'is_enabled'    => true,
 						'is_available'  => true,
+						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
 					),
 					'hrefs'   => array(
@@ -135,6 +135,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'flags'   => array(
 						'is_enabled'    => true,
 						'is_available'  => true,
+						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
 					),
 					'hrefs'   => array(
@@ -155,6 +156,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'flags'   => array(
 						'is_enabled'    => $oMod->isWpvulnEnabled(),
 						'is_available'  => $oMod->isPremium(),
+						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'wpv' ) > 0
 					),
 					'hrefs'   => array(
@@ -186,9 +188,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
-		$oProPtg = $oPro->getSubProcessorScanner()->getSubProcessorPtg();
+		$oProPtg = $oPro->getSubProScanner()->getSubProcessorPtg();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oPro->getSubProcessorScanner()->getDbHandler()->getQuerySelector();
+		$oSelector = $oPro->getSubProScanner()->getDbHandler()->getQuerySelector();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */
 		$aPtgResults = $oSelector->filterByNotIgnored()

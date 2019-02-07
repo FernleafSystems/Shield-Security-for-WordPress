@@ -1,7 +1,7 @@
 {
   "properties":   {
-    "version":                 "7.0.2",
-    "release_timestamp":       1548689761,
+    "version":                 "7.0.3",
+    "release_timestamp":       1549527670,
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
@@ -76,6 +76,9 @@
     "icon_url_16x16":   "pluginlogo_16x16.png",
     "icon_url_32x32":   "pluginlogo_32x32.png",
     "icon_url_128x128": "pluginlogo_128x128.png"
+  },
+  "urls":         {
+    "repo_home": "https://icwp.io/eh"
   },
   "plugin_meta":  [
     {

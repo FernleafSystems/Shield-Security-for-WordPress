@@ -1,6 +1,7 @@
 <?php
 
 use \FernleafSystems\Wordpress\Plugin\Shield;
+use \FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
@@ -28,7 +29,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function __construct( $oModCon ) {
 		$this->setMod( $oModCon );
 
-		add_action( 'init', array( $this, 'onWpInit' ) );
+		add_action( 'init', array( $this, 'onWpInit' ), 9 );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
 		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
@@ -103,6 +104,18 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function autoAddToAdminNotices() {
 		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
+			$aAttrs = $this->loadDP()
+						   ->mergeArraysRecursive(
+							   [
+								   'schedule'         => 'conditions',
+								   'type'             => 'promo',
+								   'plugin_page_only' => true,
+								   'valid_admin'      => true,
+								   'twig'             => false,
+							   ],
+							   $aAttrs
+						   );
+
 			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
 				continue;
 			}
@@ -124,17 +137,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		$bDisplay = true;
 		$oCon = $this->getCon();
 		$oWpNotices = $this->loadWpNotices();
-
-		$aAttrs = $this->loadDP()
-					   ->mergeArraysRecursive(
-						   [
-							   'schedule'         => 'conditions',
-							   'type'             => 'promo',
-							   'plugin_page_only' => true,
-							   'valid_admin'      => true,
-						   ],
-						   $aAttrs
-					   );
 
 		if ( $aAttrs[ 'valid_admin' ] && !( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) ) {
 			$bDisplay = false;
@@ -242,7 +244,21 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getSubPro( $sKey ) {
 		$aProcessors = $this->getSubProcessors();
-		return isset( $aProcessors[ $sKey ] ) ? $aProcessors[ $sKey ] : null;
+		if ( !isset( $aProcessors[ $sKey ] ) ) {
+			$aMap = $this->getSubProMap();
+			if ( !isset( $aMap[ $sKey ] ) ) {
+				error_log( 'Sub processor key not set: '.$sKey );
+			}
+			$aProcessors[ $sKey ] = new $aMap[ $sKey ]( $this->getMod() );
+		}
+		return $aProcessors[ $sKey ];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getSubProMap() {
+		return [];
 	}
 
 	/**
@@ -269,7 +285,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function ip() {
-		return $this->loadIpService()->getRequestIp();
+		return \FernleafSystems\Wordpress\Services\Services::IP()->getRequestIp();
 	}
 
 	/**

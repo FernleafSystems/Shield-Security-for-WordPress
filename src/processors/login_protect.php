@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -64,11 +66,15 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
 					'email_sent_to'     => sprintf(
 						_wpsf__( "The email has been sent to you at blog admin address: %s" ),
-						'<strong>'.get_bloginfo( 'admin_email' ).'</strong>'
+						get_bloginfo( 'admin_email' )
 					),
-					'how_resend_email'  => _wpsf__( "To resend the email, re-save your Login Guard settings." ),
-					'how_turn_off'      => _wpsf__( "To turn this notice off, disable 2-Factor Authentication." ),
-				)
+					'how_resend_email'  => _wpsf__( "Resend verification email" ),
+					'how_turn_off'      => _wpsf__( "Disable 2FA by email" ),
+				),
+				'ajax'              => [
+					'resend_verification_email' => $oFO->getAjaxActionData( 'resend_verification_email', true ),
+					'disable_2fa_email'         => $oFO->getAjaxActionData( 'disable_2fa_email', true ),
+				]
 			);
 			$this->insertAdminNotice( $aRenderData );
 		}
@@ -78,44 +84,34 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
 	public function getProcessorLoginIntent() {
-		require_once( __DIR__.'/loginprotect_intent.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getMod() );
-		return $oProc;
+		return new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getMod() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	protected function getProcessorCooldown() {
-		require_once( __DIR__.'/loginprotect_cooldown.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getMod() );
-		return $oProc;
+		return new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getMod() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Gasp
 	 */
 	protected function getProcessorGasp() {
-		require_once( __DIR__.'/loginprotect_gasp.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getMod() );
-		return $oProc;
+		return new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getMod() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
 	 */
 	protected function getProcessorWpLogin() {
-		require_once( __DIR__.'/loginprotect_wplogin.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getMod() );
-		return $oProc;
+		return new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getMod() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
 	 */
 	protected function getProcessorGoogleRecaptcha() {
-		require_once( __DIR__.'/loginprotect_googlerecaptcha.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getMod() );
-		return $oProc;
+		return new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getMod() );
 	}
 }

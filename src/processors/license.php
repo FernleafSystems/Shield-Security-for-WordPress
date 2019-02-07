@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**

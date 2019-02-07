@@ -15,29 +15,43 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", '#SecurityAdminForm', submit_admin_access );
+			jQuery( document ).on( "submit", '#SecurityAdminForm',
+				function ( event ) {
+					event.preventDefault();
+					iCWP_WPSF_StandardAjax.send_ajax_req( jQuery( event.target ).serialize() );
+					return false;
+				}
+			);
 		} );
 	};
+}();
 
-	var submit_admin_access = function ( event ) {
+var iCWP_WPSF_StandardAjax = new function () {
+	this.send_ajax_req = function ( reqData ) {
 		iCWP_WPSF_BodyOverlay.show();
-		event.preventDefault();
 
-		var $oForm = jQuery( event.target );
+		jQuery.post( ajaxurl, reqData,
+			function ( oResponse ) {
 
-		jQuery.post( ajaxurl, $oForm.serialize(), function ( oResponse ) {
-			if ( oResponse.success ) {
-				location.reload( true );
+				if ( typeof iCWP_WPSF_Toaster !== 'undefined' ) {
+					iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
+				}
+				else {
+					iCWP_WPSF_Growl.showMessage( oResponse.data.message, oResponse.success );
+				}
+
+				if ( oResponse.data.page_reload ) {
+					setTimeout( function () {
+						location.reload( true );
+					}, 2000 );
+				}
+				else {
+					iCWP_WPSF_BodyOverlay.hide();
+				}
 			}
-			else {
-				alert( 'Security Access Key was not recognised.' );
-				iCWP_WPSF_BodyOverlay.hide();
-			}
-		} ).always( function () {
+		).always( function () {
 			}
 		);
-
-		return false;
 	};
 }();
 
@@ -300,7 +314,7 @@ var iCWP_WPSF_BodyOverlay = new function () {
 iCWP_WPSF_BodyOverlay.initialise();
 iCWP_WPSF_SecurityAdmin.initialise();
 
-if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
+if ( false && typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
 
 	var iCWP_WPSF_Plugin_Deactivate_Survey = new function () {
 

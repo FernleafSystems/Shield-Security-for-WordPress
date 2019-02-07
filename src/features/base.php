@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -1728,7 +1730,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aAjaxData[ 'notice_id' ] = $aData[ 'notice_attributes' ][ 'notice_id' ];
 		$aData[ 'ajax' ][ 'dismiss_admin_notice' ] = json_encode( $aAjaxData );
 
-		return $this->renderTemplate( 'notices/admin-notice-template', $aData );
+		$bTwig = $aData[ 'notice_attributes' ][ 'twig' ];
+		$sTemplate = $bTwig ? '/notices/'.$aAjaxData[ 'notice_id' ] : 'notices/admin-notice-template';
+		return $this->renderTemplate( $sTemplate, $aData, $bTwig );
 	}
 
 	/**
@@ -1739,7 +1743,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function renderTemplate( $sTemplate, $aData = array(), $bUseTwig = false ) {
 		if ( empty( $aData[ 'unique_render_id' ] ) ) {
-			$aData[ 'unique_render_id' ] = substr( md5( mt_rand() ), 0, 5 );
+			$aData[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
 			$oRndr = $this->loadRenderer( $this->getCon()->getPath_Templates() );

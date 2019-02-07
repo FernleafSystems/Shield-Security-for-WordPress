@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
@@ -51,7 +53,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_SecAdminCheck() {
+	private function ajaxExec_SecAdminCheck() {
 		return array(
 			'timeleft' => $this->getSecAdminTimeLeft(),
 			'success'  => $this->isSecAdminSessionValid()
@@ -61,31 +63,49 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_SecAdminLogin() {
-		$aResponse = array();
+	private function ajaxExec_SecAdminLogin() {
+		$bSuccess = false;
+		$sHtml = '';
 
 		if ( $this->checkAdminAccessKeySubmission() ) {
 
 			if ( $this->setSecurityAdminStatusOnOff( true ) ) {
-				$aResponse[ 'success' ] = true;
-				$aResponse[ 'html' ] = _wpsf__( 'Security Admin Access Key Accepted.' )
-									   .' '._wpsf__( 'Please wait' ).' ...';
+				$bSuccess = true;
+				$sMsg = _wpsf__( 'Security Admin Access Key Accepted.' )
+						.' '._wpsf__( 'Please wait' ).' ...';
 			}
 			else {
-				$aResponse[ 'html' ] = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+				$sMsg = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
 			}
 		}
 		else {
-			$aResponse[ 'html' ] = $this->renderAdminAccessAjaxLoginForm( _wpsf__( 'Error - Invalid Key' ) );
+			/** @var ICWP_WPSF_Processor_Ips $oIpPro */
+			$oIpPro = $this->getCon()
+						   ->getModule( 'ips' )
+						   ->getProcessor();
+			$nRemaining = $oIpPro->getRemainingTransgressions() - 1;
+			$sMsg = _wpsf__( 'Security access key incorrect.' ).' ';
+			if ( $nRemaining > 0 ) {
+				$sMsg .= sprintf( _wpsf__( 'Attempts remaining: %s.' ), $nRemaining );
+			}
+			else {
+				$sMsg .= _wpsf__( "No attempts remaining." );
+			}
+			$sHtml = $this->renderAdminAccessAjaxLoginForm( $sMsg );
 		}
 
-		return $aResponse;
+		return [
+			'success'     => $bSuccess,
+			'page_reload' => true,
+			'message'     => $sMsg,
+			'html'        => $sHtml,
+		];
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_SecAdminLoginBox() {
+	private function ajaxExec_SecAdminLoginBox() {
 		return array(
 			'success' => 'true',
 			'html'    => $this->renderAdminAccessAjaxLoginForm()

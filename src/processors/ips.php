@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
@@ -107,7 +108,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return boolean
 	 */
 	protected function isValidIpOrRange( $sIp ) {
-		$oIP = $this->loadIpService();
+		$oIP = Services::IP();
 		return $oIP->isValidIp_PublicRemote( $sIp ) || $oIP->isValidIpRange( $sIp );
 	}
 
@@ -177,7 +178,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sIp
 	 * @return string
 	 */
-	protected function getRemainingTransgressions( $sIp = '' ) {
+	public function getRemainingTransgressions( $sIp = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		if ( empty( $sIp ) ) {
@@ -192,7 +193,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return int
 	 */
 	private function getTransgressions( $sIp ) {
-		$oBlackIp = $this->getAutoBlackListIp( $sIp );
+		$oBlackIp = $this->getBlackListIp( $sIp );
 		return ( $oBlackIp instanceof IPs\EntryVO ) ? $oBlackIp->getTransgressions() : 0;
 	}
 
@@ -223,20 +224,39 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			/** @var IPs\Update $oUp */
 			$oUp = $this->getDbHandler()->getQueryUpdater();
 			$oUp->updateLastAccessAt( $this->getAutoBlackListIp( $sIp ) );
-
-			$this->loadWp()
-				 ->wpDie(
-					 '<h3>'.sprintf( _wpsf__( 'You have been black listed by the %s plugin.' ),
-						 '<a href="https://wordpress.org/plugins/wp-simple-firewall/" target="_blank">'.$this->getCon()
-																											 ->getHumanName().'</a>'
-					 ).'</h3>'
-					 .'<br />'.sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() )
-					 .'<br />'.sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner.' ) )
-					 .'<p>'.sprintf( _wpsf__( 'Time remaining until you are automatically removed from the black list: %s minute(s)' ), floor( $oFO->getAutoExpireTime()/60 ) )
-					 .'<br />'._wpsf__( 'If you attempt to access the site within this period the counter will be reset.' )
-					 .'</p>'
-				 );
+			$this->renderKillPage();
 		}
+	}
+
+	private function renderKillPage() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		$oCon = $this->getCon();
+
+		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
+		$aData = [
+			'strings' => array(
+				'title'   => sprintf( _wpsf__( "You've been blocked by the %s plugin" ),
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						$oCon->getPluginSpec()[ 'urls' ][ 'repo_home' ],
+						$oCon->getHumanName()
+					)
+				),
+				'lines'   => array(
+					sprintf( _wpsf__( 'Time remaining on black list: %s' ),
+						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
+					),
+					sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() ),
+					sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner and quote your IP address below.' ) ),
+				),
+				'your_ip' => 'Your IP address',
+				'ip'      => $this->ip(),
+			)
+		];
+		$this->loadWp()
+			 ->wpDie(
+				 $oFO->renderTemplate( '/snippets/blacklist_die.twig', $aData, true )
+			 );
 	}
 
 	/**
@@ -317,6 +337,15 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @return IPs\EntryVO[]
+	 */
+	public function getBlacklistIpData( $sIpAddress ) {
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getAutoBlacklistIps() {
@@ -370,7 +399,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	public function isIpToBeBlocked( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		$oIp = $this->getAutoBlackListIp( $sIp );
+		$oIp = $this->getBlackListIp( $sIp );
 		return ( $oIp instanceof IPs\EntryVO && $oIp->getTransgressions() >= $oFO->getOptTransgressionLimit() );
 	}
 
@@ -386,7 +415,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oSelect = $this->getDbHandler()->getQuerySelector();
 		foreach ( $oSelect->allFromList( $sList ) as $oIp ) {
 			try {
-				if ( $this->loadIpService()->checkIp( $sIp, $oIp->ip ) ) {
+				if ( Services::IP()->checkIp( $sIp, $oIp->ip ) ) {
 					$bOnList = true;
 					break;
 				}
@@ -422,9 +451,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sLabel
 	 * @return IPs\EntryVO|null
 	 */
-	protected function addIpToManualList( $sIp, $sList, $sLabel = '' ) {
-		$sIp = trim( $sIp );
-
+	private function addIpToManualList( $sIp, $sList, $sLabel = '' ) {
 		$oDbh = $this->getDbHandler();
 
 		/** @var IPs\Select $oSelect */
@@ -500,6 +527,27 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sIp
 	 * @return IPs\EntryVO|null
 	 */
+	protected function getBlackListIp( $sIp ) {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		/** @var IPs\EntryVO $oIp */
+		$oIp = $oSelect->filterByIp( $sIp )
+					   ->filterByLists( [
+						   ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+						   ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+					   ] )
+					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->first();
+		return $oIp;
+	}
+
+	/**
+	 * The auto black list isn't a simple lookup, but rather has an auto expiration
+	 * @param string $sIp
+	 * @return IPs\EntryVO|null
+	 */
 	protected function getAutoBlackListIp( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
@@ -508,6 +556,24 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var IPs\EntryVO $oIp */
 		$oIp = $oSelect->filterByIp( $sIp )
 					   ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
+					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->first();
+		return $oIp;
+	}
+
+	/**
+	 * The auto black list isn't a simple lookup, but rather has an auto expiration
+	 * @param string $sIp
+	 * @return IPs\EntryVO|null
+	 */
+	protected function getManualBlackListIp( $sIp ) {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		/** @var IPs\Select $oSelect */
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+		/** @var IPs\EntryVO $oIp */
+		$oIp = $oSelect->filterByIp( $sIp )
+					   ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK )
 					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
 					   ->first();
 		return $oIp;

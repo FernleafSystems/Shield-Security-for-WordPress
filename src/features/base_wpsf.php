@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
@@ -279,7 +281,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
 			$oSp = $this->loadServiceProviders();
 
-			$sIp = $this->loadIpService()->getRequestIp();
+			$sIp = \FernleafSystems\Wordpress\Services\Services::IP()->getRequestIp();
 			$sAgent = (string)$this->loadRequest()->server( 'HTTP_USER_AGENT' );
 			if ( empty( $sAgent ) ) {
 				$sAgent = 'Unknown';

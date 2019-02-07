@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -39,7 +41,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 	public function onWpInit() {
 		parent::onWpInit();
-
 		$this->setupLoginIntent();
 	}
 
@@ -365,38 +366,32 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
 	 */
 	protected function getProcessorEmailAuth() {
-		require_once( __DIR__.'/loginprotect_intentprovider_email.php' );
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $oFO );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
+		return ( new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $this->getMod() ) )
+			->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
 	 */
 	protected function getProcessorYubikey() {
-		require_once( __DIR__.'/loginprotect_intentprovider_yubikey.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getMod() );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
+		return ( new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getMod() ) )
+			->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_BackupCodes
 	 */
 	public function getProcessorBackupCodes() {
-		require_once( __DIR__.'/loginprotect_intentprovider_backup.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_BackupCodes( $this->getMod() );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
+		return ( new ICWP_WPSF_Processor_LoginProtect_BackupCodes( $this->getMod() ) )
+			->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
 	 */
 	public function getProcessorGoogleAuthenticator() {
-		require_once( __DIR__.'/loginprotect_intentprovider_ga.php' );
-		$oProc = new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getMod() );
-		return $oProc->setLoginTrack( $this->getLoginTrack() );
+		return ( new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getMod() ) )
+			->setLoginTrack( $this->getLoginTrack() );
 	}
 
 	/**
@@ -404,7 +399,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function getLoginTrack() {
 		if ( !isset( $this->oLoginTrack ) ) {
-			require_once( __DIR__.'/loginprotect_intent_tracker.php' );
 			$this->oLoginTrack = new ICWP_WPSF_Processor_LoginProtect_Track();
 		}
 		return $this->oLoginTrack;

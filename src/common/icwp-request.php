@@ -134,8 +134,7 @@ class ICWP_WPSF_Request extends ICWP_WPSF_Foundation {
 	 * @return string URI Path in lowercase
 	 */
 	public function getPath() {
-		$aRequestParts = $this->getUriParts();
-		return $aRequestParts[ 'path' ];
+		return $this->getUriParts()[ 'path' ];
 	}
 
 	/**

@@ -194,12 +194,13 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param int $nId
+	 * @param int    $nId
+	 * @param string $sText
 	 * @return string
 	 */
-	protected function getActionButton_Delete( $nId ) {
+	protected function getActionButton_Delete( $nId, $sText = null ) {
 		return $this->buildActionButton_Custom(
-			_wpsf__( 'Delete' ),
+			empty( $sText ) ? _wpsf__( 'Delete' ) : $sText,
 			[ 'delete', 'text-danger' ],
 			[ 'rid' => $nId, ]
 		);

@@ -352,12 +352,21 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.0.2 - Current Release =
+= 7.0.3 - Current Release =
 *Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
+
+* **(v.3)**  NEW:		Automatically whitelist anonymous REST API Access for 3 plugins: Contact Form 7, WooCommerce, JetPack.
+* **(v.3)**  IMPROVED:	Security admin login failure messages are clearer.
+* **(v.3)**  IMPROVED:	Admin notification for email sending 2FA verification easily lets you resend email.
+* **(v.3)**  IMPROVED:	File download code for WordPress Core file scanner repairs.
+* **(v.3)**  IMPROVED:	Attempt to also capture B/CC email addresses included in outgoing emails in Audit logs.
+* **(v.3)**  FIX:		Allow use of IPv4 ranges in whitelist again.
+* **(v.3)**  CHANGED:	Numerous code refactoring and improvements building upon the major v7 release and prepping for v7.1.
 
 = 7.0 - Series =
 *Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
 
+* **(v.1-2)**  FIXED:	Some JS fixes.
 * **(v.0)**  NEW:		New primary UI for Shield site security management. Easy access to scans, audit trail, user sessions etc.
 * **(v.0)**  NEW:		Supports only PHP 5.4 or higher
 * **(v.0)**  NEW:		Rebuilt scans architecture and UI

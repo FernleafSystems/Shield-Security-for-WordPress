@@ -129,33 +129,6 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getCoreChecksums() {
-		$aChecksumData = false;
-		$sCurrentVersion = $this->getVersion();
-
-		if ( function_exists( 'get_core_checksums' ) ) { // if it's loaded, we use it.
-			$aChecksumData = get_core_checksums( $sCurrentVersion, $this->getLocaleForChecksums() );
-		}
-		else {
-			$aQueryArgs = array(
-				'version' => $sCurrentVersion,
-				'locale'  => $this->getLocaleForChecksums()
-			);
-			$sQueryUrl = add_query_arg( $aQueryArgs, 'https://api.wordpress.org/core/checksums/1.0/' );
-			$sResponse = $this->loadFS()->getUrlContent( $sQueryUrl );
-			if ( !empty( $sResponse ) ) {
-				$aDecodedResponse = json_decode( trim( $sResponse ), true );
-				if ( is_array( $aDecodedResponse ) && isset( $aDecodedResponse[ 'checksums' ] ) && is_array( $aDecodedResponse[ 'checksums' ] ) ) {
-					$aChecksumData = $aDecodedResponse[ 'checksums' ];
-				}
-			}
-		}
-		return is_array( $aChecksumData ) ? $aChecksumData : array();
-	}
-
-	/**
 	 * @return array|false
 	 */
 	public function getCoreUpdates() {
@@ -949,5 +922,13 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 			$this->turnOffCache();
 		}
 		wp_die( $sMessage, $sTitle );
+	}
+
+	/**
+	 * @deprecated
+	 * @return string[]
+	 */
+	public function getCoreChecksums() {
+		return \FernleafSystems\Wordpress\Services\Services::WpGeneral()->getCoreChecksums();
 	}
 }

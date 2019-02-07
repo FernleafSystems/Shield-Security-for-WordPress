@@ -22,4 +22,20 @@ class Delete extends Base\Delete {
 		}
 		return $this->hasWheres() ? $this->query() : false;
 	}
+
+	/**
+	 * @param string $sIp
+	 * @return bool
+	 */
+	public function deleteIpFromBlacklists( $sIp ) {
+		$this->reset();
+		if ( Services::IP()->isValidIpOrRange( $sIp ) ) {
+			$this->addWhereEquals( 'ip', $sIp )
+				 ->addWhereIn( 'list', [
+					 \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK,
+					 \ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK
+				 ] );
+		}
+		return $this->hasWheres() ? $this->query() : false;
+	}
 }
