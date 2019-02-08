@@ -87,18 +87,6 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getMouseTrapKey() {
-		$sKey = $this->getOpt( 'mousetrap_key' );
-		if ( empty( $sKey ) ) {
-			$sKey = substr( md5( wp_generate_password() ), 5, 6 );
-			$this->setOpt( 'mousetrap_key', $sKey );
-		}
-		return $sKey;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isMouseTrapEnabled() {

@@ -35,5 +35,11 @@ class ICWP_WPSF_Processor_Mousetrap extends ICWP_WPSF_Processor_BaseWpsf {
 				->setMod( $oFO )
 				->run();
 		}
+
+		if ( $oFO->isEnabledLinkCheese() ) {
+			( new MouseTrap\LinkCheese() )
+				->setMod( $oFO )
+				->run();
+		}
 	}
 }

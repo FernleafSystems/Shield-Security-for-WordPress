@@ -5,10 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Works by inserting a random, nofollow link to the footer of the page and appending to robots.txt
+ * Class LinkCheese
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap
+ */
 class LinkCheese extends Base {
 
 	protected function process() {
-		$this->checkForVenusRequest();
+		$this->processCheeseLinkAccess();
 		add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
 		add_action( 'wp_footer', array( $this, 'insertMouseTrap' ) );
 	}
@@ -18,14 +23,16 @@ class LinkCheese extends Base {
 	 * @return string
 	 */
 	public function appendRobotsTxt( $sRobotsText ) {
-		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
-			$sRobotsText .= sprintf( "\nDisallow: %s", parse_url( $this->getTrapLink(), PHP_URL_PATH ) );
+		$sTempl = Services::WpGeneral()->isPermalinksEnabled() ? "Disallow: /%s-*/\n" : "Disallow: /*?*%s=\n";
+		$sRobotsText = rtrim( $sRobotsText, "\n" )."\n";
+		foreach ( $this->getPossibleWords() as $sWord ) {
+			$sRobotsText .= sprintf( $sTempl, $this->getMod()->prefix( $sWord ) );
 		}
 		return $sRobotsText;
 	}
 
-	private function checkForVenusRequest() {
-		if ( $this->isVenusRequest() ) {
+	private function processCheeseLinkAccess() {
+		if ( $this->isCheese() ) {
 			/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 			$oFO = $this->getMod();
 
@@ -41,46 +48,73 @@ class LinkCheese extends Base {
 			}
 
 			$this->createNewAudit( $sAuditMessage, 2, 'mouse_trapped' );
-			Services::WpGeneral()->wpDie( 'Did you really mean to come here?' );
 		}
 	}
 
-	protected function isVenusRequest() {
+	private function isCheese() {
 		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 		$oFO = $this->getMod();
-
 		$oReq = Services::Request();
+
+		$bIsCheese = false;
 		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
-			$bVenus = trim( $oReq->getPath(), '/' ) == sprintf( '%s-%s', $oFO->prefix( 'mouse' ), $oFO->getMouseTrapKey() );
+			preg_match(
+				sprintf( '#^%s-(%s)-([a-z0-9]{7,9})$#i', $oFO->prefix(), implode( '|', $this->getPossibleWords() ) ),
+				trim( $oReq->getPath(), '/' ),
+				$aMatches
+			);
+			$bIsCheese = isset( $aMatches[ 2 ] );
 		}
 		else {
-			$bVenus = $oFO->prefix( $oReq->query( 'mouse' ) ) == 1;
+			foreach ( $this->getPossibleWords() as $sWord ) {
+				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $oReq->query( $oFO->prefix( $sWord ) ) ) ) {
+					$bIsCheese = true;
+					break;
+				}
+			}
 		}
-		return $bVenus;
+
+		return $bIsCheese;
 	}
 
-	private function insertMouseTrap() {
+	public function insertMouseTrap() {
 		$sId = 'V'.rand();
 		echo sprintf(
-			'<style>#%s{display:block !important;}</style><a href="%s" rel="nofollow" id="%s">%s</a>',
-			$sId, $this->getTrapLink(), $sId, 'Click here to see something fantastic'
+			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
+			$sId, $this->buildTrapHref(), 'Click here to see something fantastic',
+			$sId, _wpsf__( 'Click to access the login or register cheese' )
 		);
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getTrapLink() {
+	private function buildTrapHref() {
 		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 		$oFO = $this->getMod();
 
 		$oWp = Services::WpGeneral();
+		$sKey = substr( md5( wp_generate_password() ), 5, rand( 7, 9 ) );
+		$sWord = $this->getPossibleWords()[ rand( 0, count( $this->getPossibleWords() ) ) ];
 		if ( $oWp->isPermalinksEnabled() ) {
-			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( 'mouse' ), $oFO->getMouseTrapKey() ) );
+			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( $sWord ), $sKey ) );
 		}
 		else {
-			$sLink = add_query_arg( [ $oFO->prefix( 'mouse' ) => $oFO->getMouseTrapKey() ], $oWp->getHomeUrl() );
+			$sLink = add_query_arg( [ $oFO->prefix( $sWord ) => $sKey ], $oWp->getHomeUrl() );
 		}
 		return $sLink;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getPossibleWords() {
+		return [
+			'mouse',
+			'cheese',
+			'venus',
+			'stilton',
+			'cheddar',
+		];
 	}
 }
