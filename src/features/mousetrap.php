@@ -64,12 +64,12 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 				$sTitleShort = _wpsf__( 'Bot MouseTrap' );
 				break;
 
-			case 'section_linkcheese' :
-				$sTitle = _wpsf__( 'Tempt Bots With Links' );
+			case 'section_cheese' :
+				$sTitle = _wpsf__( 'Capture Bot Activity' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( "Enable to capture bots/spiders that don't honour 'nofollow' directives." ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( "Enable as many options as possible." ) )
 				];
-				$sTitleShort = _wpsf__( 'Link Cheese' );
+				$sTitleShort = _wpsf__( 'Bot Cheeses' );
 				break;
 
 			default:
@@ -94,6 +94,31 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				break;
+
+			case '404_detect' :
+				$sName = _wpsf__( '404 Detect' );
+				$sSummary = _wpsf__( 'Identify A Bot When It Hits A 404' );
+				$sDescription = _wpsf__( "Detect when a visitor tries to load a non-existent page." )
+								.'<br/>'._wpsf__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s." );
+				break;
+
+			case 'link_cheese' :
+				$sName = _wpsf__( 'Link Cheese' );
+				$sSummary = _wpsf__( 'Tempt A Bot With A Link To Follow' );
+				$sDescription = _wpsf__( "Detect a bot when it follows a 'no-follow' link." );
+				break;
+
+			case 'invalid_username' :
+				$sName = _wpsf__( 'Invalid Usernames' );
+				$sSummary = _wpsf__( 'Detect Invalid Username Logins' );
+				$sDescription = _wpsf__( "Identify a Bot when it tries to login with a non-existent username" );
+				break;
+
+			case 'fake_webcrawler' :
+				$sName = _wpsf__( 'Fake Web Crawler' );
+				$sSummary = _wpsf__( 'Detect Fake Search Engine Crawlers' );
+				$sDescription = _wpsf__( "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake." );
 				break;
 
 			default:
