@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.1
-Stable tag: 7.0.2
+Stable tag: 7.0.3
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
