@@ -1,8 +1,82 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabled404() {
+		return $this->isSelectOptionEnabled( '404_detect' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledLinkCheese() {
+		return $this->isSelectOptionEnabled( 'link_cheese' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledInvalidUsernames() {
+		return $this->isSelectOptionEnabled( 'invalid_username' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledFakeWebCrawker() {
+		return $this->isSelectOptionEnabled( 'fake_webcrawler' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTransgression404() {
+		return $this->isSelectOptionTransgression( '404_detect' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTransgressionLinkCheese() {
+		return $this->isSelectOptionTransgression( 'link_cheese' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTransgressionInvalidUsernames() {
+		return $this->isSelectOptionTransgression( 'invalid_username' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTransgressionFakeWebCrawker() {
+		return $this->isSelectOptionTransgression( 'fake_webcrawler' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
+	protected function isSelectOptionTransgression( $sOptionKey ) {
+		return $this->isOpt( $sOptionKey, 'transgression' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
+	protected function isSelectOptionEnabled( $sOptionKey ) {
+		return !$this->isOpt( $sOptionKey, 'disabled' );
 	}
 
 	/**

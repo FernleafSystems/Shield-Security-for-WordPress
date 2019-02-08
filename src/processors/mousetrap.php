@@ -1,8 +1,9 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
 
-class ICWP_WPSF_Processor_MouseTrap extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Mousetrap extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * Resets the object values to be re-used anew
@@ -16,6 +17,17 @@ class ICWP_WPSF_Processor_MouseTrap extends ICWP_WPSF_Processor_BaseWpsf {
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 		$oFO = $this->getMod();
-		echo 'ere';
+
+		if ( $oFO->isEnabled404() ) {
+			( new MouseTrap\Detect404() )
+				->setMod( $oFO )
+				->run();
+		}
+
+		if ( $oFO->isEnabledInvalidUsernames() ) {
+			( new MouseTrap\InvalidUsername() )
+				->setMod( $oFO )
+				->run();
+		}
 	}
 }

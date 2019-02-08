@@ -1,25 +1,16 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Firewall;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
 
-use FernleafSystems\Wordpress\Plugin\Shield\AuditTrail\Auditor;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MouseTrap {
+class LinkCheese extends Base {
 
-	use Auditor, ModConsumer;
-
-	public function run() {
-		add_action( 'init', [ $this, 'onWpInit' ] );
-	}
-
-	public function onWpInit() {
-		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-			$this->checkForVenusRequest();
-			add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
-			add_action( 'wp_footer', array( $this, 'insertMouseTrap' ) );
-		}
+	protected function process() {
+		$this->checkForVenusRequest();
+		add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
+		add_action( 'wp_footer', array( $this, 'insertMouseTrap' ) );
 	}
 
 	/**
@@ -35,7 +26,7 @@ class MouseTrap {
 
 	private function checkForVenusRequest() {
 		if ( $this->isVenusRequest() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_Firewall $oFO */
+			/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 			$oFO = $this->getMod();
 
 			$sAuditMessage = _wpsf__( 'MouseTrap found visitor to be a bot.' );
@@ -55,7 +46,7 @@ class MouseTrap {
 	}
 
 	protected function isVenusRequest() {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 		$oFO = $this->getMod();
 
 		$oReq = Services::Request();
@@ -80,7 +71,7 @@ class MouseTrap {
 	 * @return string
 	 */
 	private function getTrapLink() {
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 		$oFO = $this->getMod();
 
 		$oWp = Services::WpGeneral();
