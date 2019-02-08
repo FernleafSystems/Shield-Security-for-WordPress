@@ -1,6 +1,6 @@
 {
-  "slug":       "lockdown",
-  "properties": {
+  "slug":        "lockdown",
+  "properties":  {
     "slug":                  "lockdown",
     "name":                  "Lockdown",
     "show_module_menu_item": false,
@@ -14,7 +14,7 @@
     "run_if_verified_bot":   false,
     "order":                 90
   },
-  "sections":   [
+  "sections":    [
     {
       "slug":        "section_apixml",
       "primary":     true,
@@ -57,7 +57,7 @@
       "hidden": true
     }
   ],
-  "options":    [
+  "options":     [
     {
       "key":         "enable_lockdown",
       "section":     "section_enable_plugin_feature_wordpress_lockdown",
@@ -173,5 +173,13 @@
       "section":      "section_non_ui",
       "default":      0
     }
-  ]
+  ],
+  "definitions": {
+    "default_restapi_exclusions": [
+      "contact-form-7",
+      "jetpack",
+      "wpstatistics",
+      "woocommerce"
+    ]
+  }
 }

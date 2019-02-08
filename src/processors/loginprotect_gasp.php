@@ -77,8 +77,8 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		if ( !$bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getMod();
-			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
-			$this->setIpTransgressed(); // We now black mark this IP
+			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) )
+				->setIpTransgressed();
 			throw new \Exception( $sError );
 		}
 	}
@@ -123,8 +123,8 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		if ( !$bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getMod();
-			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) );
-			$this->setIpTransgressed(); // We now black mark this IP
+			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) )
+				->setIpTransgressed(); // We now black mark this IP
 			throw new \Exception( $sDieMessage );
 		}
 

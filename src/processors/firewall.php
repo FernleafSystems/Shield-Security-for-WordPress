@@ -277,9 +277,9 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				}
 			}
 
-			$oFO->setOptInsightsAt( 'last_firewall_block_at' );
+			$oFO->setOptInsightsAt( 'last_firewall_block_at' )
+				->setIpTransgressed();
 			$this->addToAuditEntry( sprintf( _wpsf__( 'Firewall Block Response: %s.' ), $sMessage ) );
-			$this->setIpTransgressed(); // black mark this IP
 		}
 	}
 
