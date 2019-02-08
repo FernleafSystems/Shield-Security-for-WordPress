@@ -9,11 +9,10 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	private function getRestApiAnonymousExclusions() {
 		$aExcl = $this->getOpt( 'api_namespace_exclusions' );
-		if ( empty( $aExcl ) || !is_array( $aExcl ) ) {
-			$this->getOptionsVo()->resetOptToDefault( 'api_namespace_exclusions' );
-			$aExcl = $this->getOpt( 'api_namespace_exclusions' );
+		if ( !is_array( $aExcl ) ) {
+			$aExcl = [];
 		}
-		return is_array( $aExcl ) ? $aExcl : [];
+		return array_merge( $this->getDef( 'default_restapi_exclusions' ), $aExcl );
 	}
 
 	/**
