@@ -121,7 +121,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->sRootFile = $sRootFile;
 		$this->loadServices();
 		$this->checkMinimumRequirements();
-		$this->buildPluginCacheDir();
 		$this->doRegisterHooks();
 		$this->doLoadTextDomain();
 	}
@@ -273,7 +272,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->loadAllFeatures( true, true );
 	}
 
+	/**
+	 * @param string $sFilePath
+	 * @return string
+	 * @throws \Exception
+	 */
+	public function getPluginCachePath( $sFilePath ) {
+		if ( !$this->buildPluginCacheDir() ) {
+			throw new \Exception( sprintf( 'Failed to create cache path: "%s"', $this->getPath_PluginCache() ) );
+		}
+		return path_join( $this->getPath_PluginCache(), $sFilePath );
+	}
+
+	/**
+	 * @return bool
+	 */
 	private function buildPluginCacheDir() {
+		$bSuccess = false;
 		$sBase = $this->getPath_PluginCache();
 		$oFs = Services::WpFs();
 		if ( $oFs->mkdir( $sBase ) ) {
@@ -287,7 +302,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( !$oFs->exists( $sIndex ) || ( md5_file( $sIndex ) != md5( $sIndexContent ) ) ) {
 				$oFs->putFileContent( $sIndex, $sIndexContent );
 			}
+			$bSuccess = true;
 		}
+		return $bSuccess;
 	}
 
 	/**
