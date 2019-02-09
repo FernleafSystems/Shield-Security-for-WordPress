@@ -48,21 +48,24 @@ class Scanner {
 				 * WP Core files from the collection of files to be assessed
 				 */
 				$oDirIt = StandardDirectoryIterator::create( $sDir, 0, $this->getFileTypesForDir( $sDir ), true );
+
+				foreach ( $oDirIt as $oFsItem ) {
+					/** @var \SplFileInfo $oFsItem */
+					$sFullPath = $oFsItem->getPathname();
+
+					$oResultItem = new ResultItem();
+					$oResultItem->path_full = wp_normalize_path( $sFullPath );
+					$oResultItem->path_fragment = $oHashes->getFileFragment( $sFullPath );
+					if ( !$this->isExcluded( $sFullPath ) ) {
+						$oResultSet->addItem( $oResultItem );
+					};
+				}
 			}
 			catch ( \Exception $oE ) {
+				error_log(
+					sprintf( 'Shield file scanner attempted to read directory but there was error: "%s".', $oE->getMessage() )
+				);
 				continue;
-			}
-
-			foreach ( $oDirIt as $oFsItem ) {
-				/** @var \SplFileInfo $oFsItem */
-				$sFullPath = $oFsItem->getPathname();
-
-				$oResultItem = new ResultItem();
-				$oResultItem->path_full = wp_normalize_path( $sFullPath );
-				$oResultItem->path_fragment = $oHashes->getFileFragment( $sFullPath );
-				if ( !$this->isExcluded( $sFullPath ) ) {
-					$oResultSet->addItem( $oResultItem );
-				};
 			}
 		}
 
