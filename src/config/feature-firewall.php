@@ -302,7 +302,8 @@
         "jetpack_sso_redirect_to",
         "/^wordpress_logged_in_[0-9a-f]+$/",
         "edd_action",
-        "edd_redirect"
+        "edd_redirect",
+        "wpcf7-form"
       ]
     },
     "firewall_patterns": {
