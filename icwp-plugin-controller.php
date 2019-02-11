@@ -831,7 +831,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
-	public function getPluginLabels() {
+	public function getLabels() {
 
 		$aLabels = array_map( 'stripslashes', apply_filters( $this->prefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
 
@@ -1759,6 +1759,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction|mixed
+	 */
+	public function getModule_SecAdmin() {
+		return $this->getModule( 'admin_access_restriction' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_FeatureHandler_Base[]
 	 */
 	public function getModules() {
@@ -1893,6 +1900,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
 		}
 		return $aResult;
+	}
+
+	/**
+	 * @deprecated 7.0.4
+	 * @return array
+	 */
+	public function getPluginLabels() {
+		return $this->getLabels();
 	}
 
 	/**

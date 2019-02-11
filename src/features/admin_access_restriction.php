@@ -525,7 +525,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$aThis = array(
 			'strings'      => array(
 				'title' => _wpsf__( 'Security Admin' ),
-				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
+				'sub'   => sprintf( _wpsf__( 'Prevent Tampering With %s Settings' ), $this->getCon()->getHumanName() ),
 			),
 			'key_opts'     => array(),
 			'href_options' => $this->getUrl_AdminPage()

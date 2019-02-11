@@ -1,10 +1,11 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+	use Shield\Modules\PluginControllerConsumer;
 
 	/**
 	 * @var boolean

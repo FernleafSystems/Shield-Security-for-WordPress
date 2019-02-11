@@ -108,10 +108,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isWlEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getCon()
-					->getModule( 'admin_access_restriction' );
-		return $oFO->isWlEnabled();
+		return $this->getCon()->getModule_SecAdmin()->isWlEnabled();
 	}
 
 	/**
@@ -146,6 +143,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
+		$sHelpUrl = $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://icwp.io/b5';
+
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getBaseDisplayData( $bRenderEmbeddedContent ),
 			array(
@@ -180,7 +179,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'has_session' => $this->hasSession()
 				),
 				'hrefs'   => array(
-					'aar_forget_key' => 'https://icwp.io/b5',
+					'aar_forget_key' => $sHelpUrl
 				)
 			)
 		);
