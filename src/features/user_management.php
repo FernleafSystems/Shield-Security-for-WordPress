@@ -72,7 +72,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					$sMessage .= ' *'._wpsf__( 'Your session was retained' );
 				}
 			}
-
 		}
 
 		return array(
@@ -117,9 +116,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		// first clean out the expired sessions before display
 		$oPro->getProcessorSessions()->cleanExpiredSessions();
 
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oSecAdminMod */
+		$oSecAdminMod = $this->getCon()->getModule( 'admin_access_restriction' );
+
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $this )
-			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() );
+			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() )
+			->setSecAdminUsernames( $oSecAdminMod->getSecurityAdminUsers() );
 
 		return array(
 			'success' => true,
@@ -145,7 +148,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return int
 	 */
-	public function getSessionTimeoutInterval() {
+	public function getMaxSessionTime() {
 		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
 	}
 
@@ -159,14 +162,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function hasSessionTimeoutInterval() {
-		return $this->isModuleEnabled() && ( $this->getSessionTimeoutInterval() > 0 );
-	}
-
-	protected function doPrePluginOptionsSave() {
-		if ( $this->getIdleTimeoutInterval() > $this->getSessionTimeoutInterval() ) {
-			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
-		}
+	public function hasMaxSessionTimeout() {
+		return $this->isModuleEnabled() && ( $this->getMaxSessionTime() > 0 );
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -181,6 +178,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		if ( $this->getOpt( 'session_timeout_interval' ) < 1 ) {
 			$this->getOptionsVo()->resetOptToDefault( 'session_timeout_interval' );
+		}
+
+		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
+			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
 		}
 	}
 
@@ -523,9 +524,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sName = _wpsf__( 'Session Timeout' );
 				$sSummary = _wpsf__( 'Specify How Many Days After Login To Automatically Force Re-Login' );
 				$sDescription = _wpsf__( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.' )
-								.'<br />'.sprintf( _wpsf__( 'This cannot be less than %s.' ), '"<strong>1</strong>"' )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Default' ), '"<strong>'.$this->getOptionsVo()
-																									->getOptDefault( 'session_timeout_interval' ).'</strong>"' );
+								.'<br />'._wpsf__( 'Think of this as an absolute maximum possible session length.' )
+								.'<br />'.sprintf( _wpsf__( 'This cannot be less than %s.' ), '<strong>1</strong>' )
+								.' '.sprintf( '%s: %s', _wpsf__( 'Default' ), '<strong>'.$this->getOptionsVo()
+																									->getOptDefault( 'session_timeout_interval' ).'</strong>' );
 				break;
 
 			case 'session_idle_timeout_interval' :
@@ -604,5 +606,21 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function getSessionIdleTimeoutInterval() {
 		return $this->getIdleTimeoutInterval();
+	}
+
+	/**
+	 * @deprecated 7.0.4
+	 * @return int
+	 */
+	public function getSessionTimeoutInterval() {
+		return $this->getMaxSessionTime();
+	}
+
+	/**
+	 * @deprecated 7.0.4
+	 * @return bool
+	 */
+	public function hasSessionTimeoutInterval() {
+		return $this->hasMaxSessionTimeout();
 	}
 }
