@@ -1000,7 +1000,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aThis = array(
 			'strings'      => array(
 				'title' => _wpsf__( 'General Settings' ),
-				'sub'   => _wpsf__( 'General Shield Security Settings' ),
+				'sub'   => sprintf( _wpsf__( 'General %s Settings' ), $this->getCon()->getHumanName() ),
 			),
 			'key_opts'     => array(),
 			'href_options' => $this->getUrl_AdminPage()

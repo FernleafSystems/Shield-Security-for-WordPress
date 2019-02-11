@@ -426,7 +426,7 @@
       {
         "slug":          "admin_access_restriction",
         "storage_key":   "admin_access_restriction",
-        "load_priority": 20
+        "load_priority": 11
       },
       {
         "slug":        "hack_protect",

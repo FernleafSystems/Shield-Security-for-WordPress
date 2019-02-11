@@ -283,7 +283,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'text_remainingtrans':
 				$sText = sprintf( '%s: %s',
 					_wpsf__( 'Warning' ),
-					_wpsf__( 'You have %s remaining transgression(s) against this site and then you will be black listed.' )
+					_wpsf__( 'You have %s remaining transgression(s) against this site and then your IP address will be completely blocked.' )
 					.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
 				);
 				break;

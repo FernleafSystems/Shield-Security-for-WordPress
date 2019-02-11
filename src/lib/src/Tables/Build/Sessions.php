@@ -15,7 +15,7 @@ class Sessions extends BaseBuild {
 	/**
 	 * @var []
 	 */
-	private $aSecAdminUsernames;
+	private $aSecAdminUsers;
 
 	/**
 	 * Override this to apply table-specific query filters.
@@ -91,16 +91,16 @@ class Sessions extends BaseBuild {
 	 * @return bool
 	 */
 	private function isSecAdminSession( $oEntry ) {
-		return ( $oEntry->getSecAdminAt() > 0 ) || !is_array( $this->aSecAdminUsernames )
-			   || in_array( $oEntry->wp_username, $this->aSecAdminUsernames );
+		return ( $oEntry->getSecAdminAt() > 0 ) ||
+			   ( is_array( $this->aSecAdminUsers ) && in_array( $oEntry->wp_username, $this->aSecAdminUsers ) );
 	}
 
 	/**
 	 * @param array $aSecAdminUsernames
 	 * @return $this
 	 */
-	public function setSecAdminUsernames( $aSecAdminUsernames ) {
-		$this->aSecAdminUsernames = $aSecAdminUsernames;
+	public function setSecAdminUsers( $aSecAdminUsernames ) {
+		$this->aSecAdminUsers = $aSecAdminUsernames;
 		return $this;
 	}
 }
