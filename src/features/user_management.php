@@ -122,7 +122,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $this )
 			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() )
-			->setSecAdminUsernames( $oSecAdminMod->getSecurityAdminUsers() );
+			->setSecAdminUsers( $oSecAdminMod->getSecurityAdminUsers() );
 
 		return array(
 			'success' => true,
