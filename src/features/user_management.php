@@ -72,7 +72,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					$sMessage .= ' *'._wpsf__( 'Your session was retained' );
 				}
 			}
-
 		}
 
 		return array(
@@ -117,9 +116,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		// first clean out the expired sessions before display
 		$oPro->getProcessorSessions()->cleanExpiredSessions();
 
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oSecAdminMod */
+		$oSecAdminMod = $this->getCon()->getModule( 'admin_access_restriction' );
+
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $this )
-			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() );
+			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() )
+			->setSecAdminUsernames( $oSecAdminMod->getSecurityAdminUsers() );
 
 		return array(
 			'success' => true,
