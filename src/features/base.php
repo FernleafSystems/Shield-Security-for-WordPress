@@ -373,7 +373,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_OptionsVO
 	 */
-	protected function getOptionsVo() {
+	public function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
 			$oCon = $this->getCon();
 			$this->oOptions = ( new ICWP_WPSF_OptionsVO )

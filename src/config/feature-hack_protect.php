@@ -405,87 +405,101 @@
     },
     {
       "key":          "ptg_last_build_at",
-      "transferable": false,
       "section":      "section_non_ui",
-      "value":        0
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "ptg_candiskwrite",
-      "transferable": false,
       "section":      "section_non_ui",
-      "value":        false
+      "transferable": false,
+      "type":         "boolean",
+      "default":      false
     },
     {
       "key":          "ptg_candiskwrite_at",
-      "transferable": false,
       "section":      "section_non_ui",
-      "value":        false
+      "transferable": false,
+      "type":         "integer",
+      "default":      false
     },
     {
       "key":          "snapshot_users",
+      "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,
-      "section":      "section_non_ui",
-      "value":        []
+      "type":         "array",
+      "default":      []
     },
     {
       "key":          "insights_last_scan_ufc_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_scan_wcf_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_scan_ptg_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_scan_wpv_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "next_scan_ufc_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "next_scan_wcf_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "next_scan_ptg_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "next_scan_wpv_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "rebuild_self",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "boolean",
       "default":      false
     },
     {
       "key":          "ptg_update_store_format",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "boolean",
       "default":      false
     }
   ],

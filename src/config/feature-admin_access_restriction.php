@@ -147,7 +147,7 @@
       "key":           "admin_access_restrict_plugins",
       "section":       "section_admin_access_restriction_areas",
       "type":          "multiple_select",
-      "default":       null,
+      "default":       [],
       "value_options": [
         {
           "value_key": "activate_plugins",
@@ -175,7 +175,7 @@
       "key":           "admin_access_restrict_themes",
       "section":       "section_admin_access_restriction_areas",
       "type":          "multiple_select",
-      "default":       null,
+      "default":       [],
       "value_options": [
         {
           "value_key": "switch_themes",
@@ -207,7 +207,7 @@
       "key":           "admin_access_restrict_posts",
       "section":       "section_admin_access_restriction_areas",
       "type":          "multiple_select",
-      "default":       null,
+      "default":       [],
       "value_options": [
         {
           "value_key": "edit",

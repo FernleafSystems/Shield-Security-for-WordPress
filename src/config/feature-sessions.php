@@ -43,8 +43,10 @@
     },
     {
       "key":          "autoadd_sessions_started_at",
+      "section":      "section_non_ui",
+      "type":         "integer",
       "transferable": false,
-      "section":      "section_non_ui"
+      "default":      0
     }
   ],
   "definitions": {

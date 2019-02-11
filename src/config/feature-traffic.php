@@ -150,8 +150,10 @@
     },
     {
       "key":          "autodisable_at",
+      "section":      "section_non_ui",
+      "type":         "integer",
       "transferable": false,
-      "section":      "section_non_ui"
+      "default":      0
     }
   ],
   "definitions":  {
