@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.1
-Stable tag: 7.0.3
+Stable tag: 7.0.4
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -352,7 +352,19 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.0.3 - Current Release =
+= 7.0.4 - Current Release =
+*Released: 12th January, 2018* - [Release Notes](https://icwp.io/ef)
+
+* **(v.4)**  IMPROVED:	Refactored IP address blocking with improved audit trail messages.
+* **(v.4)**  CHANGED:	Expanded anonymous REST API whitelist to 'wpstatistics' namespace.
+* **(v.4)**  IMPROVED:	Access protection for shield temp/caching dir.
+* **(v.4)**  IMPROVED:	Clarification on reCAPTCHA - v3 is **not** supported.
+* **(v.4)**  IMPROVED:	Clarification on user sessions timeout - Shield setting is an absolutely maximum.
+* **(v.4)**  IMPROVED:	Options form submission is adjusted to work around poorly restrictive webhosts.
+* **(v.4)**  FIX:		Various tweaks and fixes across the plugin.
+* **(v.4)**  FIX:		Error with ClassicPress.
+
+= 7.0 - Series =
 *Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
 
 * **(v.3)**  NEW:		Automatically whitelist anonymous REST API Access for 3 plugins: Contact Form 7, WooCommerce, JetPack.
@@ -362,10 +374,6 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.3)**  IMPROVED:	Attempt to also capture B/CC email addresses included in outgoing emails in Audit logs.
 * **(v.3)**  FIX:		Allow use of IPv4 ranges in whitelist again.
 * **(v.3)**  CHANGED:	Numerous code refactoring and improvements building upon the major v7 release and prepping for v7.1.
-
-= 7.0 - Series =
-*Released: 28th January, 2018* - [Release Notes](https://icwp.io/ef)
-
 * **(v.1-2)**  FIXED:	Some JS fixes.
 * **(v.0)**  NEW:		New primary UI for Shield site security management. Easy access to scans, audit trail, user sessions etc.
 * **(v.0)**  NEW:		Supports only PHP 5.4 or higher
