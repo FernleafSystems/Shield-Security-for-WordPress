@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @return bool
 	 */
-	public function isFileEditingDisabled() {
+	public function isOptFileEditingDisabled() {
 		return $this->isOpt( 'disable_file_editing', 'Y' );
 	}
 
@@ -106,7 +106,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bEditing = $this->isFileEditingDisabled();
+			$bEditing = current_user_can( 'edit_plugins' );
 			$aThis[ 'key_opts' ][ 'editing' ] = array(
 				'name'    => _wpsf__( 'WP File Editing' ),
 				'enabled' => $bEditing,
