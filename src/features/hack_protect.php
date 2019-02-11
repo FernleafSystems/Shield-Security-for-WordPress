@@ -1013,7 +1013,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'summary' => $bGoodFrequency ?
 					_wpsf__( 'Automatic scanners run more than once per day' )
 					: _wpsf__( "Automatic scanners only run once per day" ),
-				'weight'  => 2,
+				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
 			);
 
