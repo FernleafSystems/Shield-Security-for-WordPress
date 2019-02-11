@@ -36,25 +36,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
-
-		wp_localize_script(
-			$this->prefix( 'plugin' ),
-			'icwp_wpsf_vars_secadmin',
-			array(
-				'reqajax'      => $this->getSecAdminCheckAjaxData(),
-				'is_sec_admin' => true, // if $nSecTimeLeft > 0
-				'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
-				'strings'      => array(
-					'confirm' => _wpsf__( 'Security Admin session has timed-out.' ).' '._wpsf__( 'Reload now?' ),
-					'nearly'  => _wpsf__( 'Security Admin session has nearly timed-out.' ),
-					'expired' => _wpsf__( 'Security Admin session has timed-out.' )
-				)
-			)
-		);
-	}
-
 	/**
 	 * @return int
 	 */

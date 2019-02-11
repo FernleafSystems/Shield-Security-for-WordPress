@@ -496,6 +496,27 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->setOpt( 'admin_access_key', '' );
 	}
 
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
+
+		if ( $this->getSecAdminTimeLeft() < 1 ) {
+			wp_localize_script(
+				$this->prefix( 'plugin' ),
+				'icwp_wpsf_vars_secadmin',
+				array(
+					'reqajax'      => $this->getSecAdminCheckAjaxData(),
+					'is_sec_admin' => true, // if $nSecTimeLeft > 0
+					'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
+					'strings'      => array(
+						'confirm' => _wpsf__( 'Security Admin session has timed-out.' ).' '._wpsf__( 'Reload now?' ),
+						'nearly'  => _wpsf__( 'Security Admin session has nearly timed-out.' ),
+						'expired' => _wpsf__( 'Security Admin session has timed-out.' )
+					)
+				)
+			);
+		}
+	}
+
 	/**
 	 * @param array $aAllData
 	 * @return array

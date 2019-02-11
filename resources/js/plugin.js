@@ -111,7 +111,11 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		} );
 
 		if ( $bPasswordsReady ) {
-			jQuery.post( ajaxurl, $oForm.serialize(),
+			var aReq = jQuery.extend(
+				icwp_wpsf_vars_base.ajax.mod_options,
+				{ 'form_params': btoa( $oForm.serialize() ) }
+			);
+			jQuery.post( ajaxurl, aReq,
 				function ( oResponse ) {
 					var sMessage;
 					if ( oResponse === null || typeof oResponse.data === 'undefined'
