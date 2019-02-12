@@ -240,7 +240,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			'strings' => array(
 				'title'   => sprintf( _wpsf__( "You've been blocked by the %s plugin" ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$oCon->getPluginSpec()[ 'urls' ][ 'repo_home' ],
+						$oCon->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
 						$oCon->getHumanName()
 					)
 				),

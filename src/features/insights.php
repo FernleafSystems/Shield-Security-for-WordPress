@@ -243,6 +243,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								  'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
 							  ),
 							  'strings' => $this->getDisplayStrings(),
+							  'vars'    => [
+								  'changelog_id' => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+							  ],
 						  ),
 						  $aData
 					  );

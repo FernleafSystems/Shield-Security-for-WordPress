@@ -78,8 +78,9 @@
     "icon_url_32x32":   "pluginlogo_32x32.png",
     "icon_url_128x128": "pluginlogo_128x128.png"
   },
-  "urls":         {
-    "repo_home": "https://icwp.io/eh"
+  "meta":         {
+    "url_repo_home": "https://icwp.io/eh",
+    "headway_changelog_id": "xaoEZJ"
   },
   "plugin_meta":  [
     {
