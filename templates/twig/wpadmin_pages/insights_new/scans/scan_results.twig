@@ -38,6 +38,10 @@
 	</div>
 	<div class="col-9">
 		<div class="tab-content" id="v-pills-tabContent">
+			<div class="tab-pane fade show active" id="v-pills-start" role="tabpanel"
+				 aria-labelledby="v-pills-home-tab">
+				&larr; Click a scan on the left to get started.
+			</div>
 			{% for scankey,scanvars in vars.scans %}
 				<div class="tab-pane " id="v-pills-{{ scankey }}" role="tabpanel" aria-labelledby="v-pills-{{ scankey }}-tab">
 					{% set scan = attribute(scans, scankey) %}
