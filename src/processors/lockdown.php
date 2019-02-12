@@ -10,7 +10,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isFileEditingDisabled() ) {
+		if ( $oFO->isOptFileEditingDisabled() ) {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
 				define( 'DISALLOW_FILE_EDIT', true );
 			}
@@ -65,8 +65,8 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	public function disableXmlrpc() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
-		$oFO->setOptInsightsAt( 'xml_block_at' );
-		$this->setIpTransgressed();
+		$oFO->setOptInsightsAt( 'xml_block_at' )
+			->setIpTransgressed();
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : array();
 	}
 
@@ -153,14 +153,10 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function disableFileEditing( $aAllCaps, $cap, $aArgs ) {
-
-		$aEditCapabilities = array( 'edit_themes', 'edit_plugins', 'edit_files' );
 		$sRequestedCapability = $aArgs[ 0 ];
-
-		if ( !in_array( $sRequestedCapability, $aEditCapabilities ) ) {
-			return $aAllCaps;
+		if ( in_array( $sRequestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
+			$aAllCaps[ $sRequestedCapability ] = false;
 		}
-		$aAllCaps[ $sRequestedCapability ] = false;
 		return $aAllCaps;
 	}
 

@@ -273,6 +273,41 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sFilePath
+	 * @return string
+	 * @throws \Exception
+	 */
+	public function getPluginCachePath( $sFilePath ) {
+		if ( !$this->buildPluginCacheDir() ) {
+			throw new \Exception( sprintf( 'Failed to create cache path: "%s"', $this->getPath_PluginCache() ) );
+		}
+		return path_join( $this->getPath_PluginCache(), $sFilePath );
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function buildPluginCacheDir() {
+		$bSuccess = false;
+		$sBase = $this->getPath_PluginCache();
+		$oFs = Services::WpFs();
+		if ( $oFs->mkdir( $sBase ) ) {
+			$sHt = path_join( $sBase, '.htaccess' );
+			$sHtContent = "Options -Indexes\ndeny from all";
+			if ( !$oFs->exists( $sHt ) || ( md5_file( $sHt ) != md5( $sHtContent ) ) ) {
+				$oFs->putFileContent( $sHt, $sHtContent );
+			}
+			$sIndex = path_join( $sBase, 'index.php' );
+			$sIndexContent = "<?php\nhttp_response_code(404);";
+			if ( !$oFs->exists( $sIndex ) || ( md5_file( $sIndex ) != md5( $sIndexContent ) ) ) {
+				$oFs->putFileContent( $sIndex, $sIndexContent );
+			}
+			$bSuccess = true;
+		}
+		return $bSuccess;
+	}
+
+	/**
 	 */
 	protected function doRegisterHooks() {
 		$this->registerActivationHooks();
@@ -796,7 +831,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
-	public function getPluginLabels() {
+	public function getLabels() {
 
 		$aLabels = array_map( 'stripslashes', apply_filters( $this->prefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
 
@@ -1368,6 +1403,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPath_PluginCache() {
+		return path_join( WP_CONTENT_DIR, $this->getPluginSpec_Path( 'cache' ) );
+	}
+
+	/**
 	 * Get the directory for the plugin source files with the trailing slash
 	 * @param string $sSourceFile
 	 * @return string
@@ -1717,6 +1759,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction|mixed
+	 */
+	public function getModule_SecAdmin() {
+		return $this->getModule( 'admin_access_restriction' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_FeatureHandler_Base[]
 	 */
 	public function getModules() {
@@ -1851,6 +1900,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
 		}
 		return $aResult;
+	}
+
+	/**
+	 * @deprecated 7.0.4
+	 * @return array
+	 */
+	public function getPluginLabels() {
+		return $this->getLabels();
 	}
 
 	/**

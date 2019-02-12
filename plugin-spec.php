@@ -1,6 +1,6 @@
 {
   "properties":   {
-    "version":                 "7.0.3",
+    "version":                 "7.0.4",
     "release_timestamp":       1549527670,
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
@@ -26,7 +26,8 @@
     "assets":    "resources",
     "languages": "languages",
     "templates": "templates",
-    "flags":     "flags"
+    "flags":     "flags",
+    "cache":     "shield"
   },
   "includes":     {
     "admin":        {

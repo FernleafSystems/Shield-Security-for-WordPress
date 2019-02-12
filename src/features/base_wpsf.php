@@ -36,25 +36,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
 	}
 
-	public function insertCustomJsVars_Admin() {
-		parent::insertCustomJsVars_Admin();
-
-		wp_localize_script(
-			$this->prefix( 'plugin' ),
-			'icwp_wpsf_vars_secadmin',
-			array(
-				'reqajax'      => $this->getSecAdminCheckAjaxData(),
-				'is_sec_admin' => true, // if $nSecTimeLeft > 0
-				'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
-				'strings'      => array(
-					'confirm' => _wpsf__( 'Security Admin session has timed-out.' ).' '._wpsf__( 'Reload now?' ),
-					'nearly'  => _wpsf__( 'Security Admin session has nearly timed-out.' ),
-					'expired' => _wpsf__( 'Security Admin session has timed-out.' )
-				)
-			)
-		);
-	}
-
 	/**
 	 * @return int
 	 */
@@ -127,10 +108,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isWlEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getCon()
-					->getModule( 'admin_access_restriction' );
-		return $oFO->isWlEnabled();
+		return $this->getCon()->getModule_SecAdmin()->isWlEnabled();
 	}
 
 	/**
@@ -165,6 +143,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
+		$sHelpUrl = $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://icwp.io/b5';
+
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getBaseDisplayData( $bRenderEmbeddedContent ),
 			array(
@@ -199,7 +179,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'has_session' => $this->hasSession()
 				),
 				'hrefs'   => array(
-					'aar_forget_key' => 'https://icwp.io/b5',
+					'aar_forget_key' => $sHelpUrl
 				)
 			)
 		);
@@ -387,5 +367,23 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		}
 
 		return array( $sTitle, $sTitleShort, $aSummary );
+	}
+
+	/**
+	 * Used to mark an IP address for immediate block
+	 * @return $this
+	 */
+	public function setIpBlocked() {
+		add_filter( $this->prefix( 'ip_block_it' ), '__return_true' );
+		return $this;
+	}
+
+	/**
+	 * Used to mark an IP address for transgression/black-mark
+	 * @return $this
+	 */
+	public function setIpTransgressed() {
+		add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
+		return $this;
 	}
 }

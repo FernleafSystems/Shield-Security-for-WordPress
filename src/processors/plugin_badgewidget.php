@@ -9,6 +9,16 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	 * @param ICWP_WPSF_FeatureHandler_Base $oMod
 	 */
 	public function __construct( $oMod ) {
+		if ( empty( $oMod ) ) {
+			try {
+				$oMod = ICWP_WPSF_Shield_Security::GetInstance()
+												 ->getController()
+												 ->getModule( 'plugin' );
+			}
+			catch ( \Exception $oE ) {
+				return;
+			}
+		}
 		$this->setMod( $oMod );
 		parent::__construct(
 			$oMod->prefixOptionKey( 'plugin_badge' ),

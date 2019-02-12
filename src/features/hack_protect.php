@@ -458,15 +458,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function canPtgWriteToDisk() {
-		$bCan = (bool)$this->getOpt( 'ptg_candiskwrite' );
 		$nNow = $this->loadRequest()->ts();
-
 		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
-		if ( !$bCan && $bLastCheckExpired ) {
+
+		$bCanWrite = (bool)$this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
+		if ( !$bCanWrite ) {
 			$oFS = $this->loadFS();
 			$sDir = $this->getPtgSnapsBaseDir();
 
-			if ( $oFS->mkdir( $sDir ) ) {
+			if ( $sDir && $oFS->mkdir( $sDir ) ) {
 				$sTestFile = path_join( $sDir, 'test.txt' );
 				$oFS->putFileContent( $sTestFile, 'test-'.$nNow );
 				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
@@ -474,11 +474,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$oFS->deleteFile( $sTestFile );
 					$this->setOpt( 'ptg_candiskwrite', !$oFS->exists( $sTestFile ) );
 				}
+				$this->setOpt( 'ptg_candiskwrite_at', $nNow );
 			}
-			$this->setOpt( 'ptg_candiskwrite_at', $nNow );
 		}
 
-		return $bCan;
+		return $bCanWrite;
 	}
 
 	/**
@@ -527,10 +527,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
+	 * @return string|false
 	 */
 	public function getPtgSnapsBaseDir() {
-		return path_join( WP_CONTENT_DIR, 'shield/ptguard' );
+		try {
+			$sPath = $this->getCon()->getPluginCachePath( 'ptguard/' );
+		}
+		catch ( \Exception $oE ) {
+			$sPath = false;
+		}
+		return $sPath;
 	}
 
 	/**
@@ -1007,7 +1013,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'summary' => $bGoodFrequency ?
 					_wpsf__( 'Automatic scanners run more than once per day' )
 					: _wpsf__( "Automatic scanners only run once per day" ),
-				'weight'  => 2,
+				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
 			);
 

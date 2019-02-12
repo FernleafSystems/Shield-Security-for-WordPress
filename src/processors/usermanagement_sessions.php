@@ -8,7 +8,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		if ( $this->isReadyToRun() ) {
 			parent::run();
 			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-			add_filter( 'auth_cookie_expiration', array( $this, 'setTimeoutCookieExpiration_Filter' ), 100, 1 );
+			add_filter( 'auth_cookie_expiration', array( $this, 'setMaxAuthCookieExpiration' ), 100, 1 );
 		}
 	}
 
@@ -161,44 +161,50 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO[]
+	 * @return int
+	 */
+	public function countActiveSessions() {
+		return $this->getActiveSessionsQuerySelector()->count();
+	}
+
+	/**
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO[]|mixed
 	 */
 	public function getActiveSessions() {
+		return $this->getActiveSessionsQuerySelector()->query();
+	}
+
+	/**
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select
+	 */
+	private function getActiveSessionsQuerySelector() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSel */
 		$oSel = $oFO->getSessionsProcessor()->getDbHandler()->getQuerySelector();
 
-		if ( $oFO->hasSessionTimeoutInterval() ) {
+		if ( $oFO->hasMaxSessionTimeout() ) {
 			$oSel->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
 		}
 		if ( $oFO->hasSessionIdleTimeout() ) {
 			$oSel->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
 		}
-
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO[] $aS */
-		$aS = $oSel->query();
-		return $aS;
+		return $oSel;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getCountActiveSessions() {
-		return count( $this->getActiveSessions() );
+	private function getLoginExpiredBoundary() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getMod();
+		return $this->time() - $oFO->getMaxSessionTime();
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getLoginExpiredBoundary() {
-		return $this->time() - $this->loadWp()->getAuthCookieExpiration();
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLoginIdleExpiredBoundary() {
+	private function getLoginIdleExpiredBoundary() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		return $this->time() - $oFO->getIdleTimeoutInterval();
@@ -220,8 +226,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 			$nTime = $this->time();
 
 			// timeout interval
-			if ( $oFO->hasSessionTimeoutInterval() && ( $nTime - $oSess->logged_in_at > $oFO->getSessionTimeoutInterval() ) ) {
-				$nDays = (int)( $oFO->getSessionTimeoutInterval()/DAY_IN_SECONDS );
+			if ( $oFO->hasMaxSessionTimeout() && ( $nTime - $oSess->logged_in_at > $oFO->getMaxSessionTime() ) ) {
+				$nDays = (int)( $oFO->getMaxSessionTime()/DAY_IN_SECONDS );
 				throw new \Exception(
 					sprintf(
 						_wpsf__( 'User session has expired after %s' ),
@@ -268,17 +274,17 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	}
 
 	/**
-	 * @param integer $nTimeout
-	 * @return integer
+	 * @param int $nTimeout
+	 * @return int
 	 */
-	public function setTimeoutCookieExpiration_Filter( $nTimeout ) {
+	public function setMaxAuthCookieExpiration( $nTimeout ) {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		return $oFO->hasSessionTimeoutInterval() ? $oFO->getSessionTimeoutInterval() : $nTimeout;
+		return $oFO->hasMaxSessionTimeout() ? min( $nTimeout, $oFO->getMaxSessionTime() ) : $nTimeout;
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	protected function enforceSessionLimits( $oUser ) {
 

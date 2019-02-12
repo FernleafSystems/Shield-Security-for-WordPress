@@ -13,6 +13,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class Sessions extends BaseBuild {
 
 	/**
+	 * @var []
+	 */
+	private $aSecAdminUsers;
+
+	/**
 	 * Override this to apply table-specific query filters.
 	 * @return $this
 	 */
@@ -60,7 +65,7 @@ class Sessions extends BaseBuild {
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Session\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'is_secadmin' ] = ( $oEntry->getSecAdminAt() > 0 ) ? __( 'Yes' ) : __( 'No' );
+			$aE[ 'is_secadmin' ] = $this->isSecAdminSession( $oEntry ) ? __( 'Yes' ) : __( 'No' );
 			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $oEntry->last_activity_at );
 			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $oEntry->logged_in_at );
 			if ( $oEntry->ip == $sYou ) {
@@ -79,5 +84,23 @@ class Sessions extends BaseBuild {
 	 */
 	protected function getTableRenderer() {
 		return new Tables\Render\Sessions();
+	}
+
+	/**
+	 * @param Session\EntryVO $oEntry
+	 * @return bool
+	 */
+	private function isSecAdminSession( $oEntry ) {
+		return ( $oEntry->getSecAdminAt() > 0 ) ||
+			   ( is_array( $this->aSecAdminUsers ) && in_array( $oEntry->wp_username, $this->aSecAdminUsers ) );
+	}
+
+	/**
+	 * @param array $aSecAdminUsernames
+	 * @return $this
+	 */
+	public function setSecAdminUsers( $aSecAdminUsernames ) {
+		$this->aSecAdminUsers = $aSecAdminUsernames;
+		return $this;
 	}
 }
