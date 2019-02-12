@@ -353,13 +353,13 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://icwp.io/aa).
 
 = 7.0.4 - Current Release =
-*Released: 12th January, 2018* - [Release Notes](https://icwp.io/ef)
+*Released: 12th February, 2018* - [Release Notes](https://icwp.io/ef)
 
 * **(v.4)**  IMPROVED:	Refactored IP address blocking with improved audit trail messages.
-* **(v.4)**  CHANGED:	Expanded anonymous REST API whitelist to 'wpstatistics' namespace.
+* **(v.4)**  CHANGED:	Expanded anonymous REST API whitelist to include 'wpstatistics' namespace.
 * **(v.4)**  IMPROVED:	Access protection for shield temp/caching dir.
 * **(v.4)**  IMPROVED:	Clarification on reCAPTCHA - v3 is **not** supported.
-* **(v.4)**  IMPROVED:	Clarification on user sessions timeout - Shield setting is an absolutely maximum.
+* **(v.4)**  IMPROVED:	Clarification on user sessions timeout - Shield sets an absolutely session maximum.
 * **(v.4)**  IMPROVED:	Options form submission is adjusted to work around poorly restrictive webhosts.
 * **(v.4)**  FIX:		Various tweaks and fixes across the plugin.
 * **(v.4)**  FIX:		Error with ClassicPress.
