@@ -9,6 +9,11 @@
 	<div class="col-lg-12 col-xl-6">
 		{% include '/wpadmin_pages/insights_new/scans/results/ufc.twig' %}
 	</div>
+	{% set scankey = 'apc' %}
+	{% set scan = attribute(scans, scankey) %}
+	<div class="col-lg-12 col-xl-6">
+		{% include '/wpadmin_pages/insights_new/scans/results/apc.twig' %}
+	</div>
 	{% set scankey = 'ptg' %}
 	{% set scan = attribute(scans, scankey) %}
 	<div class="col-12">

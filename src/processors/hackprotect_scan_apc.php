@@ -7,6 +7,16 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'apc';
 
 	/**
+	 */
+	public function run() {
+		add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 0 );
+	}
+
+	public function onDeletedPlugin() {
+		$this->doScan();
+	}
+
+	/**
 	 * @param Shield\Scans\Apc\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
@@ -28,18 +38,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function convertVoToResultItem( $oVo ) {
 		return ( new Shield\Scans\Apc\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	private function pluginapi() {
-		require_once ABSPATH.'/wp-admin/includes/plugin-install.php';
-		$api = plugins_api( 'plugin_information', array(
-			'slug'   => 'wp-cerber',
-			'fields' => array(
-				'sections' => false,
-			),
-		) );
-		var_dump( $api );
-		die();
 	}
 
 	/**

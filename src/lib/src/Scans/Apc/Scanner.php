@@ -13,111 +13,95 @@ use FernleafSystems\Wordpress\Services\Services;
 class Scanner {
 
 	/**
+	 * @var
+	 */
+	private $nAbandonedLimit;
+
+	/**
 	 * @return ResultsSet
 	 */
 	public function run() {
 		$oResultSet = new ResultsSet();
 
-		foreach ( $this->getAllPluginVulnerabilities() as $sFile => $aVulnerabilities ) {
-			foreach ( $aVulnerabilities as $oVo ) {
-				$oItem = new ResultItem();
-				$oItem->slug = $sFile;
-				$oItem->context = 'plugins';
-				$oItem->wpvuln_id = $oVo->id;
-				$oItem->wpvuln_vo = $oVo->getRawDataAsArray();
-				$oResultSet->addItem( $oItem );
-			}
-		}
-
-		foreach ( $this->getAllThemeVulnerabilities() as $sFile => $aVulnerabilities ) {
-			foreach ( $aVulnerabilities as $oVo ) {
-				$oItem = new ResultItem();
-				$oItem->slug = $sFile;
-				$oItem->context = 'themes';
-				$oItem->wpvuln_id = $oVo->id;
-				$oItem->wpvuln_vo = $oVo->getRawDataAsArray();
-				$oResultSet->addItem( $oItem );
-			}
+		foreach ( $this->getAllAbandonedPlugins() as $sFile => $nLastUpdatedAt ) {
+			$oItem = new ResultItem();
+			$oItem->slug = $sFile;
+			$oItem->context = 'plugins';
+			$oItem->last_updated_at = $nLastUpdatedAt;
+			$oResultSet->addItem( $oItem );
 		}
 
 		return $oResultSet;
 	}
 
 	/**
-	 * @return WpVulnVO[][]
+	 * @return array - keys are plugin base files, values are last_updated timestamp
 	 */
-	protected function getAllPluginVulnerabilities() {
-		$aVulns = array();
-		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $sFile ) {
-			$aVulns[ $sFile ] = $this->getPluginVulnerabilities( $sFile );
+	private function getAllAbandonedPlugins() {
+		$aAbandoned = [];
+
+		$oWpPlugins = Services::WpPlugins();
+		foreach ( $oWpPlugins->getInstalledPluginFiles() as $sFile ) {
+			if ( $oWpPlugins->isWpOrg( $sFile ) ) {
+				$aAbandoned[ $sFile ] = $this->getAbandonedTime( $sFile );
+			}
 		}
-		return array_filter( $aVulns );
+		return array_filter( $aAbandoned );
 	}
 
 	/**
-	 * @return WpVulnVO[][]
+	 * @return array - keys are plugin base files, values are last_updated timestamp
 	 */
-	protected function getAllThemeVulnerabilities() {
-		$aVulns = array();
-		$oWpThemes = Services::WpThemes();
+	private function getAllAbandonedThemes() {
+		$aAbandoned = [];
 
-		$oActiveTheme = $oWpThemes->getCurrent();
-		if ( $oActiveTheme instanceof \WP_Theme ) {
-
-			$aThemes = array(
-				$oActiveTheme->get_stylesheet() => $oActiveTheme->get_stylesheet()
-			);
-
-			if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
-				$oParent = $oWpThemes->getCurrentParent();
-				if ( $oParent instanceof \WP_Theme ) {
-					$aThemes[ $oParent->get_stylesheet() ] = $oParent->get_stylesheet();
-				}
-			}
-
-			foreach ( $aThemes as $sBaseFile => $sSlug ) {
-				$aVulns[ $sBaseFile ] = $this->getThemeVulnerabilities( $sBaseFile );
+		$oWp = Services::WpThemes();
+		foreach ( $oWp->getThemes() as $oTheme ) {
+			if ( $oWp->isWpOrg( $oTheme ) ) {
+				$aAbandoned[ $oTheme->get_stylesheet() ] = $this->getAbandonedTime( $oTheme );
 			}
 		}
-		return array_filter( $aVulns );
+		return array_filter( $aAbandoned );
 	}
 
 	/**
 	 * @param string $sFile
-	 * @return WpVulnVO[]
+	 * @return bool
 	 */
-	public function getPluginVulnerabilities( $sFile ) {
-		$aVulns = array();
+	private function getAbandonedTime( $sFile ) {
+		$nTime = 0;
 		$oWpPlugins = Services::WpPlugins();
 
 		$sSlug = $oWpPlugins->getSlug( $sFile );
 		if ( empty( $sSlug ) ) {
 			$sSlug = dirname( $sFile );
 		}
-		try {
-			$aVos = ( new RetrieveForItem() )->setContext( 'plugins' )
-											 ->setSlug( $sSlug )
-											 ->retrieve();
-			$oPlugin = $oWpPlugins->getPluginAsVo( $sFile );
-			$aVulns = array_filter(
-				$aVos,
-				function ( $oVo ) use ( $oPlugin ) {
-					/** @var WpVulnVO $oVo */
-					$sFixed = (string)$oVo->fixed_in;
-					return ( empty ( $sFixed ) || version_compare( $oPlugin->Version, $sFixed, '<' ) );
-				}
-			);
+
+		if ( !function_exists( 'plugins_api' ) ) {
+			require_once ABSPATH.'/wp-admin/includes/plugin-install.php';
 		}
-		catch ( \Exception $oE ) {
+		$oApi = plugins_api( 'plugin_information', [
+			'slug'   => $sSlug,
+			'fields' => array(
+				'sections' => false,
+			),
+		] );
+		if ( isset( $oApi->last_updated ) ) {
+			$nLastUpdateAt = strtotime( $oApi->last_updated );
+			if ( Services::Request()->ts() - $nLastUpdateAt > $this->getAbandonedLimit() ) {
+				$nTime = $nLastUpdateAt;
+				var_dump( $nTime );
+			}
 		}
-		return $aVulns;
+
+		return $nTime;
 	}
 
 	/**
 	 * @param string $sSlug
 	 * @return WpVulnVO[]
 	 */
-	public function getThemeVulnerabilities( $sSlug ) {
+	private function getThemeVulnerabilities( $sSlug ) {
 		$aVulns = array();
 		$oWpThemes = Services::WpThemes();
 
@@ -139,5 +123,12 @@ class Scanner {
 		}
 
 		return $aVulns;
+	}
+
+	/**
+	 * @return int
+	 */
+	private function getAbandonedLimit() {
+		return isset( $this->nAbandonedLimit ) ? $this->nAbandonedLimit : YEAR_IN_SECONDS*2;
 	}
 }

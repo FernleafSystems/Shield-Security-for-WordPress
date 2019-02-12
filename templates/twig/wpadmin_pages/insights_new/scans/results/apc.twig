@@ -1,0 +1,77 @@
+<div class="row insights_widget" id="SectionScanResultsApc">
+	<div class="col-12">
+		<div class="card card-scan_results mt-4">
+
+			<div class="card-header">
+				<h5 class="card-title">Abandoned Plugin Scanner</h5>
+				<h6 class="card-subtitle text-muted">
+					Discover plugins on your site that have been abandoned by their authors
+				</h6>
+			</div>
+
+			<div class="card-body">
+
+				{% if scan.flags.is_available %}
+
+					{% if scan.flags.is_enabled %}
+
+						{% if not scan.flags.has_items %}
+							<div class="alert alert-info m-0">No items discovered</div>
+						{% else %}
+							<div id="TableScanApc" class="container-scantable"></div>
+						{% endif %}
+
+					{% else %}
+						{% include '/wpadmin_pages/insights_new/scans/results/'~scankey~'_disabled.twig' %}
+					{% endif %}
+
+				{% else %}
+					{% include '/wpadmin_pages/insights_new/scans/results/common_unavailable.twig' %}
+				{% endif %}
+
+
+			</div>
+
+			<div class="card-footer">
+				<div class="row">
+					<div class="col-sm-6">
+						{% if scan.flags.has_last_scan %}
+							{{ scan.vars.last_scan_at }}
+						{% else %}
+							{{ strings.never }}
+						{% endif %}
+					</div>
+					<div class="col-sm-6 text-right">
+						<a href="{{ scan.hrefs.options }}"
+						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script>
+	var $oTableScanApc = jQuery( '#TableScanApc' ).icwpWpsfAjaxTable(
+		{
+			'ajax_render':{{ ajax.render_table_scan|raw }},
+			'req_params': {
+				'fScan': 'apc'
+			}
+		}
+	);
+	jQuery( '#SectionScanResultsApc' ).icwpWpsfTableActions(
+		{
+			'table': $oTableScanApc,
+			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
+			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'custom_actions_ajax': {
+				'item_asset_deactivate': {{ ajax.item_asset_deactivate|raw }},
+				'item_repair': {{ ajax.item_repair|raw }}
+			},
+			'req_params': {
+				'fScan': 'apc'
+			}
+		}
+	);
+</script>
