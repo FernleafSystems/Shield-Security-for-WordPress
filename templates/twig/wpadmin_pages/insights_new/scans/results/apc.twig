@@ -3,9 +3,9 @@
 		<div class="card card-scan_results mt-4">
 
 			<div class="card-header">
-				<h5 class="card-title">Abandoned Plugin Scanner</h5>
+				<h5 class="card-title">Abandoned Plugin Check</h5>
 				<h6 class="card-subtitle text-muted">
-					Discover plugins on your site that have been abandoned by their authors
+					Discover plugins that may have been abandoned by their authors
 				</h6>
 			</div>
 
@@ -28,7 +28,6 @@
 				{% else %}
 					{% include '/wpadmin_pages/insights_new/scans/results/common_unavailable.twig' %}
 				{% endif %}
-
 
 			</div>
 
@@ -65,10 +64,6 @@
 			'table': $oTableScanApc,
 			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
 			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
-			'custom_actions_ajax': {
-				'item_asset_deactivate': {{ ajax.item_asset_deactivate|raw }},
-				'item_repair': {{ ajax.item_repair|raw }}
-			},
 			'req_params': {
 				'fScan': 'apc'
 			}

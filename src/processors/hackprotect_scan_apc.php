@@ -9,6 +9,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 */
 	public function run() {
+		parent::run();
 		add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 0 );
 	}
 

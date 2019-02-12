@@ -110,6 +110,27 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'please_enable' => _wpsf__( 'Please turn on this scan in the options.' ),
 			),
 			'scans'   => array(
+				'apc' => array(
+					'flags'   => array(
+						'is_enabled'    => true,
+						'is_available'  => true,
+						'has_items'     => true,
+						'has_last_scan' => $oMod->getLastScanAt( 'apc' ) > 0
+					),
+					'hrefs'   => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_apc' )
+					),
+					'vars'    => array(
+						'last_scan_at' => sprintf(
+							_wpsf__( 'Last Scan: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'apc' ) )->diffForHumans()
+						),
+					),
+					'count'   => $oSelector->countForScan( 'apc' ),
+					'strings' => array(
+						'subtitle' => _wpsf__( "Discover abandoned plugins" )
+					),
+				),
 				'wcf' => array(
 					'flags'   => array(
 						'is_enabled'    => true,
@@ -178,6 +199,46 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		);
 
 		return $aData;
+	}
+
+	private function getInsightVarsScan_Apc() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oCon = $this->getCon();
+
+		return array(
+			'flags'   => array(
+				'is_enabled'    => $oMod->isPtgEnabled(),
+				'is_available'  => $oMod->isPremium(),
+				'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
+				'has_items'     => $oFullResults->hasItems(),
+				'has_plugins'   => !empty( $aPlugins ),
+				'has_themes'    => !empty( $aThemes ),
+			),
+			'hrefs'   => array(
+				'options'       => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
+				'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
+			),
+			'vars'    => array(
+				'last_scan_at' => sprintf(
+					_wpsf__( 'Last Scan: %s' ),
+					$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
+				)
+			),
+			'count'   => $oSelector->countForScan( 'ptg' ),
+			'assets'  => array_merge( $aPlugins, $aThemes ),
+			'strings' => array(
+				'subtitle'            => _wpsf__( "Detects unauthorized changes to plugins/themes" ),
+				'files_with_problems' => _wpsf__( 'Files with problems' ),
+				'root_dir'            => _wpsf__( 'Root directory' ),
+				'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
+				'reinstall'           => _wpsf__( 'Re-Install' ),
+				'deactivate'          => __( 'Deactivate and Ignore' ),
+				'accept'              => _wpsf__( 'Accept' ),
+				'update'              => _wpsf__( 'Upgrade' ),
+			)
+		);
+
 	}
 
 	private function getInsightVarsScan_Ptg() {

@@ -696,6 +696,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		switch ( $this->loadRequest()->post( 'fScan' ) ) {
 
+			case 'apc':
+				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanApc();
+				break;
+
 			case 'wcf':
 				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
 				break;
@@ -804,6 +808,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$bSuccess = false;
 		$bReloadPage = false;
 		switch ( $oReq->post( 'fScan' ) ) {
+
+			case 'apc':
+				$bReloadPage = true;
+				$oTablePro = $oScanPro->getSubProcessorApc();
+				break;
+
 			case 'ptg':
 				$bReloadPage = true;
 				$oTablePro = $oScanPro->getSubProcessorPtg();
