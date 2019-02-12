@@ -623,7 +623,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			//			'sessions'       => array(
 			//				'title'   => _wpsf__( 'Active Sessions' ),
-			//				'val'     => $oProUsers->getProcessorSessions()->getCountActiveSessions(),
+			//				'val'     => $oProUsers->getProcessorSessions()->countActiveSessions(),
 			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
 			//			),
 			'transgressions' => array(

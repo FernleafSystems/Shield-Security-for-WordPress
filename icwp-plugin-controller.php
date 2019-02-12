@@ -121,7 +121,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->sRootFile = $sRootFile;
 		$this->loadServices();
 		$this->checkMinimumRequirements();
-		$this->buildPluginCacheDir();
 		$this->doRegisterHooks();
 		$this->doLoadTextDomain();
 	}
@@ -273,7 +272,23 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$this->loadAllFeatures( true, true );
 	}
 
+	/**
+	 * @param string $sFilePath
+	 * @return string
+	 * @throws \Exception
+	 */
+	public function getPluginCachePath( $sFilePath ) {
+		if ( !$this->buildPluginCacheDir() ) {
+			throw new \Exception( sprintf( 'Failed to create cache path: "%s"', $this->getPath_PluginCache() ) );
+		}
+		return path_join( $this->getPath_PluginCache(), $sFilePath );
+	}
+
+	/**
+	 * @return bool
+	 */
 	private function buildPluginCacheDir() {
+		$bSuccess = false;
 		$sBase = $this->getPath_PluginCache();
 		$oFs = Services::WpFs();
 		if ( $oFs->mkdir( $sBase ) ) {
@@ -287,7 +302,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( !$oFs->exists( $sIndex ) || ( md5_file( $sIndex ) != md5( $sIndexContent ) ) ) {
 				$oFs->putFileContent( $sIndex, $sIndexContent );
 			}
+			$bSuccess = true;
 		}
+		return $bSuccess;
 	}
 
 	/**
@@ -814,7 +831,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
-	public function getPluginLabels() {
+	public function getLabels() {
 
 		$aLabels = array_map( 'stripslashes', apply_filters( $this->prefix( 'plugin_labels' ), $this->getPluginSpec_Labels() ) );
 
@@ -1742,6 +1759,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction|mixed
+	 */
+	public function getModule_SecAdmin() {
+		return $this->getModule( 'admin_access_restriction' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_FeatureHandler_Base[]
 	 */
 	public function getModules() {
@@ -1884,6 +1908,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
 		}
 		return $aResult;
+	}
+
+	/**
+	 * @deprecated 7.0.4
+	 * @return array
+	 */
+	public function getPluginLabels() {
+		return $this->getLabels();
 	}
 
 	/**

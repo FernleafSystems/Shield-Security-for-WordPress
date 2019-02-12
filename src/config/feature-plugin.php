@@ -323,7 +323,7 @@
       "link_info":   "https://icwp.io/shld5",
       "link_blog":   "",
       "name":        "reCAPTCHA Site Key",
-      "summary":     "Google reCAPTCHA Site Key",
+      "summary":     "Google reCAPTCHA Site Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA site key for use throughout the plugin."
     },
     {
@@ -335,7 +335,7 @@
       "link_info":   "https://icwp.io/shld5",
       "link_blog":   "",
       "name":        "reCAPTCHA Secret",
-      "summary":     "Google reCAPTCHA Secret Key",
+      "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
       "description": "Enter your Google reCAPTCHA secret key for use throughout the plugin."
     },
     {
@@ -426,7 +426,7 @@
       {
         "slug":          "admin_access_restriction",
         "storage_key":   "admin_access_restriction",
-        "load_priority": 20
+        "load_priority": 11
       },
       {
         "slug":        "hack_protect",

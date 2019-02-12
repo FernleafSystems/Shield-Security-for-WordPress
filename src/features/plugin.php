@@ -1000,7 +1000,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aThis = array(
 			'strings'      => array(
 				'title' => _wpsf__( 'General Settings' ),
-				'sub'   => _wpsf__( 'General Shield Security Settings' ),
+				'sub'   => sprintf( _wpsf__( 'General %s Settings' ), $this->getCon()->getHumanName() ),
 			),
 			'key_opts'     => array(),
 			'href_options' => $this->getUrl_AdminPage()
@@ -1234,13 +1234,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			case 'google_recaptcha_secret_key' :
 				$sName = _wpsf__( 'reCAPTCHA Secret' );
 				$sSummary = _wpsf__( 'Google reCAPTCHA Secret Key' );
-				$sDescription = _wpsf__( 'Enter your Google reCAPTCHA secret key for use throughout the plugin.' );
+				$sDescription = _wpsf__( 'Enter your Google reCAPTCHA secret key for use throughout the plugin.' )
+								.'<br />'.sprintf( '<strong>%s</strong>: %s', _wpsf__( 'Important' ), 'reCAPTCHA v3 not supported.' );
 				break;
 
 			case 'google_recaptcha_site_key' :
 				$sName = _wpsf__( 'reCAPTCHA Site Key' );
 				$sSummary = _wpsf__( 'Google reCAPTCHA Site Key' );
-				$sDescription = _wpsf__( 'Enter your Google reCAPTCHA site key for use throughout the plugin' );
+				$sDescription = _wpsf__( 'Enter your Google reCAPTCHA site key for use throughout the plugin' )
+								.'<br />'.sprintf( '<strong>%s</strong>: %s', _wpsf__( 'Important' ), 'reCAPTCHA v3 not supported.' );
 				break;
 
 			case 'google_recaptcha_style' :

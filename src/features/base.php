@@ -1,10 +1,11 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+	use Shield\Modules\PluginControllerConsumer;
 
 	/**
 	 * @var boolean
@@ -210,11 +211,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param bool $bBase64Encoded
 	 * @return array
 	 */
-	protected function getAjaxFormParams() {
-		parse_str( $this->loadRequest()->post( 'form_params', '' ), $aFormParams );
-		return is_array( $aFormParams ) ? $aFormParams : array();
+	protected function getAjaxFormParams( $bBase64Encoded = false ) {
+		$sRaw = $this->loadRequest()->post( 'form_params', '' );
+		parse_str( ( $bBase64Encoded ? base64_decode( $sRaw ) : $sRaw ), $aFormParams );
+		return is_array( $aFormParams ) ? $aFormParams : [];
 	}
 
 	/**
@@ -1185,13 +1188,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			   && check_admin_referer( $this->getCon()->getPluginPrefix() );
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	protected function doSaveStandardOptions() {
-		$this->updatePluginOptionsFromSubmit();
-	}
-
 	protected function doExtraSubmitProcessing() {
 	}
 
@@ -1248,65 +1244,64 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @throws \Exception
 	 */
-	protected function updatePluginOptionsFromSubmit() {
-		$oReq = $this->loadRequest();
-
-		if ( $oReq->post( 'plugin_form_submit' ) !== 'Y' ) {
-			return;
+	private function doSaveStandardOptions() {
+		$aForm = $this->getAjaxFormParams( true );
+		if ( empty( $aForm[ 'plugin_form_submit' ] ) || $aForm[ 'plugin_form_submit' ] !== 'Y' ) {
+			throw new \Exception( 'Not a standard plugin options form submission' );
 		}
 
-		foreach ( $this->getAllFormOptionsAndTypes() as $sOptionKey => $sOptionType ) {
+		foreach ( $this->getAllFormOptionsAndTypes() as $sKey => $sOptType ) {
 
-			$sOptionValue = $oReq->post( $sOptionKey );
+			$sOptionValue = isset( $aForm[ $sKey ] ) ? $aForm[ $sKey ] : null;
 			if ( is_null( $sOptionValue ) ) {
 
-				if ( $sOptionType == 'text' || $sOptionType == 'email' ) { //if it was a text box, and it's null, don't update anything
+				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
-				else if ( $sOptionType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+				else if ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
 					$sOptionValue = 'N';
 				}
-				else if ( $sOptionType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+				else if ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
 				}
-				else if ( $sOptionType == 'multiple_select' ) {
-					$sOptionValue = array();
+				else if ( $sOptType == 'multiple_select' ) {
+					$sOptionValue = [];
 				}
 			}
 			else { //handle any pre-processing we need to.
 
-				if ( $sOptionType == 'text' || $sOptionType == 'email' ) {
+				if ( $sOptType == 'text' || $sOptType == 'email' ) {
 					$sOptionValue = trim( $sOptionValue );
 				}
-				if ( $sOptionType == 'integer' ) {
+				if ( $sOptType == 'integer' ) {
 					$sOptionValue = intval( $sOptionValue );
 				}
-				else if ( $sOptionType == 'password' && $this->hasEncryptOption() ) { //md5 any password fields
+				else if ( $sOptType == 'password' && $this->hasEncryptOption() ) { //md5 any password fields
 					$sTempValue = trim( $sOptionValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
 					}
 
-					$sConfirm = $oReq->post( $sOptionKey.'_confirm', '' );
+					$sConfirm = isset( $aForm[ $sKey.'_confirm' ] ) ? $aForm[ $sKey.'_confirm' ] : null;
 					if ( $sTempValue !== $sConfirm ) {
 						throw new \Exception( _wpsf__( 'Password values do not match.' ) );
 					}
 
 					$sOptionValue = md5( $sTempValue );
 				}
-				else if ( $sOptionType == 'array' ) { //arrays are textareas, where each is separated by newline
+				else if ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
-				else if ( $sOptionType == 'comma_separated_lists' ) {
+				else if ( $sOptType == 'comma_separated_lists' ) {
 					$sOptionValue = $this->loadDP()->extractCommaSeparatedList( $sOptionValue );
 				}
-				else if ( $sOptionType == 'multiple_select' ) {
+				else if ( $sOptType == 'multiple_select' ) {
 				}
 			}
 
 			// Prevent overwriting of non-editable fields
-			if ( !in_array( $sOptionType, array( 'noneditable_text' ) ) ) {
-				$this->setOpt( $sOptionKey, $sOptionValue );
+			if ( !in_array( $sOptType, array( 'noneditable_text' ) ) ) {
+				$this->setOpt( $sKey, $sOptionValue );
 			}
 		}
 
@@ -1690,6 +1685,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Override this with custom JS vars for your particular module.
 	 */
 	public function insertCustomJsVars_Admin() {
+
+		if ( $this->isThisModulePage() ) {
+			wp_localize_script(
+				$this->prefix( 'plugin' ),
+				'icwp_wpsf_vars_base',
+				[
+					'ajax' => [
+						'mod_options' => $this->getAjaxActionData( 'mod_options' ),
+					]
+				]
+			);
+		}
 	}
 
 	/**
@@ -2000,5 +2007,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function isPluginDeleting() {
 		return $this->getCon()->isPluginDeleting();
+	}
+
+	/**
+	 * @deprecated
+	 * @throws \Exception
+	 */
+	protected function updatePluginOptionsFromSubmit() {
+		$this->doSaveStandardOptions();
 	}
 }

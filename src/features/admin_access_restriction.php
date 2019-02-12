@@ -386,7 +386,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$sAccessKeyRequest = $this->loadRequest()->post( 'admin_access_key_request', '' );
 		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
 		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
-			add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
+			$this->setIpTransgressed();
 		}
 		return $bSuccess;
 	}
@@ -496,6 +496,27 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->setOpt( 'admin_access_key', '' );
 	}
 
+	public function insertCustomJsVars_Admin() {
+		parent::insertCustomJsVars_Admin();
+
+		if ( $this->getSecAdminTimeLeft() < 1 ) {
+			wp_localize_script(
+				$this->prefix( 'plugin' ),
+				'icwp_wpsf_vars_secadmin',
+				array(
+					'reqajax'      => $this->getSecAdminCheckAjaxData(),
+					'is_sec_admin' => true, // if $nSecTimeLeft > 0
+					'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
+					'strings'      => array(
+						'confirm' => _wpsf__( 'Security Admin session has timed-out.' ).' '._wpsf__( 'Reload now?' ),
+						'nearly'  => _wpsf__( 'Security Admin session has nearly timed-out.' ),
+						'expired' => _wpsf__( 'Security Admin session has timed-out.' )
+					)
+				)
+			);
+		}
+	}
+
 	/**
 	 * @param array $aAllData
 	 * @return array
@@ -504,7 +525,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$aThis = array(
 			'strings'      => array(
 				'title' => _wpsf__( 'Security Admin' ),
-				'sub'   => _wpsf__( 'Prevent Shield Security Tampering' ),
+				'sub'   => sprintf( _wpsf__( 'Prevent Tampering With %s Settings' ), $this->getCon()->getHumanName() ),
 			),
 			'key_opts'     => array(),
 			'href_options' => $this->getUrl_AdminPage()
