@@ -71,7 +71,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		);
 
 		{ //edit plugins
-			if ( current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
+			if ( !current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
 				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
 					'title'   => 'Code Editor',
 					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
