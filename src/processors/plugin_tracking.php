@@ -5,17 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin {
 
-	use Shield\Crons\StandardCron;
-
-	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isTrackingEnabled() ) {
-			$this->setupCron();
-		}
-		add_action( $oFO->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
 	/**
 	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
@@ -97,17 +86,17 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 * @return array
 	 */
 	protected function getBaseTrackingData() {
-		$oDP = $this->loadDP();
-		$oWP = $this->loadWp();
-		$oWpPlugins = $this->loadWpPlugins();
+		$oWP = Services::WpGeneral();
+		$oWpPlugins = Services::WpPlugins();
 		return array(
 			'env' => array(
 				'options' => array(
-					'php'             => $oDP->getPhpVersionCleaned(),
+					'php'             => Services::Data()->getPhpVersionCleaned(),
 					'wordpress'       => $oWP->getVersion(),
 					'slug'            => $this->getCon()->getPluginSlug(),
 					'version'         => $this->getCon()->getVersion(),
 					'is_wpms'         => $oWP->isMultisite() ? 1 : 0,
+					'is_cp'           => $oWP->isClassicPress() ? 1 : 0,
 					'ssl'             => is_ssl() ? 1 : 0,
 					'locale'          => get_locale(),
 					'plugins_total'   => count( $oWpPlugins->getPlugins() ),
@@ -121,15 +110,11 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	/**
 	 * Cron callback
 	 */
-	public function runCron() {
-		$this->sendTrackingData();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
+	public function runDailyCron() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDef( 'tracking_cron_handle' ) );
+		if ( $oFO->isTrackingEnabled() ) {
+			$this->sendTrackingData();
+		}
 	}
 }

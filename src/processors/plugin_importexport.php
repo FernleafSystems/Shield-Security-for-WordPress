@@ -5,8 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
 
-	use Shield\Crons\StandardCron;
-
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
@@ -14,9 +12,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		add_action( $this->prefix( 'importexport_notify' ), array( $this, 'runWhitelistNotify' ) );
 
 		if ( $oFO->hasImportExportMasterImportUrl() ) {
-			$this->setupCron();
 			// For auto update whitelist notifications:
-			add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'runCron' ) );
+			add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'runImport' ) );
 		}
 	}
 
@@ -395,10 +392,14 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 * @param string    $sSiteResponse
 	 * @return int
 	 */
-	public function runImport( $sMasterSiteUrl, $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
+	public function runImport( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$oDP = $this->loadDP();
+
+		if ( empty( $sMasterSiteUrl ) ) {
+			$sMasterSiteUrl = $oFO->getImportExportMasterImportUrl();
+		}
 
 		$aParts = parse_url( $sMasterSiteUrl );
 
@@ -517,17 +518,12 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		return $bImported;
 	}
 
-	public function runCron() {
+	/**
+	 * Cron callback
+	 */
+	public function runDailyCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$this->runImport( $oFO->getImportExportMasterImportUrl() );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDef( 'importexport_cron_name' ) );
 	}
 }
