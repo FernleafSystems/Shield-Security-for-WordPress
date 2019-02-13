@@ -9,7 +9,7 @@ trait StandardCron {
 	/**
 	 * @var int
 	 */
-	private $nFirstRun;
+	private $nCronFirstRun;
 
 	protected function setupCron() {
 		try {
@@ -48,7 +48,7 @@ trait StandardCron {
 	 * @return int
 	 */
 	public function getFirstRunTimestamp() {
-		return empty( $this->nFirstRun ) ? ( Services::Request()->ts() + MINUTE_IN_SECONDS ) : $this->nFirstRun;
+		return empty( $this->nCronFirstRun ) ? ( Services::Request()->ts() + MINUTE_IN_SECONDS ) : $this->nCronFirstRun;
 	}
 
 	/**
@@ -81,7 +81,7 @@ trait StandardCron {
 	 * @return $this
 	 */
 	public function setFirstRun( $nFirstRun ) {
-		$this->nFirstRun = $nFirstRun;
+		$this->nCronFirstRun = $nFirstRun;
 		return $this;
 	}
 }
