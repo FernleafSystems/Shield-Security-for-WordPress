@@ -1,13 +1,17 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin {
+
+	use Shield\Crons\StandardCron;
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-
 		if ( $oFO->isTrackingEnabled() ) {
-			$this->createTrackingCollectionCron();
+			$this->setupCron();
 		}
 		add_action( $oFO->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
 	}
@@ -49,34 +53,33 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	}
 
 	/**
+	 * @return bool
 	 */
-	public function sendTrackingData() {
+	private function sendTrackingData() {
+		$bSuccess = false;
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		if ( !$oFO->isTrackingEnabled() || !$oFO->readyToSendTrackingData() ) {
-			return false;
+
+		if ( $oFO->isTrackingEnabled() && $oFO->readyToSendTrackingData() ) {
+
+			$aData = $this->collectTrackingData();
+			if ( !empty( $aData ) && is_array( $aData ) ) {
+				$oFO->setTrackingLastSentAt();
+				$bSuccess = Services::HttpRequest()->post(
+					$oFO->getDef( 'tracking_post_url' ),
+					[
+						'timeout'     => 20,
+						'redirection' => 5,
+						'httpversion' => '1.1',
+						'blocking'    => true,
+						'body'        => [ 'tracking_data' => $aData ],
+						'user-agent'  => 'SHIELD/'.$this->getCon()->getVersion().';'
+					]
+				);
+			}
 		}
 
-		$aData = $this->collectTrackingData();
-		if ( empty( $aData ) || !is_array( $aData ) ) {
-			return false;
-		}
-
-		$mResult = $this->loadFS()->requestUrl(
-			$oFO->getDef( 'tracking_post_url' ),
-			array(
-				'method'      => 'POST',
-				'timeout'     => 20,
-				'redirection' => 5,
-				'httpversion' => '1.1',
-				'blocking'    => true,
-				'body'        => array( 'tracking_data' => $aData ),
-				'user-agent'  => 'SHIELD/'.$this->getCon()->getVersion().';'
-			),
-			true
-		);
-		$oFO->setTrackingLastSentAt();
-		return $mResult;
+		return $bSuccess;
 	}
 
 	/**
@@ -116,24 +119,16 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	}
 
 	/**
-	 * @throws \Exception
+	 * Cron callback
 	 */
-	protected function createTrackingCollectionCron() {
-		$sFullHookName = $this->getCronName();
-		$this->loadWpCronProcessor()
-			 ->setNextRun( strtotime( 'tomorrow 3am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
-			 ->setRecurrence( 'daily' )
-			 ->createCronJob( $sFullHookName, array( $this, 'sendTrackingData' ) );
-	}
-
-	public function deleteCron() {
-		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
+	public function runCron() {
+		$this->sendTrackingData();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getCronName() {
+	protected function getCronName() {
 		$oFO = $this->getMod();
 		return $oFO->prefix( $oFO->getDef( 'tracking_cron_handle' ) );
 	}
