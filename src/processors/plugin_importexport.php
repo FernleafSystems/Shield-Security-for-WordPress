@@ -1,8 +1,11 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
+
+	use Shield\Crons\StandardCron;
 
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
@@ -11,12 +14,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		add_action( $this->prefix( 'importexport_notify' ), array( $this, 'runWhitelistNotify' ) );
 
 		if ( $oFO->hasImportExportMasterImportUrl() ) {
-			try {
-				$this->setupCronImport();
-			}
-			catch ( \Exception $oE ) {
-				error_log( $oE->getMessage() );
-			}
+			$this->setupCron();
+			// For auto update whitelist notifications:
+			add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'runCron' ) );
 		}
 	}
 
@@ -389,20 +389,6 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @throws \Exception
-	 */
-	protected function setupCronImport() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		$this->loadWpCronProcessor()
-			 ->setNextRun( strtotime( 'tomorrow 1am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
-			 ->createCronJob( $this->getCronName(), array( $this, 'cron_autoImport' ) );
-		// For auto update whitelist notifications:
-		add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'cron_autoImport' ) );
-		add_action( $this->getMod()->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
-	/**
 	 * @param string    $sMasterSiteUrl
 	 * @param string    $sSecretKey
 	 * @param bool|null $bEnableNetwork
@@ -531,14 +517,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		return $bImported;
 	}
 
-	public function cron_autoImport() {
+	public function runCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$this->runImport( $oFO->getImportExportMasterImportUrl() );
-	}
-
-	public function deleteCron() {
-		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
 	}
 
 	/**
@@ -546,6 +528,6 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	protected function getCronName() {
 		$oFO = $this->getMod();
-		return $oFO->prefixOptionKey( $oFO->getDef( 'importexport_cron_name' ) );
+		return $oFO->prefix( $oFO->getDef( 'importexport_cron_name' ) );
 	}
 }

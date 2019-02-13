@@ -61,5 +61,6 @@ trait StandardCron {
 	/**
 	 */
 	public function runCron() {
+		// Override to run the actual Cron activity
 	}
 }
