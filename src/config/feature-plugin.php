@@ -18,12 +18,12 @@
   },
   "admin_notices": {
     "override-forceoff":          {
-      "id":          "override-forceoff",
-      "schedule":    "conditions",
-      "valid_admin": true,
+      "id":               "override-forceoff",
+      "schedule":         "conditions",
+      "valid_admin":      true,
       "plugin_page_only": false,
-      "can_dismiss": false,
-      "type":        "error"
+      "can_dismiss":      false,
+      "type":             "error"
     },
     "plugin-update-available":    {
       "id":          "plugin-update-available",
@@ -340,64 +340,79 @@
     },
     {
       "key":          "tracking_last_sent_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "unique_installation_id",
       "section":      "section_non_ui",
       "transferable": false,
-      "default":      ""
+      "type":         "text",
+      "default":      0
     },
     {
       "key":     "tracking_permission_set_at",
-      "default": 0,
-      "section": "section_non_ui"
+      "section": "section_non_ui",
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "installation_time",
+      "section":      "section_non_ui",
       "transferable": false,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "importexport_secretkey_expires_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "importexport_handshake_expires_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "importexport_last_import_hash",
+      "section":      "section_non_ui",
       "transferable": false,
-      "section":      "section_non_ui"
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "this_server_ip",
+      "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,
-      "section":      "section_non_ui",
+      "type":         "text",
       "default":      ""
     },
     {
       "key":          "this_server_ip_last_check_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_test_cron_last_run_at",
       "transferable": false,
       "section":      "section_non_ui",
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
+      "type":         "integer",
       "default":      ""
     }
   ],

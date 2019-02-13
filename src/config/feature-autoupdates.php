@@ -211,15 +211,17 @@
     },
     {
       "key":          "delay_tracking",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      [],
-      "section":      "section_non_ui"
+      "type":         "array",
+      "default":      []
     },
     {
       "key":          "selected_plugins",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      [],
-      "section":      "section_non_ui"
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions": {

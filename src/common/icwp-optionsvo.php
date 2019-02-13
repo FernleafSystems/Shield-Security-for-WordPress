@@ -420,11 +420,13 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	public function getOptDefault( $sOptionKey, $mDefault = null ) {
 		foreach ( $this->getRawData_AllOptions() as $aOption ) {
 			if ( $aOption[ 'key' ] == $sOptionKey ) {
-				if ( isset( $aOption[ 'value' ] ) ) {
-					return $aOption[ 'value' ];
+				if ( isset( $aOption[ 'default' ] ) ) {
+					$mDefault = $aOption[ 'default' ];
+					break;
 				}
-				else if ( isset( $aOption[ 'default' ] ) ) {
-					return $aOption[ 'default' ];
+				if ( isset( $aOption[ 'value' ] ) ) {
+					$mDefault = $aOption[ 'value' ];
+					break;
 				}
 			}
 		}

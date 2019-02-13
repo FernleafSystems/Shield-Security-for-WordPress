@@ -208,33 +208,38 @@
     },
     {
       "key":          "this_server_ip",
+      "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,
-      "section":      "section_non_ui",
-      "value":        ""
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "this_server_ip_last_check_at",
-      "transferable": false,
       "section":      "section_non_ui",
-      "value":        0
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "insights_last_transgression_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_ip_block_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "autounblock_ips",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
       "default":      []
     }
   ],

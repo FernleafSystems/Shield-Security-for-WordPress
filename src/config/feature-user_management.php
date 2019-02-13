@@ -237,19 +237,23 @@
     },
     {
       "key":          "autoadd_sessions_started_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "insights_last_idle_logout_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_password_block_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     }
   ],

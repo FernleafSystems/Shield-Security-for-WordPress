@@ -330,8 +330,9 @@
     },
     {
       "key":          "insights_last_comment_block_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     }
   ],
