@@ -48,10 +48,14 @@ trait StandardCron {
 	}
 
 	/**
-	 * @throws \Exception
 	 */
 	public function deleteCron() {
 		Services::WpCron()->deleteCronJob( $this->getCronName() );
+	}
+
+	protected function resetCron() {
+		$this->deleteCron();
+		$this->setupCron();
 	}
 
 	/**
