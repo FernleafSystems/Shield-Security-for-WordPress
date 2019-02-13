@@ -8,17 +8,9 @@ trait StandardCron {
 
 	protected function setupCron() {
 		try {
-			$sRecurrence = $this->getCronRecurrence();
-			if ( strpos( $sRecurrence, 'per-day' ) > 0 ) {
-				// It's a custom schedule so we need to set the next run time more specifically
-				$nNext = Services::Request()->ts() + ( DAY_IN_SECONDS/$this->getCronFrequency() );
-			}
-			else {
-				$nNext = null;
-			}
 			Services::WpCron()
-					->setRecurrence( $sRecurrence )
-					->setNextRun( $nNext )
+					->setRecurrence( $this->getCronRecurrence() )
+					->setNextRun( Services::Request()->ts() + MINUTE_IN_SECONDS )
 					->createCronJob( $this->getCronName(), array( $this, 'runCron' ) );
 		}
 		catch ( \Exception $oE ) {
