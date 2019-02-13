@@ -428,6 +428,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * @return int
+	 */
+	protected function getCronName() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->prefix( $oFO->getDef( 'cron_all_scans' ) );
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
 	 */
 	public function getScannerDb() {

@@ -518,6 +518,7 @@
       "created_at",
       "deleted_at"
     ],
+    "cron_all_scans":                       "all-scans",
     "cron_scan_wpv":                        "wpvulnscan-notification",
     "cron_scan_wcf":                        "core-checksum-notification",
     "cron_scan_ufc":                        "unrecognised-scan-notification",

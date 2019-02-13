@@ -313,13 +313,4 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	protected function countVulnerablePlugins() {
 		return $this->getAllVulnerabilities()->countUniqueSlugsForPluginsContext();
 	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getWpvCronName();
-	}
 }
