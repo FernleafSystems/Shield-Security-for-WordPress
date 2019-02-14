@@ -339,12 +339,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * Cron callback
 	 */
 	public function runCron() {
-		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
-			$this->resetCron();
-		}
-		else {
-			$this->cronScan();
-		}
+		Services::WpGeneral()->getIfAutoUpdatesInstalled() ? $this->resetCron() : $this->cronScan();
 	}
 
 	private function cronScan() {
