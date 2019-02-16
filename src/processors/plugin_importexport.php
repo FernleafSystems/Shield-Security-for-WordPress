@@ -158,11 +158,18 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function doExportDownload() {
+		$sExport = json_encode( $this->getExportData() );
+		$aData = [
+			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
+			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
+			'# Hash: '.sha1( $sExport ),
+			$sExport
+		];
 		Services::Data()->downloadStringAsFile(
-			json_encode( $this->getExportData() ),
+			implode( "\n", $aData ),
 			sprintf( 'shieldexport-%s-%s.json',
-				Services::WpGeneral()->getHomeUrl( true ),
-				$sFilename = date( 'YmdHis' )
+				Services::WpGeneral()->getHomeUrl( '', true ),
+				$sFilename = date( 'Ymd_His' )
 			)
 		);
 	}
@@ -197,9 +204,22 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			throw new \Exception( 'File uploaded was empty' );
 		}
 
-		$aData = @json_decode( $sContent, true );
-		if ( empty( $aData ) || !is_array( $aData ) ) {
-			throw new \Exception( 'Uploaded file data was not of the correct format' );
+		{//filter any comment lines
+			$aParts = array_filter(
+				array_map( 'trim', explode( "\n", $sContent ) ),
+				function ( $sLine ) {
+					return ( strpos( $sLine, '{' ) === 0 );
+				}
+			);
+			if ( empty( $aParts ) ) {
+				throw new \Exception( 'Options JSON could not be found in uploaded content.' );
+			}
+		}
+		{//parse the options json
+			$aData = @json_decode( array_shift( $aParts ), true );
+			if ( empty( $aData ) || !is_array( $aData ) ) {
+				throw new \Exception( 'Uploaded options data was not of the correct format' );
+			}
 		}
 
 		$this->processDataImport( $aData, _wpsf__( 'uploaded file' ) );
