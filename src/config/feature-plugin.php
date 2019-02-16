@@ -412,7 +412,7 @@
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
-      "type":         "integer",
+      "type":         "text",
       "default":      ""
     }
   ],
