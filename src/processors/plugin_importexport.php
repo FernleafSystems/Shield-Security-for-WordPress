@@ -31,6 +31,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			'ajax'  => array(
 				'import_from_site' => $oMod->getAjaxActionData( 'import_from_site', true ),
 			),
+			'flags' => array(
+				'can_importexport' => $this->getCon()->isPremiumActive(),
+			),
 			'hrefs' => array(
 				'export_file_download' => $this->createExportFileDownloadLink()
 			)
