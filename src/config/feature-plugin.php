@@ -355,8 +355,8 @@
     {
       "key":     "tracking_permission_set_at",
       "section": "section_non_ui",
-      "type":         "integer",
-      "default":      0
+      "type":    "integer",
+      "default": 0
     },
     {
       "key":          "installation_time",
@@ -516,7 +516,7 @@
       }
     ],
     "wizards":                {
-      "welcome":      {
+      "welcome": {
         "title":                "Getting Started Setup Wizard",
         "desc":                 "An introduction to this security plugin, helping you get setup and started quickly with the core features.",
         "min_user_permissions": "manage_options",
@@ -561,7 +561,7 @@
           }
         }
       },
-      "gdpr":         {
+      "gdpr":    {
         "title":                "GDPR Data Wizard",
         "desc":                 "Walks you through the searching and removal of personally identifiable data.",
         "min_user_permissions": "manage_options",
@@ -580,25 +580,6 @@
           "finished": {
             "security_admin": false,
             "title":          "Finished: GDPR Compliance"
-          }
-        }
-      },
-      "importexport": {
-        "title":                "Options Import/Export Wizard",
-        "desc":                 "Walks you through the import and export of options, as well as configuring ongoing automated options-sync.",
-        "min_user_permissions": "manage_options",
-        "has_premium":          true,
-        "steps":                {
-          "start":    {
-            "security_admin": false,
-            "title":          "Start: Options Import"
-          },
-          "import":   {
-            "title": "Run Options Import"
-          },
-          "finished": {
-            "security_admin": false,
-            "title":          "Finished: Options Import"
           }
         }
       }
