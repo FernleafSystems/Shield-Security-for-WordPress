@@ -180,7 +180,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				),
 				'hrefs'   => array(
 					'aar_forget_key' => $sHelpUrl
-				)
+				),
+				'classes' => array(
+					'top_container' => $this->isPremium() ? 'is-pro' : 'is-not-pro'
+				),
 			)
 		);
 	}

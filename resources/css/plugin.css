@@ -948,7 +948,7 @@ th.column-request_info {
 	background-color: rgba(0, 0, 0, 0.04);
 	color: green;
 }
-#NavItem-license {
+.is-not-pro #NavItem-license {
 	color: #09b740;
 	text-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
 	font-weight: bolder;

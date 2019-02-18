@@ -170,13 +170,4 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
 		return $aContent;
 	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getUfcCronName();
-	}
 }

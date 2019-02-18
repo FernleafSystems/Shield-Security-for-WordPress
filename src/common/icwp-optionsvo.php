@@ -603,6 +603,21 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return string
+	 */
+	public function getSelectOptionValueText( $sKey ) {
+		$sText = '';
+		foreach ( $this->getOptDefinition( $sKey )[ 'value_options' ] as $aOpt ) {
+			if ( $aOpt[ 'value_key' ] == $this->getOpt( $sKey ) ) {
+				$sText = $aOpt[ 'text' ];
+				break;
+			}
+		}
+		return $sText;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isAccessRestricted() {

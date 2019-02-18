@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
@@ -11,12 +12,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		add_action( $this->prefix( 'importexport_notify' ), array( $this, 'runWhitelistNotify' ) );
 
 		if ( $oFO->hasImportExportMasterImportUrl() ) {
-			try {
-				$this->setupCronImport();
-			}
-			catch ( \Exception $oE ) {
-				error_log( $oE->getMessage() );
-			}
+			// For auto update whitelist notifications:
+			add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'runImport' ) );
 		}
 	}
 
@@ -33,6 +30,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			),
 			'ajax'  => array(
 				'import_from_site' => $oMod->getAjaxActionData( 'import_from_site', true ),
+			),
+			'flags' => array(
+				'can_importexport' => $this->getCon()->isPremiumActive(),
 			),
 			'hrefs' => array(
 				'export_file_download' => $this->createExportFileDownloadLink()
@@ -161,11 +161,18 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	public function doExportDownload() {
+		$sExport = json_encode( $this->getExportData() );
+		$aData = [
+			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
+			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
+			'# Hash: '.sha1( $sExport ),
+			$sExport
+		];
 		Services::Data()->downloadStringAsFile(
-			json_encode( $this->getExportData() ),
+			implode( "\n", $aData ),
 			sprintf( 'shieldexport-%s-%s.json',
-				Services::WpGeneral()->getHomeUrl( true ),
-				$sFilename = date( 'YmdHis' )
+				Services::WpGeneral()->getHomeUrl( '', true ),
+				$sFilename = date( 'Ymd_His' )
 			)
 		);
 	}
@@ -200,9 +207,22 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			throw new \Exception( 'File uploaded was empty' );
 		}
 
-		$aData = @json_decode( $sContent, true );
-		if ( empty( $aData ) || !is_array( $aData ) ) {
-			throw new \Exception( 'Uploaded file data was not of the correct format' );
+		{//filter any comment lines
+			$aParts = array_filter(
+				array_map( 'trim', explode( "\n", $sContent ) ),
+				function ( $sLine ) {
+					return ( strpos( $sLine, '{' ) === 0 );
+				}
+			);
+			if ( empty( $aParts ) ) {
+				throw new \Exception( 'Options JSON could not be found in uploaded content.' );
+			}
+		}
+		{//parse the options json
+			$aData = @json_decode( array_shift( $aParts ), true );
+			if ( empty( $aData ) || !is_array( $aData ) ) {
+				throw new \Exception( 'Uploaded options data was not of the correct format' );
+			}
 		}
 
 		$this->processDataImport( $aData, _wpsf__( 'uploaded file' ) );
@@ -389,30 +409,20 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @throws \Exception
-	 */
-	protected function setupCronImport() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		$this->loadWpCronProcessor()
-			 ->setNextRun( strtotime( 'tomorrow 1am' ) - get_option( 'gmt_offset' )*HOUR_IN_SECONDS + rand( 0, 1800 ) )
-			 ->createCronJob( $this->getCronName(), array( $this, 'cron_autoImport' ) );
-		// For auto update whitelist notifications:
-		add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'cron_autoImport' ) );
-		add_action( $this->getMod()->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
-	}
-
-	/**
 	 * @param string    $sMasterSiteUrl
 	 * @param string    $sSecretKey
 	 * @param bool|null $bEnableNetwork
 	 * @param string    $sSiteResponse
 	 * @return int
 	 */
-	public function runImport( $sMasterSiteUrl, $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
+	public function runImport( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$oDP = $this->loadDP();
+
+		if ( empty( $sMasterSiteUrl ) ) {
+			$sMasterSiteUrl = $oFO->getImportExportMasterImportUrl();
+		}
 
 		$aParts = parse_url( $sMasterSiteUrl );
 
@@ -531,21 +541,12 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		return $bImported;
 	}
 
-	public function cron_autoImport() {
+	/**
+	 * Cron callback
+	 */
+	public function runDailyCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$this->runImport( $oFO->getImportExportMasterImportUrl() );
-	}
-
-	public function deleteCron() {
-		$this->loadWpCronProcessor()->deleteCronJob( $this->getCronName() );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		$oFO = $this->getMod();
-		return $oFO->prefixOptionKey( $oFO->getDef( 'importexport_cron_name' ) );
 	}
 }

@@ -6,11 +6,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 trait StandardCron {
 
+	/**
+	 * @var int
+	 */
+	private $nCronFirstRun;
+
 	protected function setupCron() {
 		try {
 			Services::WpCron()
 					->setRecurrence( $this->getCronRecurrence() )
-					->setNextRun( Services::Request()->ts() + MINUTE_IN_SECONDS )
+					->setNextRun( $this->getFirstRunTimestamp() )
 					->createCronJob( $this->getCronName(), array( $this, 'runCron' ) );
 		}
 		catch ( \Exception $oE ) {
@@ -42,20 +47,41 @@ trait StandardCron {
 	/**
 	 * @return int
 	 */
+	public function getFirstRunTimestamp() {
+		return empty( $this->nCronFirstRun ) ? ( Services::Request()->ts() + MINUTE_IN_SECONDS ) : $this->nCronFirstRun;
+	}
+
+	/**
+	 * @return int
+	 */
 	protected function getNextCronRun() {
 		$nNext = wp_next_scheduled( $this->getCronName() );
 		return is_numeric( $nNext ) ? $nNext : 0;
 	}
 
 	/**
-	 * @throws \Exception
 	 */
 	public function deleteCron() {
 		Services::WpCron()->deleteCronJob( $this->getCronName() );
 	}
 
+	protected function resetCron() {
+		$this->deleteCron();
+		$this->setupCron();
+	}
+
 	/**
 	 */
 	public function runCron() {
+		// Override to run the actual Cron activity
+	}
+
+	/**
+	 * @param int $nFirstRun
+	 * @return $this
+	 */
+	public function setFirstRun( $nFirstRun ) {
+		$this->nCronFirstRun = $nFirstRun;
+		return $this;
 	}
 }

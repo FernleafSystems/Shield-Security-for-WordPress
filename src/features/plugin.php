@@ -212,7 +212,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				header( 'Set-Cookie: fileDownload=true; path=/' );
 				/** @var ICWP_WPSF_Processor_Plugin $oPro */
 				$oPro = $this->getProcessor();
-				$oPro->getSubProcessorImportExport()
+				$oPro->getSubProImportExport()
 					 ->doExportDownload();
 				break;
 
@@ -220,7 +220,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				/** @var ICWP_WPSF_Processor_Plugin $oPro */
 				$oPro = $this->getProcessor();
 				try {
-					$oPro->getSubProcessorImportExport()
+					$oPro->getSubProImportExport()
 						 ->importFromUploadFile();
 					$bSuccess = true;
 					$sMessage = _wpsf__( 'Options imported successfully' );
@@ -403,7 +403,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
 			$oP = $this->getProcessor();
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$nCode = $oP->getSubProcessorImportExport()
+			$nCode = $oP->getSubProImportExport()
 						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? _wpsf__( 'Options imported successfully' ) : _wpsf__( 'Options failed to import' );
@@ -1010,10 +1010,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
+			$sSource = $this->getOptionsVo()->getSelectOptionValueText( 'visitor_address_source' );
 			$aThis[ 'key_opts' ][ 'editing' ] = array(
 				'name'    => _wpsf__( 'Visitor IP' ),
 				'enabled' => true,
-				'summary' => sprintf( _wpsf__( 'Visitor IP address source is: %s' ), $this->getVisitorAddressSource() ),
+				'summary' => sprintf( _wpsf__( 'Visitor IP address source is: %s' ), $sSource ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			);
