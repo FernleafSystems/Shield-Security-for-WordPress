@@ -11,25 +11,33 @@ use FernleafSystems\Wordpress\Services\Services;
 class FakeWebCrawler extends Base {
 
 	protected function process() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
-		$oFO = $this->getMod();
-
 		try {
-			$this->getIfVisitorIdentifiesAsCrawler();
+			$this->getIfVisitorIdentifiesAsCrawler(); // TEST this logic
 		}
 		catch ( \Exception $oE ) {
-			if ( !$oFO->isVerifiedBot() ) {
-
-				$oFO->isTransgression404() ? $oFO->setIpTransgressed() : $oFO->setIpBlocked();
-
-				$this->createNewAudit(
-					'wpsf',
-					sprintf( '%s: %s', _wpsf__( 'MouseTrap' ),
-						sprintf( _wpsf__( 'Fake web crawler detected- "%s" ' ), $oE->getMessage() ) ),
-					2, 'mousetrap_fakewebcrawler'
-				);
-			}
+			$this->doTransgression();
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isTransgression() {
+		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isTransgressionFakeWebCrawler();
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function writeAudit() {
+		$this->createNewAudit(
+			'wpsf',
+			sprintf( _wpsf__( 'Fake Web Crawler detected "%s"' ), Services::Request()->getPath() ),
+			2, 'mousetrap_fakecrawler'
+		);
+		return $this;
 	}
 
 	/**

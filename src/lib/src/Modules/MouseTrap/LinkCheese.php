@@ -13,7 +13,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class LinkCheese extends Base {
 
 	protected function process() {
-		$this->processCheeseLinkAccess();
+		if ( $this->isCheese() ) {
+			$this->doTransgression();
+		}
 		add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
 		add_action( 'wp_footer', array( $this, 'insertMouseTrap' ) );
 	}
@@ -29,26 +31,6 @@ class LinkCheese extends Base {
 			$sRobotsText .= sprintf( $sTempl, $this->getMod()->prefix( $sWord ) );
 		}
 		return $sRobotsText;
-	}
-
-	private function processCheeseLinkAccess() {
-		if ( $this->isCheese() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
-			$oFO = $this->getMod();
-
-			$sAuditMessage = _wpsf__( 'MouseTrap found visitor to be a bot.' );
-
-			if ( $oFO->isMouseTrayBlock() ) {
-				$oFO->setIpBlocked();
-				$sAuditMessage .= ' '._wpsf__( 'IP set to be blocked.' );
-			}
-			else {
-				$oFO->setIpTransgressed();
-				$sAuditMessage .= ' '._wpsf__( 'Transgression counter set to increase.' );
-			}
-
-			$this->createNewAudit( $sAuditMessage, 2, 'mouse_trapped' );
-		}
 	}
 
 	private function isCheese() {
@@ -103,6 +85,27 @@ class LinkCheese extends Base {
 			$sLink = add_query_arg( [ $oFO->prefix( $sWord ) => $sKey ], $oWp->getHomeUrl() );
 		}
 		return $sLink;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isTransgression() {
+		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isTransgressionLinkCheese();
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function writeAudit() {
+		$this->createNewAudit(
+			'wpsf',
+			sprintf( _wpsf__( 'Link cheese access detected at "%s"' ), Services::Request()->getPath() ),
+			2, 'mousetrap_linkcheese'
+		);
+		return $this;
 	}
 
 	/**

@@ -17,8 +17,8 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 	/**
 	 * @return bool
 	 */
-	public function isEnabledLinkCheese() {
-		return $this->isSelectOptionEnabled( 'link_cheese' );
+	public function isEnabledFakeWebCrawler() {
+		return $this->isSelectOptionEnabled( 'fake_webcrawler' );
 	}
 
 	/**
@@ -31,8 +31,15 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 	/**
 	 * @return bool
 	 */
-	public function isEnabledFakeWebCrawker() {
-		return $this->isSelectOptionEnabled( 'fake_webcrawler' );
+	public function isEnabledLinkCheese() {
+		return $this->isSelectOptionEnabled( 'link_cheese' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledXmlRpcDetect() {
+		return $this->isSelectOptionEnabled( 'xmlrpc' );
 	}
 
 	/**
@@ -59,8 +66,15 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 	/**
 	 * @return bool
 	 */
-	public function isTransgressionFakeWebCrawker() {
+	public function isTransgressionFakeWebCrawler() {
 		return $this->isSelectOptionTransgression( 'fake_webcrawler' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTransgressionXmlRpc() {
+		return $this->isSelectOptionTransgression( 'xmlrpc' );
 	}
 
 	/**

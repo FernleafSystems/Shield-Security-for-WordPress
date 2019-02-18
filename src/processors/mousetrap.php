@@ -30,7 +30,7 @@ class ICWP_WPSF_Processor_Mousetrap extends ICWP_WPSF_Processor_BaseWpsf {
 				->run();
 		}
 
-		if ( $oFO->isEnabledFakeWebCrawker() ) {
+		if ( $oFO->isEnabledFakeWebCrawler() ) {
 			( new MouseTrap\FakeWebCrawler() )
 				->setMod( $oFO )
 				->run();
@@ -38,6 +38,12 @@ class ICWP_WPSF_Processor_Mousetrap extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( $oFO->isEnabledLinkCheese() ) {
 			( new MouseTrap\LinkCheese() )
+				->setMod( $oFO )
+				->run();
+		}
+
+		if ( $oFO->isEnabledXmlRpcDetect() ) {
+			( new MouseTrap\DetectXmlRpc() )
 				->setMod( $oFO )
 				->run();
 		}
