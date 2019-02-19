@@ -27,7 +27,7 @@ class BuildThemes {
 			$sFile = $oItem->get_stylesheet();
 			$bActive = $oWp->isActive( $sFile );
 			$aItems[ $sFile ] = [
-				'file'       => $sFile,
+				'uniq'       => $sFile,
 				'version'    => $oItem->get( 'Version' ),
 				'has_update' => $oWp->isUpdateAvailable( $sFile ),
 				'is_active'  => $bActive,

@@ -34,7 +34,7 @@ class BuildComments {
 			if ( is_array( $aQueryResult ) ) {
 				foreach ( $aQueryResult as $oComment ) {
 					$aActual[ $oComment->comment_ID ] = [
-						'id'           => $oComment->comment_ID,
+						'uniq'         => $oComment->comment_ID,
 						'modified_at'  => strtotime( $oComment->comment_date_gmt ),
 						'hash_content' => sha1( $oComment->comment_content ),
 						'is_approved'  => $oComment->comment_approved === '1',

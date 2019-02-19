@@ -32,7 +32,7 @@ class BuildPosts {
 			if ( is_array( $aQueryResult ) ) {
 				foreach ( $aQueryResult as $oPost ) {
 					$aActual[ $oPost->ID ] = [
-						'id'           => $oPost->ID,
+						'uniq'         => $oPost->ID,
 						'slug'         => $oPost->post_name,
 						'modified_at'  => strtotime( $oPost->post_date_gmt ),
 						'hash_content' => sha1( $oPost->post_content ),

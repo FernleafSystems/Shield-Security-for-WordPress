@@ -36,9 +36,9 @@ class Base {
 			$aNew = $this->getNewSnapshot()[ $nId ];
 
 			$aChanged[ $nId ] = [];
-			foreach ( $aCompareAttrs as $sAttribute ) {
-				if ( $aOld[ $sAttribute ] != $aNew[ $sAttribute ] ) {
-					$aChanged[ $nId ][] = $sAttribute;
+			foreach ( $aCompareAttrs as $sAttr ) {
+				if ( isset( $aOld[ $sAttr ] ) && isset( $aNew[ $sAttr ] ) && $aOld[ $sAttr ] != $aNew[ $sAttr ] ) {
+					$aChanged[ $nId ][] = $sAttr;
 				}
 			}
 		}
@@ -64,7 +64,12 @@ class Base {
 	 * @return string[]
 	 */
 	protected function getAttributesToCompare() {
-		return [];
+		return [
+			'slug',
+			'modified_at',
+			'hash_title',
+			'hash_content',
+		];
 	}
 
 	/**
@@ -75,11 +80,11 @@ class Base {
 	}
 
 	/**
-	 * @param array $aOldSnapshot
+	 * @param array $aSnapshot
 	 * @return $this
 	 */
-	public function setOldSnapshot( $aOldSnapshot ) {
-		$this->aOldSnapshot = $aOldSnapshot;
+	public function setOldSnapshot( $aSnapshot ) {
+		$this->aOldSnapshot = $this->structureSnapshotItems( $aSnapshot );
 		return $this;
 	}
 
@@ -91,11 +96,24 @@ class Base {
 	}
 
 	/**
-	 * @param array $aNewSnapshot
+	 * @param array $aSnapshot
 	 * @return $this
 	 */
-	public function setNewSnapshot( $aNewSnapshot ) {
-		$this->aNewSnapshot = $aNewSnapshot;
+	public function setNewSnapshot( $aSnapshot ) {
+		$this->aNewSnapshot = $this->structureSnapshotItems( $aSnapshot );
 		return $this;
+	}
+
+	/**
+	 * Ensures that the items in the snapshot array have keys that correspond to their uniq IDs.
+	 * @param array[] $aSnapshotItems
+	 * @return array[]
+	 */
+	private function structureSnapshotItems( $aSnapshotItems ) {
+		$aStructured = [];
+		foreach ( $aSnapshotItems as $aItem ) {
+			$aStructured[ $aItem[ 'uniq' ] ] = $aItem;
+		}
+		return $aStructured;
 	}
 }

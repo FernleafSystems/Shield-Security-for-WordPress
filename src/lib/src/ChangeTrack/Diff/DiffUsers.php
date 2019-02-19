@@ -6,6 +6,9 @@ class DiffUsers extends Base {
 
 	public function run() {
 
+		var_dump( $this->getAdded() );
+		var_dump( $this->getRemoved() );
+		var_dump( $this->getChangedItems() );
 
 	}
 
@@ -16,6 +19,7 @@ class DiffUsers extends Base {
 		return [
 			'user_pass',
 			'user_email',
+			'is_admin',
 		];
 	}
 }

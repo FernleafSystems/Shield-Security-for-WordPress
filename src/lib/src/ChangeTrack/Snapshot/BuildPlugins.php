@@ -25,7 +25,7 @@ class BuildPlugins {
 		$aItems = [];
 		foreach ( $oWp->getPlugins() as $sFile => $aData ) {
 			$aItems[ $sFile ] = [
-				'file'       => $sFile,
+				'uniq'       => $sFile,
 				'version'    => $aData[ 'Version' ],
 				'is_active'  => $oWp->isActive( $sFile ),
 				'has_update' => $oWp->isUpdateAvailable( $sFile ),

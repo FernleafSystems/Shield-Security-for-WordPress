@@ -18,7 +18,7 @@ class BuildUsers {
 		$aAdminIds = array_keys( $this->getAdmins() );
 		return array_map(
 			function ( $aUser ) use ( $aAdminIds ) {
-				$aUser[ 'is_admin' ] = in_array( $aUser[ 'id' ], $aAdminIds );
+				$aUser[ 'is_admin' ] = in_array( $aUser[ 'uniq' ], $aAdminIds );
 				return $aUser;
 			},
 			$this->getUsers()
@@ -52,7 +52,7 @@ class BuildUsers {
 			foreach ( $aUserResult as $oUser ) {
 				/** @var \stdClass $oUser */
 				$aActual[ $oUser->id ] = [
-					'id'         => $oUser->id,
+					'uniq'       => $oUser->id,
 					'user_pass'  => sha1( $oUser->user_pass ),
 					'user_email' => sha1( $oUser->user_email ),
 				];
