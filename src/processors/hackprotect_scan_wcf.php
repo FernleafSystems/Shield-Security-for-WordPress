@@ -7,6 +7,15 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'wcf';
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabled() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isWcfScanEnabled();
+	}
+
+	/**
 	 * @param Shield\Scans\Wcf\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */

@@ -30,6 +30,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * @return bool
+	 */
+	abstract public function isEnabled();
+
+	/**
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	public function doScan() {

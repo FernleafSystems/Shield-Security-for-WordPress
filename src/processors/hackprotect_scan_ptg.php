@@ -51,6 +51,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabled() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isPtgEnabled();
+	}
+
+	/**
 	 * @return Shield\Scans\Ptg\ResultsSet
 	 */
 	protected function getScannerResults() {

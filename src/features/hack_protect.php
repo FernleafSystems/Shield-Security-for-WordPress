@@ -13,7 +13,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function updateHandler() {
 		$this->clearCrons()
-			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
+//			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
 			 ->setPtgUpdateStoreFormat( true );
 	}
 
@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function handleAuthAjax( $aAjaxResponse ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		if ( empty( $aAjaxResponse ) ) {
 
@@ -94,7 +94,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$bReinstall = (bool)$oReq->post( 'reinstall' );
 		$bActivate = (bool)$oReq->post( 'activate' );
 		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
-		$oWpP = $this->loadWpPlugins();
 
 		if ( $bReinstall ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
@@ -104,13 +103,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 							->reinstall( $sFile )
 						 && $bActivate;
 		}
+
 		if ( $bActivate ) {
-			$oWpP->activate( $sFile );
+			Services::WpPlugins()->activate( $sFile );
 		}
 
-		return array(
-			'success' => true
-		);
+		return [ 'success' => true ];
 	}
 
 	/**
@@ -738,7 +736,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		);
 	}
 
-	public function ajaxExec_StartScans() {
+	private function ajaxExec_StartScans() {
 		$bSuccess = false;
 		$bPageReload = false;
 		$sMessage = _wpsf__( 'No scans were selected' );
@@ -771,7 +769,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						break;
 				}
 
-				if ( !empty( $oTablePro ) ) {
+				if ( !empty( $oTablePro ) && $oTablePro->isEnabled() ) {
 					$oTablePro->doScan();
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
@@ -788,11 +786,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
-		return array(
+		return [
 			'success'     => $bSuccess,
 			'page_reload' => $bPageReload,
 			'message'     => $sMessage,
-		);
+		];
 	}
 
 	/**
