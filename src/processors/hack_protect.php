@@ -110,28 +110,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'please_enable' => _wpsf__( 'Please turn on this scan in the options.' ),
 			),
 			'vars'    => [
-				'scans' => [
-					'apc' => [
-						'title'    => _wpsf__( 'Abandoned Plugins Check' ),
-						'subtitle' => _wpsf__( "Discover abandoned plugins" )
-					],
-					'wcf' => [
-						'title'    => _wpsf__( 'WordPress Core File Integrity' ),
-						'subtitle' => _wpsf__( "Discover abandoned plugins" )
-					],
-					'ufc' => [
-						'title'    => _wpsf__( 'Unrecognised Core Files' ),
-						'subtitle' => _wpsf__( "Discover abandoned plugins" )
-					],
-					'ptg' => [
-						'title'    => _wpsf__( 'Plugin / Theme Modifications' ),
-						'subtitle' => _wpsf__( "Discover abandoned plugins" )
-					],
-					'wpv' => [
-						'title'    => _wpsf__( 'Plugin / Theme Vulnerabilities' ),
-						'subtitle' => _wpsf__( "Discover abandoned plugins" )
-					],
-				]
 			],
 			'scans'   => array(
 				'apc' => array(
@@ -152,6 +130,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'count'   => $oSelector->countForScan( 'apc' ),
 					'strings' => array(
+						'title'    => _wpsf__( 'Abandoned Plugins Check' ),
 						'subtitle' => _wpsf__( "Discover abandoned plugins" )
 					),
 				),
@@ -173,6 +152,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'count'   => $oSelector->countForScan( 'wcf' ),
 					'strings' => array(
+						'title'    => _wpsf__( 'WordPress Core File Integrity' ),
 						'subtitle' => _wpsf__( "Detects changes to core WordPress files" )
 					),
 				),
@@ -194,6 +174,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'count'   => $oSelector->countForScan( 'ufc' ),
 					'strings' => array(
+						'title'    => _wpsf__( 'Unrecognised Core Files' ),
 						'subtitle' => _wpsf__( "Detects files that maybe shouldn't be there" )
 					),
 				),
@@ -215,6 +196,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'count'   => $oSelector->countForScan( 'wpv' ),
 					'strings' => array(
+						'title'    => _wpsf__( 'Plugin / Theme Vulnerabilities' ),
 						'subtitle' => _wpsf__( "Alerts on known security vulnerabilities" )
 					),
 				),
@@ -360,6 +342,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'count'   => $oSelector->countForScan( 'ptg' ),
 			'assets'  => array_merge( $aPlugins, $aThemes ),
 			'strings' => array(
+				'title'               => _wpsf__( 'Plugin / Theme Modifications' ),
 				'subtitle'            => _wpsf__( "Detects unauthorized changes to plugins/themes" ),
 				'files_with_problems' => _wpsf__( 'Files with problems' ),
 				'root_dir'            => _wpsf__( 'Root directory' ),
