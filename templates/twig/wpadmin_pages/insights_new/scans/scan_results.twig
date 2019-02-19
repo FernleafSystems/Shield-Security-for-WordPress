@@ -25,18 +25,18 @@
 		{#{% include '/wpadmin_pages/insights_new/scans/results/wpv.twig' %}#}
 	{#</div>#}
 {#</div>#}
-<div class="row">
-	<div class="col-3">
-		<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+<div class="row" id="ScanResultsPills">
+	<div class="col-sm-3 col-md-2">
+		<nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
 			{% for scankey,scanvars in vars.scans %}
 				<a class="nav-link " id="v-pills-home-tab" data-toggle="pill"href="#v-pills-{{ scankey }}"
 				   role="tab" aria-controls="v-pills-{{ scankey }}" aria-selected="true">
 					{{ scanvars.title }}
 				</a>
 			{% endfor %}
-		</div>
+		</nav>
 	</div>
-	<div class="col-9">
+	<div class="col-sm-9 col-md-10">
 		<div class="tab-content" id="v-pills-tabContent">
 			<div class="tab-pane fade show active" id="v-pills-start" role="tabpanel"
 				 aria-labelledby="v-pills-home-tab">
