@@ -499,7 +499,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		if ( $this->getSecAdminTimeLeft() < 1 ) {
+		if ( $this->getSecAdminTimeLeft() > 0 ) {
 			wp_localize_script(
 				$this->prefix( 'plugin' ),
 				'icwp_wpsf_vars_secadmin',
