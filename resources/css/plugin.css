@@ -1112,6 +1112,9 @@ table.scan-table.wp-list-table button.toggle-row {
 #ScanResultsPills .card.card-scan_results {
 	margin-top: 0;
 }
+#ScanResultsPills nav > a.nav-link .badge {
+	font-size: 12px;
+}
 
 /**
 PTG SCAN TABLES
