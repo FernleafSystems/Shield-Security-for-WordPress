@@ -27,10 +27,10 @@ class BuildPosts {
 		$aParams = Services::DataManipulation()->mergeArraysRecursive( $this->getBaseParameters(), $aParams );
 
 		do {
+			/** @var \WP_Post[] $aQueryResult */
 			$aQueryResult = get_posts( $aParams );
 			if ( is_array( $aQueryResult ) ) {
 				foreach ( $aQueryResult as $oPost ) {
-					/** @var \WP_Post $oPost */
 					$aActual[ $oPost->ID ] = [
 						'id'           => $oPost->ID,
 						'slug'         => $oPost->post_name,

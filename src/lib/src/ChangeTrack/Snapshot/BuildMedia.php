@@ -13,8 +13,7 @@ class BuildMedia extends BuildPosts {
 	 * @return array[]
 	 */
 	protected function retrieve( $aParams = [] ) {
-		$aItems = parent::retrieve( $aParams );
-		return $aItems;
+		return parent::retrieve( $aParams );
 	}
 
 	/**
