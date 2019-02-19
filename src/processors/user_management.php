@@ -138,13 +138,16 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			return $sContent;
 		}
 
-		$oWp = $this->loadWp();
-		$nLastLoginTime = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $nUserId )->last_login_at;
-
 		$sLastLoginText = _wpsf__( 'Not Recorded' );
-		if ( is_numeric( $nLastLoginTime ) && $nLastLoginTime > 0 ) {
-			$sLastLoginText = $oWp->getTimeStringForDisplay( $nLastLoginTime );
+
+		$oUser = Services::WpUsers()->getUserById( $nUserId );
+		if ( !empty( $oUser ) ) {
+			$nLastLoginTime = $this->getCon()->getUserMeta( $oUser )->last_login_at;
+			if ( $nLastLoginTime > 0 ) {
+				$sLastLoginText = Services::WpGeneral()->getTimeStringForDisplay( $nLastLoginTime );
+			}
 		}
+
 		return $sLastLoginText;
 	}
 

@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 	/**
@@ -97,10 +99,11 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_UserMeta
+	 * @return \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta
+	 * @throws \Exception
 	 */
 	protected function getCurrentUserMeta() {
-		return $this->loadWpUsers()->metaVoForUser( rtrim( $this->getPrefix(), '-' ) );
+		return \FernleafSystems\Wordpress\Services\Services::WpUsers()->metaVoForUser( rtrim( $this->getPrefix(), '-' ) );
 	}
 
 	/**
