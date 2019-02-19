@@ -64,12 +64,7 @@ class Base {
 	 * @return string[]
 	 */
 	protected function getAttributesToCompare() {
-		return [
-			'slug',
-			'modified_at',
-			'hash_title',
-			'hash_content',
-		];
+		return [];
 	}
 
 	/**
