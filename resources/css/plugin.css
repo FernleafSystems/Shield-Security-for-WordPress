@@ -1098,6 +1098,21 @@ table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
 
+#ScanResultsPills {
+	margin-top: 25px;
+}
+#ScanResultsPills nav > a.nav-link {
+	color: #0c7905;
+	height: 72px;
+}
+#ScanResultsPills nav > a.nav-link.active {
+	color: #ffffff;
+	background-color: #0c7905;
+}
+#ScanResultsPills .card.card-scan_results {
+	margin-top: 0;
+}
+
 /**
 PTG SCAN TABLES
  */

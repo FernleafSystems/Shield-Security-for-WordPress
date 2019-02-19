@@ -69,6 +69,15 @@
       ]
     },
     {
+      "slug":        "section_scan_apc",
+      "title":       "Abandoned Plugin Check",
+      "title_short": "Abandoned Plugin Check",
+      "summary":     [
+        "Purpose - Regularly scan your WordPress plugins and themes for plugins that have been abandoned.",
+        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
+      ]
+    },
+    {
       "slug":        "section_integrity_checking",
       "title":       "Integrity Checks",
       "title_short": "Integrity Checks",
@@ -165,6 +174,43 @@
       "name":          "Highlight Plugins",
       "summary":       "Highlight Vulnerable Plugins",
       "description":   "Vulnerable plugins will be highlighted on the main plugins page."
+    },
+    {
+      "key":           "enabled_scan_apc",
+      "section":       "section_scan_apc",
+      "premium":       true,
+      "default":       "enabled_email",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Scan Disabled"
+        },
+        {
+          "value_key": "enabled_email",
+          "text":      "Enabled - Send Email Notification"
+        },
+        {
+          "value_key": "enabled_no_email",
+          "text":      "Enabled - No Email Notification"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Abandoned Plugin Scanner",
+      "summary":       "Enable The Abandoned Plugin Scanner",
+      "description":   "Scan your WordPress.org assets for whether they've been abandoned."
+    },
+    {
+      "key":           "display_apc",
+      "section":       "section_scan_apc",
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Highlight Plugins",
+      "summary":       "Highlight Abandoned Plugins",
+      "description":   "Abandoned plugins will be highlighted on the main plugins page."
     },
     {
       "key":         "enable_core_file_integrity_scan",
