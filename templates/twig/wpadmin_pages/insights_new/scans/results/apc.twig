@@ -1,11 +1,11 @@
-<div class="row insights_widget" id="SectionScanResultsWpv">
+<div class="row insights_widget" id="SectionScanResultsApc">
 	<div class="col-12">
 		<div class="card card-scan_results">
 
 			<div class="card-header">
-				<h5 class="card-title">Plugin / Theme Vulnerabilities</h5>
+				<h5 class="card-title">Abandoned Plugin Check</h5>
 				<h6 class="card-subtitle text-muted">
-					Get alerted to the presence of known security vulnerabilities inside your Plugins and Themes
+					Discover plugins that may have been abandoned by their authors
 				</h6>
 			</div>
 
@@ -18,7 +18,7 @@
 						{% if not scan.flags.has_items %}
 							<div class="alert alert-info m-0">No items discovered</div>
 						{% else %}
-							<div id="TableScanWpv" class="container-scantable"></div>
+							<div id="TableScanApc" class="container-scantable"></div>
 						{% endif %}
 
 					{% else %}
@@ -28,7 +28,6 @@
 				{% else %}
 					{% include '/wpadmin_pages/insights_new/scans/results/common_unavailable.twig' %}
 				{% endif %}
-
 
 			</div>
 
@@ -52,25 +51,21 @@
 	</div>
 </div>
 <script>
-	var $oTableScanWpv = jQuery( '#TableScanWpv' ).icwpWpsfAjaxTable(
+	var $oTableScanApc = jQuery( '#TableScanApc' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_scan|raw }},
 			'req_params': {
-				'fScan': 'wpv'
+				'fScan': 'apc'
 			}
 		}
 	);
-	jQuery( '#SectionScanResultsWpv' ).icwpWpsfTableActions(
+	jQuery( '#SectionScanResultsApc' ).icwpWpsfTableActions(
 		{
-			'table': $oTableScanWpv,
+			'table': $oTableScanApc,
 			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
 			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
-			'custom_actions_ajax': {
-				'item_asset_deactivate': {{ ajax.item_asset_deactivate|raw }},
-				'item_repair': {{ ajax.item_repair|raw }}
-			},
 			'req_params': {
-				'fScan': 'wpv'
+				'fScan': 'apc'
 			}
 		}
 	);

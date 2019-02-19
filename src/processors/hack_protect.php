@@ -109,7 +109,32 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'not_enabled'   => _wpsf__( 'This scan is not currently enabled.' ),
 				'please_enable' => _wpsf__( 'Please turn on this scan in the options.' ),
 			),
+			'vars'    => [
+			],
 			'scans'   => array(
+				/*
+				'apc' => array(
+					'flags'   => array(
+						'is_enabled'    => true,
+						'is_available'  => true,
+						'has_items'     => true,
+						'has_last_scan' => $oMod->getLastScanAt( 'apc' ) > 0
+					),
+					'hrefs'   => array(
+						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_apc' )
+					),
+					'vars'    => array(
+						'last_scan_at' => sprintf(
+							_wpsf__( 'Last Scan: %s' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'apc' ) )->diffForHumans()
+						),
+					),
+					'count'   => $oSelector->countForScan( 'apc' ),
+					'strings' => array(
+						'title'    => _wpsf__( 'Abandoned Plugins Check' ),
+						'subtitle' => _wpsf__( "Discover abandoned plugins" )
+					),
+				), */
 				'wcf' => array(
 					'flags'   => array(
 						'is_enabled'    => true,
@@ -128,6 +153,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'count'   => $oSelector->countForScan( 'wcf' ),
 					'strings' => array(
+						'title'    => _wpsf__( 'WordPress Core File Integrity' ),
 						'subtitle' => _wpsf__( "Detects changes to core WordPress files" )
 					),
 				),
@@ -149,6 +175,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'count'   => $oSelector->countForScan( 'ufc' ),
 					'strings' => array(
+						'title'    => _wpsf__( 'Unrecognised Core Files' ),
 						'subtitle' => _wpsf__( "Detects files that maybe shouldn't be there" )
 					),
 				),
@@ -170,6 +197,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'count'   => $oSelector->countForScan( 'wpv' ),
 					'strings' => array(
+						'title'    => _wpsf__( 'Plugin / Theme Vulnerabilities' ),
 						'subtitle' => _wpsf__( "Alerts on known security vulnerabilities" )
 					),
 				),
@@ -180,6 +208,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		return $aData;
 	}
 
+	/**
+	 * @return array
+	 */
 	private function getInsightVarsScan_Ptg() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
@@ -312,6 +343,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'count'   => $oSelector->countForScan( 'ptg' ),
 			'assets'  => array_merge( $aPlugins, $aThemes ),
 			'strings' => array(
+				'title'               => _wpsf__( 'Plugin / Theme Modifications' ),
 				'subtitle'            => _wpsf__( "Detects unauthorized changes to plugins/themes" ),
 				'files_with_problems' => _wpsf__( 'Files with problems' ),
 				'root_dir'            => _wpsf__( 'Root directory' ),

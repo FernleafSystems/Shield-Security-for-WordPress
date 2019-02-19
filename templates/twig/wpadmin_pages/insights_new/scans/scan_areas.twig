@@ -1,9 +1,15 @@
 <form id="StartScans">
 	<div class="card">
 		<div class="card-header">
-			<h5 class="card-title mb-0">Scan Your Site</h5>
+			<h5 class="card-title mb-0">
+				Scan Your Site
+				<small>
+					<a class="float-right" data-toggle="collapse"
+					   href="#Collapse_ScanResults">options &updownarrow;</a>
+				</small>
+			</h5>
 		</div>
-		<div class="card-body pb-2">
+		<div class="card-body pb-2 collapse" id="Collapse_ScanResults">
 
 			<div class="row">
 				<div class="col-12">
@@ -14,7 +20,7 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_wcf" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   name="wcf" id="_wcf" value="Y" />
+								   name="wcf" id="_wcf" value="Y" checked="checked" aria-selected="true" />
 							WordPress Core Files
 							<br />
 							<small class="form-text text-muted">
@@ -28,7 +34,7 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_ufc" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   name="ufc" id="_ufc" value="Y" />
+								   name="ufc" id="_ufc" value="Y" checked="checked" aria-selected="true" />
 							Unrecognised Core Files
 							<br />
 							<small class="form-text text-muted">
@@ -45,7 +51,7 @@
 									{% if not scans.ptg.flags.is_enabled %}
 										disabled="disabled"
 									{% endif %}
-								   name="ptg" id="_ptg" value="Y" />
+								   name="ptg" id="_ptg" value="Y" checked="checked" aria-selected="true" />
 							Plugin / Theme Modifications
 							<br />
 							<small class="form-text text-muted">
@@ -67,7 +73,7 @@
 									{% if not scans.wpv.flags.is_enabled %}
 										disabled="disabled"
 									{% endif %}
-								   name="wpv" id="_wpv" value="Y" />
+								   name="wpv" id="_wpv" value="Y" checked="checked" aria-selected="true" />
 							Plugin / Theme Vulnerabilities
 							<br />
 							<small class="form-text text-muted">

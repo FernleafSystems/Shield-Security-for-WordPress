@@ -71,7 +71,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		);
 
 		{ //edit plugins
-			if ( !current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
+			if ( current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
 				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
 					'title'   => 'Code Editor',
 					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
@@ -106,11 +106,11 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bEditing = current_user_can( 'edit_plugins' );
+			$bEditingDisabled = !current_user_can( 'edit_plugins' );
 			$aThis[ 'key_opts' ][ 'editing' ] = array(
 				'name'    => _wpsf__( 'WP File Editing' ),
-				'enabled' => $bEditing,
-				'summary' => $bEditing ?
+				'enabled' => $bEditingDisabled,
+				'summary' => $bEditingDisabled ?
 					_wpsf__( 'File editing is disabled' )
 					: _wpsf__( "File editing is permitted through WP admin" ),
 				'weight'  => 2,

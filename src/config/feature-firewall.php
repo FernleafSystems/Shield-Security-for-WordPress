@@ -328,8 +328,7 @@
         "regex":  [
           "^wp_",
           "^user_login",
-          "^user_pass",
-          "[^0-9]0x[0-9a-f][0-9a-f]"
+          "^user_pass"
         ]
       },
       "fieldtruncation": {

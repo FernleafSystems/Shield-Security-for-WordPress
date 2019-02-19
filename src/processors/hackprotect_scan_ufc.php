@@ -7,6 +7,15 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'ufc';
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabled() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isUfcEnabled();
+	}
+
+	/**
 	 * @param Shield\Scans\Ufc\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */

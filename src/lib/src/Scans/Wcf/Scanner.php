@@ -54,9 +54,9 @@ class Scanner {
 			$oRes->is_missing = !Services::WpFs()->exists( $oRes->path_full );
 			$oRes->is_checksumfail = !$oRes->is_missing && $this->isChecksumFail( $oRes );
 			$oRes->is_excluded = ( $bHasExclusions && preg_match( $sRegExclusions, $oRes->path_fragment ) )
-								 || ( $bHasMissingExclusions && preg_match( $sRegMissingExcl, $oRes->path_fragment ) );
+								 || ( $bHasMissingExclusions && $oRes->is_missing && preg_match( $sRegMissingExcl, $oRes->path_fragment ) );
 
-			if ( $oRes->is_missing || $oRes->is_checksumfail ) {
+			if ( !$oRes->is_excluded && ( $oRes->is_missing || $oRes->is_checksumfail ) ) {
 				$oResultSet->addItem( $oRes );
 			}
 		}
