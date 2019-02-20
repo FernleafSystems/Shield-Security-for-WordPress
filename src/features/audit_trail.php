@@ -226,7 +226,14 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return int
 	 */
 	public function getCTSnapshotsPerWeek() {
-		return (int)$this->getOpt( 'snapshots_per_week', 7 );
+		return (int)$this->getOpt( 'ct_snapshots_per_week', 7 );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCTMaxSnapshots() {
+		return (int)$this->getOpt( 'ct_max_snapshots', 28 );
 	}
 
 	/**
@@ -451,9 +458,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$sResult = (int)( strlen( base64_encode( WP_Http_Encoding::compress( json_encode( $aData ) ) ) )/1024 );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Track significant changes to your site.' ) )
-					.' '.sprintf( '%s - %s', _wpsf__( 'Important' ), _wpsf__( 'This is separate from the Audit Trail.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Consider' ),
-						_wpsf__( 'Change Tracking use snapshots.' )
+					.' '.sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( 'This is separate from the Audit Trail.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Considerations' ),
+						_wpsf__( 'Change Tracking uses snapshots that may use take up  lot of data.' )
 						.' '.sprintf( 'Each snapshot will consume ~%sKB in your database', $sResult )
 					),
 				);
@@ -546,12 +553,19 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$sDescription = _wpsf__( 'Tracking major changes to your site will help you monitor and catch malicious damage.' );
 				break;
 
-			case 'snapshots_per_week' :
+			case 'ct_snapshots_per_week' :
 				$sName = _wpsf__( 'Snapshot Per Week' );
 				$sSummary = _wpsf__( 'Number Of Snapshots To Take Per Week' );
 				$sDescription = _wpsf__( 'The number of snapshots to take per week. For daily snapshots, select 7.' )
-								.'<br />'._wpsf__( 'The more snapshots, the more data will be stored in the database.' )
+								.'<br />'._wpsf__( 'Data storage in your database increases with the number of snapshots.' )
 								.'<br />'._wpsf__( 'However, increased snapshots provide more granular information on when major site changes occurred.' );
+				break;
+
+			case 'ct_max_snapshots' :
+				$sName = _wpsf__( 'Max Snapshots' );
+				$sSummary = _wpsf__( 'Maximum Number Of Snapshots To Retain' );
+				$sDescription = _wpsf__( 'The more snapshots you retain, the further back you can look at changes over your site.' )
+								.'<br />'._wpsf__( 'You will need to consider the implications to database storage requirements.' );
 				break;
 
 			default:

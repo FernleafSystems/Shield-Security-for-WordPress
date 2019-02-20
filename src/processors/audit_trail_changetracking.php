@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ICWP_WPSF_BaseDbProc
 		try {
 			$this->getDbHandler()
 				 ->getQueryDeleter()
-				 ->deleteExcess( $oFO->getMaxEntries() );
+				 ->deleteExcess( $oFO->getCTMaxSnapshots() );
 		}
 		catch ( \Exception $oE ) {
 		}
