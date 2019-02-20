@@ -685,14 +685,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select
-	 */
-	public function getQuerySelector() {
-		return $this->getDbHandler()->getQuerySelector();
-	}
-
-	/**
 	 * @return int
 	 */
 	protected function getAutoExpirePeriod() {
@@ -714,30 +706,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				 ->query();
 		}
 		return true;
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Update
-	 */
-	public function getQueryUpdater() {
-		return parent::getQueryUpdater();
 	}
 
 	/**

@@ -185,28 +185,4 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_BaseDbProcessor {
 	protected function createDbHandler() {
 		return new AuditTrail\Handler();
 	}
-
-	/**
-	 * @deprecated
-	 * @return AuditTrail\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return AuditTrail\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return AuditTrail\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
 }

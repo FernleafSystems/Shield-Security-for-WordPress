@@ -184,20 +184,4 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$aDef = $this->getMod()->getDef( 'traffic_table_columns' );
 		return is_array( $aDef ) ? $aDef : array();
 	}
-
-	/**
-	 * @deprecated
-	 * @return Traffic\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Traffic\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
 }
