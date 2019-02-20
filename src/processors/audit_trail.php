@@ -10,6 +10,9 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isEnabledAuditing() ) {
 			$this->getSubProAuditor()->run();
 		}
+		if ( $oFO->isEnabledChangeTracking() ) {
+			$this->getSubProChangeTracking()->run();
+		}
 	}
 
 	/**
@@ -20,11 +23,19 @@ class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_AuditTrail_ChangeTracking|mixed
+	 */
+	public function getSubProChangeTracking() {
+		return $this->getSubPro( 'changetracking' );
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {
 		return [
-			'auditor' => 'ICWP_WPSF_Processor_AuditTrail_Auditor',
+			'auditor'        => 'ICWP_WPSF_Processor_AuditTrail_Auditor',
+			'changetracking' => 'ICWP_WPSF_Processor_AuditTrail_ChangeTracking',
 		];
 	}
 }
