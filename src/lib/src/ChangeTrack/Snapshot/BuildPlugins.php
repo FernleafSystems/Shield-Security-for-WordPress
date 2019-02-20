@@ -21,14 +21,14 @@ class BuildPlugins {
 	 * @return array
 	 */
 	private function getItems() {
-		$oWp = Services::WpPlugins();
 		$aItems = [];
-		foreach ( $oWp->getPlugins() as $sFile => $aData ) {
+		foreach ( Services::WpPlugins()->getPluginsAsVo() as $sFile => $oPlugin ) {
 			$aItems[ $sFile ] = [
 				'uniq'       => $sFile,
-				'version'    => $aData[ 'Version' ],
-				'is_active'  => $oWp->isActive( $sFile ),
-				'has_update' => $oWp->isUpdateAvailable( $sFile ),
+				'name'       => $oPlugin->Name,
+				'version'    => $oPlugin->Version,
+				'is_active'  => $oPlugin->active,
+				'has_update' => $oPlugin->hasUpdate(),
 			];
 		}
 		return $aItems;

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Report\Build;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class Plugins extends Base {
+class Posts extends Base {
 
 	/**
 	 * @param array $aAdded
@@ -13,12 +13,12 @@ class Plugins extends Base {
 	protected function processAdded( $aAdded ) {
 		$aReport = [];
 		if ( !empty( $aAdded ) ) {
-			$aReport[ 'title' ] = 'Plugins Installed';
+			$aReport[ 'title' ] = 'Posts Published';
 			$aReport[ 'lines' ] = [];
-			$oWpPlugins = Services::WpPlugins();
+			$oWpPosts = Services::WpPost();
 			foreach ( $aAdded as $aItem ) {
-				$oPlugin = $oWpPlugins->getPluginAsVo( $aItem[ 'uniq' ] );
-				$aReport[ 'lines' ] = sprintf( 'Plugin added (file:%s): "%s"', $oPlugin->file, $oPlugin->Name );
+				$oItem = $oWpPosts->getById( $aItem[ 'uniq' ] );
+				$aReport[ 'lines' ] = sprintf( 'Post Published (slug:%s): "%s"', $oItem->post_name, $oItem->post_title );
 			}
 		}
 		return $aReport;
@@ -31,13 +31,13 @@ class Plugins extends Base {
 	protected function processChanged( $aChanged ) {
 		$aReport = [];
 		if ( !empty( $aChanged ) ) {
-			$aReport[ 'title' ] = "Plugins Changed";
+			$aReport[ 'title' ] = "Posts Changed";
 			$aReport[ 'lines' ] = [];
-			$oWpPlugins = Services::WpPlugins();
+			$oWpPosts = Services::WpPost();
 			foreach ( $aChanged as $sUniqId => $aAttributes ) {
-				$oItem = $oWpPlugins->getPluginAsVo( $sUniqId );
-				$aReport[ 'lines' ] = sprintf( 'Plugin "%s" (file:%s) changed attributes: %s',
-					$oItem->Name, $sUniqId, implode( ', ', $aAttributes ) );
+				$oItem = $oWpPosts->getById( $sUniqId );
+				$aReport[ 'lines' ] = sprintf( 'Post "%s" (slug:%s) changed attributes: %s',
+					$oItem->post_title, $oItem->post_name, implode( ', ', $aAttributes ) );
 			}
 		}
 		return $aReport;
@@ -50,10 +50,10 @@ class Plugins extends Base {
 	protected function processRemoved( $aRemoved ) {
 		$aReport = [];
 		if ( !empty( $aRemoved ) ) {
-			$aReport[ 'title' ] = 'Plugins Removed';
+			$aReport[ 'title' ] = 'Posts Removed';
 			$aReport[ 'lines' ] = [];
 			foreach ( $aRemoved as $aItem ) {
-				$aReport[ 'lines' ] = sprintf( 'Plugin removed (file:%s): "%s"', $aItem[ 'uniq' ], $aItem[ 'name' ] );
+				$aReport[ 'lines' ] = sprintf( 'Post Un-Published (slug:%s): "%s"', $aItem[ 'slug' ], $aItem[ 'title' ] );
 			}
 		}
 		return $aReport;

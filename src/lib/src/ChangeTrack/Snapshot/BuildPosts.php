@@ -34,6 +34,7 @@ class BuildPosts {
 					$aActual[ $oPost->ID ] = [
 						'uniq'         => $oPost->ID,
 						'slug'         => $oPost->post_name,
+						'title'        => $oPost->post_title,
 						'modified_at'  => strtotime( $oPost->post_date_gmt ),
 						'hash_content' => sha1( $oPost->post_content ),
 						'hash_title'   => sha1( $oPost->post_title ),

@@ -28,6 +28,7 @@ class BuildThemes {
 			$bActive = $oWp->isActive( $sFile );
 			$aItems[ $sFile ] = [
 				'uniq'       => $sFile,
+				'name'       => $oItem->get( 'Name' ),
 				'version'    => $oItem->get( 'Version' ),
 				'has_update' => $oWp->isUpdateAvailable( $sFile ),
 				'is_active'  => $bActive,

@@ -17,8 +17,8 @@ class Themes extends Base {
 			$aReport[ 'lines' ] = [];
 			$oWpThemes = Services::WpThemes();
 			foreach ( $aAdded as $aItem ) {
-				$oTheme = $oWpThemes->getTheme( $aItem[ 'uniq' ] );
-				$aReport[ 'lines' ] = sprintf( 'Theme added (dir:%s): "%s"', $oTheme->get_stylesheet(), $oTheme->get( 'Name' ) );
+				$oItem = $oWpThemes->getTheme( $aItem[ 'uniq' ] );
+				$aReport[ 'lines' ] = sprintf( 'Theme added (dir:%s): "%s"', $oItem->get_stylesheet(), $oItem->get( 'Name' ) );
 			}
 		}
 		return $aReport;
@@ -35,9 +35,9 @@ class Themes extends Base {
 			$aReport[ 'lines' ] = [];
 			$oWpThemes = Services::WpThemes();
 			foreach ( $aChanged as $sUniqId => $aAttributes ) {
-				$oTheme = $oWpThemes->getTheme( $sUniqId );
+				$oItem = $oWpThemes->getTheme( $sUniqId );
 				$aReport[ 'lines' ] = sprintf( 'Theme "%s" (dir:%s) changed attributes: %s',
-					$oTheme->get( 'Name' ), $oTheme->get_stylesheet(), implode( ', ', $aAttributes ) );
+					$oItem->get( 'Name' ), $oItem->get_stylesheet(), implode( ', ', $aAttributes ) );
 			}
 		}
 		return $aReport;
@@ -52,11 +52,8 @@ class Themes extends Base {
 		if ( !empty( $aRemoved ) ) {
 			$aReport[ 'title' ] = 'Themes Removed';
 			$aReport[ 'lines' ] = [];
-			$oWpThemes = Services::WpThemes();
 			foreach ( $aRemoved as $aItem ) {
-				$oTheme = $oWpThemes->getTheme( $aItem[ 'uniq' ] );
-				$aReport[ 'lines' ] = sprintf( 'Theme removed (dir:%s): "%s"',
-					$oTheme->get_stylesheet(), $oTheme->get( 'Name' ) );
+				$aReport[ 'lines' ] = sprintf( 'Theme removed (dir:%s): "%s"', $aItem[ 'uniq' ], $aItem[ 'name' ] );
 			}
 		}
 		return $aReport;
