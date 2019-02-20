@@ -1,25 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Report;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Report\Build;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildReportUsers extends BuildReportBase {
-
-	public function run() {
-		$aDiff = ( new ChangeTrack\Diff\DiffUsers() )
-			->setNewSnapshot( $this->getNewSnapshot() )
-			->setOldSnapshot( $this->getOldSnapshot() )
-			->run();
-
-		$bHasChanges = !empty( $aDiff[ 'added' ] ) && !empty( $aDiff[ 'removed' ] ) && !empty( $aDiff[ 'changed' ] );
-
-		if ( $bHasChanges ) {
-			$aAdded = $this->processAdded( $aDiff[ 'added' ] );
-			$aRemoved = $this->processRemoved( $aDiff[ 'removed' ] );
-		}
-	}
+class Users extends Base {
 
 	/**
 	 * @param array $aAdded
@@ -45,7 +30,7 @@ class BuildReportUsers extends BuildReportBase {
 		$aReport = [];
 		if ( !empty( $aChanged ) ) {
 			$oWpUsers = Services::WpUsers();
-			$aReport[ 'title' ] = "The following users' attributes have changed";
+			$aReport[ 'title' ] = "Users Changed";
 			$aReport[ 'lines' ] = [];
 			foreach ( $aChanged as $sUniqId => $aAttributes ) {
 				$aReport[ 'lines' ] = sprintf( 'User "%s" (ID:%s) changed attributes: %s',

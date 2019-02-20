@@ -1,11 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Report;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Report\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack;
-use FernleafSystems\Wordpress\Services\Services;
 
-class BuildReportBase {
+class Base {
 
 	use ChangeTrack\Snapshot\SnapshotsConsumer;
 
@@ -31,7 +30,7 @@ class BuildReportBase {
 	protected function processAdded( $aAdded ) {
 		$aReport = [];
 		if ( !empty( $aAdded ) ) {
-			$aReport[ 'title' ] = 'The following new items have been discovered';
+			$aReport[ 'title' ] = 'Items Added';
 			$aReport[ 'lines' ] = [];
 			foreach ( $aAdded as $aNew ) {
 				$aReport[ 'lines' ] = sprintf( 'New item added with unique ID "%s"', $aNew[ 'uniq' ] );
@@ -47,7 +46,7 @@ class BuildReportBase {
 	protected function processChanged( $aChanged ) {
 		$aReport = [];
 		if ( !empty( $aChanged ) ) {
-			$aReport[ 'title' ] = 'The following items have been changed';
+			$aReport[ 'title' ] = 'Items Changed';
 			$aReport[ 'lines' ] = [];
 			foreach ( $aChanged as $sUniqId => $aAttributes ) {
 				$aReport[ 'lines' ] = sprintf(
@@ -65,7 +64,7 @@ class BuildReportBase {
 	protected function processRemoved( $aRemoved ) {
 		$aReport = [];
 		if ( !empty( $aRemoved ) ) {
-			$aReport[ 'title' ] = 'The following items have been removed';
+			$aReport[ 'title' ] = 'Items Removed';
 			$aReport[ 'lines' ] = [];
 			foreach ( $aRemoved as $aItem ) {
 				$aReport[ 'lines' ] = sprintf( 'Item removed with uniqud ID "%s"', $aItem[ 'uniq' ] );
