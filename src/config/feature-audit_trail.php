@@ -205,7 +205,7 @@
       "link_info":     "",
       "link_blog":     "",
       "name":          "Snapshot Per Week",
-      "summary":       "Snapshots To Take Per Week",
+      "summary":       "Number Of Snapshots To Take Per Week",
       "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
     },
     {

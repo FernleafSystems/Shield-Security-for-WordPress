@@ -546,6 +546,14 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$sDescription = _wpsf__( 'Tracking major changes to your site will help you monitor and catch malicious damage.' );
 				break;
 
+			case 'snapshots_per_week' :
+				$sName = _wpsf__( 'Snapshot Per Week' );
+				$sSummary = _wpsf__( 'Number Of Snapshots To Take Per Week' );
+				$sDescription = _wpsf__( 'The number of snapshots to take per week. For daily snapshots, select 7.' )
+								.'<br />'._wpsf__( 'The more snapshots, the more data will be stored in the database.' )
+								.'<br />'._wpsf__( 'However, increased snapshots provide more granular information on when major site changes occurred.' );
+				break;
+
 			default:
 				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
 		}
