@@ -223,6 +223,41 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getCTSnapshotsPerWeek() {
+		return (int)$this->getOpt( 'snapshots_per_week', 7 );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCTSnapshotInterval() {
+		return WEEK_IN_SECONDS/$this->getCTSnapshotsPerWeek();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCTLastSnapshotAt() {
+		return $this->getOpt( 'ct_last_snapshot_at' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCTSnapshotDue() {
+		return ( Services::Request()->ts() - $this->getCTLastSnapshotAt() > $this->getCTSnapshotInterval() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_FeatureHandler_AuditTrail
+	 */
+	public function updateCTLastSnapshotAt() {
+		return $this->setOptAt( 'ct_last_snapshot_at' );
+	}
+
+	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
 	 *
 	 * @param array  $aExportItems

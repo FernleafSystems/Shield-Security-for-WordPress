@@ -195,6 +195,25 @@
       "name":          "Enable Change Tracking",
       "summary":       "Track Major Changes To Your Site",
       "description":   "Tracking major changes to your site will help you monitor and catch malicious damage."
+    },
+    {
+      "key":           "snapshots_per_week",
+      "section":       "section_change_tracking",
+      "type":          "integer",
+      "default":       7,
+      "min":           1,
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Snapshot Per Week",
+      "summary":       "Snapshots To Take Per Week",
+      "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
+    },
+    {
+      "key":          "ct_last_snapshot_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
     }
   ],
   "definitions": {

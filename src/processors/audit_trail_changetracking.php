@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\ChangeTracking;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,6 +12,43 @@ class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ICWP_WPSF_BaseDbProc
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getDef( 'table_name_changetracking' ) );
+	}
+
+	public function runHourlyCron() {
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+		$oFO = $this->getMod();
+		if ( $oFO->isCTSnapshotDue() && $this->isReadyToRun() ) {
+			$oFO->updateCTLastSnapshotAt();
+			$this->runSnapshot();
+		}
+	}
+
+	/**
+	 * @return ChangeTracking\EntryVO
+	 */
+	private function buildSnapshot() {
+		$oVo = new ChangeTracking\EntryVO();
+		$oVo->data = ( new ChangeTrack\Snapshot\Collate() )->run();
+		$oVo->meta = [
+			'ts'      => Services::Request()->ts(),
+			'version' => $this->getCon()->getVersion(),
+		];
+		return $oVo;
+	}
+
+	/**
+	 * Should always use the appropriate VO to set the data and pass to insert()
+	 * This ensures correct encoding of data for DB storage.
+	 *
+	 * Also, wherever this snapshot is run from, should update the "last snapshot at" as appropriate
+	 * @return ChangeTracking\EntryVO
+	 */
+	private function runSnapshot() {
+		$oVo = $this->buildSnapshot();
+		/** @var ChangeTracking\Insert $oInsert */
+		$oInsert = $this->getDbHandler()->getQueryInserter();
+		$oInsert->insert( $oVo );
+		return $oVo;
 	}
 
 	public function cleanupDatabase() {
@@ -39,8 +77,6 @@ class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ICWP_WPSF_BaseDbProc
 		if ( !$this->isReadyToRun() ) {
 			return;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
 	}
 
 	/**

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 /**
  * Class Collate
  * @package FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot
