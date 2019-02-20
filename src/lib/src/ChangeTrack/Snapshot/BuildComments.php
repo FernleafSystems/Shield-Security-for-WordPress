@@ -27,7 +27,6 @@ class BuildComments {
 		$aParams = Services::DataManipulation()->mergeArraysRecursive( $this->getBaseParameters(), $aParams );
 		$nPage = 0;
 		do {
-
 			$aParams[ 'offset' ] = $aParams[ 'number' ]*$nPage++;
 			/** @var \WP_Comment[] $aQueryResult */
 			$aQueryResult = get_comments( $aParams );
@@ -35,6 +34,7 @@ class BuildComments {
 				foreach ( $aQueryResult as $oComment ) {
 					$aActual[ $oComment->comment_ID ] = [
 						'uniq'         => $oComment->comment_ID,
+						'post_id'      => $oComment->comment_post_ID,
 						'modified_at'  => strtotime( $oComment->comment_date_gmt ),
 						'hash_content' => sha1( $oComment->comment_content ),
 						'is_approved'  => $oComment->comment_approved === '1',

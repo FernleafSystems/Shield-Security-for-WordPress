@@ -9,6 +9,7 @@ class DiffPlugins extends Base {
 	 */
 	protected function getAttributesToCompare() {
 		return [
+			'name',
 			'version',
 			'is_active',
 			'has_update',

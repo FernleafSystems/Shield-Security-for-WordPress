@@ -9,6 +9,7 @@ class DiffComments extends Base {
 	 */
 	protected function getAttributesToCompare() {
 		return [
+			'post_id',
 			'modified_at',
 			'hash_content',
 			'is_approved',
