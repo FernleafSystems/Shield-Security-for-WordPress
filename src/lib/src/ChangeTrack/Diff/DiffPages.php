@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Diff;
 
 class DiffPages extends DiffPosts {
 
-	public function run() {
-	}
-
 	/**
 	 * @return string[]
 	 */

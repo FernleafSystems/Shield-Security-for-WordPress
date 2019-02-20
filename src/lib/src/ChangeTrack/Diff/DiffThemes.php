@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Diff;
 
 class DiffThemes extends Base {
 
-	public function run() {
-	}
-
 	/**
 	 * @return string[]
 	 */

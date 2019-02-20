@@ -2,19 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Diff;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack\Snapshot\SnapshotsConsumer;
+
 class Base {
 
-	/**
-	 * @var array
-	 */
-	private $aOldSnapshot;
+	use SnapshotsConsumer;
 
 	/**
-	 * @var array
+	 * @return array[]
 	 */
-	private $aNewSnapshot;
-
 	public function run() {
+		return [
+			'added'   => $this->getAdded(),
+			'removed' => $this->getRemoved(),
+			'changed' => $this->getChangedItems(),
+		];
 	}
 
 	/**
@@ -65,50 +67,5 @@ class Base {
 	 */
 	protected function getAttributesToCompare() {
 		return [];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getOldSnapshot() {
-		return $this->aOldSnapshot;
-	}
-
-	/**
-	 * @param array $aSnapshot
-	 * @return $this
-	 */
-	public function setOldSnapshot( $aSnapshot ) {
-		$this->aOldSnapshot = $this->structureSnapshotItems( $aSnapshot );
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getNewSnapshot() {
-		return $this->aNewSnapshot;
-	}
-
-	/**
-	 * @param array $aSnapshot
-	 * @return $this
-	 */
-	public function setNewSnapshot( $aSnapshot ) {
-		$this->aNewSnapshot = $this->structureSnapshotItems( $aSnapshot );
-		return $this;
-	}
-
-	/**
-	 * Ensures that the items in the snapshot array have keys that correspond to their uniq IDs.
-	 * @param array[] $aSnapshotItems
-	 * @return array[]
-	 */
-	private function structureSnapshotItems( $aSnapshotItems ) {
-		$aStructured = [];
-		foreach ( $aSnapshotItems as $aItem ) {
-			$aStructured[ $aItem[ 'uniq' ] ] = $aItem;
-		}
-		return $aStructured;
 	}
 }
