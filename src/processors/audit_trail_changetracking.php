@@ -49,15 +49,8 @@ class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ICWP_WPSF_BaseDbProc
 	protected function getCreateTableSql() {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			rid varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID',
-			ip varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address',
-			wp_username varchar(255) NOT NULL DEFAULT 'none' COMMENT 'WP User',
-			context varchar(32) NOT NULL DEFAULT 'none' COMMENT 'Audit Context',
-			event varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Specific Audit Event',
-			category int(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Severity',
-			message text COMMENT 'Audit Event Description',
-			meta text COMMENT 'Audit Event Data',
-			immutable tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'May Be Deleted',
+			message BLOB COMMENT 'Snapshot Data',
+			meta VARCHAR COMMENT 'Snapshot Meta',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)

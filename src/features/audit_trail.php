@@ -202,6 +202,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledChangeTracking() {
+		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
+	}
+
+	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
 	 *
 	 * @param array  $aExportItems

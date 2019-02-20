@@ -217,14 +217,7 @@
     "table_name_changetracking":          "changetracking",
     "table_columns_changetracking":       [
       "id",
-      "rid",
-      "wp_username",
-      "ip",
-      "context",
-      "event",
-      "category",
-      "message",
-      "immutable",
+      "data",
       "meta",
       "created_at",
       "deleted_at"
