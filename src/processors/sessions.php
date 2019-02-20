@@ -277,33 +277,4 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	protected function getAutoExpirePeriod() {
 		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
 	}
-
-	/**
-	 * @return Session\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @return Session\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @return Session\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Session\Update
-	 */
-	public function getQueryUpdater() {
-		return parent::getQueryUpdater();
-	}
 }

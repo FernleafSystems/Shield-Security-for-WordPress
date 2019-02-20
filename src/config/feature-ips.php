@@ -135,6 +135,7 @@
     {
       "key":           "user_auto_recover",
       "section":       "section_auto_black_list",
+      "premium":       true,
       "default":       "disabled",
       "type":          "select",
       "value_options": [
@@ -144,7 +145,7 @@
         },
         {
           "value_key": "gasp",
-          "text":      "Shield GASP"
+          "text":      "With Shield Bot Protection"
         }
       ],
       "link_info":     "",
