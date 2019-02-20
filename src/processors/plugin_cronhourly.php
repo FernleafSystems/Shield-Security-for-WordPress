@@ -8,6 +8,12 @@ class ICWP_WPSF_Processor_Plugin_CronHourly extends ICWP_WPSF_Processor_BaseWpsf
 		parent::run();
 		$this->setupCron();
 	}
+	/**
+	 * @return string
+	 */
+	protected function getCronFrequency() {
+		return 'hourly';
+	}
 
 	/**
 	 * @return string
