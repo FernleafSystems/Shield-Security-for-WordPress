@@ -49,8 +49,8 @@ class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ICWP_WPSF_BaseDbProc
 	protected function getCreateTableSql() {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			message BLOB COMMENT 'Snapshot Data',
-			meta VARCHAR COMMENT 'Snapshot Meta',
+			data BLOB NOT NULL DEFAULT '' COMMENT 'Snapshot Data',
+			meta TEXT NOT NULL DEFAULT '' COMMENT 'Snapshot Meta',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
