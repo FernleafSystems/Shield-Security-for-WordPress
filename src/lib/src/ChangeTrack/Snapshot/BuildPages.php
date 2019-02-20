@@ -18,8 +18,8 @@ class BuildPages extends BuildPosts {
 		$nBlogId = (int)get_option( 'page_for_posts' );
 		$nFrontId = (int)get_option( 'page_on_front' );
 		foreach ( $aItems as &$aItem ) {
-			$aItem[ 'is_blog' ] = ( $nBlogId == $aItem[ 'id' ] );
-			$aItem[ 'is_front' ] = ( $nFrontId == $aItem[ 'id' ] );
+			$aItem[ 'is_blog' ] = ( $nBlogId == $aItem[ 'uniq' ] );
+			$aItem[ 'is_front' ] = ( $nFrontId == $aItem[ 'uniq' ] );
 		}
 
 		return $aItems;

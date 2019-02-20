@@ -374,16 +374,31 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control over the audit trail itself.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
 				);
-				$sTitleShort = _wpsf__( 'Options' );
+				$sTitleShort = _wpsf__( 'Audit Trail Options' );
 				break;
 
 			case 'section_enable_audit_contexts' :
-				$sTitle = _wpsf__( 'Enable Audit Contexts' );
+				$sTitle = _wpsf__( 'Enable Audit Areas' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Specify which types of actions on your site are logged.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
 				);
-				$sTitleShort = _wpsf__( 'Audit Contexts' );
+				$sTitleShort = _wpsf__( 'Audit Areas' );
+				break;
+
+			case 'section_change_tracking' :
+				$sTitle = _wpsf__( 'Track All Major Changes To Your Site' );
+				$sTitleShort = _wpsf__( 'Change Tracking' );
+				$aData = ( new Shield\ChangeTrack\Snapshot\Collate() )->run();
+				$sResult = (int)( strlen( base64_encode( WP_Http_Encoding::compress( json_encode( $aData ) ) ) )/1024 );
+				$aSummary = array(
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Track significant changes to your site.' ) )
+					.' '.sprintf( '%s - %s', _wpsf__( 'Important' ), _wpsf__( 'This is separate from the Audit Trail.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Consider' ),
+						_wpsf__( 'Change Tracking use snapshots.' )
+						.' '.sprintf( 'Each snapshot will consume ~%sKB in your database', $sResult )
+					),
+				);
 				break;
 
 			default:
@@ -421,7 +436,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 			case 'audit_trail_auto_clean' :
 				$sName = _wpsf__( 'Auto Clean' );
-				$sSummary = _wpsf__( 'Enable Audit Auto Cleaning' );
+				$sSummary = _wpsf__( 'Enable Change Tracking' );
 				$sDescription = _wpsf__( 'Events older than the number of days specified will be automatically cleaned from the database.' );
 				break;
 
@@ -465,6 +480,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$sName = $oCon->getHumanName();
 				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), $oCon->getHumanName() );
 				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), $oCon->getHumanName() );
+				break;
+
+			case 'enable_change_tracking' :
+				$sName = _wpsf__( 'Site Change Tracking' );
+				$sSummary = _wpsf__( 'Track Major Changes To Your Site' );
+				$sDescription = _wpsf__( 'Tracking major changes to your site will help you monitor and catch malicious damage.' );
 				break;
 
 			default:

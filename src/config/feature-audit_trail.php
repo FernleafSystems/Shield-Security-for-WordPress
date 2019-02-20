@@ -2,7 +2,7 @@
   "slug":        "audit_trail",
   "properties":  {
     "slug":                  "audit_trail",
-    "name":                  "Audit Trail",
+    "name":                  "Auditing",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "audit_trail",
@@ -32,6 +32,15 @@
       "summary":     [
         "Purpose - Specify which types of actions on your site are logged.",
         "Recommendation - These settings are dependent on your requirements."
+      ]
+    },
+    {
+      "slug":        "section_change_tracking",
+      "title":       "Change Tracking",
+      "title_short": "Change Tracking",
+      "summary":     [
+        "Purpose - Track significant changes to your site.",
+        "Recommendation - Keep this Reporting feature turned on."
       ]
     },
     {
@@ -161,12 +170,52 @@
       "name":        "Shield",
       "summary":     "Enable Audit Context - Shield",
       "description": "When this context is enabled, the audit trail will track activity relating to: Shield"
+    },
+    {
+      "key":           "enable_change_tracking",
+      "section":       "section_change_tracking",
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "enabled",
+          "text":      "Enabled"
+        },
+        {
+          "value_key": "enabled_with_email",
+          "text":      "Enabled With Email Reports"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Enable Change Tracking",
+      "summary":       "Track Major Changes To Your Site",
+      "description":   "Tracking major changes to your site will help you monitor and catch malicious damage."
     }
   ],
   "definitions": {
     "audit_trail_default_max_entries": 50,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [
+      "id",
+      "rid",
+      "wp_username",
+      "ip",
+      "context",
+      "event",
+      "category",
+      "message",
+      "immutable",
+      "meta",
+      "created_at",
+      "deleted_at"
+    ],
+    "table_name_changetracking":          "changetracking",
+    "table_columns_changetracking":       [
       "id",
       "rid",
       "wp_username",
