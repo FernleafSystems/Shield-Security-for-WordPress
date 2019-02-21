@@ -231,14 +231,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_FeatureHandler_Base
-	 */
-	protected function getFeature() {
-		return $this->getMod();
-	}
-
-	/**
 	 * @param string $sKey
 	 * @return ICWP_WPSF_Processor_Base|null
 	 */
@@ -285,29 +277,18 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function ip() {
-		return \FernleafSystems\Wordpress\Services\Services::IP()->getRequestIp();
+		return Services::IP()->getRequestIp();
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function time() {
-		return $this->loadRequest()->ts();
+		return Services::Request()->ts();
 	}
 
 	/**
 	 */
 	public function deactivatePlugin() {
-	}
-
-	/**
-	 * @deprecated
-	 * @param string  $sKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
-	 * @return bool
-	 */
-	public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
-		return $this->getMod()->isOpt( $sKey, $mValueToTest, $bStrict );
 	}
 }

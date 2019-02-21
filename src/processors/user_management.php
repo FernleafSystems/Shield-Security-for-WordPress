@@ -41,7 +41,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpInit() {
 		parent::onWpInit();
 
-		$oWpUsers = $this->loadWpUsers();
+		$oWpUsers = Services::WpUsers();
 		if ( $oWpUsers->isUserLoggedIn() ) {
 			$this->setPasswordStartedAt( $oWpUsers->getCurrentWpUser() ); // used by Password Policies
 		}
@@ -53,7 +53,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
 		if ( !$oUser instanceof WP_User ) {
-			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
 		$this->setPasswordStartedAt( $oUser )// used by Password Policies
 			 ->setUserLastLoginTime( $oUser )
@@ -156,7 +156,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	private function sendAdminLoginEmailNotification( $oUser ) {
-		if ( !( $oUser instanceof WP_User ) ) {
+		if ( !$oUser instanceof WP_User ) {
 			return false;
 		}
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -191,7 +191,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			return false;
 		}
 
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
 		$aMessage = array(
 			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),

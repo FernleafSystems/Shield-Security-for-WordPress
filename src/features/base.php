@@ -397,7 +397,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isUpgrading() {
-//			return $this->getVersion() != $this->getController()->getVersion();
 		return $this->getCon()->getIsRebuildOptionsFromFile() || $this->getOptionsVo()->getRebuildFromFile();
 	}
 
@@ -699,15 +698,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getDef( $sKey ) {
 		return $this->getOptionsVo()->getFeatureDefinition( $sKey );
-	}
-
-	/**
-	 * @deprecated
-	 * @param string $sKey
-	 * @return mixed|null
-	 */
-	public function getDefinition( $sKey ) {
-		return $this->getDef( $sKey );
 	}
 
 	/**
@@ -1949,16 +1939,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	protected function setOptAt( $sOpt, $nAt = null ) {
-		$nAt = is_null( $nAt ) ? $this->loadRequest()->ts() : max( 0, (int)$nAt );
+		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
 		return $this->setOpt( $sOpt, $nAt );
-	}
-
-	/**
-	 * @deprecated since 6.9
-	 * @return string
-	 */
-	public function getFeatureSlug() {
-		return $this->getSlug();
 	}
 
 	/**
@@ -1967,53 +1949,5 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getVersion() {
 		return $this->getCon()->getVersion();
-	}
-
-	/**
-	 * @deprecated since v7 as all are 5.4+
-	 * @return bool
-	 */
-	public function canRunWizards() {
-		return true;
-	}
-
-	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_Plugin_Controller
-	 */
-	static public function getConn() {
-		return self::$oPluginController;
-	}
-
-	/**
-	 * @deprecated v7
-	 * @return ICWP_WPSF_Plugin_Controller
-	 */
-	static public function getController() {
-		return self::getConn();
-	}
-
-	/**
-	 * @deprecated
-	 * @return bool
-	 */
-	protected function getModuleMeetRequirements() {
-		return $this->verifyModuleMeetRequirements();
-	}
-
-	/**
-	 * @deprecated
-	 * @return bool
-	 */
-	public function isPluginDeleting() {
-		return $this->getCon()->isPluginDeleting();
-	}
-
-	/**
-	 * @deprecated
-	 * @throws \Exception
-	 */
-	protected function updatePluginOptionsFromSubmit() {
-		$this->doSaveStandardOptions();
 	}
 }

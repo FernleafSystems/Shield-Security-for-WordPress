@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getMod();
 		$oWp = $this->loadWp();
-		$bLoggedIn = $this->loadWpUsers()->isUserLoggedIn();
+		$bLoggedIn = Services::WpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
 			   && !$this->getCon()->isPluginDeleting()
 			   && ( $oFO->getMaxEntries() > 0 )
@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function isCustomExcluded() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getMod();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sAgent = $oReq->getUserAgent();
 		$sPath = $oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
