@@ -620,6 +620,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isApcSendEmail() {
+		return $this->isOpt( 'enabled_scan_apc', 'enabled_email' );
+	}
+
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 

@@ -1,6 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 
@@ -78,7 +79,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	protected function runCronUserNotify( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		$bSend = $oFO->isWpvulnSendEmail();
+		$bSend = $oFO->isApcSendEmail();
 		if ( $bSend ) {
 			$this->emailResults( $oRes );
 		}
@@ -92,13 +93,14 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		$oWpPlugins = $this->loadWpPlugins();
-		$oWpThemes = $this->loadWpThemes();
+		$oWpPlugins = Services::WpPlugins();
+		$oWpThemes = Services::WpThemes();
+		$oWp = Services::WpGeneral();
 		$oCon = $this->getCon();
 
 		$aContent = array(
-			sprintf( _wpsf__( '%s has detected items with known security vulnerabilities.' ), $oCon->getHumanName() ),
-			_wpsf__( 'You should update or remove these items at your earliest convenience.' ),
+			sprintf( _wpsf__( '%s has detected abandoned plugins installed on your site.' ), $oCon->getHumanName() ),
+			_wpsf__( "Running code that hasn't seen any updates for over 2 years is far from ideal." ),
 			_wpsf__( 'Details for the items(s) are below:' ),
 			'',
 		);
@@ -107,20 +109,16 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		foreach ( $oRes->getItems() as $oItem ) {
 
 			if ( $oItem->context == 'plugins' ) {
-				$aPlugin = $oWpPlugins->getPlugin( $oItem->slug );
-				$sName = sprintf( '%s - %s', _wpsf__( 'Plugin' ), empty( $aPlugin ) ? 'Unknown' : $aPlugin[ 'Name' ] );
+				$oPlug = $oWpPlugins->getPluginAsVo( $oItem->slug );
+				$sName = sprintf( '%s - %s', _wpsf__( 'Plugin' ), empty( $oPlug ) ? 'Unknown' : $oPlug->Name );
 			}
 			else {
-				$sName = sprintf( '%s - %s', _wpsf__( 'Theme' ), $oWpThemes->getCurrentThemeName() );
+				$sName = sprintf( '%s - %s', _wpsf__( 'Theme' ), $oWpThemes->getTheme( $oItem->slug ) );
 			}
 
-			$oVuln = $oItem->getWpVulnVo();
 			$aContent[] = implode( "<br />", array(
 				sprintf( '%s: %s', _wpsf__( 'Item' ), $sName ),
-				'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->title ),
-				'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->vuln_type ),
-				'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->fixed_in ),
-				'- '.sprintf( _wpsf__( 'Further Information: %s' ), $oVuln->getUrl() ),
+				'- '.sprintf( _wpsf__( 'Last Updated: %s' ), $oWp->getTimeStringForDisplay( $oItem->last_updated_at, false ) ),
 				'',
 			) );
 		}
@@ -128,16 +126,16 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		$aContent[] = $this->getScannerButtonForEmail();
 		$aContent[] = '';
 
-		$sSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Plugin(s) Discovered With Known Security Vulnerabilities.' ) );
+		$sSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Abandonded Plugin(s) Discovered On Your Site.' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$bSendSuccess = $this->getEmailProcessor()
 							 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
 
 		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin Vulnerability Notification email alert to: %s' ), $sTo ) );
+			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Abandoned Plugins Notification email alert to: %s' ), $sTo ) );
 		}
 		else {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin Vulnerability Notification email alert to: %s' ), $sTo ) );
+			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Abandoned Plugins Notification email alert to: %s' ), $sTo ) );
 		}
 		return $bSendSuccess;
 	}
