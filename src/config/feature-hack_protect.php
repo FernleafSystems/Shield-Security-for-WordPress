@@ -199,17 +199,6 @@
       "description":   "Scan your WordPress.org assets for whether they've been abandoned."
     },
     {
-      "key":         "display_apc",
-      "section":     "section_scan_apc",
-      "type":        "checkbox",
-      "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Highlight Plugins",
-      "summary":     "Highlight Abandoned Plugins",
-      "description": "Abandoned plugins will be highlighted on the main plugins page."
-    },
-    {
       "key":         "enable_core_file_integrity_scan",
       "section":     "section_core_file_integrity_scan",
       "default":     "Y",
