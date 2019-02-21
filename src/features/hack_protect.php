@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -692,26 +692,26 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function ajaxExec_BuildTableScan() {
 
-		switch ( $this->loadRequest()->post( 'fScan' ) ) {
+		switch ( Services::Request()->post( 'fScan' ) ) {
 
 			case 'apc':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanApc();
+				$oTableBuilder = new Shield\Tables\Build\ScanApc();
 				break;
 
 			case 'wcf':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
+				$oTableBuilder = new Shield\Tables\Build\ScanWcf();
 				break;
 
 			case 'ptg':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanPtg();
+				$oTableBuilder = new Shield\Tables\Build\ScanPtg();
 				break;
 
 			case 'ufc':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanUfc();
+				$oTableBuilder = new Shield\Tables\Build\ScanUfc();
 				break;
 
 			case 'wpv':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWpv();
+				$oTableBuilder = new Shield\Tables\Build\ScanWpv();
 				break;
 
 			default:

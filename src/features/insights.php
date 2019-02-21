@@ -692,6 +692,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return array(
 			'insights_test_cron_last_run_at'        => _wpsf__( 'Simple Test Cron' ),
 			'insights_last_scan_ufc_at'             => _wpsf__( 'Unrecognised Files Scan' ),
+			'insights_last_scan_apc_at'             => _wpsf__( 'Abandoned Plugins Scan' ),
 			'insights_last_scan_wcf_at'             => _wpsf__( 'WordPress Core Files Scan' ),
 			'insights_last_scan_ptg_at'             => _wpsf__( 'Plugin/Themes Guard Scan' ),
 			'insights_last_scan_wpv_at'             => _wpsf__( 'Vulnerabilities Scan' ),
