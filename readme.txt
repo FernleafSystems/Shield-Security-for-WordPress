@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.1
-Stable tag: 7.1.0
+Stable tag: 7.1.1
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -352,12 +352,13 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.1.0 - Current Release =
+= 7.1.1 - Current Release =
 *Released: 21st February, 2018* - [Release Notes](https://icwp.io/ek)
 
 = 7.1 - Series =
 *Released: 21st February, 2018* - [Release Notes](https://icwp.io/ek)
 
+* **(v.1)**  FIX:		IP retrieval.
 * **(v.0)**  NEW:		Moved Import/Export UI from Wizard to main Shield Dashboard.
 * **(v.0)**  NEW:		[**PRO**] Option to import/export settings using file downloads/uploads
 * **(v.0)**  NEW:		[**PRO**] Option to allow visitors to automatically unblock themselves (once in 24hrs)

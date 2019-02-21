@@ -301,16 +301,24 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 						$oCon->getHumanName()
 					)
 				),
-				'lines'        => array(
+				'lines'   => array(
 					sprintf( _wpsf__( 'Time remaining on black list: %s' ),
 						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
 					),
 					sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() ),
 					sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner and quote your IP address below.' ) ),
 				),
-				'your_ip'      => 'Your IP address',
+				'your_ip' => 'Your IP address',
+				'unblock' => [
+					'title'   => _wpsf__( 'Auto-Unblock Your IP' ),
+					'you_can' => _wpsf__( 'You can automatically unblock your IP address by clicking the button below.' ),
+					'button'  => _wpsf__( 'Unblock My IP Address' ),
+				],
+			),
+			'vars'    => array(
+				'nonce'        => $oFO->getNonceActionData( 'uau' ),
 				'ip'           => $sIp,
-				'gasp_element' => $this->getMod()->renderTemplate(
+				'gasp_element' => $oFO->renderTemplate(
 					'snippets/gasp_js.php',
 					array(
 						'sCbName'   => $oLoginFO->getGaspKey(),
@@ -324,10 +332,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 						)
 					)
 				),
-			),
-			'vars'    => array(
-				'nonce' => $oFO->getNonceActionData( 'uau' ),
-				'ip'    => $sIp,
 			),
 			'flags'   => array(
 				'is_autorecover'   => $oFO->isEnabledAutoUserRecover(),
