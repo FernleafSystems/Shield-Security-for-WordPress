@@ -79,11 +79,31 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$oWp = $this->loadWp();
 
 		$sStoreKey = $this->prefix( 'serviceips_icontrolwp' );
-		$aIps = $oWp->getTransient( $sStoreKey );
-		if ( empty( $aIps ) ) {
-			$aIps = $this->downloadServiceIps_iControlWP();
-			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*2 );
-		}
+//		$aIps = $oWp->getTransient( $sStoreKey );
+//		if ( false && empty( $aIps ) ) {
+//			$aIps = $this->downloadServiceIps_iControlWP();
+//			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*2 );
+//		}
+
+		$aIps = [
+			4 => [
+				'23.253.32.180',
+				'23.253.56.59',
+				'23.253.62.185',
+				'104.130.217.172',
+				'198.61.176.9',
+			],
+			6 => [
+				'2001:4801:7817:0072:ca75:cc9b:ff10:4699',
+				'2001:4801:7817:72:ca75:cc9b:ff10:4699',
+				'2001:4801:7822:0103:be76:4eff:fe10:89a9',
+				'2001:4801:7822:103:be76:4eff:fe10:89a9',
+				'2001:4801:7824:0101:ca75:cc9b:ff10:a7b2',
+				'2001:4801:7824:101:ca75:cc9b:ff10:a7b2',
+				'2001:4801:7828:0101:be76:4eff:fe11:9cd6',
+				'2001:4801:7828:101:be76:4eff:fe11:9cd6',
+			]
+		];
 
 		return $bFlat ? array_merge( $aIps[ 4 ], $aIps[ 6 ] ) : $aIps;
 	}
