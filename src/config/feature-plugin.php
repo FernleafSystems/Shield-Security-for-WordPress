@@ -500,12 +500,6 @@
         "hidden":        false
       },
       {
-        "slug":          "mousetrap",
-        "storage_key":   "mousetrap",
-        "load_priority": 11,
-        "hidden":        false
-      },
-      {
         "slug":          "traffic",
         "storage_key":   "traffic",
         "load_priority": 12,
