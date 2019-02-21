@@ -112,7 +112,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'vars'    => [
 			],
 			'scans'   => array(
-				/*
 				'apc' => array(
 					'flags'   => array(
 						'is_enabled'    => true,
@@ -134,7 +133,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'title'    => _wpsf__( 'Abandoned Plugins Check' ),
 						'subtitle' => _wpsf__( "Discover abandoned plugins" )
 					),
-				), */
+				),
 				'wcf' => array(
 					'flags'   => array(
 						'is_enabled'    => true,

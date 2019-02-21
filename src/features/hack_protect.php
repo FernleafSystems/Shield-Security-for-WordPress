@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -620,6 +620,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isApcSendEmail() {
+		return $this->isOpt( 'enabled_scan_apc', 'enabled_email' );
+	}
+
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
@@ -692,26 +699,26 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function ajaxExec_BuildTableScan() {
 
-		switch ( $this->loadRequest()->post( 'fScan' ) ) {
+		switch ( Services::Request()->post( 'fScan' ) ) {
 
 			case 'apc':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanApc();
+				$oTableBuilder = new Shield\Tables\Build\ScanApc();
 				break;
 
 			case 'wcf':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
+				$oTableBuilder = new Shield\Tables\Build\ScanWcf();
 				break;
 
 			case 'ptg':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanPtg();
+				$oTableBuilder = new Shield\Tables\Build\ScanPtg();
 				break;
 
 			case 'ufc':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanUfc();
+				$oTableBuilder = new Shield\Tables\Build\ScanUfc();
 				break;
 
 			case 'wpv':
-				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWpv();
+				$oTableBuilder = new Shield\Tables\Build\ScanWpv();
 				break;
 
 			default:
@@ -743,31 +750,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aFormParams = $this->getAjaxFormParams();
 
 		if ( !empty( $aFormParams ) ) {
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$oScanPro = $oP->getSubProScanner();
 			foreach ( array_keys( $aFormParams ) as $sScan ) {
-				switch ( $sScan ) {
-					case 'ptg':
-						$oTablePro = $oScanPro->getSubProcessorPtg();
-						break;
 
-					case 'ufc':
-						$oTablePro = $oScanPro->getSubProcessorUfc();
-						break;
-
-					case 'wcf':
-						$oTablePro = $oScanPro->getSubProcessorWcf();
-						break;
-
-					case 'wpv':
-						$oTablePro = $oScanPro->getSubProcessorWpv();
-						break;
-
-					default:
-						$oTablePro = null;
-						break;
-				}
+				$oTablePro = $this->getScannerFromSlug( $sScan );
 
 				if ( !empty( $oTablePro ) && $oTablePro->isEnabled() ) {
 					$oTablePro->doScan();
@@ -798,44 +783,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	private function ajaxExec_ScanItemAction( $sAction ) {
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oReq = $this->loadRequest();
-		$oScanPro = $oP->getSubProScanner();
+		$oReq = Services::Request();
 
 		$bSuccess = false;
-		$bReloadPage = false;
-		switch ( $oReq->post( 'fScan' ) ) {
-
-			case 'apc':
-				$bReloadPage = true;
-				$oTablePro = $oScanPro->getSubProcessorApc();
-				break;
-
-			case 'ptg':
-				$bReloadPage = true;
-				$oTablePro = $oScanPro->getSubProcessorPtg();
-				break;
-
-			case 'ufc':
-				$oTablePro = $oScanPro->getSubProcessorUfc();
-				break;
-
-			case 'wcf':
-				$oTablePro = $oScanPro->getSubProcessorWcf();
-				break;
-
-			case 'wpv':
-				$oTablePro = $oScanPro->getSubProcessorWpv();
-				break;
-
-			default:
-				$oTablePro = null;
-				break;
-		}
 
 		$sItemId = $oReq->post( 'rid' );
 		$aItemIds = $oReq->post( 'ids' );
+		$sScannerSlug = $oReq->post( 'fScan' );
+
+		$oTablePro = $this->getScannerFromSlug( $sScannerSlug );
+
 		if ( empty( $oTablePro ) ) {
 			$sMessage = _wpsf__( 'Unsupported scanner' );
 		}
@@ -874,9 +831,41 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		return array(
 			'success'     => $bSuccess,
-			'page_reload' => $bReloadPage,
+			'page_reload' => in_array( $sScannerSlug, [ 'apc', 'ptg'] ),
 			'message'     => $sMessage,
 		);
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return ICWP_WPSF_Processor_ScanBase|null
+	 */
+	private function getScannerFromSlug( $sSlug ) {
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $this->getProcessor();
+		$oScanPro = $oP->getSubProScanner();
+		switch ( $sSlug ) {
+			case 'apc':
+				$oScannerPro = $oScanPro->getSubProcessorApc();
+				break;
+			case 'ptg':
+				$oScannerPro = $oScanPro->getSubProcessorPtg();
+				break;
+			case 'ufc':
+				$oScannerPro = $oScanPro->getSubProcessorUfc();
+				break;
+			case 'wcf':
+				$oScannerPro = $oScanPro->getSubProcessorWcf();
+				break;
+			case 'wpv':
+				$oScannerPro = $oScanPro->getSubProcessorWpv();
+				break;
+			default:
+				$oScannerPro = null;
+				break;
+		}
+
+		return $oScannerPro;
 	}
 
 	/**

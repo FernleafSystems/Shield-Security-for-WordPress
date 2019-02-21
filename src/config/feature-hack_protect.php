@@ -44,9 +44,6 @@
     },
     {
       "slug":        "section_pluginthemes_guard",
-      "reqs":        {
-        "php_min": "5.4"
-      },
       "help_video":  {
         "provider":  "vimeo",
         "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
@@ -70,7 +67,6 @@
     },
     {
       "slug":        "section_scan_apc",
-      "hidden": true,
       "title":       "Abandoned Plugin Check",
       "title_short": "Abandoned Plugin Check",
       "summary":     [
@@ -201,17 +197,6 @@
       "name":          "Abandoned Plugin Scanner",
       "summary":       "Enable The Abandoned Plugin Scanner",
       "description":   "Scan your WordPress.org assets for whether they've been abandoned."
-    },
-    {
-      "key":         "display_apc",
-      "section":     "section_scan_apc",
-      "type":        "checkbox",
-      "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Highlight Plugins",
-      "summary":     "Highlight Abandoned Plugins",
-      "description": "Abandoned plugins will be highlighted on the main plugins page."
     },
     {
       "key":         "enable_core_file_integrity_scan",
@@ -487,6 +472,13 @@
       "default":      0
     },
     {
+      "key":          "insights_last_scan_apc_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
       "key":          "insights_last_scan_wcf_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -502,6 +494,13 @@
     },
     {
       "key":          "insights_last_scan_wpv_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
+      "key":          "next_scan_apc_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
