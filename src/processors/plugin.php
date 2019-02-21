@@ -27,7 +27,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->getSubProImportExport()->run();
 		}
 
-		switch ( $this->loadRequest()->query( 'shield_action', '' ) ) {
+		switch ( Services::Request()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
 				break;
@@ -131,8 +131,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	private function printPluginDeactivateSurvey() {
-		$oWp = $this->loadWp();
-		if ( $oWp->isCurrentPage( 'plugins.php' ) ) {
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
 
 			$aOpts = array(
 				'reason_confusing'   => "It's too confusing",
@@ -178,7 +177,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * Sets this plugin to be the first loaded of all the plugins.
 	 */
 	protected function maintainPluginLoadPosition() {
-		$oWpPlugins = $this->loadWpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		$sBaseFile = $this->getCon()->getPluginBaseFile();
 		$nLoadPosition = $oWpPlugins->getActivePluginLoadPosition( $sBaseFile );
 		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {

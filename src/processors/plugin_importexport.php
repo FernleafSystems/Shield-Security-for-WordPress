@@ -322,7 +322,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		$sNetworkOpt = $oReq->query( 'network', '' );
 		$bDoNetwork = !empty( $sNetworkOpt );
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $oReq->query( 'url', '' ) );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $oReq->query( 'url', '' ) );
 
 		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
@@ -419,7 +419,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runImport( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oDP = $this->loadDP();
+		$oDP = Services::Data();
 
 		if ( empty( $sMasterSiteUrl ) ) {
 			$sMasterSiteUrl = $oFO->getImportExportMasterImportUrl();
@@ -468,7 +468,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					'url'           => Services::WpGeneral()->getHomeUrl()
 				);
 				// Don't send the network setup request if it's the cron.
-				if ( !is_null( $bEnableNetwork ) && !$this->loadWp()->isCron() ) {
+				if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
 					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
 				}
 

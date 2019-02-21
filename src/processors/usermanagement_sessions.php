@@ -95,7 +95,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 						break;
 
 					case 3:
-						// $this->loadWpUsers()->logoutUser( true ); // so as not to destroy the original, legitimate session
 						$this->addToAuditEntry(
 							sprintf( 'Access to an established user session from a new IP address "%s". Redirecting request.', $this->ip() ),
 							2,

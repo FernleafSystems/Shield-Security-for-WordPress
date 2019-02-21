@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( $this->loadWp()->isXmlrpc() && $oFO->isXmlrpcBypass() ) {
+		if ( Services::WpGeneral()->isXmlrpc() && $oFO->isXmlrpcBypass() ) {
 			return;
 		}
 
@@ -225,15 +225,16 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	private function sendUserLoginEmailNotification( $oUser ) {
+		$oWp = Services::WpGeneral();
 		$aMessage = array(
 			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getCon()
 																											 ->getHumanName() ),
 			'',
 			_wpsf__( 'Details for this login are below:' ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Site URL' ), $this->loadWp()->getHomeUrl() ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Site URL' ), $oWp->getHomeUrl() ),
 			'- '.sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
 			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Time' ), $this->loadWp()->getTimeStampForDisplay() ),
+			'- '.sprintf( '%s: %s', _wpsf__( 'Time' ), $oWp->getTimeStampForDisplay() ),
 			'',
 			_wpsf__( 'If this is unexpected or suspicious, please contact your site administrator immediately.' ),
 			'',

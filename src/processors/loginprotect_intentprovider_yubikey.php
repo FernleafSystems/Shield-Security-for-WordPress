@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 		$oCon = $this->getCon();
-		$oWpUsers = $this->loadWpUsers();
+		$oWpUsers = Services::WpUsers();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		 * 2) Is this a premium Shield installation - if so, multiple yubikeys are permitted
 		 */
 
-		$oSavingUser = $this->loadWpUsers()->getUserById( $nSavingUserId );
+		$oSavingUser = Services::WpUsers()->getUserById( $nSavingUserId );
 		$sYubiId = $this->getYubiIdFromOtp( $sOtp );
 
 		$bError = false;
@@ -212,7 +212,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @return $this
 	 */
 	protected function removeYubiIdFromProfile( $oUser, $sKey ) {
-		$aKeys = $this->loadDP()->removeFromArrayByValue( $this->getYubiIds( $oUser ), $sKey );
+		$aKeys = Services::DataManipulation()->removeFromArrayByValue( $this->getYubiIds( $oUser ), $sKey );
 		return $this->storeYubiIdInProfile( $oUser, $aKeys );
 	}
 

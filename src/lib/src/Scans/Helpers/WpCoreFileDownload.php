@@ -44,7 +44,7 @@ class WpCoreFileDownload {
 	 */
 	protected function getFileUrl( $sPath, $bUseLocale ) {
 		$oWp = Services::WpGeneral();
-		$sLocale = $oWp->getLocale( true );
+		$sLocale = $oWp->getLocaleForChecksums();
 		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
 
 		if ( Services::WpGeneral()->isClassicPress() ) {

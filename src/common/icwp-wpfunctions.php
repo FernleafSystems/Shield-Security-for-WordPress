@@ -532,7 +532,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param string
 	 * @return string
 	 */
-	public function getIsPage_Updates() {
+	public function isPage_Updates() {
 		return $this->isCurrentPage( 'update.php' );
 	}
 

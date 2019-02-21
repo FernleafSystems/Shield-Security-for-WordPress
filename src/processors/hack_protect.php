@@ -9,7 +9,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 
-		$sPath = $this->loadRequest()->getPath();
+		$sPath = Services::Request()->getPath();
 		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
 			$this->revSliderPatch_LFI();
 			$this->revSliderPatch_AFU();
@@ -52,10 +52,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_LFI() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sAction = $oReq->query( 'action', '' );
-		$sFileExt = strtolower( $this->loadDP()->getExtension( $oReq->query( 'img', '' ) ) );
+		$sFileExt = strtolower( Services::Data()->getExtension( $oReq->query( 'img', '' ) ) );
 		if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
 			if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
 				die( 'RevSlider Local File Inclusion Attempt' );
@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_AFU() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sAction = strtolower( $oReq->request( 'action', '' ) );
 		$sClientAction = strtolower( $oReq->request( 'client_action', '' ) );

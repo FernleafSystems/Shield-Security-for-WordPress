@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		$sCustomLoginPath = $this->getLoginPath();
 
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 		if ( $oWp->isMultisite() ) {
 			$sMessage = _wpsf__( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.' );
 			$bConflicted = true;
@@ -80,8 +80,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return bool
 	 */
 	protected function checkForUnsupportedConfiguration() {
-		$aRequestParts = $this->loadRequest()->getUriParts();
-		if ( $aRequestParts === false || empty( $aRequestParts[ 'path' ] ) ) {
+		$sPath = Services::Request()->getPath();
+		if ( empty( $sPath ) ) {
 
 			$sNoticeMessage = sprintf(
 				'<strong>%s</strong>: %s',
@@ -99,11 +99,11 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
-		$bDoBlock = ( is_admin() && !$this->loadWp()->isAjax() && !$this->loadWpUsers()->isUserLoggedIn() );
+		$bDoBlock = ( is_admin() && !Services::WpGeneral()->isAjax() && !Services::WpUsers()->isUserLoggedIn() );
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$bDoBlock ) {
-			$sPath = trim( $this->loadRequest()->getPath(), '/' );
+			$sPath = trim( Services::Request()->getPath(), '/' );
 			$aPossiblePaths = array(
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
 				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
@@ -164,7 +164,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		if ( !$this->loadWp()->isRequestLoginUrl() ) {
 			$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
 			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->getLoginPath() );
-			if ( $bRedirectIsHiddenUrl && !$this->loadWpUsers()->isUserLoggedIn() ) {
+			if ( $bRedirectIsHiddenUrl && !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->doWpLoginFailedRedirect404();
 			}
 		}
@@ -176,8 +176,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return string
 	 */
 	public function blockRegisterUrlRedirect( $sUrl ) {
-		$aParts = $this->loadRequest()->getUriParts();
-		if ( is_array( $aParts ) && !empty( $aParts[ 'path' ] ) && strpos( $aParts[ 'path' ], 'wp-register.php' ) ) {
+		$sPath = Services::Request()->getPath();
+		if ( strpos( $sPath, 'wp-register.php' ) ) {
 			$this->doWpLoginFailedRedirect404();
 			die();
 		}
@@ -224,10 +224,10 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		if ( !empty( $sRedirectUrl ) ) {
 			$sRedirectUrl = esc_url( $sRedirectUrl );
 			if ( @parse_url( $sRedirectUrl ) !== false ) {
-				$this->loadWp()->doRedirect( $sRedirectUrl, array(), false );
+				Services::WpGeneral()->doRedirect( $sRedirectUrl, array(), false );
 			}
 		}
 
-		$this->loadRequest()->sendResponseApache404( '', $this->loadWp()->getHomeUrl() );
+		Services::Response()->sendApache404( '', Services::WpGeneral()->getHomeUrl() );
 	}
 }
