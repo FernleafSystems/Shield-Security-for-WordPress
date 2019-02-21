@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -94,18 +96,16 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		$sKey = $this->getStub().'_validated';
 		return ( $oUser instanceof WP_User )
 			   && $this->hasValidSecret( $oUser )
-			   && $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID )->{$sKey} === true;
+			   && $this->getCon()->getUserMeta( $oUser )->{$sKey} === true;
 	}
 
 	/**
-	 * @since 6.9.0 removed fallback to old user meta
 	 * @param WP_User $oUser
 	 * @return string
 	 */
 	protected function getSecret( WP_User $oUser ) {
 		$sKey = $this->getStub().'_secret';
-		$oMeta = $this->loadWpUsers()
-					  ->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$sSecret = $oMeta->{$sKey};
 		return empty( $sSecret ) ? '' : $oMeta->{$sKey};
 	}
@@ -139,7 +139,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return $this
 	 */
 	public function deleteSecret( $oUser ) {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$sKey = $this->getStub().'_secret';
 		$oMeta->{$sKey} = null;
 		return $this;
@@ -162,7 +162,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 */
 	public function setProfileValidated( $oUser, $bValidated = true ) {
 		$sKey = $this->getStub().'_validated';
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$oMeta->{$sKey} = $bValidated;
 		return $this;
 	}
@@ -173,7 +173,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return $this
 	 */
 	protected function setSecret( $oUser, $sNewSecret ) {
-		$oMeta = $this->loadWpUsers()->metaVoForUser( $this->prefix(), $oUser->ID );
+		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$sKey = $this->getStub().'_secret';
 		$oMeta->{$sKey} = $sNewSecret;
 		return $this;

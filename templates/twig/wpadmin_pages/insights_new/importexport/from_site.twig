@@ -1,0 +1,95 @@
+<div class="row" id="SectionImportExportFile">
+
+	<div class="col-12">
+		<div class="insights_widget card">
+			<div class="card-header">
+				<h5 class="card-title">Import From Site</h5>
+				<h6 class="card-subtitle text-muted">Import options from another site</h6>
+			</div>
+			<div class="card-body p-4">
+				<form id="ImportSiteForm" class="form-horizontal icwp-wizard-form">
+					<input name="wizard-step" value="import" type="hidden" />
+
+					<div class="form-group">
+						<label class="col-form-label" for="MasterSiteUrl">Master Site URL</label>
+						<div class="">
+							<input type="url" class="form-control"
+								   name="MasterSiteUrl" id="MasterSiteUrl" placeholder="https://www...">
+							<span id="helpBlock"
+								  class="form-text text-muted">Remember to include <code>http://</code> or <code>https://</code>.</span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-form-label" for="MasterSiteSecretKey">Master Site Secret Key</label>
+						<div class="">
+							<input type="text" class="form-control" maxlength="40" minlength="40" autocomplete="off"
+								   name="MasterSiteSecretKey" id="MasterSiteSecretKey" placeholder="Secret Key">
+							<span id="helpBlock" class="form-text text-muted">
+								The secret key can be found under<br />
+								Shield Security > Settings > Import/Export > Secret Key</span>
+						</div>
+					</div>
+
+					<div class="form-group">
+
+						<label class="col-form-label" for="ShieldNetwork">Create Shield Network</label>
+						<div class="form-check">
+							<div>
+								<input class="form-check-input" type="radio"
+									   name="ShieldNetwork" id="ShieldNetworkOn" value="Y">
+								<label class="form-check-label" for="ShieldNetworkOn">Turn On</label>
+							</div>
+							<div>
+								<input class="form-check-input" type="radio"
+									   name="ShieldNetwork" id="ShieldNetworkOff" value="N">
+								<label class="form-check-label" for="ShieldNetworkOff">Turn Off</label>
+							</div>
+							<div>
+								<input class="form-check-input" type="radio" aria-selected="true" checked="checked"
+									   name="ShieldNetwork" id="ShieldNetworkNoChange" value="NC">
+								<label class="form-check-label" for="ShieldNetworkNoChange">No Change</label>
+							</div>
+						</div>
+							<p id="helpBlock" class="form-text text-muted">
+								Checking this option on will link this site to Master site. Options will be
+								automatically imported from the Master site each night.
+								When you adjust options on the Master site,
+								they will be reflected in this site after the automatic import.
+							</p>
+					</div>
+
+					<div class="form-group">
+						<label for="_confirm_site" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   name="confirm" id="_confirm_site" value="Y" />
+							Yes, I Understand Existing Options Will Be Overwritten
+							<br />
+							<small class="form-text text-muted">
+								Please be sure that this is what you intend - it can't be undone.
+							</small>
+						</label>
+					</div>
+
+					<div class="form-group text-right">
+						<div class="">
+							<button type="submit" class="btn btn-primary">Run Options Import</button>
+						</div>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<script>
+	jQuery( document ).ready( function () {
+		jQuery( 'form#ImportSiteForm' ).icwpWpsfImportExport(
+			{
+				'ajax_import_from_site':{{ ajax.import_from_site|raw }}
+			}
+		);
+	} );
+</script>

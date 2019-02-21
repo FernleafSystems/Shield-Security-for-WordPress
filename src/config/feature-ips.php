@@ -133,6 +133,28 @@
       "description":   "Permanent and lengthy IP Black Lists are harmful to performance. You should allow IP addresses on the black list to be eventually removed over time. Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system."
     },
     {
+      "key":           "user_auto_recover",
+      "section":       "section_auto_black_list",
+      "premium":       true,
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "gasp",
+          "text":      "With Shield Bot Protection"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "User Auto Unblock",
+      "summary":       "Allow Visitors To Unblock Their IP",
+      "description":   "Allow visitors blocked by the plugin to automatically unblock themselves."
+    },
+    {
       "key":         "text_loginfailed",
       "section":     "section_user_messages",
       "sensitive":   true,
@@ -187,28 +209,39 @@
     },
     {
       "key":          "this_server_ip",
+      "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,
-      "section":      "section_non_ui",
-      "value":        ""
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "this_server_ip_last_check_at",
-      "transferable": false,
       "section":      "section_non_ui",
-      "value":        0
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "insights_last_transgression_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_ip_block_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
+    },
+    {
+      "key":          "autounblock_ips",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {

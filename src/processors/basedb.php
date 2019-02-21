@@ -118,36 +118,4 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getAutoExpirePeriod() {
 		return null;
 	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Delete
-	 */
-	protected function getQueryDeleter() {
-		return $this->getDbHandler()->getQueryDeleter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Insert
-	 */
-	protected function getQueryInserter() {
-		return $this->getDbHandler()->getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Select
-	 */
-	protected function getQuerySelector() {
-		return $this->getDbHandler()->getQuerySelector();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Update
-	 */
-	protected function getQueryUpdater() {
-		return $this->getDbHandler()->getQueryUpdater();
-	}
 }

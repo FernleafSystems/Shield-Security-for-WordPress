@@ -223,6 +223,49 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAutoUnblockIps() {
+		$aIps = $this->getOpt( 'autounblock_ips', [] );
+		return is_array( $aIps ) ? $aIps : [];
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return bool
+	 */
+	public function getCanIpRequestAutoUnblock( $sIp ) {
+		$aExistingIps = $this->getAutoUnblockIps();
+		return !array_key_exists( $sIp, $aExistingIps )
+			   || ( Services::Request()->ts() - $aExistingIps[ $sIp ] > DAY_IN_SECONDS );
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return $this
+	 */
+	public function updateIpRequestAutoUnblockTs( $sIp ) {
+		$aExistingIps = $this->getAutoUnblockIps();
+		$aExistingIps[ $sIp ] = Services::Request()->ts();
+		return $this->setAutoUnblockIps( $aExistingIps );
+	}
+
+	/**
+	 * @param array $aIps
+	 * @return $this
+	 */
+	public function setAutoUnblockIps( $aIps ) {
+		return $this->setOpt( 'autounblock_ips', $aIps );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledAutoUserRecover() {
+		return !$this->isOpt( 'user_auto_recover', 'disabled' );
+	}
+
+	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -330,6 +373,12 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 								.'<br />'._wpsf__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.' );
 				break;
 
+			case 'user_auto_recover' :
+				$sName = _wpsf__( 'User Auto Unblock' );
+				$sSummary = _wpsf__( 'Allow Visitors To Unblock Their IP' );
+				$sDescription = _wpsf__( 'Allow visitors blocked by the plugin to automatically unblock themselves.' );
+				break;
+
 			case 'track_404' :
 				$sName = _wpsf__( 'Track 404s' );
 				$sSummary = _wpsf__( 'Use 404s As An Transgression' );
@@ -371,14 +420,22 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 */
 	protected function addFilterIpsToWhiteList() {
+		$aIps = [];
 		$oSp = $this->loadServiceProviders();
 
-		$aMwp = function_exists( 'mwp_init' ) ? array_flip( $oSp->getIps_ManageWp() ) : array();
-		foreach ( $aMwp as $sIp => $n ) {
-			$aMwp[ $sIp ] = 'ManageWP';
+		if ( function_exists( 'mwp_init' ) ) {
+			foreach ( array_flip( $oSp->getIps_ManageWp() ) as $sIp => $n ) {
+				$aIps[ $sIp ] = 'ManageWP';
+			}
 		}
 
-		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aMwp );
+		if ( class_exists( 'ICWP_Plugin' ) ) {
+			foreach ( array_flip( $oSp->getIps_iControlWP( true ) ) as $sIp => $n ) {
+				$aIps[ $sIp ] = 'iControlWP';
+			}
+		}
+
+		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
 
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
 			/** @var ICWP_WPSF_Processor_Ips $oPro */

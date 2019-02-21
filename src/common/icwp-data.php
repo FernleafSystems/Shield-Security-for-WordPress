@@ -147,8 +147,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 		$sUrl = trim( $this->urlStripQueryPart( $sUrl ) );
 		if ( filter_var( $sUrl, FILTER_VALIDATE_URL ) ) { // we have a scheme+host
-			$aParts = parse_url( $sUrl );
-			if ( in_array( $aParts[ 'scheme' ], array( 'http', 'https' ) ) ) {
+			if ( in_array( parse_url( $sUrl, PHP_URL_SCHEME ), array( 'http', 'https' ) ) ) {
 				$sValidatedUrl = rtrim( $sUrl, '/' );
 			}
 		}

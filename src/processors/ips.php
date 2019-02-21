@@ -226,34 +226,113 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			/** @var IPs\Update $oUp */
 			$oUp = $this->getDbHandler()->getQueryUpdater();
 			$oUp->updateLastAccessAt( $this->getAutoBlackListIp( $sIp ) );
+
+			try {
+				if ( $this->processAutoUnblockRequest() ) {
+					return;
+				}
+			}
+			catch ( \Exception $oE ) {
+			}
 			$this->renderKillPage();
 		}
 	}
 
+	/**
+	 * @throws \Exception
+	 */
+	private function processAutoUnblockRequest() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		$oReq = Services::Request();
+
+		if ( $oFO->isEnabledAutoUserRecover() && $oReq->isPost()
+			 && $oReq->request( 'action' ) == $this->prefix() && $oReq->request( 'exec' ) == 'uau' ) {
+
+			if ( check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
+				throw new \Exception( 'Nonce failed' );
+			}
+			if ( strlen( $oReq->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
+				throw new \Exception( 'Email should not be provided in honeypot' );
+			}
+			$sIp = $this->ip();
+			if ( $oReq->post( 'ip' ) != $sIp ) {
+				throw new \Exception( 'IP does not match' );
+			}
+
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oLoginFO */
+			$oLoginFO = $this->getCon()->getModule( 'login_protect' );
+			$sGasp = $oReq->post( $oLoginFO->getGaspKey() );
+			if ( empty( $sGasp ) ) {
+				throw new \Exception( 'GASP failed' );
+			}
+
+			if ( !$oFO->getCanIpRequestAutoUnblock( $sIp ) ) {
+				throw new \Exception( 'IP already processed in the last 24hrs' );
+			}
+			$oFO->updateIpRequestAutoUnblockTs( $sIp );
+
+			/** @var IPs\Delete $oDel */
+			$oDel = $this->getDbHandler()->getQueryDeleter();
+			$oDel->deleteIpFromBlacklists( $sIp );
+			Services::WpGeneral()->redirectToHome();
+		}
+
+		return false;
+	}
+
 	private function renderKillPage() {
+
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oLoginFO */
+		$oLoginFO = $oCon->getModule( 'login_protect' );
 
+		$sUniqId = 'uau'.uniqid();
+
+		$sIp = $this->ip();
 		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
 		$aData = [
 			'strings' => array(
 				'title'   => sprintf( _wpsf__( "You've been blocked by the %s plugin" ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$oCon->getPluginSpec()[ 'urls' ][ 'repo_home' ],
+						$oCon->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
 						$oCon->getHumanName()
 					)
 				),
-				'lines'   => array(
+				'lines'        => array(
 					sprintf( _wpsf__( 'Time remaining on black list: %s' ),
 						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
 					),
 					sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() ),
 					sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner and quote your IP address below.' ) ),
 				),
-				'your_ip' => 'Your IP address',
-				'ip'      => $this->ip(),
-			)
+				'your_ip'      => 'Your IP address',
+				'ip'           => $sIp,
+				'gasp_element' => $this->getMod()->renderTemplate(
+					'snippets/gasp_js.php',
+					array(
+						'sCbName'   => $oLoginFO->getGaspKey(),
+						'sLabel'    => $oLoginFO->getTextImAHuman(),
+						'sAlert'    => $oLoginFO->getTextPleaseCheckBox(),
+						'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
+						'sUniqId'   => $sUniqId,
+						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
+						'strings'   => array(
+							'loading' => _wpsf__( 'Loading' )
+						)
+					)
+				),
+			),
+			'vars'    => array(
+				'nonce' => $oFO->getNonceActionData( 'uau' ),
+				'ip'    => $sIp,
+			),
+			'flags'   => array(
+				'is_autorecover'   => $oFO->isEnabledAutoUserRecover(),
+				'is_uau_permitted' => $oFO->getCanIpRequestAutoUnblock( $sIp ),
+			),
 		];
 		$this->loadWp()
 			 ->wpDie(
@@ -606,14 +685,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Select
-	 */
-	public function getQuerySelector() {
-		return $this->getDbHandler()->getQuerySelector();
-	}
-
-	/**
 	 * @return int
 	 */
 	protected function getAutoExpirePeriod() {
@@ -635,30 +706,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				 ->query();
 		}
 		return true;
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Update
-	 */
-	public function getQueryUpdater() {
-		return parent::getQueryUpdater();
 	}
 
 	/**

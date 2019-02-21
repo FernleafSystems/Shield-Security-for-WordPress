@@ -29,80 +29,92 @@
   "options":     [
     {
       "key":          "license_key",
+      "section":      "section_non_ui",
       "sensitive":    true,
       "transferable": false,
-      "default":      "",
-      "section":      "section_non_ui"
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "license_activated_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "license_deactivated_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "license_last_checked_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "license_deactivated_reason",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      "",
-      "section":      "section_non_ui"
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "last_warning_email_sent_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "last_deactivated_email_sent_at",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "last_errors",
+      "section":      "section_non_ui",
       "transferable": false,
-      "default":      "",
-      "section":      "section_non_ui"
+      "type":         "array",
+      "default":      ""
     },
     {
       "key":          "last_error_at",
+      "section":      "section_non_ui",
       "sensitive":    true,
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "keyless_request_hash",
+      "section":      "section_non_ui",
       "sensitive":    true,
       "transferable": false,
-      "default":      "",
-      "section":      "section_non_ui"
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "keyless_request_at",
+      "section":      "section_non_ui",
       "sensitive":    true,
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "integer",
+      "default":      0
     },
     {
       "key":          "license_data",
+      "section":      "section_non_ui",
       "sensitive":    true,
       "transferable": false,
-      "default":      0,
-      "section":      "section_non_ui"
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions": {

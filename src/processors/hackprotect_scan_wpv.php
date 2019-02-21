@@ -29,6 +29,15 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabled() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isWpvulnEnabled();
+	}
+
+	/**
 	 * @param Shield\Scans\Wpv\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
@@ -312,14 +321,5 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 */
 	protected function countVulnerablePlugins() {
 		return $this->getAllVulnerabilities()->countUniqueSlugsForPluginsContext();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getWpvCronName();
 	}
 }

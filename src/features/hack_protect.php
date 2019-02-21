@@ -13,7 +13,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function updateHandler() {
 		$this->clearCrons()
-			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
+//			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
 			 ->setPtgUpdateStoreFormat( true );
 	}
 
@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function handleAuthAjax( $aAjaxResponse ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		if ( empty( $aAjaxResponse ) ) {
 
@@ -94,7 +94,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$bReinstall = (bool)$oReq->post( 'reinstall' );
 		$bActivate = (bool)$oReq->post( 'activate' );
 		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
-		$oWpP = $this->loadWpPlugins();
 
 		if ( $bReinstall ) {
 			/** @var ICWP_WPSF_Processor_HackProtect $oP */
@@ -104,13 +103,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 							->reinstall( $sFile )
 						 && $bActivate;
 		}
+
 		if ( $bActivate ) {
-			$oWpP->activate( $sFile );
+			Services::WpPlugins()->activate( $sFile );
 		}
 
-		return array(
-			'success' => true
-		);
+		return [ 'success' => true ];
 	}
 
 	/**
@@ -615,6 +613,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->setOpt( 'ptg_enable', $sValue );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isApcEnabled() {
+		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
+	}
+
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
@@ -689,6 +694,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		switch ( $this->loadRequest()->post( 'fScan' ) ) {
 
+			case 'apc':
+				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanApc();
+				break;
+
 			case 'wcf':
 				$oTableBuilder = new \FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\ScanWcf();
 				break;
@@ -727,7 +736,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		);
 	}
 
-	public function ajaxExec_StartScans() {
+	private function ajaxExec_StartScans() {
 		$bSuccess = false;
 		$bPageReload = false;
 		$sMessage = _wpsf__( 'No scans were selected' );
@@ -760,7 +769,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						break;
 				}
 
-				if ( !empty( $oTablePro ) ) {
+				if ( !empty( $oTablePro ) && $oTablePro->isEnabled() ) {
 					$oTablePro->doScan();
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
@@ -777,11 +786,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
-		return array(
+		return [
 			'success'     => $bSuccess,
 			'page_reload' => $bPageReload,
 			'message'     => $sMessage,
-		);
+		];
 	}
 
 	/**
@@ -797,6 +806,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$bSuccess = false;
 		$bReloadPage = false;
 		switch ( $oReq->post( 'fScan' ) ) {
+
+			case 'apc':
+				$bReloadPage = true;
+				$oTablePro = $oScanPro->getSubProcessorApc();
+				break;
+
 			case 'ptg':
 				$bReloadPage = true;
 				$oTablePro = $oScanPro->getSubProcessorPtg();
@@ -1182,6 +1197,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				);
 				break;
 
+			case 'section_scan_apc' :
+				$sTitle = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
+				$sTitleShort = _wpsf__( 'Abandoned Plugin Scanner' );
+				$aSummary = array(
+//					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor for unrecognised changes to your system.' ) ),
+//					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable these to prevent unauthorized changes to your WordPress site.' ) )
+				);
+				break;
+
 			case 'section_integrity_checking' :
 				$sTitle = _wpsf__( 'Integrity Checks' );
 				$sTitleShort = _wpsf__( 'Integrity Checks' );
@@ -1335,6 +1359,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Show Re-Install Links' );
 				$sSummary = _wpsf__( 'Show Re-Install Links For Plugins' );
 				$sDescription = _wpsf__( "Show links to re-install plugins and offer re-install when activating plugins." );
+				break;
+
+			case 'enabled_scan_apc' :
+				$sName = _wpsf__( 'Abandoned Plugin Scanner' );
+				$sSummary = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
+				$sDescription = _wpsf__( "Scan your WordPress.org assets for whether they've been abandoned." );
+				break;
+
+			case 'display_apc' :
+				$sName = _wpsf__( 'Highlight Plugins' );
+				$sSummary = _wpsf__( 'Highlight Abandoned Plugins' );
+				$sDescription = _wpsf__( "Abandoned plugins will be highlighted on the main plugins page." );
 				break;
 
 			default:

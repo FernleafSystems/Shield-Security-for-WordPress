@@ -4,15 +4,14 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
-
 	/**
 	 */
 	public function run() {
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$this->setupCron();
+		$this->getSubProCronDaily()
+			 ->run();
 
 		$this->removePluginConflicts();
 		$this->getSubProBadge()
@@ -32,10 +31,11 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				break;
 
 			case 'importexport_export':
+			case 'importexport_import':
 			case 'importexport_handshake':
 			case 'importexport_updatenotified':
 				if ( $oFO->isImportExportPermitted() ) {
-					$this->getSubProImportExport()->runAction();
+					add_action( 'init', [ $this->getSubProImportExport(), 'runAction' ] );
 				}
 				break;
 			default:
@@ -43,21 +43,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		}
 
 		add_action( 'admin_footer', array( $this, 'printAdminFooterItems' ), 100, 0 );
-	}
-
-	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	protected function getCronName() {
-		return $this->getMod()->prefix( 'daily' );
-	}
-
-	/**
-	 * Use the included action to hook into the plugin's daily cron
-	 */
-	public function runCron() {
-		do_action( $this->getMod()->prefix( 'daily_cron' ) );
 	}
 
 	public function onWpLoaded() {
@@ -71,6 +56,13 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getSubProBadge() {
 		return $this->getSubPro( 'badge' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Plugin_CronDaily|mixed
+	 */
+	protected function getSubProCronDaily() {
+		return $this->getSubPro( 'crondaily' );
 	}
 
 	/**
@@ -103,6 +95,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
 			'notes'        => 'ICWP_WPSF_Processor_Plugin_Notes',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
+			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
 		];
 	}
 

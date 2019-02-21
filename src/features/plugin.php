@@ -191,11 +191,63 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$aAjaxResponse = $this->ajaxExec_AdminNotesInsert();
 					break;
 
+				case 'import_from_site':
+					$aAjaxResponse = $this->ajaxExec_ImportFromSite();
+					break;
+
 				default:
 					break;
 			}
 		}
 		return parent::handleAuthAjax( $aAjaxResponse );
+	}
+
+	/**
+	 */
+	public function handleModRequest() {
+		$oReq = $this->loadRequest();
+		switch ( $oReq->request( 'exec' ) ) {
+
+			case 'export_file_download':
+				header( 'Set-Cookie: fileDownload=true; path=/' );
+				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				$oPro = $this->getProcessor();
+				$oPro->getSubProImportExport()
+					 ->doExportDownload();
+				break;
+
+			case 'import_file_upload':
+				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				$oPro = $this->getProcessor();
+				try {
+					$oPro->getSubProImportExport()
+						 ->importFromUploadFile();
+					$bSuccess = true;
+					$sMessage = _wpsf__( 'Options imported successfully' );
+				}
+				catch ( \Exception $oE ) {
+					$bSuccess = false;
+					$sMessage = $oE->getMessage();
+				}
+				$this->loadWpNotices()
+					 ->addFlashUserMessage( $sMessage, !$bSuccess );
+				$this->loadWp()->doRedirect( $this->getUrlImportExport() );
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	/**
+	 * TODO: build better/dynamic direct linking to insights sub-pages
+	 * see also hackprotect getUrlManualScan()
+	 */
+	private function getUrlImportExport() {
+		return add_query_arg(
+			[ 'subnav' => 'importexport' ],
+			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage()
+		);
 	}
 
 	/**
@@ -324,6 +376,40 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		return array(
 			'success' => true,
+			'message' => $sMessage
+		);
+	}
+
+	private function ajaxExec_ImportFromSite() {
+		$bSuccess = false;
+		$aFormParams = array_merge(
+			[
+				'confirm' => 'N'
+			],
+			$this->getAjaxFormParams()
+		);
+
+		// TODO: align with wizard AND combine with file upload errors
+		if ( $aFormParams[ 'confirm' ] !== 'Y' ) {
+			$sMessage = _wpsf__( 'Please check the box to confirm your intent to overwrite settings' );
+		}
+		else {
+			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
+			$sSecretKey = $aFormParams[ 'MasterSiteSecretKey' ];
+			$bEnabledNetwork = $aFormParams[ 'ShieldNetwork' ] === 'Y';
+			$bDisableNetwork = $aFormParams[ 'ShieldNetwork' ] === 'N';
+			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
+
+			/** @var ICWP_WPSF_Processor_Plugin $oP */
+			$oP = $this->getProcessor();
+			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
+			$nCode = $oP->getSubProImportExport()
+						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			$bSuccess = $nCode == 0;
+			$sMessage = $bSuccess ? _wpsf__( 'Options imported successfully' ) : _wpsf__( 'Options failed to import' );
+		}
+		return array(
+			'success' => $bSuccess,
 			'message' => $sMessage
 		);
 	}
@@ -605,7 +691,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function hasImportExportMasterImportUrl() {
 		$sMaster = $this->getImportExportMasterImportUrl();
-		return !empty( $sMaster ) && ( rtrim( $this->loadWp()->getHomeUrl(), '/' ) != $sMaster );
+		return !empty( $sMaster );// && ( rtrim( $this->loadWp()->getHomeUrl(), '/' ) != $sMaster );
 	}
 
 	/**
@@ -680,6 +766,24 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( $sUrl !== false ) {
 			$aWhitelistUrls = $this->getImportExportWhitelist();
 			$aWhitelistUrls[] = $sUrl;
+			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls )
+				 ->savePluginOptions();
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $sUrl
+	 * @return $this
+	 */
+	public function removeUrlFromImportExportWhitelistUrls( $sUrl ) {
+		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		if ( $sUrl !== false ) {
+			$aWhitelistUrls = $this->getImportExportWhitelist();
+			$sKey = array_search( $sUrl, $aWhitelistUrls );
+			if ( $sKey !== false ) {
+				unset( $aWhitelistUrls[ $sKey ] );
+			}
 			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls )
 				 ->savePluginOptions();
 		}
@@ -906,10 +1010,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
+			$sSource = $this->getOptionsVo()->getSelectOptionValueText( 'visitor_address_source' );
 			$aThis[ 'key_opts' ][ 'editing' ] = array(
 				'name'    => _wpsf__( 'Visitor IP' ),
 				'enabled' => true,
-				'summary' => sprintf( _wpsf__( 'Visitor IP address source is: %s' ), $this->getVisitorAddressSource() ),
+				'summary' => sprintf( _wpsf__( 'Visitor IP address source is: %s' ), $sSource ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			);

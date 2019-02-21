@@ -51,6 +51,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabled() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isPtgEnabled();
+	}
+
+	/**
 	 * @return Shield\Scans\Ptg\ResultsSet
 	 */
 	protected function getScannerResults() {
@@ -645,15 +654,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	private function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
 		$aSnapHashes = $this->getStore( $sContext )->getSnapDataHashesOnly();
 		return $this->getContextScanner( $sContext )->run( $aSnapHashes );
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getPtgCronName();
 	}
 
 	/**

@@ -31,9 +31,19 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		if ( $oFO->isWpvulnEnabled() ) {
 			$this->getSubProcessorWpv()->run();
 		}
+		if ( $oFO->isApcEnabled() ) {
+//			$this->getSubProcessorApc()->run();
+		}
 		if ( $oFO->isIcEnabled() ) {
 //			$this->getSubProcessorIntegrity()->run();
 		}
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Apc|mixed
+	 */
+	public function getSubProcessorApc() {
+		return $this->getSubPro( 'apc' );
 	}
 
 	/**
@@ -76,6 +86,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	 */
 	protected function getSubProMap() {
 		return [
+			'apc' => 'ICWP_WPSF_Processor_HackProtect_Apc',
 			'int' => 'ICWP_WPSF_Processor_HackProtect_Integrity',
 			'ptg' => 'ICWP_WPSF_Processor_HackProtect_Ptg',
 			'ufc' => 'ICWP_WPSF_Processor_HackProtect_Ufc',
@@ -147,37 +158,5 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'table_columns_scanner' );
 		return ( is_array( $aDef ) ? $aDef : array() );
-	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Update
-	 */
-	public function getQueryUpdater() {
-		return parent::getQueryUpdater();
 	}
 }

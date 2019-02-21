@@ -40,28 +40,4 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	protected function createDbHandler() {
 		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Handler();
 	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
 }

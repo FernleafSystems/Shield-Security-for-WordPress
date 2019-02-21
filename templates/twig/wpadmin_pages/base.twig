@@ -1,7 +1,7 @@
 {% block inline_styles %}
 {% endblock %}
 
-<div class="container-fluid">
+<div class="container-fluid {{ classes.top_container|default('') }}">
 	<div id="odp-body-container" class="odp-admin-page {{ classes.page_container|default('') }}">
 		{% block h1heading %}<h1 style="height: 0; display: none">&nbsp;</h1>{% endblock %}
 		<div id="odp-PageContainer">

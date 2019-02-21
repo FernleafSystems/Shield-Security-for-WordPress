@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -31,7 +33,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditPro */
 		$oAuditPro = $oAuditMod->getProcessor();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail\Select $oAuditSelect */
-		$oAuditSelect = $oAuditPro->getDbHandler()->getQuerySelector();
+		$oAuditSelect = $oAuditPro->getSubProAuditor()->getDbHandler()->getQuerySelector();
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );
@@ -49,6 +51,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oModLicense = $oCon->getModule( 'license' );
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
 		$oModPlugin = $oCon->getModule( 'plugin' );
+		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
+		$oProPlugin = $oModPlugin->getProcessor();
 
 		$bIsPro = $this->isPremium();
 		$oCarbon = new \Carbon\Carbon();
@@ -113,7 +117,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'bulk_action'             => $oModPlugin->getAjaxActionData( 'bulk_action', true ),
 					),
 					'flags' => array(
-						'can_notes' => $bIsPro //not the way to determine
+						'can_adminnotes' => $bIsPro,
 					)
 				);
 				break;
@@ -124,7 +128,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'render_table_traffic' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
 					),
 					'flags'   => array(
-						'can_traffic' => $this->isPremium(),
+						'can_traffic' => $bIsPro,
 						'is_enabled'  => $oTrafficMod->isModOptEnabled(),
 					),
 					'hrefs'   => array(
@@ -147,6 +151,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			case 'scans':
 				$aData = $oProHp->buildInsightsVars();
+				break;
+
+			case 'importexport':
+				$aData = $oProPlugin->getSubProImportExport()->buildInsightsVars();
 				break;
 
 			case 'users':
@@ -196,7 +204,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'show_ads'              => false,
 						'show_standard_options' => false,
 						'show_alt_content'      => true,
-						'is_pro'                => $this->isPremium(),
+						'is_pro'                => $bIsPro,
 						'has_notices'           => count( $aSecNotices ) > 0,
 					),
 				);
@@ -204,14 +212,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$aTopNav = array(
-			'insights' => _wpsf__( 'Overview' ),
-			'scans'    => _wpsf__( 'Scans' ),
-			'ips'      => _wpsf__( 'IP Lists' ),
-			'audit'    => _wpsf__( 'Audit Trail' ),
-			'traffic'  => _wpsf__( 'Traffic' ),
-			'users'    => _wpsf__( 'Users' ),
-			'notes'    => _wpsf__( 'Notes' ),
-			'license'  => _wpsf__( 'Pro' ),
+			'insights'     => _wpsf__( 'Overview' ),
+			'scans'        => _wpsf__( 'Scans' ),
+			'ips'          => _wpsf__( 'IP Lists' ),
+			'audit'        => _wpsf__( 'Audit Trail' ),
+			'users'        => _wpsf__( 'Users' ),
+			'license'      => _wpsf__( 'Pro' ),
+			'traffic'      => _wpsf__( 'Traffic' ),
+			'notes'        => _wpsf__( 'Notes' ),
+			'importexport' => sprintf( '%s/%s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) ),
 		);
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
 			$sName = array(
@@ -227,25 +236,29 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'active' => false
 		);
 
-		$aData = $this->loadDP()
-					  ->mergeArraysRecursive(
-						  array(
-							  'classes' => array(
-								  'page_container' => 'page-insights page-'.$sSubNavSection
-							  ),
-							  'flags'   => array(
-								  'show_promo' => !$bIsPro
-							  ),
-							  'hrefs'   => array(
-								  'go_pro'     => 'https://icwp.io/shieldgoprofeature',
-								  'nav_home'   => $this->getUrl_AdminPage(),
-								  'top_nav'    => $aTopNav,
-								  'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
-							  ),
-							  'strings' => $this->getDisplayStrings(),
-						  ),
-						  $aData
-					  );
+		$oDp = \FernleafSystems\Wordpress\Services\Services::DataManipulation();
+		$aData = $oDp->mergeArraysRecursive(
+			$this->getBaseDisplayData( false ),
+			array(
+				'classes' => array(
+					'page_container' => 'page-insights page-'.$sSubNavSection
+				),
+				'flags'   => array(
+					'show_promo' => !$bIsPro
+				),
+				'hrefs'   => array(
+					'go_pro'     => 'https://icwp.io/shieldgoprofeature',
+					'nav_home'   => $this->getUrl_AdminPage(),
+					'top_nav'    => $aTopNav,
+					'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )
+				),
+				'strings' => $this->getDisplayStrings(),
+				'vars'    => [
+					'changelog_id' => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+				],
+			),
+			$aData
+		);
 		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
 	}
 
@@ -254,47 +267,58 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		if ( $this->isThisModulePage() ) {
 
-			if ( $this->isThisModulePage() ) {
-				$oConn = $this->getCon();
+			$oConn = $this->getCon();
+			$aStdDeps = array( $this->prefix( 'plugin' ) );
+			$sSubnav = $this->loadRequest()->query( 'subnav' );
+			switch ( $sSubnav ) {
 
-				$aStdDeps = array( $this->prefix( 'plugin' ) );
-				$sSubnav = $this->loadRequest()->query( 'subnav' );
-				switch ( $sSubnav ) {
+				case 'importexport':
 
-					case 'scans':
-					case 'audit':
-					case 'ips':
-					case 'notes':
-					case 'traffic':
-					case 'users':
+					$sAsset = 'shield-import';
+					$sUnique = $this->prefix( $sAsset );
+					wp_register_script(
+						$sUnique,
+						$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+						$aStdDeps,
+						$oConn->getVersion(),
+						false
+					);
+					wp_enqueue_script( $sUnique );
+					break;
 
-						$sAsset = 'shield-tables';
+				case 'scans':
+				case 'audit':
+				case 'ips':
+				case 'notes':
+				case 'traffic':
+				case 'users':
+
+					$sAsset = 'shield-tables';
+					$sUnique = $this->prefix( $sAsset );
+					wp_register_script(
+						$sUnique,
+						$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+						$aStdDeps,
+						$oConn->getVersion(),
+						false
+					);
+					wp_enqueue_script( $sUnique );
+
+					$aStdDeps[] = $sUnique;
+					if ( $sSubnav == 'scans' ) {
+						$sAsset = 'shield-scans';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
 							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-							$aStdDeps,
+							array_unique( $aStdDeps ),
 							$oConn->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
+					}
 
-						$aStdDeps[] = $sUnique;
-						if ( $sSubnav == 'scans' ) {
-							$sAsset = 'shield-scans';
-							$sUnique = $this->prefix( $sAsset );
-							wp_register_script(
-								$sUnique,
-								$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-								$aStdDeps,
-								$oConn->getVersion(),
-								false
-							);
-							wp_enqueue_script( $sUnique );
-						}
-
-						break;
-				}
+					break;
 			}
 		}
 	}
@@ -316,9 +340,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'never'          => _wpsf__( 'Never' ),
 				'go_pro'         => 'Go Pro!',
 				'options'        => _wpsf__( 'Options' ),
-				'not_available'  => _wpsf__( 'Sorry, this feature is not available.' ),
+				'not_available'  => _wpsf__( 'Sorry, this feature would typically be used by professionals and so is a Pro-only feature.' ),
 				'not_enabled'    => _wpsf__( "This feature isn't currently enabled." ),
-				'please_upgrade' => _wpsf__( 'Please upgrade to Pro to activate this feature (along with many more).' ),
+				'please_upgrade' => _wpsf__( 'You can activate this feature (along with many others) and support development of this plugin for just $12.' ),
 				'please_enable'  => _wpsf__( 'Please turn on this feature in the options.' ),
 				'only_1_dollar'  => _wpsf__( 'for just $1/month' ),
 			)

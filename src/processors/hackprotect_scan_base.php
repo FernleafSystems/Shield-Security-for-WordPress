@@ -30,6 +30,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * @return bool
+	 */
+	abstract public function isEnabled();
+
+	/**
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	public function doScan() {
@@ -62,7 +67,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return mixed
+	 * @return mixed|null
 	 */
 	abstract protected function getRepairer();
 
@@ -339,13 +344,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * Cron callback
 	 */
 	public function runCron() {
-		$this->cronScan();
+		Services::WpGeneral()->getIfAutoUpdatesInstalled() ? $this->resetCron() : $this->cronScan();
 	}
 
 	private function cronScan() {
-		if ( doing_action( 'wp_maybe_auto_update' ) || did_action( 'wp_maybe_auto_update' ) ) {
-			return;
-		}
 		$this->doScan();
 		$this->cronProcessScanResults();
 	}
@@ -423,6 +425,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getScanFrequency();
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getCronName() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->prefix( $oFO->getDef( 'cron_all_scans' ) );
 	}
 
 	/**

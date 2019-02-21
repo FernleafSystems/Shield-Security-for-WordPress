@@ -135,7 +135,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return string
 	 */
 	public function getPluginDefaultRecipientAddress() {
-		return apply_filters( $this->prefix( 'report_email_address' ), $this->loadWp()->getSiteAdminEmail() );
+		return apply_filters( $this->prefix( 'report_email_address' ), Services::WpGeneral()->getSiteAdminEmail() );
 	}
 
 	/**
@@ -180,7 +180,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				),
 				'hrefs'   => array(
 					'aar_forget_key' => $sHelpUrl
-				)
+				),
+				'classes' => array(
+					'top_container' => $this->isPremium() ? 'is-pro' : 'is-not-pro'
+				),
 			)
 		);
 	}
@@ -261,8 +264,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
 			$oSp = $this->loadServiceProviders();
 
-			$sIp = \FernleafSystems\Wordpress\Services\Services::IP()->getRequestIp();
-			$sAgent = (string)$this->loadRequest()->server( 'HTTP_USER_AGENT' );
+			$sIp = Services::IP()->getRequestIp();
+			$sAgent = (string)Services::Request()->server( 'HTTP_USER_AGENT' );
 			if ( empty( $sAgent ) ) {
 				$sAgent = 'Unknown';
 			}
@@ -272,6 +275,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 									|| $oSp->isIp_YahooBot( $sIp, $sAgent )
 									|| $oSp->isIp_DuckDuckGoBot( $sIp, $sAgent )
 									|| $oSp->isIp_YandexBot( $sIp, $sAgent )
+									|| $oSp->isIp_iControlWP( $sIp )
 									|| $oSp->isIp_BaiduBot( $sIp, $sAgent );
 		}
 		return self::$bIsVerifiedBot;

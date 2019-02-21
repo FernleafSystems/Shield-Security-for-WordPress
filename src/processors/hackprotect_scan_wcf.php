@@ -7,6 +7,15 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'wcf';
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabled() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isWcfScanEnabled();
+	}
+
+	/**
 	 * @param Shield\Scans\Wcf\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
@@ -200,14 +209,5 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	private function getWpFileDownloadUrl( $sFile ) {
 		return $this->getMod()->getDef( 'url_wordress_core_svn' )
 			   .'tags/'.$this->loadWp()->getVersion().'/'.$sFile;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getWcfCronName();
 	}
 }

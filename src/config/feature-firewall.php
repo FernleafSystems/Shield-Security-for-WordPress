@@ -255,8 +255,9 @@
     },
     {
       "key":          "insights_last_firewall_block_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     }
   ],
@@ -271,7 +272,7 @@
       "/wp-admin/page-new.php":        [],
       "/wp-admin/link-add.php":        [],
       "/wp-admin/media-upload.php":    [],
-      "/wp-admin/admin.php":            [
+      "/wp-admin/admin.php":           [
         "page"
       ],
       "/wp-admin/post.php":            [
@@ -327,8 +328,7 @@
         "regex":  [
           "^wp_",
           "^user_login",
-          "^user_pass",
-          "[^0-9]0x[0-9a-f][0-9a-f]"
+          "^user_pass"
         ]
       },
       "fieldtruncation": {

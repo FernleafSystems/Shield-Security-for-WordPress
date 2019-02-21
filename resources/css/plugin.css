@@ -948,7 +948,7 @@ th.column-request_info {
 	background-color: rgba(0, 0, 0, 0.04);
 	color: green;
 }
-#NavItem-license {
+.is-not-pro #NavItem-license {
 	color: #09b740;
 	text-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
 	font-weight: bolder;
@@ -1098,6 +1098,24 @@ table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
 
+#ScanResultsPills {
+	margin-top: 25px;
+}
+#ScanResultsPills nav > a.nav-link {
+	color: #0c7905;
+	height: 72px;
+}
+#ScanResultsPills nav > a.nav-link.active {
+	color: #ffffff;
+	background-color: #0c7905;
+}
+#ScanResultsPills .card.card-scan_results {
+	margin-top: 0;
+}
+#ScanResultsPills nav > a.nav-link .badge {
+	font-size: 12px;
+}
+
 /**
 PTG SCAN TABLES
  */
@@ -1174,4 +1192,10 @@ table.odp-table.scan-table td.column-path code {
 		padding-left: 5px;
 		letter-spacing: 0;
 	}
+}
+.form-check input[type=radio] {
+	margin-top: 4px;
+}
+.form-check-label {
+	margin-left: 26px;
 }

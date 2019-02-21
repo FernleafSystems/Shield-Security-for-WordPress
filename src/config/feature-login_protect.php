@@ -1,18 +1,18 @@
 {
   "slug":          "login_protect",
   "properties":    {
-    "slug":                   "login_protect",
-    "name":                   "Login Guard",
-    "show_module_menu_item":  false,
-    "show_module_options":    true,
-    "storage_key":            "loginprotect",
-    "tagline":                "Block brute force attacks and secure user identities with Two-Factor Authentication",
-    "show_central":           true,
-    "access_restricted":      true,
-    "premium":                false,
-    "run_if_whitelisted":     false,
-    "run_if_verified_bot":    false,
-    "order":                  40
+    "slug":                  "login_protect",
+    "name":                  "Login Guard",
+    "show_module_menu_item": false,
+    "show_module_options":   true,
+    "storage_key":           "loginprotect",
+    "tagline":               "Block brute force attacks and secure user identities with Two-Factor Authentication",
+    "show_central":          true,
+    "access_restricted":     true,
+    "premium":               false,
+    "run_if_whitelisted":    false,
+    "run_if_verified_bot":   false,
+    "order":                 40
   },
   "admin_notices": {
     "email-verification-sent": {
@@ -259,7 +259,9 @@
       "key":           "bot_protection_locations",
       "section":       "section_brute_force_login_protection",
       "type":          "multiple_select",
-      "default":       [ "login" ],
+      "default":       [
+        "login"
+      ],
       "value_options": [
         {
           "value_key": "login",
@@ -307,8 +309,8 @@
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
     },
     {
-      "key":         "enable_google_recaptcha_login",
-      "section":     "section_brute_force_login_protection",
+      "key":           "enable_google_recaptcha_login",
+      "section":       "section_brute_force_login_protection",
       "default":       "disabled",
       "type":          "select",
       "value_options": [
@@ -333,11 +335,11 @@
           "text":      "Invisible reCAPTCHA"
         }
       ],
-      "link_info":   "https://icwp.io/9m",
-      "link_blog":   "https://icwp.io/shld5",
-      "name":        "Google reCAPTCHA",
-      "summary":     "Enable Google reCAPTCHA",
-      "description": "Use Google reCAPTCHA on the login screen."
+      "link_info":     "https://icwp.io/9m",
+      "link_blog":     "https://icwp.io/shld5",
+      "name":          "Google reCAPTCHA",
+      "summary":       "Enable Google reCAPTCHA",
+      "description":   "Use Google reCAPTCHA on the login screen."
     },
     {
       "key":         "enable_antibot_js",
@@ -356,8 +358,8 @@
       "section":     "section_brute_force_login_protection",
       "type":        "array",
       "default":     [
-      	"form#ihc_login_form",
-      	"form#createuser"
+        "form#ihc_login_form",
+        "form#createuser"
       ],
       "link_info":   "",
       "link_blog":   "",
@@ -428,69 +430,74 @@
     },
     {
       "key":          "email_can_send_verified_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      -1
     },
     {
       "key":          "gasp_key",
+      "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,
-      "section":      "section_non_ui"
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "two_factor_secret_key",
+      "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,
-      "section":      "section_non_ui"
-    },
-    {
-      "key":          "two_factor_auth_table_created",
-      "transferable": false,
-      "section":      "section_non_ui"
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "use_login_intent_page",
+      "section":      "section_non_ui",
       "transferable": false,
-      "value":        true,
-      "section":      "section_non_ui"
+      "type":         "boolean",
+      "value":        true
     },
     {
       "key":          "insights_last_2fa_login_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_login_block_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_register_block_at",
-      "transferable": false,
       "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
       "default":      0
     },
     {
       "key":          "insights_last_reset-password_block_at",
       "transferable": false,
       "section":      "section_non_ui",
+      "type":         "integer",
       "default":      0
     }
   ],
   "definitions":   {
-    "login_intent_timeout":          5,
-    "wizards":                       {
+    "login_intent_timeout": 5,
+    "wizards":              {
       "mfa": {
-        "title": "Configure Multi-Factor Login Authentication",
-        "desc": "Easily setup multi-factor login authentication, using Email and Google Authenticator.",
+        "title":                "Configure Multi-Factor Login Authentication",
+        "desc":                 "Easily setup multi-factor login authentication, using Email and Google Authenticator.",
         "min_user_permissions": "manage_options",
         "steps":                {
           "start":       {
             "security_admin": false,
-            "title":             "Start: Multi-Factor Authentication"
+            "title":          "Start: Multi-Factor Authentication"
           },
           "authemail":   {
             "title": "Email Authentication"
@@ -503,7 +510,7 @@
           },
           "finished":    {
             "security_admin": false,
-            "title":             "Finished: Multi-Factor Authentication"
+            "title":          "Finished: Multi-Factor Authentication"
           }
         }
       }
