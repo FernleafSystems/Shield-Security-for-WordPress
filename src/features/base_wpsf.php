@@ -135,7 +135,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return string
 	 */
 	public function getPluginDefaultRecipientAddress() {
-		return apply_filters( $this->prefix( 'report_email_address' ), $this->loadWp()->getSiteAdminEmail() );
+		return apply_filters( $this->prefix( 'report_email_address' ), Services::WpGeneral()->getSiteAdminEmail() );
 	}
 
 	/**
@@ -264,8 +264,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
 			$oSp = $this->loadServiceProviders();
 
-			$sIp = \FernleafSystems\Wordpress\Services\Services::IP()->getRequestIp();
-			$sAgent = (string)$this->loadRequest()->server( 'HTTP_USER_AGENT' );
+			$sIp = Services::IP()->getRequestIp();
+			$sAgent = (string)Services::Request()->server( 'HTTP_USER_AGENT' );
 			if ( empty( $sAgent ) ) {
 				$sAgent = 'Unknown';
 			}

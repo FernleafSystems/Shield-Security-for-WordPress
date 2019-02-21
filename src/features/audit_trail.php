@@ -244,11 +244,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 							 ->setResultsAsVo( true );
 
 			$oWp = $this->loadWp();
+			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
 			foreach ( $oFinder->query() as $oEntry ) {
 				$aExportItem[ 'data' ][] = array(
 					$sTimeStamp = $oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
 					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
-					'value' => sprintf( '[IP:%s] %s', $oEntry->getIp(), $oEntry->getMessage() )
+					'value' => sprintf( '[IP:%s] %s', $oEntry->ip, $oEntry->message )
 				);
 			}
 
