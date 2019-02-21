@@ -36,6 +36,7 @@
     },
     {
       "slug":        "section_change_tracking",
+      "hidden": true,
       "title":       "Change Tracking",
       "title_short": "Change Tracking",
       "summary":     [
