@@ -888,12 +888,4 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			);
 		}
 	}
-
-	/**
-	 * @deprecated v6.10.7
-	 * @return bool
-	 */
-	public function doCheckHasPermissionToSubmit() {
-		return $this->getCon()->isPluginAdmin();
-	}
 }

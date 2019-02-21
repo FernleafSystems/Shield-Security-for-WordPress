@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
 		if ( !$oUser instanceof WP_User ) {
-			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
 		$this->activateUserSession( $oUser );
 	}
@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->activateUserSession( $this->loadWpUsers()->getUserById( $nUserId ) );
+		$this->activateUserSession( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -60,13 +60,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	public function onWpLoaded() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRest() ) {
+		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->autoAddSession();
 		}
 	}
 
 	public function onModuleShutdown() {
-		if ( !$this->loadWp()->isRest() ) {
+		if ( !Services::Rest()->isRest() ) {
 			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
 			$oFO = $this->getMod();
 			if ( $oFO->hasSession() ) {
@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
 			$this->queryCreateSession(
 				$this->getCon()->getSessionId( true ),
-				$this->loadWpUsers()->getCurrentWpUsername()
+				Services::WpUsers()->getCurrentWpUsername()
 			);
 		}
 	}
@@ -99,8 +99,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function printLinkToAdmin( $sMessage = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
 		$oFO = $this->getMod();
-		$oWpUsers = $this->loadWpUsers();
-		$sAction = $this->loadRequest()->query( 'action' );
+		$oWpUsers = Services::WpUsers();
+		$sAction = Services::Request()->query( 'action' );
 
 		if ( $oWpUsers->isUserLoggedIn() && $oFO->hasSession() && ( empty( $sAction ) || $sAction == 'login' ) ) {
 			$sMessage = sprintf(
@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 								' <span style="white-space: nowrap">(%s)</span>',
 								$oWpUsers->getCurrentWpUsername() ),
 							( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>',
-								$this->loadWp()->getUrl_WpAdmin(),
+								Services::WpGeneral()->getAdminUrl(),
 								_wpsf__( "Go To Admin" ).' &rarr;' ) : '' )
 						.$sMessage;
 		}
@@ -146,13 +146,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return boolean
 	 */
 	protected function terminateCurrentSession() {
-		if ( !$this->loadWpUsers()->isUserLoggedIn() ) {
-			return false;
+		$mResult = false;
+		if ( Services::WpUsers()->isUserLoggedIn() ) {
+			$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
+			$this->getCon()->clearSession();
+			$this->clearCurrentSession();
 		}
-
-		$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
-		$this->getCon()->clearSession();
-		$this->clearCurrentSession();
 		return $mResult;
 	}
 
@@ -204,7 +203,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		if ( did_action( 'init' ) ) {
 			$oSession = $this->queryGetSession(
 				$this->getSessionId(),
-				$this->loadWpUsers()->getCurrentWpUsername()
+				Services::WpUsers()->getCurrentWpUsername()
 			);
 		}
 		return $oSession;
