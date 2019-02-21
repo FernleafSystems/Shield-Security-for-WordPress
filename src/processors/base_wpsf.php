@@ -161,16 +161,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @deprecated
-	 * @return $this
-	 */
-	public function setIpTransgressed() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-		return $oFO->setIpTransgressed();
-	}
-
-	/**
 	 * A filter used to collect all the stats gathered in the plugin.
 	 *
 	 * @param array $aStats

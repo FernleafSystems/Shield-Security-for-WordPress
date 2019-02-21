@@ -12,7 +12,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'render_table_sessions':
 					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	private function ajaxExec_BulkItemAction() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$oProcessor = $this->getSessionsProcessor();
 
 		$bSuccess = false;
@@ -84,7 +84,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	private function ajaxExec_SessionDelete() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$oProcessor = $this->getSessionsProcessor();
 
 		$bSuccess = false;
@@ -223,10 +223,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	public function isAutoAddSessions() {
 		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
 		if ( $nStartedAt < 1 ) {
-			$nStartedAt = $this->loadRequest()->ts();
+			$nStartedAt = Services::Request()->ts();
 			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
 		}
-		return ( $this->loadRequest()->ts() - $nStartedAt ) < 20;
+		return ( Services::Request()->ts() - $nStartedAt ) < 20;
 	}
 
 	/**
@@ -320,7 +320,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		$oWpUsers = $this->loadWpUsers();
 
 		$aNotices = array(
 			'title'    => _wpsf__( 'Users' ),
@@ -328,7 +327,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		);
 
 		{ //admin user
-			$oAdmin = $oWpUsers->getUserByUsername( 'admin' );
+			$oAdmin = Services::WpUsers()->getUserByUsername( 'admin' );
 			if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
 				$aNotices[ 'messages' ][ 'admin' ] = array(
 					'title'   => 'Admin User',
@@ -598,29 +597,5 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$aOptionsParams[ 'summary' ] = $sSummary;
 		$aOptionsParams[ 'description' ] = $sDescription;
 		return $aOptionsParams;
-	}
-
-	/**
-	 * @deprecated
-	 * @return int
-	 */
-	public function getSessionIdleTimeoutInterval() {
-		return $this->getIdleTimeoutInterval();
-	}
-
-	/**
-	 * @deprecated 7.0.4
-	 * @return int
-	 */
-	public function getSessionTimeoutInterval() {
-		return $this->getMaxSessionTime();
-	}
-
-	/**
-	 * @deprecated 7.0.4
-	 * @return bool
-	 */
-	public function hasSessionTimeoutInterval() {
-		return $this->hasMaxSessionTimeout();
 	}
 }

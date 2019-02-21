@@ -44,7 +44,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {
-		return ( ( $this->loadRequest()->ts() - $this->getLastCheckServerIpAt() ) > DAY_IN_SECONDS );
+		return ( Services::Request()->ts() - $this->getLastCheckServerIpAt() > DAY_IN_SECONDS );
 	}
 
 	/**
@@ -76,7 +76,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function isDisplayPluginBadge() {
 		return $this->isOpt( 'display_plugin_badge', 'Y' )
-			   && ( $this->loadRequest()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
+			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
 	/**
@@ -93,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function setVisitorIp() {
 		$oDetector = ( new Shield\Utilities\VisitorIpDetection() )
 			->setPotentialHostIps(
-				[ $this->getMyServerIp(), $this->loadRequest()->server( 'SERVER_ADDR' ) ]
+				[ $this->getMyServerIp(), Services::Request()->getServerAddress() ]
 			);
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
@@ -142,7 +142,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function handleAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'plugin_badge_close':
 					$aAjaxResponse = $this->ajaxExec_PluginBadgeClose();
@@ -169,7 +169,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'bulk_action':
 					$aAjaxResponse = $this->ajaxExec_BulkItemAction();
@@ -205,8 +205,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 */
 	public function handleModRequest() {
-		$oReq = $this->loadRequest();
-		switch ( $oReq->request( 'exec' ) ) {
+		switch ( Services::Request()->request( 'exec' ) ) {
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
@@ -231,7 +230,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				}
 				$this->loadWpNotices()
 					 ->addFlashUserMessage( $sMessage, !$bSuccess );
-				$this->loadWp()->doRedirect( $this->getUrlImportExport() );
+				Services::WpGeneral()->doRedirect( $this->getUrlImportExport() );
 				break;
 
 			default:
@@ -254,7 +253,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	private function ajaxExec_BulkItemAction() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$bSuccess = false;
 
@@ -308,7 +307,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_SetPluginTrackingPerm() {
-		$this->setPluginTrackingPermission( (bool)$this->loadRequest()->query( 'agree', false ) );
+		$this->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		return array( 'success' => true );
 	}
 
@@ -349,7 +348,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function ajaxExec_AdminNotesDelete() {
 
-		$sItemId = $this->loadRequest()->post( 'rid' );
+		$sItemId = Services::Request()->post( 'rid' );
 		if ( empty( $sItemId ) ) {
 			$sMessage = _wpsf__( 'Note not found.' );
 		}
@@ -466,7 +465,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function setPluginTrackingPermission( $bOnOrOff = true ) {
 		$this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
-			 ->setOpt( 'tracking_permission_set_at', $this->loadRequest()->ts() )
+			 ->setOpt( 'tracking_permission_set_at', Services::Request()->ts() )
 			 ->savePluginOptions();
 		return $this;
 	}
@@ -523,7 +522,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function getLinkToTrackingDataDump() {
 		return add_query_arg(
 			array( 'shield_action' => 'dump_tracking_data' ),
-			$this->loadWp()->getUrl_WpAdmin()
+			Services::WpGeneral()->getAdminUrl()
 		);
 	}
 
@@ -545,14 +544,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setTrackingLastSentAt() {
-		return $this->setOpt( 'tracking_last_sent_at', $this->loadRequest()->ts() );
+		return $this->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function readyToSendTrackingData() {
-		return ( ( $this->loadRequest()->ts() - $this->getTrackingLastSentAt() ) > WEEK_IN_SECONDS );
+		return ( Services::Request()->ts() - $this->getTrackingLastSentAt() > WEEK_IN_SECONDS );
 	}
 
 	/**
@@ -561,7 +560,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function supplyPluginReportEmail( $sEmail = '' ) {
 		$sE = $this->getOpt( 'block_send_email_address' );
-		return $this->loadDP()->validEmail( $sE ) ? $sE : $sEmail;
+		return Services::Data()->validEmail( $sE ) ? $sE : $sEmail;
 	}
 
 	/**
@@ -572,7 +571,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->storeRealInstallDate();
 
 		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
-			$this->setOpt( 'tracking_permission_set_at', $this->loadRequest()->ts() );
+			$this->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -588,7 +587,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return int
 	 */
 	public function getFirstInstallDate() {
-		return $this->loadWp()->getOption( $this->prefixOptionKey( 'install_date' ) );
+		return Services::WpGeneral()->getOption( $this->prefixOptionKey( 'install_date' ) );
 	}
 
 	/**
@@ -602,8 +601,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
-		$oWP = $this->loadWp();
-		$nNow = $this->loadRequest()->ts();
+		$oWP = Services::WpGeneral();
+		$nNow = Services::Request()->ts();
 
 		$sOptKey = $this->prefixOptionKey( 'install_date' );
 
@@ -674,8 +673,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function genInstallId() {
 		return sha1(
 			$this->getInstallDate()
-			.$this->loadWp()->getWpUrl()
-			.$this->loadDbProcessor()->getPrefix()
+			.Services::WpGeneral()->getWpUrl()
+			.Services::WpDb()->getPrefix()
 		);
 	}
 
@@ -691,7 +690,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function hasImportExportMasterImportUrl() {
 		$sMaster = $this->getImportExportMasterImportUrl();
-		return !empty( $sMaster );// && ( rtrim( $this->loadWp()->getHomeUrl(), '/' ) != $sMaster );
+		return !empty( $sMaster );
 	}
 
 	/**
@@ -705,7 +704,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return int
 	 */
 	public function getImportExportHandshakeExpiresAt() {
-		return $this->getOpt( 'importexport_handshake_expires_at', $this->loadRequest()->ts() );
+		return $this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
 	}
 
 	/**
@@ -731,7 +730,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		if ( empty( $sId ) || $this->isImportExportSecretKeyExpired() ) {
 			$sId = sha1( $this->getPluginInstallationId().wp_rand( 0, PHP_INT_MAX ) );
 			$this->setOpt( 'importexport_secretkey', $sId )
-				 ->setOpt( 'importexport_secretkey_expires_at', $this->loadRequest()->ts() + HOUR_IN_SECONDS );
+				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
 		}
 		return $sId;
 	}
@@ -747,7 +746,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	protected function isImportExportSecretKeyExpired() {
-		return ( $this->loadRequest()->ts() > $this->getOpt( 'importexport_secretkey_expires_at' ) );
+		return ( Services::Request()->ts() > $this->getOpt( 'importexport_secretkey_expires_at' ) );
 	}
 
 	/**
@@ -831,7 +830,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function startImportExportHandshake() {
-		$this->setOpt( 'importexport_handshake_expires_at', $this->loadRequest()->ts() + 30 )
+		$this->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 )
 			 ->savePluginOptions();
 		return $this;
 	}
@@ -866,7 +865,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	private function buildIpAddressMap() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
@@ -932,7 +931,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
 				'actions_title'   => _wpsf__( 'Plugin Actions' ),
@@ -966,7 +965,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getCanAdminNotes() {
-		return $this->isPremium() && $this->loadWpUsers()->isUserAdmin();
+		return $this->isPremium() && Services::WpUsers()->isUserAdmin();
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -1019,13 +1018,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			);
 
-			$bHasSupportEmail = $this->loadDP()->validEmail( $this->supplyPluginReportEmail() );
+			$bHasSupportEmail = Services::Data()->validEmail( $this->supplyPluginReportEmail() );
 			$aThis[ 'key_opts' ][ 'reports' ] = array(
 				'name'    => _wpsf__( 'Reporting Email' ),
 				'enabled' => $bHasSupportEmail,
 				'summary' => $bHasSupportEmail ?
 					sprintf( _wpsf__( 'Email address for reports set to: %s' ), $this->supplyPluginReportEmail() )
-					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), $this->loadWp()
+					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), Services::WpGeneral()
 																						  ->getSiteAdminEmail() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),

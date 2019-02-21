@@ -34,7 +34,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
 		if ( !$oUser instanceof WP_User ) {
-			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
 		$this->enforceSessionLimits( $oUser );
 	}
@@ -46,13 +46,13 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->enforceSessionLimits( $this->loadWpUsers()->getUserById( $nUserId ) );
+		$this->enforceSessionLimits( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
 	 */
 	public function onWpLoaded() {
-		if ( $this->isReadyToRun() && $this->loadWpUsers()->isUserLoggedIn() && !$this->loadWp()->isRest() ) {
+		if ( $this->isReadyToRun() && Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->checkCurrentSession();
 		}
 	}
@@ -60,8 +60,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	/**
 	 */
 	private function checkCurrentSession() {
-		$oWp = $this->loadWp();
-		$oWpUsers = $this->loadWpUsers();
+		$oWp = Services::WpGeneral();
+		$oWpUsers = Services::WpUsers();
 
 		try {
 			$bSessionInvalid = !$this->assessCurrentSession();
@@ -258,7 +258,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 				$oPluginMod = $this->getCon()->getModule( 'plugin' );
 				$aPossibleIps = [
 					$oSess->ip,
-					$this->loadRequest()->server( 'SERVER_ADDR' ),
+					Services::Request()->getServerAddress(),
 					$oPluginMod->getMyServerIp()
 				];
 				if ( !in_array( $this->ip(), $aPossibleIps ) ) {
@@ -315,7 +315,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 			$oError = new WP_Error();
 		}
 
-		$sForceLogout = $this->loadRequest()->query( 'wpsf-forcelogout' );
+		$sForceLogout = Services::Request()->query( 'wpsf-forcelogout' );
 		if ( $sForceLogout ) {
 
 			switch ( $sForceLogout ) {

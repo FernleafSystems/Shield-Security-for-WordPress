@@ -130,7 +130,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return string[]
 	 */
 	public function addActionLinkRefresh( $aLinks, $sPluginFile ) {
-		$oWpP = $this->loadWpPlugins();
+		$oWpP = Services\Services::WpPlugins();
 
 		if ( $oWpP->isWpOrg( $sPluginFile ) && !$oWpP->isUpdateAvailable( $sPluginFile ) ) {
 			$sLinkTemplate = '<a href="javascript:void(0)">%s</a>';
@@ -250,7 +250,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			}
 			else if ( $aInfo[ 'type' ] == 'theme' ) {
 				$sDir = $oUpgrader->result[ 'destination_name' ];
-				if ( $this->loadWpThemes()->isActive( $sDir ) ) {
+				if ( Services\Services::WpThemes()->isActive( $sDir ) ) {
 					$sContext = self::CONTEXT_THEMES;
 					$aSlugs = array( $sDir );
 				}
@@ -295,7 +295,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	public function updatePluginSnapshot( $sBaseName ) {
 		$oStore = $this->getStore_Plugins();
 
-		if ( $this->loadWpPlugins()->isActive( $sBaseName ) ) {
+		if ( Services\Services::WpPlugins()->isActive( $sBaseName ) ) {
 			try {
 				$oStore->addSnapItem( $sBaseName, $this->buildSnapshotPlugin( $sBaseName ) )
 					   ->save();
@@ -321,7 +321,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	public function updateThemeSnapshot( $sSlug ) {
 		$oStore = $this->getStore_Themes();
 
-		if ( $this->loadWpThemes()->isActive( $sSlug, true ) ) {
+		if ( Services\Services::WpThemes()->isActive( $sSlug, true ) ) {
 			try {
 				$oStore->addSnapItem( $sSlug, $this->buildSnapshotTheme( $sSlug ) )
 					   ->save();
@@ -415,14 +415,13 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return array
 	 */
 	private function buildSnapshotPlugin( $sBaseFile ) {
-		$aPlugin = $this->loadWpPlugins()
-						->getPlugin( $sBaseFile );
+		$aPlugin = Services\Services::WpPlugins()->getPlugin( $sBaseFile );
 
 		return array(
 			'meta'   => array(
 				'name'         => $aPlugin[ 'Name' ],
 				'version'      => $aPlugin[ 'Version' ],
-				'ts'           => $this->loadRequest()->ts(),
+				'ts'           => Services\Services::Request()->ts(),
 				'snap_version' => $this->getCon()->getVersion(),
 			),
 			'hashes' => $this->getContextScanner( self::CONTEXT_PLUGINS )->hashAssetFiles( $sBaseFile )
@@ -434,14 +433,13 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return array
 	 */
 	private function buildSnapshotTheme( $sSlug ) {
-		$oTheme = $this->loadWpThemes()
-					   ->getTheme( $sSlug );
+		$oTheme = Services\Services::WpThemes()->getTheme( $sSlug );
 
 		return array(
 			'meta'   => array(
 				'name'         => $oTheme->get( 'Name' ),
 				'version'      => $oTheme->get( 'Version' ),
-				'ts'           => $this->loadRequest()->ts(),
+				'ts'           => Services\Services::Request()->ts(),
 				'snap_version' => $this->getCon()->getVersion(),
 			),
 			'hashes' => $this->getContextScanner( self::CONTEXT_THEMES )->hashAssetFiles( $sSlug )
@@ -455,7 +453,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		try {
 			$oStore = $this->getStore_Plugins()
 						   ->deleteSnapshots();
-			foreach ( $this->loadWpPlugins()->getActivePlugins() as $sBaseName ) {
+			foreach ( Services\Services::WpPlugins()->getActivePlugins() as $sBaseName ) {
 				$oStore->addSnapItem( $sBaseName, $this->buildSnapshotPlugin( $sBaseName ) );
 			}
 			$oStore->save();
@@ -471,7 +469,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	private function snapshotThemes() {
 		$bSuccess = true;
 
-		$oWpThemes = $this->loadWpThemes();
+		$oWpThemes = Services\Services::WpThemes();
 		try {
 			$oSnap = $this->getStore_Themes()
 						  ->deleteSnapshots();
@@ -589,7 +587,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		}
 
 		$sName = $this->getCon()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		$sHomeUrl = Services\Services::WpGeneral()->getHomeUrl();
 
 		$aContent = array(
 			sprintf( _wpsf__( '%s has detected at least 1 Plugins/Themes have been modified on your site.' ), $sName ),

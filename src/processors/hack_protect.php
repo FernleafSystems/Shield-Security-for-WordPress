@@ -232,7 +232,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// Process Plugins
 		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
-		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		foreach ( $aPlugins as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
@@ -281,7 +281,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// Process Themes
 		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();;
+		$oWpThemes = Services::WpThemes();;
 		foreach ( $aThemes as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
