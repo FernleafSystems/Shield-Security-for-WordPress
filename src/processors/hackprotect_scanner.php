@@ -159,36 +159,4 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		$aDef = $this->getMod()->getDef( 'table_columns_scanner' );
 		return ( is_array( $aDef ) ? $aDef : array() );
 	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Scanner\Update
-	 */
-	public function getQueryUpdater() {
-		return parent::getQueryUpdater();
-	}
 }

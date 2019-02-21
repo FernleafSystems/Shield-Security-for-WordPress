@@ -394,25 +394,4 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function createDbHandler() {
 		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler();
 	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Delete
-	 */
-	public function getQueryDeleter() {
-		return parent::getQueryDeleter();
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
 }

@@ -144,28 +144,4 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function deleteTable() {
 	}
-
-	/**
-	 * @deprecated
-	 * @return Tally\Update
-	 */
-	public function getUpdater() {
-		return parent::getQueryUpdater();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Tally\Insert
-	 */
-	public function getQueryInserter() {
-		return parent::getQueryInserter();
-	}
-
-	/**
-	 * @deprecated
-	 * @return Tally\Select
-	 */
-	public function getQuerySelector() {
-		return parent::getQuerySelector();
-	}
 }

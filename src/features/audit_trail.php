@@ -50,7 +50,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
 			$oPro = $this->getProcessor();
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			$oEntry = $oPro->getDbHandler()
+			$oEntry = $oPro->getSubProAuditor()
+						   ->getDbHandler()
 						   ->getQuerySelector()
 						   ->byId( $nId );
 
@@ -89,7 +90,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
 			->setMod( $this )
-			->setDbHandler( $oPro->getDbHandler() );
+			->setDbHandler( $oPro->getSubProAuditor()->getDbHandler() );
 
 		return array(
 			'success' => true,
@@ -109,6 +110,19 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	public function getMaxEntries() {
 		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDefaultMaxEntries();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledAuditing() {
+		return $this->isAuditEmails()
+			   || $this->isAuditPlugins()
+			   || $this->isAuditThemes()
+			   || $this->isAuditPosts()
+			   || $this->isAuditShield()
+			   || $this->isAuditUsers()
+			   || $this->isAuditWp();
 	}
 
 	/**
@@ -223,17 +237,19 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		);
 
 		try {
-			$oFinder = $oProc->getDbHandler()
+			$oFinder = $oProc->getSubProAuditor()
+							 ->getDbHandler()
 							 ->getQuerySelector()
 							 ->addWhereSearch( 'wp_username', $oUser->user_login )
 							 ->setResultsAsVo( true );
 
 			$oWp = $this->loadWp();
+			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
 			foreach ( $oFinder->query() as $oEntry ) {
 				$aExportItem[ 'data' ][] = array(
 					$sTimeStamp = $oWp->getTimeStringForDisplay( $oEntry->getCreatedAt() ),
 					'name'  => sprintf( '[%s] Audit Trail Entry', $sTimeStamp ),
-					'value' => sprintf( '[IP:%s] %s', $oEntry->getIp(), $oEntry->getMessage() )
+					'value' => sprintf( '[IP:%s] %s', $oEntry->ip, $oEntry->message )
 				);
 			}
 
@@ -262,7 +278,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		try {
 			$oThisUsername = $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login;
-			$oProc->getDbHandler()
+			$oProc->getSubProAuditor()
+				  ->getDbHandler()
 				  ->getQueryDeleter()
 				  ->addWhereSearch( 'wp_username', $oThisUsername )
 				  ->all();
