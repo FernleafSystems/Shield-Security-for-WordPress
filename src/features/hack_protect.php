@@ -748,6 +748,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oScanPro = $oP->getSubProScanner();
 			foreach ( array_keys( $aFormParams ) as $sScan ) {
 				switch ( $sScan ) {
+
+					case 'apc':
+						$oTablePro = $oScanPro->getSubProcessorApc();
+						break;
+
 					case 'ptg':
 						$oTablePro = $oScanPro->getSubProcessorPtg();
 						break;

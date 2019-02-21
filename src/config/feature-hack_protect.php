@@ -44,9 +44,6 @@
     },
     {
       "slug":        "section_pluginthemes_guard",
-      "reqs":        {
-        "php_min": "5.4"
-      },
       "help_video":  {
         "provider":  "vimeo",
         "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
@@ -70,7 +67,6 @@
     },
     {
       "slug":        "section_scan_apc",
-      "hidden": true,
       "title":       "Abandoned Plugin Check",
       "title_short": "Abandoned Plugin Check",
       "summary":     [
@@ -487,6 +483,13 @@
       "default":      0
     },
     {
+      "key":          "insights_last_scan_apc_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
       "key":          "insights_last_scan_wcf_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -502,6 +505,13 @@
     },
     {
       "key":          "insights_last_scan_wpv_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
+      "key":          "next_scan_apc_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
