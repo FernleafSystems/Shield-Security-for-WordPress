@@ -12,6 +12,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oFO = $this->getMod();
 		$this->getSubProCronDaily()
 			 ->run();
+		$this->getSubProCronHourly()
+			 ->run();
 
 		$this->removePluginConflicts();
 		$this->getSubProBadge()
@@ -66,6 +68,13 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_Plugin_CronHourly|mixed
+	 */
+	protected function getSubProCronHourly() {
+		return $this->getSubPro( 'cronhourly' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_Plugin_Tracking|mixed
 	 */
 	protected function getSubProTracking() {
@@ -96,6 +105,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			'notes'        => 'ICWP_WPSF_Processor_Plugin_Notes',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
 			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
+			'cronhourly'   => 'ICWP_WPSF_Processor_Plugin_CronHourly',
 		];
 	}
 
