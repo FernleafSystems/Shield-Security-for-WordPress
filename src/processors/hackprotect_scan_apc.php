@@ -126,7 +126,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		$aContent[] = $this->getScannerButtonForEmail();
 		$aContent[] = '';
 
-		$sSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Abandonded Plugin(s) Discovered On Your Site.' ) );
+		$sSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Abandoned Plugin(s) Discovered On Your Site.' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$bSendSuccess = $this->getEmailProcessor()
 							 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
