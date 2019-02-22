@@ -34,6 +34,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isPasswordPoliciesEnabled() ) {
 			$this->getProcessorPasswords()->run();
 		}
+
+		$this->getProcessorSuspend()->run();
 	}
 
 	/**
@@ -259,11 +261,19 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_UserManagement_Suspend|mixed
+	 */
+	protected function getProcessorSuspend() {
+		return $this->getSubPro( 'suspend' );
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {
 		return [
 			'passwords' => 'ICWP_WPSF_Processor_UserManagement_Passwords',
+			'suspend'   => 'ICWP_WPSF_Processor_UserManagement_Suspend',
 		];
 	}
 

@@ -25,7 +25,7 @@ class PasswordExpiry extends Base {
 		if ( $this->isPassExpired( $oMeta ) ) {
 			$oUser = new \WP_Error(
 				$this->getCon()->prefix( 'pass-expired' ),
-				'Sorry,this account is suspended. Please reset your password to gain access to your account.'
+				'Sorry, this account is suspended due to expired password. Please reset your password to gain access to your account.'
 			);
 		}
 		return $oUser;
@@ -35,7 +35,7 @@ class PasswordExpiry extends Base {
 	 * @param ShieldUserMeta $oMeta
 	 * @return bool
 	 */
-	protected function isPassExpired( $oMeta ) {
+	private function isPassExpired( $oMeta ) {
 		$nNow = Services::Request()->ts();
 		$nPassStart = (int)$oMeta->pass_started_at;
 		$nLoginAt = $oMeta->last_login_at;

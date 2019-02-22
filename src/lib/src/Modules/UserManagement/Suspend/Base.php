@@ -28,7 +28,7 @@ class Base {
 	public function checkUser( $oUserOrError ) {
 		if ( $oUserOrError instanceof \WP_User ) {
 			$oMeta = $this->getCon()->getUserMeta( $oUserOrError );
-			if ( !$this->isLastVerifiedAtExpired( $oMeta ) ) {
+			if ( $oMeta->is_hard_suspended !== true ) {
 				$oUserOrError = $this->processUser( $oUserOrError, $oMeta );
 			}
 		}
@@ -40,16 +40,7 @@ class Base {
 	 * @return bool
 	 */
 	protected function isLastVerifiedAtExpired( $oMeta ) {
-		$nNow = Services::Request()->ts();
-		$nLastVerified = (int)$oMeta->last_verified_at;
-		if ( $nLastVerified < 1 ) {
-			$nLastVerified = (int)max( $oMeta->last_login_at, $oMeta->pass_started_at );
-			if ( $nLastVerified < 1 ) {
-				$nLastVerified = $nNow;
-			}
-			$oMeta->last_verified_at = $nLastVerified;
-		}
-		return ( $nNow - $oMeta->last_verified_at > $this->getVerifiedExpires() );
+		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $this->getVerifiedExpires() );
 	}
 
 	/**
