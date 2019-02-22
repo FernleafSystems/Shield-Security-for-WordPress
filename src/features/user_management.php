@@ -254,14 +254,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return int days
 	 */
 	public function getPassExpireDays() {
-		return max( 0, (int)$this->getOpt( 'pass_expire' ) );
+		return ( $this->isPasswordPoliciesEnabled() && $this->isPremium() ) ? (int)$this->getOpt( 'pass_expire' ) : 0;
 	}
 
 	/**
 	 * @return int seconds
 	 */
 	public function getPassExpireTimeout() {
-		return $this->isPremium() ? $this->getPassExpireDays()*DAY_IN_SECONDS : 0;
+		return $this->getPassExpireDays()*DAY_IN_SECONDS;
 	}
 
 	/**
@@ -311,8 +311,51 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
+	public function isPassExpirationEnabled() {
+		return $this->isPasswordPoliciesEnabled() && ( $this->getPassExpireTimeout() > 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isPassPreventPwned() {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
+	}
+
+	public function isSuspendEnabled() {
+		return ( $this->isSuspendManualEnabled()
+				 || $this->isSuspendAutoIdleEnabled()
+				 || $this->isSuspendAutoPasswordEnabled()
+			   ) && $this->isPremium();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSuspendManualEnabled() {
+		return $this->isOpt( 'manual_suspend', 'Y' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSuspendAutoIdleTime() {
+		return $this->getOpt( 'auto_idle', 0 )*DAY_IN_SECONDS;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSuspendAutoIdleEnabled() {
+		return $this->getSuspendAutoIdleTime() > 0;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSuspendAutoPasswordEnabled() {
+		return $this->isOpt( 'auto_password', 'Y' )
+			   && $this->isPasswordPoliciesEnabled() && $this->getPassExpireTimeout();
 	}
 
 	/**
@@ -481,6 +524,15 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sTitleShort = _wpsf__( 'Session Options' );
 				break;
 
+			case 'section_suspend' :
+				$sTitleShort = _wpsf__( 'User Suspension' );
+				$sTitle = _wpsf__( 'Automatic And Manual User Suspension' );
+				$aSummary = array(
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Suspend user accounts to prevent login by certain users.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+				);
+				break;
+
 			default:
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
@@ -526,7 +578,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 								.'<br />'._wpsf__( 'Think of this as an absolute maximum possible session length.' )
 								.'<br />'.sprintf( _wpsf__( 'This cannot be less than %s.' ), '<strong>1</strong>' )
 								.' '.sprintf( '%s: %s', _wpsf__( 'Default' ), '<strong>'.$this->getOptionsVo()
-																									->getOptDefault( 'session_timeout_interval' ).'</strong>' );
+																							  ->getOptDefault( 'session_timeout_interval' ).'</strong>' );
 				break;
 
 			case 'session_idle_timeout_interval' :
@@ -586,6 +638,31 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sName = _wpsf__( 'Password Expiration' );
 				$sSummary = _wpsf__( 'Passwords Expire After This Many Days' );
 				$sDescription = _wpsf__( 'Users will be forced to reset their passwords after the number of days specified.' )
+								.'<br/>'._wpsf__( 'Set to Zero(0) to disable.' );
+				break;
+
+			case 'manual_suspend' :
+				$sName = _wpsf__( 'Allow Manual User Suspension' );
+				$sSummary = _wpsf__( 'Manually Suspend User Accounts To Prevent Login' );
+				$sDescription = _wpsf__( 'Users may be forcefully suspended by administrators to prevent future login.' );
+				break;
+
+			case 'auto_password' :
+				$sName = _wpsf__( 'Auto-Suspend Expired Passwords' );
+				$sSummary = _wpsf__( 'Automatically Suspend Users With Expired Passwords' );
+				$sDescription = _wpsf__( 'Automatically suspend login by users and require password reset to unsuspend.' )
+								.'<br/>'.sprintf(
+									'<strong>%s</strong> - %s',
+									_wpsf__( 'Important' ),
+									_wpsf__( 'Requires password expiration policy to be set.' )
+								);
+				break;
+
+			case 'auto_idle' :
+				$sName = _wpsf__( 'Auto-Suspend Idle Users' );
+				$sSummary = _wpsf__( 'Automatically Suspend Idle User Accounts' );
+				$sDescription = _wpsf__( 'Automatically suspend login by idle users and require password reset to unsuspend.' )
+								.'<br/>'._wpsf__( 'Specify the number of days since last login to consider a user as idle.' )
 								.'<br/>'._wpsf__( 'Set to Zero(0) to disable.' );
 				break;
 

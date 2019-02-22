@@ -27,13 +27,21 @@
     {
       "slug":        "section_passwords",
       "reqs":        {
-        "php_min": "5.4",
         "wp_min":  "4.4"
       },
       "title":       "Password Policies",
       "title_short": "Password Policies",
       "summary":     [
         "Purpose - Have full control over passwords used by users on the site.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
+      "slug":        "section_suspend",
+      "title":       "User Suspension",
+      "title_short": "User Suspension",
+      "summary":     [
+        "Purpose - So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.",
         "Recommendation - Use of this feature is highly recommend."
       ]
     },
@@ -229,11 +237,49 @@
       "premium":     true,
       "type":        "integer",
       "default":     "60",
+      "min":         0,
       "link_info":   "",
       "link_blog":   "",
       "name":        "Password Expiration",
       "summary":     "Passwords Expire After This Many Days",
       "description": "Users will be forced to reset their passwords after the number of days specified."
+    },
+    {
+      "key":         "manual_suspend",
+      "section":     "section_suspend",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Allow Manual User Suspension",
+      "summary":     "Manually Suspend User Accounts To Prevent Login",
+      "description": "Users may be suspended by administrators to prevent login."
+    },
+    {
+      "key":         "auto_password",
+      "section":     "section_suspend",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Suspend Expired Passwords",
+      "summary":     "Automatically Suspend Users With Expired Passwords",
+      "description": "Suspend login by users and require password reset to unsuspend."
+    },
+    {
+      "key":         "auto_idle",
+      "section":     "section_suspend",
+      "premium":     true,
+      "type":        "integer",
+      "default":     0,
+      "min":         0,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Suspend Idle Users",
+      "summary":     "Automatically Suspend Idle User Accounts",
+      "description": "Prevent login by idle users and require password reset to unsuspend."
     },
     {
       "key":          "autoadd_sessions_started_at",

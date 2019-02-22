@@ -4,43 +4,27 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Base {
 
 	use PluginControllerConsumer;
-
-	/**
-	 * @var int
-	 */
-	private $nVerifiedExpired;
+	const HOOK_PRIORITY = 1000; // so only actual user is notified of account state.
 
 	public function run() {
-		add_filter( 'authenticate', array( $this, 'checkUser' ), 1000, 1 );
+		add_filter( 'authenticate', array( $this, 'checkUser' ), static::HOOK_PRIORITY, 1 );
 	}
 
 	/**
 	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
-	 * @param null|\WP_User|\WP_Error $oUserOrError
+	 * @param null|\WP_User|\WP_Error $oUser
 	 * @return \WP_User|\WP_Error
 	 */
-	public function checkUser( $oUserOrError ) {
-		if ( $oUserOrError instanceof \WP_User ) {
-			$oMeta = $this->getCon()->getUserMeta( $oUserOrError );
-			if ( $oMeta->is_hard_suspended !== true ) {
-				$oUserOrError = $this->processUser( $oUserOrError, $oMeta );
-			}
+	public function checkUser( $oUser ) {
+		if ( $oUser instanceof \WP_User ) {
+			$oUser = $this->processUser( $oUser, $this->getCon()->getUserMeta( $oUser ) );
 		}
-		return $oUserOrError;
-	}
-
-	/**
-	 * @param ShieldUserMeta $oMeta
-	 * @return bool
-	 */
-	protected function isLastVerifiedAtExpired( $oMeta ) {
-		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $this->getVerifiedExpires() );
+		return $oUser;
 	}
 
 	/**
@@ -51,21 +35,5 @@ class Base {
 	 */
 	protected function processUser( $oUser, $oMeta ) {
 		return $oUser;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getVerifiedExpires() {
-		return (int)$this->nVerifiedExpired;
-	}
-
-	/**
-	 * @param int $nVerifiedExpired
-	 * @return $this
-	 */
-	public function setVerifiedExpires( $nVerifiedExpired ) {
-		$this->nVerifiedExpired = $nVerifiedExpired;
-		return $this;
 	}
 }

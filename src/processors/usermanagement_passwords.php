@@ -85,15 +85,15 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	private function processExpiredPassword() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
-		$nExpireTimeout = $oFO->getPassExpireTimeout();
-
-		if ( $nExpireTimeout > 0 && $nPassStartedAt > 0 ) {
-			if ( $this->time() - $nPassStartedAt > $nExpireTimeout ) {
-				$this->addToAuditEntry( _wpsf__( 'Forcing user to update expired password.' ) );
-				$this->redirectToResetPassword(
-					sprintf( _wpsf__( 'Your password has expired (after %s days).' ), $oFO->getPassExpireDays() )
-				);
+		if ( $oFO->isPassExpirationEnabled() ) {
+			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
+			if ( $nPassStartedAt > 0 ) {
+				if ( $this->time() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
+					$this->addToAuditEntry( _wpsf__( 'Forcing user to update expired password.' ) );
+					$this->redirectToResetPassword(
+						sprintf( _wpsf__( 'Your password has expired (after %s days).' ), $oFO->getPassExpireDays() )
+					);
+				}
 			}
 		}
 	}

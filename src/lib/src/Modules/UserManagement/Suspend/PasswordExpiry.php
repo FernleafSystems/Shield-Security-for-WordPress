@@ -14,7 +14,7 @@ class PasswordExpiry extends Base {
 	/**
 	 * @var int
 	 */
-	private $nVerifiedExpired;
+	private $nMaxPasswordAge;
 
 	/**
 	 * @param \WP_User       $oUser
@@ -36,20 +36,18 @@ class PasswordExpiry extends Base {
 	 * @return bool
 	 */
 	private function isPassExpired( $oMeta ) {
-		$nNow = Services::Request()->ts();
 		$nPassStart = (int)$oMeta->pass_started_at;
-		$nLoginAt = $oMeta->last_login_at;
 		if ( empty( $nPassStart ) ) {
-			$oMeta->pass_started_at = empty( $nLoginAt ) ? $nNow : $nLoginAt;
+			$oMeta->pass_started_at = $oMeta->getLastVerifiedAt();
 		}
-		return ( $nNow - $oMeta->pass_started_at > $this->getMaxPasswordAge() );
+		return ( Services::Request()->ts() - $oMeta->pass_started_at > $this->getMaxPasswordAge() );
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getMaxPasswordAge() {
-		return (int)$this->nVerifiedExpired;
+		return (int)$this->nMaxPasswordAge;
 	}
 
 	/**
@@ -57,7 +55,7 @@ class PasswordExpiry extends Base {
 	 * @return $this
 	 */
 	public function setMaxPasswordAge( $nMaxPasswordAge ) {
-		$this->nVerifiedExpired = $nMaxPasswordAge;
+		$this->nMaxPasswordAge = $nMaxPasswordAge;
 		return $this;
 	}
 }

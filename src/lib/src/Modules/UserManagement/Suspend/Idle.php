@@ -3,8 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Idle extends Base {
+
+	/**
+	 * @var int
+	 */
+	private $nVerifiedExpired;
 
 	/**
 	 * @param \WP_User       $oUser
@@ -19,5 +25,29 @@ class Idle extends Base {
 			);
 		}
 		return $oUser;
+	}
+
+	/**
+	 * @param ShieldUserMeta $oMeta
+	 * @return bool
+	 */
+	protected function isLastVerifiedAtExpired( $oMeta ) {
+		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $this->getVerifiedExpires() );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getVerifiedExpires() {
+		return (int)$this->nVerifiedExpired;
+	}
+
+	/**
+	 * @param int $nVerifiedExpired
+	 * @return $this
+	 */
+	public function setVerifiedExpires( $nVerifiedExpired ) {
+		$this->nVerifiedExpired = $nVerifiedExpired;
+		return $this;
 	}
 }
