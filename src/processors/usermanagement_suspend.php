@@ -58,9 +58,8 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 */
 	public function handleUserBlockOptionSubmit( $nUserId ) {
 		$oCon = $this->getCon();
-		$oMeta = $oCon->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
-
 		if ( $oCon->isPluginAdmin() ) {
+			$oMeta = $oCon->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
 			$oMeta->is_hard_suspended = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 		}
 	}
