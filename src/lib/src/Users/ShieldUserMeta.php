@@ -22,7 +22,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool   $yubi_validated
  * @property int    $last_login_at
  * @property bool   $wc_social_login_valid
- * @property bool   $is_hard_suspended
+ * @property bool   $hard_suspended_at
  */
 class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta {
 

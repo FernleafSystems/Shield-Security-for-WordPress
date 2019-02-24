@@ -119,11 +119,32 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function fAddUserListLastLoginColumn( $aColumns ) {
 
-		$sLastLoginColumnName = $this->prefix( 'last_login_at' );
-		if ( !isset( $aColumns[ $sLastLoginColumnName ] ) ) {
-			$aColumns[ $sLastLoginColumnName ] = _wpsf__( 'Last Login' );
-			add_filter( 'manage_users_custom_column', array( $this, 'aPrintUsersListLastLoginColumnContent' ), 10, 3 );
+		$sCustomColumnName = $this->prefix( 'col_user_status' );
+		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
+			$aColumns[ $sCustomColumnName ] = _wpsf__( 'User Status' );
 		}
+
+		add_filter( 'manage_users_custom_column',
+			function ( $sContent, $sColumnName, $nUserId ) use ( $sCustomColumnName ) {
+
+				if ( $sColumnName == $sCustomColumnName ) {
+					$sValue = _wpsf__( 'Not Recorded' );
+					$oUser = Services::WpUsers()->getUserById( $nUserId );
+					if ( $oUser instanceof \WP_User ) {
+						$nLastLoginTime = $this->getCon()->getUserMeta( $oUser )->last_login_at;
+						if ( $nLastLoginTime > 0 ) {
+							$sValue = ( new \Carbon\Carbon() )->setTimestamp( $nLastLoginTime )->diffForHumans();
+						}
+					}
+					$sNewContent = sprintf( '%s: %s', _wpsf__( 'Last Login' ), $sValue );
+					$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
+				}
+
+				return $sContent;
+			},
+			10, 3
+		);
+
 		return $aColumns;
 	}
 

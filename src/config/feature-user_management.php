@@ -38,7 +38,6 @@
     },
     {
       "slug":        "section_suspend",
-      "hidden": true,
       "title":       "User Suspension",
       "title_short": "User Suspension",
       "summary":     [
