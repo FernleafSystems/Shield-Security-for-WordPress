@@ -38,6 +38,7 @@
     },
     {
       "slug":        "section_suspend",
+      "hidden": true,
       "title":       "User Suspension",
       "title_short": "User Suspension",
       "summary":     [
@@ -301,6 +302,13 @@
       "transferable": false,
       "type":         "integer",
       "default":      0
+    },
+    {
+      "key":          "hard_suspended_userids",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions": {

@@ -9,9 +9,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isSuspendManualEnabled() ) {
-			add_action( 'edit_user_profile', array( $this, 'addUserBlockOption' ) );
-			add_action( 'edit_user_profile_update', array( $this, 'handleUserBlockOptionSubmit' ) );
-			add_filter( 'manage_users_columns', array( $this, 'addUserListSuspendedFlag' ) );
+			$this->setupUserFilters();
 			( new Suspend\Suspended() )
 				->setCon( $this->getCon() )
 				->run();
@@ -27,6 +25,42 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 				->setMaxPasswordAge( $oFO->getPassExpireTimeout() )
 				->setCon( $this->getCon() )
 				->run();
+		}
+	}
+
+	/**
+	 * Sets-up all the UI filters necessary to provide manual user suspension and filter the User Tables
+	 */
+	private function setupUserFilters() {
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		$oFO = $this->getMod();
+
+		// User profile UI
+		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ] );
+		add_filter( 'edit_user_profile_update', [ $this, 'handleUserBlockOptionSubmit' ] );
+
+		// Display suspended on the user list table
+		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
+
+		// Provide Suspended user filter above table
+		$aUserIds = array_keys( $oFO->getSuspendHardUserIds() );
+		if ( !empty( $aUserIds ) ) {
+			// Provide the link above the table.
+			add_filter( 'views_users', function ( $aViews ) use ( $aUserIds ) {
+				$nTotal = count( $aUserIds );
+				$aViews[ 'shield_suspended_users' ] = sprintf( '<a href="%s">%s</a>',
+					add_query_arg( [ 'suspended' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
+					sprintf( '%s (%s)', _wpsf__( 'Suspended' ), $nTotal ) );
+				return $aViews;
+			} );
+
+			// Filter the database query
+			add_filter( 'users_list_table_query_args', function ( $aQueryArgs ) use ( $aUserIds ) {
+				if ( is_array( $aQueryArgs ) && Services::Request()->query( 'suspended' ) ) {
+					$aQueryArgs[ 'include' ] = $aUserIds;
+				}
+				return $aQueryArgs;
+			} );
 		}
 	}
 
@@ -102,6 +136,9 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 			$bIsToSuspend = $oReq->post( 'shield_suspend_user' ) === 'Y';
 			if ( ( $oMeta->hard_suspended_at > 0 ) !== $bIsToSuspend ) {
 				$oMeta->hard_suspended_at = $bIsToSuspend ? $oReq->ts() : 0;
+				/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+				$oFO = $this->getMod();
+				$oFO->addRemoveHardSuspendUserId( $nUserId, $bIsToSuspend );
 			}
 		}
 	}

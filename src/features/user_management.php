@@ -359,6 +359,30 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @param int  $nId
+	 * @param bool $bAdd - set true to add, false to remove
+	 * @return $this
+	 */
+	public function addRemoveHardSuspendUserId( $nId, $bAdd = true ) {
+		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
+		if ( $bAdd ) {
+			$aIds[ $nId ] = Services::Request()->ts();
+		}
+		else if ( isset( $aIds[ $nId ] ) ) {
+			unset( $aIds[ $nId ] );
+		}
+		return $this->setOpt( 'hard_suspended_userids', $aIds );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSuspendHardUserIds() {
+		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
+		return is_array( $aIds ) ? array_filter( $aIds, 'is_int' ) : [];
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
