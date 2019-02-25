@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( $this->isThisModulePage() ) {
 			$this->loadWp()->doRedirect(
 				$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
-				[ 'subnav' => 'license' ]
+				[ 'inav' => 'license' ]
 			);
 		}
 	}

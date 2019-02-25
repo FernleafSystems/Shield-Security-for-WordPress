@@ -1108,7 +1108,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getUrlManualScan() {
 		return add_query_arg(
-			[ 'subnav' => 'scans' ],
+			[ 'inav' => 'scans' ],
 			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage()
 		);
 	}

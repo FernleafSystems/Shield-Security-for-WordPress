@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function displayModulePage( $aData = array() ) {
 		$oCon = $this->getCon();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$aSecNotices = $this->getNotices();
 
 		$nNoticesCount = 0;
@@ -17,7 +17,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
 		}
 
-		$sSubNavSection = $this->loadRequest()->query( 'subnav' );
+		$sNavSection = $oReq->query( 'inav' );
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
@@ -57,7 +57,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$bIsPro = $this->isPremium();
 		$oCarbon = new \Carbon\Carbon();
 		$nPluginName = $oCon->getHumanName();
-		switch ( $sSubNavSection ) {
+		switch ( $sNavSection ) {
 
 			case 'audit':
 				$aData = array(
@@ -95,9 +95,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'auto_expire'       => sprintf(
 							'Black listed IPs auto-expire after: %s',
 							sprintf( '<a href="%s" target="_blank">%s</a>',
-								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ), $oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 1 )
-																							 ->diffForHumans( null, true )
-							) ),
+								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ),
+								$oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 1 )
+										->diffForHumans( null, true )
+							)
+						),
 						'title_whitelist'   => _wpsf__( 'IP Whitelist' ),
 						'title_blacklist'   => _wpsf__( 'IP Blacklist' ),
 						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),
@@ -179,7 +181,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'insights':
 			case 'index':
 			default:
-				$sSubNavSection = 'insights';
+				$sNavSection = 'insights';
 				$aData = array(
 					'vars'   => array(
 						'config_cards'          => $this->getConfigCardsData(),
@@ -227,11 +229,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aTopNav[ 'license' ] = _wpsf__( 'Pro' );
 		}
 
-		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
+		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sNavSection ) {
 			$sName = array(
-				'href'   => add_query_arg( [ 'subnav' => $sKey ], $this->getUrl_AdminPage() ),
+				'href'   => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
 				'name'   => $sName,
-				'active' => $sKey === $sSubNavSection
+				'active' => $sKey === $sNavSection
 			);
 		} );
 
@@ -246,7 +248,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$this->getBaseDisplayData( false ),
 			array(
 				'classes' => array(
-					'page_container' => 'page-insights page-'.$sSubNavSection
+					'page_container' => 'page-insights page-'.$sNavSection
 				),
 				'flags'   => array(
 					'show_promo' => !$bIsPro
@@ -264,7 +266,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			$aData
 		);
-		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sSubNavSection ), $aData, true );
+		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sNavSection ), $aData, true );
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -274,8 +276,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			$oConn = $this->getCon();
 			$aStdDeps = array( $this->prefix( 'plugin' ) );
-			$sSubnav = $this->loadRequest()->query( 'subnav' );
-			switch ( $sSubnav ) {
+			$sNav = Services::Request()->query( 'inav' );
+			switch ( $sNav ) {
 
 				case 'importexport':
 
@@ -310,7 +312,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					wp_enqueue_script( $sUnique );
 
 					$aStdDeps[] = $sUnique;
-					if ( $sSubnav == 'scans' ) {
+					if ( $sNav == 'scans' ) {
 						$sAsset = 'shield-scans';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
@@ -429,7 +431,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				// If we didn't throw and exception, we got it.
 				$nExpiresAt = $oSslService->getExpiresAt( $sHomeUrl );
 				if ( $nExpiresAt > 0 ) {
-					$nTimeLeft = ( $nExpiresAt - $this->loadRequest()->ts() );
+					$nTimeLeft = ( $nExpiresAt - Services::Request()->ts() );
 					$bExpired = $nTimeLeft < 0;
 					$nDaysLeft = $bExpired ? 0 : (int)round( $nTimeLeft/DAY_IN_SECONDS, 0, PHP_ROUND_HALF_DOWN );
 
