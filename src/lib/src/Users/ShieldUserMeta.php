@@ -36,4 +36,17 @@ class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\Plugi
 		}
 		return $nLastVerified;
 	}
+
+	/**
+	 * @param string $sHashedPassword
+	 * @return $this
+	 */
+	public function setPasswordStartedAt( $sHashedPassword ) {
+		$sNewHash = substr( sha1( $sHashedPassword ), 6, 4 );
+		if ( !isset( $this->pass_hash ) || ( $this->pass_hash != $sNewHash ) ) {
+			$this->pass_hash = $sNewHash;
+			$this->pass_started_at = Services::Request()->ts();
+		}
+		return $this;
+	}
 }

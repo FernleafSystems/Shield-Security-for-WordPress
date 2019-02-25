@@ -17,7 +17,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-use \FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
@@ -1834,7 +1835,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oMeta = null;
 		try {
 			if ( $oUser instanceof \WP_User ) {
+				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta $oMeta */
 				$oMeta = \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
+				$oMeta->setPasswordStartedAt( $oUser->user_pass );
 			}
 		}
 		catch ( \Exception $oE ) {

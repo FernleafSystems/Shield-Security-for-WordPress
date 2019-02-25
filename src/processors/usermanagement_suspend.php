@@ -8,18 +8,21 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
+
 		if ( $oFO->isSuspendManualEnabled() ) {
 			$this->setupUserFilters();
 			( new Suspend\Suspended() )
 				->setCon( $this->getCon() )
 				->run();
 		}
+
 		if ( $oFO->isSuspendAutoIdleEnabled() ) {
 			( new Suspend\Idle() )
 				->setVerifiedExpires( $oFO->getSuspendAutoIdleTime() )
 				->setCon( $this->getCon() )
 				->run();
 		}
+
 		if ( $oFO->isSuspendAutoPasswordEnabled() ) {
 			( new Suspend\PasswordExpiry() )
 				->setMaxPasswordAge( $oFO->getPassExpireTimeout() )

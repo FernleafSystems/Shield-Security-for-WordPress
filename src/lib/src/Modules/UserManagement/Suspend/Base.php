@@ -5,10 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 
-class Base {
+abstract class Base {
 
 	use PluginControllerConsumer;
-	const HOOK_PRIORITY = 1000; // so only actual user is notified of account state.
+	const HOOK_PRIORITY = 1000; // so only authenticated user is notified of account state.
 
 	public function run() {
 		add_filter( 'authenticate', array( $this, 'checkUser' ), static::HOOK_PRIORITY, 1 );
@@ -28,12 +28,10 @@ class Base {
 	}
 
 	/**
-	 * Test the User and its Meta and if it fails return \WP_Error
+	 * Test the User and its Meta and if it fails return \WP_Error; Always return Error or User
 	 * @param \WP_User       $oUser
 	 * @param ShieldUserMeta $oMeta
 	 * @return \WP_Error|\WP_User
 	 */
-	protected function processUser( $oUser, $oMeta ) {
-		return $oUser;
-	}
+	abstract protected function processUser( $oUser, $oMeta );
 }
