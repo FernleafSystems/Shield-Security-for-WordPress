@@ -222,6 +222,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'notes'        => _wpsf__( 'Notes' ),
 			'importexport' => sprintf( '%s/%s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) ),
 		);
+		if ( $bIsPro ) {
+			unset( $aTopNav[ 'license' ] );
+			$aTopNav[ 'license' ] = _wpsf__( 'Pro' );
+		}
+
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sSubNavSection ) {
 			$sName = array(
 				'href'   => add_query_arg( [ 'subnav' => $sKey ], $this->getUrl_AdminPage() ),
