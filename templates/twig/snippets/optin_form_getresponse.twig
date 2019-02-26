@@ -1,0 +1,29 @@
+<form class="form-horizontal" id="OptinForm" target="_blank"
+	  action="https://app.getresponse.com/add_subscriber.html"
+	  method="post">
+
+	{{ slideMacros.formInput_Text( 'name', data.name, 'Your Name', data.name ) }}
+	{{ slideMacros.formInput_Email( 'email', data.user_email, 'Your Email',
+		data.user_email, 'We never SPAM and you can remove yourself at any time.' ) }}
+	{{ slideMacros.formInput_Checkbox(
+		'webform[consent#BbEO-ver#Syac]', 'true', 'Agree To Privacy Policy',
+		strings.privacy_policy,
+		'We treat your membership information under our strict, and GDPR-compliant, privacy policy.',
+		'OptinConsent'
+	) }}
+	{{ slideMacros.formInput_Hidden( 'campaign_token', 'agIJR' ) }}
+	{{ slideMacros.formInput_Hidden( 'start_day', '0' ) }}
+	{{ slideMacros.formInput_Hidden( 'thankyou_url', 'https://onedollarplugin.com/emails/confirm-shield-security/' ) }}
+	{{ slideMacros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
+</form>
+
+<script type="text/javascript">
+	jQuery( document ).ready( function ( $ ) {
+		var $oSubButton = $( 'form#OptinForm button' );
+		var $oCheck = $( '#OptinConsent' );
+		$oSubButton.attr( "disabled", "disabled" );
+		$( document ).on( 'change', $oCheck, function () {
+			$oSubButton.prop( "disabled", !$oCheck.is( ":checked" ) );
+		} );
+	} );
+</script>
