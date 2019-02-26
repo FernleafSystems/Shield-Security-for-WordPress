@@ -222,19 +222,18 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oModCon = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 		$nDays = $this->getInstallationDays();
-		if ( true ) {
+		if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {
 			$oUser = Services::WpUsers()->getCurrentWpUser();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'        => 'Join Us!',
+					'title'        => 'Come and Join Us!',
 					'yes'          => "Yes please! I'd love to join in and learn more",
 					'no'           => "No thanks, I'm not interested in such groups",
-					'we_dont_spam' => "( Fear not! SPAM is for losers. And we're not losers! )",
 					'your_name'    => _wpsf__( 'Your Name' ),
 					'your_email'   => _wpsf__( 'Your Email' ),
 					'dismiss'      => "No thanks, I'm not interested in such informative groups",
-					'summary'      => sprintf( 'The %s security team is running an initiative (with currently 3000+ members) to raise awareness of WordPress Security
+					'summary'      => sprintf( 'The %s security team is running an initiative to raise awareness of WordPress Security
 				and to provide further help with the %s security plugin. Get Involved here:', $sName, $sName ),
 					'privacy_policy' => sprintf(
 						'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
@@ -242,7 +241,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					),
 				),
 				'hrefs'             => array(
-					'form_action'    => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
 					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
 				),
 				'install_days'      => $nDays,

@@ -1,5 +1,21 @@
 {% extends "/notices/base-info.twig" %}
 
 {% block notice_body %}
-	{% include '/snippets/optin_form_getresponse.twig' %}
+	<div class="row">
+		<div class="col-4 pt-2">
+			{{ strings.summary }}
+		</div>
+		<div class="col-8">
+			{% include '/snippets/optin_form_getresponse.twig' %}
+		</div>
+	</div>
+	<style>
+		#OptinForm .form-check {
+			padding-left: 0;
+			font-size: smaller;
+		}
+		#OptinConsent {
+			margin-top: 7px;
+		}
+	</style>
 {% endblock %}
