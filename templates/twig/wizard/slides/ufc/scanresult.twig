@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Unrecognised File Scanner Results' ) }}
+	{{ icwp_macros.slideTitle( 'Unrecognised File Scanner Results' ) }}
 
 	{% if data.files.has %}
 		<div class="alert alert-warning" role="alert">
@@ -22,15 +22,15 @@
 		</p>
 		<form class="form-horizontal icwp-wizard-form">
 
-			{{ slideMacros.formInput_Checkbox(
+			{{ icwp_macros.formInput_Checkbox(
 				'DeleteFiles', 'Y', 'Delete Detected Files', 'Check to delete the unrecognised files',
 				"If there are files on this list that you do not want to delete, please go back
 						a step in the wizard and add them to your exclusions list.
 						<br />For security reasons, the scanner <strong>does not</strong>
 						currently support individual selection of files to delete."
 			) }}
-			{{ slideMacros.formInput_Hidden( 'wizard-step', 'deletefiles' ) }}
-			{{ slideMacros.formInput_Submit( 'Delete Unrecognised Files' ) }}
+			{{ icwp_macros.formInput_Hidden( 'wizard-step', 'deletefiles' ) }}
+			{{ icwp_macros.formInput_Submit( 'Delete Unrecognised Files' ) }}
 		</form>
 
 	{% else %}

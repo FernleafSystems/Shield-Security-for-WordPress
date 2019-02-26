@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
@@ -209,9 +211,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 
 				case 'optin':
-					$oUser = $this->loadWpUsers()->getCurrentWpUser();
+					$oUser = Services::WpUsers()->getCurrentWpUser();
 					$aAdditional = array(
-						'data'    => array(
+						'vars'    => array(
 							'name'       => $oUser->first_name,
 							'user_email' => $oUser->user_email
 						),

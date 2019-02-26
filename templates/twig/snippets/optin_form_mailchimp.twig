@@ -2,16 +2,16 @@
 	  action="https://icontrolwp.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259"
 	  method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank" novalidate>
 
-	{{ slideMacros.formInput_Text( 'FNAME', data.name, 'Your Name', data.name ) }}
-	{{ slideMacros.formInput_Email( 'EMAIL', data.user_email, 'Your Email',
+	{{ icwp_macros.formInput_Text( 'FNAME', data.name, 'Your Name', data.name ) }}
+	{{ icwp_macros.formInput_Email( 'EMAIL', data.user_email, 'Your Email',
 		data.user_email, 'We never SPAM and you can remove yourself at any time.' ) }}
-	{{ slideMacros.formInput_Checkbox(
+	{{ icwp_macros.formInput_Checkbox(
 		'OptinConsent', 'Y', 'Agree To Privacy Policy',
 		strings.privacy_policy,
 		'We treat your membership information under our strict, and GDPR-compliant, privacy policy.',
 		'OptinConsent'
 	) }}
-	{{ slideMacros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
+	{{ icwp_macros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
 </form>
 
 <script type="text/javascript">

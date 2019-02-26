@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Security Administrators' ) }}
+	{{ icwp_macros.slideTitle( 'Security Administrators' ) }}
 
 	<p>Shield lets you lock down access to the <em>Shield Security plugin itself</em> using a Security Access Key.</p>
 
@@ -26,10 +26,10 @@
 <h6>Supply A New Security Access Key</h6>
 <p><strong>Warning</strong>: You must remember this key to regain access to the Shield plugin.</p>
 <form class="form-horizontal icwp-wizard-form">
-	{{ slideMacros.formInput_Password( 'AccessKey', '', 'Access Key', '', 'Do not forget this key' ) }}
-	{{ slideMacros.formInput_Password( 'AccessKeyConfirm', '', 'Confirm Key', 'Confirm Access Key' ) }}
-	{{ slideMacros.formInput_Hidden( 'wizard-step', 'admin_access_restriction' ) }}
-	{{ slideMacros.formInput_Submit( 'Turn On Security Admin' ) }}
+	{{ icwp_macros.formInput_Password( 'AccessKey', '', 'Access Key', '', 'Do not forget this key' ) }}
+	{{ icwp_macros.formInput_Password( 'AccessKeyConfirm', '', 'Confirm Key', 'Confirm Access Key' ) }}
+	{{ icwp_macros.formInput_Hidden( 'wizard-step', 'admin_access_restriction' ) }}
+	{{ icwp_macros.formInput_Submit( 'Turn On Security Admin' ) }}
 </form>
 
 {% endblock %}

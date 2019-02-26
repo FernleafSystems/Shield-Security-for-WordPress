@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Automatic IP Blacklist' ) }}
+	{{ icwp_macros.slideTitle( 'Automatic IP Blacklist' ) }}
 
 	<p>Turn on the IP Manager below so Shield can automatically limit login attempts and block automated attacks.</p>
 
@@ -30,9 +30,9 @@
 				'N': '<span>Turn Off</span> - Do not use automatic black lists to protect against bad visitors and bots'
 			}
 		%}
-		{{ slideMacros.formInput_Radio( 'IpManagerOption', radiovalues, 'Automatic IP Blacklist' ) }}
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ips' ) }}
-		{{ slideMacros.formInput_Submit( 'Set IP Blacklist Option' ) }}
+		{{ icwp_macros.formInput_Radio( 'IpManagerOption', radiovalues, 'Automatic IP Blacklist' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'ips' ) }}
+		{{ icwp_macros.formInput_Submit( 'Set IP Blacklist Option' ) }}
 	</form>
 
 {% endblock %}

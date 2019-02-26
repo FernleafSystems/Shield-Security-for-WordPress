@@ -121,7 +121,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 						   );
 
 			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
-				continue;
+//				continue;
 			}
 
 			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
@@ -152,7 +152,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 				  && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
 			$bDisplay = false;
 		}
-		else if ( $aAttrs[ 'type' ] == 'promo' && $this->loadWp()->isMobile() ) {
+		else if ( $aAttrs[ 'type' ] == 'promo' && Services::WpGeneral()->isMobile() ) {
 			$bDisplay = false;
 		}
 
@@ -195,7 +195,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 						&& !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
 
 		$oNotices = $this->loadWpNotices();
-		if ( $bCantDismiss || !$oNotices->isDismissed( $aAttrs[ 'id' ] ) ) {
+		if ( ($aAttrs['id']=='plugin-mailing-list-signup')|| $bCantDismiss || !$oNotices->isDismissed( $aAttrs[ 'id' ] ) ) {
 
 			$sRenderedNotice = $this->getMod()->renderAdminNotice( $aNoticeData );
 			if ( !empty( $sRenderedNotice ) ) {

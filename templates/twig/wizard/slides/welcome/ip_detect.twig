@@ -1,13 +1,13 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Accurate Visitor IP Detection' ) }}
+	{{ icwp_macros.slideTitle( 'Accurate Visitor IP Detection' ) }}
 
 	<p>Use the steps below to enter your IP address. This helps Shield detect visitor IP
 	   addresses more accurately, for your particular web hosting.</p>
 
 	<h6>Watch the quick (45s) explanatory video</h6>
-	{{ slideMacros.embedVimeo( "269189603" ) }}
+	{{ icwp_macros.embedVimeo( "269189603" ) }}
 
 	<h6 class="more_details">
 		<a class="btn btn-link" data-toggle="collapse" data-target=".more_details_body">
@@ -32,10 +32,10 @@
 	<p>Copy and paste the IP address from Step 1 into the text box below and click submit.</p>
 
 	<form class="form-horizontal icwp-wizard-form">
-		{{ slideMacros.formInput_Text( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
+		{{ icwp_macros.formInput_Text( 'ip', '', 'My IP Address', '123.456.789.012' ) }}
 
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ip_detect' ) }}
-		{{ slideMacros.formInput_Submit( 'Submit: This Is My IP Address' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'ip_detect' ) }}
+		{{ icwp_macros.formInput_Submit( 'Submit: This Is My IP Address' ) }}
 	</form>
 
 {% endblock %}

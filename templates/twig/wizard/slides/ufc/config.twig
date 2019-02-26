@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Turn On Automatic Unrecognised File Scanner' ) }}
+	{{ icwp_macros.slideTitle( 'Turn On Automatic Unrecognised File Scanner' ) }}
 
 	<p>It looks like the unrecognised file scanner isn't set to run automatically.</p>
 	<p>You can adjust this setting using the form below.</p>
@@ -16,9 +16,9 @@
 				'enabled_delete_report': "<span>Delete &amp; Report</span> - automatically delete discovered files; send email report. (<em>recommended</em>)"
 			}
 		%}
-		{{ slideMacros.formInput_Radio( 'enable_scan', radiovalues, 'Enable Automatic Scanning' ) }}
+		{{ icwp_macros.formInput_Radio( 'enable_scan', radiovalues, 'Enable Automatic Scanning' ) }}
 
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'ufcconfig' ) }}
-		{{ slideMacros.formInput_Submit( 'Set Automatic Scan' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'ufcconfig' ) }}
+		{{ icwp_macros.formInput_Submit( 'Set Automatic Scan' ) }}
 	</form>
 {% endblock %}
