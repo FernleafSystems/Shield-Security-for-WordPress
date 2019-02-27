@@ -275,7 +275,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 									|| $oSp->isIp_YahooBot( $sIp, $sAgent )
 									|| $oSp->isIp_DuckDuckGoBot( $sIp, $sAgent )
 									|| $oSp->isIp_YandexBot( $sIp, $sAgent )
-									|| $oSp->isIp_iControlWP( $sIp )
+									|| ( class_exists( 'ICWP_Plugin' ) && $oSp->isIp_iControlWP( $sIp ) )
 									|| $oSp->isIp_BaiduBot( $sIp, $sAgent );
 		}
 		return self::$bIsVerifiedBot;
