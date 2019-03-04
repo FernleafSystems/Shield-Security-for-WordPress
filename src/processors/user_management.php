@@ -35,7 +35,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorPasswords()->run();
 		}
 
-		$this->getProcessorSuspend()->run();
+//		$this->getProcessorSuspend()->run();
 	}
 
 	/**
