@@ -7,7 +7,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	protected function doPostConstruction() {
 		if ( $this->isThisModulePage() ) {
-			$this->loadWp()->doRedirect(
+			Services::Response()->redirect(
 				$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
 				[ 'inav' => 'license' ]
 			);
@@ -34,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			array(
 				'product_name'    => _wpsf__( 'Name' ),
@@ -86,7 +86,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'license_handling':
 					$aAjaxResponse = $this->ajaxExec_LicenseHandling();
@@ -106,11 +106,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_LicenseHandling() {
+	private function ajaxExec_LicenseHandling() {
 		$bSuccess = false;
 		$sMessage = 'Unsupported license action';
 
-		$sLicenseAction = $this->loadRequest()->post( 'license-action' );
+		$sLicenseAction = Services::Request()->post( 'license-action' );
 
 		$nCheckInterval = $this->getLicenseNotCheckedForInterval();
 		if ( $nCheckInterval < 20 ) {
@@ -147,7 +147,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_ConnectionDebug() {
+	private function ajaxExec_ConnectionDebug() {
 		$bSuccess = false;
 
 		$oHttpReq = Services::HttpRequest()
@@ -250,7 +250,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				}
 			}
 
-			$oCurrent->setLastRequestAt( $this->loadRequest()->ts() );
+			$oCurrent->setLastRequestAt( Services::Request()->ts() );
 			$this->setLicenseData( $oCurrent )
 				 ->savePluginOptions();
 		}
@@ -273,8 +273,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	private function canLicenseCheck() {
-		$sShieldAction = $this->loadRequest()->query( 'shield_action' );
-		return !in_array( $sShieldAction, array( 'keyless_handshake', 'license_check' ) )
+		return !in_array( Services::Request()->query( 'shield_action' ), [ 'keyless_handshake', 'license_check' ] )
 			   && $this->canLicenseCheck_FileFlag();
 	}
 
@@ -282,17 +281,17 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	private function canLicenseCheck_FileFlag() {
-		$oFs = $this->loadFS();
+		$oFs = Services::WpFs();
 		$sFileFlag = $this->getCon()->getPath_Flags( 'license_check' );
 		$nMtime = $oFs->exists( $sFileFlag ) ? $oFs->getModifiedTime( $sFileFlag ) : 0;
-		return ( $this->loadRequest()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
+		return ( Services::Request()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
 	}
 
 	/**
 	 * @return $this
 	 */
 	private function touchLicenseCheckFileFlag() {
-		$this->loadFS()->touch( $this->getCon()->getPath_Flags( 'license_check' ) );
+		Services::WpFs()->touch( $this->getCon()->getPath_Flags( 'license_check' ) );
 		return $this;
 	}
 
@@ -302,7 +301,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function isLicenseMaybeExpiring() {
 		$bNearly = $this->isLicenseActive() &&
 				   (
-					   abs( $this->loadRequest()->ts() - $this->loadLicense()->getExpiresAt() )
+					   abs( Services::Request()->ts() - $this->loadLicense()->getExpiresAt() )
 					   < ( DAY_IN_SECONDS/2 )
 				   );
 		return $bNearly;
@@ -322,8 +321,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	protected function sendLicenseWarningEmail() {
-		$nNow = $this->loadRequest()->ts();
-		$bCanSend = $nNow - $this->getOpt( 'last_warning_email_sent_at' ) > DAY_IN_SECONDS;
+		$bCanSend = Services::Request()->ts() - $this->getOpt( 'last_warning_email_sent_at' ) > DAY_IN_SECONDS;
 
 		if ( $bCanSend ) {
 			$this->setOptAt( 'last_warning_email_sent_at' )->savePluginOptions();
@@ -344,7 +342,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	private function sendLicenseDeactivatedEmail() {
-		$nNow = $this->loadRequest()->ts();
+		$nNow = Services::Request()->ts();
 
 		if ( ( $nNow - $this->getOpt( 'last_deactivated_email_sent_at' ) ) > DAY_IN_SECONDS ) {
 			$this->setOptAt( 'last_deactivated_email_sent_at' )->savePluginOptions();
@@ -370,7 +368,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$sPass = wp_generate_password( 16 );
 
 		$this->setKeylessRequestAt()
-			 ->setKeylessRequestHash( sha1( $sPass.$this->loadWp()->getHomeUrl() ) )
+			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) )
 			 ->savePluginOptions();
 
 		$oLicense = $this->loadEdd()
@@ -463,7 +461,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return int
 	 */
 	private function getLicenseNotCheckedForInterval() {
-		return ( $this->loadRequest()->ts() - $this->getLicenseLastCheckedAt() );
+		return ( Services::Request()->ts() - $this->getLicenseLastCheckedAt() );
 	}
 
 	/**
@@ -509,7 +507,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isLastVerifiedExpired() {
-		return ( $this->loadRequest()->ts() - $this->loadLicense()->getLastVerifiedAt() )
+		return ( Services::Request()->ts() - $this->loadLicense()->getLastVerifiedAt() )
 			   > $this->getDef( 'lic_verify_expire_days' )*DAY_IN_SECONDS;
 	}
 
@@ -519,7 +517,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function isLastVerifiedGraceExpired() {
 		$nGracePeriod = ( $this->getDef( 'lic_verify_expire_days' ) + $this->getDef( 'lic_verify_expire_grace_days' ) )
 						*DAY_IN_SECONDS;
-		return ( $this->loadRequest()->ts() - $this->loadLicense()->getLastVerifiedAt() ) > $nGracePeriod;
+		return ( Services::Request()->ts() - $this->loadLicense()->getLastVerifiedAt() ) > $nGracePeriod;
 	}
 
 	/**
@@ -607,7 +605,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	public function isKeylessHandshakeExpired() {
-		return ( $this->loadRequest()->ts() - $this->getKeylessRequestAt() )
+		return ( Services::Request()->ts() - $this->getKeylessRequestAt() )
 			   > $this->getDef( 'keyless_handshake_expire' );
 	}
 
@@ -624,7 +622,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	public function setKeylessRequestAt( $nTime = null ) {
-		$nTime = is_numeric( $nTime ) ? $nTime : $this->loadRequest()->ts();
+		$nTime = is_numeric( $nTime ) ? $nTime : Services::Request()->ts();
 		return $this->setOpt( 'keyless_request_at', $nTime );
 	}
 
@@ -636,7 +634,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	public function buildInsightsVars() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 		$oCarbon = new \Carbon\Carbon();
 
 		$oCurrent = $this->loadLicense();
