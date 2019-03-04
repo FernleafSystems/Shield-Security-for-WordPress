@@ -33,8 +33,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
 		{ // Capture Logins
 			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
-			if ( !defined( 'IS_PROFILE_PAGE' ) || !IS_PROFILE_PAGE ) {
-				// This can be fired during profile update.
+			if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
 				add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
 			}
 		}
