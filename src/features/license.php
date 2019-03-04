@@ -150,41 +150,36 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function ajaxExec_ConnectionDebug() {
 		$bSuccess = false;
 
-		$sStoreUrl = add_query_arg(
-			array( 'license_ping' => 'Y' ),
-			$this->getLicenseStoreUrl()
-		);
+		$oHttpReq = Services::HttpRequest()
+							->request(
+								add_query_arg( [ 'license_ping' => 'Y' ], $this->getLicenseStoreUrl() ),
+								[
+									'body' => [ 'ping' => 'pong' ]
+								],
+								'POST'
+							);
 
-		$mResponse = $this->loadFS()->requestUrl(
-			$sStoreUrl,
-			array(
-				'method' => 'POST',
-				'body'   => array( 'ping' => 'pong' )
-			),
-			true
-		);
-
-		if ( is_wp_error( $mResponse ) ) {
-			$sResult = $mResponse->get_error_message();
+		if ( !$oHttpReq->isSuccess() ) {
+			$sResult = implode( '; ', $oHttpReq->lastError->get_error_messages() );
 		}
-		else if ( is_array( $mResponse ) && !empty( $mResponse[ 'body' ] ) ) {
-			$aResult = @json_decode( $mResponse[ 'body' ], true );
+		else if ( !empty( $oHttpReq->lastResponse->body ) ) {
+			$aResult = @json_decode( $oHttpReq->lastResponse->body, true );
 			if ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) {
 				$bSuccess = true;
 				$sResult = 'Successful - no problems detected communicating with license server.';
 			}
 			else {
-				$sResult = 'Unknown failure due to unexpected response';
+				$sResult = 'Unknown failure due to unexpected response.';
 			}
 		}
 		else {
-			$sResult = 'Unknown error as we could not get a response back from the server';
+			$sResult = 'Unknown error as we could not get a response back from the server.';
 		}
 
-		return array(
+		return [
 			'success' => $bSuccess,
-			'message' => esc_html( esc_js( $sResult ) )
-		);
+			'message' => $sResult
+		];
 	}
 
 	/**
