@@ -144,7 +144,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 			add_filter( 'views_plugins', array( $this, 'addPluginsStatusViewLink' ), 1000 );
 
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
-			foreach ( $this->loadWpPlugins()->getInstalledBaseFiles() as $sPluginFile ) {
+			foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
 		}

@@ -43,6 +43,15 @@
       ]
     },
     {
+      "slug":        "section_scan_apc",
+      "title":       "Abandoned Plugin Check",
+      "title_short": "Abandoned Plugin Check",
+      "summary":     [
+        "Purpose - Regularly scan your WordPress plugins and themes for plugins that have been abandoned.",
+        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
+      ]
+    },
+    {
       "slug":        "section_pluginthemes_guard",
       "help_video":  {
         "provider":  "vimeo",
@@ -62,15 +71,6 @@
       "title_short": "Vulnerability Scanner",
       "summary":     [
         "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
-        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-      ]
-    },
-    {
-      "slug":        "section_scan_apc",
-      "title":       "Abandoned Plugin Check",
-      "title_short": "Abandoned Plugin Check",
-      "summary":     [
-        "Purpose - Regularly scan your WordPress plugins and themes for plugins that have been abandoned.",
         "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
       ]
     },
@@ -192,7 +192,7 @@
           "text":      "Enabled - No Email Notification"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/eo",
       "link_blog":     "",
       "name":          "Abandoned Plugin Scanner",
       "summary":       "Enable The Abandoned Plugin Scanner",
