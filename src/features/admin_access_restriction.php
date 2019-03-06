@@ -383,10 +383,17 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function checkAdminAccessKeySubmission() {
-		$sAccessKeyRequest = $this->loadRequest()->post( 'admin_access_key_request', '' );
-		$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest );
-		if ( !$bSuccess && !empty( $sAccessKeyRequest ) ) {
-			$this->setIpTransgressed();
+		$bSuccess = false;
+		$sAccessKeyRequest = Services::Request()->post( 'admin_access_key_request', '' );
+		if ( !empty( $sAccessKeyRequest ) ) {
+			// Made the hither-to unknown discovery that WordPress magic quotes all $_POST variables
+			// So the Admin Password initially provided may have been escaped with "\"
+			// The 1st approach uses raw, unescaped. The 2nd approach uses the older escaped $_POST.
+			$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest )
+						|| $this->verifyAccessKey( $this->loadRequest()->post( 'admin_access_key_request', '' ) );
+			if ( !$bSuccess ) {
+				$this->setIpTransgressed();
+			}
 		}
 		return $bSuccess;
 	}
