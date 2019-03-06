@@ -193,11 +193,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function loadCurrentSession() {
 		$oSession = null;
-		if ( did_action( 'init' ) && Services::WpUsers()->isUserLoggedIn() ) {
-			$oSession = $this->queryGetSession(
-				$this->getSessionId(),
-				Services::WpUsers()->getCurrentWpUsername()
-			);
+		if ( did_action( 'init' ) ) {
+			$oSession = $this->queryGetSession( $this->getSessionId() );
 		}
 		return $oSession;
 	}
@@ -234,7 +231,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sSessionId
 	 * @return Session\EntryVO|null
 	 */
-	protected function queryGetSession( $sSessionId, $sUsername = '' ) {
+	private function queryGetSession( $sSessionId, $sUsername = '' ) {
 		/** @var Session\Select $oSel */
 		$oSel = $this->getDbHandler()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
