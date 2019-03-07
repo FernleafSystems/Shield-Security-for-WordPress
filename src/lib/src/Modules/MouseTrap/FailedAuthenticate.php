@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class InvalidUsername extends Base {
+class FailedAuthenticate extends Base {
 
 	protected function process() {
 		add_filter( 'authenticate',
@@ -13,13 +13,14 @@ class InvalidUsername extends Base {
 			 * @param string                  $sUsernameEmail
 			 * @return null|\WP_User|\WP_Error
 			 */
-			function ( $oUser, $sUsernameEmail ) {
-				if ( !empty( $sUsernameEmail ) && !Services::WpUsers()->exists( $sUsernameEmail ) ) {
+			function ( $oUser, $sUsernameEmail, $sPass ) {
+				if ( is_wp_error( $oUser ) && !empty( $sUsernameEmail )
+					 && !empty( $sPass ) && Services::WpUsers()->exists( $sUsernameEmail ) ) {
 					$this->doTransgression();
 				}
 				return $oUser;
 			},
-			5, 2 );
+			21, 3 ); //right after username/password check
 	}
 
 	/**
@@ -28,7 +29,7 @@ class InvalidUsername extends Base {
 	protected function isTransgression() {
 		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 		$oFO = $this->getMod();
-		return $oFO->isTransgressionInvalidUsernames();
+		return $oFO->isTransgressionFailedLogins();
 	}
 
 	/**
@@ -37,7 +38,7 @@ class InvalidUsername extends Base {
 	protected function writeAudit() {
 		$this->createNewAudit(
 			'wpsf',
-			sprintf( _wpsf__( 'Attempted login by invalid username "%s"' ), Services::Request()->getPath() ),
+			sprintf( _wpsf__( 'Attempted login failed by username "%s"' ), Services::Request()->getPath() ),
 			2, 'mousetrap_invaliduser'
 		);
 		return $this;

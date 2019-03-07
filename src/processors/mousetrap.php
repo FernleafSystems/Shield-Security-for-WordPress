@@ -30,6 +30,12 @@ class ICWP_WPSF_Processor_Mousetrap extends ICWP_WPSF_Processor_BaseWpsf {
 				->run();
 		}
 
+		if ( $oFO->isEnabledFailedLogins() ) {
+			( new MouseTrap\FailedAuthenticate() )
+				->setMod( $oFO )
+				->run();
+		}
+
 		if ( $oFO->isEnabledFakeWebCrawler() ) {
 			( new MouseTrap\FakeWebCrawler() )
 				->setMod( $oFO )

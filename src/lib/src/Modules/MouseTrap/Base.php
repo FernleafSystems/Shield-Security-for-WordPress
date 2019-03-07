@@ -26,10 +26,8 @@ abstract class Base {
 	protected function doTransgression() {
 		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
 		$oFO = $this->getMod();
-		if ( !$oFO->isVerifiedBot() ) {
-			$this->isTransgression() ? $oFO->setIpTransgressed() : $oFO->setIpBlocked();
-			$this->writeAudit();
-		}
+		$this->isTransgression() ? $oFO->setIpTransgressed() : $oFO->setIpBlocked();
+		$this->writeAudit();
 	}
 
 	/**

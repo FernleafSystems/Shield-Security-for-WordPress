@@ -31,6 +31,13 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 	/**
 	 * @return bool
 	 */
+	public function isEnabledFailedLogins() {
+		return $this->isSelectOptionEnabled( 'failed_login' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isEnabledLinkCheese() {
 		return $this->isSelectOptionEnabled( 'link_cheese' );
 	}
@@ -61,6 +68,13 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 	 */
 	public function isTransgressionInvalidUsernames() {
 		return $this->isSelectOptionTransgression( 'invalid_username' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTransgressionFailedLogins() {
+		return $this->isSelectOptionTransgression( 'failed_login' );
 	}
 
 	/**
@@ -189,6 +203,12 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 				$sName = _wpsf__( 'Invalid Usernames' );
 				$sSummary = _wpsf__( 'Detect Invalid Username Logins' );
 				$sDescription = _wpsf__( "Identify a Bot when it tries to login with a non-existent username" );
+				break;
+
+			case 'failed_login' :
+				$sName = _wpsf__( 'Failed Login' );
+				$sSummary = _wpsf__( 'Detect Failed Login Attempts By Valid Usernames' );
+				$sDescription = _wpsf__( "Penalise a visitor who fails to login using a valid username" );
 				break;
 
 			case 'fake_webcrawler' :

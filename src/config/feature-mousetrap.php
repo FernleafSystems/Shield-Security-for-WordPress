@@ -126,6 +126,31 @@
       "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
     },
     {
+      "key":           "failed_login",
+      "section":       "section_cheese",
+      "default":       "transgression",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "transgression",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Failed Login",
+      "summary":       "Detect Failed Login Attempts By Valid Usernames",
+      "description":   "Penalise a visitor who fails to login using a valid username."
+    },
+    {
       "key":           "fake_webcrawler",
       "section":       "section_cheese",
       "default":       "transgression",

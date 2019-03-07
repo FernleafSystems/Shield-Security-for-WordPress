@@ -118,6 +118,7 @@ class LinkCheese extends Base {
 			'venus',
 			'stilton',
 			'cheddar',
+			'holey',
 		];
 	}
 }
