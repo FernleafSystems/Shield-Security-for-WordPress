@@ -295,6 +295,8 @@
         "wp_http_referer",
         "_wp_http_referer",
         "_wp_original_http_referer",
+        "pass1",
+        "pass1-text",
         "pwd",
         "url",
         "referredby",

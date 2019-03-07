@@ -1426,7 +1426,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'form_action'     => 'admin.php?page='.$this->getModSlug(),
 			'nOptionsPerRow'  => 1,
-			'aPluginLabels'   => $oCon->getPluginLabels(),
+			'aPluginLabels'   => $oCon->getLabels(),
 			'help_video'      => array(
 				'auto_show'   => $this->getIfAutoShowHelpVideo(),
 				'iframe_url'  => $this->getHelpVideoUrl( $this->getHelpVideoId() ),

@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
  * Class ICWP_WPSF_Processor_UserManagement_Passwords

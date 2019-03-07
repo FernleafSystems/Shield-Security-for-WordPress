@@ -94,14 +94,16 @@ class Scanner {
 			$sSlug = dirname( $sFile );
 		}
 
+		$aVulns = [];
 		try {
 			$aVos = ( new RetrieveForItem() )->setContext( 'plugins' )
 											 ->setSlug( $sSlug )
 											 ->retrieve();
-			$aVulns = $this->filterVulnerabilitiesAgainstVersion( $aVos, $oWpPlugins->getPluginAsVo( $sFile )->Version );
+			if ( !empty( $aVos ) ) {
+				$aVulns = $this->filterVulnerabilitiesAgainstVersion( $aVos, $oWpPlugins->getPluginAsVo( $sFile )->Version );
+			}
 		}
 		catch ( \Exception $oE ) {
-			$aVulns = [];
 		}
 
 		return $aVulns;
@@ -113,15 +115,17 @@ class Scanner {
 	 */
 	public function getThemeVulnerabilities( $sSlug ) {
 
+		$aVulns = [];
 		try {
 			$aVos = ( new RetrieveForItem() )->setContext( 'themes' )
 											 ->setSlug( $sSlug )
 											 ->retrieve();
-			$oTheme = Services::WpThemes()->getTheme( $sSlug );
-			$aVulns = $this->filterVulnerabilitiesAgainstVersion( $aVos, $oTheme->get( 'Version' ) );
+			if ( !empty( $aVos ) ) {
+				$oTheme = Services::WpThemes()->getTheme( $sSlug );
+				$aVulns = $this->filterVulnerabilitiesAgainstVersion( $aVos, $oTheme->get( 'Version' ) );
+			}
 		}
 		catch ( \Exception $oE ) {
-			$aVulns = [];
 		}
 
 		return $aVulns;
@@ -139,7 +143,7 @@ class Scanner {
 			function ( $oVo ) use ( $sCurrentVersion ) {
 				/** @var WpVulnVO $oVo */
 				$sFixed = $oVo->fixed_in;
-				return ( empty ( $sFixed ) || version_compare( $sCurrentVersion, $sFixed, ' < ' ) );
+				return ( empty ( $sFixed ) || version_compare( $sCurrentVersion, $sFixed, '<' ) );
 			}
 		);
 	}
