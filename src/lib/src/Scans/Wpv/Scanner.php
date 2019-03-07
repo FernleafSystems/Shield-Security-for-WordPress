@@ -87,29 +87,25 @@ class Scanner {
 	 * @return WpVulnVO[]
 	 */
 	public function getPluginVulnerabilities( $sFile ) {
-		$aVulns = array();
 		$oWpPlugins = Services::WpPlugins();
 
 		$sSlug = $oWpPlugins->getSlug( $sFile );
 		if ( empty( $sSlug ) ) {
 			$sSlug = dirname( $sFile );
 		}
+
+		$aVulns = [];
 		try {
 			$aVos = ( new RetrieveForItem() )->setContext( 'plugins' )
 											 ->setSlug( $sSlug )
 											 ->retrieve();
-			$oPlugin = $oWpPlugins->getPluginAsVo( $sFile );
-			$aVulns = array_filter(
-				$aVos,
-				function ( $oVo ) use ( $oPlugin ) {
-					/** @var WpVulnVO $oVo */
-					$sFixed = (string)$oVo->fixed_in;
-					return ( empty ( $sFixed ) || version_compare( $oPlugin->Version, $sFixed, '<' ) );
-				}
-			);
+			if ( !empty( $aVos ) ) {
+				$aVulns = $this->filterVulnerabilitiesAgainstVersion( $aVos, $oWpPlugins->getPluginAsVo( $sFile )->Version );
+			}
 		}
 		catch ( \Exception $oE ) {
 		}
+
 		return $aVulns;
 	}
 
@@ -118,26 +114,37 @@ class Scanner {
 	 * @return WpVulnVO[]
 	 */
 	public function getThemeVulnerabilities( $sSlug ) {
-		$aVulns = array();
-		$oWpThemes = Services::WpThemes();
 
+		$aVulns = [];
 		try {
 			$aVos = ( new RetrieveForItem() )->setContext( 'themes' )
 											 ->setSlug( $sSlug )
 											 ->retrieve();
-			$oTheme = $oWpThemes->getTheme( $sSlug );
-			$aVulns = array_filter(
-				$aVos,
-				function ( $oVo ) use ( $oTheme ) {
-					/** @var WpVulnVO $oVo */
-					$sFixed = $oVo->fixed_in;
-					return ( empty ( $sFixed ) || version_compare( $oTheme->get( 'Version' ), $sFixed, '<' ) );
-				}
-			);
+			if ( !empty( $aVos ) ) {
+				$oTheme = Services::WpThemes()->getTheme( $sSlug );
+				$aVulns = $this->filterVulnerabilitiesAgainstVersion( $aVos, $oTheme->get( 'Version' ) );
+			}
 		}
 		catch ( \Exception $oE ) {
 		}
 
 		return $aVulns;
+	}
+
+	/**
+	 * @param WpVulnVO[] $aVos
+	 * @param string     $sCurrentVersion
+	 * @return WpVulnVO[]
+	 */
+	private function filterVulnerabilitiesAgainstVersion( $aVos, $sCurrentVersion ) {
+		$sCurrentVersion = trim( $sCurrentVersion, 'v' );
+		return array_filter(
+			$aVos,
+			function ( $oVo ) use ( $sCurrentVersion ) {
+				/** @var WpVulnVO $oVo */
+				$sFixed = $oVo->fixed_in;
+				return ( empty ( $sFixed ) || version_compare( $sCurrentVersion, $sFixed, '<' ) );
+			}
+		);
 	}
 }

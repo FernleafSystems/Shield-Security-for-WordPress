@@ -563,12 +563,4 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			$sLinkText
 		);
 	}
-
-	/**
-	 * @deprecated
-	 * @return bool
-	 */
-	protected function isSecurityAdmin() {
-		return $this->getCon()->isPluginAdmin();
-	}
 }

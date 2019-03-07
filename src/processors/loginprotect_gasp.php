@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
@@ -43,7 +45,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		$oFO = $this->getMod();
 		$this->setFactorTested( true );
 
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$sGaspCheckBox = $oReq->post( $oFO->getGaspKey() );
 		$sHoney = $oReq->post( 'icwp_wpsf_login_email' );
 
@@ -92,7 +94,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	protected function doGaspChecks( $sUsername, $sActionAttempted = 'login' ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$sGaspCheckBox = $oReq->post( $oFO->getGaspKey() );
 		$sHoney = $oReq->post( 'icwp_wpsf_login_email' );
 

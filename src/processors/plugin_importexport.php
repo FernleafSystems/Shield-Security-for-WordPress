@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runAction() {
 
 		try {
-			$oReq = $this->loadRequest();
+			$oReq = Services::Request();
 			switch ( $oReq->query( 'shield_action' ) ) {
 
 				case 'importexport_export':
@@ -264,7 +264,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPremium() && $oFO->isImportExportPermitted() &&
-			 ( $this->loadRequest()->ts() < $oFO->getImportExportHandshakeExpiresAt() ) ) {
+			 ( Services::Request()->ts() < $oFO->getImportExportHandshakeExpiresAt() ) ) {
 			echo json_encode( array( 'success' => true ) );
 			die();
 		}
@@ -279,6 +279,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runOptionsUpdateNotified() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
+		$oReq = Services::Request();
 
 		$sCronHook = $oFO->prefix( 'importexport_updatenotified' );
 		if ( wp_next_scheduled( $sCronHook ) ) {
@@ -287,9 +288,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		if ( !wp_next_scheduled( $sCronHook ) ) {
 
-			wp_schedule_single_event( $this->loadRequest()->ts() + 12, $sCronHook );
+			wp_schedule_single_event( $oReq->ts() + 12, $sCronHook );
 
-			preg_match( '#.*WordPress/.*\s+(.*)\s?#', $this->loadRequest()->server( 'HTTP_USER_AGENT' ), $aMatches );
+			preg_match( '#.*WordPress/.*\s+(.*)\s?#', $oReq->server( 'HTTP_USER_AGENT' ), $aMatches );
 			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
 				$sUrl = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
 				if ( !empty( $sUrl ) ) {
@@ -315,13 +316,13 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	private function exportToJsonResponse() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sSecretKey = $oReq->query( 'secret', '' );
 
 		$sNetworkOpt = $oReq->query( 'network', '' );
 		$bDoNetwork = !empty( $sNetworkOpt );
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $oReq->query( 'url', '' ) );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $oReq->query( 'url', '' ) );
 
 		if ( !$oFO->isImportExportSecretKey( $sSecretKey ) && !$this->isUrlOnWhitelist( $sUrl ) ) {
 			return; // we show no signs of responding to invalid secret keys or unwhitelisted URLs
@@ -418,7 +419,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runImport( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oDP = $this->loadDP();
+		$oDP = Services::Data();
 
 		if ( empty( $sMasterSiteUrl ) ) {
 			$sMasterSiteUrl = $oFO->getImportExportMasterImportUrl();
@@ -464,10 +465,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				$aData = array(
 					'shield_action' => 'importexport_export',
 					'secret'        => $sSecretKey,
-					'url'           => $this->loadWp()->getHomeUrl()
+					'url'           => Services::WpGeneral()->getHomeUrl()
 				);
 				// Don't send the network setup request if it's the cron.
-				if ( !is_null( $bEnableNetwork ) && !$this->loadWp()->isCron() ) {
+				if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
 					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
 				}
 

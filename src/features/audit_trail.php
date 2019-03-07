@@ -216,6 +216,55 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledChangeTracking() {
+		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCTSnapshotsPerWeek() {
+		return (int)$this->getOpt( 'ct_snapshots_per_week', 7 );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCTMaxSnapshots() {
+		return (int)$this->getOpt( 'ct_max_snapshots', 28 );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCTSnapshotInterval() {
+		return WEEK_IN_SECONDS/$this->getCTSnapshotsPerWeek();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCTLastSnapshotAt() {
+		return $this->getOpt( 'ct_last_snapshot_at' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCTSnapshotDue() {
+		return ( Services::Request()->ts() - $this->getCTLastSnapshotAt() > $this->getCTSnapshotInterval() );
+	}
+
+	/**
+	 * @return ICWP_WPSF_FeatureHandler_AuditTrail
+	 */
+	public function updateCTLastSnapshotAt() {
+		return $this->setOptAt( 'ct_last_snapshot_at' );
+	}
+
+	/**
 	 * See plugin controller for the nature of $aData wpPrivacyExport()
 	 *
 	 * @param array  $aExportItems
@@ -391,16 +440,31 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control over the audit trail itself.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
 				);
-				$sTitleShort = _wpsf__( 'Options' );
+				$sTitleShort = _wpsf__( 'Audit Trail Options' );
 				break;
 
 			case 'section_enable_audit_contexts' :
-				$sTitle = _wpsf__( 'Enable Audit Contexts' );
+				$sTitle = _wpsf__( 'Enable Audit Areas' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Specify which types of actions on your site are logged.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
 				);
-				$sTitleShort = _wpsf__( 'Audit Contexts' );
+				$sTitleShort = _wpsf__( 'Audit Areas' );
+				break;
+
+			case 'section_change_tracking' :
+				$sTitle = _wpsf__( 'Track All Major Changes To Your Site' );
+				$sTitleShort = _wpsf__( 'Change Tracking' );
+				$aData = ( new Shield\ChangeTrack\Snapshot\Collate() )->run();
+				$sResult = (int)( strlen( base64_encode( WP_Http_Encoding::compress( json_encode( $aData ) ) ) )/1024 );
+				$aSummary = array(
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Track significant changes to your site.' ) )
+					.' '.sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( 'This is separate from the Audit Trail.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Considerations' ),
+						_wpsf__( 'Change Tracking uses snapshots that may use take up  lot of data.' )
+						.' '.sprintf( 'Each snapshot will consume ~%sKB in your database', $sResult )
+					),
+				);
 				break;
 
 			default:
@@ -438,7 +502,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 			case 'audit_trail_auto_clean' :
 				$sName = _wpsf__( 'Auto Clean' );
-				$sSummary = _wpsf__( 'Enable Audit Auto Cleaning' );
+				$sSummary = _wpsf__( 'Enable Change Tracking' );
 				$sDescription = _wpsf__( 'Events older than the number of days specified will be automatically cleaned from the database.' );
 				break;
 
@@ -482,6 +546,27 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				$sName = $oCon->getHumanName();
 				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), $oCon->getHumanName() );
 				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), $oCon->getHumanName() );
+				break;
+
+			case 'enable_change_tracking' :
+				$sName = _wpsf__( 'Site Change Tracking' );
+				$sSummary = _wpsf__( 'Track Major Changes To Your Site' );
+				$sDescription = _wpsf__( 'Tracking major changes to your site will help you monitor and catch malicious damage.' );
+				break;
+
+			case 'ct_snapshots_per_week' :
+				$sName = _wpsf__( 'Snapshot Per Week' );
+				$sSummary = _wpsf__( 'Number Of Snapshots To Take Per Week' );
+				$sDescription = _wpsf__( 'The number of snapshots to take per week. For daily snapshots, select 7.' )
+								.'<br />'._wpsf__( 'Data storage in your database increases with the number of snapshots.' )
+								.'<br />'._wpsf__( 'However, increased snapshots provide more granular information on when major site changes occurred.' );
+				break;
+
+			case 'ct_max_snapshots' :
+				$sName = _wpsf__( 'Max Snapshots' );
+				$sSummary = _wpsf__( 'Maximum Number Of Snapshots To Retain' );
+				$sDescription = _wpsf__( 'The more snapshots you retain, the further back you can look at changes over your site.' )
+								.'<br />'._wpsf__( 'You will need to consider the implications to database storage requirements.' );
 				break;
 
 			default:

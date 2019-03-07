@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
@@ -45,7 +47,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	protected function getLastLoginTime() {
 		$sFile = $this->getLastLoginTimeFilePath();
-		return $this->loadFS()->exists( $sFile ) ? filemtime( $sFile ) : 0;
+		return Services::WpFs()->exists( $sFile ) ? filemtime( $sFile ) : 0;
 	}
 
 	/**
@@ -59,8 +61,8 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 * @return $this
 	 */
 	protected function updateLastLoginTime() {
-		$this->loadFS()->deleteFile( $this->getLastLoginTimeFilePath() );
-		$this->loadFS()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
+		Services::WpFs()->deleteFile( $this->getLastLoginTimeFilePath() );
+		Services::WpFs()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
 		return $this;
 	}
 

@@ -50,7 +50,8 @@
       "schedule":    "once",
       "valid_admin": true,
       "delay_days":  15,
-      "type":        "promo"
+      "type":        "promo",
+      "twig":        true
     },
     "rate-plugin":                {
       "id":          "rate-plugin",
@@ -530,9 +531,6 @@
           },
           "license":                  {
             "title": "Go Pro"
-          },
-          "import":                   {
-            "title": "Import"
           },
           "admin_access_restriction": {
             "title": "Security Admin"

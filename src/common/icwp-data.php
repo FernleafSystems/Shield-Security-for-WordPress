@@ -583,15 +583,6 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @deprecated
-	 * @param string $sRequestedUriPath
-	 * @param string $sHostName - you can also send a full and valid URL
-	 */
-	public function doSendApache404( $sRequestedUriPath = '', $sHostName = '' ) {
-		return $this->loadRequest()->sendResponseApache404( $sRequestedUriPath, $sHostName );
-	}
-
-	/**
-	 * @deprecated
 	 * @param      $sKey
 	 * @param      $mValue
 	 * @param int  $nExpireLength

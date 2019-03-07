@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param int $nUserId
 	 */
 	public function onWcSocialLogin( $nUserId ) {
-		$oUser = $this->loadWpUsers()->getUserById( $nUserId );
+		$oUser = Services::WpUsers()->getUserById( $nUserId );
 		if ( $oUser instanceof WP_User ) {
 			$this->getCon()->getUserMeta( $oUser )->wc_social_login_valid = true;
 		}
@@ -71,7 +71,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			}
 
 			// process the current login intent
-			$oWpUsers = $this->loadWpUsers();
+			$oWpUsers = Services::WpUsers();
 			if ( $oWpUsers->isUserLoggedIn() ) {
 				if ( $this->isUserSubjectToLoginIntent() && !$oFO->canUserMfaSkip( $oWpUsers->getCurrentWpUser() ) ) {
 					$this->processLoginIntent();
@@ -100,7 +100,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->initLoginIntent( $this->loadWpUsers()->getUserById( $nUserId ) );
+		$this->initLoginIntent( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -127,14 +127,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
 	private function processLoginIntent() {
-		$oWp = $this->loadWp();
-		$oWpUsers = $this->loadWpUsers();
+		$oWp = Services::WpGeneral();
+		$oWpUsers = Services::WpUsers();
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
 		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
-			$oReq = $this->loadRequest();
+			$oReq = Services::Request();
 
 			// Is 2FA/login-intent submit
 			if ( $oReq->request( $oFO->getLoginIntentRequestFlag() ) == 1 ) {
@@ -165,7 +165,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				}
 				else {
 					$oFO->setFlashAdminNotice( _wpsf__( 'One or more of your authentication codes failed or was missing' ), true );
-					$this->loadWp()->redirectHere();
+					$oWp->redirectHere();
 				}
 				return; // we've redirected anyway.
 			}
@@ -175,7 +175,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 		else if ( $this->hasLoginIntent() ) { // there was an old login intent
 			$oWpUsers->logoutUser(); // clears the login and login intent
-			$this->loadWp()->redirectHere();
+			$oWp->redirectHere();
 		}
 		else {
 			// no login intent present -
@@ -249,7 +249,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
 
 		if ( empty( $aLoginIntentFields ) ) {
@@ -294,7 +294,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
 		}
 
-		$aLabels = $oCon->getPluginLabels();
+		$aLabels = $oCon->getLabels();
 		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
 		$nMfaSkip = $oFO->getMfaSkip();
 		$aDisplayData = array(
@@ -319,7 +319,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'time_remaining'    => $this->getLoginIntentExpiresAt() - $this->time(),
 				'message_type'      => $sMessageType,
 				'login_intent_flag' => $oFO->getLoginIntentRequestFlag(),
-				'page_locale'       => $this->loadWp()->getLocale( '-' )
+				'page_locale'       => Services::WpGeneral()->getLocale( '-' )
 			),
 			'hrefs'   => array(
 				'form_action'   => $oReq->getUri(),
@@ -413,7 +413,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getMod();
 		if ( !$this->isLoginIntentProcessed() ) {
 			// This action sets up the necessary login tracker info
-			do_action( $oFO->prefix( 'login-intent-validation' ), $this->loadWpUsers()->getCurrentWpUser() );
+			do_action( $oFO->prefix( 'login-intent-validation' ), Services::WpUsers()->getCurrentWpUser() );
 			$this->setLoginIntentProcessed();
 		}
 		$oTrk = $this->getLoginTrack();

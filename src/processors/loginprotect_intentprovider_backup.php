@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	/**
@@ -15,9 +17,9 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 			'has_mfa'                          => $this->isUserSubjectToLoginIntent( $oUser ),
 			'has_validated_profile'            => $bValidatedProfile,
 			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
-			'is_my_user_profile'               => ( $oUser->ID == $this->loadWpUsers()->getCurrentWpUserId() ),
+			'is_my_user_profile'               => ( $oUser->ID == Services::WpUsers()->getCurrentWpUserId() ),
 			'i_am_valid_admin'                 => $oCon->isPluginAdmin(),
-			'user_to_edit_is_admin'            => $this->loadWpUsers()->isUserAdmin( $oUser ),
+			'user_to_edit_is_admin'            => Services::WpUsers()->isUserAdmin( $oUser ),
 			'strings'                          => array(
 				'button_gen_code'       => _wpsf__( 'Generate ONE-Time Backup 2FA Login Code' ),
 				'button_del_code'       => _wpsf__( 'Delete Login Backup Code' ),
@@ -165,7 +167,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 			.' '._wpsf__( "You must go to your profile and regenerate a new code if you want to use this method again." ),
 			'',
 			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
-			sprintf( '%s: %s', _wpsf__( 'URL' ), $this->loadWp()->getHomeUrl() ),
+			sprintf( '%s: %s', _wpsf__( 'URL' ), Services::WpGeneral()->getHomeUrl() ),
 			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
 			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
 			'',

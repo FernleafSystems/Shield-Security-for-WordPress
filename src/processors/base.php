@@ -31,10 +31,15 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 		add_action( 'init', array( $this, 'onWpInit' ), 9 );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
-		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
-		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+		{ // Capture Logins
+			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
+			if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
+				add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+			}
+		}
 		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
 		add_action( $oModCon->prefix( 'daily_cron' ), array( $this, 'runDailyCron' ) );
+		add_action( $oModCon->prefix( 'hourly_cron' ), array( $this, 'runHourlyCron' ) );
 		add_action( $oModCon->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
 
 		$this->init();
@@ -76,6 +81,9 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	public function runDailyCron() {
+	}
+
+	public function runHourlyCron() {
 	}
 
 	/**
@@ -148,7 +156,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 				  && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
 			$bDisplay = false;
 		}
-		else if ( $aAttrs[ 'type' ] == 'promo' && $this->loadWp()->isMobile() ) {
+		else if ( $aAttrs[ 'type' ] == 'promo' && Services::WpGeneral()->isMobile() ) {
 			$bDisplay = false;
 		}
 
@@ -231,14 +239,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_FeatureHandler_Base
-	 */
-	protected function getFeature() {
-		return $this->getMod();
-	}
-
-	/**
 	 * @param string $sKey
 	 * @return ICWP_WPSF_Processor_Base|null
 	 */
@@ -285,29 +285,18 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function ip() {
-		return \FernleafSystems\Wordpress\Services\Services::IP()->getRequestIp();
+		return Services::IP()->getRequestIp();
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function time() {
-		return $this->loadRequest()->ts();
+		return Services::Request()->ts();
 	}
 
 	/**
 	 */
 	public function deactivatePlugin() {
-	}
-
-	/**
-	 * @deprecated
-	 * @param string  $sKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
-	 * @return bool
-	 */
-	public function getIsOption( $sKey, $mValueToTest, $bStrict = false ) {
-		return $this->getMod()->isOpt( $sKey, $mValueToTest, $bStrict );
 	}
 }

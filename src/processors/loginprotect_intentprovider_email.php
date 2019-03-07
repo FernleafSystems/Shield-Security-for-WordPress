@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	/**
@@ -159,7 +161,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
 			'',
 			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
-			sprintf( '%s: %s', _wpsf__( 'URL' ), $this->loadWp()->getHomeUrl() ),
+			sprintf( '%s: %s', _wpsf__( 'URL' ), Services::WpGeneral()->getHomeUrl() ),
 			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
 			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIpAddress ),
 			'',
@@ -191,7 +193,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @param WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
-		$oWp = $this->loadWpUsers();
+		$oWp = Services::WpUsers();
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = array(
 			'user_has_email_authentication_active'   => $bValidatedProfile,

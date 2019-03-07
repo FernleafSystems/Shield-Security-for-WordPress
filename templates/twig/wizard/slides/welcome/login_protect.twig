@@ -1,12 +1,12 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Brute Force Login Protection' ) }}
+	{{ icwp_macros.slideTitle( 'Brute Force Login Protection' ) }}
 
 	<p>Shield can protect your WP Login against automated attacks and bots.</p>
 
 	<h6>Watch the quick (35s) explanatory video</h6>
-	{{ slideMacros.embedVimeo( "269191603" ) }}
+	{{ icwp_macros.embedVimeo( "269191603" ) }}
 
 	<h6 class="more_details">
 		<a class="btn btn-link" data-toggle="collapse" data-target=".more_details_body">
@@ -32,9 +32,9 @@
 				'N': '<span>Turn Off</span> - Do not protect my WordPress login from automated attacks'
 			}
 		%}
-		{{ slideMacros.formInput_Radio( 'LoginProtectOption', radiovalues, 'Bot Login Protection' ) }}
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'login_protect' ) }}
-		{{ slideMacros.formInput_Submit( 'Set Login Protection' ) }}
+		{{ icwp_macros.formInput_Radio( 'LoginProtectOption', radiovalues, 'Bot Login Protection' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'login_protect' ) }}
+		{{ icwp_macros.formInput_Submit( 'Set Login Protection' ) }}
 	</form>
 
 {% endblock %}

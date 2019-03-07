@@ -2,16 +2,16 @@
 	  action="https://www.getdrip.com/forms/250437573/submissions"
 	  method="post" data-drip-embedded-form="250437573">
 
-	{{ slideMacros.formInput_Text( 'fields[first_name]', data.name, 'Your Name', data.name ) }}
-	{{ slideMacros.formInput_Email( 'fields[email]', data.user_email, 'Your Email',
-		data.user_email, 'We never SPAM and you can remove yourself at any time.' ) }}
-	{{ slideMacros.formInput_Checkbox(
+	{{ icwp_macros.formInput_Text( 'fields[first_name]', vars.name, 'Your Name', vars.name ) }}
+	{{ icwp_macros.formInput_Email( 'fields[email]', vars.user_email, 'Your Email',
+		vars.user_email, 'We never SPAM and you can remove yourself at any time.' ) }}
+	{{ icwp_macros.formInput_Checkbox(
 		'OptinConsent', 'Y', 'Agree To Privacy Policy',
 		strings.privacy_policy,
 		'We treat your membership information under our strict, and GDPR-compliant, privacy policy.',
 		'OptinConsent'
 	) }}
-	{{ slideMacros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
+	{{ icwp_macros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
 </form>
 
 <script type="text/javascript">

@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Add Search Items' ) }}
+	{{ icwp_macros.slideTitle( 'Add Search Items' ) }}
 
 	<p>In this step we need you to provide all the items to search for. There may just be 1 item,
 	   and in that case just provide 1 entry.</p>
@@ -11,12 +11,12 @@
 	   the search results.</p>
 
 	<form class="form-horizontal icwp-wizard-form">
-		{{ slideMacros.formInput_Text(
+		{{ icwp_macros.formInput_Text(
 			'SearchItem', '', 'Enter item text to search for', '',
 			'To clear the entire list, type "CLEAR" and click the button.'
 		) }}
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'add-search-item' ) }}
-		{{ slideMacros.formInput_Submit( 'Add Item' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'add-search-item' ) }}
+		{{ icwp_macros.formInput_Submit( 'Add Item' ) }}
 	</form>
 
 	<div class="card">

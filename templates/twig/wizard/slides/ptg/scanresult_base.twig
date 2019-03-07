@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( data.context_sing~' Guard Scan Results' ) }}
+	{{ icwp_macros.slideTitle( data.context_sing~' Guard Scan Results' ) }}
 
 	{% if data.result|length == 0 %}
 		<div class="alert alert-success" role="alert">
@@ -107,9 +107,9 @@
 							<button type="submit" class="btn btn-warning mb-2 float-right">
 								Run Selected Action</button>
 							</div>
-							{{ slideMacros.formInput_Hidden( 'wizard-step', 'ptg_assetaction' ) }}
-							{{ slideMacros.formInput_Hidden( 'slug', item_res.flags.slug ) }}
-							{{ slideMacros.formInput_Hidden( 'context', data.context ) }}
+							{{ icwp_macros.formInput_Hidden( 'wizard-step', 'ptg_assetaction' ) }}
+							{{ icwp_macros.formInput_Hidden( 'slug', item_res.flags.slug ) }}
+							{{ icwp_macros.formInput_Hidden( 'context', data.context ) }}
 						</form>
 					</div>
 			  </div>

@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -30,7 +32,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
 
-		$aLabels = $oCon->getPluginLabels();
+		$aLabels = $oCon->getLabels();
 		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(),
 			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
 		);
@@ -54,10 +56,9 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	public function addPluginBadgeWidget() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		if ( !empty( $oFO ) && $this->loadWp()->getWordpressIsAtLeastVersion( '4.6.0' )
+		if ( !empty( $oFO ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
 			 && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
-			$oWidget = new ICWP_WPSF_Processor_Plugin_BadgeWidget( $oFO );
-			register_widget( $oWidget );
+			register_widget( new ICWP_WPSF_Processor_Plugin_BadgeWidget( $oFO ) );
 		}
 	}
 

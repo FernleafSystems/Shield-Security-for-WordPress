@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Exclude Certain Files From Scan' ) }}
+	{{ icwp_macros.slideTitle( 'Exclude Certain Files From Scan' ) }}
 	<p class="font-italic">(Skip to the next step to run the scan immediately.)</p>
 	<p>There are often different types of files on a website that are legitimate but
 	   not part of the WordPress Core.</p>
@@ -34,8 +34,8 @@
 			</div>
 		</div>
 
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'exclusions' ) }}
-		{{ slideMacros.formInput_Submit( 'Update File Exclusions' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'exclusions' ) }}
+		{{ icwp_macros.formInput_Submit( 'Update File Exclusions' ) }}
 	</form>
 
 	<script type="text/javascript">

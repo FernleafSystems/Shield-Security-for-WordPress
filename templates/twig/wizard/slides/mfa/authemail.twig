@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Setup Email-Based Authentication' ) }}
+	{{ icwp_macros.slideTitle( 'Setup Email-Based Authentication' ) }}
 
 	<p>Email-based authentication involves you receiving an email to the address attached to your WordPress
 	   user account. This email will contain a 6-digit code which you'll need to put into the
@@ -15,10 +15,10 @@
 	<p>Click the button below to confirm your email address, to which we'll send a confirmation email.</p>
 	<form class="form-horizontal icwp-wizard-form" id>
 
-		{{ slideMacros.formInput_Email( 'email', data.user_email, 'Your Email', data.user_email ) }}
+		{{ icwp_macros.formInput_Email( 'email', data.user_email, 'Your Email', data.user_email ) }}
 		<div class="stage-verificationcode" style="display: none;">
-			{{ slideMacros.formInput_Text( 'code', '', 'Verification Code' ) }}
-			{{ slideMacros.formInput_Checkbox(
+			{{ icwp_macros.formInput_Text( 'code', '', 'Verification Code' ) }}
+			{{ icwp_macros.formInput_Checkbox(
 				'Email2FAOption', 'Y', 'Turn On Email 2FA', 'Check to turn on Email-based 2 Factor Authentication',
 				"When enabled, each time you login you'll get an email with a 2-factor authentication code.
 					You will need this code to log into your WordPress site. If your site
@@ -28,8 +28,8 @@
 					functionality and if it doesn't work, you'll need to check with your host."
 			) }}
 		</div>
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'authemail' ) }}
-		{{ slideMacros.formInput_Submit( 'Send Code', 'EmailSendCode' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'authemail' ) }}
+		{{ icwp_macros.formInput_Submit( 'Send Code', 'EmailSendCode' ) }}
 	</form>
 
 	<script type="text/javascript">

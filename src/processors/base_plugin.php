@@ -112,14 +112,10 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 		}
 
-		if ( !$this->getIfShowAdminNotices() ) {
-			return;
-		}
-
-		$oWp = $this->loadWp();
-		$oWpPlugins = $this->loadWpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		$sBaseFile = $oPlugin->getPluginBaseFile();
-		if ( !$oWp->getIsPage_Updates() && $oWpPlugins->isUpdateAvailable( $sBaseFile ) ) { // Don't show on the update page
+		if ( $this->getIfShowAdminNotices() && $oWpPlugins->isUpdateAvailable( $sBaseFile )
+			 && !Services::WpPost()->isPage_Updates() ) { // Don't show on the update page
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'render_slug'       => 'plugin-update-available',

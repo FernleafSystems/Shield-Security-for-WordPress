@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Configure Multi-Factor or Two-Factor Authentication' ) }}
+	{{ icwp_macros.slideTitle( 'Configure Multi-Factor or Two-Factor Authentication' ) }}
 
 	<p>As we outlined on the first slide in this wizard, if you have a password and 1 extra factor,
 	   you have what is known as "Two-Factor Authentication".</p>
@@ -23,14 +23,14 @@
 				'N': '<span>Turn Off Multi-Factor</span> - only 1 extra factor required'
 			}
 		%}
-		{{ slideMacros.formInput_Radio( 'multiselect', radiovalues, 'Configure Authentication' ) }}
+		{{ icwp_macros.formInput_Radio( 'multiselect', radiovalues, 'Configure Authentication' ) }}
 
 		<div class="help-block" style="margin-bottom: 20px;">
 			Think of turning multi-factor <em>on</em> as "requiring all configured factors".
 			<br/>And think of turning multi-factor <em>off</em> as "requiring just 1 of your extra factors".
 		</div>
 
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'multiselect' ) }}
-		{{ slideMacros.formInput_Submit( 'Configure Multi-Factor' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'multiselect' ) }}
+		{{ icwp_macros.formInput_Submit( 'Configure Multi-Factor' ) }}
 	</form>
 {% endblock %}

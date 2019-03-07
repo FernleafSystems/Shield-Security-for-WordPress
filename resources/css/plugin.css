@@ -1102,12 +1102,15 @@ table.scan-table.wp-list-table button.toggle-row {
 	margin-top: 25px;
 }
 #ScanResultsPills nav > a.nav-link {
-	color: #0c7905;
+	color: #666666;
 	height: 72px;
+	margin-bottom: 15px;
 }
 #ScanResultsPills nav > a.nav-link.active {
-	color: #ffffff;
-	background-color: #0c7905;
+	background-color: transparent;
+	color: #333333;
+	font-weight: bolder;
+	font-size: 14px;
 }
 #ScanResultsPills .card.card-scan_results {
 	margin-top: 0;

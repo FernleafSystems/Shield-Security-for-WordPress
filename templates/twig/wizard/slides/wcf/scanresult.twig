@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Core File Scanner Results' ) }}
+	{{ icwp_macros.slideTitle( 'Core File Scanner Results' ) }}
 
 	{% if data.files.has %}
 		<div class="alert alert-warning" role="alert">
@@ -38,14 +38,14 @@
 		</p>
 		<form class="form-horizontal icwp-wizard-form">
 
-			{{ slideMacros.formInput_Checkbox(
+			{{ icwp_macros.formInput_Checkbox(
 				'RestoreFiles', 'Y', 'Replace Modified Files', 'Check to replace all of the modified files',
 				"If you are unsure about whether you can restore these files to official
 						WordPress originals, please discuss the results of this scan with your
 						web host/developer.."
 			) }}
-			{{ slideMacros.formInput_Hidden( 'wizard-step', 'restorefiles' ) }}
-			{{ slideMacros.formInput_Submit( 'Replace Files With Originals' ) }}
+			{{ icwp_macros.formInput_Hidden( 'wizard-step', 'restorefiles' ) }}
+			{{ icwp_macros.formInput_Submit( 'Replace Files With Originals' ) }}
 		</form>
 
 	{% else %}

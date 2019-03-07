@@ -42,7 +42,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * Hooked to INIT so we can test for logged-in. We don't process for logged-in users.
 	 */
 	public function addHooks() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			return;
 		}
 
@@ -148,7 +148,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 			$this->performCheckWithException();
 		}
 		catch ( \Exception $oE ) {
-			$this->loadWp()->wpDie( $oE->getMessage() );
+			Services::WpGeneral()->wpDie( $oE->getMessage() );
 		}
 	}
 
@@ -247,7 +247,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function checkReqLostPassword_Wp( $oWpError ) {
 		try {
-			$this->setUserToAudit( $this->loadRequest()->post( 'user_login', '' ) )
+			$this->setUserToAudit( Services::Request()->post( 'user_login', '' ) )
 				 ->setActionToAudit( 'reset-password' )
 				 ->performCheckWithException();
 		}
@@ -296,8 +296,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function checkReqResetPassword_Wp( $oWpError ) {
 		try {
-			$oReq = $this->loadRequest();
-			if ( $oReq->isMethodPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
+			$oReq = Services::Request();
+			if ( $oReq->isPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
 				list( $sUser, $null ) = explode( ':', wp_unslash( $oReq->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
 				$this->setUserToAudit( $sUser )
 					 ->setActionToAudit( 'set-password' )
@@ -316,7 +316,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 * @return array
 	 */
 	public function checkPreUserInsert_Wp( $aData ) {
-		if ( !$this->loadWpUsers()->isUserLoggedIn() && $this->loadRequest()->isMethodPost() ) {
+		if ( !Services::WpUsers()->isUserLoggedIn() && Services::Request()->isPost() ) {
 			$this->setActionToAudit( 'register' )
 				 ->performCheckWithDie();
 		}

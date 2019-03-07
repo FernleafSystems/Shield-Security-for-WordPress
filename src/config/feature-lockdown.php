@@ -180,6 +180,7 @@
     "default_restapi_exclusions": [
       "contact-form-7",
       "jetpack",
+      "tho",
       "wpstatistics",
       "woocommerce"
     ]

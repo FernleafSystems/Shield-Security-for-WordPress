@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Setup Google Authenticator' ) }}
+	{{ icwp_macros.slideTitle( 'Setup Google Authenticator' ) }}
 
 	<p>Google Authenticator is a popular choice for 2FA. It has 1 drawback, however - if you'll lose
 	   your phone or reset it, you lose all your 2FA login codes.</p>
@@ -30,8 +30,8 @@
 						'N': '<span>Turn Off</span> - Disable Google Authenticator'
 					}
 				%}
-			{{ slideMacros.formInput_Radio( 'enablega', radiovalues, 'Turn On Google Authenticator' ) }}
-			{{ slideMacros.formInput_Hidden( 'gacode', 'ignore' ) }}
+			{{ icwp_macros.formInput_Radio( 'enablega', radiovalues, 'Turn On Google Authenticator' ) }}
+			{{ icwp_macros.formInput_Hidden( 'gacode', 'ignore' ) }}
 
 			<span id="helpBlock" class="help-block">
 				When enabled, this will allow any user of this site to configure and
@@ -46,11 +46,11 @@
 				</div>
 			</div>
 
-			{{ slideMacros.formInput_Text( 'gacode', '', 'Authenticator Code', '', '6 digits long' ) }}
-			{{ slideMacros.formInput_Hidden( 'enablega', 'Y' ) }}
+			{{ icwp_macros.formInput_Text( 'gacode', '', 'Authenticator Code', '', '6 digits long' ) }}
+			{{ icwp_macros.formInput_Hidden( 'enablega', 'Y' ) }}
 		{% endif %}
 
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'authga' ) }}
-		{{ slideMacros.formInput_Submit( 'Configure Google Authenticator' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'authga' ) }}
+		{{ icwp_macros.formInput_Submit( 'Configure Google Authenticator' ) }}
 	</form>
 {% endblock %}

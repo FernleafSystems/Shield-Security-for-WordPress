@@ -12,6 +12,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$oFO = $this->getMod();
 		$this->getSubProCronDaily()
 			 ->run();
+		$this->getSubProCronHourly()
+			 ->run();
 
 		$this->removePluginConflicts();
 		$this->getSubProBadge()
@@ -25,7 +27,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->getSubProImportExport()->run();
 		}
 
-		switch ( $this->loadRequest()->query( 'shield_action', '' ) ) {
+		switch ( Services::Request()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
 				break;
@@ -66,6 +68,13 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
+	 * @return ICWP_WPSF_Processor_Plugin_CronHourly|mixed
+	 */
+	protected function getSubProCronHourly() {
+		return $this->getSubPro( 'cronhourly' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_Plugin_Tracking|mixed
 	 */
 	protected function getSubProTracking() {
@@ -96,6 +105,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			'notes'        => 'ICWP_WPSF_Processor_Plugin_Notes',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
 			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
+			'cronhourly'   => 'ICWP_WPSF_Processor_Plugin_CronHourly',
 		];
 	}
 
@@ -121,8 +131,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	private function printPluginDeactivateSurvey() {
-		$oWp = $this->loadWp();
-		if ( $oWp->isCurrentPage( 'plugins.php' ) ) {
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
 
 			$aOpts = array(
 				'reason_confusing'   => "It's too confusing",
@@ -168,7 +177,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 * Sets this plugin to be the first loaded of all the plugins.
 	 */
 	protected function maintainPluginLoadPosition() {
-		$oWpPlugins = $this->loadWpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		$sBaseFile = $this->getCon()->getPluginBaseFile();
 		$nLoadPosition = $oWpPlugins->getActivePluginLoadPosition( $sBaseFile );
 		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
@@ -212,27 +221,33 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
 		$oModCon = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
-
 		$nDays = $this->getInstallationDays();
 		if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {
+			$oUser = Services::WpUsers()->getCurrentWpUser();
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'        => 'Join Us!',
+					'title'        => 'Come and Join Us!',
 					'yes'          => "Yes please! I'd love to join in and learn more",
 					'no'           => "No thanks, I'm not interested in such groups",
-					'we_dont_spam' => "( Fear not! SPAM is for losers. And we're not losers! )",
 					'your_name'    => _wpsf__( 'Your Name' ),
 					'your_email'   => _wpsf__( 'Your Email' ),
 					'dismiss'      => "No thanks, I'm not interested in such informative groups",
-					'summary'      => sprintf( 'The %s security team is running an initiative (with currently 3000+ members) to raise awareness of WordPress Security
+					'summary'      => sprintf( 'The %s security team is running an initiative to raise awareness of WordPress Security
 				and to provide further help with the %s security plugin. Get Involved here:', $sName, $sName ),
+					'privacy_policy' => sprintf(
+						'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
+						$this->getMod()->getDef( 'href_privacy_policy' )
+					),
 				),
 				'hrefs'             => array(
-					'form_action'    => '//hostliketoast.us2.list-manage.com/subscribe/post?u=e736870223389e44fb8915c9a&id=0e1d527259',
 					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
 				),
-				'install_days'      => $nDays
+				'install_days'      => $nDays,
+				'vars' => [
+					'name'       => $oUser->first_name,
+					'user_email' => $oUser->user_email
+				]
 			);
 			$this->insertAdminNotice( $aRenderData );
 		}
@@ -244,16 +259,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function removePluginConflicts() {
 		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
 			remove_action( 'init', array( $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ), 0 );
-		}
-	}
-
-	/**
-	 * unused
-	 * @deprecated v7
-	 */
-	public function printVisitorIpFooter() {
-		if ( apply_filters( 'icwp_wpsf_print_admin_ip_footer', true ) ) {
-			echo sprintf( '<p><span>%s</span></p>', sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ) );
 		}
 	}
 }

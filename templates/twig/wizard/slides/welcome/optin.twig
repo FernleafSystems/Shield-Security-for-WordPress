@@ -1,7 +1,7 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Come Join Us!' ) }}
+	{{ icwp_macros.slideTitle( 'Come Join Us!' ) }}
 
 	<p>We hope you'll see we've put a lot of effort into making Shield powerful, full-featured,
 	and still easy to use.</p>
@@ -32,10 +32,10 @@
 				'N': '<span>Turn Off</span> - do not contribute anonymous usage data'
 			}
 		%}
-		{{ slideMacros.formInput_Radio( 'AnonymousOption', radiovalues, 'Anonymous Info' ) }}
+		{{ icwp_macros.formInput_Radio( 'AnonymousOption', radiovalues, 'Anonymous Info' ) }}
 
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'optin_usage' ) }}
-		{{ slideMacros.formInput_Submit( 'Set Anonymous Data Usage' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optin_usage' ) }}
+		{{ icwp_macros.formInput_Submit( 'Set Anonymous Data Usage' ) }}
 	</form>
 
 	<hr />
@@ -51,9 +51,9 @@
 				'N': '<span>Turn Off</span> - do not display the badge on my site'
 			}
 		%}
-		{{ slideMacros.formInput_Radio( 'BadgeOption', radiovalues, 'Shield Site Badge' ) }}
+		{{ icwp_macros.formInput_Radio( 'BadgeOption', radiovalues, 'Shield Site Badge' ) }}
 
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'optin_badge' ) }}
-		{{ slideMacros.formInput_Submit( 'Set Plugin Badge Usage' ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'optin_badge' ) }}
+		{{ icwp_macros.formInput_Submit( 'Set Plugin Badge Usage' ) }}
 	</form>
 {% endblock %}

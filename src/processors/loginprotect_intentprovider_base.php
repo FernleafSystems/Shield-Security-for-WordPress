@@ -53,7 +53,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->processLoginAttempt( $this->loadWpUsers()->getUserById( $nUserId ) );
+		$this->processLoginAttempt( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -84,7 +84,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return bool
 	 */
 	public function getCurrentUserHasValidatedProfile() {
-		return $this->hasValidatedProfile( $this->loadWpUsers()->getCurrentWpUser() );
+		return $this->hasValidatedProfile( Services::WpUsers()->getCurrentWpUser() );
 	}
 
 	/**
@@ -281,11 +281,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return string
 	 */
 	protected function fetchCodeFromRequest() {
-		return esc_attr( $this->loadRequest()->request( $this->getLoginFormParameter(), false, '' ) );
+		return esc_attr( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
 	}
 
 	/**
-	 * @param bool $bIsSubjectTo
+	 * @param bool    $bIsSubjectTo
 	 * @param WP_User $oUser
 	 * @return bool
 	 */

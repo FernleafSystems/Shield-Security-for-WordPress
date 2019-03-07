@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function onWpInit() {
 		parent::onWpInit();
-		if ( !$this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 			$this->interceptCanonicalRedirects();
 
 			// hook in before rest API processing. Remember always return $bDo
@@ -76,7 +76,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	private function interceptAnonRestApi() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
-		$oWpRest = \FernleafSystems\Wordpress\Services\Services::Rest();
+		$oWpRest = Services::Rest();
 		if ( $oWpRest->isRest() && $oFO->isRestApiAnonymousAccessDisabled()
 			 && !$oFO->isPermittedAnonRestApiNamespace( $oWpRest->getNamespace() ) ) {
 			// 99 so that we jump in just before the always-on WordPress cookie auth.
@@ -90,9 +90,9 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	private function interceptCanonicalRedirects() {
 
 		if ( $this->getMod()->isOpt( 'block_author_discovery', 'Y' ) ) {
-			$sAuthor = $this->loadRequest()->query( 'author', '' );
+			$sAuthor = Services::Request()->query( 'author', '' );
 			if ( !empty( $sAuthor ) ) {
-				$this->loadWp()->wpDie( sprintf(
+				Services::WpGeneral()->wpDie( sprintf(
 					_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
 					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
 						'https://icwp.io/7l',
@@ -175,11 +175,11 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	public function resetAuthKeysSalts() {
-		$oWpFs = $this->loadFS();
+		$oWpFs = Services::WpFs();
 
 		// Get the new Salts
 		$sSaltsUrl = 'https://api.wordpress.org/secret-key/1.1/salt/';
-		$sSalts = \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( $sSaltsUrl );
+		$sSalts = Services::HttpRequest()->getContent( $sSaltsUrl );
 
 		$sWpConfigContent = $oWpFs->getContent_WpConfig();
 		if ( is_null( $sWpConfigContent ) ) {

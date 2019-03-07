@@ -1,15 +1,15 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'Security Admin Verification' ) }}
+	{{ icwp_macros.slideTitle( 'Security Admin Verification' ) }}
 
 	<p>Since you have previously turned-on the Security Admin system, we just need you to verify access before proceeding.</p>
 
 	<form class="form-horizontal icwp-wizard-form">
-		{{ slideMacros.formInput_Hidden( 'current_index', current_index ) }}
-		{{ slideMacros.formInput_Hidden( 'wizard-step', 'security_admin_verify' ) }}
-		{{ slideMacros.formInput_Password( 'AccessKey', '', 'Access Key' ) }}
-		{{ slideMacros.formInput_Submit( 'Submit Key' ) }}
+		{{ icwp_macros.formInput_Hidden( 'current_index', current_index ) }}
+		{{ icwp_macros.formInput_Hidden( 'wizard-step', 'security_admin_verify' ) }}
+		{{ icwp_macros.formInput_Password( 'AccessKey', '', 'Access Key' ) }}
+		{{ icwp_macros.formInput_Submit( 'Submit Key' ) }}
 	</form>
 
 {% endblock %}

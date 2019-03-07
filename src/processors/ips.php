@@ -711,30 +711,4 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 		return true;
 	}
-
-	/**
-	 * @deprecated
-	 */
-	public function action_blackMarkIp() {
-		$this->doBlackMarkCurrentVisitor();
-	}
-
-	/**
-	 * @deprecated
-	 * @param string $sIp
-	 */
-	private function addIpToAutoBlackList( $sIp ) {
-		$oIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
-		/** @var IPs\Update $oUp */
-		$oUp = $this->getDbHandler()->getQueryUpdater();
-		( $oIp instanceof IPs\EntryVO ) && $oUp->incrementTransgressions( $oIp );
-	}
-
-	/**
-	 * @deprecated
-	 * @param string $sIp
-	 */
-	private function processIpBlackMark( $sIp ) {
-		$this->processTransgression();
-	}
 }

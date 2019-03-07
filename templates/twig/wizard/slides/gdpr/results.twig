@@ -1,20 +1,20 @@
 {% extends 'wizard/slides/common/base.twig' %}
 
 {% block slide_body %}
-	{{ slideMacros.slideTitle( 'GDPR Search Results' ) }}
+	{{ icwp_macros.slideTitle( 'GDPR Search Results' ) }}
 
 	{% if flags.has_search_items %}
 		{% if data.has_results %}
 			<p>Use the checkbox below to delete all the search results.</p>
 			<form class="form-horizontal icwp-wizard-form">
-				{{ slideMacros.formInput_Checkbox(
+				{{ icwp_macros.formInput_Checkbox(
 					'ConfirmDelete', 'Y', 'Confirm Deletion Of All Results',
 					'Click to confirm that you wish to delete all search results.',
 					'You will not be able to recover these audit trail entries after you delete them.',
 					'ConfirmDelete'
 				) }}
-				{{ slideMacros.formInput_Hidden( 'wizard-step', 'confirm-results-delete' ) }}
-				{{ slideMacros.formInput_Submit( 'Delete All Items' ) }}
+				{{ icwp_macros.formInput_Hidden( 'wizard-step', 'confirm-results-delete' ) }}
+				{{ icwp_macros.formInput_Submit( 'Delete All Items' ) }}
 			</form>
 		{% else %}
 			<p>None of your search items produced results.</p>

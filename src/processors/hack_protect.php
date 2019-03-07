@@ -9,7 +9,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function run() {
 
-		$sPath = $this->loadRequest()->getPath();
+		$sPath = Services::Request()->getPath();
 		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
 			$this->revSliderPatch_LFI();
 			$this->revSliderPatch_AFU();
@@ -52,10 +52,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_LFI() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sAction = $oReq->query( 'action', '' );
-		$sFileExt = strtolower( $this->loadDP()->getExtension( $oReq->query( 'img', '' ) ) );
+		$sFileExt = strtolower( Services::Data()->getExtension( $oReq->query( 'img', '' ) ) );
 		if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
 			if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
 				die( 'RevSlider Local File Inclusion Attempt' );
@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	protected function revSliderPatch_AFU() {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sAction = strtolower( $oReq->request( 'action', '' ) );
 		$sClientAction = strtolower( $oReq->request( 'client_action', '' ) );
@@ -112,7 +112,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'vars'    => [
 			],
 			'scans'   => array(
-				/*
 				'apc' => array(
 					'flags'   => array(
 						'is_enabled'    => true,
@@ -134,7 +133,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'title'    => _wpsf__( 'Abandoned Plugins Check' ),
 						'subtitle' => _wpsf__( "Discover abandoned plugins" )
 					),
-				), */
+				),
 				'wcf' => array(
 					'flags'   => array(
 						'is_enabled'    => true,
@@ -232,7 +231,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// Process Plugins
 		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();
-		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		foreach ( $aPlugins as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
@@ -281,7 +280,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// Process Themes
 		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();;
+		$oWpThemes = Services::WpThemes();;
 		foreach ( $aThemes as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
