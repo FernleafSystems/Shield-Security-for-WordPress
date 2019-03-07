@@ -32,7 +32,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
 
-		$aLabels = $oCon->getPluginLabels();
+		$aLabels = $oCon->getLabels();
 		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(),
 			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
 		);

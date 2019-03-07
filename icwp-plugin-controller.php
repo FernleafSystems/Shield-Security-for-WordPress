@@ -452,7 +452,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		if ( $this->getPluginSpec_Menu( 'top_level' ) ) {
 
-			$aLabels = $this->getPluginLabels();
+			$aLabels = $this->getLabels();
 			$sMenuTitle = empty( $aLabels[ 'MenuTitle' ] ) ? $this->getPluginSpec_Menu( 'title' ) : $aLabels[ 'MenuTitle' ];
 			if ( is_null( $sMenuTitle ) ) {
 				$sMenuTitle = $this->getHumanName();
@@ -1139,7 +1139,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getHumanName() {
-		$aLabels = $this->getPluginLabels();
+		$aLabels = $this->getLabels();
 		return empty( $aLabels[ 'Name' ] ) ? $this->getPluginSpec_Property( 'human_name' ) : $aLabels[ 'Name' ];
 	}
 
@@ -1910,14 +1910,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
 		}
 		return $aResult;
-	}
-
-	/**
-	 * @deprecated 7.0.4
-	 * @return array
-	 */
-	public function getPluginLabels() {
-		return $this->getLabels();
 	}
 
 	/**
