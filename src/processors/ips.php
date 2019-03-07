@@ -36,7 +36,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		if ( $oFO->isAutoBlackListFeatureEnabled() ) {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'doBlackMarkCurrentVisitor' ) );
-			add_action( 'wp_login_failed', array( $oFO, 'setIpTransgressed' ), 10, 0 );
 		}
 
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );

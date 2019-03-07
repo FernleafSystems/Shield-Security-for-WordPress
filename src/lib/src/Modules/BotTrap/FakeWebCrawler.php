@@ -1,12 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
 
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class FakeWebCrawler
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap
  */
 class FakeWebCrawler extends Base {
 
@@ -23,7 +23,7 @@ class FakeWebCrawler extends Base {
 	 * @return bool
 	 */
 	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isTransgressionFakeWebCrawler();
 	}
@@ -35,7 +35,7 @@ class FakeWebCrawler extends Base {
 		$this->createNewAudit(
 			'wpsf',
 			sprintf( _wpsf__( 'Fake Web Crawler detected "%s"' ), Services::Request()->getPath() ),
-			2, 'mousetrap_fakecrawler'
+			2, 'bottrap_fakecrawler'
 		);
 		return $this;
 	}

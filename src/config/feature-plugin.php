@@ -436,13 +436,16 @@
       {
         "slug":          "insights",
         "storage_key":   "insights",
-        "menu_priority": 5,
-        "min_php":       "5.4"
+        "menu_priority": 5
       },
       {
         "slug":          "admin_access_restriction",
         "storage_key":   "admin_access_restriction",
         "load_priority": 11
+      },
+      {
+        "slug":        "bottrap",
+        "storage_key": "bottrap"
       },
       {
         "slug":        "hack_protect",

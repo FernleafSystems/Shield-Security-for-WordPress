@@ -1,55 +1,48 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
 
-class ICWP_WPSF_Processor_Mousetrap extends ICWP_WPSF_Processor_BaseWpsf {
-
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-	}
+class ICWP_WPSF_Processor_Bottrap extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var ICWP_WPSF_FeatureHandler_Bottrap $oFO */
 		$oFO = $this->getMod();
 
 		if ( $oFO->isEnabled404() ) {
-			( new MouseTrap\Detect404() )
+			( new BotTrap\Detect404() )
 				->setMod( $oFO )
 				->run();
 		}
 
 		if ( $oFO->isEnabledInvalidUsernames() ) {
-			( new MouseTrap\InvalidUsername() )
+			( new BotTrap\InvalidUsername() )
 				->setMod( $oFO )
 				->run();
 		}
 
 		if ( $oFO->isEnabledFailedLogins() ) {
-			( new MouseTrap\FailedAuthenticate() )
+			( new BotTrap\FailedAuthenticate() )
 				->setMod( $oFO )
 				->run();
 		}
 
 		if ( $oFO->isEnabledFakeWebCrawler() ) {
-			( new MouseTrap\FakeWebCrawler() )
+			( new BotTrap\FakeWebCrawler() )
 				->setMod( $oFO )
 				->run();
 		}
 
 		if ( $oFO->isEnabledLinkCheese() ) {
-			( new MouseTrap\LinkCheese() )
+			( new BotTrap\LinkCheese() )
 				->setMod( $oFO )
 				->run();
 		}
 
 		if ( $oFO->isEnabledXmlRpcDetect() ) {
-			( new MouseTrap\DetectXmlRpc() )
+			( new BotTrap\DetectXmlRpc() )
 				->setMod( $oFO )
 				->run();
 		}

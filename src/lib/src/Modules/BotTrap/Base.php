@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,7 +24,7 @@ abstract class Base {
 	}
 
 	protected function doTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
 		$oFO = $this->getMod();
 		$this->isTransgression() ? $oFO->setIpTransgressed() : $oFO->setIpBlocked();
 		$this->writeAudit();

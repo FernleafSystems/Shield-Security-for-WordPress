@@ -25,6 +25,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @deprecated 7.3
 	 * @return string
 	 */
 	public function getOptTracking404() {
@@ -47,6 +48,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @premium
+	 * @deprecated 7.3
 	 * @return bool
 	 */
 	public function is404Tracking() {
@@ -381,8 +383,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 			case 'track_404' :
 				$sName = _wpsf__( 'Track 404s' );
-				$sSummary = _wpsf__( 'Use 404s As An Transgression' );
-				$sDescription = _wpsf__( 'Repeated 404s may indicate a probing bot.' );
+				$sSummary = _wpsf__( 'THIS OPTION HAS MOVED' );
+				$sDescription = _wpsf__( 'PLEASE USE THE EQUIVALENT OPTION IN THE BOT-TRAP MODULE.' );
 				break;
 
 			case 'text_loginfailed' :

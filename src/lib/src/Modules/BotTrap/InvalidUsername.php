@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
 
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -26,7 +26,7 @@ class InvalidUsername extends Base {
 	 * @return bool
 	 */
 	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isTransgressionInvalidUsernames();
 	}
@@ -38,7 +38,7 @@ class InvalidUsername extends Base {
 		$this->createNewAudit(
 			'wpsf',
 			sprintf( _wpsf__( 'Attempted login by invalid username "%s"' ), Services::Request()->getPath() ),
-			2, 'mousetrap_invaliduser'
+			2, 'bottrap_invaliduser'
 		);
 		return $this;
 	}

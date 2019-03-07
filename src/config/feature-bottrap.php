@@ -1,35 +1,51 @@
 {
-  "slug":        "mousetrap",
+  "slug":        "bottrap",
   "properties":  {
-    "slug":                  "mousetrap",
-    "name":                  "MouseTrap",
+    "slug":                  "bottrap",
+    "storage_key":           "bottrap",
+    "name":                  "Bot Trap",
     "show_module_menu_item": false,
     "show_module_options":   true,
-    "storage_key":           "mousetrap",
     "tagline":               "Identify, Trap and Block Bots",
     "show_central":          true,
     "access_restricted":     true,
-    "premium":               false,
+    "premium":               true,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
     "order":                 30
   },
   "sections":    [
     {
-      "slug":        "section_cheese",
+      "slug":        "section_probes",
       "primary":     true,
-      "title":       "Tempt Bots With Links",
-      "title_short": "Link Cheese",
+      "title":       "Capture Probing Bots",
+      "title_short": "Probing Bots",
       "summary":     [
         "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
       ]
     },
     {
-      "slug":        "section_enable_plugin_feature_mousetrap",
-      "title":       "Enable Module: MouseTrap",
+      "slug":        "section_logins",
+      "title":       "Capture Login Bots",
+      "title_short": "Login Bots",
+      "summary":     [
+        "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
+      ]
+    },
+    {
+      "slug":        "section_behaviours",
+      "title":       "Identify Common Bot Behaviours",
+      "title_short": "Bot Behaviours",
+      "summary":     [
+        "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
+      ]
+    },
+    {
+      "slug":        "section_enable_plugin_feature_bottrap",
+      "title":       "Enable Module: BotTrap",
       "title_short": "Enable Module",
       "summary":     [
-        "Purpose - MouseTrap monitors a typical set of bot behaviours to help identify probing bots.",
+        "Purpose - BotTrap monitors a typical set of bot behaviours to help identify probing bots.",
         "Recommendation - Enable as many mouse traps as possible."
       ]
     },
@@ -40,19 +56,19 @@
   ],
   "options":     [
     {
-      "key":         "enable_mousetrap",
-      "section":     "section_enable_plugin_feature_mousetrap",
+      "key":         "enable_bottrap",
+      "section":     "section_enable_plugin_feature_bottrap",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Enable MouseTrap",
-      "summary":     "Enable (or Disable) The MouseTrap module",
-      "description": "Un-Checking this option will completely disable the MouseTrap module"
+      "name":        "Enable BotTrap",
+      "summary":     "Enable (or Disable) The BotTrap module",
+      "description": "Un-Checking this option will completely disable the BotTrap module"
     },
     {
       "key":           "404_detect",
-      "section":       "section_cheese",
+      "section":       "section_probes",
       "default":       "disabled",
       "type":          "select",
       "value_options": [
@@ -77,7 +93,7 @@
     },
     {
       "key":           "link_cheese",
-      "section":       "section_cheese",
+      "section":       "section_probes",
       "default":       "transgression",
       "type":          "select",
       "value_options": [
@@ -101,8 +117,33 @@
       "description":   "Detect A Bot That Follows A 'no-follow' Link."
     },
     {
+      "key":           "xmlrpc",
+      "section":       "section_probes",
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "transgression",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "XML-RPC Access",
+      "summary":       "Identify A Bot When It Accesses XML-RPC",
+      "description":   "If you don't use XML-RPC, why would anyone access it?"
+    },
+    {
       "key":           "invalid_username",
-      "section":       "section_cheese",
+      "section":       "section_logins",
       "default":       "transgression",
       "type":          "select",
       "value_options": [
@@ -127,7 +168,7 @@
     },
     {
       "key":           "failed_login",
-      "section":       "section_cheese",
+      "section":       "section_logins",
       "default":       "transgression",
       "type":          "select",
       "value_options": [
@@ -152,7 +193,7 @@
     },
     {
       "key":           "fake_webcrawler",
-      "section":       "section_cheese",
+      "section":       "section_behaviours",
       "default":       "transgression",
       "type":          "select",
       "value_options": [

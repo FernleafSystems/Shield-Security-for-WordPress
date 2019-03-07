@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Works by inserting a random, nofollow link to the footer of the page and appending to robots.txt
  * Class LinkCheese
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap
  */
 class LinkCheese extends Base {
 
@@ -34,7 +34,7 @@ class LinkCheese extends Base {
 	}
 
 	private function isCheese() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
 		$oFO = $this->getMod();
 		$oReq = Services::Request();
 
@@ -72,7 +72,7 @@ class LinkCheese extends Base {
 	 * @return string
 	 */
 	private function buildTrapHref() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
 		$oFO = $this->getMod();
 
 		$oWp = Services::WpGeneral();
@@ -91,7 +91,7 @@ class LinkCheese extends Base {
 	 * @return bool
 	 */
 	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isTransgressionLinkCheese();
 	}
@@ -103,7 +103,7 @@ class LinkCheese extends Base {
 		$this->createNewAudit(
 			'wpsf',
 			sprintf( _wpsf__( 'Link cheese access detected at "%s"' ), Services::Request()->getPath() ),
-			2, 'mousetrap_linkcheese'
+			2, 'bottrap_linkcheese'
 		);
 		return $this;
 	}

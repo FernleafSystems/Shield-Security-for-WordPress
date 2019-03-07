@@ -1540,7 +1540,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isPremiumActive() {
-		return apply_filters( $this->getPremiumLicenseFilterName(), false );
+		return false && apply_filters( $this->getPremiumLicenseFilterName(), false );
 	}
 
 	/**

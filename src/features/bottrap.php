@@ -2,9 +2,22 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ICWP_WPSF_FeatureHandler_Bottrap extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
+	}
+
+	/**
+	 */
+	protected function updateHandler() {
+		// v7.3
+		if ( $this->isPremium() && !$this->isEnabled404() ) {
+			/** @var ICWP_WPSF_FeatureHandler_Ips $oIp */
+			$oIp = $this->getCon()->getModule( 'ips' );
+			if ( $oIp->getOptTracking404() === 'assign-transgression' ) {
+				$this->setOpt( '404_detect', 'transgression' );
+			}
+		}
 	}
 
 	/**
@@ -144,22 +157,49 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
-			case 'section_enable_plugin_feature_mousetrap' :
+			case 'section_enable_plugin_feature_bottrap' :
 				$sTitle = _wpsf__( 'Identify And Capture Bots Based On Their Site Activity' );
 				$aSummary = array(
 					_wpsf__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises." ),
-					_wpsf__( "MouseTrap monitors a set of typical bot behaviours to help identify probing bots." ),
+					_wpsf__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots." ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable as many mouse traps as possible.' ) )
 				);
-				$sTitleShort = _wpsf__( 'Bot MouseTrap' );
+				$sTitleShort = _wpsf__( 'Bot-Trap' );
 				break;
 
-			case 'section_cheese' :
-				$sTitle = _wpsf__( 'Capture Bot Activity' );
+			case 'section_logins':
+				$sTitle = _wpsf__( 'Capture Login Bots' );
+				$sTitleShort = _wpsf__( 'Login Bots' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( "Enable as many options as possible." ) )
+					sprintf( '%s - %s', _wpsf__( 'Summary' ),
+						_wpsf__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
+						_wpsf__( "Enable as many options as possible." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Warning' ),
+						_wpsf__( "Legitimate users may get their password wrong, so take care not to block this." ) ),
 				];
-				$sTitleShort = _wpsf__( 'Bot Cheeses' );
+				break;
+
+			case 'section_probes':
+				$sTitle = _wpsf__( 'Capture Probing Bots' );
+				$sTitleShort = _wpsf__( 'Probing Bots' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Summary' ),
+						_wpsf__( "Bots are designed to probe and this feature is dedicated to detecting probing bots." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
+						_wpsf__( "Enable as many options as possible." ) ),
+				];
+				break;
+
+			case 'section_behaviours':
+				$sTitle = _wpsf__( 'Identify Common Bot Behaviours' );
+				$sTitleShort = _wpsf__( 'Bot Behaviours' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Summary' ),
+						_wpsf__( "Detect characteristics and behaviour commonly associated with illegitimate bots." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
+						_wpsf__( "Enable as many options as possible." ) ),
+				];
 				break;
 
 			default:
@@ -180,7 +220,7 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 
 		switch ( $aOptionsParams[ 'key' ] ) {
 
-			case 'enable_mousetrap' :
+			case 'enable_bottrap' :
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
@@ -191,6 +231,13 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 				$sSummary = _wpsf__( 'Identify A Bot When It Hits A 404' );
 				$sDescription = _wpsf__( "Detect when a visitor tries to load a non-existent page." )
 								.'<br/>'._wpsf__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s." );
+				break;
+
+			case 'xmlrpc' :
+				$sName = _wpsf__( 'XML-RPC Access' );
+				$sSummary = _wpsf__( 'Identify A Bot When It Accesses XML-RPC' );
+				$sDescription = _wpsf__( "If you don't use XML-RPC, why would anyone access it?" )
+								.'<br/>'._wpsf__( "Be careful the ensure you don't block legitimate xml-rpc traffic if your site needs it." );
 				break;
 
 			case 'link_cheese' :
@@ -207,8 +254,8 @@ class ICWP_WPSF_FeatureHandler_Mousetrap extends ICWP_WPSF_FeatureHandler_BaseWp
 
 			case 'failed_login' :
 				$sName = _wpsf__( 'Failed Login' );
-				$sSummary = _wpsf__( 'Detect Failed Login Attempts By Valid Usernames' );
-				$sDescription = _wpsf__( "Penalise a visitor who fails to login using a valid username" );
+				$sSummary = _wpsf__( 'Detect Failed Login Attempts Using Valid Usernames' );
+				$sDescription = _wpsf__( "Penalise a visitor when they try to login using a valid username, but it fails." );
 				break;
 
 			case 'fake_webcrawler' :
