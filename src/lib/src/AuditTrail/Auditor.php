@@ -26,8 +26,11 @@ trait Auditor {
 		$oEntry->category = $nCategory;
 		$oEntry->event = $sEvent;
 		$oEntry->meta = $aEventData;
-		if ( Services::WpGeneral()->getIsCron() ) {
+		if ( Services::WpGeneral()->isCron() ) {
 			$oEntry->wp_username = 'WP Cron';
+		}
+		else if ( Services::WpGeneral()->isWpCli() ) {
+			$oEntry->wp_username = 'WP CLI';
 		}
 		do_action( 'icwp-wpsf-add_new_audit_entry', $oEntry );
 		return $oEntry;
