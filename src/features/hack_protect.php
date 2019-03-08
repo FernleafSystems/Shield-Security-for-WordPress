@@ -859,12 +859,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = array();
+		$aWarnings = [];
 
-		if ( $sSection == 'section_pluginthemes_guard' ) {
-			if ( !$this->canPtgWriteToDisk() ) {
-				$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
-			}
+		switch ( $sSection ) {
+
+			case 'section_pluginthemes_guard':
+				if ( !$this->canPtgWriteToDisk() ) {
+					$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
+				}
+				break;
+
+			case 'section_realtime':
+				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
+					$aWarnings[] = sprintf( _wpsf__( 'Sorry, feature not available because the %s extension is not available.' ), 'OpenSSL' );
+				}
+				break;
 		}
 
 		return $aWarnings;
@@ -938,7 +947,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function isRtEnabled() {
+	public function isRtAvailable() {
 		return $this->isPremium() && Services::Encrypt()->isSupportedOpenSslDataEncryption();
 	}
 
@@ -946,7 +955,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isRtEnabledWpConfig() {
-		return $this->isRtEnabled() && $this->isOpt( 'rt_file_wpconfig', 'Y' );
+		return $this->isRtAvailable() && $this->isOpt( 'rt_file_wpconfig', 'Y' );
 	}
 
 	/**

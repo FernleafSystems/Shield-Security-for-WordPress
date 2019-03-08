@@ -82,7 +82,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array $aModProps
 	 */
 	protected function setupHooks( $aModProps ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 		add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
@@ -163,7 +163,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'mod_options':
 					$aAjaxResponse = $this->ajaxExec_ModOptions();
@@ -822,7 +822,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isModuleRequest() {
-		return ( $this->getModSlug() == $this->loadRequest()->request( 'mod_slug' ) );
+		return ( $this->getModSlug() == Services::Request()->request( 'mod_slug' ) );
 	}
 
 	/**
@@ -1303,7 +1303,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
 			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( $this->loadRequest()->ts() + 15, $this->prefix( 'importexport_notify' ) );
+				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
 			}
 		}
 	}
@@ -1323,21 +1323,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isThisModulePage() {
-		return $this->getCon()->isModulePage() && $this->loadRequest()->query( 'page' ) == $this->getModSlug();
+		return $this->getCon()->isModulePage() && Services::Request()->query( 'page' ) == $this->getModSlug();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isModuleOptionsRequest() {
-		return $this->loadRequest()->post( 'mod_slug' ) === $this->getModSlug();
+		return Services::Request()->post( 'mod_slug' ) === $this->getModSlug();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isWizardPage() {
-		return ( $this->loadRequest()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
+		return ( Services::Request()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
 	}
 
 	/**
