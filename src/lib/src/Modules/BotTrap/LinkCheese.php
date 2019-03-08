@@ -77,7 +77,7 @@ class LinkCheese extends Base {
 
 		$oWp = Services::WpGeneral();
 		$sKey = substr( md5( wp_generate_password() ), 5, rand( 7, 9 ) );
-		$sWord = $this->getPossibleWords()[ rand( 0, count( $this->getPossibleWords() ) ) ];
+		$sWord = $this->getPossibleWords()[ rand( 1, count( $this->getPossibleWords() ) ) - 1 ];
 		if ( $oWp->isPermalinksEnabled() ) {
 			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( $sWord ), $sKey ) );
 		}
