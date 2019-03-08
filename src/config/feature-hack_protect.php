@@ -25,6 +25,15 @@
       ]
     },
     {
+      "slug":        "section_realtime",
+      "title":       "Realtime Protection",
+      "title_short": "Realtime Protection",
+      "summary":     [
+        "Purpose - Provides realtime protection for certain key files.",
+        "Recommendation - Keep realtime protection turned on to protect key files."
+      ]
+    },
+    {
       "slug":        "section_core_file_integrity_scan",
       "title":       "WordPress Core File Scanner",
       "title_short": "WP Core File Scanner",
@@ -108,6 +117,18 @@
       "name":        "Enable Hack Guard",
       "summary":     "Enable (or Disable) The Hack Guard Module",
       "description": "Un-Checking this option will completely disable the Hack Guard module"
+    },
+    {
+      "key":         "rt_file_wpconfig",
+      "section":     "section_realtime",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "WP Config",
+      "summary":     "Lock WP Config Against Any Changes",
+      "description": "As soon as changes are detected to the WP config file the file will be reverted."
     },
     {
       "key":           "enable_wpvuln_scan",
@@ -547,6 +568,34 @@
       "transferable": false,
       "type":         "boolean",
       "default":      false
+    },
+    {
+      "key":          "rt_hash_wpconfig",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "text",
+      "default":      ""
+    },
+    {
+      "key":          "rt_hash_htaccess",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "text",
+      "default":      ""
+    },
+    {
+      "key":          "rt_backupfile_wpconfig",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "text",
+      "default":      ""
+    },
+    {
+      "key":          "rt_backupfile_htaccess",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "text",
+      "default":      ""
     }
   ],
   "definitions": {

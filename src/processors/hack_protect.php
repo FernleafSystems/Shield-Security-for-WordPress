@@ -8,6 +8,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * Override to set what this processor does when it's "run"
 	 */
 	public function run() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
 		$sPath = Services::Request()->getPath();
 		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
@@ -18,6 +20,16 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
 
 		$this->getSubProScanner()->run();
+		if ( $oMod->isRtEnabledWpConfig() ) {
+			$this->getSubProRealtime()->run();
+		}
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_HackProtect_Realtime|mixed
+	 */
+	public function getSubProRealtime() {
+		return $this->getSubPro( 'realtime' );
 	}
 
 	/**
@@ -32,7 +44,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProMap() {
 		return [
-			'scanner' => 'ICWP_WPSF_Processor_HackProtect_Scanner',
+			'scanner'  => 'ICWP_WPSF_Processor_HackProtect_Scanner',
+			'realtime' => 'ICWP_WPSF_Processor_HackProtect_Realtime',
 		];
 	}
 

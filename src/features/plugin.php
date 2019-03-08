@@ -624,6 +624,21 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return string|null
+	 */
+	public function getOpenSslPublicKey() {
+		$sKey = null;
+		if ( $this->hasOpenSslPrivateKey() ) {
+			try {
+				$sKey = Services::Encrypt()->getPublicKeyFromPrivateKey( $this->getOpenSslPrivateKey() );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $sKey;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function hasOpenSslPrivateKey() {

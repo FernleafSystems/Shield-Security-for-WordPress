@@ -164,7 +164,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return bool
 	 */
-	protected function countVulnerablePlugins() {
+	protected function countAbandonedPlugins() {
 		return $this->getAllAbandoned()->countUniqueSlugsForPluginsContext();
 	}
 }

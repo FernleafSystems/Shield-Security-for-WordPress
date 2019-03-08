@@ -125,6 +125,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
+		$this->resetRtBackupFiles();
 	}
 
 	/**
@@ -878,6 +879,77 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sFile
+	 * @return string
+	 */
+	public function getRtBackupForFile( $sFile ) {
+		return $this->getOpt( 'rt_backupfile_'.$sFile );
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return string
+	 */
+	public function getRtHashForFile( $sFile ) {
+		return $this->getOpt( 'rt_hash_'.$sFile );
+	}
+
+	/**
+	 * cleans out any reference to any backup files
+	 */
+	private function resetRtBackupFiles() {
+		$oCon = $this->getCon();
+		$oFs = Services::WpFs();
+		$oOpts = $this->getOptionsVo();
+		foreach ( [ 'htaccess', 'wpconfig' ] as $sFile ) {
+			if ( $oOpts->isOptChanged( 'rt_file_'.$sFile ) ) {
+				try {
+					$sBackupFile = $oCon->getPluginCachePath( $this->getRtBackupForFile( $sFile ) );
+					if ( $oFs->exists( $sBackupFile ) ) {
+						$oFs->deleteFile( $sBackupFile );
+					}
+				}
+				catch ( \Exception $oE ) {
+				}
+				$this->setRtHashForFile( $sFile, '' )
+					 ->setRtBackupForFile( $sFile, '' );
+			}
+		}
+	}
+
+	/**
+	 * @param string $sFile
+	 * @param string $sBackupFileName
+	 * @return $this
+	 */
+	public function setRtBackupForFile( $sFile, $sBackupFileName ) {
+		return $this->setOpt( 'rt_backupfile_'.$sFile, $sBackupFileName );
+	}
+
+	/**
+	 * @param string $sFile
+	 * @param string $sHash
+	 * @return $this
+	 */
+	public function setRtHashForFile( $sFile, $sHash ) {
+		return $this->setOpt( 'rt_hash_'.$sFile, $sHash );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRtEnabled() {
+		return $this->isPremium() && Services::Encrypt()->isSupportedOpenSslDataEncryption();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRtEnabledWpConfig() {
+		return $this->isRtEnabled() && $this->isOpt( 'rt_file_wpconfig', 'Y' );
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
@@ -1137,6 +1209,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				);
 				break;
 
+			case 'section_realtime' :
+				$sTitle = _wpsf__( 'Realtime Site Protection' );
+				$sTitleShort = _wpsf__( 'Realtime Protection' );
+				$aSummary = array(
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides realtime protection for certain key files.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep realtime protection turned on to protect key files.' ) ),
+				);
+				break;
+
 			case 'section_enable_plugin_feature_hack_protection_tools' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
@@ -1367,6 +1448,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Highlight Plugins' );
 				$sSummary = _wpsf__( 'Highlight Abandoned Plugins' );
 				$sDescription = _wpsf__( "Abandoned plugins will be highlighted on the main plugins page." );
+				break;
+
+			case 'rt_file_wpconfig' :
+				$sName = _wpsf__( 'WP Config' );
+				$sSummary = _wpsf__( 'Realtime Protection For WP Config File' );
+				$sDescription = _wpsf__( "Realtime protection for the wp-config.php file." );
 				break;
 
 			default:

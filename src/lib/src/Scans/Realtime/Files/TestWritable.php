@@ -1,8 +1,7 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\WpConfig;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Realtime\Files;
 
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\TestFileWritable;
 
 /**
@@ -12,12 +11,13 @@ use FernleafSystems\Wordpress\Services\Utilities\File\TestFileWritable;
 class TestWritable {
 
 	/**
+	 * @param string $sPath
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function run() {
+	public function run( $sPath ) {
 		try {
-			$bCan = ( new TestFileWritable() )->run( Services::WpGeneral()->getPath_WpConfig() );
+			$bCan = ( new TestFileWritable() )->run( $sPath );
 		}
 		catch ( \Exception $oE ) {
 			$bCan = false;
