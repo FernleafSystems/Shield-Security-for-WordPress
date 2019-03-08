@@ -415,6 +415,13 @@
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
+    },
+    {
+      "key":          "openssl_private_key",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "text",
+      "default":      ""
     }
   ],
   "definitions":   {

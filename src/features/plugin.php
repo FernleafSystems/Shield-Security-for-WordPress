@@ -598,6 +598,40 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getOpenSslPrivateKey() {
+		$sKey = null;
+		$oEnc = Services::Encrypt();
+		if ( $oEnc->isSupportedOpenSslDataEncryption() ) {
+			$sKey = $this->getOpt( 'openssl_private_key' );
+			if ( empty( $sKey ) ) {
+				try {
+					$aKeys = $oEnc->createNewPrivatePublicKeyPair();
+					if ( !empty( $aKeys[ 'private' ] ) ) {
+						$sKey = $aKeys[ 'private' ];
+						$this->setOpt( 'openssl_private_key', base64_encode( $sKey ) );
+					}
+				}
+				catch ( \Exception $oE ) {
+				}
+			}
+			else {
+				$sKey = base64_decode( $sKey );
+			}
+		}
+		return $sKey;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasOpenSslPrivateKey() {
+		$sKey = $this->getOpenSslPrivateKey();
+		return !empty( $sKey );
+	}
+
+	/**
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
@@ -1025,7 +1059,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'summary' => $bHasSupportEmail ?
 					sprintf( _wpsf__( 'Email address for reports set to: %s' ), $this->supplyPluginReportEmail() )
 					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), Services::WpGeneral()
-																						  ->getSiteAdminEmail() ),
+																							 ->getSiteAdminEmail() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			);
