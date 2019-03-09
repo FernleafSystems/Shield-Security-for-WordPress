@@ -98,7 +98,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 		$oU = Services::WpUsers()->getCurrentWpUser();
 
-		if ( $oFO->hasSession() && in_array( Services::Request()->query( 'action' ), [ '', 'login' ] ) ) {
+		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
+			 && ( $oU instanceof \WP_User ) && $oFO->hasSession() ) {
 			$sMessage .= sprintf( '<p class="message">%s<br />%s</p>',
 				_wpsf__( "You're already logged-in." )
 				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oU->user_login ),
