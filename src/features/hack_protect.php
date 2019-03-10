@@ -894,7 +894,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @param string $sFile
 	 * @return string
 	 */
-	public function getRtBackupForFile( $sFile ) {
+	public function getRtBackupFileNameForFile( $sFile ) {
 		return $this->getOpt( 'rt_backupfile_'.$sFile );
 	}
 
@@ -916,7 +916,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		foreach ( [ 'htaccess', 'wpconfig' ] as $sFile ) {
 			if ( $oOpts->isOptChanged( 'rt_file_'.$sFile ) ) {
 				try {
-					$sBackupFile = $oCon->getPluginCachePath( $this->getRtBackupForFile( $sFile ) );
+					$sBackupFile = $oCon->getPluginCachePath( $this->getRtBackupFileNameForFile( $sFile ) );
 					if ( $oFs->exists( $sBackupFile ) ) {
 						$oFs->deleteFile( $sBackupFile );
 					}
@@ -924,7 +924,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				catch ( \Exception $oE ) {
 				}
 				$this->setRtHashForFile( $sFile, '' )
-					 ->setRtBackupForFile( $sFile, '' );
+					 ->setRtBackupFileNameForFile( $sFile, '' );
 			}
 		}
 	}
@@ -934,7 +934,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @param string $sBackupFileName
 	 * @return $this
 	 */
-	public function setRtBackupForFile( $sFile, $sBackupFileName ) {
+	public function setRtBackupFileNameForFile( $sFile, $sBackupFileName ) {
 		return $this->setOpt( 'rt_backupfile_'.$sFile, $sBackupFileName );
 	}
 
@@ -945,6 +945,23 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setRtHashForFile( $sFile, $sHash ) {
 		return $this->setOpt( 'rt_hash_'.$sFile, $sHash );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRtCanWriteFiles() {
+		$aF = $this->getOpt( 'rt_can_write_files', [] );
+		return is_array( $aF ) ? $aF : [];
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return bool
+	 */
+	public function getRtCanWriteFile( $sFile ) {
+		$aFiles = $this->getRtCanWriteFiles();
+		return isset( $aFiles[ $sFile ] ) ? ( $aFiles[ $sFile ] > 0 ) : false;
 	}
 
 	/**
@@ -960,7 +977,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isRtEnabledWpConfig() {
-		return $this->isRtAvailable() && $this->isOpt( 'rt_file_wpconfig', 'Y' );
+		return $this->isRtAvailable() && $this->isOpt( 'rt_file_wpconfig', 'Y' )
+			   && $this->getRtCanWriteFile( Services::WpGeneral()->getPath_WpConfig() );
+	}
+
+	/**
+	 * @param string $sPath
+	 * @param bool   $bCanWrite
+	 * @return $this
+	 */
+	public function setRtCanWriteFile( $sPath, $bCanWrite ) {
+		$aFiles = $this->getRtCanWriteFiles();
+		$aFiles[ $sPath ] = $bCanWrite ? Services::Request()->ts() : 0;
+		return $this->setOpt( 'rt_can_write_files', $aFiles );
 	}
 
 	/**

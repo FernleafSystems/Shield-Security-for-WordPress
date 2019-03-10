@@ -27,14 +27,14 @@ class ICWP_WPSF_Processor_HackProtect_Realtime extends ICWP_WPSF_Processor_BaseW
 		$oProc->priv_key = $oModPlugin->getOpenSslPrivateKey();
 		$oProc->original_path = Services::WpGeneral()->getPath_WpConfig();
 		$oProc->original_path_hash = $oMod->getRtHashForFile( 'wpconfig' );
-		$oProc->backup_file = $oMod->getRtBackupForFile( 'wpconfig' );
+		$oProc->backup_file = $oMod->getRtBackupFileNameForFile( 'wpconfig' );
 		$oProc->backup_dir = $this->getCon()->getPath_PluginCache();
 
 		// This is going to create the new backup file
 		$bNeedStoreHashAndPath = empty( $oProc->backup_file );
 		try {
 			if ( $oProc->run() && $bNeedStoreHashAndPath ) {
-				$oProc->backup_file = $oMod->setRtBackupForFile( 'wpconfig', $oProc->backup_file );
+				$oProc->backup_file = $oMod->setRtBackupFileNameForFile( 'wpconfig', $oProc->backup_file );
 				$oProc->original_path_hash = $oMod->setRtHashForFile( 'wpconfig', $oProc->original_path_hash );
 			}
 		}

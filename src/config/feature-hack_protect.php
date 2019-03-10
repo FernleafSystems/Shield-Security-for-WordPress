@@ -597,6 +597,13 @@
       "transferable": false,
       "type":         "text",
       "default":      ""
+    },
+    {
+      "key":          "rt_can_write_files",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions": {
