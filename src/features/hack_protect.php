@@ -871,7 +871,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'section_realtime':
 				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-					$aWarnings[] = sprintf( _wpsf__( 'Sorry, feature not available because the %s extension is not available.' ), 'OpenSSL' );
+					$aWarnings[] = sprintf( _wpsf__( 'Not available because the %s extension is not available.' ), 'OpenSSL' );
+				}
+				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
+					$aWarnings[] = sprintf( _wpsf__( "Not available because PHP/WordPress doesn't have direct filesystem access." ), 'OpenSSL' );
 				}
 				break;
 		}
@@ -948,7 +951,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isRtAvailable() {
-		return $this->isPremium() && Services::Encrypt()->isSupportedOpenSslDataEncryption();
+		return $this->isPremium()
+			   && Services::WpFs()->isFilesystemAccessDirect()
+			   && Services::Encrypt()->isSupportedOpenSslDataEncryption();
 	}
 
 	/**
