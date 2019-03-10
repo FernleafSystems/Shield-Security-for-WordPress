@@ -1030,7 +1030,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isRtEnabledWpConfig() {
 		return $this->isRtAvailable() && $this->isOpt( 'rt_file_wpconfig', 'Y' )
-			   && $this->getRtCanWriteFile( Services::WpGeneral()->getPath_WpConfig() );
+			   && $this->getRtCanWriteFile( $this->getRtMapFileKeyToFilePath( 'wpconfig' ) );
 	}
 
 	/**
