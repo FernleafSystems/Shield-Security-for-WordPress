@@ -891,51 +891,84 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sFile
-	 * @return string
-	 */
-	public function getRtBackupFileNameForFile( $sFile ) {
-		return $this->getOpt( 'rt_backupfile_'.$sFile );
-	}
-
-	/**
-	 * @param string $sFile
-	 * @return string
-	 */
-	public function getRtHashForFile( $sFile ) {
-		return $this->getOpt( 'rt_hash_'.$sFile );
-	}
-
-	/**
 	 * cleans out any reference to any backup files
 	 */
 	private function resetRtBackupFiles() {
 		$oCon = $this->getCon();
 		$oFs = Services::WpFs();
 		$oOpts = $this->getOptionsVo();
-		foreach ( [ 'htaccess', 'wpconfig' ] as $sFile ) {
-			if ( $oOpts->isOptChanged( 'rt_file_'.$sFile ) ) {
+		foreach ( [ 'htaccess', 'wpconfig' ] as $sFileKey ) {
+			if ( $oOpts->isOptChanged( 'rt_file_'.$sFileKey ) ) {
+				$sPath = $this->getRtMapFileKeyToFilePath( $sFileKey );
 				try {
-					$sBackupFile = $oCon->getPluginCachePath( $this->getRtBackupFileNameForFile( $sFile ) );
+					$sBackupFile = $oCon->getPluginCachePath( $this->getRtFileBackupName( $sPath ) );
 					if ( $oFs->exists( $sBackupFile ) ) {
 						$oFs->deleteFile( $sBackupFile );
 					}
 				}
 				catch ( \Exception $oE ) {
 				}
-				$this->setRtHashForFile( $sFile, '' )
-					 ->setRtBackupFileNameForFile( $sFile, '' );
+				$this->setRtFileHash( $sPath, '' )
+					 ->setRtFileBackupName( $sPath, '' );
 			}
 		}
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return string|null
+	 */
+	private function getRtMapFileKeyToFilePath( $sKey ) {
+		$aMap = [
+			'wpconfig' => Services::WpGeneral()->getPath_WpConfig(),
+			'htaccess' => path_join( ABSPATH, '.htaccess' ),
+		];
+		return isset( $aMap[ $sKey ] ) ? $aMap[ $sKey ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRtFileBackupNames() {
+		$aF = $this->getOpt( 'rt_file_backup_names', [] );
+		return is_array( $aF ) ? $aF : [];
+	}
+
+	/**
 	 * @param string $sFile
-	 * @param string $sBackupFileName
+	 * @return string|null
+	 */
+	public function getRtFileBackupName( $sFile ) {
+		$aD = $this->getRtFileBackupNames();
+		return isset( $aD[ $sFile ] ) ? $aD[ $sFile ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRtFileHashes() {
+		$aF = $this->getOpt( 'rt_file_hashes', [] );
+		return is_array( $aF ) ? $aF : [];
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return string|null
+	 */
+	public function getRtFileHash( $sFile ) {
+		$aD = $this->getRtFileHashes();
+		return isset( $aD[ $sFile ] ) ? $aD[ $sFile ] : null;
+	}
+
+	/**
+	 * @param string $sFile
+	 * @param string $sName
 	 * @return $this
 	 */
-	public function setRtBackupFileNameForFile( $sFile, $sBackupFileName ) {
-		return $this->setOpt( 'rt_backupfile_'.$sFile, $sBackupFileName );
+	public function setRtFileBackupName( $sFile, $sName ) {
+		$aD = $this->getRtFileBackupNames();
+		$aD[ $sFile ] = $sName;
+		return $this->setOpt( 'rt_file_backup_names', $aD );
 	}
 
 	/**
@@ -943,8 +976,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @param string $sHash
 	 * @return $this
 	 */
-	public function setRtHashForFile( $sFile, $sHash ) {
-		return $this->setOpt( 'rt_hash_'.$sFile, $sHash );
+	public function setRtFileHash( $sFile, $sHash ) {
+		$aD = $this->getRtFileHashes();
+		$aD[ $sFile ] = $sHash;
+		return $this->setOpt( 'rt_file_hashes', $aD );
 	}
 
 	/**

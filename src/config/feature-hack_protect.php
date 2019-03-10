@@ -571,32 +571,18 @@
       "default":      false
     },
     {
-      "key":          "rt_hash_wpconfig",
+      "key":          "rt_file_hashes",
       "section":      "section_non_ui",
       "transferable": false,
-      "type":         "text",
-      "default":      ""
+      "type":         "array",
+      "default":      []
     },
     {
-      "key":          "rt_hash_htaccess",
+      "key":          "rt_file_backup_names",
       "section":      "section_non_ui",
       "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
-      "key":          "rt_backupfile_wpconfig",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
-      "key":          "rt_backupfile_htaccess",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
+      "type":         "array",
+      "default":      []
     },
     {
       "key":          "rt_can_write_files",

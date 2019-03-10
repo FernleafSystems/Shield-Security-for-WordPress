@@ -44,7 +44,7 @@ class Process {
 	 * @throws \Exception
 	 */
 	protected function createBackup() {
-		$this->backup_file = '.shieldbak-'.wp_rand( 1000, 9999 );
+		$this->backup_file = '.shieldbak-'.wp_rand( 1000, 999999 );
 
 		if ( !( new TestWritable() )->run( $this->original_path ) ) {
 			throw new \Exception( 'Cannot write to path: '.$this->original_path, 2 );
