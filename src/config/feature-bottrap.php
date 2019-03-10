@@ -12,6 +12,7 @@
     "premium":               true,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
+    "run_if_wpcli":          false,
     "order":                 30
   },
   "sections":    [
