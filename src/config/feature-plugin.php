@@ -14,6 +14,7 @@
     "has_custom_actions":    false,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
+    "run_if_wpcli":          true,
     "order":                 10
   },
   "admin_notices": {

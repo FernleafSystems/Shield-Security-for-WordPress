@@ -636,7 +636,16 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isModuleRunIfWhitelisted() {
-		return (bool)$this->getFeatureProperty( 'run_if_whitelisted' );
+		$bState = $this->getFeatureProperty( 'run_if_whitelisted' );
+		return is_null( $bState ) ? true : (bool)$bState;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isModuleRunUnderWpCli() {
+		$bState = $this->getFeatureProperty( 'run_if_wpcli' );
+		return is_null( $bState ) ? true : (bool)$bState;
 	}
 
 	/**

@@ -13,6 +13,7 @@
     "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
+    "run_if_wpcli":          false,
     "order":                 50
   },
   "admin_notices": {
