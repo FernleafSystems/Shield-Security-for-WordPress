@@ -13,7 +13,6 @@ class TestWritable {
 	/**
 	 * @param string $sPath
 	 * @return bool
-	 * @throws \Exception
 	 */
 	public function run( $sPath ) {
 		try {

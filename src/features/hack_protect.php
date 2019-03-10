@@ -876,6 +876,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
 					$aWarnings[] = sprintf( _wpsf__( "Not available because PHP/WordPress doesn't have direct filesystem access." ), 'OpenSSL' );
 				}
+				else {
+					$sPath = $this->getRtMapFileKeyToFilePath( 'wpconfig' );
+					if ( !$this->getRtCanWriteFile( $sPath ) ) {
+						$aWarnings[] = sprintf( _wpsf__( "The %s file isn't writable and so can't be further protected." ), 'wp-config.php' );
+					}
+				}
 				break;
 		}
 
@@ -904,6 +910,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					$sBackupFile = $oCon->getPluginCachePath( $this->getRtFileBackupName( $sPath ) );
 					if ( $oFs->exists( $sBackupFile ) ) {
 						$oFs->deleteFile( $sBackupFile );
+					}
+
+					if ( !$this->getRtCanWriteFile( $sPath ) ) {
+						$this->setOpt( 'rt_file_'.$sFileKey, 'N' );
 					}
 				}
 				catch ( \Exception $oE ) {
@@ -996,7 +1006,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getRtCanWriteFile( $sFile ) {
 		$aFiles = $this->getRtCanWriteFiles();
-		return isset( $aFiles[ $sFile ] ) ? ( $aFiles[ $sFile ] > 0 ) : false;
+		if ( isset( $aFiles[ $sFile ] ) ) {
+			$bCanWrite = $aFiles[ $sFile ] > 0;
+		}
+		else {
+			$bCanWrite = ( new Shield\Scans\Realtime\Files\TestWritable() )->run( $sFile );
+			$this->setRtCanWriteFile( $sFile, $bCanWrite );
+		}
+		return $bCanWrite;
 	}
 
 	/**
