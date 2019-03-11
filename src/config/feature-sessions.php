@@ -11,7 +11,8 @@
     "access_restricted":     true,
     "auto_load_processor":   true,
     "run_if_whitelisted":    true,
-    "run_if_verified_bot":   true
+    "run_if_verified_bot":   true,
+    "run_if_wpcli":          false
   },
   "sections":    [
     {

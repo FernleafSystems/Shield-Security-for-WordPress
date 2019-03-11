@@ -349,6 +349,16 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$oNofics->setPrefix( $this->prefix() );
 			add_filter( $this->prefix( 'ajaxAuthAction' ), array( $oNofics, 'handleAuthAjax' ) );
 		}
+
+		/**
+		 * Support for WP-CLI and it marks the cli as complete plugin admin
+		 */
+		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $bByPass ) {
+			if ( Services::WpGeneral()->isWpCli() && $this->isPremiumActive() ) {
+				$bByPass = true;
+			}
+			return $bByPass;
+		}, PHP_INT_MAX );
 	}
 
 	/**
