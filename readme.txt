@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.1
-Stable tag: 7.2.0
+Stable tag: 7.2.1
 
 Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
 
@@ -352,15 +352,19 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.2.0 - Current Release =
+= 7.2.1 - Current Release =
+*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
+
+* **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
+* **(v.1)**  FIX:		Fix PHP warning notice on login page.
+* **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
+
+= 7.2 - Series =
 *Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
 
 * **(v.0)**  NEW:		[Scanner to detect and alert](https://icwp.io/eq) to presence of abandoned plugins.
 * **(v.0)**  FIX:		Fix bug with Security Admin passwords.
 * **(v.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
-
-= 7.2 - Series =
-*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
 
 = 7.1 - Series =
 *Released: 21st February, 2019* - [Release Notes](https://icwp.io/ek)
