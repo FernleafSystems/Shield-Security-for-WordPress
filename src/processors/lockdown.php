@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
 				define( 'DISALLOW_FILE_EDIT', true );
 			}
-			add_filter( 'user_has_cap', array( $this, 'disableFileEditing' ), 0, 3 );
+			add_filter( 'user_has_cap', array( $this, 'disableFileEditing' ), PHP_INT_MAX, 3 );
 		}
 
 		$sWpVersionMask = $this->getOption( 'mask_wordpress_version' );
