@@ -59,13 +59,26 @@
 					</select>
 				</div>
 				<div class="form-group">
-					<label class="form-check-label" for="_fExludeYou" title="<?php echo $sYourIp; ?>">
+					<label class="form-check-label" for="_fExludeYou" title="Exclude Your IP From Results">
 						Exclude Your Current IP?</label>
 					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
 						   class="form-control" />
 				</div>
+				<div class="form-group input-daterange">
+					<label class="form-label" for="_fFromDate" title="Show results since...">
+						Show Results Between...</label>
+
+					<input type="text" class="form-control date-picker" id="_fDateFrom"
+						   name="fDateFrom" value="" placeholder="YYYY-MM-DD">
+					<div class="input-group-addon">to</div>
+					<input type="text" class="form-control date-picker" id="_fDateTo"
+						   name="fDateTo" value="" placeholder="YYYY-MM-DD">
+					{#<input type="text" id="_fFromDate" name="fFromDate" value=""#}
+					{#class="form-control" />#}
+				</div>
 				<div class="form-group text-right">
-					<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Apply Filters" />
+					<input id="SubmitForm" href="#" class="btn btn-info" type="submit"
+						   value="Apply Filters" />
 					<a id="ClearForm" href="#" class="btn btn-link">Clear Filters</a>
 				</div>
 
@@ -96,4 +109,17 @@
 			}
 		}
 	);
+
+	var $oDataPickers = jQuery( '.date-picker' );
+	$oDataPickers.datepicker(
+		{
+			autoclose: true,
+			clearBtn: true,
+			format: "yyyy-mm-dd",
+			language: "az",
+			maxViewMode: 2
+		}
+	);
+
+
 </script>

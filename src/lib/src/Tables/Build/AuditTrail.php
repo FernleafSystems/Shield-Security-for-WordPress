@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
@@ -32,6 +33,28 @@ class AuditTrail extends BaseBuild {
 			$oSelector->filterByNotIp( $oIp->getRequestIp() );
 		}
 
+		/**
+		 * put this date stuff in the base so we can filter anything
+		 */
+		if ( !empty( $aParams[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateFrom' ] ) ) {
+			$aParts = explode( '-', $aParams[ 'fDateFrom' ] );
+			$sTs = ( new Carbon() )
+				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+				->setTime( 0, 0 )
+				->timestamp;
+			$oSelector->filterByCreatedAt( $sTs, '>' );
+		}
+
+		if ( !empty( $aParams[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateTo' ] ) ) {
+			$aParts = explode( '-', $aParams[ 'fDateTo' ] );
+			$sTs = ( new Carbon() )
+				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+				->setTime( 0, 0 )
+				->addDay()
+				->timestamp;
+			$oSelector->filterByCreatedAt( $sTs, '<' );
+		}
+
 		// if username is provided, this takes priority over "logged-in" (even if it's invalid)
 		if ( !empty( $aParams[ 'fUsername' ] ) ) {
 			$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
@@ -48,13 +71,15 @@ class AuditTrail extends BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array(
+		return [
 			'fIp'        => '',
 			'fUsername'  => '',
 			'fContext'   => '',
 			'fLoggedIn'  => -1,
 			'fExludeYou' => '',
-		);
+			'fDateFrom'  => '',
+			'fDateTo'    => '',
+		];
 	}
 
 	/**

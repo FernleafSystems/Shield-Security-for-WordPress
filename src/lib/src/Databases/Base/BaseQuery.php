@@ -185,6 +185,18 @@ abstract class BaseQuery {
 	}
 
 	/**
+	 * @param int    $nTs
+	 * @param string $sComparison
+	 * @return $this
+	 */
+	public function filterByCreatedAt( $nTs, $sComparison ) {
+		if ( !preg_match( '#[^=<>]#', $sComparison ) && is_numeric( $nTs ) ) {
+			$this->addWhere( 'created_at', (int)$nTs, $sComparison );
+		}
+		return $this;
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getBaseQuery() {

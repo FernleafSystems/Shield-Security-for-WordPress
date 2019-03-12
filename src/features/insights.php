@@ -325,6 +325,27 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 					}
 
+					if ( $sNav == 'audit' ) {
+						$sUnique = $this->prefix( 'datepicker' );
+						wp_register_script(
+							$sUnique,
+							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
+							array_unique( $aStdDeps ),
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+
+						wp_register_style(
+							$sUnique,
+							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css',
+							[],
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_style( $sUnique );
+					}
+
 					break;
 			}
 		}
