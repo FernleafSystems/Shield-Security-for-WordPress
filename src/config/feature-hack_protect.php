@@ -176,7 +176,6 @@
     {
       "key":           "enabled_scan_apc",
       "section":       "section_scan_apc",
-      "premium":       true,
       "default":       "enabled_email",
       "type":          "select",
       "value_options": [
