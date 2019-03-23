@@ -11,10 +11,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isOptFileEditingDisabled() ) {
-			if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
-				define( 'DISALLOW_FILE_EDIT', true );
-			}
-			add_filter( 'user_has_cap', array( $this, 'disableFileEditing' ), 0, 3 );
+			$this->blockFileEditing();
 		}
 
 		$sWpVersionMask = $this->getOption( 'mask_wordpress_version' );
@@ -44,6 +41,29 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
 			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
 		}
+	}
+
+	private function blockFileEditing() {
+		if ( !defined( 'DISALLOW_FILE_EDIT' ) ) {
+			define( 'DISALLOW_FILE_EDIT', true );
+		}
+
+		add_filter( 'user_has_cap',
+			/**
+			 * @param array $aAllCaps
+			 * @param array $cap
+			 * @param array $aArgs
+			 * @return array
+			 */
+			function ( $aAllCaps, $cap, $aArgs ) {
+				$sRequestedCapability = $aArgs[ 0 ];
+				if ( in_array( $sRequestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
+					$aAllCaps[ $sRequestedCapability ] = false;
+				}
+				return $aAllCaps;
+			},
+			PHP_INT_MAX, 3
+		);
 	}
 
 	public function onWpInit() {
@@ -147,20 +167,6 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param array $aAllCaps
-	 * @param       $cap
-	 * @param array $aArgs
-	 * @return array
-	 */
-	public function disableFileEditing( $aAllCaps, $cap, $aArgs ) {
-		$sRequestedCapability = $aArgs[ 0 ];
-		if ( in_array( $sRequestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
-			$aAllCaps[ $sRequestedCapability ] = false;
-		}
-		return $aAllCaps;
-	}
-
-	/**
 	 * @param $sOutput
 	 * @param $sShow
 	 * @return string
@@ -216,5 +222,20 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		$aContent[ $nStartLine ] = $sSalts;
 		$oWpFs->putContent_WpConfig( implode( PHP_EOL, $aContent ) );
+	}
+
+	/**
+	 * @deprecated
+	 * @param array $aAllCaps
+	 * @param       $cap
+	 * @param array $aArgs
+	 * @return array
+	 */
+	public function disableFileEditing( $aAllCaps, $cap, $aArgs ) {
+		$sRequestedCapability = $aArgs[ 0 ];
+		if ( in_array( $sRequestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
+			$aAllCaps[ $sRequestedCapability ] = false;
+		}
+		return $aAllCaps;
 	}
 }

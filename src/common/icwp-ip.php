@@ -271,7 +271,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function determineSourceFromIp( $sVisitorIp ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sBestSource = null;
 		foreach ( $this->getIpSourceOptions() as $sSource ) {
@@ -313,7 +313,7 @@ class ICWP_WPSF_Ip extends ICWP_WPSF_Foundation {
 
 		$sIpToReturn = false;
 		$sSource = false;
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		foreach ( $this->getIpSourceOptions() as $sMaybeSource ) {
 
 			$sIpToTest = $oReq->server( $sMaybeSource );
