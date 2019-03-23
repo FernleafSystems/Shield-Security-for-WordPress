@@ -279,7 +279,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	protected function getCanDoAuthSalts() {
-		$oWpFs = $this->loadFS();
+		$oWpFs = Services::WpFs();
 
 		if ( !$oWpFs->getCanWpRemoteGet() ) {
 			return false;

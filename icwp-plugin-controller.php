@@ -879,7 +879,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function deleteFlags() {
-		$oFS = $this->loadFS();
+		$oFS = Services::WpFs();
 		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
 			$oFS->deleteFile( $this->getPath_Flags( 'rebuild' ) );
 		}
@@ -1623,7 +1623,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function deleteForceOffFile() {
 		if ( $this->getIfForceOffActive() ) {
-			$this->loadFS()->deleteFile( $this->getForceOffFilePath() );
+			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
 			$this->sForceOffFile = null;
 			clearstatcache();
 		}

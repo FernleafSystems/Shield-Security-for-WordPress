@@ -46,7 +46,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 */
 	public function handleModRequest() {
-		switch ( $this->loadRequest()->query( 'exec' ) ) {
+		switch ( Services::Request()->query( 'exec' ) ) {
 			case 'email_send_verify':
 				$this->processEmailSendVerify();
 				break;
@@ -78,7 +78,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sMessage = _wpsf__( 'Email verification could not be completed.' );
 		}
 		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
-		$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
+		Services::Response()->redirect( $this->getUrl_AdminPage() );
 	}
 
 	/**
@@ -88,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function sendEmailVerifyCanSend( $sEmail = null, $bSendAsLink = true ) {
 
-		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
+		if ( !Services::Data()->validEmail( $sEmail ) ) {
 			$sEmail = get_bloginfo( 'admin_email' );
 		}
 
@@ -238,14 +238,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function canUserMfaSkip( $oUser ) {
-
+		$oReq = Services::Request();
 		if ( $this->getMfaSkipEnabled() ) {
 			$aHashes = $this->getMfaLoginHashes( $oUser );
 			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
 
-			$sHash = md5( $this->loadRequest()->getUserAgent() );
+			$sHash = md5( $oReq->getUserAgent() );
 			$bCanSkip = isset( $aHashes[ $sHash ] )
-						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $this->loadRequest()->ts();
+						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $oReq->ts();
 		}
 		else if ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
@@ -261,7 +261,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			 */
 			$bCanSkip = apply_filters(
 				'odp-shield-2fa_skip',
-				strpos( $this->loadRequest()->server( 'HTTP_REFERER' ), 'https://app.icontrolwp.com/' ) === 0
+				strpos( $oReq->server( 'HTTP_REFERER' ), 'https://app.icontrolwp.com/' ) === 0
 			);
 		}
 		return $bCanSkip;
@@ -417,7 +417,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function setIfCanSendEmail( $bCan ) {
 		$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
 		if ( $bCan ) {
-			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadRequest()->ts() : $nCurrentDateAt;
+			$nDateAt = ( $nCurrentDateAt <= 0 ) ? Services::Request()->ts() : $nCurrentDateAt;
 		}
 		else {
 			$nDateAt = 0;
@@ -552,7 +552,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'gen_backup_codes':
 					$aAjaxResponse = $this->ajaxExec_GenBackupCodes();
@@ -585,7 +585,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oPro = $this->loadProcessor();
 		$sPass = $oPro->getProcessorLoginIntent()
 					  ->getProcessorBackupCodes()
-					  ->resetSecret( $this->loadWpUsers()->getCurrentWpUser() );
+					  ->resetSecret( Services::WpUsers()->getCurrentWpUser() );
 
 		foreach ( array( 20, 15, 10, 5 ) as $nPos ) {
 			$sPass = substr_replace( $sPass, '-', $nPos, 0 );
@@ -666,7 +666,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oPro = $this->loadProcessor();
 		$oPro->getProcessorLoginIntent()
 			 ->getProcessorBackupCodes()
-			 ->deleteSecret( $this->loadWpUsers()->getCurrentWpUser() );
+			 ->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
 		$this->setFlashAdminNotice( _wpsf__( 'Multi-factor login backup code has been removed from your profile' ) );
 		return array(
 			'success' => true

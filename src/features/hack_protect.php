@@ -460,7 +460,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$bCanWrite = (bool)$this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
 		if ( !$bCanWrite ) {
-			$oFS = $this->loadFS();
+			$oFS = Services::WpFs();
 			$sDir = $this->getPtgSnapsBaseDir();
 
 			if ( $sDir && $oFS->mkdir( $sDir ) ) {
