@@ -57,15 +57,14 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$bPerformScan = true;
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
 		$oFO = $this->getMod();
-		$oReq = $this->loadRequest();
 
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
 		}
 
 		// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
-		$aRequestParts = $oReq->getUriParts();
-		if ( $bPerformScan && empty( $aRequestParts ) ) {
+		$sPath = Services::Request()->getPath();
+		if ( $bPerformScan && empty( $sPath ) ) {
 			$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;
@@ -359,8 +358,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$this->aPageParams = $this->getRawRequestParams();
 		$aWhitelistPages = $this->getWhitelistPages();
-		$aRequestUriParts = $this->loadRequest()->getUriParts();
-		$sRequestPage = $aRequestUriParts[ 'path' ];
 
 		// first we remove globally whitelisted request parameters
 		if ( !empty( $aWhitelistPages[ '*' ] ) && is_array( $aWhitelistPages[ '*' ] ) ) {
@@ -385,6 +382,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		// Now we run through the list of whitelist pages
+		$sRequestPage = Services::Request()->getPath();
 		foreach ( $aWhitelistPages as $sWhitelistPageName => $aWhitelistPageParams ) {
 
 			// if the page is white listed

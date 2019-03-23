@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 /**
  * Class ICWP_WPSF_Wizard_HackProtect
  */
@@ -243,7 +245,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function process_AssetAction() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getModCon();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$sSlug = $oReq->post( 'slug' );
 		$sContext = $oReq->post( 'context' );

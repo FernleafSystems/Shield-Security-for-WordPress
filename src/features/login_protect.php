@@ -268,11 +268,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
 	public function addMfaLoginHash( $oUser ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$aHashes = $this->getMfaLoginHashes( $oUser );
 		$aHashes[ md5( $oReq->getUserAgent() ) ] = $oReq->ts();
 		$this->getCon()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
