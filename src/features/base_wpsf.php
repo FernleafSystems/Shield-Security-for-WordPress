@@ -258,7 +258,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * Only test for bots that we can actually verify based on IP, hostname
 	 * @return bool
 	 */
 	public function isVerifiedBot() {
