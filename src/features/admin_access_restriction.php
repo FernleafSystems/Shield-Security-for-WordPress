@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'sec_admin_check':
 					$aAjaxResponse = $this->ajaxExec_SecAdminCheck();
@@ -195,7 +195,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getOptionsToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( $this->loadWp()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
 		return ( isset( $aOptions[ $sType.'_options' ] ) && is_array( $aOptions[ $sType.'_options' ] ) ) ? $aOptions[ $sType.'_options' ] : array();
 	}
@@ -205,7 +205,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	public function getOptionsPagesToRestrict( $sType = '' ) {
-		$sType = empty( $sType ) ? ( $this->loadWp()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
+		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
 		return ( isset( $aOptions[ $sType.'_pages' ] ) && is_array( $aOptions[ $sType.'_pages' ] ) ) ? $aOptions[ $sType.'_pages' ] : array();
 	}
@@ -231,7 +231,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser() {
-		$sUser = $this->loadWpUsers()->getCurrentWpUsername();
+		$sUser = Services::WpUsers()->getCurrentWpUsername();
 		return !empty( $sUser ) && in_array( $sUser, $this->getSecurityAdminUsers() );
 	}
 
@@ -274,8 +274,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return string[]
 	 */
 	private function verifySecAdminUsers( $aSecUsers ) {
-		$oDP = $this->loadDP();
-		$oWpUsers = $this->loadWpUsers();
+		$oDP = Services::Data();
+		$oWpUsers = Services::WpUsers();
 
 		$aFiltered = array();
 		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
@@ -342,7 +342,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$nLeft = 0;
 			}
 			else if ( $nSecAdminAt > 0 ) {
-				$nLeft = $this->getSecAdminTimeout() - ( $this->loadRequest()->ts() - $nSecAdminAt );
+				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
 			}
 		}
 		return max( 0, $nLeft );
@@ -384,13 +384,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function checkAdminAccessKeySubmission() {
 		$bSuccess = false;
-		$sAccessKeyRequest = Services::Request()->post( 'admin_access_key_request', '' );
+		$oReq = Services::Request();
+		$sAccessKeyRequest = $oReq->post( 'admin_access_key_request', '' );
 		if ( !empty( $sAccessKeyRequest ) ) {
 			// Made the hither-to unknown discovery that WordPress magic quotes all $_POST variables
 			// So the Admin Password initially provided may have been escaped with "\"
 			// The 1st approach uses raw, unescaped. The 2nd approach uses the older escaped $_POST.
 			$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest )
-						|| $this->verifyAccessKey( $this->loadRequest()->post( 'admin_access_key_request', '' ) );
+						|| $this->verifyAccessKey( $oReq->post( 'admin_access_key_request', '' ) );
 			if ( !$bSuccess ) {
 				$this->setIpTransgressed();
 			}
@@ -402,7 +403,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	protected function isAccessKeyRequest() {
-		return strlen( $this->loadRequest()->post( 'admin_access_key_request', '' ) ) > 0;
+		return strlen( Services::Request()->post( 'admin_access_key_request', '' ) ) > 0;
 	}
 
 	/**
@@ -886,7 +887,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function preDeactivatePlugin() {
 		$oCon = $this->getCon();
 		if ( !$oCon->isPluginAdmin() ) {
-			$this->loadWp()->wpDie(
+			Services::WpGeneral()->wpDie(
 				_wpsf__( "Sorry, this plugin is protected against unauthorised attempts to disable it." )
 				.'<br />'.sprintf( '<a href="%s">%s</a>',
 					$this->getUrl_AdminPage(),

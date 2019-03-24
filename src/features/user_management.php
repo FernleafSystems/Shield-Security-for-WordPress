@@ -168,7 +168,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 	protected function doExtraSubmitProcessing() {
 		$sAdminEmail = $this->getOpt( 'enable_admin_login_email_notification' );
-		if ( !$this->loadDP()->validEmail( $sAdminEmail ) ) {
+		if ( !Services::Data()->validEmail( $sAdminEmail ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'enable_admin_login_email_notification' );
 		}
 
@@ -240,7 +240,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isSendAdminEmailLoginNotification() {
-		return $this->loadDP()->validEmail( $this->getAdminLoginNotificationEmail() );
+		return Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() );
 	}
 
 	/**

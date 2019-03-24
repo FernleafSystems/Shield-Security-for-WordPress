@@ -62,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'ip_insert':
 					$aAjaxResponse = $this->ajaxExec_AddIp();
@@ -218,7 +218,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oPluginMod */
 		$oPluginMod = $this->getCon()->getModule( 'plugin' );
 		return [
-			$this->loadRequest()->server( 'SERVER_ADDR' ),
+			Services::Request()->getServerAddress(),
 			$oPluginMod->getMyServerIp()
 		];
 	}

@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'render_table_audittrail':
 					$aAjaxResponse = $this->ajaxExec_BuildTableAuditTrail();
@@ -42,7 +42,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	protected function ajaxExec_AddParamToFirewallWhitelist() {
 		$bSuccess = false;
 
-		$nId = $this->loadRequest()->post( 'rid' );
+		$nId = Services::Request()->post( 'rid' );
 		if ( empty( $nId ) || !is_numeric( $nId ) || $nId < 1 ) {
 			$sMessage = _wpsf__( 'Invalid audit entry selected for this action' );
 		}
@@ -276,7 +276,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
 		$oProc = $this->getProcessor();
 
-		$oUser = $this->loadWpUsers()->getUserByEmail( $sEmail );
+		$oUser = Services::WpUsers()->getUserByEmail( $sEmail );
 
 		$aExportItem = array(
 			'group_id'    => $this->prefix(),
@@ -292,7 +292,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 							 ->addWhereSearch( 'wp_username', $oUser->user_login )
 							 ->setResultsAsVo( true );
 
-			$oWp = $this->loadWp();
+			$oWp = Services::WpGeneral();
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
 			foreach ( $oFinder->query() as $oEntry ) {
 				$aExportItem[ 'data' ][] = array(
@@ -326,7 +326,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		$oProc = $this->getProcessor();
 
 		try {
-			$oThisUsername = $this->loadWpUsers()->getUserByEmail( $sEmail )->user_login;
+			$oThisUsername = Services::WpUsers()->getUserByEmail( $sEmail )->user_login;
 			$oProc->getSubProAuditor()
 				  ->getDbHandler()
 				  ->getQueryDeleter()

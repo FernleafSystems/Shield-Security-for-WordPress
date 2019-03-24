@@ -214,6 +214,7 @@
       "key":          "delay_tracking",
       "section":      "section_non_ui",
       "transferable": false,
+      "sensitive":    true,
       "type":         "array",
       "default":      []
     },

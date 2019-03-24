@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_CommentsFilter_Base {
 
 	const Spam_Blacklist_Source = 'https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt';
@@ -55,7 +57,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 				$aCommentData[ 'comment_author_url' ],
 				$aCommentData[ 'comment_content' ],
 				$this->ip(),
-				substr( $this->loadRequest()->server( 'HTTP_USER_AGENT', '' ), 0, 254 )
+				substr( Services::Request()->getUserAgent(), 0, 254 )
 			);
 
 			// Now we check whether comment status is to completely reject and then we simply redirect to "home"
@@ -156,7 +158,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	/**
 	 */
 	protected function doSpamBlacklistUpdate() {
-		$this->loadFS()->deleteFile( $this->getSpamBlacklistFile() );
+		Services::WpFs()->deleteFile( $this->getSpamBlacklistFile() );
 		$this->doSpamBlacklistImport();
 	}
 

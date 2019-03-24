@@ -1,26 +1,36 @@
-=== Shield Security for WordPress ===
+=== Shield: Security, Scanning & Protection For All ===
 Contributors: onedollarplugin, paultgoodchild
 Donate link: https://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, all in one, scan, firewall, two factor authentication, spam, wordfence, cerber, ithemes
+Tags: scan, firewall, two factor authentication, login protection, security
 Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.1
-Stable tag: 7.2.1
+Stable tag: 7.2.2
 
-Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
+All-In-One protection against hackers and bot attacks. Easy to use Scanners, 2-Factor Authentication, login protection, auto IP blocker, and so much more...
 
 == Description ==
 
+### The highest rated 5* Security Plugin for WordPress
+
+Shield has the highest average 5* rating for any WordPress security plugin (2019/03). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5)..
+
+#### Our Mission: No Site Left Behind.
+
+We're driven by our mission to offer protection to **every single site**. We're not here to scare you, but help you start, *right now*, protecting what's important to you and your business.
+
+Getting started is easy, and we'll help you through every step. All our security options are fully documented so you can understand and stay informed as you progress.
+
 ### Powerful Security for WordPress *doesn't* need to be *hard*
 
-There's no good reason for WordPress security plugins to be so complicated. It doesn't have to be that way.
+There's no reason for security plugins to be complicated. It just doesn't have to be that way.
 
 Shield is the easiest security plugin to setup - you simply activate it. Then a beautiful, step-by-step wizard will walk you through the basic configuration.
 
-And you can dig deeper, any time you're ready.
+And you can dig deeper, when you're ready.
 
 #### Trust: Shield Does Exactly What It Says It Will Do
 
@@ -352,16 +362,19 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.2.1 - Current Release =
+= 7.2.2 - Current Release =
+*Released: 25th March, 2019* - [Release Notes](https://icwp.io/ep)
+
+* **(v.2)**  FIX:		Unable to turn off the Abandoned Plugin scanner.
+* **(v.2)**  FIX:		Fix bug with some DNS lookup failures for some ISPs.
+* **(v.2)**  FIX:		Fix display notice for 'disallow file editing' setting when IP is whitelisted.
+
+= 7.2 - Series =
 *Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
 
 * **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
 * **(v.1)**  FIX:		Fix PHP warning notice on login page.
 * **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
-
-= 7.2 - Series =
-*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
-
 * **(v.0)**  NEW:		[Scanner to detect and alert](https://icwp.io/eq) to presence of abandoned plugins.
 * **(v.0)**  FIX:		Fix bug with Security Admin passwords.
 * **(v.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
