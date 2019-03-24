@@ -419,7 +419,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Base
+	 * @return ICWP_WPSF_Processor_Base|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();
@@ -464,6 +464,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
 	 * @return ICWP_WPSF_FeatureHandler_Email
+	 * @throws \Exception
 	 */
 	public function getEmailHandler() {
 		if ( is_null( self::$oEmailHandler ) ) {
@@ -985,7 +986,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getSectionNotices( $sSectionSlug ) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -993,7 +994,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
-		return array();
+		return [];
 	}
 
 	/**

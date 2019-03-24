@@ -230,7 +230,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				}
 				$this->loadWpNotices()
 					 ->addFlashUserMessage( $sMessage, !$bSuccess );
-				Services::WpGeneral()->doRedirect( $this->getUrlImportExport() );
+				Services::Response()->redirect( $this->getUrlImportExport() );
 				break;
 
 			default:
