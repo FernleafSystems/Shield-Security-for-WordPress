@@ -1,12 +1,14 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 */
 	protected function setupCustomHooks() {
 		// Force run automatic updates
-		if ( $this->loadRequest()->query( 'force_run_auto_updates' ) == 'now' ) {
+		if ( Services::Request()->query( 'force_run_auto_updates' ) == 'now' ) {
 			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
 		}
 	}
@@ -112,7 +114,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'toggle_plugin_autoupdate':
 					$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
@@ -134,7 +136,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 		if ( $this->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
 			$oWpPlugins = $this->loadWpPlugins();
-			$sFile = $this->loadRequest()->post( 'pluginfile' );
+			$sFile = Services::Request()->post( 'pluginfile' );
 			if ( $oWpPlugins->isInstalled( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );
 
@@ -206,7 +208,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			'messages' => array()
 		);
 		{ //really disabled?
-			$oWp = $this->loadWp();
+			$oWp = Services::WpGeneral();
 			if ( $this->isModOptEnabled() ) {
 				if ( $this->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
 					$aNotices[ 'messages' ][ 'disabled_auto' ] = array(

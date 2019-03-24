@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
  */
@@ -43,7 +45,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function processAuthEmail() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getModCon();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
@@ -98,7 +100,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function processAuthGa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getModCon();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );

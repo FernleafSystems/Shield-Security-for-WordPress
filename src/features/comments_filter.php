@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -45,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$oWpComments = $this->loadWpComments();
 
 		// 1st are comments enabled on this post?
-		$oPost = $this->loadWp()->getPostById( $this->getCommentItem( 'comment_post_ID' ) );
+		$oPost = Services::WpPost()->getById( $this->getCommentItem( 'comment_post_ID' ) );
 		return ( $oPost instanceof WP_Post ) && $oWpComments->isCommentsOpen( $oPost )
 			   && ( !$oWpComments->getIfAllowCommentsByPreviouslyApproved() || !$oWpComments->isAuthorApproved( $this->getCommentItem( 'comment_author_email' ) ) );
 	}

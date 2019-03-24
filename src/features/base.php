@@ -82,7 +82,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array $aModProps
 	 */
 	protected function setupHooks( $aModProps ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 		add_action( $this->prefix( 'run_processors' ), array( $this, 'onRunProcessors' ), $nRunPriority );
@@ -163,7 +163,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'mod_options':
 					$aAjaxResponse = $this->ajaxExec_ModOptions();
@@ -244,8 +244,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
-				$bMeetsReqs = $bMeetsReqs && $this->loadDP()
-												  ->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
+				$bMeetsReqs = $bMeetsReqs && Services::Data()->getPhpVersionIsAtLeast( $aPhpReqs[ 'version' ] );
 			}
 			if ( !empty( $aPhpReqs[ 'functions' ] ) && is_array( $aPhpReqs[ 'functions' ] ) ) {
 				foreach ( $aPhpReqs[ 'functions' ] as $sFunction ) {
@@ -420,7 +419,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Base
+	 * @return ICWP_WPSF_Processor_Base|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();
@@ -430,11 +429,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getUrl_AdminPage() {
-		return $this->loadWp()
-					->getUrl_AdminPage(
-						$this->getModSlug(),
-						$this->getCon()->getIsWpmsNetworkAdminOnly()
-					);
+		return Services::WpGeneral()
+					   ->getUrl_AdminPage(
+						   $this->getModSlug(),
+						   $this->getCon()->getIsWpmsNetworkAdminOnly()
+					   );
 	}
 
 	/**
@@ -465,6 +464,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * TODO: Get rid of this crap and/or handle the \Exception thrown in loadFeatureHandler()
 	 * @return ICWP_WPSF_FeatureHandler_Email
+	 * @throws \Exception
 	 */
 	public function getEmailHandler() {
 		if ( is_null( self::$oEmailHandler ) ) {
@@ -822,7 +822,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isModuleRequest() {
-		return ( $this->getModSlug() == $this->loadRequest()->request( 'mod_slug' ) );
+		return ( $this->getModSlug() == Services::Request()->request( 'mod_slug' ) );
 	}
 
 	/**
@@ -986,7 +986,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getSectionNotices( $sSectionSlug ) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -994,7 +994,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -1205,7 +1205,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	protected function isAdminOptionsPage() {
-		return ( is_admin() && !$this->loadWp()->isAjax() && $this->isThisModulePage() );
+		return ( is_admin() && !Services::WpGeneral()->isAjax() && $this->isThisModulePage() );
 	}
 
 	/**
@@ -1286,7 +1286,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
 				else if ( $sOptType == 'comma_separated_lists' ) {
-					$sOptionValue = $this->loadDP()->extractCommaSeparatedList( $sOptionValue );
+					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
 				}
 				else if ( $sOptType == 'multiple_select' ) {
 				}
@@ -1303,7 +1303,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
 			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( $this->loadRequest()->ts() + 15, $this->prefix( 'importexport_notify' ) );
+				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
 			}
 		}
 	}
@@ -1323,21 +1323,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isThisModulePage() {
-		return $this->getCon()->isModulePage() && $this->loadRequest()->query( 'page' ) == $this->getModSlug();
+		return $this->getCon()->isModulePage() && Services::Request()->query( 'page' ) == $this->getModSlug();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isModuleOptionsRequest() {
-		return $this->loadRequest()->post( 'mod_slug' ) === $this->getModSlug();
+		return Services::Request()->post( 'mod_slug' ) === $this->getModSlug();
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function isWizardPage() {
-		return ( $this->loadRequest()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
+		return ( Services::Request()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
 	}
 
 	/**
@@ -1561,10 +1561,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function getUrl_Wizard( $sWizardSlug ) {
 		$aDef = $this->getWizardDefinition( $sWizardSlug );
 		if ( empty( $aDef[ 'min_user_permissions' ] ) ) { // i.e. no login/minimum perms
-			$sUrl = $this->loadWp()->getHomeUrl();
+			$sUrl = Services::WpGeneral()->getHomeUrl();
 		}
 		else {
-			$sUrl = $this->loadWp()->getUrl_WpAdmin( 'admin.php' );
+			$sUrl = Services::WpGeneral()->getAdminUrl( 'admin.php' );
 		}
 
 		return add_query_arg(

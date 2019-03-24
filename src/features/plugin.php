@@ -230,7 +230,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				}
 				$this->loadWpNotices()
 					 ->addFlashUserMessage( $sMessage, !$bSuccess );
-				Services::WpGeneral()->doRedirect( $this->getUrlImportExport() );
+				Services::Response()->redirect( $this->getUrlImportExport() );
 				break;
 
 			default:
@@ -971,7 +971,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		if ( $this->loadWp()->isCurrentPage( 'plugins.php' ) ) {
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
 			$sFile = $this->getCon()->getPluginBaseFile();
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
@@ -982,7 +982,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 						'send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
 					),
 					'hrefs' => array(
-						'deactivate' => $this->loadWpPlugins()->getUrl_Deactivate( $sFile ),
+						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $sFile ),
 					),
 				)
 			);

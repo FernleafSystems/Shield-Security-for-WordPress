@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbProcessor {
 
@@ -105,7 +106,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 		$sStatKey = '';
 		$sExplanation = '';
 
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$sFieldCheckboxName = $oReq->post( 'cb_nombre' );
 		$sFieldHoney = $oReq->post( 'sugar_sweet_email' );
 		$sCommentToken = $oReq->post( 'comment_token' );

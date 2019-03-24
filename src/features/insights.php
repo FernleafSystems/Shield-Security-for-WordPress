@@ -607,8 +607,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oConn = $this->getCon();
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oConn->getModule( 'user_management' );
-		/** @var ICWP_WPSF_Processor_UserManagement $oProUsers */
-		$oProUsers = $oModUsers->getProcessor();
 		/** @var ICWP_WPSF_Processor_Statistics $oStats */
 		$oStats = $oConn->getModule( 'statistics' )->getProcessor();
 

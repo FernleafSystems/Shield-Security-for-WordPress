@@ -456,7 +456,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		if ( !$bCheckIpHost ) {
 			$aBotUserAgents = array_map(
 				function ( $sAgent ) {
-					preg_quote( $sAgent, '#' );
+					return preg_quote( $sAgent, '#' );
 				},
 				$aBotUserAgents
 			);

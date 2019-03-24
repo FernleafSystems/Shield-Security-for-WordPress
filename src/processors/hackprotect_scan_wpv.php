@@ -151,7 +151,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	public function addVulnerablePluginStatusView() {
-		if ( $this->loadRequest()->query( 'plugin_status' ) == 'vulnerable' ) {
+		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
 			global $status;
 			$status = 'vulnerable';
 		}
@@ -183,7 +183,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @return array
 	 */
 	public function filterPluginsToView( $aPlugins ) {
-		if ( $this->loadRequest()->query( 'plugin_status' ) == 'vulnerable' ) {
+		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
 			global $status;
 			$status = 'vulnerable';
 			$aPlugins = array_intersect_key( $aPlugins, array_flip( $this->getVulnerablePlugins() ) );

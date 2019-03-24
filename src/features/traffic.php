@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function action_doFeatureShutdown() {
-		if ( $this->isAutoDisable() && $this->loadRequest()->ts() - $this->getAutoDisableAt() > 0 ) {
+		if ( $this->isAutoDisable() && Services::Request()->ts() - $this->getAutoDisableAt() > 0 ) {
 			$this->setOpt( 'auto_disable', 'N' )
 				 ->setOpt( 'autodisable_at', 0 )
 				 ->setIsMainFeatureEnabled( false );
@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oPro->getProcessorLogger()
 			 ->cleanupDatabase();
 
-		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? $this->loadRequest()->ts() + WEEK_IN_SECONDS : 0 );
+		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? Services::Request()->ts() + WEEK_IN_SECONDS : 0 );
 
 		$aExcls = $this->getCustomExclusions();
 		foreach ( $aExcls as &$sExcl ) {
@@ -104,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return string
 	 */
 	protected function getAutoDisableTimestamp() {
-		return $this->loadWp()->getTimeStampForDisplay( $this->getAutoDisableAt() );
+		return Services::WpGeneral()->getTimeStampForDisplay( $this->getAutoDisableAt() );
 	}
 
 	/**
@@ -170,7 +170,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'render_table_traffic':
 					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();

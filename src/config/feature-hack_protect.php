@@ -176,7 +176,6 @@
     {
       "key":           "enabled_scan_apc",
       "section":       "section_scan_apc",
-      "premium":       true,
       "default":       "enabled_email",
       "type":          "select",
       "value_options": [
@@ -193,8 +192,8 @@
           "text":      "Enabled - No Email Notification"
         }
       ],
-      "link_info":     "https://icwp.io/eo",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/ew",
+      "link_blog":     "https://icwp.io/eo",
       "name":          "Abandoned Plugin Scanner",
       "summary":       "Enable The Abandoned Plugin Scanner",
       "description":   "Scan your WordPress.org assets for whether they've been abandoned."

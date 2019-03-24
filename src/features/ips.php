@@ -60,7 +60,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'ip_insert':
 					$aAjaxResponse = $this->ajaxExec_AddIp();
@@ -82,12 +82,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function ajaxExec_IpDelete() {
-		$oReq = $this->loadRequest();
 		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $this->getProcessor();
 
 		$bSuccess = false;
-		$nId = $oReq->post( 'rid', -1 );
+		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = _wpsf__( "Invalid entry selected" );
 		}
@@ -217,7 +216,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oPluginMod */
 		$oPluginMod = $this->getCon()->getModule( 'plugin' );
 		return [
-			$this->loadRequest()->server( 'SERVER_ADDR' ),
+			Services::Request()->getServerAddress(),
 			$oPluginMod->getMyServerIp()
 		];
 	}
