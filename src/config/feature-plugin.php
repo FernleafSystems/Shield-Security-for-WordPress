@@ -547,9 +547,6 @@
           "ip_detect":                {
             "title": "IP Detection"
           },
-          "license":                  {
-            "title": "Go Pro"
-          },
           "admin_access_restriction": {
             "title": "Security Admin"
           },
