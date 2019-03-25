@@ -704,6 +704,20 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getActivatedAt() {
+		return (int)$this->getOpt( 'activated_at', 0 );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setActivatedAt() {
+		return $this->setOpt( 'activated_at', Services::Request()->ts() );
+	}
+
+	/**
 	 * @param string $sNewId - leave empty to reset if the current isn't valid
 	 * @return string
 	 */

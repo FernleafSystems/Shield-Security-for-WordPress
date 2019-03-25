@@ -245,15 +245,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Registers the plugins activation, deactivate and uninstall hooks.
-	 */
-	protected function registerActivationHooks() {
-		register_activation_hook( $this->getRootFile(), array( $this, 'onWpActivatePlugin' ) );
-		register_deactivation_hook( $this->getRootFile(), array( $this, 'onWpDeactivatePlugin' ) );
-		//	register_uninstall_hook( $this->oPluginVo->getRootFile(), array( $this, 'onWpUninstallPlugin' ) );
-	}
-
-	/**
 	 */
 	public function onWpDeactivatePlugin() {
 		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
@@ -269,8 +260,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	public function onWpActivatePlugin() {
-		do_action( $this->prefix( 'plugin_activate' ) );
-		$this->loadAllFeatures( true, true );
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
+		$oP = $this->getModule( 'plugin' );
+		$oP->setActivatedAt();
 	}
 
 	/**
@@ -311,7 +303,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function doRegisterHooks() {
-		$this->registerActivationHooks();
+		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
 		add_action( 'init', array( $this, 'onWpInit' ), -1000 );
 		add_action( 'admin_init', array( $this, 'onWpAdminInit' ) );

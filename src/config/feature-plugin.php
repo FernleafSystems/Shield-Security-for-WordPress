@@ -368,6 +368,13 @@
       "default":      0
     },
     {
+      "key":          "activated_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "integer",
+      "default":      0
+    },
+    {
       "key":          "importexport_secretkey_expires_at",
       "section":      "section_non_ui",
       "transferable": false,

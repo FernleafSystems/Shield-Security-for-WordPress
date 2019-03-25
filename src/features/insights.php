@@ -4,6 +4,15 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
+		$oP = $this->getCon()->getModule( 'plugin' );
+		$nActivatedAt = $oP->getActivatedAt();
+		if ( $nActivatedAt > 0 && Services::Request()->ts() - $nActivatedAt < 5 ) {
+			Services::Response()->redirect( $this->getUrl_AdminPage() );
+		}
+	}
+
 	/**
 	 * @param array $aData
 	 */

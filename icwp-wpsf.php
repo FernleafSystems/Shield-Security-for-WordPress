@@ -53,3 +53,15 @@ function icwp_wpsf_init() {
 	$sRootFile = __FILE__;
 	require_once( dirname( __FILE__ ).'/init.php' );
 }
+
+function icwp_wpsf_onactivate() {
+	icwp_wpsf_init();
+	if ( class_exists( 'ICWP_WPSF_Plugin_Controller' ) ) {
+		try {
+			ICWP_WPSF_Plugin_Controller::GetInstance()->onWpActivatePlugin();
+		}
+		catch ( Exception $oE ) {
+		}
+	}
+}
+register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
