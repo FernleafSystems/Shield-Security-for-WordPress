@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.1
-Stable tag: 7.2.2
+Stable tag: 7.2.3
 
 All-In-One protection against hackers and bot attacks. Easy to use Scanners, 2-Factor Authentication, login protection, auto IP blocker, and so much more...
 
@@ -362,16 +362,17 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.2.2 - Current Release =
+= 7.2.3 - Current Release =
 *Released: 25th March, 2019* - [Release Notes](https://icwp.io/ep)
 
-* **(v.2)**  FIX:		Unable to turn off the Abandoned Plugin scanner.
-* **(v.2)**  FIX:		Fix bug with some DNS lookup failures for some ISPs.
-* **(v.2)**  FIX:		Fix display notice for 'disallow file editing' setting when IP is whitelisted.
+* **(v.3)**  FIX:		Unable to turn off the Abandoned Plugin scanner.
+* **(v.3)**  FIX:		Fix bug with some DNS lookup failures for some ISPs.
+* **(v.3)**  FIX:		Fix display notice for 'disallow file editing' setting when IP is whitelisted.
 
 = 7.2 - Series =
 *Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
 
+* **(v.2)**  SKIPPED:	with error.
 * **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
 * **(v.1)**  FIX:		Fix PHP warning notice on login page.
 * **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
