@@ -211,14 +211,35 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param bool $bBase64Encoded
+	 * @param string $sEncoding
 	 * @return array
 	 */
-	protected function getAjaxFormParams( $bBase64Encoded = false ) {
+	protected function getAjaxFormParams( $sEncoding = 'none' ) {
+		$oReq = Services::Request();
 		$aFormParams = [];
-		$sRaw = Services::Request()->post( 'form_params', '' );
+		$sRaw = $oReq->post( 'form_params', '' );
 		if ( !empty( $sRaw ) ) {
-			parse_str( ( $bBase64Encoded ? base64_decode( $sRaw ) : $sRaw ), $aFormParams );
+
+			$sMaybeEncoding = $oReq->post( 'enc_params' );
+			if ( in_array( $sMaybeEncoding, [ 'none', 'lz-string', 'b64' ] ) ) {
+				$sEncoding = $sMaybeEncoding;
+			}
+
+			switch ( $sEncoding ) {
+				case 'lz-string':
+					$sRaw = \LZCompressor\LZString::decompress( base64_decode( $sRaw ) );
+					break;
+
+				case 'b64':
+					$sRaw = base64_decode( $sRaw );
+					break;
+
+				case 'none':
+				default:
+					break;
+			}
+
+			parse_str( $sRaw, $aFormParams );
 		}
 		return $aFormParams;
 	}
@@ -1238,7 +1259,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @throws \Exception
 	 */
 	private function doSaveStandardOptions() {
-		$aForm = $this->getAjaxFormParams( true );
+		$aForm = $this->getAjaxFormParams( 'b64' ); // standard options use b64 and failover to lz-string
 		if ( empty( $aForm[ 'plugin_form_submit' ] ) || $aForm[ 'plugin_form_submit' ] !== 'Y' ) {
 			throw new \Exception( 'Not a standard plugin options form submission' );
 		}

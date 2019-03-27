@@ -49,6 +49,8 @@
         "bootstrap4.bundle.min",
         "jquery",
         "plugin",
+        "base64.min",
+        "lz-string.min",
         "featherlight",
         "jquery.fileDownload"
       ]
