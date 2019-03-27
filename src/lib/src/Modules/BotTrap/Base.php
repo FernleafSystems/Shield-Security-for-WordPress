@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -11,16 +10,7 @@ abstract class Base {
 		Shield\Modules\ModConsumer;
 
 	public function run() {
-		add_action( 'init', [ $this, 'onWpInit' ] );
-	}
-
-	public function onWpInit() {
-		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-			$this->process();
-		}
-	}
-
-	protected function process() {
+		$this->process();
 	}
 
 	protected function doTransgression() {
@@ -29,6 +19,8 @@ abstract class Base {
 		$this->isTransgression() ? $oFO->setIpTransgressed() : $oFO->setIpBlocked();
 		$this->writeAudit();
 	}
+
+	abstract protected function process();
 
 	/**
 	 * @return bool

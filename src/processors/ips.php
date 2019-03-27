@@ -39,21 +39,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
-		add_action( 'template_redirect', array( $this, 'doTrack404' ) );
-	}
-
-	public function doTrack404() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->is404Tracking() && is_404() && !$oFO->isVerifiedBot() ) {
-			if ( $oFO->getOptTracking404() == 'assign-transgression' ) {
-				$oFO->setIpTransgressed(); // We now black mark this IP
-			}
-			$this->addToAuditEntry(
-				sprintf( _wpsf__( '404 detected at "%s"' ), $this->loadRequest()->getPath() ),
-				2, 'request_tracking_404'
-			);
-		}
 	}
 
 	/**
