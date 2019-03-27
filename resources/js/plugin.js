@@ -111,10 +111,19 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		} );
 
 		if ( $bPasswordsReady ) {
+			/**
+			 * First try with base64 and failover to lz-string upon abject failure.
+			 * This works around mod_security rules that even unpack b64 encoded params and look
+			 * for patterns within them.
+			 */
 			var aReq = jQuery.extend(
 				icwp_wpsf_vars_base.ajax.mod_options,
-				{ 'form_params': btoa( $oForm.serialize() ) }
+				{
+					'form_params': Base64.encode( $oForm.serialize() ),
+					'enc_params': 'b64'
+				}
 			);
+
 			jQuery.post( ajaxurl, aReq,
 				function ( oResponse ) {
 					var sMessage;
@@ -127,6 +136,30 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 					}
 					iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
 					// iCWP_WPSF_Growl.showMessage( sMessage, oResponse.success );
+				}
+			).fail(
+				function () {
+					iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
+					aReq = jQuery.extend(
+						icwp_wpsf_vars_base.ajax.mod_options,
+						{
+							'form_params': Base64.encode( LZString.compress( $oForm.serialize() ) ),
+							'enc_params': 'lz-string'
+						}
+					);
+					jQuery.post( ajaxurl, aReq,
+						function ( oResponse ) {
+							var sMessage;
+							if ( oResponse === null || typeof oResponse.data === 'undefined'
+								|| typeof oResponse.data.message === 'undefined' ) {
+								sMessage = oResponse.success ? 'Success' : 'Failure';
+							}
+							else {
+								sMessage = oResponse.data.message;
+							}
+							iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
+						}
+					)
 				}
 			).always( function () {
 					bRequestCurrentlyRunning = false;
