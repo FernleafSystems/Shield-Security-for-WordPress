@@ -337,7 +337,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					if ( $sNav == 'audit' ) {
 						$sUnique = $this->prefix( 'datepicker' );
 						wp_register_script(
-							$sUnique,
+							$sUnique, //TODO: use an includes services for CNDJS
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
 							array_unique( $aStdDeps ),
 							$oConn->getVersion(),

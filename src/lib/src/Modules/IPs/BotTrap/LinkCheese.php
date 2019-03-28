@@ -60,11 +60,11 @@ class LinkCheese extends Base {
 	}
 
 	public function insertMouseTrap() {
-		$sId = 'V'.rand();
+		$sId = chr( rand( 97, 122 ) ).rand(1000,10000000);
 		echo sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
 			$sId, $this->buildTrapHref(), 'Click here to see something fantastic',
-			$sId, _wpsf__( 'Click to access the login or register cheese' )
+			$sId, 'Click to access the login or register cheese'
 		);
 	}
 
