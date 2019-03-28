@@ -459,8 +459,9 @@
         "load_priority": 11
       },
       {
-        "slug":        "bottrap",
-        "storage_key": "bottrap"
+        "slug":          "ips",
+        "storage_key":   "ips",
+        "load_priority": 12
       },
       {
         "slug":        "hack_protect",
@@ -494,11 +495,6 @@
       {
         "slug":        "lockdown",
         "storage_key": "lockdown"
-      },
-      {
-        "slug":          "ips",
-        "storage_key":   "ips",
-        "load_priority": 12
       },
       {
         "slug":          "statistics",

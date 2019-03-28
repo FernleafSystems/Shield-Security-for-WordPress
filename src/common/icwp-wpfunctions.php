@@ -902,7 +902,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 
 		add_action( 'shutdown', function () {
 			// WP Fastest Cache
-			if ( $GLOBALS[ 'wp_fastest_cache' ] instanceof \WpFastestCache
+			if ( isset( $GLOBALS[ 'wp_fastest_cache' ] ) &&
+				 $GLOBALS[ 'wp_fastest_cache' ] instanceof \WpFastestCache
 				 && method_exists( $GLOBALS[ 'wp_fastest_cache' ], 'singleDeleteCache' ) ) {
 				$nPostId = $this->getCurrentPostId();
 				if ( $nPostId > 0 ) {
@@ -926,8 +927,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
 	 * @return string[]
+	 * @deprecated
 	 */
 	public
 	function getCoreChecksums() {

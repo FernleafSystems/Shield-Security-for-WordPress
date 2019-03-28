@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
 
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,7 +15,7 @@ class Detect404 extends Base {
 	}
 
 	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isTransgression404();
 	}

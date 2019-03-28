@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
@@ -38,12 +39,50 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'doBlackMarkCurrentVisitor' ) );
 		}
 
-		add_filter( 'authenticate', array( $this, 'addLoginFailedWarningMessage' ), 10000, 1 );
+		add_filter( 'authenticate', [ $this, 'addLoginFailedWarningMessage' ], 10000, 1 );
+	}
+
+	public function onWpInit() {
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+
+		if ( $oFO->isAutoBlackListFeatureEnabled() && !Services::WpUsers()->isUserLoggedIn() ) {
+			if ( $oFO->isEnabledXmlRpcDetect() ) {
+				( new BotTrap\DetectXmlRpc() )
+					->setMod( $oFO )
+					->run();
+			}
+			if ( $oFO->isEnabled404() ) {
+				( new BotTrap\Detect404() )
+					->setMod( $oFO )
+					->run();
+			}
+			if ( $oFO->isEnabledFailedLogins() ) {
+				( new BotTrap\FailedAuthenticate() )
+					->setMod( $oFO )
+					->run();
+			}
+			if ( $oFO->isEnabledInvalidUsernames() ) {
+				( new BotTrap\InvalidUsername() )
+					->setMod( $oFO )
+					->run();
+			}
+			if ( $oFO->isEnabledFakeWebCrawler() ) {
+				( new BotTrap\FakeWebCrawler() )
+					->setMod( $oFO )
+					->run();
+			}
+			if ( $oFO->isEnabledLinkCheese() ) {
+				( new BotTrap\LinkCheese() )
+					->setMod( $oFO )
+					->run();
+			}
+		}
 	}
 
 	/**
-	 * @param WP_User|WP_Error $oUserOrError
-	 * @return WP_User|WP_Error
+	 * @param \WP_User|\WP_Error $oUserOrError
+	 * @return \WP_User|\WP_Error
 	 */
 	public function addLoginFailedWarningMessage( $oUserOrError ) {
 		if ( $this->loadWp()->isRequestUserLogin() && is_wp_error( $oUserOrError ) ) {
@@ -142,7 +181,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$oFO->setIpTransgressed(); // We now black mark this IP
 
 			if ( !is_wp_error( $oUserOrError ) ) {
-				$oUserOrError = new WP_Error();
+				$oUserOrError = new \WP_Error();
 			}
 			$oUserOrError->add( 'wpsf-autoblacklist', $this->getTextOfRemainingTransgressions() );
 		}
@@ -259,7 +298,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			/** @var IPs\Delete $oDel */
 			$oDel = $this->getDbHandler()->getQueryDeleter();
 			$oDel->deleteIpFromBlacklists( $sIp );
-			Services::WpGeneral()->redirectToHome();
+			Services::Response()->redirectToHome();
 		}
 
 		return false;

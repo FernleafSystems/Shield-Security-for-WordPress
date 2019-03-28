@@ -1,12 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
 
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class FakeWebCrawler
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\BotTrap
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap
  */
 class FakeWebCrawler extends Base {
 
@@ -23,7 +23,7 @@ class FakeWebCrawler extends Base {
 	 * @return bool
 	 */
 	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Bottrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isTransgressionFakeWebCrawler();
 	}
