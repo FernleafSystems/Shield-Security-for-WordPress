@@ -121,7 +121,7 @@
     },
     {
       "key":         "rt_file_wpconfig",
-      "section":     "section_realtime",
+      "section":     "section_non_ui",
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
