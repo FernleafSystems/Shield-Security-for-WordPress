@@ -34,7 +34,7 @@ class FakeWebCrawler extends Base {
 	protected function writeAudit() {
 		$this->createNewAudit(
 			'wpsf',
-			sprintf( _wpsf__( 'Fake Web Crawler detected "%s"' ), Services::Request()->getPath() ),
+			sprintf( _wpsf__( 'Fake Web Crawler detected at "%s"' ), Services::Request()->getPath() ),
 			2, 'bottrap_fakecrawler'
 		);
 		return $this;

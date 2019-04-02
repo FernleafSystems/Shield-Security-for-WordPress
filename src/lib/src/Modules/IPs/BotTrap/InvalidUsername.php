@@ -6,15 +6,21 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvalidUsername extends Base {
 
+	/**
+	 * @var string
+	 */
+	private $user_login;
+
 	protected function process() {
 		add_filter( 'authenticate',
 			/**
 			 * @param null|\WP_User|\WP_Error $oUser
-			 * @param string                  $sUsernameEmail
+			 * @param string                  $sLogin
 			 * @return null|\WP_User|\WP_Error
 			 */
-			function ( $oUser, $sUsernameEmail ) {
-				if ( !empty( $sUsernameEmail ) && !Services::WpUsers()->exists( $sUsernameEmail ) ) {
+			function ( $oUser, $sLogin ) {
+				if ( !empty( $sLogin ) && !Services::WpUsers()->exists( $sLogin ) ) {
+					$this->user_login = Services::Data()->validEmail( $sLogin ) ? $sLogin : sanitize_user( $sLogin );
 					$this->doTransgression();
 				}
 				return $oUser;
@@ -37,7 +43,7 @@ class InvalidUsername extends Base {
 	protected function writeAudit() {
 		$this->createNewAudit(
 			'wpsf',
-			sprintf( _wpsf__( 'Attempted login by invalid username "%s"' ), Services::Request()->getPath() ),
+			sprintf( _wpsf__( 'Attempted login by invalid username "%s"' ), $this->user_login ),
 			2, 'bottrap_invaliduser'
 		);
 		return $this;
