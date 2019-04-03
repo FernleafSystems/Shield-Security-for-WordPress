@@ -105,14 +105,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	/**
 	 * @return bool
 	 */
-	protected function getIfIpTransgressed() {
-		return apply_filters( $this->getMod()->prefix( 'ip_black_mark' ), false )
-			   || apply_filters( $this->getMod()->prefix( 'ip_block_it' ), false );
-	}
-
-	/**
-	 * @return bool
-	 */
 	protected function getIfLogRequest() {
 		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !$this->loadWp()->isCron();
 	}
@@ -289,5 +281,15 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	public function setRecaptchaToEnqueue() {
 		self::$bRecaptchaEnqueue = true;
 		return $this;
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	protected function getIfIpTransgressed() {
+		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		$oFO = $this->getMod();
+		return $oFO->getIfIpTransgressed();
 	}
 }

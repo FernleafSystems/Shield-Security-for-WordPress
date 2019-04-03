@@ -10,6 +10,8 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class FakeWebCrawler extends Base {
 
+	const OPT_KEY = 'track_fakewebcrawler';
+
 	protected function process() {
 		try {
 			$this->getIfVisitorIdentifiesAsCrawler(); // TEST this logic

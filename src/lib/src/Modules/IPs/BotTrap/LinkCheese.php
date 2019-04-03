@@ -12,6 +12,8 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class LinkCheese extends Base {
 
+	const OPT_KEY = 'track_linkcheese';
+
 	protected function process() {
 		add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
 		add_action( 'wp_footer', array( $this, 'insertMouseTrap' ), 0 );

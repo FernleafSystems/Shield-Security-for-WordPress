@@ -42,7 +42,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function getIfLogRequest() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getMod();
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 		$bLoggedIn = Services::WpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
 			   && !$this->getCon()->isPluginDeleting()
@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oSP = $this->loadServiceProviders();
 
 		$sIp = $this->ip();
-		$sAgent = (string)$this->loadRequest()->server( 'HTTP_USER_AGENT' );
+		$sAgent = (string)Services::Request()->getUserAgent();
 		return $oSP->isIp_GoogleBot( $sIp, $sAgent )
 			   || $oSP->isIp_BingBot( $sIp, $sAgent )
 			   || $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
@@ -113,14 +113,16 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oSP = $this->loadServiceProviders();
 
 		$sIp = $this->ip();
-		$sAgent = (string)$this->loadRequest()->server( 'HTTP_USER_AGENT' );
+		$sAgent = (string)Services::Request()->getUserAgent();
 		return $oSP->isIp_Statuscake( $sIp, $sAgent )
 			   || $oSP->isIp_UptimeRobot( $sIp, $sAgent )
 			   || $oSP->isIp_Pingdom( $sIp, $sAgent );
 	}
 
 	protected function logTraffic() {
-		$oReq = $this->loadRequest();
+		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		$oFO = $this->getMod();
+		$oReq = Services::Request();
 
 		// For multisites that are separated by sub-domains we also show the host.
 		$sLeadingPath = $this->loadWp()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
@@ -129,13 +131,13 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry = $this->getDbHandler()->getVo();
 
 		$oEntry->rid = $this->getCon()->getShortRequestId();
-		$oEntry->uid = $this->loadWpUsers()->getCurrentWpUserId();
+		$oEntry->uid = Services::WpUsers()->getCurrentWpUserId();
 		$oEntry->ip = inet_pton( $this->ip() );
 		$oEntry->verb = $oReq->getMethod();
 		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
 		$oEntry->ua = $oReq->getUserAgent();
-		$oEntry->trans = $this->getIfIpTransgressed() ? 1 : 0;
+		$oEntry->trans = $oFO->getIfIpTransgressed() ? 1 : 0;
 
 		$this->getDbHandler()
 			 ->getQueryInserter()

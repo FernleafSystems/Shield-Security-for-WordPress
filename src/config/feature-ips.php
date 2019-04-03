@@ -204,8 +204,12 @@
           "text":      "Disabled"
         },
         {
-          "value_key": "transgression",
+          "value_key": "transgression-single",
           "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
         },
         {
           "value_key": "block",
@@ -219,7 +223,7 @@
       "description":   "Detect When A Visitor Browses To A Non-Existent Page."
     },
     {
-      "key":           "link_cheese",
+      "key":           "track_linkcheese",
       "section":       "section_probes",
       "premium":       true,
       "default":       "disabled",
@@ -230,8 +234,12 @@
           "text":      "Disabled"
         },
         {
-          "value_key": "transgression",
+          "value_key": "transgression-single",
           "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
         },
         {
           "value_key": "block",
@@ -245,7 +253,7 @@
       "description":   "Detect A Bot That Follows A 'no-follow' Link."
     },
     {
-      "key":           "xmlrpc",
+      "key":           "track_xmlrpc",
       "section":       "section_probes",
       "default":       "disabled",
       "premium":       true,
@@ -256,8 +264,12 @@
           "text":      "Disabled"
         },
         {
-          "value_key": "transgression",
+          "value_key": "transgression-single",
           "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
         },
         {
           "value_key": "block",
@@ -271,7 +283,7 @@
       "description":   "If you don't use XML-RPC, why would anyone access it?"
     },
     {
-      "key":           "failed_login",
+      "key":           "track_loginfailed",
       "section":       "section_logins",
       "default":       "transgression",
       "type":          "select",
@@ -281,8 +293,12 @@
           "text":      "Disabled"
         },
         {
-          "value_key": "transgression",
+          "value_key": "transgression-single",
           "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
         },
         {
           "value_key": "block",
@@ -296,7 +312,7 @@
       "description":   "Penalise a visitor who fails to login using a valid username."
     },
     {
-      "key":           "invalid_username",
+      "key":           "track_logininvalid",
       "section":       "section_logins",
       "premium":       true,
       "default":       "disabled",
@@ -307,8 +323,12 @@
           "text":      "Disabled"
         },
         {
-          "value_key": "transgression",
+          "value_key": "transgression-single",
           "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
         },
         {
           "value_key": "block",
@@ -322,7 +342,7 @@
       "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
     },
     {
-      "key":           "fake_webcrawler",
+      "key":           "track_fakewebcrawler",
       "section":       "section_behaviours",
       "premium":       true,
       "default":       "disabled",
@@ -333,8 +353,12 @@
           "text":      "Disabled"
         },
         {
-          "value_key": "transgression",
+          "value_key": "transgression-single",
           "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
         },
         {
           "value_key": "block",

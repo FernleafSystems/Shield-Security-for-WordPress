@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class FailedAuthenticate extends Base {
 
+	const OPT_KEY = 'track_loginfailed';
+
 	/**
 	 * @var string
 	 */

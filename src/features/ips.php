@@ -9,6 +9,12 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
 
+	protected function updateHandler() {
+		if ( $this->isOpt( 'track_404', 'assign-transgression' ) ) {
+			$this->setOpt( 'track_404', 'transgression' ); // fix for older options values
+		}
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -260,44 +266,41 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return bool
 	 */
 	public function isEnabledFakeWebCrawler() {
-		return $this->isSelectOptionEnabled( 'fake_webcrawler' );
+		return $this->isSelectOptionEnabled( 'track_fakewebcrawler' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabledInvalidUsernames() {
-		return $this->isSelectOptionEnabled( 'invalid_username' );
+		return $this->isSelectOptionEnabled( 'track_logininvalid' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabledFailedLogins() {
-		return $this->isSelectOptionEnabled( 'failed_login' );
+		return $this->isSelectOptionEnabled( 'track_loginfailed' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabledLinkCheese() {
-		return $this->isSelectOptionEnabled( 'link_cheese' );
+		return $this->isSelectOptionEnabled( 'track_linkcheese' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabledXmlRpcDetect() {
-		return $this->isSelectOptionEnabled( 'xmlrpc' );
+		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isTransgression404() {
-		if ( $this->isOpt( 'track_404', 'assign-transgression' ) ) {
-			$this->setOpt( 'track_404', 'transgression' ); // fix for older options values
-		}
 		return $this->isSelectOptionTransgression( 'track_404' );
 	}
 
@@ -305,43 +308,51 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return bool
 	 */
 	public function isTransgressionLinkCheese() {
-		return $this->isSelectOptionTransgression( 'link_cheese' );
+		return $this->isSelectOptionTransgression( 'track_linkcheese' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isTransgressionInvalidUsernames() {
-		return $this->isSelectOptionTransgression( 'invalid_username' );
+		return $this->isSelectOptionTransgression( 'track_logininvalid' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isTransgressionFailedLogins() {
-		return $this->isSelectOptionTransgression( 'failed_login' );
+		return $this->isSelectOptionTransgression( 'track_loginfailed' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isTransgressionFakeWebCrawler() {
-		return $this->isSelectOptionTransgression( 'fake_webcrawler' );
+		return $this->isSelectOptionTransgression( 'track_fakewebcrawler' );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isTransgressionXmlRpc() {
-		return $this->isSelectOptionTransgression( 'xmlrpc' );
+		return $this->isSelectOptionTransgression( 'track_xmlrpc' );
 	}
 
 	/**
 	 * @param string $sOptionKey
 	 * @return bool
 	 */
-	protected function isSelectOptionTransgression( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'transgression' );
+	private function isSelectOptionTransgression( $sOptionKey ) {
+		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
+	public function isSelectOptionDoubleTransgression( $sOptionKey ) {
+		return $this->isOpt( $sOptionKey, 'transgression-double' );
 	}
 
 	/**
@@ -351,34 +362,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function isSelectOptionEnabled( $sOptionKey ) {
 		$bOptPrem = $this->getOptionsVo()->isOptPremium( $sOptionKey );
 		return ( !$bOptPrem || $this->getCon()->isPremiumActive() ) && !$this->isOpt( $sOptionKey, 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	private function getMouseTrapResponseType() {
-		return $this->getOpt( 'mousetrap_bot_response' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMouseTrapEnabled() {
-		return $this->isPremium() && ( $this->getMouseTrapResponseType() != 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMouseTrayBlock() {
-		return $this->getMouseTrapResponseType() === 'block';
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMouseTrapTransgression() {
-		return $this->getMouseTrapResponseType() === 'transgression';
 	}
 
 	/**
@@ -579,7 +562,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 								.'<br/>'._wpsf__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s." );
 				break;
 
-			case 'xmlrpc' :
+			case 'track_xmlrpc' :
 				$sName = _wpsf__( 'XML-RPC Access' );
 				$sSummary = _wpsf__( 'Identify A Bot When It Accesses XML-RPC' );
 				$sDescription = _wpsf__( "If you don't use XML-RPC, there's no reason anything should be accessing it." )
@@ -587,27 +570,27 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 								.'<br/>'._wpsf__( "We recommend transgressions here in-case of blocking valid request unless you're sure." );
 				break;
 
-			case 'link_cheese' :
+			case 'track_linkcheese' :
 				$sName = _wpsf__( 'Link Cheese' );
 				$sSummary = _wpsf__( 'Tempt A Bot With A Fake Link To Follow' );
 				$sDescription = _wpsf__( "Detect a bot when it follows a fake 'no-follow' link." )
 								.'<br/>'._wpsf__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives." );
 				break;
 
-			case 'invalid_username' :
+			case 'track_logininvalid' :
 				$sName = _wpsf__( 'Invalid Usernames' );
 				$sSummary = _wpsf__( "Detect Attempted Logins With Usernames That Don't Exist" );
 				$sDescription = _wpsf__( "Identify a Bot when it tries to login with a non-existent username." )
 								.'<br/>'._wpsf__( "This includes the default 'admin' if you've removed that account." );
 				break;
 
-			case 'failed_login' :
+			case 'track_loginfailed' :
 				$sName = _wpsf__( 'Failed Login' );
 				$sSummary = _wpsf__( 'Detect Failed Login Attempts Using Valid Usernames' );
 				$sDescription = _wpsf__( "Penalise a visitor when they try to login using a valid username, but it fails." );
 				break;
 
-			case 'fake_webcrawler' :
+			case 'track_fakewebcrawler' :
 				$sName = _wpsf__( 'Fake Web Crawler' );
 				$sSummary = _wpsf__( 'Detect Fake Search Engine Crawlers' );
 				$sDescription = _wpsf__( "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake." );

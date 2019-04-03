@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvalidUsername extends Base {
 
+	const OPT_KEY = 'track_logininvalid';
+
 	/**
 	 * @var string
 	 */

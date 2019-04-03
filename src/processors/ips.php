@@ -374,7 +374,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isAutoBlackListFeatureEnabled() && !$this->getCon()->isPluginDeleting()
-			 && $this->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
+			 && $oFO->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
 
 			$this->processTransgression();
 		}
@@ -395,8 +395,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$nLimit = $oFO->getOptTransgressionLimit();
 			$nCurrentTrans = $oBlackIp->transgressions;
 			// At this stage we know it's a transgression. But is it an outright block?
-			$bBlock = apply_filters( $oFO->prefix( 'ip_block_it' ), false ) || ( $nLimit - $nCurrentTrans == 1 );
-			$nToIncrement = $bBlock ? ( $nLimit - $nCurrentTrans ) : 1;
+			$bBlock = ( $oFO->getIpAction() == 'block' ) || ( $nLimit - $nCurrentTrans == 1 );
+			$nToIncrement = $bBlock ? ( $nLimit - $nCurrentTrans ) : $oFO->getIpAction();
 
 			/** @var IPs\Update $oUp */
 			$oUp = $this->getDbHandler()->getQueryUpdater();

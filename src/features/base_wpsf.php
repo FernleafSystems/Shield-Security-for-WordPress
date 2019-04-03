@@ -15,6 +15,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	static protected $bIsVerifiedBot;
 
 	/**
+	 * @var string
+	 */
+	static private $mIpAction;
+
+	/**
 	 * @return ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
@@ -374,20 +379,49 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getIfIpTransgressed() {
+		$mAction = $this->getIpAction();
+		return !empty( $mAction ) &&
+			   ( ( is_numeric( $mAction ) && $mAction > 0 ) || in_array( $mAction, [ 'block' ] ) );
+	}
+
+	/**
+	 * @return int|string|null
+	 */
+	public function getIpAction() {
+		return self::$mIpAction;
+	}
+
+	/**
 	 * Used to mark an IP address for immediate block
 	 * @return $this
 	 */
 	public function setIpBlocked() {
-		add_filter( $this->prefix( 'ip_block_it' ), '__return_true' );
-		return $this;
+		return $this->setIpAction( 'block' );
 	}
 
 	/**
 	 * Used to mark an IP address for transgression/black-mark
+	 * @param int $nIncrementCount
 	 * @return $this
 	 */
-	public function setIpTransgressed() {
-		add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
+	public function setIpTransgressed( $nIncrementCount = 1 ) {
+		return $this->setIpAction( $nIncrementCount );
+	}
+
+	/**
+	 * @param string|int $mNewAction
+	 * @return $this
+	 */
+	private function setIpAction( $mNewAction ) {
+		if ( empty( self::$mIpAction ) || ( is_numeric( self::$mIpAction ) && $mNewAction > self::$mIpAction ) ) {
+			self::$mIpAction = $mNewAction;
+		}
+		else if ( in_array( $mNewAction, [ 'block' ] ) ) {
+			self::$mIpAction = $mNewAction;
+		}
 		return $this;
 	}
 }

@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class DetectXmlRpc extends Base {
 
+	const OPT_KEY = 'track_xmlrpc';
+
 	protected function process() {
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST
 			 || preg_match( '#/xmlrpc\.php#', Services::Request()->getPath() ) ) {
