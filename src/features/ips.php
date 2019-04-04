@@ -258,92 +258,50 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	public function isEnabled404() {
+	public function isEnabledTrack404() {
 		return $this->isSelectOptionEnabled( 'track_404' );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isEnabledFakeWebCrawler() {
+	public function isEnabledTrackFakeWebCrawler() {
 		return $this->isSelectOptionEnabled( 'track_fakewebcrawler' );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isEnabledInvalidUsernames() {
+	public function isEnabledTrackLoginInvalid() {
 		return $this->isSelectOptionEnabled( 'track_logininvalid' );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isEnabledFailedLogins() {
+	public function isEnabledTrackLoginFailed() {
 		return $this->isSelectOptionEnabled( 'track_loginfailed' );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isEnabledLinkCheese() {
+	public function isEnabledTrackLinkCheese() {
 		return $this->isSelectOptionEnabled( 'track_linkcheese' );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isEnabledXmlRpcDetect() {
+	public function isEnabledTrackXmlRpc() {
 		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTransgression404() {
-		return $this->isSelectOptionTransgression( 'track_404' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTransgressionLinkCheese() {
-		return $this->isSelectOptionTransgression( 'track_linkcheese' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTransgressionInvalidUsernames() {
-		return $this->isSelectOptionTransgression( 'track_logininvalid' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTransgressionFailedLogins() {
-		return $this->isSelectOptionTransgression( 'track_loginfailed' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTransgressionFakeWebCrawler() {
-		return $this->isSelectOptionTransgression( 'track_fakewebcrawler' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTransgressionXmlRpc() {
-		return $this->isSelectOptionTransgression( 'track_xmlrpc' );
 	}
 
 	/**
 	 * @param string $sOptionKey
 	 * @return bool
 	 */
-	private function isSelectOptionTransgression( $sOptionKey ) {
+	public function isTrackOptTransgression( $sOptionKey ) {
 		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
 	}
 
@@ -351,7 +309,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @param string $sOptionKey
 	 * @return bool
 	 */
-	public function isSelectOptionDoubleTransgression( $sOptionKey ) {
+	public function isTrackOptDoubleTransgression( $sOptionKey ) {
 		return $this->isOpt( $sOptionKey, 'transgression-double' );
 	}
 
@@ -594,6 +552,12 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$sName = _wpsf__( 'Fake Web Crawler' );
 				$sSummary = _wpsf__( 'Detect Fake Search Engine Crawlers' );
 				$sDescription = _wpsf__( "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake." );
+				break;
+
+			case 'track_useragent' :
+				$sName = _wpsf__( 'Empty User Agents' );
+				$sSummary = _wpsf__( 'Detect Requests With Empty User Agents' );
+				$sDescription = _wpsf__( "Identify a request as a bot if the user agent is not provided." );
 				break;
 
 			default:

@@ -1,7 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
@@ -47,33 +47,33 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isAutoBlackListFeatureEnabled() && !Services::WpUsers()->isUserLoggedIn() ) {
-			if ( $oFO->isEnabledXmlRpcDetect() ) {
-				( new BotTrap\DetectXmlRpc() )
+			if ( $oFO->isEnabledTrackXmlRpc() ) {
+				( new BotTrack\TrackXmlRpc() )
 					->setMod( $oFO )
 					->run();
 			}
-			if ( $oFO->isEnabled404() ) {
-				( new BotTrap\Detect404() )
+			if ( $oFO->isEnabledTrack404() ) {
+				( new BotTrack\Track404() )
 					->setMod( $oFO )
 					->run();
 			}
-			if ( $oFO->isEnabledFailedLogins() ) {
-				( new BotTrap\FailedAuthenticate() )
+			if ( $oFO->isEnabledTrackLoginFailed() ) {
+				( new BotTrack\TrackLoginFailed() )
 					->setMod( $oFO )
 					->run();
 			}
-			if ( $oFO->isEnabledInvalidUsernames() ) {
-				( new BotTrap\InvalidUsername() )
+			if ( $oFO->isEnabledTrackLoginInvalid() ) {
+				( new BotTrack\TrackLoginInvalid() )
 					->setMod( $oFO )
 					->run();
 			}
-			if ( $oFO->isEnabledFakeWebCrawler() ) {
-				( new BotTrap\FakeWebCrawler() )
+			if ( $oFO->isEnabledTrackFakeWebCrawler() ) {
+				( new BotTrack\TrackFakeWebCrawler() )
 					->setMod( $oFO )
 					->run();
 			}
-			if ( $oFO->isEnabledLinkCheese() ) {
-				( new BotTrap\LinkCheese() )
+			if ( $oFO->isEnabledTrackLinkCheese() ) {
+				( new BotTrack\TrackLinkCheese() )
 					->setMod( $oFO )
 					->run();
 			}
@@ -119,11 +119,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array
 	 */
 	public function getAllValidLists() {
-		return array(
+		return [
 			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
 			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE,
 			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
-		);
+		];
 	}
 
 	/**
@@ -145,48 +145,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$aMessages[] = sprintf( '<p>%s</p>', $this->getTextOfRemainingTransgressions() );
 		return $aMessages;
-	}
-
-	/**
-	 * @param WP_User|WP_Error $oUserOrError
-	 * @param string           $sUsername
-	 * @return WP_User|WP_Error
-	 */
-	public function verifyIfAuthenticationValid( $oUserOrError, $sUsername ) {
-		// Don't concern yourself if visitor is whitelisted
-		if ( $this->isCurrentIpWhitelisted() ) {
-			return $oUserOrError;
-		}
-
-		$bBlackMark = false;
-		$oWp = $this->loadWp();
-		if ( $oWp->isRequestUserLogin() ) {
-
-			// If there's an attempt to login with a non-existent username
-			if ( !empty( $sUsername ) && !in_array( $sUsername, $oWp->getAllUserLoginUsernames() ) ) {
-				$bBlackMark = true;
-			}
-			else {
-				// If the login failed.
-				$bUserLoginSuccess = is_object( $oUserOrError ) && ( $oUserOrError instanceof WP_User );
-				if ( !$bUserLoginSuccess ) {
-					$bBlackMark = true;
-				}
-			}
-		}
-
-		if ( $bBlackMark ) {
-			/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-			$oFO = $this->getMod();
-			$oFO->setIpTransgressed(); // We now black mark this IP
-
-			if ( !is_wp_error( $oUserOrError ) ) {
-				$oUserOrError = new \WP_Error();
-			}
-			$oUserOrError->add( 'wpsf-autoblacklist', $this->getTextOfRemainingTransgressions() );
-		}
-
-		return $oUserOrError;
 	}
 
 	/**

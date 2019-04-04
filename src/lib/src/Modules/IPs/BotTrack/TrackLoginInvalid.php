@@ -1,10 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class InvalidUsername extends Base {
+class TrackLoginInvalid extends Base {
 
 	const OPT_KEY = 'track_logininvalid';
 
@@ -31,23 +31,9 @@ class InvalidUsername extends Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isTransgressionInvalidUsernames();
-	}
-
-	/**
 	 * @return $this
 	 */
-	protected function writeAudit() {
-		$this->createNewAudit(
-			'wpsf',
-			sprintf( _wpsf__( 'Attempted login by invalid username "%s"' ), $this->user_login ),
-			2, 'bottrap_invaliduser'
-		);
-		return $this;
+	protected function getAuditMsg() {
+		return sprintf( _wpsf__( 'Attempted login with invalid user "%s"' ), $this->user_login );
 	}
 }

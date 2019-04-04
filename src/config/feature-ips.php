@@ -372,6 +372,36 @@
       "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
     },
     {
+      "key":           "track_useragent",
+      "section":       "section_behaviours",
+      "premium":       true,
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Empty User Agents",
+      "summary":       "Detect Requests With Empty User Agents",
+      "description":   "Identify a request as a bot if the user agent is not provided."
+    },
+    {
       "key":         "text_remainingtrans",
       "section":     "section_user_messages",
       "sensitive":   true,

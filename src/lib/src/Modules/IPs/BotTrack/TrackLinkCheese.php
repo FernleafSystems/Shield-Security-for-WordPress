@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -8,9 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Works by inserting a random, nofollow link to the footer of the page and appending to robots.txt
  * Class LinkCheese
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack
  */
-class LinkCheese extends Base {
+class TrackLinkCheese extends Base {
 
 	const OPT_KEY = 'track_linkcheese';
 
@@ -90,24 +90,10 @@ class LinkCheese extends Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isTransgressionLinkCheese();
-	}
-
-	/**
 	 * @return $this
 	 */
-	protected function writeAudit() {
-		$this->createNewAudit(
-			'wpsf',
-			sprintf( _wpsf__( 'Link cheese access detected at "%s"' ), Services::Request()->getPath() ),
-			2, 'bottrap_linkcheese'
-		);
-		return $this;
+	protected function getAuditMsg() {
+		return sprintf( _wpsf__( 'Link cheese access detected at "%s"' ), Services::Request()->getPath() );
 	}
 
 	/**

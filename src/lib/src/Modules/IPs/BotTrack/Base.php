@@ -1,8 +1,9 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -31,7 +32,11 @@ abstract class Base {
 	/**
 	 * @return bool
 	 */
-	abstract protected function isTransgression();
+	protected function isTransgression() {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+		return $oFO->isTrackOptTransgression( static::OPT_KEY );
+	}
 
 	/**
 	 * @return bool
@@ -39,11 +44,23 @@ abstract class Base {
 	protected function isDoubleTransgression() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		return $oFO->isSelectOptionDoubleTransgression( static::OPT_KEY );
+		return $oFO->isTrackOptDoubleTransgression( static::OPT_KEY );
 	}
 
 	/**
 	 * @return $this
 	 */
-	abstract protected function writeAudit();
+	protected function writeAudit() {
+		$this->createNewAudit(
+			'wpsf',
+			sprintf( _wpsf__( '404 detected at "%s"' ), Services::Request()->getPath() ),
+			2, 'bot'.static::OPT_KEY
+		);
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	abstract protected function getAuditMsg();
 }

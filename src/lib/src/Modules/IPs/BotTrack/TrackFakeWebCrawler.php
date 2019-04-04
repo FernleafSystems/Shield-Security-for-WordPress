@@ -1,14 +1,14 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * Class FakeWebCrawler
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrap
+ * Class TrackFakeWebCrawler
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack
  */
-class FakeWebCrawler extends Base {
+class TrackFakeWebCrawler extends Base {
 
 	const OPT_KEY = 'track_fakewebcrawler';
 
@@ -22,24 +22,10 @@ class FakeWebCrawler extends Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isTransgressionFakeWebCrawler();
-	}
-
-	/**
 	 * @return $this
 	 */
-	protected function writeAudit() {
-		$this->createNewAudit(
-			'wpsf',
-			sprintf( _wpsf__( 'Fake Web Crawler detected at "%s"' ), Services::Request()->getPath() ),
-			2, 'bottrap_fakecrawler'
-		);
-		return $this;
+	protected function getAuditMsg() {
+		return sprintf( _wpsf__( 'Fake Web Crawler detected at "%s"' ), Services::Request()->getPath() );
 	}
 
 	/**
