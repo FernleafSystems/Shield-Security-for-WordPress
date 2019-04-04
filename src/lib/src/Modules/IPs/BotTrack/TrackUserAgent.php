@@ -9,8 +9,7 @@ class TrackUserAgent extends Base {
 	const OPT_KEY = 'track_useragent';
 
 	protected function process() {
-		$sAgent = Services::Request()->getUserAgent();
-		if ( empty( $sAgent ) ) {
+		if ( strlen( Services::Request()->getUserAgent() ) === 0 ) {
 			$this->doTransgression();
 		}
 	}

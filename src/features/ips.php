@@ -343,6 +343,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				if ( !$this->isAutoBlackListFeatureEnabled() ) {
 					$aWarnings[] = _wpsf__( "Since the transgressions limit is set to 0, these options have no effect." );
 				}
+
+				if ( $sSection == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
+					$aWarnings[] = _wpsf__( "Your User Agent appears to be empty. We recommend not turning on this option." );
+				}
 				break;
 		}
 
@@ -557,7 +561,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'track_useragent' :
 				$sName = _wpsf__( 'Empty User Agents' );
 				$sSummary = _wpsf__( 'Detect Requests With Empty User Agents' );
-				$sDescription = _wpsf__( "Identify a request as a bot if the user agent is not provided." );
+				$sDescription = _wpsf__( "Identify a bot when the user agent is not provided." )
+								.'<br />'.sprintf( '%s: <code>%s</code>',
+						_wpsf__( 'Your user agent is' ), Services::Request()->getUserAgent() );
 				break;
 
 			default:
