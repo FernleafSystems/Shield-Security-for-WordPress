@@ -51,11 +51,7 @@ abstract class Base {
 	 * @return $this
 	 */
 	protected function writeAudit() {
-		$this->createNewAudit(
-			'wpsf',
-			sprintf( _wpsf__( '404 detected at "%s"' ), Services::Request()->getPath() ),
-			2, 'bot'.static::OPT_KEY
-		);
+		$this->createNewAudit( 'wpsf', $this->getAuditMsg(), 2, 'bot'.static::OPT_KEY );
 		return $this;
 	}
 
