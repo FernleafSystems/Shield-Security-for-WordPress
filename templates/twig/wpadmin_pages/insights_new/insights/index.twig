@@ -49,12 +49,25 @@
 				</div>
 			</div>
 		</div>
+		{% if flags.show_guided_tour %}
+			<a style="display: none;" class="btn btn-default"
+			   id="IntroVideo"
+			   href="https://player.vimeo.com/video/326357543"
+			   data-featherlight="iframe" data-featherlight-iframe-allowfullscreen="true"
+			   data-featherlight-iframe-width="1200"
+			   data-featherlight-iframe-height="675">&nbsp;</a>
+		{% endif %}
 	</div>
 	<script>
 		jQuery( '#collapseConfigSummary' ).on( 'shown.bs.collapse', function () {
 			jQuery( 'html, body' ).animate( {
 				scrollTop: jQuery( "#collapseConfigSummaryTitle" ).offset().top - 115
 			}, 750 );
-		} )
+		} );
+		{% if flags.show_guided_tour %}
+			window.onload = function () {
+				jQuery( '#IntroVideo' ).click();
+			};
+		{% endif %}
 	</script>
 {% endblock %}
