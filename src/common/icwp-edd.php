@@ -1,7 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
-use \FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Edd {
 

@@ -930,8 +930,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 * @deprecated
 	 */
-	public
-	function getCoreChecksums() {
+	public function getCoreChecksums() {
 		return \FernleafSystems\Wordpress\Services\Services::WpGeneral()->getCoreChecksums();
 	}
 }

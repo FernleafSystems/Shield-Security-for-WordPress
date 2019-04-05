@@ -95,11 +95,11 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	private function trackAssetsVersions() {
 		$aAssVers = $this->getTrackedAssetsVersions();
 
-		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		foreach ( array_keys( $oWpPlugins->getUpdates() ) as $sFile ) {
 			$aAssVers[ 'plugins' ][ $sFile ] = $oWpPlugins->getPluginAsVo( $sFile )->Version;
 		}
-		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();
+		$oWpThemes = Services::WpThemes();
 		foreach ( array_keys( $oWpThemes->getUpdates() ) as $sFile ) {
 			$aAssVers[ 'themes' ][ $sFile ] = $oWpThemes->getTheme( $sFile )->get( 'Version' );
 		}

@@ -333,7 +333,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardIpDetect() {
-		$oIps = \FernleafSystems\Wordpress\Services\Services::IP();
+		$oIps = Services::IP();
 		$sIp = Services::Request()->post( 'ip' );
 
 		$oResponse = new \FernleafSystems\Utilities\Response();

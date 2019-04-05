@@ -252,7 +252,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'active' => false
 		);
 
-		$oDp = \FernleafSystems\Wordpress\Services\Services::DataManipulation();
+		$oDp = Services::DataManipulation();
 		$aData = $oDp->mergeArraysRecursive(
 			$this->getBaseDisplayData( false ),
 			array(
@@ -260,7 +260,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'page_container' => 'page-insights page-'.$sNavSection
 				),
 				'flags'   => array(
-					'show_promo' => !$bIsPro
+					'show_promo'       => !$bIsPro,
+					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
 				),
 				'hrefs'   => array(
 					'go_pro'     => 'https://icwp.io/shieldgoprofeature',

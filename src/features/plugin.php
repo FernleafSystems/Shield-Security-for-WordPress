@@ -691,8 +691,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * Ensure we always a valid installation ID.
 	 *
-	 * @deprecated but still used because it aligns with stats collection
 	 * @return string
+	 * @deprecated but still used because it aligns with stats collection
 	 */
 	public function getPluginInstallationId() {
 		$sId = $this->getOpt( 'unique_installation_id', '' );
@@ -708,6 +708,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getActivatedAt() {
 		return (int)$this->getOpt( 'activated_at', 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getIfShowIntroVideo() {
+		$nNow = Services::Request()->ts();
+		return ( $nNow - $this->getActivatedAt() < 8 )
+			   && ( $nNow - $this->getInstallDate() < 15 );
 	}
 
 	/**
