@@ -240,7 +240,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sKey
-	 * @return ICWP_WPSF_Processor_Base|null
+	 * @return ICWP_WPSF_Processor_Base|mixed|null
 	 */
 	protected function getSubPro( $sKey ) {
 		$aProcessors = $this->getSubProcessors();

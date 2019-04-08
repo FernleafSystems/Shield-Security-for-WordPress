@@ -24,10 +24,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				 ->sendEmailVerifyCanSend();
 		}
 
-		if ( $this->getOpt( 'login_limit_interval' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
-		}
-
 		$aIds = $this->getAntiBotFormSelectors();
 		foreach ( $aIds as $nKey => $sId ) {
 			$sId = trim( strip_tags( $sId ) );
@@ -183,6 +179,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			return array_keys( $aTwoAuthRoles );
 		}
 		return $aTwoAuthRoles;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCooldownInterval() {
+		return (int)$this->getOpt( 'login_limit_interval' );
 	}
 
 	/**
@@ -392,7 +395,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isCooldownEnabled() {
-		return (int)$this->getOpt( 'login_limit_interval' ) > 0;
+		return $this->getCooldownInterval() > 0;
 	}
 
 	/**
@@ -583,7 +586,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	protected function ajaxExec_GenBackupCodes() {
 		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
 		$oPro = $this->loadProcessor();
-		$sPass = $oPro->getProcessorLoginIntent()
+		$sPass = $oPro->getSubProIntent()
 					  ->getProcessorBackupCodes()
 					  ->resetSecret( Services::WpUsers()->getCurrentWpUser() );
 
@@ -664,7 +667,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
 		$oPro = $this->loadProcessor();
-		$oPro->getProcessorLoginIntent()
+		$oPro->getSubProIntent()
 			 ->getProcessorBackupCodes()
 			 ->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
 		$this->setFlashAdminNotice( _wpsf__( 'Multi-factor login backup code has been removed from your profile' ) );

@@ -16,23 +16,23 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( $oFO->isCustomLoginPathEnabled() ) {
-			$this->getProcessorWpLogin()->run();
+			$this->getSubProRename()->run();
 		}
 
 		// Add GASP checking to the login form.
 		if ( $oFO->isEnabledGaspCheck() ) {
-			$this->getProcessorGasp()->run();
+			$this->getSubProGasp()->run();
 		}
 
 		if ( $oFO->isCooldownEnabled() && Services::Request()->isPost() ) {
-			$this->getProcessorCooldown()->run();
+			$this->getSubProCooldown()->run();
 		}
 
 		if ( $oFO->isGoogleRecaptchaEnabled() ) {
-			$this->getProcessorGoogleRecaptcha()->run();
+			$this->getSubProRecaptcha()->run();
 		}
 
-		$this->getProcessorLoginIntent()->run();
+		$this->getSubProIntent()->run();
 	}
 
 	/**
@@ -80,37 +80,50 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
+	 * @return array
 	 */
-	public function getProcessorLoginIntent() {
-		return new ICWP_WPSF_Processor_LoginProtect_Intent( $this->getMod() );
+	protected function getSubProMap() {
+		return [
+			'cooldown'   => 'ICWP_WPSF_Processor_LoginProtect_Cooldown',
+			'gasp'       => 'ICWP_WPSF_Processor_LoginProtect_Gasp',
+			'intent'     => 'ICWP_WPSF_Processor_LoginProtect_Intent',
+			'recaptcha'  => 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha',
+			'rename'     => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
+		];
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
-	protected function getProcessorCooldown() {
-		return new ICWP_WPSF_Processor_LoginProtect_Cooldown( $this->getMod() );
+	private function getSubProCooldown() {
+		return $this->getSubPro( 'cooldown' );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_Gasp
 	 */
-	protected function getProcessorGasp() {
-		return new ICWP_WPSF_Processor_LoginProtect_Gasp( $this->getMod() );
+	private function getSubProGasp() {
+		return $this->getSubPro( 'gasp' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
+	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
-	protected function getProcessorWpLogin() {
-		return new ICWP_WPSF_Processor_LoginProtect_WpLogin( $this->getMod() );
+	public function getSubProIntent() {
+		return $this->getSubPro( 'intent' );
 	}
 
 	/**
 	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
 	 */
-	protected function getProcessorGoogleRecaptcha() {
-		return new ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha( $this->getMod() );
+	private function getSubProRecaptcha() {
+		return $this->getSubPro( 'recaptcha' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
+	 */
+	private function getSubProRename() {
+		return $this->getSubPro( 'rename' );
 	}
 }
