@@ -416,10 +416,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return $this
 	 */
 	private function setIpAction( $mNewAction ) {
-		if ( empty( self::$mIpAction ) || ( is_numeric( self::$mIpAction ) && $mNewAction > self::$mIpAction ) ) {
+		if ( in_array( $mNewAction, [ 'block' ] ) ) {
 			self::$mIpAction = $mNewAction;
 		}
-		else if ( in_array( $mNewAction, [ 'block' ] ) ) {
+		else if ( empty( self::$mIpAction ) || ( is_numeric( self::$mIpAction ) && $mNewAction > self::$mIpAction ) ) {
 			self::$mIpAction = $mNewAction;
 		}
 		return $this;

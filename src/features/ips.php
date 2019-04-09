@@ -317,6 +317,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @param string $sOptionKey
 	 * @return bool
 	 */
+	public function isTrackOptLogOnly( $sOptionKey ) {
+		return $this->isOpt( $sOptionKey, 'log' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
 	protected function isSelectOptionEnabled( $sOptionKey ) {
 		$bOptPrem = $this->getOptionsVo()->isOptPremium( $sOptionKey );
 		return ( !$bOptPrem || $this->getCon()->isPremiumActive() ) && !$this->isOpt( $sOptionKey, 'disabled' );

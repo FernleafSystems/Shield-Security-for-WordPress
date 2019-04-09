@@ -17,7 +17,7 @@ class TrackLoginFailed extends Base {
 		add_filter( 'authenticate',
 			/**
 			 * @param null|\WP_User|\WP_Error $oUser
-			 * @param string                  $sUsernameEmail
+			 * @param string                  $sLogin
 			 * @param string                  $sPass
 			 * @return null|\WP_User|\WP_Error
 			 */

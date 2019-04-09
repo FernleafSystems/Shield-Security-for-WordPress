@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -18,33 +17,17 @@ abstract class Base {
 	protected function doTransgression() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		if ( $this->isTransgression() ) {
-			$oFO->setIpTransgressed( $this->isDoubleTransgression() ? 2 : 1 );
+
+		if ( $oFO->isTrackOptLogOnly( static::OPT_KEY ) ) {
+			// nothing as it's always logged
+		}
+		else if ( $oFO->isTrackOptTransgression( static::OPT_KEY ) ) {
+			$oFO->setIpTransgressed( $oFO->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1 );
 		}
 		else {
 			$oFO->setIpBlocked();
 		}
 		$this->writeAudit();
-	}
-
-	abstract protected function process();
-
-	/**
-	 * @return bool
-	 */
-	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isTrackOptTransgression( static::OPT_KEY );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isDoubleTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isTrackOptDoubleTransgression( static::OPT_KEY );
 	}
 
 	/**
@@ -54,6 +37,8 @@ abstract class Base {
 		$this->createNewAudit( 'wpsf', $this->getAuditMsg(), 2, 'bot'.static::OPT_KEY );
 		return $this;
 	}
+
+	abstract protected function process();
 
 	/**
 	 * @return $this

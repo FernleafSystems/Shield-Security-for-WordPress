@@ -196,12 +196,16 @@
       "key":           "track_404",
       "section":       "section_probes",
       "premium":       true,
-      "default":       "disabled",
+      "default":       "log",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
           "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -234,6 +238,10 @@
           "text":      "Disabled"
         },
         {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
           "value_key": "transgression-single",
           "text":      "Increment Transgression"
         },
@@ -255,13 +263,17 @@
     {
       "key":           "track_xmlrpc",
       "section":       "section_probes",
-      "default":       "disabled",
+      "default":       "log",
       "premium":       true,
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
           "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -285,12 +297,16 @@
     {
       "key":           "track_loginfailed",
       "section":       "section_logins",
-      "default":       "transgression",
+      "default":       "transgression-single",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
           "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -315,12 +331,16 @@
       "key":           "track_logininvalid",
       "section":       "section_logins",
       "premium":       true,
-      "default":       "disabled",
+      "default":       "log",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
           "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -345,12 +365,16 @@
       "key":           "track_fakewebcrawler",
       "section":       "section_behaviours",
       "premium":       true,
-      "default":       "disabled",
+      "default":       "log",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
           "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
         },
         {
           "value_key": "transgression-single",
@@ -375,12 +399,16 @@
       "key":           "track_useragent",
       "section":       "section_behaviours",
       "premium":       true,
-      "default":       "disabled",
+      "default":       "log",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
           "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
         },
         {
           "value_key": "transgression-single",
