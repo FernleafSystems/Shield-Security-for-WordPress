@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	 */
 	public function getAuthFactorsTracked() {
 		if ( !isset( $this->aFactorsTracked ) ) {
-			$this->aFactorsTracked = array();
+			$this->aFactorsTracked = [];
 		}
 		return $this->aFactorsTracked;
 	}
@@ -59,7 +59,7 @@ class ICWP_WPSF_Processor_LoginProtect_Track {
 	 */
 	public function getAuthFactorsToTrack() {
 		if ( !is_array( $this->aFactorsToTrack ) ) {
-			$this->aFactorsToTrack = array();
+			$this->aFactorsToTrack = [];
 		}
 		return array_unique( $this->aFactorsToTrack );
 	}

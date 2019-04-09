@@ -55,9 +55,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	protected function getGoogleRecaptchaConfig() {
-		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), array() );
+		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), [] );
 		if ( !is_array( $aConfig ) ) {
-			$aConfig = array();
+			$aConfig = [];
 		}
 		$aConfig = array_merge(
 			array(
@@ -302,7 +302,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return string[]
 	 */
 	protected function cleanStringArray( $aArray, $sPregReplacePattern ) {
-		$aCleaned = array();
+		$aCleaned = [];
 		if ( !is_array( $aArray ) ) {
 			return $aCleaned;
 		}
@@ -320,7 +320,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	public function getInsightsOpts() {
-		$aOpts = array();
+		$aOpts = [];
 		$oOpts = $this->getOptionsVo();
 		foreach ( $oOpts->getOptionsKeys() as $sOpt ) {
 			if ( strpos( $sOpt, 'insights_' ) === 0 ) {

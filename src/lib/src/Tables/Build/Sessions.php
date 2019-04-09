@@ -59,7 +59,7 @@ class Sessions extends BaseBuild {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
-		$aEntries = array();
+		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {

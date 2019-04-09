@@ -84,7 +84,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param array  $aMessage
 	 * @return boolean
 	 */
-	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = array() ) {
+	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) {
 		return $this->send(
 			$sAddress,
 			wp_specialchars_decode( sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sSubject ) ),

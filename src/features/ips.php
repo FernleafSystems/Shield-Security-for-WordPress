@@ -470,7 +470,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				list( $sTitle, $sTitleShort, $aSummary ) = $this->loadStrings_SectionTitlesDefaults( $aOptionsParams );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

@@ -16,7 +16,7 @@ class BuildHashesFromDir {
 	/**
 	 * @var string[]
 	 */
-	protected $aFileExts = array();
+	protected $aFileExts = [];
 
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
@@ -24,7 +24,7 @@ class BuildHashesFromDir {
 	 * @return string[]
 	 */
 	public function build( $sDir ) {
-		$aSnaps = array();
+		$aSnaps = [];
 		try {
 			$oDirIt = StandardDirectoryIterator::create( $sDir, $this->nDepth, $this->aFileExts );
 			foreach ( $oDirIt as $oFile ) {

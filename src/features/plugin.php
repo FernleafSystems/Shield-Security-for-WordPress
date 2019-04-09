@@ -315,7 +315,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_SendDeactivateSurvey() {
-		$aResults = array();
+		$aResults = [];
 		foreach ( $_POST as $sKey => $sValue ) {
 			if ( strpos( $sKey, 'reason_' ) === 0 ) {
 				$aResults[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
@@ -495,7 +495,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function getActivePluginFeatures() {
 		$aActiveFeatures = $this->getDef( 'active_plugin_features' );
 
-		$aPluginFeatures = array();
+		$aPluginFeatures = [];
 		if ( !empty( $aActiveFeatures ) && is_array( $aActiveFeatures ) ) {
 
 			foreach ( $aActiveFeatures as $nPosition => $aFeature ) {
@@ -783,8 +783,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string[]
 	 */
 	public function getImportExportWhitelist() {
-		$aWhitelist = $this->getOpt( 'importexport_whitelist', array() );
-		return is_array( $aWhitelist ) ? $aWhitelist : array();
+		$aWhitelist = $this->getOpt( 'importexport_whitelist', [] );
+		return is_array( $aWhitelist ) ? $aWhitelist : [];
 	}
 
 	/**
@@ -875,7 +875,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function cleanImportExportWhitelistUrls() {
 		$oDP = $this->loadDP();
 
-		$aCleaned = array();
+		$aCleaned = [];
 		$aWhitelistUrls = $this->getImportExportWhitelist();
 		foreach ( $aWhitelistUrls as $nKey => $sUrl ) {
 
@@ -942,8 +942,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
 
-		$aMap = array();
-		$aEmpties = array();
+		$aMap = [];
+		$aEmpties = [];
 		foreach ( $aValueOptions as $aOptionValue ) {
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
@@ -1073,7 +1073,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'title' => _wpsf__( 'General Settings' ),
 				'sub'   => sprintf( _wpsf__( 'General %s Settings' ), $this->getCon()->getHumanName() ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -1180,7 +1180,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	 * @return array[] - associative arrays where keys are $this->getStandardUserFields()
 	 */
 	public function getSnapshotUsers() {
-		return is_array( $this->getOption( 'snapshot_users' ) ) ? $this->getOption( 'snapshot_users' ) : array();
+		return is_array( $this->getOption( 'snapshot_users' ) ) ? $this->getOption( 'snapshot_users' ) : [];
 	}
 
 	/**
@@ -117,11 +117,11 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 
 		if ( $oFO->isIcUsersEnabled() && ( $bUpdate || !$this->hasSnapshotUsers() ) ) {
 
-			$aUsersToStore = array();
+			$aUsersToStore = [];
 			$aFields = $this->getStandardUserFields();
 			foreach ( $this->loadWpUsers()->getAllUsers() as $oUser ) {
 
-				$aUserData = array();
+				$aUserData = [];
 				foreach ( $aFields as $sField ) {
 					$aUserData[ $sField ] = $oUser->get( $sField );
 				}

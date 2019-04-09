@@ -185,6 +185,6 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'traffic_table_columns' );
-		return is_array( $aDef ) ? $aDef : array();
+		return is_array( $aDef ) ? $aDef : [];
 	}
 }

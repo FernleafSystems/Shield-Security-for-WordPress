@@ -52,7 +52,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array                       $aMod
 	 * @throws \Exception
 	 */
-	public function __construct( $oPluginController, $aMod = array() ) {
+	public function __construct( $oPluginController, $aMod = [] ) {
 		if ( empty( self::$oPluginController ) ) {
 			if ( !$oPluginController instanceof ICWP_WPSF_Plugin_Controller ) {
 				throw new \Exception( 'Plugin controller not supplied to Module' );
@@ -250,7 +250,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function fRegisterAdminNotices( $aAdminNotices ) {
 		if ( !is_array( $aAdminNotices ) ) {
-			$aAdminNotices = array();
+			$aAdminNotices = [];
 		}
 		return array_merge( $aAdminNotices, $this->getOptionsVo()->getAdminNotices() );
 	}
@@ -632,7 +632,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getAdditionalMenuItem() {
-		return array();
+		return [];
 	}
 
 	/**
@@ -728,7 +728,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function clearLastErrors() {
-		return $this->setLastErrors( array() );
+		return $this->setLastErrors( [] );
 	}
 
 	/**
@@ -739,7 +739,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	public function getLastErrors( $bAsString = true, $sGlue = " " ) {
 		$aErrors = $this->getOpt( 'last_errors' );
 		if ( !is_array( $aErrors ) ) {
-			$aErrors = array();
+			$aErrors = [];
 		}
 		return $bAsString ? implode( $sGlue, $aErrors ) : $aErrors;
 	}
@@ -804,13 +804,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array|string $mErrors
 	 * @return $this
 	 */
-	public function setLastErrors( $mErrors = array() ) {
+	public function setLastErrors( $mErrors = [] ) {
 		if ( !is_array( $mErrors ) ) {
 			if ( is_string( $mErrors ) ) {
 				$mErrors = array( $mErrors );
 			}
 			else {
-				$mErrors = array();
+				$mErrors = [];
 			}
 		}
 		return $this->setOpt( 'last_errors', $mErrors );
@@ -987,7 +987,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
 				}
 
-				$aWarnings = array();
+				$aWarnings = [];
 				if ( !$oOptsVo->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
 					$aWarnings[] = _wpsf__( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.' );
 				}
@@ -1037,7 +1037,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			case 'array':
 
 				if ( empty( $mCurrent ) || !is_array( $mCurrent ) ) {
-					$mCurrent = array();
+					$mCurrent = [];
 				}
 
 				$aOptParams[ 'rows' ] = count( $mCurrent ) + 2;
@@ -1047,7 +1047,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			case 'comma_separated_lists':
 
-				$aNewValues = array();
+				$aNewValues = [];
 				if ( !empty( $mCurrent ) && is_array( $mCurrent ) ) {
 
 					foreach ( $mCurrent as $sPage => $aParams ) {
@@ -1061,7 +1061,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 			case 'multiple_select':
 				if ( !is_array( $mCurrent ) ) {
-					$mCurrent = array();
+					$mCurrent = [];
 				}
 				break;
 
@@ -1119,7 +1119,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array - map of each option to its option type
 	 */
 	protected function getAllFormOptionsAndTypes() {
-		$aOpts = array();
+		$aOpts = [];
 
 		foreach ( $this->buildOptions() as $aOptionsSection ) {
 			if ( !empty( $aOptionsSection ) ) {
@@ -1411,7 +1411,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * Override this to customize anything with the display of the page
 	 * @param array $aData
 	 */
-	protected function displayModulePage( $aData = array() ) {
+	protected function displayModulePage( $aData = [] ) {
 		// Get Base Data
 		$aData = $this->loadDP()->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
@@ -1571,7 +1571,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array[]
 	 */
 	protected function getModulesSummaryData() {
-		return apply_filters( $this->prefix( 'collect_mod_summary' ), array() );
+		return apply_filters( $this->prefix( 'collect_mod_summary' ), [] );
 	}
 
 	/**
@@ -1624,7 +1624,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getWizardDefinitions() {
 		$aW = $this->getDef( 'wizards' );
-		return is_array( $aW ) ? $aW : array();
+		return is_array( $aW ) ? $aW : [];
 	}
 
 	/**
@@ -1717,7 +1717,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param array  $aData
 	 * @param string $sSubView
 	 */
-	protected function display( $aData = array(), $sSubView = '' ) {
+	protected function display( $aData = [], $sSubView = '' ) {
 	}
 
 	/**
@@ -1735,7 +1735,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		if ( !isset( $aData[ 'notice_classes' ] ) ) {
-			$aData[ 'notice_classes' ] = array();
+			$aData[ 'notice_classes' ] = [];
 		}
 		if ( is_array( $aData[ 'notice_classes' ] ) ) {
 			$aData[ 'notice_classes' ][] = $aData[ 'notice_attributes' ][ 'type' ];
@@ -1762,7 +1762,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param bool   $bUseTwig
 	 * @return string
 	 */
-	public function renderTemplate( $sTemplate, $aData = array(), $bUseTwig = false ) {
+	public function renderTemplate( $sTemplate, $aData = [], $bUseTwig = false ) {
 		if ( empty( $aData[ 'unique_render_id' ] ) ) {
 			$aData[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
@@ -1790,7 +1790,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function exportTransferableOptions( $aTransferableOptions ) {
 		if ( !is_array( $aTransferableOptions ) ) {
-			$aTransferableOptions = array();
+			$aTransferableOptions = [];
 		}
 		$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
 		return $aTransferableOptions;
@@ -1845,7 +1845,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getHelpVideoOptions() {
-		$aOptions = $this->getOpt( 'help_video_options', array() );
+		$aOptions = $this->getOpt( 'help_video_options', [] );
 		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
 			$aOptions = array(
 				'closed'    => false,
@@ -1922,7 +1922,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	protected function resetHelpVideoOptions() {
-		return $this->setOpt( 'help_video_options', array() );
+		return $this->setOpt( 'help_video_options', [] );
 	}
 
 	/**

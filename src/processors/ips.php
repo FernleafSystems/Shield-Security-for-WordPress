@@ -141,7 +141,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function fAugmentFirewallDieMessage( $aMessages ) {
 		if ( !is_array( $aMessages ) ) {
-			$aMessages = array();
+			$aMessages = [];
 		}
 		$aMessages[] = sprintf( '<p>%s</p>', $this->getTextOfRemainingTransgressions() );
 		return $aMessages;
@@ -415,7 +415,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string[]
 	 */
 	public function getAutoBlacklistIps() {
-		$aIps = array();
+		$aIps = [];
 		foreach ( $this->getAutoBlacklistIpsData() as $oIp ) {
 			$aIps[] = $oIp->ip;
 		}
@@ -435,7 +435,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string[]
 	 */
 	public function getWhitelistIps() {
-		$aIps = array();
+		$aIps = [];
 		foreach ( $this->getWhitelistIpsData() as $oIp ) {
 			$aIps[] = $oIp->ip;
 		}
@@ -659,7 +659,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'ip_list_table_columns' );
-		return is_array( $aDef ) ? $aDef : array();
+		return is_array( $aDef ) ? $aDef : [];
 	}
 
 	/**

@@ -149,7 +149,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function getEmail2FaRoles() {
-		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', array() );
+		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', [] );
 		if ( empty( $aRoles ) || !is_array( $aRoles ) ) {
 			$aRoles = $this->getOptEmailTwoFactorRolesDefaults();
 			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
@@ -290,7 +290,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$aHashes = $oMeta->hash_loginmfa;
 		if ( !is_array( $aHashes ) ) {
-			$aHashes = array();
+			$aHashes = [];
 			$oMeta->hash_loginmfa = $aHashes;
 		}
 		return $aHashes;
@@ -493,7 +493,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = array();
+		$aWarnings = [];
 
 		if ( $sSection == 'section_brute_force_login_protection' && !$this->isPremium() ) {
 			$sIntegration = $this->getPremiumOnlyIntegration();
@@ -613,8 +613,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function getAntiBotFormSelectors() {
-		$aIds = $this->getOpt( 'antibot_form_ids', array() );
-		return is_array( $aIds ) ? $aIds : array();
+		$aIds = $this->getOpt( 'antibot_form_ids', [] );
+		return is_array( $aIds ) ? $aIds : [];
 	}
 
 	public function onWpEnqueueJs() {
@@ -738,7 +738,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'title' => _wpsf__( 'Login Guard' ),
 				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -885,7 +885,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		return $aOptionsParams;
 	}
 

@@ -76,14 +76,14 @@ class Traffic extends BaseBuild {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
-		$aEntries = array();
+		$aEntries = [];
 
 		$oWpUsers = Services::WpUsers();
 		$oGeo = Services::GeoIp()->setDbSource( $this->getGeoIpDbSource() );
 		$oIp = Services::IP();
 		$sYou = $oIp->getRequestIp();
 
-		$aUsers = array( 0 => _wpsf__( 'No' ) );
+		$aUsers = [ 0 => _wpsf__( 'No' ) ];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\Traffic\EntryVO $oEntry */
 			$sIp = $oEntry->ip;

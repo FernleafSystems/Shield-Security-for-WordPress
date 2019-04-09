@@ -54,7 +54,7 @@ class BaseResultsSet {
 	 */
 	public function getAllItems() {
 		if ( !is_array( $this->aItems ) ) {
-			$this->aItems = array();
+			$this->aItems = [];
 		}
 		return $this->aItems;
 	}

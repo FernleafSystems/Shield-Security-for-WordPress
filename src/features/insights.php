@@ -16,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @param array $aData
 	 */
-	protected function displayModulePage( $aData = array() ) {
+	protected function displayModulePage( $aData = [] ) {
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
 		$aSecNotices = $this->getNotices();
@@ -74,7 +74,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true ),
 						'item_addparamwhite'      => $oAuditMod->getAjaxActionData( 'item_addparamwhite', true )
 					),
-					'flags'   => array(),
+					'flags'   => [],
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
 					),
@@ -114,13 +114,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),
 						'summary_blacklist' => sprintf( _wpsf__( 'IP addresses that have tripped %s defenses.' ), $nPluginName ),
 					),
-					'vars'    => array(),
+					'vars'    => [],
 				);
 				break;
 
 			case 'notes':
 				$aData = array(
-					'vars'  => array(),
+					'vars'  => [],
 					'ajax'  => array(
 						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
 						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
@@ -176,7 +176,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'bulk_action'           => $oModUsers->getAjaxActionData( 'bulk_action', true ),
 
 					),
-					'flags'   => array(),
+					'flags'   => [],
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Sessions Table Filters' ),
 					),
@@ -206,7 +206,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							'maxlength' => $this->getDef( 'license_key_length' ),
 						)
 					),
-					'ajax'   => array(),
+					'ajax'   => [],
 					'hrefs'  => array(
 						'shield_pro_url'           => 'https://icwp.io/shieldpro',
 						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
@@ -391,7 +391,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getInsightsModsSummary() {
-		$aMods = array();
+		$aMods = [];
 		foreach ( $this->getModulesSummaryData() as $aMod ) {
 			if ( !in_array( $aMod[ 'slug' ], array( 'insights' ) ) ) {
 				$aMods[] = $aMod;

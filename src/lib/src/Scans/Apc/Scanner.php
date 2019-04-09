@@ -101,7 +101,7 @@ class Scanner {
 	 * @return WpVulnVO[]
 	 */
 	private function getThemeVulnerabilities( $sSlug ) {
-		$aVulns = array();
+		$aVulns = [];
 		$oWpThemes = Services::WpThemes();
 
 		try {

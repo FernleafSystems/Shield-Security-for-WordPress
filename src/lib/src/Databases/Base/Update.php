@@ -22,7 +22,7 @@ class Update extends Insert {
 	 * @return array
 	 */
 	public function getUpdateWheres() {
-		return is_array( $this->aUpdateWheres ) ? $this->aUpdateWheres : array();
+		return is_array( $this->aUpdateWheres ) ? $this->aUpdateWheres : [];
 	}
 
 	/**
@@ -56,7 +56,7 @@ class Update extends Insert {
 	 * @param array   $aUpdateData
 	 * @return bool
 	 */
-	public function updateEntry( $oEntry, $aUpdateData = array() ) {
+	public function updateEntry( $oEntry, $aUpdateData = [] ) {
 		$bSuccess = false;
 
 		if ( $oEntry instanceof EntryVO ) {
@@ -76,7 +76,7 @@ class Update extends Insert {
 	 * @param array $aUpdateData
 	 * @return bool true is success or no update necessary
 	 */
-	public function updateById( $nId, $aUpdateData = array() ) {
+	public function updateById( $nId, $aUpdateData = [] ) {
 		$bSuccess = true;
 
 		if ( !empty( $aUpdateData ) ) {

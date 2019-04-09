@@ -236,7 +236,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function clearIcSnapshots() {
-		return $this->setIcSnapshotUsers( array() );
+		return $this->setIcSnapshotUsers( [] );
 	}
 
 	/**
@@ -286,9 +286,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {
-		$aExclusions = $this->getOpt( 'ufc_exclusions', array() );
+		$aExclusions = $this->getOpt( 'ufc_exclusions', [] );
 		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
-			$aExclusions = array();
+			$aExclusions = [];
 		}
 		return $aExclusions;
 	}
@@ -307,7 +307,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setUfcFileExclusions( $aExclusions ) {
 		if ( !is_array( $aExclusions ) ) {
-			$aExclusions = array();
+			$aExclusions = [];
 		}
 		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
 	}
@@ -316,7 +316,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanFileExclusions() {
-		$aExclusions = array();
+		$aExclusions = [];
 
 		$oFS = $this->loadFS();
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
@@ -649,7 +649,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	protected function getSectionNotices( $sSectionSlug ) {
-		$aNotices = array();
+		$aNotices = [];
 		switch ( $sSectionSlug ) {
 
 			case 'section_core_file_integrity_scan':
@@ -791,7 +791,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 
 			try {
-				$aSuccessfulItems = array();
+				$aSuccessfulItems = [];
 
 				foreach ( $aItemIds as $sId ) {
 					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
@@ -1051,7 +1051,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function addInsightsNoticeData( $aAllNotices ) {
 		$aNotices = array(
 			'title'    => _wpsf__( 'Scans' ),
-			'messages' => array()
+			'messages' => []
 		);
 
 		{// Core files
@@ -1175,7 +1175,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'title' => _wpsf__( 'Hack Guard' ),
 				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -1391,7 +1391,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

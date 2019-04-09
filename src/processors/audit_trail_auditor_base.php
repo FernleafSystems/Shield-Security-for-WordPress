@@ -11,7 +11,7 @@ class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sMessage
 	 * @param array  $aData
 	 */
-	public function add( $sContext, $sEvent, $nCategory, $sMessage = '', $aData = array() ) {
+	public function add( $sContext, $sEvent, $nCategory, $sMessage = '', $aData = [] ) {
 		$this->createNewAudit( $sContext, $sMessage, $nCategory, $sEvent, $aData );
 	}
 }

@@ -72,7 +72,7 @@ class Update extends Base\Update {
 	 * @param array   $aUpdateData
 	 * @return bool
 	 */
-	public function updateSession( $oSession, $aUpdateData = array() ) {
+	public function updateSession( $oSession, $aUpdateData = [] ) {
 		return parent::updateEntry( $oSession, $aUpdateData );
 	}
 }

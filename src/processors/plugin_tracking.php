@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 			$this->getMod()->prefix( 'collect_tracking_data' ),
 			$this->getBaseTrackingData()
 		);
-		return is_array( $aData ) ? $aData : array();
+		return is_array( $aData ) ? $aData : [];
 	}
 
 	/**

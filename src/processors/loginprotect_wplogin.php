@@ -220,7 +220,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		if ( !empty( $sRedirectUrl ) ) {
 			$sRedirectUrl = esc_url( $sRedirectUrl );
 			if ( @parse_url( $sRedirectUrl ) !== false ) {
-				Services::WpGeneral()->doRedirect( $sRedirectUrl, array(), false );
+				Services::WpGeneral()->doRedirect( $sRedirectUrl, [], false );
 			}
 		}
 

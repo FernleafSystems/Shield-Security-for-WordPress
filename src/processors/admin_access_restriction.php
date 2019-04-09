@@ -130,12 +130,12 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @param string $sRole
 	 * @param array  $aOldRoles
 	 */
-	public function restrictSetUserRole( $nUserId, $sRole, $aOldRoles = array() ) {
+	public function restrictSetUserRole( $nUserId, $sRole, $aOldRoles = [] ) {
 		$oWpUsers = $this->loadWpUsers();
 
 		$sRole = strtolower( $sRole );
 		if ( !is_array( $aOldRoles ) ) {
-			$aOldRoles = array();
+			$aOldRoles = [];
 		}
 
 		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId ) {

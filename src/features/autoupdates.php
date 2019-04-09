@@ -17,11 +17,11 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string[]
 	 */
 	public function getAutoupdatePlugins() {
-		$aSelected = array();
+		$aSelected = [];
 		if ( $this->isAutoupdateIndividualPlugins() ) {
-			$aSelected = $this->getOpt( 'selected_plugins', array() );
+			$aSelected = $this->getOpt( 'selected_plugins', [] );
 			if ( !is_array( $aSelected ) ) {
-				$aSelected = array();
+				$aSelected = [];
 			}
 		}
 		return $aSelected;
@@ -31,15 +31,15 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function getDelayTracking() {
-		$aTracking = $this->getOpt( 'delay_tracking', array() );
+		$aTracking = $this->getOpt( 'delay_tracking', [] );
 		if ( !is_array( $aTracking ) ) {
-			$aTracking = array();
+			$aTracking = [];
 		}
 		$aTracking = $this->loadDP()->mergeArraysRecursive(
 			array(
-				'core'    => array(),
-				'plugins' => array(),
-				'themes'  => array(),
+				'core'    => [],
+				'plugins' => [],
+				'themes'  => [],
 			),
 			$aTracking
 		);
@@ -205,7 +205,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	public function addInsightsNoticeData( $aAllNotices ) {
 		$aNotices = array(
 			'title'    => _wpsf__( 'Automatic Updates' ),
-			'messages' => array()
+			'messages' => []
 		);
 		{ //really disabled?
 			$oWp = Services::WpGeneral();
@@ -239,7 +239,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				'title' => _wpsf__( 'Automatic Updates' ),
 				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -365,7 +365,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

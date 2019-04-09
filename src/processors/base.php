@@ -266,7 +266,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getSubProcessors() {
 		if ( !isset( $this->aSubPros ) ) {
-			$this->aSubPros = array();
+			$this->aSubPros = [];
 		}
 		return $this->aSubPros;
 	}

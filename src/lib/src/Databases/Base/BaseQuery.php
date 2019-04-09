@@ -239,7 +239,7 @@ abstract class BaseQuery {
 	 */
 	public function getWheres() {
 		if ( !is_array( $this->aWheres ) ) {
-			$this->aWheres = array();
+			$this->aWheres = [];
 		}
 		return $this->aWheres;
 	}
@@ -284,7 +284,7 @@ abstract class BaseQuery {
 	 */
 	public function reset() {
 		return $this->setLimit( 0 )
-					->setWheres( array() )
+					->setWheres( [] )
 					->setPage( 1 )
 					->setOrderBy( '' );
 	}

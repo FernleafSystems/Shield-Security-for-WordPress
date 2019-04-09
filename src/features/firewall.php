@@ -7,7 +7,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	public function getDefaultWhitelist() {
 		$aW = $this->getDef( 'default_whitelist' );
-		return is_array( $aW ) ? $aW : array();
+		return is_array( $aW ) ? $aW : [];
 	}
 
 	/**
@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$aW = $this->getCustomWhitelist();
-		$aParams = isset( $aW[ $sPage ] ) ? $aW[ $sPage ] : array();
+		$aParams = isset( $aW[ $sPage ] ) ? $aW[ $sPage ] : [];
 		$aParams[] = $sParam;
 		natsort( $aParams );
 		$aW[ $sPage ] = array_unique( $aParams );
@@ -33,8 +33,8 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function getCustomWhitelist() {
-		$aW = $this->getOpt( 'page_params_whitelist', array() );
-		return is_array( $aW ) ? $aW : array();
+		$aW = $this->getOpt( 'page_params_whitelist', [] );
+		return is_array( $aW ) ? $aW : [];
 	}
 
 	/**
@@ -84,7 +84,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				'title' => _wpsf__( 'Firewall' ),
 				'sub'   => _wpsf__( 'Block Malicious Requests' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -170,7 +170,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 				list( $sTitle, $sTitleShort, $aSummary ) = $this->loadStrings_SectionTitlesDefaults( $aOptionsParams );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

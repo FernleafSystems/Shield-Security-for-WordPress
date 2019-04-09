@@ -102,7 +102,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	public function clearCommentNotificationEmail( $aEmails ) {
 		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
 		if ( in_array( $sStatus, array( 'reject', 'trash' ) ) ) {
-			$aEmails = array();
+			$aEmails = [];
 		}
 		return $aEmails;
 	}

@@ -20,7 +20,7 @@ abstract class ScannerBase {
 	/**
 	 * @var string[]
 	 */
-	protected $aFileExts = array();
+	protected $aFileExts = [];
 
 	/**
 	 * @param array[] $aPreExistingHashes - key is the slug/base-file name and value is the file hashes

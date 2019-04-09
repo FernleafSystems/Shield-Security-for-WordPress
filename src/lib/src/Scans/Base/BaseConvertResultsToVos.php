@@ -15,7 +15,7 @@ abstract class BaseConvertResultsToVos {
 	 * @return Scanner\EntryVO[]
 	 */
 	public function convert( $oResults ) {
-		$aVos = array();
+		$aVos = [];
 		foreach ( $oResults->getAllItems() as $oIt ) {
 			/** @var BaseResultItem $oIt */
 			$aVos[ $oIt->generateHash() ] = $this->convertItem( $oIt );

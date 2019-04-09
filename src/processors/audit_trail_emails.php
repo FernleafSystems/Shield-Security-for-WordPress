@@ -104,7 +104,7 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 	 * @return array
 	 */
 	private function findEmailSenderBacktrace() {
-		$aBT = array();
+		$aBT = [];
 		foreach ( debug_backtrace( false ) as $aItem ) {
 			if ( isset( $aItem[ 'function' ] ) && 'wp_mail' === strtolower( $aItem[ 'function' ] ) ) {
 				$aBT = $aItem;

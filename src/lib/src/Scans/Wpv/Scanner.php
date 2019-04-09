@@ -47,7 +47,7 @@ class Scanner {
 	 * @return WpVulnVO[][]
 	 */
 	protected function getAllPluginVulnerabilities() {
-		$aVulns = array();
+		$aVulns = [];
 		foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $sFile ) {
 			$aVulns[ $sFile ] = $this->getPluginVulnerabilities( $sFile );
 		}
@@ -58,7 +58,7 @@ class Scanner {
 	 * @return WpVulnVO[][]
 	 */
 	protected function getAllThemeVulnerabilities() {
-		$aVulns = array();
+		$aVulns = [];
 		$oWpThemes = Services::WpThemes();
 
 		$oActiveTheme = $oWpThemes->getCurrent();

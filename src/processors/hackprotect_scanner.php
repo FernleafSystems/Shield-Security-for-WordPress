@@ -157,6 +157,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	 */
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'table_columns_scanner' );
-		return ( is_array( $aDef ) ? $aDef : array() );
+		return ( is_array( $aDef ) ? $aDef : [] );
 	}
 }

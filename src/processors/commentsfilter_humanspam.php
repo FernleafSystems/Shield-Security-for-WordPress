@@ -63,7 +63,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 			if ( self::$sCommentStatus == 'reject' ) {
 				$oWp = $this->loadWp();
-				$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+				$oWp->doRedirect( $oWp->getHomeUrl(), [], true, false );
 			}
 		}
 
@@ -106,7 +106,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			'user_agent'      => $sUserAgent
 		);
 		$aDesiredItemsToCheck = $this->getOption( 'enable_comments_human_spam_filter_items' );
-		$aItemsToCheck = array();
+		$aItemsToCheck = [];
 		foreach ( $aDesiredItemsToCheck as $sKey ) {
 			$aItemsToCheck[ $sKey ] = $aItemsMap[ $sKey ];
 		}

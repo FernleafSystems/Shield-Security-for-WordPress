@@ -19,7 +19,7 @@ trait Auditor {
 	 * @param array  $aEventData
 	 * @return EntryVO
 	 */
-	public function createNewAudit( $sContext, $sMsg, $nCategory = 1, $sEvent = '', $aEventData = array() ) {
+	public function createNewAudit( $sContext, $sMsg, $nCategory = 1, $sEvent = '', $aEventData = [] ) {
 		$oEntry = new EntryVO();
 		$oEntry->context = $sContext;
 		$oEntry->message = $sMsg;

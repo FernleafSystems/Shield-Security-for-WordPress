@@ -39,7 +39,7 @@ class Ip extends BaseBuild {
 		$oMod = $this->getMod();
 		$nTransLimit = $oMod->getOptTransgressionLimit();
 
-		$aEntries = array();
+		$aEntries = [];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var IPs\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();

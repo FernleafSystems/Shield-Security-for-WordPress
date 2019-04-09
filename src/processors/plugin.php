@@ -123,7 +123,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'strings'     => array(
 					'title' => $this->getCon()->getHumanName(),
 				),
-				'js_snippets' => array()
+				'js_snippets' => []
 			);
 			echo $this->getMod()
 					  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
@@ -150,7 +150,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'inputs'      => array(
 					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
 				),
-				'js_snippets' => array()
+				'js_snippets' => []
 			);
 			echo $this->getMod()
 					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aRenderData );

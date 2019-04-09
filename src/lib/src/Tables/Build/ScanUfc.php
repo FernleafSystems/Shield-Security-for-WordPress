@@ -15,7 +15,7 @@ class ScanUfc extends ScanBase {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
-		$aEntries = array();
+		$aEntries = [];
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();

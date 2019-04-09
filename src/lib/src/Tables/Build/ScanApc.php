@@ -16,7 +16,7 @@ class ScanApc extends ScanBase {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
-		$aEntries = array();
+		$aEntries = [];
 
 		$oCarbon = new Carbon();
 
