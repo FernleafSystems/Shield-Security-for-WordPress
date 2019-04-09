@@ -91,18 +91,25 @@ class AuditTrail extends BaseBuild {
 		$sYou = Services::IP()->getRequestIp();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\AuditTrail\EntryVO $oEntry */
-			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'meta' ] = $oEntry->meta;
-			$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
-			$aE[ 'message' ] = stripslashes( sanitize_text_field( $oEntry->message ) );
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			if ( $oEntry->ip == $sYou ) {
-				$aE[ 'your_ip' ] = '<small> ('._wpsf__( 'You' ).')</small>';
+			if ( !isset( $aEntries[ $oEntry->rid ] ) ) {
+				$aE = $oEntry->getRawDataAsArray();
+				$aE[ 'meta' ] = $oEntry->meta;
+				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
+				$aE[ 'message' ] = stripslashes( sanitize_textarea_field( $oEntry->message ) );
+				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
+				if ( $oEntry->ip == $sYou ) {
+					$aE[ 'your_ip' ] = '<small> ('._wpsf__( 'You' ).')</small>';
+				}
+				else {
+					$aE[ 'your_ip' ] = '';
+				}
 			}
 			else {
-				$aE[ 'your_ip' ] = '';
+				$aE = $aEntries[ $oEntry->rid ];
+				$aE[ 'message' ] .= "\n".stripslashes( sanitize_textarea_field( $oEntry->message ) );
 			}
-			$aEntries[ $nKey ] = $aE;
+
+			$aEntries[ $oEntry->rid ] = $aE;
 		}
 		return $aEntries;
 	}
