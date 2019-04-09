@@ -182,7 +182,7 @@ class Select extends BaseQuery {
 
 	/**
 	 * Handle COUNT, DISTINCT, & normal SELECT
-	 * @return int|string[]|array[]|EntryVO[]
+	 * @return int|string[]|array[]|EntryVO[]|mixed
 	 */
 	public function query() {
 		if ( $this->isCount() ) {

@@ -18,6 +18,6 @@ class TrackUserAgent extends Base {
 	 * @return $this
 	 */
 	protected function getAuditMsg() {
-		return sprintf( _wpsf__( 'Empty user agent detected at "%s"' ), Services::Request()->getPath() );
+		return sprintf( _wpsf__( 'Empty user agent detected at "%s".' ), Services::Request()->getPath() );
 	}
 }

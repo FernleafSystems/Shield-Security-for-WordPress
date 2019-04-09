@@ -36,6 +36,6 @@ class TrackLoginFailed extends Base {
 	 * @return $this
 	 */
 	protected function getAuditMsg() {
-		return sprintf( _wpsf__( 'Attempted login failed by user "%s"' ), $this->user_login );
+		return sprintf( _wpsf__( 'Attempted login failed by user "%s".' ), $this->user_login );
 	}
 }
