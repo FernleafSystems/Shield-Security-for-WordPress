@@ -38,8 +38,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'doBlackMarkCurrentVisitor' ) );
 		}
-
-		add_filter( 'authenticate', [ $this, 'addLoginFailedWarningMessage' ], 10000, 1 );
 	}
 
 	public function onWpInit() {
@@ -83,20 +81,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 					->run();
 			}
 		}
-	}
-
-	/**
-	 * @param \WP_User|\WP_Error $oUserOrError
-	 * @return \WP_User|\WP_Error
-	 */
-	public function addLoginFailedWarningMessage( $oUserOrError ) {
-		if ( $this->loadWp()->isRequestUserLogin() && is_wp_error( $oUserOrError ) ) {
-			$oUserOrError->add(
-				$this->getMod()->prefix( 'transgression-warning' ),
-				$this->getMod()->getTextOpt( 'text_loginfailed' )
-			);
-		}
-		return $oUserOrError;
 	}
 
 	/**
