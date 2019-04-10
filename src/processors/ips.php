@@ -116,26 +116,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getAllValidLists() {
-		return [
-			ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE,
-			ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
-		];
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return boolean
-	 */
-	protected function isValidIpOrRange( $sIp ) {
-		$oIP = Services::IP();
-		return $oIP->isValidIp_PublicRemote( $sIp ) || $oIP->isValidIpRange( $sIp );
-	}
-
-	/**
 	 * @param array $aMessages
 	 * @return array
 	 */
@@ -391,35 +371,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$this->bVisitorIsWhitelisted = $this->isIpOnWhiteList( $this->ip() );
 		}
 		return $this->bVisitorIsWhitelisted;
-	}
-
-	/**
-	 * @return IPs\EntryVO[]
-	 */
-	public function getAutoBlacklistIpsData() {
-		/** @var IPs\Select $oSelect */
-		$oSelect = $this->getDbHandler()->getQuerySelector();
-		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
-	}
-
-	/**
-	 * @return IPs\EntryVO[]
-	 */
-	public function getBlacklistIpData( $sIpAddress ) {
-		/** @var IPs\Select $oSelect */
-		$oSelect = $this->getDbHandler()->getQuerySelector();
-		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getAutoBlacklistIps() {
-		$aIps = [];
-		foreach ( $this->getAutoBlacklistIpsData() as $oIp ) {
-			$aIps[] = $oIp->ip;
-		}
-		return $aIps;
 	}
 
 	/**

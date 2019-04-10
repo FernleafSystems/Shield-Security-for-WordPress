@@ -11,7 +11,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function updateHandler() {
 		if ( $this->isOpt( 'track_404', 'assign-transgression' ) ) {
-			$this->setOpt( 'track_404', 'transgression' ); // fix for older options values
+			$this->setOpt( 'track_404', 'transgression-single' ); // fix for older options values
 		}
 	}
 
@@ -79,10 +79,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = _wpsf__( "Invalid entry selected" );
+			$sMessage = _wpsf__( 'Invalid entry selected' );
 		}
 		else if ( $oProcessor->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = _wpsf__( "IP address deleted" );
+			$sMessage = _wpsf__( 'IP address deleted' );
 			$bSuccess = true;
 		}
 		else {
