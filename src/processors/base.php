@@ -41,12 +41,12 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		add_action( $oModCon->prefix( 'daily_cron' ), array( $this, 'runDailyCron' ) );
 		add_action( $oModCon->prefix( 'hourly_cron' ), array( $this, 'runHourlyCron' ) );
 		add_action( $oModCon->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
+		add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 
 		$this->init();
 	}
 
 	public function onWpInit() {
-		add_action( $this->getMod()->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 	}
 
 	public function onWpLoaded() {

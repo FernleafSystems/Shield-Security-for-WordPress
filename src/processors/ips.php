@@ -34,17 +34,18 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
-		if ( $oFO->isAutoBlackListFeatureEnabled() ) {
+		if ( $oFO->isAutoBlackListEnabled() ) {
 			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
 			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'doBlackMarkCurrentVisitor' ) );
 		}
 	}
 
 	public function onWpInit() {
+		parent::onWpInit();
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isAutoBlackListFeatureEnabled() && !Services::WpUsers()->isUserLoggedIn() ) {
+		if ( $this->isReadyToRun() && $oFO->isAutoBlackListEnabled() && !Services::WpUsers()->isUserLoggedIn() ) {
 
 			if ( !$oFO->isVerifiedBot() ) {
 				if ( $oFO->isEnabledTrackXmlRpc() ) {
@@ -162,7 +163,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		// TODO: *Maybe* Have a manual black list process first.
 
 		// now try auto black list
-		if ( !$bKill && $oFO->isAutoBlackListFeatureEnabled() ) {
+		if ( !$bKill && $oFO->isAutoBlackListEnabled() ) {
 			$bKill = $this->isIpToBeBlocked( $sIp );
 		}
 
@@ -300,7 +301,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isAutoBlackListFeatureEnabled() && !$this->getCon()->isPluginDeleting()
+		if ( $oFO->isAutoBlackListEnabled() && !$this->getCon()->isPluginDeleting()
 			 && $oFO->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
 
 			$this->processTransgression();
