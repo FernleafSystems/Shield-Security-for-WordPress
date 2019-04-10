@@ -106,10 +106,10 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Handler
+	 * @return Scanner\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Handler();
+		return new Scanner\Handler();
 	}
 
 	/**
@@ -117,7 +117,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	 * @param string $sItemId
 	 */
 	public function downloadItemFile( $sItemId ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntry */
+		/** @var Scanner\EntryVO $oEntry */
 		$oEntry = $this->getDbHandler()
 					   ->getQuerySelector()
 					   ->byId( (int)$sItemId );
