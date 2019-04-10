@@ -47,31 +47,36 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isAutoBlackListFeatureEnabled() && !Services::WpUsers()->isUserLoggedIn() ) {
-			if ( $oFO->isEnabledTrackXmlRpc() ) {
-				( new BotTrack\TrackXmlRpc() )
-					->setMod( $oFO )
-					->run();
+
+			if ( !$oFO->isVerifiedBot() ) {
+				if ( $oFO->isEnabledTrackXmlRpc() ) {
+					( new BotTrack\TrackXmlRpc() )
+						->setMod( $oFO )
+						->run();
+				}
+				if ( $oFO->isEnabledTrack404() ) {
+					( new BotTrack\Track404() )
+						->setMod( $oFO )
+						->run();
+				}
+				if ( $oFO->isEnabledTrackLoginFailed() ) {
+					( new BotTrack\TrackLoginFailed() )
+						->setMod( $oFO )
+						->run();
+				}
+				if ( $oFO->isEnabledTrackLoginInvalid() ) {
+					( new BotTrack\TrackLoginInvalid() )
+						->setMod( $oFO )
+						->run();
+				}
+				if ( $oFO->isEnabledTrackFakeWebCrawler() ) {
+					( new BotTrack\TrackFakeWebCrawler() )
+						->setMod( $oFO )
+						->run();
+				}
 			}
-			if ( $oFO->isEnabledTrack404() ) {
-				( new BotTrack\Track404() )
-					->setMod( $oFO )
-					->run();
-			}
-			if ( $oFO->isEnabledTrackLoginFailed() ) {
-				( new BotTrack\TrackLoginFailed() )
-					->setMod( $oFO )
-					->run();
-			}
-			if ( $oFO->isEnabledTrackLoginInvalid() ) {
-				( new BotTrack\TrackLoginInvalid() )
-					->setMod( $oFO )
-					->run();
-			}
-			if ( $oFO->isEnabledTrackFakeWebCrawler() ) {
-				( new BotTrack\TrackFakeWebCrawler() )
-					->setMod( $oFO )
-					->run();
-			}
+
+			/** Always run link cheese regardless of the verified bot or not */
 			if ( $oFO->isEnabledTrackLinkCheese() ) {
 				( new BotTrack\TrackLinkCheese() )
 					->setMod( $oFO )
