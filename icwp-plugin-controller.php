@@ -653,7 +653,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->prefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
@@ -669,7 +669,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->prefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion().rand() );
+						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
 						wp_enqueue_style( $sUnique );
 						$sDependent = $sUnique;
 					}
