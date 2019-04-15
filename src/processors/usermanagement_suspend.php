@@ -170,6 +170,13 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getMod();
 			$oFO->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
+
+			if ( $bIsSuspend ) { // Delete any existing user sessions
+				$oProcessor = $oFO->getSessionsProcessor();
+				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete $oDel */
+				$oDel = $oProcessor->getDbHandler()->getQueryDeleter();
+				$oDel->forUsername( Services::WpUsers()->getUserById( $nUserId )->user_login );
+			}
 		}
 	}
 }
