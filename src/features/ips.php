@@ -9,12 +9,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
 
-	protected function updateHandler() {
-		if ( $this->isOpt( 'track_404', 'assign-transgression' ) ) {
-			$this->setOpt( 'track_404', 'transgression-single' ); // fix for older options values
-		}
-	}
-
 	/**
 	 * @return bool
 	 */

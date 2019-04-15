@@ -47,8 +47,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$oWpUsers = Services::WpUsers();
 		if ( $oWpUsers->isUserLoggedIn() ) {
-			var_dump( $this->getCon()->getCurrentUserMeta() );
-			die();
 			$this->setPasswordStartedAt( $oWpUsers->getCurrentWpUser() ); // used by Password Policies
 		}
 	}

@@ -1484,6 +1484,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getVersionNumeric() {
+		$aParts = explode( '.', $this->getVersion() );
+		return ( $aParts[ 0 ]*100 + $aParts[ 1 ]*10 + $aParts[ 2 ] );
+	}
+
+	/**
 	 * @return mixed|stdClass
 	 */
 	protected function getPluginControllerOptions() {
@@ -1820,7 +1828,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta
+	 * @return Shield\Users\ShieldUserMeta
 	 */
 	public function getCurrentUserMeta() {
 		return $this->getUserMeta( Services::WpUsers()->getCurrentWpUser() );
@@ -1828,14 +1836,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param $oUser WP_User
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta|mixed
+	 * @return Shield\Users\ShieldUserMeta|mixed
 	 */
 	public function getUserMeta( $oUser ) {
 		$oMeta = null;
 		try {
 			if ( $oUser instanceof \WP_User ) {
-				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta $oMeta */
-				$oMeta = \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
+				/** @var Shield\Users\ShieldUserMeta $oMeta */
+				$oMeta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
 				$oMeta->setPasswordStartedAt( $oUser->user_pass )
 					  ->updateFirstSeenAt();
 			}

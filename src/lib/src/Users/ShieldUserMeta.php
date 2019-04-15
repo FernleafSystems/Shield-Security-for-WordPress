@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property array  $hash_loginmfa
  * @property string $pass_hash
  * @property int    $first_seen_at
+ * @property int    $last_verified_at
  * @property int    $pass_started_at
  * @property int    $pass_reset_last_redirect_at
  * @property int    $pass_check_failed_at
