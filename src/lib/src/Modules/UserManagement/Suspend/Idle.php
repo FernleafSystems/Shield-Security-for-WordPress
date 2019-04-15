@@ -29,6 +29,6 @@ class Idle extends Base {
 	protected function isLastVerifiedAtExpired( $oMeta ) {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
-		return ( Services::Request()->ts() - $oMeta->first_seen_at > $oMod->getSuspendAutoIdleTime() );
+		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $oMod->getSuspendAutoIdleTime() );
 	}
 }

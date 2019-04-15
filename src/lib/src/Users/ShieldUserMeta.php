@@ -29,6 +29,17 @@ use FernleafSystems\Wordpress\Services\Services;
 class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta {
 
 	/**
+	 * @return int
+	 */
+	public function getLastVerifiedAt() {
+		$nLastVerified = (int)max( [ $this->last_login_at, $this->pass_started_at, $this->first_seen_at ] );
+		if ( $nLastVerified < 1 ) {
+			$nLastVerified = Services::Request()->ts();
+		}
+		return $nLastVerified;
+	}
+
+	/**
 	 * @param string $sHashedPassword
 	 * @return $this
 	 */
