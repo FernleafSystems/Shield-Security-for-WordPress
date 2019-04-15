@@ -905,9 +905,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * from the WordPress Admin UI.
 	 * In order to ensure that WordPress still checks for plugin updates it will not remove this plugin from
 	 * the list of plugins if DOING_CRON is set to true.
-	 * @uses $this->fHeadless if the plugin is headless, it is hidden
 	 * @param StdClass $oPlugins
 	 * @return StdClass
+	 * @uses $this->fHeadless if the plugin is headless, it is hidden
 	 */
 	public function filter_hidePluginUpdatesFromUI( $oPlugins ) {
 
@@ -1836,7 +1836,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( $oUser instanceof \WP_User ) {
 				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta $oMeta */
 				$oMeta = \FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
-				$oMeta->setPasswordStartedAt( $oUser->user_pass );
+				$oMeta->setPasswordStartedAt( $oUser->user_pass )
+					  ->updateFirstSeenAt();
 			}
 		}
 		catch ( \Exception $oE ) {
@@ -1917,8 +1918,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
 	 * so we removed the "current_user_can()" or any such sub-call within this function
-	 * @deprecated v6.10.7
 	 * @return bool
+	 * @deprecated v6.10.7
 	 */
 	public function getHasPermissionToManage() {
 		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {

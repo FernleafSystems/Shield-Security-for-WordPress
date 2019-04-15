@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool   $ga_validated
  * @property array  $hash_loginmfa
  * @property string $pass_hash
+ * @property int    $first_seen_at
  * @property int    $pass_started_at
  * @property int    $pass_reset_last_redirect_at
  * @property int    $pass_check_failed_at
@@ -27,17 +28,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta {
 
 	/**
-	 * @return int
-	 */
-	public function getLastVerifiedAt() {
-		$nLastVerified = (int)max( $this->last_login_at, $this->pass_started_at );
-		if ( $nLastVerified < 1 ) {
-			$nLastVerified = Services::Request()->ts();
-		}
-		return $nLastVerified;
-	}
-
-	/**
 	 * @param string $sHashedPassword
 	 * @return $this
 	 */
@@ -46,6 +36,24 @@ class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\Plugi
 		if ( !isset( $this->pass_hash ) || ( $this->pass_hash != $sNewHash ) ) {
 			$this->pass_hash = $sNewHash;
 			$this->pass_started_at = Services::Request()->ts();
+		}
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function updateFirstSeenAt() {
+		if ( empty( $this->first_seen_at ) ) {
+			$this->first_seen_at = max(
+				0,
+				min( array_filter( [
+					Services::Request()->ts(),
+					(int)$this->pass_started_at,
+					(int)$this->last_login_at,
+					(int)$this->pass_check_failed_at
+				] ) )
+			);
 		}
 		return $this;
 	}

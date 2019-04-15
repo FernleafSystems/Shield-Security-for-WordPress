@@ -12,21 +12,21 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		if ( $oFO->isSuspendManualEnabled() ) {
 			$this->setupUserFilters();
 			( new Suspend\Suspended() )
-				->setCon( $this->getCon() )
+				->setMod( $this->getMod() )
 				->run();
 		}
 
 		if ( $oFO->isSuspendAutoIdleEnabled() ) {
 			( new Suspend\Idle() )
 				->setVerifiedExpires( $oFO->getSuspendAutoIdleTime() )
-				->setCon( $this->getCon() )
+				->setMod( $this->getMod() )
 				->run();
 		}
 
 		if ( $oFO->isSuspendAutoPasswordEnabled() ) {
 			( new Suspend\PasswordExpiry() )
 				->setMaxPasswordAge( $oFO->getPassExpireTimeout() )
-				->setCon( $this->getCon() )
+				->setMod( $this->getMod() )
 				->run();
 		}
 	}
@@ -39,7 +39,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		$oFO = $this->getMod();
 
 		// User profile UI
-		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ] );
+		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
 		add_filter( 'edit_user_profile_update', [ $this, 'handleUserBlockOptionSubmit' ] );
 
 		// Display suspended on the user list table
@@ -68,7 +68,6 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
 	 * @param array $aColumns
 	 * @return array
 	 */
@@ -78,7 +77,6 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
 			$aColumns[ $sCustomColumnName ] = _wpsf__( 'User Status' );
 		}
-
 		add_filter( 'manage_users_custom_column',
 			function ( $sContent, $sColumnName, $nUserId ) use ( $sCustomColumnName ) {
 

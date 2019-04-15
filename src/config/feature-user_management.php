@@ -39,7 +39,6 @@
     },
     {
       "slug":        "section_suspend",
-      "hidden": true,
       "title":       "Automatic And Manual User Suspension",
       "title_short": "User Suspension",
       "summary":     [
@@ -251,7 +250,7 @@
       "section":     "section_suspend",
       "premium":     true,
       "type":        "checkbox",
-      "default":     "Y",
+      "default":     "N",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Allow Manual User Suspension",

@@ -30,7 +30,14 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorPasswords()->run();
 		}
 
-//		$this->getProcessorSuspend()->run();
+		if ( $oFO->isSuspendEnabled() ) {
+			$this->getProcessorSuspend()->run();
+		}
+
+		// All newly created users have their first seen and password start date set
+		add_action( 'user_register', function ( $nUserId ) {
+			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+		} );
 	}
 
 	/**
@@ -40,16 +47,18 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$oWpUsers = Services::WpUsers();
 		if ( $oWpUsers->isUserLoggedIn() ) {
+			var_dump( $this->getCon()->getCurrentUserMeta() );
+			die();
 			$this->setPasswordStartedAt( $oWpUsers->getCurrentWpUser() ); // used by Password Policies
 		}
 	}
 
 	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
+	 * @param string   $sUsername
+	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser = null ) {
-		if ( !$oUser instanceof WP_User ) {
+		if ( !$oUser instanceof \WP_User ) {
 			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
 		$this->setPasswordStartedAt( $oUser )// used by Password Policies
@@ -61,7 +70,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User $oUser - not checking that user is valid
+	 * @param \WP_User $oUser - not checking that user is valid
 	 * @return $this
 	 */
 	private function sendLoginNotifications( $oUser ) {
@@ -86,7 +95,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
 	private function setPasswordStartedAt( $oUser ) {
@@ -97,7 +106,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {

@@ -31,7 +31,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->captureLogin( $this->loadWpUsers()->getUserById( $nUserId ) );
+		$this->captureLogin( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	public function onWpLoaded() {
-		if ( is_admin() && !$this->loadRequest()->isMethodPost() && $this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( is_admin() && !$this->loadRequest()->isMethodPost() && Services::WpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
 			$this->processFailedCheckPassword();
 		}
@@ -135,8 +135,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			$oMeta->pass_reset_last_redirect_at = $this->time();
 
 			$oWp = $this->loadWp();
-			$oWpUsers = $this->loadWpUsers();
-			$sAction = $this->loadRequest()->query( 'action' );
+			$oWpUsers = Services::WpUsers();
+			$sAction = Services::Request()->query( 'action' );
 			$oUser = $oWpUsers->getCurrentWpUser();
 			if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, array( 'rp', 'resetpass' ) ) ) ) {
 
@@ -160,7 +160,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			if ( !empty( $sPassword ) ) {
 				try {
 					$this->applyPasswordChecks( $sPassword );
-					if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+					if ( Services::WpUsers()->isUserLoggedIn() ) {
 						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 					}
 				}
@@ -209,8 +209,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$oFO = $this->getMod();
 		$nMin = $oFO->getPassMinStrength();
 
-		$oStengther = new \ZxcvbnPhp\Zxcvbn();
-		$aResults = $oStengther->passwordStrength( $sPassword );
+		$aResults = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( $sPassword );
 		$nScore = $aResults[ 'score' ];
 
 		if ( $nMin > 0 && $nScore < $nMin ) {

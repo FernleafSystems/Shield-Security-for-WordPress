@@ -8,11 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Idle extends Base {
 
 	/**
-	 * @var int
-	 */
-	private $nVerifiedExpired;
-
-	/**
 	 * @param \WP_User       $oUser
 	 * @param ShieldUserMeta $oMeta
 	 * @return \WP_Error|\WP_User
@@ -32,22 +27,8 @@ class Idle extends Base {
 	 * @return bool
 	 */
 	protected function isLastVerifiedAtExpired( $oMeta ) {
-		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $this->getVerifiedExpires() );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getVerifiedExpires() {
-		return (int)$this->nVerifiedExpired;
-	}
-
-	/**
-	 * @param int $nVerifiedExpired
-	 * @return $this
-	 */
-	public function setVerifiedExpires( $nVerifiedExpired ) {
-		$this->nVerifiedExpired = $nVerifiedExpired;
-		return $this;
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		return ( Services::Request()->ts() - $oMeta->first_seen_at > $oMod->getSuspendAutoIdleTime() );
 	}
 }

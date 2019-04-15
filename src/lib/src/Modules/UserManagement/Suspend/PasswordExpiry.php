@@ -36,11 +36,12 @@ class PasswordExpiry extends Base {
 	 * @return bool
 	 */
 	private function isPassExpired( $oMeta ) {
-		$nPassStart = (int)$oMeta->pass_started_at;
-		if ( empty( $nPassStart ) ) {
-			$oMeta->pass_started_at = $oMeta->getLastVerifiedAt();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		if ( empty( $oMeta->pass_started_at ) ) {
+			$oMeta->pass_started_at = $oMeta->first_seen_at;
 		}
-		return ( Services::Request()->ts() - $oMeta->pass_started_at > $this->getMaxPasswordAge() );
+		return ( Services::Request()->ts() - $oMeta->pass_started_at > $oMod->getPassExpireTimeout() );
 	}
 
 	/**

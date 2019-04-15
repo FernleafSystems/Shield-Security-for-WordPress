@@ -322,11 +322,15 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isSuspendEnabled() {
-		return ( $this->isSuspendManualEnabled()
+		return $this->isPremium() &&
+			   ( $this->isSuspendManualEnabled()
 				 || $this->isSuspendAutoIdleEnabled()
 				 || $this->isSuspendAutoPasswordEnabled()
-			   ) && $this->isPremium();
+			   );
 	}
 
 	/**
