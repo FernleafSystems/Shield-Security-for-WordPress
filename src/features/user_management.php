@@ -365,32 +365,40 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @param int  $nId
+	 * @param int  $nUserId
 	 * @param bool $bAdd - set true to add, false to remove
 	 * @return $this
 	 */
-	public function addRemoveHardSuspendUserId( $nId, $bAdd = true ) {
-		$sUsername = Services::WpUsers()->getCurrentWpUsername();
+	public function addRemoveHardSuspendUserId( $nUserId, $bAdd = true ) {
+		$sAdminUser = Services::WpUsers()->getCurrentWpUsername();
 
 		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
+		if ( !is_array($aIds) ) {
+			$aIds = [];
+		}
 
-		$bIdSuspended = isset( $aIds[ $nId ] );
+		$bIdSuspended = isset( $aIds[ $nUserId ] );
+		$oMeta = $this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+
 		if ( $bAdd && !$bIdSuspended ) {
-			$aIds[ $nId ] = Services::Request()->ts();
+			$oMeta->hard_suspended_at = Services::Request()->ts();
+			$aIds[ $nUserId ] = $oMeta->hard_suspended_at;
 			$this->createNewAudit(
 				'wpsf',
-				sprintf( _wpsf__( 'User ID %s suspended by admin (%s)' ), $nId, $sUsername ),
-				1, 'user_suspension'
+				sprintf( _wpsf__( 'User ID %s suspended by admin (%s)' ), $nUserId, $sAdminUser ),
+				1, 'suspend_user'
 			);
 		}
 		else if ( !$bAdd && $bIdSuspended ) {
-			unset( $aIds[ $nId ] );
+			$oMeta->hard_suspended_at = 0;
+			unset( $aIds[ $nUserId ] );
 			$this->createNewAudit(
 				'wpsf',
-				sprintf( _wpsf__( 'User ID %s unsuspended by admin (%s)' ), $nId, $sUsername ),
-				1, 'user_unsuspension'
+				sprintf( _wpsf__( 'User ID %s unsuspended by admin (%s)' ), $nUserId, $sAdminUser ),
+				1, 'unsuspend_user'
 			);
 		}
+
 		return $this->setOpt( 'hard_suspended_userids', $aIds );
 	}
 
