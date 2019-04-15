@@ -18,15 +18,13 @@ abstract class Base {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->isTrackOptLogOnly( static::OPT_KEY ) ) {
-			// nothing as it's always logged
+		if ( $oFO->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
+			$oFO->setIpBlocked();
 		}
 		else if ( $oFO->isTrackOptTransgression( static::OPT_KEY ) ) {
 			$oFO->setIpTransgressed( $oFO->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1 );
 		}
-		else {
-			$oFO->setIpBlocked();
-		}
+
 		$this->writeAudit();
 	}
 
