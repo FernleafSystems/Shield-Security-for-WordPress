@@ -40,7 +40,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	public function isAutoBlackListFeatureEnabled() {
+	public function isAutoBlackListEnabled() {
 		return ( $this->getOptTransgressionLimit() > 0 );
 	}
 
@@ -340,7 +340,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $sSection ) {
 
 			case 'section_auto_black_list':
-				if ( !$this->isAutoBlackListFeatureEnabled() ) {
+				if ( !$this->isAutoBlackListEnabled() ) {
 					$aWarnings[] = sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( "IP blocking is turned-off because the transgressions limit is set to 0." ) );
 				}
 				break;
@@ -348,7 +348,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'section_behaviours':
 			case 'section_probes':
 			case 'section_logins':
-				if ( !$this->isAutoBlackListFeatureEnabled() ) {
+				if ( !$this->isAutoBlackListEnabled() ) {
 					$aWarnings[] = _wpsf__( "Since the transgressions limit is set to 0, these options have no effect." );
 				}
 
@@ -655,5 +655,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	public function is404Tracking() {
 		return !$this->isOpt( 'track_404', 'disabled' );
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	public function isAutoBlackListFeatureEnabled() {
+		return $this->isAutoBlackListEnabled();
 	}
 }

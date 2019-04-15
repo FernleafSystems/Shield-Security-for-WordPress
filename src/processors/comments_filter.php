@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -10,31 +12,55 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	public function onWpInit() {
 		parent::onWpInit();
 
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
-			return;
+		if ( !Services::WpUsers()->isUserLoggedIn() ) {
+			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+			$oFO = $this->getMod();
+			if ( $oFO->isEnabledGaspCheck() ) {
+				$this->getSubProGasp()->run();
+			}
+			if ( $oFO->isEnabledHumanCheck() && $this->loadWpComments()->isCommentPost() ) {
+				$this->getSubProHuman()->run();
+			}
+			if ( $oFO->isGoogleRecaptchaEnabled() ) {
+				$this->getSubProRecaptcha()->run();
+			}
+
+			add_filter( 'pre_comment_approved', array( $this, 'doSetCommentStatus' ), 1 );
+			add_filter( 'pre_comment_content', array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
+			add_filter( 'comment_notification_recipients', array( $this, 'clearCommentNotificationEmail' ), 100, 1 );
 		}
+	}
 
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
+	/**
+	 * @return array
+	 */
+	protected function getSubProMap() {
+		return [
+			'gasp'      => 'ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam',
+			'human'     => 'ICWP_WPSF_Processor_CommentsFilter_HumanSpam',
+			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',
+		];
+	}
 
-		if ( $oFO->isEnabledGaspCheck() ) {
-			$oBotSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam( $oFO );
-			$oBotSpamProcessor->run();
-		}
+	/**
+	 * @return ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
+	 */
+	private function getSubProGasp() {
+		return $this->getSubPro( 'gasp' );
+	}
 
-		if ( $oFO->isEnabledHumanCheck() && $this->loadWpComments()->isCommentPost() ) {
-			$oHumanSpamProcessor = new ICWP_WPSF_Processor_CommentsFilter_HumanSpam( $oFO );
-			$oHumanSpamProcessor->run();
-		}
+	/**
+	 * @return ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
+	 */
+	private function getSubProHuman() {
+		return $this->getSubPro( 'human' );
+	}
 
-		if ( $oFO->isGoogleRecaptchaEnabled() ) {
-			$oReCap = new ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha( $oFO );
-			$oReCap->run();
-		}
-
-		add_filter( 'pre_comment_approved', array( $this, 'doSetCommentStatus' ), 1 );
-		add_filter( 'pre_comment_content', array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
-		add_filter( 'comment_notification_recipients', array( $this, 'clearCommentNotificationEmail' ), 100, 1 );
+	/**
+	 * @return ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
+	 */
+	private function getSubProRecaptcha() {
+		return $this->getSubPro( 'recaptcha' );
 	}
 
 	/**
@@ -47,7 +73,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		// We only warn when the human spam filter is running
 		if ( $oFO->isEnabledHumanCheck() ) {
 
-			$oWpPlugins = $this->loadWpPlugins();
+			$oWpPlugins = Services::WpPlugins();
 			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );
 			if ( $oWpPlugins->isActive( $sPluginFile ) ) {
 				$aRenderData = array(
@@ -101,7 +127,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function clearCommentNotificationEmail( $aEmails ) {
 		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
-		if ( in_array( $sStatus, array( 'reject', 'trash' ) ) ) {
+		if ( in_array( $sStatus, [ 'reject', 'trash' ] ) ) {
 			$aEmails = [];
 		}
 		return $aEmails;

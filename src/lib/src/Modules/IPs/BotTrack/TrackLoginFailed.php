@@ -26,6 +26,12 @@ class TrackLoginFailed extends Base {
 					 && !empty( $sPass ) && Services::WpUsers()->exists( $sLogin ) ) {
 					$this->user_login = Services::Data()->validEmail( $sLogin ) ? $sLogin : sanitize_user( $sLogin );
 					$this->doTransgression();
+
+					// Adds an extra message to login failed
+					$oUser->add(
+						$this->getMod()->prefix( 'transgression-warning' ),
+						$this->getMod()->getTextOpt( 'text_loginfailed' )
+					);
 				}
 				return $oUser;
 			},

@@ -54,18 +54,18 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	protected $nTemplateEngine;
 
 	/**
-	 * @var Twig_Environment
+	 * @var \Twig\Environment
 	 */
 	protected $oTwigEnv;
 
 	/**
-	 * @var Twig_Loader_Filesystem
+	 * @var \Twig\Loader\FilesystemLoader
 	 */
 	protected $oTwigLoader;
 
 	/**
 	 * @return string
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function render() {
 
@@ -139,25 +139,16 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return Twig_Environment
+	 * @return \Twig\Environment
 	 */
 	protected function getTwigEnvironment() {
-		return new Twig_Environment( $this->getTwigLoader(),
-			array(
+		return new \Twig\Environment(
+			new \Twig\Loader\FilesystemLoader( $this->getTemplateRootMain() ),
+			[
 				'debug'            => true,
 				'strict_variables' => true,
-			)
+			]
 		);
-	}
-
-	/**
-	 * @return Twig_Loader_Filesystem
-	 */
-	protected function getTwigLoader() {
-		if ( !isset( $this->oTwigLoader ) ) {
-			$this->oTwigLoader = new Twig_Loader_Filesystem( $this->getTemplateRootMain() );
-		}
-		return $this->oTwigLoader;
 	}
 
 	/**
