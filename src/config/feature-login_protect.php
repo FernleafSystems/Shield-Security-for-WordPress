@@ -12,6 +12,7 @@
     "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
+    "run_if_wpcli":          false,
     "order":                 40
   },
   "admin_notices": {
@@ -290,6 +291,7 @@
       "key":         "login_limit_interval",
       "section":     "section_brute_force_login_protection",
       "default":     "10",
+      "min":         0,
       "type":        "integer",
       "link_info":   "https://icwp.io/3q",
       "link_blog":   "https://icwp.io/9o",

@@ -12,6 +12,7 @@
     "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
+    "run_if_wpcli":          false,
     "order":                 30
   },
   "sections":    [
@@ -295,6 +296,8 @@
         "wp_http_referer",
         "_wp_http_referer",
         "_wp_original_http_referer",
+        "pass1",
+        "pass1-text",
         "pwd",
         "url",
         "referredby",

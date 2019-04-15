@@ -1,6 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
 
@@ -143,14 +144,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 			add_filter( 'views_plugins', array( $this, 'addPluginsStatusViewLink' ), 1000 );
 
 			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
-			foreach ( $this->loadWpPlugins()->getInstalledBaseFiles() as $sPluginFile ) {
+			foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $sPluginFile ) {
 				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
 			}
 		}
 	}
 
 	public function addVulnerablePluginStatusView() {
-		if ( $this->loadRequest()->query( 'plugin_status' ) == 'vulnerable' ) {
+		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
 			global $status;
 			$status = 'vulnerable';
 		}
@@ -182,7 +183,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @return array
 	 */
 	public function filterPluginsToView( $aPlugins ) {
-		if ( $this->loadRequest()->query( 'plugin_status' ) == 'vulnerable' ) {
+		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
 			global $status;
 			$status = 'vulnerable';
 			$aPlugins = array_intersect_key( $aPlugins, array_flip( $this->getVulnerablePlugins() ) );

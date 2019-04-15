@@ -15,7 +15,7 @@ class ScanWpv extends ScanBase {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
-		$aEntries = array();
+		$aEntries = [];
 
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();

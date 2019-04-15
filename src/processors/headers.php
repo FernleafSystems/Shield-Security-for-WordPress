@@ -106,7 +106,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$sTemplate = 'default-src %s;';
 
-		$aDefaultSrcDirectives = array();
+		$aDefaultSrcDirectives = [];
 
 		if ( $oFO->isOpt( 'xcsp_self', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'self'";
@@ -161,7 +161,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function getHeaders() {
 		if ( !isset( $this->aHeaders ) || !is_array( $this->aHeaders ) ) {
-			$this->aHeaders = array();
+			$this->aHeaders = [];
 		}
 		return $this->aHeaders;
 	}

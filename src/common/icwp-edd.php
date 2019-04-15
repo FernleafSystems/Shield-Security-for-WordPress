@@ -1,7 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
-use \FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Edd {
 
@@ -101,7 +101,7 @@ class ICWP_WPSF_Edd {
 	private function commonLicenseAction( $sAction, $sStoreUrl, $sKey, $sItemId ) {
 		$oWp = Services::WpGeneral();
 		$aLicenseLookupParams = array(
-			'timeout' => 30,
+			'timeout' => 60,
 			'body'    => array_merge(
 				array(
 					'edd_action' => $sAction,

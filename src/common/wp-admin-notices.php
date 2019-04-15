@@ -103,7 +103,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @throws \Exception
 	 */
 	protected function getCurrentUserMeta() {
-		return \FernleafSystems\Wordpress\Services\Services::WpUsers()->metaVoForUser( rtrim( $this->getPrefix(), '-' ) );
+		return Services::WpUsers()->metaVoForUser( rtrim( $this->getPrefix(), '-' ) );
 	}
 
 	/**

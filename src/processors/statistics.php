@@ -27,7 +27,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	public function tracking_DataCollect( $aData ) {
 		$aData = parent::tracking_DataCollect( $aData );
 		$aTallys = $this->getAllTallys();
-		$aTallyTracking = array();
+		$aTallyTracking = [];
 		foreach ( $aTallys as $oTally ) {
 			$sKey = preg_replace( '#[^_a-z]#', '', str_replace( '.', '_', $oTally->stat_key ) );
 			if ( strpos( $sKey, '_' ) ) {
@@ -43,7 +43,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function getInsightsStats() {
 		$aAllTallys = $this->getAllTallys();
-		$aAllStats = array();
+		$aAllStats = [];
 
 		$aSpamCommentKeys = array(
 			'spam.gasp.checkbox',
@@ -209,7 +209,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 		);
 
 		if ( !is_array( $aContent ) ) {
-			$aContent = array();
+			$aContent = [];
 		}
 		$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_statistics.php', $aDisplayData );
 		return $aContent;

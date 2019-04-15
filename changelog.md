@@ -1,3 +1,43 @@
+
+= 7.1 - Series =
+*Released: 21st February, 2019* - [Release Notes](https://icwp.io/ek)
+
+* **(v.2)**  IMPROVED:	Firewall email notification content now better reflect the information in the audit trail.
+* **(v.2)**  FIX:		Firewall email notification was breaking in some instances.
+* **(v.1)**  FIX:		IP retrieval.
+* **(v.0)**  NEW:		Moved Import/Export UI from Wizard to main Shield Dashboard.
+* **(v.0)**  NEW:		[**PRO**] Option to import/export settings using file downloads/uploads
+* **(v.0)**  NEW:		[**PRO**] Option to allow visitors to automatically unblock themselves (once in 24hrs)
+* **(v.0)**  NEW:		Integrated changelog directly into plugin admin for easy updates (between releases)
+* **(v.0)**  FIXED:		WP Core files scanner now correctly ignores certain files as it used to do, pre-v7. e.g. wp-config-sample.php
+* **(v.0)**  FIXED:		Shield was indicating plugin/theme file editing was possible, when it in-fact was disabled.
+* **(v.0)**  IMPROVED:	Consolidate crons into fewer crons. e.g. all scans run under the same cron.
+
+= 7.0 - Series =
+*Released: 28th January, 2019* - [Release Notes](https://icwp.io/ef)
+
+* **(v.4)**  IMPROVED:	Refactored IP address blocking with improved audit trail messages.
+* **(v.4)**  CHANGED:	Expanded anonymous REST API whitelist to include 'wpstatistics' namespace.
+* **(v.4)**  IMPROVED:	Access protection for shield temp/caching dir.
+* **(v.4)**  IMPROVED:	Clarification on reCAPTCHA - v3 is **not** supported.
+* **(v.4)**  IMPROVED:	Clarification on user sessions timeout - Shield sets an absolutely session maximum.
+* **(v.4)**  IMPROVED:	Options form submission is adjusted to work around poorly restrictive webhosts.
+* **(v.4)**  FIX:		Various tweaks and fixes across the plugin.
+* **(v.4)**  FIX:		Error with ClassicPress.
+* **(v.3)**  NEW:		Automatically whitelist anonymous REST API Access for 3 plugins: Contact Form 7, WooCommerce, JetPack.
+* **(v.3)**  IMPROVED:	Security admin login failure messages are clearer.
+* **(v.3)**  IMPROVED:	Admin notification for email sending 2FA verification easily lets you resend email.
+* **(v.3)**  IMPROVED:	File download code for WordPress Core file scanner repairs.
+* **(v.3)**  IMPROVED:	Attempt to also capture B/CC email addresses included in outgoing emails in Audit logs.
+* **(v.3)**  FIX:		Allow use of IPv4 ranges in whitelist again.
+* **(v.3)**  CHANGED:	Numerous code refactoring and improvements building upon the major v7 release and prepping for v7.1.
+* **(v.1-2)**  FIXED:	Some JS fixes.
+* **(v.0)**  NEW:		New primary UI for Shield site security management. Easy access to scans, audit trail, user sessions etc.
+* **(v.0)**  NEW:		Supports only PHP 5.4 or higher
+* **(v.0)**  NEW:		Rebuilt scans architecture and UI
+* **(v.0)**  NEW:		A huge amount of code cleaning and refactoring
+* **(v.0)**  CHANGED:	Too many many changes and bug fixes to list -best to just take a look! :)
+
 = 6.10 - Series =
 *Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
 

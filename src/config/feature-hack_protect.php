@@ -12,7 +12,8 @@
     "premium":               false,
     "order":                 70,
     "run_if_whitelisted":    true,
-    "run_if_verified_bot":   true
+    "run_if_verified_bot":   true,
+    "run_if_wpcli":          false
   },
   "sections":    [
     {
@@ -22,6 +23,15 @@
       "title_short": "Schedule",
       "summary":     [
         "Purpose - Set how often the Hack Guard scans will run."
+      ]
+    },
+    {
+      "slug":        "section_realtime",
+      "title":       "Realtime Protection",
+      "title_short": "Realtime Protection",
+      "summary":     [
+        "Purpose - Provides realtime protection for certain key files.",
+        "Recommendation - Keep realtime protection turned on to protect key files."
       ]
     },
     {
@@ -40,6 +50,15 @@
       "summary":     [
         "Purpose - Scan your WordPress core folders for unrecognised files that don't belong.",
         "Recommendation - Keep the Unrecognised Files Scanner feature turned on."
+      ]
+    },
+    {
+      "slug":        "section_scan_apc",
+      "title":       "Abandoned Plugin Check",
+      "title_short": "Abandoned Plugin Check",
+      "summary":     [
+        "Purpose - Regularly scan your WordPress plugins and themes for plugins that have been abandoned.",
+        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
       ]
     },
     {
@@ -62,15 +81,6 @@
       "title_short": "Vulnerability Scanner",
       "summary":     [
         "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
-        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-      ]
-    },
-    {
-      "slug":        "section_scan_apc",
-      "title":       "Abandoned Plugin Check",
-      "title_short": "Abandoned Plugin Check",
-      "summary":     [
-        "Purpose - Regularly scan your WordPress plugins and themes for plugins that have been abandoned.",
         "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
       ]
     },
@@ -108,6 +118,18 @@
       "name":        "Enable Hack Guard",
       "summary":     "Enable (or Disable) The Hack Guard Module",
       "description": "Un-Checking this option will completely disable the Hack Guard module"
+    },
+    {
+      "key":         "rt_file_wpconfig",
+      "section":     "section_non_ui",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "WP Config",
+      "summary":     "Lock WP Config Against Any Changes",
+      "description": "As soon as changes are detected to the WP config file the file will be reverted."
     },
     {
       "key":           "enable_wpvuln_scan",
@@ -175,7 +197,6 @@
     {
       "key":           "enabled_scan_apc",
       "section":       "section_scan_apc",
-      "premium":       true,
       "default":       "enabled_email",
       "type":          "select",
       "value_options": [
@@ -192,8 +213,8 @@
           "text":      "Enabled - No Email Notification"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/ew",
+      "link_blog":     "https://icwp.io/eo",
       "name":          "Abandoned Plugin Scanner",
       "summary":       "Enable The Abandoned Plugin Scanner",
       "description":   "Scan your WordPress.org assets for whether they've been abandoned."
@@ -547,6 +568,27 @@
       "transferable": false,
       "type":         "boolean",
       "default":      false
+    },
+    {
+      "key":          "rt_file_hashes",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "rt_file_backup_names",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "rt_can_write_files",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions": {

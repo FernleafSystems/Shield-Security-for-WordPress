@@ -15,7 +15,7 @@ class Insert extends BaseQuery {
 	 * @return array
 	 */
 	public function getInsertData() {
-		$aD = is_array( $this->aInsertData ) ? $this->aInsertData : array();
+		$aD = is_array( $this->aInsertData ) ? $this->aInsertData : [];
 		return array_intersect_key( $aD, array_flip( $this->getDbH()->getColumnsActual() ) );
 	}
 
@@ -34,7 +34,7 @@ class Insert extends BaseQuery {
 	 */
 	protected function setInsertData( $aData ) {
 		if ( !is_array( $aData ) ) {
-			$aData = array();
+			$aData = [];
 		}
 		$this->aInsertData = array_intersect_key( $aData, array_flip( $this->getDbH()->getColumnsActual() ) );
 		return $this;
@@ -48,7 +48,7 @@ class Insert extends BaseQuery {
 		$aData = $this->getInsertData();
 
 		if ( !is_array( $aData ) ) {
-			$aData = array();
+			$aData = [];
 		}
 		$aData = array_merge(
 			array( 'created_at' => Services::Request()->ts(), ),

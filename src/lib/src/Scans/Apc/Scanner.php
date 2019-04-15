@@ -90,7 +90,6 @@ class Scanner {
 			$nLastUpdateAt = strtotime( $oApi->last_updated );
 			if ( Services::Request()->ts() - $nLastUpdateAt > $this->getAbandonedLimit() ) {
 				$nTime = $nLastUpdateAt;
-				var_dump( $nTime );
 			}
 		}
 
@@ -102,7 +101,7 @@ class Scanner {
 	 * @return WpVulnVO[]
 	 */
 	private function getThemeVulnerabilities( $sSlug ) {
-		$aVulns = array();
+		$aVulns = [];
 		$oWpThemes = Services::WpThemes();
 
 		try {

@@ -123,7 +123,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'strings'     => array(
 					'title' => $this->getCon()->getHumanName(),
 				),
-				'js_snippets' => array()
+				'js_snippets' => []
 			);
 			echo $this->getMod()
 					  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
@@ -150,7 +150,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'inputs'      => array(
 					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
 				),
-				'js_snippets' => array()
+				'js_snippets' => []
 			);
 			echo $this->getMod()
 					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aRenderData );
@@ -227,13 +227,13 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$aRenderData = array(
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => array(
-					'title'        => 'Come and Join Us!',
-					'yes'          => "Yes please! I'd love to join in and learn more",
-					'no'           => "No thanks, I'm not interested in such groups",
-					'your_name'    => _wpsf__( 'Your Name' ),
-					'your_email'   => _wpsf__( 'Your Email' ),
-					'dismiss'      => "No thanks, I'm not interested in such informative groups",
-					'summary'      => sprintf( 'The %s security team is running an initiative to raise awareness of WordPress Security
+					'title'          => 'Come and Join Us!',
+					'yes'            => "Yes please! I'd love to join in and learn more",
+					'no'             => "No thanks, I'm not interested in such groups",
+					'your_name'      => _wpsf__( 'Your Name' ),
+					'your_email'     => _wpsf__( 'Your Email' ),
+					'dismiss'        => "No thanks, I'm not interested in such informative groups",
+					'summary'        => sprintf( 'The %s security team is running an initiative to raise awareness of WordPress Security
 				and to provide further help with the %s security plugin. Get Involved here:', $sName, $sName ),
 					'privacy_policy' => sprintf(
 						'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
@@ -244,7 +244,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
 				),
 				'install_days'      => $nDays,
-				'vars' => [
+				'vars'              => [
 					'name'       => $oUser->first_name,
 					'user_email' => $oUser->user_email
 				]

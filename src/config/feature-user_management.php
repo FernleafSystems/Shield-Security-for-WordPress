@@ -11,6 +11,7 @@
     "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
+    "run_if_wpcli":          false,
     "order":                 40
   },
   "sections":    [
@@ -39,10 +40,10 @@
     {
       "slug":        "section_suspend",
       "hidden": true,
-      "title":       "User Suspension",
+      "title":       "Automatic And Manual User Suspension",
       "title_short": "User Suspension",
       "summary":     [
-        "Purpose - So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.",
+        "Purpose - Automatically suspend accounts to prevent login by certain users.",
         "Recommendation - Use of this feature is highly recommend."
       ]
     },

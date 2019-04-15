@@ -158,12 +158,12 @@ class BaseBuild {
 	 */
 	protected function getParamDefaults() {
 		return array_merge(
-			array(
+			[
 				'paged'   => 1,
 				'order'   => 'DESC',
 				'orderby' => 'created_at',
 				'limit'   => 25,
-			),
+			],
 			$this->getCustomParams()
 		);
 	}
@@ -173,7 +173,7 @@ class BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array();
+		return [];
 	}
 
 	/**

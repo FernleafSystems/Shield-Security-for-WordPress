@@ -1,7 +1,7 @@
 {
   "properties":   {
-    "version":                 "7.1.2",
-    "release_timestamp":       1551287600,
+    "version":                 "7.3.0",
+    "release_timestamp":       1555317194,
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
@@ -49,6 +49,8 @@
         "bootstrap4.bundle.min",
         "jquery",
         "plugin",
+        "base64.min",
+        "lz-string.min",
         "featherlight",
         "jquery.fileDownload"
       ]

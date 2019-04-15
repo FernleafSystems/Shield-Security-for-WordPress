@@ -5,11 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
-	 * @var ICWP_WPSF_Processor_UserManagement_Sessions
-	 */
-	protected $oProcessorSessions;
-
-	/**
 	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -35,7 +30,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorPasswords()->run();
 		}
 
-		$this->getProcessorSuspend()->run();
+//		$this->getProcessorSuspend()->run();
 	}
 
 	/**
@@ -148,7 +143,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	private function sendAdminLoginEmailNotification( $oUser ) {
@@ -214,7 +209,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	private function sendUserLoginEmailNotification( $oUser ) {

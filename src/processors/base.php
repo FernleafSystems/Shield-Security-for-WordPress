@@ -1,7 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield;
-use \FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
@@ -31,18 +31,22 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 		add_action( 'init', array( $this, 'onWpInit' ), 9 );
 		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
-		add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
-		add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+		{ // Capture Logins
+			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
+			if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
+				add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+			}
+		}
 		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
 		add_action( $oModCon->prefix( 'daily_cron' ), array( $this, 'runDailyCron' ) );
 		add_action( $oModCon->prefix( 'hourly_cron' ), array( $this, 'runHourlyCron' ) );
 		add_action( $oModCon->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
+		add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 
 		$this->init();
 	}
 
 	public function onWpInit() {
-		add_action( $this->getMod()->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 	}
 
 	public function onWpLoaded() {
@@ -236,7 +240,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sKey
-	 * @return ICWP_WPSF_Processor_Base|null
+	 * @return ICWP_WPSF_Processor_Base|mixed|null
 	 */
 	protected function getSubPro( $sKey ) {
 		$aProcessors = $this->getSubProcessors();
@@ -262,7 +266,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getSubProcessors() {
 		if ( !isset( $this->aSubPros ) ) {
-			$this->aSubPros = array();
+			$this->aSubPros = [];
 		}
 		return $this->aSubPros;
 	}

@@ -67,11 +67,12 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	public function addInsightsNoticeData( $aAllNotices ) {
 		$aNotices = array(
 			'title'    => _wpsf__( 'Lockdown' ),
-			'messages' => array()
+			'messages' => []
 		);
 
 		{ //edit plugins
-			if ( current_user_can( 'edit_plugins' ) ) { //assumes current user is admin
+			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
+			if ( !$bEditingDisabled ) { //assumes current user is admin
 				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
 					'title'   => 'Code Editor',
 					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
@@ -98,7 +99,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				'title' => _wpsf__( 'WordPress Lockdown' ),
 				'sub'   => _wpsf__( 'Restrict WP Functionality e.g. XMLRPC & REST API' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -106,7 +107,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bEditingDisabled = !current_user_can( 'edit_plugins' );
+			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
 			$aThis[ 'key_opts' ][ 'editing' ] = array(
 				'name'    => _wpsf__( 'WP File Editing' ),
 				'enabled' => $bEditingDisabled,
@@ -194,7 +195,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}
@@ -278,7 +279,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	protected function getCanDoAuthSalts() {
-		$oWpFs = $this->loadFS();
+		$oWpFs = Services::WpFs();
 
 		if ( !$oWpFs->getCanWpRemoteGet() ) {
 			return false;

@@ -115,7 +115,7 @@ class Select extends BaseQuery {
 	 * @return array
 	 */
 	public function getColumnsToSelect() {
-		return is_array( $this->aColumnsToSelect ) ? $this->aColumnsToSelect : array();
+		return is_array( $this->aColumnsToSelect ) ? $this->aColumnsToSelect : [];
 	}
 
 	/**
@@ -182,7 +182,7 @@ class Select extends BaseQuery {
 
 	/**
 	 * Handle COUNT, DISTINCT, & normal SELECT
-	 * @return int|string[]|array[]|EntryVO[]
+	 * @return int|string[]|array[]|EntryVO[]|mixed
 	 */
 	public function query() {
 		if ( $this->isCount() ) {
@@ -196,7 +196,7 @@ class Select extends BaseQuery {
 				}, $mData );
 			}
 			else {
-				$mData = array();
+				$mData = [];
 			}
 		}
 		else {

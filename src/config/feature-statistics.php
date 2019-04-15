@@ -9,7 +9,8 @@
     "premium":               false,
     "access_restricted":     true,
     "run_if_whitelisted":    true,
-    "run_if_verified_bot":   false
+    "run_if_verified_bot":   false,
+    "run_if_wpcli":          false
   },
   "sections":    [
     {

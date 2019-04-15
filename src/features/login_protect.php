@@ -24,10 +24,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				 ->sendEmailVerifyCanSend();
 		}
 
-		if ( $this->getOpt( 'login_limit_interval' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'login_limit_interval' );
-		}
-
 		$aIds = $this->getAntiBotFormSelectors();
 		foreach ( $aIds as $nKey => $sId ) {
 			$sId = trim( strip_tags( $sId ) );
@@ -46,7 +42,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 */
 	public function handleModRequest() {
-		switch ( $this->loadRequest()->query( 'exec' ) ) {
+		switch ( Services::Request()->query( 'exec' ) ) {
 			case 'email_send_verify':
 				$this->processEmailSendVerify();
 				break;
@@ -78,7 +74,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sMessage = _wpsf__( 'Email verification could not be completed.' );
 		}
 		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
-		$this->loadWp()->doRedirect( $this->getUrl_AdminPage() );
+		Services::Response()->redirect( $this->getUrl_AdminPage() );
 	}
 
 	/**
@@ -88,7 +84,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function sendEmailVerifyCanSend( $sEmail = null, $bSendAsLink = true ) {
 
-		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
+		if ( !Services::Data()->validEmail( $sEmail ) ) {
 			$sEmail = get_bloginfo( 'admin_email' );
 		}
 
@@ -153,7 +149,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function getEmail2FaRoles() {
-		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', array() );
+		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', [] );
 		if ( empty( $aRoles ) || !is_array( $aRoles ) ) {
 			$aRoles = $this->getOptEmailTwoFactorRolesDefaults();
 			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
@@ -183,6 +179,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			return array_keys( $aTwoAuthRoles );
 		}
 		return $aTwoAuthRoles;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getCooldownInterval() {
+		return (int)$this->getOpt( 'login_limit_interval' );
 	}
 
 	/**
@@ -238,14 +241,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function canUserMfaSkip( $oUser ) {
-
+		$oReq = Services::Request();
 		if ( $this->getMfaSkipEnabled() ) {
 			$aHashes = $this->getMfaLoginHashes( $oUser );
 			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
 
-			$sHash = md5( $this->loadRequest()->getUserAgent() );
+			$sHash = md5( $oReq->getUserAgent() );
 			$bCanSkip = isset( $aHashes[ $sHash ] )
-						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $this->loadRequest()->ts();
+						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $oReq->ts();
 		}
 		else if ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
@@ -261,18 +264,18 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			 */
 			$bCanSkip = apply_filters(
 				'odp-shield-2fa_skip',
-				strpos( $this->loadRequest()->server( 'HTTP_REFERER' ), 'https://app.icontrolwp.com/' ) === 0
+				strpos( $oReq->server( 'HTTP_REFERER' ), 'https://app.icontrolwp.com/' ) === 0
 			);
 		}
 		return $bCanSkip;
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
 	public function addMfaLoginHash( $oUser ) {
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 		$aHashes = $this->getMfaLoginHashes( $oUser );
 		$aHashes[ md5( $oReq->getUserAgent() ) ] = $oReq->ts();
 		$this->getCon()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
@@ -287,7 +290,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$aHashes = $oMeta->hash_loginmfa;
 		if ( !is_array( $aHashes ) ) {
-			$aHashes = array();
+			$aHashes = [];
 			$oMeta->hash_loginmfa = $aHashes;
 		}
 		return $aHashes;
@@ -392,7 +395,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isCooldownEnabled() {
-		return (int)$this->getOpt( 'login_limit_interval' ) > 0;
+		return $this->getCooldownInterval() > 0;
 	}
 
 	/**
@@ -417,7 +420,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function setIfCanSendEmail( $bCan ) {
 		$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
 		if ( $bCan ) {
-			$nDateAt = ( $nCurrentDateAt <= 0 ) ? $this->loadRequest()->ts() : $nCurrentDateAt;
+			$nDateAt = ( $nCurrentDateAt <= 0 ) ? Services::Request()->ts() : $nCurrentDateAt;
 		}
 		else {
 			$nDateAt = 0;
@@ -490,7 +493,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = array();
+		$aWarnings = [];
 
 		if ( $sSection == 'section_brute_force_login_protection' && !$this->isPremium() ) {
 			$sIntegration = $this->getPremiumOnlyIntegration();
@@ -552,7 +555,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'gen_backup_codes':
 					$aAjaxResponse = $this->ajaxExec_GenBackupCodes();
@@ -583,9 +586,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	protected function ajaxExec_GenBackupCodes() {
 		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
 		$oPro = $this->loadProcessor();
-		$sPass = $oPro->getProcessorLoginIntent()
+		$sPass = $oPro->getSubProIntent()
 					  ->getProcessorBackupCodes()
-					  ->resetSecret( $this->loadWpUsers()->getCurrentWpUser() );
+					  ->resetSecret( Services::WpUsers()->getCurrentWpUser() );
 
 		foreach ( array( 20, 15, 10, 5 ) as $nPos ) {
 			$sPass = substr_replace( $sPass, '-', $nPos, 0 );
@@ -610,8 +613,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function getAntiBotFormSelectors() {
-		$aIds = $this->getOpt( 'antibot_form_ids', array() );
-		return is_array( $aIds ) ? $aIds : array();
+		$aIds = $this->getOpt( 'antibot_form_ids', [] );
+		return is_array( $aIds ) ? $aIds : [];
 	}
 
 	public function onWpEnqueueJs() {
@@ -664,9 +667,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
 		$oPro = $this->loadProcessor();
-		$oPro->getProcessorLoginIntent()
+		$oPro->getSubProIntent()
 			 ->getProcessorBackupCodes()
-			 ->deleteSecret( $this->loadWpUsers()->getCurrentWpUser() );
+			 ->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
 		$this->setFlashAdminNotice( _wpsf__( 'Multi-factor login backup code has been removed from your profile' ) );
 		return array(
 			'success' => true
@@ -735,7 +738,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'title' => _wpsf__( 'Login Guard' ),
 				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -823,7 +826,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_rename_wplogin' :
 				$sTitle = _wpsf__( 'Hide WordPress Login Page' );
-				$sTitleShort = sprintf( _wpsf__( 'Rename "%s"' ), 'wp-login.php' );
 				$sTitleShort = _wpsf__( 'Hide Login Page' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
@@ -883,7 +885,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$aOptionsParams[ 'title' ] = $sTitle;
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		return $aOptionsParams;
 	}
 

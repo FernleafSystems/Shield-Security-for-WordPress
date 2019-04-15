@@ -42,7 +42,7 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	 * @return string[]
 	 */
 	private function getFileExts() {
-		return is_array( self::$aFileExts ) ? self::$aFileExts : array();
+		return is_array( self::$aFileExts ) ? self::$aFileExts : [];
 	}
 
 	/**

@@ -285,7 +285,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param bool $bIsSubjectTo
+	 * @param bool    $bIsSubjectTo
 	 * @param WP_User $oUser
 	 * @return bool
 	 */

@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 
 				if ( self::$sCommentStatus == 'reject' ) {
 					$oWp = $this->loadWp();
-					$oWp->doRedirect( $oWp->getHomeUrl(), array(), true, false );
+					$oWp->doRedirect( $oWp->getHomeUrl(), [], true, false );
 				}
 			}
 		}

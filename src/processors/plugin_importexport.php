@@ -233,7 +233,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 * @return array
 	 */
 	private function getExportData() {
-		$aD = apply_filters( $this->getMod()->prefix( 'gather_options_for_export' ), array() );
+		$aD = apply_filters( $this->getMod()->prefix( 'gather_options_for_export' ), [] );
 		return is_array( $aD ) ? $aD : [];
 	}
 
@@ -329,7 +329,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		$bSuccess = false;
-		$aData = array();
+		$aData = [];
 
 		if ( !$oFO->isPremium() ) {
 			$nCode = 1;

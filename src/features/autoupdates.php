@@ -1,12 +1,14 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 */
 	protected function setupCustomHooks() {
 		// Force run automatic updates
-		if ( $this->loadRequest()->query( 'force_run_auto_updates' ) == 'now' ) {
+		if ( Services::Request()->query( 'force_run_auto_updates' ) == 'now' ) {
 			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
 		}
 	}
@@ -15,11 +17,11 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string[]
 	 */
 	public function getAutoupdatePlugins() {
-		$aSelected = array();
+		$aSelected = [];
 		if ( $this->isAutoupdateIndividualPlugins() ) {
-			$aSelected = $this->getOpt( 'selected_plugins', array() );
+			$aSelected = $this->getOpt( 'selected_plugins', [] );
 			if ( !is_array( $aSelected ) ) {
-				$aSelected = array();
+				$aSelected = [];
 			}
 		}
 		return $aSelected;
@@ -29,15 +31,15 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function getDelayTracking() {
-		$aTracking = $this->getOpt( 'delay_tracking', array() );
+		$aTracking = $this->getOpt( 'delay_tracking', [] );
 		if ( !is_array( $aTracking ) ) {
-			$aTracking = array();
+			$aTracking = [];
 		}
 		$aTracking = $this->loadDP()->mergeArraysRecursive(
 			array(
-				'core'    => array(),
-				'plugins' => array(),
-				'themes'  => array(),
+				'core'    => [],
+				'plugins' => [],
+				'themes'  => [],
 			),
 			$aTracking
 		);
@@ -112,7 +114,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'toggle_plugin_autoupdate':
 					$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
@@ -134,7 +136,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 		if ( $this->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
 			$oWpPlugins = $this->loadWpPlugins();
-			$sFile = $this->loadRequest()->post( 'pluginfile' );
+			$sFile = Services::Request()->post( 'pluginfile' );
 			if ( $oWpPlugins->isInstalled( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );
 
@@ -203,10 +205,10 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	public function addInsightsNoticeData( $aAllNotices ) {
 		$aNotices = array(
 			'title'    => _wpsf__( 'Automatic Updates' ),
-			'messages' => array()
+			'messages' => []
 		);
 		{ //really disabled?
-			$oWp = $this->loadWp();
+			$oWp = Services::WpGeneral();
 			if ( $this->isModOptEnabled() ) {
 				if ( $this->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
 					$aNotices[ 'messages' ][ 'disabled_auto' ] = array(
@@ -237,7 +239,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				'title' => _wpsf__( 'Automatic Updates' ),
 				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -363,7 +365,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

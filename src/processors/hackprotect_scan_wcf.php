@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * TODO:
 	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
 	 * if ( empty( $aAutoFixIndexFiles ) ) {
-	 * $aAutoFixIndexFiles = array();
+	 * $aAutoFixIndexFiles = [];
 	 */
 
 	/**
@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getFullExclusions() {
 		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions' );
-		$aExclusions = is_array( $aExclusions ) ? $aExclusions : array();
+		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
 
 		// Flywheel specific mods
 		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getMissingOnlyExclusions() {
 		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions_missing_only' );
-		return is_array( $aExclusions ) ? $aExclusions : array();
+		return is_array( $aExclusions ) ? $aExclusions : [];
 	}
 
 	/**
@@ -183,7 +183,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildListOfFilesForEmail( $oResult ) {
-		$aContent = array();
+		$aContent = [];
 
 		if ( $oResult->hasChecksumFailed() ) {
 			$aContent[] = '';

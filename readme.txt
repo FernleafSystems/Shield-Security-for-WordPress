@@ -1,26 +1,36 @@
-=== Shield Security for WordPress ===
+=== Shield: Security, Scanning & Protection For All ===
 Contributors: onedollarplugin, paultgoodchild
 Donate link: https://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: security, all in one, scan, firewall, two factor authentication, spam, wordfence, cerber, ithemes
+Tags: scan, firewall, two factor authentication, login protection, security
 Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
-Tested up to: 5.1
-Stable tag: 7.1.2
+Tested up to: 5.2
+Stable tag: 7.3.0
 
-Complete All-In-One Protection for your WordPress sites, that makes Security Easy for Everyone - it doesn't have to be hard anymore.
+All-In-One protection against hackers and bot attacks. Easy to use Scanners, 2-Factor Authentication, login protection, auto IP blocker, and so much more...
 
 == Description ==
 
+### The highest rated 5* Security Plugin for WordPress
+
+Shield has the highest average 5* rating for any WordPress security plugin (2019/04). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5)..
+
+#### Our Mission: No Site Left Behind.
+
+We're driven by our mission to offer protection to **every single site**. We're not here to scare you, but help you start, *right now*, protecting what's important to you and your business.
+
+Getting started is easy, and we'll help you through every step. All our security options are fully documented so you can understand and stay informed as you progress.
+
 ### Powerful Security for WordPress *doesn't* need to be *hard*
 
-There's no good reason for WordPress security plugins to be so complicated. It doesn't have to be that way.
+There's no reason for security plugins to be complicated. It just doesn't have to be that way.
 
 Shield is the easiest security plugin to setup - you simply activate it. Then a beautiful, step-by-step wizard will walk you through the basic configuration.
 
-And you can dig deeper, any time you're ready.
+And you can dig deeper, when you're ready.
 
 #### Trust: Shield Does Exactly What It Says It Will Do
 
@@ -352,47 +362,28 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.1.2 - Current Release =
-*Released: 27th February, 2019* - [Release Notes](https://icwp.io/ek)
+= 7.3.0 - Current Release =
+*Released: 11th April, 2019* - [Release Notes](https://icwp.io/f0)
 
-* **(v.2)**  IMPROVED:	Firewall email notification content now better reflect the information in the audit trail.
-* **(v.2)**  FIX:		Firewall email notification was breaking in some instances.
+* **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://icwp.io/ez) - rules to catch and block bad bots.
+* **(v.0)**  ADDED:		Date picker for filtering Audit Log entries.
+* **(v.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
+* **(v.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
+* **(v.0)**  FIX:		Error displayed when deleting plugins in some cases.
+* **(v.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
 
-= 7.1 - Series =
-*Released: 21st February, 2019* - [Release Notes](https://icwp.io/ek)
+= 7.3 - Series =
+*Released: 11th April, 2019* - [Release Notes](https://icwp.io/f0)
 
-* **(v.1)**  FIX:		IP retrieval.
-* **(v.0)**  NEW:		Moved Import/Export UI from Wizard to main Shield Dashboard.
-* **(v.0)**  NEW:		[**PRO**] Option to import/export settings using file downloads/uploads
-* **(v.0)**  NEW:		[**PRO**] Option to allow visitors to automatically unblock themselves (once in 24hrs)
-* **(v.0)**  NEW:		Integrated changelog directly into plugin admin for easy updates (between releases)
-* **(v.0)**  FIXED:		WP Core files scanner now correctly ignores certain files as it used to do, pre-v7. e.g. wp-config-sample.php
-* **(v.0)**  FIXED:		Shield was indicating plugin/theme file editing was possible, when it in-fact was disabled.
-* **(v.0)**  IMPROVED:	Consolidate crons into fewer crons. e.g. all scans run under the same cron.
+= 7.2 - Series =
+*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
 
-= 7.0 - Series =
-*Released: 28th January, 2019* - [Release Notes](https://icwp.io/ef)
+* **(v.2)**  SKIPPED:	with error.
+* **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
+* **(v.1)**  FIX:		Fix PHP warning notice on login page.
+* **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
+* **(v.0)**  NEW:		[Scanner to detect and alert](https://icwp.io/eq) to presence of abandoned plugins.
+* **(v.0)**  FIX:		Fix bug with Security Admin passwords.
+* **(v.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
 
-* **(v.4)**  IMPROVED:	Refactored IP address blocking with improved audit trail messages.
-* **(v.4)**  CHANGED:	Expanded anonymous REST API whitelist to include 'wpstatistics' namespace.
-* **(v.4)**  IMPROVED:	Access protection for shield temp/caching dir.
-* **(v.4)**  IMPROVED:	Clarification on reCAPTCHA - v3 is **not** supported.
-* **(v.4)**  IMPROVED:	Clarification on user sessions timeout - Shield sets an absolutely session maximum.
-* **(v.4)**  IMPROVED:	Options form submission is adjusted to work around poorly restrictive webhosts.
-* **(v.4)**  FIX:		Various tweaks and fixes across the plugin.
-* **(v.4)**  FIX:		Error with ClassicPress.
-* **(v.3)**  NEW:		Automatically whitelist anonymous REST API Access for 3 plugins: Contact Form 7, WooCommerce, JetPack.
-* **(v.3)**  IMPROVED:	Security admin login failure messages are clearer.
-* **(v.3)**  IMPROVED:	Admin notification for email sending 2FA verification easily lets you resend email.
-* **(v.3)**  IMPROVED:	File download code for WordPress Core file scanner repairs.
-* **(v.3)**  IMPROVED:	Attempt to also capture B/CC email addresses included in outgoing emails in Audit logs.
-* **(v.3)**  FIX:		Allow use of IPv4 ranges in whitelist again.
-* **(v.3)**  CHANGED:	Numerous code refactoring and improvements building upon the major v7 release and prepping for v7.1.
-* **(v.1-2)**  FIXED:	Some JS fixes.
-* **(v.0)**  NEW:		New primary UI for Shield site security management. Easy access to scans, audit trail, user sessions etc.
-* **(v.0)**  NEW:		Supports only PHP 5.4 or higher
-* **(v.0)**  NEW:		Rebuilt scans architecture and UI
-* **(v.0)**  NEW:		A huge amount of code cleaning and refactoring
-* **(v.0)**  CHANGED:	Too many many changes and bug fixes to list -best to just take a look! :)
-
-#### [Full Changelog](https://ps.w.org/wp-simple-firewall/trunk/changelog.html)
+#### [Full Changelog](https://icwp.io/shieldwporgfullchangelog)

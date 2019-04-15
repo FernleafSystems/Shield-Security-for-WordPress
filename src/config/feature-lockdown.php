@@ -12,6 +12,7 @@
     "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   false,
+    "run_if_wpcli":          false,
     "order":                 90
   },
   "sections":    [
@@ -180,6 +181,7 @@
     "default_restapi_exclusions": [
       "contact-form-7",
       "jetpack",
+      "tho",
       "wpstatistics",
       "woocommerce"
     ]

@@ -168,7 +168,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 	protected function doExtraSubmitProcessing() {
 		$sAdminEmail = $this->getOpt( 'enable_admin_login_email_notification' );
-		if ( !$this->loadDP()->validEmail( $sAdminEmail ) ) {
+		if ( !Services::Data()->validEmail( $sAdminEmail ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'enable_admin_login_email_notification' );
 		}
 
@@ -240,7 +240,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isSendAdminEmailLoginNotification() {
-		return $this->loadDP()->validEmail( $this->getAdminLoginNotificationEmail() );
+		return Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() );
 	}
 
 	/**
@@ -390,7 +390,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		$aNotices = array(
 			'title'    => _wpsf__( 'Users' ),
-			'messages' => array()
+			'messages' => []
 		);
 
 		{ //admin user
@@ -433,7 +433,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				'title' => _wpsf__( 'User Management' ),
 				'sub'   => _wpsf__( 'Sessions Control & Password Policies' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -552,7 +552,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sTitleShort = _wpsf__( 'User Suspension' );
 				$sTitle = _wpsf__( 'Automatic And Manual User Suspension' );
 				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Suspend user accounts to prevent login by certain users.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatically suspend accounts to prevent login by certain users.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
 				);
 				break;
@@ -561,7 +561,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

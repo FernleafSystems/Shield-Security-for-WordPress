@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
@@ -26,7 +28,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	public function getCommentData() {
-		return ( isset( $this->aCommentData ) && is_array( $this->aCommentData ) ) ? $this->aCommentData : array();
+		return ( isset( $this->aCommentData ) && is_array( $this->aCommentData ) ) ? $this->aCommentData : [];
 	}
 
 	/**
@@ -45,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$oWpComments = $this->loadWpComments();
 
 		// 1st are comments enabled on this post?
-		$oPost = $this->loadWp()->getPostById( $this->getCommentItem( 'comment_post_ID' ) );
+		$oPost = Services::WpPost()->getById( $this->getCommentItem( 'comment_post_ID' ) );
 		return ( $oPost instanceof WP_Post ) && $oWpComments->isCommentsOpen( $oPost )
 			   && ( !$oWpComments->getIfAllowCommentsByPreviouslyApproved() || !$oWpComments->isAuthorApproved( $this->getCommentItem( 'comment_author_email' ) ) );
 	}
@@ -136,7 +138,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				'title' => _wpsf__( 'SPAM Blocking' ),
 				'sub'   => _wpsf__( 'Block Bot & Human Comment SPAM' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -223,7 +225,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				list( $sTitle, $sTitleShort, $aSummary ) = $this->loadStrings_SectionTitlesDefaults( $aOptionsParams );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

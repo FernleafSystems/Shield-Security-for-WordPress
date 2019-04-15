@@ -1,25 +1,28 @@
-<form class="form-horizontal" id="OptinForm" target="_blank"
-	  action="https://app.getresponse.com/add_subscriber.html"
-	  method="post">
+<form method="POST" action="https://fernleafsystems.activehosted.com/proc.php"
+	  id="ActiveCampaignForm" target="_blank">
+	{{ icwp_macros.formInput_Hidden( 'u', '2' ) }}
+	{{ icwp_macros.formInput_Hidden( 'f', '2' ) }}
+	{{ icwp_macros.formInput_Hidden( 'c', '0' ) }}
+	{{ icwp_macros.formInput_Hidden( 'm', '0' ) }}
+	{{ icwp_macros.formInput_Hidden( 'act', 'sub' ) }}
+	{{ icwp_macros.formInput_Hidden( 'v', '2' ) }}
+	{{ icwp_macros.formInput_Hidden( 's', '' ) }}
 
-	{{ icwp_macros.formInput_Text( 'name', vars.name, 'Your Name', vars.name ) }}
+	{{ icwp_macros.formInput_Text( 'fullname', vars.name, 'Your Name', vars.name ) }}
 	{{ icwp_macros.formInput_Email( 'email', vars.user_email, 'Your Email',
 		vars.user_email, 'We never SPAM and you can remove yourself at any time.' ) }}
 	{{ icwp_macros.formInput_Checkbox(
-		'webform[consent#BbEO-ver#Syac]', 'true', 'Agree To Privacy Policy',
+		'OptinConsent', 'Y', 'Agree To Privacy Policy',
 		strings.privacy_policy,
 		'We treat your membership information under our strict, and GDPR-compliant, privacy policy.',
 		'OptinConsent'
 	) }}
-	{{ icwp_macros.formInput_Hidden( 'campaign_token', 'agIJR' ) }}
-	{{ icwp_macros.formInput_Hidden( 'start_day', '0' ) }}
-	{{ icwp_macros.formInput_Hidden( 'thankyou_url', 'https://onedollarplugin.com/emails/confirm-shield-security/' ) }}
 	{{ icwp_macros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
 </form>
 
 <script type="text/javascript">
 	jQuery( document ).ready( function ( $ ) {
-		var $oSubButton = $( 'form#OptinForm button' );
+		var $oSubButton = $( 'form#ActiveCampaignForm button' );
 		var $oCheck = $( '#OptinConsent' );
 		$oSubButton.attr( "disabled", "disabled" );
 		$( document ).on( 'change', $oCheck, function () {

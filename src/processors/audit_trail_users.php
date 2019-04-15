@@ -5,7 +5,6 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	/**
 	 */
 	public function run() {
-		add_action( 'wp_login_failed', array( $this, 'auditUserLoginFail' ) );
 		add_action( 'wp_login', array( $this, 'auditUserLoginSuccess' ) );
 		add_action( 'user_register', array( $this, 'auditNewUserRegistered' ) );
 		add_action( 'delete_user', array( $this, 'auditDeleteUser' ), 30, 2 );
@@ -15,23 +14,10 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	 * @param string $sUsername
 	 */
 	public function auditUserLoginSuccess( $sUsername ) {
-
 		if ( !empty( $sUsername ) ) {
 			$this->add( 'users', 'login_success', 1,
 				sprintf( _wpsf__( 'Attempted user login by "%s" was successful.' ), $sUsername ),
 				$sUsername
-			);
-		}
-	}
-
-	/**
-	 * @param string $sUsername
-	 */
-	public function auditUserLoginFail( $sUsername ) {
-
-		if ( !empty( $sUsername ) ) {
-			$this->add( 'users', 'login_failure', 2,
-				sprintf( _wpsf__( 'Attempted user login by "%s" failed.' ), $sUsername )
 			);
 		}
 	}

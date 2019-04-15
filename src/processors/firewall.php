@@ -57,15 +57,14 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$bPerformScan = true;
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
 		$oFO = $this->getMod();
-		$oReq = $this->loadRequest();
 
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
 		}
 
 		// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
-		$aRequestParts = $oReq->getUriParts();
-		if ( $bPerformScan && empty( $aRequestParts ) ) {
+		$sPath = Services::Request()->getPath();
+		if ( $bPerformScan && empty( $sPath ) ) {
 			$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;
@@ -128,7 +127,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$sKey = 'exefile';
 		$bFAIL = false;
 		if ( isset( $_FILES ) && !empty( $_FILES ) ) {
-			$aFileNames = array();
+			$aFileNames = [];
 			foreach ( $_FILES as $aFile ) {
 				if ( !empty( $aFile[ 'name' ] ) ) {
 					$aFileNames[] = $aFile[ 'name' ];
@@ -333,7 +332,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$aMessages = apply_filters( $this->getMod()
 										 ->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
 		if ( !is_array( $aMessages ) ) {
-			$aMessages = array();
+			$aMessages = [];
 		}
 		return implode( ' ', $aMessages );
 	}
@@ -359,8 +358,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$this->aPageParams = $this->getRawRequestParams();
 		$aWhitelistPages = $this->getWhitelistPages();
-		$aRequestUriParts = $this->loadRequest()->getUriParts();
-		$sRequestPage = $aRequestUriParts[ 'path' ];
 
 		// first we remove globally whitelisted request parameters
 		if ( !empty( $aWhitelistPages[ '*' ] ) && is_array( $aWhitelistPages[ '*' ] ) ) {
@@ -385,6 +382,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		// Now we run through the list of whitelist pages
+		$sRequestPage = Services::Request()->getPath();
 		foreach ( $aWhitelistPages as $sWhitelistPageName => $aWhitelistPageParams ) {
 
 			// if the page is white listed
@@ -392,7 +390,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 				// if the page has no particular parameters specified there is nothing to check since the whole page is white listed.
 				if ( empty( $aWhitelistPageParams ) ) {
-					$this->aPageParams = array();
+					$this->aPageParams = [];
 				}
 				else {
 					// Otherwise we run through any whitelisted parameters and remove them.
@@ -413,7 +411,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRawRequestParams() {
-		return $this->loadRequest()->getParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
+		return Services::Request()->getRawRequestParams( $this->getMod()->isOpt( 'include_cookie_checks', 'Y' ) );
 	}
 
 	/**

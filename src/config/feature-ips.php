@@ -2,16 +2,17 @@
   "slug":          "ips",
   "properties":    {
     "slug":                  "ips",
-    "name":                  "IP Manager",
+    "name":                  "Block Bad IPs/Visitors",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "ips",
-    "tagline":               "Manage Visitor IP Address",
+    "tagline":               "Automatically detect bots and malicious visitors and stop them dead.",
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
+    "run_if_wpcli":          false,
     "order":                 100
   },
   "admin_notices": {
@@ -41,19 +42,43 @@
       "slug":        "section_auto_black_list",
       "primary":     true,
       "title":       "Automatic IP Black List",
-      "title_short": "Auto Black List",
+      "title_short": "Auto IP Blocking Rules",
       "summary":     [
         "Purpose - The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.",
         "Recommendation - Keep the Automatic IP Black List feature turned on."
       ]
     },
     {
-      "slug":        "section_reqtracking",
-      "title":       "Bad Request Tracking",
-      "title_short": "Request Tracking",
+      "slug":        "section_logins",
+      "title":       "Capture Login Bots",
+      "title_short": "Login Bots",
       "summary":     [
-        "Purpose - Track strange behaviour to determine whether visitors are legitimate.",
-        "Recommendation - These aren't security issues in their own right, but may indicate probing bots."
+        "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
+      ]
+    },
+    {
+      "slug":        "section_probes",
+      "title":       "Capture Probing Bots",
+      "title_short": "Probing Bots",
+      "summary":     [
+        "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
+      ]
+    },
+    {
+      "slug":        "section_behaviours",
+      "title":       "Identify Common Bot Behaviours",
+      "title_short": "Bot Behaviours",
+      "summary":     [
+        "Recommendation - Enable to capture bots/spiders that don't honour 'nofollow' directives."
+      ]
+    },
+    {
+      "slug":        "section_enable_plugin_feature_bottrap",
+      "title":       "Enable Module: BotTrap",
+      "title_short": "Enable Module",
+      "summary":     [
+        "Purpose - BotTrap monitors a typical set of bot behaviours to help identify probing bots.",
+        "Recommendation - Enable as many mouse traps as possible."
       ]
     },
     {
@@ -106,7 +131,7 @@
     {
       "key":           "auto_expire",
       "section":       "section_auto_black_list",
-      "default":       "minute",
+      "default":       "hour",
       "type":          "select",
       "value_options": [
         {
@@ -169,30 +194,240 @@
     },
     {
       "key":           "track_404",
-      "section":       "section_reqtracking",
-      "sensitive":     false,
-      "type":          "select",
+      "section":       "section_probes",
       "premium":       true,
-      "default":       "disabled",
+      "default":       "log",
+      "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Ignore 404s"
+          "text":      "Disabled"
         },
         {
-          "value_key": "log-only",
-          "text":      "Log Only (Audit Trail)"
+          "value_key": "log",
+          "text":      "Audit Log Only"
         },
         {
-          "value_key": "assign-transgression",
+          "value_key": "transgression-single",
           "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/e7",
+      "link_info":     "",
       "link_blog":     "",
-      "name":          "Track 404s",
-      "summary":       "Use 404s As An Transgression",
-      "description":   "Repeated 404s may indicate a probing bot especially where WP Login has been renamed."
+      "name":          "404 Detect",
+      "summary":       "Identify A Bot When It Hits A 404",
+      "description":   "Detect When A Visitor Browses To A Non-Existent Page."
+    },
+    {
+      "key":           "track_linkcheese",
+      "section":       "section_probes",
+      "premium":       true,
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Link Cheese",
+      "summary":       "Tempt A Bot With A Fake Link To Follow",
+      "description":   "Detect A Bot That Follows A 'no-follow' Link."
+    },
+    {
+      "key":           "track_xmlrpc",
+      "section":       "section_probes",
+      "default":       "log",
+      "premium":       true,
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "XML-RPC Access",
+      "summary":       "Identify A Bot When It Accesses XML-RPC",
+      "description":   "If you don't use XML-RPC, why would anyone access it?"
+    },
+    {
+      "key":           "track_loginfailed",
+      "section":       "section_logins",
+      "default":       "transgression-single",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Failed Login",
+      "summary":       "Detect Failed Login Attempts By Valid Usernames",
+      "description":   "Penalise a visitor who fails to login using a valid username."
+    },
+    {
+      "key":           "track_logininvalid",
+      "section":       "section_logins",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Invalid Usernames",
+      "summary":       "Detect Invalid Username Logins",
+      "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
+    },
+    {
+      "key":           "track_fakewebcrawler",
+      "section":       "section_behaviours",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Fake Web Crawler",
+      "summary":       "Detect Fake Search Engine Crawlers",
+      "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
+    },
+    {
+      "key":           "track_useragent",
+      "section":       "section_behaviours",
+      "premium":       true,
+      "default":       "log",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Audit Log Only"
+        },
+        {
+          "value_key": "transgression-single",
+          "text":      "Increment Transgression"
+        },
+        {
+          "value_key": "transgression-double",
+          "text":      "Double Transgression"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Empty User Agents",
+      "summary":       "Detect Requests With Empty User Agents",
+      "description":   "Identify a request as a bot if the user agent is not provided."
     },
     {
       "key":         "text_remainingtrans",

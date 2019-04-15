@@ -15,6 +15,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	static protected $bIsVerifiedBot;
 
 	/**
+	 * @var string
+	 */
+	static private $mIpAction;
+
+	/**
 	 * @return ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
@@ -50,9 +55,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	protected function getGoogleRecaptchaConfig() {
-		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), array() );
+		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), [] );
 		if ( !is_array( $aConfig ) ) {
-			$aConfig = array();
+			$aConfig = [];
 		}
 		$aConfig = array_merge(
 			array(
@@ -242,6 +247,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		$oOpts = $this->getOptionsVo();
 		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
 			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
+			   && ( $oOpts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
 			   && parent::isReadyToExecute();
 	}
 
@@ -257,7 +263,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * Only test for bots that we can actually verify based on IP, hostname
 	 * @return bool
 	 */
 	public function isVerifiedBot() {
@@ -265,7 +270,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			$oSp = $this->loadServiceProviders();
 
 			$sIp = Services::IP()->getRequestIp();
-			$sAgent = (string)Services::Request()->server( 'HTTP_USER_AGENT' );
+			$sAgent = Services::Request()->getUserAgent();
 			if ( empty( $sAgent ) ) {
 				$sAgent = 'Unknown';
 			}
@@ -297,7 +302,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return string[]
 	 */
 	protected function cleanStringArray( $aArray, $sPregReplacePattern ) {
-		$aCleaned = array();
+		$aCleaned = [];
 		if ( !is_array( $aArray ) ) {
 			return $aCleaned;
 		}
@@ -315,7 +320,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	public function getInsightsOpts() {
-		$aOpts = array();
+		$aOpts = [];
 		$oOpts = $this->getOptionsVo();
 		foreach ( $oOpts->getOptionsKeys() as $sOpt ) {
 			if ( strpos( $sOpt, 'insights_' ) === 0 ) {
@@ -374,20 +379,49 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getIfIpTransgressed() {
+		$mAction = $this->getIpAction();
+		return !empty( $mAction ) &&
+			   ( ( is_numeric( $mAction ) && $mAction > 0 ) || in_array( $mAction, [ 'block' ] ) );
+	}
+
+	/**
+	 * @return int|string|null
+	 */
+	public function getIpAction() {
+		return self::$mIpAction;
+	}
+
+	/**
 	 * Used to mark an IP address for immediate block
 	 * @return $this
 	 */
 	public function setIpBlocked() {
-		add_filter( $this->prefix( 'ip_block_it' ), '__return_true' );
-		return $this;
+		return $this->setIpAction( 'block' );
 	}
 
 	/**
 	 * Used to mark an IP address for transgression/black-mark
+	 * @param int $nIncrementCount
 	 * @return $this
 	 */
-	public function setIpTransgressed() {
-		add_filter( $this->prefix( 'ip_black_mark' ), '__return_true' );
+	public function setIpTransgressed( $nIncrementCount = 1 ) {
+		return $this->setIpAction( $nIncrementCount );
+	}
+
+	/**
+	 * @param string|int $mNewAction
+	 * @return $this
+	 */
+	private function setIpAction( $mNewAction ) {
+		if ( in_array( $mNewAction, [ 'block' ] ) ) {
+			self::$mIpAction = $mNewAction;
+		}
+		else if ( empty( self::$mIpAction ) || ( is_numeric( self::$mIpAction ) && $mNewAction > self::$mIpAction ) ) {
+			self::$mIpAction = $mNewAction;
+		}
 		return $this;
 	}
 }

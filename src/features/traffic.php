@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function action_doFeatureShutdown() {
-		if ( $this->isAutoDisable() && $this->loadRequest()->ts() - $this->getAutoDisableAt() > 0 ) {
+		if ( $this->isAutoDisable() && Services::Request()->ts() - $this->getAutoDisableAt() > 0 ) {
 			$this->setOpt( 'auto_disable', 'N' )
 				 ->setOpt( 'autodisable_at', 0 )
 				 ->setIsMainFeatureEnabled( false );
@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oPro->getProcessorLogger()
 			 ->cleanupDatabase();
 
-		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? $this->loadRequest()->ts() + WEEK_IN_SECONDS : 0 );
+		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? Services::Request()->ts() + WEEK_IN_SECONDS : 0 );
 
 		$aExcls = $this->getCustomExclusions();
 		foreach ( $aExcls as &$sExcl ) {
@@ -48,7 +48,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = array();
+		$aWarnings = [];
 
 		if ( !$this->isPremium() ) {
 			$aWarnings[] = sprintf( _wpsf__( '%s is a Pro-only feature.' ), _wpsf__( 'Traffic Watch' ) );
@@ -75,7 +75,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getExclusions() {
 		$aEx = $this->getOpt( 'type_exclusions' );
-		return is_array( $aEx ) ? $aEx : array();
+		return is_array( $aEx ) ? $aEx : [];
 	}
 
 	/**
@@ -83,7 +83,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function getCustomExclusions() {
 		$aEx = $this->getOpt( 'custom_exclusions' );
-		return is_array( $aEx ) ? $aEx : array();
+		return is_array( $aEx ) ? $aEx : [];
 	}
 
 	/**
@@ -104,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return string
 	 */
 	protected function getAutoDisableTimestamp() {
-		return $this->loadWp()->getTimeStampForDisplay( $this->getAutoDisableAt() );
+		return Services::WpGeneral()->getTimeStampForDisplay( $this->getAutoDisableAt() );
 	}
 
 	/**
@@ -170,7 +170,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function handleAuthAjax( $aAjaxResponse ) {
 
 		if ( empty( $aAjaxResponse ) ) {
-			switch ( $this->loadRequest()->request( 'exec' ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
 
 				case 'render_table_traffic':
 					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
@@ -229,7 +229,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

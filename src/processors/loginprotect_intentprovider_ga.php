@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	protected function sendEmailConfirmationGaRemoval( $oUser ) {
 		$bSendSuccess = false;
 
-		$aEmailContent = array();
+		$aEmailContent = [];
 		$aEmailContent[] = _wpsf__( 'You have requested the removal of Google Authenticator from your WordPress account.' )
 						   ._wpsf__( 'Please click the link below to confirm.' );
 		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();

@@ -18,12 +18,13 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return bool
 	 */
 	public function isAutoAddSessions() {
+		$oReq = Services::Request();
 		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
 		if ( $nStartedAt < 1 ) {
-			$nStartedAt = $this->loadRequest()->ts();
+			$nStartedAt = $oReq->ts();
 			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
 		}
-		return ( $this->loadRequest()->ts() - $nStartedAt ) < 20;
+		return ( $oReq->ts() - $nStartedAt ) < 20;
 	}
 
 	/**
@@ -49,7 +50,7 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

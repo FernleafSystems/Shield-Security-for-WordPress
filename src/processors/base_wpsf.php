@@ -105,14 +105,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	/**
 	 * @return bool
 	 */
-	protected function getIfIpTransgressed() {
-		return apply_filters( $this->getMod()->prefix( 'ip_black_mark' ), false )
-			   || apply_filters( $this->getMod()->prefix( 'ip_block_it' ), false );
-	}
-
-	/**
-	 * @return bool
-	 */
 	protected function getIfLogRequest() {
 		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !$this->loadWp()->isCron();
 	}
@@ -144,7 +136,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			),
 			'https://www.google.com/recaptcha/api.js'
 		);
-		wp_register_script( self::RECAPTCHA_JS_HANDLE, $sJsUri, array(), false, true );
+		wp_register_script( self::RECAPTCHA_JS_HANDLE, $sJsUri, [], false, true );
 		wp_enqueue_script( self::RECAPTCHA_JS_HANDLE );
 
 		// This also gives us the chance to remove recaptcha before it's printed, if it isn't needed
@@ -168,7 +160,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	public function stats_Collect( $aStats ) {
 		if ( !is_array( $aStats ) ) {
-			$aStats = array();
+			$aStats = [];
 		}
 		$aThisStats = $this->stats_Get();
 		if ( !empty( $aThisStats ) && is_array( $aThisStats ) ) {
@@ -196,7 +188,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	public function stats_Get() {
 		if ( !isset( $this->aStatistics ) || !is_array( $this->aStatistics ) ) {
-			$this->aStatistics = array();
+			$this->aStatistics = [];
 		}
 		return $this->aStatistics;
 	}
@@ -212,7 +204,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	public function tracking_DataCollect( $aData ) {
 		if ( !is_array( $aData ) ) {
-			$aData = array();
+			$aData = [];
 		}
 		$oFO = $this->getMod();
 		$aData[ $oFO->getSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
@@ -240,7 +232,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @param array  $aData
 	 * @return $this
 	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = array() ) {
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
 		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
 		return $this;
 	}
@@ -289,5 +281,15 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	public function setRecaptchaToEnqueue() {
 		self::$bRecaptchaEnqueue = true;
 		return $this;
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	protected function getIfIpTransgressed() {
+		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		$oFO = $this->getMod();
+		return $oFO->getIfIpTransgressed();
 	}
 }

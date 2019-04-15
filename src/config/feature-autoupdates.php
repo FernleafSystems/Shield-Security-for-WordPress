@@ -12,6 +12,7 @@
     "premium":               false,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
+    "run_if_wpcli":          true,
     "order":                 60
   },
   "sections":    [
@@ -213,6 +214,7 @@
       "key":          "delay_tracking",
       "section":      "section_non_ui",
       "transferable": false,
+      "sensitive":    true,
       "type":         "array",
       "default":      []
     },

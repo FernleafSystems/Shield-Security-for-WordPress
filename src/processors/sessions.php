@@ -24,18 +24,21 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	public function run() {
 		if ( $this->isReadyToRun() ) {
-			add_action( 'clear_auth_cookie', array( $this, 'onWpClearAuthCookie' ), 0 ); //logout
-			add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
+			if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
+				add_action( 'clear_auth_cookie', function () {
+					$this->terminateCurrentSession();
+				}, 0 );
+			}
 			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
 		}
 	}
 
 	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
+	 * @param string   $sUsername
+	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
-		if ( !$oUser instanceof WP_User ) {
+		if ( !$oUser instanceof \WP_User ) {
 			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
 		$this->activateUserSession( $oUser );
@@ -49,12 +52,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
 		$this->activateUserSession( Services::WpUsers()->getUserById( $nUserId ) );
-	}
-
-	/**
-	 */
-	public function onWpClearAuthCookie() {
-		$this->terminateCurrentSession();
 	}
 
 	/**
@@ -99,29 +96,26 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function printLinkToAdmin( $sMessage = '' ) {
 		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
 		$oFO = $this->getMod();
-		$oWpUsers = Services::WpUsers();
-		$sAction = Services::Request()->query( 'action' );
+		$oU = Services::WpUsers()->getCurrentWpUser();
 
-		if ( $oWpUsers->isUserLoggedIn() && $oFO->hasSession() && ( empty( $sAction ) || $sAction == 'login' ) ) {
-			$sMessage = sprintf(
-							'<p class="message">%s<br />%s</p>',
-							_wpsf__( "You're already logged-in." ).sprintf(
-								' <span style="white-space: nowrap">(%s)</span>',
-								$oWpUsers->getCurrentWpUsername() ),
-							( $oWpUsers->getCurrentUserLevel() >= 2 ) ? sprintf( '<a href="%s">%s</a>',
-								Services::WpGeneral()->getAdminUrl(),
-								_wpsf__( "Go To Admin" ).' &rarr;' ) : '' )
-						.$sMessage;
+		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
+			 && ( $oU instanceof \WP_User ) && $oFO->hasSession() ) {
+			$sMessage .= sprintf( '<p class="message">%s<br />%s</p>',
+				_wpsf__( "You're already logged-in." )
+				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oU->user_login ),
+				( $oU->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
+					Services::WpGeneral()->getAdminUrl(),
+					_wpsf__( "Go To Admin" ).' &rarr;' ) : '' );
 		}
 		return $sMessage;
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return boolean
 	 */
 	private function activateUserSession( $oUser ) {
-		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User ) {
+		if ( !$this->isLoginCaptured() && $oUser instanceof \WP_User ) {
 			$this->setLoginCaptured();
 			// If they have a currently active session, terminate it (i.e. we replace it)
 			$oSession = $this->queryGetSession( $this->getSessionId(), $oUser->user_login );
@@ -201,10 +195,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	public function loadCurrentSession() {
 		$oSession = null;
 		if ( did_action( 'init' ) ) {
-			$oSession = $this->queryGetSession(
-				$this->getSessionId(),
-				Services::WpUsers()->getCurrentWpUsername()
-			);
+			$oSession = $this->queryGetSession( $this->getSessionId() );
 		}
 		return $oSession;
 	}
@@ -241,7 +232,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @param string $sSessionId
 	 * @return Session\EntryVO|null
 	 */
-	protected function queryGetSession( $sSessionId, $sUsername = '' ) {
+	private function queryGetSession( $sSessionId, $sUsername = '' ) {
 		/** @var Session\Select $oSel */
 		$oSel = $this->getDbHandler()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
@@ -267,7 +258,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getTableColumnsByDefinition() {
 		$aDef = $this->getMod()->getDef( 'sessions_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : array() );
+		return ( is_array( $aDef ) ? $aDef : [] );
 	}
 
 	/**

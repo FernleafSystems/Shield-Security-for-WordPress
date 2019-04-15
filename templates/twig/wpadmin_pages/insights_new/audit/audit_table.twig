@@ -29,6 +29,7 @@
 						{% endfor %}
 					</select>
 				</div>
+
 				<div class="form-group">
 					<label for="_fIp">IP Address</label>
 					<select id="_fIp" name="fIp" class="form-control">
@@ -38,6 +39,13 @@
 						{% endfor %}
 					</select>
 				</div>
+				<div class="form-group">
+					<label class="form-check-label" for="_fExludeYou" title="Exclude Your IP From Results">
+						Exclude Your Current IP?</label>
+					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
+						   class="form-control" />
+				</div>
+
 				<div class="form-group">
 					<label for="_fUsername">Username (ignores 'Logged-In' filter)</label>
 					<select id="_fUsername" name="fUsername" class="form-control">
@@ -50,6 +58,7 @@
 						Providing a username will cause the 'logged-in' filter to be ignored.
 					</small>
 				</div>
+
 				<div class="form-group">
 					<label for="_fLoggedIn">Logged-In?</label>
 					<select id="_fLoggedIn" name="fLoggedIn" class="form-control">
@@ -58,14 +67,20 @@
 						<option value="0">No</option>
 					</select>
 				</div>
-				<div class="form-group">
-					<label class="form-check-label" for="_fExludeYou" title="<?php echo $sYourIp; ?>">
-						Exclude Your Current IP?</label>
-					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
-						   class="form-control" />
+
+				<div class="form-group input-daterange">
+					<label class="form-label" for="_fFromDate" title="Show results since...">
+						From:</label>
+					<input type="text" class="form-control date-picker" id="_fDateFrom"
+						   name="fDateFrom" value="" placeholder="YYYY-MM-DD">
+					<div class="input-group-addon">To:</div>
+					<input type="text" class="form-control date-picker" id="_fDateTo"
+						   name="fDateTo" value="" placeholder="YYYY-MM-DD">
 				</div>
+				
 				<div class="form-group text-right">
-					<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Apply Filters" />
+					<input id="SubmitForm" href="#" class="btn btn-info" type="submit"
+						   value="Apply Filters" />
 					<a id="ClearForm" href="#" class="btn btn-link">Clear Filters</a>
 				</div>
 
@@ -96,4 +111,17 @@
 			}
 		}
 	);
+
+	var $oDataPickers = jQuery( '.date-picker' );
+	$oDataPickers.datepicker(
+		{
+			autoclose: true,
+			clearBtn: true,
+			format: "yyyy-mm-dd",
+			language: "az",
+			maxViewMode: 2
+		}
+	);
+
+
 </script>
