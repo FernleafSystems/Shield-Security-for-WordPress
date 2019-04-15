@@ -18,7 +18,6 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 
 		if ( $oFO->isSuspendAutoIdleEnabled() ) {
 			( new Suspend\Idle() )
-				->setVerifiedExpires( $oFO->getSuspendAutoIdleTime() )
 				->setMod( $this->getMod() )
 				->run();
 		}
@@ -28,6 +27,40 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 				->setMaxPasswordAge( $oFO->getPassExpireTimeout() )
 				->setMod( $this->getMod() )
 				->run();
+		}
+	}
+
+	public function runHourlyCron() {
+		$this->updateUserMetaVersion();
+	}
+
+	/**
+	 * Run from CRON
+	 * Updates all user meta versions. Limits to 25 users at a time via the cron
+	 */
+	private function updateUserMetaVersion() {
+		$oCon = $this->getCon();
+		$nVersion = $this->getCon()->getVersionNumeric();
+		$sMetaKey = $this->prefix( 'meta-version' );
+
+		$nCount = 0;
+
+		$oUserIt = new \FernleafSystems\Wordpress\Services\Utilities\Iterators\WpUserIterator();
+		$oUserIt->filterByMeta( $sMetaKey, $nVersion, 'NOT EXISTS' );
+		foreach ( $oUserIt as $oUser ) {
+			$oCon->getUserMeta( $oUser );
+			if ( $nCount++ > 25 ) {
+				break;
+			}
+		}
+
+		$oUserIt = new \FernleafSystems\Wordpress\Services\Utilities\Iterators\WpUserIterator();
+		$oUserIt->filterByMeta( $sMetaKey, $nVersion, '<' );
+		foreach ( $oUserIt as $oUser ) {
+			$oCon->getUserMeta( $oUser );
+			if ( $nCount++ > 25 ) {
+				break;
+			}
 		}
 	}
 
@@ -77,6 +110,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
 			$aColumns[ $sCustomColumnName ] = _wpsf__( 'User Status' );
 		}
+
 		add_filter( 'manage_users_custom_column',
 			function ( $sContent, $sColumnName, $nUserId ) use ( $sCustomColumnName ) {
 

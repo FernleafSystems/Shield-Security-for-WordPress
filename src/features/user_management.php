@@ -5,6 +5,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	use Shield\AuditTrail\Auditor;
+
 	/**
 	 * @param array $aAjaxResponse
 	 * @return array
@@ -368,12 +370,26 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return $this
 	 */
 	public function addRemoveHardSuspendUserId( $nId, $bAdd = true ) {
+		$sUsername = Services::WpUsers()->getCurrentWpUsername();
+
 		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
-		if ( $bAdd ) {
+
+		$bIdSuspended = isset( $aIds[ $nId ] );
+		if ( $bAdd && !$bIdSuspended ) {
 			$aIds[ $nId ] = Services::Request()->ts();
+			$this->createNewAudit(
+				'wpsf',
+				sprintf( _wpsf__( 'User ID %s suspended by admin (%s)' ), $nId, $sUsername ),
+				1, 'user_suspension'
+			);
 		}
-		else if ( isset( $aIds[ $nId ] ) ) {
+		else if ( !$bAdd && $bIdSuspended ) {
 			unset( $aIds[ $nId ] );
+			$this->createNewAudit(
+				'wpsf',
+				sprintf( _wpsf__( 'User ID %s unsuspended by admin (%s)' ), $nId, $sUsername ),
+				1, 'user_unsuspension'
+			);
 		}
 		return $this->setOpt( 'hard_suspended_userids', $aIds );
 	}
@@ -672,7 +688,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			case 'manual_suspend' :
 				$sName = _wpsf__( 'Allow Manual User Suspension' );
 				$sSummary = _wpsf__( 'Manually Suspend User Accounts To Prevent Login' );
-				$sDescription = _wpsf__( 'Users may be forcefully suspended by administrators to prevent future login.' );
+				$sDescription = _wpsf__( 'Users may be suspended by administrators to prevent future login.' );
 				break;
 
 			case 'auto_password' :

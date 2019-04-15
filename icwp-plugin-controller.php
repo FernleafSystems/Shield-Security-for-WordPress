@@ -1846,6 +1846,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$oMeta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
 				$oMeta->setPasswordStartedAt( $oUser->user_pass )
 					  ->updateFirstSeenAt();
+				Services::WpUsers()->updateUserMeta( $this->prefix( 'meta-version' ), $this->getVersionNumeric(), $oUser->ID );
 			}
 		}
 		catch ( \Exception $oE ) {
