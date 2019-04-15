@@ -315,7 +315,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_SendDeactivateSurvey() {
-		$aResults = array();
+		$aResults = [];
 		foreach ( $_POST as $sKey => $sValue ) {
 			if ( strpos( $sKey, 'reason_' ) === 0 ) {
 				$aResults[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
@@ -495,7 +495,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function getActivePluginFeatures() {
 		$aActiveFeatures = $this->getDef( 'active_plugin_features' );
 
-		$aPluginFeatures = array();
+		$aPluginFeatures = [];
 		if ( !empty( $aActiveFeatures ) && is_array( $aActiveFeatures ) ) {
 
 			foreach ( $aActiveFeatures as $nPosition => $aFeature ) {
@@ -598,6 +598,55 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getOpenSslPrivateKey() {
+		$sKey = null;
+		$oEnc = Services::Encrypt();
+		if ( $oEnc->isSupportedOpenSslDataEncryption() ) {
+			$sKey = $this->getOpt( 'openssl_private_key' );
+			if ( empty( $sKey ) ) {
+				try {
+					$aKeys = $oEnc->createNewPrivatePublicKeyPair();
+					if ( !empty( $aKeys[ 'private' ] ) ) {
+						$sKey = $aKeys[ 'private' ];
+						$this->setOpt( 'openssl_private_key', base64_encode( $sKey ) );
+					}
+				}
+				catch ( \Exception $oE ) {
+				}
+			}
+			else {
+				$sKey = base64_decode( $sKey );
+			}
+		}
+		return $sKey;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getOpenSslPublicKey() {
+		$sKey = null;
+		if ( $this->hasOpenSslPrivateKey() ) {
+			try {
+				$sKey = Services::Encrypt()->getPublicKeyFromPrivateKey( $this->getOpenSslPrivateKey() );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $sKey;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasOpenSslPrivateKey() {
+		$sKey = $this->getOpenSslPrivateKey();
+		return !empty( $sKey );
+	}
+
+	/**
 	 * @return int - the real install timestamp
 	 */
 	public function storeRealInstallDate() {
@@ -642,8 +691,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * Ensure we always a valid installation ID.
 	 *
-	 * @deprecated but still used because it aligns with stats collection
 	 * @return string
+	 * @deprecated but still used because it aligns with stats collection
 	 */
 	public function getPluginInstallationId() {
 		$sId = $this->getOpt( 'unique_installation_id', '' );
@@ -652,6 +701,29 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sId = $this->setPluginInstallationId();
 		}
 		return $sId;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getActivatedAt() {
+		return (int)$this->getOpt( 'activated_at', 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getIfShowIntroVideo() {
+		$nNow = Services::Request()->ts();
+		return ( $nNow - $this->getActivatedAt() < 8 )
+			   && ( $nNow - $this->getInstallDate() < 15 );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setActivatedAt() {
+		return $this->setOpt( 'activated_at', Services::Request()->ts() );
 	}
 
 	/**
@@ -711,8 +783,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string[]
 	 */
 	public function getImportExportWhitelist() {
-		$aWhitelist = $this->getOpt( 'importexport_whitelist', array() );
-		return is_array( $aWhitelist ) ? $aWhitelist : array();
+		$aWhitelist = $this->getOpt( 'importexport_whitelist', [] );
+		return is_array( $aWhitelist ) ? $aWhitelist : [];
 	}
 
 	/**
@@ -803,7 +875,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function cleanImportExportWhitelistUrls() {
 		$oDP = $this->loadDP();
 
-		$aCleaned = array();
+		$aCleaned = [];
 		$aWhitelistUrls = $this->getImportExportWhitelist();
 		foreach ( $aWhitelistUrls as $nKey => $sUrl ) {
 
@@ -870,8 +942,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aOptionData = $this->getOptionsVo()->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
 
-		$aMap = array();
-		$aEmpties = array();
+		$aMap = [];
+		$aEmpties = [];
 		foreach ( $aValueOptions as $aOptionValue ) {
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
@@ -1001,7 +1073,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'title' => _wpsf__( 'General Settings' ),
 				'sub'   => sprintf( _wpsf__( 'General %s Settings' ), $this->getCon()->getHumanName() ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -1025,7 +1097,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'summary' => $bHasSupportEmail ?
 					sprintf( _wpsf__( 'Email address for reports set to: %s' ), $this->supplyPluginReportEmail() )
 					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), Services::WpGeneral()
-																						  ->getSiteAdminEmail() ),
+																							 ->getSiteAdminEmail() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			);
@@ -1108,7 +1180,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

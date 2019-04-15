@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 			'hrefs'             => array(
 				'wizard' => $oFO->getUrl_Wizard( 'welcome' ),
 			),
-			'flags'             => array()
+			'flags'             => []
 		);
 		$this->insertAdminNotice( $aRenderData );
 	}

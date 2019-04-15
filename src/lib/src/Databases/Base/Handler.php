@@ -69,14 +69,14 @@ class Handler {
 		if ( empty( $this->aColActual ) ) {
 			$this->aColActual = Services::WpDb()->getColumnsForTable( $this->getTable(), 'strtolower' );
 		}
-		return is_array( $this->aColActual ) ? $this->aColActual : array();
+		return is_array( $this->aColActual ) ? $this->aColActual : [];
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function getColumnsDefinition() {
-		return is_array( $this->aColDef ) ? $this->aColDef : array();
+		return is_array( $this->aColDef ) ? $this->aColDef : [];
 	}
 
 	/**

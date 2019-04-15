@@ -250,7 +250,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
-		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), array() );
+		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), [] );
 
 		if ( empty( $aLoginIntentFields ) ) {
 			return false; // a final guard against displaying an empty form.

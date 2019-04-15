@@ -18,7 +18,7 @@ class ScanAssetDir {
 	/**
 	 * @var string[]
 	 */
-	protected $aFileExts = array();
+	protected $aFileExts = [];
 
 	/**
 	 * @param string $sRootDir

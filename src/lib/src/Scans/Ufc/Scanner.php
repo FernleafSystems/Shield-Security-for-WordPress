@@ -121,7 +121,7 @@ class Scanner {
 	 */
 	protected function getDirFileTypes() {
 		if ( !is_array( $this->aDirFileTypes ) ) {
-			$this->aDirFileTypes = array();
+			$this->aDirFileTypes = [];
 		}
 		return $this->aDirFileTypes;
 	}
@@ -130,7 +130,7 @@ class Scanner {
 	 * @return array
 	 */
 	public function getExclusions() {
-		return is_array( $this->aExclusions ) ? $this->aExclusions : array();
+		return is_array( $this->aExclusions ) ? $this->aExclusions : [];
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Scanner {
 	 */
 	public function getFileTypesForDir( $sDir ) {
 		$aEx = $this->getDirFileTypes();
-		return isset( $aEx[ $sDir ] ) ? $aEx[ $sDir ] : array();
+		return isset( $aEx[ $sDir ] ) ? $aEx[ $sDir ] : [];
 	}
 
 	/**

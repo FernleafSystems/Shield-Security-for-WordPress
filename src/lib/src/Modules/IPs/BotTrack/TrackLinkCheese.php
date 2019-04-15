@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -8,16 +8,18 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Works by inserting a random, nofollow link to the footer of the page and appending to robots.txt
  * Class LinkCheese
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\MouseTrap
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack
  */
-class LinkCheese extends Base {
+class TrackLinkCheese extends Base {
+
+	const OPT_KEY = 'track_linkcheese';
 
 	protected function process() {
+		add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
+		add_action( 'wp_footer', array( $this, 'insertMouseTrap' ), 0 );
 		if ( $this->isCheese() ) {
 			$this->doTransgression();
 		}
-		add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
-		add_action( 'wp_footer', array( $this, 'insertMouseTrap' ) );
 	}
 
 	/**
@@ -34,7 +36,7 @@ class LinkCheese extends Base {
 	}
 
 	private function isCheese() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		$oReq = Services::Request();
 
@@ -60,11 +62,11 @@ class LinkCheese extends Base {
 	}
 
 	public function insertMouseTrap() {
-		$sId = 'V'.rand();
+		$sId = chr( rand( 97, 122 ) ).rand(1000,10000000);
 		echo sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
 			$sId, $this->buildTrapHref(), 'Click here to see something fantastic',
-			$sId, _wpsf__( 'Click to access the login or register cheese' )
+			$sId, 'Click to access the login or register cheese'
 		);
 	}
 
@@ -72,12 +74,12 @@ class LinkCheese extends Base {
 	 * @return string
 	 */
 	private function buildTrapHref() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 
 		$oWp = Services::WpGeneral();
 		$sKey = substr( md5( wp_generate_password() ), 5, rand( 7, 9 ) );
-		$sWord = $this->getPossibleWords()[ rand( 0, count( $this->getPossibleWords() ) ) ];
+		$sWord = $this->getPossibleWords()[ rand( 1, count( $this->getPossibleWords() ) ) - 1 ];
 		if ( $oWp->isPermalinksEnabled() ) {
 			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( $sWord ), $sKey ) );
 		}
@@ -88,24 +90,10 @@ class LinkCheese extends Base {
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function isTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Mousetrap $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isTransgressionLinkCheese();
-	}
-
-	/**
 	 * @return $this
 	 */
-	protected function writeAudit() {
-		$this->createNewAudit(
-			'wpsf',
-			sprintf( _wpsf__( 'Link cheese access detected at "%s"' ), Services::Request()->getPath() ),
-			2, 'mousetrap_linkcheese'
-		);
-		return $this;
+	protected function getAuditMsg() {
+		return sprintf( _wpsf__( 'Link cheese access detected at "%s".' ), Services::Request()->getPath() );
 	}
 
 	/**
@@ -118,6 +106,7 @@ class LinkCheese extends Base {
 			'venus',
 			'stilton',
 			'cheddar',
+			'holey',
 		];
 	}
 }

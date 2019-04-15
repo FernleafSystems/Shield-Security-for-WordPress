@@ -176,7 +176,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			'strings'     => array(
 				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
 			),
-			'js_snippets' => array()
+			'js_snippets' => []
 		);
 		echo $this->getMod()
 				  ->renderTemplate( 'snippets/hg-plugins-reinstall-dialogs.php', $aRenderData );
@@ -218,7 +218,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	public function updateSnapshotAfterUpgrade( $oUpgrader, $aInfo ) {
 
 		$sContext = '';
-		$aSlugs = array();
+		$aSlugs = [];
 
 		// Need to account for single and bulk updates. First bulk
 		if ( !empty( $aInfo[ self::CONTEXT_PLUGINS ] ) ) {
@@ -568,7 +568,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$oWpPlugins = Services\Services::WpPlugins();
 		$oWpThemes = Services\Services::WpThemes();
 
-		$aAllPlugins = array();
+		$aAllPlugins = [];
 		foreach ( $oRes->getResultsForPluginsContext()->getUniqueSlugs() as $sBaseFile ) {
 			$oP = $oWpPlugins->getPluginAsVo( $sBaseFile );
 			if ( !empty( $oP ) ) {
@@ -577,7 +577,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			}
 		}
 
-		$aAllThemes = array();
+		$aAllThemes = [];
 		foreach ( $oRes->getResultsForThemesContext()->getUniqueSlugs() as $sBaseFile ) {
 			$oTheme = $oWpThemes->getTheme( $sBaseFile );
 			if ( !empty( $oTheme ) ) {
@@ -661,7 +661,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @param array  $aData
 	 * @return $this
 	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = array() ) {
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
 		$sMsg = sprintf( '[%s]: %s', _wpsf__( 'Plugin/Theme Guard' ), $sMsg );
 		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
 		return $this;

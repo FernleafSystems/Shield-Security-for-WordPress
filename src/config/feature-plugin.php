@@ -368,6 +368,13 @@
       "default":      0
     },
     {
+      "key":          "activated_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "integer",
+      "default":      0
+    },
+    {
       "key":          "importexport_secretkey_expires_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -416,6 +423,13 @@
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
+    },
+    {
+      "key":          "openssl_private_key",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "text",
+      "default":      ""
     }
   ],
   "definitions":   {
@@ -437,13 +451,17 @@
       {
         "slug":          "insights",
         "storage_key":   "insights",
-        "menu_priority": 5,
-        "min_php":       "5.4"
+        "menu_priority": 5
       },
       {
         "slug":          "admin_access_restriction",
         "storage_key":   "admin_access_restriction",
         "load_priority": 11
+      },
+      {
+        "slug":          "ips",
+        "storage_key":   "ips",
+        "load_priority": 12
       },
       {
         "slug":        "hack_protect",
@@ -477,11 +495,6 @@
       {
         "slug":        "lockdown",
         "storage_key": "lockdown"
-      },
-      {
-        "slug":          "ips",
-        "storage_key":   "ips",
-        "load_priority": 12
       },
       {
         "slug":          "statistics",
@@ -529,9 +542,6 @@
           },
           "ip_detect":                {
             "title": "IP Detection"
-          },
-          "license":                  {
-            "title": "Go Pro"
           },
           "admin_access_restriction": {
             "title": "Security Admin"

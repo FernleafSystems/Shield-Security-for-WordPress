@@ -33,7 +33,7 @@ class Base extends \WP_List_Table {
 	 * wp-admin/includes/class-wp-screen.php on line 209
 	 * @param array $aArgs
 	 */
-	public function __construct( $aArgs = array() ) {
+	public function __construct( $aArgs = [] ) {
 		parent::__construct( array_merge( [ 'screen' => 'odp-ajax' ], $aArgs ) );
 	}
 
@@ -62,7 +62,7 @@ class Base extends \WP_List_Table {
 	 * @return array
 	 */
 	public function get_sortable_columns() {
-		return array();
+		return [];
 //		$aCols = $this->get_columns();
 //		foreach ( $aCols as $sCol => $sName ) {
 //			$aCols[ $sCol ] = array( $sCol, false );
@@ -82,7 +82,7 @@ class Base extends \WP_List_Table {
 	 */
 	public function prepare_items() {
 		$aCols = $this->get_columns();
-		$aHidden = array();
+		$aHidden = [];
 		$this->_column_headers = array( $aCols, $aHidden, $this->get_sortable_columns() );
 		$this->items = $this->getItemEntries();
 
@@ -178,7 +178,7 @@ class Base extends \WP_List_Table {
 			$aClasses[] = 'text-dark';
 		}
 
-		$aDataAttrs = array();
+		$aDataAttrs = [];
 		foreach ( $aData as $sKey => $sValue ) {
 			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
 		}

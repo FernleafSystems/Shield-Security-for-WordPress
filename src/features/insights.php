@@ -4,10 +4,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
+		$oP = $this->getCon()->getModule( 'plugin' );
+		$nActivatedAt = $oP->getActivatedAt();
+		if ( $nActivatedAt > 0 && Services::Request()->ts() - $nActivatedAt < 5 ) {
+			Services::Response()->redirect( $this->getUrl_AdminPage() );
+		}
+	}
+
 	/**
 	 * @param array $aData
 	 */
-	protected function displayModulePage( $aData = array() ) {
+	protected function displayModulePage( $aData = [] ) {
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
 		$aSecNotices = $this->getNotices();
@@ -65,7 +74,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'render_table_audittrail' => $oAuditMod->getAjaxActionData( 'render_table_audittrail', true ),
 						'item_addparamwhite'      => $oAuditMod->getAjaxActionData( 'item_addparamwhite', true )
 					),
-					'flags'   => array(),
+					'flags'   => [],
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
 					),
@@ -105,13 +114,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),
 						'summary_blacklist' => sprintf( _wpsf__( 'IP addresses that have tripped %s defenses.' ), $nPluginName ),
 					),
-					'vars'    => array(),
+					'vars'    => [],
 				);
 				break;
 
 			case 'notes':
 				$aData = array(
-					'vars'  => array(),
+					'vars'  => [],
 					'ajax'  => array(
 						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
 						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
@@ -167,7 +176,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'bulk_action'           => $oModUsers->getAjaxActionData( 'bulk_action', true ),
 
 					),
-					'flags'   => array(),
+					'flags'   => [],
 					'strings' => array(
 						'title_filter_form' => _wpsf__( 'Sessions Table Filters' ),
 					),
@@ -197,7 +206,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							'maxlength' => $this->getDef( 'license_key_length' ),
 						)
 					),
-					'ajax'   => array(),
+					'ajax'   => [],
 					'hrefs'  => array(
 						'shield_pro_url'           => 'https://icwp.io/shieldpro',
 						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
@@ -243,7 +252,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'active' => false
 		);
 
-		$oDp = \FernleafSystems\Wordpress\Services\Services::DataManipulation();
+		$oDp = Services::DataManipulation();
 		$aData = $oDp->mergeArraysRecursive(
 			$this->getBaseDisplayData( false ),
 			array(
@@ -251,7 +260,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'page_container' => 'page-insights page-'.$sNavSection
 				),
 				'flags'   => array(
-					'show_promo' => !$bIsPro
+					'show_promo'       => !$bIsPro,
+					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
 				),
 				'hrefs'   => array(
 					'go_pro'     => 'https://icwp.io/shieldgoprofeature',
@@ -325,6 +335,27 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_script( $sUnique );
 					}
 
+					if ( $sNav == 'audit' ) {
+						$sUnique = $this->prefix( 'datepicker' );
+						wp_register_script(
+							$sUnique, //TODO: use an includes services for CNDJS
+							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
+							array_unique( $aStdDeps ),
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+
+						wp_register_style(
+							$sUnique,
+							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css',
+							[],
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_style( $sUnique );
+					}
+
 					break;
 			}
 		}
@@ -360,7 +391,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getInsightsModsSummary() {
-		$aMods = array();
+		$aMods = [];
 		foreach ( $this->getModulesSummaryData() as $aMod ) {
 			if ( !in_array( $aMod[ 'slug' ], array( 'insights' ) ) ) {
 				$aMods[] = $aMod;

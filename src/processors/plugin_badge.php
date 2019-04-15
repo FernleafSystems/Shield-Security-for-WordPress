@@ -20,7 +20,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	public function includeJquery() {
-		wp_enqueue_script( 'jquery', null, array(), false, true );
+		wp_enqueue_script( 'jquery', null, [], false, true );
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		);
 
 		if ( !is_array( $aContent ) ) {
-			$aContent = array();
+			$aContent = [];
 		}
 		$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
 		return $aContent;

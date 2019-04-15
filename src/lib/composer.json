@@ -1,5 +1,5 @@
 {
-  "name":              "shield requirement",
+  "name":              "odp-shield/requirements",
   "description":       "shield requirement",
   "authors":           [
     {
@@ -26,7 +26,8 @@
     "google/recaptcha":                   "1.1.2",
     "symfony/translation":                "^2.8",
     "symfony/yaml":                       "^2.8",
-    "bjeavons/zxcvbn-php":                "^0.3"
+    "bjeavons/zxcvbn-php":                "^0.3",
+    "nullpunkt/lz-string-php":            "^1.2.0"
   },
   "require-dev":       {
   },

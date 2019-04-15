@@ -35,7 +35,7 @@ class Store {
 		if ( !is_array( $this->aSnapData ) ) {
 			$this->loadSnapDataIfExists();
 		}
-		return is_array( $this->aSnapData ) ? $this->aSnapData : array();
+		return is_array( $this->aSnapData ) ? $this->aSnapData : [];
 	}
 
 	/**
@@ -64,7 +64,7 @@ class Store {
 	 * @return $this
 	 */
 	public function clearSnapshots() {
-		$this->aSnapData = array();
+		$this->aSnapData = [];
 		return $this;
 	}
 
@@ -132,7 +132,7 @@ class Store {
 			$this->aSnapData = $this->readSnapData();
 		}
 		catch ( \Exception $oE ) {
-			$this->aSnapData = array();
+			$this->aSnapData = [];
 		}
 		return $this;
 	}

@@ -899,16 +899,18 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		if ( !defined( 'DONOTCACHEPAGE' ) ) {
 			define( 'DONOTCACHEPAGE', true );
 		}
-		// WP Fastest Cache
-		if ( isset( $GLOBALS[ 'wp_fastest_cache' ] ) and is_object( $GLOBALS[ 'wp_fastest_cache' ] )
-														 && method_exists( $GLOBALS[ 'wp_fastest_cache' ], 'deleteCache' )
-														 && is_callable( array(
-				$GLOBALS[ 'wp_fastest_cache' ],
-				'deleteCache'
-			) )
-		) {
-			$GLOBALS[ 'wp_fastest_cache' ]->deleteCache(); //WpFastestCache
-		}
+
+		add_action( 'shutdown', function () {
+			// WP Fastest Cache
+			if ( isset( $GLOBALS[ 'wp_fastest_cache' ] ) &&
+				 $GLOBALS[ 'wp_fastest_cache' ] instanceof \WpFastestCache
+				 && method_exists( $GLOBALS[ 'wp_fastest_cache' ], 'singleDeleteCache' ) ) {
+				$nPostId = $this->getCurrentPostId();
+				if ( $nPostId > 0 ) {
+					$GLOBALS[ 'wp_fastest_cache' ]->singleDeleteCache( false, $this->getCurrentPostId() );
+				}
+			}
+		} );
 		return DONOTCACHEPAGE;
 	}
 
@@ -925,8 +927,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
 	 * @return string[]
+	 * @deprecated
 	 */
 	public function getCoreChecksums() {
 		return \FernleafSystems\Wordpress\Services\Services::WpGeneral()->getCoreChecksums();

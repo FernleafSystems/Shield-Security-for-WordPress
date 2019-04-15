@@ -20,7 +20,7 @@ class Update extends Base\Update {
 	 * @param array   $aUpdateData
 	 * @return bool
 	 */
-	public function updateStat( $oStat, $aUpdateData = array() ) {
+	public function updateStat( $oStat, $aUpdateData = [] ) {
 		return parent::updateEntry( $oStat, $aUpdateData );
 	}
 }

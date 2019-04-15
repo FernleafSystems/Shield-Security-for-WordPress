@@ -125,6 +125,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
+		$this->resetRtBackupFiles();
 	}
 
 	/**
@@ -235,7 +236,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function clearIcSnapshots() {
-		return $this->setIcSnapshotUsers( array() );
+		return $this->setIcSnapshotUsers( [] );
 	}
 
 	/**
@@ -285,9 +286,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {
-		$aExclusions = $this->getOpt( 'ufc_exclusions', array() );
+		$aExclusions = $this->getOpt( 'ufc_exclusions', [] );
 		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
-			$aExclusions = array();
+			$aExclusions = [];
 		}
 		return $aExclusions;
 	}
@@ -306,7 +307,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setUfcFileExclusions( $aExclusions ) {
 		if ( !is_array( $aExclusions ) ) {
-			$aExclusions = array();
+			$aExclusions = [];
 		}
 		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
 	}
@@ -315,7 +316,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanFileExclusions() {
-		$aExclusions = array();
+		$aExclusions = [];
 
 		$oFS = $this->loadFS();
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
@@ -648,7 +649,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	protected function getSectionNotices( $sSectionSlug ) {
-		$aNotices = array();
+		$aNotices = [];
 		switch ( $sSectionSlug ) {
 
 			case 'section_core_file_integrity_scan':
@@ -790,7 +791,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 
 			try {
-				$aSuccessfulItems = array();
+				$aSuccessfulItems = [];
 
 				foreach ( $aItemIds as $sId ) {
 					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
@@ -858,12 +859,30 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = array();
+		$aWarnings = [];
 
-		if ( $sSection == 'section_pluginthemes_guard' ) {
-			if ( !$this->canPtgWriteToDisk() ) {
-				$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
-			}
+		switch ( $sSection ) {
+
+			case 'section_pluginthemes_guard':
+				if ( !$this->canPtgWriteToDisk() ) {
+					$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
+				}
+				break;
+
+			case 'section_realtime':
+				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
+					$aWarnings[] = sprintf( _wpsf__( 'Not available because the %s extension is not available.' ), 'OpenSSL' );
+				}
+				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
+					$aWarnings[] = sprintf( _wpsf__( "Not available because PHP/WordPress doesn't have direct filesystem access." ), 'OpenSSL' );
+				}
+				else {
+					$sPath = $this->getRtMapFileKeyToFilePath( 'wpconfig' );
+					if ( !$this->getRtCanWriteFile( $sPath ) ) {
+						$aWarnings[] = sprintf( _wpsf__( "The %s file isn't writable and so can't be further protected." ), 'wp-config.php' );
+					}
+				}
+				break;
 		}
 
 		return $aWarnings;
@@ -878,13 +897,161 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * cleans out any reference to any backup files
+	 */
+	private function resetRtBackupFiles() {
+		$oCon = $this->getCon();
+		$oFs = Services::WpFs();
+		$oOpts = $this->getOptionsVo();
+		foreach ( [ 'htaccess', 'wpconfig' ] as $sFileKey ) {
+			if ( $oOpts->isOptChanged( 'rt_file_'.$sFileKey ) ) {
+				$sPath = $this->getRtMapFileKeyToFilePath( $sFileKey );
+				try {
+					$sBackupFile = $oCon->getPluginCachePath( $this->getRtFileBackupName( $sPath ) );
+					if ( $oFs->exists( $sBackupFile ) ) {
+						$oFs->deleteFile( $sBackupFile );
+					}
+
+					if ( !$this->getRtCanWriteFile( $sPath ) ) {
+						$this->setOpt( 'rt_file_'.$sFileKey, 'N' );
+					}
+				}
+				catch ( \Exception $oE ) {
+				}
+				$this->setRtFileHash( $sPath, '' )
+					 ->setRtFileBackupName( $sPath, '' );
+			}
+		}
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return string|null
+	 */
+	private function getRtMapFileKeyToFilePath( $sKey ) {
+		$aMap = [
+			'wpconfig' => Services::WpGeneral()->getPath_WpConfig(),
+			'htaccess' => path_join( ABSPATH, '.htaccess' ),
+		];
+		return isset( $aMap[ $sKey ] ) ? $aMap[ $sKey ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRtFileBackupNames() {
+		$aF = $this->getOpt( 'rt_file_backup_names', [] );
+		return is_array( $aF ) ? $aF : [];
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return string|null
+	 */
+	public function getRtFileBackupName( $sFile ) {
+		$aD = $this->getRtFileBackupNames();
+		return isset( $aD[ $sFile ] ) ? $aD[ $sFile ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRtFileHashes() {
+		$aF = $this->getOpt( 'rt_file_hashes', [] );
+		return is_array( $aF ) ? $aF : [];
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return string|null
+	 */
+	public function getRtFileHash( $sFile ) {
+		$aD = $this->getRtFileHashes();
+		return isset( $aD[ $sFile ] ) ? $aD[ $sFile ] : null;
+	}
+
+	/**
+	 * @param string $sFile
+	 * @param string $sName
+	 * @return $this
+	 */
+	public function setRtFileBackupName( $sFile, $sName ) {
+		$aD = $this->getRtFileBackupNames();
+		$aD[ $sFile ] = $sName;
+		return $this->setOpt( 'rt_file_backup_names', $aD );
+	}
+
+	/**
+	 * @param string $sFile
+	 * @param string $sHash
+	 * @return $this
+	 */
+	public function setRtFileHash( $sFile, $sHash ) {
+		$aD = $this->getRtFileHashes();
+		$aD[ $sFile ] = $sHash;
+		return $this->setOpt( 'rt_file_hashes', $aD );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getRtCanWriteFiles() {
+		$aF = $this->getOpt( 'rt_can_write_files', [] );
+		return is_array( $aF ) ? $aF : [];
+	}
+
+	/**
+	 * @param string $sFile
+	 * @return bool
+	 */
+	public function getRtCanWriteFile( $sFile ) {
+		$aFiles = $this->getRtCanWriteFiles();
+		if ( isset( $aFiles[ $sFile ] ) ) {
+			$bCanWrite = $aFiles[ $sFile ] > 0;
+		}
+		else {
+			$bCanWrite = ( new Shield\Scans\Realtime\Files\TestWritable() )->run( $sFile );
+			$this->setRtCanWriteFile( $sFile, $bCanWrite );
+		}
+		return $bCanWrite;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRtAvailable() {
+		return $this->isPremium()
+			   && Services::WpFs()->isFilesystemAccessDirect()
+			   && Services::Encrypt()->isSupportedOpenSslDataEncryption();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRtEnabledWpConfig() {
+		return $this->isRtAvailable() && $this->isOpt( 'rt_file_wpconfig', 'Y' )
+			   && $this->getRtCanWriteFile( $this->getRtMapFileKeyToFilePath( 'wpconfig' ) );
+	}
+
+	/**
+	 * @param string $sPath
+	 * @param bool   $bCanWrite
+	 * @return $this
+	 */
+	public function setRtCanWriteFile( $sPath, $bCanWrite ) {
+		$aFiles = $this->getRtCanWriteFiles();
+		$aFiles[ $sPath ] = $bCanWrite ? Services::Request()->ts() : 0;
+		return $this->setOpt( 'rt_can_write_files', $aFiles );
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
 		$aNotices = array(
 			'title'    => _wpsf__( 'Scans' ),
-			'messages' => array()
+			'messages' => []
 		);
 
 		{// Core files
@@ -1008,7 +1175,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'title' => _wpsf__( 'Hack Guard' ),
 				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -1137,6 +1304,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				);
 				break;
 
+			case 'section_realtime' :
+				$sTitle = _wpsf__( 'Realtime Site Protection' );
+				$sTitleShort = _wpsf__( 'Realtime Protection' );
+				$aSummary = array(
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides realtime protection for certain key files.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep realtime protection turned on to protect key files.' ) ),
+				);
+				break;
+
 			case 'section_enable_plugin_feature_hack_protection_tools' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = array(
@@ -1215,7 +1391,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}
@@ -1367,6 +1543,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Highlight Plugins' );
 				$sSummary = _wpsf__( 'Highlight Abandoned Plugins' );
 				$sDescription = _wpsf__( "Abandoned plugins will be highlighted on the main plugins page." );
+				break;
+
+			case 'rt_file_wpconfig' :
+				$sName = _wpsf__( 'WP Config' );
+				$sSummary = _wpsf__( 'Realtime Protection For WP Config File' );
+				$sDescription = _wpsf__( "Realtime protection for the wp-config.php file." );
 				break;
 
 			default:

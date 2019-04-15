@@ -45,7 +45,7 @@ class EntryVO {
 				}
 
 				if ( !is_array( $mVal ) ) {
-					$mVal = array();
+					$mVal = [];
 				}
 				break;
 
@@ -67,7 +67,7 @@ class EntryVO {
 
 			case 'meta':
 				if ( !is_array( $mValue ) ) {
-					$mValue = array();
+					$mValue = [];
 				}
 				$mValue = base64_encode( json_encode( $mValue ) );
 				break;

@@ -51,9 +51,9 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	public function getCspHosts() {
-		$aHosts = $this->getOpt( 'xcsp_hosts', array() );
+		$aHosts = $this->getOpt( 'xcsp_hosts', [] );
 		if ( empty( $aHosts ) || !is_array( $aHosts ) ) {
-			$aHosts = array();
+			$aHosts = [];
 		}
 		return $aHosts;
 	}
@@ -62,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$aDomains = $this->getCspHosts();
 		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 			$oDP = $this->loadDP();
-			$aValidDomains = array();
+			$aValidDomains = [];
 			foreach ( $aDomains as $sDomain ) {
 				$bValidDomain = false;
 				$sDomain = trim( $sDomain );
@@ -131,7 +131,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'title' => _wpsf__( 'HTTP Security Headers' ),
 				'sub'   => _wpsf__( 'Protect Visitors With Powerful HTTP Headers' ),
 			),
-			'key_opts'     => array(),
+			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
 		);
 
@@ -207,7 +207,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}

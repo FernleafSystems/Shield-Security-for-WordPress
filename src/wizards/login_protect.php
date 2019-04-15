@@ -118,7 +118,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
-				$oProcGa = $oProc->getProcessorLoginIntent()
+				$oProcGa = $oProc->getSubProIntent()
 								 ->getProcessorGoogleAuthenticator();
 				$bValidated = $oProcGa->validateGaCode( $oUser, $sCode );
 
@@ -228,7 +228,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
-				$oProcGa = $oProc->getProcessorLoginIntent()
+				$oProcGa = $oProc->getSubProIntent()
 								 ->getProcessorGoogleAuthenticator();
 				$sGaUrl = $oProcGa->getGaRegisterChartUrl( $oUser );
 				$aAdditional = array(

@@ -4,8 +4,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
-	/**
-	 */
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
@@ -20,10 +18,6 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			$wp_version = $sWpVersionMask;
 // 			add_filter( 'bloginfo', array( $this, 'maskWordpressVersion' ), 1, 2 );
 // 			add_filter( 'bloginfo_url', array( $this, 'maskWordpressVersion' ), 1, 2 );
-		}
-
-		if ( false && $this->getOption( 'action_reset_auth_salts' ) == 'Y' ) {
-			add_action( 'init', array( $this, 'resetAuthKeysSalts' ), 1 );
 		}
 
 		if ( $oFO->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
@@ -87,7 +81,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 		$oFO->setOptInsightsAt( 'xml_block_at' )
 			->setIpTransgressed();
-		return ( current_filter() == 'xmlrpc_enabled' ) ? false : array();
+		return ( current_filter() == 'xmlrpc_enabled' ) ? false : [];
 	}
 
 	/**
@@ -164,78 +158,5 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		$aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ]
 			= empty( $aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
 		return $aData;
-	}
-
-	/**
-	 * @param $sOutput
-	 * @param $sShow
-	 * @return string
-	 */
-	public function maskWordpressVersion( $sOutput, $sShow ) {
-// 		if ( $sShow === 'version' ) {
-// 			$sOutput = $this->aOptions['mask_wordpress_version'];
-// 		}
-// 		return $sOutput;
-	}
-
-	/**
-	 */
-	public function resetAuthKeysSalts() {
-		$oWpFs = Services::WpFs();
-
-		// Get the new Salts
-		$sSaltsUrl = 'https://api.wordpress.org/secret-key/1.1/salt/';
-		$sSalts = Services::HttpRequest()->getContent( $sSaltsUrl );
-
-		$sWpConfigContent = $oWpFs->getContent_WpConfig();
-		if ( is_null( $sWpConfigContent ) ) {
-			return;
-		}
-
-		$aKeys = array(
-			'AUTH_KEY',
-			'SECURE_AUTH_KEY',
-			'LOGGED_IN_KEY',
-			'NONCE_KEY',
-			'AUTH_SALT',
-			'SECURE_AUTH_SALT',
-			'LOGGED_IN_SALT',
-			'NONCE_SALT'
-		);
-
-		$aContent = explode( PHP_EOL, $sWpConfigContent );
-		$fKeyFound = false;
-		$nStartLine = 0;
-		foreach ( $aContent as $nLineNumber => $sLine ) {
-			foreach ( $aKeys as $nPosition => $sKey ) {
-				if ( strpos( $sLine, $sKey ) === false ) {
-					continue;
-				}
-				if ( $nStartLine == 0 ) {
-					$nStartLine = $nLineNumber;
-				}
-				else {
-					unset( $aContent[ $nLineNumber ] );
-				}
-				$fKeyFound = true;
-			}
-		}
-		$aContent[ $nStartLine ] = $sSalts;
-		$oWpFs->putContent_WpConfig( implode( PHP_EOL, $aContent ) );
-	}
-
-	/**
-	 * @deprecated
-	 * @param array $aAllCaps
-	 * @param       $cap
-	 * @param array $aArgs
-	 * @return array
-	 */
-	public function disableFileEditing( $aAllCaps, $cap, $aArgs ) {
-		$sRequestedCapability = $aArgs[ 0 ];
-		if ( in_array( $sRequestedCapability, [ 'edit_themes', 'edit_plugins', 'edit_files' ] ) ) {
-			$aAllCaps[ $sRequestedCapability ] = false;
-		}
-		return $aAllCaps;
 	}
 }

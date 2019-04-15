@@ -73,7 +73,7 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @return ResultsSet[]
 	 */
 	public function getAllResultsSetsForUniqueSlugs() {
-		$aCollection = array();
+		$aCollection = [];
 		foreach ( $this->getUniqueSlugs() as $sSlug ) {
 			$oRS = $this->getResultsSetForSlug( $sSlug );
 			if ( $oRS->hasItems() ) {
@@ -136,7 +136,7 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @return ResultsSet[]
 	 */
 	public function getAllResultsSetsForContext( $sContext ) {
-		$aCollection = array();
+		$aCollection = [];
 		foreach ( $this->getAllResultsSetsForUniqueSlugs() as $sSlug => $oRS ) {
 			if ( $oRS->getItems()[ 0 ]->context == $sContext ) {
 				$aCollection[ $sSlug ] = $oRS;

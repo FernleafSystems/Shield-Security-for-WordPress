@@ -37,12 +37,12 @@ class RetrieveForItem {
 		if ( empty( $aD ) ) {
 			$sRaw = Services::HttpRequest()->getContent( $this->buildApiUrl() );
 			if ( empty( $sRaw ) ) {
-				$aD = array();
+				$aD = [];
 			}
 			else {
 				$aD = @json_decode( trim( $sRaw ), true );
 				if ( !is_array( $aD ) || !isset( $aD[ $sSlug ] ) || !is_array( $aD[ $sSlug ] ) ) {
-					$aD = array();
+					$aD = [];
 				}
 				else {
 					$aD = $aD[ $sSlug ];
@@ -51,7 +51,7 @@ class RetrieveForItem {
 
 			$aD[ 'slug' ] = $sSlug;
 			if ( !isset( $aD[ 'vulnerabilities' ] ) || !is_array( $aD[ 'vulnerabilities' ] ) ) {
-				$aD[ 'vulnerabilities' ] = array();
+				$aD[ 'vulnerabilities' ] = [];
 			}
 			$this->setVoCache( $aD );
 		}
@@ -79,7 +79,7 @@ class RetrieveForItem {
 		$oWp = Services::WpGeneral();
 		$aCacheData = $oWp->getTransient( $this->getVoCacheKey() );
 		if ( !is_array( $aCacheData ) ) {
-			$aCacheData = array();
+			$aCacheData = [];
 			$this->setVoCache( $aCacheData );
 		}
 		return $aCacheData;

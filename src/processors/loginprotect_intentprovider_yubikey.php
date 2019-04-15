@@ -181,7 +181,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			];
 
 			$sReqUrl = add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY );
-			$sYubiResponse = \FernleafSystems\Wordpress\Services\Services::HttpRequest()->getContent( $sReqUrl );
+			$sYubiResponse = Services::HttpRequest()->getContent( $sReqUrl );
 
 			unset( $aParts[ 'id' ] );
 			$aParts[ 'status' ] = 'OK';

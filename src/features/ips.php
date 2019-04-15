@@ -9,6 +9,12 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
 
+	protected function updateHandler() {
+		if ( $this->isOpt( 'track_404', 'assign-transgression' ) ) {
+			$this->setOpt( 'track_404', 'transgression-single' ); // fix for older options values
+		}
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -25,13 +31,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getOptTracking404() {
-		return $this->getOpt( 'track_404' );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getAutoExpireTime() {
@@ -41,16 +40,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	public function isAutoBlackListFeatureEnabled() {
+	public function isAutoBlackListEnabled() {
 		return ( $this->getOptTransgressionLimit() > 0 );
-	}
-
-	/**
-	 * @premium
-	 * @return bool
-	 */
-	public function is404Tracking() {
-		return !$this->isOpt( 'track_404', 'disabled' );
 	}
 
 	/**
@@ -88,10 +79,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = _wpsf__( "Invalid entry selected" );
+			$sMessage = _wpsf__( 'Invalid entry selected' );
 		}
 		else if ( $oProcessor->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = _wpsf__( "IP address deleted" );
+			$sMessage = _wpsf__( 'IP address deleted' );
 			$bSuccess = true;
 		}
 		else {
@@ -265,6 +256,112 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isEnabledTrack404() {
+		return $this->isSelectOptionEnabled( 'track_404' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledTrackFakeWebCrawler() {
+		return $this->isSelectOptionEnabled( 'track_fakewebcrawler' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledTrackLoginInvalid() {
+		return $this->isSelectOptionEnabled( 'track_logininvalid' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledTrackLoginFailed() {
+		return $this->isSelectOptionEnabled( 'track_loginfailed' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledTrackLinkCheese() {
+		return $this->isSelectOptionEnabled( 'track_linkcheese' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledTrackXmlRpc() {
+		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
+	public function isTrackOptTransgression( $sOptionKey ) {
+		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
+	public function isTrackOptDoubleTransgression( $sOptionKey ) {
+		return $this->isOpt( $sOptionKey, 'transgression-double' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
+	public function isTrackOptLogOnly( $sOptionKey ) {
+		return $this->isOpt( $sOptionKey, 'log' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 */
+	protected function isSelectOptionEnabled( $sOptionKey ) {
+		$bOptPrem = $this->getOptionsVo()->isOptPremium( $sOptionKey );
+		return ( !$bOptPrem || $this->getCon()->isPremiumActive() ) && !$this->isOpt( $sOptionKey, 'disabled' );
+	}
+
+	/**
+	 * @param string $sSection
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSection ) {
+		$aWarnings = [];
+
+		switch ( $sSection ) {
+
+			case 'section_auto_black_list':
+				if ( !$this->isAutoBlackListEnabled() ) {
+					$aWarnings[] = sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( "IP blocking is turned-off because the transgressions limit is set to 0." ) );
+				}
+				break;
+
+			case 'section_behaviours':
+			case 'section_probes':
+			case 'section_logins':
+				if ( !$this->isAutoBlackListEnabled() ) {
+					$aWarnings[] = _wpsf__( "Since the transgressions limit is set to 0, these options have no effect." );
+				}
+
+				if ( $sSection == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
+					$aWarnings[] = _wpsf__( "Your User Agent appears to be empty. We recommend not turning on this option." );
+				}
+				break;
+		}
+
+		return $aWarnings;
+	}
+
+	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -300,7 +397,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @throws \Exception
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-
+		$sName = $this->getCon()->getHumanName();
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_ips' :
@@ -314,28 +411,66 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 
 			case 'section_auto_black_list' :
-				$sTitle = _wpsf__( 'Automatic IP Black List' );
+				$sTitle = _wpsf__( 'Auto IP Blocking Rules' );
+				$sTitleShort = _wpsf__( 'Auto IP Blocking Rules' );
 				$aSummary = array(
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) )
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) ),
+					_wpsf__( "Think of 'transgressions' as just a counter for the number of times a visitor does something bad." )
+					.' '.sprintf( _wpsf__( 'When the counter reaches the limit below (default: 10), %s will block that completely IP.' ), $sName )
 				);
-				$sTitleShort = _wpsf__( 'Auto Black List' );
 				break;
 
-			case 'section_reqtracking' :
-				$sTitle = _wpsf__( 'Bad Request Tracking' );
-				$sTitleShort = _wpsf__( 'Request Tracking' );
+			case 'section_enable_plugin_feature_bottrap' :
+				$sTitle = _wpsf__( 'Identify And Capture Bots Based On Their Site Activity' );
 				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Track strange behaviour to determine whether visitors are legitimate.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( "These aren't security issues in their own right, but may indicate probing bots." ) )
+					_wpsf__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises." ),
+					_wpsf__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots." ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable as many mouse traps as possible.' ) )
 				);
+				$sTitleShort = _wpsf__( 'Bot-Trap' );
+				break;
+
+			case 'section_logins':
+				$sTitle = _wpsf__( 'Detect & Capture Login Bots' );
+				$sTitleShort = _wpsf__( 'Detect Login Bots' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Summary' ),
+						_wpsf__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
+						_wpsf__( "Enable as many options as possible." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Warning' ),
+						_wpsf__( "Legitimate users may get their password wrong, so take care not to block this." ) ),
+				];
+				break;
+
+			case 'section_probes':
+				$sTitle = _wpsf__( 'Detect & Capture Probing Bots' );
+				$sTitleShort = _wpsf__( 'Detect Probing Bots' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Summary' ),
+						_wpsf__( "Bots are designed to probe and this feature is dedicated to detecting probing bots." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
+						_wpsf__( "Enable as many options as possible." ) ),
+				];
+				break;
+
+			case 'section_behaviours':
+				$sTitle = _wpsf__( 'Detect Behaviours Common To Bots' );
+				$sTitleShort = _wpsf__( 'Detect Bot Behaviours' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Summary' ),
+						_wpsf__( "Detect characteristics and behaviour commonly associated with illegitimate bots." ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
+						_wpsf__( "Enable as many options as possible." ) ),
+				];
 				break;
 
 			default:
 				list( $sTitle, $sTitleShort, $aSummary ) = $this->loadStrings_SectionTitlesDefaults( $aOptionsParams );
 		}
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}
@@ -378,12 +513,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$sDescription = _wpsf__( 'Allow visitors blocked by the plugin to automatically unblock themselves.' );
 				break;
 
-			case 'track_404' :
-				$sName = _wpsf__( 'Track 404s' );
-				$sSummary = _wpsf__( 'Use 404s As An Transgression' );
-				$sDescription = _wpsf__( 'Repeated 404s may indicate a probing bot.' );
-				break;
-
 			case 'text_loginfailed' :
 				$sName = _wpsf__( 'Login Failed' );
 				$sSummary = _wpsf__( 'Visitor Triggers The IP Transgression System Through A Failed Login' );
@@ -394,6 +523,55 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$sName = _wpsf__( 'Remaining Transgressions' );
 				$sSummary = _wpsf__( 'Visitor Triggers The IP Transgression System Through A Firewall Block' );
 				$sDescription = _wpsf__( 'This message is displayed if the visitor triggered the IP Transgression system and reports how many transgressions remain before being blocked.' );
+				break;
+
+			case 'track_404' :
+				$sName = _wpsf__( '404 Detect' );
+				$sSummary = _wpsf__( 'Identify A Bot When It Hits A 404' );
+				$sDescription = _wpsf__( "Detect when a visitor tries to load a non-existent page." )
+								.'<br/>'._wpsf__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s." );
+				break;
+
+			case 'track_xmlrpc' :
+				$sName = _wpsf__( 'XML-RPC Access' );
+				$sSummary = _wpsf__( 'Identify A Bot When It Accesses XML-RPC' );
+				$sDescription = _wpsf__( "If you don't use XML-RPC, there's no reason anything should be accessing it." )
+								.'<br/>'._wpsf__( "Be careful the ensure you don't block legitimate XML-RPC traffic if your site needs it." )
+								.'<br/>'._wpsf__( "We recommend transgressions here in-case of blocking valid request unless you're sure." );
+				break;
+
+			case 'track_linkcheese' :
+				$sName = _wpsf__( 'Link Cheese' );
+				$sSummary = _wpsf__( 'Tempt A Bot With A Fake Link To Follow' );
+				$sDescription = _wpsf__( "Detect a bot when it follows a fake 'no-follow' link." )
+								.'<br/>'._wpsf__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives." );
+				break;
+
+			case 'track_logininvalid' :
+				$sName = _wpsf__( 'Invalid Usernames' );
+				$sSummary = _wpsf__( "Detect Attempted Logins With Usernames That Don't Exist" );
+				$sDescription = _wpsf__( "Identify a Bot when it tries to login with a non-existent username." )
+								.'<br/>'._wpsf__( "This includes the default 'admin' if you've removed that account." );
+				break;
+
+			case 'track_loginfailed' :
+				$sName = _wpsf__( 'Failed Login' );
+				$sSummary = _wpsf__( 'Detect Failed Login Attempts Using Valid Usernames' );
+				$sDescription = _wpsf__( "Penalise a visitor when they try to login using a valid username, but it fails." );
+				break;
+
+			case 'track_fakewebcrawler' :
+				$sName = _wpsf__( 'Fake Web Crawler' );
+				$sSummary = _wpsf__( 'Detect Fake Search Engine Crawlers' );
+				$sDescription = _wpsf__( "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake." );
+				break;
+
+			case 'track_useragent' :
+				$sName = _wpsf__( 'Empty User Agents' );
+				$sSummary = _wpsf__( 'Detect Requests With Empty User Agents' );
+				$sDescription = _wpsf__( "Identify a bot when the user agent is not provided." )
+								.'<br />'.sprintf( '%s: <code>%s</code>',
+						_wpsf__( 'Your user agent is' ), Services::Request()->getUserAgent() );
 				break;
 
 			default:
@@ -461,5 +639,29 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				);
 			}
 		}
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 7.3
+	 */
+	public function getOptTracking404() {
+		return $this->getOpt( 'track_404' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 7.3
+	 */
+	public function is404Tracking() {
+		return !$this->isOpt( 'track_404', 'disabled' );
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	public function isAutoBlackListFeatureEnabled() {
+		return $this->isAutoBlackListEnabled();
 	}
 }

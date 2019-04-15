@@ -127,7 +127,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$sKey = 'exefile';
 		$bFAIL = false;
 		if ( isset( $_FILES ) && !empty( $_FILES ) ) {
-			$aFileNames = array();
+			$aFileNames = [];
 			foreach ( $_FILES as $aFile ) {
 				if ( !empty( $aFile[ 'name' ] ) ) {
 					$aFileNames[] = $aFile[ 'name' ];
@@ -332,7 +332,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$aMessages = apply_filters( $this->getMod()
 										 ->prefix( 'firewall_die_message' ), $this->getFirewallDieMessage() );
 		if ( !is_array( $aMessages ) ) {
-			$aMessages = array();
+			$aMessages = [];
 		}
 		return implode( ' ', $aMessages );
 	}
@@ -390,7 +390,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 				// if the page has no particular parameters specified there is nothing to check since the whole page is white listed.
 				if ( empty( $aWhitelistPageParams ) ) {
-					$this->aPageParams = array();
+					$this->aPageParams = [];
 				}
 				else {
 					// Otherwise we run through any whitelisted parameters and remove them.

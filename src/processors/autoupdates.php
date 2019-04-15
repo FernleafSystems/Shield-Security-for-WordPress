@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @var array
 	 */
-	private $aAssetsVersions = array();
+	private $aAssetsVersions = [];
 
 	/**
 	 * @param boolean $bDoForceRun
@@ -95,11 +95,11 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	private function trackAssetsVersions() {
 		$aAssVers = $this->getTrackedAssetsVersions();
 
-		$oWpPlugins = \FernleafSystems\Wordpress\Services\Services::WpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		foreach ( array_keys( $oWpPlugins->getUpdates() ) as $sFile ) {
 			$aAssVers[ 'plugins' ][ $sFile ] = $oWpPlugins->getPluginAsVo( $sFile )->Version;
 		}
-		$oWpThemes = \FernleafSystems\Wordpress\Services\Services::WpThemes();
+		$oWpThemes = Services::WpThemes();
 		foreach ( array_keys( $oWpThemes->getUpdates() ) as $sFile ) {
 			$aAssVers[ 'themes' ][ $sFile ] = $oWpThemes->getTheme( $sFile )->get( 'Version' );
 		}
@@ -112,8 +112,8 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getTrackedAssetsVersions() {
 		if ( empty( $this->aAssetsVersions ) || !is_array( $this->aAssetsVersions ) ) {
 			$this->aAssetsVersions = array(
-				'plugins' => array(),
-				'themes'  => array(),
+				'plugins' => [],
+				'themes'  => [],
 			);
 		}
 		return $this->aAssetsVersions;
@@ -129,7 +129,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$oFO = $this->getMod();
 
 			$aTk = $oFO->getDelayTracking();
-			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : array();
+			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : [];
 			foreach ( $oUpdates->updates as $oUpdate ) {
 				if ( 'autoupdate' == $oUpdate->response ) {
 					$sVersion = $oUpdate->current;
@@ -169,7 +169,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$aTk = $oFO->getDelayTracking();
 			foreach ( $oUpdates->response as $sSlug => $oUpdate ) {
-				$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : array();
+				$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : [];
 				if ( is_array( $oUpdate ) ) {
 					$oUpdate = (object)$oUpdate;
 				}
@@ -346,7 +346,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				return true;
 			}
 
-			$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', array() );
+			$aAutoUpdates = apply_filters( 'icwp_wpsf_autoupdate_themes', [] );
 			if ( !empty( $aAutoUpdates ) && is_array( $aAutoUpdates ) && in_array( $sFile, $aAutoUpdates ) ) {
 				$bDoAutoUpdate = true;
 			}
@@ -375,7 +375,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				$sSlug = 'wp';
 			}
 
-			$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : array();
+			$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : [];
 
 			if ( $sContext == 'plugins' ) {
 				$oPlugin = $this->loadWpPlugins()->getUpdateInfo( $sSlug );

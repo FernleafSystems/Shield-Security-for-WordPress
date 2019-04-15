@@ -60,15 +60,15 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	protected function getLicenseData() {
-		$aData = $this->getOpt( 'license_data', array() );
-		return is_array( $aData ) ? $aData : array();
+		$aData = $this->getOpt( 'license_data', [] );
+		return is_array( $aData ) ? $aData : [];
 	}
 
 	/**
 	 * @return $this
 	 */
 	protected function clearLicenseData() {
-		return $this->setOpt( 'license_data', array() );
+		return $this->setOpt( 'license_data', [] );
 	}
 
 	/**
@@ -726,7 +726,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 
 		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : array();
+		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
 		$aOptionsParams[ 'title_short' ] = $sTitleShort;
 		return $aOptionsParams;
 	}
