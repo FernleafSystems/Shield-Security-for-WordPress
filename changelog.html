@@ -1,4 +1,81 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><title>Untitled Document.md</title><style></style></head><body id="preview">
+<p>= 7.1 - Series =<br>
+<em>Released: 21st February, 2019</em> - <a href="https://icwp.io/ek">Release Notes</a></p>
+<ul>
+<li><strong>(v.2)</strong>  IMPROVED:  Firewall email notification content now better reflect the information in the audit trail.</li>
+<li><strong>(v.2)</strong>  FIX:       Firewall email notification was breaking in some instances.</li>
+<li><strong>(v.1)</strong>  FIX:       IP retrieval.</li>
+<li><strong>(v.0)</strong>  NEW:       Moved Import/Export UI from Wizard to main Shield Dashboard.</li>
+<li><strong>(v.0)</strong>  NEW:       [<strong>PRO</strong>] Option to import/export settings using file downloads/uploads</li>
+<li><strong>(v.0)</strong>  NEW:       [<strong>PRO</strong>] Option to allow visitors to automatically unblock themselves (once in 24hrs)</li>
+<li><strong>(v.0)</strong>  NEW:       Integrated changelog directly into plugin admin for easy updates (between releases)</li>
+<li><strong>(v.0)</strong>  FIXED:     WP Core files scanner now correctly ignores certain files as it used to do, pre-v7. e.g. wp-config-sample.php</li>
+<li><strong>(v.0)</strong>  FIXED:     Shield was indicating plugin/theme file editing was possible, when it in-fact was disabled.</li>
+<li><strong>(v.0)</strong>  IMPROVED:  Consolidate crons into fewer crons. e.g. all scans run under the same cron.</li>
+</ul>
+<p>= 7.0 - Series =<br>
+<em>Released: 28th January, 2019</em> - <a href="https://icwp.io/ef">Release Notes</a></p>
+<ul>
+<li><strong>(v.4)</strong>  IMPROVED:  Refactored IP address blocking with improved audit trail messages.</li>
+<li><strong>(v.4)</strong>  CHANGED:   Expanded anonymous REST API whitelist to include ‘wpstatistics’ namespace.</li>
+<li><strong>(v.4)</strong>  IMPROVED:  Access protection for shield temp/caching dir.</li>
+<li><strong>(v.4)</strong>  IMPROVED:  Clarification on reCAPTCHA - v3 is <strong>not</strong> supported.</li>
+<li><strong>(v.4)</strong>  IMPROVED:  Clarification on user sessions timeout - Shield sets an absolutely session maximum.</li>
+<li><strong>(v.4)</strong>  IMPROVED:  Options form submission is adjusted to work around poorly restrictive webhosts.</li>
+<li><strong>(v.4)</strong>  FIX:       Various tweaks and fixes across the plugin.</li>
+<li><strong>(v.4)</strong>  FIX:       Error with ClassicPress.</li>
+<li><strong>(v.3)</strong>  NEW:       Automatically whitelist anonymous REST API Access for 3 plugins: Contact Form 7, WooCommerce, JetPack.</li>
+<li><strong>(v.3)</strong>  IMPROVED:  Security admin login failure messages are clearer.</li>
+<li><strong>(v.3)</strong>  IMPROVED:  Admin notification for email sending 2FA verification easily lets you resend email.</li>
+<li><strong>(v.3)</strong>  IMPROVED:  File download code for WordPress Core file scanner repairs.</li>
+<li><strong>(v.3)</strong>  IMPROVED:  Attempt to also capture B/CC email addresses included in outgoing emails in Audit logs.</li>
+<li><strong>(v.3)</strong>  FIX:       Allow use of IPv4 ranges in whitelist again.</li>
+<li><strong>(v.3)</strong>  CHANGED:   Numerous code refactoring and improvements building upon the major v7 release and prepping for v7.1.</li>
+<li><strong>(v.1-2)</strong>  FIXED:   Some JS fixes.</li>
+<li><strong>(v.0)</strong>  NEW:       New primary UI for Shield site security management. Easy access to scans, audit trail, user sessions etc.</li>
+<li><strong>(v.0)</strong>  NEW:       Supports only PHP 5.4 or higher</li>
+<li><strong>(v.0)</strong>  NEW:       Rebuilt scans architecture and UI</li>
+<li><strong>(v.0)</strong>  NEW:       A huge amount of code cleaning and refactoring</li>
+<li><strong>(v.0)</strong>  CHANGED:   Too many many changes and bug fixes to list -best to just take a look! :)</li>
+</ul>
+<p>= 6.10 - Series =<br>
+<em>Released: 15th October, 2018</em> - <a href="https://icwp.io/dg">Release Notes</a></p>
+<ul>
+<li><strong>(v.9)</strong>  FIXED:     Admin notices displaying to non-admins.</li>
+<li><strong>(v.7)</strong>  ADDED:     [<strong>PRO</strong>] New option to specify usernames for Security Admin role.</li>
+<li><strong>(v.7)</strong>  IMPROVED:  Idle user detection.</li>
+<li><strong>(v.7)</strong>  IMPROVED:  Support for redirect/cancel URLs in 2FA login page.</li>
+<li><strong>(v.7)</strong>  CHANGED:   Final release before Shield v7. Small warning shown on plugins page if PHP &lt; 5.4</li>
+<li><strong>(v.6)</strong>  ADDED:     New option to control plugin automatic updates.</li>
+<li><strong>(v.6)</strong>  IMPROVED:  Enhancements to the experimental bot JS.</li>
+<li><strong>(v.6)</strong>  IMPROVED:  Support for Easy Digital Downloads forms.</li>
+<li><strong>(v.5)</strong>  Release skipped.</li>
+<li><strong>(v.4)</strong>  FIXED:     Couldn’t deactivate plugin.</li>
+<li><strong>(v.3)</strong>  ADDED:     Support for Ultimate Member forms</li>
+<li><strong>(v.3)</strong>  ADDED:     Support for LearnPress login/registration forms</li>
+<li><strong>(v.3)</strong>  FIXED:     Security Admin now correctly honours the WordPress Options zone setting.</li>
+<li><strong>(v.3)</strong>  IMPROVED:  Distinguish which sub-site (sub-domain) for WPMS installations on <a href="https://icwp.io/c1">Traffic Watcher</a>.</li>
+<li><strong>(v.3)</strong>  IMPROVED:  Server’s own IP lookup is only attempted once.</li>
+<li><strong>(v.3)</strong>  ADDED:     Experimental feature to help with some custom 3rd party login/registration forms</li>
+<li><strong>(v.2)</strong>  IMPROVED:  Visitor IP address detection</li>
+<li><strong>(v.2)</strong>  IMPROVED:  Automatic whitelisting of Manage WP IP addresses</li>
+<li><strong>(v.2)</strong>  IMPROVED:  SPAM Comments code enhanced and optimised</li>
+<li><strong>(v.2)</strong>  IMPROVED:  IP Whitelisting code enhanced and optimised</li>
+<li><strong>(v.2)</strong>  IMPROVED:  Code cleaning and refactoring.</li>
+<li><strong>(v.1)</strong>  FIXED:     Googlebot PHP error notice.</li>
+<li><strong>(v.0)</strong>  NEW:       [<strong>PRO</strong>] 2FA Login Backup Codes - all users can create a backup login code in-case their MFA factors are temporarily unavailable.</li>
+<li><strong>(v.0)</strong>  NEW:       [<strong>PRO</strong>] White Label - you can now specify custom image for 2FA login screen.</li>
+<li><strong>(v.0)</strong>  ADDED:     [<strong>PRO</strong>] Custom Exclusion Rules for Traffic Watcher so you can exclude certain User Agents and request paths.</li>
+<li><strong>(v.0)</strong>  ADDED:     Detection of official spiders/bots for Google, Bing, Apple and Yandex - these visitors will never get blacklisted.</li>
+<li><strong>(v.0)</strong>  IMPROVED:  Two-Factor Authentication system much improved (+ critical bug fix).</li>
+<li><strong>(v.0)</strong>  IMPROVED:  Audit Trail entries for 2FA login factors.</li>
+<li><strong>(v.0)</strong>  IMPROVED:  Fixes for Two-Factor Authentication wizard UX.</li>
+<li><strong>(v.0)</strong>  IMPROVED:  Traffic Watcher now honours the IP Whitelist.</li>
+<li><strong>(v.0)</strong>  IMPROVED:  Security Admin restriction for creating/editing/deleting Administrator users is much improved.</li>
+<li><strong>(v.0)</strong>  IMPROVED:  All Shield cookies are SSL-only by default for HTTPS sites.</li>
+<li><strong>(v.0)</strong>  FIXED:     GASP checkbox Javascript breaking in a particular scenario.</li>
+<li><strong>(v.0)</strong>  ADDED:     Optional plugin deactivation survey.</li>
+</ul>
 <p>= 6.9.0 - Series =<br>
 <em>Released: 6th September, 2018</em> - <a href="https://icwp.io/dc">Release Notes</a></p>
 <ul>
