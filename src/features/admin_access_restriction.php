@@ -54,10 +54,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	private function ajaxExec_SecAdminCheck() {
-		return array(
+		return [
 			'timeleft' => $this->getSecAdminTimeLeft(),
 			'success'  => $this->isSecAdminSessionValid()
-		);
+		];
 	}
 
 	/**
@@ -106,10 +106,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return array
 	 */
 	private function ajaxExec_SecAdminLoginBox() {
-		return array(
+		return [
 			'success' => 'true',
 			'html'    => $this->renderAdminAccessAjaxLoginForm()
-		);
+		];
 	}
 
 	/**
@@ -118,14 +118,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	protected function renderAdminAccessAjaxLoginForm( $sMessage = '' ) {
 
-		$aData = array(
+		$aData = [
 			'ajax'    => array(
 				'sec_admin_login' => json_encode( $this->getSecAdminLoginAjaxData() )
 			),
 			'strings' => array(
 				'access_message' => empty( $sMessage ) ? _wpsf__( 'Enter your Security Admin Access Key' ) : $sMessage
 			)
-		);
+		];
 		return $this->renderTemplate( 'snippets/admin_access_login', $aData );
 	}
 
@@ -251,11 +251,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 		// Verify whitelabel images
 		if ( $this->isWlEnabled() ) {
-			$aImages = array(
+			$aImages = [
 				'wl_menuiconurl',
 				'wl_dashboardlogourl',
 				'wl_login2fa_logourl',
-			);
+			];
 			$oDP = $this->loadDP();
 			$oOpts = $this->getOptionsVo();
 			foreach ( $aImages as $sKey ) {
@@ -424,7 +424,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$sMenu = $sMain;
 		}
 
-		return array(
+		return [
 			'name_main'            => $sMain,
 			'name_menu'            => $sMenu,
 			'name_company'         => $this->getOpt( 'wl_companyname' ),
@@ -433,7 +433,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			'url_icon'             => $this->buildWlImageUrl( 'wl_menuiconurl' ),
 			'url_dashboardlogourl' => $this->buildWlImageUrl( 'wl_dashboardlogourl' ),
 			'url_login2fa_logourl' => $this->buildWlImageUrl( 'wl_login2fa_logourl' ),
-		);
+		];
 	}
 
 	/**

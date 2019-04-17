@@ -16,7 +16,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	/**
 	 * @param array $aData
 	 */
-	protected function displayModulePage( $aData = [] ) {
+	protected function renderModulePage( $aData = [] ) {
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
 		$aSecNotices = $this->getNotices();
@@ -276,7 +276,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			),
 			$aData
 		);
-		echo $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sNavSection ), $aData, true );
+		return $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sNavSection ), $aData, true );
 	}
 
 	public function insertCustomJsVars_Admin() {
