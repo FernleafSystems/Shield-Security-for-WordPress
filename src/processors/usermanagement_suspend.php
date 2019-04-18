@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 
 		// User profile UI
 		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
-		add_filter( 'edit_user_profile_update', [ $this, 'handleUserBlockOptionSubmit' ] );
+		add_action( 'edit_user_profile_update', [ $this, 'handleUserBlockOptionSubmit' ] );
 
 		// Display suspended on the user list table
 		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
@@ -143,21 +143,25 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		$oCon = $this->getCon();
 		$oMeta = $oCon->getUserMeta( $oUser );
 
-		if ( $oCon->isPluginAdmin() ) {
-			$aData = [
-				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $oUser ),
-				'strings'               => array(
-					'title'       => _wpsf__( 'Suspend Account' ),
-					'label'       => _wpsf__( 'Check to suspend user account' ),
-					'description' => _wpsf__( 'The user will never be able to login while their account is suspended.' ),
-				),
-				'vars'                  => [
-					'form_field'   => 'shield_suspend_user',
-					'is_suspended' => $oMeta->hard_suspended_at > 0
-				]
-			];
-			echo $this->getMod()->renderTemplate( '/snippets/user/profile/suspend.twig', $aData, true );
-		}
+		Services::WpUsers()->isUserAdmin( $oUser );
+
+		$aData = [
+			'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $oUser ),
+			'strings'               => array(
+				'title'       => _wpsf__( 'Suspend Account' ),
+				'label'       => _wpsf__( 'Check to suspend user account' ),
+				'description' => _wpsf__( 'The user will never be able to login while their account is suspended.' ),
+				'cant_manage' => _wpsf__( 'Sorry, suspension for this account may only be managed by a security administrator.' ),
+			),
+			'flags'                 => [
+				'can_manage_suspension' => !Services::WpUsers()->isUserAdmin( $oUser ) || $oCon->isPluginAdmin(),
+			],
+			'vars'                  => [
+				'form_field'   => 'shield_suspend_user',
+				'is_suspended' => $oMeta->hard_suspended_at > 0
+			]
+		];
+		echo $this->getMod()->renderTemplate( '/snippets/user/profile/suspend.twig', $aData, true );
 	}
 
 	/**
@@ -165,7 +169,11 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 */
 	public function handleUserBlockOptionSubmit( $nUserId ) {
 		$oCon = $this->getCon();
-		if ( $oCon->isPluginAdmin() ) {
+		$oWpUsers = Services::WpUsers();
+
+		$oEditedUser = $oWpUsers->getUserById( $nUserId );
+
+		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $oCon->isPluginAdmin() ) {
 			$bIsSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
 			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getMod();
@@ -175,7 +183,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 				$oProcessor = $oFO->getSessionsProcessor();
 				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete $oDel */
 				$oDel = $oProcessor->getDbHandler()->getQueryDeleter();
-				$oDel->forUsername( Services::WpUsers()->getUserById( $nUserId )->user_login );
+				$oDel->forUsername( $oEditedUser->user_login );
 			}
 		}
 	}

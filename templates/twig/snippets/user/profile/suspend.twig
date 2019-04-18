@@ -2,16 +2,22 @@
 	<tbody>
 	<tr id="password" class="user-pass1-wrap">
 		<th><label for="_shield_suspend_user">{{ strings.title }}</label></th>
-		<td>
-			<fieldset>
-				<legend class="screen-reader-text"><span>{{ strings.title }}</span></legend>
-				<label for="_shield_suspend_user">
-					<input name="{{ vars.form_field }}" type="checkbox" id="_shield_suspend_user" value="Y"
-						   {% if vars.is_suspended %}checked="checked"{% endif %}>
-					{{ strings.label }}</label>
-				<p class="description">{{ strings.description }}</p>
-			</fieldset>
-		</td>
+		{% if flags.can_manage_suspension %}
+			<td>
+				<fieldset>
+					<legend class="screen-reader-text"><span>{{ strings.title }}</span></legend>
+					<label for="_shield_suspend_user">
+						<input name="{{ vars.form_field }}" type="checkbox" id="_shield_suspend_user" value="Y"
+							   {% if vars.is_suspended %}checked="checked"{% endif %}>
+						{{ strings.label }}</label>
+					<p class="description">{{ strings.description }}</p>
+				</fieldset>
+			</td>
+		{% else %}
+			<td>
+				<p>{{ strings.cant_manage }}</p>
+			</td>
+		{% endif %}
 	</tr>
 	</tbody>
 </table>
