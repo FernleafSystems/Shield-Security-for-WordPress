@@ -343,13 +343,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	protected function getModDisabledInsight() {
-		return array(
+		return [
 			'name'    => _wpsf__( 'Module Disabled' ),
 			'enabled' => false,
 			'summary' => _wpsf__( 'All features of this module are completely disabled' ),
 			'weight'  => 2,
 			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
-		);
+		];
 	}
 
 	/**
