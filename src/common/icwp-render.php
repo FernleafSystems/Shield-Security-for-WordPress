@@ -139,16 +139,20 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return \Twig\Environment
+	 * @return \Twig\Environment|\Twig_Environment
 	 */
 	protected function getTwigEnvironment() {
-		return new \Twig\Environment(
-			new \Twig\Loader\FilesystemLoader( $this->getTemplateRootMain() ),
-			[
-				'debug'            => true,
-				'strict_variables' => true,
-			]
-		);
+		$aConf = [
+			'debug'            => true,
+			'strict_variables' => true,
+		];
+		if ( class_exists( 'Twig_Environment' ) ) {
+			$oEnv = new Twig_Environment( new Twig_Loader_Filesystem( $this->getTemplateRootMain() ), $aConf );
+		}
+		else {
+			$oEnv = new \Twig\Environment( new \Twig\Loader\FilesystemLoader( $this->getTemplateRootMain() ), $aConf );
+		}
+		return $oEnv;
 	}
 
 	/**

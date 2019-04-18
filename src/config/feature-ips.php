@@ -78,7 +78,7 @@
       "title_short": "Enable Module",
       "summary":     [
         "Purpose - BotTrap monitors a typical set of bot behaviours to help identify probing bots.",
-        "Recommendation - Enable as many mouse traps as possible."
+        "Recommendation - Enable as many bot traps as possible."
       ]
     },
     {
@@ -173,7 +173,7 @@
           "text":      "With Shield Bot Protection"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/f8",
       "link_blog":     "",
       "name":          "User Auto Unblock",
       "summary":       "Allow Visitors To Unblock Their IP",
@@ -220,8 +220,8 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/f5",
+      "link_blog":     "https://icwp.io/f7",
       "name":          "404 Detect",
       "summary":       "Identify A Bot When It Hits A 404",
       "description":   "Detect When A Visitor Browses To A Non-Existent Page."
@@ -254,8 +254,8 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/f5",
+      "link_blog":     "https://icwp.io/f6",
       "name":          "Link Cheese",
       "summary":       "Tempt A Bot With A Fake Link To Follow",
       "description":   "Detect A Bot That Follows A 'no-follow' Link."
@@ -288,8 +288,8 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/f5",
+      "link_blog":     "https://icwp.io/f7",
       "name":          "XML-RPC Access",
       "summary":       "Identify A Bot When It Accesses XML-RPC",
       "description":   "If you don't use XML-RPC, why would anyone access it?"
@@ -321,8 +321,8 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/f5",
+      "link_blog":     "https://icwp.io/f7",
       "name":          "Failed Login",
       "summary":       "Detect Failed Login Attempts By Valid Usernames",
       "description":   "Penalise a visitor who fails to login using a valid username."
@@ -355,8 +355,8 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/f5",
+      "link_blog":     "https://icwp.io/f7",
       "name":          "Invalid Usernames",
       "summary":       "Detect Invalid Username Logins",
       "description":   "Identify A Bot When It Tries To Login With A Non-Existent Username."
@@ -389,8 +389,8 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/f5",
+      "link_blog":     "https://icwp.io/f7",
       "name":          "Fake Web Crawler",
       "summary":       "Detect Fake Search Engine Crawlers",
       "description":   "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake."
@@ -423,8 +423,8 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://icwp.io/f5",
+      "link_blog":     "https://icwp.io/f7",
       "name":          "Empty User Agents",
       "summary":       "Detect Requests With Empty User Agents",
       "description":   "Identify a request as a bot if the user agent is not provided."

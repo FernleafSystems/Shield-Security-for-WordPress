@@ -165,6 +165,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( Services::Request()->request( 'exec' ) ) {
 
+				case 'mod_opts_render':
+					$aAjaxResponse = $this->ajaxExec_ModOptionsRender();
+					break;
+
 				case 'mod_options':
 					$aAjaxResponse = $this->ajaxExec_ModOptions();
 					break;
@@ -603,7 +607,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aItems[ $sMenuPageTitle ] = array(
 				$sMenuTitleName,
 				$this->getModSlug(),
-				array( $this, 'displayModuleAdminPage' ),
+				[ $this, 'displayModuleAdminPage' ],
 				$this->getIfShowModuleMenuItem()
 			);
 
@@ -1157,11 +1161,29 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		catch ( \Exception $oE ) {
 			$sForm = 'Error during form render';
 		}
-		return array(
+		return [
 			'success' => $bSuccess,
 			'html'    => $sForm,
 			'message' => $sMessage
-		);
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function ajaxExec_ModOptionsRender() {
+		if ( $this->canDisplayOptionsForm() ) {
+			$sContent = $this->renderModulePage();
+		}
+		else {
+			$sContent = $this->renderRestrictedPage();
+		}
+
+		return [
+			'success' => true,
+			'html'    => $sContent,
+			'message' => 'loaded'
+		];
 	}
 
 	/**
@@ -1397,29 +1419,43 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
 		if ( $this->canDisplayOptionsForm() ) {
-			$this->displayModulePage();
+			echo $this->renderModulePage();
 		}
 		else {
-			$this->displayRestrictedPage();
+			echo $this->renderRestrictedPage();
 		}
+	}
+
+	/**
+	 * Not yet used but may be used above to replace renderModulePage() to load
+	 * options pages by AJAX.
+	 * @return string
+	 */
+	private function renderAdminBootstrap() {
+		return $this->renderTemplate( 'admin_bootstrap.php' );
 	}
 
 	/**
 	 * Override this to customize anything with the display of the page
 	 * @param array $aData
+	 * @return string
 	 */
-	protected function displayModulePage( $aData = [] ) {
+	protected function renderModulePage( $aData = [] ) {
 		// Get Base Data
 		$aData = $this->loadDP()->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 
-		echo $this->renderTemplate( 'index.php', $aData );
+		return $this->renderTemplate( 'index.php', $aData );
 	}
 
-	protected function displayRestrictedPage() {
+	/**
+	 * @return string
+	 */
+	protected function renderRestrictedPage() {
 		$aData = $this->loadDP()
 					  ->mergeArraysRecursive(
 						  $this->getBaseDisplayData( false ),
@@ -1429,7 +1465,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 							  )
 						  )
 					  );
-		echo $this->renderTemplate( 'access_restricted.php', $aData );
+		return $this->renderTemplate( 'access_restricted.php', $aData );
 	}
 
 	/**
@@ -1575,9 +1611,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @uses nonce
 	 * @param string $sWizardSlug
 	 * @return string
+	 * @uses nonce
 	 */
 	public function getUrl_Wizard( $sWizardSlug ) {
 		$aDef = $this->getWizardDefinition( $sWizardSlug );
@@ -1706,7 +1742,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'icwp_wpsf_vars_base',
 				[
 					'ajax' => [
-						'mod_options' => $this->getAjaxActionData( 'mod_options' ),
+						'mod_options'     => $this->getAjaxActionData( 'mod_options' ),
+						'mod_opts_render' => $this->getAjaxActionData( 'mod_opts_render' ),
 					]
 				]
 			);
@@ -1968,8 +2005,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getVersion() {
 		return $this->getCon()->getVersion();
