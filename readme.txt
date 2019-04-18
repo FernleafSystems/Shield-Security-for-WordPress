@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 7.3.1
+Stable tag: 7.3.2
 
 All-In-One protection against hackers and bot attacks. Easy to use Scanners, 2-Factor Authentication, login protection, auto IP blocker, and so much more...
 
@@ -362,9 +362,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.3.1 - Current Release =
-*Released: 15th April, 2019* - [Release Notes](https://icwp.io/f0)
+= 7.3.2 - Current Release =
+*Released: 18th April, 2019* - [Release Notes](https://icwp.io/f0)
 
+* **(v.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://icwp.io/ez) options.
+* **(v.2)**  CHANGED:	Added a workaround for WPML plugin using old, buggy version of TWIG library.
 * **(v.1)**  FIX:		Protection against 404 tracking blocking visitors in some cases.
 * **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://icwp.io/ez) - rules to catch and block bad bots.
 * **(v.0)**  ADDED:		Date picker for filtering Audit Log entries.
@@ -375,13 +377,6 @@ You will always be able to use Shield Security and its free features in-full.
 
 = 7.3 - Series =
 *Released: 15th April, 2019* - [Release Notes](https://icwp.io/f0)
-
-* **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://icwp.io/ez) - rules to catch and block bad bots.
-* **(v.0)**  ADDED:		Date picker for filtering Audit Log entries.
-* **(v.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
-* **(v.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
-* **(v.0)**  FIX:		Error displayed when deleting plugins in some cases.
-* **(v.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
 
 = 7.2 - Series =
 *Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
