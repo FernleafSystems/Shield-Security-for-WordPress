@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 
 		// User profile UI
 		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
-		add_action( 'edit_user_profile_update', [ $this, 'handleUserBlockOptionSubmit' ] );
+		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
 
 		// Display suspended on the user list table
 		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
@@ -83,10 +83,9 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		if ( !empty( $aUserIds ) ) {
 			// Provide the link above the table.
 			add_filter( 'views_users', function ( $aViews ) use ( $aUserIds ) {
-				$nTotal = count( $aUserIds );
 				$aViews[ 'shield_suspended_users' ] = sprintf( '<a href="%s">%s</a>',
 					add_query_arg( [ 'suspended' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
-					sprintf( '%s (%s)', _wpsf__( 'Suspended' ), $nTotal ) );
+					sprintf( '%s (%s)', _wpsf__( 'Suspended' ), count( $aUserIds ) ) );
 				return $aViews;
 			} );
 
@@ -141,24 +140,26 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 */
 	public function addUserBlockOption( $oUser ) {
 		$oCon = $this->getCon();
+		$oWpUsers = Services::WpUsers();
 		$oMeta = $oCon->getUserMeta( $oUser );
 
-		Services::WpUsers()->isUserAdmin( $oUser );
+		$oWpUsers->isUserAdmin( $oUser );
 
 		$aData = [
-			'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $oUser ),
-			'strings'               => array(
+			'strings' => array(
 				'title'       => _wpsf__( 'Suspend Account' ),
-				'label'       => _wpsf__( 'Check to suspend user account' ),
-				'description' => _wpsf__( 'The user will never be able to login while their account is suspended.' ),
+				'label'       => _wpsf__( 'Check to un/suspend user account' ),
+				'description' => _wpsf__( 'The user can never login while their account is suspended.' ),
 				'cant_manage' => _wpsf__( 'Sorry, suspension for this account may only be managed by a security administrator.' ),
+				'since'       => sprintf( '%s: %s', _wpsf__( 'Suspended' ), Services::WpGeneral()
+																					->getTimeStringForDisplay( $oMeta->hard_suspended_at ) ),
 			),
-			'flags'                 => [
-				'can_manage_suspension' => !Services::WpUsers()->isUserAdmin( $oUser ) || $oCon->isPluginAdmin(),
+			'flags'   => [
+				'can_manage_suspension' => !$oWpUsers->isUserAdmin( $oUser ) || $oCon->isPluginAdmin(),
+				'is_suspended'          => $oMeta->hard_suspended_at > 0
 			],
-			'vars'                  => [
-				'form_field'   => 'shield_suspend_user',
-				'is_suspended' => $oMeta->hard_suspended_at > 0
+			'vars'    => [
+				'form_field' => 'shield_suspend_user',
 			]
 		];
 		echo $this->getMod()->renderTemplate( '/snippets/user/profile/suspend.twig', $aData, true );
@@ -167,7 +168,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	/**
 	 * @param int $nUserId
 	 */
-	public function handleUserBlockOptionSubmit( $nUserId ) {
+	public function handleUserSuspendOptionSubmit( $nUserId ) {
 		$oCon = $this->getCon();
 		$oWpUsers = Services::WpUsers();
 
