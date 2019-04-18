@@ -48,7 +48,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 }();
 
 
-if ( typeof icwp_wpsf_vars_base !== 'undefined' ) {
+if ( false && typeof icwp_wpsf_vars_base !== 'undefined' ) {
 	var iCWP_WPSF_OptsPageRender = new function () {
 
 		this.initialise = function () {
