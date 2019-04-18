@@ -64,9 +64,6 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			 ->sendLoginNotifications( $oUser );
 	}
 
-	public function runDailyCron() {
-	}
-
 	/**
 	 * @param \WP_User $oUser - not checking that user is valid
 	 * @return $this

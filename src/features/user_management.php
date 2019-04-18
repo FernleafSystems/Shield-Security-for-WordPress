@@ -76,10 +76,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			}
 		}
 
-		return array(
+		return [
 			'success' => $bSuccess,
 			'message' => $sMessage,
-		);
+		];
 	}
 
 	/**
@@ -346,14 +346,23 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return int
 	 */
 	public function getSuspendAutoIdleTime() {
-		return $this->getOpt( 'auto_idle', 0 )*DAY_IN_SECONDS;
+		return $this->getOpt( 'auto_idle_days', 0 )*DAY_IN_SECONDS;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSuspendAutoIdleUserRoles() {
+		$aRoles = $this->getOpt( 'auto_idle_roles', [] );
+		return is_array( $aRoles ) ? $aRoles : [];
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isSuspendAutoIdleEnabled() {
-		return $this->getSuspendAutoIdleTime() > 0;
+		return ( $this->getSuspendAutoIdleTime() > 0 )
+			   && ( count( $this->getSuspendAutoIdleUserRoles() ) > 0 );
 	}
 
 	/**
@@ -373,7 +382,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		$sAdminUser = Services::WpUsers()->getCurrentWpUsername();
 
 		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
-		if ( !is_array($aIds) ) {
+		if ( !is_array( $aIds ) ) {
 			$aIds = [];
 		}
 
@@ -408,6 +417,20 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	public function getSuspendHardUserIds() {
 		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
 		return is_array( $aIds ) ? array_filter( $aIds, 'is_int' ) : [];
+	}
+
+	/**
+	 * This is the point where you would want to do any options verification
+	 */
+	protected function doPrePluginOptionsSave() {
+		$this->setOpt( 'auto_idle_roles',
+			array_unique( array_filter( array_map(
+				function ( $sRole ) {
+					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+				},
+				$this->getSuspendAutoIdleUserRoles()
+			) ) )
+		);
 	}
 
 	/**
@@ -580,7 +603,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$sTitleShort = _wpsf__( 'User Suspension' );
 				$sTitle = _wpsf__( 'Automatic And Manual User Suspension' );
 				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatically suspend accounts to prevent login by certain users.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatically suspends accounts to prevent login by certain users.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
 				);
 				break;
@@ -601,8 +624,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
 
-		$sKey = $aOptionsParams[ 'key' ];
-		switch ( $sKey ) {
+		$oOptsVo = $this->getOptionsVo();
+		switch ( $aOptionsParams[ 'key' ] ) {
 
 			case 'enable_user_management' :
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
@@ -702,7 +725,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			case 'auto_password' :
 				$sName = _wpsf__( 'Auto-Suspend Expired Passwords' );
 				$sSummary = _wpsf__( 'Automatically Suspend Users With Expired Passwords' );
-				$sDescription = _wpsf__( 'Automatically suspend login by users and require password reset to unsuspend.' )
+				$sDescription = _wpsf__( 'Automatically suspends login by users and requires password reset to unsuspend.' )
 								.'<br/>'.sprintf(
 									'<strong>%s</strong> - %s',
 									_wpsf__( 'Important' ),
@@ -710,16 +733,26 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 								);
 				break;
 
-			case 'auto_idle' :
+			case 'auto_idle_days' :
 				$sName = _wpsf__( 'Auto-Suspend Idle Users' );
 				$sSummary = _wpsf__( 'Automatically Suspend Idle User Accounts' );
-				$sDescription = _wpsf__( 'Automatically suspend login by idle users and require password reset to unsuspend.' )
+				$sDescription = _wpsf__( 'Automatically suspends login for idle accounts and requires password reset to unsuspend.' )
 								.'<br/>'._wpsf__( 'Specify the number of days since last login to consider a user as idle.' )
 								.'<br/>'._wpsf__( 'Set to Zero(0) to disable.' );
 				break;
 
+			case 'auto_idle_roles' :
+				$sName = _wpsf__( 'Auto-Suspend Idle User Roles' );
+				$sSummary = _wpsf__( 'Apply Automatic Suspension To Accounts With These Roles' );
+				$sDescription = _wpsf__( 'Automatic suspension for idle accounts applies only to the roles you specify.' )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( 'Take a new line for each user role.' ) )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Available Roles' ), implode( ', ', Services::WpUsers()
+																												 ->getAvailableUserRoles() ) )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Default' ), implode( ', ', $oOptsVo->getOptDefault( 'auto_idle_roles' ) ) );
+				break;
+
 			default:
-				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $aOptionsParams[ 'key' ] ) );
 		}
 
 		$aOptionsParams[ 'name' ] = $sName;

@@ -270,12 +270,28 @@
       "description": "Suspend login by users and require password reset to unsuspend."
     },
     {
-      "key":         "auto_idle",
+      "key":         "auto_idle_days",
       "section":     "section_suspend",
       "premium":     true,
       "type":        "integer",
       "default":     0,
       "min":         0,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Suspend Idle Users",
+      "summary":     "Automatically Suspend Idle User Accounts",
+      "description": "Prevent login by idle users and require password reset to unsuspend."
+    },
+    {
+      "key":         "auto_idle_roles",
+      "section":     "section_suspend",
+      "premium":     true,
+      "type":        "array",
+      "default":     [
+        "administrator",
+        "editor",
+        "author"
+      ],
       "link_info":   "",
       "link_blog":   "",
       "name":        "Auto-Suspend Idle Users",

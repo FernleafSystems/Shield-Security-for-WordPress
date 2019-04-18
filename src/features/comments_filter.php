@@ -123,12 +123,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * This is the point where you would want to do any options verification
-	 */
-	protected function doPrePluginOptionsSave() {
-	}
-
-	/**
 	 * @param array $aAllData
 	 * @return array
 	 */
