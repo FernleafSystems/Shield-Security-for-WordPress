@@ -617,49 +617,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		return is_array( $aIds ) ? $aIds : [];
 	}
 
-	public function onWpEnqueueJs() {
-		parent::onWpEnqueueJs();
-
-		if ( $this->isEnabledBotJs() ) {
-			$oConn = $this->getCon();
-
-			$sAsset = 'shield-antibot';
-			$sUnique = $this->prefix( $sAsset );
-			wp_register_script(
-				$sUnique,
-				$oConn->getPluginUrl_Js( $sAsset.'.js' ),
-				array( 'jquery' ),
-				$oConn->getVersion(),
-				true
-			);
-			wp_enqueue_script( $sUnique );
-
-			wp_localize_script(
-				$sUnique,
-				'icwp_wpsf_vars_lpantibot',
-				array(
-					'form_selectors' => implode( ',', $this->getAntiBotFormSelectors() ),
-					'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-					'cbname'         => $this->getGaspKey(),
-					'strings'        => array(
-						'label' => $this->getTextImAHuman(),
-						'alert' => $this->getTextPleaseCheckBox(),
-					),
-					'flags'          => array(
-						'gasp'  => $this->isEnabledGaspCheck(),
-						'recap' => $this->isGoogleRecaptchaEnabled(),
-					)
-				)
-			);
-
-			if ( $this->isGoogleRecaptchaEnabled() ) {
-				/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
-				$oPro = $this->getProcessor();
-				$oPro->setRecaptchaToEnqueue();
-			}
-		}
-	}
-
 	/**
 	 * @return array
 	 */

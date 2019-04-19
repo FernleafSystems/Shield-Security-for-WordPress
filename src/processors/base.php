@@ -43,6 +43,17 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		add_action( $oModCon->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
 		add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
 
+		/**
+		 * 2019-04-19:
+		 * wp_service_worker: added to prevent infinite page reloads triggered by an error with the PWA plugin.
+		 * It seems that using wp_localize_script() on a request with wp_service_worker=1 causes the worker
+		 * reload the page. Why exactly this happens hasn't been investigated, so we just skip any FRONTend
+		 * enqueues that might call wp_localize_script() for these requests.
+		 */
+		if ( Services::Request()->query( 'wp_service_worker', 0 ) != 1 ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
+		}
+
 		$this->init();
 	}
 
@@ -50,6 +61,9 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	public function onWpLoaded() {
+	}
+
+	public function onWpEnqueueJs() {
 	}
 
 	/**

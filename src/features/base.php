@@ -115,7 +115,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_filter( $this->prefix( 'register_admin_notices' ), array( $this, 'fRegisterAdminNotices' ) );
 		add_filter( $this->prefix( 'gather_options_for_export' ), array( $this, 'exportTransferableOptions' ) );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'onWpEnqueueAdminJs' ), 100 );
 
 //		if ( $this->isAdminOptionsPage() ) {
@@ -1722,9 +1721,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function canDisplayOptionsForm() {
 		return $this->getOptionsVo()->isAccessRestricted() ? $this->getCon()->isPluginAdmin() : true;
-	}
-
-	public function onWpEnqueueJs() {
 	}
 
 	public function onWpEnqueueAdminJs() {
