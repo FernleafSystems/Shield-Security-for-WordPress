@@ -35,6 +35,48 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->getSubProIntent()->run();
 	}
 
+	public function onWpEnqueueJs() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+
+		if ( $oFO->isEnabledBotJs() ) {
+			$oConn = $this->getCon();
+
+			$sAsset = 'shield-antibot';
+			$sUnique = $this->prefix( $sAsset );
+			wp_register_script(
+				$sUnique,
+				$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+				[ 'jquery' ],
+				$oConn->getVersion(),
+				true
+			);
+			wp_enqueue_script( $sUnique );
+
+			wp_localize_script(
+				$sUnique,
+				'icwp_wpsf_vars_lpantibot',
+				[
+					'form_selectors' => implode( ',', $oFO->getAntiBotFormSelectors() ),
+					'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
+					'cbname'         => $oFO->getGaspKey(),
+					'strings'        => array(
+						'label' => $oFO->getTextImAHuman(),
+						'alert' => $oFO->getTextPleaseCheckBox(),
+					),
+					'flags'          => array(
+						'gasp'  => $oFO->isEnabledGaspCheck(),
+						'recap' => $oFO->isGoogleRecaptchaEnabled(),
+					)
+				]
+			);
+
+			if ( $oFO->isGoogleRecaptchaEnabled() ) {
+				$this->setRecaptchaToEnqueue();
+			}
+		}
+	}
+
 	/**
 	 * Override the original collection to then add plugin statistics to the mix
 	 * @param $aData
@@ -84,11 +126,11 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProMap() {
 		return [
-			'cooldown'   => 'ICWP_WPSF_Processor_LoginProtect_Cooldown',
-			'gasp'       => 'ICWP_WPSF_Processor_LoginProtect_Gasp',
-			'intent'     => 'ICWP_WPSF_Processor_LoginProtect_Intent',
-			'recaptcha'  => 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha',
-			'rename'     => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
+			'cooldown'  => 'ICWP_WPSF_Processor_LoginProtect_Cooldown',
+			'gasp'      => 'ICWP_WPSF_Processor_LoginProtect_Gasp',
+			'intent'    => 'ICWP_WPSF_Processor_LoginProtect_Intent',
+			'recaptcha' => 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha',
+			'rename'    => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
 		];
 	}
 
