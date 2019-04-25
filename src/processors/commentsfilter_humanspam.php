@@ -53,15 +53,17 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			return;
 		}
 
-		$aItemsMap = array(
-			'comment_content' => $sComment,
-			'url'             => $sUrl,
-			'author_name'     => $sAuthor,
-			'author_email'    => $sEmail,
-			'ip_address'      => $sUserIp,
-			'user_agent'      => $sUserAgent
+		$aItemsToCheck = array_intersect_key(
+			[
+				'comment_content' => $sComment,
+				'url'             => $sUrl,
+				'author_name'     => $sAuthor,
+				'author_email'    => $sEmail,
+				'ip_address'      => $sUserIp,
+				'user_agent'      => $sUserAgent
+			],
+			array_flip( $oFO->getHumanSpamFilterItems() )
 		);
-		$aItemsToCheck = array_intersect_key( $aItemsMap, array_flip( $oFO->getHumanSpamFilterItems() ) );
 
 		foreach ( $this->getSpamBlacklist() as $sBlacklistWord ) {
 			foreach ( $aItemsToCheck as $sKey => $sItem ) {
