@@ -29,19 +29,19 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function __construct( $oModCon ) {
 		$this->setMod( $oModCon );
 
-		add_action( 'init', array( $this, 'onWpInit' ), 9 );
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ) );
+		add_action( 'init', [ $this, 'onWpInit' ], 9 );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		{ // Capture Logins
-			add_action( 'wp_login', array( $this, 'onWpLogin' ), 10, 2 );
+			add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
 			if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
-				add_action( 'set_logged_in_cookie', array( $this, 'onWpSetLoggedInCookie' ), 5, 4 );
+				add_action( 'set_logged_in_cookie', [ $this, 'onWpSetLoggedInCookie' ], 5, 4 );
 			}
 		}
-		add_action( $oModCon->prefix( 'plugin_shutdown' ), array( $this, 'onModuleShutdown' ) );
-		add_action( $oModCon->prefix( 'daily_cron' ), array( $this, 'runDailyCron' ) );
-		add_action( $oModCon->prefix( 'hourly_cron' ), array( $this, 'runHourlyCron' ) );
-		add_action( $oModCon->prefix( 'deactivate_plugin' ), array( $this, 'deactivatePlugin' ) );
-		add_action( $oModCon->prefix( 'generate_admin_notices' ), array( $this, 'autoAddToAdminNotices' ) );
+		add_action( $oModCon->prefix( 'plugin_shutdown' ), [ $this, 'onModuleShutdown' ] );
+		add_action( $oModCon->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+		add_action( $oModCon->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		add_action( $oModCon->prefix( 'deactivate_plugin' ), [ $this, 'deactivatePlugin' ] );
+		add_action( $oModCon->prefix( 'generate_admin_notices' ), [ $this, 'autoAddToAdminNotices' ] );
 
 		/**
 		 * 2019-04-19:
@@ -51,7 +51,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 		 * enqueues that might call wp_localize_script() for these requests.
 		 */
 		if ( Services::Request()->query( 'wp_service_worker', 0 ) != 1 ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'onWpEnqueueJs' ) );
+			add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
 		}
 
 		$this->init();
@@ -146,7 +146,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			if ( method_exists( $this, $sMethodName ) ) {
 				$aAttrs[ 'id' ] = $sNoticeId;
 				$aAttrs[ 'notice_id' ] = $sNoticeId;
-				call_user_func( array( $this, $sMethodName ), $aAttrs );
+				call_user_func( [ $this, $sMethodName ], $aAttrs );
 			}
 		}
 	}

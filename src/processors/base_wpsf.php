@@ -25,8 +25,8 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	public function init() {
 		parent::init();
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'collect_stats' ), array( $this, 'stats_Collect' ) );
-		add_filter( $oFO->prefix( 'collect_tracking_data' ), array( $this, 'tracking_DataCollect' ) );
+		add_filter( $oFO->prefix( 'collect_stats' ), [ $this, 'stats_Collect' ] );
+		add_filter( $oFO->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
 	}
 
 	/**
@@ -129,19 +129,19 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	public function registerGoogleRecaptchaJs() {
 		$sJsUri = add_query_arg(
-			array(
+			[
 				'hl'     => $this->getGoogleRecaptchaLocale(),
 				'onload' => 'onLoadIcwpRecaptchaCallback',
 				'render' => 'explicit',
-			),
+			],
 			'https://www.google.com/recaptcha/api.js'
 		);
 		wp_register_script( self::RECAPTCHA_JS_HANDLE, $sJsUri, [], false, true );
 		wp_enqueue_script( self::RECAPTCHA_JS_HANDLE );
 
 		// This also gives us the chance to remove recaptcha before it's printed, if it isn't needed
-		add_action( 'wp_footer', array( $this, 'maybeDequeueRecaptcha' ), -100 );
-		add_action( 'login_footer', array( $this, 'maybeDequeueRecaptcha' ), -100 );
+		add_action( 'wp_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
+		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 
 		$this->loadWpIncludes()
 			 ->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
@@ -207,7 +207,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			$aData = [];
 		}
 		$oFO = $this->getMod();
-		$aData[ $oFO->getSlug() ] = array( 'options' => $oFO->collectOptionsForTracking() );
+		$aData[ $oFO->getSlug() ] = [ 'options' => $oFO->collectOptionsForTracking() ];
 		return $aData;
 	}
 
@@ -250,12 +250,12 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			echo $this->loadRenderer( $this->getCon()->getPath_Templates() )
 					  ->setTemplateEnginePhp()
 					  ->setRenderVars(
-						  array(
+						  [
 							  'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
 							  'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
 							  'theme'   => $this->getRecaptchaTheme(),
 							  'invis'   => $this->isRecaptchaInvisible(),
-						  )
+						  ]
 					  )
 					  ->setTemplate( 'snippets/google_recaptcha_js' )
 					  ->render();
@@ -284,8 +284,8 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @deprecated
 	 * @return bool
+	 * @deprecated
 	 */
 	protected function getIfIpTransgressed() {
 		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */

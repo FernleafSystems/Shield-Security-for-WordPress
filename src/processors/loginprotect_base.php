@@ -35,7 +35,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	 */
 	public function run() {
 		$this->setFactorTested( false );
-		add_action( 'init', array( $this, 'addHooks' ), -100 );
+		add_action( 'init', [ $this, 'addHooks' ], -100 );
 	}
 
 	/**
@@ -52,34 +52,34 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 		if ( $oFO->isProtectLogin() ) {
 			// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
-			add_filter( 'authenticate', array( $this, 'checkReqLogin_Wp' ), 10, 3 );
+			add_filter( 'authenticate', [ $this, 'checkReqLogin_Wp' ], 10, 3 );
 
-			add_action( 'login_form', array( $this, 'printLoginFormItems' ), 100 );
-			add_filter( 'login_form_middle', array( $this, 'provideLoginFormItems' ), 100 );
+			add_action( 'login_form', [ $this, 'printLoginFormItems' ], 100 );
+			add_filter( 'login_form_middle', [ $this, 'provideLoginFormItems' ], 100 );
 
 			if ( $b3rdParty ) {
-				add_action( 'edd_login_fields_after', array( $this, 'printLoginFormItems' ), 10 );
+				add_action( 'edd_login_fields_after', [ $this, 'printLoginFormItems' ], 10 );
 
-				add_action( 'woocommerce_login_form', array( $this, 'printLoginFormItems_Woo' ), 100 );
-				add_filter( 'woocommerce_process_login_errors', array( $this, 'checkReqLogin_Woo' ), 10, 2 );
+				add_action( 'woocommerce_login_form', [ $this, 'printLoginFormItems_Woo' ], 100 );
+				add_filter( 'woocommerce_process_login_errors', [ $this, 'checkReqLogin_Woo' ], 10, 2 );
 
 				// MemberPress
-				add_action( 'mepr-login-form-before-submit', array( $this, 'printLoginFormItems_MePr' ), 100 );
-				add_filter( 'mepr-validate-login', array( $this, 'checkReqLogin_MePr' ), 100 );
+				add_action( 'mepr-login-form-before-submit', [ $this, 'printLoginFormItems_MePr' ], 100 );
+				add_filter( 'mepr-validate-login', [ $this, 'checkReqLogin_MePr' ], 100 );
 				// Ultimate Member
-				add_action( 'um_after_login_fields', array( $this, 'printFormItems_UltMem' ), 100 );
-				add_action( 'um_submit_form_login', array( $this, 'checkReqLogin_UltMem' ), 100 );
+				add_action( 'um_after_login_fields', [ $this, 'printFormItems_UltMem' ], 100 );
+				add_action( 'um_submit_form_login', [ $this, 'checkReqLogin_UltMem' ], 100 );
 
 				// LearnPress
-				add_action( 'learn-press/after-form-login-fields', array( $this, 'printFormItems_LearnPress' ), 100 );
+				add_action( 'learn-press/after-form-login-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
 				add_action( 'learn-press/before-checkout-form-login-button', [ $this,'printFormItems_LearnPress' ], 100 );
-				add_filter( 'learn-press/login-validate-field', array( $this, 'checkReqLogin_LearnPress' ), 100 );
+				add_filter( 'learn-press/login-validate-field', [ $this, 'checkReqLogin_LearnPress' ], 100 );
 			}
 		}
 
 		if ( $oFO->isProtectLostPassword() ) {
-			add_action( 'lostpassword_form', array( $this, 'printFormItems' ) );
-			add_action( 'lostpassword_post', array( $this, 'checkReqLostPassword_Wp' ), 10, 1 );
+			add_action( 'lostpassword_form', [ $this, 'printFormItems' ] );
+			add_action( 'lostpassword_post', [ $this, 'checkReqLostPassword_Wp' ], 10, 1 );
 
 			//No need to really cover this form
 //			add_action( 'resetpass_form', array( $this, 'printFormItems' ) );
@@ -87,51 +87,51 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 //			add_action( 'woocommerce_resetpassword_form', array( $this, 'printFormItems' ), 10 );
 
 			if ( $b3rdParty ) {
-				add_action( 'woocommerce_lostpassword_form', array( $this, 'printFormItems' ), 10 );
+				add_action( 'woocommerce_lostpassword_form', [ $this, 'printFormItems' ], 10 );
 
 				// MemberPress
-				add_action( 'mepr-forgot-password-form', array( $this, 'printLoginFormItems_MePr' ), 100 );
-				add_filter( 'mepr-validate-forgot-password', array( $this, 'checkReqLostPassword_MePr' ), 100 );
+				add_action( 'mepr-forgot-password-form', [ $this, 'printLoginFormItems_MePr' ], 100 );
+				add_filter( 'mepr-validate-forgot-password', [ $this, 'checkReqLostPassword_MePr' ], 100 );
 				// Ultimate Member
-				add_action( 'um_after_password_reset_fields', array( $this, 'printFormItems_UltMem' ), 100 );
-				add_action( 'um_submit_form_password_reset', array( $this, 'checkReqLostPassword_UltMem' ), 5, 0 );
+				add_action( 'um_after_password_reset_fields', [ $this, 'printFormItems_UltMem' ], 100 );
+				add_action( 'um_submit_form_password_reset', [ $this, 'checkReqLostPassword_UltMem' ], 5, 0 );
 			}
 		}
 
 		if ( $oFO->isProtectRegister() ) {
-			add_action( 'register_form', array( $this, 'printFormItems' ) );
+			add_action( 'register_form', [ $this, 'printFormItems' ] );
 //			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
-			add_filter( 'registration_errors', array( $this, 'checkReqRegistrationErrors_Wp' ), 10, 2 );
+			add_filter( 'registration_errors', [ $this, 'checkReqRegistrationErrors_Wp' ], 10, 2 );
 
 			if ( $b3rdParty ) {
 				// A Catch-all:
 				// 20180909 - not a bit wise as it breaks anything that doesn't properly display front-end output
 //				add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
 
-				add_action( 'bp_before_registration_submit_buttons', array( $this, 'printLoginFormItems_Bp' ), 10 );
-				add_action( 'bp_signup_validate', array( $this, 'checkReqRegistration_Bp' ), 10 );
+				add_action( 'bp_before_registration_submit_buttons', [ $this, 'printLoginFormItems_Bp' ], 10 );
+				add_action( 'bp_signup_validate', [ $this, 'checkReqRegistration_Bp' ], 10 );
 
-				add_action( 'edd_register_form_fields_before_submit', array( $this, 'printFormItems' ), 10 );
-				add_action( 'edd_process_register_form', array( $this, 'checkReqRegistration_Edd' ), 10 );
+				add_action( 'edd_register_form_fields_before_submit', [ $this, 'printFormItems' ], 10 );
+				add_action( 'edd_process_register_form', [ $this, 'checkReqRegistration_Edd' ], 10 );
 
-				add_action( 'woocommerce_register_form', array( $this, 'printRegisterFormItems_Woo' ), 10 );
-				add_action( 'woocommerce_after_checkout_registration_form', [ $this,'printRegistrationFormItems_Woo' ], 10 );
+				add_action( 'woocommerce_register_form', [ $this, 'printRegisterFormItems_Woo' ], 10 );
+				add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'printRegistrationFormItems_Woo' ], 10 );
 				add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkReqRegistration_Woo' ], 10, 2 );
 
 				// MemberPress - Checkout == Registration
-				add_action( 'mepr-checkout-before-submit', array( $this, 'printRegisterFormItems_MePr' ), 10 );
-				add_filter( 'mepr-validate-signup', array( $this, 'checkReqRegistration_MePr' ), 10, 2 );
+				add_action( 'mepr-checkout-before-submit', [ $this, 'printRegisterFormItems_MePr' ], 10 );
+				add_filter( 'mepr-validate-signup', [ $this, 'checkReqRegistration_MePr' ], 10, 2 );
 				// Ultimate Member
-				add_action( 'um_after_register_fields', array( $this, 'printFormItems_UltMem' ), 100 );
-				add_action( 'um_submit_form_register', array( $this, 'checkReqRegistration_UltMem' ), 5, 0 );
+				add_action( 'um_after_register_fields', [ $this, 'printFormItems_UltMem' ], 100 );
+				add_action( 'um_submit_form_register', [ $this, 'checkReqRegistration_UltMem' ], 5, 0 );
 				// LearnPress
 				add_action( 'learn-press/after-form-register-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
-				add_filter( 'learn-press/register-validate-field', [ $this,'checkReqRegistration_LearnPress' ], 100, 1 );
+				add_filter( 'learn-press/register-validate-field', [ $this, 'checkReqRegistration_LearnPress' ], 100, 1 );
 			}
 		}
 
 		if ( $b3rdParty && $oFO->isProtect( 'checkout_woo' ) ) {
-			add_action( 'woocommerce_after_checkout_registration_form', [ $this,'printRegistrationFormItems_Woo' ], 10 );
+			add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'printRegistrationFormItems_Woo' ], 10 );
 			add_action( 'woocommerce_after_checkout_validation', [ $this, 'checkReqCheckout_Woo' ], 10, 2 );
 		}
 	}
@@ -433,7 +433,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 	/**
 	 * @param WP_Error $oWpError
-	 * @param  string  $sUsername
+	 * @param string   $sUsername
 	 * @return WP_Error
 	 */
 	public function checkReqRegistrationErrors_Wp( $oWpError, $sUsername ) {

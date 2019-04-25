@@ -146,10 +146,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
-		$aContent = array(
+		$aContent = [
 			sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
 			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-		);
+		];
 
 		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );

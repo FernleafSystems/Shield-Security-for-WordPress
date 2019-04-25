@@ -136,7 +136,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$aMatchTerms = $this->getFirewallPatterns( 'exefile' );
 			if ( isset( $aMatchTerms[ 'regex' ] ) && is_array( $aMatchTerms[ 'regex' ] ) ) {
 
-				$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+				$aMatchTerms[ 'regex' ] = array_map( [ $this, 'prepRegexTerms' ], $aMatchTerms[ 'regex' ] );
 				foreach ( $aMatchTerms[ 'regex' ] as $sTerm ) {
 					foreach ( $aFileNames as $sParam => $mValue ) {
 						if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
@@ -186,7 +186,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( !$bFAIL && isset( $aMatchTerms[ 'regex' ] ) && is_array( $aMatchTerms[ 'regex' ] ) ) {
-			$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+			$aMatchTerms[ 'regex' ] = array_map( [ $this, 'prepRegexTerms' ], $aMatchTerms[ 'regex' ] );
 			foreach ( $aMatchTerms[ 'regex' ] as $sTerm ) {
 				foreach ( $aParamValues as $sParam => $mValue ) {
 					if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
@@ -210,11 +210,11 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$this->addToAuditEntry(
 				implode( "\n", $this->aAuditBlockMessage ), 3, 'firewall_block',
-				array(
+				[
 					'param'    => $sParam,
 					'val'      => $mValue,
 					'blockkey' => $sBlockKey,
-				)
+				]
 			);
 			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
 		}
@@ -320,7 +320,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getFirewallDieMessage() {
 		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
-			$this->aDieMessage = array( $this->getMod()->getTextOpt( 'text_firewalldie' ) );
+			$this->aDieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
 		}
 		return $this->aDieMessage;
 	}

@@ -61,11 +61,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			$aConfig = [];
 		}
 		$aConfig = array_merge(
-			array(
+			[
 				'key'    => '',
 				'secret' => '',
 				'style'  => 'light',
-			),
+			],
 			$aConfig
 		);
 		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
@@ -153,11 +153,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getBaseDisplayData( $bRenderEmbeddedContent ),
-			array(
-				'ajax'    => array(
+			[
+				'ajax'    => [
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
-				),
-				'strings' => array(
+				],
+				'strings' => [
 					'go_to_settings'    => _wpsf__( 'Settings' ),
 					'on'                => _wpsf__( 'On' ),
 					'off'               => _wpsf__( 'Off' ),
@@ -180,17 +180,17 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
 					'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
 					'aar_forget_key'               => _wpsf__( "Forgotten Key" ),
-				),
-				'flags'   => array(
+				],
+				'flags'   => [
 					'has_session' => $this->hasSession()
-				),
-				'hrefs'   => array(
+				],
+				'hrefs'   => [
 					'aar_forget_key' => $sHelpUrl
-				),
-				'classes' => array(
+				],
+				'classes' => [
 					'top_container' => $this->isPremium() ? 'is-pro' : 'is-not-pro'
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -200,7 +200,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	protected function getDisplayStrings() {
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
-			array(
+			[
 				'back_to_dashboard' => sprintf( _wpsf__( 'Back To %s Dashboard' ), $this->getCon()->getHumanName() ),
 				'go_to_settings'    => _wpsf__( 'Settings' ),
 				'on'                => _wpsf__( 'On' ),
@@ -222,7 +222,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
 				'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
 				'aar_forget_key'               => _wpsf__( "Forgotten Key" )
-			)
+			]
 		);
 	}
 
@@ -234,10 +234,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	protected function getTranslatedString( $sKey, $sDefault ) {
-		$aStrings = array(
+		$aStrings = [
 			'nonce_failed_empty'    => _wpsf__( 'Nonce security checking failed - the nonce value was empty.' ),
 			'nonce_failed_supplied' => _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ),
-		);
+		];
 		return ( isset( $aStrings[ $sKey ] ) ? $aStrings[ $sKey ] : $sDefault );
 	}
 
@@ -365,18 +365,18 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			case 'section_user_messages' :
 				$sTitle = _wpsf__( 'User Messages' );
 				$sTitleShort = _wpsf__( 'User Messages' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Customize the messages displayed to the user.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use this section if you need to communicate to the user in a particular manner.' ) ),
 					sprintf( '%s: %s', _wpsf__( 'Hint' ), sprintf( _wpsf__( 'To reset any message to its default, enter the text exactly: %s' ), 'default' ) )
-				);
+				];
 				break;
 
 			default:
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
 		}
 
-		return array( $sTitle, $sTitleShort, $aSummary );
+		return [ $sTitle, $sTitleShort, $aSummary ];
 	}
 
 	/**

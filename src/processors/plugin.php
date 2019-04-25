@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 		switch ( Services::Request()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
-				add_action( 'wp_loaded', array( $this, 'dumpTrackingData' ) );
+				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
 				break;
 
 			case 'importexport_export':
@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				break;
 		}
 
-		add_action( 'admin_footer', array( $this, 'printAdminFooterItems' ), 100, 0 );
+		add_action( 'admin_footer', [ $this, 'printAdminFooterItems' ], 100, 0 );
 	}
 
 	public function onWpLoaded() {
@@ -119,12 +119,12 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	private function printToastTemplate() {
 		if ( $this->getCon()->isModulePage() ) {
-			$aRenderData = array(
-				'strings'     => array(
+			$aRenderData = [
+				'strings'     => [
 					'title' => $this->getCon()->getHumanName(),
-				),
+				],
 				'js_snippets' => []
-			);
+			];
 			echo $this->getMod()
 					  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
 		}
@@ -133,7 +133,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	private function printPluginDeactivateSurvey() {
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
 
-			$aOpts = array(
+			$aOpts = [
 				'reason_confusing'   => "It's too confusing",
 				'reason_expected'    => "It's not what I expected",
 				'reason_accident'    => "I downloaded it accidentally",
@@ -141,17 +141,17 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'reason_trust'       => "I don't trust the developer :(",
 				'reason_not_work'    => "It doesn't work",
 				'reason_errors'      => "I'm getting errors",
-			);
+			];
 
-			$aRenderData = array(
-				'strings'     => array(
+			$aRenderData = [
+				'strings'     => [
 					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
-				),
-				'inputs'      => array(
+				],
+				'inputs'      => [
 					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
-				),
+				],
 				'js_snippets' => []
-			);
+			];
 			echo $this->getMod()
 					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aRenderData );
 		}
@@ -186,8 +186,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_override_forceoff( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
@@ -195,9 +195,9 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 		$oCon = $this->getCon();
 		if ( $oCon->getIfForceOffActive() ) {
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => array(
+				'strings'           => [
 					'title'   => sprintf( '%s: %s', _wpsf__( 'Warning' ), sprintf( _wpsf__( '%s is not protecting your site' ), $oCon->getHumanName() ) ),
 					'message' => sprintf(
 						_wpsf__( 'Please delete the "%s" file to reactivate %s protection' ),
@@ -205,18 +205,18 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 						$oCon->getHumanName()
 					),
 					'delete'  => _wpsf__( 'Click here to automatically delete the file' )
-				),
-				'ajax'              => array(
+				],
+				'ajax'              => [
 					'delete_forceoff' => $oFO->getAjaxActionData( 'delete_forceoff', true )
-				)
-			);
+				]
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
 		$oModCon = $this->getMod();
@@ -224,9 +224,9 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		$nDays = $this->getInstallationDays();
 		if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {
 			$oUser = Services::WpUsers()->getCurrentWpUser();
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => array(
+				'strings'           => [
 					'title'          => 'Come and Join Us!',
 					'yes'            => "Yes please! I'd love to join in and learn more",
 					'no'             => "No thanks, I'm not interested in such groups",
@@ -239,16 +239,16 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 						'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
 						$this->getMod()->getDef( 'href_privacy_policy' )
 					),
-				),
-				'hrefs'             => array(
+				],
+				'hrefs'             => [
 					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
-				),
+				],
 				'install_days'      => $nDays,
 				'vars'              => [
 					'name'       => $oUser->first_name,
 					'user_email' => $oUser->user_email
 				]
-			);
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
@@ -258,7 +258,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function removePluginConflicts() {
 		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
-			remove_action( 'init', array( $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ), 0 );
+			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
 	}
 }

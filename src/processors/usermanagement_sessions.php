@@ -7,8 +7,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	public function run() {
 		if ( $this->isReadyToRun() ) {
 			parent::run();
-			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-			add_filter( 'auth_cookie_expiration', array( $this, 'setMaxAuthCookieExpiration' ), 100, 1 );
+			add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
+			add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100, 1 );
 		}
 	}
 
@@ -107,7 +107,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 						$this->addToAuditEntry(
 							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_no_valid_found'
 						);
-						$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
+						$oWpUsers->forceUserRelogin( [ 'wpsf-forcelogout' => $nCode ] );
 						break;
 
 					case 7:
@@ -126,7 +126,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 							2,
 							'um_session_not_found_redirect'
 						);
-						$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
+						$oWpUsers->forceUserRelogin( [ 'wpsf-forcelogout' => $nCode ] );
 						break;
 				}
 			}

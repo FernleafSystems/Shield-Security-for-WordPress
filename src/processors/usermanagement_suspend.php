@@ -146,14 +146,14 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		$oWpUsers->isUserAdmin( $oUser );
 
 		$aData = [
-			'strings' => array(
+			'strings' => [
 				'title'       => _wpsf__( 'Suspend Account' ),
 				'label'       => _wpsf__( 'Check to un/suspend user account' ),
 				'description' => _wpsf__( 'The user can never login while their account is suspended.' ),
 				'cant_manage' => _wpsf__( 'Sorry, suspension for this account may only be managed by a security administrator.' ),
 				'since'       => sprintf( '%s: %s', _wpsf__( 'Suspended' ), Services::WpGeneral()
 																					->getTimeStringForDisplay( $oMeta->hard_suspended_at ) ),
-			),
+			],
 			'flags'   => [
 				'can_manage_suspension' => !$oWpUsers->isUserAdmin( $oUser ) || $oCon->isPluginAdmin(),
 				'is_suspended'          => $oMeta->hard_suspended_at > 0

@@ -15,22 +15,22 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		}
 
 		// Loads the wp-login.php if the correct URL is loaded
-		add_action( 'init', array( $this, 'doBlockPossibleWpLoginLoad' ) );
+		add_action( 'init', [ $this, 'doBlockPossibleWpLoginLoad' ] );
 
 		// Loads the wp-login.php is the correct URL is loaded
-		add_filter( 'wp_loaded', array( $this, 'aLoadWpLogin' ) );
+		add_filter( 'wp_loaded', [ $this, 'aLoadWpLogin' ] );
 
 		// Shouldn't be necessary, but in-case something else includes the wp-login.php, we block that too.
-		add_action( 'login_init', array( $this, 'aLoginFormAction' ), 0 );
+		add_action( 'login_init', [ $this, 'aLoginFormAction' ], 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
-		add_filter( 'site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
-		add_filter( 'network_site_url', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
-		add_filter( 'wp_redirect', array( $this, 'fCheckForLoginPhp' ), 20, 2 );
-		add_filter( 'wp_redirect', array( $this, 'fProtectUnauthorizedLoginRedirect' ), 50, 2 );
-		add_filter( 'register_url', array( $this, 'blockRegisterUrlRedirect' ), 20, 1 );
+		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20, 2 );
+		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20, 2 );
+		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20, 2 );
+		add_filter( 'wp_redirect', [ $this, 'fProtectUnauthorizedLoginRedirect' ], 50, 2 );
+		add_filter( 'register_url', [ $this, 'blockRegisterUrlRedirect' ], 20, 1 );
 
-		add_filter( 'et_anticipate_exceptions', array( $this, 'fAddToEtMaintenanceExceptions' ) );
+		add_filter( 'et_anticipate_exceptions', [ $this, 'fAddToEtMaintenanceExceptions' ] );
 	}
 
 	/**
@@ -104,7 +104,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$bDoBlock ) {
 			$sPath = trim( Services::Request()->getPath(), '/' );
-			$aPossiblePaths = array(
+			$aPossiblePaths = [
 				trim( home_url( 'wp-login.php', 'relative' ), '/' ),
 				trim( home_url( 'wp-signup.php', 'relative' ), '/' ),
 				trim( site_url( 'wp-signup.php', 'relative' ), '/' ),
@@ -112,7 +112,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 				trim( rtrim( site_url( '', 'relative' ), '/' ).'/wp-login.php', '/' ),
 				trim( home_url( 'login', 'relative' ), '/' ),
 				trim( site_url( 'login', 'relative' ), '/' )
-			);
+			];
 			$bDoBlock = !empty( $sPath )
 						&& ( in_array( $sPath, $aPossiblePaths ) || preg_match( '/wp-login\.php/i', $sPath ) );
 		}

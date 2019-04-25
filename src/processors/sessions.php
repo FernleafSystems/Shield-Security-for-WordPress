@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 					$this->terminateCurrentSession();
 				}, 0 );
 			}
-			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
+			add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
 		}
 	}
 

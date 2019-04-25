@@ -20,12 +20,12 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$oWpUsers = Services::WpUsers();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
-		$aData = array(
+		$aData = [
 			'has_validated_profile' => $bValidatedProfile,
 			'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
 			'i_am_valid_admin'      => $oCon->isPluginAdmin(),
 			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
-			'strings'               => array(
+			'strings'               => [
 				'description_otp_code'     => _wpsf__( 'This is your unique Yubikey Device ID.' ),
 				'description_otp_code_ext' => '['._wpsf__( 'Pro Only' ).'] '
 											  ._wpsf__( 'Multiple Yubikey Device IDs are separated by a comma.' ),
@@ -43,12 +43,12 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 				'cant_remove_admins'       => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
 				'provided_by'              => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
 				'remove_more_info'         => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
-			),
-			'data'                  => array(
+			],
+			'data'                  => [
 				'otp_field_name' => $this->getLoginFormParameter(),
 				'secret'         => str_replace( ',', ', ', $this->getSecret( $oUser ) ),
-			)
-		);
+			]
+		];
 
 		echo $this->getMod()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
 	}
@@ -255,14 +255,14 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 */
 	public function addLoginIntentField( $aFields ) {
 		if ( $this->getCurrentUserHasValidatedProfile() ) {
-			$aFields[] = array(
+			$aFields[] = [
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'text',
 				'placeholder' => _wpsf__( 'Use your Yubikey to generate a new code.' ),
 				'value'       => '',
 				'text'        => _wpsf__( 'Yubikey OTP' ),
 				'help_link'   => 'https://icwp.io/4i'
-			);
+			];
 		}
 		return $aFields;
 	}
