@@ -26,8 +26,16 @@
   },
   "sections":      [
     {
-      "slug":        "section_bot_comment_spam_protection_filter",
+      "slug":        "section_bot_comment_spam_common",
       "primary":     true,
+      "title":       "Common Settings For All SPAM Scanning",
+      "title_short": "Common Settings",
+      "summary":     [
+        "Purpose - Settings that apply to all comment SPAM scanning."
+      ]
+    },
+    {
+      "slug":        "section_bot_comment_spam_protection_filter",
       "title":       "Automatic Bot Comment SPAM Protection Filter",
       "title_short": "Bot SPAM",
       "summary":     [
@@ -91,6 +99,17 @@
       "description": "Un-Checking this option will completely disable the Comments SPAM Protection module"
     },
     {
+      "key":         "scan_previously_approved",
+      "section":     "section_bot_comment_spam_common",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Scan Previously Approved",
+      "summary":     "Scan Comments From Previously Approved Commenters",
+      "description": "Specify whether comments from previously approved commenters will be put through the SPAM filters."
+    },
+    {
       "key":         "enable_comments_gasp_protection",
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",
@@ -116,7 +135,7 @@
     {
       "key":           "comments_default_action_spam_bot",
       "section":       "section_bot_comment_spam_protection_filter",
-      "default":       "trash",
+      "default":       "spam",
       "type":          "select",
       "value_options": [
         {
@@ -338,6 +357,7 @@
     }
   ],
   "definitions":   {
+    "url_spam_blacklist_terms":              "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "spambot_comments_filter_table_name":    "spambot_comments_filter",
     "spambot_comments_filter_table_columns": [
       "id",

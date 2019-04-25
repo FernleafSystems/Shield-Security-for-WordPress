@@ -4,70 +4,32 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_CommentsFilter_Base {
 
-	const Spam_Blacklist_Source = 'https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt';
-
 	/**
-	 */
-	public function run() {
-		parent::run();
-		add_filter( $this->getMod()->prefix( 'if-do-comments-check' ), array( $this, 'getIfDoCommentsCheck' ) );
-	}
-
-	/**
-	 * @param bool $fIfDoCheck
-	 * @return bool
-	 */
-	public function getIfDoCommentsCheck( $fIfDoCheck ) {
-		if ( !$fIfDoCheck ) {
-			return $fIfDoCheck;
-		}
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
-
-		$oWpComments = $this->loadWpComments();
-
-		// 1st are comments enabled on this post?
-		$nPostId = $oFO->getCommentItem( 'comment_post_ID' );
-		$oPost = $nPostId ? $this->loadWp()->getPostById( $nPostId ) : null;
-		if ( $oPost ) {
-			$fIfDoCheck = $oWpComments->isCommentsOpen( $oPost );
-		}
-
-		if ( $fIfDoCheck && $oWpComments->getIfAllowCommentsByPreviouslyApproved()
-			 && $oWpComments->isAuthorApproved( $oFO->getCommentItem( 'comment_author_email' ) ) ) {
-			$fIfDoCheck = false;
-		}
-
-		return $fIfDoCheck;
-	}
-
-	/**
-	 * @param array $aCommentData
+	 * @param array $aCommData
 	 * @return array
 	 */
-	public function doCommentChecking( $aCommentData ) {
+	public function doCommentChecking( $aCommData ) {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->getIfDoCommentsCheck() ) {
+		if ( $oFO->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
 
 			$this->performBlacklistSpamCheck(
-				$aCommentData[ 'comment_author' ],
-				$aCommentData[ 'comment_author_email' ],
-				$aCommentData[ 'comment_author_url' ],
-				$aCommentData[ 'comment_content' ],
+				$aCommData[ 'comment_author' ],
+				$aCommData[ 'comment_author_email' ],
+				$aCommData[ 'comment_author_url' ],
+				$aCommData[ 'comment_content' ],
 				$this->ip(),
 				substr( Services::Request()->getUserAgent(), 0, 254 )
 			);
 
 			// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 			if ( self::$sCommentStatus == 'reject' ) {
-				$oWp = $this->loadWp();
-				$oWp->doRedirect( $oWp->getHomeUrl(), [], true, false );
+				Services::Response()->redirectToHome();
 			}
 		}
 
-		return $aCommentData;
+		return $aCommData;
 	}
 
 	/**
@@ -198,7 +160,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	 * @return string
 	 */
 	protected function doSpamBlacklistDownload() {
-		return Services::HttpRequest()->getContent( self::Spam_Blacklist_Source );
+		return Services::HttpRequest()->getContent( $this->getMod()->getDef( 'url_spam_blacklist_terms' ) );
 	}
 
 	/**

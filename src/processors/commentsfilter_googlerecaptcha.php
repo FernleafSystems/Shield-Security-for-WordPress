@@ -42,14 +42,14 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	}
 
 	/**
-	 * @param array $aCommentData
+	 * @param array $aCommData
 	 * @return array
 	 */
-	public function doCommentChecking( $aCommentData ) {
+	public function doCommentChecking( $aCommData ) {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->getIfDoCommentsCheck() ) {
+		if ( $oFO->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
 
 			try {
 				$this->checkRequestRecaptcha();
@@ -72,6 +72,6 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			}
 		}
 
-		return $aCommentData;
+		return $aCommData;
 	}
 }

@@ -12,23 +12,21 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 */
 	protected function setupCustomHooks() {
-		add_filter( 'preprocess_comment', array( $this, 'gatherRawCommentData' ), 1 );
-	}
-
-	/**
-	 * @param array $aRawCommentData
-	 * @return array
-	 */
-	public function gatherRawCommentData( $aRawCommentData ) {
-		$this->aCommentData = $aRawCommentData;
-		return $aRawCommentData;
+		add_filter(
+			'preprocess_comment',
+			function ( $aRawCommentData ) {
+				$this->aCommentData = $aRawCommentData;
+				return $aRawCommentData;
+			},
+			0
+		);
 	}
 
 	/**
 	 * @return array
 	 */
 	public function getCommentData() {
-		return ( isset( $this->aCommentData ) && is_array( $this->aCommentData ) ) ? $this->aCommentData : [];
+		return is_array( $this->aCommentData ) ? $this->aCommentData : [];
 	}
 
 	/**
@@ -41,15 +39,23 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return boolean
+	 * @param int    $nPostId
+	 * @param string $sCommentEmail
+	 * @return bool
 	 */
-	public function getIfDoCommentsCheck() {
-		$oWpComments = $this->loadWpComments();
+	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
+		$oWpComm = $this->loadWpComments();
 
 		// 1st are comments enabled on this post?
-		$oPost = Services::WpPost()->getById( $this->getCommentItem( 'comment_post_ID' ) );
-		return ( $oPost instanceof WP_Post ) && $oWpComments->isCommentsOpen( $oPost )
-			   && ( !$oWpComments->getIfAllowCommentsByPreviouslyApproved() || !$oWpComments->isAuthorApproved( $this->getCommentItem( 'comment_author_email' ) ) );
+		$oPost = Services::WpPost()->getById( $nPostId );
+		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
+			   && (
+				   $this->isScanPreviouslyApproved()
+				   || !$oWpComm->getIfAllowCommentsByPreviouslyApproved()
+				   || !$oWpComm->isAuthorApproved( $sCommentEmail )
+			   );
+		// Removed 20190425 - v7.4 Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
+//			   && !( function_exists( 'WPWall_Init' ) && !is_null( Services::Request()->post( 'submit_wall_post' ) ) );
 	}
 
 	/**
@@ -82,6 +88,13 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 			$sStyle = parent::getGoogleRecaptchaStyle();
 		}
 		return $sStyle;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isScanPreviouslyApproved() {
+		return $this->isOpt( 'scan_previously_approved', 'Y' );
 	}
 
 	/**
@@ -183,6 +196,14 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
+			case 'section_bot_comment_spam_common' :
+				$sTitleShort = _wpsf__( 'Common Settings' );
+				$sTitle = _wpsf__( 'Common Settings For All SPAM Scanning' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Settings that apply to all comment SPAM scanning.' ) ),
+				];
+				break;
+
 			case 'section_bot_comment_spam_protection_filter' :
 				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection' ), _wpsf__( 'Automatic Bot' ) );
 				$aSummary = array(
@@ -268,6 +289,12 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = _wpsf__( 'Enable (or Disable) The Comment SPAM Protection Feature' );
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), _wpsf__( 'Comment SPAM Protection' ) );
+				break;
+
+			case 'scan_previously_approved' :
+				$sName = _wpsf__( 'Scan Previously Approved' );
+				$sSummary = _wpsf__( 'Scan Comments From Previously Approved Commenters' );
+				$sDescription = _wpsf__( 'Specify whether comments from previously approved commenters will be put through the SPAM filters' );
 				break;
 
 			case 'enable_comments_human_spam_filter' :

@@ -31,11 +31,11 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * @param array $aCommentData
+	 * @param array $aCommData
 	 * @return array
 	 */
-	public function doCommentChecking( $aCommentData ) {
-		return $aCommentData;
+	public function doCommentChecking( $aCommData ) {
+		return $aCommData;
 	}
 
 	/**
