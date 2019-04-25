@@ -50,7 +50,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$oPost = Services::WpPost()->getById( $nPostId );
 		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
 			   && (
-				   $this->isScanPreviouslyApproved()
+				   $oWpComm->countAuthorApproved( $sCommentEmail ) < $this->getTrustedCommentsMinimum()
 				   || !$oWpComm->getIfAllowCommentsByPreviouslyApproved()
 				   || !$oWpComm->isAuthorApproved( $sCommentEmail )
 			   );
@@ -93,8 +93,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function isScanPreviouslyApproved() {
-		return $this->isOpt( 'scan_previously_approved', 'Y' );
+	public function getTrustedCommentsMinimum() {
+		return $this->getOpt( 'trusted_commenter_minimum', 1 );
 	}
 
 	/**
@@ -291,10 +291,11 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), _wpsf__( 'Comment SPAM Protection' ) );
 				break;
 
-			case 'scan_previously_approved' :
-				$sName = _wpsf__( 'Scan Previously Approved' );
-				$sSummary = _wpsf__( 'Scan Comments From Previously Approved Commenters' );
-				$sDescription = _wpsf__( 'Specify whether comments from previously approved commenters will be put through the SPAM filters' );
+			case 'trusted_commenter_minimum' :
+				$sName = _wpsf__( 'Trusted Commenter Minimum' );
+				$sSummary = _wpsf__( 'Minimum Number Of Approved Comments Before Commenter Is Trusted' );
+				$sDescription = _wpsf__( 'Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned.' )
+								.'<br />'._wpsf__( 'Normally WordPress will trust after 1 comment.' );
 				break;
 
 			case 'enable_comments_human_spam_filter' :

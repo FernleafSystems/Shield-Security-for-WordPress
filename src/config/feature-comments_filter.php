@@ -99,15 +99,16 @@
       "description": "Un-Checking this option will completely disable the Comments SPAM Protection module"
     },
     {
-      "key":         "scan_previously_approved",
+      "key":         "trusted_commenter_minimum",
       "section":     "section_bot_comment_spam_common",
-      "default":     "N",
-      "type":        "checkbox",
+      "default":     1,
+      "min":         1,
+      "type":        "integer",
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Scan Previously Approved",
-      "summary":     "Scan Comments From Previously Approved Commenters",
-      "description": "Specify whether comments from previously approved commenters will be put through the SPAM filters."
+      "name":        "Trusted Commenter Minimum",
+      "summary":     "Minimum Number Of Approved Comments Before Commenter Is Trusted",
+      "description": "Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned."
     },
     {
       "key":         "enable_comments_gasp_protection",

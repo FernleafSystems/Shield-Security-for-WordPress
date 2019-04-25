@@ -74,6 +74,33 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sAuthorEmail
+	 * @return bool
+	 */
+	public function countAuthorApproved( $sAuthorEmail ) {
+		$nCount = 0;
+
+		if ( $this->loadDP()->validEmail( $sAuthorEmail ) ) {
+			$oDb = $this->loadDbProcessor();
+			$sQuery = "
+				SELECT COUNT(*)
+				FROM %s
+				WHERE
+					comment_author_email = '%s'
+					AND comment_approved = 1
+			";
+
+			$sQuery = sprintf(
+				$sQuery,
+				$oDb->getTable_Comments(),
+				esc_sql( $sAuthorEmail )
+			);
+			$nCount = (int)$oDb->getVar( $sQuery );
+		}
+		return $nCount;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isCommentPost() {

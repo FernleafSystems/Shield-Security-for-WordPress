@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_CommentsFilter_Base {
 
 	/**
@@ -66,8 +68,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 					->setIpTransgressed();
 
 				if ( self::$sCommentStatus == 'reject' ) {
-					$oWp = $this->loadWp();
-					$oWp->doRedirect( $oWp->getHomeUrl(), [], true, false );
+					Services::Response()->redirectToHome();
 				}
 			}
 		}

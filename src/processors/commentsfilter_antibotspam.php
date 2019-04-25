@@ -74,12 +74,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		$nPostId = $aCommData[ 'comment_post_ID' ];
 		if ( $oFO->getIfDoCommentsCheck( $nPostId, $aCommData[ 'comment_author_email' ] ) ) {
+
 			$this->doGaspCommentCheck( $nPostId );
 
 			// Now we check whether comment status is to completely reject and then we simply redirect to "home"
 			if ( $this->sCommentStatus == 'reject' ) {
-				$oWp = $this->loadWp();
-				$oWp->doRedirect( $oWp->getHomeUrl(), [], true, false );
+				Services::Response()->redirectToHome();
 			}
 		}
 
@@ -151,7 +151,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function initCommentFormToken() {
 		/** @var Comments\EntryVO $oToken */
 		$oToken = $this->getDbHandler()->getVo();
-		$oToken->post_id = $this->loadWp()->getCurrentPostId();
+		$oToken->post_id = Services::WpPost()->getCurrentPostId();
 		$oToken->unique_token = md5( $this->getCon()->getUniqueRequestId( false ) );
 		return $this->getDbHandler()
 					->getQueryInserter()
