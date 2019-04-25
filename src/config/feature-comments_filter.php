@@ -111,6 +111,23 @@
       "description": "Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned."
     },
     {
+      "key":         "trusted_user_roles",
+      "section":     "section_bot_comment_spam_common",
+      "default":     [
+        "administrator",
+        "editor",
+        "author",
+        "contributor",
+        "subscriber"
+      ],
+      "type":        "array",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Trusted Users",
+      "summary":     "Don't Scan Comments For Users With The Following Roles",
+      "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
+    },
+    {
       "key":         "enable_comments_gasp_protection",
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",

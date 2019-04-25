@@ -49,13 +49,27 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		// 1st are comments enabled on this post?
 		$oPost = Services::WpPost()->getById( $nPostId );
 		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
-			   && (
-				   $oWpComm->countAuthorApproved( $sCommentEmail ) < $this->getTrustedCommentsMinimum()
-				   || !$oWpComm->getIfAllowCommentsByPreviouslyApproved()
-				   || !$oWpComm->isAuthorApproved( $sCommentEmail )
-			   );
+			   && !$this->isTrustedCommenter( $sCommentEmail );
 		// Removed 20190425 - v7.4 Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
 //			   && !( function_exists( 'WPWall_Init' ) && !is_null( Services::Request()->post( 'submit_wall_post' ) ) );
+	}
+
+	/**
+	 * @param string $sCommentEmail
+	 * @return bool
+	 */
+	private function isTrustedCommenter( $sCommentEmail ) {
+		$bTrusted = $this->loadWpComments()->countAuthorApproved( $sCommentEmail ) >= $this->getTrustedCommentsMinimum();
+
+		$aTrustedRoles = $this->getTrustedUserRoles();
+		if ( !$bTrusted && !empty( $aTrustedRoles ) ) {
+			$oUser = Services::WpUsers()->getUserByEmail( $sCommentEmail );
+			if ( $oUser instanceof \WP_User ) {
+				$bTrusted = count( array_intersect( $aTrustedRoles, array_map( 'strtolower', $oUser->roles ) ) ) > 0;
+			}
+		}
+
+		return $bTrusted;
 	}
 
 	/**
@@ -95,6 +109,31 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function getTrustedCommentsMinimum() {
 		return $this->getOpt( 'trusted_commenter_minimum', 1 );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getTrustedUserRoles() {
+		$aRoles = [];
+		if ( $this->isPremium() ) {
+			$aRoles = $this->getOpt( 'trusted_user_roles', [] );
+		}
+		return is_array( $aRoles ) ? $aRoles : [];
+	}
+
+	/**
+	 * This is the point where you would want to do any options verification
+	 */
+	protected function doPrePluginOptionsSave() {
+		$this->setOpt( 'trusted_user_roles',
+			array_unique( array_filter( array_map(
+				function ( $sRole ) {
+					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+				},
+				$this->getTrustedUserRoles()
+			) ) )
+		);
 	}
 
 	/**
@@ -296,6 +335,16 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sSummary = _wpsf__( 'Minimum Number Of Approved Comments Before Commenter Is Trusted' );
 				$sDescription = _wpsf__( 'Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned.' )
 								.'<br />'._wpsf__( 'Normally WordPress will trust after 1 comment.' );
+				break;
+
+			case 'trusted_user_roles' :
+				$sName = _wpsf__( 'Trusted Users' );
+				$sSummary = _wpsf__( "Don't Scan Comments For Users With The Following Roles" );
+				$sDescription = _wpsf__( "Shield doesn't normally scan comments from logged-in or registered users." )
+								.'<br />'._wpsf__( "Specify user roles here that shouldn't be scanned." )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( 'Take a new line for each user role.' ) )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Available Roles' ), implode( ', ', Services::WpUsers()
+																												 ->getAvailableUserRoles() ) );
 				break;
 
 			case 'enable_comments_human_spam_filter' :
