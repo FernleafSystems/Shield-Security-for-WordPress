@@ -169,22 +169,22 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function doExtraSubmitProcessing() {
-		$sAdminEmail = $this->getOpt( 'enable_admin_login_email_notification' );
-		if ( !Services::Data()->validEmail( $sAdminEmail ) ) {
+		if ( !Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'enable_admin_login_email_notification' );
-		}
-
-		if ( $this->getOpt( 'session_username_concurrent_limit' ) < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'session_username_concurrent_limit' );
-		}
-
-		if ( $this->getOpt( 'session_timeout_interval' ) < 1 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'session_timeout_interval' );
 		}
 
 		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
 			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
 		}
+
+		$this->setOpt( 'auto_idle_roles',
+			array_unique( array_filter( array_map(
+				function ( $sRole ) {
+					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+				},
+				$this->getSuspendAutoIdleUserRoles()
+			) ) )
+		);
 	}
 
 	/**
@@ -417,20 +417,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	public function getSuspendHardUserIds() {
 		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
 		return is_array( $aIds ) ? array_filter( $aIds, 'is_int' ) : [];
-	}
-
-	/**
-	 * This is the point where you would want to do any options verification
-	 */
-	protected function doPrePluginOptionsSave() {
-		$this->setOpt( 'auto_idle_roles',
-			array_unique( array_filter( array_map(
-				function ( $sRole ) {
-					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
-				},
-				$this->getSuspendAutoIdleUserRoles()
-			) ) )
-		);
 	}
 
 	/**

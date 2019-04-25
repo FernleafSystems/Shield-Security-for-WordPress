@@ -145,6 +145,7 @@
       "key":         "session_username_concurrent_limit",
       "section":     "section_user_session_management",
       "default":     0,
+      "min":         0,
       "type":        "integer",
       "link_info":   "",
       "link_blog":   "",
