@@ -701,15 +701,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getRecentEvents() {
-		$oConn = $this->getCon();
 
 		$aStats = [];
-		foreach ( $oConn->getModules() as $oModule ) {
+		foreach ( $this->getCon()->getModules() as $oModule ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
 			$aStats = array_merge( $aStats, $oModule->getInsightsOpts() );
 		}
 
-		$oWP = $this->loadWp();
+		$oWP = Services::WpGeneral();
 		$aNames = $this->getInsightStatNames();
 		foreach ( $aStats as $sStatKey => $nValue ) {
 			$aStats[ $sStatKey ] = [
