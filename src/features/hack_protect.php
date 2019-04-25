@@ -77,7 +77,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntryVo
+	 * @param Shield\Databases\Scanner\EntryVO $oEntryVo
 	 * @return string
 	 */
 	public function createFileDownloadLink( $oEntryVo ) {
@@ -169,7 +169,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function getScanHasProblem( $sScan ) {
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->getProcessor();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
+		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $oPro->getSubProScanner()
 					 ->getDbHandler()
 					 ->getQuerySelector();
