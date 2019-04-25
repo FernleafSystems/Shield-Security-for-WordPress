@@ -5,20 +5,22 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @var bool
 	 */
-	protected $bHeadersPushed;
+	private $bHeadersPushed;
+
 	/**
 	 * @var array
 	 */
-	protected $aHeaders;
+	private $aHeaders;
 
 	/**
 	 */
 	public function run() {
 		if ( $this->getPushHeadersEarly() ) {
-			$this->pushHeaders();
+			$this->sendHeaders();
 		}
 		else {
-			add_filter( 'wp_headers', array( $this, 'addToHeaders' ) );
+			add_filter( 'wp_headers', [ $this, 'addToHeaders' ] );
+			add_action( 'send_headers', [ $this, 'sendHeaders' ], 100, 0 );
 		}
 	}
 
@@ -31,11 +33,10 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
-	protected function pushHeaders() {
+	public function sendHeaders() {
 		if ( !$this->isHeadersPushed() ) {
-			$aHeaders = $this->gatherSecurityHeaders();
-			foreach ( $aHeaders as $sHeader => $sValue ) {
-				header( sprintf( '%s: %s', $sHeader, $sValue ) );
+			foreach ( $this->gatherSecurityHeaders() as $sName => $sValue ) {
+				@header( sprintf( '%s: %s', $sName, $sValue ) );
 			}
 			$this->setHeadersPushed( true );
 		}
@@ -56,7 +57,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return array|null
 	 */
-	protected function getXFrameHeader() {
+	private function getXFrameHeader() {
 		switch ( $this->getOption( 'x_frame' ) ) {
 			case 'on_sameorigin':
 				$sXFrameOption = 'SAMEORIGIN';
@@ -68,36 +69,36 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 				$sXFrameOption = '';
 				break;
 		}
-		return !empty( $sXFrameOption ) ? array( 'x-frame-options' => $sXFrameOption ) : null;
+		return !empty( $sXFrameOption ) ? [ 'x-frame-options' => $sXFrameOption ] : null;
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getXssProtectionHeader() {
-		return array( 'X-XSS-Protection' => '1; mode=block' );
+	private function getXssProtectionHeader() {
+		return [ 'X-XSS-Protection' => '1; mode=block' ];
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getContentTypeOptionHeader() {
-		return array( 'X-Content-Type-Options' => 'nosniff' );
+	private function getContentTypeOptionHeader() {
+		return [ 'X-Content-Type-Options' => 'nosniff' ];
 	}
 
 	/**
 	 * @return array|null
 	 */
-	protected function getReferrerPolicyHeader() {
+	private function getReferrerPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getMod();
-		return array( 'Referrer-Policy' => $oFO->getReferrerPolicyValue() );
+		return [ 'Referrer-Policy' => $oFO->getReferrerPolicyValue() ];
 	}
 
 	/**
 	 * @return array|null
 	 */
-	protected function setContentSecurityPolicyHeader() {
+	private function setContentSecurityPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getMod();
 		if ( !$oFO->isContentSecurityPolicyEnabled() ) {
@@ -128,13 +129,13 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 			$aDefaultSrcDirectives[] = implode( " ", $aDomains );
 		}
-		return array( 'Content-Security-Policy' => sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) ) );
+		return [ 'Content-Security-Policy' => sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) ) ];
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function gatherSecurityHeaders() {
+	private function gatherSecurityHeaders() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getMod();
 
@@ -163,7 +164,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !isset( $this->aHeaders ) || !is_array( $this->aHeaders ) ) {
 			$this->aHeaders = [];
 		}
-		return $this->aHeaders;
+		return array_unique( $this->aHeaders );
 	}
 
 	/**
@@ -178,7 +179,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	protected function isHeadersPushed() {
+	private function isHeadersPushed() {
 		return (bool)$this->bHeadersPushed;
 	}
 
@@ -186,7 +187,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param bool $bHeadersPushed
 	 * @return $this
 	 */
-	protected function setHeadersPushed( $bHeadersPushed ) {
+	private function setHeadersPushed( $bHeadersPushed ) {
 		$this->bHeadersPushed = $bHeadersPushed;
 		return $this;
 	}

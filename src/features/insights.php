@@ -34,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oTrafficMod = $oCon->getModule( 'traffic' );
 		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
 		$oTrafficPro = $oTrafficMod->getProcessor();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Select $oTrafficSelector */
+		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
 		$oTrafficSelector = $oTrafficPro->getProcessorLogger()
 										->getDbHandler()
 										->getQuerySelector();

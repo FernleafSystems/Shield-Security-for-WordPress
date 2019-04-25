@@ -35,8 +35,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isAutoBlackListEnabled() ) {
-			add_filter( $oFO->prefix( 'firewall_die_message' ), array( $this, 'fAugmentFirewallDieMessage' ) );
-			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), array( $this, 'doBlackMarkCurrentVisitor' ) );
+			add_filter( $oFO->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
+			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), [ $this, 'doBlackMarkCurrentVisitor' ] );
 		}
 	}
 
@@ -92,15 +92,15 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oCon = $this->getCon();
 
 		if ( $oCon->getIsPage_PluginAdmin() && $this->isCurrentIpWhitelisted() ) {
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => array(
+				'strings'           => [
 					'title'             => sprintf( _wpsf__( '%s is ignoring you' ), $oCon->getHumanName() ),
 					'your_ip'           => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ),
 					'notice_message'    => _wpsf__( 'Your IP address is whitelisted and NO features you activate apply to you.' ),
 					'including_message' => _wpsf__( 'Including the hiding the WP Login page.' )
-				)
-			);
+				]
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
@@ -245,49 +245,49 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$sIp = $this->ip();
 		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
 		$aData = [
-			'strings' => array(
+			'strings' => [
 				'title'   => sprintf( _wpsf__( "You've been blocked by the %s plugin" ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$oCon->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
 						$oCon->getHumanName()
 					)
 				),
-				'lines'   => array(
+				'lines'   => [
 					sprintf( _wpsf__( 'Time remaining on black list: %s' ),
 						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
 					),
 					sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() ),
 					sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner and quote your IP address below.' ) ),
-				),
+				],
 				'your_ip' => 'Your IP address',
 				'unblock' => [
 					'title'   => _wpsf__( 'Auto-Unblock Your IP' ),
 					'you_can' => _wpsf__( 'You can automatically unblock your IP address by clicking the button below.' ),
 					'button'  => _wpsf__( 'Unblock My IP Address' ),
 				],
-			),
-			'vars'    => array(
+			],
+			'vars'    => [
 				'nonce'        => $oFO->getNonceActionData( 'uau' ),
 				'ip'           => $sIp,
 				'gasp_element' => $oFO->renderTemplate(
 					'snippets/gasp_js.php',
-					array(
+					[
 						'sCbName'   => $oLoginFO->getGaspKey(),
 						'sLabel'    => $oLoginFO->getTextImAHuman(),
 						'sAlert'    => $oLoginFO->getTextPleaseCheckBox(),
 						'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
 						'sUniqId'   => $sUniqId,
 						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
-						'strings'   => array(
+						'strings'   => [
 							'loading' => _wpsf__( 'Loading' )
-						)
-					)
+						]
+					]
 				),
-			),
-			'flags'   => array(
+			],
+			'flags'   => [
 				'is_autorecover'   => $oFO->isEnabledAutoUserRecover(),
 				'is_uau_permitted' => $oFO->getCanIpRequestAutoUnblock( $sIp ),
-			),
+			],
 		];
 		$this->loadWp()
 			 ->wpDie(
