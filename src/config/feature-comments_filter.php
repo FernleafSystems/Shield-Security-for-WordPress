@@ -113,6 +113,7 @@
     {
       "key":         "trusted_user_roles",
       "section":     "section_bot_comment_spam_common",
+      "premium":     true,
       "default":     [
         "administrator",
         "editor",

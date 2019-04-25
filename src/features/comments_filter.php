@@ -46,7 +46,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
 		$oWpComm = $this->loadWpComments();
 
-		// 1st are comments enabled on this post?
 		$oPost = Services::WpPost()->getById( $nPostId );
 		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
 			   && !$this->isTrustedCommenter( $sCommentEmail );
@@ -353,7 +352,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 			case 'trusted_user_roles' :
 				$sName = _wpsf__( 'Trusted Users' );
-				$sSummary = _wpsf__( "Don't Scan Comments For Users With The Following Roles" );
+				$sSummary = _wpsf__( "Comments By Users With The Following Roles Will Never Be Scanned" );
 				$sDescription = _wpsf__( "Shield doesn't normally scan comments from logged-in or registered users." )
 								.'<br />'._wpsf__( "Specify user roles here that shouldn't be scanned." )
 								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( 'Take a new line for each user role.' ) )
