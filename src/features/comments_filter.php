@@ -5,40 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @var array
-	 */
-	private $aCommentData;
-
-	/**
-	 */
-	protected function setupCustomHooks() {
-		add_filter(
-			'preprocess_comment',
-			function ( $aRawCommentData ) {
-				$this->aCommentData = $aRawCommentData;
-				return $aRawCommentData;
-			},
-			0
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getCommentData() {
-		return is_array( $this->aCommentData ) ? $this->aCommentData : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return array|mixed
-	 */
-	public function getCommentItem( $sKey ) {
-		$aD = $this->getCommentData();
-		return isset( $aD[ $sKey ] ) ? $aD[ $sKey ] : null;
-	}
-
-	/**
 	 * @param int    $nPostId
 	 * @param string $sCommentEmail
 	 * @return bool
@@ -73,7 +39,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 	/**
 	 * This is the same as isTrustedCommenter() except with an optimization in the order of the tests
-	 * since we already have a User object loaded and testing roles is quicker that querying for approved comments
+	 * since we already have a User object loaded and testing roles is quicker than querying for approved comments
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
@@ -136,20 +102,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * This is the point where you would want to do any options verification
-	 */
-	protected function doPrePluginOptionsSave() {
-		$this->setOpt( 'trusted_user_roles',
-			array_unique( array_filter( array_map(
-				function ( $sRole ) {
-					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
-				},
-				$this->getTrustedRoles()
-			) ) )
-		);
-	}
-
-	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -185,6 +137,24 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		if ( empty( $aCommentsFilters ) || !is_array( $aCommentsFilters ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'enable_comments_human_spam_filter_items' );
 		}
+
+		// clean roles
+		$this->setOpt( 'trusted_user_roles',
+			array_unique( array_filter( array_map(
+				function ( $sRole ) {
+					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+				},
+				$this->getTrustedRoles()
+			) ) )
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getHumanSpamFilterItems() {
+		$aItems = $this->getOpt( 'enable_comments_human_spam_filter_items' );
+		return is_array( $aItems ) ? $aItems : [];
 	}
 
 	/**

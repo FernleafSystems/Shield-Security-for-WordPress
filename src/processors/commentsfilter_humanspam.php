@@ -52,12 +52,6 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 		if ( !empty( $sCurrentStatus ) ) {
 			return;
 		}
-		// read the file of spam words
-		$sSpamWords = $this->getSpamBlacklist();
-		if ( empty( $sSpamWords ) ) {
-			return;
-		}
-		$aWords = explode( "\n", $sSpamWords );
 
 		$aItemsMap = array(
 			'comment_content' => $sComment,
@@ -67,19 +61,14 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 			'ip_address'      => $sUserIp,
 			'user_agent'      => $sUserAgent
 		);
-		$aDesiredItemsToCheck = $this->getOption( 'enable_comments_human_spam_filter_items' );
-		$aItemsToCheck = [];
-		foreach ( $aDesiredItemsToCheck as $sKey ) {
-			$aItemsToCheck[ $sKey ] = $aItemsMap[ $sKey ];
-		}
+		$aItemsToCheck = array_intersect_key( $aItemsMap, array_flip( $oFO->getHumanSpamFilterItems() ) );
 
-		foreach ( $aItemsToCheck as $sKey => $sItem ) {
-			foreach ( $aWords as $sWord ) {
-				if ( stripos( $sItem, $sWord ) !== false ) {
-					//mark as spam and exit;
+		foreach ( $this->getSpamBlacklist() as $sBlacklistWord ) {
+			foreach ( $aItemsToCheck as $sKey => $sItem ) {
+				if ( stripos( $sItem, $sBlacklistWord ) !== false ) { //mark as spam and exit;
 					$this->doStatIncrement( sprintf( 'spam.human.%s', $sKey ) );
 					$this->setCommentStatus( $this->getOption( 'comments_default_action_human_spam' ) );
-					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sWord, $sKey ) );
+					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sBlacklistWord, $sKey ) );
 					$oFO->setOptInsightsAt( 'last_comment_block_at' )
 						->setIpTransgressed();
 					break 2;
@@ -89,68 +78,39 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	}
 
 	/**
-	 * @return null|string
+	 * @return string[]
 	 */
-	protected function getSpamBlacklist() {
-		$oFs = $this->loadFS();
+	private function getSpamBlacklist() {
+		$aList = [];
+		$oFs = Services::WpFs();
 		$sBLFile = $this->getSpamBlacklistFile();
 
-		// first, does the file exist? If not import
-		if ( !$oFs->exists( $sBLFile ) || ( $this->time() - $oFs->getModifiedTime( $sBLFile ) > ( DAY_IN_SECONDS*2 ) ) ) {
-			$this->doSpamBlacklistUpdate();
+		// Download if doesn't exist or expired.
+		if ( !$oFs->exists( $sBLFile ) || ( $this->time() - $oFs->getModifiedTime( $sBLFile ) > WEEK_IN_SECONDS ) ) {
+			Services::WpFs()->deleteFile( $this->getSpamBlacklistFile() );
+			$this->importBlacklist();
 		}
-		return $this->readSpamList();
-	}
 
-	/**
-	 * @return string
-	 */
-	protected function readSpamList() {
-		$oFs = $this->loadFS();
-		$sBLFile = $this->getSpamBlacklistFile();
 		if ( $oFs->exists( $sBLFile ) ) {
 			$sList = $oFs->getFileContent( $sBLFile );
 			if ( !empty( $sList ) ) {
-				return implode( "\n", array_map( 'base64_decode', explode( "\n", $sList ) ) );
+				$aList = array_map( 'base64_decode', explode( "\n", $sList ) );
 			}
 		}
-		return '';
+		return $aList;
 	}
 
 	/**
 	 */
-	protected function doSpamBlacklistUpdate() {
-		Services::WpFs()->deleteFile( $this->getSpamBlacklistFile() );
-		$this->doSpamBlacklistImport();
-	}
-
-	/**
-	 */
-	protected function doSpamBlacklistImport() {
-		$oFs = $this->loadFS();
+	private function importBlacklist() {
+		$oFs = Services::WpFs();
 		$sBLFile = $this->getSpamBlacklistFile();
 		if ( !$oFs->exists( $sBLFile ) ) {
-
-			$sRawList = $this->doSpamBlacklistDownload();
-
-			if ( empty( $sRawList ) ) {
-				$sList = '';
+			$sRawList = Services::HttpRequest()->getContent( $this->getMod()->getDef( 'url_spam_blacklist_terms' ) );
+			$sList = '';
+			if ( !empty( $sRawList ) ) {
+				$sList = implode( "\n", array_map( 'base64_encode', array_filter( array_map( 'trim', explode( "\n", $sRawList ) ) ) ) );
 			}
-			else {
-				// filter out empty lines
-				$aWords = explode( "\n", $sRawList );
-				foreach ( $aWords as $nIndex => $sWord ) {
-					$sWord = trim( $sWord );
-					if ( empty( $sWord ) ) {
-						unset( $aWords[ $nIndex ] );
-					}
-					else {
-						$aWords[ $nIndex ] = base64_encode( $sWord );
-					}
-				}
-				$sList = implode( "\n", $aWords );
-			}
-
 			// save the list to disk for the future.
 			$oFs->putFileContent( $sBLFile, $sList );
 		}
@@ -159,14 +119,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 	/**
 	 * @return string
 	 */
-	protected function doSpamBlacklistDownload() {
-		return Services::HttpRequest()->getContent( $this->getMod()->getDef( 'url_spam_blacklist_terms' ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getSpamBlacklistFile() {
-		return $this->getCon()->getPath_Assets( 'spamblacklist.txt' );
+	private function getSpamBlacklistFile() {
+		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
 	}
 }
