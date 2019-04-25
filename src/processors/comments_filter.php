@@ -11,10 +11,11 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function onWpInit() {
 		parent::onWpInit();
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getMod();
 
-		if ( !Services::WpUsers()->isUserLoggedIn() ) {
-			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-			$oFO = $this->getMod();
+		$oUser = Services::WpUsers()->getCurrentWpUser();
+		if ( !$oFO->isUserTrusted( $oUser ) ) {
 			if ( $oFO->isEnabledGaspCheck() ) {
 				$this->getSubProGasp()->run();
 			}

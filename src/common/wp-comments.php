@@ -77,7 +77,7 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	 * @param string $sAuthorEmail
 	 * @return bool
 	 */
-	public function countAuthorApproved( $sAuthorEmail ) {
+	public function countApproved( $sAuthorEmail ) {
 		$nCount = 0;
 
 		if ( $this->loadDP()->validEmail( $sAuthorEmail ) ) {

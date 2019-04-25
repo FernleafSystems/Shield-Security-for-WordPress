@@ -59,9 +59,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	private function isTrustedCommenter( $sCommentEmail ) {
-		$bTrusted = $this->loadWpComments()->countAuthorApproved( $sCommentEmail ) >= $this->getTrustedCommentsMinimum();
+		$bTrusted = $this->loadWpComments()->countApproved( $sCommentEmail ) >= $this->getApprovedMinimum();
 
-		$aTrustedRoles = $this->getTrustedUserRoles();
+		$aTrustedRoles = $this->getTrustedRoles();
 		if ( !$bTrusted && !empty( $aTrustedRoles ) ) {
 			$oUser = Services::WpUsers()->getUserByEmail( $sCommentEmail );
 			if ( $oUser instanceof \WP_User ) {
@@ -70,6 +70,20 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		}
 
 		return $bTrusted;
+	}
+
+	/**
+	 * This is the same as isTrustedCommenter() except with an optimization in the order of the tests
+	 * since we already have a User object loaded and testing roles is quicker that querying for approved comments
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isUserTrusted( $oUser ) {
+		return ( $oUser instanceof \WP_User )
+			   && (
+				   count( array_intersect( $this->getTrustedRoles(), array_map( 'strtolower', $oUser->roles ) ) ) > 0
+				   || $this->loadWpComments()->countApproved( $oUser->user_email ) >= $this->getApprovedMinimum()
+			   );
 	}
 
 	/**
@@ -107,14 +121,14 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function getTrustedCommentsMinimum() {
+	public function getApprovedMinimum() {
 		return $this->getOpt( 'trusted_commenter_minimum', 1 );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getTrustedUserRoles() {
+	public function getTrustedRoles() {
 		$aRoles = [];
 		if ( $this->isPremium() ) {
 			$aRoles = $this->getOpt( 'trusted_user_roles', [] );
@@ -131,7 +145,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				function ( $sRole ) {
 					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
 				},
-				$this->getTrustedUserRoles()
+				$this->getTrustedRoles()
 			) ) )
 		);
 	}
