@@ -105,10 +105,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$sMessage = _wpsf__( "User session wasn't deleted" );
 		}
 
-		return array(
+		return [
 			'success' => $bSuccess,
 			'message' => $sMessage,
-		);
+		];
 	}
 
 	private function ajaxExec_BuildTableTraffic() {
@@ -126,10 +126,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() )
 			->setSecAdminUsers( $oSecAdminMod->getSecurityAdminUsers() );
 
-		return array(
+		return [
 			'success' => true,
 			'html'    => $oTableBuilder->buildTable()
-		);
+		];
 	}
 
 	/**
@@ -207,7 +207,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	protected function getDisplayStrings() {
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
-			array(
+			[
 				'um_current_user_settings'          => _wpsf__( 'Current User Sessions' ),
 				'um_username'                       => _wpsf__( 'Username' ),
 				'um_logged_in_at'                   => _wpsf__( 'Logged In At' ),
@@ -215,7 +215,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				'um_last_activity_uri'              => _wpsf__( 'Last Activity URI' ),
 				'um_login_ip'                       => _wpsf__( 'Login IP' ),
 				'um_need_to_enable_user_management' => _wpsf__( 'You need to enable the User Management feature to view and manage user sessions.' ),
-			)
+			]
 		);
 	}
 
@@ -285,13 +285,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return int
 	 */
 	public function getPassStrengthName( $nStrength ) {
-		$aMap = array(
+		$aMap = [
 			_wpsf__( 'Very Weak' ),
 			_wpsf__( 'Weak' ),
 			_wpsf__( 'Medium' ),
 			_wpsf__( 'Strong' ),
 			_wpsf__( 'Very Strong' ),
-		);
+		];
 		return $aMap[ max( 0, min( 4, $nStrength ) ) ];
 	}
 
@@ -425,32 +425,32 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
 
-		$aNotices = array(
+		$aNotices = [
 			'title'    => _wpsf__( 'Users' ),
 			'messages' => []
-		);
+		];
 
 		{ //admin user
 			$oAdmin = Services::WpUsers()->getUserByUsername( 'admin' );
 			if ( !empty( $oAdmin ) && user_can( $oAdmin, 'manage_options' ) ) {
-				$aNotices[ 'messages' ][ 'admin' ] = array(
+				$aNotices[ 'messages' ][ 'admin' ] = [
 					'title'   => 'Admin User',
 					'message' => sprintf( _wpsf__( "Default 'admin' user still available." ) ),
 					'href'    => '',
 					'rec'     => _wpsf__( "Default 'admin' user should be disabled or removed." )
-				);
+				];
 			}
 		}
 
 		{//password policies
 			if ( !$this->isPasswordPoliciesEnabled() ) {
-				$aNotices[ 'messages' ][ 'password' ] = array(
+				$aNotices[ 'messages' ][ 'password' ] = [
 					'title'   => 'Password Policies',
 					'message' => _wpsf__( "Strong password policies are not enforced." ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Password policies should be turned-on.' )
-				);
+				];
 			}
 		}
 
@@ -465,21 +465,21 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'User Management' ),
 				'sub'   => _wpsf__( 'Sessions Control & Password Policies' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
 			$bHasIdle = $this->hasSessionIdleTimeout();
-			$aThis[ 'key_opts' ][ 'idle' ] = array(
+			$aThis[ 'key_opts' ][ 'idle' ] = [
 				'name'    => _wpsf__( 'Idle Users' ),
 				'enabled' => $bHasIdle,
 				'summary' => $bHasIdle ?
@@ -487,10 +487,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					: _wpsf__( 'Idle sessions wont be terminated' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
-			);
+			];
 
 			$bLocked = $this->isLockToIp();
-			$aThis[ 'key_opts' ][ 'lock' ] = array(
+			$aThis[ 'key_opts' ][ 'lock' ] = [
 				'name'    => _wpsf__( 'Lock To IP' ),
 				'enabled' => $bLocked,
 				'summary' => $bLocked ?
@@ -498,12 +498,12 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					: _wpsf__( "Sessions aren't locked to IP address" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToOption( 'session_lock_location' ),
-			);
+			];
 
 			$bPolicies = $this->isPasswordPoliciesEnabled();
 
 			$bPwned = $bPolicies && $this->isPassPreventPwned();
-			$aThis[ 'key_opts' ][ 'pwned' ] = array(
+			$aThis[ 'key_opts' ][ 'pwned' ] = [
 				'name'    => _wpsf__( 'Pwned Passwords' ),
 				'enabled' => $bPwned,
 				'summary' => $bPwned ?
@@ -511,10 +511,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					: _wpsf__( 'Pwned passwords are allowed on this site' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'pass_prevent_pwned' ),
-			);
+			];
 
 			$bIndepthPolices = $bPolicies && $this->isPremium();
-			$aThis[ 'key_opts' ][ 'policies' ] = array(
+			$aThis[ 'key_opts' ][ 'policies' ] = [
 				'name'    => _wpsf__( 'Password Policies' ),
 				'enabled' => $bIndepthPolices,
 				'summary' => $bIndepthPolices ?
@@ -522,7 +522,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					: _wpsf__( 'Limited or no password polices are active' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
-			);
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -541,57 +541,57 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 			case 'section_enable_plugin_feature_user_accounts_management' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_passwords' :
 				$sTitle = _wpsf__( 'Password Policies' );
 				$sTitleShort = _wpsf__( 'Password Policies' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Have full control over passwords used by users on the site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Requirements' ), sprintf( 'WordPress v%s+', '4.4.0' ) ),
-				);
+				];
 				break;
 
 			case 'section_admin_login_notification' :
 				$sTitle = _wpsf__( 'Admin Login Notification' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Notifications' );
 				break;
 
 			case 'section_multifactor_authentication' :
 				$sTitle = _wpsf__( 'Multi-Factor User Authentication' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Multi-Factor Authentication' );
 				break;
 
 			case 'section_user_session_management' :
 				$sTitle = _wpsf__( 'User Session Management' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Session Options' );
 				break;
 
 			case 'section_suspend' :
 				$sTitleShort = _wpsf__( 'User Suspension' );
 				$sTitle = _wpsf__( 'Automatic And Manual User Suspension' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatically suspends accounts to prevent login by certain users.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
-				);
+				];
 				break;
 
 			default:

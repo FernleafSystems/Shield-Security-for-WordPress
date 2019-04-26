@@ -25,9 +25,9 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function run() {
 		$oFO = $this->getMod();
-		add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 5 );
-		add_filter( $oFO->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
-		add_filter( $oFO->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+		add_filter( 'preprocess_comment', [ $this, 'doCommentChecking' ], 5 );
+		add_filter( $oFO->prefix( 'cf_status' ), [ $this, 'getCommentStatus' ], 1 );
+		add_filter( $oFO->prefix( 'cf_status_expl' ), [ $this, 'getCommentStatusExplanation' ], 1 );
 	}
 
 	/**

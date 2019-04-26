@@ -79,20 +79,20 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'Firewall' ),
 				'sub'   => _wpsf__( 'Block Malicious Requests' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$aThis[ 'key_opts' ][ 'mod' ] = array(
+			$aThis[ 'key_opts' ][ 'mod' ] = [
 				'name'    => _wpsf__( 'Firewall' ),
 				'enabled' => $this->isModOptEnabled(),
 				'summary' => $this->isModOptEnabled() ?
@@ -100,11 +100,11 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 					: _wpsf__( 'Your site is not protected against malicious requests' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
-			);
+			];
 
 			//ignoring admin isn't a good idea
 			$bAdminIncluded = !$this->isIgnoreAdmin();
-			$aThis[ 'key_opts' ][ 'admin' ] = array(
+			$aThis[ 'key_opts' ][ 'admin' ] = [
 				'name'    => _wpsf__( 'Ignore Admins' ),
 				'enabled' => $bAdminIncluded,
 				'summary' => $bAdminIncluded ?
@@ -112,7 +112,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 					: _wpsf__( "Firewall rules aren't applied to admins" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToOption( 'whitelist_admins' ),
-			);
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -130,39 +130,39 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			case 'section_enable_plugin_feature_wordpress_firewall' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Firewall' ) ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_firewall_blocking_options' :
 				$sTitle = _wpsf__( 'Firewall Blocking Options' );
-				$aSummary = array(
+				$aSummary = [
 					_wpsf__( 'Here you choose what kind of malicious data to scan for.' ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
 						_wpsf__( 'Turn on as many options here as you can.' ) )
 					.' '._wpsf__( 'If you find an incompatibility or something stops working, un-check 1 option at a time until you find the problem or review the Audit Trail.' ),
-				);
+				];
 				$sTitleShort = _wpsf__( 'Firewall Blocking' );
 				break;
 
 			case 'section_choose_firewall_block_response' :
 				$sTitle = _wpsf__( 'Choose Firewall Block Response' );
-				$aSummary = array(
+				$aSummary = [
 					_wpsf__( 'Here you choose how the plugin will respond when it detects malicious data.' ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Choose the option "%s".' ), _wpsf__( 'Die With Message' ) ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Firewall Response' );
 				break;
 
 			case 'section_whitelist' :
 				$sTitle = _wpsf__( 'Whitelists - Pages, Parameters, and Users that by-pass the Firewall' );
-				$aSummary = array(
+				$aSummary = [
 					_wpsf__( 'In principle you should not need to whitelist anything or anyone unless you have discovered a collision with another plugin.' ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Do not whitelist anything unless you are confident in what you are doing.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Whitelist' );
 				break;
 

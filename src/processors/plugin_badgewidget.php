@@ -23,13 +23,13 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 		parent::__construct(
 			$oMod->prefixOptionKey( 'plugin_badge' ),
 			sprintf( _wpsf__( '%s Plugin Badge' ), $this->getCon()->getHumanName() ),
-			array(
+			[
 				'description' => sprintf( _wpsf__( 'You can now help spread the word about the %s plugin anywhere on your site' ), $this->getCon()
 																																		->getHumanName() ),
-			)
+			]
 		);
 
-		add_shortcode( 'SHIELD_BADGE', array( $this, 'renderBadge' ) );
+		add_shortcode( 'SHIELD_BADGE', [ $this, 'renderBadge' ] );
 	}
 
 	/**
@@ -60,14 +60,14 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	 */
 	public function renderBadge() {
 		$oCon = $this->getCon();
-		$aData = array(
-			'strings' => array(
+		$aData = [
+			'strings' => [
 				'plugin_name' => $oCon->getHumanName(),
-			),
-			'hrefs'   => array(
+			],
+			'hrefs'   => [
 				'img_src' => $oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' )
-			)
-		);
+			]
+		];
 
 		return $this->getMod()
 					->loadRenderer( $oCon->getPath_Templates().'php' )

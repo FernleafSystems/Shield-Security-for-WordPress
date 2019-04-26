@@ -88,11 +88,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sEmail = get_bloginfo( 'admin_email' );
 		}
 
-		$aMessage = array(
+		$aMessage = [
 			_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
 			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
 			''
-		);
+		];
 
 		if ( $bSendAsLink ) {
 			$aMessage[] = sprintf( _wpsf__( 'Click the verify link: %s' ), $this->generateCanSendEmailVerifyLink() );
@@ -165,14 +165,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	protected function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
-		$aTwoAuthRoles = array(
+		$aTwoAuthRoles = [
 			'type' => 'multiple_select',
 			0      => _wpsf__( 'Subscribers' ),
 			1      => _wpsf__( 'Contributors' ),
 			2      => _wpsf__( 'Authors' ),
 			3      => _wpsf__( 'Editors' ),
 			8      => _wpsf__( 'Administrators' )
-		);
+		];
 		if ( $bAsOptDefaults ) {
 			unset( $aTwoAuthRoles[ 'type' ] );
 			unset( $aTwoAuthRoles[ 0 ] );
@@ -516,11 +516,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	protected function getPremiumOnlyIntegration() {
-		$aIntegrations = array(
+		$aIntegrations = [
 			'WooCommerce'            => 'WooCommerce',
 			'Easy_Digital_Downloads' => 'Easy Digital Downloads',
 			'BuddyPress'             => 'BuddyPress',
-		);
+		];
 
 		$sIntegration = '';
 		foreach ( $aIntegrations as $sInt => $sName ) {
@@ -590,14 +590,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					  ->getProcessorBackupCodes()
 					  ->resetSecret( Services::WpUsers()->getCurrentWpUser() );
 
-		foreach ( array( 20, 15, 10, 5 ) as $nPos ) {
+		foreach ( [ 20, 15, 10, 5 ] as $nPos ) {
 			$sPass = substr_replace( $sPass, '-', $nPos, 0 );
 		}
 
-		return array(
+		return [
 			'code'    => $sPass,
 			'success' => true
-		);
+		];
 	}
 
 	/**
@@ -628,9 +628,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			 ->getProcessorBackupCodes()
 			 ->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
 		$this->setFlashAdminNotice( _wpsf__( 'Multi-factor login backup code has been removed from your profile' ) );
-		return array(
+		return [
 			'success' => true
-		);
+		];
 	}
 
 	/**
@@ -638,11 +638,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	private function ajaxExec_Disable2faEmail() {
 		$this->setEnabled2FaEmail( false );
-		return array(
+		return [
 			'success'     => true,
 			'message'     => _wpsf__( '2FA by email has been disabled' ),
 			'page_reload' => true
-		);
+		];
 	}
 
 	/**
@@ -664,10 +664,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				 ->sendEmailVerifyCanSend();
 		}
 
-		return array(
+		return [
 			'success' => $bSuccess,
 			'message' => $sMessage
-		);
+		];
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -676,10 +676,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		wp_localize_script(
 			$this->prefix( 'global-plugin' ),
 			'icwp_wpsf_vars_lg',
-			array(
+			[
 				'ajax_gen_backup_codes' => $this->getAjaxActionData( 'gen_backup_codes' ),
 				'ajax_del_backup_codes' => $this->getAjaxActionData( 'del_backup_codes' ),
-			)
+			]
 		);
 		wp_enqueue_script( 'jquery-ui-dialog' );
 		wp_enqueue_style( 'wp-jquery-ui-dialog' );
@@ -690,14 +690,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'Login Guard' ),
 				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
@@ -708,7 +708,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
 			$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
 			$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
-			$aThis[ 'key_opts' ][ 'bot_login' ] = array(
+			$aThis[ 'key_opts' ][ 'bot_login' ] = [
 				'name'    => _wpsf__( 'Brute Force Login' ),
 				'enabled' => $bBotLogin,
 				'summary' => $bBotLogin ?
@@ -716,8 +716,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					: _wpsf__( 'Login forms are not protected against brute force bot attacks' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
-			);
-			$aThis[ 'key_opts' ][ 'bot_register' ] = array(
+			];
+			$aThis[ 'key_opts' ][ 'bot_register' ] = [
 				'name'    => _wpsf__( 'Bot User Register' ),
 				'enabled' => $bBotRegister,
 				'summary' => $bBotRegister ?
@@ -725,8 +725,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					: _wpsf__( 'Registration forms are not protected against automated bots' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
-			);
-			$aThis[ 'key_opts' ][ 'bot_password' ] = array(
+			];
+			$aThis[ 'key_opts' ][ 'bot_password' ] = [
 				'name'    => _wpsf__( 'Brute Force Lost Password' ),
 				'enabled' => $bBotPassword,
 				'summary' => $bBotPassword ?
@@ -734,11 +734,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
-			);
+			];
 
 			$bHas2Fa = $this->isEmailAuthenticationActive()
 					   || $this->isEnabledGoogleAuthenticator() || $this->isYubikeyActive();
-			$aThis[ 'key_opts' ][ '2fa' ] = array(
+			$aThis[ 'key_opts' ][ '2fa' ] = [
 				'name'    => _wpsf__( 'Identity Verification' ),
 				'enabled' => $bHas2Fa,
 				'summary' => $bHas2Fa ?
@@ -746,7 +746,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					: _wpsf__( 'No 2FA options, such as Google Authenticator, are active' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_2fa_email' ),
-			);
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -765,75 +765,75 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			case 'section_enable_plugin_feature_login_protection' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Login Guard blocks all automated and brute force attempts to log in to your site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Login Guard' ) ) )
-				);
+				];
 				break;
 
 			case 'section_recaptcha' :
 				$sTitle = 'Google reCAPTCHA';
 				$sTitleShort = 'reCAPTCHA';
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Adds Google reCAPTCHA to the Login Forms.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this turned on.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings." ) ),
-				);
+				];
 				break;
 
 			case 'section_rename_wplogin' :
 				$sTitle = _wpsf__( 'Hide WordPress Login Page' );
 				$sTitleShort = _wpsf__( 'Hide Login Page' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.' ) )
-				);
+				];
 				break;
 
 			case 'section_multifactor_authentication' :
 				$sTitle = _wpsf__( 'Multi-Factor Authentication' );
 				$sTitleShort = _wpsf__( 'Multi-Factor Auth' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
 					_wpsf__( 'You may combine multiple authentication factors for increased security.' )
-				);
+				];
 				break;
 
 			case 'section_2fa_email' :
 				$sTitle = _wpsf__( 'Email Two-Factor Authentication' );
 				$sTitleShort = _wpsf__( '2FA - Email' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using email-based one-time-passwords.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
 					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
-				);
+				];
 				break;
 
 			case 'section_2fa_ga' :
 				$sTitle = _wpsf__( 'Google Authenticator Two-Factor Authentication' );
 				$sTitleShort = _wpsf__( '2FA - Google Authenticator' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.' ) ),
 					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
-				);
+				];
 				break;
 
 			case 'section_brute_force_login_protection' :
 				$sTitle = _wpsf__( 'Brute Force Login Protection' );
 				$sTitleShort = _wpsf__( 'reCAPTCHA & Bots' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
-				);
+				];
 				break;
 
 			case 'section_yubikey_authentication' :
 				$sTitle = _wpsf__( 'Yubikey Two-Factor Authentication' );
 				$sTitleShort = _wpsf__( '2FA -Yubikey' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using Yubikey one-time-passwords.' ) ),
 					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
-				);
+				];
 				break;
 
 			default:

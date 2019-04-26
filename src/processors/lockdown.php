@@ -32,8 +32,8 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( $oFO->isXmlrpcDisabled() ) {
-			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
-			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
+			add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
+			add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		}
 	}
 
@@ -94,7 +94,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oWpRest->isRest() && $oFO->isRestApiAnonymousAccessDisabled()
 			 && !$oFO->isPermittedAnonRestApiNamespace( $oWpRest->getNamespace() ) ) {
 			// 99 so that we jump in just before the always-on WordPress cookie auth.
-			add_filter( 'rest_authentication_errors', array( $this, 'disableAnonymousRestApi' ), 99 );
+			add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
 		}
 	}
 
@@ -132,7 +132,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 				'shield_block_anon_restapi',
 				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getCon()
 																												  ->getHumanName() ),
-				array( 'status' => rest_authorization_required_code() ) );
+				[ 'status' => rest_authorization_required_code() ] );
 			$this->addToAuditEntry(
 				sprintf( 'Blocked Anonymous API Access through "%s" namespace', Services::Rest()->getNamespace() ),
 				1,

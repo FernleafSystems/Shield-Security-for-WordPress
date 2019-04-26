@@ -5,8 +5,8 @@ class ICWP_WPSF_Processor_AuditTrail_Wordpress extends ICWP_WPSF_AuditTrail_Audi
 	/**
 	 */
 	public function run() {
-		add_action( '_core_updated_successfully', array( $this, 'auditCoreUpdated' ) );
-		add_action( 'update_option_permalink_structure', array( $this, 'auditPermalinkStructure' ), 10, 2 );
+		add_action( '_core_updated_successfully', [ $this, 'auditCoreUpdated' ] );
+		add_action( 'update_option_permalink_structure', [ $this, 'auditPermalinkStructure' ], 10, 2 );
 	}
 
 	/**

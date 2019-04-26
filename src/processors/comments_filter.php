@@ -26,9 +26,9 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 				$this->getSubProRecaptcha()->run();
 			}
 
-			add_filter( 'pre_comment_approved', array( $this, 'doSetCommentStatus' ), 1 );
-			add_filter( 'pre_comment_content', array( $this, 'doInsertCommentStatusExplanation' ), 1, 1 );
-			add_filter( 'comment_notification_recipients', array( $this, 'clearCommentNotificationEmail' ), 100, 1 );
+			add_filter( 'pre_comment_approved', [ $this, 'doSetCommentStatus' ], 1 );
+			add_filter( 'pre_comment_content', [ $this, 'doInsertCommentStatusExplanation' ], 1, 1 );
+			add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 		}
 	}
 
@@ -77,18 +77,18 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$oWpPlugins = Services::WpPlugins();
 			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );
 			if ( $oWpPlugins->isActive( $sPluginFile ) ) {
-				$aRenderData = array(
+				$aRenderData = [
 					'notice_attributes' => $aNoticeAttributes,
-					'strings'           => array(
+					'strings'           => [
 						'title'                   => 'Akismet is Running',
 						'appears_running_akismet' => _wpsf__( 'It appears you have Akismet Anti-SPAM running alongside the our human Anti-SPAM filter.' ),
 						'not_recommended'         => _wpsf__( 'This is not recommended and you should disable Akismet.' ),
 						'click_to_deactivate'     => _wpsf__( 'Click to deactivate Akismet now.' ),
-					),
-					'hrefs'             => array(
+					],
+					'hrefs'             => [
 						'deactivate' => $oWpPlugins->getUrl_Deactivate( $sPluginFile )
-					)
-				);
+					]
+				];
 				$this->insertAdminNotice( $aRenderData );
 			}
 		}

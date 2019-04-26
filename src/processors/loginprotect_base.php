@@ -72,7 +72,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 				// LearnPress
 				add_action( 'learn-press/after-form-login-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
-				add_action( 'learn-press/before-checkout-form-login-button', [ $this,'printFormItems_LearnPress' ], 100 );
+				add_action( 'learn-press/before-checkout-form-login-button', [
+					$this,
+					'printFormItems_LearnPress'
+				], 100 );
 				add_filter( 'learn-press/login-validate-field', [ $this, 'checkReqLogin_LearnPress' ], 100 );
 			}
 		}
@@ -115,7 +118,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'edd_process_register_form', [ $this, 'checkReqRegistration_Edd' ], 10 );
 
 				add_action( 'woocommerce_register_form', [ $this, 'printRegisterFormItems_Woo' ], 10 );
-				add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'printRegistrationFormItems_Woo' ], 10 );
+				add_action( 'woocommerce_after_checkout_registration_form', [
+					$this,
+					'printRegistrationFormItems_Woo'
+				], 10 );
 				add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkReqRegistration_Woo' ], 10, 2 );
 
 				// MemberPress - Checkout == Registration
@@ -126,12 +132,18 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 				add_action( 'um_submit_form_register', [ $this, 'checkReqRegistration_UltMem' ], 5, 0 );
 				// LearnPress
 				add_action( 'learn-press/after-form-register-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
-				add_filter( 'learn-press/register-validate-field', [ $this, 'checkReqRegistration_LearnPress' ], 100, 1 );
+				add_filter( 'learn-press/register-validate-field', [
+					$this,
+					'checkReqRegistration_LearnPress'
+				], 100, 1 );
 			}
 		}
 
 		if ( $b3rdParty && $oFO->isProtect( 'checkout_woo' ) ) {
-			add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'printRegistrationFormItems_Woo' ], 10 );
+			add_action( 'woocommerce_after_checkout_registration_form', [
+				$this,
+				'printRegistrationFormItems_Woo'
+			], 10 );
 			add_action( 'woocommerce_after_checkout_validation', [ $this, 'checkReqCheckout_Woo' ], 10, 2 );
 		}
 	}

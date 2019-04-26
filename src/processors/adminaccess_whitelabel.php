@@ -8,9 +8,9 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 		add_filter( $this->prefix( 'is_relabelled' ), '__return_true' );
-		add_filter( $oFO->prefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
-		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
-		add_action( 'admin_print_footer_scripts-plugin-editor.php', array( $this, 'hideFromPluginEditor' ) );
+		add_filter( $oFO->prefix( 'plugin_labels' ), [ $this, 'doRelabelPlugin' ] );
+		add_filter( 'plugin_row_meta', [ $this, 'fRemoveDetailsMetaLink' ], 200, 2 );
+		add_action( 'admin_print_footer_scripts-plugin-editor.php', [ $this, 'hideFromPluginEditor' ] );
 	}
 
 	public function onWpInit() {
@@ -31,11 +31,11 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function hideUpdates() {
 		$sCurrent = $this->loadWp()->getCurrentPage();
-		if ( in_array( $sCurrent, array( 'plugins.php', 'update-core.php' ) ) ) {
-			add_filter( 'site_transient_update_plugins', array( $this, 'hidePluginUpdatesFromUI' ) );
+		if ( in_array( $sCurrent, [ 'plugins.php', 'update-core.php' ] ) ) {
+			add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
 		}
 		else {
-			add_filter( 'wp_get_update_data', array( $this, 'adjustUpdateDataCount' ) );
+			add_filter( 'wp_get_update_data', [ $this, 'adjustUpdateDataCount' ] );
 		}
 	}
 

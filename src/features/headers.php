@@ -20,7 +20,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	public function isEnabledXFrame() {
-		return in_array( $this->getOpt( 'x_frame' ), array( 'on_sameorigin', 'on_deny' ) );
+		return in_array( $this->getOpt( 'x_frame' ), [ 'on_sameorigin', 'on_deny' ] );
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function getReferrerPolicyValue() {
 		$sValue = $this->getOpt( 'x_referrer_policy' );
-		return in_array( $sValue, array( 'empty', 'disabled' ) ) ? '' : $sValue;
+		return in_array( $sValue, [ 'empty', 'disabled' ] ) ? '' : $sValue;
 	}
 
 	/**
@@ -126,14 +126,14 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'HTTP Security Headers' ),
 				'sub'   => _wpsf__( 'Protect Visitors With Powerful HTTP Headers' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
@@ -141,7 +141,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		else {
 			$bAllEnabled = $this->isEnabledXFrame() && $this->isEnabledXssProtection()
 						   && $this->isEnabledContentTypeHeader() && $this->isReferrerPolicyEnabled();
-			$aThis[ 'key_opts' ][ 'all' ] = array(
+			$aThis[ 'key_opts' ][ 'all' ] = [
 				'name'    => _wpsf__( 'HTTP Headers' ),
 				'enabled' => $bAllEnabled,
 				'summary' => $bAllEnabled ?
@@ -149,9 +149,9 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					: _wpsf__( "At least one of the HTTP Headers hasn't been set" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_security_headers' ),
-			);
+			];
 			$bCsp = $this->isContentSecurityPolicyEnabled();
-			$aThis[ 'key_opts' ][ 'csp' ] = array(
+			$aThis[ 'key_opts' ][ 'csp' ] = [
 				'name'    => _wpsf__( 'Content Security Policies' ),
 				'enabled' => $bCsp,
 				'summary' => $bCsp ?
@@ -159,7 +159,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					: _wpsf__( "Content Security Policies aren't active" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
-			);
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -178,28 +178,28 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 			case 'section_enable_plugin_feature_headers' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_security_headers' :
 				$sTitle = _wpsf__( 'Advanced Security Headers' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Security Headers' );
 				break;
 
 			case 'section_content_security_policy' :
 				$sTitle = _wpsf__( 'Content Security Policy' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Content Security Policy' );
 				break;
 
