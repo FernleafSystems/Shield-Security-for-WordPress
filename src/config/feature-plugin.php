@@ -447,6 +447,15 @@
       "created_at",
       "deleted_at"
     ],
+    "geoip_table_name":    "geoip",
+    "geoip_table_columns": [
+      "id",
+      "ip",
+      "meta",
+      "created_at",
+      "deleted_at"
+    ],
+    "url_geoip": "https://api.redirect.li/v1/ip/",
     "active_plugin_features": [
       {
         "slug":          "insights",

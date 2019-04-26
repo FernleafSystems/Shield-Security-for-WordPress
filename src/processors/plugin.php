@@ -27,6 +27,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->getSubProImportExport()->run();
 		}
 
+		$this->getSubProGeoip()->run();
+
 		switch ( Services::Request()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
@@ -54,42 +56,49 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Badge|mixed
+	 * @return ICWP_WPSF_Processor_Plugin_Badge
 	 */
 	protected function getSubProBadge() {
 		return $this->getSubPro( 'badge' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_CronDaily|mixed
+	 * @return ICWP_WPSF_Processor_Plugin_Geoip
+	 */
+	public function getSubProGeoip() {
+		return $this->getSubPro( 'geoip' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_Processor_Plugin_CronDaily
 	 */
 	protected function getSubProCronDaily() {
 		return $this->getSubPro( 'crondaily' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_CronHourly|mixed
+	 * @return ICWP_WPSF_Processor_Plugin_CronHourly
 	 */
 	protected function getSubProCronHourly() {
 		return $this->getSubPro( 'cronhourly' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Tracking|mixed
+	 * @return ICWP_WPSF_Processor_Plugin_Tracking
 	 */
 	protected function getSubProTracking() {
 		return $this->getSubPro( 'tracking' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_ImportExport|mixed
+	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
 	 */
 	public function getSubProImportExport() {
 		return $this->getSubPro( 'importexport' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Notes|mixed
+	 * @return ICWP_WPSF_Processor_Plugin_Notes
 	 */
 	public function getSubProcessorNotes() {
 		return $this->getSubPro( 'notes' );
@@ -101,6 +110,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	protected function getSubProMap() {
 		return [
 			'badge'        => 'ICWP_WPSF_Processor_Plugin_Badge',
+			'geoip'        => 'ICWP_WPSF_Processor_Plugin_Geoip',
 			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
 			'notes'        => 'ICWP_WPSF_Processor_Plugin_Notes',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
