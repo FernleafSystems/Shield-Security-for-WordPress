@@ -2,8 +2,6 @@
 
 class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_BaseWpsf {
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
-
 	/**
 	 */
 	public function run() {
@@ -146,14 +144,5 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getScanFrequency();
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getIcCronName();
 	}
 }

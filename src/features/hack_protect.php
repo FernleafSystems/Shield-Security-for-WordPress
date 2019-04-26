@@ -12,9 +12,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 */
 	protected function updateHandler() {
-		$this->clearCrons()
+		$this->setPtgUpdateStoreFormat( true );
 //			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
-			 ->setPtgUpdateStoreFormat( true );
 	}
 
 	/**
@@ -115,7 +114,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function doExtraSubmitProcessing() {
 		$this->clearIcSnapshots();
-		$this->clearCrons();
 		$this->cleanFileExclusions();
 		$this->cleanPtgFileExtensions();
 
@@ -126,24 +124,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 		$this->resetRtBackupFiles();
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function clearCrons() {
-		$aCrons = [
-			$this->getIcCronName(),
-			$this->getUfcCronName(),
-			$this->getWcfCronName(),
-			$this->getWpvCronName(),
-			$this->getPtgCronName()
-		];
-		$oCron = $this->loadWpCronProcessor();
-		foreach ( $aCrons as $sCron ) {
-			$oCron->deleteCronJob( $sCron );
-		}
-		return $this;
 	}
 
 	/**
@@ -254,13 +234,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getIcCronName() {
-		return $this->prefix( $this->getDef( 'cron_name_integrity_check' ) );
-	}
-
-	/**
 	 * @param array[] $aUsers
 	 * @return $this
 	 */
@@ -273,13 +246,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getUnrecognisedFileScannerOption() {
 		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUfcCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_ufc' ) );
 	}
 
 	/**
@@ -372,13 +338,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getWcfCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_wcf' ) );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isWcfScanAutoRepair() {
@@ -413,13 +372,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isWpvulnEnabled() {
 		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getWpvCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_wpv' ) );
 	}
 
 	/**
@@ -487,13 +439,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'ptg_extensions',
 			$this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
 		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getPtgCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_ptg' ) );
 	}
 
 	/**
