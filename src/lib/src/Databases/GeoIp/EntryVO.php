@@ -18,6 +18,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class EntryVO extends Base\EntryVO {
 
 	/**
+	 * @return string
+	 */
+	public function getCountryCode() {
+		return isset( $this->meta[ 'countryCode' ] ) ? $this->meta[ 'countryCode' ] : '';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCountryName() {
+		return isset( $this->meta[ 'countryName' ] ) ? $this->meta[ 'countryName' ] : '';
+	}
+
+	/**
 	 * @param string $sProperty
 	 * @return mixed
 	 */

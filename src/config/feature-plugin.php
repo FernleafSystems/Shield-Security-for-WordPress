@@ -455,7 +455,6 @@
       "created_at",
       "deleted_at"
     ],
-    "url_geoip": "https://api.redirect.li/v1/ip/",
     "active_plugin_features": [
       {
         "slug":          "insights",

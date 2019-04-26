@@ -188,8 +188,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oPro = $this->getProcessor();
 		$oTableBuilder = ( new Shield\Tables\Build\Traffic() )
 			->setMod( $this )
-			->setDbHandler( $oPro->getProcessorLogger()->getDbHandler() )
-			->setGeoIpDbSource( $this->getCon()->getPath_Assets( 'db/GeoIp2/GeoLite2-Country.mmdb' ) );
+			->setDbHandler( $oPro->getProcessorLogger()->getDbHandler() );
 
 		return array(
 			'success' => true,
