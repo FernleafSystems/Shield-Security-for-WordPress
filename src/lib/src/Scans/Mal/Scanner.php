@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugins;
 
 /**
  * Class Scanner
@@ -21,7 +22,6 @@ class Scanner {
 	 */
 	public function run() {
 		$oFs = Services::WpFs();
-		$oCoreHashes = Services::CoreFileHashes();
 		$oResultSet = new ResultsSet();
 
 		try {
@@ -37,16 +37,14 @@ class Scanner {
 			$aSigs = $this->getMalSigs();
 			foreach ( $oDirIt as $oFsItem ) {
 				/** @var \SplFileInfo $oFsItem */
-				$sFullPath = $oFsItem->getPathname();
+				$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
 
 				$sContent = $oFs->getFileContent( $sFullPath );
 				if ( !empty( $sContent ) ) {
 					foreach ( $aSigs as $sSig ) {
 						if ( strpos( $sContent, $sSig ) !== false ) {
 
-							// If it's a WP Core file and its hash is valid, exclude it.
-							$sCoreHash = $oCoreHashes->getFileHash( $sFullPath );
-							if ( !empty( $sCoreHash ) && $sCoreHash === md5_file( $sFullPath ) ) {
+							if ( $this->canExcludeFile( $sFullPath ) ) {
 								continue;
 							}
 
@@ -72,15 +70,61 @@ class Scanner {
 	}
 
 	/**
-	 * @param string $sPath
+	 * @param string $sFullPath - normalized
 	 * @return bool
 	 */
-	protected function canExcludeFile( $sPath ) {
-		$bCanExclude = false;
-		$oCoreHashes = Services::CoreFileHashes();
+	private function canExcludeFile( $sFullPath ) {
+		return $this->isValidCoreFile( $sFullPath ) || $this->isValidPluginFile( $sFullPath );
+	}
 
+	/**
+	 * @param string $sFullPath - normalized
+	 * @return bool
+	 */
+	private function isValidPluginFile( $sFullPath ) {
+		$bCanExclude = false;
+
+		$sPluginsDir = wp_normalize_path( WP_PLUGIN_DIR );
+		$oWpPlugins = Services::WpPlugins();
+		$oWpFs = Services::WpFs();
+
+		if ( strpos( $sFullPath, $sPluginsDir ) === 0 ) {
+
+			$sFragment = ltrim( str_replace( $sPluginsDir, '', $sFullPath ), '/' );
+			$aParts = explode( '/', $sFragment );
+			$sDir = array_shift( $aParts );
+			$sRemainder = implode( '/', $aParts );
+
+			foreach ( $oWpPlugins->getInstalledPluginFiles() as $sPluginFile ) {
+				if ( $sDir == dirname( $sPluginFile ) ) {
+					$oThePlugin = $oWpPlugins->getPluginAsVo( $sPluginFile );
+					try {
+						$sTmpFile = ( new Plugins() )
+							->setWorkingSlug( $oThePlugin->slug )
+							->fileFromVersion( $oThePlugin->Version, $sRemainder );
+						if ( $oWpFs->exists( $sTmpFile ) && md5_file( $sTmpFile ) === md5_file( $sFullPath ) ) {
+							$bCanExclude = true;
+						}
+						$oWpFs->deleteFile( $sTmpFile );
+					}
+					catch ( \Exception $oE ) {
+					}
+					break;
+				}
+			}
+		}
 
 		return $bCanExclude;
+	}
+
+	/**
+	 * @param string $sFullPath
+	 * @return bool
+	 */
+	private function isValidCoreFile( $sFullPath ) {
+		$oCoreHashes = Services::CoreFileHashes();
+		$sCoreHash = $oCoreHashes->getFileHash( $sFullPath );
+		return ( !empty( $sCoreHash ) && $sCoreHash === md5_file( $sFullPath ) );
 	}
 
 	/**
