@@ -4,6 +4,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\GeoIp;
 
 class ICWP_WPSF_Processor_Plugin_Geoip extends ICWP_WPSF_BaseDbProcessor {
 
+	const DAYS_TO_KEEP = 30;
+
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Plugin $oModCon
 	 */
@@ -41,5 +43,12 @@ class ICWP_WPSF_Processor_Plugin_Geoip extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function createDbHandler() {
 		return new GeoIp\Handler();
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getAutoExpirePeriod() {
+		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
 	}
 }
