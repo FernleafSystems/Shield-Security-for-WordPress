@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class Scanner
@@ -11,10 +12,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 class Scanner {
 
 	/**
+	 * @var string[]
+	 */
+	private $aMalSigs;
+
+	/**
 	 * @return ResultsSet
 	 */
 	public function run() {
-
+		$oFs = Services::WpFs();
+		$oCoreHashes = Services::CoreFileHashes();
 		$oResultSet = new ResultsSet();
 
 		try {
@@ -25,14 +32,34 @@ class Scanner {
 			 * The filter will also be responsible (in this case) for filtering out
 			 * WP Core files from the collection of files to be assessed
 			 */
-			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [], false );
+			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5' ], false );
 
+			$aSigs = $this->getMalSigs();
 			foreach ( $oDirIt as $oFsItem ) {
 				/** @var \SplFileInfo $oFsItem */
-				$oResultItem = new ResultItem();
-				$oResultItem->path_full = wp_normalize_path( $oFsItem->getPathname() );
-				$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
-				$oResultSet->addItem( $oResultItem );
+				$sFullPath = $oFsItem->getPathname();
+
+				$sContent = $oFs->getFileContent( $sFullPath );
+				if ( !empty( $sContent ) ) {
+					foreach ( $aSigs as $sSig ) {
+						if ( strpos( $sContent, $sSig ) !== false ) {
+
+							// If it's a WP Core file and its hash is valid, exclude it.
+							$sCoreHash = $oCoreHashes->getFileHash( $sFullPath );
+							if ( !empty( $sCoreHash ) && $sCoreHash === md5_file( $sFullPath ) ) {
+								continue;
+							}
+
+							$oResultItem = new ResultItem();
+							$oResultItem->path_full = wp_normalize_path( $sFullPath );
+							$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
+							$oResultItem->is_mal = true;
+							$oResultItem->mal_sig = $sSig;
+							$oResultSet->addItem( $oResultItem );
+							break;
+						}
+					}
+				}
 			}
 		}
 		catch ( \Exception $oE ) {
@@ -42,5 +69,33 @@ class Scanner {
 		}
 
 		return $oResultSet;
+	}
+
+	/**
+	 * @param string $sPath
+	 * @return bool
+	 */
+	protected function canExcludeFile( $sPath ) {
+		$bCanExclude = false;
+		$oCoreHashes = Services::CoreFileHashes();
+
+
+		return $bCanExclude;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getMalSigs() {
+		return $this->aMalSigs;
+	}
+
+	/**
+	 * @param string[] $sFilePathMalSigs
+	 * @return $this
+	 */
+	public function setMalSigs( $sFilePathMalSigs ) {
+		$this->aMalSigs = $sFilePathMalSigs;
+		return $this;
 	}
 }

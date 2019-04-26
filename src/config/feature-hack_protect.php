@@ -651,6 +651,7 @@
       "created_at",
       "deleted_at"
     ],
+    "url_mal_sigs":                         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "cron_all_scans":                       "all-scans",
     "cron_scan_wpv":                        "wpvulnscan-notification",
     "cron_scan_mal":                        "scan-mal",

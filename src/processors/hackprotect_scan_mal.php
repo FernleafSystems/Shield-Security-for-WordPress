@@ -1,6 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 
@@ -50,7 +51,31 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return Shield\Scans\Mal\Scanner
 	 */
 	protected function getScanner() {
-		return new Shield\Scans\Mal\Scanner();
+		return ( new Shield\Scans\Mal\Scanner() )->setMalSigs( $this->getMalSignatures() );
+	}
+
+	/**
+	 * @return string[]
+	 * @throws \Exception
+	 */
+	private function getMalSignatures() {
+		$oWpFs = Services::WpFs();
+		$sFile = $this->getCon()->getPluginCachePath( 'malsigs.txt' );
+		if ( $oWpFs->exists( $sFile ) ) {
+			$aSigs = explode( "\n", \LZCompressor\LZString::decompress( base64_decode( $oWpFs->getFileContent( $sFile ) ) ) );
+		}
+		else {
+			$aSigs = array_filter(
+				array_map( 'trim', explode( "\n", Services::HttpRequest()->getContent( $this->getMod()
+																							->getDef( 'url_mal_sigs' ) ) ) ),
+				function ( $sLine ) {
+					return ( ( strpos( $sLine, '#' ) !== 0 ) && strlen( $sLine ) > 0 );
+				}
+			);
+
+			$oWpFs->putFileContent( $sFile, base64_encode( \LZCompressor\LZString::compress( implode( "\n", $aSigs ) ) ) );
+		}
+		return $aSigs;
 	}
 
 	/**
@@ -151,7 +176,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildListOfFilesForEmail( $oResult ) {
-		$aContent = [''];
+		$aContent = [ '' ];
 		$aContent[] = _wpsf__( 'The following files contain suspected malware:' );
 		foreach ( $oResult->getAllItems() as $oItem ) {
 			/** @var Shield\Scans\Mal\ResultItem $oItem */

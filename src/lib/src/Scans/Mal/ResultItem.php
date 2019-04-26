@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property string path_full
  * @property string path_fragment
  * @property bool   is_mal
+ * @property string mal_sig
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
 class ResultItem extends Base\BaseResultItem {
