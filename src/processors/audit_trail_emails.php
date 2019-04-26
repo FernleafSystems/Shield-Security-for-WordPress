@@ -7,7 +7,7 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 	/**
 	 */
 	public function run() {
-		add_filter( 'wp_mail', array( $this, 'auditEmailSend' ), PHP_INT_MAX );
+		add_filter( 'wp_mail', [ $this, 'auditEmailSend' ], PHP_INT_MAX );
 	}
 
 	/**
@@ -25,10 +25,10 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 
 			$aBacktrace = $this->findEmailSenderBacktrace();
 
-			$aMsg = array(
+			$aMsg = [
 				sprintf( _wpsf__( 'There was an attempt to send an email using the "%s" function.' ), 'wp_mail' ),
 				sprintf( _wpsf__( 'It was sent to "%s" with the subject "%s".' ), $sTo, $aEmail[ 'subject' ] ),
-			);
+			];
 
 			// Attempt to capture BCC/CC
 			if ( !empty( $aEmail[ 'headers' ] ) ) {
@@ -70,10 +70,10 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 	 * @return array
 	 */
 	private function extractCcFromHeaders( $aHeaders ) {
-		$aCCs = array(
+		$aCCs = [
 			'bcc' => [],
 			'cc'  => []
-		);
+		];
 
 		$aHeaders = array_filter( array_map( 'trim', array_map( 'strtolower', $aHeaders ) ) );
 		foreach ( $aHeaders as $sHeader ) {

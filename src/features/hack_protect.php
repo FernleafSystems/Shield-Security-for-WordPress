@@ -132,13 +132,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function clearCrons() {
-		$aCrons = array(
+		$aCrons = [
 			$this->getIcCronName(),
 			$this->getUfcCronName(),
 			$this->getWcfCronName(),
 			$this->getWpvCronName(),
 			$this->getPtgCronName()
-		);
+		];
 		$oCron = $this->loadWpCronProcessor();
 		foreach ( $aCrons as $sCron ) {
 			$oCron->deleteCronJob( $sCron );
@@ -224,10 +224,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->loadWpCronProcessor()
 			 ->addNewSchedule(
 				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
-				 array(
+				 [
 					 'interval' => DAY_IN_SECONDS/$nFreq,
 					 'display'  => sprintf( _wpsf__( '%s per day' ), $nFreq )
-				 )
+				 ]
 			 );
 		return $this;
 	}
@@ -341,10 +341,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function isUfcDeleteFiles() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array(
+		return in_array( $this->getUnrecognisedFileScannerOption(), [
 			'enabled_delete_only',
 			'enabled_delete_report'
-		) );
+		] );
 	}
 
 	/**
@@ -365,10 +365,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string
 	 */
 	public function isUfcSendReport() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array(
+		return in_array( $this->getUnrecognisedFileScannerOption(), [
 			'enabled_report_only',
 			'enabled_delete_report'
-		) );
+		] );
 	}
 
 	/**
@@ -634,10 +634,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
-				array(
+				[
 					'ajax_plugin_reinstall' => $this->getAjaxActionData( 'plugin_reinstall' ),
 					'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles()
-				)
+				]
 			);
 			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
 			wp_enqueue_style( 'wp-jquery-ui-dialog' );
@@ -723,10 +723,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				->buildTable();
 		}
 
-		return array(
+		return [
 			'success' => !empty( $oTableBuilder ),
 			'html'    => $sHtml
-		);
+		];
 	}
 
 	private function ajaxExec_StartScans() {
@@ -787,7 +787,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 		else {
 			if ( empty( $aItemIds ) ) {
-				$aItemIds = array( $sItemId );
+				$aItemIds = [ $sItemId ];
 			}
 
 			try {
@@ -815,11 +815,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
-		return array(
+		return [
 			'success'     => $bSuccess,
 			'page_reload' => in_array( $sScannerSlug, [ 'apc', 'ptg' ] ),
 			'message'     => $sMessage,
-		);
+		];
 	}
 
 	/**
@@ -1049,113 +1049,113 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		$aNotices = array(
+		$aNotices = [
 			'title'    => _wpsf__( 'Scans' ),
 			'messages' => []
-		);
+		];
 
 		{// Core files
 			if ( !$this->isWcfScanEnabled() ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = array(
+				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => 'WP Core Files',
 					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic WordPress Core File scanner should be turned-on.' )
-				);
+				];
 			}
 			else if ( $this->getScanHasProblem( 'wcf' ) ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = array(
+				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => 'WP Core Files',
 					'message' => _wpsf__( 'Modified WordPress core files found.' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Scan WP core files and repair any files that are flagged as modified.' )
-				);
+				];
 			}
 		}
 
 		{// Unrecognised
 			if ( !$this->isUfcEnabled() ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = array(
+				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => 'Unrecognised Files',
 					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic scanning for non-WordPress core files is recommended.' )
-				);
+				];
 			}
 			else if ( $this->getScanHasProblem( 'ufc' ) ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = array(
+				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => 'Unrecognised Files',
 					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Scan and remove any files that are not meant to be in the WP core directories.' )
-				);
+				];
 			}
 		}
 
 		{// Plugin/Theme Guard
 			if ( !$this->isPtgEnabled() ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = array(
+				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => 'Plugin/Theme Guard',
 					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic detection of plugin/theme modifications is recommended.' )
-				);
+				];
 			}
 			else if ( $this->getScanHasProblem( 'ptg' ) ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = array(
+				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => 'Plugin/Theme Guard',
 					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Reviewing modifications to your plugins/themes is recommended.' )
-				);
+				];
 			}
 		}
 
 		{// Vulnerability Scanner
 			if ( !$this->isWpvulnEnabled() ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = array(
+				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => 'Vulnerability Scanner',
 					'message' => _wpsf__( 'Vulnerability Scanner is not enabled.' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic detection of vulnerabilities is recommended.' )
-				);
+				];
 			}
 			else if ( $this->getScanHasProblem( 'wpv' ) ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = array(
+				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => 'Vulnerable Items',
 					'message' => _wpsf__( 'At least 1 item has known vulnerabilities.' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Items with known vulnerabilities should be updated, removed, or replaced.' )
-				);
+				];
 			}
 		}
 
 		{// Abandoned Plugins
 			if ( !$this->isApcEnabled() ) {
-				$aNotices[ 'messages' ][ 'apc' ] = array(
+				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => 'Abandoned Plugins Scanner',
 					'message' => _wpsf__( 'Abandoned Plugins Scanner is not enabled.' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'Automatic detection of abandoned plugins is recommended.' )
-				);
+				];
 			}
 			else if ( $this->getScanHasProblem( 'apc' ) ) {
-				$aNotices[ 'messages' ][ 'apc' ] = array(
+				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => 'Abandoned Plugins',
 					'message' => _wpsf__( 'At least 1 plugin on your site is abandoned.' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => _wpsf__( 'Run Scan' ),
 					'rec'     => _wpsf__( 'Plugins that have been abandoned represent a potential risk to your site.' )
-				);
+				];
 			}
 		}
 
@@ -1170,21 +1170,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'Hack Guard' ),
 				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
 			$bGoodFrequency = $this->getScanFrequency() > 1;
-			$aThis[ 'key_opts' ][ 'frequency' ] = array(
+			$aThis[ 'key_opts' ][ 'frequency' ] = [
 				'name'    => _wpsf__( 'Scan Frequency' ),
 				'enabled' => $bGoodFrequency,
 				'summary' => $bGoodFrequency ?
@@ -1192,10 +1192,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					: _wpsf__( "Automatic scanners only run once per day" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
-			);
+			];
 
 			$bCore = $this->isWcfScanEnabled();
-			$aThis[ 'key_opts' ][ 'wcf' ] = array(
+			$aThis[ 'key_opts' ][ 'wcf' ] = [
 				'name'    => _wpsf__( 'WP Core File Scan' ),
 				'enabled' => $bCore,
 				'summary' => $bCore ?
@@ -1203,9 +1203,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					: _wpsf__( "Core files are never scanned for hacks!" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
-			);
+			];
 			if ( $bCore && !$this->isWcfScanAutoRepair() ) {
-				$aThis[ 'key_opts' ][ 'wcf_repair' ] = array(
+				$aThis[ 'key_opts' ][ 'wcf_repair' ] = [
 					'name'    => _wpsf__( 'WP Core File Repair' ),
 					'enabled' => $this->isWcfScanAutoRepair(),
 					'summary' => $this->isWcfScanAutoRepair() ?
@@ -1213,11 +1213,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						: _wpsf__( "Core files aren't automatically repaired!" ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
-				);
+				];
 			}
 
 			$bUcf = $this->isUfcEnabled();
-			$aThis[ 'key_opts' ][ 'ufc' ] = array(
+			$aThis[ 'key_opts' ][ 'ufc' ] = [
 				'name'    => _wpsf__( 'Unrecognised Files' ),
 				'enabled' => $bUcf,
 				'summary' => $bUcf ?
@@ -1225,9 +1225,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					: _wpsf__( "WP Core is never scanned for unrecognised files!" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
-			);
+			];
 			if ( $bUcf && !$this->isUfcDeleteFiles() ) {
-				$aThis[ 'key_opts' ][ 'ufc_repair' ] = array(
+				$aThis[ 'key_opts' ][ 'ufc_repair' ] = [
 					'name'    => _wpsf__( 'Unrecognised Files Removal' ),
 					'enabled' => $this->isUfcDeleteFiles(),
 					'summary' => $this->isUfcDeleteFiles() ?
@@ -1235,11 +1235,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						: _wpsf__( "Unrecognised files aren't automatically removed!" ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
-				);
+				];
 			}
 
 			$bWpv = $this->isWpvulnEnabled();
-			$aThis[ 'key_opts' ][ 'wpv' ] = array(
+			$aThis[ 'key_opts' ][ 'wpv' ] = [
 				'name'    => _wpsf__( 'Vulnerability Scan' ),
 				'enabled' => $bWpv,
 				'summary' => $bWpv ?
@@ -1247,9 +1247,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					: _wpsf__( "Plugins/Themes never scanned for vulnerabilities!" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
-			);
+			];
 			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
-				$aThis[ 'key_opts' ][ 'wpv_repair' ] = array(
+				$aThis[ 'key_opts' ][ 'wpv_repair' ] = [
 					'name'    => _wpsf__( 'Auto Update' ),
 					'enabled' => $this->isWpvulnAutoupdatesEnabled(),
 					'summary' => $this->isWpvulnAutoupdatesEnabled() ?
@@ -1257,11 +1257,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						: _wpsf__( "Vulnerable items aren't automatically updated!" ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
-				);
+				];
 			}
 
 			$bPtg = $this->isPtgEnabled();
-			$aThis[ 'key_opts' ][ 'ptg' ] = array(
+			$aThis[ 'key_opts' ][ 'ptg' ] = [
 				'name'    => _wpsf__( 'Plugin/Theme Guard' ),
 				'enabled' => $bPtg,
 				'summary' => $bPtg ?
@@ -1269,7 +1269,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					: _wpsf__( "Plugins and Themes are never scanned for tampering!" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-			);
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -1299,92 +1299,92 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			case 'section_scan_options' :
 				$sTitle = _wpsf__( 'Scan Options' );
 				$sTitleShort = _wpsf__( 'Scan Options' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Set how frequently the Hack Guard scans will run.' ) )
-				);
+				];
 				break;
 
 			case 'section_realtime' :
 				$sTitle = _wpsf__( 'Realtime Site Protection' );
 				$sTitleShort = _wpsf__( 'Realtime Protection' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides realtime protection for certain key files.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep realtime protection turned on to protect key files.' ) ),
-				);
+				];
 				break;
 
 			case 'section_enable_plugin_feature_hack_protection_tools' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Guard' ) ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_wpvuln_scan' :
 				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) ),
 					_wpsf__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.' )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Vulnerabilities Scanner' );
 				break;
 
 			case 'section_plugin_vulnerabilities_scan' :
 				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your plugins against a database of known vulnerabilities.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Vulnerabilities' );
 				break;
 
 			case 'section_core_file_integrity_scan' :
 				$sTitle = _wpsf__( 'WordPress Core File Scanner' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress core files for changes compared to official WordPress files.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'WP Core File Scanner' );
 				break;
 
 			case 'section_unrecognised_file_scan' :
 				$sTitle = _wpsf__( 'Unrecognised Files Scanner' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( "Regularly scan your WordPress core folders for files that don't belong." ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
 				break;
 
 			case 'section_scan_apc' :
 				$sTitle = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
 				$sTitleShort = _wpsf__( 'Abandoned Plugin Scanner' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ),
 						_wpsf__( 'Monitor your site for plugins that have been abandoned by their authors and are no longer maintained.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable this to alert you to your site running unmaintained code.' ) )
-				);
+				];
 				break;
 
 			case 'section_pluginthemes_guard' :
 				$sTitle = _wpsf__( 'Plugins and Themes Guard' );
 				$sTitleShort = _wpsf__( 'Plugins/Themes Guard' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep the Plugins/Theme Guard feature turned on.' ) ),
-				);
+				];
 				break;
 
 			case 'section_integrity_checking' :
 				$sTitle = _wpsf__( 'Integrity Checks' );
 				$sTitleShort = _wpsf__( 'Integrity Checks' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor for unrecognised changes to your system.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable these to prevent unauthorized changes to your WordPress site.' ) )
-				);
+				];
 				break;
 
 			default:

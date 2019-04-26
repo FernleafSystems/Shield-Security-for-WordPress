@@ -9,11 +9,11 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 
-		add_action( $this->prefix( 'importexport_notify' ), array( $this, 'runWhitelistNotify' ) );
+		add_action( $this->prefix( 'importexport_notify' ), [ $this, 'runWhitelistNotify' ] );
 
 		if ( $oFO->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
-			add_action( $oFO->prefix( 'importexport_updatenotified' ), array( $this, 'runImport' ) );
+			add_action( $oFO->prefix( 'importexport_updatenotified' ), [ $this, 'runImport' ] );
 		}
 	}
 
@@ -24,19 +24,19 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$aData = [
-			'vars'  => array(
+			'vars'  => [
 				'form_nonce'  => $oMod->getNonceActionData( 'import_file_upload' ),
 				'form_action' => $oMod->getUrl_AdminPage()
-			),
-			'ajax'  => array(
+			],
+			'ajax'  => [
 				'import_from_site' => $oMod->getAjaxActionData( 'import_from_site', true ),
-			),
-			'flags' => array(
+			],
+			'flags' => [
 				'can_importexport' => $this->getCon()->isPremiumActive(),
-			),
-			'hrefs' => array(
+			],
+			'hrefs' => [
 				'export_file_download' => $this->createExportFileDownloadLink()
-			)
+			]
 		];
 
 		return $aData;
@@ -61,10 +61,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			foreach ( $oFO->getImportExportWhitelist() as $sUrl ) {
 				$this->loadFS()->getUrl(
 					$sUrl,
-					array(
+					[
 						'blocking' => false,
-						'body'     => array( 'shield_action' => 'importexport_updatenotified' )
-					)
+						'body'     => [ 'shield_action' => 'importexport_updatenotified' ]
+					]
 				);
 			}
 
@@ -265,7 +265,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getMod();
 		if ( $oFO->isPremium() && $oFO->isImportExportPermitted() &&
 			 ( Services::Request()->ts() < $oFO->getImportExportHandshakeExpiresAt() ) ) {
-			echo json_encode( array( 'success' => true ) );
+			echo json_encode( [ 'success' => true ] );
 			die();
 		}
 		else {
@@ -373,12 +373,12 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			}
 		}
 
-		$aResponse = array(
+		$aResponse = [
 			'success' => $bSuccess,
 			'code'    => $nCode,
 			'message' => $sMessage,
 			'data'    => $aData,
-		);
+		];
 		echo json_encode( $aResponse );
 		die();
 	}
@@ -401,7 +401,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$bVerified = false;
 
 		if ( !empty( $sUrl ) ) {
-			$sReqUrl = add_query_arg( array( 'shield_action' => 'importexport_handshake' ), $sUrl );
+			$sReqUrl = add_query_arg( [ 'shield_action' => 'importexport_handshake' ], $sUrl );
 			$aResp = @json_decode( Services::HttpRequest()->getContent( $sReqUrl ), true );
 			$bVerified = is_array( $aResp ) && isset( $aResp[ 'success' ] ) && ( $aResp[ 'success' ] === true );
 		}
@@ -449,7 +449,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		}
 		else {
 			$bReady = true;
-			$aEssential = array( 'scheme', 'host' );
+			$aEssential = [ 'scheme', 'host' ];
 			foreach ( $aEssential as $sKey ) {
 				$bReady = $bReady && !empty( $aParts[ $sKey ] );
 			}
@@ -462,11 +462,11 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			else {
 				$oFO->startImportExportHandshake();
 
-				$aData = array(
+				$aData = [
 					'shield_action' => 'importexport_export',
 					'secret'        => $sSecretKey,
 					'url'           => Services::WpGeneral()->getHomeUrl()
-				);
+				];
 				// Don't send the network setup request if it's the cron.
 				if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
 					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
