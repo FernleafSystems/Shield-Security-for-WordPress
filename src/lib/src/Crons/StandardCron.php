@@ -16,11 +16,11 @@ trait StandardCron {
 			Services::WpCron()
 					->setRecurrence( $this->getCronRecurrence() )
 					->setNextRun( $this->getFirstRunTimestamp() )
-					->createCronJob( $this->getCronName(), array( $this, 'runCron' ) );
+					->createCronJob( $this->getCronName(), [ $this, 'runCron' ] );
 		}
 		catch ( \Exception $oE ) {
 		}
-		add_action( $this->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'deleteCron' ] );
 	}
 
 	/**

@@ -52,7 +52,6 @@ class VisitorIpDetection {
 			}
 			array_shift( $aHostIps );
 			$this->setPotentialHostIps( $aHostIps );
-
 		} while ( empty( $sIp ) );
 
 		return $sIp;
@@ -166,7 +165,7 @@ class VisitorIpDetection {
 	 * @return string[]
 	 */
 	private function getIpSourceOptions() {
-		return array(
+		return [
 			'REMOTE_ADDR',
 			'HTTP_CF_CONNECTING_IP',
 			'HTTP_X_FORWARDED_FOR',
@@ -177,6 +176,6 @@ class VisitorIpDetection {
 			'HTTP_X_SP_FORWARDED_IP',
 			'HTTP_FORWARDED',
 			'HTTP_CLIENT_IP'
-		);
+		];
 	}
 }
