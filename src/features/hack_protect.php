@@ -627,6 +627,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->isOpt( 'enabled_scan_apc', 'enabled_email' );
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isMalScanEnabled() {
+		return !$this->isOpt( 'enable_scan_mal', 'disabled' );
+	}
+
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
@@ -833,6 +840,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		switch ( $sSlug ) {
 			case 'apc':
 				$oScannerPro = $oScanPro->getSubProcessorApc();
+				break;
+			case 'mal':
+				$oScannerPro = $oScanPro->getSubProcessorMal();
 				break;
 			case 'ptg':
 				$oScannerPro = $oScanPro->getSubProcessorPtg();
@@ -1378,6 +1388,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				];
 				break;
 
+			case 'section_scan_malware' :
+				$sTitle = _wpsf__( 'Malware Scanner' );
+				$sTitleShort = _wpsf__( 'Malware Scanner' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor and detect presence of Malware signatures.' ) ),
+					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable this scanner to automatically detect infected files.' ) )
+				];
+				break;
+
 			case 'section_integrity_checking' :
 				$sTitle = _wpsf__( 'Integrity Checks' );
 				$sTitleShort = _wpsf__( 'Integrity Checks' );
@@ -1543,6 +1562,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = _wpsf__( 'Highlight Plugins' );
 				$sSummary = _wpsf__( 'Highlight Abandoned Plugins' );
 				$sDescription = _wpsf__( "Abandoned plugins will be highlighted on the main plugins page." );
+				break;
+
+			case 'enable_scan_mal' :
+				$sName = _wpsf__( 'Malware Scanner' );
+				$sSummary = _wpsf__( 'Enable Malware Scanner' );
+				$sDescription = _wpsf__( "Enabled detection of files infected with malware signatures." );
 				break;
 
 			case 'rt_file_wpconfig' :

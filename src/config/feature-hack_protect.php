@@ -62,6 +62,15 @@
       ]
     },
     {
+      "slug":        "section_scan_malware",
+      "title":       "Malware Scan",
+      "title_short": "Malware Scan",
+      "summary":     [
+        "Purpose - Detect malicious changes to your themes and plugins.",
+        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
+      ]
+    },
+    {
       "slug":        "section_pluginthemes_guard",
       "help_video":  {
         "provider":  "vimeo",
@@ -395,6 +404,28 @@
       "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
+      "key":           "enable_scan_mal",
+      "section":       "section_scan_malware",
+      "premium":       true,
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Scan Disabled"
+        },
+        {
+          "value_key": "enabled",
+          "text":      "Scan Enabled"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Enable/Disable Malware Scan",
+      "summary":       "Enable Malware File Scanner",
+      "description":   "When enabled the Malware scanner will run automatically."
+    },
+    {
       "key":           "ptg_enable",
       "section":       "section_pluginthemes_guard",
       "premium":       true,
@@ -500,6 +531,13 @@
       "default":      0
     },
     {
+      "key":          "insights_last_scan_mal_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
       "key":          "insights_last_scan_wcf_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -529,6 +567,13 @@
     },
     {
       "key":          "next_scan_ufc_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
+      "key":          "next_scan_mal_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
@@ -608,6 +653,7 @@
     ],
     "cron_all_scans":                       "all-scans",
     "cron_scan_wpv":                        "wpvulnscan-notification",
+    "cron_scan_mal":                        "scan-mal",
     "cron_scan_wcf":                        "core-checksum-notification",
     "cron_scan_ufc":                        "unrecognised-scan-notification",
     "cron_scan_ptg":                        "cron-pluginthemesguard",
