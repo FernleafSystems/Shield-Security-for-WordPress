@@ -26,6 +26,16 @@
       ]
     },
     {
+      "slug":        "section_scan_malware",
+      "hidden": true,
+      "title":       "Malware Scan",
+      "title_short": "Malware Scan",
+      "summary":     [
+        "Purpose - Detect malicious changes to your themes and plugins.",
+        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
+      ]
+    },
+    {
       "slug":        "section_realtime",
       "title":       "Realtime Protection",
       "title_short": "Realtime Protection",
@@ -59,15 +69,6 @@
       "summary":     [
         "Purpose - Regularly scan your WordPress plugins and themes for plugins that have been abandoned.",
         "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-      ]
-    },
-    {
-      "slug":        "section_scan_malware",
-      "title":       "Malware Scan",
-      "title_short": "Malware Scan",
-      "summary":     [
-        "Purpose - Detect malicious changes to your themes and plugins.",
-        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
       ]
     },
     {
