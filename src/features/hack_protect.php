@@ -576,7 +576,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isMalScanEnabled() {
-		return !$this->isOpt( 'enable_scan_mal', 'disabled' );
+		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalAutoRepairCore() {
+		return $this->isOpt( 'mal_autorepair_core', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalAutoRepairPlugins() {
+		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -1509,10 +1523,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sDescription = _wpsf__( "Abandoned plugins will be highlighted on the main plugins page." );
 				break;
 
-			case 'enable_scan_mal' :
+			case 'mal_scan_enable' :
 				$sName = _wpsf__( 'Malware Scanner' );
 				$sSummary = _wpsf__( 'Enable Malware Scanner' );
 				$sDescription = _wpsf__( "Enabled detection of files infected with malware signatures." );
+				break;
+
+			case 'mal_autorepair_core' :
+				$sName = _wpsf__( 'Auto-Repair WP Core' );
+				$sSummary = _wpsf__( 'Automatically Repair WordPress Core Files' );
+				$sDescription = _wpsf__( "Automatically reinstall any core files found to have potential malware." );
+				break;
+
+			case 'mal_autorepair_plugins' :
+				$sName = _wpsf__( 'Auto-Repair WP Plugins' );
+				$sSummary = _wpsf__( 'Automatically Repair WordPress.org Plugins' );
+				$sDescription = _wpsf__( "Automatically repair any plugin files found to have potential malware." )
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( 'Only applies to plugins installed from WordPress.org.' ) )
+								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( "Also deletes files if they're found to not be originally distributed with the plugin." ) );
 				break;
 
 			case 'rt_file_wpconfig' :

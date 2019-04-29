@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 /**
  * Class ResultItem
  * @property string path_full
- * @property string path_fragment
+ * @property string path_fragment - relative to ABSPATH
  * @property bool   is_mal
  * @property string mal_sig
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal

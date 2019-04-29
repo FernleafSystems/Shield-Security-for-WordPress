@@ -3,12 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 /**
  * Class WpCoreFileDownload
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
  */
-class WpCoreFileDownload {
+class WpCoreFile {
 
 	const URL_WP_CORE = 'https://core.svn.wordpress.org';
 	const URL_WP_CORE_IL8N = 'https://i18n.svn.wordpress.org';
@@ -22,16 +23,41 @@ class WpCoreFileDownload {
 
 	/**
 	 * @param string $sPath
+	 * @return bool
+	 * @throws \InvalidArgumentException
+	 */
+	public function replace( $sPath ) {
+		$bSuccess = false;
+		$oWp = Services::WpGeneral();
+		if ( Services::CoreFileHashes()->isCoreFile( $sPath ) ) {
+			$oFiles = $oWp->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
+			try {
+				$oFiles->replaceFileFromVcs( $sPath );
+			}
+			catch ( \InvalidArgumentException $oE ) {
+			}
+		}
+		return $bSuccess;
+	}
+
+	/**
+	 * @param string $sPath
 	 * @param bool   $bUseLocale
 	 * @return string - path to downloaded file
+	 * @throws \InvalidArgumentException
 	 */
-	public function run( $sPath, $bUseLocale = true ) {
+	public function download( $sPath, $bUseLocale = true ) {
+		$oHashes = Services::CoreFileHashes();
+		if ( !$oHashes->isCoreFile( $sPath ) ) {
+			throw new \InvalidArgumentException( sprintf( 'Core file "%s" is not an official WordPress core file.', $sPath ) );
+		}
+
 		$sLocale = Services::WpGeneral()->getLocaleForChecksums();
 		$bUseInternational = $bUseLocale && ( $sLocale != 'en_US' );
 
 		$sTmpFile = download_url( $this->getFileUrl( $sPath, $bUseLocale ) );
 		if ( $bUseInternational && empty( $sTmpFile ) ) {
-			$sTmpFile = $this->run( $sPath, false );
+			$sTmpFile = $this->download( $sPath, false );
 		} // try international retrieval and if it fails, we resort to en_US.
 
 		return ( !is_wp_error( $sTmpFile ) && Services::WpFs()->exists( $sTmpFile ) ) ? $sTmpFile : null;
