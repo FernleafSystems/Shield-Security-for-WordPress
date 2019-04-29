@@ -52,7 +52,7 @@ class Scanner {
 							$oResultItem->path_full = wp_normalize_path( $sFullPath );
 							$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
 							$oResultItem->is_mal = true;
-							$oResultItem->mal_sig = $sSig;
+							$oResultItem->mal_sig = base64_encode( $sSig );
 							$oResultSet->addItem( $oResultItem );
 							break;
 						}

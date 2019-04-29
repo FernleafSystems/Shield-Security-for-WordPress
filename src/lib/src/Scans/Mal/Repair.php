@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 /**
@@ -19,8 +19,8 @@ class Repair extends Scans\Base\BaseRepair {
 	public function repairItem( $oItem ) {
 		$bSuccess = false;
 
-		if ( Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
-			$oFiles = Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
+		if ( Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
+			$oFiles = Services\Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
 			try {
 				$oFiles->replaceFileFromVcs( $oItem->path_fragment );
 			}
@@ -30,8 +30,14 @@ class Repair extends Scans\Base\BaseRepair {
 		else {
 			$oFiles = new WpOrg\Plugin\Files();
 			try {
-				if ( $oFiles->isValidFileFromPlugin( $oItem->path_fragment ) ) {
-					$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_fragment );
+				$oPlugin = $oFiles->findPluginFromFile( $oItem->path_fragment );
+				if ( $oPlugin instanceof Services\Core\VOs\WpPluginVo ) {
+					if ( $oFiles->isValidFileFromPlugin( $oItem->path_fragment ) ) {
+						$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_fragment );
+					}
+					else {
+						$bSuccess = Services\Services::WpFs()->deleteFile( $oItem->path_full );
+					}
 				}
 			}
 			catch ( \InvalidArgumentException $oE ) {
