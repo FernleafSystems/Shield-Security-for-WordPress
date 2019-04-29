@@ -634,6 +634,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$nTime = $this->getLastScanAt( 'wpv' );
 				break;
 
+			case 'section_scan_malware':
+				$nTime = $this->getLastScanAt( 'mal' );
+				break;
+
 			default:
 				$nTime = null;
 				break;
@@ -655,6 +659,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'apc':
 				$oTableBuilder = new Shield\Tables\Build\ScanApc();
+				break;
+
+			case 'mal':
+				$oTableBuilder = new Shield\Tables\Build\ScanMal();
 				break;
 
 			case 'wcf':
@@ -695,6 +703,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		];
 	}
 
+	/**
+	 * @return array
+	 */
 	private function ajaxExec_StartScans() {
 		$bSuccess = false;
 		$bPageReload = false;
@@ -764,8 +775,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						$aSuccessfulItems[] = $sId;
 					}
 				}
-
-				$bSuccess = true;
 
 				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
 					$bSuccess = true;
