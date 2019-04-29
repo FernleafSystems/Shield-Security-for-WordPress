@@ -27,7 +27,6 @@
     },
     {
       "slug":        "section_scan_malware",
-      "hidden": true,
       "title":       "Malware Scan",
       "title_short": "Malware Scan",
       "summary":     [
@@ -405,7 +404,7 @@
       "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
-      "key":           "enable_scan_mal",
+      "key":           "mal_scan_enable",
       "section":       "section_scan_malware",
       "premium":       true,
       "default":       "disabled",
@@ -425,6 +424,28 @@
       "name":          "Enable/Disable Malware Scan",
       "summary":       "Enable Malware File Scanner",
       "description":   "When enabled the Malware scanner will run automatically."
+    },
+    {
+      "key":           "mal_autorepair_core",
+      "section":       "section_scan_malware",
+      "type":          "checkbox",
+      "default":       "Y",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Auto-Repair WP Core",
+      "summary":       "Automatically Repair WordPress Core Files",
+      "description":   "Automatically reinstall any core files found to have potential malware."
+    },
+    {
+      "key":           "mal_autorepair_plugins",
+      "section":       "section_scan_malware",
+      "type":          "checkbox",
+      "default":       "Y",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Auto-Repair WP Plugins",
+      "summary":       "Automatically Repair WordPress.org Plugins",
+      "description":   "Automatically repair any plugin files found to have potential malware."
     },
     {
       "key":           "ptg_enable",
