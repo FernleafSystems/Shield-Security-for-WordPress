@@ -191,6 +191,28 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'subtitle' => _wpsf__( "Detects files that maybe shouldn't be there" )
 					],
 				],
+//				'mal' => [
+//					'flags'   => [
+//						'is_enabled'    => $oMod->isMalScanEnabled(),
+//						'is_available'  => $oMod->isPremium(),
+//						'has_items'     => true,
+//						'has_last_scan' => $oMod->getLastScanAt( 'mal' ) > 0
+//					],
+//					'hrefs'   => [
+//						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_malware' )
+//					],
+//					'vars'    => [
+//						'last_scan_at' => sprintf(
+//							_wpsf__( 'Last Scan: %s' ),
+//							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'mal' ) )->diffForHumans()
+//						),
+//					],
+//					'count'   => $oSelector->countForScan( 'mal' ),
+//					'strings' => [
+//						'title'    => _wpsf__( 'Malware Scanner' ),
+//						'subtitle' => _wpsf__( "Detects malware in files" )
+//					],
+//				],
 				'wpv' => [
 					'flags'   => [
 						'is_enabled'    => $oMod->isWpvulnEnabled(),
