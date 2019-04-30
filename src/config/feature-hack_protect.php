@@ -27,6 +27,7 @@
     },
     {
       "slug":        "section_scan_malware",
+      "hidden": true,
       "title":       "Malware Scan",
       "title_short": "Malware Scan",
       "summary":     [
