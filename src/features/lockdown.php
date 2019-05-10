@@ -66,7 +66,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
 		$aNotices = [
-			'title'    => _wpsf__( 'Lockdown' ),
+			'title'    => _wpsf__( 'WP Lockdown' ),
 			'messages' => []
 		];
 

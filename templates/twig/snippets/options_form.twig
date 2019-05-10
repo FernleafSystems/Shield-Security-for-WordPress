@@ -38,10 +38,10 @@
 
 				{% for key, aOption in sOptionSection.options %}
 					<div class="form-group row">
-						<label for="{{ aOption.key }}" class="col-sm-2 col-md-2 col-lg-3 col-xl-2 col-form-label">
+						<label for="{{ aOption.key }}" class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
 							{{ aOption.name }}
 						</label>
-						<div class="col-xl-6 col-lg-7 col-md-8 col-sm-9">
+						<div class="col-xl-6 col-lg-7 col-md-8 col-sm-8">
 
 							{% if aOption.type is sameas('checkbox') %}
 								<div class="form-check">

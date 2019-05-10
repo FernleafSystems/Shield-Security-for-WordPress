@@ -361,7 +361,13 @@ label input[type=checkbox] {
 	border: 1px solid #cccccc;
 	background: #f9f9f9;
 }
-.feature-summary-blocks .feature-icon:before {
+.module-icon:before {
+	-webkit-font-smoothing: antialiased;
+	display: inline-block;
+	font: 32px/1 'dashicons';
+	vertical-align: top;
+}
+.feature-summary-blocks .module-icon:before {
 	-webkit-font-smoothing: antialiased;
 	display: inline-block;
 	font: 32px/1 'dashicons';
@@ -421,7 +427,7 @@ label input[type=checkbox] {
 		font-size: 8px;
 	}
 
-	.feature-summary-blocks .feature-icon:before {
+	.feature-summary-blocks .module-icon:before {
 		font-size: 16px;
 	}
 }
@@ -443,46 +449,49 @@ label input[type=checkbox] {
 .feature-summary-blocks .feature-summary-block.state-off {
 	background-color: rgba(239, 141, 49, 0.2);
 }
-#feature-plugin .feature-icon:before {
+#tab-insights .module-icon:before {
+	content: "\f179";
+}
+#tab-plugin .module-icon:before {
 	content: "\f111";
 }
-#feature-admin_access_restriction .feature-icon:before {
-	content: "\f332";
+#tab-admin_access_restriction .module-icon:before {
+	content: "\f155";
 }
-#feature-firewall .feature-icon:before {
+#tab-firewall .module-icon:before {
 	content: "\f479";
 }
-#feature-user_management .feature-icon:before {
-	content: "\f307";
+#tab-user_management .module-icon:before {
+	content: "\f110";
 }
-#feature-hack_protect .feature-icon:before {
-	content: "\f153";
+#tab-hack_protect .module-icon:before {
+	content: "\f332";
 }
-#feature-headers .feature-icon:before {
+#tab-headers .module-icon:before {
 	content: "\f163";
 }
-#feature-login_protect .feature-icon:before {
+#tab-login_protect .module-icon:before {
 	content: "\f112";
 }
-#feature-comments_filter .feature-icon:before {
-	content: "\f125";
+#tab-comments_filter .module-icon:before {
+	content: "\f117";
 }
-#feature-autoupdates .feature-icon:before {
+#tab-autoupdates .module-icon:before {
 	content: "\f463";
 }
-#feature-lockdown .feature-icon:before {
+#tab-lockdown .module-icon:before {
 	content: "\f160";
 }
-#feature-audit_trail .feature-icon:before {
+#tab-audit_trail .module-icon:before {
 	content: "\f115";
 }
-#feature-ips .feature-icon:before {
-	content: "\f230";
+#tab-ips .module-icon:before {
+	content: "\f534";
 }
-#feature-support {
-	display: none;
+#tab-traffic .module-icon:before {
+	content: "\f319";
 }
-#feature-support .feature-icon:before {
+#tab-support .module-icon:before {
 	content: "\f525";
 }
 input[type="email"] {
@@ -682,18 +691,18 @@ input:checked + .icwp-slider:before {
 #TopPluginIcon {
 	background: url("../images/pluginlogo_128x128.png?ver=2.0") no-repeat 0 0 #f1f1f1;
 	border-bottom: 1px solid #cccccc;
-
-	height: 128px;
-	width: 128px;
-	background-size: 128px 128px;
+	height: 76px;
+	width: 76px;
+	background-size: 76px 76px;
 
 	margin-bottom: 7px;
 	position: relative;
 	left: 1px;
 }
 #ColumnModules {
-	max-width: 128px;
 	border-right: 1px solid #cccccc;
+	max-width: 77px;
+	text-align: center;
 }
 #ColumnOptions {
 	background-color: #f1f1f1;
@@ -715,7 +724,7 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module {
 	font-size: 15px;
-	padding: 0.7rem 0.9rem 0.7rem 1.2rem;
+	padding: 0.6rem 0.9rem;
 	color: #222222;
 	font-weight: bolder;
 	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
@@ -1243,7 +1252,7 @@ input[type=checkbox].form-check-input {
 	padding-top: 14px;
 }
 .content-options .form-group.row {
-	margin-bottom: 15px;
+	margin-bottom: 20px;
 	padding-bottom: 15px;
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
 }
@@ -1264,4 +1273,9 @@ input[type=checkbox].form-check-input {
 }
 .content-options .option-links a {
 	color: rgba(69, 119, 0, 1);
+}
+
+
+.tooltip .arrow {
+	display: none !important;
 }

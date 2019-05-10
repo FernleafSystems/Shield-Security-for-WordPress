@@ -1384,7 +1384,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		_wpsf__( 'Control HTTP Security Headers' );
 		_wpsf__( 'IP Manager' );
 		_wpsf__( 'Manage Visitor IP Address' );
-		_wpsf__( 'Lockdown' );
+		_wpsf__( 'WP Lockdown' );
 		_wpsf__( 'Harden the more loosely controlled settings of your site' );
 		_wpsf__( 'Login Guard' );
 		_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' );

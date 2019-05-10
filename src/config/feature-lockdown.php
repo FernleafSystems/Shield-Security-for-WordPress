@@ -2,7 +2,7 @@
   "slug":        "lockdown",
   "properties":  {
     "slug":                  "lockdown",
-    "name":                  "Lockdown",
+    "name":                  "WP Lockdown",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "lockdown",
