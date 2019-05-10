@@ -502,6 +502,7 @@
     {
       "key":         "ptg_reinstall_links",
       "section":     "section_pluginthemes_guard",
+      "premium":     true,
       "type":        "checkbox",
       "default":     "Y",
       "link_info":   "https://icwp.io/bp",
