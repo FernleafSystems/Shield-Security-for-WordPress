@@ -1445,7 +1445,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function renderModulePage( $aData = [] ) {
 		// Get Base Data
-		$aData = $this->loadDP()->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
+		$aData = $this->loadDP()
+					  ->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 
 		return $this->renderTemplate( 'index.php', $aData );
@@ -1698,7 +1699,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'snippets/options_form.php';
+			$sTemplate = 'snippets/options_form.twig';
 		}
 		else {
 			$sTemplate = 'subfeature-access_restricted';
@@ -1709,10 +1710,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			return $this->loadRenderer( $this->getCon()->getPath_Templates() )
 						->setTemplate( $sTemplate )
 						->setRenderVars( $this->getBaseDisplayData( true ) )
+						->setTemplateEngineTwig()
 						->render();
 		}
 		catch ( \Exception $oE ) {
-			return 'Error rendering options form';
+			return 'Error rendering options form: '.$oE->getMessage();
 		}
 	}
 

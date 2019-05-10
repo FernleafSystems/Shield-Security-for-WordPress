@@ -129,12 +129,12 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_wordpress_firewall' :
+				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Firewall is designed to analyse data sent to your website and block any requests that appear to be malicious.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Firewall' ) ) )
 				];
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_firewall_blocking_options' :

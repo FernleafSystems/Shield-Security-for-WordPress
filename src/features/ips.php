@@ -403,18 +403,18 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_ips' :
+				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
 					.'<br />'._wpsf__( 'You should also carefully review the automatic black list settings.' )
 				];
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_auto_black_list' :
 				$sTitle = _wpsf__( 'Auto IP Blocking Rules' );
-				$sTitleShort = _wpsf__( 'Auto IP Blocking Rules' );
+				$sTitleShort = _wpsf__( 'Auto Blocking Rules' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) ),
@@ -424,18 +424,18 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 
 			case 'section_enable_plugin_feature_bottrap' :
+				$sTitleShort = _wpsf__( 'Bot-Trap' );
 				$sTitle = _wpsf__( 'Identify And Capture Bots Based On Their Site Activity' );
 				$aSummary = [
 					_wpsf__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises." ),
 					_wpsf__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots." ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable as many mouse traps as possible.' ) )
 				];
-				$sTitleShort = _wpsf__( 'Bot-Trap' );
 				break;
 
 			case 'section_logins':
+				$sTitleShort = _wpsf__( 'Login Bots' );
 				$sTitle = _wpsf__( 'Detect & Capture Login Bots' );
-				$sTitleShort = _wpsf__( 'Detect Login Bots' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Summary' ),
 						_wpsf__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them." ) ),
@@ -447,8 +447,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 
 			case 'section_probes':
+				$sTitleShort = _wpsf__( 'Probing Bots' );
 				$sTitle = _wpsf__( 'Detect & Capture Probing Bots' );
-				$sTitleShort = _wpsf__( 'Detect Probing Bots' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Summary' ),
 						_wpsf__( "Bots are designed to probe and this feature is dedicated to detecting probing bots." ) ),
@@ -458,8 +458,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 
 			case 'section_behaviours':
+				$sTitleShort = _wpsf__( 'Bot Behaviours' );
 				$sTitle = _wpsf__( 'Detect Behaviours Common To Bots' );
-				$sTitleShort = _wpsf__( 'Detect Bot Behaviours' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Summary' ),
 						_wpsf__( "Detect characteristics and behaviour commonly associated with illegitimate bots." ) ),

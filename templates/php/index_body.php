@@ -1,12 +1,3 @@
-<div class="row" id="BackToInsights">
-	<div class="col">
-		<a class="btn btn-block btn-lg btn-info font-weight-bold"
-		   href="<?php echo $hrefs[ 'back_to_dashboard' ]; ?>">
-			&larr; <?php echo $strings[ 'back_to_dashboard' ]; ?>
-		</a>
-	</div>
-</div>
-
 <div class="row no-gutters" id="ModulePageTopRow">
 
     <div class="col-2 modules smoothwidth" id="ColumnModules">

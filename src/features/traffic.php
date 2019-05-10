@@ -207,12 +207,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_traffic' :
+				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor and review all requests to your site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Required only if you need to review and investigate and monitor requests to your site' ) ) )
 				];
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_traffic_options' :

@@ -161,7 +161,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'go_to_settings'    => _wpsf__( 'Settings' ),
 					'on'                => _wpsf__( 'On' ),
 					'off'               => _wpsf__( 'Off' ),
-					'more_info'         => _wpsf__( 'More Info' ),
+					'more_info'         => _wpsf__( 'Info' ),
 					'blog'              => _wpsf__( 'Blog' ),
 					'save_all_settings' => _wpsf__( 'Save All Settings' ),
 					'options_title'     => _wpsf__( 'Options' ),
@@ -205,7 +205,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'go_to_settings'    => _wpsf__( 'Settings' ),
 				'on'                => _wpsf__( 'On' ),
 				'off'               => _wpsf__( 'Off' ),
-				'more_info'         => _wpsf__( 'More Info' ),
+				'more_info'         => _wpsf__( 'Info' ),
 				'blog'              => _wpsf__( 'Blog' ),
 				'save_all_settings' => _wpsf__( 'Save All Settings' ),
 				'options_title'     => _wpsf__( 'Options' ),
@@ -364,7 +364,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 			case 'section_user_messages' :
 				$sTitle = _wpsf__( 'User Messages' );
-				$sTitleShort = _wpsf__( 'User Messages' );
+				$sTitleShort = _wpsf__( 'Messages' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Customize the messages displayed to the user.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use this section if you need to communicate to the user in a particular manner.' ) ),

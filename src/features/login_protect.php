@@ -764,7 +764,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_enable_plugin_feature_login_protection' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Login Guard blocks all automated and brute force attempts to log in to your site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Login Guard' ) ) )
@@ -783,7 +783,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_rename_wplogin' :
 				$sTitle = _wpsf__( 'Hide WordPress Login Page' );
-				$sTitleShort = _wpsf__( 'Hide Login Page' );
+				$sTitleShort = _wpsf__( 'Hide Login' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.' ) )
@@ -801,7 +801,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_2fa_email' :
 				$sTitle = _wpsf__( 'Email Two-Factor Authentication' );
-				$sTitleShort = _wpsf__( '2FA - Email' );
+				$sTitleShort = _wpsf__( '2FA Email' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using email-based one-time-passwords.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
@@ -811,7 +811,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_2fa_ga' :
 				$sTitle = _wpsf__( 'Google Authenticator Two-Factor Authentication' );
-				$sTitleShort = _wpsf__( '2FA - Google Authenticator' );
+				$sTitleShort = _wpsf__( 'Google Auth' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.' ) ),
 					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
@@ -820,7 +820,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_brute_force_login_protection' :
 				$sTitle = _wpsf__( 'Brute Force Login Protection' );
-				$sTitleShort = _wpsf__( 'reCAPTCHA & Bots' );
+				$sTitleShort = _wpsf__( 'Bots' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
@@ -829,7 +829,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 			case 'section_yubikey_authentication' :
 				$sTitle = _wpsf__( 'Yubikey Two-Factor Authentication' );
-				$sTitleShort = _wpsf__( '2FA -Yubikey' );
+				$sTitleShort = _wpsf__( 'Yubikey' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using Yubikey one-time-passwords.' ) ),
 					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )

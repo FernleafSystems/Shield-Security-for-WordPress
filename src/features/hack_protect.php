@@ -1283,8 +1283,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_realtime' :
+				$sTitleShort = _wpsf__( 'Realtime' );
 				$sTitle = _wpsf__( 'Realtime Site Protection' );
-				$sTitleShort = _wpsf__( 'Realtime Protection' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides realtime protection for certain key files.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep realtime protection turned on to protect key files.' ) ),
@@ -1292,54 +1292,45 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_enable_plugin_feature_hack_protection_tools' :
+				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Guard' ) ) )
 				];
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_wpvuln_scan' :
+				$sTitleShort = _wpsf__( 'Vulnerabilities' );
 				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) ),
 					_wpsf__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.' )
 				];
-				$sTitleShort = _wpsf__( 'Vulnerabilities Scanner' );
-				break;
-
-			case 'section_plugin_vulnerabilities_scan' :
-				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
-				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your plugins against a database of known vulnerabilities.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) )
-				];
-				$sTitleShort = _wpsf__( 'Vulnerabilities' );
 				break;
 
 			case 'section_core_file_integrity_scan' :
+				$sTitleShort = _wpsf__( 'Core Files' );
 				$sTitle = _wpsf__( 'WordPress Core File Scanner' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress core files for changes compared to official WordPress files.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
 				];
-				$sTitleShort = _wpsf__( 'WP Core File Scanner' );
 				break;
 
 			case 'section_unrecognised_file_scan' :
+				$sTitleShort = _wpsf__( 'Unrecognised Files' );
 				$sTitle = _wpsf__( 'Unrecognised Files Scanner' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( "Regularly scan your WordPress core folders for files that don't belong." ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
 				];
-				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
 				break;
 
 			case 'section_scan_apc' :
 				$sTitle = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
-				$sTitleShort = _wpsf__( 'Abandoned Plugin Scanner' );
+				$sTitleShort = _wpsf__( 'Abandoned Plugins' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ),
 						_wpsf__( 'Monitor your site for plugins that have been abandoned by their authors and are no longer maintained.' ) ),
@@ -1357,8 +1348,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_scan_malware' :
+				$sTitleShort = _wpsf__( 'Malware' );
 				$sTitle = _wpsf__( 'Malware Scanner' );
-				$sTitleShort = _wpsf__( 'Malware Scanner' );
 				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor and detect presence of Malware signatures.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable this scanner to automatically detect infected files.' ) )

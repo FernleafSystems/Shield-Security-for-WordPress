@@ -1131,6 +1131,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			case 'section_global_security_options' :
 				$sTitle = _wpsf__( 'Global Security Plugin Disable' );
 				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $sName );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Use this option to completely disable all active Shield Protection.' ) ),
+				];
 				break;
 
 			case 'section_defaults' :
@@ -1218,7 +1221,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 			case 'visitor_address_source' :
 				$sName = _wpsf__( 'IP Source' );
-				$sSummary = _wpsf__( 'Which IP Address Is Yours' );
+				$sSummary = _wpsf__( 'Which IP Address Is Yours' ).'?';
 				$sDescription = _wpsf__( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.' )
 								.'<br />'._wpsf__( 'If the option you select becomes unavailable, we will revert to auto detection.' )
 								.'<br />'.sprintf(
