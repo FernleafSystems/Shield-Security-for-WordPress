@@ -1,150 +1,152 @@
-<form action="{{ form_action }}" method="post" class="form-horizontal">
+<form action="{{ form_action }}" method="post" class="form">
 	{{ nonce_field|raw }}
 
 	<ul class="nav nav-tabs">
 		{% for sOptionSection in data.all_options %}
-			<li class="{{ sOptionSection.primary ? 'active' : '' }}">
-				<a href="#{{ sOptionSection.slug }}" data-toggle="tab" >{{ sOptionSection.title_short }}</a>
+			<li class="nav-item">
+				<a href="#{{ sOptionSection.slug }}" class="nav-link {{ sOptionSection.primary ? 'active' : '' }}"
+				   data-toggle="tab" role="tab" aria-controls="{{ sOptionSection.slug }}">
+					{{ sOptionSection.title_short }}
+				</a>
 			</li>
 		{% endfor %}
 	</ul>
 
-	<div class="tab-content">
+	<div class="tab-content container-fluid">
 		{% for sOptionSection in data.all_options %}
-			<div class="tab-pane fade {{ sOptionSection.primary ? 'active in primary_section' : 'non_primary_section' }}"
+			<div class="tab-pane {{ sOptionSection.primary ? 'active show primary_section' : 'non_primary_section' }}"
+				 role="tabpanel"
 				 id="{{ sOptionSection.slug }}">
 
-				<div class="row option_section_row {{ sOptionSection.primary ? 'primary_section' : 'non_primary_section' }}"
-					 id="row-{{ sOptionSection.slug }}">
-					<div class="span9">
-						<fieldset>
-							<legend>{{ sOptionSection.title }}</legend>
-
-							{% if ( sOptionSection.summary is defined ) and sOptionSection.summary|length %}
-							<div class="row row_section_summary">
-								<div class="span9">
+				<div class="row">
+					<div class="col-12"><h5>{{ sOptionSection.title }}</h5></div>
+					<div class="col-12">
+						{% if ( sOptionSection.summary is defined ) and sOptionSection.summary|length %}
+							<div class="row">
+								<div class="col">
 									{% for item in sOptionSection.summary %}
-									<p class="noselect">{{ item }}</p>
+										<p class="noselect">{{ item }}</p>
 									{% endfor %}
 								</div>
 							</div>
-							{% endif %}
-
-							{% for key, aOption in sOptionSection.options %}
-								<div class="row row_number_{{ key }}">
-
-									{% if aOption.key is sameas('spacer') %}
-										<div class="span8">&nbsp;</div>
-									{% else %}
-
-										<div class="item_group span8 {{ ( aOption.value is sameas('Y') or not ( aOption.value is sameas(aOption.default) ) ) ? 'selected_item_group' : '' }}"
-											 id="span_{{ var_prefix ~ aOption.key }}">
-											<div class="control-group">
-												<label class="control-label" for="{{ var_prefix~aOption.key }}">
-													{{ aOption.name }}
-													<br />
-													{% if aOption.link_info %}
-														[
-														<a href="{{ aOption.link_info }}" target="_blank">{{ strings.more_info }}</a>
-														{% if aOption.link_blog %}
-															| <a href="{{ aOption.link_blog }}" target="_blank">{{ strings.blog }}</a>
-														{% endif %}
-														]
-													{% endif %}
-												</label>
-
-												<div class="controls">
-													<div class="option_section {{ ( aOption.value is sameas('Y') ) ? 'selected_item' : '' }}" id="option_section_{{ var_prefix~aOption.key }}">
-														<label>
-															{% if aOption.type is sameas('checkbox') %}
-
-																<input type="checkbox" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
-																{{ aOption.summary }}
-
-															{% elseif aOption.type is sameas('text') %}
-
-																<p>{{ aOption.summary }}</p>
-																<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="{{ aOption.value|raw }}" placeholder="{{ aOption.value }}" class="span5" />
-
-															{% elseif aOption.type is sameas('password') %}
-
-																<p>{{ aOption.summary }}</p>
-																<input type="password" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="{{ aOption.value|raw }}" placeholder="{{ aOption.value }}" class="span5" />
-
-															{% elseif aOption.type is sameas('email') %}
-
-																<p>{{ aOption.summary }}</p>
-																<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="{{ aOption.value|raw }}" placeholder="{{ aOption.value }}" class="span5" />
-
-															{% elseif aOption.type is sameas('select') %}
-
-																<p>{{ aOption.summary }}</p>
-																<select name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}">
-																	{% for option_value, option_value_name in aOption.value_options %}
-																		<option value="{{ option_value }}"
-																				id="{{ var_prefix~aOption.key }}_{{ option_value }}"
-																				{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
-																			{{ option_value_name }}
-																		</option>
-																	{% endfor %}
-																</select>
-
-															{% elseif aOption.type is sameas('multiple_select') %}
-
-																<p>{{ aOption.summary }}</p>
-																<select name="{{ var_prefix~aOption.key }}[]" id="{{ var_prefix~aOption.key }}"
-																		multiple="multiple" size="{{ aOption.value_options|length }}" >
-																	{% for option_value, option_value_name in aOption.value_options %}
-																		<option value="{{ option_value }}"
-																				id="{{ var_prefix~aOption.key }}_{{ option_value }}"
-																				{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
-																			{{ option_value_name }}
-																		</option>
-																	{% endfor %}
-																</select>
-
-															{% elseif aOption.type is sameas('array') %}
-
-																<p>{{ aOption.summary }}</p>
-																<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																		  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
-																		  class="span5">{{ aOption.value|raw }}</textarea>
-
-															{% elseif aOption.type is sameas('comma_separated_lists') %}
-
-																<p>{{ aOption.summary }}</p>
-																<textarea name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																		  placeholder="{{ aOption.value }}" rows="{{ aOption.rows }}"
-																		  class="span5">{{ aOption.value }}</textarea>
-
-															{% elseif aOption.type is sameas('integer') %}
-
-																<p>{{ aOption.summary }}</p>
-																<input type="text" name="{{ var_prefix~aOption.key }}" id="{{ var_prefix~aOption.key }}"
-																	   value="{{ aOption.value }}" placeholder="{{ aOption.value }}" class="span5" />
-
-															{% else %}
-																ERROR: Should never reach this point.
-															{% endif %}
-														</label>
-														{{ aOption.description|raw }}
-														<div style="clear:both"></div>
-													</div>
-												</div><!-- controls -->
-											</div><!-- control-group -->
-										</div>
-
-									{% endif %}
-								</div><!-- row -->
-							{% endfor %}
-						</fieldset>
+						{% endif %}
 					</div>
 				</div>
-			</div>
+
+				{% for key, aOption in sOptionSection.options %}
+					<div class="form-group row">
+						<label for="{{ aOption.key }}" class="col-sm-3 col-form-label">
+							{{ aOption.name }}
+							<br />
+							{% if aOption.link_info %}
+								[
+								<a href="{{ aOption.link_info }}"
+								   target="_blank">{{ strings.more_info }}</a>
+														{% if aOption.link_blog %}
+								| <a href="{{ aOption.link_blog }}"
+									 target="_blank">{{ strings.blog }}</a>
+							{% endif %}
+								]
+							{% endif %}
+						</label>
+						<div class="col-xl-6 col-lg-7 col-md-8 col-sm-9">
+
+							{% if aOption.type is sameas('checkbox') %}
+
+								<input type="checkbox" name="{{ aOption.key }}"
+									   id="{{ aOption.key }}" class="form-check-label"
+									   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
+
+							{% elseif aOption.type is sameas('text') %}
+
+								<input type="text" name="{{ aOption.key }}"
+									   id="{{ aOption.key }}"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ aOption.value }}"
+									   class="form-control" />
+
+							{% elseif aOption.type is sameas('password') %}
+
+								<input type="password" name="{{ aOption.key }}"
+									   id="{{ aOption.key }}"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ aOption.value }}"
+									   class="form-control" />
+
+							{% elseif aOption.type is sameas('email') %}
+
+								<input type="text" name="{{ aOption.key }}"
+									   id="{{ aOption.key }}"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ aOption.value }}"
+									   class="form-control" />
+
+							{% elseif aOption.type is sameas('select') %}
+
+								<select name="{{ aOption.key }}"
+										id="{{ aOption.key }}"
+										class="custom-select"
+								>
+									{% for option_value, option_value_name in aOption.value_options %}
+										<option value="{{ option_value }}"
+												id="{{ aOption.key }}_{{ option_value }}"
+												{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
+											{{ option_value_name }}
+										</option>
+									{% endfor %}
+								</select>
+
+							{% elseif aOption.type is sameas('multiple_select') %}
+
+								<select name="{{ aOption.key }}[]"
+										id="{{ aOption.key }}"
+										multiple="multiple"
+										multiple
+										size="{{ aOption.value_options|length }}"
+										class="custom-select"
+								>
+									{% for option_value, option_value_name in aOption.value_options %}
+										<option value="{{ option_value }}"
+												id="{{ aOption.key }}_{{ option_value }}"
+												{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
+											{{ option_value_name }}
+										</option>
+									{% endfor %}
+								</select>
+
+							{% elseif aOption.type is sameas('array') %}
+
+								<textarea name="{{ aOption.key }}"
+										  id="{{ aOption.key }}"
+										  placeholder="{{ aOption.value }}"
+										  rows="{{ aOption.rows }}"
+										  class="form-control">{{ aOption.value|raw }}</textarea>
+
+							{% elseif aOption.type is sameas('comma_separated_lists') %}
+
+								<textarea name="{{ aOption.key }}"
+										  id="{{ aOption.key }}"
+										  placeholder="{{ aOption.value }}"
+										  rows="{{ aOption.rows }}"
+										  class="form-control">{{ aOption.value }}</textarea>
+
+							{% elseif aOption.type is sameas('integer') %}
+
+								<input type="text" name="{{ aOption.key }}"
+									   id="{{ aOption.key }}"
+									   value="{{ aOption.value }}"
+									   placeholder="{{ aOption.value }}"
+									   class="form-control" />
+
+							{% else %}
+								ERROR: Should never reach this point.
+							{% endif %}
+							<p>{{ aOption.summary }}</p>
+							<div>{{ aOption.description|raw }}</div>
+						</div>
+					</div>
+				{% endfor %}
+		</div>
 		{% endfor %}
 	</div>
 	<div class="form-actions">
