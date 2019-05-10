@@ -72,7 +72,7 @@ body {
 
 	position: fixed;
 	bottom: 0;
-	right: 0;
+	right: 30%;
 	text-align: center;
 	z-index: 1000;
 
@@ -967,6 +967,12 @@ th.column-request_info {
 	border-radius: 3px;
 	background-color: rgba(0, 0, 0, 0.04);
 	color: green;
+}
+.nav-link.module.notenabled .module-icon:before {
+	color: rgb(90, 34, 0);
+}
+.nav-link.module.enabled .module-icon:before {
+	color: rgba(69, 119, 0, 1);
 }
 .is-not-pro #NavItem-license {
 	color: #09b740;

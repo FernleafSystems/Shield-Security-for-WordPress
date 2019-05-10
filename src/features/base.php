@@ -677,7 +677,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aSections[ $sSlug ] = $this->loadStrings_SectionTitles( $aSection );
 		}
 
-		$aSummary = [
+		$aSum = [
 			'enabled'    => $this->isEnabledForUiSummary(),
 			'active'     => $this->isThisModulePage(),
 			'slug'       => $this->getSlug(),
@@ -686,8 +686,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
 			'sections'   => $aSections,
 		];
-		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
-		return $aSummary;
+		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
+		$aSum[ 'tooltip' ] = sprintf(
+			'%s: %s',
+			$aSum[ 'name' ],
+			sprintf( _wpsf__( 'Module %s' ), ( $aSum[ 'enabled' ] ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' ) ) )
+		);
+		return $aSum;
 	}
 
 	/**
