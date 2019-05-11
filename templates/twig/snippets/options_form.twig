@@ -57,7 +57,7 @@
 											{% endif %}
 										   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
 									<label class="form-check-label"
-										   for="{{ aOption.key }}">{{ aOption.summary }}</label>
+										   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
 								</div>
 
 							{% elseif aOption.type is sameas('text') %}
