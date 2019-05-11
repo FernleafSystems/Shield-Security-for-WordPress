@@ -23,4 +23,9 @@
 </div>
 <script>
 	jQuery( 'a.nav-link.module' ).tooltip();
+	jQuery( 'span.icwp-pro-tooltip' ).tooltip( {
+		html: true,
+		title: '<?php echo $strings[ 'go_pro_option' ] ?>',
+		delay: { "show": 100, "hide": 1000 }
+	} );
 </script>

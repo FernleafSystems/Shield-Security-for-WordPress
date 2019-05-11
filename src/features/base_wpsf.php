@@ -214,6 +214,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'actions_summary'   => _wpsf__( 'Perform actions for this module' ),
 				'help_title'        => _wpsf__( 'Help' ),
 				'help_summary'      => _wpsf__( 'Learn More' ),
+				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
+					'https://icwp.io/shieldgoprofeature', _wpsf__( 'Please upgrade to Pro to control this option' ) ),
 
 				'aar_title'                    => _wpsf__( 'Plugin Access Restricted' ),
 				'aar_what_should_you_enter'    => _wpsf__( 'This security plugin is restricted to administrators with the Security Access Key.' ),

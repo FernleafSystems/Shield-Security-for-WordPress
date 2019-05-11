@@ -1,4 +1,5 @@
-<form action="{{ form_action }}" method="post" class="form">
+<form action="{{ form_action }}" method="post" class="icwpOptionsForm form" novalidate="novalidate"
+	  autocomplete="off">
 	{{ nonce_field|raw }}
 
 	<ul class="nav nav-tabs">
@@ -38,15 +39,22 @@
 
 				{% for key, aOption in sOptionSection.options %}
 					<div class="form-group row">
-						<label for="{{ aOption.key }}" class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
+						<label for="Opt-{{ aOption.key }}" class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
 							{{ aOption.name }}
 						</label>
 						<div class="col-xl-6 col-lg-7 col-md-8 col-sm-8">
 
+							{% if not aOption.enabled %}
+								<span class="d-block icwp-pro-tooltip" tabindex="0">
+							{% endif %}
+
 							{% if aOption.type is sameas('checkbox') %}
 								<div class="form-check">
 									<input type="checkbox" name="{{ aOption.key }}"
-										   id="{{ aOption.key }}" class="form-check-input"
+										   id="Opt-{{ aOption.key }}" class="form-check-input"
+											{% if not aOption.enabled %}
+												disabled="disabled"
+											{% endif %}
 										   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
 									<label class="form-check-label"
 										   for="{{ aOption.key }}">{{ aOption.summary }}</label>
@@ -55,37 +63,59 @@
 							{% elseif aOption.type is sameas('text') %}
 
 								<input type="text" name="{{ aOption.key }}"
-									   id="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
 									   value="{{ aOption.value|raw }}"
 									   placeholder="{{ aOption.value }}"
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
 									   class="form-control" />
 
 							{% elseif aOption.type is sameas('password') %}
 
 								<input type="password" name="{{ aOption.key }}"
-									   id="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
 									   value="{{ aOption.value|raw }}"
-									   placeholder="{{ aOption.value }}"
+									   placeholder="{{ strings.supply_password }}"
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
+									   class="form-control mb-2" />
+
+								<input type="password" name="{{ aOption.key }}_confirm"
+									   id="Opt-{{ aOption.key }}_confirm"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ strings.confirm_password }}"
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
 									   class="form-control" />
 
 							{% elseif aOption.type is sameas('email') %}
 
 								<input type="text" name="{{ aOption.key }}"
-									   id="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
 									   value="{{ aOption.value|raw }}"
 									   placeholder="{{ aOption.value }}"
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
 									   class="form-control" />
 
 							{% elseif aOption.type is sameas('select') %}
 
 								<select name="{{ aOption.key }}"
-										id="{{ aOption.key }}"
-										class="custom-select"
-								>
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
+										id="Opt-{{ aOption.key }}"
+										class="custom-select">
 									{% for option_value, option_value_name in aOption.value_options %}
 										<option value="{{ option_value }}"
-												id="{{ aOption.key }}_{{ option_value }}"
-												{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
+												{% if aOption.value is sameas( option_value ) %}
+													selected="selected"
+												{% endif %}
+												id="Opt-{{ aOption.key }}_{{ option_value }}">
 											{{ option_value_name }}
 										</option>
 									{% endfor %}
@@ -94,16 +124,19 @@
 							{% elseif aOption.type is sameas('multiple_select') %}
 
 								<select name="{{ aOption.key }}[]"
-										id="{{ aOption.key }}"
-										multiple="multiple"
-										multiple
+										id="Opt-{{ aOption.key }}"
+										multiple="multiple" multiple
 										size="{{ aOption.value_options|length }}"
-										class="custom-select"
-								>
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
+										class="custom-select">
 									{% for option_value, option_value_name in aOption.value_options %}
 										<option value="{{ option_value }}"
-												id="{{ aOption.key }}_{{ option_value }}"
-												{{ aOption.value is sameas( option_value ) ? 'selected="selected"' : '' }} >
+												{% if option_value in aOption.value %}
+													selected="selected"
+												{% endif %}
+												id="Opt-{{ aOption.key }}_{{ option_value }}">
 											{{ option_value_name }}
 										</option>
 									{% endfor %}
@@ -112,22 +145,28 @@
 							{% elseif aOption.type is sameas('array') %}
 
 								<textarea name="{{ aOption.key }}"
-										  id="{{ aOption.key }}"
+										  id="Opt-{{ aOption.key }}"
 										  placeholder="{{ aOption.value }}"
 										  rows="{{ aOption.rows }}"
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
 										  class="form-control">{{ aOption.value|raw }}</textarea>
 
 							{% elseif aOption.type is sameas('comma_separated_lists') %}
 
 								<textarea name="{{ aOption.key }}"
-										  id="{{ aOption.key }}"
+										  id="Opt-{{ aOption.key }}"
 										  placeholder="{{ aOption.value }}"
 										  rows="{{ aOption.rows }}"
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
 										  class="form-control">{{ aOption.value }}</textarea>
 
 							{% elseif aOption.type is sameas('noneditable_text') %}
 
-								<input name="{{ aOption.key }}" id="{{ aOption.key }}"
+								<input name="{{ aOption.key }}" id="Opt-{{ aOption.key }}"
 									   type="text" readonly
 									   class="form-control"
 									   value="{{ aOption.value }}" />
@@ -135,13 +174,20 @@
 							{% elseif aOption.type is sameas('integer') %}
 
 								<input type="text" name="{{ aOption.key }}"
-									   id="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
 									   value="{{ aOption.value }}"
 									   placeholder="{{ aOption.value }}"
+										{% if not aOption.enabled %}
+											disabled="disabled"
+										{% endif %}
 									   class="form-control" />
 
 							{% else %}
 								ERROR: Should never reach this point.
+							{% endif %}
+
+							{% if not aOption.enabled %}
+							</span>
 							{% endif %}
 
 							{% if aOption.type is not sameas('checkbox') %}
@@ -175,6 +221,7 @@
 	</div>
 	<div class="form-actions">
 		<input type="hidden" name="plugin_form_submit" value="Y" />
-		<button type="submit" class="btn btn-primary btn-large" name="submit">{{ strings.save_all_settings }}</button>
+		<button type="submit" class="btn btn-primary btn-large icwp-form-button"
+				name="submit" style="margin-right: 12px">{{ strings.save_all_settings }}</button>
 	</div>
 </form>

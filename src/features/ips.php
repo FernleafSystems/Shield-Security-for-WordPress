@@ -497,7 +497,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$sName = _wpsf__( 'Transgression Limit' );
 				$sSummary = _wpsf__( 'Visitor IP address will be Black Listed after X bad actions on your site' );
 				$sDescription = sprintf( _wpsf__( 'A black mark is set against an IP address each time a visitor trips the defenses of the %s plugin.' ), $sPlugName )
-								.'<br />'._wpsf__( 'When the number of these transgressions exceeds specified limit, they are automatically blocked from accessing the site.' )
+								.'<br />'._wpsf__( 'When the number of these transgressions exceeds the limit, they are automatically blocked from accessing the site.' )
 								.'<br />'.sprintf( _wpsf__( 'Set this to "0" to turn off the %s feature.' ), _wpsf__( 'Automatic IP Black List' ) );
 				break;
 
