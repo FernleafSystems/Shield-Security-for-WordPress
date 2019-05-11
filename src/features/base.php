@@ -678,7 +678,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$aSum = [
-			'enabled'    => false && $this->isEnabledForUiSummary(),
+			'enabled'    => $this->isEnabledForUiSummary(),
 			'active'     => $this->isThisModulePage(),
 			'slug'       => $this->getSlug(),
 			'name'       => $this->getMainFeatureName(),
