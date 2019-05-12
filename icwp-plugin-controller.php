@@ -1841,6 +1841,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			if ( $oUser instanceof \WP_User ) {
 				/** @var Shield\Users\ShieldUserMeta $oMeta */
 				$oMeta = Shield\Users\ShieldUserMeta::Load( $this->prefix(), $oUser->ID );
+				if ( !$oMeta instanceof Shield\Users\ShieldUserMeta ) {
+					// Weird: user reported an error where it wasn't of the correct type
+					$oMeta = new Shield\Users\ShieldUserMeta( $this->prefix(), $oUser->ID );
+					Shield\Users\ShieldUserMeta::AddToCache( $oMeta );
+				}
 				$oMeta->setPasswordStartedAt( $oUser->user_pass )
 					  ->updateFirstSeenAt();
 				Services::WpUsers()

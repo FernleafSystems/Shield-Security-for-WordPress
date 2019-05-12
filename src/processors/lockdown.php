@@ -16,8 +16,6 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !empty( $sWpVersionMask ) ) {
 			global $wp_version;
 			$wp_version = $sWpVersionMask;
-// 			add_filter( 'bloginfo', array( $this, 'maskWordpressVersion' ), 1, 2 );
-// 			add_filter( 'bloginfo_url', array( $this, 'maskWordpressVersion' ), 1, 2 );
 		}
 
 		if ( $oFO->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
