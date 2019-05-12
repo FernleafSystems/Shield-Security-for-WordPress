@@ -47,7 +47,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 
 }();
 
-
 if ( false && typeof icwp_wpsf_vars_base !== 'undefined' ) {
 	var iCWP_WPSF_OptsPageRender = new function () {
 
@@ -200,7 +199,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", "form.icwpOptionsForm", submitOptionsForm );
+			jQuery( document ).on( "submit", 'form.icwpOptionsForm', submitOptionsForm );
 		} );
 	};
 }();

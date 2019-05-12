@@ -1,6 +1,5 @@
 <form action="{{ form_action }}" method="post" class="icwpOptionsForm form" novalidate="novalidate"
 	  autocomplete="off">
-	{{ nonce_field|raw }}
 
 	<ul class="nav nav-tabs">
 		{% for sOptionSection in data.all_options %}
@@ -220,7 +219,6 @@
 		{% endfor %}
 	</div>
 	<div class="form-actions">
-		<input type="hidden" name="plugin_form_submit" value="Y" />
 		<button type="submit" class="btn btn-primary btn-large icwp-form-button"
 				name="submit" style="margin-right: 12px">{{ strings.save_all_settings }}</button>
 	</div>

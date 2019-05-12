@@ -90,7 +90,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
 
 		if ( $this->isModuleRequest() ) {
-			add_action( $this->prefix( 'form_submit' ), [ $this, 'handleOptionsSubmit' ] );
 			add_filter( $this->prefix( 'ajaxAction' ), [ $this, 'handleAjax' ] );
 			add_filter( $this->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
 			add_filter( $this->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleNonAuthAjax' ] );
@@ -217,10 +216,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sEncoding
 	 * @return array
 	 */
-	protected function getAjaxFormParams( $sEncoding = 'none' ) {
+	private function getAjaxFormParams( $sEncoding = 'none' ) {
 		$oReq = Services::Request();
 		$aFormParams = [];
 		$sRaw = $oReq->post( 'form_params', '' );
+
 		if ( !empty( $sRaw ) ) {
 
 			$sMaybeEncoding = $oReq->post( 'enc_params' );
@@ -1157,17 +1157,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sMessage = sprintf( _wpsf__( 'Failed to update %s plugin options.' ), $sName )
 						.' '.$oE->getMessage();
 		}
-//		$sMessage = sprintf( _wpsf__( 'Failed to update %s options as you are not authenticated with %s as a Security Admin.' ), $sName, $sName );
 
-		try {
-			$sForm = $this->renderOptionsForm();
-		}
-		catch ( \Exception $oE ) {
-			$sForm = 'Error during form render';
-		}
 		return [
 			'success' => $bSuccess,
-			'html'    => $sForm,
+			'html'    => '', //we reload the page
 			'message' => $sMessage
 		];
 	}
@@ -1193,23 +1186,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function handleModRequest() {
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function handleOptionsSubmit() {
-		$bSuccess = $this->verifyFormSubmit();
-		if ( $bSuccess ) {
-			try {
-				$this->saveOptionsSubmit();
-				$this->setSaveUserResponse();
-			}
-			catch ( \Exception $oE ) {
-				$bSuccess = false;
-			}
-		}
-		return $bSuccess;
 	}
 
 	/**
@@ -1286,9 +1262,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	private function doSaveStandardOptions() {
 		$aForm = $this->getAjaxFormParams( 'b64' ); // standard options use b64 and failover to lz-string
-		if ( empty( $aForm[ 'plugin_form_submit' ] ) || $aForm[ 'plugin_form_submit' ] !== 'Y' ) {
-			throw new \Exception( 'Not a standard plugin options form submission' );
-		}
 
 		foreach ( $this->getAllFormOptionsAndTypes() as $sKey => $sOptType ) {
 
