@@ -46,24 +46,6 @@ body {
 	line-height: 10px;
 	letter-spacing: -0.5px;
 }
-.icwp-options-page ul.nav-tabs {
-	margin: 0;
-}
-.icwp-options-page ul.nav-tabs li a {
-	background-color: transparent;
-	border: 1px solid rgba(0, 0, 0, 0.06);
-	border-bottom: 0 none;
-	margin-left: 5px;
-	font-size: 14px;
-	padding: 5px 10px;
-}
-.icwp-options-page ul.nav-tabs li a:focus {
-	box-shadow: none;
-}
-.icwp-options-page ul.nav-tabs li a:hover {
-	background-color: #dddddd;
-	border-color: #999999;
-}
 .icwp-options-page .form-actions {
 	background-color: #d8d8d8;
 	border: 0 none;
@@ -777,37 +759,6 @@ input:checked + .icwp-slider:before {
 	box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.05);
 	min-height: 450px;
 }
-#ModuleOptionsNav {
-	margin-top: 20px;
-}
-#ModuleOptionsNav li {
-	margin-bottom: 0;
-}
-#ModuleOptionsNav li a {
-	border: 1px solid transparent;
-	font-size: 14px;
-	min-height: 60px;
-	margin-right: -1px;
-	border-radius: 3px 0 0 3px;
-	color: #006100;
-	letter-spacing: -0.5px;
-	margin-left: 7px;
-}
-#ModuleOptionsNav li a:hover {
-	background-color: rgba(0, 0, 0, 0.07);
-}
-#ModuleOptionsNav li a.active {
-	background-color: #fcfffc;
-	border: 1px solid #cccccc;
-	border-right-color: transparent;
-	z-index: 2;
-	position: relative;
-	box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.03);
-}
-#ModuleOptionsNav li a:active,
-#ModuleOptionsNav li a:focus {
-	box-shadow: none;
-}
 .smoothwidth {
 	transition: width 4.5s;
 }
@@ -1242,16 +1193,26 @@ input[type=checkbox].form-check-input {
 	font-size: 14px;
 	padding-top: 20px;
 }
-.content-options .nav-tabs {
+#ModuleOptionsNav.nav-tabs {
 	border: 0 none;
+	margin: 0;
 }
-.content-options .nav-tabs .nav-link {
+#ModuleOptionsNav.nav-tabs a.nav-link {
+	padding: 0.5rem 0.7rem;
 	background-color: rgba(0, 0, 0, 0.06);
+	border: 1px solid rgba(0, 0, 0, 0.06);
 	border-bottom: 0 none;
+	margin-left: 6px;
+	font-size: 14px;
 }
-.content-options .nav-tabs.nav-tabs .nav-link.active {
+#ModuleOptionsNav.nav-tabs a.nav-link.active,
+#ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
 	background-color: transparent;
 	border-color: rgba(0, 0, 0, 0.1);
+}
+#ModuleOptionsNav.nav-tabs a.nav-link:hover {
+	background-color: #dddddd;
+	border-color: #999999;
 }
 .content-options .tab-content {
 	border-top: 0 none;
