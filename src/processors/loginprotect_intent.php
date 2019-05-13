@@ -114,10 +114,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
 			$oF = $this->getMod();
 			if ( !$oF->canUserMfaSkip( $oUser ) ) {
-				$nTimeout = (int)apply_filters(
-					$oF->prefix( 'login_intent_timeout' ),
-					$oF->getDef( 'login_intent_timeout' )
-				);
+				$nTimeout = (int)apply_filters( $oF->prefix( 'login_intent_timeout' ), $oF->getDef( 'login_intent_timeout' ) );
 				$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout );
 			}
 		}
