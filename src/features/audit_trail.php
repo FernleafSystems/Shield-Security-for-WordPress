@@ -502,7 +502,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 			case 'audit_trail_auto_clean' :
 				$sName = _wpsf__( 'Auto Clean' );
-				$sSummary = _wpsf__( 'Enable Change Tracking' );
+				$sSummary = _wpsf__( 'Automatically Purge Audit Log Entries Older Than The Set Number Of Days' );
 				$sDescription = _wpsf__( 'Events older than the number of days specified will be automatically cleaned from the database.' );
 				break;
 
