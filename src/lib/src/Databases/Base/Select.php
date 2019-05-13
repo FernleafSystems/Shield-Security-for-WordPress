@@ -97,7 +97,7 @@ class Select extends BaseQuery {
 	}
 
 	/**
-	 * @return EntryVO|\stdClass|null
+	 * @return EntryVO|\stdClass|mixed|null
 	 */
 	public function first() {
 		$aR = $this->query();

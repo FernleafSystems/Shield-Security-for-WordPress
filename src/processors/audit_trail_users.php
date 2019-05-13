@@ -5,9 +5,9 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	/**
 	 */
 	public function run() {
-		add_action( 'wp_login', array( $this, 'auditUserLoginSuccess' ) );
-		add_action( 'user_register', array( $this, 'auditNewUserRegistered' ) );
-		add_action( 'delete_user', array( $this, 'auditDeleteUser' ), 30, 2 );
+		add_action( 'wp_login', [ $this, 'auditUserLoginSuccess' ] );
+		add_action( 'user_register', [ $this, 'auditNewUserRegistered' ] );
+		add_action( 'delete_user', [ $this, 'auditDeleteUser' ], 30, 2 );
 	}
 
 	/**
@@ -46,7 +46,7 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	public function auditDeleteUser( $nUserId, $nReassigned ) {
 		$oWpUsers = $this->loadWpUsers();
 
-		$aAuditMessage = array( _wpsf__( 'WordPress user deleted.' ) );
+		$aAuditMessage = [ _wpsf__( 'WordPress user deleted.' ) ];
 
 		$oDeletedUser = empty( $nUserId ) ? null : $oWpUsers->getUserById( $nUserId );
 		if ( empty( $oDeletedUser ) ) {

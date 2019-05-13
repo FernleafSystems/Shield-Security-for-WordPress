@@ -18,8 +18,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		$this->getLoginTrack()->addFactorToTrack( $this->getStub() );
 
 		if ( $oFO->getIfUseLoginIntentPage() ) {
-			add_filter( $oFO->prefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
-			add_action( $oFO->prefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
+			add_filter( $oFO->prefix( 'login-intent-form-fields' ), [ $this, 'addLoginIntentField' ] );
+			add_action( $oFO->prefix( 'login-intent-validation' ), [ $this, 'validateLoginIntent' ] );
 		}
 
 		if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
@@ -27,14 +27,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 		}
 
 		// Necessary so we don't show user intent to people without it
-		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'filterUserSubjectToIntent' ), 10, 2 );
+		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), [ $this, 'filterUserSubjectToIntent' ], 10, 2 );
 
-		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
-		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
+		add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
+		add_action( 'personal_options_update', [ $this, 'handleUserProfileSubmit' ] );
 
 		if ( $this->getCon()->isPluginAdmin() ) {
-			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserEditProfile' ) );
-			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
+			add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
+			add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
 		}
 	}
 
@@ -88,9 +88,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @since 6.9.0 removed fallback to old user meta
 	 * @param WP_User $oUser
 	 * @return bool
+	 * @since 6.9.0 removed fallback to old user meta
 	 */
 	protected function hasValidatedProfile( $oUser ) {
 		$sKey = $this->getStub().'_validated';

@@ -36,11 +36,11 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			$aTracking = [];
 		}
 		$aTracking = $this->loadDP()->mergeArraysRecursive(
-			array(
+			[
 				'core'    => [],
 				'plugins' => [],
 				'themes'  => [],
-			),
+			],
 			$aTracking
 		);
 		$this->setOpt( 'delay_tracking', $aTracking );
@@ -153,10 +153,10 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
-		return array(
+		return [
 			'success' => $bSuccess,
 			'message' => $sMessage,
-		);
+		];
 	}
 
 	/**
@@ -203,22 +203,22 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		$aNotices = array(
+		$aNotices = [
 			'title'    => _wpsf__( 'Automatic Updates' ),
 			'messages' => []
-		);
+		];
 		{ //really disabled?
 			$oWp = Services::WpGeneral();
 			if ( $this->isModOptEnabled() ) {
 				if ( $this->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
-					$aNotices[ 'messages' ][ 'disabled_auto' ] = array(
+					$aNotices[ 'messages' ][ 'disabled_auto' ] = [
 						'title'   => 'Auto Updates Not Really Disabled',
 						'message' => _wpsf__( 'Automatic Updates Are Not Disabled As Expected.' ),
 						'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
 						'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 						'rec'     => sprintf( _wpsf__( 'A plugin/theme other than %s is affecting your automatic update settings.' ), $this->getCon()
 																																		   ->getHumanName() )
-					);
+					];
 				}
 			}
 		}
@@ -234,14 +234,14 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'Automatic Updates' ),
 				'sub'   => _wpsf__( 'Control WordPress Automatic Updates' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
@@ -250,7 +250,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 			$bAllDisabled = $this->isDisableAllAutoUpdates();
 			if ( $bAllDisabled ) {
-				$aThis[ 'key_opts' ][ 'disabled' ] = array(
+				$aThis[ 'key_opts' ][ 'disabled' ] = [
 					'name'    => _wpsf__( 'Disabled All' ),
 					'enabled' => !$bAllDisabled,
 					'summary' => $bAllDisabled ?
@@ -258,12 +258,12 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 						: _wpsf__( 'The automatic updates system is enabled' ),
 					'weight'  => 2,
 					'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
-				);
+				];
 			}
 			else {
 				$oWp = $this->loadWp();
 				$bCanCore = $oWp->canCoreUpdateAutomatically();
-				$aThis[ 'key_opts' ][ 'core_minor' ] = array(
+				$aThis[ 'key_opts' ][ 'core_minor' ] = [
 					'name'    => _wpsf__( 'Core Updates' ),
 					'enabled' => $bCanCore,
 					'summary' => $bCanCore ?
@@ -271,10 +271,10 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 						: _wpsf__( 'Minor WP Core updates will not be installed automatically' ),
 					'weight'  => 2,
 					'href'    => $this->getUrl_DirectLinkToOption( 'autoupdate_core' ),
-				);
+				];
 
 				$bHasDelay = $this->isModOptEnabled() && $this->getDelayUpdatesPeriod();
-				$aThis[ 'key_opts' ][ 'delay' ] = array(
+				$aThis[ 'key_opts' ][ 'delay' ] = [
 					'name'    => _wpsf__( 'Update Delay' ),
 					'enabled' => $bHasDelay,
 					'summary' => $bHasDelay ?
@@ -282,12 +282,12 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 						: _wpsf__( 'Automatic updates are applied immediately' ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToOption( 'update_delay' ),
-				);
+				];
 
 				$sName = $this->getCon()->getHumanName();
 				$bSelfAuto = $this->isModOptEnabled()
 							 && in_array( $this->getSelfAutoUpdateOpt(), [ 'auto', 'immediate' ] );
-				$aThis[ 'key_opts' ][ 'self' ] = array(
+				$aThis[ 'key_opts' ][ 'self' ] = [
 					'name'    => _wpsf__( 'Self Auto-Update' ),
 					'enabled' => $bSelfAuto,
 					'summary' => $bSelfAuto ?
@@ -295,7 +295,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 						: sprintf( _wpsf__( "%s isn't automatically updated" ), $sName ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToOption( 'autoupdate_plugin_self' ),
-				);
+				];
 			}
 		}
 
@@ -316,49 +316,49 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'section_enable_plugin_feature_automatic_updates_control' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic Updates' ) ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_disable_all_wordpress_automatic_updates' :
 				$sTitle = _wpsf__( 'Disable ALL WordPress Automatic Updates' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'If you never want WordPress to automatically update anything on your site, turn on this option.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Do not turn on this option unless you really need to block updates.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Turn Off' );
 				break;
 
 			case 'section_automatic_plugin_self_update' :
 				$sTitle = _wpsf__( 'Automatic Plugin Self-Update' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s',
 						_wpsf__( 'Purpose' ),
 						sprintf( _wpsf__( 'Allows the %s plugin to automatically update itself when an update is available.' ), $sPlugName )
 					),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this option turned on.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Self-Update' );
 				break;
 
 			case 'section_automatic_updates_for_wordpress_components' :
 				$sTitle = _wpsf__( 'Automatic Updates For WordPress Components' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Control how automatic updates for each WordPress component is handled.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'You should at least allow minor updates for the WordPress core.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'WordPress Components' );
 				break;
 
 			case 'section_options' :
 				$sTitle = _wpsf__( 'Auto-Update Options' );
 				$sTitleShort = _wpsf__( 'Auto-Update Options' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Make adjustments to how automatic updates are handled on your site.' ) ),
-				);
+				];
 				break;
 
 			default:

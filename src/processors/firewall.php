@@ -12,11 +12,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	private $aDieMessage;
 
 	/**
-	 * @var bool
-	 */
-	private $bDoFirewallBlock;
-
-	/**
 	 * @var array
 	 */
 	protected $aPatterns;
@@ -43,42 +38,33 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	protected function getIfDoFirewallBlock() {
-		if ( !isset( $this->bDoFirewallBlock ) ) {
-			$this->bDoFirewallBlock = !$this->isVisitorRequestPermitted();
-		}
-		return $this->bDoFirewallBlock;
+	private function getIfDoFirewallBlock() {
+		return !$this->isVisitorRequestPermitted();
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function getIfPerformFirewallScan() {
+	private function getIfPerformFirewallScan() {
 		$bPerformScan = true;
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
 		$oFO = $this->getMod();
 
+		$sPath = Services::Request()->getPath();
+
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
 		}
-
-		// if we couldn't process the REQUEST_URI parts, we can't firewall so we effectively whitelist without erroring.
-		$sPath = Services::Request()->getPath();
-		if ( $bPerformScan && empty( $sPath ) ) {
+		else if ( empty( $sPath ) ) {
 			$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;
 		}
-
-		$aPageParamsToCheck = $this->getParamsToCheck();
-		if ( $bPerformScan && empty( $aPageParamsToCheck ) ) {
-//				$sAuditMessage = sprintf( _wpsf__('Skipping firewall checking for this visit: %s.'), _wpsf__('After whitelist options were applied, there were no page parameters to check') );
-//				$this->addToAuditEntry( $sAuditMessage, 1, 'firewall_skip' );
+		else if ( count( $this->getParamsToCheck() ) == 0 ) {
 			$bPerformScan = false;
 		}
-
 		// TODO: are we calling is_super_admin() too early?
-		if ( $bPerformScan && $oFO->isIgnoreAdmin() && is_super_admin() ) {
+		else if ( $oFO->isIgnoreAdmin() && is_super_admin() ) {
 			$bPerformScan = false;
 		}
 
@@ -88,7 +74,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return boolean - true if visitor is permitted, false if it should be blocked.
 	 */
-	protected function isVisitorRequestPermitted() {
+	private function isVisitorRequestPermitted() {
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
 		$oFO = $this->getMod();
 
@@ -136,7 +122,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$aMatchTerms = $this->getFirewallPatterns( 'exefile' );
 			if ( isset( $aMatchTerms[ 'regex' ] ) && is_array( $aMatchTerms[ 'regex' ] ) ) {
 
-				$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+				$aMatchTerms[ 'regex' ] = array_map( [ $this, 'prepRegexTerms' ], $aMatchTerms[ 'regex' ] );
 				foreach ( $aMatchTerms[ 'regex' ] as $sTerm ) {
 					foreach ( $aFileNames as $sParam => $mValue ) {
 						if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
@@ -186,7 +172,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( !$bFAIL && isset( $aMatchTerms[ 'regex' ] ) && is_array( $aMatchTerms[ 'regex' ] ) ) {
-			$aMatchTerms[ 'regex' ] = array_map( array( $this, 'prepRegexTerms' ), $aMatchTerms[ 'regex' ] );
+			$aMatchTerms[ 'regex' ] = array_map( [ $this, 'prepRegexTerms' ], $aMatchTerms[ 'regex' ] );
 			foreach ( $aMatchTerms[ 'regex' ] as $sTerm ) {
 				foreach ( $aParamValues as $sParam => $mValue ) {
 					if ( is_scalar( $mValue ) && preg_match( $sTerm, (string)$mValue ) ) {
@@ -210,11 +196,11 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$this->addToAuditEntry(
 				implode( "\n", $this->aAuditBlockMessage ), 3, 'firewall_block',
-				array(
+				[
 					'param'    => $sParam,
 					'val'      => $mValue,
 					'blockkey' => $sBlockKey,
-				)
+				]
 			);
 			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
 		}
@@ -246,73 +232,66 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
-	protected function doPreFirewallBlock() {
+	private function doPreFirewallBlock() {
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		$oFO = $this->getMod();
 
-		if ( $this->getIfDoFirewallBlock() ) {
-			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getMod();
-
-			switch ( $oFO->getBlockResponse() ) {
-				case 'redirect_die':
-					$sMessage = _wpsf__( 'Visitor connection was killed with wp_die()' );
-					break;
-				case 'redirect_die_message':
-					$sMessage = _wpsf__( 'Visitor connection was killed with wp_die() and a message' );
-					break;
-				case 'redirect_home':
-					$sMessage = _wpsf__( 'Visitor was sent HOME' );
-					break;
-				case 'redirect_404':
-					$sMessage = _wpsf__( 'Visitor was sent 404' );
-					break;
-				default:
-					$sMessage = _wpsf__( 'Unknown' );
-					break;
-			}
-
-			if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
-
-				$sRecipient = $oFO->getPluginDefaultRecipientAddress();
-				if ( $this->sendBlockEmail( $sRecipient ) ) {
-					$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
-				}
-				else {
-					$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
-				}
-			}
-
-			$oFO->setOptInsightsAt( 'last_firewall_block_at' )
-				->setIpTransgressed();
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Firewall Block Response: %s.' ), $sMessage ) );
+		switch ( $oFO->getBlockResponse() ) {
+			case 'redirect_die':
+				$sMessage = _wpsf__( 'Visitor connection was killed with wp_die()' );
+				break;
+			case 'redirect_die_message':
+				$sMessage = _wpsf__( 'Visitor connection was killed with wp_die() and a message' );
+				break;
+			case 'redirect_home':
+				$sMessage = _wpsf__( 'Visitor was sent HOME' );
+				break;
+			case 'redirect_404':
+				$sMessage = _wpsf__( 'Visitor was sent 404' );
+				break;
+			default:
+				$sMessage = _wpsf__( 'Unknown' );
+				break;
 		}
+
+		if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
+
+			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
+			if ( $this->sendBlockEmail( $sRecipient ) ) {
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
+			}
+			else {
+				$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
+			}
+		}
+
+		$oFO->setOptInsightsAt( 'last_firewall_block_at' )
+			->setIpTransgressed();
+		$this->addToAuditEntry( sprintf( _wpsf__( 'Firewall Block Response: %s.' ), $sMessage ) );
 	}
 
 	/**
 	 */
-	protected function doFirewallBlock() {
+	private function doFirewallBlock() {
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		$oFO = $this->getMod();
 
-		if ( $this->getIfDoFirewallBlock() ) {
-			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getMod();
-			$oWp = $this->loadWp();
-
-			switch ( $oFO->getBlockResponse() ) {
-				case 'redirect_die':
-					break;
-				case 'redirect_die_message':
-					$oWp->wpDie( $this->getFirewallDieMessageForDisplay() );
-					break;
-				case 'redirect_home':
-					header( "Location: ".$oWp->getHomeUrl() );
-					break;
-				case 'redirect_404':
-					header( "Location: ".$oWp->getHomeUrl( '404' ) );
-					break;
-				default:
-					break;
-			}
-			exit();
+		switch ( $oFO->getBlockResponse() ) {
+			case 'redirect_die':
+				break;
+			case 'redirect_die_message':
+				Services::WpGeneral()->wpDie( $this->getFirewallDieMessageForDisplay() );
+				break;
+			case 'redirect_home':
+				Services::Response()->redirectToHome();
+				break;
+			case 'redirect_404':
+				Services::Response()->redirect( '404' );
+				break;
+			default:
+				break;
 		}
+		die();
 	}
 
 	/**
@@ -320,7 +299,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getFirewallDieMessage() {
 		if ( !isset( $this->aDieMessage ) || !is_array( $this->aDieMessage ) ) {
-			$this->aDieMessage = array( $this->getMod()->getTextOpt( 'text_firewalldie' ) );
+			$this->aDieMessage = [ $this->getMod()->getTextOpt( 'text_firewalldie' ) ];
 		}
 		return $this->aDieMessage;
 	}
@@ -351,17 +330,19 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return array
 	 */
-	protected function getParamsToCheck() {
+	private function getParamsToCheck() {
 		if ( isset( $this->aPageParams ) ) {
 			return $this->aPageParams;
 		}
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		$oFO = $this->getMod();
 
 		$this->aPageParams = $this->getRawRequestParams();
-		$aWhitelistPages = $this->getWhitelistPages();
+		$aWhitelist = $this->loadDP()->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
 
 		// first we remove globally whitelisted request parameters
-		if ( !empty( $aWhitelistPages[ '*' ] ) && is_array( $aWhitelistPages[ '*' ] ) ) {
-			foreach ( $aWhitelistPages[ '*' ] as $sWhitelistParam ) {
+		if ( !empty( $aWhitelist[ '*' ] ) && is_array( $aWhitelist[ '*' ] ) ) {
+			foreach ( $aWhitelist[ '*' ] as $sWhitelistParam ) {
 
 				if ( preg_match( '#^/.+/$#', $sWhitelistParam ) ) {
 					foreach ( array_keys( $this->aPageParams ) as $sParamKey ) {
@@ -383,7 +364,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// Now we run through the list of whitelist pages
 		$sRequestPage = Services::Request()->getPath();
-		foreach ( $aWhitelistPages as $sWhitelistPageName => $aWhitelistPageParams ) {
+		foreach ( $aWhitelist as $sWhitelistPageName => $aWhitelistPageParams ) {
 
 			// if the page is white listed
 			if ( strpos( $sRequestPage, $sWhitelistPageName ) !== false ) {
@@ -415,19 +396,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getWhitelistPages() {
-		if ( !isset( $this->aWhitelist ) ) {
-			/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-			$oFO = $this->getMod();
-			$this->aWhitelist = $this->loadDP()
-									 ->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
-		}
-		return $this->aWhitelist;
-	}
-
-	/**
 	 * @param string $sRecipient
 	 * @return bool
 	 */
@@ -456,6 +424,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			return $this->getEmailProcessor()
 						->sendEmailWithWrap( $sRecipient, _wpsf__( 'Firewall Block Alert' ), $aMessage );
 		}
+		return true;
 	}
 
 	/**

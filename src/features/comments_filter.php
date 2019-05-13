@@ -5,51 +5,50 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @var array
+	 * @param int    $nPostId
+	 * @param string $sCommentEmail
+	 * @return bool
 	 */
-	private $aCommentData;
+	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
+		$oWpComm = $this->loadWpComments();
 
-	/**
-	 */
-	protected function setupCustomHooks() {
-		add_filter( 'preprocess_comment', array( $this, 'gatherRawCommentData' ), 1 );
+		$oPost = Services::WpPost()->getById( $nPostId );
+		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
+			   && !$this->isTrustedCommenter( $sCommentEmail );
+		// Removed 20190425 - v7.4 Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
+//			   && !( function_exists( 'WPWall_Init' ) && !is_null( Services::Request()->post( 'submit_wall_post' ) ) );
 	}
 
 	/**
-	 * @param array $aRawCommentData
-	 * @return array
+	 * @param string $sCommentEmail
+	 * @return bool
 	 */
-	public function gatherRawCommentData( $aRawCommentData ) {
-		$this->aCommentData = $aRawCommentData;
-		return $aRawCommentData;
+	private function isTrustedCommenter( $sCommentEmail ) {
+		$bTrusted = $this->loadWpComments()->countApproved( $sCommentEmail ) >= $this->getApprovedMinimum();
+
+		$aTrustedRoles = $this->getTrustedRoles();
+		if ( !$bTrusted && !empty( $aTrustedRoles ) ) {
+			$oUser = Services::WpUsers()->getUserByEmail( $sCommentEmail );
+			if ( $oUser instanceof \WP_User ) {
+				$bTrusted = count( array_intersect( $aTrustedRoles, array_map( 'strtolower', $oUser->roles ) ) ) > 0;
+			}
+		}
+
+		return $bTrusted;
 	}
 
 	/**
-	 * @return array
+	 * This is the same as isTrustedCommenter() except with an optimization in the order of the tests
+	 * since we already have a User object loaded and testing roles is quicker than querying for approved comments
+	 * @param \WP_User $oUser
+	 * @return bool
 	 */
-	public function getCommentData() {
-		return ( isset( $this->aCommentData ) && is_array( $this->aCommentData ) ) ? $this->aCommentData : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return array|mixed
-	 */
-	public function getCommentItem( $sKey ) {
-		$aD = $this->getCommentData();
-		return isset( $aD[ $sKey ] ) ? $aD[ $sKey ] : null;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function getIfDoCommentsCheck() {
-		$oWpComments = $this->loadWpComments();
-
-		// 1st are comments enabled on this post?
-		$oPost = Services::WpPost()->getById( $this->getCommentItem( 'comment_post_ID' ) );
-		return ( $oPost instanceof WP_Post ) && $oWpComments->isCommentsOpen( $oPost )
-			   && ( !$oWpComments->getIfAllowCommentsByPreviouslyApproved() || !$oWpComments->isAuthorApproved( $this->getCommentItem( 'comment_author_email' ) ) );
+	public function isUserTrusted( $oUser ) {
+		return ( $oUser instanceof \WP_User )
+			   && (
+				   count( array_intersect( $this->getTrustedRoles(), array_map( 'strtolower', $oUser->roles ) ) ) > 0
+				   || $this->loadWpComments()->countApproved( $oUser->user_email ) >= $this->getApprovedMinimum()
+			   );
 	}
 
 	/**
@@ -82,6 +81,24 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 			$sStyle = parent::getGoogleRecaptchaStyle();
 		}
 		return $sStyle;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getApprovedMinimum() {
+		return $this->getOpt( 'trusted_commenter_minimum', 1 );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getTrustedRoles() {
+		$aRoles = [];
+		if ( $this->isPremium() ) {
+			$aRoles = $this->getOpt( 'trusted_user_roles', [] );
+		}
+		return is_array( $aRoles ) ? $aRoles : [];
 	}
 
 	/**
@@ -120,12 +137,24 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		if ( empty( $aCommentsFilters ) || !is_array( $aCommentsFilters ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'enable_comments_human_spam_filter_items' );
 		}
+
+		// clean roles
+		$this->setOpt( 'trusted_user_roles',
+			array_unique( array_filter( array_map(
+				function ( $sRole ) {
+					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+				},
+				$this->getTrustedRoles()
+			) ) )
+		);
 	}
 
 	/**
-	 * This is the point where you would want to do any options verification
+	 * @return string[]
 	 */
-	protected function doPrePluginOptionsSave() {
+	public function getHumanSpamFilterItems() {
+		$aItems = $this->getOpt( 'enable_comments_human_spam_filter_items' );
+		return is_array( $aItems ) ? $aItems : [];
 	}
 
 	/**
@@ -133,20 +162,20 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'SPAM Blocking' ),
 				'sub'   => _wpsf__( 'Block Bot & Human Comment SPAM' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$aThis[ 'key_opts' ][ 'bot' ] = array(
+			$aThis[ 'key_opts' ][ 'bot' ] = [
 				'name'    => _wpsf__( 'Bot SPAM' ),
 				'enabled' => $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled(),
 				'summary' => ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() ) ?
@@ -154,8 +183,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 					: _wpsf__( 'There is no protection against Bot SPAM comments' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_bot_comment_spam_protection_filter' ),
-			);
-			$aThis[ 'key_opts' ][ 'human' ] = array(
+			];
+			$aThis[ 'key_opts' ][ 'human' ] = [
 				'name'    => _wpsf__( 'Human SPAM' ),
 				'enabled' => $this->isEnabledHumanCheck(),
 				'summary' => $this->isEnabledHumanCheck() ?
@@ -163,11 +192,34 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 					: _wpsf__( "Comments posted by humans aren't checked for SPAM" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_human_spam_filter' ),
-			);
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * @param string $sSection
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSection ) {
+		$aWarnings = [];
+
+		switch ( $sSection ) {
+			case 'section_recaptcha':
+				/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
+				$oP = $this->getCon()->getModule( 'plugin' );
+				if ( !$oP->isGoogleRecaptchaReady() ) {
+					$aWarnings[] = sprintf(
+						_wpsf__( 'Please remember to supply reCAPTCHA keys: %s' ),
+						sprintf( '<a href="%s" target="_blank">%s</a>', $oP->getUrl_DirectLinkToSection( 'section_third_party_google' ), __( 'reCAPTCHA Settings' ) )
+					);
+				}
+				break;
+		}
+
+		return $aWarnings;
 	}
 
 	/**
@@ -182,42 +234,46 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 			case 'section_enable_plugin_feature_spam_comments_protection_filter' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), _wpsf__( 'Comments SPAM Protection' ) );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Comments Filter can block 100% of automated spam bots and also offer the option to analyse human-generated spam.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Comments Filter' ) ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
+				break;
+
+			case 'section_bot_comment_spam_common' :
+				$sTitleShort = _wpsf__( 'Common Settings' );
+				$sTitle = _wpsf__( 'Common Settings For All SPAM Scanning' );
+				$aSummary = [
+					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Settings that apply to all comment SPAM scanning.' ) ),
+				];
 				break;
 
 			case 'section_bot_comment_spam_protection_filter' :
 				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection' ), _wpsf__( 'Automatic Bot' ) );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Blocks 100% of all automated bot-generated comment SPAM.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Bot SPAM' );
 				break;
 
 			case 'section_recaptcha' :
 				$sTitle = 'Google reCAPTCHA';
 				$sTitleShort = 'reCAPTCHA';
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Adds Google reCAPTCHA to the Comment Forms.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this turned on.' ) ),
-					sprintf( '%s - %s (%s)', _wpsf__( 'Important' ),
-						_wpsf__( "You'll need to supply your Google reCAPTCHA keys." ),
-						sprintf( '<a href="%s" target="_blank">%s</a>', $oPlugin->getUrl_DirectLinkToSection( 'section_third_party_google' ), _wpsf__( "Enter Google reCAPTCHA keys" ) )
-					),
-				);
+				];
 				break;
 
 			case 'section_human_spam_filter' :
 				$sTitle = sprintf( _wpsf__( '%s Comment SPAM Protection Filter' ), _wpsf__( 'Human' ) );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
 					_wpsf__( 'This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis.' )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Human SPAM' );
 				break;
 
@@ -274,6 +330,23 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
 				$sSummary = _wpsf__( 'Enable (or Disable) The Comment SPAM Protection Feature' );
 				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), _wpsf__( 'Comment SPAM Protection' ) );
+				break;
+
+			case 'trusted_commenter_minimum' :
+				$sName = _wpsf__( 'Trusted Commenter Minimum' );
+				$sSummary = _wpsf__( 'Minimum Number Of Approved Comments Before Commenter Is Trusted' );
+				$sDescription = _wpsf__( 'Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned.' )
+								.'<br />'._wpsf__( 'Normally WordPress will trust after 1 comment.' );
+				break;
+
+			case 'trusted_user_roles' :
+				$sName = _wpsf__( 'Trusted Users' );
+				$sSummary = _wpsf__( "Comments By Users With The Following Roles Will Never Be Scanned" );
+				$sDescription = _wpsf__( "Shield doesn't normally scan comments from logged-in or registered users." )
+								.'<br />'._wpsf__( "Specify user roles here that shouldn't be scanned." )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( 'Take a new line for each user role.' ) )
+								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Available Roles' ), implode( ', ', Services::WpUsers()
+																												 ->getAvailableUserRoles() ) );
 				break;
 
 			case 'enable_comments_human_spam_filter' :

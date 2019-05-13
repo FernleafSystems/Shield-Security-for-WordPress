@@ -18,14 +18,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		parent::run();
 
 		// For display on the Plugins page
-		add_action( 'load-plugins.php', array( $this, 'addPluginVulnerabilityRows' ), 10, 2 );
-		add_action( 'upgrader_process_complete', array( $this, 'doScan' ), 10, 2 );
-		add_action( 'deleted_plugin', array( $this, 'doScan' ), 10, 2 );
+		add_action( 'load-plugins.php', [ $this, 'addPluginVulnerabilityRows' ], 10, 2 );
+		add_action( 'upgrader_process_complete', [ $this, 'doScan' ], 10, 2 );
+		add_action( 'deleted_plugin', [ $this, 'doScan' ], 10, 2 );
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
-			add_filter( 'auto_update_plugin', array( $this, 'autoupdateVulnerablePlugins' ), PHP_INT_MAX, 2 );
+			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
 		}
 	}
 
@@ -139,13 +139,12 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {
 			// These 3 add the 'Vulnerable' plugin status view.
 			// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
-			add_action( 'pre_current_active_plugins', array( $this, 'addVulnerablePluginStatusView' ), 1000 );
-			add_filter( 'all_plugins', array( $this, 'filterPluginsToView' ), 1000 );
-			add_filter( 'views_plugins', array( $this, 'addPluginsStatusViewLink' ), 1000 );
-
-			add_filter( 'manage_plugins_columns', array( $this, 'fCountColumns' ), 1000 );
+			add_action( 'pre_current_active_plugins', [ $this, 'addVulnerablePluginStatusView' ], 1000 );
+			add_filter( 'all_plugins', [ $this, 'filterPluginsToView' ], 1000 );
+			add_filter( 'views_plugins', [ $this, 'addPluginsStatusViewLink' ], 1000 );
+			add_filter( 'manage_plugins_columns', [ $this, 'fCountColumns' ], 1000 );
 			foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $sPluginFile ) {
-				add_action( "after_plugin_row_$sPluginFile", array( $this, 'attachVulnerabilityWarning' ), 100, 2 );
+				add_action( "after_plugin_row_$sPluginFile", [ $this, 'attachVulnerabilityWarning' ], 100, 2 );
 			}
 		}
 	}
@@ -155,7 +154,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 			global $status;
 			$status = 'vulnerable';
 		}
-		add_filter( 'views_plugins', array( $this, 'addPluginsStatusViewLink' ), 1000 );
+		add_filter( 'views_plugins', [ $this, 'addPluginsStatusViewLink' ], 1000 );
 	}
 
 	/**
@@ -200,18 +199,18 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		$aVuln = $this->getPluginVulnerabilities( $sPluginFile );
 		if ( count( $aVuln ) ) {
 			$sOurName = $this->getCon()->getHumanName();
-			$aRenderData = array(
-				'strings'  => array(
+			$aRenderData = [
+				'strings'  => [
 					'known_vuln'     => sprintf( _wpsf__( '%s has discovered that the currently installed version of the %s plugin has known security vulnerabilities.' ),
 						$sOurName, '<strong>'.$aPluginData[ 'Name' ].'</strong>' ),
 					'name'           => _wpsf__( 'Vulnerability Name' ),
 					'type'           => _wpsf__( 'Vulnerability Type' ),
 					'fixed_versions' => _wpsf__( 'Fixed Versions' ),
 					'more_info'      => _wpsf__( 'More Info' ),
-				),
+				],
 				'vulns'    => $aVuln,
 				'nColspan' => $this->nColumnsCount
-			);
+			];
 			echo $this->getMod()
 					  ->renderTemplate( 'snippets/plugin-vulnerability.php', $aRenderData );
 		}
@@ -236,12 +235,12 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		$oWpThemes = $this->loadWpThemes();
 		$oCon = $this->getCon();
 
-		$aContent = array(
+		$aContent = [
 			sprintf( _wpsf__( '%s has detected items with known security vulnerabilities.' ), $oCon->getHumanName() ),
 			_wpsf__( 'You should update or remove these items at your earliest convenience.' ),
 			_wpsf__( 'Details for the items(s) are below:' ),
 			'',
-		);
+		];
 
 		/** @var Shield\Scans\Wpv\ResultItem $oItem */
 		foreach ( $oRes->getItems() as $oItem ) {
@@ -255,14 +254,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 			}
 
 			$oVuln = $oItem->getWpVulnVo();
-			$aContent[] = implode( "<br />", array(
+			$aContent[] = implode( "<br />", [
 				sprintf( '%s: %s', _wpsf__( 'Item' ), $sName ),
 				'- '.sprintf( _wpsf__( 'Vulnerability Title: %s' ), $oVuln->title ),
 				'- '.sprintf( _wpsf__( 'Vulnerability Type: %s' ), $oVuln->vuln_type ),
 				'- '.sprintf( _wpsf__( 'Fixed Version: %s' ), $oVuln->fixed_in ),
 				'- '.sprintf( _wpsf__( 'Further Information: %s' ), $oVuln->getUrl() ),
 				'',
-			) );
+			] );
 		}
 
 		$aContent[] = $this->getScannerButtonForEmail();

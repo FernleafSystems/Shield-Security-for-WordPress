@@ -1,36 +1,38 @@
-=== Shield: Security, Scanning & Protection For All ===
+=== Shield Security: Protection with Smarter Automation ===
 Contributors: onedollarplugin, paultgoodchild
 Donate link: https://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: scan, firewall, two factor authentication, login protection, security
+Tags: scan, firewall, two factor authentication, login protection, malware
 Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 7.3.2
+Stable tag: 7.4.0
 
-All-In-One protection against hackers and bot attacks. Easy to use Scanners, 2-Factor Authentication, login protection, auto IP blocker, and so much more...
+Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
 == Description ==
 
 ### The highest rated 5* Security Plugin for WordPress
 
-Shield has the highest average 5* rating for any WordPress security plugin (2019/04). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5)..
+Shield - highest average 5* rating for any WordPress security plugin (2019/05). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5).
 
-#### Our Mission: No Site Left Behind.
+#### It's 2019 - Don't settle for just another security plugin. Get *smarter* security.
 
-We're driven by our mission to offer protection to **every single site**. We're not here to scare you, but help you start, *right now*, protecting what's important to you and your business.
+You don't need another 100 email notifications.
 
-Getting started is easy, and we'll help you through every step. All our security options are fully documented so you can understand and stay informed as you progress.
+You **need** a security plugin that does **all** the heavy lifting for you, and only alerts you when you need to know.
 
-### Powerful Security for WordPress *doesn't* need to be *hard*
+And when you get an alert, you actually have steps to take, not just the position of "I have no clue what to do!"
 
-There's no reason for security plugins to be complicated. It just doesn't have to be that way.
+### Security for WordPress *doesn't* have to be *hard*
 
-Shield is the easiest security plugin to setup - you simply activate it. Then a beautiful, step-by-step wizard will walk you through the basic configuration.
+There's no reason for security to be so darn complicated. It doesn't have to be this way any longer.
 
-And you can dig deeper, when you're ready.
+Shield is the easiest security plugin to setup - you simply activate it.
+
+And you can gradually dig deeper, as you're ready.
 
 #### Trust: Shield Does Exactly What It Says It Will Do
 
@@ -362,8 +364,21 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.3.2 - Current Release =
-*Released: 18th April, 2019* - [Release Notes](https://icwp.io/f0)
+= 7.4.0 - Current Release =
+*Released: 13th May, 2019* - [Release Notes](https://icwp.io/fc)
+
+* **(v.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://icwp.io/fa)
+* **(v.0)**  NEW:		Comment SPAM - Increase minimum number of approved comments before scanning is skipped
+* **(v.0)**  NEW:		[**PRO**] Comment SPAM - Trusted user roles where comments scanning is skipped
+* **(v.0)**  IMPROVED:	AntiBot JS was improperly included when not required.
+* **(v.0)**  IMPROVED:	Added a GeoIP caching table and removed bundled GeoIP database - greatly reduces download size.
+* **(v.0)**  FIXED:		Inconsistent behaviour when PWA plugin is active and it infinitely reloads pages.
+* **(v.0)**  FIXED:		Inconsistent behaviour with Anonymous API blocking.
+* **(v.0)**  IMPROVED:	Code improvements and refactoring.
+* **(v.0)**  ADDED:		Prep for upcoming malware scanner.
+
+= 7.3 - Series =
+*Released: 15th April, 2019* - [Release Notes](https://icwp.io/f0)
 
 * **(v.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://icwp.io/ez) options.
 * **(v.2)**  CHANGED:	Added a workaround for WPML plugin using old, buggy version of TWIG library.
@@ -374,9 +389,6 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
 * **(v.0)**  FIX:		Error displayed when deleting plugins in some cases.
 * **(v.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
-
-= 7.3 - Series =
-*Released: 15th April, 2019* - [Release Notes](https://icwp.io/f0)
 
 = 7.2 - Series =
 *Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)

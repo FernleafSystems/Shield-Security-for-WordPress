@@ -5,9 +5,9 @@ class ICWP_WPSF_Processor_AuditTrail_Plugins extends ICWP_WPSF_AuditTrail_Audito
 	/**
 	 */
 	public function run() {
-		add_action( 'deactivated_plugin', array( $this, 'auditDeactivatedPlugin' ) );
-		add_action( 'activated_plugin', array( $this, 'auditActivatedPlugin' ) );
-		add_action( 'check_admin_referer', array( $this, 'auditEditedPluginFile' ), 10, 2 );
+		add_action( 'deactivated_plugin', [ $this, 'auditDeactivatedPlugin' ] );
+		add_action( 'activated_plugin', [ $this, 'auditActivatedPlugin' ] );
+		add_action( 'check_admin_referer', [ $this, 'auditEditedPluginFile' ], 10, 2 );
 	}
 
 	/**

@@ -7,8 +7,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 */
 	public function run() {
 		parent::run();
-		add_action( 'wp_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
-		add_action( 'login_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
+		add_action( 'login_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
 	}
 
 	/**

@@ -130,11 +130,11 @@ abstract class BaseQuery {
 	 */
 	public function buildExtras() {
 		$aExtras = array_filter(
-			array(
+			[
 				$this->getOrderBy(),
 				$this->buildLimitPhrase(),
 				$this->buildOffsetPhrase(),
-			)
+			]
 		);
 		return implode( "\n", $aExtras );
 	}
@@ -359,7 +359,7 @@ abstract class BaseQuery {
 	protected function isValidComparisonOperator( $sOp ) {
 		return in_array(
 			strtoupper( $sOp ),
-			array( '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' )
+			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' ]
 		);
 	}
 }

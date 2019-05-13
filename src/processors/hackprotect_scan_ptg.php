@@ -38,15 +38,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		}
 
 		if ( $oFO->isPtgReadyToScan() ) {
-			add_action( 'upgrader_process_complete', array( $this, 'updateSnapshotAfterUpgrade' ), 10, 2 );
-			add_action( 'activated_plugin', array( $this, 'onActivatePlugin' ), 10 );
-			add_action( 'deactivated_plugin', array( $this, 'onDeactivatePlugin' ), 10 );
-			add_action( 'switch_theme', array( $this, 'onActivateTheme' ), 10, 0 );
+			add_action( 'upgrader_process_complete', [ $this, 'updateSnapshotAfterUpgrade' ], 10, 2 );
+			add_action( 'activated_plugin', [ $this, 'onActivatePlugin' ], 10 );
+			add_action( 'deactivated_plugin', [ $this, 'onDeactivatePlugin' ], 10 );
+			add_action( 'switch_theme', [ $this, 'onActivateTheme' ], 10, 0 );
 		}
 
 		if ( $oFO->isPtgReinstallLinks() ) {
-			add_filter( 'plugin_action_links', array( $this, 'addActionLinkRefresh' ), 50, 2 );
-			add_action( 'admin_footer', array( $this, 'printPluginReinstallDialogs' ) );
+			add_filter( 'plugin_action_links', [ $this, 'addActionLinkRefresh' ], 50, 2 );
+			add_action( 'admin_footer', [ $this, 'printPluginReinstallDialogs' ] );
 		}
 	}
 
@@ -172,12 +172,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	public function printPluginReinstallDialogs() {
-		$aRenderData = array(
-			'strings'     => array(
+		$aRenderData = [
+			'strings'     => [
 				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
-			),
+			],
 			'js_snippets' => []
-		);
+		];
 		echo $this->getMod()
 				  ->renderTemplate( 'snippets/hg-plugins-reinstall-dialogs.php', $aRenderData );
 	}
@@ -231,11 +231,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		}
 		else if ( !empty( $aInfo[ 'plugin' ] ) ) {
 			$sContext = self::CONTEXT_PLUGINS;
-			$aSlugs = array( $aInfo[ 'plugin' ] );
+			$aSlugs = [ $aInfo[ 'plugin' ] ];
 		}
 		else if ( !empty( $aInfo[ 'theme' ] ) ) {
 			$sContext = self::CONTEXT_THEMES;
-			$aSlugs = array( $aInfo[ 'theme' ] );
+			$aSlugs = [ $aInfo[ 'theme' ] ];
 		}
 		else if ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install' && isset( $aInfo[ 'type' ] )
 				  && !empty( $oUpgrader->result[ 'destination_name' ] ) ) {
@@ -245,14 +245,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 				$sDir = $oWpPlugins->getFileFromDirName( $oUpgrader->result[ 'destination_name' ] );
 				if ( $sDir && $oWpPlugins->isActive( $sDir ) ) {
 					$sContext = self::CONTEXT_PLUGINS;
-					$aSlugs = array( $sDir );
+					$aSlugs = [ $sDir ];
 				}
 			}
 			else if ( $aInfo[ 'type' ] == 'theme' ) {
 				$sDir = $oUpgrader->result[ 'destination_name' ];
 				if ( Services\Services::WpThemes()->isActive( $sDir ) ) {
 					$sContext = self::CONTEXT_THEMES;
-					$aSlugs = array( $sDir );
+					$aSlugs = [ $sDir ];
 				}
 			}
 		}
@@ -417,15 +417,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	private function buildSnapshotPlugin( $sBaseFile ) {
 		$aPlugin = Services\Services::WpPlugins()->getPlugin( $sBaseFile );
 
-		return array(
-			'meta'   => array(
+		return [
+			'meta'   => [
 				'name'         => $aPlugin[ 'Name' ],
 				'version'      => $aPlugin[ 'Version' ],
 				'ts'           => Services\Services::Request()->ts(),
 				'snap_version' => $this->getCon()->getVersion(),
-			),
+			],
 			'hashes' => $this->getContextScanner( self::CONTEXT_PLUGINS )->hashAssetFiles( $sBaseFile )
-		);
+		];
 	}
 
 	/**
@@ -435,15 +435,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	private function buildSnapshotTheme( $sSlug ) {
 		$oTheme = Services\Services::WpThemes()->getTheme( $sSlug );
 
-		return array(
-			'meta'   => array(
+		return [
+			'meta'   => [
 				'name'         => $oTheme->get( 'Name' ),
 				'version'      => $oTheme->get( 'Version' ),
 				'ts'           => Services\Services::Request()->ts(),
 				'snap_version' => $this->getCon()->getVersion(),
-			),
+			],
 			'hashes' => $this->getContextScanner( self::CONTEXT_THEMES )->hashAssetFiles( $sSlug )
-		);
+		];
 	}
 
 	/**
@@ -475,9 +475,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 						  ->deleteSnapshots();
 
 			$oActiveTheme = $oWpThemes->getCurrent();
-			$aThemes = array(
+			$aThemes = [
 				$oActiveTheme->get_stylesheet() => $oActiveTheme
-			);
+			];
 
 			if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
 				$oParent = $oWpThemes->getCurrentParent();
@@ -589,7 +589,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = Services\Services::WpGeneral()->getHomeUrl();
 
-		$aContent = array(
+		$aContent = [
 			sprintf( _wpsf__( '%s has detected at least 1 Plugins/Themes have been modified on your site.' ), $sName ),
 			'',
 			sprintf( '<strong>%s</strong>', _wpsf__( 'You will receive only 1 email notification about these changes in a 1 week period.' ) ),
@@ -597,7 +597,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 			'',
 			_wpsf__( 'Details of the problem items are below:' ),
-		);
+		];
 
 		if ( !empty( $aAllPlugins ) ) {
 			$aContent[] = '';

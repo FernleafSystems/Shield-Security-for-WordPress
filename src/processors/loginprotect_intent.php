@@ -19,13 +19,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
-		add_action( 'wp_logout', array( $this, 'onWpLogout' ) );
+		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// 100 priority is important as this takes priority
 //		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'applyUserCanMfaSkip' ), 100, 2 );
 
 		if ( $oFO->getIfSupport3rdParty() ) {
-			add_action( 'wc_social_login_before_user_login', array( $this, 'onWcSocialLogin' ) );
+			add_action( 'wc_social_login_before_user_login', [ $this, 'onWcSocialLogin' ] );
 		}
 	}
 
@@ -297,8 +297,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$aLabels = $oCon->getLabels();
 		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
 		$nMfaSkip = $oFO->getMfaSkip();
-		$aDisplayData = array(
-			'strings' => array(
+		$aDisplayData = [
+			'strings' => [
 				'cancel'          => _wpsf__( 'Cancel Login' ),
 				'time_remaining'  => _wpsf__( 'Time Remaining' ),
 				'calculating'     => _wpsf__( 'Calculating' ).' ...',
@@ -313,15 +313,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					_wpsf__( "Don't ask again on this browser for %s." ),
 					sprintf( _n( '%s day', '%s days', $nMfaSkip, 'wp-simple-firewall' ), $nMfaSkip )
 				)
-			),
-			'data'    => array(
+			],
+			'data'    => [
 				'login_fields'      => $aLoginIntentFields,
 				'time_remaining'    => $this->getLoginIntentExpiresAt() - $this->time(),
 				'message_type'      => $sMessageType,
 				'login_intent_flag' => $oFO->getLoginIntentRequestFlag(),
 				'page_locale'       => Services::WpGeneral()->getLocale( '-' )
-			),
-			'hrefs'   => array(
+			],
+			'hrefs'   => [
 				'form_action'   => $oReq->getUri(),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min.js' ),
@@ -329,16 +329,16 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
 				'cancel_href'   => $sCancelHref
-			),
-			'imgs'    => array(
+			],
+			'imgs'    => [
 				'banner'  => $sBannerUrl,
 				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-			),
-			'flags'   => array(
+			],
+			'flags'   => [
 				'can_skip_mfa'       => $oFO->getMfaSkipEnabled(),
 				'show_branded_links' => !$oFO->isWlEnabled(), // white label mitigation
-			)
-		);
+			]
+		];
 
 		$this->loadRenderer( $this->getCon()->getPath_Templates() )
 			 ->setTemplate( 'page/login_intent' )

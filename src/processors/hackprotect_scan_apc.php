@@ -98,12 +98,12 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		$oWp = Services::WpGeneral();
 		$oCon = $this->getCon();
 
-		$aContent = array(
+		$aContent = [
 			sprintf( _wpsf__( '%s has detected abandoned plugins installed on your site.' ), $oCon->getHumanName() ),
 			_wpsf__( "Running code that hasn't seen any updates for over 2 years is far from ideal." ),
 			_wpsf__( 'Details for the items(s) are below:' ),
 			'',
-		);
+		];
 
 		/** @var Shield\Scans\Apc\ResultItem $oItem */
 		foreach ( $oRes->getItems() as $oItem ) {
@@ -116,11 +116,11 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 				$sName = sprintf( '%s - %s', _wpsf__( 'Theme' ), $oWpThemes->getTheme( $oItem->slug ) );
 			}
 
-			$aContent[] = implode( "<br />", array(
+			$aContent[] = implode( "<br />", [
 				sprintf( '%s: %s', _wpsf__( 'Item' ), $sName ),
 				'- '.sprintf( _wpsf__( 'Last Updated: %s' ), $oWp->getTimeStringForDisplay( $oItem->last_updated_at, false ) ),
 				'',
-			) );
+			] );
 		}
 
 		$aContent[] = $this->getScannerButtonForEmail();

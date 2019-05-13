@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_CommentsFilter_Base {
 
 	/**
@@ -42,14 +44,14 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	}
 
 	/**
-	 * @param array $aCommentData
+	 * @param array $aCommData
 	 * @return array
 	 */
-	public function doCommentChecking( $aCommentData ) {
+	public function doCommentChecking( $aCommData ) {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
 
-		if ( $oFO->getIfDoCommentsCheck() ) {
+		if ( $oFO->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
 
 			try {
 				$this->checkRequestRecaptcha();
@@ -66,12 +68,11 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 					->setIpTransgressed();
 
 				if ( self::$sCommentStatus == 'reject' ) {
-					$oWp = $this->loadWp();
-					$oWp->doRedirect( $oWp->getHomeUrl(), [], true, false );
+					Services::Response()->redirectToHome();
 				}
 			}
 		}
 
-		return $aCommentData;
+		return $aCommData;
 	}
 }

@@ -9,11 +9,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
-		add_action( 'password_reset', array( $this, 'onPasswordReset' ), 100, 1 );
-		add_filter( 'registration_errors', array( $this, 'checkPassword' ), 100, 3 );
-		add_action( 'user_profile_update_errors', array( $this, 'checkPassword' ), 100, 3 );
-		add_action( 'validate_password_reset', array( $this, 'checkPassword' ), 100, 3 );
-		add_filter( 'login_message', array( $this, 'addPasswordResetMessage' ) );
+		add_action( 'password_reset', [ $this, 'onPasswordReset' ], 100, 1 );
+		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
+		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
+		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
+		add_filter( 'login_message', [ $this, 'addPasswordResetMessage' ] );
 	}
 
 	/**
@@ -31,7 +31,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @param int    $nUserId
 	 */
 	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->captureLogin( $this->loadWpUsers()->getUserById( $nUserId ) );
+		$this->captureLogin( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	public function onWpLoaded() {
-		if ( is_admin() && !$this->loadRequest()->isMethodPost() && $this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( is_admin() && !$this->loadRequest()->isMethodPost() && Services::WpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
 			$this->processFailedCheckPassword();
 		}
@@ -123,8 +123,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * IMPORTANT: User must be logged-in for this to work correctly
 	 * We have a 2 minute delay between redirects because some custom user forms redirect to custom
 	 * password reset pages. This prevents users following this flow.
-	 * @uses wp_redirect()
 	 * @param string $sMessage
+	 * @uses wp_redirect()
 	 */
 	private function redirectToResetPassword( $sMessage ) {
 
@@ -135,10 +135,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			$oMeta->pass_reset_last_redirect_at = $this->time();
 
 			$oWp = $this->loadWp();
-			$oWpUsers = $this->loadWpUsers();
-			$sAction = $this->loadRequest()->query( 'action' );
+			$oWpUsers = Services::WpUsers();
+			$sAction = Services::Request()->query( 'action' );
 			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, array( 'rp', 'resetpass' ) ) ) ) {
+			if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$sMessage .= ' '._wpsf__( 'For your security, please use the password section below to update your password.' );
 				$this->getMod()
@@ -160,7 +160,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			if ( !empty( $sPassword ) ) {
 				try {
 					$this->applyPasswordChecks( $sPassword );
-					if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+					if ( Services::WpUsers()->isUserLoggedIn() ) {
 						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 					}
 				}
@@ -209,8 +209,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$oFO = $this->getMod();
 		$nMin = $oFO->getPassMinStrength();
 
-		$oStengther = new \ZxcvbnPhp\Zxcvbn();
-		$aResults = $oStengther->passwordStrength( $sPassword );
+		$aResults = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( $sPassword );
 		$nScore = $aResults[ 'score' ];
 
 		if ( $nMin > 0 && $nScore < $nMin ) {
@@ -261,11 +260,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		$aResponse = $this->loadFS()->requestUrl(
 			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
-			array(
-				'headers' => array(
+			[
+				'headers' => [
 					'user-agent' => sprintf( '%s WP Plugin-v%s', $oCon->getHumanName(), $oCon->getVersion() )
-				)
-			),
+				]
+			],
 			true
 		);
 
@@ -326,11 +325,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		$aResponse = $this->loadFS()->requestUrl(
 			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
-			array(
-				'headers' => array(
+			[
+				'headers' => [
 					'user-agent' => sprintf( '%s WP Plugin-v%s', $oCon->getHumanName(), $oCon->getVersion() )
-				)
-			),
+				]
+			],
 			true
 		);
 
@@ -385,7 +384,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$sPass = null;
 
 		// Edd: edd_user_pass; Woo: password;
-		foreach ( array( 'pwd', 'pass1' ) as $sKey ) {
+		foreach ( [ 'pwd', 'pass1' ] as $sKey ) {
 			$sP = $this->loadRequest()->post( $sKey );
 			if ( !empty( $sP ) ) {
 				$sPass = $sP;

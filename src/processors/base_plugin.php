@@ -57,17 +57,17 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function addNotice_rate_plugin( $aAttr ) {
 
-		$aRenderData = array(
+		$aRenderData = [
 			'notice_attributes' => $aAttr,
-			'strings'           => array(
+			'strings'           => [
 				'title'   => 'Will you help us out with a quick WordPress.org review?',
 				'dismiss' => _wpsf__( "I'd rather not show this support" ).' / '._wpsf__( "I've done this already" ).' :D',
 				'forums'  => __( 'Support Forums' )
-			),
-			'hrefs'             => array(
+			],
+			'hrefs'             => [
 				'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
-			)
-		);
+			]
+		];
 		$this->insertAdminNotice( $aRenderData );
 	}
 
@@ -80,26 +80,26 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		$sName = $this->getCon()->getHumanName();
-		$aRenderData = array(
+		$aRenderData = [
 			'notice_attributes' => $aNoticeAttributes,
-			'strings'           => array(
+			'strings'           => [
 				'dismiss'  => _wpsf__( "I don't need the setup wizard just now" ),
 				'title'    => sprintf( _wpsf__( 'Get started quickly with the %s Setup Wizard' ), $sName ),
 				'setup'    => sprintf( _wpsf__( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features' ), $sName ),
 				'no_setup' => sprintf( _wpsf__( "%s has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+" ), $sName ),
-			),
-			'hrefs'             => array(
+			],
+			'hrefs'             => [
 				'wizard' => $oFO->getUrl_Wizard( 'welcome' ),
-			),
+			],
 			'flags'             => []
-		);
+		];
 		$this->insertAdminNotice( $aRenderData );
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
 	 * @throws \Exception
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_plugin_update_available( $aNoticeAttributes ) {
 		$oPlugin = $this->getCon();
@@ -116,43 +116,43 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		$sBaseFile = $oPlugin->getPluginBaseFile();
 		if ( $this->getIfShowAdminNotices() && $oWpPlugins->isUpdateAvailable( $sBaseFile )
 			 && !Services::WpPost()->isPage_Updates() ) { // Don't show on the update page
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'render_slug'       => 'plugin-update-available',
-				'strings'           => array(
+				'strings'           => [
 					'title'        => sprintf( _wpsf__( 'Update available for the %s plugin.' ), $this->getCon()
 																									  ->getHumanName() ),
 					'click_update' => _wpsf__( 'Please click to update immediately' ),
 					'dismiss'      => _wpsf__( 'Dismiss this notice' )
-				),
-				'hrefs'             => array(
+				],
+				'hrefs'             => [
 					'upgrade_link' => $oWpPlugins->getUrl_Upgrade( $sBaseFile )
-				)
-			);
+				]
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_translate_plugin( $aNoticeAttributes ) {
 		if ( $this->getIfShowAdminNotices() ) {
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => array(
+				'strings'           => [
 					'title'        => 'Você não fala Inglês? No hablas Inglés? Heeft u geen Engels spreekt?',
 					'like_to_help' => sprintf( _wpsf__( "Can you help translate the %s plugin?" ), $this->getCon()
 																										->getHumanName() ),
 					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
 					'site_url'     => 'translate.icontrolwp.com',
 					'dismiss'      => _wpsf__( 'Dismiss this notice' )
-				),
-				'hrefs'             => array(
+				],
+				'hrefs'             => [
 					'translate' => 'http://translate.icontrolwp.com'
-				)
-			);
+				]
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}

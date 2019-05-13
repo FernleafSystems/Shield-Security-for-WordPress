@@ -17,7 +17,7 @@ class Suspended extends Base {
 		if ( $oMeta->hard_suspended_at > 0 ) {
 			$oUser = new \WP_Error(
 				$this->getCon()->prefix( 'hard-suspended' ),
-				'Sorry, this account is suspended. Please contact your website administrator to resolve this.'
+				'Sorry, this account is suspended. Please contact your website administrator.'
 			);
 		}
 		return $oUser;

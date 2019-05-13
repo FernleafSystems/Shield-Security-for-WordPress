@@ -26,6 +26,16 @@
       ]
     },
     {
+      "slug":        "section_scan_malware",
+      "hidden": true,
+      "title":       "Malware Scan",
+      "title_short": "Malware Scan",
+      "summary":     [
+        "Purpose - Detect malicious changes to your themes and plugins.",
+        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
+      ]
+    },
+    {
       "slug":        "section_realtime",
       "title":       "Realtime Protection",
       "title_short": "Realtime Protection",
@@ -395,6 +405,50 @@
       "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
+      "key":           "mal_scan_enable",
+      "section":       "section_scan_malware",
+      "premium":       true,
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Scan Disabled"
+        },
+        {
+          "value_key": "enabled",
+          "text":      "Scan Enabled"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Enable/Disable Malware Scan",
+      "summary":       "Enable Malware File Scanner",
+      "description":   "When enabled the Malware scanner will run automatically."
+    },
+    {
+      "key":           "mal_autorepair_core",
+      "section":       "section_scan_malware",
+      "type":          "checkbox",
+      "default":       "Y",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Auto-Repair WP Core",
+      "summary":       "Automatically Repair WordPress Core Files",
+      "description":   "Automatically reinstall any core files found to have potential malware."
+    },
+    {
+      "key":           "mal_autorepair_plugins",
+      "section":       "section_scan_malware",
+      "type":          "checkbox",
+      "default":       "Y",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Auto-Repair WP Plugins",
+      "summary":       "Automatically Repair WordPress.org Plugins",
+      "description":   "Automatically repair any plugin files found to have potential malware."
+    },
+    {
       "key":           "ptg_enable",
       "section":       "section_pluginthemes_guard",
       "premium":       true,
@@ -448,6 +502,7 @@
     {
       "key":         "ptg_reinstall_links",
       "section":     "section_pluginthemes_guard",
+      "premium":     true,
       "type":        "checkbox",
       "default":     "Y",
       "link_info":   "https://icwp.io/bp",
@@ -500,6 +555,13 @@
       "default":      0
     },
     {
+      "key":          "insights_last_scan_mal_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
       "key":          "insights_last_scan_wcf_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -529,6 +591,13 @@
     },
     {
       "key":          "next_scan_ufc_at",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "integer",
+      "default":      0
+    },
+    {
+      "key":          "next_scan_mal_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
@@ -606,11 +675,8 @@
       "created_at",
       "deleted_at"
     ],
+    "url_mal_sigs":                         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "cron_all_scans":                       "all-scans",
-    "cron_scan_wpv":                        "wpvulnscan-notification",
-    "cron_scan_wcf":                        "core-checksum-notification",
-    "cron_scan_ufc":                        "unrecognised-scan-notification",
-    "cron_scan_ptg":                        "cron-pluginthemesguard",
     "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
     "url_wordress_core_svn_il8n":           "https://svn.automattic.com/wordpress-i18n/",

@@ -65,21 +65,21 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		$aNotices = array(
+		$aNotices = [
 			'title'    => _wpsf__( 'Lockdown' ),
 			'messages' => []
-		);
+		];
 
 		{ //edit plugins
 			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
 			if ( !$bEditingDisabled ) { //assumes current user is admin
-				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = array(
+				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = [
 					'title'   => 'Code Editor',
 					'message' => _wpsf__( 'Direct editing of plugin/theme files is permitted.' ),
 					'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
 					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
 					'rec'     => _wpsf__( 'WP Plugin file editing should be disabled.' )
-				);
+				];
 			}
 		}
 
@@ -94,21 +94,21 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
+		$aThis = [
+			'strings'      => [
 				'title' => _wpsf__( 'WordPress Lockdown' ),
 				'sub'   => _wpsf__( 'Restrict WP Functionality e.g. XMLRPC & REST API' ),
-			),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
 			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
-			$aThis[ 'key_opts' ][ 'editing' ] = array(
+			$aThis[ 'key_opts' ][ 'editing' ] = [
 				'name'    => _wpsf__( 'WP File Editing' ),
 				'enabled' => $bEditingDisabled,
 				'summary' => $bEditingDisabled ?
@@ -116,10 +116,10 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 					: _wpsf__( "File editing is permitted through WP admin" ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
-			);
+			];
 
 			$bXml = $this->isXmlrpcDisabled();
-			$aThis[ 'key_opts' ][ 'xml' ] = array(
+			$aThis[ 'key_opts' ][ 'xml' ] = [
 				'name'    => _wpsf__( 'XML-RPC' ),
 				'enabled' => $bXml,
 				'summary' => $bXml ?
@@ -127,10 +127,10 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 					: _wpsf__( "XML-RPC is not blocked" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToOption( 'disable_xmlrpc' ),
-			);
+			];
 
 			$bApi = $this->isRestApiAnonymousAccessDisabled();
-			$aThis[ 'key_opts' ][ 'api' ] = array(
+			$aThis[ 'key_opts' ][ 'api' ] = [
 				'name'    => _wpsf__( 'REST API' ),
 				'enabled' => $bApi,
 				'summary' => $bApi ?
@@ -138,7 +138,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 					: _wpsf__( "Anonymous REST API is allowed" ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToOption( 'disable_anonymous_restapi' ),
-			);
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -157,37 +157,37 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			case 'section_enable_plugin_feature_wordpress_lockdown' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Lockdown helps secure-up certain loosely-controlled WordPress settings on your site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Lockdown' ) ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_apixml' :
 				$sTitle = _wpsf__( 'API & XML-RPC' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Lockdown certain core WordPress system features.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'This depends on your usage and needs for certain WordPress functions and features.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'API & XML-RPC' );
 				break;
 
 			case 'section_permission_access_options' :
 				$sTitle = _wpsf__( 'Permissions and Access Options' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control of certain WordPress permissions.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Only enable SSL if you have a valid certificate installed.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Permissions' );
 				break;
 
 			case 'section_wordpress_obscurity_options' :
 				$sTitle = _wpsf__( 'WordPress Obscurity Options' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Obscures certain WordPress settings from public view.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Obscurity is not true security and so these settings are down to your personal tastes.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Obscurity' );
 				break;
 

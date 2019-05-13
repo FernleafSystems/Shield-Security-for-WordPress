@@ -39,7 +39,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			 ->setSqlCreate( $this->getCreateTableSql() )
 			 ->tableInit();
 
-		add_action( $this->getMod()->prefix( 'delete_plugin' ), array( $this->getDbHandler(), 'deleteTable' ) );
+		add_action( $this->getMod()->prefix( 'delete_plugin' ), [ $this->getDbHandler(), 'deleteTable' ] );
 	}
 
 	/**

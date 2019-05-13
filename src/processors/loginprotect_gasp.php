@@ -20,17 +20,17 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		return $this->getMod()->renderTemplate(
 			'snippets/gasp_js.php',
-			array(
+			[
 				'sCbName'   => $oFO->getGaspKey(),
 				'sLabel'    => $oFO->getTextImAHuman(),
 				'sAlert'    => $oFO->getTextPleaseCheckBox(),
 				'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
 				'sUniqId'   => $sUniqId,
 				'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
-				'strings'   => array(
+				'strings'   => [
 					'loading' => _wpsf__( 'Loading' )
-				)
-			)
+				]
+			]
 		);
 	}
 

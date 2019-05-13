@@ -13,14 +13,14 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 		$oCon = $this->getCon();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
-		$aData = array(
+		$aData = [
 			'has_mfa'                          => $this->isUserSubjectToLoginIntent( $oUser ),
 			'has_validated_profile'            => $bValidatedProfile,
 			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
 			'is_my_user_profile'               => ( $oUser->ID == Services::WpUsers()->getCurrentWpUserId() ),
 			'i_am_valid_admin'                 => $oCon->isPluginAdmin(),
 			'user_to_edit_is_admin'            => Services::WpUsers()->isUserAdmin( $oUser ),
-			'strings'                          => array(
+			'strings'                          => [
 				'button_gen_code'       => _wpsf__( 'Generate ONE-Time Backup 2FA Login Code' ),
 				'button_del_code'       => _wpsf__( 'Delete Login Backup Code' ),
 				'not_available'         => _wpsf__( 'Backup login codes are not available if you do not have any other two-factor authentication modes active.' ),
@@ -42,11 +42,11 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 				'cant_remove_admins'    => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Backup Codes' ) ),
 				'provided_by'           => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
 				'remove_more_info'      => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
-			),
-			'data'                             => array(
+			],
+			'data'                             => [
 				'otp_field_name' => $this->getLoginFormParameter()
-			)
-		);
+			]
+		];
 
 		echo $this->getMod()->renderTemplate( 'snippets/user_profile_backupcode.php', $aData );
 	}
@@ -64,14 +64,14 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 */
 	public function addLoginIntentField( $aFields ) {
 		if ( $this->getCurrentUserHasValidatedProfile() ) {
-			$aFields[] = array(
+			$aFields[] = [
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'text',
 				'value'       => '',
 				'placeholder' => _wpsf__( 'Please use your Backup Code to login.' ),
 				'text'        => _wpsf__( 'Login Backup Code' ),
 				'help_link'   => '',
-			);
+			];
 		}
 		return $aFields;
 	}
@@ -161,7 +161,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 * @param WP_User $oUser
 	 */
 	private function sendBackupCodeUsedEmail( $oUser ) {
-		$aEmailContent = array(
+		$aEmailContent = [
 			_wpsf__( 'This is a quick notice to inform you that your Backup Login code was just used.' ),
 			_wpsf__( "Your WordPress account had only 1 backup login code." )
 			.' '._wpsf__( "You must go to your profile and regenerate a new code if you want to use this method again." ),
@@ -172,7 +172,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
 			'',
 			_wpsf__( 'Thank You.' ),
-		);
+		];
 
 		$sTitle = sprintf( _wpsf__( "Notice: %s" ), _wpsf__( "Backup Login Code Just Used" ) );
 		$this->getEmailProcessor()

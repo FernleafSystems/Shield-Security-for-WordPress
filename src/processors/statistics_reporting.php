@@ -28,9 +28,9 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 			 ->setRecurrence( 'daily' )
 			 ->createCronJob(
 				 $this->getCronName(),
-				 array( $this, 'cron_dailyReportingConsolidation' )
+				 [ $this, 'cron_dailyReportingConsolidation' ]
 			 );
-		add_action( $this->getMod()->prefix( 'deactivate_plugin' ), array( $this, 'deleteCron' ) );
+		add_action( $this->getMod()->prefix( 'deactivate_plugin' ), [ $this, 'deleteCron' ] );
 	}
 
 	/**
@@ -55,12 +55,12 @@ class ICWP_WPSF_Processor_Statistics_Reporting extends ICWP_WPSF_BaseDbProcessor
 
 		// Now add new entry
 		$mResult = $this->insertData(
-			array(
+			[
 				'stat_key'   => $sStatKey,
 				'tally'      => 1,
 				'created_at' => $this->time(),
 				'deleted_at' => 0,
-			)
+			]
 		);
 		return (bool)$mResult;
 	}

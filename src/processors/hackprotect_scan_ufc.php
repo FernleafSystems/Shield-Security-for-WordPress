@@ -150,11 +150,11 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$sName = $oCon->getHumanName();
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
-		$aContent = array(
+		$aContent = [
 			sprintf( _wpsf__( 'The %s Unrecognised File Scanner found files which you need to review.' ), $sName ),
 			'',
 			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-		);
+		];
 
 		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() ) {
 			$aContent[] = _wpsf__( 'Files discovered' ).':';

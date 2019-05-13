@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->revSliderPatch_AFU();
 		}
 		// not probably necessary any longer since it's patched in the Core
-		add_filter( 'pre_comment_content', array( $this, 'secXss64kb' ), 0, 1 );
+		add_filter( 'pre_comment_content', [ $this, 'secXss64kb' ], 0, 1 );
 
 		$this->getSubProScanner()->run();
 		if ( $oMod->isRtEnabledWpConfig() ) {
@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$sAction = $oReq->query( 'action', '' );
 		$sFileExt = strtolower( Services::Data()->getExtension( $oReq->query( 'img', '' ) ) );
 		if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
-			if ( !in_array( $sFileExt, array( 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ) ) ) {
+			if ( !in_array( $sFileExt, [ 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ] ) ) {
 				die( 'RevSlider Local File Inclusion Attempt' );
 			}
 		}
@@ -99,8 +99,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oSelector = $oPro->getSubProScanner()->getDbHandler()->getQuerySelector();
 
 		$oCarbon = new \Carbon\Carbon();
-		$aData = array(
-			'ajax'    => array(
+		$aData = [
+			'ajax'    => [
 				'start_scans'           => $oMod->getAjaxActionData( 'start_scans', true ),
 				'render_table_scan'     => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'bulk_action'           => $oMod->getAjaxActionData( 'bulk_action', true ),
@@ -110,112 +110,134 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'item_delete'           => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'           => $oMod->getAjaxActionData( 'item_ignore', true ),
 				'item_repair'           => $oMod->getAjaxActionData( 'item_repair', true ),
-			),
-			'flags'   => array(
+			],
+			'flags'   => [
 				'is_premium' => $oMod->isPremium()
-			),
-			'strings' => array(
+			],
+			'strings' => [
 				'never'         => _wpsf__( 'Never' ),
 				'go_pro'        => 'Go Pro!',
 				'options'       => _wpsf__( 'Scan Options' ),
 				'not_available' => _wpsf__( 'Sorry, this scan is not available.' ),
 				'not_enabled'   => _wpsf__( 'This scan is not currently enabled.' ),
 				'please_enable' => _wpsf__( 'Please turn on this scan in the options.' ),
-			),
+			],
 			'vars'    => [
 			],
-			'scans'   => array(
-				'apc' => array(
-					'flags'   => array(
+			'scans'   => [
+				'apc' => [
+					'flags'   => [
 						'is_enabled'    => true,
 						'is_available'  => true,
 						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'apc' ) > 0
-					),
-					'hrefs'   => array(
+					],
+					'hrefs'   => [
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_apc' )
-					),
-					'vars'    => array(
+					],
+					'vars'    => [
 						'last_scan_at' => sprintf(
 							_wpsf__( 'Last Scan: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'apc' ) )->diffForHumans()
 						),
-					),
+					],
 					'count'   => $oSelector->countForScan( 'apc' ),
-					'strings' => array(
+					'strings' => [
 						'title'    => _wpsf__( 'Abandoned Plugins Check' ),
 						'subtitle' => _wpsf__( "Discover abandoned plugins" )
-					),
-				),
-				'wcf' => array(
-					'flags'   => array(
+					],
+				],
+				'wcf' => [
+					'flags'   => [
 						'is_enabled'    => true,
 						'is_available'  => true,
 						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
-					),
-					'hrefs'   => array(
+					],
+					'hrefs'   => [
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
-					),
-					'vars'    => array(
+					],
+					'vars'    => [
 						'last_scan_at' => sprintf(
 							_wpsf__( 'Last Scan: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
 						),
-					),
+					],
 					'count'   => $oSelector->countForScan( 'wcf' ),
-					'strings' => array(
+					'strings' => [
 						'title'    => _wpsf__( 'WordPress Core File Integrity' ),
 						'subtitle' => _wpsf__( "Detects changes to core WordPress files" )
-					),
-				),
-				'ufc' => array(
-					'flags'   => array(
+					],
+				],
+				'ufc' => [
+					'flags'   => [
 						'is_enabled'    => true,
 						'is_available'  => true,
 						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
-					),
-					'hrefs'   => array(
+					],
+					'hrefs'   => [
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
-					),
-					'vars'    => array(
+					],
+					'vars'    => [
 						'last_scan_at' => sprintf(
 							_wpsf__( 'Last Scan: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
 						),
-					),
+					],
 					'count'   => $oSelector->countForScan( 'ufc' ),
-					'strings' => array(
+					'strings' => [
 						'title'    => _wpsf__( 'Unrecognised Core Files' ),
 						'subtitle' => _wpsf__( "Detects files that maybe shouldn't be there" )
-					),
-				),
-				'wpv' => array(
-					'flags'   => array(
+					],
+				],
+//				'mal' => [
+//					'flags'   => [
+//						'is_enabled'    => $oMod->isMalScanEnabled(),
+//						'is_available'  => $oMod->isPremium(),
+//						'has_items'     => true,
+//						'has_last_scan' => $oMod->getLastScanAt( 'mal' ) > 0
+//					],
+//					'hrefs'   => [
+//						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_malware' )
+//					],
+//					'vars'    => [
+//						'last_scan_at' => sprintf(
+//							_wpsf__( 'Last Scan: %s' ),
+//							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'mal' ) )->diffForHumans()
+//						),
+//					],
+//					'count'   => $oSelector->countForScan( 'mal' ),
+//					'strings' => [
+//						'title'    => _wpsf__( 'Malware Scanner' ),
+//						'subtitle' => _wpsf__( "Detects malware in files" )
+//					],
+//				],
+				'wpv' => [
+					'flags'   => [
 						'is_enabled'    => $oMod->isWpvulnEnabled(),
 						'is_available'  => $oMod->isPremium(),
 						'has_items'     => true,
 						'has_last_scan' => $oMod->getLastScanAt( 'wpv' ) > 0
-					),
-					'hrefs'   => array(
+					],
+					'hrefs'   => [
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_wpvuln_scan' )
-					),
-					'vars'    => array(
+					],
+					'vars'    => [
 						'last_scan_at' => sprintf(
 							_wpsf__( 'Last Scan: %s' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wpv' ) )->diffForHumans()
 						),
-					),
+					],
 					'count'   => $oSelector->countForScan( 'wpv' ),
-					'strings' => array(
+					'strings' => [
 						'title'    => _wpsf__( 'Plugin / Theme Vulnerabilities' ),
 						'subtitle' => _wpsf__( "Alerts on known security vulnerabilities" )
-					),
-				),
+					],
+				],
 				'ptg' => $this->getInsightVarsScan_Ptg(),
-			),
-		);
+			],
+		];
 
 		return $aData;
 	}
@@ -260,7 +282,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
 			$bIsWpOrg = $bInstalled && $oWpPlugins->isWpOrg( $sSlug );
 			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
-			$aProfile = array(
+			$aProfile = [
 				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
 				'name'           => _wpsf__( 'unknown' ),
 				'version'        => _wpsf__( 'unknown' ),
@@ -272,7 +294,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'has_update'     => $bHasUpdate,
 				'count_files'    => $oItemRS->countItems(),
 				'date_snapshot'  => $aMeta[ 'ts' ],
-			);
+			];
 
 			if ( $bInstalled ) {
 				$oP = $oWpPlugins->getPluginAsVo( $oIT->slug );
@@ -309,7 +331,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );
 			$bIsWpOrg = $bInstalled && $oWpThemes->isWpOrg( $sSlug );
 			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
-			$aProfile = array(
+			$aProfile = [
 				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
 				'name'           => _wpsf__( 'unknown' ),
 				'version'        => _wpsf__( 'unknown' ),
@@ -321,7 +343,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'has_update'     => $bHasUpdate,
 				'count_files'    => $oItemRS->countItems(),
 				'date_snapshot'  => $aMeta[ 'ts' ],
-			);
+			];
 			if ( $bInstalled ) {
 				$oT = $oWpThemes->getTheme( $oIT->slug );
 				$aProfile[ 'name' ] = $oT->get( 'Name' );
@@ -333,28 +355,28 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aThemes[ $sSlug ] = $aProfile;
 		}
 
-		return array(
-			'flags'   => array(
+		return [
+			'flags'   => [
 				'is_enabled'    => $oMod->isPtgEnabled(),
 				'is_available'  => $oMod->isPremium(),
 				'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
 				'has_items'     => $oFullResults->hasItems(),
 				'has_plugins'   => !empty( $aPlugins ),
 				'has_themes'    => !empty( $aThemes ),
-			),
-			'hrefs'   => array(
+			],
+			'hrefs'   => [
 				'options'       => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 				'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-			),
-			'vars'    => array(
+			],
+			'vars'    => [
 				'last_scan_at' => sprintf(
 					_wpsf__( 'Last Scan: %s' ),
 					$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 				)
-			),
+			],
 			'count'   => $oSelector->countForScan( 'ptg' ),
 			'assets'  => array_merge( $aPlugins, $aThemes ),
-			'strings' => array(
+			'strings' => [
 				'title'               => _wpsf__( 'Plugin / Theme Modifications' ),
 				'subtitle'            => _wpsf__( "Detects unauthorized changes to plugins/themes" ),
 				'files_with_problems' => _wpsf__( 'Files with problems' ),
@@ -364,7 +386,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'deactivate'          => __( 'Deactivate and Ignore' ),
 				'accept'              => _wpsf__( 'Accept' ),
 				'update'              => _wpsf__( 'Upgrade' ),
-			)
-		);
+			]
+		];
 	}
 }

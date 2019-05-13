@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,11 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
 class Traffic extends BaseBuild {
-
-	/**
-	 * @var string
-	 */
-	private $sGeoIpDbSource;
 
 	/**
 	 * Override this to apply table-specific query filters.
@@ -61,7 +57,7 @@ class Traffic extends BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array(
+		return [
 			'fIp'            => '',
 			'fUsername'      => '',
 			'fLoggedIn'      => -1,
@@ -69,7 +65,7 @@ class Traffic extends BaseBuild {
 			'fTransgression' => -1,
 			'fResponse'      => '',
 			'fExludeYou'     => '',
-		);
+		];
 	}
 
 	/**
@@ -78,10 +74,13 @@ class Traffic extends BaseBuild {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
+		/** @var \ICWP_WPSF_Processor_Plugin $oPluginPro */
+		$oPluginPro = $this->getCon()->getModule( 'plugin' )->getProcessor();
+
 		$oWpUsers = Services::WpUsers();
-		$oGeo = Services::GeoIp()->setDbSource( $this->getGeoIpDbSource() );
-		$oIp = Services::IP();
-		$sYou = $oIp->getRequestIp();
+		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $oPluginPro->getSubProGeoip()->getDbHandler() );
+		$oIpSrv = Services::IP();
+		$sYou = $oIpSrv->getRequestIp();
 
 		$aUsers = [ 0 => _wpsf__( 'No' ) ];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
@@ -122,33 +121,33 @@ class Traffic extends BaseBuild {
 				}
 			}
 
-			$sCountry = $oGeo->countryName( $sIp );
-			if ( empty( $sCountry ) ) {
+			$oGeoIp = $oGeoIpLookup->lookupIp( $sIp );
+			$sCountryIso = $oGeoIp->getCountryCode();
+			if ( empty( $sCountryIso ) ) {
 				$sCountry = _wpsf__( 'Unknown' );
 			}
 			else {
-				$sCountryIso = $oGeo->countryIso( $sIp );
 				$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $sCountryIso ) );
-				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $sCountry );
+				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $oGeoIp->getCountryName() );
 			}
 
 			$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',
-				$oIp->getIpWhoisLookup( $sIp ), $sIp,
+				$oIpSrv->getIpWhoisLookup( $sIp ), $sIp,
 				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('._wpsf__( 'You' ).')</span>' : ''
 			);
 
-			$aDetails = array(
+			$aDetails = [
 				sprintf( '%s: %s', _wpsf__( 'IP' ), $sIpLink ),
 				sprintf( '%s: %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] ),
 				sprintf( '%s: %s', _wpsf__( 'Location' ), $sCountry ),
 				esc_html( esc_js( sprintf( '%s - %s', _wpsf__( 'User Agent' ), $oEntry->ua ) ) )
-			);
+			];
 			$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
-			$aInfo = array(
+			$aInfo = [
 				sprintf( '%s: %s', _wpsf__( 'Response' ), $aEntry[ 'code' ] ),
 				sprintf( '%s: %s', _wpsf__( 'Transgression' ), $aEntry[ 'trans' ] ),
-			);
+			];
 			$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
 			$aEntries[ $nKey ] = $aEntry;
 		}
@@ -160,21 +159,5 @@ class Traffic extends BaseBuild {
 	 */
 	protected function getTableRenderer() {
 		return new Tables\Render\Traffic();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getGeoIpDbSource() {
-		return $this->sGeoIpDbSource;
-	}
-
-	/**
-	 * @param string $sGeoIpDbSource
-	 * @return $this
-	 */
-	public function setGeoIpDbSource( $sGeoIpDbSource ) {
-		$this->sGeoIpDbSource = $sGeoIpDbSource;
-		return $this;
 	}
 }

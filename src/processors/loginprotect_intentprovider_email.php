@@ -74,14 +74,14 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	public function addLoginIntentField( $aFields ) {
 		if ( $this->getCurrentUserHasValidatedProfile() ) {
-			$aFields[] = array(
+			$aFields[] = [
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'text',
 				'value'       => $this->fetchCodeFromRequest(),
 				'placeholder' => _wpsf__( 'This code was just sent to your registered Email address.' ),
 				'text'        => _wpsf__( 'Email OTP' ),
 				'help_link'   => 'https://icwp.io/3t'
-			);
+			];
 		}
 		return $aFields;
 	}
@@ -154,7 +154,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
 		$sIpAddress = $this->ip();
 
-		$aMessage = array(
+		$aMessage = [
 			_wpsf__( 'Someone attempted to login into this WordPress site using your account.' ),
 			_wpsf__( 'Login requires verification with the following code.' ),
 			'',
@@ -165,7 +165,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
 			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIpAddress ),
 			'',
-		);
+		];
 
 		if ( !$this->getCon()->isRelabelled() ) {
 			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', _wpsf__( 'Why no login link?' ) );
@@ -195,26 +195,26 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	public function addOptionsToUserProfile( $oUser ) {
 		$oWp = Services::WpUsers();
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
-		$aData = array(
+		$aData = [
 			'user_has_email_authentication_active'   => $bValidatedProfile,
 			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
 			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
 			'i_am_valid_admin'                       => $this->getCon()->isPluginAdmin(),
 			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
-			'strings'                                => array(
+			'strings'                                => [
 				'label_email_authentication'                => _wpsf__( 'Email Authentication' ),
 				'title'                                     => _wpsf__( 'Email Authentication' ),
 				'description_email_authentication_checkbox' => _wpsf__( 'Check the box to enable email-based login authentication.' ),
 				'provided_by'                               => sprintf( _wpsf__( 'Provided by %s' ), $this->getCon()
 																										  ->getHumanName() )
-			)
-		);
+			]
+		];
 
-		$aData[ 'bools' ] = array(
+		$aData[ 'bools' ] = [
 			'checked'  => $bValidatedProfile || $aData[ 'user_has_email_authentication_enforced' ],
 			'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ]
 			//TODO: Make email authentication a per-user setting
-		);
+		];
 
 		echo $this->getMod()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
 	}

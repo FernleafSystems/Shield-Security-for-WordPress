@@ -11,8 +11,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		// Adds last login indicator column
-		add_filter( 'manage_users_columns', array( $this, 'addUserStatusLastLogin' ) );
-		add_filter( 'wpmu_users_columns', array( $this, 'addUserStatusLastLogin' ) );
+		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
+		add_filter( 'wpmu_users_columns', [ $this, 'addUserStatusLastLogin' ] );
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
@@ -30,7 +30,14 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getProcessorPasswords()->run();
 		}
 
-//		$this->getProcessorSuspend()->run();
+		if ( $oFO->isSuspendEnabled() ) {
+			$this->getProcessorSuspend()->run();
+		}
+
+		// All newly created users have their first seen and password start date set
+		add_action( 'user_register', function ( $nUserId ) {
+			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+		} );
 	}
 
 	/**
@@ -45,11 +52,11 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
+	 * @param string   $sUsername
+	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser = null ) {
-		if ( !$oUser instanceof WP_User ) {
+		if ( !$oUser instanceof \WP_User ) {
 			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
 		$this->setPasswordStartedAt( $oUser )// used by Password Policies
@@ -57,11 +64,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			 ->sendLoginNotifications( $oUser );
 	}
 
-	public function runDailyCron() {
-	}
-
 	/**
-	 * @param WP_User $oUser - not checking that user is valid
+	 * @param \WP_User $oUser - not checking that user is valid
 	 * @return $this
 	 */
 	private function sendLoginNotifications( $oUser ) {
@@ -86,7 +90,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
 	private function setPasswordStartedAt( $oUser ) {
@@ -97,7 +101,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
@@ -150,14 +154,14 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 
-		$aUserCapToRolesMap = array(
+		$aUserCapToRolesMap = [
 			'network_admin' => 'manage_network',
 			'administrator' => 'manage_options',
 			'editor'        => 'edit_pages',
 			'author'        => 'publish_posts',
 			'contributor'   => 'delete_posts',
 			'subscriber'    => 'read',
-		);
+		];
 
 		$sRoleToCheck = strtolower( apply_filters( $this->getMod()
 														->prefix( 'login-notification-email-role' ), 'administrator' ) );
@@ -181,7 +185,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
-		$aMessage = array(
+		$aMessage = [
 			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),
 				$this->getCon()->getHumanName(),
 				$sHumanName
@@ -196,7 +200,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
 			'',
 			_wpsf__( 'Thanks.' )
-		);
+		];
 
 		return $this
 			->getMod()
@@ -214,7 +218,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function sendUserLoginEmailNotification( $oUser ) {
 		$oWp = Services::WpGeneral();
-		$aMessage = array(
+		$aMessage = [
 			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getCon()
 																											 ->getHumanName() ),
 			'',
@@ -227,7 +231,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			_wpsf__( 'If this is unexpected or suspicious, please contact your site administrator immediately.' ),
 			'',
 			_wpsf__( 'Thanks.' )
-		);
+		];
 
 		return $this
 			->getMod()

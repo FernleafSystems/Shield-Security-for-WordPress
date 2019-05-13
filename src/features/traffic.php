@@ -188,13 +188,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$oPro = $this->getProcessor();
 		$oTableBuilder = ( new Shield\Tables\Build\Traffic() )
 			->setMod( $this )
-			->setDbHandler( $oPro->getProcessorLogger()->getDbHandler() )
-			->setGeoIpDbSource( $this->getCon()->getPath_Assets( 'db/GeoIp2/GeoLite2-Country.mmdb' ) );
+			->setDbHandler( $oPro->getProcessorLogger()->getDbHandler() );
 
-		return array(
+		return [
 			'success' => true,
 			'html'    => $oTableBuilder->buildTable()
-		);
+		];
 	}
 
 	/**
@@ -209,19 +208,19 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 			case 'section_enable_plugin_feature_traffic' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor and review all requests to your site.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Required only if you need to review and investigate and monitor requests to your site' ) ) )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_traffic_options' :
 				$sTitle = _wpsf__( 'Traffic Watch Options' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control over the Traffic Watch system.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'These settings are dependent on your requirements.' ), _wpsf__( 'User Management' ) ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Traffic Logging Options' );
 				break;
 

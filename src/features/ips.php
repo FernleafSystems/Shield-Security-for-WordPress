@@ -9,12 +9,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
 
-	protected function updateHandler() {
-		if ( $this->isOpt( 'track_404', 'assign-transgression' ) ) {
-			$this->setOpt( 'track_404', 'transgression-single' ); // fix for older options values
-		}
-	}
-
 	/**
 	 * @return bool
 	 */
@@ -89,10 +83,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			$sMessage = _wpsf__( "IP address wasn't deleted from the list" );
 		}
 
-		return array(
+		return [
 			'success' => $bSuccess,
 			'message' => $sMessage,
-		);
+		];
 	}
 
 	protected function ajaxExec_AddIp() {
@@ -162,10 +156,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			}
 		}
 
-		return array(
+		return [
 			'success' => $bSuccess,
 			'message' => $sMessage,
-		);
+		];
 	}
 
 	/**
@@ -182,14 +176,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			->setMod( $this )
 			->setDbHandler( $oPro->getDbHandler() );
 
-		return array(
+		return [
 			'success' => true,
 			'html'    => $oTableBuilder->buildTable()
-		);
+		];
 	}
 
 	protected function doExtraSubmitProcessing() {
-		if ( !in_array( $this->getOpt( 'auto_expire' ), array( 'minute', 'hour', 'day', 'week' ) ) ) {
+		if ( !in_array( $this->getOpt( 'auto_expire' ), [ 'minute', 'hour', 'day', 'week' ] ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
 		}
 
@@ -410,32 +404,32 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 			case 'section_enable_plugin_feature_ips' :
 				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
 					.'<br />'._wpsf__( 'You should also carefully review the automatic black list settings.' )
-				);
+				];
 				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_auto_black_list' :
 				$sTitle = _wpsf__( 'Auto IP Blocking Rules' );
 				$sTitleShort = _wpsf__( 'Auto IP Blocking Rules' );
-				$aSummary = array(
+				$aSummary = [
 					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.' ) ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) ),
 					_wpsf__( "Think of 'transgressions' as just a counter for the number of times a visitor does something bad." )
 					.' '.sprintf( _wpsf__( 'When the counter reaches the limit below (default: 10), %s will block that completely IP.' ), $sName )
-				);
+				];
 				break;
 
 			case 'section_enable_plugin_feature_bottrap' :
 				$sTitle = _wpsf__( 'Identify And Capture Bots Based On Their Site Activity' );
-				$aSummary = array(
+				$aSummary = [
 					_wpsf__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises." ),
 					_wpsf__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots." ),
 					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable as many mouse traps as possible.' ) )
-				);
+				];
 				$sTitleShort = _wpsf__( 'Bot-Trap' );
 				break;
 
@@ -666,8 +660,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @deprecated
 	 * @return bool
+	 * @deprecated
 	 */
 	public function isAutoBlackListFeatureEnabled() {
 		return $this->isAutoBlackListEnabled();

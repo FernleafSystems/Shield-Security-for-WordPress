@@ -447,6 +447,14 @@
       "created_at",
       "deleted_at"
     ],
+    "geoip_table_name":    "geoip",
+    "geoip_table_columns": [
+      "id",
+      "ip",
+      "meta",
+      "created_at",
+      "deleted_at"
+    ],
     "active_plugin_features": [
       {
         "slug":          "insights",

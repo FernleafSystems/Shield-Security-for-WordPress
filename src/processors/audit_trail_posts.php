@@ -5,8 +5,8 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 	/**
 	 */
 	public function run() {
-		add_action( 'deleted_post', array( $this, 'auditDeletedPost' ) );
-		add_action( 'transition_post_status', array( $this, 'auditPostStatus' ), 30, 3 );
+		add_action( 'deleted_post', [ $this, 'auditDeletedPost' ] );
+		add_action( 'transition_post_status', [ $this, 'auditPostStatus' ], 30, 3 );
 	}
 
 	/**
@@ -29,8 +29,8 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 	 */
 	public function auditPostStatus( $sNewStatus, $sOldStatus, $oPost ) {
 
-		if ( ! $oPost instanceof WP_Post || $this->isIgnoredPostType( $oPost )
-			 || in_array( $sNewStatus, array( 'auto-draft', 'inherit' ) ) ) {
+		if ( !$oPost instanceof WP_Post || $this->isIgnoredPostType( $oPost )
+			 || in_array( $sNewStatus, [ 'auto-draft', 'inherit' ] ) ) {
 			return;
 		}
 
@@ -42,9 +42,9 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 			$sEvent = 'post_recovered';
 			$sHumanEvent = _wpsf__( 'recovered from trash' );
 		}
-		else if ( in_array( $sNewStatus, array( 'publish', 'private' ) ) ) {
+		else if ( in_array( $sNewStatus, [ 'publish', 'private' ] ) ) {
 
-			if ( in_array( $sOldStatus, array( 'publish', 'private' )  )) {
+			if ( in_array( $sOldStatus, [ 'publish', 'private' ] ) ) {
 				$sEvent = 'post_updated';
 				$sHumanEvent = _wpsf__( 'updated' );
 			}
@@ -53,7 +53,7 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 				$sHumanEvent = _wpsf__( 'published' );
 			}
 		}
-		else if ( in_array( $sOldStatus, array( 'publish', 'private' ) ) && $sNewStatus == 'draft' ) {
+		else if ( in_array( $sOldStatus, [ 'publish', 'private' ] ) && $sNewStatus == 'draft' ) {
 			$sEvent = 'post_unpublished';
 			$sHumanEvent = _wpsf__( 'unpublished' );
 		}
@@ -62,10 +62,10 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 			$sHumanEvent = _wpsf__( 'updated' );
 		}
 
-		$aMsg = array(
+		$aMsg = [
 			sprintf( _wpsf__( 'Post entitled "%s" was %s.' ), $oPost->post_title, $sHumanEvent ),
 			sprintf( '%s: %s', _wpsf__( 'Post Type' ), $oPost->post_type ),
-		);
+		];
 
 		$this->add( 'posts', $sEvent, 1, implode( " ", $aMsg ) );
 	}
@@ -80,11 +80,11 @@ class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_
 			||
 			in_array(
 				$oPost->post_type,
-				array(
+				[
 					'revision',
 					'nav_menu_item',
 					'attachment'
-				)
+				]
 			);
 	}
 }

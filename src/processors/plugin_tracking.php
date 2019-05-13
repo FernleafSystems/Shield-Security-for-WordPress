@@ -6,17 +6,17 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin {
 
 	/**
-	 * @see autoAddToAdminNotices()
 	 * @param array $aNoticeAttributes
+	 * @see autoAddToAdminNotices()
 	 */
 	protected function addNotice_allow_tracking( $aNoticeAttributes ) {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
 			$oCon = $this->getCon();
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => array(
+				'strings'           => [
 					'title'           => sprintf( _wpsf__( "Make %s even better by sharing usage info?" ), $oCon->getHumanName() ),
 					'want_to_track'   => sprintf( _wpsf__( "We're hoping to understand how %s is configured and used." ), $oCon->getHumanName() ),
 					'what_we_collect' => _wpsf__( "We'd like to understand how effective it is on a global scale." ),
@@ -26,17 +26,17 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 					'learn_more'      => _wpsf__( 'Learn More.' ),
 					'site_url'        => 'translate.icontrolwp.com',
 					'yes'             => _wpsf__( 'Absolutely' )
-				),
-				'ajax'              => array(
+				],
+				'ajax'              => [
 					'set_plugin_tracking_perm' => $oFO->getAjaxActionData( 'set_plugin_tracking_perm', true ),
-				),
-				'hrefs'             => array(
+				],
+				'hrefs'             => [
 					'learn_more'       => 'http://translate.icontrolwp.com',
 					'link_to_see'      => $oFO->getLinkToTrackingDataDump(),
 					'link_to_moreinfo' => 'https://icwp.io/shieldtrackinginfo',
 
-				)
-			);
+				]
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
@@ -88,9 +88,9 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	protected function getBaseTrackingData() {
 		$oWP = Services::WpGeneral();
 		$oWpPlugins = Services::WpPlugins();
-		return array(
-			'env' => array(
-				'options' => array(
+		return [
+			'env' => [
+				'options' => [
 					'php'             => Services::Data()->getPhpVersionCleaned(),
 					'wordpress'       => $oWP->getVersion(),
 					'slug'            => $this->getCon()->getPluginSlug(),
@@ -102,9 +102,9 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 					'plugins_total'   => count( $oWpPlugins->getPlugins() ),
 					'plugins_active'  => count( $oWpPlugins->getActivePlugins() ),
 					'plugins_updates' => count( $oWpPlugins->getUpdates() )
-				)
-			)
-		);
+				]
+			]
+		];
 	}
 
 	/**

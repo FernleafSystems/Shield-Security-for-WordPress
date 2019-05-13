@@ -35,6 +35,48 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->getSubProIntent()->run();
 	}
 
+	public function onWpEnqueueJs() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
+
+		if ( $oFO->isEnabledBotJs() ) {
+			$oConn = $this->getCon();
+
+			$sAsset = 'shield-antibot';
+			$sUnique = $this->prefix( $sAsset );
+			wp_register_script(
+				$sUnique,
+				$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+				[ 'jquery' ],
+				$oConn->getVersion(),
+				true
+			);
+			wp_enqueue_script( $sUnique );
+
+			wp_localize_script(
+				$sUnique,
+				'icwp_wpsf_vars_lpantibot',
+				[
+					'form_selectors' => implode( ',', $oFO->getAntiBotFormSelectors() ),
+					'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
+					'cbname'         => $oFO->getGaspKey(),
+					'strings'        => [
+						'label' => $oFO->getTextImAHuman(),
+						'alert' => $oFO->getTextPleaseCheckBox(),
+					],
+					'flags'          => [
+						'gasp'  => $oFO->isEnabledGaspCheck(),
+						'recap' => $oFO->isGoogleRecaptchaEnabled(),
+					]
+				]
+			);
+
+			if ( $oFO->isGoogleRecaptchaEnabled() ) {
+				$this->setRecaptchaToEnqueue();
+			}
+		}
+	}
+
 	/**
 	 * Override the original collection to then add plugin statistics to the mix
 	 * @param $aData
@@ -56,9 +98,9 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isEmailAuthenticationOptionOn() && !$oFO->isEmailAuthenticationActive() && !$oFO->getIfCanSendEmailVerified() ) {
-			$aRenderData = array(
+			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => array(
+				'strings'           => [
 					'title'             => $this->getCon()->getHumanName()
 										   .': '._wpsf__( 'Please verify email has been received' ),
 					'need_you_confirm'  => _wpsf__( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails." ),
@@ -69,12 +111,12 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					),
 					'how_resend_email'  => _wpsf__( "Resend verification email" ),
 					'how_turn_off'      => _wpsf__( "Disable 2FA by email" ),
-				),
+				],
 				'ajax'              => [
 					'resend_verification_email' => $oFO->getAjaxActionData( 'resend_verification_email', true ),
 					'disable_2fa_email'         => $oFO->getAjaxActionData( 'disable_2fa_email', true ),
 				]
-			);
+			];
 			$this->insertAdminNotice( $aRenderData );
 		}
 	}
@@ -84,11 +126,11 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProMap() {
 		return [
-			'cooldown'   => 'ICWP_WPSF_Processor_LoginProtect_Cooldown',
-			'gasp'       => 'ICWP_WPSF_Processor_LoginProtect_Gasp',
-			'intent'     => 'ICWP_WPSF_Processor_LoginProtect_Intent',
-			'recaptcha'  => 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha',
-			'rename'     => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
+			'cooldown'  => 'ICWP_WPSF_Processor_LoginProtect_Cooldown',
+			'gasp'      => 'ICWP_WPSF_Processor_LoginProtect_Gasp',
+			'intent'    => 'ICWP_WPSF_Processor_LoginProtect_Intent',
+			'recaptcha' => 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha',
+			'rename'    => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
 		];
 	}
 
