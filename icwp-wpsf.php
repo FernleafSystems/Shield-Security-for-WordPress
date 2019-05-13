@@ -5,7 +5,7 @@
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
  * Version: 7.4.0
  * Text Domain: wp-simple-firewall
- * Domain Path: /languages/
+ * Domain Path: /languages
  * Author: One Dollar Plugin
  * Author URI: https://icwp.io/bv
  */

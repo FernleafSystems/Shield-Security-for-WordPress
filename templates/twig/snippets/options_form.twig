@@ -50,7 +50,7 @@
 							{% endif %}
 
 								{% if aOption.type is sameas('checkbox') %}
-									<div class="form-check">
+									<div class="form-check-null">
 										<span class="icwp-switch">
 											<input type="checkbox" name="{{ aOption.key }}"
 												   id="Opt-{{ aOption.key }}" class="form-check-input"
@@ -226,6 +226,6 @@
 	</div>
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary btn-large icwp-form-button"
-				name="submit" style="margin-right: 12px">{{ strings.save_all_settings }}</button>
+				name="submit">{{ strings.save_all_settings }}</button>
 	</div>
 </form>
