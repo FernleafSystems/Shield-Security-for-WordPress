@@ -38,7 +38,9 @@
 
 				{% for key, aOption in opt_section.options %}
 					<div class="form-group row">
-						<label for="Opt-{{ aOption.key }}" class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
+						<label for="Opt-{{ aOption.key }}"
+							   id="Label-{{ aOption.key }}"
+							   class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
 							{{ aOption.name }}
 						</label>
 						<div class="col-xl-6 col-lg-7 col-md-8 col-sm-8">
@@ -49,15 +51,19 @@
 
 								{% if aOption.type is sameas('checkbox') %}
 									<div class="form-check">
-									<input type="checkbox" name="{{ aOption.key }}"
-										   id="Opt-{{ aOption.key }}" class="form-check-input"
-											{% if not aOption.enabled %}
-												disabled="disabled"
-											{% endif %}
-										   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
-									<label class="form-check-label"
-										   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
-								</div>
+										<span class="icwp-switch">
+											<input type="checkbox" name="{{ aOption.key }}"
+												   id="Opt-{{ aOption.key }}" class="form-check-input"
+													{% if not aOption.enabled %}
+														disabled="disabled"
+													{% endif %}
+													aria-labelledby="Label-{{ aOption.key }}"
+												   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
+											<span class="icwp-slider round"></span>
+										</span>
+										<label class="form-check-label"
+											   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
+									</div>
 
 							{% elseif aOption.type is sameas('text') %}
 

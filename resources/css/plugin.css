@@ -603,6 +603,7 @@ label.forcheckbox .summary {
 	display: inline-block;
 	width: 40px;
 	height: 20px;
+	vertical-align: -8px;
 }
 .icwp-switch .summary {
 	display: block;
@@ -1183,6 +1184,11 @@ input[type=checkbox].form-check-input {
 	margin-top: 5px;
 	margin-left: -20px;
 	margin-right: 5px;
+}
+.icwp-switch input[type=checkbox].form-check-input {
+	z-index: 10;
+	margin: 0;
+	border-width: 10px 20px;
 }
 /** copied from bootstrap to override WP admin styles */
 .wp-admin select.custom-select {
