@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 				if ( stripos( $sItem, $sBlacklistWord ) !== false ) { //mark as spam and exit;
 					$this->doStatIncrement( sprintf( 'spam.human.%s', $sKey ) );
 					$this->setCommentStatus( $this->getOption( 'comments_default_action_human_spam' ) );
-					$this->setCommentStatusExplanation( sprintf( _wpsf__( 'Human SPAM filter found "%s" in "%s"' ), $sBlacklistWord, $sKey ) );
+					$this->setCommentStatusExplanation( sprintf( __( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' ), $sBlacklistWord, $sKey ) );
 					$oFO->setOptInsightsAt( 'last_comment_block_at' )
 						->setIpTransgressed();
 					break 2;

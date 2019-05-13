@@ -61,7 +61,7 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 			'notice_attributes' => $aAttr,
 			'strings'           => [
 				'title'   => 'Will you help us out with a quick WordPress.org review?',
-				'dismiss' => _wpsf__( "I'd rather not show this support" ).' / '._wpsf__( "I've done this already" ).' :D',
+				'dismiss' => __( "I'd rather not show this support", 'wp-simple-firewall' ).' / '.__( "I've done this already", 'wp-simple-firewall' ).' :D',
 				'forums'  => __( 'Support Forums' )
 			],
 			'hrefs'             => [
@@ -83,10 +83,10 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 		$aRenderData = [
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => [
-				'dismiss'  => _wpsf__( "I don't need the setup wizard just now" ),
-				'title'    => sprintf( _wpsf__( 'Get started quickly with the %s Setup Wizard' ), $sName ),
-				'setup'    => sprintf( _wpsf__( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features' ), $sName ),
-				'no_setup' => sprintf( _wpsf__( "%s has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+" ), $sName ),
+				'dismiss'  => __( "I don't need the setup wizard just now", 'wp-simple-firewall' ),
+				'title'    => sprintf( __( 'Get started quickly with the %s Setup Wizard', 'wp-simple-firewall' ), $sName ),
+				'setup'    => sprintf( __( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features', 'wp-simple-firewall' ), $sName ),
+				'no_setup' => sprintf( __( "%s has a helpful setup wizard to walk you through the main features. Unfortunately your PHP version is reeeaally old as it needs PHP 5.4+", 'wp-simple-firewall' ), $sName ),
 			],
 			'hrefs'             => [
 				'wizard' => $oFO->getUrl_Wizard( 'welcome' ),
@@ -120,10 +120,10 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'notice_attributes' => $aNoticeAttributes,
 				'render_slug'       => 'plugin-update-available',
 				'strings'           => [
-					'title'        => sprintf( _wpsf__( 'Update available for the %s plugin.' ), $this->getCon()
-																									  ->getHumanName() ),
-					'click_update' => _wpsf__( 'Please click to update immediately' ),
-					'dismiss'      => _wpsf__( 'Dismiss this notice' )
+					'title'        => sprintf( __( 'Update available for the %s plugin.', 'wp-simple-firewall' ), $this->getCon()
+																													   ->getHumanName() ),
+					'click_update' => __( 'Please click to update immediately', 'wp-simple-firewall' ),
+					'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
 				],
 				'hrefs'             => [
 					'upgrade_link' => $oWpPlugins->getUrl_Upgrade( $sBaseFile )
@@ -143,11 +143,11 @@ class ICWP_WPSF_Processor_BasePlugin extends ICWP_WPSF_Processor_BaseWpsf {
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
 					'title'        => 'Você não fala Inglês? No hablas Inglés? Heeft u geen Engels spreekt?',
-					'like_to_help' => sprintf( _wpsf__( "Can you help translate the %s plugin?" ), $this->getCon()
-																										->getHumanName() ),
-					'head_over_to' => sprintf( _wpsf__( 'Head over to: %s' ), '' ),
+					'like_to_help' => sprintf( __( "Can you help translate the %s plugin?", 'wp-simple-firewall' ), $this->getCon()
+																														 ->getHumanName() ),
+					'head_over_to' => sprintf( __( 'Head over to: %s', 'wp-simple-firewall' ), '' ),
 					'site_url'     => 'translate.icontrolwp.com',
-					'dismiss'      => _wpsf__( 'Dismiss this notice' )
+					'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
 				],
 				'hrefs'             => [
 					'translate' => 'http://translate.icontrolwp.com'

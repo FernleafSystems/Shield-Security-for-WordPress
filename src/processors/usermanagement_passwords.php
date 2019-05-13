@@ -91,9 +91,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
 				if ( $this->time() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
-					$this->addToAuditEntry( _wpsf__( 'Forcing user to update expired password.' ) );
+					$this->addToAuditEntry( __( 'Forcing user to update expired password.', 'wp-simple-firewall' ) );
 					$this->redirectToResetPassword(
-						sprintf( _wpsf__( 'Your password has expired (after %s days).' ), $oFO->getPassExpireDays() )
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oFO->getPassExpireDays() )
 					);
 				}
 			}
@@ -110,11 +110,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 		if ( $bPassCheckFailed ) {
 			$this->addToAuditEntry(
-				_wpsf__( 'Forcing user to update password that fails to meet policies.' ),
+				__( 'Forcing user to update password that fails to meet policies.', 'wp-simple-firewall' ),
 				'1', 'um_password_force_update'
 			);
 			$this->redirectToResetPassword(
-				_wpsf__( "Your password doesn't meet requirements set by your security administrator." )
+				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
 		}
 	}
@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			$oUser = $oWpUsers->getCurrentWpUser();
 			if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
-				$sMessage .= ' '._wpsf__( 'For your security, please use the password section below to update your password.' );
+				$sMessage .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
 					 ->setFlashAdminNotice( $sMessage );
 
@@ -165,8 +165,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					}
 				}
 				catch ( \Exception $oE ) {
-					$sMessage = _wpsf__( 'Your security administrator has imposed requirements for password quality.' )
-								.'<br/>'.sprintf( _wpsf__( 'Reason' ).': '.$oE->getMessage() );
+					$sMessage = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$oE->getMessage() );
 					$oErrors->add( 'shield_password_policy', $sMessage );
 
 					/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
@@ -174,7 +174,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					$oFO->setOptInsightsAt( 'last_password_block_at' );
 
 					$this->addToAuditEntry(
-						_wpsf__( 'Blocked attempted password update that failed policy requirements.' ),
+						__( 'Blocked attempted password update that failed policy requirements.', 'wp-simple-firewall' ),
 						'1', 'um_password_update_blocked'
 					);
 				}
@@ -230,7 +230,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		$nMin = $oFO->getPassMinLength();
 		$nLength = strlen( $sPassword );
 		if ( $nMin > 0 && $nLength < $nMin ) {
-			throw new \Exception( sprintf( _wpsf__( 'Password length (%s) too short (min: %s characters)' ), $nLength, $nMin ) );
+			throw new \Exception( sprintf( __( 'Password length (%s) too short (min: %s characters)', 'wp-simple-firewall' ), $nLength, $nMin ) );
 		}
 		return true;
 	}
@@ -292,12 +292,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					$sError = 'Unexpected Error: The API response could not be properly parsed.';
 				}
 				else {
-					$sError = _wpsf__( 'Please use a different password.' )
-							  .' '._wpsf__( 'This password has already been pwned.' )
+					$sError = __( 'Please use a different password.', 'wp-simple-firewall' )
+							  .' '.__( 'This password has already been pwned.', 'wp-simple-firewall' )
 							  .' '.sprintf(
 								  '(<a href="%s" target="_blank">%s</a>)',
 								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
-								  sprintf( _wpsf__( '%s times' ), $nCount )
+								  sprintf( __( '%s times', 'wp-simple-firewall' ), $nCount )
 							  );
 				}
 			}
@@ -359,12 +359,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					}
 				}
 				if ( $nCount > 0 ) {
-					$sError = _wpsf__( 'Please use a different password.' )
-							  .'<br/>'._wpsf__( 'This password has been pwned.' )
+					$sError = __( 'Please use a different password.', 'wp-simple-firewall' )
+							  .'<br/>'.__( 'This password has been pwned.', 'wp-simple-firewall' )
 							  .' '.sprintf(
 								  '(<a href="%s" target="_blank">%s</a>)',
 								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
-								  sprintf( _wpsf__( '%s times' ), $nCount )
+								  sprintf( __( '%s times', 'wp-simple-firewall' ), $nCount )
 							  );
 				}
 			}

@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_CommentsFilter_Base extends ICWP_WPSF_Processor_BaseWp
 	protected function setCommentStatusExplanation( $sExplanation ) {
 		self::$sCommentStatusExplanation =
 			'[* '.sprintf(
-				_wpsf__( '%s plugin marked this comment as "%s".' ).' '._wpsf__( 'Reason: %s' ),
+				__( '%s plugin marked this comment as "%s".', 'wp-simple-firewall' ).' '.__( 'Reason: %s', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName(),
 				self::$sCommentStatus,
 				$sExplanation

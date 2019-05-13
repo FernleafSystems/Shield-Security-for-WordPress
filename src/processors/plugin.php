@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 
 			$aRenderData = [
 				'strings'     => [
-					'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				],
 				'inputs'      => [
 					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
@@ -208,13 +208,13 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
-					'title'   => sprintf( '%s: %s', _wpsf__( 'Warning' ), sprintf( _wpsf__( '%s is not protecting your site' ), $oCon->getHumanName() ) ),
+					'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $oCon->getHumanName() ) ),
 					'message' => sprintf(
-						_wpsf__( 'Please delete the "%s" file to reactivate %s protection' ),
+						__( 'Please delete the "%s" file to reactivate %s protection', 'wp-simple-firewall' ),
 						'forceOff',
 						$oCon->getHumanName()
 					),
-					'delete'  => _wpsf__( 'Click here to automatically delete the file' )
+					'delete'  => __( 'Click here to automatically delete the file', 'wp-simple-firewall' )
 				],
 				'ajax'              => [
 					'delete_forceoff' => $oFO->getAjaxActionData( 'delete_forceoff', true )
@@ -240,8 +240,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					'title'          => 'Come and Join Us!',
 					'yes'            => "Yes please! I'd love to join in and learn more",
 					'no'             => "No thanks, I'm not interested in such groups",
-					'your_name'      => _wpsf__( 'Your Name' ),
-					'your_email'     => _wpsf__( 'Your Email' ),
+					'your_name'      => __( 'Your Name', 'wp-simple-firewall' ),
+					'your_email'     => __( 'Your Email', 'wp-simple-firewall' ),
 					'dismiss'        => "No thanks, I'm not interested in such informative groups",
 					'summary'        => sprintf( 'The %s security team is running an initiative to raise awareness of WordPress Security
 				and to provide further help with the %s security plugin. Get Involved here:', $sName, $sName ),

@@ -690,7 +690,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aSum[ 'tooltip' ] = sprintf(
 			'%s: %s',
 			$aSum[ 'name' ],
-			sprintf( _wpsf__( 'Module %s' ), ( $aSum[ 'enabled' ] ? _wpsf__( 'Enabled' ) : _wpsf__( 'Disabled' ) ) )
+			sprintf( __( 'Module %s', 'wp-simple-firewall' ), ( $aSum[ 'enabled' ] ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' ) ) )
 		);
 		return $aSum;
 	}
@@ -997,7 +997,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 				$aWarnings = [];
 				if ( !$oOptsVo->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-					$aWarnings[] = _wpsf__( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.' );
+					$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
 				}
 				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
 					$aWarnings,
@@ -1150,11 +1150,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		try {
 			$this->saveOptionsSubmit();
 			$bSuccess = true;
-			$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
+			$sMessage = sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $sName );
 		}
 		catch ( \Exception $oE ) {
 			$bSuccess = false;
-			$sMessage = sprintf( _wpsf__( 'Failed to update %s plugin options.' ), $sName )
+			$sMessage = sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $sName )
 						.' '.$oE->getMessage();
 		}
 
@@ -1193,7 +1193,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function saveOptionsSubmit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new \Exception( _wpsf__( "You don't currently have permission to save settings." ) );
+			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
 		$this->doSaveStandardOptions();
 		$this->doExtraSubmitProcessing();
@@ -1209,7 +1209,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	protected function setSaveUserResponse() {
 		if ( $this->isAdminOptionsPage() ) {
-			$this->setFlashAdminNotice( _wpsf__( 'Plugin options updated successfully.' ) );
+			$this->setFlashAdminNotice( __( 'Plugin options updated successfully.', 'wp-simple-firewall' ) );
 		}
 	}
 
@@ -1297,7 +1297,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 					$sConfirm = isset( $aForm[ $sKey.'_confirm' ] ) ? $aForm[ $sKey.'_confirm' ] : null;
 					if ( $sTempValue !== $sConfirm ) {
-						throw new \Exception( _wpsf__( 'Password values do not match.' ) );
+						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
 
 					$sOptionValue = md5( $sTempValue );

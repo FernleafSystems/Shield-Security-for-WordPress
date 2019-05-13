@@ -26,23 +26,23 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			'i_am_valid_admin'      => $oCon->isPluginAdmin(),
 			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
 			'strings'               => [
-				'description_otp_code'     => _wpsf__( 'This is your unique Yubikey Device ID.' ),
-				'description_otp_code_ext' => '['._wpsf__( 'Pro Only' ).'] '
-											  ._wpsf__( 'Multiple Yubikey Device IDs are separated by a comma.' ),
-				'description_otp'          => _wpsf__( 'Provide a One Time Password from your Yubikey.' ),
+				'description_otp_code'     => __( 'This is your unique Yubikey Device ID.', 'wp-simple-firewall' ),
+				'description_otp_code_ext' => '['.__( 'Pro Only', 'wp-simple-firewall' ).'] '
+											  .__( 'Multiple Yubikey Device IDs are separated by a comma.', 'wp-simple-firewall' ),
+				'description_otp'          => __( 'Provide a One Time Password from your Yubikey.', 'wp-simple-firewall' ),
 				'description_otp_ext'      => $bValidatedProfile ?
-					_wpsf__( 'This will remove the Yubikey Device ID from your profile.' )
-					: _wpsf__( 'This will add the Yubikey Device ID to your profile.' ),
+					__( 'This will remove the Yubikey Device ID from your profile.', 'wp-simple-firewall' )
+					: __( 'This will add the Yubikey Device ID to your profile.', 'wp-simple-firewall' ),
 				'description_otp_ext_2'    => $bValidatedProfile ?
-					'['._wpsf__( 'Pro Only' ).'] '._wpsf__( 'If you provide a OTP from an alternative Yubikey device, it will also be added to your profile.' )
+					'['.__( 'Pro Only', 'wp-simple-firewall' ).'] '.__( 'If you provide a OTP from an alternative Yubikey device, it will also be added to your profile.', 'wp-simple-firewall' )
 					: '',
-				'label_enter_code'         => _wpsf__( 'Yubikey ID' ),
-				'label_enter_otp'          => _wpsf__( 'Yubikey OTP' ),
-				'title'                    => _wpsf__( 'Yubikey Authentication' ),
-				'cant_add_other_user'      => sprintf( _wpsf__( "Sorry, %s may not be added to another user's account." ), 'Yubikey' ),
-				'cant_remove_admins'       => sprintf( _wpsf__( "Sorry, %s may only be removed from another user's account by a Security Administrator." ), _wpsf__( 'Yubikey' ) ),
-				'provided_by'              => sprintf( _wpsf__( 'Provided by %s' ), $oCon->getHumanName() ),
-				'remove_more_info'         => sprintf( _wpsf__( 'Understand how to remove Google Authenticator' ) )
+				'label_enter_code'         => __( 'Yubikey ID', 'wp-simple-firewall' ),
+				'label_enter_otp'          => __( 'Yubikey OTP', 'wp-simple-firewall' ),
+				'title'                    => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
+				'cant_add_other_user'      => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
+				'cant_remove_admins'       => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
+				'provided_by'              => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+				'remove_more_info'         => sprintf( __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ) )
 			],
 			'data'                  => [
 				'otp_field_name' => $this->getLoginFormParameter(),
@@ -73,7 +73,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 		if ( !$this->sendYubiOtpRequest( $sOtp ) ) {
 			$oFO->setFlashAdminNotice(
-				_wpsf__( 'One Time Password (OTP) was not valid.' ).' '._wpsf__( 'Please try again.' ),
+				__( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' ).' '.__( 'Please try again.', 'wp-simple-firewall' ),
 				true
 			);
 			return;
@@ -92,20 +92,20 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		if ( $this->hasYubiIdInProfile( $oSavingUser, $sYubiId ) ) {
 			$this->removeYubiIdFromProfile( $oSavingUser, $sYubiId );
 			$sMsg = sprintf(
-				_wpsf__( '%s was removed from your profile.' ),
-				_wpsf__( 'Yubikey Device' ).sprintf( ' "%s"', $sYubiId )
+				__( '%s was removed from your profile.', 'wp-simple-firewall' ),
+				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' "%s"', $sYubiId )
 			);
 		}
 		else if ( count( $this->getYubiIds( $oSavingUser ) ) == 0 || $oFO->isPremium() ) {
 			$this->addYubiIdToProfile( $oSavingUser, $sYubiId );
 			$sMsg = sprintf(
-				_wpsf__( '%s was added to your profile.' ),
-				_wpsf__( 'Yubikey Device' ).sprintf( ' (%s)', $sYubiId )
+				__( '%s was added to your profile.', 'wp-simple-firewall' ),
+				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sYubiId )
 			);
 		}
 		else {
 			$bError = true;
-			$sMsg = _wpsf__( 'No changes were made to your Yubikey configuration' );
+			$sMsg = __( 'No changes were made to your Yubikey configuration', 'wp-simple-firewall' );
 		}
 
 		$this->setProfileValidated( $oSavingUser, $this->hasValidSecret( $oSavingUser ) );
@@ -233,16 +233,16 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" verified their identity using %s method.' ),
-					$oUser->user_login, _wpsf__( 'Yubikey OTP' )
+				sprintf( __( 'User "%s" verified their identity using %s method.', 'wp-simple-firewall' ),
+					$oUser->user_login, __( 'Yubikey OTP', 'wp-simple-firewall' )
 				), 2, 'login_protect_yubikey_login_success'
 			);
 			$this->doStatIncrement( 'login.yubikey.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
-					$oUser->user_login, _wpsf__( 'Yubikey OTP' )
+				sprintf( __( 'User "%s" failed to verify their identity using %s method.', 'wp-simple-firewall' ),
+					$oUser->user_login, __( 'Yubikey OTP', 'wp-simple-firewall' )
 				), 2, 'login_protect_yubikey_failed'
 			);
 			$this->doStatIncrement( 'login.yubikey.failed' );
@@ -258,9 +258,9 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			$aFields[] = [
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'text',
-				'placeholder' => _wpsf__( 'Use your Yubikey to generate a new code.' ),
+				'placeholder' => __( 'Use your Yubikey to generate a new code.', 'wp-simple-firewall' ),
 				'value'       => '',
-				'text'        => _wpsf__( 'Yubikey OTP' ),
+				'text'        => __( 'Yubikey OTP', 'wp-simple-firewall' ),
 				'help_link'   => 'https://icwp.io/4i'
 			];
 		}

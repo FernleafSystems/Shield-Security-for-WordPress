@@ -127,12 +127,12 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( '[%s] %s', _wpsf__( 'Warning' ), _wpsf__( 'Modified Core WordPress Files Discovered' ) ),
+				 sprintf( '[%s] %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Modified Core WordPress Files Discovered', 'wp-simple-firewall' ) ),
 				 $this->buildEmailBodyFromFiles( $oResults )
 			 );
 
 		$this->addToAuditEntry(
-			sprintf( _wpsf__( 'Sent Checksum Scan Notification email alert to: %s' ), $sTo )
+			sprintf( __( 'Sent Checksum Scan Notification email alert to: %s', 'wp-simple-firewall' ), $sTo )
 		);
 	}
 
@@ -147,8 +147,8 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
 		$aContent = [
-			sprintf( _wpsf__( "The %s Core File Scanner found files with potential problems." ), $sName ),
-			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			sprintf( __( "The %s Core File Scanner found files with potential problems.", 'wp-simple-firewall' ), $sName ),
+			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
 		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() ) {
@@ -156,23 +156,23 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			$aContent[] = '';
 
 			if ( $oFO->isWcfScanAutoRepair() ) {
-				$aContent[] = '<strong>'.sprintf( _wpsf__( "%s has already attempted to repair the files." ), $sName ).'</strong>'
-							  .' '._wpsf__( 'But, you should always check these files to ensure everything is as you expect.' );
+				$aContent[] = '<strong>'.sprintf( __( "%s has already attempted to repair the files.", 'wp-simple-firewall' ), $sName ).'</strong>'
+							  .' '.__( 'But, you should always check these files to ensure everything is as you expect.', 'wp-simple-firewall' );
 			}
 			else {
-				$aContent[] = _wpsf__( 'You should review these files and replace them with official versions if required.' );
-				$aContent[] = _wpsf__( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.' )
-							  .' [<a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info' ).']</a>';
+				$aContent[] = __( 'You should review these files and replace them with official versions if required.', 'wp-simple-firewall' );
+				$aContent[] = __( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.', 'wp-simple-firewall' )
+							  .' [<a href="https://icwp.io/moreinfochecksum">'.__( 'More Info', 'wp-simple-firewall' ).']</a>';
 			}
 		}
 
 		$aContent[] = '';
-		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+		$aContent[] = __( 'We recommend you run the scanner to review your site', 'wp-simple-firewall' ).':';
 		$aContent[] = $this->getScannerButtonForEmail();
 
 		if ( !$this->getCon()->isRelabelled() ) {
 			$aContent[] = '';
-			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'._wpsf__( 'More Info On This Scanner' ).' ]</a>';
+			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'.__( 'More Info On This Scanner', 'wp-simple-firewall' ).' ]</a>';
 		}
 
 		return $aContent;
@@ -187,14 +187,14 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 
 		if ( $oResult->hasChecksumFailed() ) {
 			$aContent[] = '';
-			$aContent[] = _wpsf__( "The following files have different content:" );
+			$aContent[] = __( "The following files have different content:", 'wp-simple-firewall' );
 			foreach ( $oResult->getChecksumFailedPaths() as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}
 		}
 		if ( $oResult->hasMissing() ) {
 			$aContent[] = '';
-			$aContent[] = _wpsf__( 'The following files are missing:' );
+			$aContent[] = __( 'The following files are missing:', 'wp-simple-firewall' );
 			foreach ( $oResult->getMissingPaths() as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}

@@ -668,7 +668,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * Displays a message in the plugins listing when a plugin has an update available.
 	 */
 	public function onWpPluginUpdateMessage() {
-		$sMessage = _wpsf__( 'Update Now To Keep Your Security Current With The Latest Features.' );
+		$sMessage = __( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' );
 		if ( empty( $sMessage ) ) {
 			$sMessage = '';
 		}

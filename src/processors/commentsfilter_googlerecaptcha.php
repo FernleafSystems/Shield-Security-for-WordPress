@@ -8,7 +8,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 */
 	public function run() {
 		parent::run();
-		add_action( 'wp', array( $this, 'setup' ) );
+		add_action( 'wp', [ $this, 'setup' ] );
 	}
 
 	/**
@@ -16,8 +16,8 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 */
 	public function setup() {
 		if ( $this->loadWpComments()->isCommentsOpen() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
-			add_action( 'comment_form_after_fields', array( $this, 'printGoogleRecaptchaCheck' ) );
+			add_action( 'wp_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
+			add_action( 'comment_form_after_fields', [ $this, 'printGoogleRecaptchaCheck' ] );
 		}
 	}
 

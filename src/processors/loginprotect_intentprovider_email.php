@@ -35,16 +35,16 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		if ( $bIsSuccess ) {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" verified their identity using %s method.' ),
-					$oUser->user_login, _wpsf__( 'Email Auth' )
+				sprintf( __( 'User "%s" verified their identity using %s method.', 'wp-simple-firewall' ),
+					$oUser->user_login, __( 'Email Auth', 'wp-simple-firewall' )
 				), 2, 'login_protect_emailauth_verified'
 			);
 			$this->doStatIncrement( 'login.emailauth.verified' );
 		}
 		else {
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
-					$oUser->user_login, _wpsf__( 'Email Auth' )
+				sprintf( __( 'User "%s" failed to verify their identity using %s method.', 'wp-simple-firewall' ),
+					$oUser->user_login, __( 'Email Auth', 'wp-simple-firewall' )
 				), 2, 'login_protect_emailauth_failed'
 			);
 			$this->doStatIncrement( 'login.emailauth.failed' );
@@ -78,8 +78,8 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'text',
 				'value'       => $this->fetchCodeFromRequest(),
-				'placeholder' => _wpsf__( 'This code was just sent to your registered Email address.' ),
-				'text'        => _wpsf__( 'Email OTP' ),
+				'placeholder' => __( 'This code was just sent to your registered Email address.', 'wp-simple-firewall' ),
+				'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
 				'help_link'   => 'https://icwp.io/3t'
 			];
 		}
@@ -155,33 +155,33 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$sIpAddress = $this->ip();
 
 		$aMessage = [
-			_wpsf__( 'Someone attempted to login into this WordPress site using your account.' ),
-			_wpsf__( 'Login requires verification with the following code.' ),
+			__( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
+			__( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
 			'',
-			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
+			sprintf( __( 'Verification Code: %s', 'wp-simple-firewall' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
 			'',
-			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
-			sprintf( '%s: %s', _wpsf__( 'URL' ), Services::WpGeneral()->getHomeUrl() ),
-			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
-			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIpAddress ),
+			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
+			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
+			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
+			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $sIpAddress ),
 			'',
 		];
 
 		if ( !$this->getCon()->isRelabelled() ) {
-			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', _wpsf__( 'Why no login link?' ) );
+			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', __( 'Why no login link?', 'wp-simple-firewall' ) );
 			$aContent[] = '';
 		}
 
-		$sEmailSubject = _wpsf__( 'Two-Factor Login Verification' );
+		$sEmailSubject = __( 'Two-Factor Login Verification', 'wp-simple-firewall' );
 
 		$bResult = $this->getEmailProcessor()
 						->sendEmailWithWrap( $oUser->user_email, $sEmailSubject, $aMessage );
 		if ( $bResult ) {
-			$sAuditMessage = sprintf( _wpsf__( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".' ), $oUser->user_login, $sIpAddress );
+			$sAuditMessage = sprintf( __( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".', 'wp-simple-firewall' ), $oUser->user_login, $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );
 		}
 		else {
-			$sAuditMessage = sprintf( _wpsf__( 'Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.' ), $oUser->user_login, $sIpAddress );
+			$sAuditMessage = sprintf( __( 'Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.', 'wp-simple-firewall' ), $oUser->user_login, $sIpAddress );
 			$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
 		}
 		return $this;
@@ -202,11 +202,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			'i_am_valid_admin'                       => $this->getCon()->isPluginAdmin(),
 			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
 			'strings'                                => [
-				'label_email_authentication'                => _wpsf__( 'Email Authentication' ),
-				'title'                                     => _wpsf__( 'Email Authentication' ),
-				'description_email_authentication_checkbox' => _wpsf__( 'Check the box to enable email-based login authentication.' ),
-				'provided_by'                               => sprintf( _wpsf__( 'Provided by %s' ), $this->getCon()
-																										  ->getHumanName() )
+				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
+				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
+				'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
+				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $this->getCon()
+																														   ->getHumanName() )
 			]
 		];
 

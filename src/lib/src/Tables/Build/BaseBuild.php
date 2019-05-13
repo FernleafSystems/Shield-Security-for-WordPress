@@ -46,7 +46,7 @@ class BaseBuild {
 	 * @return string
 	 */
 	protected function buildEmpty() {
-		return sprintf( '<div class="alert alert-info m-0">%s</div>', _wpsf__( 'No entries to display.' ) );
+		return sprintf( '<div class="alert alert-info m-0">%s</div>', __( 'No entries to display.', 'wp-simple-firewall' ) );
 	}
 
 	/**

@@ -82,14 +82,14 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 					case 1:
 						$this->addToAuditEntry(
-							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_expired_timeout'
+							$sMessage.' '.__( 'Logging out.', 'wp-simple-firewall' ), 2, 'um_session_expired_timeout'
 						);
 						$oWpUsers->logoutUser( true );
 						break;
 
 					case 2:
 						$this->addToAuditEntry(
-							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_idle_timeout'
+							$sMessage.' '.__( 'Logging out.', 'wp-simple-firewall' ), 2, 'um_session_idle_timeout'
 						);
 						$oWpUsers->logoutUser( true );
 						break;
@@ -105,7 +105,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 					case 4:
 						$this->addToAuditEntry(
-							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_no_valid_found'
+							$sMessage.' '.__( 'Logging out.', 'wp-simple-firewall' ), 2, 'um_session_no_valid_found'
 						);
 						$oWpUsers->forceUserRelogin( [ 'wpsf-forcelogout' => $nCode ] );
 						break;
@@ -218,7 +218,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		$oFO = $this->getMod();
 
 		if ( !$oFO->hasSession() ) {
-			throw new \Exception( _wpsf__( 'Valid user session could not be found' ), 4 );
+			throw new \Exception( __( 'Valid user session could not be found', 'wp-simple-firewall' ), 4 );
 		}
 		else {
 			$oSess = $oFO->getSession();
@@ -229,7 +229,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 				$nDays = (int)( $oFO->getMaxSessionTime()/DAY_IN_SECONDS );
 				throw new \Exception(
 					sprintf(
-						_wpsf__( 'User session has expired after %s' ),
+						__( 'User session has expired after %s', 'wp-simple-firewall' ),
 						sprintf( _n( '%s day', '%s days', $nDays, 'wp-simple-firewall' ), $nDays )
 					),
 					1
@@ -242,7 +242,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 				$nHours = (int)( $oFO->getIdleTimeoutInterval()/HOUR_IN_SECONDS );
 				throw new \Exception(
 					sprintf(
-						_wpsf__( 'User session has expired after %s' ),
+						__( 'User session has expired after %s', 'wp-simple-firewall' ),
 						sprintf( _n( '%s day', '%s days', $nHours, 'wp-simple-firewall' ), $nHours )
 					),
 					2
@@ -319,36 +319,36 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 			switch ( $sForceLogout ) {
 				case 1:
-					$sMessage = _wpsf__( 'Your session has expired.' );
+					$sMessage = __( 'Your session has expired.', 'wp-simple-firewall' );
 					break;
 
 				case 2:
-					$sMessage = _wpsf__( 'Your session was idle for too long.' );
+					$sMessage = __( 'Your session was idle for too long.', 'wp-simple-firewall' );
 					break;
 
 				case 3:
-					$sMessage = _wpsf__( 'Your session was locked to another IP Address.' );
+					$sMessage = __( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
 					break;
 
 				case 4:
-					$sMessage = sprintf( _wpsf__( 'You do not currently have a %s user session.' ), $this->getCon()
-																										 ->getHumanName() );
+					$sMessage = sprintf( __( 'You do not currently have a %s user session.', 'wp-simple-firewall' ), $this->getCon()
+																														  ->getHumanName() );
 					break;
 
 				case 5:
-					$sMessage = _wpsf__( 'An administrator has terminated this session.' );
+					$sMessage = __( 'An administrator has terminated this session.', 'wp-simple-firewall' );
 					break;
 
 				case 6:
-					$sMessage = _wpsf__( 'Not a user.' );
+					$sMessage = __( 'Not a user.', 'wp-simple-firewall' );
 					break;
 
 				default:
-					$sMessage = _wpsf__( 'Your session was terminated.' );
+					$sMessage = __( 'Your session was terminated.', 'wp-simple-firewall' );
 					break;
 			}
 
-			$sMessage .= '<br />'._wpsf__( 'Please login again.' );
+			$sMessage .= '<br />'.__( 'Please login again.', 'wp-simple-firewall' );
 			$oError->add( 'wpsf-forcelogout', $sMessage );
 		}
 		return $oError;

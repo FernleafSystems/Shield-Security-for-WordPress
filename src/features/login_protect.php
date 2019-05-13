@@ -67,11 +67,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		if ( $this->getIfCanSendEmailVerified() ) {
 			$bSuccess = true;
-			$sMessage = _wpsf__( 'Email verification completed successfully.' );
+			$sMessage = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
 		}
 		else {
 			$bSuccess = false;
-			$sMessage = _wpsf__( 'Email verification could not be completed.' );
+			$sMessage = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
 		}
 		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
 		Services::Response()->redirect( $this->getUrl_AdminPage() );
@@ -89,19 +89,19 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		}
 
 		$aMessage = [
-			_wpsf__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.' ),
-			_wpsf__( 'This verifies your website can send email and that your account can receive emails sent from your site.' ),
+			__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.', 'wp-simple-firewall' ),
+			__( 'This verifies your website can send email and that your account can receive emails sent from your site.', 'wp-simple-firewall' ),
 			''
 		];
 
 		if ( $bSendAsLink ) {
-			$aMessage[] = sprintf( _wpsf__( 'Click the verify link: %s' ), $this->generateCanSendEmailVerifyLink() );
+			$aMessage[] = sprintf( __( 'Click the verify link: %s', 'wp-simple-firewall' ), $this->generateCanSendEmailVerifyLink() );
 		}
 		else {
-			$aMessage[] = sprintf( _wpsf__( "Here's your code for the guided wizard: %s" ), $this->getCanEmailVerifyCode() );
+			$aMessage[] = sprintf( __( "Here's your code for the guided wizard: %s", 'wp-simple-firewall' ), $this->getCanEmailVerifyCode() );
 		}
 
-		$sEmailSubject = _wpsf__( 'Email Sending Verification' );
+		$sEmailSubject = __( 'Email Sending Verification', 'wp-simple-firewall' );
 		return $this->getEmailProcessor()
 					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
 	}
@@ -167,11 +167,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	protected function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
 		$aTwoAuthRoles = [
 			'type' => 'multiple_select',
-			0      => _wpsf__( 'Subscribers' ),
-			1      => _wpsf__( 'Contributors' ),
-			2      => _wpsf__( 'Authors' ),
-			3      => _wpsf__( 'Editors' ),
-			8      => _wpsf__( 'Administrators' )
+			0      => __( 'Subscribers', 'wp-simple-firewall' ),
+			1      => __( 'Contributors', 'wp-simple-firewall' ),
+			2      => __( 'Authors', 'wp-simple-firewall' ),
+			3      => __( 'Editors', 'wp-simple-firewall' ),
+			8      => __( 'Administrators', 'wp-simple-firewall' )
 		];
 		if ( $bAsOptDefaults ) {
 			unset( $aTwoAuthRoles[ 'type' ] );
@@ -459,11 +459,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		switch ( $sOptKey ) {
 			case 'text_imahuman':
-				$sText = _wpsf__( "I'm a human." );
+				$sText = __( "I'm a human.", 'wp-simple-firewall' );
 				break;
 
 			case 'text_pleasecheckbox':
-				$sText = _wpsf__( "Please check the box to show us you're a human." );
+				$sText = __( "Please check the box to show us you're a human.", 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -498,15 +498,15 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		if ( $sSection == 'section_brute_force_login_protection' && !$this->isPremium() ) {
 			$sIntegration = $this->getPremiumOnlyIntegration();
 			if ( !empty( $sIntegration ) ) {
-				$aWarnings[] = sprintf( _wpsf__( 'Support for login protection with %s is a Pro-only feature.' ), $sIntegration );
+				$aWarnings[] = sprintf( __( 'Support for login protection with %s is a Pro-only feature.', 'wp-simple-firewall' ), $sIntegration );
 			}
 		}
 
 		if ( $sSection == 'section_2fa_email' ) {
 			$aWarnings[] =
-				_wpsf__( '2FA by email demands that your WP site is properly configured to send email.' )
-				.'<br/>'._wpsf__( 'This is a common problem and you may get locked out in the future if you ignore this.' )
-				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://icwp.io/dd', _wpsf__( 'Learn More.' ) );
+				__( '2FA by email demands that your WP site is properly configured to send email.', 'wp-simple-firewall' )
+				.'<br/>'.__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
+				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://icwp.io/dd', __( 'Learn More.', 'wp-simple-firewall' ) );
 		}
 
 		return $aWarnings;
@@ -627,7 +627,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oPro->getSubProIntent()
 			 ->getProcessorBackupCodes()
 			 ->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
-		$this->setFlashAdminNotice( _wpsf__( 'Multi-factor login backup code has been removed from your profile' ) );
+		$this->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
 		return [
 			'success' => true
 		];
@@ -640,7 +640,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$this->setEnabled2FaEmail( false );
 		return [
 			'success'     => true,
-			'message'     => _wpsf__( '2FA by email has been disabled' ),
+			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
 			'page_reload' => true
 		];
 	}
@@ -652,14 +652,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$bSuccess = true;
 
 		if ( !$this->isEmailAuthenticationOptionOn() ) {
-			$sMessage = _wpsf__( 'Email 2FA option is not currently enabled.' );
+			$sMessage = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
 			$bSuccess = false;
 		}
 		else if ( $this->getIfCanSendEmailVerified() ) {
-			$sMessage = _wpsf__( 'Email sending has already been verified.' );
+			$sMessage = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
 		else {
-			$sMessage = _wpsf__( 'Verification email resent.' );
+			$sMessage = __( 'Verification email resent.', 'wp-simple-firewall' );
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}
@@ -692,8 +692,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = [
 			'strings'      => [
-				'title' => _wpsf__( 'Login Guard' ),
-				'sub'   => _wpsf__( 'Brute Force Protection & Identity Verification' ),
+				'title' => __( 'Login Guard', 'wp-simple-firewall' ),
+				'sub'   => __( 'Brute Force Protection & Identity Verification', 'wp-simple-firewall' ),
 			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
@@ -709,29 +709,29 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
 			$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
 			$aThis[ 'key_opts' ][ 'bot_login' ] = [
-				'name'    => _wpsf__( 'Brute Force Login' ),
+				'name'    => __( 'Brute Force Login', 'wp-simple-firewall' ),
 				'enabled' => $bBotLogin,
 				'summary' => $bBotLogin ?
-					_wpsf__( 'Login forms are protected against bot attacks' )
-					: _wpsf__( 'Login forms are not protected against brute force bot attacks' ),
+					__( 'Login forms are protected against bot attacks', 'wp-simple-firewall' )
+					: __( 'Login forms are not protected against brute force bot attacks', 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 			$aThis[ 'key_opts' ][ 'bot_register' ] = [
-				'name'    => _wpsf__( 'Bot User Register' ),
+				'name'    => __( 'Bot User Register', 'wp-simple-firewall' ),
 				'enabled' => $bBotRegister,
 				'summary' => $bBotRegister ?
-					_wpsf__( 'Registration forms are protected against bot attacks' )
-					: _wpsf__( 'Registration forms are not protected against automated bots' ),
+					__( 'Registration forms are protected against bot attacks', 'wp-simple-firewall' )
+					: __( 'Registration forms are not protected against automated bots', 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 			$aThis[ 'key_opts' ][ 'bot_password' ] = [
-				'name'    => _wpsf__( 'Brute Force Lost Password' ),
+				'name'    => __( 'Brute Force Lost Password', 'wp-simple-firewall' ),
 				'enabled' => $bBotPassword,
 				'summary' => $bBotPassword ?
-					_wpsf__( 'Lost Password forms are protected against bot attacks' )
-					: _wpsf__( 'Lost Password forms are not protected against automated bots' ),
+					__( 'Lost Password forms are protected against bot attacks', 'wp-simple-firewall' )
+					: __( 'Lost Password forms are not protected against automated bots', 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
@@ -739,11 +739,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$bHas2Fa = $this->isEmailAuthenticationActive()
 					   || $this->isEnabledGoogleAuthenticator() || $this->isYubikeyActive();
 			$aThis[ 'key_opts' ][ '2fa' ] = [
-				'name'    => _wpsf__( 'Identity Verification' ),
+				'name'    => __( 'Identity Verification', 'wp-simple-firewall' ),
 				'enabled' => $bHas2Fa,
 				'summary' => $bHas2Fa ?
-					_wpsf__( 'At least 1 2FA option is enabled' )
-					: _wpsf__( 'No 2FA options, such as Google Authenticator, are active' ),
+					__( 'At least 1 2FA option is enabled', 'wp-simple-firewall' )
+					: __( 'No 2FA options, such as Google Authenticator, are active', 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_2fa_email' ),
 			];
@@ -763,11 +763,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_login_protection' :
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
+				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( __( '%s/%s ', 'wp-simple-firewall' ), __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Login Guard blocks all automated and brute force attempts to log in to your site.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Login Guard' ) ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Login Guard blocks all automated and brute force attempts to log in to your site.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Login Guard', 'wp-simple-firewall' ) ) )
 				];
 				break;
 
@@ -775,64 +775,64 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$sTitle = 'Google reCAPTCHA';
 				$sTitleShort = 'reCAPTCHA';
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Adds Google reCAPTCHA to the Login Forms.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep this turned on.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings." ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Adds Google reCAPTCHA to the Login Forms.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this turned on.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings.", 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_rename_wplogin' :
-				$sTitle = _wpsf__( 'Hide WordPress Login Page' );
-				$sTitleShort = _wpsf__( 'Hide Login' );
+				$sTitle = __( 'Hide WordPress Login Page', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Hide Login', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_multifactor_authentication' :
-				$sTitle = _wpsf__( 'Multi-Factor Authentication' );
-				$sTitleShort = _wpsf__( 'Multi-Factor Auth' );
+				$sTitle = __( 'Multi-Factor Authentication', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Multi-Factor Auth', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.' ) ),
-					_wpsf__( 'You may combine multiple authentication factors for increased security.' )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site - i.e. they are who they say they are.', 'wp-simple-firewall' ) ),
+					__( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' )
 				];
 				break;
 
 			case 'section_2fa_email' :
-				$sTitle = _wpsf__( 'Email Two-Factor Authentication' );
-				$sTitleShort = _wpsf__( '2FA Email' );
+				$sTitle = __( 'Email Two-Factor Authentication', 'wp-simple-firewall' );
+				$sTitleShort = __( '2FA Email', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using email-based one-time-passwords.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ).' '._wpsf__( 'However, if your host blocks email sending you may lock yourself out.' ) ),
-					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using email-based one-time-passwords.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ).' '.__( 'However, if your host blocks email sending you may lock yourself out.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_2fa_ga' :
-				$sTitle = _wpsf__( 'Google Authenticator Two-Factor Authentication' );
-				$sTitleShort = _wpsf__( 'Google Auth' );
+				$sTitle = __( 'Google Authenticator Two-Factor Authentication', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Google Auth', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.' ) ),
-					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_brute_force_login_protection' :
-				$sTitle = _wpsf__( 'Brute Force Login Protection' );
-				$sTitleShort = _wpsf__( 'Bots' );
+				$sTitle = __( 'Brute Force Login Protection', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Bots', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Blocks brute force hacking attacks against your login and registration pages.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Blocks brute force hacking attacks against your login and registration pages.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_yubikey_authentication' :
-				$sTitle = _wpsf__( 'Yubikey Two-Factor Authentication' );
-				$sTitleShort = _wpsf__( 'Yubikey' );
+				$sTitle = __( 'Yubikey Two-Factor Authentication', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Yubikey', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Verifies the identity of users who log in to your site using Yubikey one-time-passwords.' ) ),
-					sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You may combine multiple authentication factors for increased security.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Yubikey one-time-passwords.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -856,158 +856,158 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		switch ( $sKey ) {
 
 			case 'enable_login_protect' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				break;
 
 			case 'rename_wplogin_path' :
-				$sName = _wpsf__( 'Hide WP Login Page' );
-				$sSummary = _wpsf__( 'Hide The WordPress Login Page' );
-				$sDescription = _wpsf__( 'Creating a path here will disable your wp-login.php' )
+				$sName = __( 'Hide WP Login Page', 'wp-simple-firewall' );
+				$sSummary = __( 'Hide The WordPress Login Page', 'wp-simple-firewall' );
+				$sDescription = __( 'Creating a path here will disable your wp-login.php', 'wp-simple-firewall' )
 								.'<br />'
-								.sprintf( _wpsf__( 'Only letters and numbers are permitted: %s' ), '<strong>abc123</strong>' )
+								.sprintf( __( 'Only letters and numbers are permitted: %s', 'wp-simple-firewall' ), '<strong>abc123</strong>' )
 								.'<br />'
-								.sprintf( _wpsf__( 'Your current login URL is: %s' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' );
+								.sprintf( __( 'Your current login URL is: %s', 'wp-simple-firewall' ), '<br /><strong>&nbsp;&nbsp;'.wp_login_url().'</strong>' );
 				break;
 
 			case 'enable_chained_authentication' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Multi-Factor Authentication' ) );
-				$sSummary = _wpsf__( 'Require All Active Authentication Factors' );
-				$sDescription = _wpsf__( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.' );
+				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Multi-Factor Authentication', 'wp-simple-firewall' ) );
+				$sSummary = __( 'Require All Active Authentication Factors', 'wp-simple-firewall' );
+				$sDescription = __( 'When enabled, all multi-factor authentication methods will be applied to a user login. Disable to require only one to login.', 'wp-simple-firewall' );
 				break;
 
 			case 'mfa_skip' :
-				$sName = _wpsf__( 'Multi-Factor By-Pass' );
-				$sSummary = _wpsf__( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days' );
-				$sDescription = _wpsf__( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.' );
+				$sName = __( 'Multi-Factor By-Pass', 'wp-simple-firewall' );
+				$sSummary = __( 'A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days', 'wp-simple-firewall' );
+				$sDescription = __( 'Enter the number of days a user can by-pass future MFA after a successful MFA-login. 0 to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'allow_backupcodes' :
-				$sName = _wpsf__( 'Allow Backup Codes' );
-				$sSummary = _wpsf__( 'Allow Users To Generate A Backup Code' );
-				$sDescription = _wpsf__( 'Allow users to generate a backup code that can be used to login if MFA factors are unavailable.' );
+				$sName = __( 'Allow Backup Codes', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Users To Generate A Backup Code', 'wp-simple-firewall' );
+				$sDescription = __( 'Allow users to generate a backup code that can be used to login if MFA factors are unavailable.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_google_authenticator' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Google Authenticator' ) );
-				$sSummary = _wpsf__( 'Allow Users To Use Google Authenticator' );
-				$sDescription = _wpsf__( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile' );
+				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Google Authenticator', 'wp-simple-firewall' ) );
+				$sSummary = __( 'Allow Users To Use Google Authenticator', 'wp-simple-firewall' );
+				$sDescription = __( 'When enabled, users will have the option to add Google Authenticator to their WordPress user profile', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_email_authentication' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Email Authentication' ) );
-				$sSummary = sprintf( _wpsf__( 'Two-Factor Login Authentication By %s' ), _wpsf__( 'Email' ) );
-				$sDescription = _wpsf__( 'All users will be required to verify their login by email-based two-factor authentication.' );
+				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
+				$sSummary = sprintf( __( 'Two-Factor Login Authentication By %s', 'wp-simple-firewall' ), __( 'Email', 'wp-simple-firewall' ) );
+				$sDescription = __( 'All users will be required to verify their login by email-based two-factor authentication.', 'wp-simple-firewall' );
 				break;
 
 			case 'two_factor_auth_user_roles' :
-				$sName = sprintf( '%s - %s', _wpsf__( 'Enforce' ), _wpsf__( 'Email Authentication' ) );
-				$sSummary = _wpsf__( 'All User Roles Subject To Email Authentication' );
-				$sDescription = _wpsf__( 'Enforces email-based authentication on all users with the selected roles.' )
-								.'<br /><strong>'.sprintf( '%s: %s', _wpsf__( 'Note' ), sprintf( _wpsf__( 'This setting only applies to %s.' ), _wpsf__( 'Email Authentication' ) ) ).'</strong>';
+				$sName = sprintf( '%s - %s', __( 'Enforce', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
+				$sSummary = __( 'All User Roles Subject To Email Authentication', 'wp-simple-firewall' );
+				$sDescription = __( 'Enforces email-based authentication on all users with the selected roles.', 'wp-simple-firewall' )
+								.'<br /><strong>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'This setting only applies to %s.', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) ) ).'</strong>';
 				break;
 
 			case 'enable_google_recaptcha_login' :
-				$sName = _wpsf__( 'Google reCAPTCHA' );
-				$sSummary = _wpsf__( 'Protect WordPress Account Access Requests With Google reCAPTCHA' );
-				$sDescription = _wpsf__( 'Use Google reCAPTCHA on the user account forms such as login, register, etc.' ).'<br />'
-								.sprintf( _wpsf__( 'Use of any theme other than "%s", requires a Pro license.' ), _wpsf__( 'Light Theme' ) )
-								.'<br/>'.sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( "You'll need to setup your Google reCAPTCHA API Keys in 'General' settings." ) )
-								.'<br/><strong>'.sprintf( '%s - %s', _wpsf__( 'Important' ), _wpsf__( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible reCAPTCHA." ) ).'</strong>';
+				$sName = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
+				$sSummary = __( 'Protect WordPress Account Access Requests With Google reCAPTCHA', 'wp-simple-firewall' );
+				$sDescription = __( 'Use Google reCAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
+								.sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) )
+								.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your Google reCAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
+								.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible reCAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
 				break;
 
 			case 'google_recaptcha_style_login' : // Unused
-				$sName = _wpsf__( 'reCAPTCHA Style' );
-				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed' );
-				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
+				$sName = __( 'reCAPTCHA Style', 'wp-simple-firewall' );
+				$sSummary = __( 'How Google reCAPTCHA Will Be Displayed', 'wp-simple-firewall' );
+				$sDescription = __( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha', 'wp-simple-firewall' );
 				break;
 
 			case 'bot_protection_locations' :
-				$sName = _wpsf__( 'Protection Locations' );
-				$sSummary = _wpsf__( 'Which Forms Should Be Protected' );
-				$sDescription = _wpsf__( 'Choose the forms for which bot protection measures will be deployed.' ).'<br />'
-								.sprintf( '%s - %s', _wpsf__( 'Note' ), sprintf( _wpsf__( "Use with 3rd party systems such as %s, requires a Pro license." ), 'WooCommerce' ) );
+				$sName = __( 'Protection Locations', 'wp-simple-firewall' );
+				$sSummary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );
+				$sDescription = __( 'Choose the forms for which bot protection measures will be deployed.', 'wp-simple-firewall' ).'<br />'
+								.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( "Use with 3rd party systems such as %s, requires a Pro license.", 'wp-simple-firewall' ), 'WooCommerce' ) );
 				break;
 
 			case 'enable_login_gasp_check' :
-				$sName = _wpsf__( 'Bot Protection' );
-				$sSummary = _wpsf__( 'Protect WP Login From Automated Login Attempts By Bots' );
-				$sDescription = _wpsf__( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.' )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Recommendation' ), _wpsf__( 'ON' ) );
+				$sName = __( 'Bot Protection', 'wp-simple-firewall' );
+				$sSummary = __( 'Protect WP Login From Automated Login Attempts By Bots', 'wp-simple-firewall' );
+				$sDescription = __( 'Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
 				break;
 
 			case 'enable_antibot_js' :
-				$sName = _wpsf__( 'AntiBot JS' );
-				$sSummary = _wpsf__( 'Use AntiBot JS Includes For Custom 3rd Party Forms' );
-				$sDescription = _wpsf__( 'Important: This is experimental. Please contact support for further assistance.' );
+				$sName = __( 'AntiBot JS', 'wp-simple-firewall' );
+				$sSummary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
+				$sDescription = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
 				break;
 
 			case 'antibot_form_ids' :
-				$sName = _wpsf__( 'AntiBot Forms' );
-				$sSummary = _wpsf__( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS' );
-				$sDescription = _wpsf__( 'For use with the AntiBot JS option.' )
-								.' '._wpsf__( 'IDs are prefixed with "#".' )
-								.' '._wpsf__( 'Classes are prefixed with ".".' )
-								.'<br />'._wpsf__( 'IDs are preferred over classes.' );
+				$sName = __( 'AntiBot Forms', 'wp-simple-firewall' );
+				$sSummary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
+				$sDescription = __( 'For use with the AntiBot JS option.', 'wp-simple-firewall' )
+								.' '.__( 'IDs are prefixed with "#".', 'wp-simple-firewall' )
+								.' '.__( 'Classes are prefixed with ".".', 'wp-simple-firewall' )
+								.'<br />'.__( 'IDs are preferred over classes.', 'wp-simple-firewall' );
 				break;
 
 			case 'login_limit_interval' :
-				$sName = _wpsf__( 'Cooldown Period' );
-				$sSummary = _wpsf__( 'Limit account access requests to every X seconds' );
-				$sDescription = _wpsf__( 'WordPress will process only ONE account access attempt per number of seconds specified.' )
-								.'<br />'._wpsf__( 'Zero (0) turns this off.' )
-								.' '.sprintf( '%s: %s', _wpsf__( 'Default' ), $this->getOptionsVo()
-																				   ->getOptDefault( 'login_limit_interval' ) );
+				$sName = __( 'Cooldown Period', 'wp-simple-firewall' );
+				$sSummary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
+				$sDescription = __( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' )
+								.'<br />'.__( 'Zero (0) turns this off.', 'wp-simple-firewall' )
+								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getOptionsVo()
+																									->getOptDefault( 'login_limit_interval' ) );
 				break;
 
 			case 'enable_user_register_checking' :
-				$sName = _wpsf__( 'User Registration' );
-				$sSummary = _wpsf__( 'Apply Brute Force Protection To User Registration And Lost Passwords' );
-				$sDescription = _wpsf__( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.' );
+				$sName = __( 'User Registration', 'wp-simple-firewall' );
+				$sSummary = __( 'Apply Brute Force Protection To User Registration And Lost Passwords', 'wp-simple-firewall' );
+				$sDescription = __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_yubikey' :
-				$sName = _wpsf__( 'Enable Yubikey Authentication' );
-				$sSummary = _wpsf__( 'Turn On / Off Yubikey Authentication On This Site' );
-				$sDescription = _wpsf__( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication' );
+				$sName = __( 'Enable Yubikey Authentication', 'wp-simple-firewall' );
+				$sSummary = __( 'Turn On / Off Yubikey Authentication On This Site', 'wp-simple-firewall' );
+				$sDescription = __( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_app_id' :
-				$sName = _wpsf__( 'Yubikey App ID' );
-				$sSummary = _wpsf__( 'Your Unique Yubikey App ID' );
-				$sDescription = _wpsf__( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication' )
-								._wpsf__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.' );
+				$sName = __( 'Yubikey App ID', 'wp-simple-firewall' );
+				$sSummary = __( 'Your Unique Yubikey App ID', 'wp-simple-firewall' );
+				$sDescription = __( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' )
+								.__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_api_key' :
-				$sName = _wpsf__( 'Yubikey API Key' );
-				$sSummary = _wpsf__( 'Your Unique Yubikey App API Key' );
-				$sDescription = _wpsf__( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.' )
-								._wpsf__( 'Please review the info link on how to get your own Yubikey App ID and API Key.' );
+				$sName = __( 'Yubikey API Key', 'wp-simple-firewall' );
+				$sSummary = __( 'Your Unique Yubikey App API Key', 'wp-simple-firewall' );
+				$sDescription = __( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.', 'wp-simple-firewall' )
+								.__( 'Please review the info link on how to get your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_unique_keys' :
-				$sName = _wpsf__( 'Yubikey Unique Keys' );
-				$sSummary = _wpsf__( 'This method for Yubikeys is no longer supported. Please see your user profile' );
-				$sDescription = '<strong>'.sprintf( '%s: %s', _wpsf__( 'Format' ), 'Username,Yubikey' ).'</strong>'
-								.'<br />- '._wpsf__( 'Provide Username<->Yubikey Pairs that are usable for this site.' )
-								.'<br />- '._wpsf__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.' )
-								.'<br />- '._wpsf__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.' );
+				$sName = __( 'Yubikey Unique Keys', 'wp-simple-firewall' );
+				$sSummary = __( 'This method for Yubikeys is no longer supported. Please see your user profile', 'wp-simple-firewall' );
+				$sDescription = '<strong>'.sprintf( '%s: %s', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' ).'</strong>'
+								.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
+								.'<br />- '.__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
+								.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' );
 				break;
 
 			case 'text_imahuman' :
-				$sName = _wpsf__( 'GASP Checkbox Text' );
-				$sSummary = _wpsf__( 'The User Message Displayed Next To The GASP Checkbox' );
-				$sDescription = _wpsf__( "You can change the text displayed to the user beside the checkbox if you need a custom message." )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Default' ), $this->getTextOptDefault( 'text_imahuman' ) );
+				$sName = __( 'GASP Checkbox Text', 'wp-simple-firewall' );
+				$sSummary = __( 'The User Message Displayed Next To The GASP Checkbox', 'wp-simple-firewall' );
+				$sDescription = __( "You can change the text displayed to the user beside the checkbox if you need a custom message.", 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getTextOptDefault( 'text_imahuman' ) );
 				break;
 
 			case 'text_pleasecheckbox' :
-				$sName = _wpsf__( 'GASP Alert Text' );
-				$sSummary = _wpsf__( "The Message Displayed If The User Doesn't Check The Box" );
-				$sDescription = _wpsf__( "You can change the text displayed to the user in the alert message if they don't check the box." )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Default' ), $this->getTextOptDefault( 'text_pleasecheckbox' ) );
+				$sName = __( 'GASP Alert Text', 'wp-simple-firewall' );
+				$sSummary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
+				$sDescription = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getTextOptDefault( 'text_pleasecheckbox' ) );
 				break;
 
 			default:

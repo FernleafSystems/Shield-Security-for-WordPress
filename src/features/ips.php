@@ -73,14 +73,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = _wpsf__( 'Invalid entry selected' );
+			$sMessage = __( 'Invalid entry selected', 'wp-simple-firewall' );
 		}
 		else if ( $oProcessor->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = _wpsf__( 'IP address deleted' );
+			$sMessage = __( 'IP address deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}
 		else {
-			$sMessage = _wpsf__( "IP address wasn't deleted from the list" );
+			$sMessage = __( "IP address wasn't deleted from the list", 'wp-simple-firewall' );
 		}
 
 		return [
@@ -97,7 +97,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aFormParams = $this->getAjaxFormParams();
 
 		$bSuccess = false;
-		$sMessage = _wpsf__( "IP address wasn't added to the list" );
+		$sMessage = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
 
 		$sIp = preg_replace( '#[^/:\.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
@@ -108,25 +108,25 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		// TODO: Bring this IP verification out of here and make it more accessible
 		if ( empty( $sIp ) ) {
-			$sMessage = _wpsf__( "IP address not provided" );
+			$sMessage = __( "IP address not provided", 'wp-simple-firewall' );
 		}
 		else if ( empty( $sList ) ) {
-			$sMessage = _wpsf__( "IP list not provided" );
+			$sMessage = __( "IP list not provided", 'wp-simple-firewall' );
 		}
 		else if ( !$bAcceptableIp ) {
-			$sMessage = _wpsf__( "IP address isn't either a valid IP or a CIDR range" );
+			$sMessage = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
 		}
 		else if ( $bIsBlackList && !$this->isPremium() ) {
-			$sMessage = _wpsf__( "Please upgrade to Pro if you'd like to add IPs to the black list manually." );
+			$sMessage = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
 		else if ( $bIsBlackList && $oIpServ->isValidIp4Range( $sIp ) ) { // TODO
-			$sMessage = _wpsf__( "IP ranges aren't currently supported for blacklisting." );
+			$sMessage = __( "IP ranges aren't currently supported for blacklisting.", 'wp-simple-firewall' );
 		}
 		else if ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
-			$sMessage = _wpsf__( "Manually black listing your current IP address is not supported." );
+			$sMessage = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
 		else if ( $bIsBlackList && in_array( $sIp, $this->getReservedIps() ) ) {
-			$sMessage = _wpsf__( "This IP is reserved and can't be blacklisted." );
+			$sMessage = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {
 			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';
@@ -151,7 +151,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			}
 
 			if ( !empty( $oIp ) ) {
-				$sMessage = _wpsf__( 'IP address added successfully' );
+				$sMessage = __( 'IP address added successfully', 'wp-simple-firewall' );
 				$bSuccess = true;
 			}
 		}
@@ -343,7 +343,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 			case 'section_auto_black_list':
 				if ( !$this->isAutoBlackListEnabled() ) {
-					$aWarnings[] = sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( "IP blocking is turned-off because the transgressions limit is set to 0." ) );
+					$aWarnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the transgressions limit is set to 0.", 'wp-simple-firewall' ) );
 				}
 				break;
 
@@ -351,11 +351,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'section_probes':
 			case 'section_logins':
 				if ( !$this->isAutoBlackListEnabled() ) {
-					$aWarnings[] = _wpsf__( "Since the transgressions limit is set to 0, these options have no effect." );
+					$aWarnings[] = __( "Since the transgressions limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}
 
 				if ( $sSection == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
-					$aWarnings[] = _wpsf__( "Your User Agent appears to be empty. We recommend not turning on this option." );
+					$aWarnings[] = __( "Your User Agent appears to be empty. We recommend not turning on this option.", 'wp-simple-firewall' );
 				}
 				break;
 		}
@@ -373,16 +373,16 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 			case 'text_loginfailed':
 				$sText = sprintf( '%s: %s',
-					_wpsf__( 'Warning' ),
-					_wpsf__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.' )
+					__( 'Warning', 'wp-simple-firewall' ),
+					__( 'Repeated login attempts that fail will result in a complete ban of your IP Address.', 'wp-simple-firewall' )
 				);
 				break;
 
 			case 'text_remainingtrans':
 				$sText = sprintf( '%s: %s',
-					_wpsf__( 'Warning' ),
-					_wpsf__( 'You have %s remaining transgression(s) against this site and then your IP address will be completely blocked.' )
-					.'<br/><strong>'._wpsf__( 'Seriously, stop repeating what you are doing or you will be locked out.' ).'</strong>'
+					__( 'Warning', 'wp-simple-firewall' ),
+					__( 'You have %s remaining transgression(s) against this site and then your IP address will be completely blocked.', 'wp-simple-firewall' )
+					.'<br/><strong>'.__( 'Seriously, stop repeating what you are doing or you will be locked out.', 'wp-simple-firewall' ).'</strong>'
 				);
 				break;
 
@@ -403,68 +403,68 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_enable_plugin_feature_ips' :
-				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( __( '%s/%s ', 'wp-simple-firewall' ), __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'IP Manager' ) ) )
-					.'<br />'._wpsf__( 'You should also carefully review the automatic black list settings.' )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The IP Manager allows you to whitelist, blacklist and configure auto-blacklist rules.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'IP Manager', 'wp-simple-firewall' ) ) )
+					.'<br />'.__( 'You should also carefully review the automatic black list settings.', 'wp-simple-firewall' )
 				];
 				break;
 
 			case 'section_auto_black_list' :
-				$sTitle = _wpsf__( 'Auto IP Blocking Rules' );
-				$sTitleShort = _wpsf__( 'Auto Blocking Rules' );
+				$sTitle = __( 'Auto IP Blocking Rules', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Auto Blocking Rules', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Automatic IP Black List' ) ) ),
-					_wpsf__( "Think of 'transgressions' as just a counter for the number of times a visitor does something bad." )
-					.' '.sprintf( _wpsf__( 'When the counter reaches the limit below (default: 10), %s will block that completely IP.' ), $sName )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) ) ),
+					__( "Think of 'transgressions' as just a counter for the number of times a visitor does something bad.", 'wp-simple-firewall' )
+					.' '.sprintf( __( 'When the counter reaches the limit below (default: 10), %s will block that completely IP.', 'wp-simple-firewall' ), $sName )
 				];
 				break;
 
 			case 'section_enable_plugin_feature_bottrap' :
-				$sTitleShort = _wpsf__( 'Bot-Trap' );
-				$sTitle = _wpsf__( 'Identify And Capture Bots Based On Their Site Activity' );
+				$sTitleShort = __( 'Bot-Trap', 'wp-simple-firewall' );
+				$sTitle = __( 'Identify And Capture Bots Based On Their Site Activity', 'wp-simple-firewall' );
 				$aSummary = [
-					_wpsf__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises." ),
-					_wpsf__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots." ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable as many mouse traps as possible.' ) )
+					__( "A bot doesn't know what's real and what's not, so it probes many different avenues until it finds something it recognises.", 'wp-simple-firewall' ),
+					__( "Bot-Trap monitors a set of typical bot behaviours to help identify probing bots.", 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable as many mouse traps as possible.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_logins':
-				$sTitleShort = _wpsf__( 'Login Bots' );
-				$sTitle = _wpsf__( 'Detect & Capture Login Bots' );
+				$sTitleShort = __( 'Login Bots', 'wp-simple-firewall' );
+				$sTitle = __( 'Detect & Capture Login Bots', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Summary' ),
-						_wpsf__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them." ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
-						_wpsf__( "Enable as many options as possible." ) ),
-					sprintf( '%s - %s', _wpsf__( 'Warning' ),
-						_wpsf__( "Legitimate users may get their password wrong, so take care not to block this." ) ),
+					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
+						__( "Certain bots are designed to test your logins and this feature lets you decide how to handle them.", 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
+						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ),
+						__( "Legitimate users may get their password wrong, so take care not to block this.", 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_probes':
-				$sTitleShort = _wpsf__( 'Probing Bots' );
-				$sTitle = _wpsf__( 'Detect & Capture Probing Bots' );
+				$sTitleShort = __( 'Probing Bots', 'wp-simple-firewall' );
+				$sTitle = __( 'Detect & Capture Probing Bots', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Summary' ),
-						_wpsf__( "Bots are designed to probe and this feature is dedicated to detecting probing bots." ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
-						_wpsf__( "Enable as many options as possible." ) ),
+					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
+						__( "Bots are designed to probe and this feature is dedicated to detecting probing bots.", 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
+						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_behaviours':
-				$sTitleShort = _wpsf__( 'Bot Behaviours' );
-				$sTitle = _wpsf__( 'Detect Behaviours Common To Bots' );
+				$sTitleShort = __( 'Bot Behaviours', 'wp-simple-firewall' );
+				$sTitle = __( 'Detect Behaviours Common To Bots', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Summary' ),
-						_wpsf__( "Detect characteristics and behaviour commonly associated with illegitimate bots." ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ),
-						_wpsf__( "Enable as many options as possible." ) ),
+					sprintf( '%s - %s', __( 'Summary', 'wp-simple-firewall' ),
+						__( "Detect characteristics and behaviour commonly associated with illegitimate bots.", 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
+						__( "Enable as many options as possible.", 'wp-simple-firewall' ) ),
 				];
 				break;
 
@@ -488,92 +488,92 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $aOptionsParams[ 'key' ] ) {
 
 			case 'enable_ips' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				break;
 
 			case 'transgression_limit' :
-				$sName = _wpsf__( 'Transgression Limit' );
-				$sSummary = _wpsf__( 'Visitor IP address will be Black Listed after X bad actions on your site' );
-				$sDescription = sprintf( _wpsf__( 'A black mark is set against an IP address each time a visitor trips the defenses of the %s plugin.' ), $sPlugName )
-								.'<br />'._wpsf__( 'When the number of these transgressions exceeds the limit, they are automatically blocked from accessing the site.' )
-								.'<br />'.sprintf( _wpsf__( 'Set this to "0" to turn off the %s feature.' ), _wpsf__( 'Automatic IP Black List' ) );
+				$sName = __( 'Transgression Limit', 'wp-simple-firewall' );
+				$sSummary = __( 'Visitor IP address will be Black Listed after X bad actions on your site', 'wp-simple-firewall' );
+				$sDescription = sprintf( __( 'A black mark is set against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName )
+								.'<br />'.__( 'When the number of these transgressions exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( __( 'Set this to "0" to turn off the %s feature.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) );
 				break;
 
 			case 'auto_expire' :
-				$sName = _wpsf__( 'Auto Block Expiration' );
-				$sSummary = _wpsf__( 'After 1 "X" a black listed IP will be removed from the black list' );
-				$sDescription = _wpsf__( 'Permanent and lengthy IP Black Lists are harmful to performance.' )
-								.'<br />'._wpsf__( 'You should allow IP addresses on the black list to be eventually removed over time.' )
-								.'<br />'._wpsf__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.' );
+				$sName = __( 'Auto Block Expiration', 'wp-simple-firewall' );
+				$sSummary = __( 'After 1 "X" a black listed IP will be removed from the black list', 'wp-simple-firewall' );
+				$sDescription = __( 'Permanent and lengthy IP Black Lists are harmful to performance.', 'wp-simple-firewall' )
+								.'<br />'.__( 'You should allow IP addresses on the black list to be eventually removed over time.', 'wp-simple-firewall' )
+								.'<br />'.__( 'Shorter IP black lists are more efficient and a more intelligent use of an IP-based blocking system.', 'wp-simple-firewall' );
 				break;
 
 			case 'user_auto_recover' :
-				$sName = _wpsf__( 'User Auto Unblock' );
-				$sSummary = _wpsf__( 'Allow Visitors To Unblock Their IP' );
-				$sDescription = _wpsf__( 'Allow visitors blocked by the plugin to automatically unblock themselves.' );
+				$sName = __( 'User Auto Unblock', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Visitors To Unblock Their IP', 'wp-simple-firewall' );
+				$sDescription = __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' );
 				break;
 
 			case 'text_loginfailed' :
-				$sName = _wpsf__( 'Login Failed' );
-				$sSummary = _wpsf__( 'Visitor Triggers The IP Transgression System Through A Failed Login' );
-				$sDescription = _wpsf__( 'This message is displayed if the visitor fails a login attempt.' );
+				$sName = __( 'Login Failed', 'wp-simple-firewall' );
+				$sSummary = __( 'Visitor Triggers The IP Transgression System Through A Failed Login', 'wp-simple-firewall' );
+				$sDescription = __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' );
 				break;
 
 			case 'text_remainingtrans' :
-				$sName = _wpsf__( 'Remaining Transgressions' );
-				$sSummary = _wpsf__( 'Visitor Triggers The IP Transgression System Through A Firewall Block' );
-				$sDescription = _wpsf__( 'This message is displayed if the visitor triggered the IP Transgression system and reports how many transgressions remain before being blocked.' );
+				$sName = __( 'Remaining Transgressions', 'wp-simple-firewall' );
+				$sSummary = __( 'Visitor Triggers The IP Transgression System Through A Firewall Block', 'wp-simple-firewall' );
+				$sDescription = __( 'This message is displayed if the visitor triggered the IP Transgression system and reports how many transgressions remain before being blocked.', 'wp-simple-firewall' );
 				break;
 
 			case 'track_404' :
-				$sName = _wpsf__( '404 Detect' );
-				$sSummary = _wpsf__( 'Identify A Bot When It Hits A 404' );
-				$sDescription = _wpsf__( "Detect when a visitor tries to load a non-existent page." )
-								.'<br/>'._wpsf__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s." );
+				$sName = __( '404 Detect', 'wp-simple-firewall' );
+				$sSummary = __( 'Identify A Bot When It Hits A 404', 'wp-simple-firewall' );
+				$sDescription = __( "Detect when a visitor tries to load a non-existent page.", 'wp-simple-firewall' )
+								.'<br/>'.__( "Care should be taken to ensure you don't have legitimate links on your site that are 404s.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_xmlrpc' :
-				$sName = _wpsf__( 'XML-RPC Access' );
-				$sSummary = _wpsf__( 'Identify A Bot When It Accesses XML-RPC' );
-				$sDescription = _wpsf__( "If you don't use XML-RPC, there's no reason anything should be accessing it." )
-								.'<br/>'._wpsf__( "Be careful the ensure you don't block legitimate XML-RPC traffic if your site needs it." )
-								.'<br/>'._wpsf__( "We recommend transgressions here in-case of blocking valid request unless you're sure." );
+				$sName = __( 'XML-RPC Access', 'wp-simple-firewall' );
+				$sSummary = __( 'Identify A Bot When It Accesses XML-RPC', 'wp-simple-firewall' );
+				$sDescription = __( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' )
+								.'<br/>'.__( "Be careful the ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' )
+								.'<br/>'.__( "We recommend transgressions here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_linkcheese' :
-				$sName = _wpsf__( 'Link Cheese' );
-				$sSummary = _wpsf__( 'Tempt A Bot With A Fake Link To Follow' );
-				$sDescription = _wpsf__( "Detect a bot when it follows a fake 'no-follow' link." )
-								.'<br/>'._wpsf__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives." );
+				$sName = __( 'Link Cheese', 'wp-simple-firewall' );
+				$sSummary = __( 'Tempt A Bot With A Fake Link To Follow', 'wp-simple-firewall' );
+				$sDescription = __( "Detect a bot when it follows a fake 'no-follow' link.", 'wp-simple-firewall' )
+								.'<br/>'.__( "This works because legitimate web crawlers respect 'robots.txt' and 'nofollow' directives.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_logininvalid' :
-				$sName = _wpsf__( 'Invalid Usernames' );
-				$sSummary = _wpsf__( "Detect Attempted Logins With Usernames That Don't Exist" );
-				$sDescription = _wpsf__( "Identify a Bot when it tries to login with a non-existent username." )
-								.'<br/>'._wpsf__( "This includes the default 'admin' if you've removed that account." );
+				$sName = __( 'Invalid Usernames', 'wp-simple-firewall' );
+				$sSummary = __( "Detect Attempted Logins With Usernames That Don't Exist", 'wp-simple-firewall' );
+				$sDescription = __( "Identify a Bot when it tries to login with a non-existent username.", 'wp-simple-firewall' )
+								.'<br/>'.__( "This includes the default 'admin' if you've removed that account.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_loginfailed' :
-				$sName = _wpsf__( 'Failed Login' );
-				$sSummary = _wpsf__( 'Detect Failed Login Attempts Using Valid Usernames' );
-				$sDescription = _wpsf__( "Penalise a visitor when they try to login using a valid username, but it fails." );
+				$sName = __( 'Failed Login', 'wp-simple-firewall' );
+				$sSummary = __( 'Detect Failed Login Attempts Using Valid Usernames', 'wp-simple-firewall' );
+				$sDescription = __( "Penalise a visitor when they try to login using a valid username, but it fails.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_fakewebcrawler' :
-				$sName = _wpsf__( 'Fake Web Crawler' );
-				$sSummary = _wpsf__( 'Detect Fake Search Engine Crawlers' );
-				$sDescription = _wpsf__( "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake." );
+				$sName = __( 'Fake Web Crawler', 'wp-simple-firewall' );
+				$sSummary = __( 'Detect Fake Search Engine Crawlers', 'wp-simple-firewall' );
+				$sDescription = __( "Identify a Bot when it presents as an official web crawler, but analysis shows it's fake.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_useragent' :
-				$sName = _wpsf__( 'Empty User Agents' );
-				$sSummary = _wpsf__( 'Detect Requests With Empty User Agents' );
-				$sDescription = _wpsf__( "Identify a bot when the user agent is not provided." )
+				$sName = __( 'Empty User Agents', 'wp-simple-firewall' );
+				$sSummary = __( 'Detect Requests With Empty User Agents', 'wp-simple-firewall' );
+				$sDescription = __( "Identify a bot when the user agent is not provided.", 'wp-simple-firewall' )
 								.'<br />'.sprintf( '%s: <code>%s</code>',
-						_wpsf__( 'Your user agent is' ), Services::Request()->getUserAgent() );
+						__( 'Your user agent is', 'wp-simple-firewall' ), Services::Request()->getUserAgent() );
 				break;
 
 			default:
@@ -637,7 +637,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			if ( count( $oProcessor->getWhitelistIpsData() ) > 0 ) {
 				$this->setIsMainFeatureEnabled( true );
 				$this->setFlashAdminNotice(
-					sprintf( _wpsf__( 'Sorry, the %s feature may not be disabled while there are IP addresses in the White List' ), $this->getMainFeatureName() )
+					sprintf( __( 'Sorry, the %s feature may not be disabled while there are IP addresses in the White List', 'wp-simple-firewall' ), $this->getMainFeatureName() )
 				);
 			}
 		}

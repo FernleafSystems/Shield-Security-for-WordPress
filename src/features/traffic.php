@@ -51,12 +51,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$aWarnings = [];
 
 		if ( !$this->isPremium() ) {
-			$aWarnings[] = sprintf( _wpsf__( '%s is a Pro-only feature.' ), _wpsf__( 'Traffic Watch' ) );
+			$aWarnings[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Watch', 'wp-simple-firewall' ) );
 		}
 		else {
 			$oIp = Services::IP();
 			if ( !$oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
-				$aWarnings[] = _wpsf__( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.' );
+				$aWarnings[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
 			}
 		}
 
@@ -207,21 +207,21 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_traffic' :
-				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( __( '%s/%s ', 'wp-simple-firewall' ), __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor and review all requests to your site.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Required only if you need to review and investigate and monitor requests to your site' ) ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and review all requests to your site.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Required only if you need to review and investigate and monitor requests to your site', 'wp-simple-firewall' ) ) )
 				];
 				break;
 
 			case 'section_traffic_options' :
-				$sTitle = _wpsf__( 'Traffic Watch Options' );
+				$sTitle = __( 'Traffic Watch Options', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control over the Traffic Watch system.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'These settings are dependent on your requirements.' ), _wpsf__( 'User Management' ) ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Traffic Watch system.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
 				];
-				$sTitleShort = _wpsf__( 'Traffic Logging Options' );
+				$sTitleShort = __( 'Traffic Logging Options', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -244,50 +244,50 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		switch ( $sKey ) {
 
 			case 'enable_traffic' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				break;
 
 			case 'type_exclusions' :
-				$sName = _wpsf__( 'Traffic Log Exclusions' );
-				$sSummary = _wpsf__( 'Select Which Types Of Requests To Exclude' );
-				$sDescription = _wpsf__( "Select request types that you don't want to appear in the traffic viewer." )
-								.'<br/>'._wpsf__( 'If a request matches any exclusion rule, it will not show on the traffic viewer.' );
+				$sName = __( 'Traffic Log Exclusions', 'wp-simple-firewall' );
+				$sSummary = __( 'Select Which Types Of Requests To Exclude', 'wp-simple-firewall' );
+				$sDescription = __( "Select request types that you don't want to appear in the traffic viewer.", 'wp-simple-firewall' )
+								.'<br/>'.__( 'If a request matches any exclusion rule, it will not show on the traffic viewer.', 'wp-simple-firewall' );
 				break;
 
 			case 'custom_exclusions' :
-				$sName = _wpsf__( 'Custom Exclusions' );
-				$sSummary = _wpsf__( 'Provide Custom Traffic Exclusions' );
-				$sDescription = _wpsf__( "For each entry, if the text is present in either the User Agent or request Path, it will be excluded." )
-								.'<br/>'._wpsf__( 'Take a new line for each entry.' )
-								.'<br/>'._wpsf__( 'Comparisons are case-insensitive.' );
+				$sName = __( 'Custom Exclusions', 'wp-simple-firewall' );
+				$sSummary = __( 'Provide Custom Traffic Exclusions', 'wp-simple-firewall' );
+				$sDescription = __( "For each entry, if the text is present in either the User Agent or request Path, it will be excluded.", 'wp-simple-firewall' )
+								.'<br/>'.__( 'Take a new line for each entry.', 'wp-simple-firewall' )
+								.'<br/>'.__( 'Comparisons are case-insensitive.', 'wp-simple-firewall' );
 				break;
 
 			case 'auto_clean' :
-				$sName = _wpsf__( 'Auto Expiry Cleaning' );
-				$sSummary = _wpsf__( 'Enable Traffic Log Auto Expiry' );
-				$sDescription = _wpsf__( 'DB cleanup will delete logs older than this maximum value (in days).' );
+				$sName = __( 'Auto Expiry Cleaning', 'wp-simple-firewall' );
+				$sSummary = __( 'Enable Traffic Log Auto Expiry', 'wp-simple-firewall' );
+				$sDescription = __( 'DB cleanup will delete logs older than this maximum value (in days).', 'wp-simple-firewall' );
 				break;
 
 			case 'max_entries' :
-				$sName = _wpsf__( 'Max Log Length' );
-				$sSummary = _wpsf__( 'Maximum Traffic Log Length To Keep' );
-				$sDescription = _wpsf__( 'DB cleanup will delete logs to maintain this maximum number of records.' );
+				$sName = __( 'Max Log Length', 'wp-simple-firewall' );
+				$sSummary = __( 'Maximum Traffic Log Length To Keep', 'wp-simple-firewall' );
+				$sDescription = __( 'DB cleanup will delete logs to maintain this maximum number of records.', 'wp-simple-firewall' );
 				break;
 
 			case 'auto_disable' :
-				$sName = _wpsf__( 'Auto Disable' );
-				$sSummary = _wpsf__( 'Auto Disable Traffic Logging After 1 Week' );
+				$sName = __( 'Auto Disable', 'wp-simple-firewall' );
+				$sSummary = __( 'Auto Disable Traffic Logging After 1 Week', 'wp-simple-firewall' );
 
 				if ( $this->isAutoDisable() ) {
-					$sTimestamp = '<br/>'.sprintf( _wpsf__( 'Auto Disable At: %s' ), $this->getAutoDisableTimestamp() );
+					$sTimestamp = '<br/>'.sprintf( __( 'Auto Disable At: %s', 'wp-simple-firewall' ), $this->getAutoDisableTimestamp() );
 				}
 				else {
 					$sTimestamp = '';
 				}
-				$sDescription = _wpsf__( 'Turn on to prevent unnecessary long-term traffic logging.' )
-								.'<br />'._wpsf__( 'Timer resets after options save.' )
+				$sDescription = __( 'Turn on to prevent unnecessary long-term traffic logging.', 'wp-simple-firewall' )
+								.'<br />'.__( 'Timer resets after options save.', 'wp-simple-firewall' )
 								.$sTimestamp;
 				break;
 

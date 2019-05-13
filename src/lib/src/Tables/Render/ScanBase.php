@@ -31,7 +31,7 @@ class ScanBase extends Base {
 	 */
 	protected function getActionButton_DownloadFile( $sHref ) {
 		return $this->buildActionButton_Custom(
-			_wpsf__( 'Download' ),
+			__( 'Download', 'wp-simple-firewall' ),
 			[ 'href-download', 'text-info' ],
 			[ 'href-download' => $sHref ]
 		);

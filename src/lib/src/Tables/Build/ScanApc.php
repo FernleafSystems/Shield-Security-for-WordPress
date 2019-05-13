@@ -29,7 +29,8 @@ class ScanApc extends ScanBase {
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'plugin' ] = sprintf( '%s (%s)', $oPlugin->Name, $oPlugin->Version );
 			$aE[ 'status' ] = sprintf( '%s: %s',
-				_wpsf__( 'Abandoned' ), $oCarbon->setTimestamp( $oIt->last_updated_at )->diffForHumans() );
+				__( 'Abandoned', 'wp-simple-firewall' ), $oCarbon->setTimestamp( $oIt->last_updated_at )
+																 ->diffForHumans() );
 			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aEntries[ $nKey ] = $aE;

@@ -24,11 +24,11 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 				'sCbName'   => $oFO->getGaspKey(),
 				'sLabel'    => $oFO->getTextImAHuman(),
 				'sAlert'    => $oFO->getTextPleaseCheckBox(),
-				'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
+				'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
 				'sUniqId'   => $sUniqId,
 				'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
 				'strings'   => [
-					'loading' => _wpsf__( 'Loading' )
+					'loading' => __( 'Loading', 'wp-simple-firewall' )
 				]
 			]
 		);
@@ -56,21 +56,21 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		$sError = '';
 		if ( empty( $sGaspCheckBox ) ) {
 			$sAuditMessage = sprintf(
-								 _wpsf__( 'User "%s" attempted to %s but GASP checkbox was not present.' ),
+								 __( 'User "%s" attempted to %s but GASP checkbox was not present.', 'wp-simple-firewall' ),
 								 $sUsername, $sActionAttempted
-							 ).' '._wpsf__( 'Probably a BOT.' );
+							 ).' '.__( 'Probably a BOT.', 'wp-simple-firewall' );
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_checkbox' );
 			$this->setLoginAsFailed( $sActionAttempted.'.gasp.checkbox.fail' );
-			$sError = _wpsf__( "You must check that box to say you're not a bot." );
+			$sError = __( "You must check that box to say you're not a bot.", 'wp-simple-firewall' );
 		}
 		else if ( !empty( $sHoney ) ) {
 			$sAuditMessage = sprintf(
-								 _wpsf__( 'User "%s" attempted to %s but they were caught by the GASP honeypot.' ),
+								 __( 'User "%s" attempted to %s but they were caught by the GASP honeypot.', 'wp-simple-firewall' ),
 								 $sUsername, $sActionAttempted
-							 ).' '._wpsf__( 'Probably a BOT.' );
+							 ).' '.__( 'Probably a BOT.', 'wp-simple-firewall' );
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_honeypot' );
 			$this->setLoginAsFailed( $sActionAttempted.'.gasp.honeypot.fail' );
-			$sError = sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted );
+			$sError = sprintf( __( 'You appear to be a bot - terminating %s attempt.', 'wp-simple-firewall' ), $sActionAttempted );
 		}
 		else {
 			$bValid = true;
@@ -102,21 +102,21 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		$sDieMessage = '';
 		if ( empty( $sGaspCheckBox ) ) {
 			$sAuditMessage = sprintf(
-								 _wpsf__( 'User "%s" attempted to %s but GASP checkbox was not present.' ),
+								 __( 'User "%s" attempted to %s but GASP checkbox was not present.', 'wp-simple-firewall' ),
 								 empty( $sUsername ) ? 'unknown' : $sUsername, $sActionAttempted
-							 ).' '._wpsf__( 'Probably a BOT.' );
+							 ).' '.__( 'Probably a BOT.', 'wp-simple-firewall' );
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_checkbox' );
 			$this->doStatIncrement( $sActionAttempted.'.gasp.checkbox.fail' );
-			$sDieMessage = _wpsf__( "You must check that box to say you're not a bot." );
+			$sDieMessage = __( "You must check that box to say you're not a bot.", 'wp-simple-firewall' );
 		}
 		else if ( !empty( $sHoney ) ) {
 			$sAuditMessage = sprintf(
-								 _wpsf__( 'User "%s" attempted to %s but they were caught by the GASP honeypot.' ),
+								 __( 'User "%s" attempted to %s but they were caught by the GASP honeypot.', 'wp-simple-firewall' ),
 								 empty( $sUsername ) ? 'unknown' : $sUsername, $sActionAttempted
-							 ).' '._wpsf__( 'Probably a BOT.' );
+							 ).' '.__( 'Probably a BOT.', 'wp-simple-firewall' );
 			$this->addToAuditEntry( $sAuditMessage, 3, $sActionAttempted.'_protect_block_gasp_honeypot' );
 			$this->doStatIncrement( $sActionAttempted.'.gasp.honeypot.fail' );
-			$sDieMessage = sprintf( _wpsf__( 'You appear to be a bot - terminating %s attempt.' ), $sActionAttempted );
+			$sDieMessage = sprintf( __( 'You appear to be a bot - terminating %s attempt.', 'wp-simple-firewall' ), $sActionAttempted );
 		}
 		else {
 			$bValid = true;

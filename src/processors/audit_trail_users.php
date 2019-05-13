@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	public function auditUserLoginSuccess( $sUsername ) {
 		if ( !empty( $sUsername ) ) {
 			$this->add( 'users', 'login_success', 1,
-				sprintf( _wpsf__( 'Attempted user login by "%s" was successful.' ), $sUsername ),
+				sprintf( __( 'Attempted user login by "%s" was successful.', 'wp-simple-firewall' ), $sUsername ),
 				$sUsername
 			);
 		}
@@ -30,9 +30,9 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 		$oNewUser = empty( $nUserId ) ? null : $this->loadWpUsers()->getUserById( $nUserId );
 		if ( !empty( $oNewUser ) ) {
 			$this->add( 'users', 'user_registered', 1,
-				_wpsf__( 'New WordPress user registered.' ).' '
+				__( 'New WordPress user registered.', 'wp-simple-firewall' ).' '
 				.sprintf(
-					_wpsf__( 'New username is "%s" with email address "%s".' ),
+					__( 'New username is "%s" with email address "%s".', 'wp-simple-firewall' ),
 					$oNewUser->user_login, $oNewUser->user_email
 				)
 			);
@@ -46,24 +46,24 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	public function auditDeleteUser( $nUserId, $nReassigned ) {
 		$oWpUsers = $this->loadWpUsers();
 
-		$aAuditMessage = [ _wpsf__( 'WordPress user deleted.' ) ];
+		$aAuditMessage = [ __( 'WordPress user deleted.', 'wp-simple-firewall' ) ];
 
 		$oDeletedUser = empty( $nUserId ) ? null : $oWpUsers->getUserById( $nUserId );
 		if ( empty( $oDeletedUser ) ) {
-			$aAuditMessage[] = _wpsf__( 'User is unknown as it could not be loaded.' );
+			$aAuditMessage[] = __( 'User is unknown as it could not be loaded.', 'wp-simple-firewall' );
 		}
 		else {
-			$aAuditMessage[] = sprintf( _wpsf__( 'Username was "%s" with email address "%s".' ),
+			$aAuditMessage[] = sprintf( __( 'Username was "%s" with email address "%s".', 'wp-simple-firewall' ),
 				$oDeletedUser->user_login, $oDeletedUser->user_email
 			);
 		}
 
 		$oReassignedUser = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
 		if ( empty( $oReassignedUser ) ) {
-			$aAuditMessage[] = _wpsf__( 'Their posts were not reassigned to another user.' );
+			$aAuditMessage[] = __( 'Their posts were not reassigned to another user.', 'wp-simple-firewall' );
 		}
 		else {
-			$aAuditMessage[] = sprintf( _wpsf__( 'Their posts were reassigned to user "%s".' ),
+			$aAuditMessage[] = sprintf( __( 'Their posts were reassigned to user "%s".', 'wp-simple-firewall' ),
 				$oReassignedUser->user_login
 			);
 		}

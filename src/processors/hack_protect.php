@@ -58,8 +58,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function secXss64kb( $sCommentContent ) {
 		// Comments shouldn't be any longer than 64KB
 		if ( strlen( $sCommentContent ) >= ( 64*1024 ) ) {
-			$sCommentContent = sprintf( _wpsf__( '%s escaped HTML the following comment due to its size: %s' ), $this->getCon()
-																													 ->getHumanName(), esc_html( $sCommentContent ) );
+			$sCommentContent = sprintf( __( '%s escaped HTML the following comment due to its size: %s', 'wp-simple-firewall' ), $this->getCon()
+																																	  ->getHumanName(), esc_html( $sCommentContent ) );
 		}
 		return $sCommentContent;
 	}
@@ -115,12 +115,12 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'is_premium' => $oMod->isPremium()
 			],
 			'strings' => [
-				'never'         => _wpsf__( 'Never' ),
+				'never'         => __( 'Never', 'wp-simple-firewall' ),
 				'go_pro'        => 'Go Pro!',
-				'options'       => _wpsf__( 'Scan Options' ),
-				'not_available' => _wpsf__( 'Sorry, this scan is not available.' ),
-				'not_enabled'   => _wpsf__( 'This scan is not currently enabled.' ),
-				'please_enable' => _wpsf__( 'Please turn on this scan in the options.' ),
+				'options'       => __( 'Scan Options', 'wp-simple-firewall' ),
+				'not_available' => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
+				'not_enabled'   => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
+				'please_enable' => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 			],
@@ -137,14 +137,14 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'vars'    => [
 						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
+							__( 'Last Scan: %s', 'wp-simple-firewall' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'apc' ) )->diffForHumans()
 						),
 					],
 					'count'   => $oSelector->countForScan( 'apc' ),
 					'strings' => [
-						'title'    => _wpsf__( 'Abandoned Plugins Check' ),
-						'subtitle' => _wpsf__( "Discover abandoned plugins" )
+						'title'    => __( 'Abandoned Plugins Check', 'wp-simple-firewall' ),
+						'subtitle' => __( "Discover abandoned plugins", 'wp-simple-firewall' )
 					],
 				],
 				'wcf' => [
@@ -159,14 +159,14 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'vars'    => [
 						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
+							__( 'Last Scan: %s', 'wp-simple-firewall' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
 						),
 					],
 					'count'   => $oSelector->countForScan( 'wcf' ),
 					'strings' => [
-						'title'    => _wpsf__( 'WordPress Core File Integrity' ),
-						'subtitle' => _wpsf__( "Detects changes to core WordPress files" )
+						'title'    => __( 'WordPress Core File Integrity', 'wp-simple-firewall' ),
+						'subtitle' => __( "Detects changes to core WordPress files", 'wp-simple-firewall' )
 					],
 				],
 				'ufc' => [
@@ -181,38 +181,38 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'vars'    => [
 						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
+							__( 'Last Scan: %s', 'wp-simple-firewall' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
 						),
 					],
 					'count'   => $oSelector->countForScan( 'ufc' ),
 					'strings' => [
-						'title'    => _wpsf__( 'Unrecognised Core Files' ),
-						'subtitle' => _wpsf__( "Detects files that maybe shouldn't be there" )
+						'title'    => __( 'Unrecognised Core Files', 'wp-simple-firewall' ),
+						'subtitle' => __( "Detects files that maybe shouldn't be there", 'wp-simple-firewall' )
 					],
 				],
-//				'mal' => [
-//					'flags'   => [
-//						'is_enabled'    => $oMod->isMalScanEnabled(),
-//						'is_available'  => $oMod->isPremium(),
-//						'has_items'     => true,
-//						'has_last_scan' => $oMod->getLastScanAt( 'mal' ) > 0
-//					],
-//					'hrefs'   => [
-//						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_malware' )
-//					],
-//					'vars'    => [
-//						'last_scan_at' => sprintf(
-//							_wpsf__( 'Last Scan: %s' ),
-//							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'mal' ) )->diffForHumans()
-//						),
-//					],
-//					'count'   => $oSelector->countForScan( 'mal' ),
-//					'strings' => [
-//						'title'    => _wpsf__( 'Malware Scanner' ),
-//						'subtitle' => _wpsf__( "Detects malware in files" )
-//					],
-//				],
+				//				'mal' => [
+				//					'flags'   => [
+				//						'is_enabled'    => $oMod->isMalScanEnabled(),
+				//						'is_available'  => $oMod->isPremium(),
+				//						'has_items'     => true,
+				//						'has_last_scan' => $oMod->getLastScanAt( 'mal' ) > 0
+				//					],
+				//					'hrefs'   => [
+				//						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_malware' )
+				//					],
+				//					'vars'    => [
+				//						'last_scan_at' => sprintf(
+				//							_wpsf__( 'Last Scan: %s' ),
+				//							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'mal' ) )->diffForHumans()
+				//						),
+				//					],
+				//					'count'   => $oSelector->countForScan( 'mal' ),
+				//					'strings' => [
+				//						'title'    => _wpsf__( 'Malware Scanner' ),
+				//						'subtitle' => _wpsf__( "Detects malware in files" )
+				//					],
+				//				],
 				'wpv' => [
 					'flags'   => [
 						'is_enabled'    => $oMod->isWpvulnEnabled(),
@@ -225,14 +225,14 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'vars'    => [
 						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
+							__( 'Last Scan: %s', 'wp-simple-firewall' ),
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wpv' ) )->diffForHumans()
 						),
 					],
 					'count'   => $oSelector->countForScan( 'wpv' ),
 					'strings' => [
-						'title'    => _wpsf__( 'Plugin / Theme Vulnerabilities' ),
-						'subtitle' => _wpsf__( "Alerts on known security vulnerabilities" )
+						'title'    => __( 'Plugin / Theme Vulnerabilities', 'wp-simple-firewall' ),
+						'subtitle' => __( "Alerts on known security vulnerabilities", 'wp-simple-firewall' )
 					],
 				],
 				'ptg' => $this->getInsightVarsScan_Ptg(),
@@ -276,7 +276,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
 			else {
-				$aMeta[ 'ts' ] = _wpsf__( 'unknown' );
+				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
 			}
 
 			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
@@ -284,8 +284,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
 			$aProfile = [
 				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
-				'name'           => _wpsf__( 'unknown' ),
-				'version'        => _wpsf__( 'unknown' ),
+				'name'           => __( 'unknown', 'wp-simple-firewall' ),
+				'version'        => __( 'unknown', 'wp-simple-firewall' ),
 				'root_dir'       => $oWpPlugins->getInstallationDir( $oIT->slug ),
 				'slug'           => $sSlug,
 				'is_wporg'       => $bIsWpOrg,
@@ -304,8 +304,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			else {
 				// MISSING!
 				if ( is_array( $aMeta ) ) {
-					$aProfile[ 'name' ] = isset( $aMeta[ 'name' ] ) ? $aMeta[ 'name' ] : _wpsf__( 'unknown' );
-					$aProfile[ 'version' ] = isset( $aMeta[ 'version' ] ) ? $aMeta[ 'version' ] : _wpsf__( 'unknown' );
+					$aProfile[ 'name' ] = isset( $aMeta[ 'name' ] ) ? $aMeta[ 'name' ] : __( 'unknown', 'wp-simple-firewall' );
+					$aProfile[ 'version' ] = isset( $aMeta[ 'version' ] ) ? $aMeta[ 'version' ] : __( 'unknown', 'wp-simple-firewall' );
 				}
 			}
 			$aProfile[ 'name' ] = sprintf( '%s: %s', __( 'Plugin' ), $aProfile[ 'name' ] );
@@ -325,7 +325,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
 			else {
-				$aMeta[ 'ts' ] = _wpsf__( 'unknown' );
+				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
 			}
 
 			$bInstalled = $oWpThemes->isInstalled( $oIT->slug );
@@ -333,9 +333,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$bHasUpdate = $bIsWpOrg && $oWpThemes->isUpdateAvailable( $sSlug );
 			$aProfile = [
 				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
-				'name'           => _wpsf__( 'unknown' ),
-				'version'        => _wpsf__( 'unknown' ),
-				'root_dir'       => _wpsf__( 'unknown' ),
+				'name'           => __( 'unknown', 'wp-simple-firewall' ),
+				'version'        => __( 'unknown', 'wp-simple-firewall' ),
+				'root_dir'       => __( 'unknown', 'wp-simple-firewall' ),
 				'slug'           => $sSlug,
 				'is_wporg'       => $bIsWpOrg,
 				'can_reinstall'  => $bIsWpOrg,
@@ -370,22 +370,22 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			],
 			'vars'    => [
 				'last_scan_at' => sprintf(
-					_wpsf__( 'Last Scan: %s' ),
+					__( 'Last Scan: %s', 'wp-simple-firewall' ),
 					$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 				)
 			],
 			'count'   => $oSelector->countForScan( 'ptg' ),
 			'assets'  => array_merge( $aPlugins, $aThemes ),
 			'strings' => [
-				'title'               => _wpsf__( 'Plugin / Theme Modifications' ),
-				'subtitle'            => _wpsf__( "Detects unauthorized changes to plugins/themes" ),
-				'files_with_problems' => _wpsf__( 'Files with problems' ),
-				'root_dir'            => _wpsf__( 'Root directory' ),
-				'date_snapshot'       => _wpsf__( 'Snapshot taken' ),
-				'reinstall'           => _wpsf__( 'Re-Install' ),
+				'title'               => __( 'Plugin / Theme Modifications', 'wp-simple-firewall' ),
+				'subtitle'            => __( "Detects unauthorized changes to plugins/themes", 'wp-simple-firewall' ),
+				'files_with_problems' => __( 'Files with problems', 'wp-simple-firewall' ),
+				'root_dir'            => __( 'Root directory', 'wp-simple-firewall' ),
+				'date_snapshot'       => __( 'Snapshot taken', 'wp-simple-firewall' ),
+				'reinstall'           => __( 'Re-Install', 'wp-simple-firewall' ),
 				'deactivate'          => __( 'Deactivate and Ignore' ),
-				'accept'              => _wpsf__( 'Accept' ),
-				'update'              => _wpsf__( 'Upgrade' ),
+				'accept'              => __( 'Accept', 'wp-simple-firewall' ),
+				'update'              => __( 'Upgrade', 'wp-simple-firewall' ),
 			]
 		];
 	}

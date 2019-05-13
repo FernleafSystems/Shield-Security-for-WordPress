@@ -33,16 +33,16 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	public function run() {
 		if ( $this->isReadyToRun() ) {
 			// Add GASP checking to the comment form.
-			add_action( 'wp', array( $this, 'setupForm' ) );
-			add_filter( 'preprocess_comment', array( $this, 'doCommentChecking' ), 5 );
-			add_filter( $this->getMod()->prefix( 'cf_status' ), array( $this, 'getCommentStatus' ), 1 );
-			add_filter( $this->getMod()->prefix( 'cf_status_expl' ), array( $this, 'getCommentStatusExplanation' ), 1 );
+			add_action( 'wp', [ $this, 'setupForm' ] );
+			add_filter( 'preprocess_comment', [ $this, 'doCommentChecking' ], 5 );
+			add_filter( $this->getMod()->prefix( 'cf_status' ), [ $this, 'getCommentStatus' ], 1 );
+			add_filter( $this->getMod()->prefix( 'cf_status_expl' ), [ $this, 'getCommentStatusExplanation' ], 1 );
 		}
 	}
 
 	public function setupForm() {
 		if ( !Services::Request()->isPost() ) {
-			add_action( 'comment_form', array( $this, 'printGaspFormItems' ), 1 );
+			add_action( 'comment_form', [ $this, 'printGaspFormItems' ], 1 );
 		}
 	}
 
@@ -111,17 +111,17 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 
 		// we have the cb name, is it set?
 		if ( !$sFieldCheckboxName || !$oReq->post( $sFieldCheckboxName ) ) {
-			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'checkbox' ) );
+			$sExplanation = sprintf( __( 'Failed GASP Bot Filter Test (%s)', 'wp-simple-firewall' ), __( 'checkbox', 'wp-simple-firewall' ) );
 			$sStatKey = 'checkbox';
 		}
 		// honeypot check
 		else if ( !empty( $sFieldHoney ) ) {
-			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'honeypot' ) );
+			$sExplanation = sprintf( __( 'Failed GASP Bot Filter Test (%s)', 'wp-simple-firewall' ), __( 'honeypot', 'wp-simple-firewall' ) );
 			$sStatKey = 'honeypot';
 		}
 		// check the unique comment token is present
 		else if ( $oFO->getIfCheckCommentToken() && !$this->checkCommentToken( $sCommentToken, $nPostId ) ) {
-			$sExplanation = sprintf( _wpsf__( 'Failed GASP Bot Filter Test (%s)' ), _wpsf__( 'comment token failure' ) );
+			$sExplanation = sprintf( __( 'Failed GASP Bot Filter Test (%s)', 'wp-simple-firewall' ), __( 'comment token failure', 'wp-simple-firewall' ) );
 			$sStatKey = 'token';
 		}
 		else {
@@ -163,12 +163,12 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	protected function getGaspCommentsHookHtml( $oToken ) {
-		$aHtml = array(
+		$aHtml = [
 			'<p id="'.$this->getUniqueFormId().'"></p>', // we use this unique <p> to hook onto using javascript
 			'<input type="hidden" id="_sugar_sweet_email" name="sugar_sweet_email" value="" />',
 			sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />',
 				$oToken->unique_token )
-		);
+		];
 		return implode( '', $aHtml );
 	}
 
@@ -357,7 +357,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function setCommentStatusExplanation( $sExplanation ) {
 		$this->sCommentStatusExplanation =
 			'[* '.sprintf(
-				_wpsf__( '%s plugin marked this comment as "%s".' ).' '._wpsf__( 'Reason: %s' ),
+				__( '%s plugin marked this comment as "%s".', 'wp-simple-firewall' ).' '.__( 'Reason: %s', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName(),
 				$this->sCommentStatus,
 				$sExplanation

@@ -15,7 +15,7 @@ class ICWP_WPSF_Processor_AuditTrail_Wordpress extends ICWP_WPSF_AuditTrail_Audi
 	public function auditCoreUpdated( $sNewCoreVersion ) {
 		global $wp_version;
 		$this->add( 'wordpress', 'core_updated', 1,
-			sprintf( _wpsf__( 'WordPress Core was updated from "v%s" to "v%s".' ), $wp_version, $sNewCoreVersion )
+			sprintf( __( 'WordPress Core was updated from "v%s" to "v%s".', 'wp-simple-firewall' ), $wp_version, $sNewCoreVersion )
 		);
 	}
 
@@ -25,7 +25,7 @@ class ICWP_WPSF_Processor_AuditTrail_Wordpress extends ICWP_WPSF_AuditTrail_Audi
 	 */
 	public function auditPermalinkStructure( $sOld, $sNew ) {
 		$this->add( 'wordpress', 'permalinks_structure', 1,
-			sprintf( _wpsf__( 'WordPress Permalinks Structure was updated from "%s" to "%s".' ), $sOld, $sNew )
+			sprintf( __( 'WordPress Permalinks Structure was updated from "%s" to "%s".', 'wp-simple-firewall' ), $sOld, $sNew )
 		);
 	}
 }

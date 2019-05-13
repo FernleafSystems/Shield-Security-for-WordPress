@@ -45,29 +45,29 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 		$oWp = Services::WpGeneral();
 		if ( $oWp->isMultisite() ) {
-			$sMessage = _wpsf__( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.' );
+			$sMessage = __( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.', 'wp-simple-firewall' );
 			$bConflicted = true;
 		}
 		else if ( class_exists( 'Rename_WP_Login' ) ) {
-			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.' ), 'Rename WP Login' );
+			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Rename WP Login' );
 			$bConflicted = true;
 		}
 		else if ( class_exists( 'Theme_My_Login' ) ) {
-			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.' ), 'Theme My Login' );
+			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Theme My Login' );
 			$bConflicted = true;
 		}
 		else if ( !$oWp->isPermalinksEnabled() ) {
-			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have not enabled %s.' ), __( 'Permalinks' ) );
+			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks' ) );
 			$bConflicted = true;
 		}
 		else if ( $oWp->isPermalinksEnabled() && ( $oWp->getDoesWpSlugExist( $sCustomLoginPath ) || in_array( $sCustomLoginPath, $oWp->getAutoRedirectLocations() ) ) ) {
-			$sMessage = sprintf( _wpsf__( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is reserved on your WordPress site.' ), $sCustomLoginPath );
+			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is reserved on your WordPress site.', 'wp-simple-firewall' ), $sCustomLoginPath );
 			$bConflicted = true;
 		}
 
 		if ( $bConflicted ) {
 			$sNoticeMessage = sprintf( '<strong>%s</strong>: %s',
-				_wpsf__( 'Warning' ),
+				__( 'Warning', 'wp-simple-firewall' ),
 				$sMessage
 			);
 			$this->loadWpNotices()->addRawAdminNotice( $sNoticeMessage, 'error' );
@@ -85,8 +85,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 
 			$sNoticeMessage = sprintf(
 				'<strong>%s</strong>: %s',
-				_wpsf__( 'Warning' ),
-				_wpsf__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.' )
+				__( 'Warning', 'wp-simple-firewall' ),
+				__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
 			);
 			$this->loadWpNotices()->addRawAdminNotice( $sNoticeMessage, 'error' );
 			return true;

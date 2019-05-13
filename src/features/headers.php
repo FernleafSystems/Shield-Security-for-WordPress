@@ -128,8 +128,8 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = [
 			'strings'      => [
-				'title' => _wpsf__( 'HTTP Security Headers' ),
-				'sub'   => _wpsf__( 'Protect Visitors With Powerful HTTP Headers' ),
+				'title' => __( 'HTTP Security Headers', 'wp-simple-firewall' ),
+				'sub'   => __( 'Protect Visitors With Powerful HTTP Headers', 'wp-simple-firewall' ),
 			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
@@ -142,21 +142,21 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$bAllEnabled = $this->isEnabledXFrame() && $this->isEnabledXssProtection()
 						   && $this->isEnabledContentTypeHeader() && $this->isReferrerPolicyEnabled();
 			$aThis[ 'key_opts' ][ 'all' ] = [
-				'name'    => _wpsf__( 'HTTP Headers' ),
+				'name'    => __( 'HTTP Headers', 'wp-simple-firewall' ),
 				'enabled' => $bAllEnabled,
 				'summary' => $bAllEnabled ?
-					_wpsf__( 'All important security Headers have been set' )
-					: _wpsf__( "At least one of the HTTP Headers hasn't been set" ),
+					__( 'All important security Headers have been set', 'wp-simple-firewall' )
+					: __( "At least one of the HTTP Headers hasn't been set", 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_security_headers' ),
 			];
 			$bCsp = $this->isContentSecurityPolicyEnabled();
 			$aThis[ 'key_opts' ][ 'csp' ] = [
-				'name'    => _wpsf__( 'Content Security Policies' ),
+				'name'    => __( 'Content Security Policies', 'wp-simple-firewall' ),
 				'enabled' => $bCsp,
 				'summary' => $bCsp ?
-					_wpsf__( 'Content Security Policy is turned on' )
-					: _wpsf__( "Content Security Policies aren't active" ),
+					__( 'Content Security Policy is turned on', 'wp-simple-firewall' )
+					: __( "Content Security Policies aren't active", 'wp-simple-firewall' ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_content_security_policy' ),
 			];
@@ -177,30 +177,30 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_headers' :
-				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( __( '%s/%s ', 'wp-simple-firewall' ), __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Protect visitors to your site by implementing increased security response headers.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_security_headers' :
-				$sTitle = _wpsf__( 'Advanced Security Headers' );
+				$sTitle = __( 'Advanced Security Headers', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Protect visitors to your site by implementing increased security response headers.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Protect visitors to your site by implementing increased security response headers.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = _wpsf__( 'Security Headers' );
+				$sTitleShort = __( 'Security Headers', 'wp-simple-firewall' );
 				break;
 
 			case 'section_content_security_policy' :
-				$sTitle = _wpsf__( 'Content Security Policy' );
+				$sTitle = __( 'Content Security Policy', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enabling these features are advised, but you must test them on your site thoroughly.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restrict the sources and types of content that may be loaded and processed by visitor browsers.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling these features are advised, but you must test them on your site thoroughly.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = _wpsf__( 'Content Security Policy' );
+				$sTitleShort = __( 'Content Security Policy', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -223,80 +223,80 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		switch ( $sKey ) {
 
 			case 'enable_headers' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				break;
 
 			case 'x_frame' :
-				$sName = _wpsf__( 'Block iFrames' );
-				$sSummary = _wpsf__( 'Block Remote iFrames Of This Site' );
-				$sDescription = _wpsf__( 'The setting prevents any external website from embedding your site in an iFrame.' )
-								._wpsf__( 'This is useful for preventing so-called "ClickJack attacks".' );
+				$sName = __( 'Block iFrames', 'wp-simple-firewall' );
+				$sSummary = __( 'Block Remote iFrames Of This Site', 'wp-simple-firewall' );
+				$sDescription = __( 'The setting prevents any external website from embedding your site in an iFrame.', 'wp-simple-firewall' )
+								.__( 'This is useful for preventing so-called "ClickJack attacks".', 'wp-simple-firewall' );
 				break;
 
 			case 'x_referrer_policy' :
-				$sName = _wpsf__( 'Referrer Policy' );
-				$sSummary = _wpsf__( 'Referrer Policy Header' );
-				$sDescription = _wpsf__( 'The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site.' );
+				$sName = __( 'Referrer Policy', 'wp-simple-firewall' );
+				$sSummary = __( 'Referrer Policy Header', 'wp-simple-firewall' );
+				$sDescription = __( 'The Referrer Policy Header allows you to control when and what referral information a browser may pass along with links clicked on your site.', 'wp-simple-firewall' );
 				break;
 
 			case 'x_xss_protect' :
-				$sName = _wpsf__( 'XSS Protection' );
-				$sSummary = _wpsf__( 'Employ Built-In Browser XSS Protection' );
-				$sDescription = _wpsf__( 'Directs compatible browsers to block what they detect as Reflective XSS attacks.' );
+				$sName = __( 'XSS Protection', 'wp-simple-firewall' );
+				$sSummary = __( 'Employ Built-In Browser XSS Protection', 'wp-simple-firewall' );
+				$sDescription = __( 'Directs compatible browsers to block what they detect as Reflective XSS attacks.', 'wp-simple-firewall' );
 				break;
 
 			case 'x_content_type' :
-				$sName = _wpsf__( 'Prevent Mime-Sniff' );
-				$sSummary = _wpsf__( 'Turn-Off Browser Mime-Sniff' );
-				$sDescription = _wpsf__( 'Reduces visitor exposure to malicious user-uploaded content.' );
+				$sName = __( 'Prevent Mime-Sniff', 'wp-simple-firewall' );
+				$sSummary = __( 'Turn-Off Browser Mime-Sniff', 'wp-simple-firewall' );
+				$sDescription = __( 'Reduces visitor exposure to malicious user-uploaded content.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_x_content_security_policy' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), 'CSP' );
-				$sSummary = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Content Security Policy' ) );
-				$sDescription = _wpsf__( 'Allows for permission and restriction of all resources loaded on your site.' );
+				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), 'CSP' );
+				$sSummary = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Content Security Policy', 'wp-simple-firewall' ) );
+				$sDescription = __( 'Allows for permission and restriction of all resources loaded on your site.', 'wp-simple-firewall' );
 				break;
 
 			case 'xcsp_self' :
-				$sName = _wpsf__( 'Self' );
-				$sSummary = _wpsf__( "Allow 'self' Directive" );
-				$sDescription = _wpsf__( "Using 'self' is generally recommended." )
-								._wpsf__( "It essentially means that resources from your own host:protocol are permitted." );
+				$sName = __( 'Self', 'wp-simple-firewall' );
+				$sSummary = __( "Allow 'self' Directive", 'wp-simple-firewall' );
+				$sDescription = __( "Using 'self' is generally recommended.", 'wp-simple-firewall' )
+								.__( "It essentially means that resources from your own host:protocol are permitted.", 'wp-simple-firewall' );
 				break;
 
 			case 'xcsp_inline' :
-				$sName = _wpsf__( 'Inline Entities' );
-				$sSummary = _wpsf__( 'Allow Inline Scripts and CSS' );
-				$sDescription = _wpsf__( 'Allows parsing of Javascript and CSS declared in-line in your html document.' );
+				$sName = __( 'Inline Entities', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Inline Scripts and CSS', 'wp-simple-firewall' );
+				$sDescription = __( 'Allows parsing of Javascript and CSS declared in-line in your html document.', 'wp-simple-firewall' );
 				break;
 
 			case 'xcsp_data' :
-				$sName = _wpsf__( 'Embedded Data' );
-				$sSummary = _wpsf__( 'Allow "data:" Directives' );
-				$sDescription = _wpsf__( 'Allows use of embedded data directives, most commonly used for images and fonts.' );
+				$sName = __( 'Embedded Data', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow "data:" Directives', 'wp-simple-firewall' );
+				$sDescription = __( 'Allows use of embedded data directives, most commonly used for images and fonts.', 'wp-simple-firewall' );
 				break;
 
 			case 'xcsp_eval' :
-				$sName = _wpsf__( 'Allow eval()' );
-				$sSummary = _wpsf__( 'Allow Javascript eval()' );
-				$sDescription = _wpsf__( 'Permits the use of Javascript the eval() function.' );
+				$sName = __( 'Allow eval()', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Javascript eval()', 'wp-simple-firewall' );
+				$sDescription = __( 'Permits the use of Javascript the eval() function.', 'wp-simple-firewall' );
 				break;
 
 			case 'xcsp_https' :
-				$sName = _wpsf__( 'HTTPS' );
-				$sSummary = _wpsf__( 'HTTPS Resource Loading' );
-				$sDescription = _wpsf__( 'Allows loading of any content provided over HTTPS.' );
+				$sName = __( 'HTTPS', 'wp-simple-firewall' );
+				$sSummary = __( 'HTTPS Resource Loading', 'wp-simple-firewall' );
+				$sDescription = __( 'Allows loading of any content provided over HTTPS.', 'wp-simple-firewall' );
 				break;
 
 			case 'xcsp_hosts' :
-				$sName = _wpsf__( 'Permitted Hosts' );
-				$sSummary = _wpsf__( 'Permitted Hosts and Domains' );
-				$sDescription = _wpsf__( 'You can explicitly state which hosts/domain from which content may be loaded.' )
-								.' '._wpsf__( 'Take great care and test your site as you may block legitimate resources.' )
-								.'<br />- '._wpsf__( 'If in-doubt, leave blank or use "*" only.' )
-								.'<br />- '.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You can force only HTTPS for a given domain by prefixing it with "https://".' ) );
+				$sName = __( 'Permitted Hosts', 'wp-simple-firewall' );
+				$sSummary = __( 'Permitted Hosts and Domains', 'wp-simple-firewall' );
+				$sDescription = __( 'You can explicitly state which hosts/domain from which content may be loaded.', 'wp-simple-firewall' )
+								.' '.__( 'Take great care and test your site as you may block legitimate resources.', 'wp-simple-firewall' )
+								.'<br />- '.__( 'If in-doubt, leave blank or use "*" only.', 'wp-simple-firewall' )
+								.'<br />- '.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You can force only HTTPS for a given domain by prefixing it with "https://".', 'wp-simple-firewall' ) );
 				break;
 
 			default:

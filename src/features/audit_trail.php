@@ -44,7 +44,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$nId = Services::Request()->post( 'rid' );
 		if ( empty( $nId ) || !is_numeric( $nId ) || $nId < 1 ) {
-			$sMessage = _wpsf__( 'Invalid audit entry selected for this action' );
+			$sMessage = __( 'Invalid audit entry selected for this action', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
@@ -56,20 +56,20 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 						   ->byId( $nId );
 
 			if ( empty( $oEntry ) ) {
-				$sMessage = _wpsf__( 'Audit entry could not be loaded.' );
+				$sMessage = __( 'Audit entry could not be loaded.', 'wp-simple-firewall' );
 			}
 			else {
 				$aData = $oEntry->meta;
 				$sParam = isset( $aData[ 'param' ] ) ? $aData[ 'param' ] : '';
 				$sUri = isset( $aData[ 'uri' ] ) ? $aData[ 'uri' ] : '*';
 				if ( empty( $sParam ) ) {
-					$sMessage = _wpsf__( 'Parameter associated with this audit entry could not be found.' );
+					$sMessage = __( 'Parameter associated with this audit entry could not be found.', 'wp-simple-firewall' );
 				}
 				else {
 					/** @var ICWP_WPSF_FeatureHandler_Firewall $oModFire */
 					$oModFire = $this->getCon()->getModule( 'firewall' );
 					$oModFire->addParamToWhitelist( $sParam, $sUri );
-					$sMessage = sprintf( _wpsf__( 'Parameter "%s" whitelisted successfully' ), $sParam );
+					$sMessage = sprintf( __( 'Parameter "%s" whitelisted successfully', 'wp-simple-firewall' ), $sParam );
 					$bSuccess = true;
 				}
 			}
@@ -197,20 +197,20 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			[
-				'at_users'            => _wpsf__( 'Users' ),
-				'at_plugins'          => _wpsf__( 'Plugins' ),
-				'at_themes'           => _wpsf__( 'Themes' ),
-				'at_wordpress'        => _wpsf__( 'WordPress' ),
-				'at_posts'            => _wpsf__( 'Posts' ),
-				'at_emails'           => _wpsf__( 'Emails' ),
-				'at_time'             => _wpsf__( 'Time' ),
-				'at_event'            => _wpsf__( 'Event' ),
-				'at_message'          => _wpsf__( 'Message' ),
-				'at_username'         => _wpsf__( 'Username' ),
-				'at_category'         => _wpsf__( 'Category' ),
-				'at_ipaddress'        => _wpsf__( 'IP Address' ),
-				'at_you'              => _wpsf__( 'You' ),
-				'at_no_audit_entries' => _wpsf__( 'There are currently no audit entries this is section.' ),
+				'at_users'            => __( 'Users', 'wp-simple-firewall' ),
+				'at_plugins'          => __( 'Plugins', 'wp-simple-firewall' ),
+				'at_themes'           => __( 'Themes', 'wp-simple-firewall' ),
+				'at_wordpress'        => __( 'WordPress', 'wp-simple-firewall' ),
+				'at_posts'            => __( 'Posts', 'wp-simple-firewall' ),
+				'at_emails'           => __( 'Emails', 'wp-simple-firewall' ),
+				'at_time'             => __( 'Time', 'wp-simple-firewall' ),
+				'at_event'            => __( 'Event', 'wp-simple-firewall' ),
+				'at_message'          => __( 'Message', 'wp-simple-firewall' ),
+				'at_username'         => __( 'Username', 'wp-simple-firewall' ),
+				'at_category'         => __( 'Category', 'wp-simple-firewall' ),
+				'at_ipaddress'        => __( 'IP Address', 'wp-simple-firewall' ),
+				'at_you'              => __( 'You', 'wp-simple-firewall' ),
+				'at_no_audit_entries' => __( 'There are currently no audit entries this is section.', 'wp-simple-firewall' ),
 			]
 		);
 	}
@@ -280,7 +280,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$aExportItem = [
 			'group_id'    => $this->prefix(),
-			'group_label' => sprintf( _wpsf__( '[%s] Audit Trail Entries' ), $this->getCon()->getHumanName() ),
+			'group_label' => sprintf( __( '[%s] Audit Trail Entries', 'wp-simple-firewall' ), $this->getCon()
+																								   ->getHumanName() ),
 			'item_id'     => $this->prefix( 'audit-trail' ),
 			'data'        => [],
 		];
@@ -346,8 +347,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = [
 			'strings'      => [
-				'title' => _wpsf__( 'Activity Audit Log' ),
-				'sub'   => _wpsf__( 'Track Activity: What, Who, When, Where' ),
+				'title' => __( 'Activity Audit Log', 'wp-simple-firewall' ),
+				'sub'   => __( 'Track Activity: What, Who, When, Where', 'wp-simple-firewall' ),
 			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
@@ -360,27 +361,27 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$aAudit = [];
 			$aNonAudit = [];
 			$this->isAuditShield() ? $aAudit[] = 'Shield' : $aNonAudit[] = 'Shield';
-			$this->isAuditUsers() ? $aAudit[] = _wpsf__( 'users' ) : $aNonAudit[] = _wpsf__( 'users' );
-			$this->isAuditPlugins() ? $aAudit[] = _wpsf__( 'plugins' ) : $aNonAudit[] = _wpsf__( 'plugins' );
-			$this->isAuditThemes() ? $aAudit[] = _wpsf__( 'themes' ) : $aNonAudit[] = _wpsf__( 'themes' );
-			$this->isAuditPosts() ? $aAudit[] = _wpsf__( 'posts' ) : $aNonAudit[] = _wpsf__( 'posts' );
-			$this->isAuditEmails() ? $aAudit[] = _wpsf__( 'emails' ) : $aNonAudit[] = _wpsf__( 'emails' );
+			$this->isAuditUsers() ? $aAudit[] = __( 'users', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'users', 'wp-simple-firewall' );
+			$this->isAuditPlugins() ? $aAudit[] = __( 'plugins', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'plugins', 'wp-simple-firewall' );
+			$this->isAuditThemes() ? $aAudit[] = __( 'themes', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'themes', 'wp-simple-firewall' );
+			$this->isAuditPosts() ? $aAudit[] = __( 'posts', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'posts', 'wp-simple-firewall' );
+			$this->isAuditEmails() ? $aAudit[] = __( 'emails', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'emails', 'wp-simple-firewall' );
 			$this->isAuditWp() ? $aAudit[] = 'WP' : $aNonAudit[] = 'WP';
 
 			if ( empty( $aNonAudit ) ) {
 				$aThis[ 'key_opts' ][ 'audit' ] = [
-					'name'    => _wpsf__( 'Audit Areas' ),
+					'name'    => __( 'Audit Areas', 'wp-simple-firewall' ),
 					'enabled' => true,
-					'summary' => _wpsf__( 'All important events on your site are being logged' ),
+					'summary' => __( 'All important events on your site are being logged', 'wp-simple-firewall' ),
 					'weight'  => 2,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				];
 			}
 			else if ( empty( $aAudit ) ) {
 				$aThis[ 'key_opts' ][ 'audit' ] = [
-					'name'    => _wpsf__( 'Audit Areas' ),
+					'name'    => __( 'Audit Areas', 'wp-simple-firewall' ),
 					'enabled' => false,
-					'summary' => sprintf( _wpsf__( 'No areas are set to be audited: %s' ), implode( ', ', $aAudit ) ),
+					'summary' => sprintf( __( 'No areas are set to be audited: %s', 'wp-simple-firewall' ), implode( ', ', $aAudit ) ),
 					'weight'  => 2,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				];
@@ -394,18 +395,18 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 //					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 //				);
 				$aThis[ 'key_opts' ][ 'nonaudit' ] = [
-					'name'    => _wpsf__( 'Audit Events' ),
+					'name'    => __( 'Audit Events', 'wp-simple-firewall' ),
 					'enabled' => false,
-					'summary' => sprintf( _wpsf__( "Important events aren't being audited: %s" ), implode( ', ', $aNonAudit ) ),
+					'summary' => sprintf( __( "Important events aren't being audited: %s", 'wp-simple-firewall' ), implode( ', ', $aNonAudit ) ),
 					'weight'  => 2,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				];
 			}
 
 			$aThis[ 'key_opts' ][ 'length' ] = [
-				'name'    => _wpsf__( 'Audit Trail' ),
+				'name'    => __( 'Audit Trail', 'wp-simple-firewall' ),
 				'enabled' => true,
-				'summary' => sprintf( _wpsf__( 'Maximum Audit Trail entries limited to %s' ), $this->getMaxEntries() ),
+				'summary' => sprintf( __( 'Maximum Audit Trail entries limited to %s', 'wp-simple-firewall' ), $this->getMaxEntries() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'audit_trail_max_entries' ),
 			];
@@ -426,42 +427,42 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_audit_trail' :
-				$sTitleShort = sprintf( _wpsf__( '%s/%s ' ), _wpsf__( 'On' ), _wpsf__( 'Off' ) );
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( __( '%s/%s ', 'wp-simple-firewall' ), __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Audit Trail' ) ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Audit Trail is designed so you can look back on events and analyse what happened and what may have gone wrong.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Audit Trail', 'wp-simple-firewall' ) ) )
 				];
 				break;
 
 			case 'section_audit_trail_options' :
-				$sTitle = _wpsf__( 'Audit Trail Options' );
+				$sTitle = __( 'Audit Trail Options', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides finer control over the audit trail itself.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the audit trail itself.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = _wpsf__( 'Audit Trail Options' );
+				$sTitleShort = __( 'Audit Trail Options', 'wp-simple-firewall' );
 				break;
 
 			case 'section_enable_audit_contexts' :
-				$sTitle = _wpsf__( 'Enable Audit Areas' );
+				$sTitle = __( 'Enable Audit Areas', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Specify which types of actions on your site are logged.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'These settings are dependent on your requirements.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Specify which types of actions on your site are logged.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = _wpsf__( 'Audit Areas' );
+				$sTitleShort = __( 'Audit Areas', 'wp-simple-firewall' );
 				break;
 
 			case 'section_change_tracking' :
-				$sTitle = _wpsf__( 'Track All Major Changes To Your Site' );
-				$sTitleShort = _wpsf__( 'Change Tracking' );
+				$sTitle = __( 'Track All Major Changes To Your Site', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Change Tracking', 'wp-simple-firewall' );
 				$aData = ( new Shield\ChangeTrack\Snapshot\Collate() )->run();
 				$sResult = (int)( strlen( base64_encode( WP_Http_Encoding::compress( json_encode( $aData ) ) ) )/1024 );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Track significant changes to your site.' ) )
-					.' '.sprintf( '%s - %s', _wpsf__( 'Note' ), _wpsf__( 'This is separate from the Audit Trail.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Considerations' ),
-						_wpsf__( 'Change Tracking uses snapshots that may use take up  lot of data.' )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Track significant changes to your site.', 'wp-simple-firewall' ) )
+					.' '.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( 'This is separate from the Audit Trail.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Considerations', 'wp-simple-firewall' ),
+						__( 'Change Tracking uses snapshots that may use take up  lot of data.', 'wp-simple-firewall' )
 						.' '.sprintf( 'Each snapshot will consume ~%sKB in your database', $sResult )
 					),
 				];
@@ -488,85 +489,85 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		switch ( $sKey ) {
 
 			case 'enable_audit_trail' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				break;
 
 			case 'audit_trail_max_entries' :
-				$sName = _wpsf__( 'Max Trail Length' );
-				$sSummary = _wpsf__( 'Maximum Audit Trail Length To Keep' );
-				$sDescription = _wpsf__( 'Automatically remove any audit trail entries when this limit is exceeded.' )
-								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Default' ), $this->getDefaultMaxEntries() );
+				$sName = __( 'Max Trail Length', 'wp-simple-firewall' );
+				$sSummary = __( 'Maximum Audit Trail Length To Keep', 'wp-simple-firewall' );
+				$sDescription = __( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $this->getDefaultMaxEntries() );
 				break;
 
 			case 'audit_trail_auto_clean' :
-				$sName = _wpsf__( 'Auto Clean' );
-				$sSummary = _wpsf__( 'Automatically Purge Audit Log Entries Older Than The Set Number Of Days' );
-				$sDescription = _wpsf__( 'Events older than the number of days specified will be automatically cleaned from the database.' );
+				$sName = __( 'Auto Clean', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Purge Audit Log Entries Older Than The Set Number Of Days', 'wp-simple-firewall' );
+				$sDescription = __( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_audit_context_users' :
-				$sName = _wpsf__( 'Users And Logins' );
-				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), _wpsf__( 'Users And Logins' ) );
-				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), _wpsf__( 'Users And Logins' ) );
+				$sName = __( 'Users And Logins', 'wp-simple-firewall' );
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Users And Logins', 'wp-simple-firewall' ) );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'Users And Logins', 'wp-simple-firewall' ) );
 				break;
 
 			case 'enable_audit_context_plugins' :
-				$sName = _wpsf__( 'Plugins' );
-				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), _wpsf__( 'Plugins' ) );
-				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), _wpsf__( 'WordPress Plugins' ) );
+				$sName = __( 'Plugins', 'wp-simple-firewall' );
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Plugins', 'wp-simple-firewall' ) );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'WordPress Plugins', 'wp-simple-firewall' ) );
 				break;
 
 			case 'enable_audit_context_themes' :
-				$sName = _wpsf__( 'Themes' );
-				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), _wpsf__( 'Themes' ) );
-				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), _wpsf__( 'WordPress Themes' ) );
+				$sName = __( 'Themes', 'wp-simple-firewall' );
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'WordPress Themes', 'wp-simple-firewall' ) );
 				break;
 
 			case 'enable_audit_context_posts' :
-				$sName = _wpsf__( 'Posts And Pages' );
-				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), _wpsf__( 'Posts And Pages' ) );
-				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), _wpsf__( 'Editing and publishing of posts and pages' ) );
+				$sName = __( 'Posts And Pages', 'wp-simple-firewall' );
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Posts And Pages', 'wp-simple-firewall' ) );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'Editing and publishing of posts and pages', 'wp-simple-firewall' ) );
 				break;
 
 			case 'enable_audit_context_wordpress' :
-				$sName = _wpsf__( 'WordPress And Settings' );
-				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), _wpsf__( 'WordPress And Settings' ) );
-				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), _wpsf__( 'WordPress upgrades and changes to particular WordPress settings' ) );
+				$sName = __( 'WordPress And Settings', 'wp-simple-firewall' );
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'WordPress And Settings', 'wp-simple-firewall' ) );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'WordPress upgrades and changes to particular WordPress settings', 'wp-simple-firewall' ) );
 				break;
 
 			case 'enable_audit_context_emails' :
-				$sName = _wpsf__( 'Emails' );
-				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), _wpsf__( 'Emails' ) );
-				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), _wpsf__( 'Email Sending' ) );
+				$sName = __( 'Emails', 'wp-simple-firewall' );
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), __( 'Emails', 'wp-simple-firewall' ) );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), __( 'Email Sending', 'wp-simple-firewall' ) );
 				break;
 
 			case 'enable_audit_context_wpsf' :
 				$sName = $oCon->getHumanName();
-				$sSummary = sprintf( _wpsf__( 'Enable Audit Context - %s' ), $oCon->getHumanName() );
-				$sDescription = sprintf( _wpsf__( 'When this context is enabled, the audit trail will track activity relating to: %s' ), $oCon->getHumanName() );
+				$sSummary = sprintf( __( 'Enable Audit Context - %s', 'wp-simple-firewall' ), $oCon->getHumanName() );
+				$sDescription = sprintf( __( 'When this context is enabled, the audit trail will track activity relating to: %s', 'wp-simple-firewall' ), $oCon->getHumanName() );
 				break;
 
 			case 'enable_change_tracking' :
-				$sName = _wpsf__( 'Site Change Tracking' );
-				$sSummary = _wpsf__( 'Track Major Changes To Your Site' );
-				$sDescription = _wpsf__( 'Tracking major changes to your site will help you monitor and catch malicious damage.' );
+				$sName = __( 'Site Change Tracking', 'wp-simple-firewall' );
+				$sSummary = __( 'Track Major Changes To Your Site', 'wp-simple-firewall' );
+				$sDescription = __( 'Tracking major changes to your site will help you monitor and catch malicious damage.', 'wp-simple-firewall' );
 				break;
 
 			case 'ct_snapshots_per_week' :
-				$sName = _wpsf__( 'Snapshot Per Week' );
-				$sSummary = _wpsf__( 'Number Of Snapshots To Take Per Week' );
-				$sDescription = _wpsf__( 'The number of snapshots to take per week. For daily snapshots, select 7.' )
-								.'<br />'._wpsf__( 'Data storage in your database increases with the number of snapshots.' )
-								.'<br />'._wpsf__( 'However, increased snapshots provide more granular information on when major site changes occurred.' );
+				$sName = __( 'Snapshot Per Week', 'wp-simple-firewall' );
+				$sSummary = __( 'Number Of Snapshots To Take Per Week', 'wp-simple-firewall' );
+				$sDescription = __( 'The number of snapshots to take per week. For daily snapshots, select 7.', 'wp-simple-firewall' )
+								.'<br />'.__( 'Data storage in your database increases with the number of snapshots.', 'wp-simple-firewall' )
+								.'<br />'.__( 'However, increased snapshots provide more granular information on when major site changes occurred.', 'wp-simple-firewall' );
 				break;
 
 			case 'ct_max_snapshots' :
-				$sName = _wpsf__( 'Max Snapshots' );
-				$sSummary = _wpsf__( 'Maximum Number Of Snapshots To Retain' );
-				$sDescription = _wpsf__( 'The more snapshots you retain, the further back you can look at changes over your site.' )
-								.'<br />'._wpsf__( 'You will need to consider the implications to database storage requirements.' );
+				$sName = __( 'Max Snapshots', 'wp-simple-firewall' );
+				$sSummary = __( 'Maximum Number Of Snapshots To Retain', 'wp-simple-firewall' );
+				$sDescription = __( 'The more snapshots you retain, the further back you can look at changes over your site.', 'wp-simple-firewall' )
+								.'<br />'.__( 'You will need to consider the implications to database storage requirements.', 'wp-simple-firewall' );
 				break;
 
 			default:

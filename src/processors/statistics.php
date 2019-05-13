@@ -190,17 +190,17 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		$aKeyStats = [
-			'comments'          => [ _wpsf__( 'Comment Blocks' ), $nTotalCommentSpamBlocked ],
-			'firewall'          => [ _wpsf__( 'Firewall Blocks' ), $nTotalFirewallBlocked ],
-			'login_fail'        => [ _wpsf__( 'Login Blocks' ), $nTotalLoginBlocked ],
-			'login_verified'    => [ _wpsf__( 'Login Verified' ), $nTotalLoginVerified ],
-			'session_start'     => [ _wpsf__( 'User Sessions' ), $nTotalUserSessionsStarted ],
-			'ip_killed'         => [ _wpsf__( 'IP Auto Black-Listed' ), $nTotalConnectionKilled ],
-			'ip_transgressions' => [ _wpsf__( 'Total Transgressions' ), $nTotalTransgressions ],
+			'comments'          => [ __( 'Comment Blocks', 'wp-simple-firewall' ), $nTotalCommentSpamBlocked ],
+			'firewall'          => [ __( 'Firewall Blocks', 'wp-simple-firewall' ), $nTotalFirewallBlocked ],
+			'login_fail'        => [ __( 'Login Blocks', 'wp-simple-firewall' ), $nTotalLoginBlocked ],
+			'login_verified'    => [ __( 'Login Verified', 'wp-simple-firewall' ), $nTotalLoginVerified ],
+			'session_start'     => [ __( 'User Sessions', 'wp-simple-firewall' ), $nTotalUserSessionsStarted ],
+			'ip_killed'         => [ __( 'IP Auto Black-Listed', 'wp-simple-firewall' ), $nTotalConnectionKilled ],
+			'ip_transgressions' => [ __( 'Total Transgressions', 'wp-simple-firewall' ), $nTotalTransgressions ],
 		];
 
 		$aDisplayData = [
-			'sHeading'  => sprintf( _wpsf__( '%s Statistics' ), $this->getCon()->getHumanName() ),
+			'sHeading'  => sprintf( __( '%s Statistics', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
 			'aAllStats' => $aAllStats,
 			'aKeyStats' => $aKeyStats,
 		];

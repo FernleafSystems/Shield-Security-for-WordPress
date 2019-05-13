@@ -158,28 +158,28 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
 				],
 				'strings' => [
-					'go_to_settings'    => _wpsf__( 'Settings' ),
-					'on'                => _wpsf__( 'On' ),
-					'off'               => _wpsf__( 'Off' ),
-					'more_info'         => _wpsf__( 'Info' ),
-					'blog'              => _wpsf__( 'Blog' ),
-					'save_all_settings' => _wpsf__( 'Save All Settings' ),
-					'options_title'     => _wpsf__( 'Options' ),
-					'options_summary'   => _wpsf__( 'Configure Module' ),
-					'actions_title'     => _wpsf__( 'Actions and Info' ),
-					'actions_summary'   => _wpsf__( 'Perform actions for this module' ),
-					'help_title'        => _wpsf__( 'Help' ),
-					'help_summary'      => _wpsf__( 'Learn More' ),
-					'supply_password'   => _wpsf__( 'Supply Password' ),
-					'confirm_password'  => _wpsf__( 'Confirm Password' ),
+					'go_to_settings'    => __( 'Settings', 'wp-simple-firewall' ),
+					'on'                => __( 'On', 'wp-simple-firewall' ),
+					'off'               => __( 'Off', 'wp-simple-firewall' ),
+					'more_info'         => __( 'Info', 'wp-simple-firewall' ),
+					'blog'              => __( 'Blog', 'wp-simple-firewall' ),
+					'save_all_settings' => __( 'Save All Settings', 'wp-simple-firewall' ),
+					'options_title'     => __( 'Options', 'wp-simple-firewall' ),
+					'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
+					'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
+					'actions_summary'   => __( 'Perform actions for this module', 'wp-simple-firewall' ),
+					'help_title'        => __( 'Help', 'wp-simple-firewall' ),
+					'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
+					'supply_password'   => __( 'Supply Password', 'wp-simple-firewall' ),
+					'confirm_password'  => __( 'Confirm Password', 'wp-simple-firewall' ),
 
-					'aar_title'                    => _wpsf__( 'Plugin Access Restricted' ),
-					'aar_what_should_you_enter'    => _wpsf__( 'This security plugin is restricted to administrators with the Security Access Key.' ),
-					'aar_must_supply_key_first'    => _wpsf__( 'Please provide the Security Access Key to manage this plugin.' ),
-					'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
-					'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
-					'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
-					'aar_forget_key'               => _wpsf__( "Forgotten Key" ),
+					'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
+					'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),
+					'aar_must_supply_key_first'    => __( 'Please provide the Security Access Key to manage this plugin.', 'wp-simple-firewall' ),
+					'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the access key.', 'wp-simple-firewall' ),
+					'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
+					'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
+					'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' ),
 				],
 				'flags'   => [
 					'has_session' => $this->hasSession()
@@ -201,29 +201,30 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			[
-				'back_to_dashboard' => sprintf( _wpsf__( 'Back To %s Dashboard' ), $this->getCon()->getHumanName() ),
-				'go_to_settings'    => _wpsf__( 'Settings' ),
-				'on'                => _wpsf__( 'On' ),
-				'off'               => _wpsf__( 'Off' ),
-				'more_info'         => _wpsf__( 'Info' ),
-				'blog'              => _wpsf__( 'Blog' ),
-				'save_all_settings' => _wpsf__( 'Save All Settings' ),
-				'options_title'     => _wpsf__( 'Options' ),
-				'options_summary'   => _wpsf__( 'Configure Module' ),
-				'actions_title'     => _wpsf__( 'Actions and Info' ),
-				'actions_summary'   => _wpsf__( 'Perform actions for this module' ),
-				'help_title'        => _wpsf__( 'Help' ),
-				'help_summary'      => _wpsf__( 'Learn More' ),
+				'back_to_dashboard' => sprintf( __( 'Back To %s Dashboard', 'wp-simple-firewall' ), $this->getCon()
+																										 ->getHumanName() ),
+				'go_to_settings'    => __( 'Settings', 'wp-simple-firewall' ),
+				'on'                => __( 'On', 'wp-simple-firewall' ),
+				'off'               => __( 'Off', 'wp-simple-firewall' ),
+				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
+				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
+				'save_all_settings' => __( 'Save All Settings', 'wp-simple-firewall' ),
+				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
+				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
+				'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
+				'actions_summary'   => __( 'Perform actions for this module', 'wp-simple-firewall' ),
+				'help_title'        => __( 'Help', 'wp-simple-firewall' ),
+				'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
-					'https://icwp.io/shieldgoprofeature', _wpsf__( 'Please upgrade to Pro to control this option' ) ),
+					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
 
-				'aar_title'                    => _wpsf__( 'Plugin Access Restricted' ),
-				'aar_what_should_you_enter'    => _wpsf__( 'This security plugin is restricted to administrators with the Security Access Key.' ),
-				'aar_must_supply_key_first'    => _wpsf__( 'Please provide the Security Access Key to manage this plugin.' ),
-				'aar_to_manage_must_enter_key' => _wpsf__( 'To manage this plugin you must enter the access key.' ),
-				'aar_enter_access_key'         => _wpsf__( 'Enter Access Key' ),
-				'aar_submit_access_key'        => _wpsf__( 'Submit Security Admin Key' ),
-				'aar_forget_key'               => _wpsf__( "Forgotten Key" )
+				'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
+				'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),
+				'aar_must_supply_key_first'    => __( 'Please provide the Security Access Key to manage this plugin.', 'wp-simple-firewall' ),
+				'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the access key.', 'wp-simple-firewall' ),
+				'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
+				'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
+				'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' )
 			]
 		);
 	}
@@ -237,8 +238,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	protected function getTranslatedString( $sKey, $sDefault ) {
 		$aStrings = [
-			'nonce_failed_empty'    => _wpsf__( 'Nonce security checking failed - the nonce value was empty.' ),
-			'nonce_failed_supplied' => _wpsf__( 'Nonce security checking failed - the nonce supplied was "%s".' ),
+			'nonce_failed_empty'    => __( 'Nonce security checking failed - the nonce value was empty.', 'wp-simple-firewall' ),
+			'nonce_failed_supplied' => __( 'Nonce security checking failed - the nonce supplied was "%s".', 'wp-simple-firewall' ),
 		];
 		return ( isset( $aStrings[ $sKey ] ) ? $aStrings[ $sKey ] : $sDefault );
 	}
@@ -347,9 +348,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function getModDisabledInsight() {
 		return [
-			'name'    => _wpsf__( 'Module Disabled' ),
+			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
 			'enabled' => false,
-			'summary' => _wpsf__( 'All features of this module are completely disabled' ),
+			'summary' => __( 'All features of this module are completely disabled', 'wp-simple-firewall' ),
 			'weight'  => 2,
 			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
 		];
@@ -365,12 +366,12 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_user_messages' :
-				$sTitle = _wpsf__( 'User Messages' );
-				$sTitleShort = _wpsf__( 'Messages' );
+				$sTitle = __( 'User Messages', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Messages', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Customize the messages displayed to the user.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use this section if you need to communicate to the user in a particular manner.' ) ),
-					sprintf( '%s: %s', _wpsf__( 'Hint' ), sprintf( _wpsf__( 'To reset any message to its default, enter the text exactly: %s' ), 'default' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Customize the messages displayed to the user.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use this section if you need to communicate to the user in a particular manner.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Hint', 'wp-simple-firewall' ), sprintf( __( 'To reset any message to its default, enter the text exactly: %s', 'wp-simple-firewall' ), 'default' ) )
 				];
 				break;
 

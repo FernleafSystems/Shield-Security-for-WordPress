@@ -19,6 +19,7 @@ class TrackXmlRpc extends Base {
 	 * @return $this
 	 */
 	protected function getAuditMsg() {
-		return sprintf( _wpsf__( 'Access to XML-RPC detected at "%s".' ), Services::Request()->getPath() );
+		return sprintf( __( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' ), Services::Request()
+																								   ->getPath() );
 	}
 }
