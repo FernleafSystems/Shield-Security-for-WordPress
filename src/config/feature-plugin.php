@@ -52,7 +52,8 @@
       "valid_admin": true,
       "delay_days":  15,
       "type":        "promo",
-      "twig":        true
+      "twig":        true,
+      "drip_form_id": "250437573"
     },
     "rate-plugin":                {
       "id":          "rate-plugin",

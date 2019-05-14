@@ -237,26 +237,30 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
-					'title'          => 'Come and Join Us!',
 					'yes'            => "Yes please! I'd love to join in and learn more",
 					'no'             => "No thanks, I'm not interested in such groups",
 					'your_name'      => __( 'Your Name', 'wp-simple-firewall' ),
 					'your_email'     => __( 'Your Email', 'wp-simple-firewall' ),
+					'signup'         => __( 'Sign-Up', 'wp-simple-firewall' ),
 					'dismiss'        => "No thanks, I'm not interested in such informative groups",
-					'summary'        => sprintf( 'The %s security team is running an initiative to raise awareness of WordPress Security
-				and to provide further help with the %s security plugin. Get Involved here:', $sName, $sName ),
+					'summary'        => sprintf( 'The %s team is helping raise awareness of WP Security issues
+				and to provide guidance with the %s plugin.', $sName, $sName ),
 					'privacy_policy' => sprintf(
 						'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
 						$this->getMod()->getDef( 'href_privacy_policy' )
 					),
+					'consent'        => sprintf(
+						__( 'I agree to Ts & Cs', 'wp-simple-firewall' ),
+					)
 				],
 				'hrefs'             => [
 					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
 				],
 				'install_days'      => $nDays,
 				'vars'              => [
-					'name'       => $oUser->first_name,
-					'user_email' => $oUser->user_email
+					'name'         => $oUser->first_name,
+					'user_email'   => $oUser->user_email,
+					'drip_form_id' => $aNoticeAttributes[ 'drip_form_id' ]
 				]
 			];
 			$this->insertAdminNotice( $aRenderData );
