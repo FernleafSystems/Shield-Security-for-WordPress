@@ -249,9 +249,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 						'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
 						$this->getMod()->getDef( 'href_privacy_policy' )
 					),
-					'consent'        => sprintf(
-						__( 'I agree to Ts & Cs', 'wp-simple-firewall' ),
-					)
+					'consent'        => sprintf( __( 'I agree to Ts & Cs', 'wp-simple-firewall' ) )
 				],
 				'hrefs'             => [
 					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
