@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
+		parent::doPostConstruction();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
 		$oP = $this->getCon()->getModule( 'plugin' );
 		$nActivatedAt = $oP->getActivatedAt();
@@ -234,6 +235,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$aTopNav = [
+			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
 			'insights'     => __( 'Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
 			'ips'          => __( 'IP Lists', 'wp-simple-firewall' ),
@@ -242,7 +244,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
-			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {

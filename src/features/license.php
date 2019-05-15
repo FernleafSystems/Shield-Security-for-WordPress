@@ -5,13 +5,11 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doPostConstruction() {
-		if ( $this->isThisModulePage() ) {
-			Services::Response()->redirect(
-				$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
-				[ 'inav' => 'license' ]
-			);
-		}
+	protected function redirectToInsightsSubPage() {
+		Services::Response()->redirect(
+			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+			[ 'inav' => 'license' ]
+		);
 	}
 
 	protected function setupCustomHooks() {

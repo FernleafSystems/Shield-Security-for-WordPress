@@ -460,6 +460,7 @@
       {
         "slug":          "insights",
         "storage_key":   "insights",
+        "load_priority": 1,
         "menu_priority": 5
       },
       {

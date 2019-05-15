@@ -43,6 +43,27 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * A action added to WordPress 'init' hook
+	 */
+	public function onWpInit() {
+		parent::onWpInit();
+		if ( $this->isThisModulePage() && ( $this->getSlug() != 'insights' ) ) {
+			$this->redirectToInsightsSubPage();
+		}
+	}
+
+	protected function redirectToInsightsSubPage() {
+		Services::Response()->redirect(
+			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+			[
+				'inav'   => 'settings',
+				'subnav' => $this->getSlug()
+			],
+			true, false
+		);
+	}
+
+	/**
 	 * @return int
 	 */
 	protected function getSecAdminTimeLeft() {

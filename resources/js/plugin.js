@@ -49,6 +49,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 
 let iCWP_WPSF_OptsPageRender = new function () {
 	this.renderForm = function ( aAjaxReqData ) {
+		iCWP_WPSF_BodyOverlay.show();
 		jQuery.post( ajaxurl, aAjaxReqData,
 			function ( oResponse ) {
 				jQuery( '#ColumnOptions' ).html( oResponse.data.html );
@@ -57,6 +58,7 @@ let iCWP_WPSF_OptsPageRender = new function () {
 			function () {
 			}
 		).always( function () {
+			iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
 	};
