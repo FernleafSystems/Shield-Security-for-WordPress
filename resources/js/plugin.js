@@ -52,7 +52,7 @@ let iCWP_WPSF_OptsPageRender = new function () {
 		iCWP_WPSF_BodyOverlay.show();
 		jQuery.post( ajaxurl, aAjaxReqData,
 			function ( oResponse ) {
-				jQuery( '#ColumnOptions' ).html( oResponse.data.html );
+				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html );
 			}
 		).fail(
 			function () {
@@ -91,6 +91,7 @@ iCWP_WPSF_Toaster.initialise();
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	var bRequestCurrentlyRunning = false;
+	var aAjaxReqParams = icwp_wpsf_vars_base.ajax.mod_options;
 
 	this.submit = function ( sMessage, bSuccess ) {
 		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
@@ -99,6 +100,10 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			$oDiv.fadeOut( 5000 );
 			$oDiv.remove();
 		}, 4000 );
+	};
+
+	this.updateAjaxReqParams = function ( aParams ) {
+		aAjaxReqParams = aParams;
 	};
 
 	/**
@@ -134,7 +139,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			 * for patterns within them.
 			 */
 			var aReq = jQuery.extend(
-				icwp_wpsf_vars_base.ajax.mod_options,
+				aAjaxReqParams,
 				{
 					'form_params': Base64.encode( $oForm.serialize() ),
 					'enc_params': 'b64'
@@ -158,7 +163,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				function () {
 					iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
 					aReq = jQuery.extend(
-						icwp_wpsf_vars_base.ajax.mod_options,
+						aAjaxReqParams,
 						{
 							'form_params': Base64.encode( LZString.compress( $oForm.serialize() ) ),
 							'enc_params': 'lz-string'

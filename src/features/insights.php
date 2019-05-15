@@ -193,6 +193,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			case 'settings':
 				$aData = [
 					'ajax' => [
+						'mod_options'          => $oCon->getModule( Services::Request()->query( 'subnav' ) )
+													   ->getAjaxActionData( 'mod_options', true ),
 						'mod_opts_form_render' => $oCon->getModule( Services::Request()->query( 'subnav' ) )
 													   ->getAjaxActionData( 'mod_opts_form_render', true ),
 					],

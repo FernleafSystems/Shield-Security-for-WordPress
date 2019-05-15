@@ -2,7 +2,9 @@
 
 {% block page_main %}
 	<div class="row" id="ModulePageTopRow">
-		<div class="col" id="ColumnOptions"> Loading ... </div>
+		<div class="col" id="ColumnOptions">
+			<div class="content-options"> Loading ... </div>
+		</div>
 		<div class="col-1 modules smoothwidth" id="ColumnModules">
 
 			<div class="nav flex-column">
@@ -21,6 +23,7 @@
 	</div>
 	<script>
 		iCWP_WPSF_OptsPageRender.renderForm( {{ ajax.mod_opts_form_render|raw }} );
+		iCWP_WPSF_OptionsFormSubmit.updateAjaxReqParams( {{ ajax.mod_options|raw }} );
 
 		jQuery( 'a.nav-link.module' ).tooltip();
 		jQuery( 'span.icwp-pro-tooltip' ).tooltip( {
