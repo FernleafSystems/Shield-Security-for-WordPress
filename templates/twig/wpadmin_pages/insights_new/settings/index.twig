@@ -5,7 +5,7 @@
 		<div class="col-1 modules smoothwidth" id="ColumnModules">
 
 			<div class="nav flex-column">
-				{% for mod_summary in opt_section.summary %}
+				{% for mod_summary in aSummaryData %}
 					<a class="nav-link module {% if mod_summary.active %}active{% endif %}
 					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"
 					   id="tab-{{ mod_summary.slug }}"
@@ -18,10 +18,12 @@
 			</div>
 		</div>
 		<div class="col" id="ColumnOptions">
-			options
+
 		</div>
 	</div>
 	<script>
+		iCWP_WPSF_OptsPageRender.renderForm( {{ ajax.mod_opts_form_render|raw }} );
+
 		jQuery( 'a.nav-link.module' ).tooltip();
 		jQuery( 'span.icwp-pro-tooltip' ).tooltip( {
 			html: true,

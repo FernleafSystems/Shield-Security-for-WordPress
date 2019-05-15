@@ -47,27 +47,20 @@ var iCWP_WPSF_OptionsPages = new function () {
 
 }();
 
-if ( false && typeof icwp_wpsf_vars_base !== 'undefined' ) {
-	var iCWP_WPSF_OptsPageRender = new function () {
-
-		this.initialise = function () {
-			jQuery( document ).ready( function () {
-
-				jQuery.post( ajaxurl, icwp_wpsf_vars_base.ajax.mod_opts_render,
-					function ( oResponse ) {
-						jQuery( '#ContentHolder' ).html( oResponse.data.html );
-					}
-				).fail(
-					function () {
-					}
-				).always( function () {
-					}
-				);
-			} );
-		};
-	}();
-	iCWP_WPSF_OptsPageRender.initialise();
-}
+let iCWP_WPSF_OptsPageRender = new function () {
+	this.renderForm = function ( aAjaxReqData ) {
+		jQuery.post( ajaxurl, aAjaxReqData,
+			function ( oResponse ) {
+				jQuery( '#ColumnOptions' ).html( oResponse.data.html );
+			}
+		).fail(
+			function () {
+			}
+		).always( function () {
+			}
+		);
+	};
+}();
 
 var iCWP_WPSF_Toaster = new function () {
 

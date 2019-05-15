@@ -163,8 +163,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( Services::Request()->request( 'exec' ) ) {
 
-				case 'mod_opts_render':
-					$aAjaxResponse = $this->ajaxExec_ModOptionsRender();
+				case 'mod_opts_form_render':
+					$aAjaxResponse = $this->ajaxExec_ModOptionsFormRender();
 					break;
 
 				case 'mod_options':
@@ -216,7 +216,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sEncoding
 	 * @return array
 	 */
-	private function getAjaxFormParams( $sEncoding = 'none' ) {
+	protected function getAjaxFormParams( $sEncoding = 'none' ) {
 		$oReq = Services::Request();
 		$aFormParams = [];
 		$sRaw = $oReq->post( 'form_params', '' );
@@ -644,7 +644,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function addModuleSummaryData( $aSummaryData ) {
 		if ( $this->getIfShowModuleLink() ) {
-			$aSummaryData[] = $this->buildSummaryData();
+			$aSummaryData[ $this->getModSlug( false ) ] = $this->buildSummaryData();
 		}
 		return $aSummaryData;
 	}
@@ -684,9 +684,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'   => $aSections,
+			//			'sections'   => $aSections,
 		];
-		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
+//		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
 			'%s: %s',
 			$aSum[ 'name' ],
@@ -1168,17 +1168,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_ModOptionsRender() {
-		if ( $this->canDisplayOptionsForm() ) {
-			$sContent = $this->renderModulePage();
-		}
-		else {
-			$sContent = $this->renderRestrictedPage();
-		}
-
+	private function ajaxExec_ModOptionsFormRender() {
 		return [
 			'success' => true,
-			'html'    => $sContent,
+			'html'    => $this->renderOptionsForm(),
 			'message' => 'loaded'
 		];
 	}
@@ -1718,8 +1711,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'icwp_wpsf_vars_base',
 				[
 					'ajax' => [
-						'mod_options'     => $this->getAjaxActionData( 'mod_options' ),
-						'mod_opts_render' => $this->getAjaxActionData( 'mod_opts_render' ),
+						'mod_options'          => $this->getAjaxActionData( 'mod_options' ),
+						'mod_opts_form_render' => $this->getAjaxActionData( 'mod_opts_form_render' ),
 					]
 				]
 			);

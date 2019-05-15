@@ -46,7 +46,7 @@ body {
 	line-height: 10px;
 	letter-spacing: -0.5px;
 }
-.icwp-options-page .form-actions {
+#ColumnOptions .form-actions {
 	background-color: #d8d8d8;
 	border: 0 none;
 	margin: 0;
@@ -61,7 +61,10 @@ body {
 	box-shadow: -2px 6px 2px rgba(0, 0, 0, 0.3);
 	border-radius: 0;
 }
-.icwp-options-page .form-actions .btn {
+#ColumnOptions form {
+	margin-bottom: 50px;
+}
+#ColumnOptions .form-actions .btn {
 	padding: 16px 40px;
 }
 table.table-audit_trail {
@@ -657,11 +660,11 @@ input:checked + .icwp-slider:before {
 /** NEW FORMS **/
 
 #wpwrap {
-	background-color: #e4e4e4;
+	background-color: #f1f1f1;
 }
 #wpcontent,
 #wpbody-content {
-	background-color: #e4e4e4;
+	background-color: #f1f1f1;
 }
 #wpfooter {
 }
@@ -684,14 +687,10 @@ input:checked + .icwp-slider:before {
 	left: 1px;
 }
 #ColumnModules {
-	border-right: 1px solid #cccccc;
 	max-width: 77px;
 	text-align: center;
 }
 #ColumnOptions {
-	background-color: #f1f1f1;
-	border-bottom: 1px solid #cccccc;
-	border-right: 1px solid #cccccc;
 	min-width: 590px; /** prevents col breaking **/
 	margin-bottom: 45px; /** acount for fix save button **/
 }
@@ -934,6 +933,10 @@ th.column-request_info {
 }
 #odp-PageMain {
 	font-size: 13px;
+}
+.odp-outercontainer.icwp-wpsf-insights.settings #odp-PageMain {
+	position: relative;
+	top: 20px;
 }
 .insights_section {
 	margin-top: 20px;

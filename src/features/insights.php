@@ -189,6 +189,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				];
 				break;
 
+			case 'settings':
+				$aData = [
+					'ajax' => [
+						'mod_opts_form_render' => $oCon->getModule( Services::Request()->query( 'subnav' ) )
+													   ->getAjaxActionData( 'mod_opts_form_render', true ),
+					],
+				];
+				break;
+
 			case 'insights':
 			case 'index':
 			default:
@@ -245,9 +254,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$sName = [
 				'href'   => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
 				'name'   => $sName,
-				'active' => $sKey === $sNavSection
+				'active' => $sKey === $sNavSection,
+				'subnav' => []
 			];
 		} );
+
+		$aSettingsSubNav = [];
+		foreach ( $this->getModulesSummaryData() as $sSlug => $aSubMod ) {
+			$aSettingsSubNav[ $sSlug ] = [
+				'href' => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
+				'name' => $aSubMod[ 'name' ]
+			];
+		}
+		$aTopNav[ 'settings' ][ 'subnav' ] = $aSettingsSubNav;
 
 //		$aTopNav[ 'full_options' ] = [
 //			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),

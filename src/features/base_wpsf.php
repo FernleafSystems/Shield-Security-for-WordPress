@@ -188,7 +188,12 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'aar_forget_key' => $sHelpUrl
 				],
 				'classes' => [
-					'top_container' => $this->isPremium() ? 'is-pro' : 'is-not-pro'
+					'top_container' => implode( ' ', array_filter( [
+						'odp-outercontainer',
+						$this->isPremium() ? 'is-pro' : 'is-not-pro',
+						$this->getModSlug(),
+						Services::Request()->query( 'inav', '' )
+					] ) )
 				],
 			]
 		);
