@@ -2,6 +2,7 @@
 
 {% block page_main %}
 	<div class="row" id="ModulePageTopRow">
+		<div class="col" id="ColumnOptions"> Loading ... </div>
 		<div class="col-1 modules smoothwidth" id="ColumnModules">
 
 			<div class="nav flex-column">
@@ -9,16 +10,13 @@
 					<a class="nav-link module {% if mod_summary.active %}active{% endif %}
 					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"
 					   id="tab-{{ mod_summary.slug }}"
-					   data-toggle="tooltip" data-placement="right" data-trigger="hover"
+					   data-toggle="tooltip" data-placement="left" data-trigger="hover"
 					   title="{{ mod_summary.tooltip }}"
 					   href="{{ mod_summary.href }}" role="tab">
 						<div class="module-icon" id="module-{{ mod_summary.slug }}"></div>
 					</a>
 				{% endfor %}
 			</div>
-		</div>
-		<div class="col" id="ColumnOptions">
-
 		</div>
 	</div>
 	<script>
