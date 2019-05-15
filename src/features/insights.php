@@ -233,6 +233,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
+			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
@@ -248,11 +249,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			];
 		} );
 
-		$aTopNav[ 'full_options' ] = [
-			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),
-			'name'   => __( 'Settings', 'wp-simple-firewall' ),
-			'active' => false
-		];
+//		$aTopNav[ 'full_options' ] = [
+//			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),
+//			'name'   => __( 'Settings', 'wp-simple-firewall' ),
+//			'active' => false
+//		];
 
 		$oDp = Services::DataManipulation();
 		$aData = $oDp->mergeArraysRecursive(

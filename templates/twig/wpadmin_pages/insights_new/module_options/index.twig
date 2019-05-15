@@ -1,9 +1,32 @@
 {% extends '/wpadmin_pages/insights_new/base.twig' %}
 
 {% block page_main %}
-	<div class="row">
-		<div class="col-12 insights_section">
-			asdf
+	<div class="row" id="ModulePageTopRow">
+		<div class="col-1 modules smoothwidth" id="ColumnModules">
+
+			<div class="nav flex-column">
+				{% for mod_summary in opt_section.summary %}
+					<a class="nav-link module {% if mod_summary.active %}active{% endif %}
+					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"
+					   id="tab-{{ mod_summary.slug }}"
+					   data-toggle="tooltip" data-placement="right" data-trigger="hover"
+					   title="{{ mod_summary.tooltip }}"
+					   href="{{ mod_summary.href }}" role="tab">
+						<div class="module-icon" id="module-{{ mod_summary.slug }}"></div>
+					</a>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="col" id="ColumnOptions">
+			options
 		</div>
 	</div>
+	<script>
+		jQuery( 'a.nav-link.module' ).tooltip();
+		jQuery( 'span.icwp-pro-tooltip' ).tooltip( {
+			html: true,
+			title: '{{ strings.go_pro_option }}',
+			delay: { "show": 100, "hide": 1000 }
+		} );
+	</script>
 {% endblock %}
