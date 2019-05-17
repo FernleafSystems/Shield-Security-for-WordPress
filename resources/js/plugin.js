@@ -38,10 +38,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
 
-			jQuery( document ).on( "odp-optsrender",
-				setTimeout( function () {
-					focusTab();
-				}, 750 ) );
+			jQuery( document ).on( "odp-optsrender", focusTab );
 		} );
 	};
 
@@ -59,13 +56,10 @@ let iCWP_WPSF_OptsPageRender = new function () {
 		iCWP_WPSF_BodyOverlay.show();
 		jQuery.post( ajaxurl, aAjaxReqData,
 			function ( oResponse ) {
-				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html );
-				jQuery( document ).trigger( 'odp-optsrender' );
+				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html )
+														   .trigger( 'odp-optsrender' );
 			}
 		).fail(
-			function () {
-			}
-		).success(
 			function () {
 			}
 		).always( function () {
@@ -197,8 +191,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			).always( function () {
 					bRequestCurrentlyRunning = false;
 					setTimeout( function () {
-						location.reload( true );
-					}, 2000 );
+						location.reload();
+					}, 1000 );
 				}
 			);
 		}
