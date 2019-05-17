@@ -540,7 +540,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_user_accounts_management' :
-				$sTitleShort = sprintf( __( '%s/%s ', 'wp-simple-firewall' ), __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
 				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner.', 'wp-simple-firewall' ) ),
