@@ -38,7 +38,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
 
-			// focusTab();
 			jQuery( document ).on( "odp-optsrender",
 				setTimeout( function () {
 					focusTab();
