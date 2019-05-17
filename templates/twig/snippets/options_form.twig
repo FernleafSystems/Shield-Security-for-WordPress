@@ -4,8 +4,9 @@
 	<ul id="ModuleOptionsNav" class="nav nav-tabs" role="tablist" aria-orientation="vertical">
 		{% for opt_section in data.all_options %}
 			<li class="nav-item">
-				<a href="#{{ opt_section.slug }}" class="nav-link {{ opt_section.primary ? 'active' : '' }}"
+				<a href="#tab-{{ opt_section.slug }}" class="nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
+						id="tab-navlink-{{ opt_section.slug }}"
 				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}"
 				>{{ opt_section.title_short }}</a>
 			</li>
@@ -15,7 +16,7 @@
 	<div class="tab-content container-fluid">
 		{% for opt_section in data.all_options %}
 			<div class="tab-pane {{ opt_section.primary ? 'active show primary_section' : 'non_primary_section' }}"
-				 role="tabpanel" id="{{ opt_section.slug }}">
+				 role="tabpanel" id="tab-{{ opt_section.slug }}">
 
 				<div class="row">
 					<div class="col-12"><h5 class="mb-3 mt-3">{{ opt_section.title }}</h5></div>
@@ -211,9 +212,9 @@
 										<li><a href="{{ aOption.link_info }}" target="_blank" class="option-link">
 										{{ strings.more_info }}</a></li>
 										{% if aOption.link_blog %}
-										<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
+											<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
 											{{ strings.blog }}</a></li>
-									{% endif %}
+										{% endif %}
 									{% endif %}
 								</ul>
 

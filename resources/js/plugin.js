@@ -38,11 +38,19 @@ var iCWP_WPSF_OptionsPages = new function () {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
 
-			var sActiveTabHash = window.location.hash;
-			if ( sActiveTabHash ) {
-				jQuery( '#ModuleOptionsNav a[href="' + window.location.hash + '"]' ).tab( 'show' );
-			}
+			// focusTab();
+			jQuery( document ).on( "odp-optsrender",
+				setTimeout( function () {
+					focusTab();
+				}, 750 ) );
 		} );
+	};
+
+	var focusTab = function ( evt ) {
+		var sActiveTabHash = window.location.hash;
+		if ( sActiveTabHash ) {
+			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
+		}
 	};
 
 }();
@@ -53,12 +61,16 @@ let iCWP_WPSF_OptsPageRender = new function () {
 		jQuery.post( ajaxurl, aAjaxReqData,
 			function ( oResponse ) {
 				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html );
+				jQuery( document ).trigger( 'odp-optsrender' );
 			}
 		).fail(
 			function () {
 			}
+		).success(
+			function () {
+			}
 		).always( function () {
-			iCWP_WPSF_BodyOverlay.hide();
+				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
 	};

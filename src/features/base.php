@@ -482,7 +482,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aSec = $this->getOptionsVo()->getPrimarySection();
 			$sSection = $aSec[ 'slug' ];
 		}
-		return $this->getUrl_AdminPage().'#pills-'.$sSection;
+		return $this->getUrl_AdminPage().'#tab-'.$sSection;
 	}
 
 	/**
