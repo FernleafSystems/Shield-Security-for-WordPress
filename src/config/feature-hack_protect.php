@@ -555,7 +555,7 @@
       "default":      0
     },
     {
-      "key":          "insights_last_scan_mal_at",
+      "key":          "notready_insights_last_scan_mal_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
