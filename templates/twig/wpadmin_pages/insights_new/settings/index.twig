@@ -15,7 +15,8 @@
 					   data-toggle="tooltip" data-placement="left" data-trigger="hover"
 					   title="{{ mod_summary.tooltip }}"
 					   href="{{ mod_summary.href }}" role="tab">
-						<div class="module-icon" id="module-{{ mod_summary.slug }}"></div>
+						<div class="module-icon module-icon-{{ mod_summary.slug }}"
+							 id="module-{{ mod_summary.slug }}"></div>
 					</a>
 				{% endfor %}
 			</div>

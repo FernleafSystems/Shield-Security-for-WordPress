@@ -30,6 +30,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$sNavSection = $oReq->query( 'inav' );
+		$sSubNavSection = $oReq->query( 'subnav' );
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
@@ -258,18 +259,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'href'   => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
 				'name'   => $sName,
 				'active' => $sKey === $sNavSection,
-				'subnav' => []
+				'subnavs' => []
 			];
 		} );
 
 		$aSettingsSubNav = [];
 		foreach ( $this->getModulesSummaryData() as $sSlug => $aSubMod ) {
 			$aSettingsSubNav[ $sSlug ] = [
-				'href' => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
-				'name' => $aSubMod[ 'name' ]
+				'href'   => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
+				'name'   => $aSubMod[ 'name' ],
+				'active' => $sSlug === $sSubNavSection,
+				'slug'   => $sSlug
 			];
 		}
-		$aTopNav[ 'settings' ][ 'subnav' ] = $aSettingsSubNav;
+		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 
 //		$aTopNav[ 'full_options' ] = [
 //			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),

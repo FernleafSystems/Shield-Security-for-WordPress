@@ -16,25 +16,29 @@
 				<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
 					<ul class="navbar-nav">
 						{% for navkey,navdata in hrefs.top_nav %}
-							<li class="nav-item">
-							{% if navdata.subnav is empty %}
-								<a class="nav-link{% if navdata.active %} active{% endif %}"
-								   id="NavItem-{{ navkey }}"
-								   href="{{ navdata.href }}">{{ navdata.name }}
-									{% if navdata.active %} <span class="sr-only">(current){% endif %}</a>
+							{% if navdata.subnavs is empty %}
+								<li class="nav-item">
+									<a class="nav-link{% if navdata.active %} active{% endif %}"
+									   id="NavItem-{{ navkey }}"
+									   href="{{ navdata.href }}">{{ navdata.name }}
+										{% if navdata.active %} <span class="sr-only">(current){% endif %}</a>
+								</li>
 							{% else %}
 								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
-									   role="button" aria-haspopup="true" aria-expanded="false">{{ navdata.name }}</a>
+									<a class="nav-link dropdown-toggle{% if navdata.active %} active{% endif %}"
+									   data-toggle="dropdown" href="#" role="button"
+									   aria-haspopup="true" aria-expanded="false">{{ navdata.name }}</a>
 									<div class="dropdown-menu">
-										{% for subnavdata in navdata.subnav %}
-											<a class="dropdown-item" href="{{ subnavdata.href }}"
-											>{{ subnavdata.name }}</a>
+										{% for subnavslug,subnavdata in navdata.subnavs %}
+											<a class="dropdown-item {% if subnavdata.active %} active{% endif %}"
+											   href="{{ subnavdata.href }}">
+												<span class="module-icon module-icon-{{ subnavslug }}"></span>
+												<span class="module-name">{{ subnavdata.name }}</span>
+											</a>
 										{% endfor %}
 									</div>
 								</li>
 							{% endif %}
-							</li>
 						{% endfor %}
 						<div class="nav-item" id="PluginHeadwayChangelog"></div>
 					</ul>
