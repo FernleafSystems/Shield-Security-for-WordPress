@@ -10,10 +10,10 @@ class IpBlack extends IpBase {
 	 */
 	public function column_details( $aItem ) {
 		$aDetails = array(
-			sprintf( '%s: %s', _wpsf__( 'Blocked' ), $aItem[ 'blocked' ] ),
-			sprintf( '%s: %s', _wpsf__( 'Transgressions' ), $aItem[ 'transgressions' ] ),
-			sprintf( '%s: %s', _wpsf__( 'Last Transgression' ), $aItem[ 'last_trans_at' ] ),
-			sprintf( '%s: %s', _wpsf__( 'IP' ), $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ) ),
+			sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), $aItem[ 'blocked' ] ),
+			sprintf( '%s: %s', __( 'Transgressions', 'wp-simple-firewall' ), $aItem[ 'transgressions' ] ),
+			sprintf( '%s: %s', __( 'Last Transgression', 'wp-simple-firewall' ), $aItem[ 'last_trans_at' ] ),
+			sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ) ),
 			$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] )
 		);
 		return implode( '<br/>', $aDetails );

@@ -483,7 +483,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$aEmailContent = [
 			sprintf(
-				_wpsf__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.' ),
+				__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName()
 			),
 			''
@@ -495,7 +495,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bHasPluginUpdates = false;
 			$aTrkdPlugs = $aTrkd[ 'plugins' ];
 
-			$aTempContent[] = _wpsf__( 'Plugins Updated:' );
+			$aTempContent[] = __( 'Plugins Updated:', 'wp-simple-firewall' );
 			foreach ( $aUpdateResults[ 'plugin' ] as $oUpdate ) {
 				$oItem = $oUpdate->item;
 				$bValidUpdate = isset( $oUpdate->result ) && $oUpdate->result && !empty( $oUpdate->name )
@@ -503,7 +503,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 								&& version_compare( $aTrkdPlugs[ $oItem->plugin ], $oUpdate->item->new_version, '<' );
 				if ( $bValidUpdate ) {
 					$aTempContent[] = ' - '.sprintf(
-							_wpsf__( 'Plugin "%s" auto-updated from "%s" to version "%s"' ),
+							__( 'Plugin "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
 							$oUpdate->name, $aTrkdPlugs[ $oItem->plugin ], $oUpdate->item->new_version );
 					$bHasPluginUpdates = true;
 				}
@@ -520,7 +520,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bHasThemesUpdates = false;
 			$aTrkdThemes = $aTrkd[ 'themes' ];
 
-			$aTempContent = [ _wpsf__( 'Themes Updated:' ) ];
+			$aTempContent = [ __( 'Themes Updated:', 'wp-simple-firewall' ) ];
 			foreach ( $aUpdateResults[ 'theme' ] as $oUpdate ) {
 				$oItem = $oUpdate->item;
 				$bValidUpdate = isset( $oUpdate->result ) && $oUpdate->result && !empty( $oUpdate->name )
@@ -528,7 +528,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 								&& version_compare( $aTrkdThemes[ $oItem->theme ], $oItem->new_version, '<' );
 				if ( $bValidUpdate ) {
 					$aTempContent[] = ' - '.sprintf(
-							_wpsf__( 'Theme "%s" auto-updated from "%s" to version "%s"' ),
+							__( 'Theme "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
 							$oUpdate->name, $aTrkdThemes[ $oItem->theme ], $oItem->new_version );
 					$bHasThemesUpdates = true;
 				}
@@ -543,7 +543,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		if ( !empty( $aUpdateResults[ 'core' ] ) && is_array( $aUpdateResults[ 'core' ] ) ) {
 			$bHasCoreUpdates = false;
-			$aTempContent = [ _wpsf__( 'WordPress Core Updated:' ) ];
+			$aTempContent = [ __( 'WordPress Core Updated:', 'wp-simple-firewall' ) ];
 			foreach ( $aUpdateResults[ 'core' ] as $oUpdate ) {
 				if ( isset( $oUpdate->result ) && !is_wp_error( $oUpdate->result ) ) {
 					$aTempContent[] = ' - '.sprintf( 'WordPress was automatically updated to "%s"', $oUpdate->name );
@@ -562,9 +562,9 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			return;
 		}
 
-		$aEmailContent[] = _wpsf__( 'Thank you.' );
+		$aEmailContent[] = __( 'Thank you.', 'wp-simple-firewall' );
 
-		$sTitle = sprintf( _wpsf__( "Notice: %s" ), _wpsf__( "Automatic Updates Completed" ) );
+		$sTitle = sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) );
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap( $this->getOption( 'override_email_address' ), $sTitle, $aEmailContent );
 		die();
@@ -586,7 +586,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				<span class="slider"></span></label>',
 			$bDisabled ? 'disabled' : '',
 			$sPluginBaseFileName,
-			$bDisabled ? _wpsf__( 'Automatic updates for this plugin is controlled by another plugin or setting.' ) : 'no',
+			$bDisabled ? __( 'Automatic updates for this plugin is controlled by another plugin or setting.', 'wp-simple-firewall' ) : 'no',
 			$bIsAutoupdate ? 'checked="checked"' : ''
 		);
 	}

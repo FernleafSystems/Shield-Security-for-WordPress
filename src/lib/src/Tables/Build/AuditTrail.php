@@ -98,7 +98,7 @@ class AuditTrail extends BaseBuild {
 				$aE[ 'message' ] = stripslashes( sanitize_textarea_field( $oEntry->message ) );
 				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 				if ( $oEntry->ip == $sYou ) {
-					$aE[ 'your_ip' ] = '<small> ('._wpsf__( 'You' ).')</small>';
+					$aE[ 'your_ip' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
 				}
 				else {
 					$aE[ 'your_ip' ] = '';

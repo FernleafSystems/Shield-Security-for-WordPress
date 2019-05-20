@@ -90,7 +90,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
 
 		if ( $this->isModuleRequest() ) {
-			add_action( $this->prefix( 'form_submit' ), [ $this, 'handleOptionsSubmit' ] );
 			add_filter( $this->prefix( 'ajaxAction' ), [ $this, 'handleAjax' ] );
 			add_filter( $this->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
 			add_filter( $this->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleNonAuthAjax' ] );
@@ -164,8 +163,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( empty( $aAjaxResponse ) ) {
 			switch ( Services::Request()->request( 'exec' ) ) {
 
-				case 'mod_opts_render':
-					$aAjaxResponse = $this->ajaxExec_ModOptionsRender();
+				case 'mod_opts_form_render':
+					$aAjaxResponse = $this->ajaxExec_ModOptionsFormRender();
 					break;
 
 				case 'mod_options':
@@ -221,6 +220,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oReq = Services::Request();
 		$aFormParams = [];
 		$sRaw = $oReq->post( 'form_params', '' );
+
 		if ( !empty( $sRaw ) ) {
 
 			$sMaybeEncoding = $oReq->post( 'enc_params' );
@@ -482,7 +482,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aSec = $this->getOptionsVo()->getPrimarySection();
 			$sSection = $aSec[ 'slug' ];
 		}
-		return $this->getUrl_AdminPage().'#pills-'.$sSection;
+		return $this->getUrl_AdminPage().'#tab-'.$sSection;
 	}
 
 	/**
@@ -644,7 +644,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function addModuleSummaryData( $aSummaryData ) {
 		if ( $this->getIfShowModuleLink() ) {
-			$aSummaryData[] = $this->buildSummaryData();
+			$aSummaryData[ $this->getModSlug( false ) ] = $this->buildSummaryData();
 		}
 		return $aSummaryData;
 	}
@@ -677,17 +677,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aSections[ $sSlug ] = $this->loadStrings_SectionTitles( $aSection );
 		}
 
-		$aSummary = [
+		$aSum = [
 			'enabled'    => $this->isEnabledForUiSummary(),
 			'active'     => $this->isThisModulePage(),
 			'slug'       => $this->getSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'   => $aSections,
+			//			'sections'   => $aSections,
 		];
-		$aSummary[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSummary );
-		return $aSummary;
+//		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
+		$aSum[ 'tooltip' ] = sprintf(
+			'%s: %s',
+			$aSum[ 'name' ],
+			sprintf( __( 'Module %s', 'wp-simple-firewall' ), ( $aSum[ 'enabled' ] ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' ) ) )
+		);
+		return $aSum;
 	}
 
 	/**
@@ -992,7 +997,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 				$aWarnings = [];
 				if ( !$oOptsVo->isSectionReqsMet( $aSection[ 'slug' ] ) ) {
-					$aWarnings[] = _wpsf__( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.' );
+					$aWarnings[] = __( 'Unfortunately your WordPress and/or PHP versions are too old to support this feature.', 'wp-simple-firewall' );
 				}
 				$aOptions[ $nSectionKey ][ 'warnings' ] = array_merge(
 					$aWarnings,
@@ -1145,24 +1150,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		try {
 			$this->saveOptionsSubmit();
 			$bSuccess = true;
-			$sMessage = sprintf( _wpsf__( '%s Plugin options updated successfully.' ), $sName );
+			$sMessage = sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $sName );
 		}
 		catch ( \Exception $oE ) {
 			$bSuccess = false;
-			$sMessage = sprintf( _wpsf__( 'Failed to update %s plugin options.' ), $sName )
+			$sMessage = sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $sName )
 						.' '.$oE->getMessage();
 		}
-//		$sMessage = sprintf( _wpsf__( 'Failed to update %s options as you are not authenticated with %s as a Security Admin.' ), $sName, $sName );
 
-		try {
-			$sForm = $this->renderOptionsForm();
-		}
-		catch ( \Exception $oE ) {
-			$sForm = 'Error during form render';
-		}
 		return [
 			'success' => $bSuccess,
-			'html'    => $sForm,
+			'html'    => '', //we reload the page
 			'message' => $sMessage
 		];
 	}
@@ -1170,17 +1168,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_ModOptionsRender() {
-		if ( $this->canDisplayOptionsForm() ) {
-			$sContent = $this->renderModulePage();
-		}
-		else {
-			$sContent = $this->renderRestrictedPage();
-		}
-
+	private function ajaxExec_ModOptionsFormRender() {
 		return [
 			'success' => true,
-			'html'    => $sContent,
+			'html'    => $this->renderOptionsForm(),
 			'message' => 'loaded'
 		];
 	}
@@ -1191,28 +1182,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function handleOptionsSubmit() {
-		$bSuccess = $this->verifyFormSubmit();
-		if ( $bSuccess ) {
-			try {
-				$this->saveOptionsSubmit();
-				$this->setSaveUserResponse();
-			}
-			catch ( \Exception $oE ) {
-				$bSuccess = false;
-			}
-		}
-		return $bSuccess;
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	protected function saveOptionsSubmit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new \Exception( _wpsf__( "You don't currently have permission to save settings." ) );
+			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
 		$this->doSaveStandardOptions();
 		$this->doExtraSubmitProcessing();
@@ -1228,7 +1202,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	protected function setSaveUserResponse() {
 		if ( $this->isAdminOptionsPage() ) {
-			$this->setFlashAdminNotice( _wpsf__( 'Plugin options updated successfully.' ) );
+			$this->setFlashAdminNotice( __( 'Plugin options updated successfully.', 'wp-simple-firewall' ) );
 		}
 	}
 
@@ -1281,9 +1255,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	private function doSaveStandardOptions() {
 		$aForm = $this->getAjaxFormParams( 'b64' ); // standard options use b64 and failover to lz-string
-		if ( empty( $aForm[ 'plugin_form_submit' ] ) || $aForm[ 'plugin_form_submit' ] !== 'Y' ) {
-			throw new \Exception( 'Not a standard plugin options form submission' );
-		}
 
 		foreach ( $this->getAllFormOptionsAndTypes() as $sKey => $sOptType ) {
 
@@ -1319,7 +1290,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 					$sConfirm = isset( $aForm[ $sKey.'_confirm' ] ) ? $aForm[ $sKey.'_confirm' ] : null;
 					if ( $sTempValue !== $sConfirm ) {
-						throw new \Exception( _wpsf__( 'Password values do not match.' ) );
+						throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
 					}
 
 					$sOptionValue = md5( $sTempValue );
@@ -1445,7 +1416,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function renderModulePage( $aData = [] ) {
 		// Get Base Data
-		$aData = $this->loadDP()->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
+		$aData = $this->loadDP()
+					  ->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 
 		return $this->renderTemplate( 'index.php', $aData );
@@ -1698,7 +1670,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'snippets/options_form.php';
+			$sTemplate = 'snippets/options_form.twig';
 		}
 		else {
 			$sTemplate = 'subfeature-access_restricted';
@@ -1709,10 +1681,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			return $this->loadRenderer( $this->getCon()->getPath_Templates() )
 						->setTemplate( $sTemplate )
 						->setRenderVars( $this->getBaseDisplayData( true ) )
+						->setTemplateEngineTwig()
 						->render();
 		}
 		catch ( \Exception $oE ) {
-			return 'Error rendering options form';
+			return 'Error rendering options form: '.$oE->getMessage();
 		}
 	}
 
@@ -1738,8 +1711,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'icwp_wpsf_vars_base',
 				[
 					'ajax' => [
-						'mod_options'     => $this->getAjaxActionData( 'mod_options' ),
-						'mod_opts_render' => $this->getAjaxActionData( 'mod_opts_render' ),
+						'mod_options'          => $this->getAjaxActionData( 'mod_options' ),
+						'mod_opts_form_render' => $this->getAjaxActionData( 'mod_opts_form_render' ),
 					]
 				]
 			);

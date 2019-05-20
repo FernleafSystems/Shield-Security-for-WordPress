@@ -18,14 +18,14 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 			// And finally return a WP_Error which will be reflected back to the user.
 			$nRemaining = $oFO->getCooldownInterval() - $this->getSecondsSinceLastLogin();
 			if ( $nRemaining > 0 ) {
-				$sErrorString = _wpsf__( "Request Cooldown in effect." ).' '
+				$sErrorString = __( "Request Cooldown in effect.", 'wp-simple-firewall' ).' '
 								.sprintf(
-									_wpsf__( "You must wait %s seconds before attempting this action again." ),
+									__( "You must wait %s seconds before attempting this action again.", 'wp-simple-firewall' ),
 									$nRemaining
 								);
 
 				$this->setLoginAsFailed( 'login.cooldown.fail' )
-					 ->addToAuditEntry( _wpsf__( 'Cooldown triggered and request (login/register/lost-password) was blocked.' ) );
+					 ->addToAuditEntry( __( 'Cooldown triggered and request (login/register/lost-password) was blocked.', 'wp-simple-firewall' ) );
 				throw new \Exception( $sErrorString );
 			}
 			else {

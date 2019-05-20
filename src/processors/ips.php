@@ -95,10 +95,10 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
-					'title'             => sprintf( _wpsf__( '%s is ignoring you' ), $oCon->getHumanName() ),
-					'your_ip'           => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() ),
-					'notice_message'    => _wpsf__( 'Your IP address is whitelisted and NO features you activate apply to you.' ),
-					'including_message' => _wpsf__( 'Including the hiding the WP Login page.' )
+					'title'             => sprintf( __( '%s is ignoring you', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+					'your_ip'           => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), $this->ip() ),
+					'notice_message'    => __( 'Your IP address is whitelisted and NO features you activate apply to you.', 'wp-simple-firewall' ),
+					'including_message' => __( 'Including the hiding the WP Login page.', 'wp-simple-firewall' )
 				]
 			];
 			$this->insertAdminNotice( $aRenderData );
@@ -168,7 +168,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bKill ) {
-			$sAuditMessage = sprintf( _wpsf__( 'Visitor found on the Black List and their connection was killed.' ), $sIp );
+			$sAuditMessage = sprintf( __( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' ), $sIp );
 			$this->setIfLogRequest( false )// don't log traffic from killed requests
 				 ->doStatIncrement( 'ip.connection.killed' )
 				 ->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
@@ -246,24 +246,24 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
 		$aData = [
 			'strings' => [
-				'title'   => sprintf( _wpsf__( "You've been blocked by the %s plugin" ),
+				'title'   => sprintf( __( "You've been blocked by the %s plugin", 'wp-simple-firewall' ),
 					sprintf( '<a href="%s" target="_blank">%s</a>',
 						$oCon->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
 						$oCon->getHumanName()
 					)
 				),
 				'lines'   => [
-					sprintf( _wpsf__( 'Time remaining on black list: %s' ),
+					sprintf( __( 'Time remaining on black list: %s', 'wp-simple-firewall' ),
 						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
 					),
-					sprintf( _wpsf__( 'You tripped the security plugin defenses a total of %s times making you a suspect.' ), $oFO->getOptTransgressionLimit() ),
-					sprintf( _wpsf__( 'If you believe this to be in error, please contact the site owner and quote your IP address below.' ) ),
+					sprintf( __( 'You tripped the security plugin defenses a total of %s times making you a suspect.', 'wp-simple-firewall' ), $oFO->getOptTransgressionLimit() ),
+					sprintf( __( 'If you believe this to be in error, please contact the site owner and quote your IP address below.', 'wp-simple-firewall' ) ),
 				],
 				'your_ip' => 'Your IP address',
 				'unblock' => [
-					'title'   => _wpsf__( 'Auto-Unblock Your IP' ),
-					'you_can' => _wpsf__( 'You can automatically unblock your IP address by clicking the button below.' ),
-					'button'  => _wpsf__( 'Unblock My IP Address' ),
+					'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
+					'you_can' => __( 'You can automatically unblock your IP address by clicking the button below.', 'wp-simple-firewall' ),
+					'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
 				],
 			],
 			'vars'    => [
@@ -275,11 +275,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 						'sCbName'   => $oLoginFO->getGaspKey(),
 						'sLabel'    => $oLoginFO->getTextImAHuman(),
 						'sAlert'    => $oLoginFO->getTextPleaseCheckBox(),
-						'sMustJs'   => _wpsf__( 'You MUST enable Javascript to be able to login' ),
+						'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
 						'sUniqId'   => $sUniqId,
 						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
 						'strings'   => [
-							'loading' => _wpsf__( 'Loading' )
+							'loading' => __( 'Loading', 'wp-simple-firewall' )
 						]
 					]
 				),
@@ -336,7 +336,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			if ( $bBlock ) {
 				$oFO->setOptInsightsAt( 'last_ip_block_at' );
 				$sAuditMessage = sprintf(
-					_wpsf__( 'IP blocked after incrementing transgressions from %s to %s.' ),
+					__( 'IP blocked after incrementing transgressions from %s to %s.', 'wp-simple-firewall' ),
 					$nCurrentTrans,
 					$oBlackIp->transgressions
 				);
@@ -344,7 +344,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			}
 			else {
 				$sAuditMessage = sprintf(
-					_wpsf__( 'Auto Black List transgression counter was incremented from %s to %s.' ),
+					__( 'Auto Black List transgression counter was incremented from %s to %s.', 'wp-simple-firewall' ),
 					$nCurrentTrans,
 					$oBlackIp->transgressions
 				);
@@ -505,7 +505,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			$oTempIp = $oDbh->getVo();
 			$oTempIp->ip = $sIp;
 			$oTempIp->list = $sList;
-			$oTempIp->label = empty( $sLabel ) ? _wpsf__( 'No Label' ) : trim( $sLabel );
+			$oTempIp->label = empty( $sLabel ) ? __( 'No Label', 'wp-simple-firewall' ) : trim( $sLabel );
 
 			if ( $oDbh->getQueryInserter()->insert( $oTempIp ) ) {
 				/** @var IPs\EntryVO $oIp */

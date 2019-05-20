@@ -85,7 +85,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 			add_filter( 'views_users', function ( $aViews ) use ( $aUserIds ) {
 				$aViews[ 'shield_suspended_users' ] = sprintf( '<a href="%s">%s</a>',
 					add_query_arg( [ 'suspended' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
-					sprintf( '%s (%s)', _wpsf__( 'Suspended' ), count( $aUserIds ) ) );
+					sprintf( '%s (%s)', __( 'Suspended', 'wp-simple-firewall' ), count( $aUserIds ) ) );
 				return $aViews;
 			} );
 
@@ -107,7 +107,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 
 		$sCustomColumnName = $this->prefix( 'col_user_status' );
 		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
-			$aColumns[ $sCustomColumnName ] = _wpsf__( 'User Status' );
+			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
 
 		add_filter( 'manage_users_custom_column',
@@ -119,7 +119,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 						$oMeta = $this->getCon()->getUserMeta( $oUser );
 						if ( $oMeta->hard_suspended_at > 0 ) {
 							$sNewContent = sprintf( '%s: %s',
-								_wpsf__( 'Suspended' ),
+								__( 'Suspended', 'wp-simple-firewall' ),
 								( new \Carbon\Carbon() )->setTimestamp( $oMeta->hard_suspended_at )->diffForHumans()
 							);
 							$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
@@ -147,12 +147,12 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 
 		$aData = [
 			'strings' => [
-				'title'       => _wpsf__( 'Suspend Account' ),
-				'label'       => _wpsf__( 'Check to un/suspend user account' ),
-				'description' => _wpsf__( 'The user can never login while their account is suspended.' ),
-				'cant_manage' => _wpsf__( 'Sorry, suspension for this account may only be managed by a security administrator.' ),
-				'since'       => sprintf( '%s: %s', _wpsf__( 'Suspended' ), Services::WpGeneral()
-																					->getTimeStringForDisplay( $oMeta->hard_suspended_at ) ),
+				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
+				'label'       => __( 'Check to un/suspend user account', 'wp-simple-firewall' ),
+				'description' => __( 'The user can never login while their account is suspended.', 'wp-simple-firewall' ),
+				'cant_manage' => __( 'Sorry, suspension for this account may only be managed by a security administrator.', 'wp-simple-firewall' ),
+				'since'       => sprintf( '%s: %s', __( 'Suspended', 'wp-simple-firewall' ), Services::WpGeneral()
+																									 ->getTimeStringForDisplay( $oMeta->hard_suspended_at ) ),
 			],
 			'flags'   => [
 				'can_manage_suspension' => !$oWpUsers->isUserAdmin( $oUser ) || $oCon->isPluginAdmin(),

@@ -82,7 +82,7 @@ class Traffic extends BaseBuild {
 		$oIpSrv = Services::IP();
 		$sYou = $oIpSrv->getRequestIp();
 
-		$aUsers = [ 0 => _wpsf__( 'No' ) ];
+		$aUsers = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\Traffic\EntryVO $oEntry */
 			$sIp = $oEntry->ip;
@@ -106,7 +106,7 @@ class Traffic extends BaseBuild {
 			$aEntry[ 'trans' ] = sprintf(
 				'<span class="badge badge-%s">%s</span>',
 				$oEntry->trans ? 'danger' : 'info',
-				$oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
+				$oEntry->trans ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 			);
 			$aEntry[ 'ip' ] = $sIp;
 			$aEntry[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
@@ -115,7 +115,7 @@ class Traffic extends BaseBuild {
 			if ( $oEntry->uid > 0 ) {
 				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
 					$oUser = $oWpUsers->getUserById( $oEntry->uid );
-					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) :
+					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? __( 'unknown', 'wp-simple-firewall' ) :
 						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
 							$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
 				}
@@ -124,7 +124,7 @@ class Traffic extends BaseBuild {
 			$oGeoIp = $oGeoIpLookup->lookupIp( $sIp );
 			$sCountryIso = $oGeoIp->getCountryCode();
 			if ( empty( $sCountryIso ) ) {
-				$sCountry = _wpsf__( 'Unknown' );
+				$sCountry = __( 'Unknown', 'wp-simple-firewall' );
 			}
 			else {
 				$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $sCountryIso ) );
@@ -133,20 +133,20 @@ class Traffic extends BaseBuild {
 
 			$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',
 				$oIpSrv->getIpWhoisLookup( $sIp ), $sIp,
-				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('._wpsf__( 'You' ).')</span>' : ''
+				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
 			$aDetails = [
-				sprintf( '%s: %s', _wpsf__( 'IP' ), $sIpLink ),
-				sprintf( '%s: %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] ),
-				sprintf( '%s: %s', _wpsf__( 'Location' ), $sCountry ),
-				esc_html( esc_js( sprintf( '%s - %s', _wpsf__( 'User Agent' ), $oEntry->ua ) ) )
+				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $sIpLink ),
+				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $aUsers[ $oEntry->uid ] ),
+				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $sCountry ),
+				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $oEntry->ua ) ) )
 			];
 			$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
 			$aInfo = [
-				sprintf( '%s: %s', _wpsf__( 'Response' ), $aEntry[ 'code' ] ),
-				sprintf( '%s: %s', _wpsf__( 'Transgression' ), $aEntry[ 'trans' ] ),
+				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $aEntry[ 'code' ] ),
+				sprintf( '%s: %s', __( 'Transgression', 'wp-simple-firewall' ), $aEntry[ 'trans' ] ),
 			];
 			$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
 			$aEntries[ $nKey ] = $aEntry;

@@ -86,7 +86,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$sCaptchaResponse = $this->getRecaptchaResponse();
 
 		if ( empty( $sCaptchaResponse ) ) {
-			throw new \Exception( _wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA was not submitted.' ), 1 );
+			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
 			$oResponse = $this->loadGoogleRecaptcha()
@@ -94,8 +94,9 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 							  ->verify( $sCaptchaResponse, $this->ip() );
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
 				throw new \Exception(
-					_wpsf__( 'Whoops.' ).' '._wpsf__( 'Google reCAPTCHA verification failed.' )
-					.( $this->loadWp()->isAjax() ? ' '._wpsf__( 'Maybe refresh the page and try again.' ) : '' ),
+					__( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' )
+					.( $this->loadWp()
+							->isAjax() ? ' '.__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : '' ),
 					2 );
 			}
 		}

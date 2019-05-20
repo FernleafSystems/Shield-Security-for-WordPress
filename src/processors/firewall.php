@@ -56,7 +56,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$bPerformScan = false;
 		}
 		else if ( empty( $sPath ) ) {
-			$sAuditMessage = sprintf( _wpsf__( 'Skipping firewall checking for this visit: %s.' ), _wpsf__( 'Parsing the URI failed' ) );
+			$sAuditMessage = sprintf( __( 'Skipping firewall checking for this visit: %s.', 'wp-simple-firewall' ), __( 'Parsing the URI failed', 'wp-simple-firewall' ) );
 			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
 			$bPerformScan = false;
 		}
@@ -133,7 +133,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				}
 			}
 			if ( $bFAIL ) {
-				$sAuditMessage = sprintf( _wpsf__( 'Firewall Trigger: %s.' ), _wpsf__( 'EXE File Uploads' ) );
+				$sAuditMessage = sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'EXE File Uploads', 'wp-simple-firewall' ) );
 				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
 				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
 			}
@@ -186,12 +186,12 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 
 		if ( $bFAIL ) {
-			$this->addToFirewallDieMessage( _wpsf__( "Something in the URL, Form or Cookie data wasn't appropriate." ) );
+			$this->addToFirewallDieMessage( __( "Something in the URL, Form or Cookie data wasn't appropriate.", 'wp-simple-firewall' ) );
 
 			$this->aAuditBlockMessage = [
-				sprintf( _wpsf__( 'Firewall Trigger: %s.' ), $this->getFirewallBlockKeyName( $sBlockKey ) ),
-				_wpsf__( 'Page parameter failed firewall check.' ),
-				sprintf( _wpsf__( 'The offending parameter was "%s" with a value of "%s".' ), $sParam, $mValue )
+				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), $this->getFirewallBlockKeyName( $sBlockKey ) ),
+				__( 'Page parameter failed firewall check.', 'wp-simple-firewall' ),
+				sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ), $sParam, $mValue )
 			];
 
 			$this->addToAuditEntry(
@@ -238,19 +238,19 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 		switch ( $oFO->getBlockResponse() ) {
 			case 'redirect_die':
-				$sMessage = _wpsf__( 'Visitor connection was killed with wp_die()' );
+				$sMessage = __( 'Visitor connection was killed with wp_die()', 'wp-simple-firewall' );
 				break;
 			case 'redirect_die_message':
-				$sMessage = _wpsf__( 'Visitor connection was killed with wp_die() and a message' );
+				$sMessage = __( 'Visitor connection was killed with wp_die() and a message', 'wp-simple-firewall' );
 				break;
 			case 'redirect_home':
-				$sMessage = _wpsf__( 'Visitor was sent HOME' );
+				$sMessage = __( 'Visitor was sent HOME', 'wp-simple-firewall' );
 				break;
 			case 'redirect_404':
-				$sMessage = _wpsf__( 'Visitor was sent 404' );
+				$sMessage = __( 'Visitor was sent 404', 'wp-simple-firewall' );
 				break;
 			default:
-				$sMessage = _wpsf__( 'Unknown' );
+				$sMessage = __( 'Unknown', 'wp-simple-firewall' );
 				break;
 		}
 
@@ -258,16 +258,16 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
 			if ( $this->sendBlockEmail( $sRecipient ) ) {
-				$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Firewall Block email alert to: %s' ), $sRecipient ) );
+				$this->addToAuditEntry( sprintf( __( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' ), $sRecipient ) );
 			}
 			else {
-				$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Firewall Block email alert to: %s' ), $sRecipient ) );
+				$this->addToAuditEntry( sprintf( __( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' ), $sRecipient ) );
 			}
 		}
 
 		$oFO->setOptInsightsAt( 'last_firewall_block_at' )
 			->setIpTransgressed();
-		$this->addToAuditEntry( sprintf( _wpsf__( 'Firewall Block Response: %s.' ), $sMessage ) );
+		$this->addToAuditEntry( sprintf( __( 'Firewall Block Response: %s.', 'wp-simple-firewall' ), $sMessage ) );
 	}
 
 	/**
@@ -405,9 +405,10 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$sIp = Services::IP()->getRequestIp();
 			$aMessage = array_merge(
 				[
-					sprintf( _wpsf__( '%s has blocked a page visit to your site.' ), $this->getCon()->getHumanName() ),
-					_wpsf__( 'Log details for this visitor are below:' ),
-					'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIp ),
+					sprintf( __( '%s has blocked a page visit to your site.', 'wp-simple-firewall' ), $this->getCon()
+																										   ->getHumanName() ),
+					__( 'Log details for this visitor are below:', 'wp-simple-firewall' ),
+					'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $sIp ),
 				],
 				array_map(
 					function ( $sLine ) {
@@ -417,12 +418,12 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				),
 				[
 					'',
-					sprintf( _wpsf__( 'You can look up the offending IP Address here: %s' ), 'http://ip-lookup.net/?ip='.$sIp )
+					sprintf( __( 'You can look up the offending IP Address here: %s', 'wp-simple-firewall' ), 'http://ip-lookup.net/?ip='.$sIp )
 				]
 			);
 
 			return $this->getEmailProcessor()
-						->sendEmailWithWrap( $sRecipient, _wpsf__( 'Firewall Block Alert' ), $aMessage );
+						->sendEmailWithWrap( $sRecipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
 		}
 		return true;
 	}
@@ -434,31 +435,31 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	private function getFirewallBlockKeyName( $sBlockKey ) {
 		switch ( $sBlockKey ) {
 			case 'dirtraversal':
-				$sName = _wpsf__( 'Directory Traversal' );
+				$sName = __( 'Directory Traversal', 'wp-simple-firewall' );
 				break;
 			case 'wpterms':
-				$sName = _wpsf__( 'WordPress Terms' );
+				$sName = __( 'WordPress Terms', 'wp-simple-firewall' );
 				break;
 			case 'fieldtruncation':
-				$sName = _wpsf__( 'Field Truncation' );
+				$sName = __( 'Field Truncation', 'wp-simple-firewall' );
 				break;
 			case 'sqlqueries':
-				$sName = _wpsf__( 'SQL Queries' );
+				$sName = __( 'SQL Queries', 'wp-simple-firewall' );
 				break;
 			case 'exefile':
-				$sName = _wpsf__( 'EXE File Uploads' );
+				$sName = __( 'EXE File Uploads', 'wp-simple-firewall' );
 				break;
 			case 'schema':
-				$sName = _wpsf__( 'Leading Schema' );
+				$sName = __( 'Leading Schema', 'wp-simple-firewall' );
 				break;
 			case 'phpcode':
-				$sName = _wpsf__( 'PHP Code' );
+				$sName = __( 'PHP Code', 'wp-simple-firewall' );
 				break;
 			case 'aggressive':
-				$sName = _wpsf__( 'Aggressive Rules' );
+				$sName = __( 'Aggressive Rules', 'wp-simple-firewall' );
 				break;
 			default:
-				$sName = _wpsf__( 'Unknown Rules' );
+				$sName = __( 'Unknown Rules', 'wp-simple-firewall' );
 				break;
 		}
 		return $sName;

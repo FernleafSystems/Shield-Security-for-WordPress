@@ -56,7 +56,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 				'security_admin_verify' => array(
 					'content'        => '',
 					'slug'           => 'security_admin_verify',
-					'title'          => _wpsf__( 'Security Admin' ),
+					'title'          => __( 'Security Admin', 'wp-simple-firewall' ),
 					'security_admin' => false
 				)
 			)
@@ -104,7 +104,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 			$sMessage = 'Security access key was empty.';
 		}
 		else if ( !$oModule->verifyAccessKey( $sKey ) ) {
-			$sMessage = _wpsf__( 'Security Admin Key was not correct.' );
+			$sMessage = __( 'Security Admin Key was not correct.', 'wp-simple-firewall' );
 		}
 		else {
 			$bSuccess = $oModule->setSecurityAdminStatusOnOff( true );

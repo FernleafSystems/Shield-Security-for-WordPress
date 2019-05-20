@@ -33,14 +33,14 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		$oCon = $this->getCon();
 
 		$aLabels = $oCon->getLabels();
-		$sFooter = sprintf( _wpsf__( '%s is provided by %s' ), $oCon->getHumanName(),
+		$sFooter = sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
 			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
 		);
 
 		$aDisplayData = [
-			'sInstallationDays' => sprintf( _wpsf__( 'Days Installed: %s' ), $this->getInstallationDays() ),
+			'sInstallationDays' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $this->getInstallationDays() ),
 			'sFooter'           => $sFooter,
-			'sIpAddress'        => sprintf( _wpsf__( 'Your IP address is: %s' ), $this->ip() )
+			'sIpAddress'        => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), $this->ip() )
 		];
 
 		if ( !is_array( $aContent ) ) {

@@ -34,6 +34,6 @@ class TrackLoginInvalid extends Base {
 	 * @return $this
 	 */
 	protected function getAuditMsg() {
-		return sprintf( _wpsf__( 'Attempted login with invalid user "%s".' ), $this->user_login );
+		return sprintf( __( 'Attempted login with invalid user "%s".', 'wp-simple-firewall' ), $this->user_login );
 	}
 }

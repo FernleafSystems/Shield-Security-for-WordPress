@@ -26,8 +26,8 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 			$aBacktrace = $this->findEmailSenderBacktrace();
 
 			$aMsg = [
-				sprintf( _wpsf__( 'There was an attempt to send an email using the "%s" function.' ), 'wp_mail' ),
-				sprintf( _wpsf__( 'It was sent to "%s" with the subject "%s".' ), $sTo, $aEmail[ 'subject' ] ),
+				sprintf( __( 'There was an attempt to send an email using the "%s" function.', 'wp-simple-firewall' ), 'wp_mail' ),
+				sprintf( __( 'It was sent to "%s" with the subject "%s".', 'wp-simple-firewall' ), $sTo, $aEmail[ 'subject' ] ),
 			];
 
 			// Attempt to capture BCC/CC
@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 
 			// Where was the wp_mail function called from
 			if ( !empty( $aBacktrace ) ) {
-				$aMsg[] = sprintf( _wpsf__( 'The "%s" function was called from the file "%s" on line %s.' ),
+				$aMsg[] = sprintf( __( 'The "%s" function was called from the file "%s" on line %s.', 'wp-simple-firewall' ),
 					'wp_mail',
 					$aBacktrace[ 'file' ],
 					$aBacktrace[ 'line' ]
@@ -57,7 +57,7 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 			}
 		}
 		else {
-			$aMsg[] = sprintf( _wpsf__( 'Attempting to log email, but data was not of the correct type (%s)' ), 'array' );
+			$aMsg[] = sprintf( __( 'Attempting to log email, but data was not of the correct type (%s)', 'wp-simple-firewall' ), 'array' );
 		}
 
 		$this->add( 'emails', 'email_attempt_send', 1, implode( " ", $aMsg ) );

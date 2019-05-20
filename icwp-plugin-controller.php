@@ -302,7 +302,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 		add_action( 'init', [ $this, 'onWpInit' ], -1000 );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 
 		add_action( 'admin_menu', [ $this, 'onWpAdminMenu' ] );
 		add_action( 'network_admin_menu', [ $this, 'onWpAdminMenu' ] );
@@ -358,14 +357,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
 
 		$this->runTests();
-	}
-
-	/**
-	 */
-	public function onWpLoaded() {
-		if ( $this->isValidAdminArea() ) {
-			$this->doPluginFormSubmit();
-		}
 	}
 
 	/**
@@ -677,7 +668,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * Displays a message in the plugins listing when a plugin has an update available.
 	 */
 	public function onWpPluginUpdateMessage() {
-		$sMessage = _wpsf__( 'Update Now To Keep Your Security Current With The Latest Features.' );
+		$sMessage = __( 'Update Now To Keep Your Security Current With The Latest Features.', 'wp-simple-firewall' );
 		if ( empty( $sMessage ) ) {
 			$sMessage = '';
 		}
@@ -929,23 +920,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function doPluginFormSubmit() {
-		if ( !$this->isPluginFormSubmit() ) {
-			return false;
-		}
-
-		// do all the plugin feature/options saving
-		do_action( $this->prefix( 'form_submit' ) );
-
-		if ( $this->getIsPage_PluginAdmin() ) {
-			Services::Response()->redirect( Services::WpGeneral()->getUrl_CurrentAdminPage() );
-		}
-		return true;
-	}
-
-	/**
 	 * @param string $sSuffix
 	 * @param string $sGlue
 	 * @return string
@@ -1159,25 +1133,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getIsPage_PluginMainDashboard() {
 		return ( Services::WpGeneral()->getCurrentWpAdminPage() == $this->getPluginPrefix() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isPluginFormSubmit() {
-		if ( Services::WpGeneral()->isAjax() || ( empty( $_POST ) && empty( $_GET ) ) ) {
-			return false;
-		}
-
-		$aFormSubmitOptions = [ 'plugin_form_submit', 'icwp_link_action' ];
-
-		$oReq = Services::Request();
-		foreach ( $aFormSubmitOptions as $sOption ) {
-			if ( !is_null( $oReq->request( $sOption, false ) ) ) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**

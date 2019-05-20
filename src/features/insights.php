@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
+		parent::doPostConstruction();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
 		$oP = $this->getCon()->getModule( 'plugin' );
 		$nActivatedAt = $oP->getActivatedAt();
@@ -29,6 +30,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$sNavSection = $oReq->query( 'inav' );
+		$sSubNavSection = $oReq->query( 'subnav' );
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
@@ -78,7 +80,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					],
 					'flags'   => [],
 					'strings' => [
-						'title_filter_form' => _wpsf__( 'Audit Trail Filters' ),
+						'title_filter_form' => __( 'Audit Trail Filters', 'wp-simple-firewall' ),
 					],
 					'vars'    => [
 						'contexts_for_select' => $oAuditMod->getAllContexts(),
@@ -111,10 +113,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 										->diffForHumans( null, true )
 							)
 						),
-						'title_whitelist'   => _wpsf__( 'IP Whitelist' ),
-						'title_blacklist'   => _wpsf__( 'IP Blacklist' ),
-						'summary_whitelist' => sprintf( _wpsf__( 'IP addresses that are never blocked by %s.' ), $nPluginName ),
-						'summary_blacklist' => sprintf( _wpsf__( 'IP addresses that have tripped %s defenses.' ), $nPluginName ),
+						'title_whitelist'   => __( 'IP Whitelist', 'wp-simple-firewall' ),
+						'title_blacklist'   => __( 'IP Blacklist', 'wp-simple-firewall' ),
+						'summary_whitelist' => sprintf( __( 'IP addresses that are never blocked by %s.', 'wp-simple-firewall' ), $nPluginName ),
+						'summary_blacklist' => sprintf( __( 'IP addresses that have tripped %s defenses.', 'wp-simple-firewall' ), $nPluginName ),
 					],
 					'vars'    => [],
 				];
@@ -148,7 +150,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_traffic' ),
 					],
 					'strings' => [
-						'title_filter_form' => _wpsf__( 'Traffic Table Filters' ),
+						'title_filter_form' => __( 'Traffic Table Filters', 'wp-simple-firewall' ),
 					],
 					'vars'    => [
 						'unique_ips'       => $oTrafficSelector->getDistinctIps(),
@@ -180,11 +182,22 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					],
 					'flags'   => [],
 					'strings' => [
-						'title_filter_form' => _wpsf__( 'Sessions Table Filters' ),
+						'title_filter_form' => __( 'Sessions Table Filters', 'wp-simple-firewall' ),
 					],
 					'vars'    => [
 						'unique_ips'   => $oSessionSelect->getDistinctIps(),
 						'unique_users' => $oSessionSelect->getDistinctUsernames(),
+					],
+				];
+				break;
+
+			case 'settings':
+				$aData = [
+					'ajax' => [
+						'mod_options'          => $oCon->getModule( Services::Request()->query( 'subnav' ) )
+													   ->getAjaxActionData( 'mod_options', true ),
+						'mod_opts_form_render' => $oCon->getModule( Services::Request()->query( 'subnav' ) )
+													   ->getAjaxActionData( 'mod_opts_form_render', true ),
 					],
 				];
 				break;
@@ -225,34 +238,47 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		}
 
 		$aTopNav = [
-			'insights'     => _wpsf__( 'Overview' ),
-			'scans'        => _wpsf__( 'Scans' ),
-			'ips'          => _wpsf__( 'IP Lists' ),
-			'audit'        => _wpsf__( 'Audit Trail' ),
-			'users'        => _wpsf__( 'Users' ),
-			'license'      => _wpsf__( 'Pro' ),
-			'traffic'      => _wpsf__( 'Traffic' ),
-			'notes'        => _wpsf__( 'Notes' ),
-			'importexport' => sprintf( '%s/%s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) ),
+			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
+			'insights'     => __( 'Overview', 'wp-simple-firewall' ),
+			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
+			'ips'          => __( 'IP Lists', 'wp-simple-firewall' ),
+			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
+			'users'        => __( 'Users', 'wp-simple-firewall' ),
+			'license'      => __( 'Pro', 'wp-simple-firewall' ),
+			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
+			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
+			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
 			unset( $aTopNav[ 'license' ] );
-			$aTopNav[ 'license' ] = _wpsf__( 'Pro' );
+			$aTopNav[ 'license' ] = __( 'Pro', 'wp-simple-firewall' );
 		}
 
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sNavSection ) {
 			$sName = [
-				'href'   => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
-				'name'   => $sName,
-				'active' => $sKey === $sNavSection
+				'href'    => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
+				'name'    => $sName,
+				'active'  => $sKey === $sNavSection,
+				'subnavs' => []
 			];
 		} );
 
-		$aTopNav[ 'full_options' ] = [
-			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),
-			'name'   => _wpsf__( 'Settings' ),
-			'active' => false
-		];
+		$aSettingsSubNav = [];
+		foreach ( $this->getModulesSummaryData() as $sSlug => $aSubMod ) {
+			$aSettingsSubNav[ $sSlug ] = [
+				'href'   => add_query_arg( [ 'subnav' => $sSlug ], $aTopNav[ 'settings' ][ 'href' ] ),
+				'name'   => $aSubMod[ 'name' ],
+				'active' => $sSlug === $sSubNavSection,
+				'slug'   => $sSlug
+			];
+		}
+		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
+
+//		$aTopNav[ 'full_options' ] = [
+//			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),
+//			'name'   => __( 'Settings', 'wp-simple-firewall' ),
+//			'active' => false
+//		];
 
 		$oDp = Services::DataManipulation();
 		$aData = $oDp->mergeArraysRecursive(
@@ -262,7 +288,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'page_container' => 'page-insights page-'.$sNavSection
 				],
 				'flags'   => [
-					'show_promo'       => !$bIsPro,
+					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
 				],
 				'hrefs'   => [
@@ -371,20 +397,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return $this->loadDP()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			[
-				'page_title'          => sprintf( _wpsf__( '%s Security Insights' ), $sName ),
-				'recommendation'      => ucfirst( _wpsf__( 'recommendation' ) ),
-				'suggestion'          => ucfirst( _wpsf__( 'suggestion' ) ),
-				'box_welcome_title'   => sprintf( _wpsf__( 'Welcome To %s Security Insights Dashboard' ), $sName ),
-				'box_receve_subtitle' => sprintf( _wpsf__( 'Some of the most recent %s events' ), $sName ),
+				'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $sName ),
+				'recommendation'      => ucfirst( __( 'recommendation', 'wp-simple-firewall' ) ),
+				'suggestion'          => ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
+				'box_welcome_title'   => sprintf( __( 'Welcome To %s Security Insights Dashboard', 'wp-simple-firewall' ), $sName ),
+				'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ), $sName ),
 
-				'never'          => _wpsf__( 'Never' ),
+				'never'          => __( 'Never', 'wp-simple-firewall' ),
 				'go_pro'         => 'Go Pro!',
-				'options'        => _wpsf__( 'Options' ),
-				'not_available'  => _wpsf__( 'Sorry, this feature would typically be used by professionals and so is a Pro-only feature.' ),
-				'not_enabled'    => _wpsf__( "This feature isn't currently enabled." ),
-				'please_upgrade' => _wpsf__( 'You can activate this feature (along with many others) and support development of this plugin for just $12.' ),
-				'please_enable'  => _wpsf__( 'Please turn on this feature in the options.' ),
-				'only_1_dollar'  => _wpsf__( 'for just $1/month' ),
+				'options'        => __( 'Options', 'wp-simple-firewall' ),
+				'not_available'  => __( 'Sorry, this feature would typically be used by professionals and so is a Pro-only feature.', 'wp-simple-firewall' ),
+				'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
+				'please_upgrade' => __( 'You can activate this feature (along with many others) and support development of this plugin for just $12.', 'wp-simple-firewall' ),
+				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
+				'only_1_dollar'  => __( 'for just $1/month', 'wp-simple-firewall' ),
 			]
 		);
 	}
@@ -447,7 +473,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oSslService = $this->loadSslService();
 
 		$aNotices = [
-			'title'    => _wpsf__( 'Site' ),
+			'title'    => __( 'Site', 'wp-simple-firewall' ),
 			'messages' => []
 		];
 
@@ -471,17 +497,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					if ( $nDaysLeft < 15 ) {
 
 						if ( $bExpired ) {
-							$sMess = _wpsf__( 'SSL certificate for this site has expired.' );
+							$sMess = __( 'SSL certificate for this site has expired.', 'wp-simple-firewall' );
 						}
 						else {
-							$sMess = sprintf( _wpsf__( 'SSL certificate will expire soon (in %s days)' ), $nDaysLeft );
+							$sMess = sprintf( __( 'SSL certificate will expire soon (in %s days)', 'wp-simple-firewall' ), $nDaysLeft );
 						}
 
 						$aMessage = [
 							'title'   => 'SSL Cert Expiration',
 							'message' => $sMess,
 							'href'    => '',
-							'rec'     => _wpsf__( 'Check or renew your SSL certificate.' )
+							'rec'     => __( 'Check or renew your SSL certificate.', 'wp-simple-firewall' )
 						];
 					}
 				}
@@ -504,9 +530,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nStrength < 4 ) {
 				$aNotices[ 'messages' ][ 'db_strength' ] = [
 					'title'   => 'DB Password',
-					'message' => _wpsf__( 'DB Password appears to be weak.' ),
+					'message' => __( 'DB Password appears to be weak.', 'wp-simple-firewall' ),
 					'href'    => '',
-					'rec'     => _wpsf__( 'The database password should be strong.' )
+					'rec'     => __( 'The database password should be strong.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -521,7 +547,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getNoticesPlugins() {
 		$oWpPlugins = $this->loadWpPlugins();
 		$aNotices = [
-			'title'    => _wpsf__( 'Plugins' ),
+			'title'    => __( 'Plugins', 'wp-simple-firewall' ),
 			'messages' => []
 		];
 
@@ -530,10 +556,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = [
 					'title'   => 'Inactive',
-					'message' => sprintf( _wpsf__( '%s inactive plugin(s)' ), $nCount ),
+					'message' => sprintf( __( '%s inactive plugin(s)', 'wp-simple-firewall' ), $nCount ),
 					'href'    => $this->loadWp()->getAdminUrl_Plugins( true ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Plugins' ) ),
-					'rec'     => _wpsf__( 'Unused plugins should be removed.' )
+					'action'  => sprintf( 'Go To %s', __( 'Plugins', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -543,10 +569,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'updates' ] = [
 					'title'   => 'Updates',
-					'message' => sprintf( _wpsf__( '%s plugin update(s)' ), $nCount ),
+					'message' => sprintf( __( '%s plugin update(s)', 'wp-simple-firewall' ), $nCount ),
 					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
-					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
+					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -561,7 +587,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getNoticesThemes() {
 		$oWpT = $this->loadWpThemes();
 		$aNotices = [
-			'title'    => _wpsf__( 'Themes' ),
+			'title'    => __( 'Themes', 'wp-simple-firewall' ),
 			'messages' => []
 		];
 
@@ -570,10 +596,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nInactive > 0 ) {
 				$aNotices[ 'messages' ][ 'inactive' ] = [
 					'title'   => 'Inactive',
-					'message' => sprintf( _wpsf__( '%s inactive themes(s)' ), $nInactive ),
+					'message' => sprintf( __( '%s inactive themes(s)', 'wp-simple-firewall' ), $nInactive ),
 					'href'    => $this->loadWp()->getAdminUrl_Themes( true ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Themes' ) ),
-					'rec'     => _wpsf__( 'Unused themes should be removed.' )
+					'action'  => sprintf( 'Go To %s', __( 'Themes', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -583,10 +609,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $nCount > 0 ) {
 				$aNotices[ 'messages' ][ 'updates' ] = [
 					'title'   => 'Updates',
-					'message' => sprintf( _wpsf__( '%s theme update(s)' ), $nCount ),
+					'message' => sprintf( __( '%s theme update(s)', 'wp-simple-firewall' ), $nCount ),
 					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
-					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
+					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -601,7 +627,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getNoticesCore() {
 		$oWp = $this->loadWp();
 		$aNotices = [
-			'title'    => _wpsf__( 'WordPress Core' ),
+			'title'    => __( 'WordPress Core', 'wp-simple-firewall' ),
 			'messages' => []
 		];
 
@@ -609,10 +635,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( $oWp->hasCoreUpdate() ) {
 				$aNotices[ 'messages' ][ 'updates' ] = [
 					'title'   => 'Updates',
-					'message' => _wpsf__( 'WordPress Core has an update available.' ),
+					'message' => __( 'WordPress Core has an update available.', 'wp-simple-firewall' ),
 					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Updates' ) ),
-					'rec'     => _wpsf__( 'Updates should be applied as early as possible.' )
+					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -621,10 +647,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			if ( !$oWp->canCoreUpdateAutomatically() ) {
 				$aNotices[ 'messages' ][ 'updates_auto' ] = [
 					'title'   => 'Auto Updates',
-					'message' => _wpsf__( 'WordPress does not automatically install updates.' ),
+					'message' => __( 'WordPress does not automatically install updates.', 'wp-simple-firewall' ),
 					'href'    => $this->getCon()->getModule( 'autoupdates' )->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Minor WordPress upgrades should be applied automatically.' )
+					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Minor WordPress upgrades should be applied automatically.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -649,19 +675,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aStats = $oStats->getInsightsStats();
 		return [
 			'login'          => [
-				'title'   => _wpsf__( 'Login Blocks' ),
+				'title'   => __( 'Login Blocks', 'wp-simple-firewall' ),
 				'val'     => $aStats[ 'login.blocked.all' ],
-				'tooltip' => _wpsf__( 'Total login attempts blocked.' )
+				'tooltip' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
 			],
 			'firewall'       => [
-				'title'   => _wpsf__( 'Firewall Blocks' ),
+				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
 				'val'     => $aStats[ 'firewall.blocked.all' ],
-				'tooltip' => _wpsf__( 'Total requests blocked by firewall rules.' )
+				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			],
 			'comments'       => [
-				'title'   => _wpsf__( 'Comment Blocks' ),
+				'title'   => __( 'Comment Blocks', 'wp-simple-firewall' ),
 				'val'     => $aStats[ 'comments.blocked.all' ],
-				'tooltip' => _wpsf__( 'Total SPAM comments blocked.' )
+				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
 			//			'sessions'       => array(
 			//				'title'   => _wpsf__( 'Active Sessions' ),
@@ -669,17 +695,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
 			//			),
 			'transgressions' => [
-				'title'   => _wpsf__( 'Transgressions' ),
+				'title'   => __( 'Transgressions', 'wp-simple-firewall' ),
 				'val'     => $aStats[ 'ip.transgression.incremented' ],
-				'tooltip' => _wpsf__( 'Total transgression against the site.' )
+				'tooltip' => __( 'Total transgression against the site.', 'wp-simple-firewall' )
 			],
 			'ip_blocks'      => [
-				'title'   => _wpsf__( 'IP Blocks' ),
+				'title'   => __( 'IP Blocks', 'wp-simple-firewall' ),
 				'val'     => $aStats[ 'ip.connection.killed' ],
-				'tooltip' => _wpsf__( 'Total connections blocked/killed after too many transgressions.' )
+				'tooltip' => __( 'Total connections blocked/killed after too many transgressions.', 'wp-simple-firewall' )
 			],
 			'blackips'       => [
-				'title'   => _wpsf__( 'Blacklist IPs' ),
+				'title'   => __( 'Blacklist IPs', 'wp-simple-firewall' ),
 				'val'     => $oSelect
 					->filterByLists(
 						[
@@ -687,7 +713,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
 						]
 					)->count(),
-				'tooltip' => _wpsf__( 'Current IP addresses with transgressions against the site.' )
+				'tooltip' => __( 'Current IP addresses with transgressions against the site.', 'wp-simple-firewall' )
 			],
 			//			'pro'            => array(
 			//				'title'   => _wpsf__( 'Pro' ),
@@ -713,7 +739,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		foreach ( $aStats as $sStatKey => $nValue ) {
 			$aStats[ $sStatKey ] = [
 				'name' => $aNames[ $sStatKey ],
-				'val'  => ( $nValue > 0 ) ? $oWP->getTimeStringForDisplay( $nValue ) : _wpsf__( 'Not yet recorded' ),
+				'val'  => ( $nValue > 0 ) ? $oWP->getTimeStringForDisplay( $nValue ) : __( 'Not yet recorded', 'wp-simple-firewall' ),
 			];
 		}
 
@@ -725,25 +751,25 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	private function getInsightStatNames() {
 		return [
-			'insights_test_cron_last_run_at'        => _wpsf__( 'Simple Test Cron' ),
-			'insights_last_scan_ufc_at'             => _wpsf__( 'Unrecognised Files Scan' ),
-			'insights_last_scan_apc_at'             => _wpsf__( 'Abandoned Plugins Scan' ),
-			'insights_last_scan_wcf_at'             => _wpsf__( 'WordPress Core Files Scan' ),
-			'insights_last_scan_ptg_at'             => _wpsf__( 'Plugin/Themes Guard Scan' ),
-			'insights_last_scan_wpv_at'             => _wpsf__( 'Vulnerabilities Scan' ),
-			'insights_last_2fa_login_at'            => _wpsf__( 'Successful 2-FA Login' ),
-			'insights_last_login_block_at'          => _wpsf__( 'Login Block' ),
-			'insights_last_register_block_at'       => _wpsf__( 'User Registration Block' ),
-			'insights_last_reset-password_block_at' => _wpsf__( 'Reset Password Block' ),
-			'insights_last_firewall_block_at'       => _wpsf__( 'Firewall Block' ),
-			'insights_last_idle_logout_at'          => _wpsf__( 'Idle Logout' ),
-			'insights_last_password_block_at'       => _wpsf__( 'Password Block' ),
-			'insights_last_comment_block_at'        => _wpsf__( 'Comment SPAM Block' ),
-			'insights_xml_block_at'                 => _wpsf__( 'XML-RPC Block' ),
-			'insights_restapi_block_at'             => _wpsf__( 'Anonymous Rest API Block' ),
-			'insights_last_transgression_at'        => sprintf( _wpsf__( '%s Transgression' ), $this->getCon()
-																									->getHumanName() ),
-			'insights_last_ip_block_at'             => _wpsf__( 'IP Connection Blocked' ),
+			'insights_test_cron_last_run_at'        => __( 'Simple Test Cron', 'wp-simple-firewall' ),
+			'insights_last_scan_ufc_at'             => __( 'Unrecognised Files Scan', 'wp-simple-firewall' ),
+			'insights_last_scan_apc_at'             => __( 'Abandoned Plugins Scan', 'wp-simple-firewall' ),
+			'insights_last_scan_wcf_at'             => __( 'WordPress Core Files Scan', 'wp-simple-firewall' ),
+			'insights_last_scan_ptg_at'             => __( 'Plugin/Themes Guard Scan', 'wp-simple-firewall' ),
+			'insights_last_scan_wpv_at'             => __( 'Vulnerabilities Scan', 'wp-simple-firewall' ),
+			'insights_last_2fa_login_at'            => __( 'Successful 2-FA Login', 'wp-simple-firewall' ),
+			'insights_last_login_block_at'          => __( 'Login Block', 'wp-simple-firewall' ),
+			'insights_last_register_block_at'       => __( 'User Registration Block', 'wp-simple-firewall' ),
+			'insights_last_reset-password_block_at' => __( 'Reset Password Block', 'wp-simple-firewall' ),
+			'insights_last_firewall_block_at'       => __( 'Firewall Block', 'wp-simple-firewall' ),
+			'insights_last_idle_logout_at'          => __( 'Idle Logout', 'wp-simple-firewall' ),
+			'insights_last_password_block_at'       => __( 'Password Block', 'wp-simple-firewall' ),
+			'insights_last_comment_block_at'        => __( 'Comment SPAM Block', 'wp-simple-firewall' ),
+			'insights_xml_block_at'                 => __( 'XML-RPC Block', 'wp-simple-firewall' ),
+			'insights_restapi_block_at'             => __( 'Anonymous Rest API Block', 'wp-simple-firewall' ),
+			'insights_last_transgression_at'        => sprintf( __( '%s Transgression', 'wp-simple-firewall' ), $this->getCon()
+																													 ->getHumanName() ),
+			'insights_last_ip_block_at'             => __( 'IP Connection Blocked', 'wp-simple-firewall' ),
 		];
 	}
 }

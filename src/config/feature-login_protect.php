@@ -490,32 +490,6 @@
     }
   ],
   "definitions":   {
-    "login_intent_timeout": 5,
-    "wizards":              {
-      "mfa": {
-        "title":                "Configure Multi-Factor Login Authentication",
-        "desc":                 "Easily setup multi-factor login authentication, using Email and Google Authenticator.",
-        "min_user_permissions": "manage_options",
-        "steps":                {
-          "start":       {
-            "security_admin": false,
-            "title":          "Start: Multi-Factor Authentication"
-          },
-          "authemail":   {
-            "title": "Email Authentication"
-          },
-          "authga":      {
-            "title": "Google Authenticator"
-          },
-          "multiselect": {
-            "title": "Select Multifactor Auth"
-          },
-          "finished":    {
-            "security_admin": false,
-            "title":          "Finished: Multi-Factor Authentication"
-          }
-        }
-      }
-    }
+    "login_intent_timeout": 5
   }
 }

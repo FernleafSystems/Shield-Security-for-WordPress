@@ -18,7 +18,7 @@ class ScanWpv extends ScanBase {
 
 		$bHasUpdate = $aItem[ 'has_update' ];
 		$aButtons[] = $this->buildActionButton_Custom(
-			$bHasUpdate ? _wpsf__( 'Apply Update' ) : _wpsf__( 'No Update Available' ),
+			$bHasUpdate ? __( 'Apply Update', 'wp-simple-firewall' ) : __( 'No Update Available', 'wp-simple-firewall' ),
 			[ ( $bHasUpdate ? 'custom-action text-success' : 'disabled' ) ],
 			[
 				'rid'           => $aItem[ 'id' ],
@@ -28,7 +28,7 @@ class ScanWpv extends ScanBase {
 
 		if ( $aItem[ 'can_deactivate' ] ) {
 			$aButtons[] = $this->buildActionButton_Custom(
-				_wpsf__( 'Deactivate' ),
+				__( 'Deactivate', 'wp-simple-firewall' ),
 				[ 'custom-action' ],
 				[
 					'rid'           => $aItem[ 'id' ],
@@ -52,7 +52,7 @@ class ScanWpv extends ScanBase {
 		$aButtons = [
 			$this->getActionButton_Ignore( $aItem[ 'id' ] ),
 			sprintf( '<a href="%s" class="btn btn-sm btn-link text-info" target="_blank">%s</a>',
-				$oVo->getUrl(), _wpsf__( 'More Info' ) ),
+				$oVo->getUrl(), __( 'More Info', 'wp-simple-firewall' ) ),
 		];
 		return $sContent.$this->buildActions( $aButtons );
 	}

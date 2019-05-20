@@ -11,7 +11,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Multi-Factor Authentication Wizard' ), $this->getPluginCon()->getHumanName() );
+		return sprintf( __( '%s Multi-Factor Authentication Wizard', 'wp-simple-firewall' ), $this->getPluginCon()
+																								  ->getHumanName() );
 	}
 
 	/**
@@ -55,15 +56,15 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$bFa = $oReq->post( 'Email2FAOption' ) === 'Y';
 
 		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
-			$sMessage = _wpsf__( 'Invalid email address' );
+			$sMessage = __( 'Invalid email address', 'wp-simple-firewall' );
 		}
 		else {
 			if ( empty( $sCode ) ) {
 				if ( $oFO->sendEmailVerifyCanSend( $sEmail, false ) ) {
 					$oFO->setIfCanSendEmail( false );
 					$oResponse->setSuccessful( true );
-					$sMessage = _wpsf__( 'Verification email sent (please check your email including your SPAM).' )
-								.' '._wpsf__( 'Enter the code from the email into the form above and click the button to verify.' );
+					$sMessage = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
+								.' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
 				}
 				else {
 					$sMessage = 'Failed to send verification email';
@@ -112,7 +113,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $sCode != 'ignore' ) {
 
 			if ( empty( $sCode ) ) {
-				$sMessage = _wpsf__( 'Code was empty.' );
+				$sMessage = __( 'Code was empty.', 'wp-simple-firewall' );
 			}
 			else {
 				$oUser = $this->loadWpUsers()->getCurrentWpUser();
@@ -139,7 +140,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		if ( $bEnableGa ) {
 			$oFO->setEnabled2FaGoogleAuthenticator( true );
-			$sMessage .= ' '._wpsf__( 'Google Authenticator was enabled for the site.' );
+			$sMessage .= ' '.__( 'Google Authenticator was enabled for the site.', 'wp-simple-firewall' );
 		}
 
 		return $oResponse->setMessageText( $sMessage );
@@ -154,8 +155,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$bEnabledMulti = $this->loadRequest()->post( 'multiselect' ) === 'Y';
 		$oFO->setIsChainedAuth( $bEnabledMulti );
-		$sMessage = sprintf( _wpsf__( 'Multi-Factor Authentication was %s for the site.' ),
-			$bEnabledMulti ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' )
+		$sMessage = sprintf( __( 'Multi-Factor Authentication was %s for the site.', 'wp-simple-firewall' ),
+			$bEnabledMulti ? __( 'enabled', 'wp-simple-firewall' ) : __( 'disabled', 'wp-simple-firewall' )
 		);
 
 		return ( new \FernleafSystems\Utilities\Response() )

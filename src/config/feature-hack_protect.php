@@ -183,6 +183,7 @@
       "key":           "wpvuln_scan_display",
       "section":       "section_wpvuln_scan",
       "default":       "enabled_admin",
+      "premium":     true,
       "type":          "select",
       "value_options": [
         {
@@ -473,6 +474,7 @@
     {
       "key":         "ptg_depth",
       "section":     "section_pluginthemes_guard",
+      "premium":     true,
       "type":        "integer",
       "default":     1,
       "min":         0,
@@ -485,6 +487,7 @@
     {
       "key":         "ptg_extensions",
       "section":     "section_pluginthemes_guard",
+      "premium":     true,
       "default":     [
         "php",
         "php5",
@@ -555,7 +558,7 @@
       "default":      0
     },
     {
-      "key":          "insights_last_scan_mal_at",
+      "key":          "notready_insights_last_scan_mal_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
@@ -696,77 +699,6 @@
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
-    ],
-    "wizards":                              {
-      "ptg": {
-        "title":                "Manually Run Plugin/Theme Guard Scanner",
-        "desc":                 "Walks you through the scanning for any changes to your plugins and themes.",
-        "min_user_permissions": "manage_options",
-        "steps":                {
-          "start":              {
-            "security_admin": false,
-            "title":          "Start: Plugin/Theme Guard"
-          },
-          "scanresult_plugins": {
-            "title": "Scan Results - Plugins"
-          },
-          "scanresult_themes":  {
-            "title": "Scan Results - Themes"
-          },
-          "config":             {
-            "title": "Setup Scan Automation"
-          },
-          "finished":           {
-            "security_admin": false,
-            "title":          "Finished: Plugin/Theme Guard Scanner"
-          }
-        }
-      },
-      "ufc": {
-        "title":                "Manually Run Unrecognised File Scanner",
-        "desc":                 "Walks you through the scanning for unrecognised files present in your WordPress core installation.",
-        "min_user_permissions": "manage_options",
-        "steps":                {
-          "start":      {
-            "security_admin": false,
-            "title":          "Start: Unrecognised File Scanner"
-          },
-          "exclusions": {
-            "title": "Exclude Files"
-          },
-          "scanresult": {
-            "title": "Scan Results"
-          },
-          "config":     {
-            "title": "Setup Scan Automation"
-          },
-          "finished":   {
-            "security_admin": false,
-            "title":          "Finished: Unrecognised File Scanner"
-          }
-        }
-      },
-      "wcf": {
-        "title":                "Manually Run WordPress Core File Scanner",
-        "desc":                 "Walks you through the scanning for unintended changes to your official WordPress core files.",
-        "min_user_permissions": "manage_options",
-        "steps":                {
-          "start":      {
-            "security_admin": false,
-            "title":          "Start: WordPress Core File Scanner"
-          },
-          "scanresult": {
-            "title": "Scan Results"
-          },
-          "config":     {
-            "title": "Setup Scan Automation"
-          },
-          "finished":   {
-            "security_admin": false,
-            "title":          "Finished: WordPress Core File Scanner"
-          }
-        }
-      }
-    }
+    ]
   }
 }

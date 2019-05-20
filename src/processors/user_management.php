@@ -119,14 +119,14 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$sCustomColumnName = $this->prefix( 'col_user_status' );
 		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
-			$aColumns[ $sCustomColumnName ] = _wpsf__( 'User Status' );
+			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
 
 		add_filter( 'manage_users_custom_column',
 			function ( $sContent, $sColumnName, $nUserId ) use ( $sCustomColumnName ) {
 
 				if ( $sColumnName == $sCustomColumnName ) {
-					$sValue = _wpsf__( 'Not Recorded' );
+					$sValue = __( 'Not Recorded', 'wp-simple-firewall' );
 					$oUser = Services::WpUsers()->getUserById( $nUserId );
 					if ( $oUser instanceof \WP_User ) {
 						$nLastLoginTime = $this->getCon()->getUserMeta( $oUser )->last_login_at;
@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 							$sValue = ( new \Carbon\Carbon() )->setTimestamp( $nLastLoginTime )->diffForHumans();
 						}
 					}
-					$sNewContent = sprintf( '%s: %s', _wpsf__( 'Last Login' ), $sValue );
+					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $sValue );
 					$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
 				}
 
@@ -186,20 +186,20 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
 		$aMessage = [
-			sprintf( _wpsf__( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.' ),
+			sprintf( __( 'As requested, %s is notifying you of a successful %s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName(),
 				$sHumanName
 			),
 			'',
-			sprintf( _wpsf__( 'Important: %s' ), _wpsf__( 'This user may now be subject to additional Two-Factor Authentication before completing their login.' ) ),
+			sprintf( __( 'Important: %s', 'wp-simple-firewall' ), __( 'This user may now be subject to additional Two-Factor Authentication before completing their login.', 'wp-simple-firewall' ) ),
 			'',
-			_wpsf__( 'Details for this user are below:' ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Site URL' ), $sHomeUrl ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Email' ), $oUser->user_email ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
+			__( 'Details for this user are below:', 'wp-simple-firewall' ),
+			'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $sHomeUrl ),
+			'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
+			'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $oUser->user_email ),
+			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->ip() ),
 			'',
-			_wpsf__( 'Thanks.' )
+			__( 'Thanks.', 'wp-simple-firewall' )
 		];
 
 		return $this
@@ -207,7 +207,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oFO->getAdminLoginNotificationEmail(),
-				sprintf( '%s - %s', _wpsf__( 'Notice' ), sprintf( _wpsf__( '%s Just Logged Into %s' ), $sHumanName, $sHomeUrl ) ),
+				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);
 	}
@@ -219,18 +219,18 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	private function sendUserLoginEmailNotification( $oUser ) {
 		$oWp = Services::WpGeneral();
 		$aMessage = [
-			sprintf( _wpsf__( '%s is notifying you of a successful login to your WordPress account.' ), $this->getCon()
-																											 ->getHumanName() ),
+			sprintf( __( '%s is notifying you of a successful login to your WordPress account.', 'wp-simple-firewall' ), $this->getCon()
+																															  ->getHumanName() ),
 			'',
-			_wpsf__( 'Details for this login are below:' ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Site URL' ), $oWp->getHomeUrl() ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'IP Address' ), $this->ip() ),
-			'- '.sprintf( '%s: %s', _wpsf__( 'Time' ), $oWp->getTimeStampForDisplay() ),
+			__( 'Details for this login are below:', 'wp-simple-firewall' ),
+			'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $oWp->getHomeUrl() ),
+			'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
+			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->ip() ),
+			'- '.sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() ),
 			'',
-			_wpsf__( 'If this is unexpected or suspicious, please contact your site administrator immediately.' ),
+			__( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),
 			'',
-			_wpsf__( 'Thanks.' )
+			__( 'Thanks.', 'wp-simple-firewall' )
 		];
 
 		return $this
@@ -238,7 +238,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getEmailProcessor()
 			->sendEmailWithWrap(
 				$oUser->user_email,
-				sprintf( '%s - %s', _wpsf__( 'Notice' ), _wpsf__( 'A login to your WordPress account just occurred' ) ),
+				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
 				$aMessage
 			);
 	}

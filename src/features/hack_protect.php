@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
+		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
 	}
 
@@ -206,7 +207,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
 				 [
 					 'interval' => DAY_IN_SECONDS/$nFreq,
-					 'display'  => sprintf( _wpsf__( '%s per day' ), $nFreq )
+					 'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $nFreq )
 				 ]
 			 );
 		return $this;
@@ -644,8 +645,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		if ( !is_null( $nTime ) ) {
-			$nTime = ( $nTime > 0 ) ? Services::WpGeneral()->getTimeStampForDisplay( $nTime ) : _wpsf__( 'Never' );
-			$aNotices[] = sprintf( _wpsf__( 'Last Scan Time: %s' ), $nTime );
+			$nTime = ( $nTime > 0 ) ? Services::WpGeneral()
+											  ->getTimeStampForDisplay( $nTime ) : __( 'Never', 'wp-simple-firewall' );
+			$aNotices[] = sprintf( __( 'Last Scan Time: %s', 'wp-simple-firewall' ), $nTime );
 		}
 		return $aNotices;
 	}
@@ -709,7 +711,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	private function ajaxExec_StartScans() {
 		$bSuccess = false;
 		$bPageReload = false;
-		$sMessage = _wpsf__( 'No scans were selected' );
+		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
 		if ( !empty( $aFormParams ) ) {
@@ -729,7 +731,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 					$bSuccess = true;
 					$bPageReload = true;
-					$sMessage = _wpsf__( 'Scans completed.' ).' '._wpsf__( 'Reloading page' ).'...';
+					$sMessage = __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...';
 				}
 			}
 		}
@@ -757,10 +759,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oTablePro = $this->getScannerFromSlug( $sScannerSlug );
 
 		if ( empty( $oTablePro ) ) {
-			$sMessage = _wpsf__( 'Unsupported scanner' );
+			$sMessage = __( 'Unsupported scanner', 'wp-simple-firewall' );
 		}
 		else if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
-			$sMessage = _wpsf__( 'Unsupported item(s) selected' );
+			$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
 		}
 		else {
 			if ( empty( $aItemIds ) ) {
@@ -843,21 +845,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			case 'section_pluginthemes_guard':
 				if ( !$this->canPtgWriteToDisk() ) {
-					$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
+					$aWarnings[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"', 'wp-simple-firewall' ), $this->getPtgSnapsBaseDir() );
 				}
 				break;
 
 			case 'section_realtime':
 				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-					$aWarnings[] = sprintf( _wpsf__( 'Not available because the %s extension is not available.' ), 'OpenSSL' );
+					$aWarnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
 				}
 				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
-					$aWarnings[] = sprintf( _wpsf__( "Not available because PHP/WordPress doesn't have direct filesystem access." ), 'OpenSSL' );
+					$aWarnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
 				}
 				else {
 					$sPath = $this->getRtMapFileKeyToFilePath( 'wpconfig' );
 					if ( !$this->getRtCanWriteFile( $sPath ) ) {
-						$aWarnings[] = sprintf( _wpsf__( "The %s file isn't writable and so can't be further protected." ), 'wp-config.php' );
+						$aWarnings[] = sprintf( __( "The %s file isn't writable and so can't be further protected.", 'wp-simple-firewall' ), 'wp-config.php' );
 					}
 				}
 				break;
@@ -1028,7 +1030,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
 		$aNotices = [
-			'title'    => _wpsf__( 'Scans' ),
+			'title'    => __( 'Scans', 'wp-simple-firewall' ),
 			'messages' => []
 		];
 
@@ -1036,19 +1038,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( !$this->isWcfScanEnabled() ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => 'WP Core Files',
-					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
+					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic WordPress Core File scanner should be turned-on.' )
+					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 				];
 			}
 			else if ( $this->getScanHasProblem( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => 'WP Core Files',
-					'message' => _wpsf__( 'Modified WordPress core files found.' ),
+					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Scan WP core files and repair any files that are flagged as modified.' )
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -1057,19 +1059,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( !$this->isUfcEnabled() ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
+					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic scanning for non-WordPress core files is recommended.' )
+					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
 				];
 			}
 			else if ( $this->getScanHasProblem( 'ufc' ) ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
+					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Scan and remove any files that are not meant to be in the WP core directories.' )
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -1078,19 +1080,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( !$this->isPtgEnabled() ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => 'Plugin/Theme Guard',
-					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
+					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of plugin/theme modifications is recommended.' )
+					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
 				];
 			}
 			else if ( $this->getScanHasProblem( 'ptg' ) ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => 'Plugin/Theme Guard',
-					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
+					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Reviewing modifications to your plugins/themes is recommended.' )
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -1099,19 +1101,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( !$this->isWpvulnEnabled() ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => 'Vulnerability Scanner',
-					'message' => _wpsf__( 'Vulnerability Scanner is not enabled.' ),
+					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of vulnerabilities is recommended.' )
+					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
 				];
 			}
 			else if ( $this->getScanHasProblem( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => 'Vulnerable Items',
-					'message' => _wpsf__( 'At least 1 item has known vulnerabilities.' ),
+					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Items with known vulnerabilities should be updated, removed, or replaced.' )
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Items with known vulnerabilities should be updated, removed, or replaced.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -1120,19 +1122,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( !$this->isApcEnabled() ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => 'Abandoned Plugins Scanner',
-					'message' => _wpsf__( 'Abandoned Plugins Scanner is not enabled.' ),
+					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of abandoned plugins is recommended.' )
+					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
 				];
 			}
 			else if ( $this->getScanHasProblem( 'apc' ) ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => 'Abandoned Plugins',
-					'message' => _wpsf__( 'At least 1 plugin on your site is abandoned.' ),
+					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Plugins that have been abandoned represent a potential risk to your site.' )
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Plugins that have been abandoned represent a potential risk to your site.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -1150,8 +1152,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = [
 			'strings'      => [
-				'title' => _wpsf__( 'Hack Guard' ),
-				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
+				'title' => __( 'Hack Guard', 'wp-simple-firewall' ),
+				'sub'   => __( 'Threats/Intrusions Detection & Repair', 'wp-simple-firewall' ),
 			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
@@ -1163,32 +1165,32 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		else {
 			$bGoodFrequency = $this->getScanFrequency() > 1;
 			$aThis[ 'key_opts' ][ 'frequency' ] = [
-				'name'    => _wpsf__( 'Scan Frequency' ),
+				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
 				'enabled' => $bGoodFrequency,
 				'summary' => $bGoodFrequency ?
-					_wpsf__( 'Automatic scanners run more than once per day' )
-					: _wpsf__( "Automatic scanners only run once per day" ),
+					__( 'Automatic scanners run more than once per day', 'wp-simple-firewall' )
+					: __( "Automatic scanners only run once per day", 'wp-simple-firewall' ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
 			];
 
 			$bCore = $this->isWcfScanEnabled();
 			$aThis[ 'key_opts' ][ 'wcf' ] = [
-				'name'    => _wpsf__( 'WP Core File Scan' ),
+				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
 				'enabled' => $bCore,
 				'summary' => $bCore ?
-					_wpsf__( 'Core files scanned regularly for hacks' )
-					: _wpsf__( "Core files are never scanned for hacks!" ),
+					__( 'Core files scanned regularly for hacks', 'wp-simple-firewall' )
+					: __( "Core files are never scanned for hacks!", 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
 			];
 			if ( $bCore && !$this->isWcfScanAutoRepair() ) {
 				$aThis[ 'key_opts' ][ 'wcf_repair' ] = [
-					'name'    => _wpsf__( 'WP Core File Repair' ),
+					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
 					'enabled' => $this->isWcfScanAutoRepair(),
 					'summary' => $this->isWcfScanAutoRepair() ?
-						_wpsf__( 'Core files are automatically repaired' )
-						: _wpsf__( "Core files aren't automatically repaired!" ),
+						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
+						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
 				];
@@ -1196,21 +1198,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			$bUcf = $this->isUfcEnabled();
 			$aThis[ 'key_opts' ][ 'ufc' ] = [
-				'name'    => _wpsf__( 'Unrecognised Files' ),
+				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
 				'enabled' => $bUcf,
 				'summary' => $bUcf ?
-					_wpsf__( 'Core directories scanned regularly for unrecognised files' )
-					: _wpsf__( "WP Core is never scanned for unrecognised files!" ),
+					__( 'Core directories scanned regularly for unrecognised files', 'wp-simple-firewall' )
+					: __( "WP Core is never scanned for unrecognised files!", 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
 			];
 			if ( $bUcf && !$this->isUfcDeleteFiles() ) {
 				$aThis[ 'key_opts' ][ 'ufc_repair' ] = [
-					'name'    => _wpsf__( 'Unrecognised Files Removal' ),
+					'name'    => __( 'Unrecognised Files Removal', 'wp-simple-firewall' ),
 					'enabled' => $this->isUfcDeleteFiles(),
 					'summary' => $this->isUfcDeleteFiles() ?
-						_wpsf__( 'Unrecognised files are automatically removed' )
-						: _wpsf__( "Unrecognised files aren't automatically removed!" ),
+						__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
+						: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
 				];
@@ -1218,21 +1220,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			$bWpv = $this->isWpvulnEnabled();
 			$aThis[ 'key_opts' ][ 'wpv' ] = [
-				'name'    => _wpsf__( 'Vulnerability Scan' ),
+				'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
 				'enabled' => $bWpv,
 				'summary' => $bWpv ?
-					_wpsf__( 'Regularly scanning for known vulnerabilities' )
-					: _wpsf__( "Plugins/Themes never scanned for vulnerabilities!" ),
+					__( 'Regularly scanning for known vulnerabilities', 'wp-simple-firewall' )
+					: __( "Plugins/Themes never scanned for vulnerabilities!", 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 			];
 			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
 				$aThis[ 'key_opts' ][ 'wpv_repair' ] = [
-					'name'    => _wpsf__( 'Auto Update' ),
+					'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
 					'enabled' => $this->isWpvulnAutoupdatesEnabled(),
 					'summary' => $this->isWpvulnAutoupdatesEnabled() ?
-						_wpsf__( 'Vulnerable items are automatically updated' )
-						: _wpsf__( "Vulnerable items aren't automatically updated!" ),
+						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
+						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
 					'weight'  => 1,
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 				];
@@ -1240,11 +1242,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			$bPtg = $this->isPtgEnabled();
 			$aThis[ 'key_opts' ][ 'ptg' ] = [
-				'name'    => _wpsf__( 'Plugin/Theme Guard' ),
+				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
 				'enabled' => $bPtg,
 				'summary' => $bPtg ?
-					_wpsf__( 'Plugins and Themes are guarded against tampering' )
-					: _wpsf__( "Plugins and Themes are never scanned for tampering!" ),
+					__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
+					: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 			];
@@ -1275,102 +1277,93 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		switch ( $sSectionSlug ) {
 
 			case 'section_scan_options' :
-				$sTitle = _wpsf__( 'Scan Options' );
-				$sTitleShort = _wpsf__( 'Scan Options' );
+				$sTitle = __( 'Scan Options', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Scan Options', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Set how frequently the Hack Guard scans will run.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Set how frequently the Hack Guard scans will run.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_realtime' :
-				$sTitle = _wpsf__( 'Realtime Site Protection' );
-				$sTitleShort = _wpsf__( 'Realtime Protection' );
+				$sTitleShort = __( 'Realtime', 'wp-simple-firewall' );
+				$sTitle = __( 'Realtime Site Protection', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides realtime protection for certain key files.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep realtime protection turned on to protect key files.' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides realtime protection for certain key files.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep realtime protection turned on to protect key files.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_enable_plugin_feature_hack_protection_tools' :
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Guard' ) ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Hack Guard', 'wp-simple-firewall' ) ) )
 				];
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_wpvuln_scan' :
-				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
+				$sTitleShort = __( 'Vulnerabilities', 'wp-simple-firewall' );
+				$sTitle = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) ),
-					_wpsf__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.' )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Vulnerabilities Scanner', 'wp-simple-firewall' ) ) ),
+					__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.', 'wp-simple-firewall' )
 				];
-				$sTitleShort = _wpsf__( 'Vulnerabilities Scanner' );
-				break;
-
-			case 'section_plugin_vulnerabilities_scan' :
-				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
-				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your plugins against a database of known vulnerabilities.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) )
-				];
-				$sTitleShort = _wpsf__( 'Vulnerabilities' );
 				break;
 
 			case 'section_core_file_integrity_scan' :
-				$sTitle = _wpsf__( 'WordPress Core File Scanner' );
+				$sTitleShort = __( 'Core Files', 'wp-simple-firewall' );
+				$sTitle = __( 'WordPress Core File Scanner', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress core files for changes compared to official WordPress files.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Regularly scan your WordPress core files for changes compared to official WordPress files.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $sTitle ) )
 				];
-				$sTitleShort = _wpsf__( 'WP Core File Scanner' );
 				break;
 
 			case 'section_unrecognised_file_scan' :
-				$sTitle = _wpsf__( 'Unrecognised Files Scanner' );
+				$sTitleShort = __( 'Unrecognised Files', 'wp-simple-firewall' );
+				$sTitle = __( 'Unrecognised Files Scanner', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( "Regularly scan your WordPress core folders for files that don't belong." ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( "Regularly scan your WordPress core folders for files that don't belong.", 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $sTitle ) )
 				];
-				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
 				break;
 
 			case 'section_scan_apc' :
-				$sTitle = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
-				$sTitleShort = _wpsf__( 'Abandoned Plugin Scanner' );
+				$sTitle = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Abandoned Plugins', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ),
-						_wpsf__( 'Monitor your site for plugins that have been abandoned by their authors and are no longer maintained.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable this to alert you to your site running unmaintained code.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ),
+						__( 'Monitor your site for plugins that have been abandoned by their authors and are no longer maintained.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable this to alert you to your site running unmaintained code.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_pluginthemes_guard' :
-				$sTitle = _wpsf__( 'Plugins and Themes Guard' );
-				$sTitleShort = _wpsf__( 'Plugins/Themes Guard' );
+				$sTitle = __( 'Plugins and Themes Guard', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Plugins/Themes Guard', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep the Plugins/Theme Guard feature turned on.' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Detect malicious changes to your themes and plugins.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep the Plugins/Theme Guard feature turned on.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_scan_malware' :
-				$sTitle = _wpsf__( 'Malware Scanner' );
-				$sTitleShort = _wpsf__( 'Malware Scanner' );
+				$sTitleShort = __( 'Malware', 'wp-simple-firewall' );
+				$sTitle = __( 'Malware Scanner', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor and detect presence of Malware signatures.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable this scanner to automatically detect infected files.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and detect presence of Malware signatures.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable this scanner to automatically detect infected files.', 'wp-simple-firewall' ) )
 				];
 				break;
 
 			case 'section_integrity_checking' :
-				$sTitle = _wpsf__( 'Integrity Checks' );
-				$sTitleShort = _wpsf__( 'Integrity Checks' );
+				$sTitle = __( 'Integrity Checks', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Integrity Checks', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor for unrecognised changes to your system.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable these to prevent unauthorized changes to your WordPress site.' ) )
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor for unrecognised changes to your system.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable these to prevent unauthorized changes to your WordPress site.', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -1393,169 +1386,169 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		switch ( $sKey ) {
 
 			case 'enable_hack_protect' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
+				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				break;
 
 			case 'scan_frequency' :
-				$sName = _wpsf__( 'Daily Scan Frequency' );
-				$sSummary = _wpsf__( 'Number Of Times To Automatically Run File Scan In 24hrs' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Default' ), _wpsf__( 'Once every 24hrs.' ) )
-								.'<br/>'._wpsf__( 'To improve security, increase the number of scans per day.' );
+				$sName = __( 'Daily Scan Frequency', 'wp-simple-firewall' );
+				$sSummary = __( 'Number Of Times To Automatically Run File Scan In 24hrs', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), __( 'Once every 24hrs.', 'wp-simple-firewall' ) )
+								.'<br/>'.__( 'To improve security, increase the number of scans per day.', 'wp-simple-firewall' );
 				break;
 
 			case 'notification_interval' :
-				$sName = _wpsf__( 'Repeat Notifications' );
-				$sSummary = _wpsf__( 'Item Repeat Notifications Suppression Interval' );
-				$sDescription = _wpsf__( 'How long the automated scans should wait before repeating a notification about an item.' )
-								.'<br/>'._wpsf__( 'Specify the number of days to suppress repeat notifications.' )
-								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'This is per discovered item or file, not per scan.' ) );
+				$sName = __( 'Repeat Notifications', 'wp-simple-firewall' );
+				$sSummary = __( 'Item Repeat Notifications Suppression Interval', 'wp-simple-firewall' );
+				$sDescription = __( 'How long the automated scans should wait before repeating a notification about an item.', 'wp-simple-firewall' )
+								.'<br/>'.__( 'Specify the number of days to suppress repeat notifications.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'This is per discovered item or file, not per scan.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'email_files_list' :
-				$sName = _wpsf__( 'Email Files List' );
-				$sSummary = _wpsf__( 'Scan Notification Emails Should Include Full Listing Of Files' );
-				$sDescription = _wpsf__( 'Scanner notification emails will include a summary list of all affected files.' );
+				$sName = __( 'Email Files List', 'wp-simple-firewall' );
+				$sSummary = __( 'Scan Notification Emails Should Include Full Listing Of Files', 'wp-simple-firewall' );
+				$sDescription = __( 'Scanner notification emails will include a summary list of all affected files.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_plugin_vulnerabilities_scan' :
-				$sName = _wpsf__( 'Vulnerabilities Scanner' );
-				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) );
-				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.' );
+				$sName = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
+				$sSummary = sprintf( __( 'Daily Cron - %s', 'wp-simple-firewall' ), __( 'Scans Plugins For Known Vulnerabilities', 'wp-simple-firewall' ) );
+				$sDescription = __( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_wpvuln_scan' :
-				$sName = _wpsf__( 'Vulnerability Scanner' );
-				$sSummary = _wpsf__( 'Enable The Vulnerability Scanner' );
-				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.' );
+				$sName = __( 'Vulnerability Scanner', 'wp-simple-firewall' );
+				$sSummary = __( 'Enable The Vulnerability Scanner', 'wp-simple-firewall' );
+				$sDescription = __( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.', 'wp-simple-firewall' );
 				break;
 
 			case 'wpvuln_scan_autoupdate' :
-				$sName = _wpsf__( 'Automatic Updates' );
-				$sSummary = _wpsf__( 'Apply Updates Automatically To Vulnerable Plugins' );
-				$sDescription = _wpsf__( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.' );
+				$sName = __( 'Automatic Updates', 'wp-simple-firewall' );
+				$sSummary = __( 'Apply Updates Automatically To Vulnerable Plugins', 'wp-simple-firewall' );
+				$sDescription = __( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.', 'wp-simple-firewall' );
 				break;
 
 			case 'wpvuln_scan_display' :
-				$sName = _wpsf__( 'Highlight Plugins' );
-				$sSummary = _wpsf__( 'Highlight Vulnerable Plugins Upon Display' );
-				$sDescription = _wpsf__( 'Vulnerable plugins will be highlighted on the main plugins page.' );
+				$sName = __( 'Highlight Plugins', 'wp-simple-firewall' );
+				$sSummary = __( 'Highlight Vulnerable Plugins Upon Display', 'wp-simple-firewall' );
+				$sDescription = __( 'Vulnerable plugins will be highlighted on the main plugins page.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_core_file_integrity_scan' :
-				$sName = _wpsf__( 'WP Core File Scanner' );
-				$sSummary = _wpsf__( 'Automatically Scans WordPress Core Files For Changes' );
-				$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' )
-								.'<br />'._wpsf__( 'WordPress Core files should never be altered for any reason.' );
+				$sName = __( 'WP Core File Scanner', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Scans WordPress Core Files For Changes', 'wp-simple-firewall' );
+				$sDescription = __( 'Compares all WordPress core files on your site against the official WordPress files.', 'wp-simple-firewall' )
+								.'<br />'.__( 'WordPress Core files should never be altered for any reason.', 'wp-simple-firewall' );
 				break;
 
 			case 'attempt_auto_file_repair' :
-				$sName = _wpsf__( 'Auto Repair' );
-				$sSummary = _wpsf__( 'Automatically Repair WordPress Core Files That Have Been Altered' );
-				$sDescription = _wpsf__( 'Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing.' );
+				$sName = __( 'Auto Repair', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Repair WordPress Core Files That Have Been Altered', 'wp-simple-firewall' );
+				$sDescription = __( 'Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_unrecognised_file_cleaner_scan' :
-				$sName = _wpsf__( 'Unrecognised Files Scanner' );
-				$sSummary = _wpsf__( 'Automatically Scans For Unrecognised Files In Core Directories' );
-				$sDescription = _wpsf__( 'Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation.' );
+				$sName = __( 'Unrecognised Files Scanner', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Scans For Unrecognised Files In Core Directories', 'wp-simple-firewall' );
+				$sDescription = __( 'Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation.', 'wp-simple-firewall' );
 				break;
 
 			case 'ufc_scan_uploads' :
-				$sName = _wpsf__( 'Scan Uploads' );
-				$sSummary = _wpsf__( 'Scan Uploads Folder For PHP and Javascript' );
-				$sDescription = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Take care when turning on this option - if you are unsure, leave it disabled.' ) )
-								.'<br />'._wpsf__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.' );
+				$sName = __( 'Scan Uploads', 'wp-simple-firewall' );
+				$sSummary = __( 'Scan Uploads Folder For PHP and Javascript', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Take care when turning on this option - if you are unsure, leave it disabled.', 'wp-simple-firewall' ) )
+								.'<br />'.__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.', 'wp-simple-firewall' );
 				break;
 
 			case 'ufc_exclusions' :
-				$sName = _wpsf__( 'File Exclusions' );
-				$sSummary = _wpsf__( 'Provide A List Of Files To Be Excluded From The Scan' );
+				$sName = __( 'File Exclusions', 'wp-simple-firewall' );
+				$sSummary = __( 'Provide A List Of Files To Be Excluded From The Scan', 'wp-simple-firewall' );
 				$sDefaults = implode( ', ', $this->getOptionsVo()->getOptDefault( 'ufc_exclusions' ) );
-				$sDescription = _wpsf__( 'Take a new line for each file you wish to exclude from the scan.' )
-								.'<br/><strong>'._wpsf__( 'No commas are necessary.' ).'</strong>'
-								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Default' ), $sDefaults );
+				$sDescription = __( 'Take a new line for each file you wish to exclude from the scan.', 'wp-simple-firewall' )
+								.'<br/><strong>'.__( 'No commas are necessary.', 'wp-simple-firewall' ).'</strong>'
+								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $sDefaults );
 				break;
 
 			case 'ic_enabled' :
-				$sName = _wpsf__( 'Enable Integrity Scan' );
-				$sSummary = _wpsf__( 'Scans For Critical Changes Made To Your WordPress Site' );
-				$sDescription = _wpsf__( 'Detects changes made to your WordPress site outside of WordPress.' );
+				$sName = __( 'Enable Integrity Scan', 'wp-simple-firewall' );
+				$sSummary = __( 'Scans For Critical Changes Made To Your WordPress Site', 'wp-simple-firewall' );
+				$sDescription = __( 'Detects changes made to your WordPress site outside of WordPress.', 'wp-simple-firewall' );
 				break;
 
 			case 'ic_users' :
-				$sName = _wpsf__( 'Monitor User Accounts' );
-				$sSummary = _wpsf__( 'Scans For Critical Changes Made To User Accounts' );
-				$sDescription = sprintf( _wpsf__( 'Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system.' ), 'author=' )
-								.'<br />'._wpsf__( 'An example of this might be some form of SQL Injection attack.' )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'This option may cause critical problem with 3rd party plugins that manage user accounts.' ) );
+				$sName = __( 'Monitor User Accounts', 'wp-simple-firewall' );
+				$sSummary = __( 'Scans For Critical Changes Made To User Accounts', 'wp-simple-firewall' );
+				$sDescription = sprintf( __( 'Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system.', 'wp-simple-firewall' ), 'author=' )
+								.'<br />'.__( 'An example of this might be some form of SQL Injection attack.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Enabling this option for every page low may slow down your site with large numbers of users.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This option may cause critical problem with 3rd party plugins that manage user accounts.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'ptg_enable' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Guard' ) );
-				$sSummary = _wpsf__( 'Enable The Guard For Plugin And Theme Files' );
-				$sDescription = _wpsf__( 'When enabled the Guard will automatically scan for changes to your Plugin and Theme files.' );
+				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Guard', 'wp-simple-firewall' ) );
+				$sSummary = __( 'Enable The Guard For Plugin And Theme Files', 'wp-simple-firewall' );
+				$sDescription = __( 'When enabled the Guard will automatically scan for changes to your Plugin and Theme files.', 'wp-simple-firewall' );
 				break;
 
 			case 'ptg_depth' :
-				$sName = _wpsf__( 'Guard/Scan Depth' );
-				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
-				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
-								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit and all sub-folders will be scanned - not recommended' ), 0 );
+				$sName = __( 'Guard/Scan Depth', 'wp-simple-firewall' );
+				$sSummary = __( 'How Deep Into The Plugin Directories To Scan And Guard', 'wp-simple-firewall' );
+				$sDescription = __( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( __( 'Setting it to %s will remove this limit and all sub-folders will be scanned - not recommended', 'wp-simple-firewall' ), 0 );
 				break;
 
 			case 'ptg_extensions' :
-				$sName = _wpsf__( 'Included File Types' );
-				$sSummary = _wpsf__( 'The File Types (by File Extension) Included In The Scan' );
-				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
-								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' )
-								.'<br/>'._wpsf__( 'Remove all extensions to scan all file type (not recommended).' );
+				$sName = __( 'Included File Types', 'wp-simple-firewall' );
+				$sSummary = __( 'The File Types (by File Extension) Included In The Scan', 'wp-simple-firewall' );
+				$sDescription = __( 'Take a new line for each file extension.', 'wp-simple-firewall' )
+								.'<br/>'.__( 'No commas(,) or periods(.) necessary.', 'wp-simple-firewall' )
+								.'<br/>'.__( 'Remove all extensions to scan all file type (not recommended).', 'wp-simple-firewall' );
 				break;
 
 			case 'ptg_reinstall_links' :
-				$sName = _wpsf__( 'Show Re-Install Links' );
-				$sSummary = _wpsf__( 'Show Re-Install Links For Plugins' );
-				$sDescription = _wpsf__( "Show links to re-install plugins and offer re-install when activating plugins." );
+				$sName = __( 'Show Re-Install Links', 'wp-simple-firewall' );
+				$sSummary = __( 'Show Re-Install Links For Plugins', 'wp-simple-firewall' );
+				$sDescription = __( "Show links to re-install plugins and offer re-install when activating plugins.", 'wp-simple-firewall' );
 				break;
 
 			case 'enabled_scan_apc' :
-				$sName = _wpsf__( 'Abandoned Plugin Scanner' );
-				$sSummary = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
-				$sDescription = _wpsf__( "Scan your WordPress.org assets for whether they've been abandoned." );
+				$sName = __( 'Abandoned Plugin Scanner', 'wp-simple-firewall' );
+				$sSummary = __( 'Enable The Abandoned Plugin Scanner', 'wp-simple-firewall' );
+				$sDescription = __( "Scan your WordPress.org assets for whether they've been abandoned.", 'wp-simple-firewall' );
 				break;
 
 			case 'display_apc' :
-				$sName = _wpsf__( 'Highlight Plugins' );
-				$sSummary = _wpsf__( 'Highlight Abandoned Plugins' );
-				$sDescription = _wpsf__( "Abandoned plugins will be highlighted on the main plugins page." );
+				$sName = __( 'Highlight Plugins', 'wp-simple-firewall' );
+				$sSummary = __( 'Highlight Abandoned Plugins', 'wp-simple-firewall' );
+				$sDescription = __( "Abandoned plugins will be highlighted on the main plugins page.", 'wp-simple-firewall' );
 				break;
 
 			case 'mal_scan_enable' :
-				$sName = _wpsf__( 'Malware Scanner' );
-				$sSummary = _wpsf__( 'Enable Malware Scanner' );
-				$sDescription = _wpsf__( "Enabled detection of files infected with malware signatures." );
+				$sName = __( 'Malware Scanner', 'wp-simple-firewall' );
+				$sSummary = __( 'Enable Malware Scanner', 'wp-simple-firewall' );
+				$sDescription = __( "Enabled detection of files infected with malware signatures.", 'wp-simple-firewall' );
 				break;
 
 			case 'mal_autorepair_core' :
-				$sName = _wpsf__( 'Auto-Repair WP Core' );
-				$sSummary = _wpsf__( 'Automatically Repair WordPress Core Files' );
-				$sDescription = _wpsf__( "Automatically reinstall any core files found to have potential malware." );
+				$sName = __( 'Auto-Repair WP Core', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Repair WordPress Core Files', 'wp-simple-firewall' );
+				$sDescription = __( "Automatically reinstall any core files found to have potential malware.", 'wp-simple-firewall' );
 				break;
 
 			case 'mal_autorepair_plugins' :
-				$sName = _wpsf__( 'Auto-Repair WP Plugins' );
-				$sSummary = _wpsf__( 'Automatically Repair WordPress.org Plugins' );
-				$sDescription = _wpsf__( "Automatically repair any plugin files found to have potential malware." )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( 'Only applies to plugins installed from WordPress.org.' ) )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Important' ), _wpsf__( "Also deletes files if they're found to not be originally distributed with the plugin." ) );
+				$sName = __( 'Auto-Repair WP Plugins', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Repair WordPress.org Plugins', 'wp-simple-firewall' );
+				$sDescription = __( "Automatically repair any plugin files found to have potential malware.", 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only applies to plugins installed from WordPress.org.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes files if they're found to not be originally distributed with the plugin.", 'wp-simple-firewall' ) );
 				break;
 
 			case 'rt_file_wpconfig' :
-				$sName = _wpsf__( 'WP Config' );
-				$sSummary = _wpsf__( 'Realtime Protection For WP Config File' );
-				$sDescription = _wpsf__( "Realtime protection for the wp-config.php file." );
+				$sName = __( 'WP Config', 'wp-simple-firewall' );
+				$sSummary = __( 'Realtime Protection For WP Config File', 'wp-simple-firewall' );
+				$sDescription = __( "Realtime protection for the wp-config.php file.", 'wp-simple-firewall' );
 				break;
 
 			default:

@@ -99,9 +99,9 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		$oCon = $this->getCon();
 
 		$aContent = [
-			sprintf( _wpsf__( '%s has detected abandoned plugins installed on your site.' ), $oCon->getHumanName() ),
-			_wpsf__( "Running code that hasn't seen any updates for over 2 years is far from ideal." ),
-			_wpsf__( 'Details for the items(s) are below:' ),
+			sprintf( __( '%s has detected abandoned plugins installed on your site.', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+			__( "Running code that hasn't seen any updates for over 2 years is far from ideal.", 'wp-simple-firewall' ),
+			__( 'Details for the items(s) are below:', 'wp-simple-firewall' ),
 			'',
 		];
 
@@ -110,15 +110,15 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 
 			if ( $oItem->context == 'plugins' ) {
 				$oPlug = $oWpPlugins->getPluginAsVo( $oItem->slug );
-				$sName = sprintf( '%s - %s', _wpsf__( 'Plugin' ), empty( $oPlug ) ? 'Unknown' : $oPlug->Name );
+				$sName = sprintf( '%s - %s', __( 'Plugin', 'wp-simple-firewall' ), empty( $oPlug ) ? 'Unknown' : $oPlug->Name );
 			}
 			else {
-				$sName = sprintf( '%s - %s', _wpsf__( 'Theme' ), $oWpThemes->getTheme( $oItem->slug ) );
+				$sName = sprintf( '%s - %s', __( 'Theme', 'wp-simple-firewall' ), $oWpThemes->getTheme( $oItem->slug ) );
 			}
 
 			$aContent[] = implode( "<br />", [
-				sprintf( '%s: %s', _wpsf__( 'Item' ), $sName ),
-				'- '.sprintf( _wpsf__( 'Last Updated: %s' ), $oWp->getTimeStringForDisplay( $oItem->last_updated_at, false ) ),
+				sprintf( '%s: %s', __( 'Item', 'wp-simple-firewall' ), $sName ),
+				'- '.sprintf( __( 'Last Updated: %s', 'wp-simple-firewall' ), $oWp->getTimeStringForDisplay( $oItem->last_updated_at, false ) ),
 				'',
 			] );
 		}
@@ -126,16 +126,16 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		$aContent[] = $this->getScannerButtonForEmail();
 		$aContent[] = '';
 
-		$sSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Abandoned Plugin(s) Discovered On Your Site.' ) );
+		$sSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Abandoned Plugin(s) Discovered On Your Site.', 'wp-simple-firewall' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$bSendSuccess = $this->getEmailProcessor()
 							 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
 
 		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Abandoned Plugins Notification email alert to: %s' ), $sTo ) );
+			$this->addToAuditEntry( sprintf( __( 'Successfully sent Abandoned Plugins Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
 		}
 		else {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Abandoned Plugins Notification email alert to: %s' ), $sTo ) );
+			$this->addToAuditEntry( sprintf( __( 'Failed to send Abandoned Plugins Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
 		}
 		return $bSendSuccess;
 	}

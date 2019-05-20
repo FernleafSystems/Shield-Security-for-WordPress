@@ -17,15 +17,15 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
-					'title'           => sprintf( _wpsf__( "Make %s even better by sharing usage info?" ), $oCon->getHumanName() ),
-					'want_to_track'   => sprintf( _wpsf__( "We're hoping to understand how %s is configured and used." ), $oCon->getHumanName() ),
-					'what_we_collect' => _wpsf__( "We'd like to understand how effective it is on a global scale." ),
-					'data_anon'       => _wpsf__( 'The data sent is always completely anonymous and we can never track you or your site.' ),
-					'can_turn_off'    => _wpsf__( 'It can be turned-off at any time within the plugin options.' ),
-					'click_to_see'    => _wpsf__( 'Click to see the RAW data that would be sent' ),
-					'learn_more'      => _wpsf__( 'Learn More.' ),
+					'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $oCon->getHumanName() ),
+					'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $oCon->getHumanName() ),
+					'what_we_collect' => __( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' ),
+					'data_anon'       => __( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
+					'can_turn_off'    => __( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
+					'click_to_see'    => __( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' ),
+					'learn_more'      => __( 'Learn More.', 'wp-simple-firewall' ),
 					'site_url'        => 'translate.icontrolwp.com',
-					'yes'             => _wpsf__( 'Absolutely' )
+					'yes'             => __( 'Absolutely', 'wp-simple-firewall' )
 				],
 				'ajax'              => [
 					'set_plugin_tracking_perm' => $oFO->getAjaxActionData( 'set_plugin_tracking_perm', true ),

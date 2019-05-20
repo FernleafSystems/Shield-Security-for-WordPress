@@ -71,11 +71,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 			if ( $this->setSecurityAdminStatusOnOff( true ) ) {
 				$bSuccess = true;
-				$sMsg = _wpsf__( 'Security Admin Access Key Accepted.' )
-						.' '._wpsf__( 'Please wait' ).' ...';
+				$sMsg = __( 'Security Admin Access Key Accepted.', 'wp-simple-firewall' )
+						.' '.__( 'Please wait', 'wp-simple-firewall' ).' ...';
 			}
 			else {
-				$sMsg = _wpsf__( 'Failed to process key - you may need to re-login to WordPress.' );
+				$sMsg = __( 'Failed to process key - you may need to re-login to WordPress.', 'wp-simple-firewall' );
 			}
 		}
 		else {
@@ -84,12 +84,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 						   ->getModule( 'ips' )
 						   ->getProcessor();
 			$nRemaining = $oIpPro->getRemainingTransgressions() - 1;
-			$sMsg = _wpsf__( 'Security access key incorrect.' ).' ';
+			$sMsg = __( 'Security access key incorrect.', 'wp-simple-firewall' ).' ';
 			if ( $nRemaining > 0 ) {
-				$sMsg .= sprintf( _wpsf__( 'Attempts remaining: %s.' ), $nRemaining );
+				$sMsg .= sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $nRemaining );
 			}
 			else {
-				$sMsg .= _wpsf__( "No attempts remaining." );
+				$sMsg .= __( "No attempts remaining.", 'wp-simple-firewall' );
 			}
 			$sHtml = $this->renderAdminAccessAjaxLoginForm( $sMsg );
 		}
@@ -123,7 +123,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'sec_admin_login' => json_encode( $this->getSecAdminLoginAjaxData() )
 			],
 			'strings' => [
-				'access_message' => empty( $sMessage ) ? _wpsf__( 'Enter your Security Admin Access Key' ) : $sMessage
+				'access_message' => empty( $sMessage ) ? __( 'Enter your Security Admin Access Key', 'wp-simple-firewall' ) : $sMessage
 			]
 		];
 		return $this->renderTemplate( 'snippets/admin_access_login', $aData );
@@ -310,10 +310,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$bSuccess = $this->checkAdminAccessKeySubmission();
 
 			if ( $bSuccess ) {
-				$sMessage = _wpsf__( 'Security Admin key accepted.' );
+				$sMessage = __( 'Security Admin key accepted.', 'wp-simple-firewall' );
 			}
 			else {
-				$sMessage = _wpsf__( 'Security Admin key not accepted.' );
+				$sMessage = __( 'Security Admin key not accepted.', 'wp-simple-firewall' );
 			}
 			$this->setFlashAdminNotice( $sMessage, $bSuccess );
 		}
@@ -516,9 +516,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					'is_sec_admin' => true, // if $nSecTimeLeft > 0
 					'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
 					'strings'      => [
-						'confirm' => _wpsf__( 'Security Admin session has timed-out.' ).' '._wpsf__( 'Reload now?' ),
-						'nearly'  => _wpsf__( 'Security Admin session has nearly timed-out.' ),
-						'expired' => _wpsf__( 'Security Admin session has timed-out.' )
+						'confirm' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
+						'nearly'  => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
+						'expired' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' )
 					]
 				]
 			);
@@ -532,8 +532,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = [
 			'strings'      => [
-				'title' => _wpsf__( 'Security Admin' ),
-				'sub'   => sprintf( _wpsf__( 'Prevent Tampering With %s Settings' ), $this->getCon()->getHumanName() ),
+				'title' => __( 'Security Admin', 'wp-simple-firewall' ),
+				'sub'   => sprintf( __( 'Prevent Tampering With %s Settings', 'wp-simple-firewall' ), $this->getCon()
+																										   ->getHumanName() ),
 			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
@@ -544,33 +545,33 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 		else {
 			$aThis[ 'key_opts' ][ 'mod' ] = [
-				'name'    => _wpsf__( 'Security Admin' ),
+				'name'    => __( 'Security Admin', 'wp-simple-firewall' ),
 				'enabled' => $this->isEnabledForUiSummary(),
 				'summary' => $this->isEnabledForUiSummary() ?
-					_wpsf__( 'Security plugin is protected against tampering' )
-					: _wpsf__( 'Security plugin is vulnerable to tampering' ),
+					__( 'Security plugin is protected against tampering', 'wp-simple-firewall' )
+					: __( 'Security plugin is vulnerable to tampering', 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_key' ),
 			];
 
 			$bWpOpts = $this->getAdminAccessArea_Options();
 			$aThis[ 'key_opts' ][ 'wpopts' ] = [
-				'name'    => _wpsf__( 'Important Options' ),
+				'name'    => __( 'Important Options', 'wp-simple-firewall' ),
 				'enabled' => $bWpOpts,
 				'summary' => $bWpOpts ?
-					_wpsf__( 'Important WP options are protected against tampering' )
-					: _wpsf__( "Important WP options aren't protected against tampering" ),
+					__( 'Important WP options are protected against tampering', 'wp-simple-firewall' )
+					: __( "Important WP options aren't protected against tampering", 'wp-simple-firewall' ),
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_options' ),
 			];
 
 			$bUsers = $this->isAdminAccessAdminUsersEnabled();
 			$aThis[ 'key_opts' ][ 'adminusers' ] = [
-				'name'    => _wpsf__( 'WP Admins' ),
+				'name'    => __( 'WP Admins', 'wp-simple-firewall' ),
 				'enabled' => $bUsers,
 				'summary' => $bUsers ?
-					_wpsf__( 'Admin users are protected against tampering' )
-					: _wpsf__( "Admin users aren't protected against tampering" ),
+					__( 'Admin users are protected against tampering', 'wp-simple-firewall' )
+					: __( "Admin users aren't protected against tampering", 'wp-simple-firewall' ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToOption( 'admin_access_restrict_admin_users' ),
 			];
@@ -587,7 +588,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function addInsightsNoticeData( $aAllNotices ) {
 
 		$aNotices = [
-			'title'    => _wpsf__( 'Security Admin Protection' ),
+			'title'    => __( 'Security Admin Protection', 'wp-simple-firewall' ),
 			'messages' => []
 		];
 
@@ -596,12 +597,12 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				$aNotices[ 'messages' ][ 'sec_admin' ] = [
 					'title'   => 'Security Plugin Unprotected',
 					'message' => sprintf(
-						_wpsf__( "The Security Admin protection is not active." ),
+						__( "The Security Admin protection is not active.", 'wp-simple-firewall' ),
 						$this->getCon()->getHumanName()
 					),
 					'href'    => $this->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Security Admin should be turned-on to protect your security settings.' )
+					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Security Admin should be turned-on to protect your security settings.', 'wp-simple-firewall' )
 				];
 			}
 		}
@@ -631,48 +632,48 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		switch ( $sSectionSlug ) {
 
 			case 'section_enable_plugin_feature_admin_access_restriction' :
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
+				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
+				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Restricts access to this plugin preventing unauthorized changes to your security settings.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Security Admin' ) ) ),
-					sprintf( _wpsf__( 'You need to also enter a new Access Key to enable this feature.' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ) ),
+					sprintf( __( 'You need to also enter a new Access Key to enable this feature.', 'wp-simple-firewall' ) ),
 				];
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
 				break;
 
 			case 'section_admin_access_restriction_settings' :
-				$sTitle = _wpsf__( 'Security Admin Restriction Settings' );
+				$sTitle = __( 'Security Admin Restriction Settings', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Restricts access to this plugin preventing unauthorized changes to your security settings.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),
 				];
-				$sTitleShort = _wpsf__( 'Security Admin Settings' );
+				$sTitleShort = __( 'Security Admin Settings', 'wp-simple-firewall' );
 				break;
 
 			case 'section_admin_access_restriction_areas' :
-				$sTitle = _wpsf__( 'Security Admin Restriction Zones' );
+				$sTitle = __( 'Security Admin Restriction Zones', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Use of this feature is highly recommend.' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ) ),
 				];
-				$sTitleShort = _wpsf__( 'Access Restriction Zones' );
+				$sTitleShort = __( 'Access Restriction Zones', 'wp-simple-firewall' );
 				break;
 
 			case 'section_whitelabel' :
-				$sTitle = _wpsf__( 'White Label' );
+				$sTitle = __( 'White Label', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s',
-						_wpsf__( 'Purpose' ),
-						sprintf( _wpsf__( 'Rename and re-brand the %s plugin for your client site installations.' ),
+						__( 'Purpose', 'wp-simple-firewall' ),
+						sprintf( __( 'Rename and re-brand the %s plugin for your client site installations.', 'wp-simple-firewall' ),
 							$sPluginName )
 					),
 					sprintf( '%s - %s',
-						_wpsf__( 'Important' ),
-						sprintf( _wpsf__( 'The Security Admin system must be active for these settings to apply.' ),
+						__( 'Important', 'wp-simple-firewall' ),
+						sprintf( __( 'The Security Admin system must be active for these settings to apply.', 'wp-simple-firewall' ),
 							$sPluginName )
 					)
 				];
-				$sTitleShort = _wpsf__( 'White Label' );
+				$sTitleShort = __( 'White Label', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -696,135 +697,135 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		switch ( $sKey ) {
 
 			case 'enable_admin_access_restriction' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), _wpsf__( 'Security Admin' ) );
-				$sSummary = _wpsf__( 'Enforce Security Admin Access Restriction' );
-				$sDescription = _wpsf__( 'Enable this with great care and consideration. Ensure that you set a key that you have set an access key that you will remember.' );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
+				$sSummary = __( 'Enforce Security Admin Access Restriction', 'wp-simple-firewall' );
+				$sDescription = __( 'Enable this with great care and consideration. Ensure that you set a key that you have set an access key that you will remember.', 'wp-simple-firewall' );
 				break;
 
 			case 'admin_access_key' :
-				$sName = _wpsf__( 'Security Admin Access Key' );
-				$sSummary = _wpsf__( 'Provide/Update Security Admin Access Key' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'If you forget this, you could potentially lock yourself out from using this plugin.' ) )
-								.'<br/><strong>'.( $this->hasAccessKey() ? _wpsf__( 'Security Key Currently Set' ) : _wpsf__( 'Security Key NOT Currently Set' ) ).'</strong>'
-								.( $this->hasAccessKey() ? '<br/>'.sprintf( _wpsf__( 'To delete the current security key, type exactly "%s" and save.' ), '<strong>DELETE</strong>' ) : '' );
+				$sName = __( 'Security Admin Access Key', 'wp-simple-firewall' );
+				$sSummary = __( 'Provide/Update Security Admin Access Key', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'If you forget this, you could potentially lock yourself out from using this plugin.', 'wp-simple-firewall' ) )
+								.'<br/><strong>'.( $this->hasAccessKey() ? __( 'Security Key Currently Set', 'wp-simple-firewall' ) : __( 'Security Key NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>'
+								.( $this->hasAccessKey() ? '<br/>'.sprintf( __( 'To delete the current security key, type exactly "%s" and save.', 'wp-simple-firewall' ), '<strong>DELETE</strong>' ) : '' );
 				break;
 
 			case 'sec_admin_users' :
-				$sName = _wpsf__( 'Security Admins' );
-				$sSummary = _wpsf__( 'Persistent Security Admins' );
-				$sDescription = _wpsf__( "Users provided will be security admins automatically, without needing the security key." )
-								.'<br/>'._wpsf__( 'Enter admin username, email or ID.' ).' '._wpsf__( '1 entry per-line.' )
-								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'Verified users will be converted to usernames.' ) );
+				$sName = __( 'Security Admins', 'wp-simple-firewall' );
+				$sSummary = __( 'Persistent Security Admins', 'wp-simple-firewall' );
+				$sDescription = __( "Users provided will be security admins automatically, without needing the security key.", 'wp-simple-firewall' )
+								.'<br/>'.__( 'Enter admin username, email or ID.', 'wp-simple-firewall' ).' '.__( '1 entry per-line.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Verified users will be converted to usernames.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'admin_access_timeout' :
-				$sName = _wpsf__( 'Security Admin Timeout' );
-				$sSummary = _wpsf__( 'Specify An Automatic Timeout Interval For Security Admin Access' );
-				$sDescription = _wpsf__( 'This will automatically expire your Security Admin Session.' )
+				$sName = __( 'Security Admin Timeout', 'wp-simple-firewall' );
+				$sSummary = __( 'Specify An Automatic Timeout Interval For Security Admin Access', 'wp-simple-firewall' );
+				$sDescription = __( 'This will automatically expire your Security Admin Session.', 'wp-simple-firewall' )
 								.'<br />'
 								.sprintf(
 									'%s: %s',
-									_wpsf__( 'Default' ),
+									__( 'Default', 'wp-simple-firewall' ),
 									sprintf( '%s minutes', $this->getOptionsVo()
 																->getOptDefault( 'admin_access_timeout' ) )
 								);
 				break;
 
 			case 'admin_access_restrict_posts' :
-				$sName = _wpsf__( 'Pages' );
-				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Posts And Pages Actions' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'This will restrict access to page/post creation, editing and deletion.' ) )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Note' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__( 'Edit' ) ) );
+				$sName = __( 'Pages', 'wp-simple-firewall' );
+				$sSummary = __( 'Restrict Access To Key WordPress Posts And Pages Actions', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict access to page/post creation, editing and deletion.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Selecting "%s" will also restrict all other options.', 'wp-simple-firewall' ), __( 'Edit', 'wp-simple-firewall' ) ) );
 				break;
 
 			case 'admin_access_restrict_plugins' :
-				$sName = _wpsf__( 'Plugins' );
-				$sSummary = _wpsf__( 'Restrict Access To Key WordPress Plugin Actions' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'This will restrict access to plugin installation, update, activation and deletion.' ) )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Note' ), sprintf( _wpsf__( 'Selecting "%s" will also restrict all other options.' ), _wpsf__( 'Activate' ) ) );
+				$sName = __( 'Plugins', 'wp-simple-firewall' );
+				$sSummary = __( 'Restrict Access To Key WordPress Plugin Actions', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict access to plugin installation, update, activation and deletion.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Selecting "%s" will also restrict all other options.', 'wp-simple-firewall' ), __( 'Activate', 'wp-simple-firewall' ) ) );
 				break;
 
 			case 'admin_access_restrict_options' :
-				$sName = _wpsf__( 'WordPress Options' );
-				$sSummary = _wpsf__( 'Restrict Access To Certain WordPress Admin Options' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'This will restrict the ability of WordPress administrators from changing key WordPress settings.' ) );
+				$sName = __( 'WordPress Options', 'wp-simple-firewall' );
+				$sSummary = __( 'Restrict Access To Certain WordPress Admin Options', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict the ability of WordPress administrators from changing key WordPress settings.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'admin_access_restrict_admin_users' :
-				$sName = _wpsf__( 'Admin Users' );
-				$sSummary = _wpsf__( 'Restrict Access To Create/Delete/Modify Other Admin Users' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators.' ) );
+				$sName = __( 'Admin Users', 'wp-simple-firewall' );
+				$sSummary = __( 'Restrict Access To Create/Delete/Modify Other Admin Users', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict the ability of WordPress administrators from creating, modifying or promoting other administrators.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'admin_access_restrict_themes' :
-				$sName = _wpsf__( 'Themes' );
-				$sSummary = _wpsf__( 'Restrict Access To WordPress Theme Actions' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Careful' ), _wpsf__( 'This will restrict access to theme installation, update, activation and deletion.' ) )
+				$sName = __( 'Themes', 'wp-simple-firewall' );
+				$sSummary = __( 'Restrict Access To WordPress Theme Actions', 'wp-simple-firewall' );
+				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'This will restrict access to theme installation, update, activation and deletion.', 'wp-simple-firewall' ) )
 								.'<br />'.
 								sprintf( '%s: %s',
-									_wpsf__( 'Note' ),
+									__( 'Note', 'wp-simple-firewall' ),
 									sprintf(
-										_wpsf__( 'Selecting "%s" will also restrict all other options.' ),
+										__( 'Selecting "%s" will also restrict all other options.', 'wp-simple-firewall' ),
 										sprintf(
-											_wpsf__( '%s and %s' ),
-											_wpsf__( 'Activate' ),
-											_wpsf__( 'Edit Theme Options' )
+											__( '%s and %s', 'wp-simple-firewall' ),
+											__( 'Activate', 'wp-simple-firewall' ),
+											__( 'Edit Theme Options', 'wp-simple-firewall' )
 										)
 									)
 								);
 				break;
 
 			case 'whitelabel_enable' :
-				$sName = sprintf( '%s: %s', _wpsf__( 'Enable' ), _wpsf__( 'White Label' ) );
-				$sSummary = _wpsf__( 'Activate Your White Label Settings' );
-				$sDescription = _wpsf__( 'Turn on/off the application of your White Label settings.' );
+				$sName = sprintf( '%s: %s', __( 'Enable', 'wp-simple-firewall' ), __( 'White Label', 'wp-simple-firewall' ) );
+				$sSummary = __( 'Activate Your White Label Settings', 'wp-simple-firewall' );
+				$sDescription = __( 'Turn on/off the application of your White Label settings.', 'wp-simple-firewall' );
 				break;
 			case 'wl_hide_updates' :
-				$sName = _wpsf__( 'Hide Updates' );
-				$sSummary = _wpsf__( 'Hide Plugin Updates From Non-Security Admins' );
-				$sDescription = sprintf( _wpsf__( 'Hide available %s updates from non-security administrators.' ), $sPluginName );
+				$sName = __( 'Hide Updates', 'wp-simple-firewall' );
+				$sSummary = __( 'Hide Plugin Updates From Non-Security Admins', 'wp-simple-firewall' );
+				$sDescription = sprintf( __( 'Hide available %s updates from non-security administrators.', 'wp-simple-firewall' ), $sPluginName );
 				break;
 			case 'wl_pluginnamemain' :
-				$sName = _wpsf__( 'Plugin Name' );
-				$sSummary = _wpsf__( 'The Name Of The Plugin' );
-				$sDescription = _wpsf__( 'The name of the plugin that will be displayed to your site users.' );
+				$sName = __( 'Plugin Name', 'wp-simple-firewall' );
+				$sSummary = __( 'The Name Of The Plugin', 'wp-simple-firewall' );
+				$sDescription = __( 'The name of the plugin that will be displayed to your site users.', 'wp-simple-firewall' );
 				break;
 			case 'wl_namemenu' :
-				$sName = _wpsf__( 'Menu Title' );
-				$sSummary = _wpsf__( 'The Main Menu Title Of The Plugin' );
-				$sDescription = sprintf( _wpsf__( 'The Main Menu Title Of The Plugin. If left empty, the "%s" will be used.' ), _wpsf__( 'Plugin Name' ) );
+				$sName = __( 'Menu Title', 'wp-simple-firewall' );
+				$sSummary = __( 'The Main Menu Title Of The Plugin', 'wp-simple-firewall' );
+				$sDescription = sprintf( __( 'The Main Menu Title Of The Plugin. If left empty, the "%s" will be used.', 'wp-simple-firewall' ), __( 'Plugin Name', 'wp-simple-firewall' ) );
 				break;
 			case 'wl_companyname' :
-				$sName = _wpsf__( 'Company Name' );
-				$sSummary = _wpsf__( 'The Name Of Your Company' );
-				$sDescription = _wpsf__( 'Provide the name of your company.' );
+				$sName = __( 'Company Name', 'wp-simple-firewall' );
+				$sSummary = __( 'The Name Of Your Company', 'wp-simple-firewall' );
+				$sDescription = __( 'Provide the name of your company.', 'wp-simple-firewall' );
 				break;
 			case 'wl_description' :
-				$sName = _wpsf__( 'Description' );
-				$sSummary = _wpsf__( 'The Description Of The Plugin' );
-				$sDescription = _wpsf__( 'The description of the plugin displayed on the plugins page.' );
+				$sName = __( 'Description', 'wp-simple-firewall' );
+				$sSummary = __( 'The Description Of The Plugin', 'wp-simple-firewall' );
+				$sDescription = __( 'The description of the plugin displayed on the plugins page.', 'wp-simple-firewall' );
 				break;
 			case 'wl_homeurl' :
-				$sName = _wpsf__( 'Home URL' );
-				$sSummary = _wpsf__( 'Plugin Home Page URL' );
-				$sDescription = _wpsf__( "When a user clicks the home link for this plugin, this is where they'll be directed." );
+				$sName = __( 'Home URL', 'wp-simple-firewall' );
+				$sSummary = __( 'Plugin Home Page URL', 'wp-simple-firewall' );
+				$sDescription = __( "When a user clicks the home link for this plugin, this is where they'll be directed.", 'wp-simple-firewall' );
 				break;
 			case 'wl_menuiconurl' :
-				$sName = _wpsf__( 'Menu Icon' );
-				$sSummary = _wpsf__( 'Menu Icon URL' );
-				$sDescription = _wpsf__( 'The URL of the icon to display in the menu.' )
-								.' '.sprintf( _wpsf__( 'The %s should measure %s.' ), _wpsf__( 'icon' ), '16px x 16px' );
+				$sName = __( 'Menu Icon', 'wp-simple-firewall' );
+				$sSummary = __( 'Menu Icon URL', 'wp-simple-firewall' );
+				$sDescription = __( 'The URL of the icon to display in the menu.', 'wp-simple-firewall' )
+								.' '.sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'icon', 'wp-simple-firewall' ), '16px x 16px' );
 				break;
 			case 'wl_dashboardlogourl' :
-				$sName = _wpsf__( 'Dashboard Logo' );
-				$sSummary = _wpsf__( 'Dashboard Logo URL' );
-				$sDescription = _wpsf__( 'The URL of the logo to display in the admin pages.' )
-								.' '.sprintf( _wpsf__( 'The %s should measure %s.' ), _wpsf__( 'logo' ), '128px x 128px' );
+				$sName = __( 'Dashboard Logo', 'wp-simple-firewall' );
+				$sSummary = __( 'Dashboard Logo URL', 'wp-simple-firewall' );
+				$sDescription = __( 'The URL of the logo to display in the admin pages.', 'wp-simple-firewall' )
+								.' '.sprintf( __( 'The %s should measure %s.', 'wp-simple-firewall' ), __( 'logo', 'wp-simple-firewall' ), '128px x 128px' );
 				break;
 			case 'wl_login2fa_logourl' :
-				$sName = _wpsf__( '2FA Login Logo URL' );
-				$sSummary = _wpsf__( '2FA Login Logo URL' );
-				$sDescription = _wpsf__( 'The URL of the logo to display on the Two-Factor Authentication login page.' );
+				$sName = __( '2FA Login Logo URL', 'wp-simple-firewall' );
+				$sSummary = __( '2FA Login Logo URL', 'wp-simple-firewall' );
+				$sDescription = __( 'The URL of the logo to display on the Two-Factor Authentication login page.', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -888,10 +889,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$oCon = $this->getCon();
 		if ( !$oCon->isPluginAdmin() ) {
 			Services::WpGeneral()->wpDie(
-				_wpsf__( "Sorry, this plugin is protected against unauthorised attempts to disable it." )
+				__( "Sorry, this plugin is protected against unauthorised attempts to disable it.", 'wp-simple-firewall' )
 				.'<br />'.sprintf( '<a href="%s">%s</a>',
 					$this->getUrl_AdminPage(),
-					_wpsf__( "You'll just need to authenticate first and try again." )
+					__( "You'll just need to authenticate first and try again.", 'wp-simple-firewall' )
 				)
 			);
 		}

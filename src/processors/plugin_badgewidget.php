@@ -22,10 +22,10 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 		$this->setMod( $oMod );
 		parent::__construct(
 			$oMod->prefixOptionKey( 'plugin_badge' ),
-			sprintf( _wpsf__( '%s Plugin Badge' ), $this->getCon()->getHumanName() ),
+			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
 			[
-				'description' => sprintf( _wpsf__( 'You can now help spread the word about the %s plugin anywhere on your site' ), $this->getCon()
-																																		->getHumanName() ),
+				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ), $this->getCon()
+																																						 ->getHumanName() ),
 			]
 		);
 
@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 	 * @throws \Exception
 	 */
 	public function widget( $aWidgetArguments, $aWidgetInstance ) {
-		echo $this->standardRender( $aWidgetArguments, _wpsf__( 'Site Secured' ), $this->renderBadge() );
+		echo $this->standardRender( $aWidgetArguments, __( 'Site Secured', 'wp-simple-firewall' ), $this->renderBadge() );
 	}
 
 	/**

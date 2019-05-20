@@ -52,7 +52,8 @@
       "valid_admin": true,
       "delay_days":  15,
       "type":        "promo",
-      "twig":        true
+      "twig":        true,
+      "drip_form_id": "250437573"
     },
     "rate-plugin":                {
       "id":          "rate-plugin",
@@ -447,8 +448,8 @@
       "created_at",
       "deleted_at"
     ],
-    "geoip_table_name":    "geoip",
-    "geoip_table_columns": [
+    "geoip_table_name":       "geoip",
+    "geoip_table_columns":    [
       "id",
       "ip",
       "meta",
@@ -459,6 +460,7 @@
       {
         "slug":          "insights",
         "storage_key":   "insights",
+        "load_priority": 1,
         "menu_priority": 5
       },
       {
@@ -575,28 +577,6 @@
           "thankyou":                 {
             "security_admin": false,
             "title":          "Thank You!"
-          }
-        }
-      },
-      "gdpr":    {
-        "title":                "GDPR Data Wizard",
-        "desc":                 "Walks you through the searching and removal of personally identifiable data.",
-        "min_user_permissions": "manage_options",
-        "has_premium":          true,
-        "steps":                {
-          "start":    {
-            "security_admin": false,
-            "title":          "Start: GDPR Compliance"
-          },
-          "search":   {
-            "title": "Input Search"
-          },
-          "results":  {
-            "title": "Search Results"
-          },
-          "finished": {
-            "security_admin": false,
-            "title":          "Finished: GDPR Compliance"
           }
         }
       }

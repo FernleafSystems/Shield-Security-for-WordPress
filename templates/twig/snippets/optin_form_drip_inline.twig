@@ -1,0 +1,39 @@
+<form class="form-inline" id="drip-embedded-subscribe-form" target="_blank"
+	  action="https://www.getdrip.com/forms/{{ vars.drip_form_id }}/submissions"
+	  method="post" data-drip-embedded-form="{{ vars.drip_form_id }}">
+
+	<label class="sr-only" for="_fields[first_name]">{{ strings.your_name }}</label>
+	<input type="text" class="form-control col-2 mb-2 mr-sm-2" id="_fields[first_name]"
+		   name="fields[first_name]" placeholder="{{ vars.name }}" value="{{ vars.name }}">
+
+	<label class="sr-only " for="_fields[email]">{{ strings.your_email }}</label>
+	<input type="text" class="form-control col-3 mb-2 mr-sm-2" id="_fields[email]"
+		   name="fields[email]" placeholder="{{ vars.user_email }}" value="{{ vars.user_email }}">
+
+	<div class="form-check mb-2 mr-sm-2">
+		<input class="form-check-input" type="checkbox"
+			   id="OptinConsent" name="fields[eu_consent]">
+		<label class="form-check-label" for="OptinConsent">
+			<a href="{{ hrefs.privacy_policy }}" target="_blank">{{ strings.consent }}</a>
+		</label>
+	</div>
+
+	<button type="submit" class="btn btn-primary mb-2" name="subscribe">{{ strings.signup }}</button>
+</form>
+
+<style>
+	input[type=checkbox].form-check-input {
+		margin: 0;
+	}
+</style>
+
+<script type="text/javascript">
+	jQuery( document ).ready( function ( $ ) {
+		var $oSubButton = $( 'form#drip-embedded-subscribe-form button' );
+		var $oCheck = $( '#OptinConsent' );
+		$oSubButton.attr( "disabled", "disabled" );
+		$( document ).on( 'change', $oCheck, function () {
+			$oSubButton.prop( "disabled", !$oCheck.is( ":checked" ) );
+		} );
+	} );
+</script>

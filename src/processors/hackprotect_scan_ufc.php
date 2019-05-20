@@ -129,12 +129,12 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
+				 sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Unrecognised WordPress Files Detected', 'wp-simple-firewall' ) ),
 				 $this->buildEmailBodyFromFiles( $oRes->getItemsPathsFull() )
 			 );
 
 		$this->addToAuditEntry(
-			sprintf( _wpsf__( 'Sent Unrecognised File Scan Notification email alert to: %s' ), $sTo )
+			sprintf( __( 'Sent Unrecognised File Scan Notification email alert to: %s', 'wp-simple-firewall' ), $sTo )
 		);
 	}
 
@@ -151,30 +151,30 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$sHomeUrl = $this->loadWp()->getHomeUrl();
 
 		$aContent = [
-			sprintf( _wpsf__( 'The %s Unrecognised File Scanner found files which you need to review.' ), $sName ),
+			sprintf( __( 'The %s Unrecognised File Scanner found files which you need to review.', 'wp-simple-firewall' ), $sName ),
 			'',
-			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
 		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() ) {
-			$aContent[] = _wpsf__( 'Files discovered' ).':';
+			$aContent[] = __( 'Files discovered', 'wp-simple-firewall' ).':';
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}
 			$aContent[] = '';
 
 			if ( $oFO->isUfcDeleteFiles() ) {
-				$aContent[] = sprintf( _wpsf__( '%s has attempted to delete these files based on your current settings.' ), $sName );
+				$aContent[] = sprintf( __( '%s has attempted to delete these files based on your current settings.', 'wp-simple-firewall' ), $sName );
 				$aContent[] = '';
 			}
 		}
 
-		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+		$aContent[] = __( 'We recommend you run the scanner to review your site', 'wp-simple-firewall' ).':';
 		$aContent[] = $this->getScannerButtonForEmail();
 		$aContent[] = '';
 
 		if ( !$oCon->isRelabelled() ) {
-			$aContent[] = sprintf( '[ <a href="https://icwp.io/moreinfoufc">%s</a> ]', _wpsf__( 'More Info On This Scanner' ) );
+			$aContent[] = sprintf( '[ <a href="https://icwp.io/moreinfoufc">%s</a> ]', __( 'More Info On This Scanner', 'wp-simple-firewall' ) );
 		}
 
 		return $aContent;

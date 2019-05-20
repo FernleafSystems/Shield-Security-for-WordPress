@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function doPostConstruction() {
+		parent::doPostConstruction();
 		$this->setVisitorIp();
 	}
 
@@ -222,7 +223,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$oPro->getSubProImportExport()
 						 ->importFromUploadFile();
 					$bSuccess = true;
-					$sMessage = _wpsf__( 'Options imported successfully' );
+					$sMessage = __( 'Options imported successfully', 'wp-simple-firewall' );
 				}
 				catch ( \Exception $oE ) {
 					$bSuccess = false;
@@ -260,10 +261,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$aIds = $oReq->post( 'ids' );
 		if ( empty( $aIds ) || !is_array( $aIds ) ) {
 			$bSuccess = false;
-			$sMessage = _wpsf__( 'No items selected.' );
+			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
 		}
 		else if ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
-			$sMessage = _wpsf__( 'Not a supported action.' );
+			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
 
@@ -277,7 +278,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				}
 			}
 			$bSuccess = true;
-			$sMessage = _wpsf__( 'Selected items were deleted.' );
+			$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );
 		}
 
 		return [
@@ -338,7 +339,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 							 ->deleteForceOffFile()
 							 ->getIfForceOffActive();
 		if ( $bStillActive ) {
-			$this->setFlashAdminNotice( _wpsf__( 'File could not be automatically removed.' ), true );
+			$this->setFlashAdminNotice( __( 'File could not be automatically removed.', 'wp-simple-firewall' ), true );
 		}
 		return [ 'success' => !$bStillActive ];
 	}
@@ -350,7 +351,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$sItemId = Services::Request()->post( 'rid' );
 		if ( empty( $sItemId ) ) {
-			$sMessage = _wpsf__( 'Note not found.' );
+			$sMessage = __( 'Note not found.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var ICWP_WPSF_Processor_Plugin $oPro */
@@ -390,7 +391,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		// TODO: align with wizard AND combine with file upload errors
 		if ( $aFormParams[ 'confirm' ] !== 'Y' ) {
-			$sMessage = _wpsf__( 'Please check the box to confirm your intent to overwrite settings' );
+			$sMessage = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
 		}
 		else {
 			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
@@ -405,7 +406,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$nCode = $oP->getSubProImportExport()
 						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			$bSuccess = $nCode == 0;
-			$sMessage = $bSuccess ? _wpsf__( 'Options imported successfully' ) : _wpsf__( 'Options failed to import' );
+			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}
 		return [
 			'success' => $bSuccess,
@@ -422,10 +423,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
 		if ( !$this->getCanAdminNotes() ) {
-			$sMessage = _wpsf__( 'Sorry, Admin Notes is only available for Pro subscriptions.' );
+			$sMessage = __( 'Sorry, Admin Notes is only available for Pro subscriptions.', 'wp-simple-firewall' );
 		}
 		else if ( empty( $sNote ) ) {
-			$sMessage = _wpsf__( 'Sorry, but it appears your note was empty.' );
+			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
 			/** @var ICWP_WPSF_Processor_Plugin $oP */
@@ -435,7 +436,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 							->getDbHandler()
 							->getQueryInserter();
 			$bSuccess = $oInserter->create( $sNote );
-			$sMessage = $bSuccess ? _wpsf__( 'Note created successfully.' ) : _wpsf__( 'Note could not be created.' );
+			$sMessage = $bSuccess ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
 		return [
 			'success' => $bSuccess,
@@ -983,7 +984,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 						  ->render();
 
 		$sBadgeText = sprintf(
-			_wpsf__( 'This Site Is Protected By %s' ),
+			__( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
 			sprintf(
 				'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
 				$oCon->getHumanName()
@@ -1006,8 +1007,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			[
-				'actions_title'   => _wpsf__( 'Plugin Actions' ),
-				'actions_summary' => _wpsf__( 'E.g. Import/Export' ),
+				'actions_title'   => __( 'Plugin Actions', 'wp-simple-firewall' ),
+				'actions_summary' => __( 'E.g. Import/Export', 'wp-simple-firewall' ),
 			]
 		);
 	}
@@ -1070,8 +1071,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function addInsightsConfigData( $aAllData ) {
 		$aThis = [
 			'strings'      => [
-				'title' => _wpsf__( 'General Settings' ),
-				'sub'   => sprintf( _wpsf__( 'General %s Settings' ), $this->getCon()->getHumanName() ),
+				'title' => __( 'General Settings', 'wp-simple-firewall' ),
+				'sub'   => sprintf( __( 'General %s Settings', 'wp-simple-firewall' ), $this->getCon()
+																							->getHumanName() ),
 			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
@@ -1083,32 +1085,32 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		else {
 			$sSource = $this->getOptionsVo()->getSelectOptionValueText( 'visitor_address_source' );
 			$aThis[ 'key_opts' ][ 'editing' ] = [
-				'name'    => _wpsf__( 'Visitor IP' ),
+				'name'    => __( 'Visitor IP', 'wp-simple-firewall' ),
 				'enabled' => true,
-				'summary' => sprintf( _wpsf__( 'Visitor IP address source is: %s' ), $sSource ),
+				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ), $sSource ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			];
 
 			$bHasSupportEmail = Services::Data()->validEmail( $this->supplyPluginReportEmail() );
 			$aThis[ 'key_opts' ][ 'reports' ] = [
-				'name'    => _wpsf__( 'Reporting Email' ),
+				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
 				'enabled' => $bHasSupportEmail,
 				'summary' => $bHasSupportEmail ?
-					sprintf( _wpsf__( 'Email address for reports set to: %s' ), $this->supplyPluginReportEmail() )
-					: sprintf( _wpsf__( 'No address provided - defaulting to: %s' ), Services::WpGeneral()
-																							 ->getSiteAdminEmail() ),
+					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $this->supplyPluginReportEmail() )
+					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), Services::WpGeneral()
+																											  ->getSiteAdminEmail() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			];
 
 			$bRecap = $this->isGoogleRecaptchaReady();
 			$aThis[ 'key_opts' ][ 'recap' ] = [
-				'name'    => _wpsf__( 'reCAPTCHA' ),
+				'name'    => __( 'reCAPTCHA', 'wp-simple-firewall' ),
 				'enabled' => $bRecap,
 				'summary' => $bRecap ?
-					_wpsf__( 'Google reCAPTCHA keys have been provided' )
-					: _wpsf__( "Google reCAPTCHA keys haven't been provided" ),
+					__( 'Google reCAPTCHA keys have been provided', 'wp-simple-firewall' )
+					: __( "Google reCAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			];
@@ -1129,51 +1131,54 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		switch ( $aOptionsParams[ 'slug' ] ) {
 
 			case 'section_global_security_options' :
-				$sTitle = _wpsf__( 'Global Security Plugin Disable' );
-				$sTitleShort = sprintf( _wpsf__( 'Disable %s' ), $sName );
+				$sTitle = __( 'Global Security Plugin Disable', 'wp-simple-firewall' );
+				$sTitleShort = sprintf( __( 'Disable %s', 'wp-simple-firewall' ), $sName );
+				$aSummary = [
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Use this option to completely disable all active Shield Protection.', 'wp-simple-firewall' ) ),
+				];
 				break;
 
 			case 'section_defaults' :
-				$sTitle = _wpsf__( 'Plugin Defaults' );
-				$sTitleShort = _wpsf__( 'Plugin Defaults' );
+				$sTitle = __( 'Plugin Defaults', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Plugin Defaults', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Important default settings used throughout the plugin.' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Important default settings used throughout the plugin.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
 			case 'section_importexport' :
-				$sTitle = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
+				$sTitle = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Automatically import options, and deploy configurations across your entire network.' ) ),
-					sprintf( _wpsf__( 'This is a Pro-only feature.' ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Automatically import options, and deploy configurations across your entire network.', 'wp-simple-firewall' ) ),
+					sprintf( __( 'This is a Pro-only feature.', 'wp-simple-firewall' ) ),
 				];
-				$sTitleShort = sprintf( '%s / %s', _wpsf__( 'Import' ), _wpsf__( 'Export' ) );
+				$sTitleShort = sprintf( '%s / %s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) );
 				break;
 
 			case 'section_general_plugin_options' :
-				$sTitle = _wpsf__( 'General Plugin Options' );
-				$sTitleShort = _wpsf__( 'General Options' );
+				$sTitle = __( 'General Plugin Options', 'wp-simple-firewall' );
+				$sTitleShort = __( 'General Options', 'wp-simple-firewall' );
 				break;
 
 			case 'section_third_party_google' :
-				$sTitle = _wpsf__( 'Google' );
-				$sTitleShort = _wpsf__( 'Google' );
+				$sTitle = __( 'Google', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Google', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), sprintf( _wpsf__( 'Setup Google reCAPTCHA for use across %s.' ), $sName ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup Google reCAPTCHA for use across %s.', 'wp-simple-firewall' ), $sName ) ),
 					sprintf( '%s - %s',
-						_wpsf__( 'Recommendation' ),
-						sprintf( _wpsf__( 'Use of this feature is highly recommend.' ).' '
-								 .sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'You must create your own Google reCAPTCHA API Keys.' ) )
+						__( 'Recommendation', 'wp-simple-firewall' ),
+						sprintf( __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ).' '
+								 .sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You must create your own Google reCAPTCHA API Keys.', 'wp-simple-firewall' ) )
 						)
-						.sprintf( '<br/><a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', _wpsf__( 'API Keys' ) )
+						.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', __( 'Manage Keys Here', 'wp-simple-firewall' ) )
 					),
-					sprintf( '%s - %s', _wpsf__( 'Note' ), sprintf( _wpsf__( 'Invisible Google reCAPTCHA is available with %s Pro.' ), $sName ) )
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Invisible Google reCAPTCHA is available with %s Pro.', 'wp-simple-firewall' ), $sName ) )
 				];
 				break;
 
 			case 'section_third_party_duo' :
-				$sTitle = _wpsf__( 'Duo Security' );
-				$sTitleShort = _wpsf__( 'Duo Security' );
+				$sTitle = __( 'Duo Security', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Duo Security', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -1197,32 +1202,32 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		switch ( $sKey ) {
 
 			case 'global_enable_plugin_features' :
-				$sName = _wpsf__( 'Enable/Disable Plugin Modules' );
-				$sSummary = _wpsf__( 'Enable/Disable All Plugin Modules' );
-				$sDescription = sprintf( _wpsf__( 'Uncheck this option to disable all %s features.' ), $sPlugName );
+				$sName = __( 'Enable/Disable Plugin Modules', 'wp-simple-firewall' );
+				$sSummary = __( 'Enable/Disable All Plugin Modules', 'wp-simple-firewall' );
+				$sDescription = sprintf( __( 'Uncheck this option to disable all %s features.', 'wp-simple-firewall' ), $sPlugName );
 				break;
 
 			case 'enable_notes' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Admin Notes' ) );
-				$sSummary = _wpsf__( 'Turn-On Admin Notes Section In Insights Dashboard' );
-				$sDescription = _wpsf__( 'When turned-on it enables administrators to enter custom notes in the Insights Dashboard.' );
+				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Admin Notes', 'wp-simple-firewall' ) );
+				$sSummary = __( 'Turn-On Admin Notes Section In Insights Dashboard', 'wp-simple-firewall' );
+				$sDescription = __( 'When turned-on it enables administrators to enter custom notes in the Insights Dashboard.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_tracking' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), _wpsf__( 'Information Gathering' ) );
-				$sSummary = _wpsf__( 'Permit Anonymous Usage Information Gathering' );
-				$sDescription = _wpsf__( 'Allows us to gather information on statistics and features in-use across our client installations.' )
-								.' '._wpsf__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.' )
-								.'<br />'.sprintf( '<a href="%s" target="_blank">%s</a>', $this->getLinkToTrackingDataDump(), _wpsf__( 'Click to see the exact data that would be sent.' ) );
+				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), __( 'Information Gathering', 'wp-simple-firewall' ) );
+				$sSummary = __( 'Permit Anonymous Usage Information Gathering', 'wp-simple-firewall' );
+				$sDescription = __( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
+								.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '<a href="%s" target="_blank">%s</a>', $this->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'visitor_address_source' :
-				$sName = _wpsf__( 'IP Source' );
-				$sSummary = _wpsf__( 'Which IP Address Is Yours' );
-				$sDescription = _wpsf__( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.' )
-								.'<br />'._wpsf__( 'If the option you select becomes unavailable, we will revert to auto detection.' )
+				$sName = __( 'IP Source', 'wp-simple-firewall' );
+				$sSummary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' ).'?';
+				$sDescription = __( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.', 'wp-simple-firewall' )
+								.'<br />'.__( 'If the option you select becomes unavailable, we will revert to auto detection.', 'wp-simple-firewall' )
 								.'<br />'.sprintf(
-									_wpsf__( 'Current source is: %s (%s)' ),
+									__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
 									'<strong>'.$this->getVisitorAddressSource().'</strong>',
 									$this->getOpt( 'last_ip_detect_source' )
 								)
@@ -1231,96 +1236,96 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				break;
 
 			case 'block_send_email_address' :
-				$sName = _wpsf__( 'Report Email' );
-				$sSummary = _wpsf__( 'Where to send email reports' );
-				$sDescription = sprintf( _wpsf__( 'If this is empty, it will default to the blog admin email address: %s' ), '<br /><strong>'.get_bloginfo( 'admin_email' ).'</strong>' );
+				$sName = __( 'Report Email', 'wp-simple-firewall' );
+				$sSummary = __( 'Where to send email reports', 'wp-simple-firewall' );
+				$sDescription = sprintf( __( 'If this is empty, it will default to the blog admin email address: %s', 'wp-simple-firewall' ), '<br /><strong>'.get_bloginfo( 'admin_email' ).'</strong>' );
 				break;
 
 			case 'enable_upgrade_admin_notice' :
-				$sName = _wpsf__( 'In-Plugin Notices' );
-				$sSummary = _wpsf__( 'Display Plugin Specific Notices' );
-				$sDescription = _wpsf__( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.' );
+				$sName = __( 'In-Plugin Notices', 'wp-simple-firewall' );
+				$sSummary = __( 'Display Plugin Specific Notices', 'wp-simple-firewall' );
+				$sDescription = __( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.', 'wp-simple-firewall' );
 				break;
 
 			case 'display_plugin_badge' :
-				$sName = _wpsf__( 'Show Plugin Badge' );
-				$sSummary = _wpsf__( 'Display Plugin Badge On Your Site' );
-				$sDescription = _wpsf__( 'Enabling this option helps support the plugin by spreading the word about it on your website.' )
-								.' '._wpsf__( 'The plugin badge also lets visitors know your are taking your website security seriously.' )
-								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://icwp.io/wpsf20', _wpsf__( 'Read this carefully before enabling this option.' ) );
+				$sName = __( 'Show Plugin Badge', 'wp-simple-firewall' );
+				$sSummary = __( 'Display Plugin Badge On Your Site', 'wp-simple-firewall' );
+				$sDescription = __( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
+								.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' )
+								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://icwp.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'delete_on_deactivate' :
-				$sName = _wpsf__( 'Delete Plugin Settings' );
-				$sSummary = _wpsf__( 'Delete All Plugin Settings Upon Plugin Deactivation' );
-				$sDescription = _wpsf__( 'Careful: Removes all plugin options when you deactivate the plugin' );
+				$sName = __( 'Delete Plugin Settings', 'wp-simple-firewall' );
+				$sSummary = __( 'Delete All Plugin Settings Upon Plugin Deactivation', 'wp-simple-firewall' );
+				$sDescription = __( 'Careful: Removes all plugin options when you deactivate the plugin', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_xmlrpc_compatibility' :
-				$sName = _wpsf__( 'XML-RPC Compatibility' );
-				$sSummary = _wpsf__( 'Allow Login Through XML-RPC To By-Pass Accounts Management Rules' );
-				$sDescription = _wpsf__( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.' );
+				$sName = __( 'XML-RPC Compatibility', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Login Through XML-RPC To By-Pass Accounts Management Rules', 'wp-simple-firewall' );
+				$sDescription = __( 'Enable this if you need XML-RPC functionality e.g. if you use the WordPress iPhone/Android App.', 'wp-simple-firewall' );
 				break;
 
 			case 'importexport_enable' :
-				$sName = _wpsf__( 'Allow Import/Export' );
-				$sSummary = _wpsf__( 'Allow Import And Export Of Options On This Site' );
-				$sDescription = _wpsf__( 'Uncheck this box to completely disable import and export of options.' )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'Import/Export is a premium-only feature.' ) );
+				$sName = __( 'Allow Import/Export', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Import And Export Of Options On This Site', 'wp-simple-firewall' );
+				$sDescription = __( 'Uncheck this box to completely disable import and export of options.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Import/Export is a premium-only feature.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'importexport_whitelist' :
-				$sName = _wpsf__( 'Export Whitelist' );
-				$sSummary = _wpsf__( 'Whitelisted Sites To Export Options From This Site' );
-				$sDescription = _wpsf__( 'Whitelisted sites may export options from this site without the key.' )
-								.'<br />'._wpsf__( 'List each site URL on a new line.' )
-								.'<br />'._wpsf__( 'This is to be used in conjunction with the Master Import Site feature.' );
+				$sName = __( 'Export Whitelist', 'wp-simple-firewall' );
+				$sSummary = __( 'Whitelisted Sites To Export Options From This Site', 'wp-simple-firewall' );
+				$sDescription = __( 'Whitelisted sites may export options from this site without the key.', 'wp-simple-firewall' )
+								.'<br />'.__( 'List each site URL on a new line.', 'wp-simple-firewall' )
+								.'<br />'.__( 'This is to be used in conjunction with the Master Import Site feature.', 'wp-simple-firewall' );
 				break;
 
 			case 'importexport_masterurl' :
-				$sName = _wpsf__( 'Master Import Site' );
-				$sSummary = _wpsf__( 'Automatically Import Options From This Site URL' );
-				$sDescription = _wpsf__( "Supplying a site URL here will make this site an 'Options Slave'." )
-								.'<br />'._wpsf__( 'Options will be automatically exported from the Master site each day.' )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.' ) );
+				$sName = __( 'Master Import Site', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Import Options From This Site URL', 'wp-simple-firewall' );
+				$sDescription = __( "Supplying a site URL here will make this site an 'Options Slave'.", 'wp-simple-firewall' )
+								.'<br />'.__( 'Options will be automatically exported from the Master site each day.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'importexport_whitelist_notify' :
-				$sName = _wpsf__( 'Notify Whitelist' );
-				$sSummary = _wpsf__( 'Notify Sites On The Whitelist To Update Options From Master' );
-				$sDescription = _wpsf__( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site." );
+				$sName = __( 'Notify Whitelist', 'wp-simple-firewall' );
+				$sSummary = __( 'Notify Sites On The Whitelist To Update Options From Master', 'wp-simple-firewall' );
+				$sDescription = __( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site.", 'wp-simple-firewall' );
 				break;
 
 			case 'importexport_secretkey' :
-				$sName = _wpsf__( 'Secret Key' );
-				$sSummary = _wpsf__( 'Import/Export Secret Key' );
-				$sDescription = _wpsf__( 'Keep this Secret Key private as it will allow the import and export of options.' );
+				$sName = __( 'Secret Key', 'wp-simple-firewall' );
+				$sSummary = __( 'Import/Export Secret Key', 'wp-simple-firewall' );
+				$sDescription = __( 'Keep this Secret Key private as it will allow the import and export of options.', 'wp-simple-firewall' );
 				break;
 
 			case 'unique_installation_id' :
-				$sName = _wpsf__( 'Installation ID' );
-				$sSummary = _wpsf__( 'Unique Plugin Installation ID' );
-				$sDescription = _wpsf__( 'Keep this ID private.' );
+				$sName = __( 'Installation ID', 'wp-simple-firewall' );
+				$sSummary = __( 'Unique Plugin Installation ID', 'wp-simple-firewall' );
+				$sDescription = __( 'Keep this ID private.', 'wp-simple-firewall' );
 				break;
 
 			case 'google_recaptcha_secret_key' :
-				$sName = _wpsf__( 'reCAPTCHA Secret' );
-				$sSummary = _wpsf__( 'Google reCAPTCHA Secret Key' );
-				$sDescription = _wpsf__( 'Enter your Google reCAPTCHA secret key for use throughout the plugin.' )
-								.'<br />'.sprintf( '<strong>%s</strong>: %s', _wpsf__( 'Important' ), 'reCAPTCHA v3 not supported.' );
+				$sName = __( 'reCAPTCHA Secret', 'wp-simple-firewall' );
+				$sSummary = __( 'Google reCAPTCHA Secret Key', 'wp-simple-firewall' );
+				$sDescription = __( 'Enter your Google reCAPTCHA secret key for use throughout the plugin.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), 'reCAPTCHA v3 not supported.' );
 				break;
 
 			case 'google_recaptcha_site_key' :
-				$sName = _wpsf__( 'reCAPTCHA Site Key' );
-				$sSummary = _wpsf__( 'Google reCAPTCHA Site Key' );
-				$sDescription = _wpsf__( 'Enter your Google reCAPTCHA site key for use throughout the plugin' )
-								.'<br />'.sprintf( '<strong>%s</strong>: %s', _wpsf__( 'Important' ), 'reCAPTCHA v3 not supported.' );
+				$sName = __( 'reCAPTCHA Site Key', 'wp-simple-firewall' );
+				$sSummary = __( 'Google reCAPTCHA Site Key', 'wp-simple-firewall' );
+				$sDescription = __( 'Enter your Google reCAPTCHA site key for use throughout the plugin', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), 'reCAPTCHA v3 not supported.' );
 				break;
 
 			case 'google_recaptcha_style' :
-				$sName = _wpsf__( 'reCAPTCHA Style' );
-				$sSummary = _wpsf__( 'How Google reCAPTCHA Will Be Displayed By Default' );
-				$sDescription = _wpsf__( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha' );
+				$sName = __( 'reCAPTCHA Style', 'wp-simple-firewall' );
+				$sSummary = __( 'How Google reCAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
+				$sDescription = __( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -1344,56 +1349,56 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Kept just in-case.
 	 */
 	protected function old_translations() {
-		_wpsf__( 'IP Whitelist' );
-		_wpsf__( 'IP Address White List' );
-		_wpsf__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.' );
-		_wpsf__( 'Your IP address is: %s' );
-		_wpsf__( 'Choose IP Addresses To Blacklist' );
-		_wpsf__( 'Recommendation - %s' );
-		_wpsf__( 'Blacklist' );
-		_wpsf__( 'Logging' );
-		_wpsf__( 'User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).' );
-		_wpsf__( 'User "%s" was found to be un-verified at the given IP Address: "%s".' );
-		_wpsf__( 'Cookie' );
-		_wpsf__( 'IP Address' );
-		_wpsf__( 'IP' );
-		_wpsf__( 'This will restrict all user login sessions to a single browser. Use this if your users have dynamic IP addresses.' );
-		_wpsf__( 'All users will be required to authenticate their login by email-based two-factor authentication, when logging in from a new IP address' );
-		_wpsf__( '2-Factor Auth' );
-		_wpsf__( 'Include Logged-In Users' );
-		_wpsf__( 'You may also enable GASP for logged in users' );
-		_wpsf__( 'Since logged-in users would be expected to be vetted already, this is off by default.' );
-		_wpsf__( 'Security Admin' );
-		_wpsf__( 'Protect your security plugin not just your WordPress site' );
-		_wpsf__( 'Security Admin' );
-		_wpsf__( 'Audit Trail' );
-		_wpsf__( 'Get a view on what happens on your site, when it happens' );
-		_wpsf__( 'Audit Trail Viewer' );
-		_wpsf__( 'Automatic Updates' );
-		_wpsf__( 'Take back full control of WordPress automatic updates' );
-		_wpsf__( 'Comments SPAM' );
-		_wpsf__( 'Block comment SPAM and retain your privacy' );
-		_wpsf__( 'Email' );
-		_wpsf__( 'Firewall' );
-		_wpsf__( 'Automatically block malicious URLs and data sent to your site' );
-		_wpsf__( 'Hack Guard' );
-		_wpsf__( 'HTTP Headers' );
-		_wpsf__( 'Control HTTP Security Headers' );
-		_wpsf__( 'IP Manager' );
-		_wpsf__( 'Manage Visitor IP Address' );
-		_wpsf__( 'Lockdown' );
-		_wpsf__( 'Harden the more loosely controlled settings of your site' );
-		_wpsf__( 'Login Guard' );
-		_wpsf__( 'Block brute force attacks and secure user identities with Two-Factor Authentication' );
-		_wpsf__( 'Dashboard' );
-		_wpsf__( 'General Plugin Settings' );
-		_wpsf__( 'Statistics' );
-		_wpsf__( 'Summary of the main security actions taken by this plugin' );
-		_wpsf__( 'Stats Viewer' );
-		_wpsf__( 'Premium Support' );
-		_wpsf__( 'Premium Plugin Support Centre' );
-		_wpsf__( 'User Management' );
-		_wpsf__( 'Get true user sessions and control account sharing, session duration and timeouts' );
-		_wpsf__( 'Two-Factor Authentication' );
+		__( 'IP Whitelist', 'wp-simple-firewall' );
+		__( 'IP Address White List', 'wp-simple-firewall' );
+		__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.', 'wp-simple-firewall' );
+		__( 'Your IP address is: %s', 'wp-simple-firewall' );
+		__( 'Choose IP Addresses To Blacklist', 'wp-simple-firewall' );
+		__( 'Recommendation - %s', 'wp-simple-firewall' );
+		__( 'Blacklist', 'wp-simple-firewall' );
+		__( 'Logging', 'wp-simple-firewall' );
+		__( 'User "%s" was forcefully logged out as they were not verified by either cookie or IP address (or both).', 'wp-simple-firewall' );
+		__( 'User "%s" was found to be un-verified at the given IP Address: "%s".', 'wp-simple-firewall' );
+		__( 'Cookie', 'wp-simple-firewall' );
+		__( 'IP Address', 'wp-simple-firewall' );
+		__( 'IP', 'wp-simple-firewall' );
+		__( 'This will restrict all user login sessions to a single browser. Use this if your users have dynamic IP addresses.', 'wp-simple-firewall' );
+		__( 'All users will be required to authenticate their login by email-based two-factor authentication, when logging in from a new IP address', 'wp-simple-firewall' );
+		__( '2-Factor Auth', 'wp-simple-firewall' );
+		__( 'Include Logged-In Users', 'wp-simple-firewall' );
+		__( 'You may also enable GASP for logged in users', 'wp-simple-firewall' );
+		__( 'Since logged-in users would be expected to be vetted already, this is off by default.', 'wp-simple-firewall' );
+		__( 'Security Admin', 'wp-simple-firewall' );
+		__( 'Protect your security plugin not just your WordPress site', 'wp-simple-firewall' );
+		__( 'Security Admin', 'wp-simple-firewall' );
+		__( 'Audit Trail', 'wp-simple-firewall' );
+		__( 'Get a view on what happens on your site, when it happens', 'wp-simple-firewall' );
+		__( 'Audit Trail Viewer', 'wp-simple-firewall' );
+		__( 'Automatic Updates', 'wp-simple-firewall' );
+		__( 'Take back full control of WordPress automatic updates', 'wp-simple-firewall' );
+		__( 'Comments SPAM', 'wp-simple-firewall' );
+		__( 'Block comment SPAM and retain your privacy', 'wp-simple-firewall' );
+		__( 'Email', 'wp-simple-firewall' );
+		__( 'Firewall', 'wp-simple-firewall' );
+		__( 'Automatically block malicious URLs and data sent to your site', 'wp-simple-firewall' );
+		__( 'Hack Guard', 'wp-simple-firewall' );
+		__( 'HTTP Headers', 'wp-simple-firewall' );
+		__( 'Control HTTP Security Headers', 'wp-simple-firewall' );
+		__( 'IP Manager', 'wp-simple-firewall' );
+		__( 'Manage Visitor IP Address', 'wp-simple-firewall' );
+		__( 'WP Lockdown', 'wp-simple-firewall' );
+		__( 'Harden the more loosely controlled settings of your site', 'wp-simple-firewall' );
+		__( 'Login Guard', 'wp-simple-firewall' );
+		__( 'Block brute force attacks and secure user identities with Two-Factor Authentication', 'wp-simple-firewall' );
+		__( 'Dashboard', 'wp-simple-firewall' );
+		__( 'General Plugin Settings', 'wp-simple-firewall' );
+		__( 'Statistics', 'wp-simple-firewall' );
+		__( 'Summary of the main security actions taken by this plugin', 'wp-simple-firewall' );
+		__( 'Stats Viewer', 'wp-simple-firewall' );
+		__( 'Premium Support', 'wp-simple-firewall' );
+		__( 'Premium Plugin Support Centre', 'wp-simple-firewall' );
+		__( 'User Management', 'wp-simple-firewall' );
+		__( 'Get true user sessions and control account sharing, session duration and timeouts', 'wp-simple-firewall' );
+		__( 'Two-Factor Authentication', 'wp-simple-firewall' );
 	}
 }

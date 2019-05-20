@@ -286,16 +286,16 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		$aRenderData = [
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => [
-				'title'          => sprintf( _wpsf__( '%s Security Restrictions Applied' ), $sName ),
-				'notice_message' => _wpsf__( 'Altering certain options has been restricted by your WordPress security administrator.' )
-									.' '._wpsf__( 'Repeated failed attempts to authenticate will probably lock you out of this site.' )
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
+				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
+									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
 					$oFO->getUrl_AdminPage(),
-					_wpsf__( 'Admin Access Login' ),
-					sprintf( _wpsf__( 'Go here to manage settings and authenticate with the %s plugin.' ), $sName )
+					__( 'Admin Access Login', 'wp-simple-firewall' ),
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
 				)
 			]
 		];
@@ -325,17 +325,17 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		$aRenderData = [
 			'notice_attributes' => $aNoticeAttributes,
 			'strings'           => [
-				'title'          => sprintf( _wpsf__( '%s Security Restrictions Applied' ), $sName ),
-				'notice_message' => _wpsf__( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.' )
-									.' '._wpsf__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.' ),
-				'unlock_link'    => $this->getUnlockLinkHtml( _wpsf__( 'Unlock Now' ) ),
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
+				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
+									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
+				'unlock_link'    => $this->getUnlockLinkHtml( __( 'Unlock Now', 'wp-simple-firewall' ) ),
 			],
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
 					$oFO->getUrl_AdminPage(),
-					_wpsf__( 'Security Admin Login' ),
-					sprintf( _wpsf__( 'Go here to manage settings and authenticate with the %s plugin.' ), $sName )
+					__( 'Security Admin Login', 'wp-simple-firewall' ),
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
 				)
 			]
 		];
@@ -536,7 +536,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				'restrict_options' => $oFO->getAdminAccessArea_Options()
 			],
 			'strings'     => [
-				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				'unlock_link'        => $this->getUnlockLinkHtml(),
 			],
 			'js_snippets' => [
@@ -556,12 +556,12 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function getUnlockLinkHtml( $sLinkText = '' ) {
 		if ( empty( $sLinkText ) ) {
-			$sLinkText = _wpsf__( 'Unlock' );
+			$sLinkText = __( 'Unlock', 'wp-simple-firewall' );
 		}
 		return sprintf(
 			'<a href="%1$s" title="%2$s" class="thickbox">%3$s</a>',
 			'#TB_inline?width=400&height=180&inlineId=WpsfAdminAccessLogin',
-			_wpsf__( 'Security Admin Login' ),
+			__( 'Security Admin Login', 'wp-simple-firewall' ),
 			$sLinkText
 		);
 	}

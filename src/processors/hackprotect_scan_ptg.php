@@ -174,7 +174,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	public function printPluginReinstallDialogs() {
 		$aRenderData = [
 			'strings'     => [
-				'editing_restricted' => _wpsf__( 'Editing this option is currently restricted.' ),
+				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 			],
 			'js_snippets' => []
 		];
@@ -276,7 +276,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->removeItemSnapshot( $sBaseName )
 					   ->save();
-				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for plugin "%s"' ), $sBaseName ) );
+				$this->addToAuditEntry( sprintf( __( 'File signatures removed for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -299,7 +299,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->addSnapItem( $sBaseName, $this->buildSnapshotPlugin( $sBaseName ) )
 					   ->save();
-				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for plugin "%s"' ), $sBaseName ) );
+				$this->addToAuditEntry( sprintf( __( 'File signatures updated for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -308,7 +308,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->removeItemSnapshot( $sBaseName )
 					   ->save();
-				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for plugin "%s"' ), $sBaseName ) );
+				$this->addToAuditEntry( sprintf( __( 'File signatures removed for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -325,7 +325,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->addSnapItem( $sSlug, $this->buildSnapshotTheme( $sSlug ) )
 					   ->save();
-				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures updated for theme "%s"' ), $sSlug ) );
+				$this->addToAuditEntry( sprintf( __( 'File signatures updated for theme "%s"', 'wp-simple-firewall' ), $sSlug ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -334,7 +334,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->removeItemSnapshot( $sSlug )
 					   ->save();
-				$this->addToAuditEntry( sprintf( _wpsf__( 'File signatures removed for theme "%s"' ), $sSlug ) );
+				$this->addToAuditEntry( sprintf( __( 'File signatures removed for theme "%s"', 'wp-simple-firewall' ), $sSlug ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -590,18 +590,18 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$sHomeUrl = Services\Services::WpGeneral()->getHomeUrl();
 
 		$aContent = [
-			sprintf( _wpsf__( '%s has detected at least 1 Plugins/Themes have been modified on your site.' ), $sName ),
+			sprintf( __( '%s has detected at least 1 Plugins/Themes have been modified on your site.', 'wp-simple-firewall' ), $sName ),
 			'',
-			sprintf( '<strong>%s</strong>', _wpsf__( 'You will receive only 1 email notification about these changes in a 1 week period.' ) ),
+			sprintf( '<strong>%s</strong>', __( 'You will receive only 1 email notification about these changes in a 1 week period.', 'wp-simple-firewall' ) ),
 			'',
-			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 			'',
-			_wpsf__( 'Details of the problem items are below:' ),
+			__( 'Details of the problem items are below:', 'wp-simple-firewall' ),
 		];
 
 		if ( !empty( $aAllPlugins ) ) {
 			$aContent[] = '';
-			$aContent[] = sprintf( '<strong>%s</strong>', _wpsf__( 'Modified Plugins:' ) );
+			$aContent[] = sprintf( '<strong>%s</strong>', __( 'Modified Plugins:', 'wp-simple-firewall' ) );
 			foreach ( $aAllPlugins as $sPlugins ) {
 				$aContent[] = ' - '.$sPlugins;
 			}
@@ -609,7 +609,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		if ( !empty( $aAllThemes ) ) {
 			$aContent[] = '';
-			$aContent[] = sprintf( '<strong>%s</strong>', _wpsf__( 'Modified Themes:' ) );
+			$aContent[] = sprintf( '<strong>%s</strong>', __( 'Modified Themes:', 'wp-simple-firewall' ) );
 			foreach ( $aAllThemes as $sTheme ) {
 				$aContent[] = ' - '.$sTheme;
 			}
@@ -619,15 +619,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$aContent[] = '';
 
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
-		$sEmailSubject = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Plugins/Themes Have Been Altered' ) );
+		$sEmailSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Plugins/Themes Have Been Altered', 'wp-simple-firewall' ) );
 		$bSendSuccess = $this->getEmailProcessor()
 							 ->sendEmailWithWrap( $sTo, $sEmailSubject, $aContent );
 
 		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Successfully sent Plugin/Theme Guard email alert to: %s' ), $sTo ) );
+			$this->addToAuditEntry( sprintf( __( 'Successfully sent Plugin/Theme Guard email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
 		}
 		else {
-			$this->addToAuditEntry( sprintf( _wpsf__( 'Failed to send Plugin/Theme Guard email alert to: %s' ), $sTo ) );
+			$this->addToAuditEntry( sprintf( __( 'Failed to send Plugin/Theme Guard email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
 		}
 	}
 
@@ -662,7 +662,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return $this
 	 */
 	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
-		$sMsg = sprintf( '[%s]: %s', _wpsf__( 'Plugin/Theme Guard' ), $sMsg );
+		$sMsg = sprintf( '[%s]: %s', __( 'Plugin/Theme Guard', 'wp-simple-firewall' ), $sMsg );
 		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
 		return $this;
 	}

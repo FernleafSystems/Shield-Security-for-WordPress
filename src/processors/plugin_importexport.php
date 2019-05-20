@@ -69,7 +69,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			}
 
 			$this->addToAuditEntry(
-				_wpsf__( 'Sent notifications to whitelisted sites for required options import.' ),
+				__( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' ),
 				1,
 				'options_import_notify'
 			);
@@ -186,7 +186,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
-			throw new \Exception( _wpsf__( 'Please check the box to confirm your intent to overwrite settings' ) );
+			throw new \Exception( __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' ) );
 		};
 
 		$oFs = Services::WpFs();
@@ -225,7 +225,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			}
 		}
 
-		$this->processDataImport( $aData, _wpsf__( 'uploaded file' ) );
+		$this->processDataImport( $aData, __( 'uploaded file', 'wp-simple-firewall' ) );
 		$oFs->deleteFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 	}
 
@@ -246,12 +246,12 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		if ( !$oFO->isPremium() ) {
 			throw new \Exception(
-				sprintf( _wpsf__( 'Not currently running %s Pro.' ), $this->getCon()->getHumanName() ),
+				sprintf( __( 'Not currently running %s Pro.', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
 				1
 			);
 		}
 		if ( !$oFO->isImportExportPermitted() ) {
-			throw new \Exception( _wpsf__( 'Export of options is currently disabled.' ), 2 );
+			throw new \Exception( __( 'Export of options is currently disabled.', 'wp-simple-firewall' ), 2 );
 		}
 	}
 
@@ -302,8 +302,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			}
 
 			$this->addToAuditEntry(
-				_wpsf__( 'Received notification that options import required.' )
-				.' '.sprintf( _wpsf__( 'Current master site: %s' ), $oFO->getImportExportMasterImportUrl() ),
+				__( 'Received notification that options import required.', 'wp-simple-firewall' )
+				.' '.sprintf( __( 'Current master site: %s', 'wp-simple-firewall' ), $oFO->getImportExportMasterImportUrl() ),
 				1,
 				'options_import_notified',
 				$sUrl
@@ -333,15 +333,16 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		if ( !$oFO->isPremium() ) {
 			$nCode = 1;
-			$sMessage = sprintf( _wpsf__( 'Not currently running %s Pro.' ), $this->getCon()->getHumanName() );
+			$sMessage = sprintf( __( 'Not currently running %s Pro.', 'wp-simple-firewall' ), $this->getCon()
+																								   ->getHumanName() );
 		}
 		else if ( !$oFO->isImportExportPermitted() ) {
 			$nCode = 2;
-			$sMessage = _wpsf__( 'Export of options is currently disabled.' );
+			$sMessage = __( 'Export of options is currently disabled.', 'wp-simple-firewall' );
 		}
 		else if ( !$this->verifyUrlWithHandshake( $sUrl ) ) {
 			$nCode = 3;
-			$sMessage = _wpsf__( 'Handshake verification failed.' );
+			$sMessage = __( 'Handshake verification failed.', 'wp-simple-firewall' );
 		}
 		else {
 			$nCode = 0;
@@ -350,14 +351,14 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			$sMessage = 'Options Exported Successfully';
 
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'Options exported to site %s.' ), $sUrl ), 1, 'options_exported'
+				sprintf( __( 'Options exported to site %s.', 'wp-simple-firewall' ), $sUrl ), 1, 'options_exported'
 			);
 
 			if ( $bDoNetwork ) {
 				if ( $sNetworkOpt === 'Y' ) {
 					$oFO->addUrlToImportExportWhitelistUrls( $sUrl );
 					$this->addToAuditEntry(
-						sprintf( _wpsf__( 'Site added to export white list: %s.' ), $sUrl ),
+						sprintf( __( 'Site added to export white list: %s.', 'wp-simple-firewall' ), $sUrl ),
 						1,
 						'export_whitelist_site_added'
 					);
@@ -365,7 +366,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				else {
 					$oFO->removeUrlFromImportExportWhitelistUrls( $sUrl );
 					$this->addToAuditEntry(
-						sprintf( _wpsf__( 'Site removed from export white list: %s.' ), $sUrl ),
+						sprintf( __( 'Site removed from export white list: %s.', 'wp-simple-firewall' ), $sUrl ),
 						1,
 						'export_whitelist_site_removed'
 					);
@@ -504,7 +505,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					}
 					else if ( $bEnableNetwork === true ) {
 						$this->addToAuditEntry(
-							sprintf( _wpsf__( 'Master Site URL set to %s.' ), $sMasterSiteUrl ),
+							sprintf( __( 'Master Site URL set to %s.', 'wp-simple-firewall' ), $sMasterSiteUrl ),
 							1,
 							'options_master_set'
 						);
@@ -534,7 +535,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		if ( md5( serialize( $aImportData ) ) != $oFO->getImportExportLastImportHash() ) {
 			do_action( $oFO->prefix( 'import_options' ), $aImportData );
 			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'Options imported from %s.' ), $sImportSource ),
+				sprintf( __( 'Options imported from %s.', 'wp-simple-firewall' ), $sImportSource ),
 				1, 'options_imported'
 			);
 			$oFO->setImportExportLastImportHash( md5( serialize( $aImportData ) ) );

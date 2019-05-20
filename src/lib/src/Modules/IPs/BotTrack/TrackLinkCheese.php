@@ -93,7 +93,8 @@ class TrackLinkCheese extends Base {
 	 * @return $this
 	 */
 	protected function getAuditMsg() {
-		return sprintf( _wpsf__( 'Link cheese access detected at "%s".' ), Services::Request()->getPath() );
+		return sprintf( __( 'Link cheese access detected at "%s".', 'wp-simple-firewall' ), Services::Request()
+																									->getPath() );
 	}
 
 	/**

@@ -53,26 +53,26 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getEmailHeader() {
-		return array(
-			_wpsf__( 'Hi !' ),
+		return [
+			__( 'Hi !', 'wp-simple-firewall' ),
 			'',
-		);
+		];
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getEmailFooter() {
-		$sUrl = array(
+		$sUrl = [
 			'',
-			sprintf( _wpsf__( 'Email sent from the %s Plugin v%s, on %s.' ),
+			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName(),
 				$this->getCon()->getVersion(),
 				$this->loadWp()->getHomeUrl()
 			),
-			_wpsf__( 'Note: Email delays are caused by website hosting and email providers.' ),
-			sprintf( _wpsf__( 'Time Sent: %s' ), $this->loadWp()->getTimeStampForDisplay() )
-		);
+			__( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
+			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $this->loadWp()->getTimeStampForDisplay() )
+		];
 
 		return apply_filters( 'icwp_shield_email_footer', $sUrl );
 	}
@@ -93,11 +93,11 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @uses wp_mail
 	 * @param string $sAddress
 	 * @param string $sSubject
 	 * @param string $sMessageBody
 	 * @return bool
+	 * @uses wp_mail
 	 */
 	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) {
 		$this->updateEmailThrottle();
@@ -121,14 +121,14 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function emailFilters( $bAdd ) {
 		if ( $bAdd ) {
-			add_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
-			add_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
-			add_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100, 0 );
+			add_filter( 'wp_mail_from', [ $this, 'setMailFrom' ], 100 );
+			add_filter( 'wp_mail_from_name', [ $this, 'setMailFromName' ], 100 );
+			add_filter( 'wp_mail_content_type', [ $this, 'setMailContentType' ], 100, 0 );
 		}
 		else {
-			remove_filter( 'wp_mail_from', array( $this, 'setMailFrom' ), 100 );
-			remove_filter( 'wp_mail_from_name', array( $this, 'setMailFromName' ), 100 );
-			remove_filter( 'wp_mail_content_type', array( $this, 'setMailContentType' ), 100 );
+			remove_filter( 'wp_mail_from', [ $this, 'setMailFrom' ], 100 );
+			remove_filter( 'wp_mail_from_name', [ $this, 'setMailFromName' ], 100 );
+			remove_filter( 'wp_mail_content_type', [ $this, 'setMailContentType' ], 100 );
 		}
 	}
 

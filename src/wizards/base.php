@@ -368,7 +368,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Wizard' ), $this->getModCon()->getCon()->getHumanName() );
+		return sprintf( __( '%s Wizard', 'wp-simple-firewall' ), $this->getModCon()->getCon()->getHumanName() );
 	}
 
 	/**
@@ -511,7 +511,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	protected function getStepsDefinition() {
 		$aNoAccess = array(
 			'no_access' => array(
-				'title' => _wpsf__( 'No Access' ),
+				'title' => __( 'No Access', 'wp-simple-firewall' ),
 			)
 		);
 		$aSteps = array_merge( $this->getAllDefinedSteps(), $aNoAccess );

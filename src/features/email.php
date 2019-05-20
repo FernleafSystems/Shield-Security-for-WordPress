@@ -24,7 +24,7 @@ class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		switch ( $sSectionSlug ) {
 
 			case 'section_email_options' :
-				$sTitle = _wpsf__( 'Email Options' );
+				$sTitle = __( 'Email Options', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -44,9 +44,9 @@ class ICWP_WPSF_FeatureHandler_Email extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$sKey = $aOptionsParams[ 'key' ];
 		switch ( $sKey ) {
 			case 'send_email_throttle_limit' :
-				$sName = _wpsf__( 'Email Throttle Limit' );
-				$sSummary = _wpsf__( 'Limit Emails Per Second' );
-				$sDescription = _wpsf__( 'You throttle emails sent by this plugin by limiting the number of emails sent every second. This is useful in case you get hit by a bot attack. Zero (0) turns this off. Suggested: 10' );
+				$sName = __( 'Email Throttle Limit', 'wp-simple-firewall' );
+				$sSummary = __( 'Limit Emails Per Second', 'wp-simple-firewall' );
+				$sDescription = __( 'You throttle emails sent by this plugin by limiting the number of emails sent every second. This is useful in case you get hit by a bot attack. Zero (0) turns this off. Suggested: 10', 'wp-simple-firewall' );
 				break;
 
 			default:

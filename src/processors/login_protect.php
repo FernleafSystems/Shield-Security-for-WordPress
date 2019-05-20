@@ -102,15 +102,15 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
 					'title'             => $this->getCon()->getHumanName()
-										   .': '._wpsf__( 'Please verify email has been received' ),
-					'need_you_confirm'  => _wpsf__( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails." ),
-					'please_click_link' => _wpsf__( "Please click the link in the email you received." ),
+										   .': '.__( 'Please verify email has been received', 'wp-simple-firewall' ),
+					'need_you_confirm'  => __( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails.", 'wp-simple-firewall' ),
+					'please_click_link' => __( "Please click the link in the email you received.", 'wp-simple-firewall' ),
 					'email_sent_to'     => sprintf(
-						_wpsf__( "The email has been sent to you at blog admin address: %s" ),
+						__( "The email has been sent to you at blog admin address: %s", 'wp-simple-firewall' ),
 						get_bloginfo( 'admin_email' )
 					),
-					'how_resend_email'  => _wpsf__( "Resend verification email" ),
-					'how_turn_off'      => _wpsf__( "Disable 2FA by email" ),
+					'how_resend_email'  => __( "Resend verification email", 'wp-simple-firewall' ),
+					'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 				],
 				'ajax'              => [
 					'resend_verification_email' => $oFO->getAjaxActionData( 'resend_verification_email', true ),

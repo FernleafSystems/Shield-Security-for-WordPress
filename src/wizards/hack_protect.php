@@ -11,7 +11,7 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Hack Protect Wizard' ), $this->getPluginCon()->getHumanName() );
+		return sprintf( __( '%s Hack Protect Wizard', 'wp-simple-firewall' ), $this->getPluginCon()->getHumanName() );
 	}
 
 	/**
@@ -292,14 +292,14 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 						$oGuard->updateItemInSnapshot( $sSlug, $sContext );
 					}
 					$bSuccess = true;
-					$sMessage = _wpsf__( 'All changes detected have been ignored.' );
+					$sMessage = __( 'All changes detected have been ignored.', 'wp-simple-firewall' );
 					break;
 
 				case 'deactivate':
 					if ( $sContext == 'plugins' ) {
 						$oWpPlugins->deactivate( $sSlug );
 						$bSuccess = true;
-						$sMessage = _wpsf__( 'The plugin has been deactivated.' );
+						$sMessage = __( 'The plugin has been deactivated.', 'wp-simple-firewall' );
 					}
 					break;
 

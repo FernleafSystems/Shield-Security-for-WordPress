@@ -92,10 +92,10 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			$sAuthor = Services::Request()->query( 'author', '' );
 			if ( !empty( $sAuthor ) ) {
 				Services::WpGeneral()->wpDie( sprintf(
-					_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
+					__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.', 'wp-simple-firewall' )
 					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
 						'https://icwp.io/7l',
-						_wpsf__( 'Learn More.' )
+						__( 'Learn More.', 'wp-simple-firewall' )
 					),
 					$this->getCon()->getHumanName()
 				) );
@@ -119,8 +119,8 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
-				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getCon()
-																												  ->getHumanName() ),
+				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), $this->getCon()
+																																   ->getHumanName() ),
 				[ 'status' => rest_authorization_required_code() ] );
 			$this->addToAuditEntry(
 				sprintf( 'Blocked Anonymous API Access through "%s" namespace', Services::Rest()->getNamespace() ),

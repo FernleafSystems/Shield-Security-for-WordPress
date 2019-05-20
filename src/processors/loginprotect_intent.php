@@ -114,10 +114,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
 			$oF = $this->getMod();
 			if ( !$oF->canUserMfaSkip( $oUser ) ) {
-				$nTimeout = (int)apply_filters(
-					$oF->prefix( 'login_intent_timeout' ),
-					$oF->getDef( 'login_intent_timeout' )
-				);
+				$nTimeout = (int)apply_filters( $oF->prefix( 'login_intent_timeout' ), $oF->getDef( 'login_intent_timeout' ) );
 				$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout );
 			}
 		}
@@ -151,9 +148,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					}
 
 					$this->removeLoginIntent();
-					$sFlash = _wpsf__( 'Success' ).'! '._wpsf__( 'Thank you for authenticating your login.' );
+					$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
 					if ( $oFO->isEnabledBackupCodes() ) {
-						$sFlash .= ' '._wpsf__( 'If you used your Backup Code, you will need to reset it.' ); //TODO::
+						$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
 //								   .' '.sprintf( '<a href="%s">%s</a>', $oWpUsers->getAdminUrl_ProfileEdit(), _wpsf__( 'Go' ) );
 					}
 
@@ -164,7 +161,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					empty( $sRedirectHref ) ? $oWp->redirectHere() : $oWp->doRedirect( rawurldecode( $sRedirectHref ) );
 				}
 				else {
-					$oFO->setFlashAdminNotice( _wpsf__( 'One or more of your authentication codes failed or was missing' ), true );
+					$oFO->setFlashAdminNotice( __( 'One or more of your authentication codes failed or was missing', 'wp-simple-firewall' ), true );
 					$oWp->redirectHere();
 				}
 				return; // we've redirected anyway.
@@ -262,10 +259,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		if ( empty( $sMessage ) ) {
 			if ( $oFO->isChainedAuth() ) {
-				$sMessage = _wpsf__( 'Please supply all authentication codes' );
+				$sMessage = __( 'Please supply all authentication codes', 'wp-simple-firewall' );
 			}
 			else {
-				$sMessage = _wpsf__( 'Please supply at least 1 authentication code' );
+				$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 			}
 			$sMessageType = 'info';
 		}
@@ -299,18 +296,18 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$nMfaSkip = $oFO->getMfaSkip();
 		$aDisplayData = [
 			'strings' => [
-				'cancel'          => _wpsf__( 'Cancel Login' ),
-				'time_remaining'  => _wpsf__( 'Time Remaining' ),
-				'calculating'     => _wpsf__( 'Calculating' ).' ...',
-				'seconds'         => strtolower( _wpsf__( 'Seconds' ) ),
-				'login_expired'   => _wpsf__( 'Login Expired' ),
-				'verify_my_login' => _wpsf__( 'Verify My Login' ),
-				'more_info'       => _wpsf__( 'More Info' ),
-				'what_is_this'    => _wpsf__( 'What is this?' ),
+				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
+				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
+				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
+				'seconds'         => strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
+				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
+				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
+				'more_info'       => __( 'More Info', 'wp-simple-firewall' ),
+				'what_is_this'    => __( 'What is this?', 'wp-simple-firewall' ),
 				'message'         => $sMessage,
-				'page_title'      => sprintf( _wpsf__( '%s Login Verification' ), $oCon->getHumanName() ),
+				'page_title'      => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 				'skip_mfa'        => sprintf(
-					_wpsf__( "Don't ask again on this browser for %s." ),
+					__( "Don't ask again on this browser for %s.", 'wp-simple-firewall' ),
 					sprintf( _n( '%s day', '%s days', $nMfaSkip, 'wp-simple-firewall' ), $nMfaSkip )
 				)
 			],

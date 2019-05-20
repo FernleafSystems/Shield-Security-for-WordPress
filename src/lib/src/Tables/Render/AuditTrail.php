@@ -10,13 +10,13 @@ class AuditTrail extends Base {
 	 */
 	protected function getActionButton_AddParam( $nId ) {
 		return $this->buildActionButton_Custom(
-			_wpsf__( 'Whitelist Param' ),
+			__( 'Whitelist Param', 'wp-simple-firewall' ),
 			[ 'custom-action' ],
 			[
 				'rid'           => $nId,
 				'custom-action' => 'item_addparamwhite'
 			],
-			_wpsf__( 'Add Parameter To Whitelist' )
+			__( 'Add Parameter To Whitelist', 'wp-simple-firewall' )
 		);
 	}
 
