@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 7.4.0
+Stable tag: 7.4.1
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -364,7 +364,13 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.4.0 - Current Release =
+= 7.4.1 - Current Release =
+*Released: 20th May, 2019* - [Release Notes](https://icwp.io/fc)
+
+* **(v.1)**  NEW:		Adjustments and redesign of Shield options pages.
+* **(v.1)**  IMPROVED:	Further prep for better internationalization.
+
+= 7.4 - Series =
 *Released: 13th May, 2019* - [Release Notes](https://icwp.io/fc)
 
 * **(v.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://icwp.io/fa)

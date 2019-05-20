@@ -6,7 +6,7 @@
 			<li class="nav-item">
 				<a href="#tab-{{ opt_section.slug }}" class="nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
-						id="tab-navlink-{{ opt_section.slug }}"
+				   id="tab-navlink-{{ opt_section.slug }}"
 				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}"
 				>{{ opt_section.title_short }}</a>
 			</li>
@@ -43,79 +43,72 @@
 							   id="Label-{{ aOption.key }}"
 							   class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
 							{{ aOption.name }}
+							{% if aOption.disabled %}
+								<br/>
+								<div class="badge badge-warning">
+									<a href="{{ hrefs.go_pro }}" target="_blank" class="text-dark">{{ strings.pro_only_option }}</a>
+								</div>
+							{% endif %}
 						</label>
+
 						<div class="col-xl-6 col-lg-7 col-md-8 col-sm-8">
 
-							{% if not aOption.enabled %}
-							<span class="d-block icwp-pro-tooltip" tabindex="0">
-							{% endif %}
-
-								{% if aOption.type is sameas('checkbox') %}
-									<div class="form-check-null">
-										<span class="icwp-switch">
-											<input type="checkbox" name="{{ aOption.key }}"
-												   id="Opt-{{ aOption.key }}" class="form-check-input"
-													{% if not aOption.enabled %}
-														disabled="disabled"
-													{% endif %}
-													aria-labelledby="Label-{{ aOption.key }}"
-												   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
-											<span class="icwp-slider round"></span>
-										</span>
-										<label class="form-check-label"
-											   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
-									</div>
+							{% if aOption.type is sameas('checkbox') %}
+								<div class="form-check-null">
+									<span class="icwp-switch">
+										<input type="checkbox" name="{{ aOption.key }}"
+											   id="Opt-{{ aOption.key }}" class="form-check-input"
+											   {% if aOption.disabled %}disabled="disabled"{% endif %}
+												aria-labelledby="Label-{{ aOption.key }}"
+											   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
+										<span class="icwp-slider round"></span>
+									</span>
+									<label class="form-check-label"
+										   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
+								</div>
 
 							{% elseif aOption.type is sameas('text') %}
 
-									<input type="text" name="{{ aOption.key }}"
-										   id="Opt-{{ aOption.key }}"
-										   value="{{ aOption.value|raw }}"
-										   placeholder="{{ aOption.value }}"
-										{% if not aOption.enabled %}
+								<input type="text" name="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ aOption.value }}"
+										{% if aOption.disabled %}
 											disabled="disabled"
 										{% endif %}
 									   class="form-control" />
 
 							{% elseif aOption.type is sameas('password') %}
 
-									<input type="password" name="{{ aOption.key }}"
-										   id="Opt-{{ aOption.key }}"
-										   value="{{ aOption.value|raw }}"
-										   placeholder="{{ strings.supply_password }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<input type="password" name="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ strings.supply_password }}"
+									   {% if aOption.disabled %}disabled="disabled"{% endif %}
 									   class="form-control mb-2" />
 
-									<input type="password" name="{{ aOption.key }}_confirm"
-										   id="Opt-{{ aOption.key }}_confirm"
-										   value="{{ aOption.value|raw }}"
-										   placeholder="{{ strings.confirm_password }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<input type="password" name="{{ aOption.key }}_confirm"
+									   id="Opt-{{ aOption.key }}_confirm"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ strings.confirm_password }}"
+									   {% if aOption.disabled %}disabled="disabled"{% endif %}
 									   class="form-control" />
 
 							{% elseif aOption.type is sameas('email') %}
 
-									<input type="text" name="{{ aOption.key }}"
-										   id="Opt-{{ aOption.key }}"
-										   value="{{ aOption.value|raw }}"
-										   placeholder="{{ aOption.value }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<input type="text" name="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
+									   value="{{ aOption.value|raw }}"
+									   placeholder="{{ aOption.value }}"
+									   {% if aOption.disabled %}disabled="disabled"{% endif %}
 									   class="form-control" />
 
 							{% elseif aOption.type is sameas('select') %}
 
-									<select name="{{ aOption.key }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<select name="{{ aOption.key }}"
+										{% if aOption.disabled %}disabled="disabled"{% endif %}
 										id="Opt-{{ aOption.key }}"
-											class="custom-select">
+										class="custom-select">
 									{% for option_value, option_value_name in aOption.value_options %}
 										<option value="{{ option_value }}"
 												{% if aOption.value is sameas( option_value ) %}
@@ -129,13 +122,11 @@
 
 							{% elseif aOption.type is sameas('multiple_select') %}
 
-									<select name="{{ aOption.key }}[]"
-											id="Opt-{{ aOption.key }}"
-											multiple="multiple" multiple
-											size="{{ aOption.value_options|length }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<select name="{{ aOption.key }}[]"
+										id="Opt-{{ aOption.key }}"
+										multiple="multiple" multiple
+										size="{{ aOption.value_options|length }}"
+										{% if aOption.disabled %}disabled="disabled"{% endif %}
 										class="custom-select">
 									{% for option_value, option_value_name in aOption.value_options %}
 										<option value="{{ option_value }}"
@@ -150,50 +141,40 @@
 
 							{% elseif aOption.type is sameas('array') %}
 
-									<textarea name="{{ aOption.key }}"
-											  id="Opt-{{ aOption.key }}"
-											  placeholder="{{ aOption.value }}"
-											  rows="{{ aOption.rows }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<textarea name="{{ aOption.key }}"
+										  id="Opt-{{ aOption.key }}"
+										  placeholder="{{ aOption.value }}"
+										  rows="{{ aOption.rows }}"
+										  {% if aOption.disabled %}disabled="disabled"{% endif %}
 										  class="form-control">{{ aOption.value|raw }}</textarea>
 
 							{% elseif aOption.type is sameas('comma_separated_lists') %}
 
-									<textarea name="{{ aOption.key }}"
-											  id="Opt-{{ aOption.key }}"
-											  placeholder="{{ aOption.value }}"
-											  rows="{{ aOption.rows }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<textarea name="{{ aOption.key }}"
+										  id="Opt-{{ aOption.key }}"
+										  placeholder="{{ aOption.value }}"
+										  rows="{{ aOption.rows }}"
+										  {% if aOption.disabled %}disabled="disabled"{% endif %}
 										  class="form-control">{{ aOption.value }}</textarea>
 
 							{% elseif aOption.type is sameas('noneditable_text') %}
 
-									<input name="{{ aOption.key }}" id="Opt-{{ aOption.key }}"
-										   type="text" readonly
-										   class="form-control"
-										   value="{{ aOption.value }}" />
+								<input name="{{ aOption.key }}" id="Opt-{{ aOption.key }}"
+									   type="text" readonly
+									   class="form-control"
+									   value="{{ aOption.value }}" />
 
 							{% elseif aOption.type is sameas('integer') %}
 
-									<input type="text" name="{{ aOption.key }}"
-										   id="Opt-{{ aOption.key }}"
-										   value="{{ aOption.value }}"
-										   placeholder="{{ aOption.value }}"
-										{% if not aOption.enabled %}
-											disabled="disabled"
-										{% endif %}
+								<input type="text" name="{{ aOption.key }}"
+									   id="Opt-{{ aOption.key }}"
+									   value="{{ aOption.value }}"
+									   placeholder="{{ aOption.value }}"
+									   {% if aOption.disabled %}disabled="disabled"{% endif %}
 									   class="form-control" />
 
-								{% else %}
-									ERROR: Should never reach this point.
-								{% endif %}
-
-								{% if not aOption.enabled %}
-							</span>
+							{% else %}
+								ERROR: Should never reach this point.
 							{% endif %}
 
 							{% if aOption.type is not sameas('checkbox') %}
@@ -203,6 +184,7 @@
 							<div class="collapse option-description"
 								 id="Description{{ aOption.key }}">{{ aOption.description|raw }}</div>
 						</div>
+
 						<div class="col-1">
 							<div class="option-links">
 								<ul>
@@ -212,9 +194,9 @@
 										<li><a href="{{ aOption.link_info }}" target="_blank" class="option-link">
 										{{ strings.more_info }}</a></li>
 										{% if aOption.link_blog %}
-											<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
+										<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
 											{{ strings.blog }}</a></li>
-										{% endif %}
+									{% endif %}
 									{% endif %}
 								</ul>
 
@@ -225,8 +207,12 @@
 		</div>
 		{% endfor %}
 	</div>
-	<div class="form-actions">
-		<button type="submit" class="btn btn-primary btn-large icwp-form-button"
-				name="submit">{{ strings.save_all_settings }}</button>
+	<div class="container-fluid form-actions">
+		<div class="row">
+			<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 offset-xl-3 offset-lg-3 offset-md-3 offset-sm-2">
+				<button type="submit" class="btn btn-primary btn-large icwp-form-button"
+						name="submit">{{ strings.save_all_settings }}</button>
+			</div>
+		</div>
 	</div>
 </form>

@@ -256,9 +256,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		array_walk( $aTopNav, function ( &$sName, $sKey ) use ( $sNavSection ) {
 			$sName = [
-				'href'   => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
-				'name'   => $sName,
-				'active' => $sKey === $sNavSection,
+				'href'    => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
+				'name'    => $sName,
+				'active'  => $sKey === $sNavSection,
 				'subnavs' => []
 			];
 		} );
@@ -288,7 +288,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'page_container' => 'page-insights page-'.$sNavSection
 				],
 				'flags'   => [
-					'show_promo'       => !$bIsPro,
+					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
 				],
 				'hrefs'   => [

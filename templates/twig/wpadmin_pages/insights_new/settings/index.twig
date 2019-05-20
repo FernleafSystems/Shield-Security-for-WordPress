@@ -25,12 +25,6 @@
 	<script>
 		iCWP_WPSF_OptsPageRender.renderForm( {{ ajax.mod_opts_form_render|raw }} );
 		iCWP_WPSF_OptionsFormSubmit.updateAjaxReqParams( {{ ajax.mod_options|raw }} );
-
 		jQuery( 'a.nav-link.module' ).tooltip();
-		jQuery( 'span.icwp-pro-tooltip' ).tooltip( {
-			html: true,
-			title: '{{ strings.go_pro_option }}',
-			delay: { "show": 100, "hide": 1000 }
-		} );
 	</script>
 {% endblock %}
