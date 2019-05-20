@@ -290,8 +290,8 @@ tr.icwp-plugin-vulnerability dd {
 }
 .icwp-toaster {
 	position: fixed;
-	top: 60px;
-	right: 40px;
+	top: 100px;
+	right: 60px;
 	z-index: 12;
 }
 .icwp-toaster .toast-body {
