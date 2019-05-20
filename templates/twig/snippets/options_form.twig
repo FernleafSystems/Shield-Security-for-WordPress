@@ -6,7 +6,7 @@
 			<li class="nav-item">
 				<a href="#tab-{{ opt_section.slug }}" class="nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
-						id="tab-navlink-{{ opt_section.slug }}"
+				   id="tab-navlink-{{ opt_section.slug }}"
 				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}"
 				>{{ opt_section.title_short }}</a>
 			</li>
@@ -212,9 +212,9 @@
 										<li><a href="{{ aOption.link_info }}" target="_blank" class="option-link">
 										{{ strings.more_info }}</a></li>
 										{% if aOption.link_blog %}
-											<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
+										<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
 											{{ strings.blog }}</a></li>
-										{% endif %}
+									{% endif %}
 									{% endif %}
 								</ul>
 
@@ -225,8 +225,12 @@
 		</div>
 		{% endfor %}
 	</div>
-	<div class="form-actions">
-		<button type="submit" class="btn btn-primary btn-large icwp-form-button"
-				name="submit">{{ strings.save_all_settings }}</button>
+	<div class="container-fluid form-actions">
+		<div class="row">
+			<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 offset-xl-3 offset-lg-3 offset-md-3 offset-sm-2">
+				<button type="submit" class="btn btn-primary btn-large icwp-form-button"
+						name="submit">{{ strings.save_all_settings }}</button>
+			</div>
+		</div>
 	</div>
 </form>
