@@ -274,12 +274,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return array|null
 	 */
 	public function getPlugin( $sPluginFile ) {
-		$aPlugin = null;
-		if ( $this->isInstalled( $sPluginFile ) ) {
-			$aPlugins = $this->getPlugins();
-			$aPlugin = $aPlugins[ $sPluginFile ];
-		}
-		return $aPlugin;
+		return $this->isInstalled( $sPluginFile ) ? $this->getPlugins()[ $sPluginFile ] : null;
 	}
 
 	/**

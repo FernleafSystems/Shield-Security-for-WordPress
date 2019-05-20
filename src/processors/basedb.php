@@ -34,12 +34,12 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			throw new \Exception( 'Table name is empty' );
 		}
 		$this->getDbHandler()
-			 ->setTable( $this->getMod()->prefixOptionKey( $sTableName ) )
+			 ->setTable( $this->getCon()->prefixOption( $sTableName ) )
 			 ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
 			 ->setSqlCreate( $this->getCreateTableSql() )
 			 ->tableInit();
 
-		add_action( $this->getMod()->prefix( 'delete_plugin' ), [ $this->getDbHandler(), 'deleteTable' ] );
+		add_action( $this->getCon()->prefix( 'delete_plugin' ), [ $this->getDbHandler(), 'deleteTable' ] );
 	}
 
 	/**

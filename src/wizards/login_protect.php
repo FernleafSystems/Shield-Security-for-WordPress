@@ -116,7 +116,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = __( 'Code was empty.', 'wp-simple-firewall' );
 			}
 			else {
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				$oUser = Services::WpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
 				$oProcGa = $oProc->getSubProIntent()
@@ -216,7 +216,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		switch ( $sStep ) {
 
 			case 'authemail':
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				$oUser = Services::WpUsers()->getCurrentWpUser();
 				$aAdditional = array(
 					'data' => array(
 						'name'       => $oUser->first_name,
@@ -226,7 +226,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				break;
 
 			case 'authga':
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				$oUser = Services::WpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
 				$oProcGa = $oProc->getSubProIntent()

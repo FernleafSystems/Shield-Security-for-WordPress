@@ -251,8 +251,8 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$sContext = $oReq->post( 'context' );
 		$sItemAction = $oReq->post( 'ptgaction' );
 
-		$oWpPlugins = $this->loadWpPlugins();
-		$oWpThemes = $this->loadWpThemes();
+		$oWpPlugins = Services::WpPlugins();
+		$oWpThemes = Services::WpThemes();
 
 		// 1. load the asset
 		if ( $sContext == 'plugins' ) {
@@ -498,8 +498,8 @@ class ICWP_WPSF_Wizard_HackProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			$oResults = $oP->scanThemes();
 		}
 
-		$oWpPlugins = $this->loadWpPlugins();
-		$oWpThemes = $this->loadWpThemes();
+		$oWpPlugins = Services::WpPlugins();
+		$oWpThemes = Services::WpThemes();
 		foreach ( $oResults->getUniqueSlugs() as $sSlug ) {
 
 			if ( $sContext == 'plugins' ) {

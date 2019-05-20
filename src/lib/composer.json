@@ -24,8 +24,6 @@
     "nesbot/carbon":                      "^1.36.0",
     "twig/twig":                          "1.38.*",
     "google/recaptcha":                   "1.1.2",
-    "symfony/translation":                "^2.8",
-    "symfony/yaml":                       "^2.8",
     "bjeavons/zxcvbn-php":                "^0.3",
     "nullpunkt/lz-string-php":            "^1.2.0"
   },

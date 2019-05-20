@@ -620,7 +620,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			else {
 				$aItems[] = $sInput;
 				if ( $this->loadDP()->validEmail( $sInput ) ) {
-					$oUser = $this->loadWpUsers()->getUserByEmail( $sInput );
+					$oUser = Services::WpUsers()->getUserByEmail( $sInput );
 					if ( !is_null( $oUser ) ) {
 						$aItems[] = $oUser->user_login;
 					}
@@ -628,7 +628,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				else {
 					$sUsername = sanitize_user( $sInput );
 					if ( !empty( $sUsername ) ) {
-						$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
+						$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 						if ( $oUser instanceof WP_User ) {
 							$aItems[] = $oUser->user_email;
 						}

@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services; //TODO: Use after 7.5
+
 class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -47,7 +49,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	public function adjustUpdateDataCount( $aUpdateData ) {
 
 		$sFile = $this->getCon()->getPluginBaseFile();
-		if ( $this->loadWpPlugins()->isUpdateAvailable( $sFile ) ) {
+		if ( \FernleafSystems\Wordpress\Services\Services::WpPlugins()->isUpdateAvailable( $sFile ) ) {
 			$aUpdateData[ 'counts' ][ 'total' ]--;
 			$aUpdateData[ 'counts' ][ 'plugins' ]--;
 		}

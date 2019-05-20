@@ -10,7 +10,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
-		$oWpComm = $this->loadWpComments();
+		$oWpComm = Services::WpComments();
 
 		$oPost = Services::WpPost()->getById( $nPostId );
 		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )

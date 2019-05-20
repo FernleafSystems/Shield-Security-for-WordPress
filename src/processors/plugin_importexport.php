@@ -55,17 +55,16 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	public function runWhitelistNotify() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
+		$oHttpReq = Services::HttpRequest();
 
 		if ( $oFO->hasImportExportWhitelistSites() ) {
 
+			$aQuery = [
+				'blocking' => false,
+				'body'     => [ 'shield_action' => 'importexport_updatenotified' ]
+			];
 			foreach ( $oFO->getImportExportWhitelist() as $sUrl ) {
-				$this->loadFS()->getUrl(
-					$sUrl,
-					[
-						'blocking' => false,
-						'body'     => [ 'shield_action' => 'importexport_updatenotified' ]
-					]
-				);
+				$oHttpReq->get( $sUrl, $aQuery );
 			}
 
 			$this->addToAuditEntry(

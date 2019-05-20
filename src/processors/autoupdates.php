@@ -378,11 +378,11 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : [];
 
 			if ( $sContext == 'plugins' ) {
-				$oPlugin = $this->loadWpPlugins()->getUpdateInfo( $sSlug );
+				$oPlugin = Services::WpPlugins()->getUpdateInfo( $sSlug );
 				$sVersion = isset( $oPlugin->new_version ) ? $oPlugin->new_version : '';
 			}
 			else if ( $sContext == 'themes' ) {
-				$aThemeInfo = $this->loadWpThemes()->getUpdateInfo( $sSlug );
+				$aThemeInfo = Services::WpThemes()->getUpdateInfo( $sSlug );
 				$sVersion = isset( $aThemeInfo[ 'new_version' ] ) ? $aThemeInfo[ 'new_version' ] : '';
 			}
 
@@ -432,7 +432,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				return $aPluginMeta;
 			}
 		}
-		$bUpdate = $this->loadWp()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = Services::WpPlugins()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
 		$sHtml = $this->getPluginAutoupdateIconHtml( $bUpdate );
 		array_unshift( $aPluginMeta, sprintf( '%s', $sHtml ) );
 		return $aPluginMeta;
@@ -464,7 +464,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
-		$bUpdate = $this->loadWp()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
+		$bUpdate = Services::WpPlugins()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
 //		$bUpdate = in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
 		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
 		echo $this->getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bUpdate, $bDisabled );

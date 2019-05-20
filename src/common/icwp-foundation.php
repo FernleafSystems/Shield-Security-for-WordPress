@@ -52,6 +52,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions_Plugins
+	 * @deprecated
 	 */
 	public function loadWpPlugins() {
 		$sKey = 'icwp-wpfunctions-plugins';
@@ -63,6 +64,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions_Themes
+	 * @deprecated
 	 */
 	public function loadWpThemes() {
 		$sKey = 'icwp-wpfunctions-themes';
@@ -74,6 +76,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpCron
+	 * @deprecated
 	 */
 	static public function loadWpCronProcessor() {
 		$sKey = 'icwp-wpcron';
@@ -85,6 +88,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpUpgrades
+	 * @deprecated
 	 */
 	static public function loadWpUpgrades() {
 		$sKey = 'icwp-wpupgrades';

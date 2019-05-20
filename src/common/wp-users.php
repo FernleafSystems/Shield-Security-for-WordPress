@@ -1,7 +1,5 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 
 	/**
@@ -266,6 +264,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @param string $sPrefix
 	 * @param int    $nUserId
 	 * @return ICWP_UserMeta
+	 * @deprecated
 	 */
 	public function metaVoForUser( $sPrefix, $nUserId = null ) {
 		if ( is_null( $nUserId ) ) {

@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services; // TODO: use after Shield 7.5
+
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
@@ -50,7 +52,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$bIsSubject = false;
 
 		if ( !$oUser instanceof WP_User ) {
-			$oUser = $this->loadWpUsers()->getCurrentWpUser();
+			$oUser = Services::WpUsers()->getCurrentWpUser();
 		}
 		if ( $oUser instanceof WP_User ) {
 			$bIsSubject = apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
@@ -144,7 +146,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		add_action( 'wp_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 
-		$this->loadWpIncludes()
+		\FernleafSystems\Wordpress\Services\Services::Includes()
 			 ->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
 			 ->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
 		/**

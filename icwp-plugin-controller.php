@@ -1231,7 +1231,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$sAssetPath = $this->getPath_Assets( $sAsset );
 		if ( $this->loadFS()->exists( $sAssetPath ) ) {
 			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
-			return $this->loadWpIncludes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
+			return Services::Includes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
 		}
 		return $sUrl;
 	}

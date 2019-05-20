@@ -254,40 +254,32 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @throws \Exception
 	 */
 	protected function sendRequestToPwned( $sPass ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		$oCon = $this->getCon();
-
-		$aResponse = $this->loadFS()->requestUrl(
-			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
+		$oHttpReq = Services::HttpRequest();
+		$bSuccess = $oHttpReq->get(
+			sprintf( '%s/%s', $this->getMod()->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
 			[
-				'headers' => [
-					'user-agent' => sprintf( '%s WP Plugin-v%s', $oCon->getHumanName(), $oCon->getVersion() )
-				]
-			],
-			true
+				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
+			]
 		);
 
 		$sError = '';
-		if ( is_wp_error( $aResponse ) ) {
-			$sError = $aResponse->get_error_message();
+		if ( !$bSuccess ) {
+			$sError = 'API request failed';
 		}
-		else if ( empty( $aResponse ) ) {
-			$sError = 'Response was empty';
-		}
-		else if ( is_array( $aResponse ) ) {
-			if ( empty( $aResponse[ 'response' ][ 'code' ] ) ) {
-				$sError = 'Unexpected Error: No response code available from the API';
+		else {
+			$nCode = $oHttpReq->lastResponse->getCode();
+			if ( empty( $nCode ) ) {
+				$sError = 'Unexpected Error: No response code available from the Response';
 			}
-			else if ( $aResponse[ 'response' ][ 'code' ] == 404 ) {
+			else if ( $nCode == 404 ) {
 				// means that the password isn't on the pwned list. It's acceptable.
 			}
-			else if ( empty( $aResponse[ 'body' ] ) ) {
-				$sError = 'Unexpected Error: The response from the API was empty';
+			else if ( empty( $oHttpReq->lastResponse->body ) ) {
+				$sError = 'Unexpected Error: The response from the Pwned API was empty';
 			}
 			else {
 				// password pwned
-				$nCount = intval( $aResponse[ 'body' ] );
+				$nCount = intval( $oHttpReq->lastResponse[ 'body' ] );
 				if ( $nCount == 0 ) {
 					$sError = 'Unexpected Error: The API response could not be properly parsed.';
 				}
@@ -304,7 +296,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 
 		if ( !empty( $sError ) ) {
-			throw new \Exception( $sError );
+			throw new \Exception( '[Pwned Request] '.$sError );
 		}
 
 		return true;
@@ -316,43 +308,36 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @throws \Exception
 	 */
 	protected function sendRequestToPwnedRange( $sPass ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		$oCon = $this->getCon();
+		$oHttpReq = Services::HttpRequest();
 
 		$sPassHash = strtoupper( hash( 'sha1', $sPass ) );
 		$sSubHash = substr( $sPassHash, 0, 5 );
 
-		$aResponse = $this->loadFS()->requestUrl(
-			sprintf( '%s/%s', $oFO->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
+		$bSuccess = $oHttpReq->get(
+			sprintf( '%s/%s', $this->getMod()->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
 			[
-				'headers' => [
-					'user-agent' => sprintf( '%s WP Plugin-v%s', $oCon->getHumanName(), $oCon->getVersion() )
-				]
-			],
-			true
+				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
+			]
 		);
 
 		$sError = '';
-		if ( is_wp_error( $aResponse ) ) {
-			$sError = $aResponse->get_error_message();
+		if ( !$bSuccess ) {
+			$sError = 'API request failed';
 		}
-		else if ( empty( $aResponse ) ) {
-			$sError = 'Response was empty';
-		}
-		else if ( is_array( $aResponse ) ) {
-			if ( empty( $aResponse[ 'response' ][ 'code' ] ) ) {
+		else {
+			$nCode = $oHttpReq->lastResponse->getCode();
+			if ( empty( $nCode ) ) {
 				$sError = 'Unexpected Error: No response code available from the Pwned API';
 			}
-			else if ( $aResponse[ 'response' ][ 'code' ] != 200 ) {
+			else if ( $nCode != 200 ) {
 				$sError = 'Unexpected Error: The response from the Pwned API was unexpected';
 			}
-			else if ( empty( $aResponse[ 'body' ] ) ) {
+			else if ( empty( $oHttpReq->lastResponse->body ) ) {
 				$sError = 'Unexpected Error: The response from the Pwned API was empty';
 			}
 			else {
 				$nCount = 0;
-				foreach ( array_map( 'trim', explode( "\n", trim( $aResponse[ 'body' ] ) ) ) as $sRow ) {
+				foreach ( array_map( 'trim', explode( "\n", trim( $oHttpReq->lastResponse->body ) ) ) as $sRow ) {
 					if ( $sSubHash.substr( strtoupper( $sRow ), 0, 35 ) == $sPassHash ) {
 						$nCount = substr( $sRow, 36 );
 						break;
@@ -371,7 +356,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		}
 
 		if ( !empty( $sError ) ) {
-			throw new \Exception( $sError );
+			throw new \Exception( '[Pwned Request] '.$sError );
 		}
 
 		return true;

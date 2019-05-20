@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_Base {
 
 	/**
@@ -27,7 +29,7 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	 */
 	public function auditNewUserRegistered( $nUserId ) {
 
-		$oNewUser = empty( $nUserId ) ? null : $this->loadWpUsers()->getUserById( $nUserId );
+		$oNewUser = empty( $nUserId ) ? null : Services::WpUsers()->getUserById( $nUserId );
 		if ( !empty( $oNewUser ) ) {
 			$this->add( 'users', 'user_registered', 1,
 				__( 'New WordPress user registered.', 'wp-simple-firewall' ).' '
@@ -44,7 +46,7 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	 * @param int $nReassigned
 	 */
 	public function auditDeleteUser( $nUserId, $nReassigned ) {
-		$oWpUsers = $this->loadWpUsers();
+		$oWpUsers = Services::WpUsers();
 
 		$aAuditMessage = [ __( 'WordPress user deleted.', 'wp-simple-firewall' ) ];
 

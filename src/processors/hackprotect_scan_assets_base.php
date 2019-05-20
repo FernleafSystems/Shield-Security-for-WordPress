@@ -15,7 +15,7 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 	 * @throws \Exception
 	 */
 	protected function assetDeactivate( $oItem ) {
-		$oWpPlugins = $this->loadWpPlugins();
+		$oWpPlugins = Services\Services::WpPlugins();
 		if ( !$oWpPlugins->isInstalled( $oItem->slug ) ) {
 			throw new \Exception( 'Items is not currently installed.' );
 		}

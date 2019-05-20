@@ -545,7 +545,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getNoticesPlugins() {
-		$oWpPlugins = $this->loadWpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		$aNotices = [
 			'title'    => __( 'Plugins', 'wp-simple-firewall' ),
 			'messages' => []
@@ -585,7 +585,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getNoticesThemes() {
-		$oWpT = $this->loadWpThemes();
+		$oWpT = Services::WpThemes();
 		$aNotices = [
 			'title'    => __( 'Themes', 'wp-simple-firewall' ),
 			'messages' => []

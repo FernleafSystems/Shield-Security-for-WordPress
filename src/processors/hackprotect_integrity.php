@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -52,8 +54,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 		$aSnapshot = $this->getSnapshotUsers();
 		$aFieldsToCheck = $this->getStandardUserFields();
 
-		$aUsers = $this->loadWpUsers()->getAllUsers();
-		foreach ( $aUsers as $oUser ) {
+		foreach ( Services::WpUsers()->getAllUsers() as $oUser ) {
 
 			if ( !array_key_exists( $oUser->ID, $aSnapshot ) ) {
 				// Unrecognised user ID exists.
@@ -80,7 +81,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	 * @return bool
 	 */
 	public function deleteUserById( $nId ) {
-		$oDb = $this->loadDbProcessor();
+		$oDb = Services::WpDb();
 		return $oDb->deleteRowsFromTableWhere(
 				$oDb->getTable_Users(),
 				[ 'ID' => $nId ]
@@ -95,7 +96,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 		$aSnapshot = $this->getSnapshotUsers();
 		$aUser = $aSnapshot[ $nId ];
 
-		$oDb = $this->loadDbProcessor();
+		$oDb = Services::WpDb();
 		return $oDb->updateRowsFromTableWhere(
 				$oDb->getTable_Users(),
 				$aUser,
@@ -117,7 +118,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 
 			$aUsersToStore = [];
 			$aFields = $this->getStandardUserFields();
-			foreach ( $this->loadWpUsers()->getAllUsers() as $oUser ) {
+			foreach ( Services::WpUsers()->getAllUsers() as $oUser ) {
 
 				$aUserData = [];
 				foreach ( $aFields as $sField ) {
