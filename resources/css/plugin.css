@@ -618,7 +618,7 @@ label.forcheckbox .summary {
 	display: block;
 }
 /* Hide default HTML checkbox */
-.icwp-switch input:disabled,
+/*.icwp-switch input:disabled,*/
 .icwp-switch input {
 	opacity: 0 !important;
 }

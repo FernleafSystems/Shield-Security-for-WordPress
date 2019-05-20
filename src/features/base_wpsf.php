@@ -241,6 +241,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				'actions_summary'   => __( 'Perform actions for this module', 'wp-simple-firewall' ),
 				'help_title'        => __( 'Help', 'wp-simple-firewall' ),
 				'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
+				'pro_only_option'   => __( 'Pro Only' ),
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
 					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
 

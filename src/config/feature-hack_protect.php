@@ -183,6 +183,7 @@
       "key":           "wpvuln_scan_display",
       "section":       "section_wpvuln_scan",
       "default":       "enabled_admin",
+      "premium":     true,
       "type":          "select",
       "value_options": [
         {
@@ -473,6 +474,7 @@
     {
       "key":         "ptg_depth",
       "section":     "section_pluginthemes_guard",
+      "premium":     true,
       "type":        "integer",
       "default":     1,
       "min":         0,
@@ -485,6 +487,7 @@
     {
       "key":         "ptg_extensions",
       "section":     "section_pluginthemes_guard",
+      "premium":     true,
       "default":     [
         "php",
         "php5",
