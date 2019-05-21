@@ -106,7 +106,7 @@ class ICWP_WPSF_WpFilesystem {
 	 * @return SplFileInfo[]
 	 */
 	public function getFilesInDir( $sDir, $nMaxDepth = 1, $oDirIterator = null ) {
-		$aList = array();
+		$aList = [];
 
 		try {
 			if ( empty( $oDirIterator ) ) {
@@ -185,7 +185,7 @@ class ICWP_WPSF_WpFilesystem {
 	 * @param bool   $bAlwaysRawResponse
 	 * @return array|WP_Error|bool
 	 */
-	public function requestUrl( $sUrl, $aRequestArgs = array(), $bAlwaysRawResponse = false ) {
+	public function requestUrl( $sUrl, $aRequestArgs = [], $bAlwaysRawResponse = false ) {
 
 		$mResult = wp_remote_request( $sUrl, $aRequestArgs );
 		if ( $bAlwaysRawResponse ) {
@@ -202,7 +202,7 @@ class ICWP_WPSF_WpFilesystem {
 	 * @param array  $aRequestArgs
 	 * @return array|bool
 	 */
-	public function getUrl( $sUrl, $aRequestArgs = array() ) {
+	public function getUrl( $sUrl, $aRequestArgs = [] ) {
 		$aRequestArgs[ 'method' ] = 'GET';
 		return $this->requestUrl( $sUrl, $aRequestArgs );
 	}
@@ -212,7 +212,7 @@ class ICWP_WPSF_WpFilesystem {
 	 * @param array  $aRequestArgs
 	 * @return false|string
 	 */
-	public function getUrlContent( $sUrl, $aRequestArgs = array() ) {
+	public function getUrlContent( $sUrl, $aRequestArgs = [] ) {
 		$aResponse = $this->getUrl( $sUrl, $aRequestArgs );
 		if ( !$aResponse || !isset( $aResponse[ 'body' ] ) ) {
 			return false;
@@ -221,22 +221,22 @@ class ICWP_WPSF_WpFilesystem {
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sUrl
 	 * @param array  $aRequestArgs
 	 * @return array|false
+	 * @deprecated
 	 */
-	public function postUrl( $sUrl, $aRequestArgs = array() ) {
+	public function postUrl( $sUrl, $aRequestArgs = [] ) {
 		$aRequestArgs[ 'method' ] = 'POST';
 		return $this->requestUrl( $sUrl, $aRequestArgs );
 	}
 
 	public function getCanWpRemoteGet() {
-		$aUrlsToTest = array(
+		$aUrlsToTest = [
 			'https://www.microsoft.com',
 			'https://www.google.com',
 			'https://www.facebook.com'
-		);
+		];
 		foreach ( $aUrlsToTest as $sUrl ) {
 			if ( $this->getUrl( $sUrl ) !== false ) {
 				return true;

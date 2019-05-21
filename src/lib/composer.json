@@ -24,6 +24,7 @@
     "nesbot/carbon":                      "^1.36.0",
     "twig/twig":                          "1.38.*",
     "google/recaptcha":                   "1.1.2",
+    "phpgangsta/googleauthenticator":     "dev-master",
     "bjeavons/zxcvbn-php":                "^0.3",
     "nullpunkt/lz-string-php":            "^1.2.0"
   },

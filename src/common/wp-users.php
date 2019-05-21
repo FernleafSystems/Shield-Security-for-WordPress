@@ -3,11 +3,6 @@
 class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 
 	/**
-	 * @var ICWP_UserMeta[]
-	 */
-	private $aMetas;
-
-	/**
 	 * @var ICWP_WPSF_WpUsers
 	 */
 	protected static $oInstance = null;
@@ -48,7 +43,7 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	/**
 	 * @param array $aLoginUrlParams
 	 */
-	public function forceUserRelogin( $aLoginUrlParams = array() ) {
+	public function forceUserRelogin( $aLoginUrlParams = [] ) {
 		$this->logoutUser();
 		$this->loadWp()->redirectToLogin( $aLoginUrlParams );
 	}
@@ -57,10 +52,10 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @param array $aArgs
 	 * @return WP_User[]
 	 */
-	public function getAllUsers( $aArgs = array() ) {
+	public function getAllUsers( $aArgs = [] ) {
 		$aArgs = wp_parse_args(
 			$aArgs,
-			array(
+			[
 				'blog_id' => 0,
 				//					'fields' => array(
 				//						'ID',
@@ -68,9 +63,9 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 				//						'user_email',
 				//						'user_pass',
 				//					)
-			)
+			]
 		);
-		return function_exists( 'get_users' ) ? get_users( $aArgs ) : array();
+		return function_exists( 'get_users' ) ? get_users( $aArgs ) : [];
 	}
 
 	/**
@@ -85,13 +80,13 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getLevelToRoleMap() {
-		return array(
+		return [
 			0 => 'subscriber',
 			1 => 'contributor',
 			2 => 'author',
 			3 => 'editor',
 			8 => 'administrator'
-		);
+		];
 	}
 
 	/**
@@ -101,28 +96,6 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	public function getAvailableUserRoles( $bSlugsOnly = true ) {
 		require_once( ABSPATH.'wp-admin/includes/user.php' );
 		return $bSlugsOnly ? array_keys( get_editable_roles() ) : get_editable_roles();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function canSaveMeta() {
-		$bCanMeta = false;
-		try {
-			if ( $this->isUserLoggedIn() ) {
-				$sKey = 'icwp-flag-can-store-user-meta';
-				$sMeta = $this->getUserMeta( $sKey );
-				if ( $sMeta == 'icwp' ) {
-					$bCanMeta = true;
-				}
-				else {
-					$bCanMeta = $this->updateUserMeta( $sKey, 'icwp' );
-				}
-			}
-		}
-		catch ( Exception $oE ) {
-		}
-		return $bCanMeta;
 	}
 
 	/**
@@ -217,9 +190,9 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @see wp-login.php
 	 * @param WP_User $oUser
 	 * @return string|null
+	 * @see wp-login.php
 	 */
 	public function getPasswordResetUrl( $oUser ) {
 		$sUrl = null;
@@ -227,11 +200,11 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 		$sResetKey = get_password_reset_key( $oUser );
 		if ( !is_wp_error( $sResetKey ) ) {
 			$sUrl = add_query_arg(
-				array(
+				[
 					'action' => 'rp',
 					'key'    => $sResetKey,
 					'login'  => $oUser->user_login,
-				),
+				],
 				wp_login_url()
 			);
 		}
@@ -258,35 +231,6 @@ class ICWP_WPSF_WpUsers extends ICWP_WPSF_Foundation {
 	 */
 	public function isUserLoggedIn() {
 		return function_exists( 'is_user_logged_in' ) && is_user_logged_in();
-	}
-
-	/**
-	 * @param string $sPrefix
-	 * @param int    $nUserId
-	 * @return ICWP_UserMeta
-	 * @deprecated
-	 */
-	public function metaVoForUser( $sPrefix, $nUserId = null ) {
-		if ( is_null( $nUserId ) ) {
-			$nUserId = $this->getCurrentWpUserId();
-		}
-
-		$aMetas = $this->getMetas();
-		if ( !isset( $aMetas[ $nUserId ] ) ) {
-			$aMetas[ $nUserId ] = new ICWP_UserMeta( $sPrefix, $nUserId );
-			$this->aMetas = $aMetas;
-		}
-		return $this->aMetas[ $nUserId ];
-	}
-
-	/**
-	 * @return ICWP_UserMeta[]
-	 */
-	protected function getMetas() {
-		if ( empty( $this->aMetas ) ) {
-			$this->aMetas = array();
-		}
-		return $this->aMetas;
 	}
 
 	/**

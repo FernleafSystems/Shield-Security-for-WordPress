@@ -7,7 +7,8 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	 */
 	protected static $oInstance = null;
 
-	private function __construct() {}
+	private function __construct() {
+	}
 
 	/**
 	 * @return ICWP_WPSF_WpComments

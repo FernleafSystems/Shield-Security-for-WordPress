@@ -150,10 +150,10 @@ class ICWP_WPSF_Request extends ICWP_WPSF_Foundation {
 	public function getUriParts() {
 		if ( !isset( $this->aRequestUriParts ) ) {
 			$aExploded = explode( '?', $this->getUri(), 2 );
-			$this->aRequestUriParts = array(
+			$this->aRequestUriParts = [
 				'path'  => empty( $aExploded[ 0 ] ) ? '' : $aExploded[ 0 ],
 				'query' => empty( $aExploded[ 1 ] ) ? '' : $aExploded[ 1 ],
-			);
+			];
 		}
 		return $this->aRequestUriParts;
 	}
@@ -300,8 +300,8 @@ class ICWP_WPSF_Request extends ICWP_WPSF_Foundation {
 
 	/**
 	 * alias
-	 * @deprecated
 	 * @return int
+	 * @deprecated
 	 */
 	public function time() {
 		return $this->ts();

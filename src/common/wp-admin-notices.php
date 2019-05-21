@@ -36,8 +36,8 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 	protected function __construct() {
 		$this->sFlashMessage = '';
-		add_action( 'admin_notices', array( $this, 'onWpAdminNotices' ) );
-		add_action( 'network_admin_notices', array( $this, 'onWpAdminNotices' ) );
+		add_action( 'admin_notices', [ $this, 'onWpAdminNotices' ] );
+		add_action( 'network_admin_notices', [ $this, 'onWpAdminNotices' ] );
 	}
 
 	/**
@@ -57,11 +57,11 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	protected function ajaxExec_DismissAdminNotice() {
 		// Get all notices and if this notice exists, we set it to "hidden"
 		$sNoticeId = sanitize_key( $this->loadRequest()->query( 'notice_id', '' ) );
-		$aNotices = apply_filters( $this->getPrefix().'register_admin_notices', array() );
+		$aNotices = apply_filters( $this->getPrefix().'register_admin_notices', [] );
 		if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
 			$this->setMeta( $aNotices[ $sNoticeId ][ 'id' ] );
 		}
-		return array( 'success' => true );
+		return [ 'success' => true ];
 	}
 
 	public function onWpAdminNotices() {
@@ -86,11 +86,11 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @return false|string
 	 */
 	public function getMeta( $sNoticeId ) {
-		$mValue = array();
+		$mValue = [];
 
 		$oMeta = $this->getCurrentUserMeta();
 
-		$sCleanNotice = 'notice_'.str_replace( array( '-', '_' ), '', $sNoticeId );
+		$sCleanNotice = 'notice_'.str_replace( [ '-', '_' ], '', $sNoticeId );
 		if ( isset( $oMeta->{$sCleanNotice} ) && is_array( $oMeta->{$sCleanNotice} ) ) {
 			$mValue = $oMeta->{$sCleanNotice};
 		}
@@ -110,14 +110,14 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @param string $sNoticeId
 	 * @param array  $aMeta
 	 */
-	public function setMeta( $sNoticeId, $aMeta = array() ) {
+	public function setMeta( $sNoticeId, $aMeta = [] ) {
 		if ( !is_array( $aMeta ) ) {
-			$aMeta = array();
+			$aMeta = [];
 		}
 
 		$oMeta = $this->getCurrentUserMeta();
-		$sCleanNotice = 'notice_'.str_replace( array( '-', '_' ), '', $sNoticeId );
-		$oMeta->{$sCleanNotice} = array_merge( array( 'time' => $this->loadRequest()->ts() ), $aMeta );
+		$sCleanNotice = 'notice_'.str_replace( [ '-', '_' ], '', $sNoticeId );
+		$oMeta->{$sCleanNotice} = array_merge( [ 'time' => $this->loadRequest()->ts() ], $aMeta );
 		return;
 	}
 
@@ -142,7 +142,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 */
 	protected function getNotices() {
 		if ( !isset( $this->aAdminNotices ) || !is_array( $this->aAdminNotices ) ) {
-			$this->aAdminNotices = array();
+			$this->aAdminNotices = [];
 		}
 		return $this->aAdminNotices;
 	}
@@ -209,7 +209,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function addFlashUserMessage( $sMessage, $bError = false ) {
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			$this->getCurrentUserMeta()->flash_msg = ( $bError ? 'error' : 'updated' )
 													 .'::'.sanitize_text_field( $sMessage )
 													 .'::'.( $this->loadRequest()->ts() + 300 );
@@ -262,7 +262,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function flushFlash() {
-		if ( $this->loadWpUsers()->isUserLoggedIn() ) {
+		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			$oMeta = $this->getCurrentUserMeta();
 			if ( isset( $oMeta->flash_msg ) ) {
 				$this->sFlashMessage = (string)$oMeta->flash_msg;

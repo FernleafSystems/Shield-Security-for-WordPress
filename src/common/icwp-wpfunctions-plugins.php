@@ -87,11 +87,11 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function install( $sUrlToInstall, $bOverwrite = true, $bMaintenanceMode = false ) {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
+		$aResult = [
 			'successful'  => true,
 			'plugin_info' => '',
-			'errors'      => array()
-		);
+			'errors'      => []
+		];
 
 		$oUpgraderSkin = new ICWP_Upgrader_Skin();
 		$oUpgrader = new ICWP_Plugin_Upgrader( $oUpgraderSkin );
@@ -128,12 +128,12 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function installFromWpOrg( $sSlug ) {
 		include_once( ABSPATH.'wp-admin/includes/plugin-install.php' );
 
-		$api = plugins_api( 'plugin_information', array(
+		$api = plugins_api( 'plugin_information', [
 			'slug'   => $sSlug,
-			'fields' => array(
+			'fields' => [
 				'sections' => false,
-			),
-		) );
+			],
+		] );
 
 		if ( !is_wp_error( $api ) ) {
 			return $this->install( $api->download_link, true, true );
@@ -187,15 +187,15 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function update( $sFile ) {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
+		$aResult = [
 			'successful' => 1,
-			'errors'     => array()
-		);
+			'errors'     => []
+		];
 
 		$oUpgraderSkin = new ICWP_Bulk_Plugin_Upgrader_Skin();
 		$oUpgrader = new Plugin_Upgrader( $oUpgraderSkin );
 		ob_start();
-		$oUpgrader->bulk_upgrade( array( $sFile ) );
+		$oUpgrader->bulk_upgrade( [ $sFile ] );
 		ob_end_clean();
 
 		if ( isset( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
@@ -318,7 +318,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function getActivePlugins() {
 		$oWp = $this->loadWp();
 		$aActive = $oWp->getOption( ( $oWp->isMultisite() ? 'active_sitewide_plugins' : 'active_plugins' ) );
-		return is_array( $aActive ) ? $aActive : array();
+		return is_array( $aActive ) ? $aActive : [];
 	}
 
 	/**
@@ -335,8 +335,8 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 		if ( !function_exists( 'get_plugins' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/plugin.php' );
 		}
-		$aP = function_exists( 'get_plugins' ) ? get_plugins() : array();
-		return is_array( $aP ) ? $aP : array();
+		$aP = function_exists( 'get_plugins' ) ? get_plugins() : [];
+		return is_array( $aP ) ? $aP : [];
 	}
 
 	/**
@@ -345,8 +345,8 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	public function getAllExtendedData() {
 		$oData = $this->loadWp()->getTransient( 'update_plugins' );
 		return array_merge(
-			isset( $oData->no_update ) ? $oData->no_update : array(),
-			isset( $oData->response ) ? $oData->response : array()
+			isset( $oData->no_update ) ? $oData->no_update : [],
+			isset( $oData->response ) ? $oData->response : []
 		);
 	}
 
@@ -363,7 +363,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getAllSlugs() {
-		$aSlugs = array();
+		$aSlugs = [];
 
 		foreach ( $this->getAllExtendedData() as $sBaseName => $oPlugData ) {
 			if ( isset( $oPlugData->slug ) ) {
@@ -411,7 +411,7 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 			$this->checkForUpdates();
 		}
 		$aUpdates = $this->loadWp()->getWordpressUpdates( 'plugins' );
-		return is_array( $aUpdates ) ? $aUpdates : array();
+		return is_array( $aUpdates ) ? $aUpdates : [];
 	}
 
 	/**
@@ -435,11 +435,11 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getUrl_Upgrade( $sPluginFile ) {
-		$aQueryArgs = array(
+		$aQueryArgs = [
 			'action'   => 'upgrade-plugin',
 			'plugin'   => urlencode( $sPluginFile ),
 			'_wpnonce' => wp_create_nonce( 'upgrade-plugin_'.$sPluginFile )
-		);
+		];
 		return add_query_arg( $aQueryArgs, self_admin_url( 'update.php' ) );
 	}
 
@@ -450,11 +450,11 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	 */
 	protected function getUrl_Action( $sPluginFile, $sAction ) {
 		return add_query_arg(
-			array(
+			[
 				'action'   => $sAction,
 				'plugin'   => urlencode( $sPluginFile ),
 				'_wpnonce' => wp_create_nonce( $sAction.'-plugin_'.$sPluginFile )
-			),
+			],
 			self_admin_url( 'plugins.php' )
 		);
 	}
@@ -529,17 +529,17 @@ class ICWP_WPSF_WpFunctions_Plugins extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sPluginFile
 	 * @return string
+	 * @deprecated
 	 */
 	public function getLinkPluginUpgrade( $sPluginFile ) {
 		return $this->getUrl_Upgrade( $sPluginFile );
 	}
 
 	/**
-	 * @deprecated
 	 * @return array
+	 * @deprecated
 	 */
 	public function getInstalledPluginFiles() {
 		return $this->getInstalledBaseFiles();

@@ -57,33 +57,33 @@ if ( class_exists( 'Plugin_Upgrader' ) ) {
 
 		protected $fModeOverwrite = true;
 
-		public function install( $package, $args = array() ) {
+		public function install( $package, $args = [] ) {
 
-			$defaults = array(
+			$defaults = [
 				'clear_update_cache' => true,
-			);
+			];
 			$parsed_args = wp_parse_args( $args, $defaults );
 
 			$this->init();
 			$this->install_strings();
 
-			add_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
-			add_filter( 'upgrader_clear_destination', array( $this, 'clearStatCache' ) );
+			add_filter( 'upgrader_source_selection', [ $this, 'check_package' ] );
+			add_filter( 'upgrader_clear_destination', [ $this, 'clearStatCache' ] );
 
-			$oResult = $this->run( array(
+			$oResult = $this->run( [
 				'package'           => $package,
 				'destination'       => WP_PLUGIN_DIR,
 				'clear_destination' => $this->getOverwriteMode(),
 				// key to overwrite and why we're extending the native wordpress class
 				'clear_working'     => true,
-				'hook_extra'        => array(
+				'hook_extra'        => [
 					'type'   => 'plugin',
 					'action' => 'install',
-				)
-			) );
+				]
+			] );
 
-			remove_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
-			remove_filter( 'upgrader_clear_destination', array( $this, 'clearStatCache' ) );
+			remove_filter( 'upgrader_source_selection', [ $this, 'check_package' ] );
+			remove_filter( 'upgrader_clear_destination', [ $this, 'clearStatCache' ] );
 
 			if ( !$this->result || is_wp_error( $this->result ) ) {
 				return $this->result;
@@ -136,8 +136,8 @@ if ( class_exists( 'Bulk_Plugin_Upgrader_Skin', false ) ) {
 		 */
 		public function __construct() {
 			parent::__construct( compact( 'nonce', 'url' ) );
-			$this->m_aErrors = array();
-			$this->aFeedback = array();
+			$this->m_aErrors = [];
+			$this->aFeedback = [];
 		}
 
 		/**
@@ -213,34 +213,34 @@ if ( class_exists( 'Theme_Upgrader' ) ) {
 
 		protected $fModeOverwrite = true;
 
-		public function install( $package, $args = array() ) {
+		public function install( $package, $args = [] ) {
 
-			$defaults = array(
+			$defaults = [
 				'clear_update_cache' => true,
-			);
+			];
 			$parsed_args = wp_parse_args( $args, $defaults );
 
 			$this->init();
 			$this->install_strings();
 
-			add_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
-			add_filter( 'upgrader_post_install', array( $this, 'check_parent_theme_filter' ), 10, 3 );
-			add_filter( 'upgrader_clear_destination', array( $this, 'clearStatCache' ) );
+			add_filter( 'upgrader_source_selection', [ $this, 'check_package' ] );
+			add_filter( 'upgrader_post_install', [ $this, 'check_parent_theme_filter' ], 10, 3 );
+			add_filter( 'upgrader_clear_destination', [ $this, 'clearStatCache' ] );
 
-			$this->run( array(
+			$this->run( [
 				'package'           => $package,
 				'destination'       => get_theme_root(),
 				'clear_destination' => $this->getOverwriteMode(),
 				'clear_working'     => true,
-				'hook_extra'        => array(
+				'hook_extra'        => [
 					'type'   => 'theme',
 					'action' => 'install',
-				),
-			) );
+				],
+			] );
 
-			remove_filter( 'upgrader_source_selection', array( $this, 'check_package' ) );
-			remove_filter( 'upgrader_post_install', array( $this, 'check_parent_theme_filter' ) );
-			remove_filter( 'upgrader_clear_destination', array( $this, 'clearStatCache' ) );
+			remove_filter( 'upgrader_source_selection', [ $this, 'check_package' ] );
+			remove_filter( 'upgrader_post_install', [ $this, 'check_parent_theme_filter' ] );
+			remove_filter( 'upgrader_clear_destination', [ $this, 'clearStatCache' ] );
 
 			if ( !$this->result || is_wp_error( $this->result ) ) {
 				return $this->result;
@@ -293,8 +293,8 @@ if ( class_exists( 'Bulk_Theme_Upgrader_Skin', false ) ) {
 		 */
 		public function __construct() {
 			parent::__construct( compact( 'title', 'nonce', 'url', 'theme' ) );
-			$this->m_aErrors = array();
-			$this->aFeedback = array();
+			$this->m_aErrors = [];
+			$this->aFeedback = [];
 		}
 
 		/**

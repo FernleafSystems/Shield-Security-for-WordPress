@@ -46,11 +46,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	protected $sOptionsEncoding;
-
-	/**
-	 * @var string
-	 */
 	protected $sPathToConfig;
 
 	/**
@@ -113,7 +108,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getTransferableOptions() {
-		$aTransferable = array();
+		$aTransferable = [];
 
 		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptionData ) {
 			if ( !isset( $aOptionData[ 'transferable' ] ) || $aOptionData[ 'transferable' ] === true ) {
@@ -175,7 +170,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getAdminNotices() {
 		$aRawConfig = $this->getRawData_FullFeatureConfig();
-		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : array();
+		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : [];
 	}
 
 	/**
@@ -206,7 +201,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getHiddenOptions() {
 
-		$aOptionsData = array();
+		$aOptionsData = [];
 
 		foreach ( $this->getRawData_OptionsSections() as $nPosition => $aRawSection ) {
 
@@ -239,7 +234,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array[]
 	 */
 	public function getSections( $bIncludeHidden = false ) {
-		$aSections = array();
+		$aSections = [];
 		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
 			if ( $bIncludeHidden || !isset( $aRawSection[ 'hidden' ] ) || !$aRawSection[ 'hidden' ] ) {
 				$aSections[ $aRawSection[ 'slug' ] ] = $aRawSection;
@@ -252,7 +247,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getPrimarySection() {
-		$aSec = array();
+		$aSec = [];
 		foreach ( $this->getSections() as $aS ) {
 			if ( isset( $aS[ 'primary' ] ) && $aS[ 'primary' ] ) {
 				$aSec = $aS;
@@ -268,12 +263,12 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getSection_Requirements( $sSlug ) {
 		$aSection = $this->getSection( $sSlug );
-		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : array();
+		$aReqs = ( is_array( $aSection ) && isset( $aSection[ 'reqs' ] ) ) ? $aSection[ 'reqs' ] : [];
 		return array_merge(
-			array(
+			[
 				'php_min' => '5.2.4',
 				'wp_min'  => '3.5.0',
-			),
+			],
 			$aReqs
 		);
 	}
@@ -311,7 +306,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function getOptionsForPluginUse() {
 
-		$aOptionsData = array();
+		$aOptionsData = [];
 
 		foreach ( $this->getRawData_OptionsSections() as $aRawSection ) {
 
@@ -320,11 +315,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			}
 
 			$aRawSection = array_merge(
-				array(
+				[
 					'primary'       => false,
 					'options'       => $this->getOptionsForSection( $aRawSection[ 'slug' ] ),
 					'help_video_id' => ''
-				),
+				],
 				$aRawSection
 			);
 
@@ -342,7 +337,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	protected function getOptionsForSection( $sSectionSlug ) {
 
-		$aAllOptions = array();
+		$aAllOptions = [];
 		foreach ( $this->getRawData_AllOptions() as $aOptionDef ) {
 
 			if ( ( $aOptionDef[ 'section' ] != $sSectionSlug ) || ( isset( $aOptionDef[ 'hidden' ] ) && $aOptionDef[ 'hidden' ] ) ) {
@@ -354,18 +349,18 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			}
 
 			$aOptionDef = array_merge(
-				array(
+				[
 					'link_info'     => '',
 					'link_blog'     => '',
 					'help_video_id' => '',
-					'value_options' => array()
-				),
+					'value_options' => []
+				],
 				$aOptionDef
 			);
 			$aOptionDef[ 'value' ] = $this->getOpt( $aOptionDef[ 'key' ] );
 
-			if ( in_array( $aOptionDef[ 'type' ], array( 'select', 'multiple_select' ) ) ) {
-				$aNewValueOptions = array();
+			if ( in_array( $aOptionDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
+				$aNewValueOptions = [];
 				foreach ( $aOptionDef[ 'value_options' ] as $aValueOptions ) {
 					$aNewValueOptions[ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
 				}
@@ -438,7 +433,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getOptDefinition( $sOptionKey ) {
-		$aDef = array();
+		$aDef = [];
 		foreach ( $this->getRawData_AllOptions() as $aOption ) {
 			if ( $aOption[ 'key' ] == $sOptionKey ) {
 				$aDef = $aOption;
@@ -472,18 +467,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getOptionsEncoding() {
-		return empty( $this->sOptionsEncoding ) ? 'json' : $this->sOptionsEncoding;
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getOptionsKeys() {
 		if ( !isset( $this->aOptionsKeys ) ) {
-			$this->aOptionsKeys = array();
+			$this->aOptionsKeys = [];
 			foreach ( $this->getRawData_AllOptions() as $aOption ) {
 				$this->aOptionsKeys[] = $aOption[ 'key' ];
 			}
@@ -531,7 +519,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 			return $this->loadOptionsValuesFromStorage();
 		}
 		catch ( Exception $oE ) {
-			return array();
+			return [];
 		}
 	}
 
@@ -551,7 +539,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRawData_AllOptions() {
 		$aRaw = $this->getRawData_FullFeatureConfig();
-		return ( isset( $aRaw[ 'options' ] ) && is_array( $aRaw[ 'options' ] ) ) ? $aRaw[ 'options' ] : array();
+		return ( isset( $aRaw[ 'options' ] ) && is_array( $aRaw[ 'options' ] ) ) ? $aRaw[ 'options' ] : [];
 	}
 
 	/**
@@ -560,7 +548,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRawData_OptionsSections() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'sections' ] ) ? $aAllRawOptions[ 'sections' ] : array();
+		return isset( $aAllRawOptions[ 'sections' ] ) ? $aAllRawOptions[ 'sections' ] : [];
 	}
 
 	/**
@@ -569,7 +557,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRawData_Requirements() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'requirements' ] ) ? $aAllRawOptions[ 'requirements' ] : array();
+		return isset( $aAllRawOptions[ 'requirements' ] ) ? $aAllRawOptions[ 'requirements' ] : [];
 	}
 
 	/**
@@ -578,7 +566,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRawData_MenuItems() {
 		$aAllRawOptions = $this->getRawData_FullFeatureConfig();
-		return isset( $aAllRawOptions[ 'menu_items' ] ) ? $aAllRawOptions[ 'menu_items' ] : array();
+		return isset( $aAllRawOptions[ 'menu_items' ] ) ? $aAllRawOptions[ 'menu_items' ] : [];
 	}
 
 	/**
@@ -716,15 +704,6 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param string $sOptionsEncoding
-	 * @return $this
-	 */
-	public function setOptionsEncoding( $sOptionsEncoding ) {
-		$this->sOptionsEncoding = $sOptionsEncoding;
-		return $this;
-	}
-
-	/**
 	 * @param boolean $bRebuild
 	 * @return $this
 	 */
@@ -840,7 +819,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	private function setOldOptValue( $sOptionKey, $mValue ) {
 		if ( !is_array( $this->aOld ) ) {
-			$this->aOld = array();
+			$this->aOld = [];
 		}
 		if ( !isset( $this->aOld[ $sOptionKey ] ) ) {
 			$this->aOld[ $sOptionKey ] = $mValue;
@@ -865,7 +844,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getCommonStandardOptions() {
-		return array( 'help_video_options' );
+		return [ 'help_video_options' ];
 	}
 
 	/**
@@ -894,11 +873,11 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				if ( empty( $sStorageKey ) ) {
 					throw new Exception( 'Options Storage Key Is Empty' );
 				}
-				$this->aOptionsValues = $this->loadWp()->getOption( $sStorageKey, array() );
+				$this->aOptionsValues = $this->loadWp()->getOption( $sStorageKey, [] );
 			}
 		}
 		if ( !is_array( $this->aOptionsValues ) ) {
-			$this->aOptionsValues = array();
+			$this->aOptionsValues = [];
 			$this->setNeedSave( true );
 		}
 		return $this->aOptionsValues;
@@ -930,7 +909,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				if ( WP_DEBUG ) {
 					trigger_error( $oE->getMessage() );
 				}
-				$aConfig = array();
+				$aConfig = [];
 			}
 			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
 			$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );

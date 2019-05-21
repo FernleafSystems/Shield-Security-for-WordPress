@@ -121,11 +121,11 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @see wp_redirect_admin_locations()
 	 * @return array
+	 * @see wp_redirect_admin_locations()
 	 */
 	public function getAutoRedirectLocations() {
-		return array( 'wp-admin', 'dashboard', 'admin', 'login', 'wp-login.php' );
+		return [ 'wp-admin', 'dashboard', 'admin', 'login', 'wp-login.php' ];
 	}
 
 	/**
@@ -222,7 +222,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		if ( !function_exists( 'wp_get_themes' ) ) {
 			require_once( ABSPATH.'wp-admin/includes/theme.php' );
 		}
-		return function_exists( 'wp_get_themes' ) ? wp_get_themes() : array();
+		return function_exists( 'wp_get_themes' ) ? wp_get_themes() : [];
 	}
 
 	/**
@@ -231,7 +231,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	public function getWordpressUpdates( $sType = 'plugins' ) {
 		$oCurrent = $this->getTransient( 'update_'.$sType );
-		return ( isset( $oCurrent->response ) && is_array( $oCurrent->response ) ) ? $oCurrent->response : array();
+		return ( isset( $oCurrent->response ) && is_array( $oCurrent->response ) ) ? $oCurrent->response : [];
 	}
 
 	/**
@@ -353,12 +353,12 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 */
 	public function canCoreUpdateAutomatically() {
 		global $required_php_version, $required_mysql_version;
-		$future_minor_update = (object)array(
+		$future_minor_update = (object)[
 			'current'       => $this->getVersion().'.1.next.minor',
 			'version'       => $this->getVersion().'.1.next.minor',
 			'php_version'   => $required_php_version,
 			'mysql_version' => $required_mysql_version,
-		);
+		];
 		return $this->getWpAutomaticUpdater()
 					->should_update( 'core', $future_minor_update, ABSPATH );
 	}
@@ -379,21 +379,21 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	/**
 	 * @param array $aQueryParams
 	 */
-	public function redirectToLogin( $aQueryParams = array() ) {
+	public function redirectToLogin( $aQueryParams = [] ) {
 		$this->doRedirect( wp_login_url(), $aQueryParams );
 	}
 
 	/**
 	 * @param array $aQueryParams
 	 */
-	public function redirectToAdmin( $aQueryParams = array() ) {
+	public function redirectToAdmin( $aQueryParams = [] ) {
 		$this->doRedirect( is_multisite() ? get_admin_url() : admin_url(), $aQueryParams );
 	}
 
 	/**
 	 * @param array $aQueryParams
 	 */
-	public function redirectToHome( $aQueryParams = array() ) {
+	public function redirectToHome( $aQueryParams = [] ) {
 		$this->doRedirect( home_url(), $aQueryParams );
 	}
 
@@ -403,7 +403,7 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @param bool   $bSafe
 	 * @param bool   $bProtectAgainstInfiniteLoops - if false, ignores the redirect loop protection
 	 */
-	public function doRedirect( $sUrl, $aQueryParams = array(), $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
+	public function doRedirect( $sUrl, $aQueryParams = [], $bSafe = true, $bProtectAgainstInfiniteLoops = true ) {
 		$sUrl = empty( $aQueryParams ) ? $sUrl : add_query_arg( $aQueryParams, $sUrl );
 
 		$oReq = $this->loadRequest();
@@ -511,9 +511,9 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 		if ( $sPage == 'admin.php' ) {
 			$sSubPage = $this->loadRequest()->query( 'page' );
 			if ( !empty( $sSubPage ) ) {
-				$aQueryArgs = array(
+				$aQueryArgs = [
 					'page' => $sSubPage,
-				);
+				];
 				$sUrl = add_query_arg( $aQueryArgs, $sUrl );
 			}
 		}
@@ -673,8 +673,8 @@ class ICWP_WPSF_WpFunctions extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function getAllUserLoginUsernames() {
-		$aUsers = get_users( array( 'fields' => array( 'user_login' ) ) );
-		$aLogins = array();
+		$aUsers = get_users( [ 'fields' => [ 'user_login' ] ] );
+		$aLogins = [];
 		foreach ( $aUsers as $oUser ) {
 			$aLogins[] = $oUser->user_login;
 		}
