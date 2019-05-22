@@ -32,8 +32,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * or we adjust the number of displayed updates counts
 	 */
 	protected function hideUpdates() {
-		$sCurrent = $this->loadWp()->getCurrentPage();
-		if ( in_array( $sCurrent, [ 'plugins.php', 'update-core.php' ] ) ) {
+		if ( in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
 			add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
 		}
 		else {
@@ -137,7 +136,6 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * @return bool
 	 */
 	private function isNeedToHideUpdates() {
-		$oWp = $this->loadWp();
-		return is_admin() && !$oWp->isCron();
+		return is_admin() && !Services::WpGeneral()->isCron();
 	}
 }

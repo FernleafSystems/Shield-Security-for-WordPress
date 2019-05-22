@@ -735,7 +735,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 		$oWpPlugins = Services::WpPlugins();
 
 		$sFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );

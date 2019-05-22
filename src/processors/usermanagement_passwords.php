@@ -134,17 +134,16 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 
 			$oMeta->pass_reset_last_redirect_at = $this->time();
 
-			$oWp = $this->loadWp();
 			$oWpUsers = Services::WpUsers();
 			$sAction = Services::Request()->query( 'action' );
 			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser && ( !$oWp->isRequestLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
+			if ( $oUser && ( !$this->loadWp()->isRequestLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$sMessage .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
 					 ->setFlashAdminNotice( $sMessage );
 
-				$oWp->doRedirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
+				Services::Response()->redirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
 			}
 		}
 	}

@@ -261,8 +261,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				];
 			}
 			else {
-				$oWp = $this->loadWp();
-				$bCanCore = $oWp->canCoreUpdateAutomatically();
+				$bCanCore = Services::WpGeneral()->canCoreUpdateAutomatically();
 				$aThis[ 'key_opts' ][ 'core_minor' ] = [
 					'name'    => __( 'Core Updates', 'wp-simple-firewall' ),
 					'enabled' => $bCanCore,

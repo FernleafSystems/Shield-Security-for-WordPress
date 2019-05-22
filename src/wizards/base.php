@@ -78,8 +78,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				$sDieMessage = 'Please login to run this wizard';
 			}
 
-			$this->loadWp()
-				 ->wpDie( $sDieMessage );
+			Services::WpGeneral()->wpDie( $sDieMessage );
 		}
 		catch ( Exception $oE ) {
 			if ( $sWizard == 'landing' ) {

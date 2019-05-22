@@ -189,8 +189,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		$oWpUsers = Services::WpUsers();
 		$oUserToDelete = $oWpUsers->getUserById( $nId );
 		if ( $oUserToDelete && $oWpUsers->isUserAdmin( $oUserToDelete ) ) {
-			$this->loadWp()
-				 ->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
+			Services::WpGeneral()
+					->wpDie( __( 'Sorry, deleting administrators is currently restricted to your Security Admin', 'wp-simple-firewall' ) );
 		}
 	}
 
@@ -276,7 +276,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			return;
 		}
 
-		$sCurrentPage = $this->loadWp()->getCurrentPage();
+		$sCurrentPage = Services::WpPost()->getCurrentPage();
 		$sCurrentGetPage = Services::Request()->query( 'page' );
 		if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
 			return;
@@ -316,8 +316,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 
-		$sCurrentPage = $this->loadWp()->getCurrentPage();
-		if ( !in_array( $sCurrentPage, $this->getUserPagesToRestrict() ) ) {
+		if ( !in_array( Services::WpPost()->getCurrentPage(), $this->getUserPagesToRestrict() ) ) {
 			return;
 		}
 

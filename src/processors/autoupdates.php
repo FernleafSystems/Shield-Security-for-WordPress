@@ -293,7 +293,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bDoAutoUpdate = false;
 		}
 		else {
-			$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
+			$sFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
 
 			if ( $this->isDelayed( $sFile, 'plugins' ) ) {
 				return false;
@@ -334,7 +334,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bDoAutoUpdate = false;
 		}
 		else {
-			$sFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
+			$sFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem, 'theme' );
 
 			if ( $this->isDelayed( $sFile, 'themes' ) ) {
 				return false;

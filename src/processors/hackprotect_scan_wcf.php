@@ -1,6 +1,7 @@
 <?php
 
 use \FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 
@@ -144,7 +145,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
 		$aContent = [
 			sprintf( __( "The %s Core File Scanner found files with potential problems.", 'wp-simple-firewall' ), $sName ),
@@ -200,14 +201,5 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			}
 		}
 		return $aContent;
-	}
-
-	/**
-	 * @param string $sFile
-	 * @return string
-	 */
-	private function getWpFileDownloadUrl( $sFile ) {
-		return $this->getMod()->getDef( 'url_wordress_core_svn' )
-			   .'tags/'.$this->loadWp()->getVersion().'/'.$sFile;
 	}
 }

@@ -92,13 +92,15 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		}
 		else {
 			$oResponse = ( new \ReCaptcha\ReCaptcha( $oFO->getGoogleRecaptchaSecretKey(), new \FernleafSystems\Wordpress\Plugin\Shield\Utilities\WordpressPost() ) )
-							  ->verify( $sCaptchaResponse, $this->ip() );
+				->verify( $sCaptchaResponse, $this->ip() );
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-				throw new \Exception(
-					__( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' )
-					.( $this->loadWp()
-							->isAjax() ? ' '.__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : '' ),
-					2 );
+				$aMsg = [
+					__( 'Whoops.', 'wp-simple-firewall' ),
+					__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' ),
+					Services::WpGeneral()->isAjax() ?
+						__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : ''
+				];
+				throw new \Exception( implode( ' ', $aMsg ), 2 );
 			}
 		}
 		return true;
@@ -108,7 +110,9 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getIfLogRequest() {
-		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !$this->loadWp()->isCron();
+		return isset( $this->bLogRequest ) ?
+			(bool)$this->bLogRequest
+			: !\FernleafSystems\Wordpress\Services\Services::WpGeneral()->isCron();
 	}
 
 	/**
@@ -146,8 +150,8 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 
 		\FernleafSystems\Wordpress\Services\Services::Includes()
-			 ->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
-			 ->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
+													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
+													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
 		/**
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)

@@ -204,7 +204,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIp_BingBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_bingbot' );
 		$aIps = $oWp->getTransient( $sStoreKey );

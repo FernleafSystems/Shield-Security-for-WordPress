@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services; // TODO: use after 7.5
+
 class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
 	const Slug = 'email';
@@ -63,15 +65,16 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
+		$oWp = \FernleafSystems\Wordpress\Services\Services::WpGeneral();
 		$sUrl = [
 			'',
 			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName(),
 				$this->getCon()->getVersion(),
-				$this->loadWp()->getHomeUrl()
+				$oWp->getHomeUrl()
 			),
 			__( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $this->loadWp()->getTimeStampForDisplay() )
+			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ),$oWp->getTimeStampForDisplay() )
 		];
 
 		return apply_filters( 'icwp_shield_email_footer', $sUrl );

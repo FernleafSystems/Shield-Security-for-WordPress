@@ -289,10 +289,10 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				'is_uau_permitted' => $oFO->getCanIpRequestAutoUnblock( $sIp ),
 			],
 		];
-		$this->loadWp()
-			 ->wpDie(
-				 $oFO->renderTemplate( '/snippets/blacklist_die.twig', $aData, true )
-			 );
+		Services::WpGeneral()
+				->wpDie(
+					$oFO->renderTemplate( '/snippets/blacklist_die.twig', $aData, true )
+				);
 	}
 
 	/**
