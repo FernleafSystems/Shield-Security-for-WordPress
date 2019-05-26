@@ -40,7 +40,7 @@
         "Purpose - Restrict access using a simple Access Key.",
         "Recommendation - Use of this feature is highly recommend."
       ],
-      "help_video_id_old": "214855538"
+      "help_video_id": "338551188"
     },
     {
       "slug":        "section_admin_access_restriction_areas",
