@@ -285,9 +285,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function cleanFileExclusions() {
 		$aExclusions = [];
 
-		$oFS = $this->loadFS();
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
-			$sExclusion = $oFS->normalizeFilePathDS( trim( $sExclusion ) );
+			$sExclusion = wp_normalize_path( trim( $sExclusion ) );
 
 			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
 				// ignore it

@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services; // TODO: use after 7.5
+
 class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
 	/**
@@ -491,7 +493,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getConfigModTime() {
-		return $this->loadFS()->getModifiedTime( $this->getPathToConfig() );
+		return \FernleafSystems\Wordpress\Services\Services::WpFs()->getModifiedTime( $this->getPathToConfig() );
 	}
 
 	/**
@@ -954,7 +956,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	private function getConfigFileExists() {
 		$sPath = $this->getPathToConfig();
-		return !empty( $sPath ) && $this->loadFS()->isFile( $sPath );
+		return !empty( $sPath ) && \FernleafSystems\Wordpress\Services\Services::WpFs()->isFile( $sPath );
 	}
 
 	/**

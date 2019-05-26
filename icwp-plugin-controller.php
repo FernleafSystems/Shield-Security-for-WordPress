@@ -1140,7 +1140,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oConOptions = $this->getPluginControllerOptions();
 		$sSpecPath = $this->getPathPluginSpec();
 		$sCurrentHash = @md5_file( $sSpecPath );
-		$sModifiedTime = $this->loadFS()->getModifiedTime( $sSpecPath );
+		$sModifiedTime = Services::WpFs()->getModifiedTime( $sSpecPath );
 
 		$this->bRebuildOptions = true;
 
@@ -1168,7 +1168,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getIsResetPlugin() {
 		if ( !isset( $this->bResetPlugin ) ) {
-			$bExists = $this->loadFS()->isFile( $this->getPath_Flags( 'reset' ) );
+			$bExists = Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
 			$this->bResetPlugin = (bool)$bExists;
 		}
 		return $this->bResetPlugin;
@@ -1221,7 +1221,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getPluginUrl_Asset( $sAsset ) {
 		$sUrl = '';
 		$sAssetPath = $this->getPath_Assets( $sAsset );
-		if ( $this->loadFS()->exists( $sAssetPath ) ) {
+		if ( Services::WpFs()->exists( $sAssetPath ) ) {
 			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
 			return Services::Includes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
 		}
@@ -1283,10 +1283,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
 		$sTempPath = null;
-		$oFs = $this->loadFS();
 
 		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'temp' ) );
-		if ( $oFs->mkdir( $sBase ) ) {
+		if ( Services::WpFs()->mkdir( $sBase ) ) {
 			$sTempPath = $sBase;
 		}
 		return empty( $sTmpFile ) ? $sTempPath : path_join( $sTempPath, $sTmpFile );
@@ -1584,7 +1583,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function getForceOffFilePath() {
 		if ( !isset( $this->sForceOffFile ) ) {
-			$oFs = $this->loadFS();
+			$oFs = Services::WpFs();
 			$sFile = $oFs->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
 			$this->sForceOffFile = ( !is_null( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
 		}
