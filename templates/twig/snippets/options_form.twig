@@ -37,6 +37,26 @@
 					</div>
 				</div>
 
+				{% if ( opt_section.warnings is defined ) and opt_section.warnings|length %}
+					{% for section_warning in opt_section.warnings %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-warning text-center">{{ section_warning|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% if ( opt_section.notices is defined ) and opt_section.notices|length %}
+					{% for section_notice in opt_section.notices %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-info text-center">{{ section_notice|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
 				{% for key, aOption in opt_section.options %}
 					<div class="form-group row">
 						<label for="Opt-{{ aOption.key }}"
@@ -44,9 +64,10 @@
 							   class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
 							{{ aOption.name }}
 							{% if aOption.disabled %}
-								<br/>
+								<br />
 								<div class="badge badge-warning">
-									<a href="{{ hrefs.go_pro }}" target="_blank" class="text-dark">{{ strings.pro_only_option }}</a>
+									<a href="{{ hrefs.go_pro }}" target="_blank"
+									   class="text-dark">{{ strings.pro_only_option }}</a>
 								</div>
 							{% endif %}
 						</label>
