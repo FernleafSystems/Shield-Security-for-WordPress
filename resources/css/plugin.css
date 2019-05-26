@@ -1190,6 +1190,7 @@ table.odp-table.scan-table td.column-path code {
 .form-check .form-check-label {
 	margin-left: 8px;
 }
+input[type=radio].form-check-input,
 input[type=checkbox].form-check-input {
 	margin-top: 5px;
 	margin-left: -20px;
@@ -1200,6 +1201,7 @@ input[type=checkbox].form-check-input {
 	margin: 0;
 	border-width: 10px 20px;
 }
+
 /** copied from bootstrap to override WP admin styles */
 .wp-admin select.custom-select {
 	height: calc(1.5em + 0.75rem + 2px);
