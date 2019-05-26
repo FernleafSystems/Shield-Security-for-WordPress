@@ -37,7 +37,7 @@
 					</div>
 				</div>
 
-				{% if ( opt_section.warnings is defined ) and opt_section.warnings|length %}
+				{% if opt_section.warnings|length %}
 					{% for section_warning in opt_section.warnings %}
 						<div class="row">
 							<div class="col">
@@ -47,7 +47,7 @@
 					{% endfor %}
 				{% endif %}
 
-				{% if ( opt_section.notices is defined ) and opt_section.notices|length %}
+				{% if opt_section.notices|length %}
 					{% for section_notice in opt_section.notices %}
 						<div class="row">
 							<div class="col">
