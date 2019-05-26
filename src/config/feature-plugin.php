@@ -79,9 +79,9 @@
     },
     {
       "slug":          "section_third_party_google",
-      "title":         "Google",
-      "title_short":   "Google",
-      "help_video_id": "338540386"
+      "title":         "Google reCAPTCHA",
+      "title_short":   "Google reCAPTCHA",
+      "help_video_id": "338546796"
     },
     {
       "slug":        "section_importexport",

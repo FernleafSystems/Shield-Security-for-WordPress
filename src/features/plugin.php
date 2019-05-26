@@ -1161,8 +1161,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				break;
 
 			case 'section_third_party_google' :
-				$sTitle = __( 'Google', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Google', 'wp-simple-firewall' );
+				$sTitle = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup Google reCAPTCHA for use across %s.', 'wp-simple-firewall' ), $sName ) ),
 					sprintf( '%s - %s',
