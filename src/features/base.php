@@ -968,6 +968,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$oOptsVo = $this->getOptionsVo();
 		$aOptions = $oOptsVo->getOptionsForPluginUse();
+
 		foreach ( $aOptions as $nSectionKey => $aSection ) {
 
 			if ( !empty( $aSection[ 'options' ] ) ) {
@@ -981,10 +982,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					else {
 						unset( $aSection[ 'options' ][ $nKey ] );
 					}
-				}
-
-				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
-					$aSection[ 'help_video_url' ] = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
 				}
 
 				if ( empty( $aSection[ 'options' ] ) ) {
@@ -1003,6 +1000,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					$this->getSectionWarnings( $aSection[ 'slug' ] )
 				);
 				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
+
+				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
+					$sHelpVideoUrl = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
+				}
+				else {
+					$sHelpVideoUrl = '';
+				}
+				$aOptions[ $nSectionKey ][ 'help_video_url' ] = $sHelpVideoUrl;
 			}
 		}
 

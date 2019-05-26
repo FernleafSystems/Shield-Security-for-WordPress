@@ -19,7 +19,23 @@
 				 role="tabpanel" id="tab-{{ opt_section.slug }}">
 
 				<div class="row">
-					<div class="col-12"><h5 class="mb-3 mt-3">{{ opt_section.title }}</h5></div>
+					<div class="col-12">
+						<h5 class="mb-3 mt-3">
+							{{ opt_section.title }}
+							<small>
+								{% if opt_section.help_video_url is not empty %}
+									<a class="section-help-video"
+									   title="{{ strings.show_help_video_section }}"
+									   href="{{ opt_section.help_video_url }}"
+									   data-featherlight="iframe" data-featherlight-iframe-allowfullscreen="true"
+									   data-featherlight-iframe-width="1200"
+									   data-featherlight-iframe-height="675">
+										<span class="dashicons dashicons-video-alt3"></span>
+									</a>
+								{% endif %}
+							</small>
+						</h5>
+					</div>
 					<div class="col-12">
 						{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
 							<div class="row">
