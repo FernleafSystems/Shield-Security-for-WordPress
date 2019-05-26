@@ -625,7 +625,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getNoticesCore() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 		$aNotices = [
 			'title'    => __( 'WordPress Core', 'wp-simple-firewall' ),
 			'messages' => []
@@ -636,7 +636,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'updates' ] = [
 					'title'   => 'Updates',
 					'message' => __( 'WordPress Core has an update available.', 'wp-simple-firewall' ),
-					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
+					'href'    => $oWp->getAdminUrl_Updates( true ),
 					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
