@@ -111,7 +111,7 @@
 										class="custom-select">
 									{% for option_value, option_value_name in aOption.value_options %}
 										<option value="{{ option_value }}"
-												{% if aOption.value is sameas( option_value ) %}
+												{% if aOption.value == option_value %}
 													selected="selected"
 												{% endif %}
 												id="Opt-{{ aOption.key }}_{{ option_value }}">
