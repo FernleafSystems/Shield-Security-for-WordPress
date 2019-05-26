@@ -72,19 +72,21 @@
       "help_video_id": "338533495"
     },
     {
-      "slug":        "section_general_plugin_options",
-      "title":       "General Plugin Options",
-      "title_short": "General Options"
+      "slug":          "section_general_plugin_options",
+      "title":         "General Plugin Options",
+      "title_short":   "General Options",
+      "help_video_id": "338540386"
+    },
+    {
+      "slug":          "section_third_party_google",
+      "title":         "Google",
+      "title_short":   "Google",
+      "help_video_id": "338540386"
     },
     {
       "slug":        "section_importexport",
       "title":       "Import / Export",
       "title_short": "Import / Export"
-    },
-    {
-      "slug":        "section_third_party_google",
-      "title":       "Google",
-      "title_short": "Google"
     },
     {
       "slug":        "section_global_security_options",
