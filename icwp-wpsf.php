@@ -48,6 +48,10 @@ if ( !function_exists( '_wpsf__' ) ) {
 
 require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 
+if ( !include_once( dirname( __FILE__ ).'/filesnotfound.php' ) ) {
+	return;
+}
+
 add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 function icwp_wpsf_init() {
 	$sRootFile = __FILE__;
@@ -64,4 +68,5 @@ function icwp_wpsf_onactivate() {
 		}
 	}
 }
+
 register_activation_hook( __FILE__, 'icwp_wpsf_onactivate' );
