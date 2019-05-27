@@ -355,6 +355,12 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Screenshots ==
 
+1. A top-level dashboard that shows all the important things you need to know at-a-glance.
+2. IP Whitelist and Blacklists lets you manage access and blocks on your site with ease.
+3. A full audit log lets you see everything that happens on your site and why, and by whom.
+4. Track user sessions and monitor who is logged-into your site and what they're doing.
+5. Simple, clean options pages that let you configure Shield Security and all its options easily.
+
 == Changelog ==
 
 Shield Pro brings exclusive features to the serious webmaster to maximise site security.
