@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	private function deleteAllPluginCrons() {
-		$oWpCron = $this->loadWpCronProcessor();
+		$oWpCron = Services::WpCron();
 
 		foreach ( $oWpCron->getCrons() as $nKey => $aCronArgs ) {
 			foreach ( $aCronArgs as $sHook => $aCron ) {
@@ -291,16 +291,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_PluginBadgeClose() {
-		$bSuccess = $this->loadRequest()
-						 ->setCookie(
-							 $this->getCookieIdBadgeState(),
-							 'closed',
-							 DAY_IN_SECONDS
-						 );
-		$sMessage = $bSuccess ? 'Badge Closed' : 'Badge Not Closed';
+		$bSuccess = Services::Response()
+							->cookieSet(
+								$this->getCookieIdBadgeState(),
+								'closed',
+								DAY_IN_SECONDS
+							);
 		return [
 			'success' => $bSuccess,
-			'message' => $sMessage
+			'message' => $bSuccess ? 'Badge Closed' : 'Badge Not Closed'
 		];
 	}
 

@@ -1555,7 +1555,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function clearSession() {
-		$this->loadRequest()->setDeleteCookie( $this->getPluginPrefix() );
+		Services::Response()->cookieDelete( $this->getPluginPrefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1584,8 +1584,8 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	protected function getForceOffFilePath() {
 		if ( !isset( $this->sForceOffFile ) ) {
 			$oFs = Services::WpFs();
-			$sFile = $oFs->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
-			$this->sForceOffFile = ( !is_null( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
+			$sFile = $oFs->findFileInDir( 'forceOff', $this->getRootDir(), false, false );
+			$this->sForceOffFile = ( !empty( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
 		}
 		return $this->sForceOffFile;
 	}
@@ -1636,11 +1636,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function setSessionCookie() {
-		$oReq = $this->loadRequest();
-		$oReq->setCookie(
+		Services::Response()->cookieSet(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$oReq->ts() + DAY_IN_SECONDS*30,
+			Services::Request()->ts() + DAY_IN_SECONDS*30,
 			Services::WpGeneral()->getCookiePath(),
 			Services::WpGeneral()->getCookieDomain(),
 			false
