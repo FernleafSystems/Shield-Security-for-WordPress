@@ -48,7 +48,7 @@
       ],
       "js":  [
         "bootstrap4.bundle.min",
-        "bootstrap-select",
+        "bootstrap-select.min",
         "jquery",
         "plugin",
         "base64.min",
