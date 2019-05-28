@@ -683,8 +683,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			//			'sections'   => $aSections,
+			'sections'   => $aSections,
+			'options'    => [],
+
 		];
+
+		foreach ( $this->getOptionsVo()->getVisibleOptionsKeys() as $sOptKey ) {
+			try {
+				$aOptData = $this->loadStrings_Options( [ 'key' => $sOptKey ] );
+				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
+				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+			}
+			catch ( Exception $oE ) {
+			}
+		}
+
 //		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
 			'%s: %s',

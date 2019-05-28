@@ -304,6 +304,27 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getVisibleOptionsKeys() {
+		$aKeys = [];
+
+		foreach ( $this->getRawData_AllOptions() as $aOptionDef ) {
+			if ( isset( $aOptionDef[ 'hidden' ] ) && $aOptionDef[ 'hidden' ] ) {
+				continue;
+			}
+			$aSection = $this->getSection( $aOptionDef[ 'section' ] );
+			if ( isset( $aSection[ 'hidden' ] ) && $aSection[ 'hidden' ] ) {
+				continue;
+			}
+
+			$aKeys[] = $aOptionDef[ 'key' ];
+		}
+
+		return $aKeys;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getOptionsForPluginUse() {

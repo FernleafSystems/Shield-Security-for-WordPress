@@ -42,11 +42,13 @@
     "plugin_admin": {
       "css": [
         "bootstrap4",
+        "bootstrap-select.min",
         "plugin",
         "featherlight"
       ],
       "js":  [
         "bootstrap4.bundle.min",
+        "bootstrap-select",
         "jquery",
         "plugin",
         "base64.min",

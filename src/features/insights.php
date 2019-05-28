@@ -263,6 +263,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			];
 		} );
 
+		$aSearchSelect = [];
 		$aSettingsSubNav = [];
 		foreach ( $this->getModulesSummaryData() as $sSlug => $aSubMod ) {
 			$aSettingsSubNav[ $sSlug ] = [
@@ -271,6 +272,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'active' => $sSlug === $sSubNavSection,
 				'slug'   => $sSlug
 			];
+
+			$aSearchSelect[ $aSubMod[ 'name' ] ] = $aSubMod[ 'options' ];
 		}
 		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 
@@ -299,7 +302,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				],
 				'strings' => $this->getDisplayStrings(),
 				'vars'    => [
-					'changelog_id' => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+					'changelog_id'  => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+					'search_select' => $aSearchSelect
 				],
 			],
 			$aData

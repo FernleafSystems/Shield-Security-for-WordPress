@@ -41,6 +41,23 @@
 							{% endif %}
 						{% endfor %}
 						<div class="nav-item" id="PluginHeadwayChangelog"></div>
+
+						<select class="selectpicker" data-live-search="true"
+								title="Jump to plugin option"
+								data-size="10" multiple
+								data-header="Type below to search all plugin options ..."
+								onchange="location = this.value;">
+							{% for select_section_name,select_section_opts in vars.search_select %}
+								<optgroup label="{{ select_section_name }}">
+									{% for select_opt_key,select_opt_data in select_section_opts %}
+										<option value="{{ select_opt_data.href }}" aria-selected="false"
+												data-tokens="{{ select_opt_data.summary }}"
+										>{{ select_opt_data.name }}
+										</option>
+									{% endfor %}
+								</optgroup>
+							{% endfor %}
+						</select>
 					</ul>
 				</div>
 				{#<form class="form-inline">#}
@@ -55,7 +72,13 @@
 	  var HW_config = {
 		  selector: "#PluginHeadwayChangelog", // CSS selector where to inject the badge
 		  account: "{{ vars.changelog_id }}"
-	  }
+	  };
+	  jQuery( document ).ready( function () {
+		  jQuery.fn.selectpicker.Constructor.BootstrapVersion = '4';
+
+		  jQuery( '.selectpicker' ).selectpicker()
+		  .removeAttr("selected");
+	  } );
 	</script>
 	<script async src="https://cdn.headwayapp.co/widget.js"></script>
 {% endblock %}
