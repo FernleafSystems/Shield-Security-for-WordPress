@@ -137,7 +137,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
 		$aContent = [
 			sprintf( __( "The %s Core File Scanner found files with potential problems.", 'wp-simple-firewall' ), $sName ),

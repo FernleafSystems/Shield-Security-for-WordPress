@@ -263,6 +263,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			];
 		} );
 
+		$aSearchSelect = [];
 		$aSettingsSubNav = [];
 		foreach ( $this->getModulesSummaryData() as $sSlug => $aSubMod ) {
 			$aSettingsSubNav[ $sSlug ] = [
@@ -271,6 +272,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'active' => $sSlug === $sSubNavSection,
 				'slug'   => $sSlug
 			];
+
+			$aSearchSelect[ $aSubMod[ 'name' ] ] = $aSubMod[ 'options' ];
 		}
 		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 
@@ -299,7 +302,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				],
 				'strings' => $this->getDisplayStrings(),
 				'vars'    => [
-					'changelog_id' => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+					'changelog_id'  => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+					'search_select' => $aSearchSelect
 				],
 			],
 			$aData
@@ -478,7 +482,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		];
 
 		// SSL Expires
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 		$bHomeSsl = strpos( $sHomeUrl, 'https://' ) === 0;
 
 		if ( $bHomeSsl && $oSslService->isEnvSupported() ) {
@@ -545,7 +549,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getNoticesPlugins() {
-		$oWpPlugins = $this->loadWpPlugins();
+		$oWpPlugins = Services::WpPlugins();
 		$aNotices = [
 			'title'    => __( 'Plugins', 'wp-simple-firewall' ),
 			'messages' => []
@@ -557,7 +561,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'inactive' ] = [
 					'title'   => 'Inactive',
 					'message' => sprintf( __( '%s inactive plugin(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => $this->loadWp()->getAdminUrl_Plugins( true ),
+					'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
 					'action'  => sprintf( 'Go To %s', __( 'Plugins', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
 				];
@@ -570,7 +574,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'updates' ] = [
 					'title'   => 'Updates',
 					'message' => sprintf( __( '%s plugin update(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
+					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
 					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
@@ -585,7 +589,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getNoticesThemes() {
-		$oWpT = $this->loadWpThemes();
+		$oWpT = Services::WpThemes();
 		$aNotices = [
 			'title'    => __( 'Themes', 'wp-simple-firewall' ),
 			'messages' => []
@@ -597,7 +601,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'inactive' ] = [
 					'title'   => 'Inactive',
 					'message' => sprintf( __( '%s inactive themes(s)', 'wp-simple-firewall' ), $nInactive ),
-					'href'    => $this->loadWp()->getAdminUrl_Themes( true ),
+					'href'    => Services::WpGeneral()->getAdminUrl_Themes( true ),
 					'action'  => sprintf( 'Go To %s', __( 'Themes', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
 				];
@@ -610,7 +614,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'updates' ] = [
 					'title'   => 'Updates',
 					'message' => sprintf( __( '%s theme update(s)', 'wp-simple-firewall' ), $nCount ),
-					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
+					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
 					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
@@ -625,7 +629,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getNoticesCore() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 		$aNotices = [
 			'title'    => __( 'WordPress Core', 'wp-simple-firewall' ),
 			'messages' => []
@@ -636,7 +640,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aNotices[ 'messages' ][ 'updates' ] = [
 					'title'   => 'Updates',
 					'message' => __( 'WordPress Core has an update available.', 'wp-simple-firewall' ),
-					'href'    => $this->loadWp()->getAdminUrl_Updates( true ),
+					'href'    => $oWp->getAdminUrl_Updates( true ),
 					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];

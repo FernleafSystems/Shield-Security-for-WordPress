@@ -21,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	private function deleteAllPluginCrons() {
-		$oWpCron = $this->loadWpCronProcessor();
+		$oWpCron = Services::WpCron();
 
 		foreach ( $oWpCron->getCrons() as $nKey => $aCronArgs ) {
 			foreach ( $aCronArgs as $sHook => $aCron ) {
@@ -291,16 +291,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	public function ajaxExec_PluginBadgeClose() {
-		$bSuccess = $this->loadRequest()
-						 ->setCookie(
-							 $this->getCookieIdBadgeState(),
-							 'closed',
-							 DAY_IN_SECONDS
-						 );
-		$sMessage = $bSuccess ? 'Badge Closed' : 'Badge Not Closed';
+		$bSuccess = Services::Response()
+							->cookieSet(
+								$this->getCookieIdBadgeState(),
+								'closed',
+								DAY_IN_SECONDS
+							);
 		return [
 			'success' => $bSuccess,
-			'message' => $sMessage
+			'message' => $bSuccess ? 'Badge Closed' : 'Badge Not Closed'
 		];
 	}
 
@@ -1161,8 +1160,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				break;
 
 			case 'section_third_party_google' :
-				$sTitle = __( 'Google', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Google', 'wp-simple-firewall' );
+				$sTitle = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup Google reCAPTCHA for use across %s.', 'wp-simple-firewall' ), $sName ) ),
 					sprintf( '%s - %s',

@@ -19,7 +19,23 @@
 				 role="tabpanel" id="tab-{{ opt_section.slug }}">
 
 				<div class="row">
-					<div class="col-12"><h5 class="mb-3 mt-3">{{ opt_section.title }}</h5></div>
+					<div class="col-12">
+						<h5 class="mb-3 mt-3">
+							{{ opt_section.title }}
+							<small>
+								{% if opt_section.help_video_url is not empty %}
+									<a class="section-help-video"
+									   title="{{ strings.show_help_video_section }}"
+									   href="{{ opt_section.help_video_url }}"
+									   data-featherlight="iframe" data-featherlight-iframe-allowfullscreen="true"
+									   data-featherlight-iframe-width="1200"
+									   data-featherlight-iframe-height="675">
+										<span class="dashicons dashicons-video-alt3"></span>
+									</a>
+								{% endif %}
+							</small>
+						</h5>
+					</div>
 					<div class="col-12">
 						{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
 							<div class="row">
@@ -37,6 +53,26 @@
 					</div>
 				</div>
 
+				{% if opt_section.warnings|length %}
+					{% for section_warning in opt_section.warnings %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-warning text-center">{{ section_warning|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% if opt_section.notices|length %}
+					{% for section_notice in opt_section.notices %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-info text-center">{{ section_notice|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
 				{% for key, aOption in opt_section.options %}
 					<div class="form-group row">
 						<label for="Opt-{{ aOption.key }}"
@@ -44,9 +80,10 @@
 							   class="col-sm-1 col-md-2 col-lg-3 col-xl-2 col-form-label">
 							{{ aOption.name }}
 							{% if aOption.disabled %}
-								<br/>
+								<br />
 								<div class="badge badge-warning">
-									<a href="{{ hrefs.go_pro }}" target="_blank" class="text-dark">{{ strings.pro_only_option }}</a>
+									<a href="{{ hrefs.go_pro }}" target="_blank"
+									   class="text-dark">{{ strings.pro_only_option }}</a>
 								</div>
 							{% endif %}
 						</label>
@@ -111,7 +148,7 @@
 										class="custom-select">
 									{% for option_value, option_value_name in aOption.value_options %}
 										<option value="{{ option_value }}"
-												{% if aOption.value is sameas( option_value ) %}
+												{% if aOption.value == option_value %}
 													selected="selected"
 												{% endif %}
 												id="Opt-{{ aOption.key }}_{{ option_value }}">

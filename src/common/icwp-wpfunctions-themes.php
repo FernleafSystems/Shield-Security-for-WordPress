@@ -7,7 +7,8 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	 */
 	protected static $oInstance = null;
 
-	private function __construct() {}
+	private function __construct() {
+	}
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions_Themes
@@ -79,11 +80,11 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	public function install( $sUrlToInstall, $bOverwrite = true, $bMaintenanceMode = false ) {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
+		$aResult = [
 			'successful'  => true,
 			'plugin_info' => '',
-			'errors'      => array()
-		);
+			'errors'      => []
+		];
 
 		$oUpgraderSkin = new ICWP_Upgrader_Skin();
 		$oUpgrader = new ICWP_Theme_Upgrader( $oUpgraderSkin );
@@ -156,15 +157,15 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	public function update( $sFile ) {
 		$this->loadWpUpgrades();
 
-		$aResult = array(
+		$aResult = [
 			'successful' => 1,
-			'errors'     => array()
-		);
+			'errors'     => []
+		];
 
 		$oUpgraderSkin = new ICWP_Bulk_Theme_Upgrader_Skin();
 		$oUpgrader = new Theme_Upgrader( $oUpgraderSkin );
 		ob_start();
-		$oUpgrader->bulk_upgrade( array( $sFile ) );
+		$oUpgrader->bulk_upgrade( [ $sFile ] );
 		ob_end_clean();
 
 		if ( isset( $oUpgraderSkin->m_aErrors[ 0 ] ) ) {
@@ -181,7 +182,8 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	 * @return string|WP_Theme
 	 */
 	public function getCurrentThemeName() {
-		return $this->loadWp()->getWordpressIsAtLeastVersion( '3.4.0' ) ? $this->getCurrent()->get( 'Name' ) : get_current_theme();
+		return $this->loadWp()->getWordpressIsAtLeastVersion( '3.4.0' ) ? $this->getCurrent()
+																			   ->get( 'Name' ) : get_current_theme();
 	}
 
 	/**
@@ -245,7 +247,7 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 			$this->checkForUpdates();
 		}
 		$aUpdates = $this->loadWp()->getWordpressUpdates( 'themes' );
-		return is_array( $aUpdates ) ? $aUpdates : array();
+		return is_array( $aUpdates ) ? $aUpdates : [];
 	}
 
 	/**
@@ -263,18 +265,18 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	public function getExtendedData( $sBase ) {
 		include_once( ABSPATH.'wp-admin/includes/theme.php' );
 
-		$oApi = themes_api( 'theme_information', array(
+		$oApi = themes_api( 'theme_information', [
 			'slug'   => $sBase,
-			'fields' => array(
+			'fields' => [
 				'sections' => false,
-			),
-		) );
+			],
+		] );
 		return $oApi;
 	}
 
 	/**
 	 * @param string $sSlug
-	 * @param bool $bCheckIsActiveParent
+	 * @param bool   $bCheckIsActiveParent
 	 * @return bool
 	 */
 	public function isActive( $sSlug, $bCheckIsActiveParent = false ) {
@@ -358,6 +360,6 @@ class ICWP_WPSF_WpFunctions_Themes extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function wpmsGetSiteAllowedThemes() {
-		return ( function_exists( 'get_site_allowed_themes' ) ? get_site_allowed_themes() : array() );
+		return ( function_exists( 'get_site_allowed_themes' ) ? get_site_allowed_themes() : [] );
 	}
 }

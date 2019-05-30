@@ -1,6 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
@@ -57,7 +58,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			->setExclusions( $oFO->getUfcFileExclusions() );
 
 		if ( $oFO->isUfsScanUploads() ) {
-			$sUploadsDir = $this->loadWp()->getDirUploads();
+			$sUploadsDir = Services::WpGeneral()->getDirUploads();
 			if ( !empty( $sUploadsDir ) ) {
 				$oScanner->addScanDirector( $sUploadsDir )
 						 ->addDirSpecificFileTypes(
@@ -148,7 +149,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
 		$sName = $oCon->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
 		$aContent = [
 			sprintf( __( 'The %s Unrecognised File Scanner found files which you need to review.', 'wp-simple-firewall' ), $sName ),

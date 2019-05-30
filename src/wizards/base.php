@@ -28,7 +28,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function init() {
-		add_action( 'wp_loaded', array( $this, 'onWpLoaded' ), 0 );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 0 );
 	}
 
 	/**
@@ -37,10 +37,10 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	public function ajaxExec_WizRenderStep() {
 		$oReq = Services::Request();
 
-		$aResponse = array(
+		$aResponse = [
 			'success'   => false,
-			'next_step' => array(),
-		);
+			'next_step' => [],
+		];
 
 		try {
 			$this->setCurrentWizard( $oReq->post( 'wizard_slug' ) );
@@ -66,7 +66,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * TODO: does not honour 'min_user_permissions' from the wizard definition
 	 */
 	public function onWpLoaded() {
-		$sWizard = $this->loadRequest()->query( 'wizard' );
+		$sWizard = Services::Request()->query( 'wizard' );
 		try {
 			$this->setCurrentWizard( $sWizard );
 
@@ -78,8 +78,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				$sDieMessage = 'Please login to run this wizard';
 			}
 
-			$this->loadWp()
-				 ->wpDie( $sDieMessage );
+			Services::WpGeneral()->wpDie( $sDieMessage );
 		}
 		catch ( Exception $oE ) {
 			if ( $sWizard == 'landing' ) {
@@ -182,7 +181,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function ajaxExec_WizProcessStep() {
-		$oResponse = $this->processWizardStep( $this->loadRequest()->post( 'wizard-step' ) );
+		$oResponse = $this->processWizardStep( Services::Request()->post( 'wizard-step' ) );
 		if ( !empty( $oResponse ) ) {
 			$this->buildWizardResponse( $oResponse );
 		}
@@ -274,25 +273,25 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 		return $this->loadDP()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
-			array(
-				'strings' => array(
+			[
+				'strings' => [
 					'page_title'   => 'Select Your Wizard',
 					'premium_note' => 'Note: This uses features only available to Pro-licensed installations.'
-				),
-				'data'    => array(
+				],
+				'data'    => [
 					'mod_wizards_count' => count( $aWizards ),
 					'mod_wizards'       => $aWizards
-				),
-				'hrefs'   => array(
+				],
+				'hrefs'   => [
 					'dashboard'   => $oFO->getUrl_AdminPage(),
 					'goprofooter' => 'https://icwp.io/goprofooter',
-				),
-				'ajax'    => array(
+				],
+				'ajax'    => [
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
 					'steps'         => $oFO->getAjaxActionData( 'wiz_render_step' ),
 					'steps_as_json' => $oFO->getAjaxActionData( 'wiz_render_step', true ),
-				)
-			)
+				]
+			]
 		);
 	}
 
@@ -302,21 +301,21 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getRenderData_TwigPageBase() {
 		$oCon = $this->getModCon()->getCon();
-		return array(
-			'strings' => array(
+		return [
+			'strings' => [
 				'page_title'  => 'Twig Page',
 				'plugin_name' => $oCon->getHumanName()
-			),
-			'data'    => array(),
-			'hrefs'   => array(
-				'form_action'      => $this->loadRequest()->getUri(),
+			],
+			'data'    => [],
+			'hrefs'   => [
+				'form_action'      => Services::Request()->getUri(),
 				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
 				'css_pages'        => $oCon->getPluginUrl_Css( 'pages.css' ),
 				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps.css' ),
 				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min.css' ),
 				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin.css' ),
 				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard.css' ),
-				'js_jquery'        => $this->loadWpIncludes()->getUrl_Jquery(),
+				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
 				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap4.bundle.min.js' ),
 				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min.js' ),
 				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin.js' ),
@@ -324,12 +323,12 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard.js' ),
 				'plugin_banner'    => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
 				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-			),
-			'ajax'    => array(),
-			'flags'   => array(
+			],
+			'ajax'    => [],
+			'flags'   => [
 				'is_premium' => $this->getModCon()->isPremium(),
-			)
-		);
+			]
+		];
 	}
 
 	/**
@@ -341,26 +340,26 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$oFO = $this->getModCon();
 		return $this->loadDP()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
-			array(
-				'strings' => array(
+			[
+				'strings' => [
 					'page_title'  => $this->getPageTitle(),
 					'plugin_name' => $oCon->getHumanName()
-				),
-				'data'    => array(
+				],
+				'data'    => [
 					'wizard_slug'       => $this->getWizardSlug(),
 					'wizard_steps'      => json_encode( $this->buildSteps() ),
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
-				),
-				'hrefs'   => array(
+				],
+				'hrefs'   => [
 					'dashboard'   => $oFO->getUrl_AdminPage(),
 					'goprofooter' => 'https://icwp.io/goprofooter',
-				),
-				'ajax'    => array(
+				],
+				'ajax'    => [
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
 					'steps'         => $oFO->getAjaxActionData( 'wiz_render_step' ),
 					'steps_as_json' => $oFO->getAjaxActionData( 'wiz_render_step', true ),
-				)
-			)
+				]
+			]
 		);
 	}
 
@@ -375,7 +374,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	protected function buildSteps() {
-		return $this->getUserCan() ? $this->determineWizardSteps() : array( 'no_access' );
+		return $this->getUserCan() ? $this->determineWizardSteps() : [ 'no_access' ];
 	}
 
 	/**
@@ -442,24 +441,24 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$oFO = $this->getModCon();
 		$oCon = $this->getModCon()->getCon();
 		$aWizards = $this->getModuleWizardsForRender();
-		return array(
-			'strings' => array(
+		return [
+			'strings' => [
 				'plugin_name' => $oCon->getHumanName()
-			),
-			'flags'   => array(
+			],
+			'flags'   => [
 				'is_premium'        => $oFO->isPremium(),
 				'has_other_wizards' => false
-			),
-			'hrefs'   => array(
+			],
+			'hrefs'   => [
 				'dashboard' => $oFO->getUrl_AdminPage(),
 				'gopro'     => 'https://icwp.io/ap',
-			),
-			'imgs'    => array(),
-			'data'    => array(
+			],
+			'imgs'    => [],
+			'data'    => [
 				'mod_wizards_count' => count( $aWizards ),
 				'mod_wizards'       => $aWizards
-			),
-		);
+			],
+		];
 	}
 
 	/**
@@ -467,7 +466,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -509,11 +508,11 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array[]
 	 */
 	protected function getStepsDefinition() {
-		$aNoAccess = array(
-			'no_access' => array(
+		$aNoAccess = [
+			'no_access' => [
 				'title' => __( 'No Access', 'wp-simple-firewall' ),
-			)
-		);
+			]
+		];
 		$aSteps = array_merge( $this->getAllDefinedSteps(), $aNoAccess );
 		foreach ( $aSteps as $sSlug => $aStep ) {
 			$aSteps[ $sSlug ][ 'slug' ] = $sSlug;

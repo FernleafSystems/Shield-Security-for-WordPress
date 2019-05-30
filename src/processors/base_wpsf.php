@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services; // TODO: use after Shield 7.5
+
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
@@ -50,7 +52,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$bIsSubject = false;
 
 		if ( !$oUser instanceof WP_User ) {
-			$oUser = $this->loadWpUsers()->getCurrentWpUser();
+			$oUser = Services::WpUsers()->getCurrentWpUser();
 		}
 		if ( $oUser instanceof WP_User ) {
 			$bIsSubject = apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
@@ -89,15 +91,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
-			$oResponse = $this->loadGoogleRecaptcha()
-							  ->getGoogleRecaptchaLib( $oFO->getGoogleRecaptchaSecretKey() )
-							  ->verify( $sCaptchaResponse, $this->ip() );
+			$oResponse = ( new \ReCaptcha\ReCaptcha( $oFO->getGoogleRecaptchaSecretKey(), new \FernleafSystems\Wordpress\Plugin\Shield\Utilities\WordpressPost() ) )
+				->verify( $sCaptchaResponse, $this->ip() );
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-				throw new \Exception(
-					__( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' )
-					.( $this->loadWp()
-							->isAjax() ? ' '.__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : '' ),
-					2 );
+				$aMsg = [
+					__( 'Whoops.', 'wp-simple-firewall' ),
+					__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' ),
+					Services::WpGeneral()->isAjax() ?
+						__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : ''
+				];
+				throw new \Exception( implode( ' ', $aMsg ), 2 );
 			}
 		}
 		return true;
@@ -107,7 +110,9 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getIfLogRequest() {
-		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !$this->loadWp()->isCron();
+		return isset( $this->bLogRequest ) ?
+			(bool)$this->bLogRequest
+			: !\FernleafSystems\Wordpress\Services\Services::WpGeneral()->isCron();
 	}
 
 	/**
@@ -144,9 +149,9 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		add_action( 'wp_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 
-		$this->loadWpIncludes()
-			 ->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
-			 ->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
+		\FernleafSystems\Wordpress\Services\Services::Includes()
+													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
+													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
 		/**
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)

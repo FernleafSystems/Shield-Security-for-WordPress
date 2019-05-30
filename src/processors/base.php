@@ -167,7 +167,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 			$bDisplay = false;
 		}
 		else if ( $aAttrs[ 'schedule' ] == 'once'
-				  && ( !$this->loadWpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
+				  && ( !Services::WpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
 			$bDisplay = false;
 		}
 		else if ( $aAttrs[ 'type' ] == 'promo' && Services::WpGeneral()->isMobile() ) {
@@ -242,7 +242,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getGoogleRecaptchaLocale() {
-		return $this->loadWp()->getLocale( '-' );
+		return Services::WpGeneral()->getLocale( '-' );
 	}
 
 	/**

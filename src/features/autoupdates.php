@@ -135,16 +135,16 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		$sMessage = __( 'You do not have permissions to perform this action.', 'wp-simple-firewall' );
 
 		if ( $this->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
-			$oWpPlugins = $this->loadWpPlugins();
+			$oWpPlugins = Services::WpPlugins();
 			$sFile = Services::Request()->post( 'pluginfile' );
 			if ( $oWpPlugins->isInstalled( $sFile ) ) {
 				$this->setPluginToAutoUpdate( $sFile );
 
-				$aPlugin = $oWpPlugins->getPlugin( $sFile );
 				$sMessage = sprintf( __( 'Plugin "%s" will %s.', 'wp-simple-firewall' ),
-					$aPlugin[ 'Name' ],
-					$this->loadWp()
-						 ->isPluginAutomaticallyUpdated( $sFile ) ? __( 'update automatically', 'wp-simple-firewall' ) : __( 'not update automatically', 'wp-simple-firewall' )
+					$oWpPlugins->getPluginAsVo( $sFile )->Name,
+					Services::WpPlugins()->isPluginAutomaticallyUpdated( $sFile ) ?
+						__( 'update automatically', 'wp-simple-firewall' )
+						: __( 'not update automatically', 'wp-simple-firewall' )
 				);
 				$bSuccess = true;
 			}
@@ -261,8 +261,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 				];
 			}
 			else {
-				$oWp = $this->loadWp();
-				$bCanCore = $oWp->canCoreUpdateAutomatically();
+				$bCanCore = Services::WpGeneral()->canCoreUpdateAutomatically();
 				$aThis[ 'key_opts' ][ 'core_minor' ] = [
 					'name'    => __( 'Core Updates', 'wp-simple-firewall' ),
 					'enabled' => $bCanCore,

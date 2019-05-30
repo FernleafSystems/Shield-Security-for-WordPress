@@ -32,14 +32,14 @@ class ICWP_WPSF_Edd {
 	 */
 	public function ping( $sStoreUrl ) {
 		$sStoreUrl = add_query_arg( [ 'license_ping' => 'Y' ], $sStoreUrl );
-		$aParams = array(
-			'body' => array(
+		$aParams = [
+			'body' => [
 				'ping'    => 'pong',
 				'license' => 'abcdefghi',
 				'item_id' => '123',
 				'url'     => Services::WpGeneral()->getWpUrl()
-			)
-		);
+			]
+		];
 
 		$oHttpReq = Services::HttpRequest();
 		if ( $oHttpReq->post( $sStoreUrl, $aParams ) ) {
@@ -100,19 +100,19 @@ class ICWP_WPSF_Edd {
 	 */
 	private function commonLicenseAction( $sAction, $sStoreUrl, $sKey, $sItemId ) {
 		$oWp = Services::WpGeneral();
-		$aLicenseLookupParams = array(
+		$aLicenseLookupParams = [
 			'timeout' => 60,
 			'body'    => array_merge(
-				array(
+				[
 					'edd_action' => $sAction,
 					'license'    => $sKey,
 					'item_id'    => $sItemId,
 					'url'        => $oWp->getHomeUrl(),
 					'alt_url'    => $oWp->getWpUrl()
-				),
+				],
 				$this->getRequestParams()
 			)
-		);
+		];
 
 		return ( new EddLicenseVO() )
 			->applyFromArray( $this->sendReq( $sStoreUrl, $aLicenseLookupParams, false ) )
@@ -127,7 +127,7 @@ class ICWP_WPSF_Edd {
 	 * @return array
 	 */
 	private function sendReq( $sUrl, $aArgs, $bAsPost = false ) {
-		$aResponse = array();
+		$aResponse = [];
 		$oHttpReq = Services::HttpRequest();
 
 		if ( $bAsPost ) {
@@ -158,15 +158,15 @@ class ICWP_WPSF_Edd {
 	 * @return array
 	 */
 	public function getRequestParams() {
-		return is_array( $this->aAdditionalRequestParams ) ? $this->aAdditionalRequestParams : array();
+		return is_array( $this->aAdditionalRequestParams ) ? $this->aAdditionalRequestParams : [];
 	}
 
 	/**
 	 * @param array $aParams
 	 * @return $this
 	 */
-	public function setRequestParams( $aParams = array() ) {
-		$this->aAdditionalRequestParams = is_array( $aParams ) ? $aParams : array();
+	public function setRequestParams( $aParams = [] ) {
+		$this->aAdditionalRequestParams = is_array( $aParams ) ? $aParams : [];
 		return $this;
 	}
 }

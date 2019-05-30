@@ -52,6 +52,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions_Plugins
+	 * @deprecated
 	 */
 	public function loadWpPlugins() {
 		$sKey = 'icwp-wpfunctions-plugins';
@@ -63,6 +64,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpFunctions_Themes
+	 * @deprecated
 	 */
 	public function loadWpThemes() {
 		$sKey = 'icwp-wpfunctions-themes';
@@ -74,6 +76,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpCron
+	 * @deprecated
 	 */
 	static public function loadWpCronProcessor() {
 		$sKey = 'icwp-wpcron';
@@ -85,6 +88,7 @@ class ICWP_WPSF_Foundation {
 
 	/**
 	 * @return ICWP_WPSF_WpUpgrades
+	 * @deprecated
 	 */
 	static public function loadWpUpgrades() {
 		$sKey = 'icwp-wpupgrades';
@@ -101,18 +105,6 @@ class ICWP_WPSF_Foundation {
 		$sKey = 'icwp-wpdb';
 		if ( !self::isServiceReady( $sKey ) ) {
 			self::setService( $sKey, ICWP_WPSF_WpDb::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @deprecated
-	 * @return ICWP_WPSF_Ip
-	 */
-	static public function loadIpService() {
-		$sKey = 'icwp-ip';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_Ip::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
@@ -151,29 +143,8 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_GoogleAuthenticator
-	 */
-	static public function loadGoogleAuthenticatorProcessor() {
-		$sKey = 'icwp-googleauthenticator';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_GoogleAuthenticator::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return ICWP_WPSF_GoogleRecaptcha
-	 */
-	static public function loadGoogleRecaptcha() {
-		$sKey = 'icwp-googlearecaptcha';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_GoogleRecaptcha::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return ICWP_WPSF_WpIncludes
+	 * @deprecated
 	 */
 	static public function loadWpIncludes() {
 		$sKey = 'icwp-wpincludes';
@@ -250,7 +221,7 @@ class ICWP_WPSF_Foundation {
 	 */
 	static private function getDic() {
 		if ( !is_array( self::$aDic ) ) {
-			self::$aDic = array();
+			self::$aDic = [];
 		}
 		return self::$aDic;
 	}
@@ -284,8 +255,8 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
 	 * @return ICWP_WPSF_WpAdminNotices
+	 * @deprecated
 	 */
 	static public function loadAdminNoticesProcessor() {
 		return self::loadWpNotices();

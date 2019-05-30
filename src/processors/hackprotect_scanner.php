@@ -134,11 +134,10 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 					   ->byId( (int)$sItemId );
 		if ( !empty( $oEntry ) ) {
 			$sPath = $oEntry->meta[ 'path_full' ];
-			$oFs = $this->loadFS();
+			$oFs = Services::WpFs();
 			if ( $oFs->isFile( $sPath ) ) {
 				header( 'Set-Cookie: fileDownload=true; path=/' );
-				$this->loadRequest()
-					 ->downloadStringAsFile( $oFs->getFileContent( $sPath ), basename( $sPath ) );
+				Services::Response()->downloadStringAsFile( $oFs->getFileContent( $sPath ), basename( $sPath ) );
 			}
 		}
 

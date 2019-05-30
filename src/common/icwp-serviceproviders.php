@@ -39,10 +39,10 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_cloudflare' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
-			$aIps = array(
+			$aIps = [
 				4 => $this->downloadServiceIps_Cloudflare( 4 ),
 				6 => $this->downloadServiceIps_Cloudflare( 6 )
-			);
+			];
 			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
@@ -68,7 +68,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	public function getIps_DuckDuckGo() {
-		return array( '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' );
+		return [ '107.20.237.51', '23.21.226.191', '107.21.1.8', '54.208.102.37' ];
 	}
 
 	/**
@@ -112,10 +112,10 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_pingdom' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
-			$aIps = array(
+			$aIps = [
 				4 => $this->downloadServiceIps_Pingdom( 4 ),
 				6 => $this->downloadServiceIps_Pingdom( 6 )
-			);
+			];
 			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
@@ -145,10 +145,10 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_uptimerobot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
-			$aIps = array(
+			$aIps = [
 				4 => $this->downloadServiceIps_UptimeRobot( 4 ),
 				6 => $this->downloadServiceIps_UptimeRobot( 6 )
-			);
+			];
 			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
 		}
 		return $aIps;
@@ -165,7 +165,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_applebot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( !is_array( $aIps ) ) {
-			$aIps = array();
+			$aIps = [];
 		}
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_AppleBot( $sIp, $sUserAgent ) ) {
@@ -187,7 +187,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_baidubot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( !is_array( $aIps ) ) {
-			$aIps = array();
+			$aIps = [];
 		}
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BaiduBot( $sIp, $sUserAgent ) ) {
@@ -204,12 +204,12 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIp_BingBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_bingbot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( !is_array( $aIps ) ) {
-			$aIps = array();
+			$aIps = [];
 		}
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_BingBot( $sIp, $sUserAgent ) ) {
@@ -280,7 +280,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_googlebot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( !is_array( $aIps ) ) {
-			$aIps = array();
+			$aIps = [];
 		}
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_GoogleBot( $sIp, $sUserAgent ) ) {
@@ -345,7 +345,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_yandexbot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( !is_array( $aIps ) ) {
-			$aIps = array();
+			$aIps = [];
 		}
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YandexBot( $sIp, $sUserAgent ) ) {
@@ -368,7 +368,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sStoreKey = $this->prefix( 'serviceips_yahoobot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( !is_array( $aIps ) ) {
-			$aIps = array();
+			$aIps = [];
 		}
 
 		if ( !in_array( $sIp, $aIps ) && $this->verifyIp_YahooBot( $sIp, $sUserAgent ) ) {
@@ -507,7 +507,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	private function downloadServiceIps_StatusCake() {
-		$aIps = array();
+		$aIps = [];
 		$aData = @json_decode( Services::HttpRequest()->getContent( self::URL_STATUS_CAKE_IPS ), true );
 		if ( is_array( $aData ) ) {
 			foreach ( $aData as $aItem ) {
@@ -534,13 +534,13 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 */
 	private function downloadServiceIps_Standard( $sSourceUrl, $sIpVersion = null ) {
 		if ( !is_null( $sIpVersion ) ) {
-			if ( !in_array( (int)$sIpVersion, array( 4, 6 ) ) ) {
+			if ( !in_array( (int)$sIpVersion, [ 4, 6 ] ) ) {
 				$sIpVersion = 4;
 			}
 			$sSourceUrl = Services::HttpRequest()->getContent( sprintf( $sSourceUrl, $sIpVersion ) );
 		}
 		$sRaw = Services::HttpRequest()->getContent( $sSourceUrl );
-		$aIps = empty( $sRaw ) ? array() : explode( "\n", $sRaw );
+		$aIps = empty( $sRaw ) ? [] : explode( "\n", $sRaw );
 		return array_filter( array_map( 'trim', $aIps ) );
 	}
 }

@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function init() {
 		parent::init();
-		add_action( $this->getMod()->prefix( 'add_new_audit_entry' ), [ $this, 'addAuditTrialEntry' ] );
+		add_action( $this->getCon()->prefix( 'add_new_audit_entry' ), [ $this, 'addAuditTrialEntry' ] );
 	}
 
 	public function cleanupDatabase() {

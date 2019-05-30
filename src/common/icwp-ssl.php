@@ -15,7 +15,7 @@ class ICWP_WPSF_Ssl extends ICWP_WPSF_Foundation {
 	protected static $oInstance = null;
 
 	private function __construct() {
-		$this->aCache = array();
+		$this->aCache = [];
 	}
 
 	/**
@@ -32,12 +32,12 @@ class ICWP_WPSF_Ssl extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isEnvSupported() {
-		$aFunctions = array(
+		$aFunctions = [
 			'stream_context_create',
 			'stream_socket_client',
 			'stream_context_get_params',
 			'openssl_x509_parse',
-		);
+		];
 
 		$bFunctionsAvailable = true;
 		foreach ( $aFunctions as $sFunction ) {
@@ -65,13 +65,13 @@ class ICWP_WPSF_Ssl extends ICWP_WPSF_Foundation {
 		if ( empty( $this->aCache[ $sHost ] ) ) {
 
 			$oContext = stream_context_create(
-				array(
-					'ssl' => array(
+				[
+					'ssl' => [
 						'capture_peer_cert' => true,
 						'verify_peer'       => true,
 						'verify_peer_name'  => true,
-					)
-				)
+					]
+				]
 			);
 
 			$rSocketClient = @stream_socket_client(

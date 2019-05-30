@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 7.4.1
+Stable tag: 7.4.2
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -355,6 +355,12 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Screenshots ==
 
+1. A top-level dashboard that shows all the important things you need to know at-a-glance.
+2. IP Whitelist and Blacklists lets you manage access and blocks on your site with ease.
+3. A full audit log lets you see everything that happens on your site and why, and by whom.
+4. Track user sessions and monitor who is logged-into your site and what they're doing.
+5. Simple, clean options pages that let you configure Shield Security and all its options easily.
+
 == Changelog ==
 
 Shield Pro brings exclusive features to the serious webmaster to maximise site security.
@@ -364,15 +370,19 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.4.1 - Current Release =
-*Released: 20th May, 2019* - [Release Notes](https://icwp.io/fc)
+= 7.4.2 - Current Release =
+*Released: 30th May, 2019* - [Release Notes](https://icwp.io/fc)
 
-* **(v.1)**  NEW:		Adjustments and redesign of Shield options pages.
-* **(v.1)**  IMPROVED:	Further prep for better internationalization.
+* **(v.2)**  NEW:		Options finder/jumper menu lets you find and jump to any option in the plugin instantly.
+* **(v.2)**  NEW:		Help/explainer videos for a few sections - more to come.
+* **(v.2)**  FIXES:		Fixes for a few problems introduced with the recent UI changes.
+* **(v.2)**  FIXED:		Welcome wizard launching was broken.
 
 = 7.4 - Series =
 *Released: 13th May, 2019* - [Release Notes](https://icwp.io/fc)
 
+* **(v.1)**  NEW:		Adjustments and redesign of Shield options pages.
+* **(v.1)**  IMPROVED:	Further prep for better internationalization.
 * **(v.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://icwp.io/fa)
 * **(v.0)**  NEW:		Comment SPAM - Increase minimum number of approved comments before scanning is skipped
 * **(v.0)**  NEW:		[**PRO**] Comment SPAM - Trusted user roles where comments scanning is skipped

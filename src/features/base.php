@@ -404,7 +404,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$oCon = $this->getCon();
 			$this->oOptions = ( new ICWP_WPSF_OptionsVO )
 				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
-				->setOptionsEncoding( $oCon->getOptionsEncoding() )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
 				->setOptionsStorageKey( $this->getOptionsStorageKey() )
 				->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
@@ -684,8 +683,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			//			'sections'   => $aSections,
+			'sections'   => $aSections,
+			'options'    => [],
 		];
+
+		foreach ( $this->getOptionsVo()->getVisibleOptionsKeys() as $sOptKey ) {
+			try {
+				$aOptData = $this->loadStrings_Options( [ 'key' => $sOptKey ] );
+				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
+				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
+			}
+			catch ( Exception $oE ) {
+			}
+		}
+
 //		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
 			'%s: %s',
@@ -969,6 +980,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$oOptsVo = $this->getOptionsVo();
 		$aOptions = $oOptsVo->getOptionsForPluginUse();
+
 		foreach ( $aOptions as $nSectionKey => $aSection ) {
 
 			if ( !empty( $aSection[ 'options' ] ) ) {
@@ -982,10 +994,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					else {
 						unset( $aSection[ 'options' ][ $nKey ] );
 					}
-				}
-
-				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
-					$aSection[ 'help_video_url' ] = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
 				}
 
 				if ( empty( $aSection[ 'options' ] ) ) {
@@ -1004,6 +1012,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					$this->getSectionWarnings( $aSection[ 'slug' ] )
 				);
 				$aOptions[ $nSectionKey ][ 'notices' ] = $this->getSectionNotices( $aSection[ 'slug' ] );
+
+				if ( !empty( $aSection[ 'help_video_id' ] ) ) {
+					$sHelpVideoUrl = $this->getHelpVideoUrl( $aSection[ 'help_video_id' ] );
+				}
+				else {
+					$sHelpVideoUrl = '';
+				}
+				$aOptions[ $nSectionKey ][ 'help_video_url' ] = $sHelpVideoUrl;
 			}
 		}
 

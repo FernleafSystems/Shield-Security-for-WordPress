@@ -47,12 +47,12 @@
       "type":        "promo"
     },
     "plugin-mailing-list-signup": {
-      "id":          "plugin-mailing-list-signup",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  15,
-      "type":        "promo",
-      "twig":        true,
+      "id":           "plugin-mailing-list-signup",
+      "schedule":     "once",
+      "valid_admin":  true,
+      "delay_days":   15,
+      "type":         "promo",
+      "twig":         true,
       "drip_form_id": "250437573"
     },
     "rate-plugin":                {
@@ -65,25 +65,28 @@
   },
   "sections":      [
     {
-      "slug":        "section_defaults",
-      "primary":     true,
-      "title":       "Plugin Defaults",
-      "title_short": "Plugin Defaults"
+      "slug":          "section_defaults",
+      "primary":       true,
+      "title":         "Plugin Defaults",
+      "title_short":   "Plugin Defaults",
+      "help_video_id": "338533495"
     },
     {
-      "slug":        "section_general_plugin_options",
-      "title":       "General Plugin Options",
-      "title_short": "General Options"
+      "slug":          "section_general_plugin_options",
+      "title":         "General Plugin Options",
+      "title_short":   "General Options",
+      "help_video_id": "338540386"
+    },
+    {
+      "slug":          "section_third_party_google",
+      "title":         "Google reCAPTCHA",
+      "title_short":   "Google reCAPTCHA",
+      "help_video_id": "338546796"
     },
     {
       "slug":        "section_importexport",
       "title":       "Import / Export",
       "title_short": "Import / Export"
-    },
-    {
-      "slug":        "section_third_party_google",
-      "title":       "Google",
-      "title_short": "Google"
     },
     {
       "slug":        "section_global_security_options",

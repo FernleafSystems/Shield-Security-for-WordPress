@@ -32,14 +32,15 @@
   },
   "sections":      [
     {
-      "slug":        "section_admin_access_restriction_settings",
-      "primary":     true,
-      "title":       "Security Admin Restriction Settings",
-      "title_short": "Security Admin Settings",
-      "summary":     [
+      "slug":          "section_admin_access_restriction_settings",
+      "primary":       true,
+      "title":         "Security Admin Restriction Settings",
+      "title_short":   "Security Admin Settings",
+      "summary":       [
         "Purpose - Restrict access using a simple Access Key.",
         "Recommendation - Use of this feature is highly recommend."
-      ]
+      ],
+      "help_video_id": "338551188"
     },
     {
       "slug":        "section_admin_access_restriction_areas",
@@ -349,7 +350,6 @@
     }
   ],
   "definitions":   {
-    "help_video_id":                    "214855538",
     "admin_access_options_to_restrict": {
       "wpms_options": [
         "admin_email",

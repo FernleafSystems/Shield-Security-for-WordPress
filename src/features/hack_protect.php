@@ -285,9 +285,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function cleanFileExclusions() {
 		$aExclusions = [];
 
-		$oFS = $this->loadFS();
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
-			$sExclusion = $oFS->normalizeFilePathDS( trim( $sExclusion ) );
+			$sExclusion = wp_normalize_path( trim( $sExclusion ) );
 
 			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
 				// ignore it
@@ -412,7 +411,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$nNow = Services::Request()->ts();
 		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
 
-		$bCanWrite = (bool)$this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
+		$bCanWrite = $this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
 		if ( !$bCanWrite ) {
 			$oFS = Services::WpFs();
 			$sDir = $this->getPtgSnapsBaseDir();
@@ -423,7 +422,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
 				if ( $sContents === 'test-'.$nNow ) {
 					$oFS->deleteFile( $sTestFile );
-					$this->setOpt( 'ptg_candiskwrite', !$oFS->exists( $sTestFile ) );
+					$bCanWrite = !$oFS->exists( $sTestFile );
+					$this->setOpt( 'ptg_candiskwrite', $bCanWrite );
 				}
 				$this->setOpt( 'ptg_candiskwrite_at', $nNow );
 			}

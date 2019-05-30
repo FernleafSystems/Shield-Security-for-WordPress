@@ -47,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function onWpInit() {
 		parent::onWpInit();
-		if ( $this->isThisModulePage() && ( $this->getSlug() != 'insights' ) ) {
+		if ( $this->isThisModulePage() && !$this->isWizardPage() && ( $this->getSlug() != 'insights' ) ) {
 			$this->redirectToInsightsSubPage();
 		}
 	}
@@ -179,20 +179,21 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
 				],
 				'strings' => [
-					'go_to_settings'    => __( 'Settings', 'wp-simple-firewall' ),
-					'on'                => __( 'On', 'wp-simple-firewall' ),
-					'off'               => __( 'Off', 'wp-simple-firewall' ),
-					'more_info'         => __( 'Info', 'wp-simple-firewall' ),
-					'blog'              => __( 'Blog', 'wp-simple-firewall' ),
-					'save_all_settings' => __( 'Save All Settings', 'wp-simple-firewall' ),
-					'options_title'     => __( 'Options', 'wp-simple-firewall' ),
-					'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
-					'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
-					'actions_summary'   => __( 'Perform actions for this module', 'wp-simple-firewall' ),
-					'help_title'        => __( 'Help', 'wp-simple-firewall' ),
-					'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
-					'supply_password'   => __( 'Supply Password', 'wp-simple-firewall' ),
-					'confirm_password'  => __( 'Confirm Password', 'wp-simple-firewall' ),
+					'go_to_settings'          => __( 'Settings', 'wp-simple-firewall' ),
+					'on'                      => __( 'On', 'wp-simple-firewall' ),
+					'off'                     => __( 'Off', 'wp-simple-firewall' ),
+					'more_info'               => __( 'Info', 'wp-simple-firewall' ),
+					'blog'                    => __( 'Blog', 'wp-simple-firewall' ),
+					'save_all_settings'       => __( 'Save All Settings', 'wp-simple-firewall' ),
+					'options_title'           => __( 'Options', 'wp-simple-firewall' ),
+					'options_summary'         => __( 'Configure Module', 'wp-simple-firewall' ),
+					'actions_title'           => __( 'Actions and Info', 'wp-simple-firewall' ),
+					'actions_summary'         => __( 'Perform actions for this module', 'wp-simple-firewall' ),
+					'help_title'              => __( 'Help', 'wp-simple-firewall' ),
+					'help_summary'            => __( 'Learn More', 'wp-simple-firewall' ),
+					'supply_password'         => __( 'Supply Password', 'wp-simple-firewall' ),
+					'confirm_password'        => __( 'Confirm Password', 'wp-simple-firewall' ),
+					'show_help_video_section' => __( 'Show help video for this section', 'wp-simple-firewall' ),
 
 					'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
 					'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),

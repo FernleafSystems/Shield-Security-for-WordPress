@@ -11,7 +11,8 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 */
 	protected static $oInstance = null;
 
-	private function __construct() {}
+	private function __construct() {
+	}
 
 	/**
 	 * @return ICWP_WPSF_Render
@@ -135,7 +136,7 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	public function clearRenderVars() {
-		return $this->setRenderVars( array() );
+		return $this->setRenderVars( [] );
 	}
 
 	/**
@@ -169,11 +170,11 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 */
 	public function getTemplateEngine() {
 		if ( !isset( $this->nTemplateEngine )
-			 || !in_array( $this->nTemplateEngine, array(
+			 || !in_array( $this->nTemplateEngine, [
 				self::TEMPLATE_ENGINE_TWIG,
 				self::TEMPLATE_ENGINE_PHP,
 				self::TEMPLATE_ENGINE_HTML
-			) ) ) {
+			] ) ) {
 			$this->nTemplateEngine = self::TEMPLATE_ENGINE_PHP;
 		}
 		return $this->nTemplateEngine;
@@ -218,7 +219,7 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 */
 	public function getTemplateRoots() {
 		if ( !is_array( $this->aTemplateRoots ) ) {
-			$this->aTemplateRoots = array();
+			$this->aTemplateRoots = [];
 		}
 		array_unshift( $this->aTemplateRoots, $this->getTemplateRootMain() );
 		return array_unique( array_filter( $this->aTemplateRoots ) );

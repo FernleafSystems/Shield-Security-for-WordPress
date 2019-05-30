@@ -241,11 +241,11 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 				  && !empty( $oUpgrader->result[ 'destination_name' ] ) ) {
 
 			if ( $aInfo[ 'type' ] == 'plugin' ) {
-				$oWpPlugins = $this->loadWpPlugins();
-				$sDir = $oWpPlugins->getFileFromDirName( $oUpgrader->result[ 'destination_name' ] );
-				if ( $sDir && $oWpPlugins->isActive( $sDir ) ) {
+				$oWpPlugins = Services\Services::WpPlugins();
+				$sPluginFile = $oWpPlugins->findPluginFileFromDirName( $oUpgrader->result[ 'destination_name' ] );
+				if ( !empty( $sPluginFile ) && $oWpPlugins->isActive( $sPluginFile ) ) {
 					$sContext = self::CONTEXT_PLUGINS;
-					$aSlugs = [ $sDir ];
+					$aSlugs = [ $sPluginFile ];
 				}
 			}
 			else if ( $aInfo[ 'type' ] == 'theme' ) {

@@ -58,7 +58,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
 	public function getGaRegisterChartUrl( $oUser ) {
@@ -66,12 +66,12 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$sUrl = '';
 		}
 		else {
-			$sUrl = $this->loadGoogleAuthenticatorProcessor()
-						 ->getGoogleQrChartUrl(
-							 $this->getSecret( $oUser ),
-							 preg_replace( '#[^0-9a-z]#i', '', $oUser->user_login )
-							 .'@'.preg_replace( '#[^0-9a-z]#i', '', Services::WpGeneral()->getSiteName() )
-						 );
+			$sUrl = ( new PHPGangsta_GoogleAuthenticator() )
+				->getQRCodeGoogleUrl(
+					preg_replace( '#[^0-9a-z]#i', '', $oUser->user_login )
+					.'@'.preg_replace( '#[^0-9a-z]#i', '', Services::WpGeneral()->getSiteName() ),
+					$this->getSecret( $oUser )
+				);
 		}
 		return $sUrl;
 	}
@@ -268,8 +268,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function validateGaCode( $oUser, $sOtpCode ) {
 		$bValidOtp = false;
 		if ( !empty( $sOtpCode ) && preg_match( '#^[0-9]{6}$#', $sOtpCode ) ) {
-			$bValidOtp = $this->loadGoogleAuthenticatorProcessor()
-							  ->verifyOtp( $this->getSecret( $oUser ), $sOtpCode );
+			$bValidOtp = ( new PHPGangsta_GoogleAuthenticator() )
+				->verifyCode( $this->getSecret( $oUser ), $sOtpCode );
 		}
 		return $bValidOtp;
 	}
@@ -312,7 +312,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @return string
 	 */
 	protected function genNewSecret() {
-		return $this->loadGoogleAuthenticatorProcessor()->generateNewSecret();
+		return ( new PHPGangsta_GoogleAuthenticator() )->createSecret();
 	}
 
 	/**

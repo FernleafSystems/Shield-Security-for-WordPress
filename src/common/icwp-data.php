@@ -147,7 +147,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 
 		$sUrl = trim( $this->urlStripQueryPart( $sUrl ) );
 		if ( filter_var( $sUrl, FILTER_VALIDATE_URL ) ) { // we have a scheme+host
-			if ( in_array( parse_url( $sUrl, PHP_URL_SCHEME ), array( 'http', 'https' ) ) ) {
+			if ( in_array( parse_url( $sUrl, PHP_URL_SCHEME ), [ 'http', 'https' ] ) ) {
 				$sValidatedUrl = rtrim( $sUrl, '/' );
 			}
 		}
@@ -187,13 +187,13 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 */
 	public function extractCommaSeparatedList( $sRawList = '' ) {
 
-		$aRawList = array();
+		$aRawList = [];
 		if ( empty( $sRawList ) ) {
 			return $aRawList;
 		}
 
 		$aRawList = array_map( 'trim', preg_split( '/\r\n|\r|\n/', $sRawList ) );
-		$aNewList = array();
+		$aNewList = [];
 		$bHadStar = false;
 		foreach ( $aRawList as $sKey => $sRawLine ) {
 
@@ -217,7 +217,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 				}
 			}
 
-			$aParams = empty( $aParts[ 1 ] ) ? array() : explode( ',', $aParts[ 1 ] );
+			$aParams = empty( $aParts[ 1 ] ) ? [] : explode( ',', $aParts[ 1 ] );
 			$aNewList[ $aParts[ 0 ] ] = $aParams;
 		}
 		return $aNewList;
@@ -231,7 +231,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function generateRandomString( $nLength = 10, $nStrength = 7, $bIgnoreAmb = true ) {
-		$aChars = array( 'abcdefghijkmnopqrstuvwxyz' );
+		$aChars = [ 'abcdefghijkmnopqrstuvwxyz' ];
 
 		if ( $nStrength & 2 ) {
 			$aChars[] = '023456789';
@@ -411,7 +411,7 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function removeFromArrayByValue( $aArray, $mValue, $bFirstOnly = false ) {
-		$aKeys = array();
+		$aKeys = [];
 
 		if ( $bFirstOnly ) {
 			$mKey = array_search( $mValue, $aArray, true );
@@ -443,146 +443,145 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @deprecated
 	 * @return int
+	 * @deprecated
 	 */
 	public function time() {
 		return $this->loadRequest()->ts();
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sKey
 	 * @param string $mDefault
 	 * @param bool   $bTrim -automatically trim whitespace
 	 * @return mixed|null
+	 * @deprecated
 	 */
 	public function cookie( $sKey, $mDefault = null, $bTrim = true ) {
 		return $this->loadRequest()->cookie( $sKey, $mDefault, $bTrim );
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sKey
 	 * @param mixed  $mDefault
 	 * @return mixed|null
+	 * @deprecated
 	 */
 	public function env( $sKey, $mDefault = null ) {
 		return $this->loadRequest()->env( $sKey, $mDefault );
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sKey
 	 * @param null   $mDefault
 	 * @param bool   $bTrim -automatically trim whitespace
 	 * @return mixed|null
+	 * @deprecated
 	 */
 	public function post( $sKey, $mDefault = null, $bTrim = true ) {
 		return $this->loadRequest()->post( $sKey, $mDefault, $bTrim );
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sKey
 	 * @param null   $mDefault
 	 * @param bool   $bTrim -automatically trim whitespace
 	 * @return mixed|null
+	 * @deprecated
 	 */
 	public function query( $sKey, $mDefault = null, $bTrim = true ) {
 		return $this->loadRequest()->query( $sKey, $mDefault, $bTrim );
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sKey
 	 * @param null   $mDefault
 	 * @param bool   $bTrim -automatically trim whitespace
 	 * @return mixed|null
+	 * @deprecated
 	 */
 	public function server( $sKey, $mDefault = null, $bTrim = true ) {
 		return $this->loadRequest()->server( $sKey, $mDefault, $bTrim );
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sKey
 	 * @param null   $mDefault
 	 * @param bool   $bIncludeCookie
 	 * @param bool   $bTrim -automatically trim whitespace
 	 * @return mixed|null
+	 * @deprecated
 	 */
 	public function request( $sKey, $bIncludeCookie = false, $mDefault = null, $bTrim = true ) {
 		return $this->loadRequest()->request( $sKey, $bIncludeCookie, $mDefault, $bTrim );
 	}
 
 	/**
-	 * @deprecated
 	 * @return string URI Path in lowercase
+	 * @deprecated
 	 */
 	public function getRequestPath() {
 		return $this->loadRequest()->getPath();
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getRequestUri() {
 		return $this->loadRequest()->getUri();
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getUserAgent() {
 		return $this->loadRequest()->getUserAgent();
 	}
 
 	/**
-	 * @deprecated
 	 * @param bool $bIncludeCookie
 	 * @return array
+	 * @deprecated
 	 */
 	public function getRequestParams( $bIncludeCookie = true ) {
 		return $this->loadRequest()->getParams( $bIncludeCookie );
 	}
 
 	/**
-	 * @deprecated
 	 * @return array
+	 * @deprecated
 	 */
 	public function getRequestUriParts() {
 		return $this->loadRequest()->getUriParts();
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getRequestMethod() {
 		return $this->loadRequest()->getMethod();
 	}
 
 	/**
-	 * @deprecated
 	 * @return bool
+	 * @deprecated
 	 */
 	public function isMethodPost() {
 		return $this->loadRequest()->isMethodPost();
 	}
 
 	/**
-	 * @deprecated
 	 * @return string|null
+	 * @deprecated
 	 */
 	public function getScriptName() {
 		return $this->loadRequest()->getScriptName();
 	}
 
 	/**
-	 * @deprecated
 	 * @param      $sKey
 	 * @param      $mValue
 	 * @param int  $nExpireLength
@@ -590,15 +589,16 @@ class ICWP_WPSF_DataProcessor extends ICWP_WPSF_Foundation {
 	 * @param null $sDomain
 	 * @param bool $bSsl
 	 * @return bool
+	 * @deprecated
 	 */
 	public function setCookie( $sKey, $mValue, $nExpireLength = 3600, $sPath = null, $sDomain = null, $bSsl = true ) {
 		return $this->loadRequest()->setCookie( $sKey, $mValue, $nExpireLength, $sPath, $sDomain, $bSsl );
 	}
 
 	/**
-	 * @deprecated
 	 * @param string $sKey
 	 * @return bool
+	 * @deprecated
 	 */
 	public function setDeleteCookie( $sKey ) {
 		return $this->loadRequest()->setDeleteCookie( $sKey );

@@ -33,7 +33,7 @@ class ICWP_WPSF_WpCron {
 	}
 
 	private function __construct() {
-		add_filter( 'cron_schedules', array( $this, 'addSchedules' ) );
+		add_filter( 'cron_schedules', [ $this, 'addSchedules' ] );
 	}
 
 	/**
@@ -59,11 +59,11 @@ class ICWP_WPSF_WpCron {
 	}
 
 	/**
-	 * @deprecated uses undocumented private WP function
 	 * @return array
+	 * @deprecated uses undocumented private WP function
 	 */
 	public function getCrons() {
-		return function_exists( '_get_cron_array' ) && is_array( _get_cron_array() ) ? _get_cron_array() : array();
+		return function_exists( '_get_cron_array' ) && is_array( _get_cron_array() ) ? _get_cron_array() : [];
 	}
 
 	/**
@@ -71,7 +71,7 @@ class ICWP_WPSF_WpCron {
 	 */
 	protected function getSchedules() {
 		if ( !is_array( $this->aSchedules ) ) {
-			$this->aSchedules = array();
+			$this->aSchedules = [];
 		}
 		return $this->aSchedules;
 	}

@@ -116,7 +116,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @return boolean
 	 */
 	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
-		$sItemFile = $this->loadWp()->getFileFromAutomaticUpdateItem( $mItem );
+		$sItemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
 		// TODO Audit.
 		return $bDoAutoUpdate || ( $this->getPluginVulnerabilities( $sItemFile ) > 0 );
 	}
@@ -231,8 +231,8 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
-		$oWpPlugins = $this->loadWpPlugins();
-		$oWpThemes = $this->loadWpThemes();
+		$oWpPlugins = Services::WpPlugins();
+		$oWpThemes = Services::WpThemes();
 		$oCon = $this->getCon();
 
 		$aContent = [

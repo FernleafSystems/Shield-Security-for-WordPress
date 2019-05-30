@@ -37,8 +37,8 @@ class ICWP_WPSF_Processor_AuditTrail_Plugins extends ICWP_WPSF_AuditTrail_Audito
 	}
 
 	/**
-	 * @param string  $sAction
-	 * @param boolean $bResult
+	 * @param string $sAction
+	 * @param bool   $bResult
 	 */
 	public function auditEditedPluginFile( $sAction, $bResult ) {
 

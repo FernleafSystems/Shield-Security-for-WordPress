@@ -421,14 +421,6 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getOptionsEncoding() {
-		$sEncoding = $this->getPluginSpec_Property( 'options_encoding' );
-		return in_array( $sEncoding, [ 'yaml', 'json' ] ) ? $sEncoding : 'yaml';
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function createPluginMenu() {
@@ -743,7 +735,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 * @return boolean
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 		$oWpPlugins = Services::WpPlugins();
 
 		$sFile = $oWp->getFileFromAutomaticUpdateItem( $mItem );
@@ -1148,7 +1140,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		$oConOptions = $this->getPluginControllerOptions();
 		$sSpecPath = $this->getPathPluginSpec();
 		$sCurrentHash = @md5_file( $sSpecPath );
-		$sModifiedTime = $this->loadFS()->getModifiedTime( $sSpecPath );
+		$sModifiedTime = Services::WpFs()->getModifiedTime( $sSpecPath );
 
 		$this->bRebuildOptions = true;
 
@@ -1176,7 +1168,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getIsResetPlugin() {
 		if ( !isset( $this->bResetPlugin ) ) {
-			$bExists = $this->loadFS()->isFile( $this->getPath_Flags( 'reset' ) );
+			$bExists = Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
 			$this->bResetPlugin = (bool)$bExists;
 		}
 		return $this->bResetPlugin;
@@ -1229,9 +1221,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	public function getPluginUrl_Asset( $sAsset ) {
 		$sUrl = '';
 		$sAssetPath = $this->getPath_Assets( $sAsset );
-		if ( $this->loadFS()->exists( $sAssetPath ) ) {
+		if ( Services::WpFs()->exists( $sAssetPath ) ) {
 			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
-			return $this->loadWpIncludes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
+			return Services::Includes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
 		}
 		return $sUrl;
 	}
@@ -1291,10 +1283,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	public function getPath_Temp( $sTmpFile = '' ) {
 		$sTempPath = null;
-		$oFs = $this->loadFS();
 
 		$sBase = path_join( $this->getRootDir(), $this->getPluginSpec_Path( 'temp' ) );
-		if ( $oFs->mkdir( $sBase ) ) {
+		if ( Services::WpFs()->mkdir( $sBase ) ) {
 			$sTempPath = $sBase;
 		}
 		return empty( $sTmpFile ) ? $sTempPath : path_join( $sTempPath, $sTmpFile );
@@ -1564,7 +1555,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function clearSession() {
-		$this->loadRequest()->setDeleteCookie( $this->getPluginPrefix() );
+		Services::Response()->cookieDelete( $this->getPluginPrefix() );
 		self::$sSessionId = null;
 	}
 
@@ -1592,9 +1583,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	protected function getForceOffFilePath() {
 		if ( !isset( $this->sForceOffFile ) ) {
-			$oFs = $this->loadFS();
-			$sFile = $oFs->fileExistsInDir( 'forceOff', $this->getRootDir(), false );
-			$this->sForceOffFile = ( !is_null( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
+			$oFs = Services::WpFs();
+			$sFile = $oFs->findFileInDir( 'forceOff', $this->getRootDir(), false, false );
+			$this->sForceOffFile = ( !empty( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
 		}
 		return $this->sForceOffFile;
 	}
@@ -1645,11 +1636,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	protected function setSessionCookie() {
-		$oReq = $this->loadRequest();
-		$oReq->setCookie(
+		Services::Response()->cookieSet(
 			$this->getPluginPrefix(),
 			$this->getSessionId(),
-			$oReq->ts() + DAY_IN_SECONDS*30,
+			Services::Request()->ts() + DAY_IN_SECONDS*30,
 			Services::WpGeneral()->getCookiePath(),
 			Services::WpGeneral()->getCookieDomain(),
 			false

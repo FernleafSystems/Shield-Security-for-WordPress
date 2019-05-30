@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 
 	/**
@@ -7,7 +9,8 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 	 */
 	protected static $oInstance = null;
 
-	private function __construct() {}
+	private function __construct() {
+	}
 
 	/**
 	 * @return ICWP_WPSF_WpComments
@@ -17,13 +20,6 @@ class ICWP_WPSF_WpComments extends ICWP_WPSF_Foundation {
 			self::$oInstance = new self();
 		}
 		return self::$oInstance;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIfAllowCommentsByPreviouslyApproved() {
-		return ( $this->loadWp()->getOption( 'comment_whitelist' ) == 1 );
 	}
 
 	/**

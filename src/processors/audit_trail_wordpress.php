@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class ICWP_WPSF_Processor_AuditTrail_Wordpress extends ICWP_WPSF_AuditTrail_Auditor_Base {
 
 	/**
@@ -13,9 +15,11 @@ class ICWP_WPSF_Processor_AuditTrail_Wordpress extends ICWP_WPSF_AuditTrail_Audi
 	 * @param string $sNewCoreVersion
 	 */
 	public function auditCoreUpdated( $sNewCoreVersion ) {
-		global $wp_version;
 		$this->add( 'wordpress', 'core_updated', 1,
-			sprintf( __( 'WordPress Core was updated from "v%s" to "v%s".', 'wp-simple-firewall' ), $wp_version, $sNewCoreVersion )
+			sprintf( __( 'WordPress Core was updated from "v%s" to "v%s".', 'wp-simple-firewall' ),
+				Services::WpGeneral()->getVersion(),
+				$sNewCoreVersion
+			)
 		);
 	}
 

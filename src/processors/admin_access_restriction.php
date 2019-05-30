@@ -115,7 +115,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @param string $sRole
 	 */
 	public function restrictAddUserRole( $nUserId, $sRole ) {
-		$oWpUsers = $this->loadWpUsers();
+		$oWpUsers = Services::WpUsers();
 
 		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId && strtolower( $sRole ) === 'administrator' ) {
 			$oModUser = $oWpUsers->getUserById( $nUserId );
@@ -131,7 +131,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @param array  $aOldRoles
 	 */
 	public function restrictSetUserRole( $nUserId, $sRole, $aOldRoles = [] ) {
-		$oWpUsers = $this->loadWpUsers();
+		$oWpUsers = Services::WpUsers();
 
 		$sRole = strtolower( $sRole );
 		if ( !is_array( $aOldRoles ) ) {
@@ -172,7 +172,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @param string $sRole
 	 */
 	public function restrictRemoveUserRole( $nUserId, $sRole ) {
-		$oWpUsers = $this->loadWpUsers();
+		$oWpUsers = Services::WpUsers();
 
 		if ( $oWpUsers->getCurrentWpUserId() !== $nUserId && strtolower( $sRole ) === 'administrator' ) {
 			$oModUser = $oWpUsers->getUserById( $nUserId );
@@ -186,11 +186,11 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @param int $nId
 	 */
 	public function restrictAdminUserDelete( $nId ) {
-		$oWpUsers = $this->loadWpUsers();
+		$oWpUsers = Services::WpUsers();
 		$oUserToDelete = $oWpUsers->getUserById( $nId );
 		if ( $oUserToDelete && $oWpUsers->isUserAdmin( $oUserToDelete ) ) {
-			$this->loadWp()
-				 ->wpDie( 'Sorry, deleting administrators is currently restricted to your Security Admin' );
+			Services::WpGeneral()
+					->wpDie( __( 'Sorry, deleting administrators is currently restricted to your Security Admin', 'wp-simple-firewall' ) );
 		}
 	}
 
@@ -224,8 +224,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		if ( in_array( $sUserCap, $aReleventCaps ) ) {
 			$bBlockCapability = false;
 
-			$oReq = $this->loadRequest();
-			$oWpUsers = $this->loadWpUsers();
+			$oReq = Services::Request();
+			$oWpUsers = Services::WpUsers();
 
 			// Find the WP_User for the POST
 			$oPostUser = false;
@@ -276,8 +276,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			return;
 		}
 
-		$sCurrentPage = $this->loadWp()->getCurrentPage();
-		$sCurrentGetPage = $this->loadRequest()->query( 'page' );
+		$sCurrentPage = Services::WpPost()->getCurrentPage();
+		$sCurrentGetPage = Services::Request()->query( 'page' );
 		if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
 			return;
 		}
@@ -316,8 +316,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 
-		$sCurrentPage = $this->loadWp()->getCurrentPage();
-		if ( !in_array( $sCurrentPage, $this->getUserPagesToRestrict() ) ) {
+		if ( !in_array( Services::WpPost()->getCurrentPage(), $this->getUserPagesToRestrict() ) ) {
 			return;
 		}
 
@@ -409,7 +408,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		$oReq = $this->loadRequest();
+		$oReq = Services::Request();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
