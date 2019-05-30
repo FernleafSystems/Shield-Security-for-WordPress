@@ -685,7 +685,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
 			'sections'   => $aSections,
 			'options'    => [],
-
 		];
 
 		foreach ( $this->getOptionsVo()->getVisibleOptionsKeys() as $sOptKey ) {

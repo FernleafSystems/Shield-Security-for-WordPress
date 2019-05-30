@@ -47,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function onWpInit() {
 		parent::onWpInit();
-		if ( $this->isThisModulePage() && ( $this->getSlug() != 'insights' ) ) {
+		if ( $this->isThisModulePage() && !$this->isWizardPage() && ( $this->getSlug() != 'insights' ) ) {
 			$this->redirectToInsightsSubPage();
 		}
 	}
