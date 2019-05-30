@@ -124,9 +124,9 @@
       "type":        "integer",
       "link_info":   "https://icwp.io/wpsf24",
       "link_blog":   "https://icwp.io/wpsf26",
-      "name":        "Transgression Limit",
+      "name":        "Offense Limit",
       "summary":     "Visitor IP address will be Black Listed after X bad actions on your site",
-      "description": "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these transgressions exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
+      "description": "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these offenses exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
     },
     {
       "key":           "auto_expire",
@@ -189,7 +189,7 @@
       "link_info":   "https://icwp.io/e8",
       "link_blog":   "",
       "name":        "Login Failed",
-      "summary":     "Visitor Triggers The IP Transgression System Through A Failed Login",
+      "summary":     "Visitor Triggers The IP Offenses System Through A Failed Login",
       "description": "This message is displayed if the visitor fails a login attempt."
     },
     {
@@ -209,11 +209,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -243,11 +243,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -277,11 +277,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -310,11 +310,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -344,11 +344,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -378,11 +378,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -412,11 +412,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -438,9 +438,9 @@
       "type":        "text",
       "link_info":   "https://icwp.io/e9",
       "link_blog":   "",
-      "name":        "Remaining Transgressions",
-      "summary":     "Visitor Triggers The IP Transgression System Through A Firewall Block",
-      "description": "This message is displayed if the visitor triggered the IP Transgression system and reports how many transgressions remain before being blocked."
+      "name":        "Remaining Offenses",
+      "summary":     "Visitor Triggers The IP Offenses System Through A Firewall Block",
+      "description": "This message is displayed if the visitor triggered the IP Offenses system and reports how many offenses remain before being blocked."
     },
     {
       "key":          "this_server_ip",
