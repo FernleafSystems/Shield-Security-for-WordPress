@@ -11,10 +11,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class Repair extends Scans\Base\BaseRepair {
 
 	/**
-	 * @deprecated unused yet
 	 * @param ResultItem $oItem
 	 * @return bool
 	 * @throws \Exception
+	 * @deprecated unused yet
 	 */
 	public function repairItem( $oItem ) {
 

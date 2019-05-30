@@ -15,8 +15,8 @@ class TrackLinkCheese extends Base {
 	const OPT_KEY = 'track_linkcheese';
 
 	protected function process() {
-		add_filter( 'robots_txt', array( $this, 'appendRobotsTxt' ), 5 );
-		add_action( 'wp_footer', array( $this, 'insertMouseTrap' ), 0 );
+		add_filter( 'robots_txt', [ $this, 'appendRobotsTxt' ], 5 );
+		add_action( 'wp_footer', [ $this, 'insertMouseTrap' ], 0 );
 		if ( $this->isCheese() ) {
 			$this->doTransgression();
 		}
@@ -62,7 +62,7 @@ class TrackLinkCheese extends Base {
 	}
 
 	public function insertMouseTrap() {
-		$sId = chr( rand( 97, 122 ) ).rand(1000,10000000);
+		$sId = chr( rand( 97, 122 ) ).rand( 1000, 10000000 );
 		echo sprintf(
 			'<style>#%s{display:none !important;}</style><a rel="nofollow" href="%s" title="%s" id="%s">%s</a>',
 			$sId, $this->buildTrapHref(), 'Click here to see something fantastic',

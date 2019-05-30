@@ -12,7 +12,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setIgnored( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'ignored_at' => Services::Request()->ts() ) );
+		return $this->updateEntry( $oEntry, [ 'ignored_at' => Services::Request()->ts() ] );
 	}
 
 	/**
@@ -20,7 +20,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setNotified( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'notified_at' => Services::Request()->ts() ) );
+		return $this->updateEntry( $oEntry, [ 'notified_at' => Services::Request()->ts() ] );
 	}
 
 	/**
@@ -28,7 +28,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setNotIgnored( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'ignored_at' => 0 ) );
+		return $this->updateEntry( $oEntry, [ 'ignored_at' => 0 ] );
 	}
 
 	/**
@@ -36,6 +36,6 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setNotNotified( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'notified_at' => 0 ) );
+		return $this->updateEntry( $oEntry, [ 'notified_at' => 0 ] );
 	}
 }

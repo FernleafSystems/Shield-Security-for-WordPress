@@ -61,20 +61,20 @@ class ScanWpv extends ScanBase {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
-			'ignore'           => 'Ignore',
-		);
+		return [
+			'ignore' => 'Ignore',
+		];
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'cb'            => '&nbsp;',
 			'vulnerability' => 'Vulnerability',
 			'asset'         => 'Asset Details',
 			'created_at'    => 'Discovered',
-		);
+		];
 	}
 }

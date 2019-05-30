@@ -22,10 +22,10 @@ class ScanPtg extends ScanBase {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'path'       => 'File',
 			'status'     => 'Status',
 			'created_at' => 'Discovered',
-		);
+		];
 	}
 }

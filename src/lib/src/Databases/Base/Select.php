@@ -147,7 +147,7 @@ class Select extends BaseQuery {
 			$sForm = ARRAY_A;
 		}
 		else {
-			$sForm = in_array( $this->sResultFormat, array( OBJECT_K, ARRAY_A ) ) ? $this->sResultFormat : OBJECT_K;
+			$sForm = in_array( $this->sResultFormat, [ OBJECT_K, ARRAY_A ] ) ? $this->sResultFormat : OBJECT_K;
 		}
 		return $sForm;
 	}

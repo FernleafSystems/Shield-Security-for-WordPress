@@ -11,4 +11,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property string ip
  */
 class EntryVO extends Base\EntryVO {
+
 }

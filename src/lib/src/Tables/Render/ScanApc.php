@@ -21,9 +21,9 @@ class ScanApc extends ScanBase {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
+		return [
 			'ignore' => 'Ignore'
-		);
+		];
 	}
 
 	/**

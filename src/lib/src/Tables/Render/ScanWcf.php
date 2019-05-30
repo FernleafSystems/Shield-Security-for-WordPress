@@ -25,10 +25,10 @@ class ScanWcf extends ScanBase {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
+		return [
 			'repair' => 'Repair',
 			'ignore' => 'Ignore',
-		);
+		];
 	}
 
 	/**

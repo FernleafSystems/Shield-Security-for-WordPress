@@ -49,10 +49,10 @@ class Sessions extends BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array(
+		return [
 			'fIp'       => '',
 			'fUsername' => '',
-		);
+		];
 	}
 
 	/**

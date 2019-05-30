@@ -17,7 +17,7 @@ trait ScannerProfileConsumer {
 	 * @return ScannerProfile
 	 */
 	public function getScannerProfile() {
-		if ( !$this->oScannerProfile instanceof ScannerProfile) {
+		if ( !$this->oScannerProfile instanceof ScannerProfile ) {
 			$this->oScannerProfile = new ScannerProfile();
 		}
 		return $this->oScannerProfile;
@@ -31,5 +31,4 @@ trait ScannerProfileConsumer {
 		$this->oScannerProfile = $oScannerProfile;
 		return $this;
 	}
-
 }

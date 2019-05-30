@@ -30,12 +30,12 @@ class Sessions extends Base {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'cb'               => '&nbsp;',
 			'details'          => 'Details',
 			'is_secadmin'      => 'Security Admin',
 			'last_activity_at' => 'Last Activity',
 			'logged_in_at'     => 'Logged In',
-		);
+		];
 	}
 }

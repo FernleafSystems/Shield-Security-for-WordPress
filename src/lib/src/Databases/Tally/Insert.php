@@ -33,13 +33,13 @@ class Insert extends Base\Insert {
 		}
 
 		$nTimeStamp = Services::Request()->ts();
-		$aData = array(
+		$aData = [
 			'stat_key'        => $sStatKey,
 			'parent_stat_key' => $sParent,
 			'tally'           => $nTally,
 			'modified_at'     => $nTimeStamp,
 			'created_at'      => $nTimeStamp,
-		);
+		];
 		return $this->setInsertData( $aData )->query() === 1;
 	}
 }

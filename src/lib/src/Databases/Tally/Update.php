@@ -12,7 +12,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function incrementTally( $oStat, $nAdditional ) {
-		return $this->updateStat( $oStat, array( 'tally' => $oStat->tally + $nAdditional, ) );
+		return $this->updateStat( $oStat, [ 'tally' => $oStat->tally + $nAdditional, ] );
 	}
 
 	/**

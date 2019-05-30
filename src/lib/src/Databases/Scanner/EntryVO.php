@@ -15,4 +15,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property int    notified_at
  */
 class EntryVO extends Base\EntryVO {
+
 }

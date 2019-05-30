@@ -10,5 +10,6 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property string $scan_slug
  */
 class ScannerProfile {
+
 	use StdClassAdapter;
 }

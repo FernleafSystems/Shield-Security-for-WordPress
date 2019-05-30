@@ -51,11 +51,11 @@ class AuditTrail extends Base {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'details'    => 'Details',
 			'message'    => 'Message',
 			//			'event'      => 'Event',
 			'created_at' => 'Date',
-		);
+		];
 	}
 }

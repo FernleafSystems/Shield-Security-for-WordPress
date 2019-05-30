@@ -26,9 +26,9 @@ class Ip extends BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array(
+		return [
 			'fLists' => '',
-		);
+		];
 	}
 
 	/**

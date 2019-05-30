@@ -8,11 +8,11 @@ class Traffic extends Base {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'path'         => 'Page',
 			'visitor'      => 'Visitor Details',
 			'request_info' => 'Response Info',
 			'created_at'   => 'Date',
-		);
+		];
 	}
 }

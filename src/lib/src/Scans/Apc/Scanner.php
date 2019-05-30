@@ -82,9 +82,9 @@ class Scanner {
 		}
 		$oApi = plugins_api( 'plugin_information', [
 			'slug'   => $sSlug,
-			'fields' => array(
+			'fields' => [
 				'sections' => false,
-			),
+			],
 		] );
 		if ( isset( $oApi->last_updated ) ) {
 			$nLastUpdateAt = strtotime( $oApi->last_updated );
