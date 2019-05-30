@@ -42,8 +42,8 @@ class Traffic extends BaseBuild {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
 
-		if ( $aParams[ 'fTransgression' ] >= 0 ) {
-			$oSelector->filterByIsTransgression( $aParams[ 'fTransgression' ] );
+		if ( $aParams[ 'fOffense' ] >= 0 ) {
+			$oSelector->filterByIsTransgression( $aParams[ 'fOffense' ] );
 		}
 
 		$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
@@ -58,13 +58,13 @@ class Traffic extends BaseBuild {
 	 */
 	protected function getCustomParams() {
 		return [
-			'fIp'            => '',
-			'fUsername'      => '',
-			'fLoggedIn'      => -1,
-			'fPath'          => '',
-			'fTransgression' => -1,
-			'fResponse'      => '',
-			'fExludeYou'     => '',
+			'fIp'        => '',
+			'fUsername'  => '',
+			'fLoggedIn'  => -1,
+			'fPath'      => '',
+			'fOffense'   => -1,
+			'fResponse'  => '',
+			'fExludeYou' => '',
 		];
 	}
 
