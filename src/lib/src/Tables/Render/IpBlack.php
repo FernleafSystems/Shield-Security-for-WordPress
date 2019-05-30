@@ -11,8 +11,8 @@ class IpBlack extends IpBase {
 	public function column_details( $aItem ) {
 		$aDetails = array(
 			sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), $aItem[ 'blocked' ] ),
-			sprintf( '%s: %s', __( 'Transgressions', 'wp-simple-firewall' ), $aItem[ 'transgressions' ] ),
-			sprintf( '%s: %s', __( 'Last Transgression', 'wp-simple-firewall' ), $aItem[ 'last_trans_at' ] ),
+			sprintf( '%s: %s', __( 'Offenses', 'wp-simple-firewall' ), $aItem[ 'transgressions' ] ),
+			sprintf( '%s: %s', __( 'Last Offense', 'wp-simple-firewall' ), $aItem[ 'last_trans_at' ] ),
 			sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ) ),
 			$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] )
 		);

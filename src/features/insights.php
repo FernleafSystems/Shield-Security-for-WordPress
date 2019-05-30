@@ -102,7 +102,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					],
 					'strings' => [
 						'trans_limit'       => sprintf(
-							'Transgressions required for IP block: %s',
+							__( 'Offenses required for IP block: %s', 'wp-simple-firewall' ),
 							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpMod->getOptTransgressionLimit() )
 						),
 						'auto_expire'       => sprintf(
@@ -699,14 +699,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
 			//			),
 			'transgressions' => [
-				'title'   => __( 'Transgressions', 'wp-simple-firewall' ),
+				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
 				'val'     => $aStats[ 'ip.transgression.incremented' ],
-				'tooltip' => __( 'Total transgression against the site.', 'wp-simple-firewall' )
+				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
 			'ip_blocks'      => [
 				'title'   => __( 'IP Blocks', 'wp-simple-firewall' ),
 				'val'     => $aStats[ 'ip.connection.killed' ],
-				'tooltip' => __( 'Total connections blocked/killed after too many transgressions.', 'wp-simple-firewall' )
+				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
 			],
 			'blackips'       => [
 				'title'   => __( 'Blacklist IPs', 'wp-simple-firewall' ),
@@ -717,7 +717,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
 						]
 					)->count(),
-				'tooltip' => __( 'Current IP addresses with transgressions against the site.', 'wp-simple-firewall' )
+				'tooltip' => __( 'Current IP addresses with offenses against the site.', 'wp-simple-firewall' )
 			],
 			//			'pro'            => array(
 			//				'title'   => _wpsf__( 'Pro' ),
@@ -771,7 +771,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_comment_block_at'        => __( 'Comment SPAM Block', 'wp-simple-firewall' ),
 			'insights_xml_block_at'                 => __( 'XML-RPC Block', 'wp-simple-firewall' ),
 			'insights_restapi_block_at'             => __( 'Anonymous Rest API Block', 'wp-simple-firewall' ),
-			'insights_last_transgression_at'        => sprintf( __( '%s Transgression', 'wp-simple-firewall' ), $this->getCon()
+			'insights_last_transgression_at'        => sprintf( __( '%s Offense', 'wp-simple-firewall' ), $this->getCon()
 																													 ->getHumanName() ),
 			'insights_last_ip_block_at'             => __( 'IP Connection Blocked', 'wp-simple-firewall' ),
 		];

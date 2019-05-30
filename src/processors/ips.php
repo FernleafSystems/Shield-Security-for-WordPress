@@ -336,7 +336,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			if ( $bBlock ) {
 				$oFO->setOptInsightsAt( 'last_ip_block_at' );
 				$sAuditMessage = sprintf(
-					__( 'IP blocked after incrementing transgressions from %s to %s.', 'wp-simple-firewall' ),
+					__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' ),
 					$nCurrentTrans,
 					$oBlackIp->transgressions
 				);
@@ -344,7 +344,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			}
 			else {
 				$sAuditMessage = sprintf(
-					__( 'Auto Black List transgression counter was incremented from %s to %s.', 'wp-simple-firewall' ),
+					__( 'Auto Black List offenses counter was incremented from %s to %s.', 'wp-simple-firewall' ),
 					$nCurrentTrans,
 					$oBlackIp->transgressions
 				);

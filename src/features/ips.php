@@ -343,7 +343,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 			case 'section_auto_black_list':
 				if ( !$this->isAutoBlackListEnabled() ) {
-					$aWarnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the transgressions limit is set to 0.", 'wp-simple-firewall' ) );
+					$aWarnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
 				}
 				break;
 
@@ -351,7 +351,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'section_probes':
 			case 'section_logins':
 				if ( !$this->isAutoBlackListEnabled() ) {
-					$aWarnings[] = __( "Since the transgressions limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
+					$aWarnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}
 
 				if ( $sSection == 'section_behaviours' && strlen( Services::Request()->getUserAgent() ) == 0 ) {
@@ -381,7 +381,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'text_remainingtrans':
 				$sText = sprintf( '%s: %s',
 					__( 'Warning', 'wp-simple-firewall' ),
-					__( 'You have %s remaining transgression(s) against this site and then your IP address will be completely blocked.', 'wp-simple-firewall' )
+					__( 'You have %s remaining offenses(s) against this site and then your IP address will be completely blocked.', 'wp-simple-firewall' )
 					.'<br/><strong>'.__( 'Seriously, stop repeating what you are doing or you will be locked out.', 'wp-simple-firewall' ).'</strong>'
 				);
 				break;
@@ -418,7 +418,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'The Automatic IP Black List system will block the IP addresses of naughty visitors after a specified number of transgressions.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) ) ),
-					__( "Think of 'transgressions' as just a counter for the number of times a visitor does something bad.", 'wp-simple-firewall' )
+					__( "Think of 'offenses' as just a counter for the number of times a visitor does something bad.", 'wp-simple-firewall' )
 					.' '.sprintf( __( 'When the counter reaches the limit below (default: 10), %s will block that completely IP.', 'wp-simple-firewall' ), $sName )
 				];
 				break;
@@ -494,10 +494,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				break;
 
 			case 'transgression_limit' :
-				$sName = __( 'Transgression Limit', 'wp-simple-firewall' );
+				$sName = __( 'Offense Limit', 'wp-simple-firewall' );
 				$sSummary = __( 'Visitor IP address will be Black Listed after X bad actions on your site', 'wp-simple-firewall' );
 				$sDescription = sprintf( __( 'A black mark is set against an IP address each time a visitor trips the defenses of the %s plugin.', 'wp-simple-firewall' ), $sPlugName )
-								.'<br />'.__( 'When the number of these transgressions exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' )
+								.'<br />'.__( 'When the number of these offenses exceeds the limit, they are automatically blocked from accessing the site.', 'wp-simple-firewall' )
 								.'<br />'.sprintf( __( 'Set this to "0" to turn off the %s feature.', 'wp-simple-firewall' ), __( 'Automatic IP Black List', 'wp-simple-firewall' ) );
 				break;
 
@@ -517,14 +517,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 			case 'text_loginfailed' :
 				$sName = __( 'Login Failed', 'wp-simple-firewall' );
-				$sSummary = __( 'Visitor Triggers The IP Transgression System Through A Failed Login', 'wp-simple-firewall' );
+				$sSummary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );
 				$sDescription = __( 'This message is displayed if the visitor fails a login attempt.', 'wp-simple-firewall' );
 				break;
 
 			case 'text_remainingtrans' :
-				$sName = __( 'Remaining Transgressions', 'wp-simple-firewall' );
-				$sSummary = __( 'Visitor Triggers The IP Transgression System Through A Firewall Block', 'wp-simple-firewall' );
-				$sDescription = __( 'This message is displayed if the visitor triggered the IP Transgression system and reports how many transgressions remain before being blocked.', 'wp-simple-firewall' );
+				$sName = __( 'Remaining Offenses', 'wp-simple-firewall' );
+				$sSummary = __( 'Visitor Triggers The IP Offenses System Through A Firewall Block', 'wp-simple-firewall' );
+				$sDescription = __( 'This message is displayed if the visitor triggered the IP Offense system and reports how many offenses remain before being blocked.', 'wp-simple-firewall' );
 				break;
 
 			case 'track_404' :
@@ -539,7 +539,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				$sSummary = __( 'Identify A Bot When It Accesses XML-RPC', 'wp-simple-firewall' );
 				$sDescription = __( "If you don't use XML-RPC, there's no reason anything should be accessing it.", 'wp-simple-firewall' )
 								.'<br/>'.__( "Be careful the ensure you don't block legitimate XML-RPC traffic if your site needs it.", 'wp-simple-firewall' )
-								.'<br/>'.__( "We recommend transgressions here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' );
+								.'<br/>'.__( "We recommend logging here in-case of blocking valid request unless you're sure.", 'wp-simple-firewall' );
 				break;
 
 			case 'track_linkcheese' :

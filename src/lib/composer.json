@@ -21,7 +21,7 @@
   "require":           {
     "fernleafsystems/wordpress-services": "dev-develop",
     "fernleafsystems/utilities":          "^1.0",
-    "nesbot/carbon":                      "^1.36.0",
+    "nesbot/carbon":                      "~1.37.0",
     "twig/twig":                          "1.38.*",
     "google/recaptcha":                   "1.1.2",
     "phpgangsta/googleauthenticator":     "dev-master",

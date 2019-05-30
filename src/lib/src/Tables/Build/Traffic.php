@@ -146,7 +146,7 @@ class Traffic extends BaseBuild {
 
 			$aInfo = [
 				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $aEntry[ 'code' ] ),
-				sprintf( '%s: %s', __( 'Transgression', 'wp-simple-firewall' ), $aEntry[ 'trans' ] ),
+				sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ), $aEntry[ 'trans' ] ),
 			];
 			$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
 			$aEntries[ $nKey ] = $aEntry;

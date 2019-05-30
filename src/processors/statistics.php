@@ -196,7 +196,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 			'login_verified'    => [ __( 'Login Verified', 'wp-simple-firewall' ), $nTotalLoginVerified ],
 			'session_start'     => [ __( 'User Sessions', 'wp-simple-firewall' ), $nTotalUserSessionsStarted ],
 			'ip_killed'         => [ __( 'IP Auto Black-Listed', 'wp-simple-firewall' ), $nTotalConnectionKilled ],
-			'ip_transgressions' => [ __( 'Total Transgressions', 'wp-simple-firewall' ), $nTotalTransgressions ],
+			'ip_transgressions' => [ __( 'Total Offenses', 'wp-simple-firewall' ), $nTotalTransgressions ],
 		];
 
 		$aDisplayData = [
