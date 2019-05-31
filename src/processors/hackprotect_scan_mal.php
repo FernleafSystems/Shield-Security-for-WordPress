@@ -66,8 +66,9 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		}
 		else {
 			$aSigs = array_filter(
-				array_map( 'trim', explode( "\n", Services::HttpRequest()->getContent( $this->getMod()
-																							->getDef( 'url_mal_sigs' ) ) ) ),
+				array_map( 'trim',
+					explode( "\n", Services::HttpRequest()->getContent( $this->getMod()->getDef( 'url_mal_sigs' ) ) )
+				),
 				function ( $sLine ) {
 					return ( ( strpos( $sLine, '#' ) !== 0 ) && strlen( $sLine ) > 0 );
 				}

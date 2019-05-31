@@ -35,7 +35,7 @@ class Scanner {
 			 * The filter will also be responsible (in this case) for filtering out
 			 * WP Core files from the collection of files to be assessed
 			 */
-			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5', 'js' ], false );
+			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5' ], false );
 
 			$aSigs = $this->getMalSigs();
 			$oLocator = new LocateStrInFile();
