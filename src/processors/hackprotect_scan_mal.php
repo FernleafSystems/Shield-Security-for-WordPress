@@ -96,7 +96,9 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isMalScanAutoRepair() ) {
-			$this->getRepairer()->repairResultsSet( $oRes );
+			$this->getRepairer()
+				 ->setMod( $oFO )
+				 ->repairResultsSet( $oRes );
 		}
 	}
 

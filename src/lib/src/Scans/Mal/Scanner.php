@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugins;
+use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
+use FernleafSystems\Wordpress\Services\Utilities\File\LocateStrInFile;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 /**
  * Class Scanner
@@ -35,14 +38,19 @@ class Scanner {
 			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5', 'js' ], false );
 
 			$aSigs = $this->getMalSigs();
+			$oLocator = new LocateStrInFile();
 			foreach ( $oDirIt as $oFsItem ) {
 				/** @var \SplFileInfo $oFsItem */
 				$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
 
 				$sContent = $oFs->getFileContent( $sFullPath );
+
 				if ( !empty( $sContent ) ) {
 					foreach ( $aSigs as $sSig ) {
-						if ( strpos( $sContent, $sSig ) !== false ) {
+
+						$aLines = $oLocator->setNeedle( $sSig )
+										   ->inFileContent( $sContent );
+						if ( !empty( $aLines ) ) {
 
 							if ( $this->canExcludeFile( $sFullPath ) ) {
 								continue;
@@ -53,6 +61,7 @@ class Scanner {
 							$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
 							$oResultItem->is_mal = true;
 							$oResultItem->mal_sig = base64_encode( $sSig );
+							$oResultItem->file_lines = $aLines;
 							$oResultSet->addItem( $oResultItem );
 							break;
 						}
@@ -74,42 +83,32 @@ class Scanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		return $this->isValidCoreFile( $sFullPath ) || $this->isValidPluginFile( $sFullPath );
+		return $this->isValidCoreFile( $sFullPath ) || $this->isPluginFileValid( $sFullPath );
 	}
 
 	/**
 	 * @param string $sFullPath - normalized
 	 * @return bool
 	 */
-	private function isValidPluginFile( $sFullPath ) {
+	private function isPluginFileValid( $sFullPath ) {
 		$bCanExclude = false;
 
-		$sPluginsDir = wp_normalize_path( WP_PLUGIN_DIR );
-		$oWpPlugins = Services::WpPlugins();
-		$oWpFs = Services::WpFs();
+		if ( strpos( $sFullPath, wp_normalize_path( WP_PLUGIN_DIR ) ) === 0 ) {
 
-		if ( strpos( $sFullPath, $sPluginsDir ) === 0 ) {
-
-			$sFragment = ltrim( str_replace( $sPluginsDir, '', $sFullPath ), '/' );
-			$aParts = explode( '/', $sFragment );
-			$sDir = array_shift( $aParts );
-			$sRemainder = implode( '/', $aParts );
-
-			foreach ( $oWpPlugins->getInstalledPluginFiles() as $sPluginFile ) {
-				if ( $sDir == dirname( $sPluginFile ) ) {
-					$oThePlugin = $oWpPlugins->getPluginAsVo( $sPluginFile );
-					try {
-						$sTmpFile = ( new Plugins() )
-							->setWorkingSlug( $oThePlugin->slug )
-							->fileFromVersion( $oThePlugin->Version, $sRemainder );
-						if ( $oWpFs->exists( $sTmpFile ) && md5_file( $sTmpFile ) === md5_file( $sFullPath ) ) {
-							$bCanExclude = true;
-						}
-						$oWpFs->deleteFile( $sTmpFile );
+			$oPluginFiles = new WpOrg\Plugin\Files();
+			$oThePlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
+			if ( $oThePlugin instanceof WpPluginVo ) {
+				try {
+					$sTmpFile = $oPluginFiles
+						->setWorkingSlug( $oThePlugin->slug )
+						->setWorkingVersion( $oThePlugin->Version )
+						->getOriginalFileFromVcs( $sFullPath );
+					if ( Services::WpFs()->exists( $sTmpFile )
+						 && ( new CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
+						$bCanExclude = true;
 					}
-					catch ( \Exception $oE ) {
-					}
-					break;
+				}
+				catch ( \Exception $oE ) {
 				}
 			}
 		}
@@ -122,9 +121,14 @@ class Scanner {
 	 * @return bool
 	 */
 	private function isValidCoreFile( $sFullPath ) {
-		$oCoreHashes = Services::CoreFileHashes();
-		$sCoreHash = $oCoreHashes->getFileHash( $sFullPath );
-		return ( !empty( $sCoreHash ) && $sCoreHash === md5_file( $sFullPath ) );
+		$sCoreHash = Services::CoreFileHashes()->getFileHash( $sFullPath );
+		try {
+			$bValid = !empty( $sCoreHash ) && ( new CompareHash() )->isEqualFileMd5( $sFullPath, $sCoreHash );
+		}
+		catch ( \Exception $oE ) {
+			$bValid = false;
+		}
+		return $bValid;
 	}
 
 	/**

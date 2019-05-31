@@ -6,10 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * Class ResultItem
- * @property string path_full
- * @property string path_fragment - relative to ABSPATH
- * @property bool   is_mal
- * @property string mal_sig
+ * @property string $path_full
+ * @property string $path_fragment - relative to ABSPATH
+ * @property bool   $is_mal
+ * @property string $mal_sig
+ * @property int[]  $file_lines
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
 class ResultItem extends Base\BaseResultItem {

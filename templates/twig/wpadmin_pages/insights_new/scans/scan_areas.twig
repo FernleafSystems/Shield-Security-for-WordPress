@@ -88,25 +88,25 @@
 					</div>
 				</div>
 
-{#				<div class="col-xl-3 col-lg-4 col-md-6">#}
-{#					<div class="scan-select pl-2 text-nowrap">#}
-{#						<label for="_mal" class="col-form-label">#}
-{#							<input type="checkbox" class="form-control text-right"#}
-{#								   {% if not scans.mal.flags.is_enabled %}disabled="disabled"{% endif %}#}
-{#								   name="mal" id="_mal" value="Y" checked="checked" aria-selected="true" />#}
-{#							Malware Scanner#}
-{#							<br />#}
-{#							<small class="form-text text-muted">#}
-{#								{% if not scans.mal.flags.is_enabled %}#}
-{#									<small class="form-text text-muted">#}
-{#										Use the Scan Options link below to enable this scan.#}
-{#									</small>#}
-{#								{% endif %}#}
-{#								{{ scans.mal.strings.subtitle }}#}
-{#							</small>#}
-{#						</label>#}
-{#					</div>#}
-{#				</div>#}
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_mal" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   {% if not scans.mal.flags.is_enabled %}disabled="disabled"{% endif %}
+								   name="mal" id="_mal" value="Y" checked="checked" aria-selected="true" />
+							Malware Scanner
+							<br />
+							<small class="form-text text-muted">
+								{% if not scans.mal.flags.is_enabled %}
+									<small class="form-text text-muted">
+										Use the Scan Options link below to enable this scan.
+									</small>
+								{% endif %}
+								{{ scans.mal.strings.subtitle }}
+							</small>
+						</label>
+					</div>
+				</div>
 
 				<div class="col-xl-3 col-lg-4 col-md-6">
 					<div class="scan-select pl-2 text-nowrap">

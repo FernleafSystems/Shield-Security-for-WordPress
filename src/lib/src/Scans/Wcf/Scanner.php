@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 /**
  * Class Scanner
@@ -71,10 +72,12 @@ class Scanner {
 	protected function isChecksumFail( $oRes ) {
 		$bFail = false;
 		if ( !$oRes->is_missing ) {
-			$bFail = ( $oRes->md5_file_wp != md5_file( $oRes->path_full ) )
-					 && ( strpos( $oRes->path_full, '.php' ) > 0 )
-					 && ( $oRes->md5_file_wp != Services::DataManipulation()
-														->convertLineEndingsDosToLinux( $oRes->path_full ) );
+			try {
+				$bFail = ( strpos( $oRes->path_full, '.php' ) > 0 )
+						 && !( new CompareHash() )->isEqualFileMd5( $oRes->path_full, $oRes->md5_file_wp );
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
 		return $bFail;
 	}

@@ -27,7 +27,6 @@
     },
     {
       "slug":        "section_scan_malware",
-      "hidden": true,
       "title":       "Malware Scan",
       "title_short": "Malware Scan",
       "summary":     [
@@ -423,7 +422,7 @@
       ],
       "link_info":     "",
       "link_blog":     "",
-      "name":          "Enable/Disable Malware Scan",
+      "name":          "Automatic Malware Scan",
       "summary":       "Enable Malware File Scanner",
       "description":   "When enabled the Malware scanner will run automatically."
     },
@@ -448,6 +447,17 @@
       "name":          "Auto-Repair WP Plugins",
       "summary":       "Automatically Repair WordPress.org Plugins",
       "description":   "Automatically repair any plugin files found to have potential malware."
+    },
+    {
+      "key":           "mal_autorepair_surgical",
+      "section":       "section_scan_malware",
+      "type":          "checkbox",
+      "default":       "N",
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Surgical Auto-Repair",
+      "summary":       "Automatically Attempt To Surgically Remove Malware Code",
+      "description":   "Attempts to automatically remove code from infected files."
     },
     {
       "key":           "ptg_enable",
@@ -558,7 +568,7 @@
       "default":      0
     },
     {
-      "key":          "notready_insights_last_scan_mal_at",
+      "key":          "insights_last_scan_mal_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",

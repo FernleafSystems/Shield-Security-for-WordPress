@@ -583,6 +583,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
+	public function isMalScanAutoRepair() {
+		return $this->isMalAutoRepairCore() || $this->isMalAutoRepairPlugins() || $this->isMalAutoRepairSurgical();
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isMalAutoRepairCore() {
 		return $this->isOpt( 'mal_autorepair_core', 'Y' );
 	}
@@ -592,6 +599,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isMalAutoRepairPlugins() {
 		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalAutoRepairSurgical() {
+		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -1526,9 +1540,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'mal_scan_enable' :
-				$sName = __( 'Malware Scanner', 'wp-simple-firewall' );
-				$sSummary = __( 'Enable Malware Scanner', 'wp-simple-firewall' );
-				$sDescription = __( "Enabled detection of files infected with malware signatures.", 'wp-simple-firewall' );
+				$sName = __( 'Automatic Malware Scan', 'wp-simple-firewall' );
+				$sSummary = __( 'Turn On Automatic Malware Scanning', 'wp-simple-firewall' );
+				$sDescription = __( "Automatically run scanner to detect files infected with malware signatures.", 'wp-simple-firewall' );
 				break;
 
 			case 'mal_autorepair_core' :
@@ -1541,8 +1555,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sName = __( 'Auto-Repair WP Plugins', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Repair WordPress.org Plugins', 'wp-simple-firewall' );
 				$sDescription = __( "Automatically repair any plugin files found to have potential malware.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only applies to plugins installed from WordPress.org.', 'wp-simple-firewall' ) )
-								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes files if they're found to not be originally distributed with the plugin.", 'wp-simple-firewall' ) );
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with plugins installed from WordPress.org.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the plugin.", 'wp-simple-firewall' ) );
+				break;
+
+			case 'mal_autorepair_surgical' :
+				$sName = __( 'Surgical Auto-Repair', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Attempt To Surgically Remove Malware Code', 'wp-simple-firewall' );
+				$sDescription = __( "Attempts to automatically remove code from infected files.", 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This could break your site if code removal leaves remaining code in an inconsistent state.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Only applies to files that don't fall under the other categories for automatic repair.", 'wp-simple-firewall' ) );
 				break;
 
 			case 'rt_file_wpconfig' :
