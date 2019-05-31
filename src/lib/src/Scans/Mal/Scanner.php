@@ -5,8 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
-use FernleafSystems\Wordpress\Services\Utilities\File\LocateStrInFile;
+use FernleafSystems\Wordpress\Services\Utilities\File;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 /**
@@ -38,7 +37,7 @@ class Scanner {
 			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5' ], false );
 
 			$aSigs = $this->getMalSigs();
-			$oLocator = new LocateStrInFile();
+			$oLocator = new File\LocateStrInFile();
 			foreach ( $oDirIt as $oFsItem ) {
 				/** @var \SplFileInfo $oFsItem */
 				$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
@@ -104,7 +103,7 @@ class Scanner {
 						->setWorkingVersion( $oThePlugin->Version )
 						->getOriginalFileFromVcs( $sFullPath );
 					if ( Services::WpFs()->exists( $sTmpFile )
-						 && ( new CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
+						 && ( new File\Compare\CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
 						$bCanExclude = true;
 					}
 				}
@@ -123,7 +122,8 @@ class Scanner {
 	private function isValidCoreFile( $sFullPath ) {
 		$sCoreHash = Services::CoreFileHashes()->getFileHash( $sFullPath );
 		try {
-			$bValid = !empty( $sCoreHash ) && ( new CompareHash() )->isEqualFileMd5( $sFullPath, $sCoreHash );
+			$bValid = !empty( $sCoreHash )
+					  && ( new File\Compare\CompareHash() )->isEqualFileMd5( $sFullPath, $sCoreHash );
 		}
 		catch ( \Exception $oE ) {
 			$bValid = false;
