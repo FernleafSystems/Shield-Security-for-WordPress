@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return Shield\Scans\Mal\Repair|mixed
 	 */
 	protected function getRepairer() {
-		return new Shield\Scans\Mal\Repair();
+		return ( new Shield\Scans\Mal\Repair() )->setMod( $this->getMod() );
 	}
 
 	/**
@@ -98,7 +98,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		$oFO = $this->getMod();
 		if ( $oFO->isMalScanAutoRepair() ) {
 			$this->getRepairer()
-				 ->setMod( $oFO )
 				 ->repairResultsSet( $oRes );
 		}
 	}

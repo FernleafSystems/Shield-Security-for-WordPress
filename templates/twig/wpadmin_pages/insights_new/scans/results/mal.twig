@@ -49,7 +49,7 @@
 	</div>
 </div>
 <script>
-	var $oTableScanMal = jQuery( '#TableScanMal' ).icwpWpsfAjaxTable(
+	let $oTableScanMal = jQuery( '#TableScanMal' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_scan|raw }},
 			'req_params': {
@@ -62,6 +62,7 @@
 			'table': $oTableScanMal,
 			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
 			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
+			'ajax_item_repair':{{ ajax.item_repair|raw }},
 			'req_params': {
 				'fScan': 'mal'
 			}

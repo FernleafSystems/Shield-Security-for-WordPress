@@ -37,9 +37,9 @@ class ScanMal extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanUfc
+	 * @return Shield\Tables\Render\ScanMal
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanUfc();
+		return new Shield\Tables\Render\ScanMal();
 	}
 }
