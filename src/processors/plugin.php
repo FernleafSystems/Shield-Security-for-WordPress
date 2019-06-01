@@ -158,7 +158,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				],
 				'inputs'      => [
-					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
+					'checkboxes' => Services::DataManipulation()->shuffleArray( $aOpts )
 				],
 				'js_snippets' => []
 			];

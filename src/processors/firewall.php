@@ -338,7 +338,8 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		$this->aPageParams = $this->getRawRequestParams();
-		$aWhitelist = $this->loadDP()->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
+		$aWhitelist = Services::DataManipulation()
+							  ->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
 
 		// first we remove globally whitelisted request parameters
 		if ( !empty( $aWhitelist[ '*' ] ) && is_array( $aWhitelist[ '*' ] ) ) {

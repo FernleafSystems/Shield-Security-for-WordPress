@@ -412,7 +412,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_email_override( $aEmailParams ) {
 		$sOverride = $this->getOption( 'override_email_address', '' );
-		if ( $this->loadDP()->validEmail( $sOverride ) ) {
+		if ( Services::Data()->validEmail( $sOverride ) ) {
 			$aEmailParams[ 'to' ] = $sOverride;
 		}
 		return $aEmailParams;

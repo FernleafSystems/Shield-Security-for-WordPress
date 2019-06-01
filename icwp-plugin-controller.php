@@ -134,7 +134,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	 */
 	private function readPluginSpecification() {
 		$aSpec = [];
-		$sContents = $this->loadDP()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
+		$sContents = Services::Data()->readFileContentsUsingInclude( $this->getPathPluginSpec() );
 		if ( !empty( $sContents ) ) {
 			$aSpec = json_decode( $sContents, true );
 			if ( empty( $aSpec ) ) {

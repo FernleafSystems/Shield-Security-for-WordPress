@@ -1,7 +1,7 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
@@ -1432,8 +1432,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function renderModulePage( $aData = [] ) {
 		// Get Base Data
-		$aData = $this->loadDP()
-					  ->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
+		$aData = Services::DataManipulation()
+						 ->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 
 		return $this->renderTemplate( 'index.php', $aData );
@@ -1443,15 +1443,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function renderRestrictedPage() {
-		$aData = $this->loadDP()
-					  ->mergeArraysRecursive(
-						  $this->getBaseDisplayData( false ),
-						  [
-							  'ajax' => [
-								  'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
-							  ]
-						  ]
-					  );
+		$aData = Services::DataManipulation()
+						 ->mergeArraysRecursive(
+							 $this->getBaseDisplayData( false ),
+							 [
+								 'ajax' => [
+									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
+								 ]
+							 ]
+						 );
 		return $this->renderTemplate( 'access_restricted.php', $aData );
 	}
 

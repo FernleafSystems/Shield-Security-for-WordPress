@@ -619,7 +619,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 			else {
 				$aItems[] = $sInput;
-				if ( $this->loadDP()->validEmail( $sInput ) ) {
+				if ( Services::Data()->validEmail( $sInput ) ) {
 					$oUser = Services::WpUsers()->getUserByEmail( $sInput );
 					if ( !is_null( $oUser ) ) {
 						$aItems[] = $oUser->user_login;

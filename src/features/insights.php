@@ -398,7 +398,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function getDisplayStrings() {
 		$sName = $this->getCon()->getHumanName();
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			[
 				'page_title'          => sprintf( __( '%s Security Insights', 'wp-simple-firewall' ), $sName ),

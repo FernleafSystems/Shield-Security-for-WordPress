@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services; // TODO: use after 7.5
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -15,7 +15,7 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return string
 	 */
 	public function getFullReportingTableName() {
-		return \FernleafSystems\Wordpress\Services\Services::WpDb()->getPrefix().$this->getReportingTableName();
+		return Services::WpDb()->getPrefix().$this->getReportingTableName();
 	}
 
 	/**

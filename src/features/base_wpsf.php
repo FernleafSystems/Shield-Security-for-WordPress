@@ -172,7 +172,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
 		$sHelpUrl = $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://icwp.io/b5';
 
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getBaseDisplayData( $bRenderEmbeddedContent ),
 			[
 				'ajax'    => [
@@ -225,7 +225,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			[
 				'back_to_dashboard' => sprintf( __( 'Back To %s Dashboard', 'wp-simple-firewall' ), $this->getCon()

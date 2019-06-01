@@ -126,17 +126,17 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	public function autoAddToAdminNotices() {
 		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
-			$aAttrs = $this->loadDP()
-						   ->mergeArraysRecursive(
-							   [
-								   'schedule'         => 'conditions',
-								   'type'             => 'promo',
-								   'plugin_page_only' => true,
-								   'valid_admin'      => true,
-								   'twig'             => false,
-							   ],
-							   $aAttrs
-						   );
+			$aAttrs = Services::DataManipulation()
+							  ->mergeArraysRecursive(
+								  [
+									  'schedule'         => 'conditions',
+									  'type'             => 'promo',
+									  'plugin_page_only' => true,
+									  'valid_admin'      => true,
+									  'twig'             => false,
+								  ],
+								  $aAttrs
+							  );
 
 			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
 				continue;

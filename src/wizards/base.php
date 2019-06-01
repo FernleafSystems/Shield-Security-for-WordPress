@@ -271,7 +271,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 
 		$aWizards = $this->getModuleWizardsForRender();
 
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
 			[
 				'strings' => [
@@ -338,7 +338,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 		$oCon = $this->getModCon()->getCon();
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getModCon();
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			$this->getRenderData_TwigPageBase(),
 			[
 				'strings' => [
@@ -428,7 +428,7 @@ abstract class ICWP_WPSF_Wizard_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function getRenderData_Slide( $sStep ) {
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			$this->getRenderData_SlideBase(),
 			$this->getRenderData_SlideExtra( $sStep )
 		);

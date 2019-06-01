@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services; // TODO: use after Shield 7.5
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
@@ -110,9 +110,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getIfLogRequest() {
-		return isset( $this->bLogRequest ) ?
-			(bool)$this->bLogRequest
-			: !\FernleafSystems\Wordpress\Services\Services::WpGeneral()->isCron();
+		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !Services::WpGeneral()->isCron();
 	}
 
 	/**
@@ -149,9 +147,9 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		add_action( 'wp_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 
-		\FernleafSystems\Wordpress\Services\Services::Includes()
-													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
-													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
+		Services::Includes()
+				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
+				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
 		/**
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)

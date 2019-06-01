@@ -55,7 +55,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$sCode = $oReq->post( 'code' );
 		$bFa = $oReq->post( 'Email2FAOption' ) === 'Y';
 
-		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
+		if ( !Services::Data()->validEmail( $sEmail ) ) {
 			$sMessage = __( 'Invalid email address', 'wp-simple-firewall' );
 		}
 		else {

@@ -205,7 +205,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	protected function getDisplayStrings() {
-		return $this->loadDP()->mergeArraysRecursive(
+		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getDisplayStrings(),
 			[
 				'um_current_user_settings'          => __( 'Current User Sessions', 'wp-simple-firewall' ),

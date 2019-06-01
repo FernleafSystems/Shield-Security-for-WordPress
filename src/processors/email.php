@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services; // TODO: use after 7.5
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
-		$oWp = \FernleafSystems\Wordpress\Services\Services::WpGeneral();
+		$oWp = Services::WpGeneral();
 		$sUrl = [
 			'',
 			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
@@ -74,7 +74,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 				$oWp->getHomeUrl()
 			),
 			__( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ),$oWp->getTimeStampForDisplay() )
+			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() )
 		];
 
 		return apply_filters( 'icwp_shield_email_footer', $sUrl );
@@ -147,7 +147,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function setMailFrom( $sFrom ) {
-		$oDP = $this->loadDP();
+		$oDP = Services::Data();
 		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
 		if ( $oDP->validEmail( $sProposedFrom ) ) {
 			$sFrom = $sProposedFrom;
@@ -257,7 +257,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function verifyEmailAddress( $sEmail = '' ) {
-		return $this->loadDP()->validEmail( $sEmail ) ? $sEmail : $this->loadWp()->getSiteAdminEmail();
+		return Services::Data()->validEmail( $sEmail ) ? $sEmail : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
 	public function getThrottleLimit() {

@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services; // TODO: use after 7.5
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 
@@ -290,8 +290,8 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	public function isSectionReqsMet( $sSectionSlug ) {
 		$aReqs = $this->getSection_Requirements( $sSectionSlug );
-		$bMet = $this->loadDP()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
-				&& $this->loadWp()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
+		$bMet = Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
+				&& Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
 		return $bMet;
 	}
 
@@ -514,7 +514,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	protected function getConfigModTime() {
-		return \FernleafSystems\Wordpress\Services\Services::WpFs()->getModifiedTime( $this->getPathToConfig() );
+		return Services::WpFs()->getModifiedTime( $this->getPathToConfig() );
 	}
 
 	/**
@@ -829,7 +829,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				break;
 
 			case 'email':
-				$bValid = empty( $mPotentialValue ) || $this->loadDP()->validEmail( $mPotentialValue );
+				$bValid = empty( $mPotentialValue ) || Services::Data()->validEmail( $mPotentialValue );
 				break;
 		}
 		return $bValid;
@@ -929,7 +929,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				$aConfig = $this->readConfigurationJson();
 			}
 			catch ( Exception $oE ) {
-				if ( WP_DEBUG ) {
+				if ( Services::WpGeneral()->isDebug() ) {
 					trigger_error( $oE->getMessage() );
 				}
 				$aConfig = [];
@@ -962,7 +962,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 		if ( !$this->getConfigFileExists() ) {
 			throw new Exception( sprintf( 'Configuration file "%s" does not exist.', $this->getPathToConfig() ) );
 		}
-		return $this->loadDP()->readFileContentsUsingInclude( $this->getPathToConfig() );
+		return Services::Data()->readFileContentsUsingInclude( $this->getPathToConfig() );
 	}
 
 	/**
@@ -977,7 +977,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 	 */
 	private function getConfigFileExists() {
 		$sPath = $this->getPathToConfig();
-		return !empty( $sPath ) && \FernleafSystems\Wordpress\Services\Services::WpFs()->isFile( $sPath );
+		return !empty( $sPath ) && Services::WpFs()->isFile( $sPath );
 	}
 
 	/**

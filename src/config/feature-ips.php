@@ -423,7 +423,7 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fi",
       "link_blog":     "https://icwp.io/f7",
       "name":          "Empty User Agents",
       "summary":       "Detect Requests With Empty User Agents",
