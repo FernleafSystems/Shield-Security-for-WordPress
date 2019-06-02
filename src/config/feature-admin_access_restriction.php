@@ -49,7 +49,8 @@
       "summary":     [
         "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
         "Recommendation - Use of this feature is highly recommend."
-      ]
+      ],
+      "help_video_id": "339824074"
     },
     {
       "slug":        "section_whitelabel",

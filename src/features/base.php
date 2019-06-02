@@ -397,12 +397,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_OptionsVO
+	 * @return \ICWP_WPSF_OptionsVO
 	 */
 	public function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
 			$oCon = $this->getCon();
-			$this->oOptions = ( new ICWP_WPSF_OptionsVO )
+			$this->oOptions = ( new \ICWP_WPSF_OptionsVO )
 				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
 				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
 				->setOptionsStorageKey( $this->getOptionsStorageKey() )
