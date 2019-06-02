@@ -37,7 +37,7 @@
     },
     {
       "slug":        "section_change_tracking",
-      "hidden": true,
+      "hidden":      true,
       "title":       "Change Tracking",
       "title_short": "Change Tracking",
       "summary":     [
@@ -199,28 +199,28 @@
       "description":   "Tracking major changes to your site will help you monitor and catch malicious damage."
     },
     {
-      "key":           "ct_snapshots_per_week",
-      "section":       "section_change_tracking",
-      "type":          "integer",
-      "default":       7,
-      "min":           1,
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Snapshot Per Week",
-      "summary":       "Number Of Snapshots To Take Per Week",
-      "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
+      "key":         "ct_snapshots_per_week",
+      "section":     "section_change_tracking",
+      "type":        "integer",
+      "default":     7,
+      "min":         1,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Snapshot Per Week",
+      "summary":     "Number Of Snapshots To Take Per Week",
+      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
     },
     {
-      "key":           "ct_max_snapshots",
-      "section":       "section_change_tracking",
-      "type":          "integer",
-      "default":       28,
-      "min":           1,
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Snapshot Per Week",
-      "summary":       "Number Of Snapshots To Take Per Week",
-      "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
+      "key":         "ct_max_snapshots",
+      "section":     "section_change_tracking",
+      "type":        "integer",
+      "default":     28,
+      "min":         1,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Snapshot Per Week",
+      "summary":     "Number Of Snapshots To Take Per Week",
+      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
     },
     {
       "key":          "ct_last_snapshot_at",
@@ -247,8 +247,8 @@
       "created_at",
       "deleted_at"
     ],
-    "table_name_changetracking":          "changetracking",
-    "table_columns_changetracking":       [
+    "table_name_changetracking":       "changetracking",
+    "table_columns_changetracking":    [
       "id",
       "data",
       "meta",

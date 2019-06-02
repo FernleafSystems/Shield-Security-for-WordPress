@@ -485,6 +485,16 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sEventTag
+	 * @param array  $aMetaData
+	 */
+	public function fireEvent( $sEventTag, $aMetaData = [] ) {
+		if ( apply_filters( $this->prefix( 'is_event_supported' ), false, $sEventTag ) ) {
+			do_action( $this->prefix( 'event' ), $sEventTag, $aMetaData );
+		}
+	}
+
+	/**
 	 * Displaying all views now goes through this central function and we work out
 	 * what to display based on the name of current hook/filter being processed.
 	 */

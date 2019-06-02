@@ -114,6 +114,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_filter( $this->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 		add_filter( $this->prefix( 'gather_options_for_export' ), [ $this, 'exportTransferableOptions' ] );
 
+		// supply our supported plugin events for this module
+		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
+			return $bSupported || $this->isSupportedEvent( $sEventTag );
+		}, 10, 2 );
+		// for the moment, we hook into the firing of an audit event to fire plugin events.
+		add_action( $this->prefix( 'add_new_audit_entry' ), function ( $oAuditEntry ) {
+			/** @var Shield\Databases\AuditTrail\EntryVO $oAuditEntry */
+			if ( $this->isSupportedEvent( $oAuditEntry->event ) ) {
+				$this->getCon()->fireEvent( $oAuditEntry->event );
+			}
+		} );
+
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 
 //		if ( $this->isAdminOptionsPage() ) {
@@ -127,6 +139,40 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function doPostConstruction() {
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return array|null
+	 */
+	protected function getEventDef( $sKey ) {
+		$aEvt = null;
+		$aEvts = $this->getDef( 'events' );
+		if ( isset( $aEvts[ $sKey ] ) && is_array( $aEvts[ $sKey ] ) ) {
+			$aEvt = array_merge(
+				[
+					'context' => 'wpsf',
+					'cat'     => 1,
+				],
+				$aEvts
+			);
+		}
+		return $aEvt;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getSupportedEvents() {
+		return array_keys( is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [] );
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	protected function isSupportedEvent( $sKey ) {
+		return is_array( $this->getEventDef( $sKey ) );
 	}
 
 	/**

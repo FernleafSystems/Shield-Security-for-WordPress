@@ -11,6 +11,8 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 		$this->getTallyProcessor()
 			 ->run();
 
+		$this->getEventsProcessor()->run();
+
 		// Reporting stats run or destroy
 //			$this->getReportingProcessor()
 //				 ->run();
@@ -226,15 +228,14 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * TODO: Not properly implemented
-	 * @return ICWP_WPSF_Processor_Statistics_Reporting|mixed
+	 * @return \ICWP_WPSF_Processor_Statistics_Events|mixed
 	 */
-	protected function getReportingProcessor() {
-		return $this->getSubPro( 'reporting' );
+	protected function getEventsProcessor() {
+		return $this->getSubPro( 'events' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Statistics_Tally|mixed
+	 * @return \ICWP_WPSF_Processor_Statistics_Tally|mixed
 	 */
 	protected function getTallyProcessor() {
 		return $this->getSubPro( 'tally' );
@@ -245,8 +246,8 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProMap() {
 		return [
-			'tally'     => 'ICWP_WPSF_Processor_Statistics_Tally',
-			'reporting' => 'ICWP_WPSF_Processor_Statistics_Reporting',
+			'tally'  => 'ICWP_WPSF_Processor_Statistics_Tally',
+			'events' => 'ICWP_WPSF_Processor_Statistics_Events',
 		];
 	}
 }

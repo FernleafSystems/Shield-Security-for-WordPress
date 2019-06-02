@@ -201,10 +201,10 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler
+	 * @return Session\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler();
+		return new Session\Handler();
 	}
 
 	/**

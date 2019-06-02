@@ -492,6 +492,29 @@
       "last_access_at",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                {
+      "bottrack_404":            {
+        "cat":  2
+      },
+      "bottrack_fakewebcrawler": {
+        "cat":  2
+      },
+      "bottrack_linkcheese":     {
+        "cat":  2
+      },
+      "bottrack_loginfailed":    {
+        "cat":  2
+      },
+      "bottrack_logininvalid":   {
+        "cat":  2
+      },
+      "bottrack_useragent":      {
+        "cat":  2
+      },
+      "bottrack_xmlrpc":         {
+        "cat":  2
+      }
+    }
   }
 }

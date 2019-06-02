@@ -7,15 +7,15 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @return string
 	 */
-	public function getReportingTableName() {
-		return $this->prefix( $this->getDef( 'reporting_table_name' ), '_' );
+	public function getEventsTableName() {
+		return $this->getCon()->prefixOption( $this->getDef( 'events_table_name' ) );
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getFullReportingTableName() {
-		return Services::WpDb()->getPrefix().$this->getReportingTableName();
+	public function getFullEventsTableName() {
+		return Services::WpDb()->getPrefix().$this->getEventsTableName();
 	}
 
 	/**

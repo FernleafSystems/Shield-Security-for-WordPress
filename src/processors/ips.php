@@ -604,10 +604,10 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Handler
+	 * @return IPs\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs\Handler();
+		return new IPs\Handler();
 	}
 
 	/**

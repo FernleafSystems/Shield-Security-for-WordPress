@@ -374,9 +374,9 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler
+	 * @return Comments\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler();
+		return new Comments\Handler();
 	}
 }

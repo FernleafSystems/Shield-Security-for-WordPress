@@ -15,10 +15,10 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally\Handler
+	 * @return Tally\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Tally\Handler();
+		return new Tally\Handler();
 	}
 
 	public function onModuleShutdown() {

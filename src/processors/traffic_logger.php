@@ -145,10 +145,10 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Handler
+	 * @return Traffic\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic\Handler();
+		return new Traffic\Handler();
 	}
 
 	/**
