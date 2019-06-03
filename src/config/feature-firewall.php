@@ -391,7 +391,8 @@
     },
     "events":            {
       "check_skip":                 {
-        "cat": 2
+        "cat":   2,
+        "audit": true
       },
       "blockparam_dirtraversal":    {
         "cat":   3,
@@ -432,6 +433,13 @@
         "cat":   3,
         "audit": true,
         "stat":  true
+      },
+      "email_send_fail":            {
+        "cat":   2,
+        "audit": true
+      },
+      "email_send_success":         {
+        "audit": true
       }
     }
   }
