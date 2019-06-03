@@ -28,7 +28,7 @@
     {
       "slug":        "section_passwords",
       "reqs":        {
-        "wp_min":  "4.4"
+        "wp_min": "4.4"
       },
       "title":       "Password Policies",
       "title_short": "Password Policies",
@@ -330,6 +330,44 @@
   ],
   "definitions": {
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
-    "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/"
+    "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
+    "events":                        {
+      "session_notfound":    {
+        "audit": true,
+        "stat":  true
+      },
+      "session_expired":     {
+        "audit": true,
+        "stat":  true
+      },
+      "session_idle":        {
+        "audit": true,
+        "stat":  true
+      },
+      "session_iplock":      {
+        "audit": true,
+        "stat":  true
+      },
+      "session_browserlock": {
+        "audit": true,
+        "stat":  true
+      },
+      "session_unverified":  {
+        "audit": true,
+        "stat":  true
+      },
+      "password_expired":    {
+        "audit": true,
+        "stat":  true
+      },
+      "pass_policy_change":  {
+        "audit": true,
+        "stat":  true
+      },
+      "pass_policy_block":   {
+        "audit": true,
+        "stat":  true
+      }
+    }
   }
 }

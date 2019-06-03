@@ -5,6 +5,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
+	use Shield\AuditTrail\Auditor;
+
 	/**
 	 * @var ICWP_WPSF_Processor_Sessions
 	 */
@@ -40,6 +42,25 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function hasSession() {
 		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
+	}
+
+	protected function setupCustomHooks() {
+		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aData
+	 * @return $this
+	 */
+	public function eventAudit( $sEvent = '', $aData = [] ) {
+		if ( $this->isSupportedEvent( $sEvent ) ) {
+			$aDef = $this->getEventDef( $sEvent );
+			if ( $aDef[ 'audit' ] ) { // only audit if it's an auditable event
+				$this->createNewAudit( $aDef[ 'slug' ], '', $aDef[ 'cat' ], $sEvent, $aData );
+			}
+		}
+		return $this;
 	}
 
 	/**

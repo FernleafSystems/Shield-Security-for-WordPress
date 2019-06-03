@@ -1157,7 +1157,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
-		if ( in_array( $this->getSlug(), [ 'lockdown' ] ) ) {
+		if ( in_array( $this->getSlug(), [ 'lockdown', 'user_management' ] ) ) {
 			try {
 				$aOptionsParams = Services::DataManipulation()->mergeArraysRecursive(
 					$aOptionsParams,

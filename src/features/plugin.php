@@ -11,6 +11,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	protected function setupCustomHooks() {
+		parent::setupCustomHooks();
 		add_filter( $this->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
 		add_filter( $this->prefix( 'globally_disabled' ), [ $this, 'filter_IsPluginGloballyDisabled' ] );
 		add_filter( $this->prefix( 'google_recaptcha_config' ), [ $this, 'supplyGoogleRecaptchaConfig' ], 10, 0 );

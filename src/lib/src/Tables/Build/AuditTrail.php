@@ -93,15 +93,18 @@ class AuditTrail extends BaseBuild {
 		$oCon = $this->getCon();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\AuditTrail\EntryVO $oEntry */
-			$oStrings = $oCon->getModule( $oEntry->context )->getStrings();
 
-			if ( empty( $oEntry->message ) && $oStrings instanceof Shield\Modules\Base\Strings ) {
-				$sMsg = stripslashes( sanitize_textarea_field(
-					vsprintf(
-						implode( "\n", $oStrings->getAuditMessage( $oEntry->event ) ),
-						$oEntry->meta
-					)
-				) );
+			if ( empty( $oEntry->message ) ) {
+				$oStrings = $oCon->getModule( $oEntry->context )->getStrings();
+
+				if ( $oStrings instanceof Shield\Modules\Base\Strings ) {
+					$sMsg = stripslashes( sanitize_textarea_field(
+						vsprintf(
+							implode( "\n", $oStrings->getAuditMessage( $oEntry->event ) ),
+							$oEntry->meta
+						)
+					) );
+				}
 			}
 			else {
 				$sMsg = $oEntry->message;

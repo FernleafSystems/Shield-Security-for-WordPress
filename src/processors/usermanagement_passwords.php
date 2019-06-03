@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
 				if ( $this->time() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
-					$this->addToAuditEntry( __( 'Forcing user to update expired password.', 'wp-simple-firewall' ) );
+					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
 						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oFO->getPassExpireDays() )
 					);
@@ -109,10 +109,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
 		if ( $bPassCheckFailed ) {
-			$this->addToAuditEntry(
-				__( 'Forcing user to update password that fails to meet policies.', 'wp-simple-firewall' ),
-				'1', 'um_password_force_update'
-			);
+			$this->getCon()->fireEvent( 'pass_policy_change' );
 			$this->redirectToResetPassword(
 				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
@@ -171,11 +168,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 					$oFO = $this->getMod();
 					$oFO->setOptInsightsAt( 'last_password_block_at' );
-
-					$this->addToAuditEntry(
-						__( 'Blocked attempted password update that failed policy requirements.', 'wp-simple-firewall' ),
-						'1', 'um_password_update_blocked'
-					);
+					$this->getCon()->fireEvent( 'pass_policy_block' );
 				}
 			}
 		}

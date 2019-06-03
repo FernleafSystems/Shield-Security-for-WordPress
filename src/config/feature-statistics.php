@@ -85,7 +85,6 @@
     "events_table_name":                 "events",
     "events_table_columns":              [
       "id",
-      "module",
       "event",
       "count",
       "created_at",

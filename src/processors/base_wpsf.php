@@ -34,24 +34,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'collect_stats' ), [ $this, 'stats_Collect' ] );
 		add_filter( $oFO->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
-		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
 		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventStat' ], 10, 1 );
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 */
-	public function eventAudit( $sEvent = '', $aData = [] ) {
-		$oMod = $this->getMod();
-		if ( $oMod->isSupportedEvent( $sEvent ) ) {
-			$aDef = $oMod->getEventDef( $sEvent );
-			if ( $aDef[ 'audit' ] ) { // only audit if it's an auditable event
-				$this->createNewAudit( $aDef[ 'slug' ], '', $aDef[ 'cat' ], $sEvent, $aData );
-			}
-		}
-		return $this;
 	}
 
 	/**
