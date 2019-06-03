@@ -67,11 +67,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				$oHttpReq->get( $sUrl, $aQuery );
 			}
 
-			$this->addToAuditEntry(
-				__( 'Sent notifications to whitelisted sites for required options import.', 'wp-simple-firewall' ),
-				1,
-				'options_import_notify'
-			);
+			$this->getCon()->fireEvent( 'import_notify_sent' );
 		}
 	}
 
@@ -300,12 +296,9 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				$sUrl = '';
 			}
 
-			$this->addToAuditEntry(
-				__( 'Received notification that options import required.', 'wp-simple-firewall' )
-				.' '.sprintf( __( 'Current master site: %s', 'wp-simple-firewall' ), $oFO->getImportExportMasterImportUrl() ),
-				1,
-				'options_import_notified',
-				$sUrl
+			$this->getCon()->fireEvent(
+				'import_notify_received',
+				[ 'master_site' => $oFO->getImportExportMasterImportUrl() ]
 			);
 		}
 	}
@@ -349,26 +342,16 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			$aData = $this->getExportData();
 			$sMessage = 'Options Exported Successfully';
 
-			$this->addToAuditEntry(
-				sprintf( __( 'Options exported to site %s.', 'wp-simple-firewall' ), $sUrl ), 1, 'options_exported'
-			);
+			$this->getCon()->fireEvent( 'options_exported', [ 'site' => $sUrl ] );
 
 			if ( $bDoNetwork ) {
 				if ( $sNetworkOpt === 'Y' ) {
 					$oFO->addUrlToImportExportWhitelistUrls( $sUrl );
-					$this->addToAuditEntry(
-						sprintf( __( 'Site added to export white list: %s.', 'wp-simple-firewall' ), $sUrl ),
-						1,
-						'export_whitelist_site_added'
-					);
+					$this->getCon()->fireEvent( 'whitelist_site_added', [ 'site' => $sUrl ] );
 				}
 				else {
 					$oFO->removeUrlFromImportExportWhitelistUrls( $sUrl );
-					$this->addToAuditEntry(
-						sprintf( __( 'Site removed from export white list: %s.', 'wp-simple-firewall' ), $sUrl ),
-						1,
-						'export_whitelist_site_removed'
-					);
+					$this->getCon()->fireEvent( 'whitelist_site_removed', [ 'site' => $sUrl ] );
 				}
 			}
 		}
@@ -503,12 +486,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 						}
 					}
 					else if ( $bEnableNetwork === true ) {
-						$this->addToAuditEntry(
-							sprintf( __( 'Master Site URL set to %s.', 'wp-simple-firewall' ), $sMasterSiteUrl ),
-							1,
-							'options_master_set'
-						);
 						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
+						$this->getCon()->fireEvent( 'master_url_set', [ 'site' => $sMasterSiteUrl ] );
 					}
 					else if ( $bEnableNetwork === false ) {
 						$oFO->setImportExportMasterImportUrl( '' );
@@ -533,11 +512,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$bImported = false;
 		if ( md5( serialize( $aImportData ) ) != $oFO->getImportExportLastImportHash() ) {
 			do_action( $oFO->prefix( 'import_options' ), $aImportData );
-			$this->addToAuditEntry(
-				sprintf( __( 'Options imported from %s.', 'wp-simple-firewall' ), $sImportSource ),
-				1, 'options_imported'
-			);
 			$oFO->setImportExportLastImportHash( md5( serialize( $aImportData ) ) );
+			$this->getCon()->fireEvent( 'options_imported', [ 'site' => $sImportSource ] );
 		}
 		return $bImported;
 	}

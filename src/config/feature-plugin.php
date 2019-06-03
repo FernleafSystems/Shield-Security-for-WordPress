@@ -543,6 +543,26 @@
         "storage_key": "email"
       }
     ],
+    "events":                 {
+      "import_notify_sent":     {
+        "audit": true
+      },
+      "import_notify_received": {
+        "audit": true
+      },
+      "options_exported":       {
+        "audit": true
+      },
+      "whitelist_site_added":   {
+        "audit": true
+      },
+      "whitelist_site_removed": {
+        "audit": true
+      },
+      "master_url_set":         {
+        "audit": true
+      }
+    },
     "wizards":                {
       "welcome": {
         "title":                "Getting Started Setup Wizard",
