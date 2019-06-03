@@ -2055,9 +2055,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return null|Shield\Modules\Base\Strings|mixed
+	 * @return Shield\Modules\Base\Strings|mixed
+	 * @throws \Exception
 	 */
 	protected function loadStrings() {
-		return null;
+		throw new \Exception( 'Strings not provided' );
 	}
 }

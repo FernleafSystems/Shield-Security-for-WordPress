@@ -10,10 +10,7 @@ class Strings extends Base\Strings {
 	 * @return string[][]
 	 */
 	protected function getAuditMessages() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-
-		$aMsgs = [
+		return [
 			'conn_kill' => [
 				__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' )
 			],
@@ -24,10 +21,5 @@ class Strings extends Base\Strings {
 				__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' )
 			],
 		];
-
-		foreach ( $aMsgs as $sKey => &$aMsg ) {
-		}
-
-		return $aMsgs;
 	}
 }
