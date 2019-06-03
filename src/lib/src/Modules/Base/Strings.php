@@ -39,6 +39,27 @@ class Strings {
 	 * @throws \Exception
 	 */
 	public function loadStrings_SectionTitles( $sSectionSlug ) {
-		throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+
+		switch ( $sSectionSlug ) {
+
+			case 'section_user_messages' :
+				$sTitle = __( 'User Messages', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Messages', 'wp-simple-firewall' );
+				$aSummary = [
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Customize the messages displayed to the user.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use this section if you need to communicate to the user in a particular manner.', 'wp-simple-firewall' ) ),
+					sprintf( '%s: %s', __( 'Hint', 'wp-simple-firewall' ), sprintf( __( 'To reset any message to its default, enter the text exactly: %s', 'wp-simple-firewall' ), 'default' ) )
+				];
+				break;
+
+			default:
+				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+		}
+
+		return [
+			'title'       => $sTitle,
+			'title_short' => $sTitleShort,
+			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
+		];
 	}
 }

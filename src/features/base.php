@@ -1157,7 +1157,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
-		if ( in_array( $this->getSlug(), [ 'lockdown', 'user_management' ] ) ) {
+		if ( $this->getStrings() instanceof Shield\Modules\Base\Strings ) {
 			try {
 				$aOptionsParams = Services::DataManipulation()->mergeArraysRecursive(
 					$aOptionsParams,
@@ -2059,7 +2059,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getStrings() {
 		if ( !isset( $this->oStrings ) ) {
-			$this->oStrings = $this->loadStrings()->setMod( $this );
+			try {
+				$this->oStrings = $this->loadStrings()->setMod( $this );
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
 		return $this->oStrings;
 	}
