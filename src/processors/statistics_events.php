@@ -66,6 +66,7 @@ class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 	protected function getCreateTableSql() {
 		return "CREATE TABLE %s (
 				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+				mod varchar(20) NOT NULL DEFAULT 'wpsf' COMMENT 'Module',
 				event varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Event ID',
 				count int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total',
 				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,

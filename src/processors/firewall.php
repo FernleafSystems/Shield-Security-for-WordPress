@@ -206,10 +206,10 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getCon()->fireEvent(
 				'blockparam_'.$sBlockKey,
 				[ // param order is critical
-					'param'         => $sParam,
-					'val'           => $mValue,
-					'blockresponse' => $oFO->getBlockResponse(),
-					'blockkey'      => $sBlockKey,
+				  'param'         => $sParam,
+				  'val'           => $mValue,
+				  'blockresponse' => $oFO->getBlockResponse(),
+				  'blockkey'      => $sBlockKey,
 				]
 			);
 			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
@@ -247,14 +247,11 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 
 		if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
-
 			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
-			if ( $this->sendBlockEmail( $sRecipient ) ) {
-				$this->addToAuditEntry( sprintf( __( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' ), $sRecipient ) );
-			}
-			else {
-				$this->addToAuditEntry( sprintf( __( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' ), $sRecipient ) );
-			}
+			$this->getCon()->fireEvent(
+				$this->sendBlockEmail( $sRecipient ) ? 'email_send_success' : 'email_send_fail',
+				[ 'recipient' => $sRecipient ]
+			);
 		}
 
 		$oFO->setOptInsightsAt( 'last_firewall_block_at' )

@@ -8,9 +8,7 @@ class ICWP_WPSF_Processor_Statistics extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $this->isReadyToRun() ) {
 			add_filter( $oFO->prefix( 'dashboard_widget_content' ), [ $this, 'gatherStatsWidgetContent' ], 10 );
 		}
-		$this->getTallyProcessor()
-			 ->run();
-
+		$this->getTallyProcessor()->run();
 		$this->getEventsProcessor()->run();
 
 		// Reporting stats run or destroy
