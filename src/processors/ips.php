@@ -168,10 +168,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bKill ) {
-			$sAuditMessage = sprintf( __( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' ), $sIp );
+			$this->getCon()->fireEvent( 'conn_kill' );
 			$this->setIfLogRequest( false )// don't log traffic from killed requests
-				 ->doStatIncrement( 'ip.connection.killed' )
-				 ->addToAuditEntry( $sAuditMessage, 3, 'black_list_connection_killed' );
+				 ->doStatIncrement( 'ip.connection.killed' );
 			$oFO->setOptInsightsAt( 'last_ip_block_at' );
 
 			/** @var IPs\Update $oUp */
@@ -313,6 +312,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	private function processTransgression() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
+		$oCon = $this->getCon();
 
 		$oBlackIp = $this->getAutoBlackListIp( $this->ip() );
 		if ( !$oBlackIp instanceof IPs\EntryVO ) {
@@ -335,21 +335,13 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 			if ( $bBlock ) {
 				$oFO->setOptInsightsAt( 'last_ip_block_at' );
-				$sAuditMessage = sprintf(
-					__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' ),
-					$nCurrentTrans,
-					$oBlackIp->transgressions
-				);
-				$this->addToAuditEntry( $sAuditMessage, 2, 'ip_transgression_blocked' );
 			}
-			else {
-				$sAuditMessage = sprintf(
-					__( 'Auto Black List offenses counter was incremented from %s to %s.', 'wp-simple-firewall' ),
-					$nCurrentTrans,
-					$oBlackIp->transgressions
-				);
-				$this->addToAuditEntry( $sAuditMessage, 2, 'ip_transgression_increment' );
-			}
+			$oCon->fireEvent( $bBlock ? 'ip_blocked' : 'ip_offense',
+				[
+					'from' => $nCurrentTrans,
+					'to'   => $oBlackIp->transgressions,
+				]
+			);
 		}
 	}
 

@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -296,9 +296,9 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return Firewall\Strings
+	 * @return Shield\Modules\Firewall\Strings
 	 */
 	protected function loadStrings() {
-		return new Firewall\Strings();
+		return new Shield\Modules\Firewall\Strings();
 	}
 }
