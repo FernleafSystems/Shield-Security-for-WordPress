@@ -608,7 +608,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return string
 	 */
-	protected function getMainFeatureName() {
+	public function getMainFeatureName() {
 		return $this->getOptionsVo()->getFeatureProperty( 'name' );
 	}
 
@@ -1157,6 +1157,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function loadStrings_Options( $aOptionsParams ) {
+		if ( in_array( $this->getSlug(), [ 'lockdown' ] ) ) {
+			try {
+				$aOptionsParams = Services::DataManipulation()->mergeArraysRecursive(
+					$aOptionsParams,
+					$this->getStrings()->loadStrings_Options( $aOptionsParams[ 'key' ] )
+				);
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
 		return $aOptionsParams;
 	}
 

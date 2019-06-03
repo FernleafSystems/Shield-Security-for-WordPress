@@ -314,7 +314,7 @@ class ICWP_WPSF_OptionsVO extends ICWP_WPSF_Foundation {
 				continue;
 			}
 			$aSection = $this->getSection( $aOptionDef[ 'section' ] );
-			if ( isset( $aSection[ 'hidden' ] ) && $aSection[ 'hidden' ] ) {
+			if ( empty( $aSection ) || ( isset( $aSection[ 'hidden' ] ) && $aSection[ 'hidden' ] ) ) {
 				continue;
 			}
 
