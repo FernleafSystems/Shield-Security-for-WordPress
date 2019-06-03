@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use Carbon\Carbon;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
@@ -89,13 +90,27 @@ class AuditTrail extends BaseBuild {
 		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();
+		$oCon = $this->getCon();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
+
 			/** @var Databases\AuditTrail\EntryVO $oEntry */
 			if ( !isset( $aEntries[ $oEntry->rid ] ) ) {
 				$aE = $oEntry->getRawDataAsArray();
 				$aE[ 'meta' ] = $oEntry->meta;
 				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
-				$aE[ 'message' ] = stripslashes( sanitize_textarea_field( $oEntry->message ) );
+
+				$oStrings = $oCon->getModule( $oEntry->context )->getStrings();
+				if ( empty( $oEntry->message ) && $oStrings instanceof Shield\Modules\Base\Strings ) {
+					$aE[ 'message' ] = stripslashes( sanitize_textarea_field(
+						vsprintf(
+							implode( "\n", $oStrings->getAuditMessage( $oEntry->event ) ),
+							$oEntry->meta
+						)
+					) );
+				}
+				else {
+					$aE[ 'message' ] = $oEntry->message;
+				}
 				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 				if ( $oEntry->ip == $sYou ) {
 					$aE[ 'your_ip' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';

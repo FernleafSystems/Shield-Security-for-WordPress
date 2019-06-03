@@ -48,6 +48,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	private $oWizard;
 
 	/**
+	 * @var Shield\Modules\Base\Strings
+	 */
+	private $oStrings;
+
+	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
 	 * @param array                       $aMod
 	 * @throws \Exception
@@ -118,13 +123,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
 			return $bSupported || $this->isSupportedEvent( $sEventTag );
 		}, 10, 2 );
-		// for the moment, we hook into the firing of an audit event to fire plugin events.
-		add_action( $this->prefix( 'add_new_audit_entry' ), function ( $oAuditEntry ) {
-			/** @var Shield\Databases\AuditTrail\EntryVO $oAuditEntry */
-			if ( $this->isSupportedEvent( $oAuditEntry->event ) ) {
-				$this->getCon()->fireEvent( $oAuditEntry->event );
-			}
-		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 
@@ -145,17 +143,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sKey
 	 * @return array|null
 	 */
-	protected function getEventDef( $sKey ) {
+	public function getEventDef( $sKey ) {
 		$aEvt = null;
 		$aEvts = $this->getDef( 'events' );
 		if ( isset( $aEvts[ $sKey ] ) && is_array( $aEvts[ $sKey ] ) ) {
 			$aEvt = array_merge(
 				[
-					'context' => 'wpsf',
-					'cat'     => 1,
+					'slug'  => $this->getSlug(),
+					'cat'   => 1,
+					'stat'  => false,
+					'audit' => false,
 				],
-				$aEvts
+				$aEvts[ $sKey ]
 			);
+			$aEvt[ 'msg' ] = $this->getStrings()->getAuditMessage( $sKey );
 		}
 		return $aEvt;
 	}
@@ -171,7 +172,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sKey
 	 * @return bool
 	 */
-	protected function isSupportedEvent( $sKey ) {
+	public function isSupportedEvent( $sKey ) {
 		return is_array( $this->getEventDef( $sKey ) );
 	}
 
@@ -2041,5 +2042,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getVersion() {
 		return $this->getCon()->getVersion();
+	}
+
+	/**
+	 * @return null|Shield\Modules\Base\Strings
+	 */
+	public function getStrings() {
+		if ( !isset( $this->oStrings ) ) {
+			$this->oStrings = $this->loadStrings()->setMod( $this );
+		}
+		return $this->oStrings;
+	}
+
+	/**
+	 * @return null|Shield\Modules\Base\Strings|mixed
+	 */
+	protected function loadStrings() {
+		return null;
 	}
 }

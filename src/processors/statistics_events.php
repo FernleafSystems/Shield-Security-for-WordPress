@@ -5,9 +5,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
-	 * @var array
+	 * @var bool
 	 */
-	private $aEvents;
+	private $bStat = false;
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_Statistics $oModCon
@@ -17,16 +17,13 @@ class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	public function run() {
-		$this->aEvents = [];
-		add_action( $this->prefix( 'event' ), function ( $sEvent ) {
-			$this->aEvents[] = $sEvent;
-		}, 10 );
+		$this->bStat = true;
 	}
 
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
-		if ( !$this->getCon()->isPluginDeleting() ) {
-			$this->commit();
+		if ( $this->bStat && !$this->getCon()->isPluginDeleting() ) {
+			$this->commitStats();
 		}
 	}
 
@@ -47,16 +44,19 @@ class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 */
-	private function commit() {
-		$oDbh = $this->getDbHandler();
-		foreach ( array_unique( $this->aEvents ) as $sEvent ) {
-			/** @var Events\EntryVO $oEvt */
-			$oEvt = $oDbh->getVo();
-			$oEvt->event = $sEvent;
-			$oEvt->count = 1;
-			/** @var Events\Insert $oQI */
-			$oQI = $oDbh->getQueryInserter();
-			$oQI->insert( $oEvt );
+	private function commitStats() {
+		$aStats = $this->getStatEvents();
+		if ( is_array( $aStats ) ) {
+			$oDbh = $this->getDbHandler();
+			foreach ( array_unique( $aStats ) as $sEvent ) {
+				/** @var Events\EntryVO $oEvt */
+				$oEvt = $oDbh->getVo();
+				$oEvt->event = $sEvent;
+				$oEvt->count = 1;
+				/** @var Events\Insert $oQI */
+				$oQI = $oDbh->getQueryInserter();
+				$oQI->insert( $oEvt );
+			}
 		}
 	}
 
