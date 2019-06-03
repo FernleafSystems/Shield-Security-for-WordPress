@@ -18,11 +18,6 @@
   },
   "sections":    [
     {
-      "slug":    "section_license_options",
-      "title":   "License Options",
-      "primary": true
-    },
-    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -130,6 +125,17 @@
     "license_key_length":           32,
     "license_key_type":             "alphanumeric",
     "keyless":                      true,
-    "keyless_handshake_expire":     90
+    "keyless_handshake_expire":     90,
+    "events":                       {
+      "check_success":         {
+        "audit": true
+      },
+      "check_fail_email":      {
+        "audit": true
+      },
+      "check_fail_deactivate": {
+        "audit": true
+      }
+    }
   }
 }

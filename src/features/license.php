@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -49,10 +49,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
+	 * @return Shield\License\EddLicenseVO
 	 */
 	protected function loadLicense() {
-		return ( new EddLicenseVO() )->applyFromArray( $this->getLicenseData() );
+		return ( new Shield\License\EddLicenseVO() )->applyFromArray( $this->getLicenseData() );
 	}
 
 	/**
@@ -71,7 +71,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO $oLic
+	 * @param Shield\License\EddLicenseVO $oLic
 	 * @return $this
 	 */
 	protected function setLicenseData( $oLic ) {
@@ -203,6 +203,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	public function verifyLicense( $bForceCheck = true ) {
+		$oCon = $this->getCon();
 		// Is a check actually required and permitted
 		$bCheckReq = $this->isLicenseCheckRequired() && $this->canLicenseCheck();
 
@@ -224,20 +225,20 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$oLookupLicense->updateLastVerifiedAt( true );
 				$this->activateLicense()
 					 ->clearLastErrors();
-				$oPro->addToAuditEntry( 'Pro License check succeeded.', 1, 'license_check_success' );
+				$oCon->fireEvent( 'check_success' );
 			}
 			else {
 				if ( $oCurrent->isValid() ) { // we have something valid previously stored
 
 					if ( !$bForceCheck && $this->isWithinVerifiedGraceExpired() ) {
 						$this->sendLicenseWarningEmail();
-						$oPro->addToAuditEntry( 'License check failed. Sending Warning Email.', 2, 'license_check_failed' );
+						$oCon->fireEvent( 'check_fail_email' );
 					}
 					else if ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
 						$oCurrent = $oLookupLicense;
 						$this->deactivate( __( 'Automatic license verification failed.', 'wp-simple-firewall' ) );
 						$this->sendLicenseDeactivatedEmail();
-						$oPro->addToAuditEntry( 'License check failed. Deactivating Pro.', 3, 'license_check_failed' );
+						$oCon->fireEvent( 'check_fail_deactivate' );
 					}
 				}
 				else {
@@ -360,7 +361,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
+	 * @return Shield\License\EddLicenseVO
 	 */
 	private function lookupOfficialLicense() {
 
@@ -702,56 +703,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
+	 * @return Shield\Modules\License\Strings
 	 */
-	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-
-		$sName = $this->getCon()->getHumanName();
-		switch ( $aOptionsParams[ 'slug' ] ) {
-
-			case 'section_license_options' :
-				$sTitle = __( 'License Options', 'wp-simple-firewall' );
-				$sTitleShort = __( 'License Options', 'wp-simple-firewall' );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Activate %s Pro Extensions.', 'wp-simple-firewall' ), $sName ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'TODO.', 'wp-simple-firewall' ) )
-				];
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
-		}
-
-		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
-		$aOptionsParams[ 'title_short' ] = $sTitleShort;
-		return $aOptionsParams;
-	}
-
-	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
-	 */
-	protected function loadStrings_Options( $aOptionsParams ) {
-
-		$sKey = $aOptionsParams[ 'key' ];
-		switch ( $sKey ) {
-			case 'license_key' :
-				$sName = __( 'License Key', 'wp-simple-firewall' );
-				$sSummary = __( 'License Key', 'wp-simple-firewall' );
-				$sDescription = __( 'License Key', 'wp-simple-firewall' );
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
-		}
-
-		$aOptionsParams[ 'name' ] = $sName;
-		$aOptionsParams[ 'summary' ] = $sSummary;
-		$aOptionsParams[ 'description' ] = $sDescription;
-		return $aOptionsParams;
+	protected function loadStrings() {
+		return new Shield\Modules\License\Strings();
 	}
 }
