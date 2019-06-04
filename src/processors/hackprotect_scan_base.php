@@ -50,7 +50,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		if ( $oResults->countItems() ) {
 			$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_found' );
 		}
-		$this->cronProcessScanResults();
 		return $oResults;
 	}
 
