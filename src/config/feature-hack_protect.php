@@ -711,51 +711,99 @@
       "wp-content/themes/index.php"
     ],
     "events":                               {
-      "apc_alert_sent": {
+      "apc_alert_sent":          {
         "audit": true,
         "stat":  true
       },
-      "mal_alert_sent": {
+      "mal_alert_sent":          {
         "audit": true,
         "stat":  true
       },
-      "ptg_alert_sent": {
+      "ptg_alert_sent":          {
         "audit": true,
         "stat":  true
       },
-      "ufc_alert_sent": {
+      "ufc_alert_sent":          {
         "audit": true,
         "stat":  true
       },
-      "wcf_alert_sent": {
+      "wcf_alert_sent":          {
         "audit": true,
         "stat":  true
       },
-      "wpv_alert_sent": {
+      "wpv_alert_sent":          {
         "audit": true,
         "stat":  true
       },
-      "apc_scan_run":   {
+      "apc_scan_run":            {
         "audit": true,
         "stat":  true
       },
-      "max_scan_run":   {
+      "max_scan_run":            {
         "audit": true,
         "stat":  true
       },
-      "ptg_scan_run":   {
+      "ptg_scan_run":            {
         "audit": true,
         "stat":  true
       },
-      "ufc_scan_run":   {
+      "ufc_scan_run":            {
         "audit": true,
         "stat":  true
       },
-      "wcf_scan_run":   {
+      "wcf_scan_run":            {
         "audit": true,
         "stat":  true
       },
-      "wpv_scan_run":   {
+      "wpv_scan_run":            {
+        "audit": true,
+        "stat":  true
+      },
+      "apc_item_repair_success": {
+        "audit": true,
+        "stat":  true
+      },
+      "apc_item_repair_fail":    {
+        "audit": true,
+        "stat":  true
+      },
+      "mal_item_repair_success": {
+        "audit": true,
+        "stat":  true
+      },
+      "mal_item_repair_fail":    {
+        "audit": true,
+        "stat":  true
+      },
+      "ptg_item_repair_success": {
+        "audit": true,
+        "stat":  true
+      },
+      "ptg_item_repair_fail":    {
+        "audit": true,
+        "stat":  true
+      },
+      "ufc_item_repair_success": {
+        "audit": true,
+        "stat":  true
+      },
+      "ufc_item_repair_fail":    {
+        "audit": true,
+        "stat":  true
+      },
+      "wcf_item_repair_success": {
+        "audit": true,
+        "stat":  true
+      },
+      "wcf_item_repair_fail":    {
+        "audit": true,
+        "stat":  true
+      },
+      "wpv_item_repair_success": {
+        "audit": true,
+        "stat":  true
+      },
+      "wpv_item_repair_fail":    {
         "audit": true,
         "stat":  true
       }

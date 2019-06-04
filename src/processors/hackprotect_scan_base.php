@@ -60,15 +60,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
-	 */
-	public function doScanAndFullRepair() {
-		$oResultSet = $this->doScan();
-		$this->getRepairer()->repairResultsSet( $oResultSet );
-		return $oResultSet;
-	}
-
-	/**
 	 * @return mixed|null
 	 */
 	abstract protected function getRepairer();

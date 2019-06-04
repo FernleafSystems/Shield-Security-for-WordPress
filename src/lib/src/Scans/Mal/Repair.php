@@ -25,7 +25,7 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 
 		if ( $oMod->isMalAutoRepairCore()
 			 && Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
-			$this->repairCoreItem( $oItem );
+			$bSuccess = $this->repairCoreItem( $oItem );
 		}
 		else {
 			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
@@ -34,7 +34,7 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 				$bSuccess = $this->repairItemInPlugin( $oItem );
 			}
 			else if ( $oMod->isMalAutoRepairSurgical() ) {
-				$this->repairSurgicalItem( $oItem );
+				$bSuccess = $this->repairSurgicalItem( $oItem );
 			}
 		}
 
