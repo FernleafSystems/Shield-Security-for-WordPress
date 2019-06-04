@@ -44,11 +44,11 @@ class Strings extends Base\Strings {
 			];
 			$aMessages[ $sSlug.'_item_repair_success' ] = [
 				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $sScanName ),
-				sprintf( __( 'Item Repaired: "%s"', 'wp-simple-firewall' ), $sScanName ),
+				__( 'Item Repaired: "%s"', 'wp-simple-firewall' ),
 			];
 			$aMessages[ $sSlug.'_item_repair_fail' ] = [
 				sprintf( __( '%s scan could not repair item.', 'wp-simple-firewall' ), $sScanName ),
-				sprintf( __( 'Failed Repair Item: "%s"', 'wp-simple-firewall' ), $sScanName ),
+				__( 'Failed Repair Item: "%s"', 'wp-simple-firewall' ),
 			];
 		}
 		return $aMessages;
