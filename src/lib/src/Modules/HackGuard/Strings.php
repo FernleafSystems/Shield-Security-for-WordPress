@@ -11,8 +11,23 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'block_anonymous_api' => [
-				__( 'Blocked Anonymous API Access through "%s" namespace', 'wp-simple-firewall' )
+			'apc_alert_sent' => [
+				__( 'Sent Abandoned Plugins alert via %s to: %s', 'wp-simple-firewall' )
+			],
+			'mal_alert_sent' => [
+				__( 'Sent Malware alert via %s to: %s', 'wp-simple-firewall' )
+			],
+			'ptg_alert_sent' => [
+				__( 'Sent Plugin/Theme Guard alert via %s to: %s', 'wp-simple-firewall' )
+			],
+			'ufc_alert_sent' => [
+				__( 'Sent Unrecognised Files alert via %s to: %s', 'wp-simple-firewall' )
+			],
+			'wcf_alert_sent' => [
+				__( 'Sent WordPress Core Files alert via %s to: %s', 'wp-simple-firewall' )
+			],
+			'wpv_alert_sent' => [
+				__( 'Sent WordPress Vulnerabilities alert via %s to: %s', 'wp-simple-firewall' )
 			],
 		];
 	}

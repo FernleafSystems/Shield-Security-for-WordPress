@@ -134,8 +134,12 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 				 $this->buildEmailBodyFromFiles( $oRes->getItemsPathsFull() )
 			 );
 
-		$this->addToAuditEntry(
-			sprintf( __( 'Sent Unrecognised File Scan Notification email alert to: %s', 'wp-simple-firewall' ), $sTo )
+		$this->getCon()->fireEvent(
+			'ufc_alert_sent',
+			[
+				'to'  => $sTo,
+				'via' => 'email',
+			]
 		);
 	}
 

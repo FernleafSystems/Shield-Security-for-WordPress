@@ -226,7 +226,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 
 	/**
 	 * @param Shield\Scans\Wpv\ResultsSet $oRes
-	 * @return bool
 	 */
 	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -269,16 +268,16 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 
 		$sSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Plugin(s) Discovered With Known Security Vulnerabilities.', 'wp-simple-firewall' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
-		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
+		$this->getEmailProcessor()
+			 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
 
-		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( __( 'Successfully sent Plugin Vulnerability Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		else {
-			$this->addToAuditEntry( sprintf( __( 'Failed to send Plugin Vulnerability Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		return $bSendSuccess;
+		$this->getCon()->fireEvent(
+			'wpv_alert_sent',
+			[
+				'to'  => $sTo,
+				'via' => 'email',
+			]
+		);
 	}
 
 	/**

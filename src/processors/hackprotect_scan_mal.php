@@ -126,8 +126,12 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 				 $this->buildEmailBodyFromFiles( $oResults )
 			 );
 
-		$this->addToAuditEntry(
-			sprintf( __( 'Sent Checksum Scan Notification email alert to: %s', 'wp-simple-firewall' ), $sTo )
+		$this->getCon()->fireEvent(
+			'mal_alert_sent',
+			[
+				'to'  => $sTo,
+				'via' => 'email',
+			]
 		);
 	}
 

@@ -276,7 +276,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->removeItemSnapshot( $sBaseName )
 					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures removed for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -299,7 +298,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->addSnapItem( $sBaseName, $this->buildSnapshotPlugin( $sBaseName ) )
 					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures updated for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -308,7 +306,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->removeItemSnapshot( $sBaseName )
 					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures removed for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -325,7 +322,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->addSnapItem( $sSlug, $this->buildSnapshotTheme( $sSlug ) )
 					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures updated for theme "%s"', 'wp-simple-firewall' ), $sSlug ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -334,7 +330,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->removeItemSnapshot( $sSlug )
 					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures removed for theme "%s"', 'wp-simple-firewall' ), $sSlug ) );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -620,15 +615,16 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$sEmailSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Plugins/Themes Have Been Altered', 'wp-simple-firewall' ) );
-		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $sTo, $sEmailSubject, $aContent );
+		$this->getEmailProcessor()
+			 ->sendEmailWithWrap( $sTo, $sEmailSubject, $aContent );
 
-		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( __( 'Successfully sent Plugin/Theme Guard email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		else {
-			$this->addToAuditEntry( sprintf( __( 'Failed to send Plugin/Theme Guard email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
+		$this->getCon()->fireEvent(
+			'ptg_alert_sent',
+			[
+				'to'  => $sTo,
+				'via' => 'email',
+			]
+		);
 	}
 
 	/**
