@@ -103,7 +103,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return string
 	 */
-	protected function getAutoDisableTimestamp() {
+	public function getAutoDisableTimestamp() {
 		return Services::WpGeneral()->getTimeStampForDisplay( $this->getAutoDisableAt() );
 	}
 
@@ -205,24 +205,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		$sSectionSlug = $aOptionsParams[ 'slug' ];
 		switch ( $sSectionSlug ) {
-
-			case 'section_enable_plugin_feature_traffic' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and review all requests to your site.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Required only if you need to review and investigate and monitor requests to your site', 'wp-simple-firewall' ) ) )
-				];
-				break;
-
-			case 'section_traffic_options' :
-				$sTitle = __( 'Traffic Watch Options', 'wp-simple-firewall' );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Traffic Watch system.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
-				];
-				$sTitleShort = __( 'Traffic Logging Options', 'wp-simple-firewall' );
-				break;
 
 			default:
 				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
