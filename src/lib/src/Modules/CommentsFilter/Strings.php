@@ -8,6 +8,29 @@ use FernleafSystems\Wordpress\Services\Services;
 class Strings extends Base\Strings {
 
 	/**
+	 * @return string[][]
+	 */
+	protected function getAuditMessages() {
+		return [
+			'spam_block_human' => [
+				__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' )
+			],
+			'spam_block_checkbox' => [
+				__( 'Blocked SPAM comment with missing Bot Checkbox.', 'wp-simple-firewall' )
+			],
+			'spam_block_honeypot' => [
+				__( 'Blocked SPAM comment with honeypot capture.', 'wp-simple-firewall' )
+			],
+			'spam_block_token'    => [
+				__( 'Blocked SPAM comment with missing token.', 'wp-simple-firewall' )
+			],
+			'spam_block_recaptcha'    => [
+				__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' )
+			],
+		];
+	}
+
+	/**
 	 * @param string $sSectionSlug
 	 * @return array
 	 * @throws \Exception

@@ -64,6 +64,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 				self::$sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
 				$this->setCommentStatusExplanation( $sExplanation );
 
+				$this->getCon()->fireEvent( 'spam_block_recaptcha' );
 				$oFO->setOptInsightsAt( 'last_comment_block_at' )
 					->setIpTransgressed();
 

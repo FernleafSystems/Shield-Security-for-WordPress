@@ -71,6 +71,8 @@ class ICWP_WPSF_Processor_CommentsFilter_HumanSpam extends ICWP_WPSF_Processor_C
 					$this->doStatIncrement( sprintf( 'spam.human.%s', $sKey ) );
 					$this->setCommentStatus( $this->getOption( 'comments_default_action_human_spam' ) );
 					$this->setCommentStatusExplanation( sprintf( __( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' ), $sBlacklistWord, $sKey ) );
+
+					$this->getCon()->fireEvent( 'spam_block_human' );
 					$oFO->setOptInsightsAt( 'last_comment_block_at' )
 						->setIpTransgressed();
 					break 2;
