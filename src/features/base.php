@@ -715,10 +715,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function buildSummaryData() {
-		$oOptions = $this->getOptionsVo();
-		$sMenuTitle = $oOptions->getFeatureProperty( 'menu_title' );
+		$oOptsVo = $this->getOptionsVo();
+		$sMenuTitle = $oOptsVo->getFeatureProperty( 'menu_title' );
 
-		$aSections = $oOptions->getSections();
+		$aSections = $oOptsVo->getSections();
 		foreach ( $aSections as $sSlug => $aSection ) {
 			$aSections[ $sSlug ] = $this->loadStrings_SectionTitles( $aSection );
 		}
@@ -734,13 +734,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'options'    => [],
 		];
 
-		foreach ( $this->getOptionsVo()->getVisibleOptionsKeys() as $sOptKey ) {
+		foreach ( $oOptsVo->getVisibleOptionsKeys() as $sOptKey ) {
 			try {
 				$aOptData = $this->loadStrings_Options( [ 'key' => $sOptKey ] );
 				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
 				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
 			}
-			catch ( Exception $oE ) {
+			catch ( \Exception $oE ) {
 			}
 		}
 

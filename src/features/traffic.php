@@ -195,4 +195,11 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'html'    => $oTableBuilder->buildTable()
 		];
 	}
+
+	/**
+	 * @return Shield\Modules\Traffic\Strings
+	 */
+	protected function loadStrings() {
+		return new Shield\Modules\Traffic\Strings();
+	}
 }
