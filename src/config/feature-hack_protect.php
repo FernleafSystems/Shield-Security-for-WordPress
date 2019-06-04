@@ -182,7 +182,7 @@
       "key":           "wpvuln_scan_display",
       "section":       "section_wpvuln_scan",
       "default":       "enabled_admin",
-      "premium":     true,
+      "premium":       true,
       "type":          "select",
       "value_options": [
         {
@@ -427,37 +427,37 @@
       "description":   "When enabled the Malware scanner will run automatically."
     },
     {
-      "key":           "mal_autorepair_core",
-      "section":       "section_scan_malware",
-      "type":          "checkbox",
-      "default":       "Y",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Auto-Repair WP Core",
-      "summary":       "Automatically Repair WordPress Core Files",
-      "description":   "Automatically reinstall any core files found to have potential malware."
+      "key":         "mal_autorepair_core",
+      "section":     "section_scan_malware",
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Repair WP Core",
+      "summary":     "Automatically Repair WordPress Core Files",
+      "description": "Automatically reinstall any core files found to have potential malware."
     },
     {
-      "key":           "mal_autorepair_plugins",
-      "section":       "section_scan_malware",
-      "type":          "checkbox",
-      "default":       "Y",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Auto-Repair WP Plugins",
-      "summary":       "Automatically Repair WordPress.org Plugins",
-      "description":   "Automatically repair any plugin files found to have potential malware."
+      "key":         "mal_autorepair_plugins",
+      "section":     "section_scan_malware",
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Repair WP Plugins",
+      "summary":     "Automatically Repair WordPress.org Plugins",
+      "description": "Automatically repair any plugin files found to have potential malware."
     },
     {
-      "key":           "mal_autorepair_surgical",
-      "section":       "section_scan_malware",
-      "type":          "checkbox",
-      "default":       "N",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Surgical Auto-Repair",
-      "summary":       "Automatically Attempt To Surgically Remove Malware Code",
-      "description":   "Attempts to automatically remove code from infected files."
+      "key":         "mal_autorepair_surgical",
+      "section":     "section_scan_malware",
+      "type":        "checkbox",
+      "default":     "N",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Surgical Auto-Repair",
+      "summary":     "Automatically Attempt To Surgically Remove Malware Code",
+      "description": "Attempts to automatically remove code from infected files."
     },
     {
       "key":           "ptg_enable",
@@ -709,6 +709,32 @@
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
-    ]
+    ],
+    "events":                     {
+      "apc_alert_sent": {
+        "audit": true,
+        "stat":  true
+      },
+      "mal_alert_sent": {
+        "audit": true,
+        "stat":  true
+      },
+      "ptg_alert_sent": {
+        "audit": true,
+        "stat":  true
+      },
+      "ufc_alert_sent": {
+        "audit": true,
+        "stat":  true
+      },
+      "wcf_alert_sent": {
+        "audit": true,
+        "stat":  true
+      },
+      "wpv_alert_sent": {
+        "audit": true,
+        "stat":  true
+      }
+    }
   }
 }
