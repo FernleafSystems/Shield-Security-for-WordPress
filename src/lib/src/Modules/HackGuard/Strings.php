@@ -7,29 +7,43 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
+	 * @param string $sSlug
+	 * @return string|null
+	 */
+	public function getScanName( $sSlug ) {
+		$aN = $this->getScanNames();
+		return isset( $aN[ $sSlug ] ) ? $aN[ $sSlug ] : null;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getScanNames() {
+		return [
+			'apc' => __( 'Abandoned Plugins' ),
+			'mal' => __( 'Malware' ),
+			'ptg' => __( 'Plugin/Theme Guard' ),
+			'ufc' => __( 'Unrecognised Files' ),
+			'wcf' => __( 'WordPress Core Files' ),
+			'wpv' => __( 'WordPress Vulnerabilities' ),
+		];
+	}
+
+	/**
 	 * @return string[][]
 	 */
 	protected function getAuditMessages() {
-		return [
-			'apc_alert_sent' => [
-				__( 'Sent Abandoned Plugins alert via %s to: %s', 'wp-simple-firewall' )
-			],
-			'mal_alert_sent' => [
-				__( 'Sent Malware alert via %s to: %s', 'wp-simple-firewall' )
-			],
-			'ptg_alert_sent' => [
-				__( 'Sent Plugin/Theme Guard alert via %s to: %s', 'wp-simple-firewall' )
-			],
-			'ufc_alert_sent' => [
-				__( 'Sent Unrecognised Files alert via %s to: %s', 'wp-simple-firewall' )
-			],
-			'wcf_alert_sent' => [
-				__( 'Sent WordPress Core Files alert via %s to: %s', 'wp-simple-firewall' )
-			],
-			'wpv_alert_sent' => [
-				__( 'Sent WordPress Vulnerabilities alert via %s to: %s', 'wp-simple-firewall' )
-			],
-		];
+		$aMessages = [];
+		foreach ( $this->getScanNames() as $sSlug => $sScanName ) {
+			$aMessages[ $sSlug.'_alert_sent' ] = [
+				sprintf( __( '%s scan alert sent.', 'wp-simple-firewall' ), $sScanName )
+				.' '.__( 'Alert sent to %s via %s.' )
+			];
+			$aMessages[ $sSlug.'_scan_run' ] = [
+				sprintf( __( '%s scan completed.', 'wp-simple-firewall' ), $sScanName )
+			];
+		}
+		return $aMessages;
 	}
 
 	/**
