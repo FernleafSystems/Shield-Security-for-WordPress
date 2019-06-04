@@ -8,11 +8,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	use Shield\Modules\PluginControllerConsumer;
 
 	/**
-	 * @var boolean
-	 */
-	protected $bBypassAdminAccess = false;
-
-	/**
 	 * @var ICWP_WPSF_OptionsVO
 	 */
 	protected $oOptions;
@@ -355,8 +350,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 			$this->getOptionsVo()
 				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-			$this->setBypassAdminProtection( true )
-				 ->savePluginOptions();
+			$this->savePluginOptions();
 		}
 	}
 
@@ -453,12 +447,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
-			$oCon = $this->getCon();
-			$this->oOptions = ( new \ICWP_WPSF_OptionsVO )
-				->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
-				->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
-				->setOptionsStorageKey( $this->getOptionsStorageKey() )
-				->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
+			$this->oOptions = $this->getOptions();
 		}
 		return $this->oOptions;
 	}
@@ -895,7 +884,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return $this
 	 */
 	protected function setOpt( $sOptionKey, $mValue ) {
-		$this->setBypassAdminProtection( true );
 		$this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
 		return $this;
 	}
@@ -956,13 +944,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function checkNonceAction( $sNonce, $sAction = '' ) {
 		return wp_verify_nonce( $sNonce, $this->prefix( $sAction ) );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getBypassAdminRestriction() {
-		return $this->bBypassAdminAccess;
 	}
 
 	/**
@@ -1308,15 +1289,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !$this->isPremium() ) {
 			$this->getOptionsVo()->resetPremiumOptsToDefault();
 		}
-	}
-
-	/**
-	 * @param bool $bBypass
-	 * @return $this
-	 */
-	protected function setBypassAdminProtection( $bBypass ) {
-		$this->bBypassAdminAccess = (bool)$bBypass;
-		return $this;
 	}
 
 	/**
@@ -2007,23 +1979,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string
-	 * @deprecated
-	 */
-	public function getVersion() {
-		return $this->getCon()->getVersion();
-	}
-
-	/**
 	 * @return null|Shield\Modules\Base\Options|mixed
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
-			try {
-				$this->oOpts = $this->loadOptions()->setMod( $this );
+
+			if ( @class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options' ) ) {
+				$oOpts = $this->loadOptions()->setMod( $this );;
 			}
-			catch ( \Exception $oE ) {
+			else {
+				$oOpts = new \ICWP_WPSF_OptionsVO();
 			}
+
+			$oCon = $this->getCon();
+			$this->oOpts = $oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
+								 ->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
+								 ->setOptionsStorageKey( $this->getOptionsStorageKey() )
+								 ->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 		}
 		return $this->oOpts;
 	}
@@ -2033,29 +2005,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getStrings() {
 		if ( !isset( $this->oStrings ) ) {
-			try {
-				$this->oStrings = $this->loadStrings()->setMod( $this );
-			}
-			catch ( \Exception $oE ) {
-			}
+			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
 	}
 
 	/**
 	 * @return Shield\Modules\Base\Options|mixed
-	 * @throws \Exception
 	 */
 	protected function loadOptions() {
-		throw new \Exception( 'Options not provided' );
+		return new Shield\Modules\Base\Options;
 	}
 
 	/**
 	 * @return Shield\Modules\Base\Strings|mixed
-	 * @throws \Exception
 	 */
 	protected function loadStrings() {
-		throw new \Exception( 'Strings not provided' );
+		return new Shield\Modules\Base\Strings();
 	}
 
 	/**
@@ -2064,5 +2030,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getDisplayStrings() {
 		return $this->getStrings()->getDisplayStrings();
+	}
+
+	/**
+	 * @param bool $bBypass
+	 * @return $this
+	 * @deprecated
+	 */
+	protected function setBypassAdminProtection( $bBypass ) {
+		return $this;
 	}
 }
