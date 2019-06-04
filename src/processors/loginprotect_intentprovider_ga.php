@@ -279,22 +279,13 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 * @param bool    $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
-		if ( $bIsSuccess ) {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" verified their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Google Authenticator', 'wp-simple-firewall' )
-				), 2, 'login_protect_ga_verified'
-			);
-			$this->doStatIncrement( 'login.googleauthenticator.verified' );
-		}
-		else {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" failed to verify their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Google Authenticator', 'wp-simple-firewall' )
-				), 2, 'login_protect_ga_failed'
-			);
-			$this->doStatIncrement( 'login.googleauthenticator.fail' );
-		}
+		$this->getCon()->fireEvent(
+			$bIsSuccess ? 'googleauth_verified' : 'googleauth_fail',
+			[
+				'user_login' => $oUser->user_login,
+				'method'     => 'Google Authenticator',
+			]
+		);
 	}
 
 	/**

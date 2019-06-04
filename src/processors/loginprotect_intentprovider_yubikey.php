@@ -231,22 +231,13 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param bool    $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
-		if ( $bIsSuccess ) {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" verified their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Yubikey OTP', 'wp-simple-firewall' )
-				), 2, 'login_protect_yubikey_login_success'
-			);
-			$this->doStatIncrement( 'login.yubikey.verified' );
-		}
-		else {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" failed to verify their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Yubikey OTP', 'wp-simple-firewall' )
-				), 2, 'login_protect_yubikey_failed'
-			);
-			$this->doStatIncrement( 'login.yubikey.failed' );
-		}
+		$this->getCon()->fireEvent(
+			$bIsSuccess ? 'yubikey_verified' : 'yubikey_fail',
+			[
+				'user_login' => $oUser->user_login,
+				'method'     => 'Yubikey',
+			]
+		);
 	}
 
 	/**

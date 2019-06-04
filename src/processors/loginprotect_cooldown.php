@@ -24,14 +24,13 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 									$nRemaining
 								);
 
-				$this->setLoginAsFailed( 'login.cooldown.fail' )
-					 ->addToAuditEntry( __( 'Cooldown triggered and request (login/register/lost-password) was blocked.', 'wp-simple-firewall' ) );
+				$this->setLoginAsFailed( 'login.cooldown.fail' );
+				$this->getCon()->fireEvent( 'cooldown_fail' );
 				throw new \Exception( $sErrorString );
 			}
 			else {
 				$this->updateLastLoginTime()
-					 ->setFactorTested( true )
-					 ->doStatIncrement( 'login.cooldown.success' );
+					 ->setFactorTested( true );
 			}
 		}
 	}

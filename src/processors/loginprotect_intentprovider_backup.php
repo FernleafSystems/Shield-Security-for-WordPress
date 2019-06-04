@@ -7,7 +7,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 		$oCon = $this->getCon();
@@ -52,7 +52,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	public function addOptionsToUserEditProfile( $oUser ) {
 		// Allow no actions to be taken on other user profiles
@@ -80,8 +80,8 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	 * Backup codes shouldn't make a user subject to login intent, but only be presented as required
 	 * - i.e. they have other MFA options but they can't be used at the moment. So no MFA options =
 	 * no need for backup codes
-	 * @param bool    $bIsSubjectTo
-	 * @param WP_User $oUser
+	 * @param bool     $bIsSubjectTo
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	public function filterUserSubjectToIntent( $bIsSubjectTo, $oUser ) {
@@ -89,7 +89,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	protected function hasValidatedProfile( $oUser ) {
@@ -120,32 +120,23 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @param bool    $bIsSuccess
+	 * @param \WP_User $oUser
+	 * @param bool     $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
-		if ( $bIsSuccess ) {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" verified their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Backup Code', 'wp-simple-firewall' )
-				), 2, 'login_protect_bc_verified'
-			);
-			$this->doStatIncrement( 'login.backupcode.verified' );
-		}
-		else {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" failed to verify their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Backup Code', 'wp-simple-firewall' )
-				), 2, 'login_protect_bc_failed'
-			);
-			$this->doStatIncrement( 'login.backupcode.fail' );
-		}
+		$this->getCon()->fireEvent(
+			$bIsSuccess ? '2fa_backupcode_verified' : '2fa_backupcode_fail',
+			[
+				'user_login' => $oUser->user_login,
+				'method'     => 'Backup Code',
+			]
+		);
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @param bool    $bIsOtpSuccess
-	 * @param bool    $bOtpProvided - whether a OTP was actually provided
+	 * @param \WP_User $oUser
+	 * @param bool     $bIsOtpSuccess
+	 * @param bool     $bOtpProvided - whether a OTP was actually provided
 	 * @return $this
 	 */
 	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
@@ -158,7 +149,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	private function sendBackupCodeUsedEmail( $oUser ) {
 		$aEmailContent = [
