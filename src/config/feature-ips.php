@@ -495,54 +495,34 @@
     ],
     "events":                {
       "conn_kill":               {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "ip_offense":              {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "ip_blocked":              {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "bottrack_404":            {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "bottrack_fakewebcrawler": {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "bottrack_linkcheese":     {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "bottrack_loginfailed":    {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "bottrack_logininvalid":   {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "bottrack_useragent":      {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       },
       "bottrack_xmlrpc":         {
-        "cat":   2,
-        "audit": true,
-        "stat":  true
+        "cat": 2
       }
     }
   }

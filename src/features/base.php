@@ -156,8 +156,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				[
 					'slug'  => $this->getSlug(),
 					'cat'   => 1,
-					'stat'  => false,
-					'audit' => false,
+					'stat'  => true,
+					'audit' => true,
 				],
 				$aEvts[ $sKey ]
 			);

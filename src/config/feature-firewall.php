@@ -391,55 +391,39 @@
     },
     "events":            {
       "check_skip":                 {
-        "cat":   2,
-        "audit": true
+        "cat":  2,
+        "stat": false
       },
       "blockparam_dirtraversal":    {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "blockparam_wpterms":         {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "blockparam_fieldtruncation": {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "blockparam_sqlqueries":      {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "blockparam_schema":          {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "blockparam_aggressive":      {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "blockparam_phpcode":         {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "block_exeupload":            {
-        "cat":   3,
-        "audit": true,
-        "stat":  true
+        "cat": 3
       },
       "email_send_fail":            {
-        "cat":   2,
-        "audit": true
+        "cat":  2,
+        "stat": false
       },
       "email_send_success":         {
-        "audit": true
+        "stat": false
       }
     }
   }

@@ -388,24 +388,14 @@
     ],
     "events":                                {
       "spam_block_checkbox":  {
-        "audit": true,
-        "stat":  true
       },
       "spam_block_honeypot":  {
-        "audit": true,
-        "stat":  true
       },
       "spam_block_token":     {
-        "audit": true,
-        "stat":  true
       },
       "spam_block_recaptcha": {
-        "audit": true,
-        "stat":  true
       },
       "spam_block_human":     {
-        "audit": true,
-        "stat":  true
       }
     }
   }

@@ -333,40 +333,22 @@
     "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
     "events":                        {
       "session_notfound":    {
-        "audit": true,
-        "stat":  true
       },
       "session_expired":     {
-        "audit": true,
-        "stat":  true
       },
       "session_idle":        {
-        "audit": true,
-        "stat":  true
       },
       "session_iplock":      {
-        "audit": true,
-        "stat":  true
       },
       "session_browserlock": {
-        "audit": true,
-        "stat":  true
       },
       "session_unverified":  {
-        "audit": true,
-        "stat":  true
       },
       "password_expired":    {
-        "audit": true,
-        "stat":  true
       },
       "pass_policy_change":  {
-        "audit": true,
-        "stat":  true
       },
       "pass_policy_block":   {
-        "audit": true,
-        "stat":  true
       }
     }
   }

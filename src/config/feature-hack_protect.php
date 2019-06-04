@@ -712,100 +712,70 @@
     ],
     "events":                               {
       "apc_alert_sent":          {
-        "audit": true,
-        "stat":  true
       },
       "mal_alert_sent":          {
-        "audit": true,
-        "stat":  true
       },
       "ptg_alert_sent":          {
-        "audit": true,
-        "stat":  true
       },
       "ufc_alert_sent":          {
-        "audit": true,
-        "stat":  true
       },
       "wcf_alert_sent":          {
-        "audit": true,
-        "stat":  true
       },
       "wpv_alert_sent":          {
-        "audit": true,
-        "stat":  true
       },
       "apc_scan_run":            {
-        "audit": true,
-        "stat":  true
+        "audit": false
       },
       "max_scan_run":            {
-        "audit": true,
-        "stat":  true
+        "audit": false
       },
       "ptg_scan_run":            {
-        "audit": true,
-        "stat":  true
+        "audit": false
       },
       "ufc_scan_run":            {
-        "audit": true,
-        "stat":  true
+        "audit": false
       },
       "wcf_scan_run":            {
-        "audit": true,
-        "stat":  true
+        "audit": false
       },
       "wpv_scan_run":            {
-        "audit": true,
-        "stat":  true
+        "audit": false
+      },
+      "apc_scan_found":          {
+      },
+      "max_scan_found":          {
+      },
+      "ptg_scan_found":          {
+      },
+      "ufc_scan_found":          {
+      },
+      "wcf_scan_found":          {
+      },
+      "wpv_scan_found":          {
       },
       "apc_item_repair_success": {
-        "audit": true,
-        "stat":  true
       },
       "apc_item_repair_fail":    {
-        "audit": true,
-        "stat":  true
       },
       "mal_item_repair_success": {
-        "audit": true,
-        "stat":  true
       },
       "mal_item_repair_fail":    {
-        "audit": true,
-        "stat":  true
       },
       "ptg_item_repair_success": {
-        "audit": true,
-        "stat":  true
       },
       "ptg_item_repair_fail":    {
-        "audit": true,
-        "stat":  true
       },
       "ufc_item_repair_success": {
-        "audit": true,
-        "stat":  true
       },
       "ufc_item_repair_fail":    {
-        "audit": true,
-        "stat":  true
       },
       "wcf_item_repair_success": {
-        "audit": true,
-        "stat":  true
       },
       "wcf_item_repair_fail":    {
-        "audit": true,
-        "stat":  true
       },
       "wpv_item_repair_success": {
-        "audit": true,
-        "stat":  true
       },
       "wpv_item_repair_fail":    {
-        "audit": true,
-        "stat":  true
       }
     }
   }

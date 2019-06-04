@@ -128,13 +128,13 @@
     "keyless_handshake_expire":     90,
     "events":                       {
       "check_success":         {
-        "audit": true
+        "stat": false
       },
       "check_fail_email":      {
-        "audit": true
+        "stat": false
       },
       "check_fail_deactivate": {
-        "audit": true
+        "stat": false
       }
     }
   }

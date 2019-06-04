@@ -493,56 +493,30 @@
     "login_intent_timeout": 5,
     "events":                     {
       "2fa_backupcode_verified": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_backupcode_fail": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_email_verified": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_email_fail": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_googleauth_verified": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_google_fail": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_yubikey_verified": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_yubikey_fail": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_email_send_success": {
-        "audit": true,
-        "stat":  true
       },
       "2fa_email_send_fail": {
-        "audit": true,
-        "stat":  true
       },
       "cooldown_fail": {
-        "audit": true,
-        "stat":  true
       },
       "honeypot_fail": {
-        "audit": true,
-        "stat":  true
       },
       "botbox_fail": {
-        "audit": true,
-        "stat":  true
       }
     }
   }

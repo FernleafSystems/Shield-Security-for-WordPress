@@ -545,22 +545,22 @@
     ],
     "events":                 {
       "import_notify_sent":     {
-        "audit": true
+        "stat": false
       },
       "import_notify_received": {
-        "audit": true
+        "stat": false
       },
       "options_exported":       {
-        "audit": true
+        "stat": false
       },
       "whitelist_site_added":   {
-        "audit": true
+        "stat": false
       },
       "whitelist_site_removed": {
-        "audit": true
+        "stat": false
       },
       "master_url_set":         {
-        "audit": true
+        "stat": false
       }
     },
     "wizards":                {

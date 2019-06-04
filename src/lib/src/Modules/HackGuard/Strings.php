@@ -24,8 +24,8 @@ class Strings extends Base\Strings {
 			'mal' => __( 'Malware' ),
 			'ptg' => __( 'Plugin/Theme Guard' ),
 			'ufc' => __( 'Unrecognised Files' ),
-			'wcf' => __( 'WordPress Core Files' ),
-			'wpv' => __( 'WordPress Vulnerabilities' ),
+			'wcf' => __( 'Core Files' ),
+			'wpv' => __( 'Vulnerabilities' ),
 		];
 	}
 
@@ -39,16 +39,20 @@ class Strings extends Base\Strings {
 				sprintf( __( '%s scan alert sent.', 'wp-simple-firewall' ), $sScanName )
 				.' '.__( 'Alert sent to %s via %s.' )
 			];
-			$aMessages[ $sSlug.'_scan_run' ] = [
-				sprintf( __( '%s scan completed.', 'wp-simple-firewall' ), $sScanName )
+			$aMessages[ $sSlug.'_scan_found' ] = [
+				sprintf( __( '%s scan completed and items were discovered.', 'wp-simple-firewall' ), $sScanName ),
+				sprintf( '%s: %s',
+					__( 'Note', 'wp-simple-firewall' ),
+					__( "These items wont display in results if you've previously marked them as ignored." )
+				)
 			];
 			$aMessages[ $sSlug.'_item_repair_success' ] = [
 				sprintf( __( '%s scan repaired a item found in the scan.', 'wp-simple-firewall' ), $sScanName )
-				.' '.__( 'Item Repaired: "%s"', 'wp-simple-firewall' ),
+				.' '.__( 'Item repaired: "%s"', 'wp-simple-firewall' ),
 			];
 			$aMessages[ $sSlug.'_item_repair_fail' ] = [
 				sprintf( __( '%s scan could not repair item.', 'wp-simple-firewall' ), $sScanName )
-				.' '.__( 'Failed Repair Item: "%s"', 'wp-simple-firewall' ),
+				.' '.__( 'Failed repair item: "%s"', 'wp-simple-firewall' ),
 			];
 		}
 		return $aMessages;
