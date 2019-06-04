@@ -725,7 +725,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aSections = $oOptsVo->getSections();
 		foreach ( $aSections as $sSlug => $aSection ) {
-			$aSections[ $sSlug ] = $this->loadStrings_SectionTitles( $aSection );
+			try {
+				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
+				foreach ( $aStrings as $sKey => $sVal ) {
+					unset( $aSection[ $sKey ] );
+					$aSection[ $sKey ] = $sVal;
+				}
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
 
 		$aSum = [
@@ -741,7 +749,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		foreach ( $oOptsVo->getVisibleOptionsKeys() as $sOptKey ) {
 			try {
-				$aOptData = $this->loadStrings_Options( [ 'key' => $sOptKey ] );
+				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
 				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
 				$aSum[ 'options' ][ $sOptKey ] = $aOptData;
 			}
@@ -1044,7 +1052,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 					unset( $aOptions[ $nSectionKey ] );
 				}
 				else {
-					$aOptions[ $nSectionKey ] = $this->loadStrings_SectionTitles( $aSection );
+					try {
+						$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
+						foreach ( $aStrings as $sKey => $sVal ) {
+							unset( $aSection[ $sKey ] );
+							$aSection[ $sKey ] = $sVal;
+						}
+					}
+					catch ( \Exception $oE ) {
+					}
+					$aOptions[ $nSectionKey ] = $aSection;
 				}
 
 				$aWarnings = [];
@@ -1146,43 +1163,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aOptParams = array_merge( [ 'rows' => 2 ], $aOptParams, $aParams );
 
 		// add strings
-		return $this->loadStrings_Options( $aOptParams );
-	}
-
-	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 */
-	protected function loadStrings_Options( $aOptionsParams ) {
-		if ( $this->getStrings() instanceof Shield\Modules\Base\Strings ) {
-			try {
-				$aOptionsParams = Services::DataManipulation()->mergeArraysRecursive(
-					$aOptionsParams,
-					$this->getStrings()->loadStrings_Options( $aOptionsParams[ 'key' ] )
-				);
-			}
-			catch ( \Exception $oE ) {
-			}
+		try {
+			$aOptParams = Services::DataManipulation()->mergeArraysRecursive(
+				$aOptParams,
+				$this->getStrings()->getOptionStrings( $aOptParams[ 'key' ] )
+			);
 		}
-		return $aOptionsParams;
-	}
-
-	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 */
-	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-		if ( $this->getStrings() instanceof Shield\Modules\Base\Strings ) {
-			try {
-				$aOptionsParams = Services::DataManipulation()->mergeArraysRecursive(
-					$aOptionsParams,
-					$this->getStrings()->loadStrings_Options( $aOptionsParams[ 'key' ] )
-				);
-			}
-			catch ( \Exception $oE ) {
-			}
+		catch ( \Exception $oE ) {
 		}
-		return $aOptionsParams;
+		return $aOptParams;
 	}
 
 	/**
@@ -1497,7 +1486,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function renderModulePage( $aData = [] ) {
 		// Get Base Data
 		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive( $this->getBaseDisplayData( true ), $aData );
+						 ->mergeArraysRecursive( $this->getBaseDisplayData(), $aData );
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 
 		return $this->renderTemplate( 'index.php', $aData );
@@ -1509,7 +1498,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function renderRestrictedPage() {
 		$aData = Services::DataManipulation()
 						 ->mergeArraysRecursive(
-							 $this->getBaseDisplayData( false ),
+							 $this->getBaseDisplayData(),
 							 [
 								 'ajax' => [
 									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
@@ -1520,13 +1509,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData( $bRenderEmbeddedContent = false ) {
+	protected function getBaseDisplayData() {
 		$oCon = $this->getCon();
 
-		$aData = [
+		return [
 			'sPluginName'     => $oCon->getHumanName(),
 			'sFeatureName'    => $this->getMainFeatureName(),
 			'bFeatureEnabled' => $this->isModuleEnabled(),
@@ -1584,39 +1572,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'wizard_landing' => ''
 			]
 		];
-
-		if ( $bRenderEmbeddedContent ) { // prevents recursive loops
-			$aData[ 'content' ] = [
-				'options_form'   => 'no form',
-				'alt'            => '',
-				'help'           => $this->getContentHelp(),
-				'wizard_landing' => $this->getContentWizardLanding()
-			];
-			$aData[ 'flags' ][ 'show_content_help' ] = strpos( $aData[ 'content' ][ 'help' ], 'Error:' ) !== 0;
-		}
-		return $aData;
-	}
-
-	/**
-	 * @return array
-	 * @deprecated
-	 */
-	protected function getDisplayStrings() {
-		return $this->getStrings()->getDisplayStrings();
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getContentHelp() {
-		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData( false ) );
+		return $this->renderTemplate( 'snippets/module-help-template.php', $this->getBaseDisplayData() );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getContentWizardLanding() {
-		$aData = $this->getBaseDisplayData( false );
+		$aData = $this->getBaseDisplayData();
 		if ( $this->hasWizard() ) {
 			$aData[ 'content' ][ 'wizard_landing' ] = $this->getWizardHandler()->renderWizardLandingSnippet();
 		}
@@ -1749,7 +1718,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		try {
 			return $this->loadRenderer( $this->getCon()->getPath_Templates() )
 						->setTemplate( $sTemplate )
-						->setRenderVars( $this->getBaseDisplayData( true ) )
+						->setRenderVars( $this->getBaseDisplayData() )
 						->setTemplateEngineTwig()
 						->render();
 		}
@@ -1914,11 +1883,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return $aData;
 	}
 
-	/** Help Video options */
-
-	/**
-	 * @return array
-	 */
 	protected function getHelpVideoOptions() {
 		$aOptions = $this->getOpt( 'help_video_options', [] );
 		if ( is_null( $aOptions ) || !is_array( $aOptions ) ) {
@@ -2092,5 +2056,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function loadStrings() {
 		throw new \Exception( 'Strings not provided' );
+	}
+
+	/**
+	 * @return array
+	 * @deprecated
+	 */
+	protected function getDisplayStrings() {
+		return $this->getStrings()->getDisplayStrings();
 	}
 }

@@ -44,7 +44,10 @@ class Strings {
 				'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the access key.', 'wp-simple-firewall' ),
 				'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
 				'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
-				'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' )
+				'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' ),
+				'supply_password'         => __( 'Supply Password', 'wp-simple-firewall' ),
+				'confirm_password'        => __( 'Confirm Password', 'wp-simple-firewall' ),
+				'show_help_video_section' => __( 'Show help video for this section', 'wp-simple-firewall' ),
 			],
 			$this->getAdditionalDisplayStrings()
 		);
@@ -78,7 +81,7 @@ class Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function loadStrings_Options( $sOptKey ) {
+	public function getOptionStrings( $sOptKey ) {
 		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sOptKey ) );
 	}
 
@@ -87,7 +90,7 @@ class Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function loadStrings_SectionTitles( $sSectionSlug ) {
+	public function getSectionStrings( $sSectionSlug ) {
 
 		switch ( $sSectionSlug ) {
 

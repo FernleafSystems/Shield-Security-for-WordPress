@@ -11,7 +11,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function loadStrings_SectionTitles( $sSectionSlug ) {
+	public function getSectionStrings( $sSectionSlug ) {
 		$sModName = $this->getMod()->getMainFeatureName();
 
 		switch ( $sSectionSlug ) {
@@ -46,7 +46,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::loadStrings_SectionTitles( $sSectionSlug );
+				return parent::getSectionStrings( $sSectionSlug );
 		}
 
 		return [

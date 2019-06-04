@@ -52,7 +52,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function loadStrings_SectionTitles( $sSectionSlug ) {
+	public function getSectionStrings( $sSectionSlug ) {
 		$sPlugName = $this->getCon()->getHumanName();
 
 		switch ( $sSectionSlug ) {
@@ -109,7 +109,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::loadStrings_SectionTitles( $sSectionSlug );
+				return parent::getSectionStrings( $sSectionSlug );
 		}
 
 		return [
@@ -124,7 +124,7 @@ class Strings extends Base\Strings {
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function loadStrings_Options( $sOptKey ) {
+	public function getOptionStrings( $sOptKey ) {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 		$sPlugName = $this->getCon()->getHumanName();
@@ -259,7 +259,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::loadStrings_Options( $sOptKey );
+				return parent::getOptionStrings( $sOptKey );
 		}
 
 		return [
