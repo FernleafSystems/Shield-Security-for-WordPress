@@ -417,6 +417,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * @return Shield\Modules\AuditTrail\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\AuditTrail\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\AuditTrail\Strings
 	 */
 	protected function loadStrings() {

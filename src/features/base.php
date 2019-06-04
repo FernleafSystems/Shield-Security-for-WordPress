@@ -48,6 +48,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	private $oWizard;
 
 	/**
+	 * @var Shield\Modules\Base\Options
+	 */
+	private $oOpts;
+
+	/**
 	 * @var Shield\Modules\Base\Strings
 	 */
 	private $oStrings;
@@ -838,14 +843,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * Retrieves the full array of options->values
-	 * @return array
-	 */
-	public function getOptions() {
-		return $this->buildOptions();
-	}
-
-	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -1175,6 +1172,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	protected function loadStrings_SectionTitles( $aOptionsParams ) {
+		if ( $this->getStrings() instanceof Shield\Modules\Base\Strings ) {
+			try {
+				$aOptionsParams = Services::DataManipulation()->mergeArraysRecursive(
+					$aOptionsParams,
+					$this->getStrings()->loadStrings_Options( $aOptionsParams[ 'key' ] )
+				);
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
 		return $aOptionsParams;
 	}
 
@@ -2055,6 +2062,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return null|Shield\Modules\Base\Options|mixed
+	 */
+	public function getOptions() {
+		if ( !isset( $this->oOpts ) ) {
+			try {
+				$this->oOpts = $this->loadOptions()->setMod( $this );
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $this->oOpts;
+	}
+
+	/**
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
@@ -2066,6 +2087,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			}
 		}
 		return $this->oStrings;
+	}
+
+	/**
+	 * @return Shield\Modules\Base\Strings|mixed
+	 * @throws \Exception
+	 */
+	protected function loadOptions() {
+		throw new \Exception( 'Options not provided' );
 	}
 
 	/**

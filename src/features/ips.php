@@ -451,6 +451,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @return Shield\Modules\IPs\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\IPs\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\IPs\Strings
 	 */
 	protected function loadStrings() {

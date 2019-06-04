@@ -703,6 +703,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return Shield\Modules\License\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\License\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\License\Strings
 	 */
 	protected function loadStrings() {

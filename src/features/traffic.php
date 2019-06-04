@@ -197,6 +197,13 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
+	 * @return Shield\Modules\Traffic\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\Traffic\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\Traffic\Strings
 	 */
 	protected function loadStrings() {

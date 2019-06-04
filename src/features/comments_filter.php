@@ -254,6 +254,13 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return Shield\Modules\CommentsFilter\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\CommentsFilter\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\CommentsFilter\Strings
 	 */
 	protected function loadStrings() {

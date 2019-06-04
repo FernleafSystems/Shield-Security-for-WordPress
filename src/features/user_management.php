@@ -530,6 +530,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return Shield\Modules\UserManagement\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\UserManagement\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\UserManagement\Strings
 	 */
 	protected function loadStrings() {

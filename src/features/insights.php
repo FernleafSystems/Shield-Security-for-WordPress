@@ -776,4 +776,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'insights_last_ip_block_at'             => __( 'IP Connection Blocked', 'wp-simple-firewall' ),
 		];
 	}
+
+	/**
+	 * @return Shield\Modules\Insights\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\Insights\Options();
+	}
+
+	/**
+	 * @return Shield\Modules\Insights\Strings
+	 */
+	protected function loadStrings() {
+		return new Shield\Modules\Insights\Strings();
+	}
 }

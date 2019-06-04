@@ -755,6 +755,13 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
+	 * @return Shield\Modules\LoginGuard\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\LoginGuard\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\LoginGuard\Strings
 	 */
 	protected function loadStrings() {

@@ -1281,6 +1281,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return Shield\Modules\HackGuard\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\HackGuard\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\HackGuard\Strings
 	 */
 	protected function loadStrings() {

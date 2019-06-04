@@ -305,6 +305,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return Shield\Modules\Autoupdates\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\Autoupdates\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\Autoupdates\Strings
 	 */
 	protected function loadStrings() {

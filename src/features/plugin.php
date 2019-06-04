@@ -1091,6 +1091,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return Shield\Modules\Plugin\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\Plugin\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\Plugin\Strings
 	 */
 	protected function loadStrings() {

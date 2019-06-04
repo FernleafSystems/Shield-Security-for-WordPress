@@ -683,6 +683,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @return Shield\Modules\SecurityAdmin\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\SecurityAdmin\Options();
+	}
+
+	/**
 	 * @return Shield\Modules\SecurityAdmin\Strings
 	 */
 	protected function loadStrings() {
