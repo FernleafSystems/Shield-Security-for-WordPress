@@ -2,9 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Options {
+
+	use ModConsumer;
 
 	/**
 	 * @var array
@@ -153,11 +156,11 @@ class Options {
 
 	/**
 	 * @param string
-	 * @return null|array
+	 * @return mixed|null
 	 */
-	public function getFeatureDefinition( $sDefinition ) {
-		$aRawConfig = $this->getRawData_FullFeatureConfig();
-		return ( isset( $aRawConfig[ 'definitions' ] ) && isset( $aRawConfig[ 'definitions' ][ $sDefinition ] ) ) ? $aRawConfig[ 'definitions' ][ $sDefinition ] : null;
+	public function getDef( $sDefinition ) {
+		$aConf = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aConf[ 'definitions' ] ) && isset( $aConf[ 'definitions' ][ $sDefinition ] ) ) ? $aConf[ 'definitions' ][ $sDefinition ] : null;
 	}
 
 	/**
@@ -469,12 +472,12 @@ class Options {
 	}
 
 	/**
-	 * @param         $sKey
+	 * @param string  $sKey
 	 * @param mixed   $mValueToTest
 	 * @param boolean $bStrict
 	 * @return bool
 	 */
-	public function getOptIs( $sKey, $mValueToTest, $bStrict = false ) {
+	public function isOpt( $sKey, $mValueToTest, $bStrict = false ) {
 		$mOptionValue = $this->getOpt( $sKey );
 		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}

@@ -30,25 +30,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return Services::DataManipulation()->mergeArraysRecursive(
-			parent::getDisplayStrings(),
-			[
-				'product_name'    => __( 'Name', 'wp-simple-firewall' ),
-				'license_active'  => __( 'Active', 'wp-simple-firewall' ),
-				'license_status'  => __( 'Status', 'wp-simple-firewall' ),
-				'license_key'     => __( 'Key', 'wp-simple-firewall' ),
-				'license_expires' => __( 'Expires', 'wp-simple-firewall' ),
-				'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
-				'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
-				'last_errors'     => __( 'Error', 'wp-simple-firewall' ),
-			]
-		);
-	}
-
-	/**
 	 * @return Shield\License\EddLicenseVO
 	 */
 	protected function loadLicense() {

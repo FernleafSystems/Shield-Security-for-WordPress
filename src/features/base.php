@@ -1559,7 +1559,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'ajax'            => [
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
 			],
-			'strings'         => $this->getDisplayStrings(),
+			'strings'         => $this->getStrings()->getDisplayStrings(),
 			'flags'           => [
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
@@ -1599,21 +1599,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
+	 * @deprecated
 	 */
 	protected function getDisplayStrings() {
-		return [
-			'go_to_settings'    => __( 'Settings' ),
-			'on'                => __( 'On' ),
-			'off'               => __( 'Off' ),
-			'more_info'         => __( 'More Info' ),
-			'blog'              => __( 'Blog' ),
-			'save_all_settings' => __( 'Save All Settings' ),
-			'see_help_video'    => __( 'Watch Help Video' ),
-			'btn_save'          => __( 'Save Options' ),
-			'btn_options'       => __( 'Options' ),
-			'btn_help'          => __( 'Help' ),
-			'btn_wizards'       => $this->hasWizard() ? __( 'Wizards' ) : __( 'No Wizards' ),
-		];
+		return $this->getStrings()->getDisplayStrings();
 	}
 
 	/**
@@ -2090,7 +2079,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return Shield\Modules\Base\Strings|mixed
+	 * @return Shield\Modules\Base\Options|mixed
 	 * @throws \Exception
 	 */
 	protected function loadOptions() {

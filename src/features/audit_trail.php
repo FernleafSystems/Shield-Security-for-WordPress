@@ -6,13 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return int
-	 */
-	public function getAutoCleanDays() {
-		return (int)$this->getOpt( 'audit_trail_auto_clean' );
-	}
-
-	/**
 	 * @param array $aAjaxResponse
 	 * @return array
 	 */
@@ -101,77 +94,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	/**
 	 * @return int
 	 */
-	public function getDefaultMaxEntries() {
-		return $this->getDef( 'audit_trail_default_max_entries' );
-	}
-
-	/**
-	 * @return int
-	 */
 	public function getMaxEntries() {
 		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDefaultMaxEntries();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledAuditing() {
-		return $this->isAuditEmails()
-			   || $this->isAuditPlugins()
-			   || $this->isAuditThemes()
-			   || $this->isAuditPosts()
-			   || $this->isAuditShield()
-			   || $this->isAuditUsers()
-			   || $this->isAuditWp();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAuditEmails() {
-		return $this->isOpt( 'enable_audit_context_emails', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAuditPlugins() {
-		return $this->isOpt( 'enable_audit_context_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAuditPosts() {
-		return $this->isOpt( 'enable_audit_context_posts', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAuditShield() {
-		return $this->isOpt( 'enable_audit_context_wpsf', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAuditThemes() {
-		return $this->isOpt( 'enable_audit_context_themes', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAuditUsers() {
-		return $this->isOpt( 'enable_audit_context_users', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAuditWp() {
-		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
 	}
 
 	/**
@@ -188,73 +112,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			'themes'    => 'Themes',
 			'emails'    => 'Emails',
 		];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return $this->loadDP()->mergeArraysRecursive(
-			parent::getDisplayStrings(),
-			[
-				'at_users'            => __( 'Users', 'wp-simple-firewall' ),
-				'at_plugins'          => __( 'Plugins', 'wp-simple-firewall' ),
-				'at_themes'           => __( 'Themes', 'wp-simple-firewall' ),
-				'at_wordpress'        => __( 'WordPress', 'wp-simple-firewall' ),
-				'at_posts'            => __( 'Posts', 'wp-simple-firewall' ),
-				'at_emails'           => __( 'Emails', 'wp-simple-firewall' ),
-				'at_time'             => __( 'Time', 'wp-simple-firewall' ),
-				'at_event'            => __( 'Event', 'wp-simple-firewall' ),
-				'at_message'          => __( 'Message', 'wp-simple-firewall' ),
-				'at_username'         => __( 'Username', 'wp-simple-firewall' ),
-				'at_category'         => __( 'Category', 'wp-simple-firewall' ),
-				'at_ipaddress'        => __( 'IP Address', 'wp-simple-firewall' ),
-				'at_you'              => __( 'You', 'wp-simple-firewall' ),
-				'at_no_audit_entries' => __( 'There are currently no audit entries this is section.', 'wp-simple-firewall' ),
-			]
-		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledChangeTracking() {
-		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getCTSnapshotsPerWeek() {
-		return (int)$this->getOpt( 'ct_snapshots_per_week', 7 );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getCTMaxSnapshots() {
-		return (int)$this->getOpt( 'ct_max_snapshots', 28 );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getCTSnapshotInterval() {
-		return WEEK_IN_SECONDS/$this->getCTSnapshotsPerWeek();
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getCTLastSnapshotAt() {
-		return $this->getOpt( 'ct_last_snapshot_at' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isCTSnapshotDue() {
-		return ( Services::Request()->ts() - $this->getCTLastSnapshotAt() > $this->getCTSnapshotInterval() );
 	}
 
 	/**
@@ -428,5 +285,139 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	protected function loadStrings() {
 		return new Shield\Modules\AuditTrail\Strings();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isEnabledChangeTracking() {
+		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated
+	 */
+	public function getCTSnapshotsPerWeek() {
+		return (int)$this->getOpt( 'ct_snapshots_per_week', 7 );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated
+	 */
+	public function getCTMaxSnapshots() {
+		return (int)$this->getOpt( 'ct_max_snapshots', 28 );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated
+	 */
+	public function getCTSnapshotInterval() {
+		return WEEK_IN_SECONDS/$this->getCTSnapshotsPerWeek();
+	}
+
+	/**
+	 * @return int
+	 * @deprecated
+	 */
+	public function getCTLastSnapshotAt() {
+		return $this->getOpt( 'ct_last_snapshot_at' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isCTSnapshotDue() {
+		return ( Services::Request()->ts() - $this->getCTLastSnapshotAt() > $this->getCTSnapshotInterval() );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isEnabledAuditing() {
+		return $this->isAuditEmails()
+			   || $this->isAuditPlugins()
+			   || $this->isAuditThemes()
+			   || $this->isAuditPosts()
+			   || $this->isAuditShield()
+			   || $this->isAuditUsers()
+			   || $this->isAuditWp();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isAuditEmails() {
+		return $this->isOpt( 'enable_audit_context_emails', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isAuditPlugins() {
+		return $this->isOpt( 'enable_audit_context_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isAuditPosts() {
+		return $this->isOpt( 'enable_audit_context_posts', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isAuditShield() {
+		return $this->isOpt( 'enable_audit_context_wpsf', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isAuditThemes() {
+		return $this->isOpt( 'enable_audit_context_themes', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isAuditUsers() {
+		return $this->isOpt( 'enable_audit_context_users', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated
+	 */
+	public function isAuditWp() {
+		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated
+	 */
+	public function getDefaultMaxEntries() {
+		return $this->getDef( 'audit_trail_default_max_entries' );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated
+	 */
+	public function getAutoCleanDays() {
+		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
 }

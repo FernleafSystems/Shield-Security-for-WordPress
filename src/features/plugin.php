@@ -971,19 +971,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return Services::DataManipulation()->mergeArraysRecursive(
-			parent::getDisplayStrings(),
-			[
-				'actions_title'   => __( 'Plugin Actions', 'wp-simple-firewall' ),
-				'actions_summary' => __( 'E.g. Import/Export', 'wp-simple-firewall' ),
-			]
-		);
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
