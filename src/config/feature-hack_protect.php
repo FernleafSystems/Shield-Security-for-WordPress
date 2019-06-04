@@ -710,7 +710,7 @@
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
     ],
-    "events":                     {
+    "events":                               {
       "apc_alert_sent": {
         "audit": true,
         "stat":  true
@@ -732,6 +732,30 @@
         "stat":  true
       },
       "wpv_alert_sent": {
+        "audit": true,
+        "stat":  true
+      },
+      "apc_scan_run":   {
+        "audit": true,
+        "stat":  true
+      },
+      "max_scan_run":   {
+        "audit": true,
+        "stat":  true
+      },
+      "ptg_scan_run":   {
+        "audit": true,
+        "stat":  true
+      },
+      "ufc_scan_run":   {
+        "audit": true,
+        "stat":  true
+      },
+      "wcf_scan_run":   {
+        "audit": true,
+        "stat":  true
+      },
+      "wpv_scan_run":   {
         "audit": true,
         "stat":  true
       }
