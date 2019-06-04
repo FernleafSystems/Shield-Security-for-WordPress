@@ -651,19 +651,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param string $sMsg
-	 * @param int    $nCategory
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
-		$sMsg = sprintf( '[%s]: %s', __( 'Plugin/Theme Guard', 'wp-simple-firewall' ), $sMsg );
-		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
-		return $this;
-	}
-
-	/**
 	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
 	 * are unreliable once the plugin has been deactivated.
 	 */

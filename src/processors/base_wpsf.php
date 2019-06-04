@@ -268,21 +268,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @param string $sMsg
-	 * @param int    $nCategory
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
-		if ( empty( $sMsg ) ) {
-			$sMsg = $this->getMod()->getStrings()->getAuditMessage( $sEvent );
-		}
-		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
-		return $this;
-	}
-
-	/**
 	 * @param string $sEvent
 	 * @param array  $aData
 	 * @return $this
@@ -349,5 +334,17 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getIfIpTransgressed();
+	}
+
+	/**
+	 * @param string $sMsg
+	 * @param int    $nCategory
+	 * @param string $sEvent
+	 * @param array  $aData
+	 * @return $this
+	 * @deprecated 7.5
+	 */
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
+		return $this;
 	}
 }
