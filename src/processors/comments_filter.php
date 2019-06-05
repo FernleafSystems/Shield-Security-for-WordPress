@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
 class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -14,21 +15,28 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
 		$oFO = $this->getMod();
 
-		$oUser = Services::WpUsers()->getCurrentWpUser();
-		if ( !$oFO->isUserTrusted( $oUser ) ) {
+		if ( !$oFO->isUserTrusted( Services::WpUsers()->getCurrentWpUser() ) ) {
+
 			if ( $oFO->isEnabledGaspCheck() ) {
 				$this->getSubProGasp()->run();
-			}
-			if ( $oFO->isEnabledHumanCheck() && $this->loadWpComments()->isCommentPost() ) {
-				$this->getSubProHuman()->run();
 			}
 			if ( $oFO->isGoogleRecaptchaEnabled() ) {
 				$this->getSubProRecaptcha()->run();
 			}
 
-			add_filter( 'pre_comment_approved', [ $this, 'doSetCommentStatus' ], 1 );
-			add_filter( 'pre_comment_content', [ $this, 'doInsertCommentStatusExplanation' ], 1, 1 );
+			( new CommentsFilter\Scan\Scanner() )
+				->setMod( $oFO )
+				->run();
+
 			add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
+		}
+	}
+
+	public function runHourlyCron() {
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isEnabledGaspCheck() ) {
+			delete_expired_transients(); // cleanup unused comment tokens
 		}
 	}
 
@@ -38,7 +46,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getSubProMap() {
 		return [
 			'gasp'      => 'ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam',
-			'human'     => 'ICWP_WPSF_Processor_CommentsFilter_HumanSpam',
 			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',
 		];
 	}
@@ -48,13 +55,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function getSubProGasp() {
 		return $this->getSubPro( 'gasp' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
-	 */
-	private function getSubProHuman() {
-		return $this->getSubPro( 'human' );
 	}
 
 	/**
@@ -92,32 +92,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 				$this->insertAdminNotice( $aRenderData );
 			}
 		}
-	}
-
-	/**
-	 * We set the final approval status of the comments if we've set it in our scans, and empties the notification email
-	 * in case we "trash" it (since WP sends out a notification email if it's anything but SPAM)
-	 * @param $sApprovalStatus
-	 * @return string
-	 */
-	public function doSetCommentStatus( $sApprovalStatus ) {
-		$sStatus = apply_filters( $this->getMod()->prefix( 'cf_status' ), '' );
-		return empty( $sStatus ) ? $sApprovalStatus : $sStatus;
-	}
-
-	/**
-	 * @param string $sCommentContent
-	 * @return string
-	 */
-	public function doInsertCommentStatusExplanation( $sCommentContent ) {
-
-		$sExplanation = apply_filters( $this->getMod()->prefix( 'cf_status_expl' ), '' );
-
-		// If either spam filtering process left an explanation, we add it here
-		if ( !empty( $sExplanation ) ) {
-			$sCommentContent = $sExplanation.$sCommentContent;
-		}
-		return $sCommentContent;
 	}
 
 	/**

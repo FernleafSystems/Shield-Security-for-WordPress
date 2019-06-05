@@ -45,7 +45,9 @@ class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	private function commitStats() {
-		$aStats = $this->getStatEvents();
+		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		$aStats = $oMod->getStatEvents();
 		if ( is_array( $aStats ) ) {
 			$oDbh = $this->getDbHandler();
 			foreach ( array_unique( $aStats ) as $sEvent ) {

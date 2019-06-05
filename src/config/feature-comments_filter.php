@@ -387,15 +387,11 @@
       "deleted_at"
     ],
     "events":                                {
-      "spam_block_checkbox":  {
+      "spam_block_human":     {
       },
-      "spam_block_honeypot":  {
-      },
-      "spam_block_token":     {
+      "spam_block_bot":       {
       },
       "spam_block_recaptcha": {
-      },
-      "spam_block_human":     {
       }
     }
   }

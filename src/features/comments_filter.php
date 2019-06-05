@@ -12,12 +12,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
 		$oWpComm = Services::WpComments();
-
 		$oPost = Services::WpPost()->getById( $nPostId );
 		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
 			   && !$this->isTrustedCommenter( $sCommentEmail );
-		// Removed 20190425 - v7.4 Compatibility with shoutbox WP Wall Plugin http://wordpress.org/plugins/wp-wall/
-//			   && !( function_exists( 'WPWall_Init' ) && !is_null( Services::Request()->post( 'submit_wall_post' ) ) );
 	}
 
 	/**

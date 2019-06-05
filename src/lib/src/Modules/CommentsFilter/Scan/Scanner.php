@@ -25,15 +25,15 @@ class Scanner {
 			add_filter( 'preprocess_comment', [ $this, 'checkComment' ], 5 );
 		}
 		add_filter( 'pre_comment_approved', [ $this, 'setStatus' ], 1 );
+		add_filter( 'pre_comment_content', [ $this, 'insertStatusExplanation' ], 1, 1 );
 	}
 
 	/**
 	 * @param mixed $mStatus
 	 * @return int|string|null
 	 */
-	public function setCommentStatus( $mStatus ) {
+	public function setStatus( $mStatus ) {
 		if ( !is_null( $this->mCommentStatus ) && in_array( $this->mCommentStatus, [ '0', 'spam', 'trash' ] ) ) {
-			add_filter( 'pre_comment_content', [ $this, 'insertStatusExplanation' ], 1, 1 );
 			$mStatus = $this->mCommentStatus;
 		}
 		return $mStatus;
@@ -45,28 +45,32 @@ class Scanner {
 	 */
 	public function insertStatusExplanation( $sContent ) {
 
-		switch ( $this->mCommentStatus ) {
-			case 'spam':
-				$sHumanStatus = 'SPAM';
-				break;
-			case 'trash':
-				$sHumanStatus = __( 'Trash' );
-				break;
-			default:
-			case '0':
-				$sHumanStatus = __( 'Pending Moderation' );
-				break;
+		if ( !is_null( $this->mCommentStatus ) && in_array( $this->mCommentStatus, [ '0', 'spam', 'trash' ] ) ) {
+			switch ( $this->mCommentStatus ) {
+				case 'spam':
+					$sHumanStatus = 'SPAM';
+					break;
+				case 'trash':
+					$sHumanStatus = __( 'Trash' );
+					break;
+				default:
+				case '0':
+					$sHumanStatus = __( 'Pending Moderation' );
+					break;
+			}
+
+			$sContent =
+				'[* '.sprintf( __( '%s plugin marked this comment as "%s".', 'wp-simple-firewall' )
+							   .' '.__( 'Reason: %s', 'wp-simple-firewall' ),
+					$this->getCon()->getHumanName(),
+					$sHumanStatus,
+					$this->sCommentExplanation
+
+				)." *]\n"
+				.$sContent;
 		}
 
-		return
-			'[* '.sprintf( __( '%s plugin marked this comment as "%s".', 'wp-simple-firewall' )
-						   .' '.__( 'Reason: %s', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName(),
-				$sHumanStatus,
-				$this->sCommentExplanation
-
-			)." *]\n"
-			.$sContent;
+		return $sContent;
 	}
 
 	/**
@@ -83,10 +87,7 @@ class Scanner {
 			$mScanResult = $this->runScans( $aCommData );
 			if ( is_wp_error( $mScanResult ) ) {
 
-				$this->getCon()->fireEvent(
-					'spam_block_'.$mScanResult->get_error_code(),
-					$mScanResult->get_error_data()
-				);
+				$this->getCon()->fireEvent( 'spam_block', $mScanResult->get_error_data() );
 				$oMod->setOptInsightsAt( 'last_comment_block_at' )
 					 ->setIpTransgressed();
 

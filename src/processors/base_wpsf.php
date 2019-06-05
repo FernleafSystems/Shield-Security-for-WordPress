@@ -22,11 +22,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	private $bLogRequest;
 
 	/**
-	 * @var string[]
-	 */
-	private static $aStatEvents;
-
-	/**
 	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
@@ -34,39 +29,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$oFO = $this->getMod();
 		add_filter( $oFO->prefix( 'collect_stats' ), [ $this, 'stats_Collect' ] );
 		add_filter( $oFO->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
-		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventStat' ], 10, 1 );
-	}
-
-	/**
-	 * @param string $sEvent
-	 */
-	public function eventStat( $sEvent ) {
-		$oMod = $this->getMod();
-		if ( $oMod->isSupportedEvent( $sEvent ) ) {
-			$aDef = $oMod->getEventDef( $sEvent );
-			if ( $aDef[ 'stat' ] ) { // only stat if it's an statable event
-				$this->addStatEvent( $sEvent );
-			}
-		}
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @return $this
-	 */
-	protected function addStatEvent( $sEvent ) {
-		if ( !is_array( self::$aStatEvents ) ) {
-			self::$aStatEvents = [];
-		}
-		self::$aStatEvents[] = $sEvent;
-		return $this;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getStatEvents() {
-		return self::$aStatEvents;
 	}
 
 	/**

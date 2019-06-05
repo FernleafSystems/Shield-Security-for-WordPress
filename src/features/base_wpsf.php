@@ -8,6 +8,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	use Shield\AuditTrail\Auditor;
 
 	/**
+	 * @var string[]
+	 */
+	private static $aStatEvents;
+
+	/**
 	 * @var ICWP_WPSF_Processor_Sessions
 	 */
 	static protected $oSessProcessor;
@@ -46,6 +51,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	protected function setupCustomHooks() {
 		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
+		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventStat' ], 10, 1 );
 	}
 
 	/**
@@ -61,6 +67,37 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			}
 		}
 		return $this;
+	}
+
+	/**
+	 * @param string $sEvent
+	 */
+	public function eventStat( $sEvent ) {
+		if ( $this->isSupportedEvent( $sEvent ) ) {
+			$aDef = $this->getEventDef( $sEvent );
+			if ( $aDef[ 'stat' ] ) { // only stat if it's a statable event
+				$this->addStatEvent( $sEvent );
+			}
+		}
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @return $this
+	 */
+	protected function addStatEvent( $sEvent ) {
+		if ( !is_array( self::$aStatEvents ) ) {
+			self::$aStatEvents = [];
+		}
+		self::$aStatEvents[] = $sEvent;
+		return $this;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getStatEvents() {
+		return self::$aStatEvents;
 	}
 
 	/**

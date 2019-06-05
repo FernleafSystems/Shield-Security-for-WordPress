@@ -2,7 +2,7 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_CommentsFilter_Base {
+class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 */
@@ -41,39 +41,5 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 	 */
 	protected function getGoogleRecaptchaHtml() {
 		return '<div class="icwpg-recaptcha" style="margin: 10px 0; clear:both;"></div>';
-	}
-
-	/**
-	 * @param array $aCommData
-	 * @return array
-	 */
-	public function doCommentChecking( $aCommData ) {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
-
-		if ( $oFO->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
-
-			try {
-				$this->checkRequestRecaptcha();
-			}
-			catch ( \Exception $oE ) {
-				$sStatKey = ( $oE->getCode() == 1 ) ? 'empty' : 'failed';
-				$sExplanation = $oE->getMessage();
-
-				$this->doStatIncrement( sprintf( 'spam.recaptcha.%s', $sStatKey ) );
-				self::$sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
-				$this->setCommentStatusExplanation( $sExplanation );
-
-				$this->getCon()->fireEvent( 'spam_block_recaptcha' );
-				$oFO->setOptInsightsAt( 'last_comment_block_at' )
-					->setIpTransgressed();
-
-				if ( self::$sCommentStatus == 'reject' ) {
-					Services::Response()->redirectToHome();
-				}
-			}
-		}
-
-		return $aCommData;
 	}
 }

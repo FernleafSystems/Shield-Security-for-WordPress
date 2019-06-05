@@ -20,7 +20,7 @@ class Bot {
 		$oReq = Services::Request();
 		$sFieldCheckboxName = $oReq->post( 'cb_nombre' );
 		$sFieldHoney = $oReq->post( 'sugar_sweet_email' );
-		$nCooldownTs = (int)$oReq->post( 'botts' );
+		$nCommentTs = (int)$oReq->post( 'botts' );
 		$sCommentToken = $oReq->post( 'comment_token' );
 
 		$nCooldown = $oMod->getTokenCooldown();
@@ -39,26 +39,21 @@ class Bot {
 		}
 		else if ( $nCooldown > 0 || $nExpire > 0 ) {
 
-			if ( $nCooldown > 0 && $oReq->ts() < $nCooldownTs ) {
+			if ( $nCooldown > 0 && $oReq->ts() < ( $nCommentTs + $nCooldown ) ) {
 				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'cooldown', 'wp-simple-firewall' ) );
 				$sKey = 'cooldown';
 			}
-			else if ( $nExpire > 0 && $oReq->ts() > ( $nCooldownTs - $nCooldown + $nExpire ) ) {
+			else if ( $nExpire > 0 && $oReq->ts() > ( $nCommentTs + $nExpire ) ) {
 				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'expired', 'wp-simple-firewall' ) );
 				$sKey = 'expired';
 			}
-			else if ( !$this->checkTokenHash( $sCommentToken, $nCooldownTs, $nPostId ) ) {
-				$sExplanation = sprintf( __( 'Failed GASP Bot Filter Test (%s)', 'wp-simple-firewall' ), __( 'comment token failure', 'wp-simple-firewall' ) );
+			else if ( !$this->checkTokenHash( $sCommentToken, $nCommentTs, $nPostId ) ) {
+				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'token', 'wp-simple-firewall' ) );
 				$sKey = 'token';
 			}
 		}
 
-		$mResult = true;
-		if ( !empty( $sKey ) ) {
-			$mResult = new \WP_Error( $sKey, $sExplanation, [] );
-		}
-
-		return $mResult;
+		return empty( $sKey ) ? true : new \WP_Error( 'bot', $sExplanation, [ 'type' => $sKey ] );
 	}
 
 	/**
@@ -68,8 +63,12 @@ class Bot {
 	 * @return bool
 	 */
 	private function checkTokenHash( $sToken, $nTs, $nPostId ) {
-		$sStoredToken = Services::WpGeneral()
-								->getTransient( $this->getMod()->prefix( sprintf( 'comtok-%s-%s', $nPostId, $nTs ) ) );
+		$oWp = Services::WpGeneral();
+		$sKey = $this->getMod()->prefix(
+			'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) )
+		);
+		$sStoredToken = Services::WpGeneral()->getTransient( $sKey );
+		$oWp->deleteTransient( $sKey ); // single use hashes & clean as we go
 		return hash_equals(
 			(string)$sStoredToken,
 			$sToken
