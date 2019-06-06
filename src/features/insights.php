@@ -754,7 +754,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			}
 		}
 
-		ksort( $aLatestStats );
 		return $aLatestStats;
 	}
 
