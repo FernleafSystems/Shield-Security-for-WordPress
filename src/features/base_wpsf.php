@@ -112,7 +112,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	protected function redirectToInsightsSubPage() {
 		Services::Response()->redirect(
-			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
 			[
 				'inav'   => 'settings',
 				'subnav' => $this->getSlug()

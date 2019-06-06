@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -9,6 +10,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
  */
 class Handler {
+
+	use ModConsumer;
 
 	/**
 	 * The defined table columns.

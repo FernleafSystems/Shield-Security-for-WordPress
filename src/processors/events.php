@@ -31,7 +31,9 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 	 * @return Events\Handler
 	 */
 	protected function createDbHandler() {
-		return new Events\Handler();
+		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
+		$oMod = $this->getMod();
+		return $oMod->getDbHandler();
 	}
 
 	/**
@@ -45,7 +47,7 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	private function commitEvents() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
 		$aStats = $oMod->getStatEvents();
 		if ( is_array( $aStats ) ) {

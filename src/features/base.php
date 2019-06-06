@@ -43,14 +43,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	private $oWizard;
 
 	/**
-	 * @var Shield\Modules\Base\Options
+	 * @var Shield\Databases\Base\Handler
 	 */
-	private $oOpts;
+	private $oDbh;
 
 	/**
 	 * @var Shield\Modules\Base\Strings
 	 */
 	private $oStrings;
+
+	/**
+	 * @var Shield\Modules\Base\Options
+	 */
+	private $oOpts;
 
 	/**
 	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
@@ -1546,7 +1551,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			],
 			'hrefs'           => [
-				'back_to_dashboard' => $this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+				'back_to_dashboard' => $this->getCon()->getModule_Insights()->getUrl_AdminPage(),
 				'go_pro'            => 'https://icwp.io/shieldgoprofeature',
 				'goprofooter'       => 'https://icwp.io/goprofooter',
 				'wizard_link'       => $this->getUrl_WizardLanding(),
@@ -2017,6 +2022,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return null|Shield\Databases\Base\Handler|mixed
+	 */
+	public function getDbHandler() {
+		if ( !isset( $this->oDbh ) ) {
+			$this->oDbh = $this->loadDbHandler()->setMod( $this );
+		}
+		return $this->oDbh;
+	}
+
+	/**
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
@@ -2024,6 +2039,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
+	}
+
+	/**
+	 * @return Shield\Databases\Base\Handler|mixed
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Base\Handler();
 	}
 
 	/**

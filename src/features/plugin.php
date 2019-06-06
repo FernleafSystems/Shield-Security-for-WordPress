@@ -247,7 +247,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	private function getUrlImportExport() {
 		return add_query_arg(
 			[ 'inav' => 'importexport' ],
-			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage()
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
 	}
 

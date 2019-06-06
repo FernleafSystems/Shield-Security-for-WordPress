@@ -7,7 +7,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	protected function redirectToInsightsSubPage() {
 		Services::Response()->redirect(
-			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
 			[ 'inav' => 'license' ]
 		);
 	}
