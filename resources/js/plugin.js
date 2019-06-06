@@ -62,7 +62,12 @@ var iCWP_WPSF_Toaster = new function () {
 		jQuery( '<span></span>' ).html( sMessage )
 								 .addClass( bSuccess ? 'text-dark' : 'text-danger' )
 								 .appendTo( $oToastBody );
+
+		$oNewToast.css( 'z-index', 10 );
 		$oNewToast.toast( 'show' );
+		$oNewToast.on( 'hidden.bs.toast', function () {
+			this.css( 'z-index', -10 )
+		} );
 	};
 
 	this.initialise = function () {

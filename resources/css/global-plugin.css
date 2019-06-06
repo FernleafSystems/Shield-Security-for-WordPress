@@ -292,7 +292,7 @@ tr.icwp-plugin-vulnerability dd {
 	position: fixed;
 	top: 100px;
 	right: 60px;
-	z-index: 12;
+	z-index: -1;
 }
 .icwp-toaster .toast-body {
 	white-space: nowrap;
