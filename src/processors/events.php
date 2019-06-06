@@ -2,7 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
-class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
+class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @var bool
@@ -10,9 +10,9 @@ class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 	private $bStat = false;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Statistics $oModCon
+	 * @param ICWP_WPSF_FeatureHandler_Events $oModCon
 	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Statistics $oModCon ) {
+	public function __construct( ICWP_WPSF_FeatureHandler_Events $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getEventsTableName() );
 	}
 
@@ -23,7 +23,7 @@ class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
 		if ( $this->bStat && !$this->getCon()->isPluginDeleting() ) {
-			$this->commitStats();
+			$this->commitEvents();
 		}
 	}
 
@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_Statistics_Events extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 */
-	private function commitStats() {
+	private function commitEvents() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
 		$aStats = $oMod->getStatEvents();

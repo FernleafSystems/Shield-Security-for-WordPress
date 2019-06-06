@@ -510,6 +510,11 @@
         "storage_key": "lockdown"
       },
       {
+        "slug":          "events",
+        "storage_key":   "events",
+        "load_priority": 11
+      },
+      {
         "slug":          "statistics",
         "storage_key":   "statistics",
         "load_priority": 11,

@@ -1721,6 +1721,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_Events
+	 */
+	public function getModule_Events() {
+		return $this->getModule( 'events' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_FeatureHandler_Insights
 	 */
 	public function getModule_Insights() {

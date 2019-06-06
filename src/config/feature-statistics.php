@@ -81,14 +81,6 @@
       "created_at",
       "modified_at",
       "deleted_at"
-    ],
-    "events_table_name":                 "events",
-    "events_table_columns":              [
-      "id",
-      "event",
-      "count",
-      "created_at",
-      "deleted_at"
     ]
   }
 }
