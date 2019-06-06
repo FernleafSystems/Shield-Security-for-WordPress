@@ -109,7 +109,7 @@ class Select extends BaseQuery {
 	 * @return EntryVO|\stdClass|mixed|null
 	 */
 	public function first() {
-		$aR = $this->query();
+		$aR = $this->setLimit( 1 )->query();
 		return empty( $aR ) ? null : array_shift( $aR );
 	}
 

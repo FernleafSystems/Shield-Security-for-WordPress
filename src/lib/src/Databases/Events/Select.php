@@ -7,6 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class Select extends Base\Select {
 
 	/**
+	 * @param string $sEvent
+	 * @return EntryVO|null
+	 */
+	public function getLatestForEvent( $sEvent ) {
+		return $this->filterByEvent( $sEvent )
+					->setOrderBy( 'created_at', 'DESC' )
+					->setResultsAsVo( true )
+					->first();
+	}
+
+	/**
 	 * https://stackoverflow.com/questions/5554075/get-last-distinct-set-of-records
 	 * @return EntryVO[] - keys are event names
 	 */
