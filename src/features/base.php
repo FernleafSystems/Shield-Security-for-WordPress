@@ -155,11 +155,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array[]
 	 */
-	protected function getEvents() {
-		$aEvts = $this->getDef( 'events' );
-		if ( !is_array( $aEvts ) ) {
-			$aEvts = [];
-		}
+	public function getEvents() {
+		$aEvts = $this->getSupportedEvents();
 
 		$aDefaults = [
 			'slug'    => $this->getSlug(),
@@ -171,6 +168,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		];
 		foreach ( $aEvts as $sKey => $aEvt ) {
 			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
+			$aEvts[ $sKey ][ 'key' ] = $sKey;
 			$aEvts[ $sKey ][ 'msg' ] = $this->getStrings()->getAuditMessage( $sKey );
 		}
 		return $aEvts;
@@ -189,7 +187,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return string[]
+	 * @return array[]
 	 */
 	protected function getSupportedEvents() {
 		$aEvts = $this->getDef( 'events' );
@@ -201,7 +199,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isSupportedEvent( $sKey ) {
-		return in_array( $sKey, $this->getSupportedEvents() );
+		return array_key_exists( $sKey, $this->getSupportedEvents() );
 	}
 
 	/**

@@ -356,7 +356,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminCss' ], 100 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
 
-		$this->runTests();
+		if ( Services::Request()->query( $this->prefix( 'runtests' ) ) && $this->isPluginAdmin() ) {
+			$this->runTests();
+		};
 	}
 
 	/**
@@ -1912,13 +1914,12 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	private function runTests() {
-		if ( $this->isPluginAdmin() && $this->isModulePage() && Services::Request()->query( 'runtests' ) ) {
-			foreach ( $this->getModules() as $oModule ) {
-				( new \FernleafSystems\Wordpress\Plugin\Shield\Tests\VerifyConfig() )
-					->setOpts( $oModule->getOptionsVo() )
-					->run();
-			}
-			die();
+		die();
+		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();
+		foreach ( $this->getModules() as $oModule ) {
+			( new \FernleafSystems\Wordpress\Plugin\Shield\Tests\VerifyConfig() )
+				->setOpts( $oModule->getOptionsVo() )
+				->run();
 		}
 	}
 }
