@@ -13,8 +13,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->revSliderPatch_LFI();
 			$this->revSliderPatch_AFU();
 		}
-		// not probably necessary any longer since it's patched in the Core
-		add_filter( 'pre_comment_content', [ $this, 'secXss64kb' ], 0, 1 );
 
 		$this->getSubProScanner()->run();
 		if ( $oMod->isRtEnabledWpConfig() ) {
