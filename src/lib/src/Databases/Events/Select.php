@@ -7,6 +7,40 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 class Select extends Base\Select {
 
 	/**
+	 * https://stackoverflow.com/questions/5554075/get-last-distinct-set-of-records
+	 * @return EntryVO[] - keys are event names
+	 */
+	public function getLatestForAllEvents() {
+		$aKeyedLatest = [];
+		$this->setGroupBy( 'event' )
+			 ->setOrderBy( 'created_at', 'DESC' )
+			 ->addWhere( 'id', $this->getMaxIds(), 'IN' )
+			 ->setResultsAsVo( true );
+		foreach ( $this->query() as $oEntry ) {
+			/** @var EntryVO $oEntry */
+			$aKeyedLatest[ $oEntry->event ] = $oEntry;
+		}
+		return $aKeyedLatest;
+	}
+
+	/**
+	 * @return int[]
+	 */
+	private function getMaxIds() {
+		$aIds = $this->setCustomSelect( 'MAX(id)' )
+					 ->setGroupBy( 'event' )
+					 ->setResultsAsVo( false )
+					 ->setSelectResultsFormat( ARRAY_A )
+					 ->query();
+		return array_map(
+			function ( $aId ) {
+				return (int)$aId[ 'MAX(id)' ];
+			},
+			$aIds
+		);
+	}
+
+	/**
 	 * @param int $nGreaterThan
 	 * @return $this
 	 */

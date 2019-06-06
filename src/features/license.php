@@ -678,7 +678,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
 			],
-			'strings' => $this->getDisplayStrings(),
+			'strings' => $this->getStrings()->getDisplayStrings(),
 		];
 		return $aData;
 	}

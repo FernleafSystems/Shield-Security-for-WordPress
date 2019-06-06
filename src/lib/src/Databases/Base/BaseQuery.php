@@ -36,6 +36,11 @@ abstract class BaseQuery {
 	 */
 	protected $sOrderBy;
 
+	/**
+	 * @var string
+	 */
+	protected $sGroupBy;
+
 	public function __construct() {
 		$this->customInit();
 	}
@@ -131,6 +136,7 @@ abstract class BaseQuery {
 	public function buildExtras() {
 		$aExtras = array_filter(
 			[
+				$this->getGroupBy(),
 				$this->getOrderBy(),
 				$this->buildLimitPhrase(),
 				$this->buildOffsetPhrase(),
@@ -247,6 +253,13 @@ abstract class BaseQuery {
 	/**
 	 * @return string
 	 */
+	public function getGroupBy() {
+		return empty( $this->sGroupBy ) ? '' : sprintf( 'GROUP BY `%s`', $this->sGroupBy );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getOrderBy() {
 		return !empty( $this->sOrderBy ) ? $this->sOrderBy : 'ORDER BY `created_at` DESC';
 	}
@@ -304,6 +317,20 @@ abstract class BaseQuery {
 	 */
 	public function setLimit( $nLimit ) {
 		$this->nLimit = $nLimit;
+		return $this;
+	}
+
+	/**
+	 * @param string $sGroupByColumn
+	 * @return $this
+	 */
+	public function setGroupBy( $sGroupByColumn ) {
+		if ( empty( $sGroupByColumn ) ) {
+			$this->sGroupBy = '';
+		}
+		else if ( $this->getDbH()->hasColumn( $sGroupByColumn ) ) {
+			$this->sGroupBy = $sGroupByColumn;
+		}
 		return $this;
 	}
 

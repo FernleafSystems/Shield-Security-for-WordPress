@@ -29,6 +29,11 @@ class Select extends BaseQuery {
 	/**
 	 * @var string
 	 */
+	protected $sCustomSelect;
+
+	/**
+	 * @var string
+	 */
 	protected $sResultFormat;
 
 	/**
@@ -42,7 +47,7 @@ class Select extends BaseQuery {
 	}
 
 	/**
-	 * @return array[]|int|string[]
+	 * @return array[]|int|string[]|EntryVO[]|mixed
 	 */
 	public function all() {
 		return $this->reset()->query();
@@ -75,16 +80,20 @@ class Select extends BaseQuery {
 	 * @return string
 	 */
 	protected function buildSelect() {
-		$sSubstitute = '*';
 		if ( $this->isCount() ) {
 			$sSubstitute = 'COUNT(*)';
 		}
 		else if ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
-			$aCols = $this->getColumnsToSelect();
-			$sSubstitute = sprintf( 'DISTINCT %s', array_pop( $aCols ) );
+			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $this->getColumnsToSelect() ) );
 		}
 		else if ( $this->hasColumnsToSelect() ) {
 			$sSubstitute = implode( ',', $this->getColumnsToSelect() );
+		}
+		else if ( $this->isCustomSelect() ) {
+			$sSubstitute = $this->sCustomSelect;
+		}
+		else {
+			$sSubstitute = '*';
 		}
 		return $sSubstitute;
 	}
@@ -169,6 +178,13 @@ class Select extends BaseQuery {
 	/**
 	 * @return bool
 	 */
+	public function isCustomSelect() {
+		return !empty( $this->sCustomSelect );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isDistinct() {
 		return (bool)$this->bIsDistinct;
 	}
@@ -240,6 +256,9 @@ class Select extends BaseQuery {
 		parent::reset();
 		return $this->setIsCount( false )
 					->setIsDistinct( false )
+					->setGroupBy( '' )
+					->setSelectResultsFormat( '' )
+					->setCustomSelect( '' )
 					->setColumnsToSelect( [] );
 	}
 
@@ -255,6 +274,15 @@ class Select extends BaseQuery {
 				array_map( 'strtolower', $aColumns )
 			);
 		}
+		return $this;
+	}
+
+	/**
+	 * @param string $sSelect
+	 * @return $this
+	 */
+	public function setCustomSelect( $sSelect ) {
+		$this->sCustomSelect = $sSelect;
 		return $this;
 	}
 
