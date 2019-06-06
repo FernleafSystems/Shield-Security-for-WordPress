@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
 
 use ReCaptcha\RequestMethod;
 use ReCaptcha\RequestParameters;
