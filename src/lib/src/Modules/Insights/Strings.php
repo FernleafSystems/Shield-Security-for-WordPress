@@ -60,9 +60,7 @@ class Strings extends Base\Strings {
 			'suggestion'          => ucfirst( __( 'suggestion', 'wp-simple-firewall' ) ),
 			'box_welcome_title'   => sprintf( __( 'Welcome To %s Security Insights Dashboard', 'wp-simple-firewall' ), $sName ),
 			'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ), $sName ),
-
 			'never'          => __( 'Never', 'wp-simple-firewall' ),
-			'go_pro'         => 'Go Pro!',
 			'options'        => __( 'Options', 'wp-simple-firewall' ),
 			'not_available'  => __( 'Sorry, this feature would typically be used by professionals and so is a Pro-only feature.', 'wp-simple-firewall' ),
 			'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),

@@ -20,8 +20,6 @@ class Strings {
 				'btn_options'       => __( 'Options' ),
 				'btn_help'          => __( 'Help' ),
 				'btn_wizards'       => $this->getMod()->hasWizard() ? __( 'Wizards' ) : __( 'No Wizards' ),
-				'back_to_dashboard' => sprintf( __( 'Back To %s Dashboard', 'wp-simple-firewall' ), $this->getCon()
-																										 ->getHumanName() ),
 				'go_to_settings'    => __( 'Settings', 'wp-simple-firewall' ),
 				'on'                => __( 'On', 'wp-simple-firewall' ),
 				'off'               => __( 'Off', 'wp-simple-firewall' ),
@@ -35,6 +33,7 @@ class Strings {
 				'help_title'        => __( 'Help', 'wp-simple-firewall' ),
 				'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
 				'pro_only_option'   => __( 'Pro Only' ),
+				'go_pro'            => 'Go Pro!',
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
 					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
 
@@ -45,9 +44,9 @@ class Strings {
 				'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
 				'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
 				'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' ),
-				'supply_password'         => __( 'Supply Password', 'wp-simple-firewall' ),
-				'confirm_password'        => __( 'Confirm Password', 'wp-simple-firewall' ),
-				'show_help_video_section' => __( 'Show help video for this section', 'wp-simple-firewall' ),
+				'supply_password'              => __( 'Supply Password', 'wp-simple-firewall' ),
+				'confirm_password'             => __( 'Confirm Password', 'wp-simple-firewall' ),
+				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
 			],
 			$this->getAdditionalDisplayStrings()
 		);
