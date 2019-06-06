@@ -1707,7 +1707,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @param string $sSlug
-	 * @return ICWP_WPSF_FeatureHandler_Base|null
+	 * @return ICWP_WPSF_FeatureHandler_Base|null|mixed
 	 */
 	public function getModule( $sSlug ) {
 		if ( !is_array( $this->aModules ) ) {
@@ -1721,7 +1721,14 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction|mixed
+	 * @return ICWP_WPSF_FeatureHandler_Insights
+	 */
+	public function getModule_Insights() {
+		return $this->getModule( 'insights' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction
 	 */
 	public function getModule_SecAdmin() {
 		return $this->getModule( 'admin_access_restriction' );

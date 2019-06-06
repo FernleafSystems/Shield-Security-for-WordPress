@@ -727,7 +727,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		$aSum = [
 			'enabled'    => $this->isEnabledForUiSummary(),
-			'active'     => $this->isThisModulePage(),
+			'active'     => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
 			'slug'       => $this->getSlug(),
 			'name'       => $this->getMainFeatureName(),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
@@ -1377,7 +1377,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isThisModulePage() {
-		return $this->getCon()->isModulePage() && Services::Request()->query( 'page' ) == $this->getModSlug();
+		return $this->getCon()->isModulePage()
+			   && Services::Request()->query( 'page' ) == $this->getModSlug();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPage_Insights() {
+		return Services::Request()->query( 'page' ) == $this->getCon()->getModule_Insights()->getModSlug();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPage_InsightsThisModule() {
+		return $this->isPage_Insights()
+			   && Services::Request()->query( 'subnav' ) == $this->getSlug();
 	}
 
 	/**
