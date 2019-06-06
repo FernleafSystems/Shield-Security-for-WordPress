@@ -65,7 +65,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		}
 		catch ( \Exception $oE ) {
 			$sEvent = $oE->getMessage();
-			$this->getCon()->fireEvent( $sEvent );
+			$this->getCon()
+				 ->fireEvent( 'session_terminated' )
+				 ->fireEvent( $sEvent );
 			$oU = Services::WpUsers();
 			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $sEvent ] ) : $oU->logoutUser( true );
 		}

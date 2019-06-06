@@ -724,56 +724,74 @@
       "wpv_alert_sent":          {
       },
       "apc_scan_run":            {
-        "audit": false
+        "audit": false,
+        "recent": true
       },
-      "max_scan_run":            {
-        "audit": false
+      "mal_scan_run":            {
+        "audit": false,
+        "recent": true
       },
       "ptg_scan_run":            {
-        "audit": false
+        "audit": false,
+        "recent": true
       },
       "ufc_scan_run":            {
-        "audit": false
+        "audit": false,
+        "recent": true
       },
       "wcf_scan_run":            {
-        "audit": false
+        "audit": false,
+        "recent": true
       },
       "wpv_scan_run":            {
-        "audit": false
+        "audit": false,
+        "recent": true
       },
       "apc_scan_found":          {
+        "recent": true
       },
-      "max_scan_found":          {
+      "mal_scan_found":          {
+        "recent": true
       },
       "ptg_scan_found":          {
+        "recent": true
       },
       "ufc_scan_found":          {
+        "recent": true
       },
       "wcf_scan_found":          {
+        "recent": true
       },
       "wpv_scan_found":          {
+        "recent": true
       },
       "apc_item_repair_success": {
+        "recent": true
       },
       "apc_item_repair_fail":    {
       },
       "mal_item_repair_success": {
+        "recent": true
       },
       "mal_item_repair_fail":    {
       },
       "ptg_item_repair_success": {
+        "recent": true
       },
       "ptg_item_repair_fail":    {
       },
       "ufc_item_repair_success": {
+        "recent": true
       },
       "ufc_item_repair_fail":    {
       },
       "wcf_item_repair_success": {
+        "recent": true
       },
       "wcf_item_repair_fail":    {
       },
       "wpv_item_repair_success": {
+        "recent": true
       },
       "wpv_item_repair_fail":    {
       }

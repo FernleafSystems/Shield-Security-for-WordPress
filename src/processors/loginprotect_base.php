@@ -248,7 +248,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 					 ->performCheckWithException();
 			}
 			catch ( \Exception $oE ) {
-				UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
+				\UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
 			}
 		}
 	}
@@ -577,6 +577,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	protected function setLoginAsFailed( $sStatToIncrement ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
+
+		$this->getCon()->fireEvent( 'login_block' );
 		$oFO->setOptInsightsAt( 'last_login_block_at' )
 			->setIpTransgressed();
 

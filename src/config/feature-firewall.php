@@ -394,6 +394,10 @@
         "cat":  2,
         "stat": false
       },
+      "firewall_block":    {
+        "audit": false,
+        "recent": true
+      },
       "blockparam_dirtraversal":    {
         "cat": 3
       },

@@ -135,13 +135,15 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				}
 			}
 			if ( $bFAIL ) {
-				$this->getCon()->fireEvent(
-					'block_exeupload',
-					[
-						'blockresponse' => $oFO->getBlockResponse(),
-						'blockkey'      => $sKey,
-					]
-				);
+				$this->getCon()
+					 ->fireEvent( 'firewall_block' )
+					 ->fireEvent(
+						 'block_exeupload',
+						 [
+							 'blockresponse' => $oFO->getBlockResponse(),
+							 'blockkey'      => $sKey,
+						 ]
+					 );
 				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
 			}
 		}
@@ -203,15 +205,17 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ), $sParam, $mValue )
 			];
 
-			$this->getCon()->fireEvent(
-				'blockparam_'.$sBlockKey,
-				[ // param order is critical
-				  'param'         => $sParam,
-				  'val'           => $mValue,
-				  'blockresponse' => $oFO->getBlockResponse(),
-				  'blockkey'      => $sBlockKey,
-				]
-			);
+			$this->getCon()
+				 ->fireEvent( 'firewall_block' )
+				 ->fireEvent(
+					 'blockparam_'.$sBlockKey,
+					 [ // param order is critical
+					   'param'         => $sParam,
+					   'val'           => $mValue,
+					   'blockresponse' => $oFO->getBlockResponse(),
+					   'blockkey'      => $sBlockKey,
+					 ]
+				 );
 			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
 		}
 
@@ -254,8 +258,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			);
 		}
 
-		$oFO->setOptInsightsAt( 'last_firewall_block_at' )
-			->setIpTransgressed();
+		$oFO->setIpTransgressed();
 	}
 
 	/**

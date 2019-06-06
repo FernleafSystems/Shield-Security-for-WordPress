@@ -387,11 +387,14 @@
       "deleted_at"
     ],
     "events":                                {
-      "spam_block_human":     {
-      },
       "spam_block_bot":       {
+        "recent": true
       },
       "spam_block_recaptcha": {
+        "recent": true
+      },
+      "spam_block_human":     {
+        "recent": true
       }
     }
   }

@@ -332,23 +332,29 @@
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
     "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
     "events":                        {
-      "session_notfound":    {
+      "session_terminated":           {
+        "audit": false,
+        "recent": true
       },
-      "session_expired":     {
+      "session_notfound":             {
       },
-      "session_idle":        {
+      "session_expired":              {
       },
-      "session_iplock":      {
+      "session_idle":                 {
       },
-      "session_browserlock": {
+      "session_iplock":               {
       },
-      "session_unverified":  {
+      "session_browserlock":          {
       },
-      "password_expired":    {
+      "session_unverified":           {
       },
-      "pass_policy_change":  {
+      "password_expired":             {
       },
-      "pass_policy_block":   {
+      "password_policy_force_change": {
+        "recent": true
+      },
+      "password_policy_block":        {
+        "recent": true
       }
     }
   }

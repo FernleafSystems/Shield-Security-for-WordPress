@@ -248,36 +248,36 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'pass_expired'        => [
+			'pass_expired'                 => [
 				__( 'Forcing user to update expired password.', 'wp-simple-firewall' ),
 			],
-			'pass_policy_change'  => [
+			'password_policy_force_change' => [
 				__( 'Forcing user to update password that fails to meet policies.', 'wp-simple-firewall' ),
 			],
-			'pass_policy_block'   => [
+			'password_policy_block'        => [
 				__( 'Blocked attempted password update that failed policy requirements.', 'wp-simple-firewall' ),
 			],
-			'session_notfound'    => [
+			'session_notfound'             => [
 				__( 'Valid user session could not be found.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
-			'session_expired'     => [
+			'session_expired'              => [
 				__( 'User session has expired.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
-			'session_idle'        => [
+			'session_idle'                 => [
 				__( 'User session has expired due to inactivity.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
-			'session_iplock'      => [
+			'session_iplock'               => [
 				__( 'Access to an established user session from a different IP address.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
-			'session_browserlock' => [
+			'session_browserlock'          => [
 				__( 'Browser signature has changed for this user session.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
-			'session_unverified'  => [
+			'session_unverified'           => [
 				__( 'Unable to verify the current User Session. Forcefully logging out session.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],

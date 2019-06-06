@@ -549,8 +549,9 @@
       }
     ],
     "events":                 {
-      "test_cron_run":     {
-        "audit": false
+      "test_cron_run":          {
+        "audit":  false,
+        "recent": true
       },
       "import_notify_sent":     {
         "stat": false
@@ -559,7 +560,12 @@
         "stat": false
       },
       "options_exported":       {
-        "stat": false
+        "stat":   true,
+        "recent": true
+      },
+      "options_imported":       {
+        "stat":   true,
+        "recent": true
       },
       "whitelist_site_added":   {
         "stat": false

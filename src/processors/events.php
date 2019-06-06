@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 	private function commitEvents() {
 		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
-		$aStats = $oMod->getStatEvents();
+		$aStats = $oMod->getRegisteredEvents();
 		if ( is_array( $aStats ) ) {
 			$oDbh = $this->getDbHandler();
 			foreach ( array_unique( $aStats ) as $sEvent ) {

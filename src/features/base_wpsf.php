@@ -96,7 +96,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string[]
 	 */
-	public function getStatEvents() {
+	public function getRegisteredEvents() {
 		return self::$aStatEvents;
 	}
 
@@ -342,20 +342,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			}
 		}
 		return array_unique( array_filter( $aCleaned ) );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getInsightsOpts() {
-		$aOpts = [];
-		$oOpts = $this->getOptionsVo();
-		foreach ( $oOpts->getOptionsKeys() as $sOpt ) {
-			if ( strpos( $sOpt, 'insights_' ) === 0 ) {
-				$aOpts[ $sOpt ] = $oOpts->getOpt( $sOpt );
-			}
-		}
-		return $aOpts;
 	}
 
 	/**

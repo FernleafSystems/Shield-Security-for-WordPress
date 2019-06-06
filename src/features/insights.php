@@ -706,24 +706,56 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function getRecentEvents() {
 
-		$aStats = [];
+		$aEmptyStats = [];
 		foreach ( $this->getCon()->getModules() as $oModule ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
-			$aStats = array_merge( $aStats, $oModule->getInsightsOpts() );
+			$aStat = $oModule->getStatEvents();
+			$aEmptyStats = array_merge( $aEmptyStats, $aStat );
 		}
+		$aEmptyStats = array_filter(
+			$aEmptyStats,
+			function ( $aEvt ) {
+				return $aEvt[ 'recent' ];
+			}
+		);
 
-		$oWP = Services::WpGeneral();
 		/** @var Shield\Modules\Insights\Strings $oStrs */
 		$oStrs = $this->getStrings();
 		$aNames = $oStrs->getInsightStatNames();
-		foreach ( $aStats as $sStatKey => $nValue ) {
-			$aStats[ $sStatKey ] = [
-				'name' => $aNames[ $sStatKey ],
-				'val'  => ( $nValue > 0 ) ? $oWP->getTimeStringForDisplay( $nValue ) : __( 'Not yet recorded', 'wp-simple-firewall' ),
-			];
+
+		/** @var Shield\Databases\Events\Handler $oEventsDbh */
+		$oEventsDbh = $this->getCon()
+						   ->getModule_Events()
+						   ->getDbHandler();
+		/** @var Shield\Databases\Events\Select $oSel */
+		$oSel = $oEventsDbh->getQuerySelector();
+
+		$aLatestStats = array_intersect_key(
+			array_map(
+				function ( $oEntryVO ) use ( $aNames ) {
+					/** @var Shield\Databases\Events\EntryVO $oEntryVO */
+					return [
+						'name' => isset( $aNames[ $oEntryVO->event ] ) ? $aNames[ $oEntryVO->event ] : '*** '.$oEntryVO->event,
+						'val'  => Services::WpGeneral()->getTimeStringForDisplay( $oEntryVO->created_at )
+					];
+				},
+				$oSel->getLatestForAllEvents()
+			),
+			$aEmptyStats
+		);
+
+		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
+		foreach ( array_keys( $aEmptyStats ) as $sStatKey ) {
+			if ( !isset( $aLatestStats[ $sStatKey ] ) ) {
+				$aLatestStats[ $sStatKey ] = [
+					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
+					'val'  => $sNotYetRecorded
+				];
+			}
 		}
 
-		return $aStats;
+		ksort( $aLatestStats );
+		return $aLatestStats;
 	}
 
 	/**

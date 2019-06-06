@@ -491,35 +491,40 @@
   ],
   "definitions":   {
     "login_intent_timeout": 5,
-    "events":                     {
+    "events":               {
       "2fa_backupcode_verified": {
       },
-      "2fa_backupcode_fail": {
+      "2fa_backupcode_fail":     {
       },
-      "2fa_email_verified": {
+      "2fa_email_verified":      {
       },
-      "2fa_email_fail": {
+      "2fa_email_fail":          {
       },
       "2fa_googleauth_verified": {
       },
-      "2fa_google_fail": {
+      "2fa_google_fail":         {
       },
-      "2fa_yubikey_verified": {
+      "2fa_yubikey_verified":    {
       },
-      "2fa_yubikey_fail": {
+      "2fa_yubikey_fail":        {
       },
-      "2fa_email_send_success": {
+      "2fa_email_send_success":  {
       },
-      "2fa_email_send_fail": {
+      "2fa_email_send_fail":     {
       },
-      "cooldown_fail": {
+      "cooldown_fail":           {
       },
-      "honeypot_fail": {
+      "honeypot_fail":           {
       },
-      "botbox_fail": {
+      "botbox_fail":             {
       },
-      "2fa_success": {
-        "audit": false
+      "block_login":             {
+        "audit":  false,
+        "recent": true
+      },
+      "2fa_success":             {
+        "audit":  false,
+        "recent": true
       }
     }
   }

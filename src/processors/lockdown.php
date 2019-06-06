@@ -126,7 +126,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 
 			$this->getCon()
 				 ->fireEvent(
-					 'block_anonymous_api',
+					 'block_anonymous_restapi',
 					 [ 'namespace' => Services::Rest()->getNamespace() ]
 				 );
 			$oFO->setOptInsightsAt( 'restapi_block_at' );

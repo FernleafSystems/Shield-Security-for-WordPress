@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
 		if ( $bPassCheckFailed ) {
-			$this->getCon()->fireEvent( 'pass_policy_change' );
+			$this->getCon()->fireEvent( 'password_policy_force_change' );
 			$this->redirectToResetPassword(
 				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
@@ -168,7 +168,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 					$oFO = $this->getMod();
 					$oFO->setOptInsightsAt( 'last_password_block_at' );
-					$this->getCon()->fireEvent( 'pass_policy_block' );
+					$this->getCon()->fireEvent( 'password_policy_block' );
 				}
 			}
 		}

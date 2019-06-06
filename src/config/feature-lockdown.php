@@ -186,10 +186,12 @@
       "woocommerce"
     ],
     "events":                     {
-      "block_anonymous_api": {
+      "block_anonymous_restapi": {
+        "recent": true
       },
-      "block_xml": {
-        "audit": false
+      "block_xml":               {
+        "audit":  false,
+        "recent": true
       }
     }
   }

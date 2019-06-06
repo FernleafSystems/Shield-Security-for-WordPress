@@ -487,11 +487,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @param string $sEventTag
 	 * @param array  $aMetaData
+	 * @return $this
 	 */
 	public function fireEvent( $sEventTag, $aMetaData = [] ) {
 		if ( apply_filters( $this->prefix( 'is_event_supported' ), false, $sEventTag ) ) {
 			do_action( $this->prefix( 'event' ), $sEventTag, $aMetaData );
 		}
+		return $this;
 	}
 
 	/**

@@ -11,7 +11,7 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'block_anonymous_api' => [
+			'block_anonymous_restapi' => [
 				__( 'Blocked Anonymous API Access through "%s" namespace', 'wp-simple-firewall' )
 			],
 		];

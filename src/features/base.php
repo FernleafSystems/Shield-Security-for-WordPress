@@ -149,28 +149,50 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array|null
 	 */
 	public function getEventDef( $sKey ) {
-		$aEvt = null;
+		return $this->isSupportedEvent( $sKey ) ? $this->getEvents()[ $sKey ] : null;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getEvents() {
 		$aEvts = $this->getDef( 'events' );
-		if ( isset( $aEvts[ $sKey ] ) && is_array( $aEvts[ $sKey ] ) ) {
-			$aEvt = array_merge(
-				[
-					'slug'  => $this->getSlug(),
-					'cat'   => 1,
-					'stat'  => true,
-					'audit' => true,
-				],
-				$aEvts[ $sKey ]
-			);
-			$aEvt[ 'msg' ] = $this->getStrings()->getAuditMessage( $sKey );
+		if ( !is_array( $aEvts ) ) {
+			$aEvts = [];
 		}
-		return $aEvt;
+
+		$aDefaults = [
+			'slug'   => $this->getSlug(),
+			'cat'    => 1,
+			'stat'   => true,
+			'audit'  => true,
+			'recent' => false, // whether to show in the recent events logs
+		];
+		foreach ( $aEvts as $sKey => $aEvt ) {
+			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
+			$aEvts[ $sKey ][ 'msg' ] = $this->getStrings()->getAuditMessage( $sKey );
+		}
+		return $aEvts;
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function getStatEvents() {
+		return array_filter(
+			$this->getEvents(),
+			function ( $aEvt ) {
+				return $aEvt[ 'stat' ];
+			}
+		);
 	}
 
 	/**
 	 * @return string[]
 	 */
 	protected function getSupportedEvents() {
-		return array_keys( is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : [] );
+		$aEvts = $this->getDef( 'events' );
+		return is_array( $aEvts ) ? array_keys( $aEvts ) : [];
 	}
 
 	/**
@@ -178,7 +200,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isSupportedEvent( $sKey ) {
-		return is_array( $this->getEventDef( $sKey ) );
+		return in_array( $sKey, $this->getSupportedEvents() );
 	}
 
 	/**
