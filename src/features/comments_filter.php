@@ -1,39 +1,8 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
-
-	/**
-	 * @param int    $nPostId
-	 * @param string $sCommentEmail
-	 * @return bool
-	 */
-	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
-		$oWpComm = Services::WpComments();
-		$oPost = Services::WpPost()->getById( $nPostId );
-		return ( $oPost instanceof WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
-			   && !$this->isTrustedCommenter( $sCommentEmail );
-	}
-
-	/**
-	 * @param string $sCommentEmail
-	 * @return bool
-	 */
-	private function isTrustedCommenter( $sCommentEmail ) {
-		$bTrusted = $this->loadWpComments()->countApproved( $sCommentEmail ) >= $this->getApprovedMinimum();
-
-		$aTrustedRoles = $this->getTrustedRoles();
-		if ( !$bTrusted && !empty( $aTrustedRoles ) ) {
-			$oUser = Services::WpUsers()->getUserByEmail( $sCommentEmail );
-			if ( $oUser instanceof \WP_User ) {
-				$bTrusted = count( array_intersect( $aTrustedRoles, array_map( 'strtolower', $oUser->roles ) ) ) > 0;
-			}
-		}
-
-		return $bTrusted;
-	}
 
 	/**
 	 * This is the same as isTrustedCommenter() except with an optimization in the order of the tests

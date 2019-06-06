@@ -146,30 +146,10 @@ class Scanner {
 	 * @return bool
 	 */
 	public function getIfDoCommentsCheck( $nPostId, $sCommentEmail ) {
-		$oWpComm = Services::WpComments();
-		$oPost = Services::WpPost()->getById( $nPostId );
-		return ( $oPost instanceof \WP_Post ) && $oWpComm->isCommentsOpen( $oPost )
-			   && !$this->isTrustedCommenter( $sCommentEmail );
-	}
-
-	/**
-	 * @param string $sCommentEmail
-	 * @return bool
-	 */
-	private function isTrustedCommenter( $sCommentEmail ) {
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
-
-		$bTrusted = Services::WpComments()->countApproved( $sCommentEmail ) >= $oMod->getApprovedMinimum();
-
-		$aTrustedRoles = $oMod->getTrustedRoles();
-		if ( !$bTrusted && !empty( $aTrustedRoles ) ) {
-			$oUser = Services::WpUsers()->getUserByEmail( $sCommentEmail );
-			if ( $oUser instanceof \WP_User ) {
-				$bTrusted = count( array_intersect( $aTrustedRoles, array_map( 'strtolower', $oUser->roles ) ) ) > 0;
-			}
-		}
-
-		return $bTrusted;
+		$oPost = Services::WpPost()->getById( $nPostId );
+		return ( $oPost instanceof \WP_Post ) && Services::WpComments()->isCommentsOpen( $oPost )
+			   && !( new IsEmailTrusted() )->trusted( $sCommentEmail, $oMod->getApprovedMinimum(), $oMod->getTrustedRoles() );
 	}
 }

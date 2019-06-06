@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\IsEmailTrusted;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
@@ -12,23 +13,32 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function onWpInit() {
 		parent::onWpInit();
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
+		$oWpUsers = Services::WpUsers();
 
-		if ( !$oFO->isUserTrusted( Services::WpUsers()->getCurrentWpUser() ) ) {
+		$bLoadComProc = !$oWpUsers->isUserLoggedIn() ||
+					   !( new IsEmailTrusted() )->trusted(
+						   $oWpUsers->getCurrentWpUser()->user_email,
+						   $oMod->getApprovedMinimum(),
+						   $oMod->getTrustedRoles()
+					   );
 
-			if ( $oFO->isEnabledGaspCheck() ) {
+		if ( $bLoadComProc ) {
+
+			if ( $oMod->isEnabledGaspCheck() ) {
 				$this->getSubProGasp()->run();
 			}
-			if ( $oFO->isGoogleRecaptchaEnabled() ) {
+			if ( $oMod->isGoogleRecaptchaEnabled() ) {
 				$this->getSubProRecaptcha()->run();
 			}
 
-			( new CommentsFilter\Scan\Scanner() )
-				->setMod( $oFO )
-				->run();
-
-			add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
+			if ( Services::Request()->isPost() ) {
+				( new CommentsFilter\Scan\Scanner() )
+					->setMod( $oMod )
+					->run();
+				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
+			}
 		}
 	}
 
