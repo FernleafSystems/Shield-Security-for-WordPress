@@ -495,18 +495,22 @@
       "2fa_backupcode_verified": {
       },
       "2fa_backupcode_fail":     {
+        "offense": true
       },
       "2fa_email_verified":      {
       },
       "2fa_email_fail":          {
+        "offense": true
       },
       "2fa_googleauth_verified": {
       },
       "2fa_google_fail":         {
+        "offense": true
       },
       "2fa_yubikey_verified":    {
       },
       "2fa_yubikey_fail":        {
+        "offense": true
       },
       "2fa_email_send_success":  {
       },
@@ -520,7 +524,8 @@
       },
       "block_login":             {
         "audit":  false,
-        "recent": true
+        "recent": true,
+        "offense": true
       },
       "2fa_success":             {
         "audit":  false,

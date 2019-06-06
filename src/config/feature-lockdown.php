@@ -191,7 +191,8 @@
       },
       "block_xml":               {
         "audit":  false,
-        "recent": true
+        "recent": true,
+        "offense": true
       }
     }
   }

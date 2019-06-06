@@ -388,13 +388,16 @@
     ],
     "events":                                {
       "spam_block_bot":       {
-        "recent": true
+        "recent": true,
+        "offense": true
       },
       "spam_block_recaptcha": {
-        "recent": true
+        "recent": true,
+        "offense": true
       },
       "spam_block_human":     {
-        "recent": true
+        "recent": true,
+        "offense": true
       }
     }
   }

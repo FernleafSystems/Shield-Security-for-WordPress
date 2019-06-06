@@ -55,7 +55,7 @@ class Options extends Base\Options {
 	 * @return array
 	 */
 	public function getRestrictedOptions() {
-		$aOptions = $this->getDef( 'admin_access_options_to_restrict' );
+		$aOptions = $this->getDef( 'options_to_restrict' );
 		return is_array( $aOptions ) ? $aOptions : [];
 	}
 

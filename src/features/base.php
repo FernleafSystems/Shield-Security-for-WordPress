@@ -162,11 +162,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		$aDefaults = [
-			'slug'   => $this->getSlug(),
-			'cat'    => 1,
-			'stat'   => true,
-			'audit'  => true,
-			'recent' => false, // whether to show in the recent events logs
+			'slug'    => $this->getSlug(),
+			'cat'     => 1,
+			'stat'    => true,
+			'audit'   => true,
+			'recent'  => false, // whether to show in the recent events logs
+			'offense' => false, // whether to mark offense against IP
 		];
 		foreach ( $aEvts as $sKey => $aEvt ) {
 			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
@@ -1573,10 +1574,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			],
 			'hrefs'           => [
-				'go_pro'            => 'https://icwp.io/shieldgoprofeature',
-				'goprofooter'       => 'https://icwp.io/goprofooter',
-				'wizard_link'       => $this->getUrl_WizardLanding(),
-				'wizard_landing'    => $this->getUrl_WizardLanding()
+				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
+				'goprofooter'    => 'https://icwp.io/goprofooter',
+				'wizard_link'    => $this->getUrl_WizardLanding(),
+				'wizard_landing' => $this->getUrl_WizardLanding()
 			],
 			'content'         => [
 				'options_form'   => '',

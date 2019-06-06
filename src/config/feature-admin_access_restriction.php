@@ -43,10 +43,10 @@
       "help_video_id": "338551188"
     },
     {
-      "slug":        "section_admin_access_restriction_areas",
-      "title":       "Security Admin Restriction Zones",
-      "title_short": "Access Restriction Zones",
-      "summary":     [
+      "slug":          "section_admin_access_restriction_areas",
+      "title":         "Security Admin Restriction Zones",
+      "title_short":   "Access Restriction Zones",
+      "summary":       [
         "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
         "Recommendation - Use of this feature is highly recommend."
       ],
@@ -351,7 +351,16 @@
     }
   ],
   "definitions":   {
-    "admin_access_options_to_restrict": {
+    "events":              {
+      "key_success": {
+        "recent": true
+      },
+      "key_fail":    {
+        "recent":  true,
+        "offense": true
+      }
+    },
+    "options_to_restrict": {
       "wpms_options": [
         "admin_email",
         "site_name",

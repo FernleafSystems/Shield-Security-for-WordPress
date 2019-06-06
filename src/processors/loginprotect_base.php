@@ -578,7 +578,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
-		$this->getCon()->fireEvent( 'login_block' );
+		$this->getCon()->fireEvent( 'block_login' );
 		$oFO->setOptInsightsAt( 'last_login_block_at' )
 			->setIpTransgressed();
 

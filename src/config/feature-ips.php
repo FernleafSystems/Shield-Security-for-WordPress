@@ -504,25 +504,32 @@
         "cat": 2
       },
       "bottrack_404":            {
-        "cat": 2
+        "cat": 2,
+        "offense": true
       },
       "bottrack_fakewebcrawler": {
-        "cat": 2
+        "cat": 2,
+        "offense": true
       },
       "bottrack_linkcheese":     {
-        "cat": 2
+        "cat": 2,
+        "offense": true
       },
       "bottrack_loginfailed":    {
-        "cat": 2
+        "cat": 2,
+        "offense": true
       },
       "bottrack_logininvalid":   {
-        "cat": 2
+        "cat": 2,
+        "offense": true
       },
       "bottrack_useragent":      {
-        "cat": 2
+        "cat": 2,
+        "offense": true
       },
       "bottrack_xmlrpc":         {
-        "cat": 2
+        "cat": 2,
+        "offense": true
       }
     }
   }

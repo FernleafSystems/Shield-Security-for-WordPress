@@ -7,6 +7,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
+	 * @return string[][]
+	 */
+	protected function getAuditMessages() {
+		return [
+			'key_success'                 => [
+				__( 'Successful authentication with security admin key.', 'wp-simple-firewall' ),
+			],
+			'key_fail'                 => [
+				__( 'Failed authentication with security admin key.', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
+	/**
 	 * @param string $sSectionSlug
 	 * @return array
 	 * @throws \Exception
