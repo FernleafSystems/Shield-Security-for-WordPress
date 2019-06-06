@@ -517,6 +517,9 @@
       "honeypot_fail": {
       },
       "botbox_fail": {
+      },
+      "2fa_success": {
+        "audit": false
       }
     }
   }

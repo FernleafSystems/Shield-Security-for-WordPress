@@ -180,7 +180,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function runDailyCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oFO->updateTestCronLastRunAt();
+		$this->getCon()->fireEvent( 'test_cron_run' );
 	}
 
 	/**

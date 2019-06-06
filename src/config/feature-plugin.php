@@ -549,6 +549,9 @@
       }
     ],
     "events":                 {
+      "test_cron_run":     {
+        "audit": false
+      },
       "import_notify_sent":     {
         "stat": false
       },

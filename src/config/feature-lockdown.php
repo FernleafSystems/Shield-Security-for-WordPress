@@ -187,6 +187,9 @@
     ],
     "events":                     {
       "block_anonymous_api": {
+      },
+      "block_xml": {
+        "audit": false
       }
     }
   }

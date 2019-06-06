@@ -124,7 +124,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
 	private function processLoginIntent() {
-		$oWp = Services::WpGeneral();
+		$oWpResp = Services::Response();
 		$oWpUsers = Services::WpUsers();
 
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
@@ -139,7 +139,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				if ( $oReq->post( 'cancel' ) == 1 ) {
 					$oWpUsers->logoutUser(); // clears the login and login intent
 					$sRedirectHref = $oReq->post( 'cancel_href' );
-					empty( $sRedirectHref ) ? $oWp->redirectToLogin() : $oWp->doRedirect( rawurldecode( $sRedirectHref ) );
+					empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
 				}
 				else if ( $this->isLoginIntentValid() ) {
 
@@ -154,15 +154,16 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 //								   .' '.sprintf( '<a href="%s">%s</a>', $oWpUsers->getAdminUrl_ProfileEdit(), _wpsf__( 'Go' ) );
 					}
 
+					$this->getCon()->fireEvent( '2fa_success' );
 					$oFO->setFlashAdminNotice( $sFlash )
 						->setOptInsightsAt( 'last_2fa_login_at' );
 
 					$sRedirectHref = $oReq->post( 'redirect_to' );
-					empty( $sRedirectHref ) ? $oWp->redirectHere() : $oWp->doRedirect( rawurldecode( $sRedirectHref ) );
+					empty( $sRedirectHref ) ? $oWpResp->redirectHere() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
 				}
 				else {
 					$oFO->setFlashAdminNotice( __( 'One or more of your authentication codes failed or was missing', 'wp-simple-firewall' ), true );
-					$oWp->redirectHere();
+					$oWpResp->redirectHere();
 				}
 				return; // we've redirected anyway.
 			}
@@ -172,7 +173,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 		else if ( $this->hasLoginIntent() ) { // there was an old login intent
 			$oWpUsers->logoutUser(); // clears the login and login intent
-			$oWp->redirectHere();
+			$oWpResp->redirectHere();
 		}
 		else {
 			// no login intent present -
