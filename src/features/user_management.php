@@ -374,19 +374,23 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		if ( $bAdd && !$bIdSuspended ) {
 			$oMeta->hard_suspended_at = Services::Request()->ts();
 			$aIds[ $nUserId ] = $oMeta->hard_suspended_at;
-			$this->createNewAudit(
-				'wpsf',
-				sprintf( __( 'User ID %s suspended by admin (%s)', 'wp-simple-firewall' ), $nUserId, $sAdminUser ),
-				1, 'suspend_user'
+			$this->getCon()->fireEvent(
+				'user_hard_suspended',
+				[
+					'user_id' => $nUserId,
+					'admin'   => $sAdminUser,
+				]
 			);
 		}
 		else if ( !$bAdd && $bIdSuspended ) {
 			$oMeta->hard_suspended_at = 0;
 			unset( $aIds[ $nUserId ] );
-			$this->createNewAudit(
-				'wpsf',
-				sprintf( __( 'User ID %s unsuspended by admin (%s)', 'wp-simple-firewall' ), $nUserId, $sAdminUser ),
-				1, 'unsuspend_user'
+			$this->getCon()->fireEvent(
+				'user_hard_unsuspended',
+				[
+					'user_id' => $nUserId,
+					'admin'   => $sAdminUser,
+				]
 			);
 		}
 

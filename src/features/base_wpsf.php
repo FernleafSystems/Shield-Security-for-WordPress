@@ -13,6 +13,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	private static $aStatEvents;
 
 	/**
+	 * @var Shield\Databases\AuditTrail\EntryVO[]
+	 */
+	private static $aAuditLogs;
+
+	/**
 	 * @var ICWP_WPSF_Processor_Sessions
 	 */
 	static protected $oSessProcessor;
@@ -94,7 +99,21 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
 			if ( $aDef[ 'audit' ] ) { // only audit if it's an auditable event
-				$this->createNewAudit( $aDef[ 'slug' ], '', $aDef[ 'cat' ], $sEvent, $aData );
+				$oEntry = new Shield\Databases\AuditTrail\EntryVO();
+				$oEntry->event = $sEvent;
+				$oEntry->category = $aDef[ 'cat' ];
+				$oEntry->context = $aDef[ 'slug' ];
+				$oEntry->meta = $aData;
+				if ( Services::WpGeneral()->isCron() ) {
+					$oEntry->wp_username = 'WP Cron';
+				}
+				else if ( Services::WpGeneral()->isWpCli() ) {
+					$oEntry->wp_username = 'WP CLI';
+				}
+				if ( !is_array( self::$aAuditLogs ) ) {
+					self::$aAuditLogs = [];
+				}
+				self::$aAuditLogs[ $sEvent ] = $oEntry;
 			}
 		}
 		return $this;
@@ -128,14 +147,26 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @param bool $bFlush
+	 * @return Shield\Databases\AuditTrail\EntryVO[]
+	 */
+	public function getRegisteredAuditLogs( $bFlush = false ) {
+		$aEntries = self::$aAuditLogs;
+		if ( $bFlush ) {
+			self::$aAuditLogs = [];
+		}
+		return is_array( $aEntries ) ? $aEntries : [];
+	}
+
+	/**
+	 * @param bool $bFlush
 	 * @return string[]
 	 */
 	public function getRegisteredEvents( $bFlush = false ) {
-		$aEvents = self::$aStatEvents;
+		$aEntries = self::$aStatEvents;
 		if ( $bFlush ) {
 			self::$aStatEvents = [];
 		}
-		return is_array( $aEvents ) ? $aEvents : [];
+		return is_array( $aEntries ) ? $aEntries : [];
 	}
 
 	/**
@@ -163,10 +194,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return int
 	 */
 	protected function getSecAdminTimeLeft() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getCon()
-					->getModule( 'admin_access_restriction' );
-		return $oFO->getSecAdminTimeLeft();
+		return $this->getCon()
+					->getModule_SecAdmin()
+					->getSecAdminTimeLeft();
 	}
 
 	/**

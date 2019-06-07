@@ -8,6 +8,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 class Handler extends Base\Handler {
 
 	/**
+	 * @param $aEvents - array of events: key event slug, value created_at timestamp
+	 */
+	public function commitAudits( $aEvents ) {
+		foreach ( $aEvents as $oEvt ) {
+			/** @var EntryVO $oEvt */
+			/** @var Insert $oQI */
+			$oQI = $this->getQueryInserter();
+			$oQI->insert( $oEvt );
+		}
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getDefaultColumnsDefinition() {

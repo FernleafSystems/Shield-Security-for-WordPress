@@ -48,6 +48,7 @@ class Strings extends Base\Strings {
 			'options_imported'             => __( 'Plugin options imported', 'wp-simple-firewall' ),
 			'block_anonymous_restapi'      => __( 'Blocked anonymous Rest API', 'wp-simple-firewall' ),
 			'block_xml'                    => __( 'Blocked XML-RPC', 'wp-simple-firewall' ),
+			'user_hard_suspended'          => __( 'User account suspended by administrator', 'wp-simple-firewall' ),
 		];
 	}
 

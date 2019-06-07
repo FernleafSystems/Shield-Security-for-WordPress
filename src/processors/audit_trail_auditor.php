@@ -5,6 +5,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
+	 * @var bool
+	 */
+	private $bAudit = false;
+
+	/**
 	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_AuditTrail $oModCon ) {
@@ -19,32 +24,14 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 		add_action( $this->getCon()->prefix( 'add_new_audit_entry' ), [ $this, 'addAuditTrialEntry' ] );
 	}
 
-	public function cleanupDatabase() {
-		parent::cleanupDatabase(); // Deletes based on time.
-		$this->trimTable();
-	}
-
-	/**
-	 * ABstract this and move it into base DB class
-	 */
-	protected function trimTable() {
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
-		try {
-			$this->getDbHandler()
-				 ->getQueryDeleter()
-				 ->deleteExcess( $oFO->getMaxEntries() );
-		}
-		catch ( \Exception $oE ) {
-		}
-	}
-
 	/**
 	 */
 	public function run() {
 		if ( !$this->isReadyToRun() ) {
 			return;
 		}
+		$this->bAudit = true;
+
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
 		$oFO = $this->getMod();
 
@@ -68,6 +55,41 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 		}
 		if ( $oFO->isAuditShield() ) {
 			( new ICWP_WPSF_Processor_AuditTrail_Wpsf() )->run();
+		}
+	}
+
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
+		if ( $this->bAudit && !$this->getCon()->isPluginDeleting() ) {
+			$this->commitAudits();
+		}
+	}
+
+	private function commitAudits() {
+		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
+		$oMod = $this->getMod();
+		/** @var AuditTrail\Handler $oDbh */
+		$oDbh = $this->getDbHandler();
+		$oDbh->commitAudits( $oMod->getRegisteredAuditLogs( true ) );
+	}
+
+	public function cleanupDatabase() {
+		parent::cleanupDatabase(); // Deletes based on time.
+		$this->trimTable();
+	}
+
+	/**
+	 * ABstract this and move it into base DB class
+	 */
+	protected function trimTable() {
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+		$oFO = $this->getMod();
+		try {
+			$this->getDbHandler()
+				 ->getQueryDeleter()
+				 ->deleteExcess( $oFO->getMaxEntries() );
+		}
+		catch ( \Exception $oE ) {
 		}
 	}
 

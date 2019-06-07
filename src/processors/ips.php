@@ -132,7 +132,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return string
 	 */
 	public function getRemainingTransgressions( $sIp = '' ) {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		if ( empty( $sIp ) ) {
 			$sIp = $this->ip();

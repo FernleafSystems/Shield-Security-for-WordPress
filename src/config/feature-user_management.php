@@ -333,7 +333,7 @@
     "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
     "events":                        {
       "session_terminated":           {
-        "audit": false,
+        "audit":  false,
         "recent": true
       },
       "session_notfound":             {
@@ -355,6 +355,11 @@
       },
       "password_policy_block":        {
         "recent": true
+      },
+      "user_hard_suspended":          {
+        "recent": true
+      },
+      "user_hard_unsuspended":        {
       }
     }
   }

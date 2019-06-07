@@ -146,8 +146,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	/**
-	 * @param WP_Error $oErrors
-	 * @return WP_Error
+	 * @param \WP_Error $oErrors
+	 * @return \WP_Error
 	 */
 	public function checkPassword( $oErrors ) {
 		$aExistingCodes = $oErrors->get_error_code();

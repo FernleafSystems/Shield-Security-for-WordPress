@@ -299,7 +299,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpdater */
+		/** @var Shield\Databases\Session\Update $oUpdater */
 		$oUpdater = $this->getSessionsProcessor()
 						 ->getDbHandler()
 						 ->getQueryUpdater();

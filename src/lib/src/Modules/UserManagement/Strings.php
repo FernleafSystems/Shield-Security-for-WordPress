@@ -281,6 +281,12 @@ class Strings extends Base\Strings {
 				__( 'Unable to verify the current User Session. Forcefully logging out session.', 'wp-simple-firewall' ),
 				__( 'Logging out.', 'wp-simple-firewall' )
 			],
+			'user_hard_suspended'          => [
+				__( 'User ID %s suspended by admin (%s)', 'wp-simple-firewall' ),
+			],
+			'user_hard_unsuspended'        => [
+				__( 'User ID %s unsuspended by admin (%s)', 'wp-simple-firewall' ),
+			],
 		];
 	}
 }

@@ -234,19 +234,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 */
-	public function auditEvent( $sEvent = '', $aData = [] ) {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-		$aDef = $oFO->getEventDef( $sEvent );
-		$this->createNewAudit( $oFO->getSlug(), '', $aDef[ 'cat' ], $sEvent, $aData );
-		return $this;
-	}
-
-	/**
 	 * If recaptcha is required, it prints the necessary snippet and does not remove the enqueue
 	 *
 	 * @throws \Exception
@@ -311,6 +298,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @deprecated 7.5
 	 */
 	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
+		return $this;
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aData
+	 * @return $this
+	 * @deprecated 7.5
+	 */
+	public function auditEvent( $sEvent = '', $aData = [] ) {
 		return $this;
 	}
 }
