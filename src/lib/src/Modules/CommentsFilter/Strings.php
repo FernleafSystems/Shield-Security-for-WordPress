@@ -12,13 +12,14 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'spam_block_human' => [
-				__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' )
+			'spam_block_human'     => [
+				__( 'Blocked human SPAM comment containing suspicious content.', 'wp-simple-firewall' ),
+				__( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' )
 			],
-			'spam_block_bot' => [
+			'spam_block_bot'       => [
 				__( 'Blocked SPAM comment from Bot.', 'wp-simple-firewall' )
 			],
-			'spam_block_recaptcha'    => [
+			'spam_block_recaptcha' => [
 				__( 'Blocked SPAM comment that failed reCAPTCHA.', 'wp-simple-firewall' )
 			],
 		];

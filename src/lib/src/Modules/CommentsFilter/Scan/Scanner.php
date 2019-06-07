@@ -84,19 +84,23 @@ class Scanner {
 		if ( Services::WpComments()->isCommentSubmission()
 			 && $this->getIfDoCommentsCheck( $aCommData[ 'comment_post_ID' ], $aCommData[ 'comment_author_email' ] ) ) {
 
-			$mScanResult = $this->runScans( $aCommData );
-			if ( is_wp_error( $mScanResult ) ) {
+			$mResult = $this->runScans( $aCommData );
+			if ( is_wp_error( $mResult ) ) {
 
-				$this->getCon()->fireEvent( 'spam_block', $mScanResult->get_error_data() );
+				$this->getCon()
+					 ->fireEvent(
+						 'spam_block_'.$mResult->get_error_code(),
+						 $mResult->get_error_data()
+					 );
 				$oMod->setIpTransgressed();
 
-				if ( $mScanResult->get_error_code() == 'human' ) {
+				if ( $mResult->get_error_code() == 'human' ) {
 					$this->mCommentStatus = $oMod->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
 					$this->mCommentStatus = $oMod->getOpt( 'comments_default_action_spam_bot' );
 				}
-				$this->sCommentExplanation = $mScanResult->get_error_message();
+				$this->sCommentExplanation = $mResult->get_error_message();
 			}
 		}
 

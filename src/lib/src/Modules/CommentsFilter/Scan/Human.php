@@ -38,7 +38,8 @@ class Human {
 				if ( stripos( $sItem, $sBlacklistWord ) !== false ) { //mark as spam and exit;
 					$mResult = new \WP_Error(
 						'human',
-						__( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' ),
+						sprintf( __( 'Human SPAM filter found "%s" in "%s"', 'wp-simple-firewall' ),
+							$sBlacklistWord, $sKey ),
 						[
 							'word' => $sBlacklistWord,
 							'key'  => $sKey
