@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_AuditTrail_Users extends ICWP_WPSF_AuditTrail_Auditor_
 	 */
 	public function auditUserLoginSuccess( $sUsername ) {
 		if ( !empty( $sUsername ) ) {
-			$this->add( 'users', 'login_success', 1,
+			$this->add( 'users', 'user_login', 1,
 				sprintf( __( 'Attempted user login by "%s" was successful.', 'wp-simple-firewall' ), $sUsername ),
 				$sUsername
 			);

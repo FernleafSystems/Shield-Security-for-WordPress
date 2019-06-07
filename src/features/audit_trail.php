@@ -78,9 +78,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	protected function ajaxExec_BuildTableAuditTrail() {
-		/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
-		$oPro = $this->getProcessor();
-
 		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
 			->setMod( $this )
 			->setDbHandler( $this->getDbHandler() );

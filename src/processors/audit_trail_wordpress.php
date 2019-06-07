@@ -20,7 +20,7 @@ class ICWP_WPSF_Processor_AuditTrail_Wordpress extends ICWP_WPSF_AuditTrail_Audi
 	 */
 	public function auditCoreUpdated( $sNewCoreVersion ) {
 		$this->add( 'wordpress', 'core_updated', 1,
-			sprintf( __( 'WordPress Core was updated from "v%s" to "v%s".', 'wp-simple-firewall' ),
+			sprintf( __( 'WordPress Core was updated from "%s" to "%s".', 'wp-simple-firewall' ),
 				Services::WpGeneral()->getVersion(),
 				$sNewCoreVersion
 			)

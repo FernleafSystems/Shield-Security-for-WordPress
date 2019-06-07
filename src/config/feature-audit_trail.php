@@ -256,22 +256,58 @@
       "deleted_at"
     ],
     "events":                          {
-      "plugin_activated":   {
+      "plugin_activated":        {
         "context": "plugins"
       },
-      "plugin_deactivated": {
+      "plugin_deactivated":      {
         "context": "plugins"
       },
-      "plugin_file_edited": {
+      "plugin_file_edited":      {
         "context": "plugins"
       },
-      "theme_activated":    {
+      "theme_activated":         {
         "context": "themes"
       },
-      "theme_file_edited":  {
+      "theme_file_edited":       {
         "context": "themes"
       },
-      "block_xml":          {
+      "core_updated":            {
+        "context": "wordpress"
+      },
+      "permalinks_structure":    {
+        "context": "wordpress"
+      },
+      "post_deleted":            {
+        "context": "posts"
+      },
+      "post_trashed":            {
+        "context": "posts"
+      },
+      "post_recovered":          {
+        "context": "posts"
+      },
+      "post_updated":            {
+        "context": "posts"
+      },
+      "post_published":          {
+        "context": "posts"
+      },
+      "post_unpublished":        {
+        "context": "posts"
+      },
+      "user_login":              {
+        "context": "users"
+      },
+      "user_registered":         {
+        "context": "users"
+      },
+      "user_deleted":            {
+        "context": "users"
+      },
+      "user_deleted_reassigned": {
+        "context": "users"
+      },
+      "block_xml":               {
         "audit":   false,
         "recent":  true,
         "offense": true

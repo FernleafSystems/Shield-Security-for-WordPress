@@ -33,33 +33,36 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$this->bAudit = true;
 
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isAuditUsers() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Users() )->run();
+		if ( $oMod->isAuditUsers() ) {
+			( new Auditors\Users() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditPlugins() ) {
+		if ( $oMod->isAuditPlugins() ) {
 			( new Auditors\Plugins() )
-				->setMod( $oFO )
+				->setMod( $oMod )
 				->run();
 		}
-		if ( $oFO->isAuditThemes() ) {
+		if ( $oMod->isAuditThemes() ) {
 			( new Auditors\Themes() )
-				->setMod( $oFO )
+				->setMod( $oMod )
 				->run();
 		}
-		if ( $oFO->isAuditWp() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Wordpress() )->run();
+		if ( $oMod->isAuditWp() ) {
+			( new Auditors\Wordpress() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditPosts() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Posts() )->run();
+		if ( $oMod->isAuditPosts() ) {
+			( new Auditors\Posts() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditEmails() ) {
+		if ( $oMod->isAuditEmails() ) {
 			( new ICWP_WPSF_Processor_AuditTrail_Emails() )->run();
-		}
-		if ( $oFO->isAuditShield() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Wpsf() )->run();
 		}
 	}
 

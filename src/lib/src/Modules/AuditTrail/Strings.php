@@ -11,17 +11,63 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'plugin_activated' => [
+			'plugin_activated'        => [
 				__( 'Plugin "%s" was activated.', 'wp-simple-firewall' )
 			],
-			'plugin_deactivated' => [
+			'plugin_deactivated'      => [
 				__( 'Plugin "%s" was deactivated.', 'wp-simple-firewall' )
 			],
-			'plugin_file_edited' => [
+			'plugin_file_edited'      => [
 				__( 'An attempt was made to edit the plugin file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
 			],
-			'theme_activated' => [
+			'theme_activated'         => [
 				__( 'Theme "%s" was activated.', 'wp-simple-firewall' )
+			],
+			'theme_file_edited'       => [
+				__( 'An attempt was made to edit the theme file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
+			],
+			'core_updated'            => [
+				__( 'WordPress Core was updated from "%s" to "%s".', 'wp-simple-firewall' )
+			],
+			'permalinks_structure'    => [
+				__( 'WordPress Permalinks Structure was updated from "%s" to "%s".', 'wp-simple-firewall' )
+			],
+			'post_deleted'            => [
+				__( 'WordPress Post entitled "%s" was permanently deleted from trash.', 'wp-simple-firewall' )
+			],
+			'post_trashed'            => [
+				__( 'Post entitled "%s" was trashed.', 'wp-simple-firewall' ),
+				__( 'Post Type: %s' ),
+			],
+			'post_recovered'          => [
+				__( 'Post entitled "%s" was recoverd from trash.', 'wp-simple-firewall' ),
+				__( 'Post Type: %s' ),
+			],
+			'post_updated'            => [
+				__( 'Post entitled "%s" was updated.', 'wp-simple-firewall' ),
+				__( 'Post Type: %s' ),
+			],
+			'post_published'          => [
+				__( 'Post entitled "%s" was published.', 'wp-simple-firewall' ),
+				__( 'Post Type: %s' ),
+			],
+			'post_unpublished'        => [
+				__( 'Post entitled "%s" was unpublished.', 'wp-simple-firewall' ),
+				__( 'Post Type: %s' ),
+			],
+			'user_login'              => [
+				__( 'Attempted user login by "%s" was successful.', 'wp-simple-firewall' ),
+			],
+			'user_registered'         => [
+				__( 'New WordPress user registered.', 'wp-simple-firewall' )
+				.' '.__( 'New username is "%s" with email address "%s".', 'wp-simple-firewall' )
+			],
+			'user_deleted'            => [
+				__( 'WordPress user deleted.', 'wp-simple-firewall' )
+				.' '.__( 'Username was "%s" with email address "%s".', 'wp-simple-firewall' )
+			],
+			'user_deleted_reassigned' => [
+				__( 'Deleted user posts were reassigned to user "%s".', 'wp-simple-firewall' )
 			],
 		];
 	}
