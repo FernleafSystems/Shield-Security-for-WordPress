@@ -307,10 +307,11 @@
       "user_deleted_reassigned": {
         "context": "users"
       },
-      "block_xml":               {
-        "audit":   false,
-        "recent":  true,
-        "offense": true
+      "email_attempt_send": {
+        "context": "emails"
+      },
+      "email_send_invalid": {
+        "context": "emails"
       }
     }
   }

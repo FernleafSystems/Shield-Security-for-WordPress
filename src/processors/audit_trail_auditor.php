@@ -62,7 +62,9 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 				->run();
 		}
 		if ( $oMod->isAuditEmails() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Emails() )->run();
+			( new Auditors\Emails() )
+				->setMod( $oMod )
+				->run();
 		}
 	}
 

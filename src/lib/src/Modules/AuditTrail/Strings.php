@@ -69,6 +69,15 @@ class Strings extends Base\Strings {
 			'user_deleted_reassigned' => [
 				__( 'Deleted user posts were reassigned to user "%s".', 'wp-simple-firewall' )
 			],
+			'email_attempt_send'      => [
+				__( 'There was an attempt to send an email using the "wp_mail" function.', 'wp-simple-firewall' ),
+				__( 'It was sent to "%s" with the subject "%s".', 'wp-simple-firewall' ),
+				"CC'd / BCC'd: %s / %s",
+				__( 'The "wp_mail" function was called from the file "%s" on line %s.', 'wp-simple-firewall' )
+			],
+			'email_send_invalid'      => [
+				__( 'Attempting to log email, but data was not of the correct type (%s)', 'wp-simple-firewall' ),
+			],
 		];
 	}
 
