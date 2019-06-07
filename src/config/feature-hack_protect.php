@@ -726,7 +726,6 @@
       "mal_item_repair_fail":    {
       },
       "ptg_item_repair_success": {
-        "recent": true
       },
       "ptg_item_repair_fail":    {
       },
