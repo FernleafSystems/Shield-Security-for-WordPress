@@ -1,8 +1,14 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use Dolondro\GoogleAuthenticator;
 
 class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
+
+	/**
+	 * @var GoogleAuthenticator\Secret
+	 */
+	private $oWorkingSecret;
 
 	/**
 	 */
@@ -22,6 +28,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$oCon = $this->getCon();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
+
+		if ( !$bValidatedProfile ) {
+			$this->resetSecret( $oUser );
+		}
 
 		$aData = [
 			'has_validated_profile'            => $bValidatedProfile,
@@ -66,11 +76,9 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 			$sUrl = '';
 		}
 		else {
-			$sUrl = ( new PHPGangsta_GoogleAuthenticator() )
-				->getQRCodeGoogleUrl(
-					preg_replace( '#[^0-9a-z]#i', '', $oUser->user_login )
-					.'@'.preg_replace( '#[^0-9a-z]#i', '', Services::WpGeneral()->getSiteName() ),
-					$this->getSecret( $oUser )
+			$sUrl = ( new GoogleAuthenticator\QrImageGenerator\GoogleQrImageGenerator () )
+				->generateUri(
+					$this->getGaSecret( $oUser )
 				);
 		}
 		return $sUrl;
@@ -248,7 +256,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$this->processRemovalFromAccount( $oWpCurrentUser );
 		$this->getMod()
 			 ->setFlashAdminNotice( __( 'Google Authenticator was successfully removed from this account.', 'wp-simple-firewall' ) );
-		Services::WpGeneral()->redirectToAdmin();
+		Services::Response()->redirectToAdmin();
 	}
 
 	/**
@@ -268,8 +276,14 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	public function validateGaCode( $oUser, $sOtpCode ) {
 		$bValidOtp = false;
 		if ( !empty( $sOtpCode ) && preg_match( '#^[0-9]{6}$#', $sOtpCode ) ) {
-			$bValidOtp = ( new PHPGangsta_GoogleAuthenticator() )
-				->verifyCode( $this->getSecret( $oUser ), $sOtpCode );
+			try {
+				$bValidOtp = ( new GoogleAuthenticator\GoogleAuthenticator() )
+					->authenticate( $this->getSecret( $oUser ), $sOtpCode );
+			}
+			catch ( \Exception $oE ) {
+			}
+			catch ( \Psr\Cache\CacheException $oE ) {
+			}
 		}
 		return $bValidOtp;
 	}
@@ -300,14 +314,36 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	}
 
 	/**
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	protected function genNewSecret() {
-		return ( new PHPGangsta_GoogleAuthenticator() )->createSecret();
+	protected function genNewSecret( \WP_User $oUser ) {
+		try {
+			return $this->getGaSecret( $oUser )->getSecretKey();
+		}
+		catch ( \InvalidArgumentException $oE ) {
+			return '';
+		}
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
+	 * @return GoogleAuthenticator\Secret
+	 * @throws InvalidArgumentException
+	 */
+	private function getGaSecret( $oUser ) {
+		if ( !isset( $this->oWorkingSecret ) ) {
+			$this->oWorkingSecret = ( new GoogleAuthenticator\SecretFactory() )
+				->create(
+					sanitize_user( $oUser->user_login ),
+					preg_replace( '#[^0-9a-z]#i', '', Services::WpGeneral()->getSiteName() )
+				);
+		}
+		return $this->oWorkingSecret;
+	}
+
+	/**
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
 	protected function getSecret( WP_User $oUser ) {

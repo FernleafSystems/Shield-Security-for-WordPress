@@ -171,9 +171,10 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 	}
 
 	/**
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	protected function genNewSecret() {
+	protected function genNewSecret( \WP_User $oUser ) {
 		return wp_generate_password( 25, false );
 	}
 

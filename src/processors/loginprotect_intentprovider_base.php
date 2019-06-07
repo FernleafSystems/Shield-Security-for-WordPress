@@ -111,7 +111,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	protected function isProfileReady( WP_User $oUser ) {
@@ -146,11 +146,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	public function resetSecret( WP_User $oUser ) {
-		$sNewSecret = $this->genNewSecret();
+	public function resetSecret( \WP_User $oUser ) {
+		$sNewSecret = $this->genNewSecret( $oUser );
 		$this->setSecret( $oUser, $sNewSecret );
 		return $sNewSecret;
 	}
@@ -180,9 +180,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	protected function genNewSecret() {
+	protected function genNewSecret( \WP_User $oUser ) {
 		return '';
 	}
 
