@@ -717,7 +717,6 @@
         "recent": true
       },
       "apc_item_repair_success": {
-        "recent": true
       },
       "apc_item_repair_fail":    {
       },
@@ -742,7 +741,6 @@
       "wcf_item_repair_fail":    {
       },
       "wpv_item_repair_success": {
-        "recent": true
       },
       "wpv_item_repair_fail":    {
       }

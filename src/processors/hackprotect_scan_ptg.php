@@ -208,7 +208,17 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return bool
 	 */
 	public function reinstall( $sBaseName ) {
-		return parent::reinstall( $sBaseName ) && $this->updateItemInSnapshot( $sBaseName );
+		$bSuccess = parent::reinstall( $sBaseName );
+		if ( $bSuccess ) {
+			$this->updateItemInSnapshot( $sBaseName );
+		}
+		$this->getCon()->fireEvent(
+			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			[
+				'fragment' => $sBaseName
+			]
+		);
+		return $bSuccess;
 	}
 
 	/**
