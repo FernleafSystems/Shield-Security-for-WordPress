@@ -709,15 +709,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aEmptyStats = [];
 		foreach ( $this->getCon()->getModules() as $oModule ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
-			$aStat = $oModule->getStatEvents();
+			$aStat = $oModule->getStatEvents_Recent();
 			$aEmptyStats = array_merge( $aEmptyStats, $aStat );
 		}
-		$aEmptyStats = array_filter(
-			$aEmptyStats,
-			function ( $aEvt ) {
-				return $aEvt[ 'recent' ];
-			}
-		);
 
 		/** @var Shield\Modules\Insights\Strings $oStrs */
 		$oStrs = $this->getStrings();

@@ -177,11 +177,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @return array[]
 	 */
-	public function getStatEvents() {
+	public function getStatEvents_Recent() {
 		return array_filter(
 			$this->getEvents(),
 			function ( $aEvt ) {
-				return $aEvt[ 'stat' ];
+				return $aEvt[ 'recent' ];
 			}
 		);
 	}
@@ -191,7 +191,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function getSupportedEvents() {
 		$aEvts = $this->getDef( 'events' );
-		return is_array( $aEvts ) ? array_keys( $aEvts ) : [];
+		return is_array( $aEvts ) ? $aEvts : [];
 	}
 
 	/**
