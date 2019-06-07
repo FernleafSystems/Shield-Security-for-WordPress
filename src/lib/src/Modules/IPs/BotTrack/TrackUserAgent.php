@@ -13,12 +13,4 @@ class TrackUserAgent extends Base {
 			$this->doTransgression();
 		}
 	}
-
-	/**
-	 * @return $this
-	 */
-	protected function getAuditMsg() {
-		return sprintf( __( 'Empty user agent detected at "%s".', 'wp-simple-firewall' ), Services::Request()
-																								  ->getPath() );
-	}
 }

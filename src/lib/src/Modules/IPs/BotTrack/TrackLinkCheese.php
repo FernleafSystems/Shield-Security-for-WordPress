@@ -90,14 +90,6 @@ class TrackLinkCheese extends Base {
 	}
 
 	/**
-	 * @return $this
-	 */
-	protected function getAuditMsg() {
-		return sprintf( __( 'Link cheese access detected at "%s".', 'wp-simple-firewall' ), Services::Request()
-																									->getPath() );
-	}
-
-	/**
 	 * @return string[]
 	 */
 	private function getPossibleWords() {

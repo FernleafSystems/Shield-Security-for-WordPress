@@ -221,6 +221,27 @@ class Strings extends Base\Strings {
 			'ip_blocked' => [
 				__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' )
 			],
+			'bottrack_404' => [
+				__( '404 detected at "%s".', 'wp-simple-firewall' )
+			],
+			'bottrack_fakewebcrawler' => [
+				__( 'Fake Web Crawler detected at "%s".', 'wp-simple-firewall' )
+			],
+			'bottrack_linkcheese' => [
+				__( 'Link cheese access detected at "%s".', 'wp-simple-firewall' )
+			],
+			'bottrack_loginfailed' => [
+				__( 'Attempted login failed by user "%s".', 'wp-simple-firewall' )
+			],
+			'bottrack_logininvalid' => [
+				__( 'Attempted login with invalid user "%s".', 'wp-simple-firewall' )
+			],
+			'bottrack_useragent' => [
+				__( 'Empty user agent detected at "%s".', 'wp-simple-firewall' )
+			],
+			'bottrack_xmlrpc' => [
+				__( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' )
+			],
 		];
 	}
 }

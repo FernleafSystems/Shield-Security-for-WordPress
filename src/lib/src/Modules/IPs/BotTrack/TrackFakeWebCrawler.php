@@ -22,14 +22,6 @@ class TrackFakeWebCrawler extends Base {
 	}
 
 	/**
-	 * @return $this
-	 */
-	protected function getAuditMsg() {
-		return sprintf( __( 'Fake Web Crawler detected at "%s".', 'wp-simple-firewall' ), Services::Request()
-																								  ->getPath() );
-	}
-
-	/**
 	 * @return false
 	 * @throws \Exception
 	 */

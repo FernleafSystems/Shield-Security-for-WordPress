@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -32,14 +33,19 @@ abstract class Base {
 	 * @return $this
 	 */
 	protected function writeAudit() {
-		$this->createNewAudit( 'wpsf', $this->getAuditMsg(), 2, 'bot'.static::OPT_KEY );
+		$this->getCon()
+			 ->fireEvent( 'bot'.static::OPT_KEY, $this->getAuditData() );
 		return $this;
 	}
 
 	abstract protected function process();
 
 	/**
-	 * @return $this
+	 * @return array
 	 */
-	abstract protected function getAuditMsg();
+	protected function getAuditData() {
+		return [
+			'path' => Services::Request()->getPath()
+		];
+	}
 }
