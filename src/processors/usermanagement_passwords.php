@@ -164,10 +164,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					$sMessage = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' )
 								.'<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$oE->getMessage() );
 					$oErrors->add( 'shield_password_policy', $sMessage );
-
-					/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-					$oFO = $this->getMod();
-					$oFO->setOptInsightsAt( 'last_password_block_at' );
 					$this->getCon()->fireEvent( 'password_policy_block' );
 				}
 			}

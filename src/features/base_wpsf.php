@@ -74,11 +74,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'insights_test_cron_last_run_at'  => 'test_cron_run',
 			'insights_last_password_block_at' => 'password_policy_block',
 		];
-		foreach ( $this->getOptionsVo()->getOptionsKeys() as $sOptKey ) {
-			if ( strpos( $sOptKey, 'insights_' ) === 0 && isset( $aMap[ $sOptKey ] ) ) {
-				$this->addStatEvent( $aMap[ $sOptKey ], [ 'ts' => $this->getOpt( $sOptKey ) ] );
+		foreach ( $this->getOptionsVo()->getOptionsKeys() as $sOpt ) {
+			if ( strpos( $sOpt, 'insights_' ) === 0 && isset( $aMap[ $sOpt ] ) && $this->getOpt( $sOpt ) > 0 ) {
+				$this->addStatEvent( $aMap[ $sOpt ], [ 'ts' => $this->getOpt( $sOpt ) ] );
+				$this->setOpt( $sOpt, 0 );
 			}
 		}
+		/** @var Shield\Databases\Events\Handler $oDbh */
+		$oDbh = $this->getCon()->getModule_Events()->getDbHandler();
+		$oDbh->commitEvents( $this->getRegisteredEvents( true ) );
 	}
 
 	/**
@@ -123,10 +127,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param bool $bFlush
 	 * @return string[]
 	 */
-	public function getRegisteredEvents() {
-		return is_array( self::$aStatEvents ) ? self::$aStatEvents : [];
+	public function getRegisteredEvents( $bFlush = false ) {
+		$aEvents = self::$aStatEvents;
+		if ( $bFlush ) {
+			self::$aStatEvents = [];
+		}
+		return is_array( $aEvents ) ? $aEvents : [];
 	}
 
 	/**
@@ -374,15 +383,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return $this
-	 */
-	public function setOptInsightsAt( $sKey ) {
-		$sKey = 'insights_'.str_replace( 'insights_', '', $sKey );
-		return $this->setOptAt( $sKey );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getModDisabledInsight() {
@@ -439,6 +439,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		else if ( empty( self::$mIpAction ) || ( is_numeric( self::$mIpAction ) && $mNewAction > self::$mIpAction ) ) {
 			self::$mIpAction = $mNewAction;
 		}
+		return $this;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return $this
+	 * @deprecated 7.5
+	 */
+	public function setOptInsightsAt( $sKey ) {
 		return $this;
 	}
 }

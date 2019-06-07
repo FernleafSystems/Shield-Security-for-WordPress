@@ -83,8 +83,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		if ( !$bValid ) {
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 			$oFO = $this->getMod();
-			$oFO->setOptInsightsAt( sprintf( 'last_%s_block_at', $sActionAttempted ) )
-				->setIpTransgressed();
+			$oFO->setIpTransgressed();
 			throw new \Exception( $sError );
 		}
 	}

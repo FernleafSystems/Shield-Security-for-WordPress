@@ -579,8 +579,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		$oFO = $this->getMod();
 
 		$this->getCon()->fireEvent( 'block_login' );
-		$oFO->setOptInsightsAt( 'last_login_block_at' )
-			->setIpTransgressed();
+		$oFO->setIpTransgressed();
 
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php

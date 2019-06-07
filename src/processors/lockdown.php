@@ -79,8 +79,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 		$oFO = $this->getMod();
 		$this->getCon()->fireEvent( 'block_xml' );
-		$oFO->setOptInsightsAt( 'xml_block_at' )
-			->setIpTransgressed();
+		$oFO->setIpTransgressed();
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : [];
 	}
 
@@ -129,7 +128,6 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 					 'block_anonymous_restapi',
 					 [ 'namespace' => Services::Rest()->getNamespace() ]
 				 );
-			$oFO->setOptInsightsAt( 'restapi_block_at' );
 		}
 
 		return $mStatus;

@@ -88,8 +88,7 @@ class Scanner {
 			if ( is_wp_error( $mScanResult ) ) {
 
 				$this->getCon()->fireEvent( 'spam_block', $mScanResult->get_error_data() );
-				$oMod->setOptInsightsAt( 'last_comment_block_at' )
-					 ->setIpTransgressed();
+				$oMod->setIpTransgressed();
 
 				if ( $mScanResult->get_error_code() == 'human' ) {
 					$this->mCommentStatus = $oMod->getOpt( 'comments_default_action_human_spam' );

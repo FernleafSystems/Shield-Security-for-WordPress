@@ -155,8 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 					}
 
 					$this->getCon()->fireEvent( '2fa_success' );
-					$oFO->setFlashAdminNotice( $sFlash )
-						->setOptInsightsAt( 'last_2fa_login_at' );
+					$oFO->setFlashAdminNotice( $sFlash );
 
 					$sRedirectHref = $oReq->post( 'redirect_to' );
 					empty( $sRedirectHref ) ? $oWpResp->redirectHere() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );

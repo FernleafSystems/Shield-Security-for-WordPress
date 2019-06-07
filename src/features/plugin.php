@@ -986,13 +986,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function updateTestCronLastRunAt() {
-		return $this->setOptInsightsAt( 'test_cron_last_run_at' );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getCanAdminNotes() {

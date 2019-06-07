@@ -50,17 +50,9 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 	private function commitEvents() {
 		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
+		/** @var Events\Handler $oDbh */
 		$oDbh = $this->getDbHandler();
-		foreach ( $oMod->getRegisteredEvents() as $sEvent => $nTs ) {
-			/** @var Events\EntryVO $oEvt */
-			$oEvt = $oDbh->getVo();
-			$oEvt->event = $sEvent;
-			$oEvt->count = 1;
-			$oEvt->created_at = empty( $nTs ) ? Services::Request()->ts() : $nTs;
-			/** @var Events\Insert $oQI */
-			$oQI = $oDbh->getQueryInserter();
-			$oQI->insert( $oEvt );
-		}
+		$oDbh->commitEvents( $oMod->getRegisteredEvents( true ) );
 	}
 
 	/**

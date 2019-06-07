@@ -81,9 +81,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 		if ( $this->verifyModuleMeetRequirements() ) {
 			$this->setupHooks( $aMod );
-			if ( $this->isUpgrading() ) {
-				$this->updateHandler();
-			}
 			$this->doPostConstruction();
 		}
 	}
@@ -361,6 +358,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 */
 	public function onRunProcessors() {
+		if ( $this->isUpgrading() ) {
+			$this->updateHandler();
+		}
 		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
