@@ -356,6 +356,7 @@
         "recent": true
       },
       "key_fail":    {
+        "cat": 3,
         "recent":  true,
         "offense": true
       }

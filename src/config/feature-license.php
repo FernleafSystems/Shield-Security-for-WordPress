@@ -134,6 +134,7 @@
         "stat": false
       },
       "check_fail_deactivate": {
+        "cat": 2,
         "stat": false
       }
     }

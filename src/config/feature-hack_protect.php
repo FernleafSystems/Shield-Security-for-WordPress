@@ -699,21 +699,27 @@
         "recent": true
       },
       "apc_scan_found":          {
+        "cat": 2,
         "recent": true
       },
       "mal_scan_found":          {
+        "cat": 3,
         "recent": true
       },
       "ptg_scan_found":          {
+        "cat": 3,
         "recent": true
       },
       "ufc_scan_found":          {
+        "cat": 3,
         "recent": true
       },
       "wcf_scan_found":          {
+        "cat": 3,
         "recent": true
       },
       "wpv_scan_found":          {
+        "cat": 3,
         "recent": true
       },
       "apc_item_repair_success": {

@@ -63,35 +63,6 @@ body {
 #ColumnOptions .form-actions .btn {
 	padding: 16px 40px;
 }
-table.table-audit_trail {
-	border: 2px solid #777777;
-	margin-bottom: 40px;
-	width: auto;
-}
-table.table-audit_trail .cell-time {
-	width: 90px;
-	max-width: 90px;
-}
-table.table-audit_trail .cell-username {
-	width: 120px;
-	max-width: 120px;
-}
-table.table-audit_trail .cell-event {
-	width: 100px;
-	max-width: 100px;
-}
-table.table-audit_trail .cell-category {
-	width: 80px;
-	max-width: 80px;
-}
-table.table-audit_trail .cell-message {
-	width: 200px;
-	max-width: 250px;
-}
-table.table-audit_trail .cell-ip {
-	width: 200px;
-	max-width: 240px;
-}
 /* Form elements */
 .bootstrap-wpadmin form fieldset {
 	width: 80%;
@@ -1239,4 +1210,14 @@ input[type=checkbox].form-check-input {
 
 .tooltip .arrow {
 	display: none !important;
+}
+
+table.odp-table tr.audit-cat-1 td {
+	background-color: #f2faff;
+}
+table.odp-table tr.audit-cat-2 td {
+	background-color: #fff7ee;
+}
+table.odp-table tr.audit-cat-3 td {
+	background-color: #ffefef;
 }

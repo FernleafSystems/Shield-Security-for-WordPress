@@ -94,6 +94,7 @@ class AuditTrail extends BaseBuild {
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\AuditTrail\EntryVO $oEntry */
 
+			$sMsg = 'Audit message could not be retrieved';
 			if ( empty( $oEntry->message ) ) {
 				/**
 				 * To cater for the contexts that don't refer to a module, but rather a context
@@ -130,10 +131,14 @@ class AuditTrail extends BaseBuild {
 				else {
 					$aE[ 'your_ip' ] = '';
 				}
+				if ( $oEntry->wp_username == '-' ) {
+					$aE[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
+				}
 			}
 			else {
 				$aE = $aEntries[ $oEntry->rid ];
 				$aE[ 'message' ] .= "\n".$sMsg;
+				$aE[ 'category' ] = max( $aE[ 'category' ], $oEntry->category );
 			}
 
 			$aEntries[ $oEntry->rid ] = $aE;

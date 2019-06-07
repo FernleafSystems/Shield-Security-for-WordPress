@@ -24,7 +24,7 @@ class Strings extends Base\Strings {
 			'mal' => __( 'Malware' ),
 			'ptg' => __( 'Plugin/Theme Guard' ),
 			'ufc' => __( 'Unrecognised Files' ),
-			'wcf' => __( 'Core Files' ),
+			'wcf' => __( 'WP Core Files' ),
 			'wpv' => __( 'Vulnerabilities' ),
 		];
 	}
