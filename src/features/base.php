@@ -156,7 +156,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$aEvts = $this->getSupportedEvents();
 
 		$aDefaults = [
-			'slug'    => $this->getSlug(),
+			'context' => $this->getSlug(),
 			'cat'     => 1,
 			'stat'    => true,
 			'audit'   => true,

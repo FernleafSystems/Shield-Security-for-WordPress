@@ -254,6 +254,28 @@
       "meta",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                          {
+      "plugin_activated":   {
+        "context": "plugins"
+      },
+      "plugin_deactivated": {
+        "context": "plugins"
+      },
+      "plugin_file_edited": {
+        "context": "plugins"
+      },
+      "theme_activated":    {
+        "context": "themes"
+      },
+      "theme_file_edited":  {
+        "context": "themes"
+      },
+      "block_xml":          {
+        "audit":   false,
+        "recent":  true,
+        "offense": true
+      }
+    }
   }
 }

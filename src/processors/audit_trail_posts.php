@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ICWP_WPSF_Processor_AuditTrail_Posts
+ * @deprecated
+ */
 class ICWP_WPSF_Processor_AuditTrail_Posts extends ICWP_WPSF_AuditTrail_Auditor_Base {
 
 	/**

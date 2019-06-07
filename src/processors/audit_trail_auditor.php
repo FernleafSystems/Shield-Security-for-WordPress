@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
 class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
@@ -39,10 +40,14 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 			( new ICWP_WPSF_Processor_AuditTrail_Users() )->run();
 		}
 		if ( $oFO->isAuditPlugins() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Plugins() )->run();
+			( new Auditors\Plugins() )
+				->setMod( $oFO )
+				->run();
 		}
 		if ( $oFO->isAuditThemes() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Themes() )->run();
+			( new Auditors\Themes() )
+				->setMod( $oFO )
+				->run();
 		}
 		if ( $oFO->isAuditWp() ) {
 			( new ICWP_WPSF_Processor_AuditTrail_Wordpress() )->run();
@@ -61,16 +66,12 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
 		if ( $this->bAudit && !$this->getCon()->isPluginDeleting() ) {
-			$this->commitAudits();
+			/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
+			$oMod = $this->getMod();
+			/** @var AuditTrail\Handler $oDbh */
+			$oDbh = $oMod->getDbHandler();
+			$oDbh->commitAudits( $oMod->getRegisteredAuditLogs( true ) );
 		}
-	}
-
-	private function commitAudits() {
-		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		/** @var AuditTrail\Handler $oDbh */
-		$oDbh = $this->getDbHandler();
-		$oDbh->commitAudits( $oMod->getRegisteredAuditLogs( true ) );
 	}
 
 	public function cleanupDatabase() {

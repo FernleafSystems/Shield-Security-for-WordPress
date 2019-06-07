@@ -83,7 +83,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
 			->setMod( $this )
-			->setDbHandler( $oPro->getSubProAuditor()->getDbHandler() );
+			->setDbHandler( $this->getDbHandler() );
 
 		return [
 			'success' => true,
@@ -271,6 +271,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * @return Shield\Databases\AuditTrail\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\AuditTrail\Handler();
 	}
 
 	/**

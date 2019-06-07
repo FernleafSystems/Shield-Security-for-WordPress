@@ -7,6 +7,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
+	 * @return string[][]
+	 */
+	protected function getAuditMessages() {
+		return [
+			'plugin_activated' => [
+				__( 'Plugin "%s" was activated.', 'wp-simple-firewall' )
+			],
+			'plugin_deactivated' => [
+				__( 'Plugin "%s" was deactivated.', 'wp-simple-firewall' )
+			],
+			'plugin_file_edited' => [
+				__( 'An attempt was made to edit the plugin file "%s" directly through the WordPress editor.', 'wp-simple-firewall' )
+			],
+			'theme_activated' => [
+				__( 'Theme "%s" was activated.', 'wp-simple-firewall' )
+			],
+		];
+	}
+
+	/**
 	 * @return string[]
 	 */
 	protected function getAdditionalDisplayStrings() {

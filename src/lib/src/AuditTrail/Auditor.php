@@ -18,6 +18,7 @@ trait Auditor {
 	 * @param string $sEvent
 	 * @param array  $aEventData
 	 * @return EntryVO
+	 * @deprecated
 	 */
 	public function createNewAudit( $sContext, $sMsg, $nCategory = 1, $sEvent = '', $aEventData = [] ) {
 		$oEntry = new EntryVO();

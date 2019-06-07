@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Handler extends Base\Handler {
 
@@ -11,12 +12,41 @@ class Handler extends Base\Handler {
 	 * @param $aEvents - array of events: key event slug, value created_at timestamp
 	 */
 	public function commitAudits( $aEvents ) {
-		foreach ( $aEvents as $oEvt ) {
-			/** @var EntryVO $oEvt */
-			/** @var Insert $oQI */
-			$oQI = $this->getQueryInserter();
-			$oQI->insert( $oEvt );
+		foreach ( $aEvents as $oEntry ) {
+			$this->commitAudit( $oEntry );
 		}
+	}
+
+	/**
+	 * @param EntryVO $oEntry
+	 */
+	public function commitAudit( $oEntry ) {
+		$oWp = Services::WpGeneral();
+		$oWpUsers = Services::WpUsers();
+
+		$oEntry->rid = $this->getCon()->getShortRequestId();
+		if ( empty( $oEntry->message ) ) {
+			$oEntry->message = '';
+		}
+		if ( empty( $oEntry->wp_username ) ) {
+			if ( $oWpUsers->isUserLoggedIn() ) {
+				$sUser = $oWpUsers->getCurrentWpUsername();
+			}
+			else if ( $oWp->isCron() ) {
+				$sUser = 'WP Cron';
+			}
+			else if ( $oWp->isWpCli() ) {
+				$sUser = 'WP CLI';
+				$oEntry->wp_username = 'WP ';
+			}
+			else {
+				$sUser = 'Unknown';
+			}
+			$oEntry->wp_username = $sUser;
+		}
+		/** @var Insert $oQI */
+		$oQI = $this->getQueryInserter();
+		$oQI->insert( $oEntry );
 	}
 
 	/**

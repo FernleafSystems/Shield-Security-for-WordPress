@@ -2,6 +2,10 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_AuditTrail_Emails
+ * @deprecated
+ */
 class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor_Base {
 
 	/**
@@ -17,7 +21,9 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 	public function auditEmailSend( $aEmail ) {
 
 		$aMsg = [];
+		$aData = [];
 		if ( is_array( $aEmail ) ) {
+
 			$sTo = isset( $aEmail[ 'to' ] ) ? $aEmail[ 'to' ] : 'no email address provided';
 			if ( is_array( $sTo ) ) {
 				$sTo = implode( ', ', $sTo );
@@ -59,6 +65,7 @@ class ICWP_WPSF_Processor_AuditTrail_Emails extends ICWP_WPSF_AuditTrail_Auditor
 		else {
 			$aMsg[] = sprintf( __( 'Attempting to log email, but data was not of the correct type (%s)', 'wp-simple-firewall' ), 'array' );
 		}
+
 
 		$this->add( 'emails', 'email_attempt_send', 1, implode( " ", $aMsg ) );
 

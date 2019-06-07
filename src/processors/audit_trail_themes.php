@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ICWP_WPSF_Processor_AuditTrail_Themes
+ * @deprecated
+ */
 class ICWP_WPSF_Processor_AuditTrail_Themes extends ICWP_WPSF_AuditTrail_Auditor_Base {
 
 	/**
@@ -7,7 +11,6 @@ class ICWP_WPSF_Processor_AuditTrail_Themes extends ICWP_WPSF_AuditTrail_Auditor
 	public function run() {
 		add_action( 'switch_theme', [ $this, 'auditSwitchTheme' ] );
 		add_action( 'check_admin_referer', [ $this, 'auditEditedThemeFile' ], 10, 2 );
-//		add_action( 'upgrader_process_complete', array( $this, 'auditInstalledTheme' ) );
 	}
 
 	/**

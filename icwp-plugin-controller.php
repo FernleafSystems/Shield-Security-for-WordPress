@@ -1739,6 +1739,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_AuditTrail
+	 */
+	public function getModule_AuditTrail() {
+		return $this->getModule( 'audit_trail' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction
 	 */
 	public function getModule_SecAdmin() {

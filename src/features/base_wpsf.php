@@ -102,14 +102,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				$oEntry = new Shield\Databases\AuditTrail\EntryVO();
 				$oEntry->event = $sEvent;
 				$oEntry->category = $aDef[ 'cat' ];
-				$oEntry->context = $aDef[ 'slug' ];
+				$oEntry->context = $aDef[ 'context' ];
 				$oEntry->meta = $aData;
-				if ( Services::WpGeneral()->isCron() ) {
-					$oEntry->wp_username = 'WP Cron';
-				}
-				else if ( Services::WpGeneral()->isWpCli() ) {
-					$oEntry->wp_username = 'WP CLI';
-				}
 				if ( !is_array( self::$aAuditLogs ) ) {
 					self::$aAuditLogs = [];
 				}

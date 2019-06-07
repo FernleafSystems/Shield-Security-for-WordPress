@@ -43,10 +43,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
 		$oAuditMod = $oCon->getModule( 'audit_trail' );
-		/** @var ICWP_WPSF_Processor_AuditTrail $oAuditPro */
-		$oAuditPro = $oAuditMod->getProcessor();
 		/** @var Shield\Databases\AuditTrail\Select $oAuditSelect */
-		$oAuditSelect = $oAuditPro->getSubProAuditor()->getDbHandler()->getQuerySelector();
+		$oAuditSelect = $oAuditMod->getDbHandler()->getQuerySelector();
 
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );

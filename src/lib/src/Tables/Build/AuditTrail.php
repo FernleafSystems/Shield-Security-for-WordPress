@@ -95,7 +95,15 @@ class AuditTrail extends BaseBuild {
 			/** @var Databases\AuditTrail\EntryVO $oEntry */
 
 			if ( empty( $oEntry->message ) ) {
-				$oStrings = $oCon->getModule( $oEntry->context )->getStrings();
+				/**
+				 * To cater for the contexts that don't refer to a module, but rather a context
+				 * with the Audit Trail module
+				 */
+				$oModule = $oCon->getModule( $oEntry->context );
+				if ( empty( $oModule ) ) {
+					$oModule = $oCon->getModule_AuditTrail();
+				}
+				$oStrings = $oModule->getStrings();
 
 				if ( $oStrings instanceof Shield\Modules\Base\Strings ) {
 					$sMsg = stripslashes( sanitize_textarea_field(

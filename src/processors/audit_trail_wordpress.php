@@ -2,6 +2,10 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_AuditTrail_Wordpress
+ * @deprecated
+ */
 class ICWP_WPSF_Processor_AuditTrail_Wordpress extends ICWP_WPSF_AuditTrail_Auditor_Base {
 
 	/**
