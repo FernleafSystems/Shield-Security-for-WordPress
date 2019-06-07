@@ -13,6 +13,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 */
 	protected function updateHandler() {
+		parent::updateHandler();
 		$this->setPtgUpdateStoreFormat( true );
 //			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
 	}
@@ -171,23 +172,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isIncludeFileLists() {
 		return $this->isPremium() && $this->isOpt( 'email_files_list', 'Y' );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return $this
-	 */
-	public function setLastScanAt( $sScan ) {
-		return $this->setOptInsightsAt( sprintf( 'last_scan_%s_at', $sScan ) );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @param int    $nAt
-	 * @return $this
-	 */
-	public function setNextScanAt( $sScan, $nAt ) {
-		return $this->setOptAt( sprintf( 'next_scan_%s_at', $sScan ), $nAt );
 	}
 
 	/**

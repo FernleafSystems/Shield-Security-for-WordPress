@@ -38,13 +38,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	public function doScan() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
 		$oResults = $this->getScannerResults();
 		$this->updateScanResultsStore( $oResults );
-		$oFO->setLastScanAt( static::SCAN_SLUG )
-			->setNextScanAt( static::SCAN_SLUG, $this->getNextCronRun() );
 
 		$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_run' );
 		if ( $oResults->countItems() ) {

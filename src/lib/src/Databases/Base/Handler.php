@@ -79,14 +79,15 @@ class Handler {
 	 * @return string[]
 	 */
 	public function getColumnsDefinition() {
-		return is_array( $this->aColDef ) ? $this->aColDef : [];
+		return is_array( $this->aColDef ) ? $this->aColDef : $this->getDefaultColumnsDefinition();
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getTable() {
-		return $this->sTable;
+		$sTable = empty( $this->sTable ) ? $this->getDefaultTableName() : $this->sTable;
+		return Services::WpDb()->getPrefix().esc_sql( $sTable );
 	}
 
 	/**
@@ -142,7 +143,7 @@ class Handler {
 	 * @return string
 	 */
 	public function getSqlCreate() {
-		return $this->sSqlCreate;
+		return empty( $this->sSqlCreate ) ? $this->getDefaultCreateTableSql() : $this->sSqlCreate;
 	}
 
 	/**
@@ -238,8 +239,29 @@ class Handler {
 	 * @return $this
 	 */
 	public function setTable( $sTable ) {
-		$this->sTable = Services::WpDb()->getPrefix().esc_sql( $sTable );
+		$this->sTable = $sTable;
 		return $this;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getDefaultColumnsDefinition() {
+		return [];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultCreateTableSql() {
+		return '';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultTableName() {
+		return '';
 	}
 
 	/**

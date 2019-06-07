@@ -8,6 +8,34 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\Options {
 
 	/**
+	 * @return array
+	 */
+	public function getDbColumns_AuditTrail() {
+		return $this->getDef( 'audit_trail_table_columns' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getDbColumns_ChangeTracking() {
+		return $this->getDef( 'table_columns_changetracking' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDbTable_AuditTrail() {
+		return $this->getCon()->prefixOption( $this->getDef( 'audit_trail_table_name' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDbTable_ChangeTracking() {
+		return $this->getCon()->prefixOption( $this->getDef( 'table_name_changetracking' ) );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getAutoCleanDays() {

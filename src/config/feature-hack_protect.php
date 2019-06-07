@@ -568,13 +568,6 @@
       "default":      0
     },
     {
-      "key":          "insights_last_scan_mal_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "insights_last_scan_wcf_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -590,48 +583,6 @@
     },
     {
       "key":          "insights_last_scan_wpv_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_apc_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_ufc_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_mal_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_wcf_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_ptg_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_wpv_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",

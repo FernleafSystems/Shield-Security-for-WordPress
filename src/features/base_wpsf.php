@@ -51,7 +51,34 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	protected function setupCustomHooks() {
 		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
-		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventStat' ], 10, 1 );
+		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventStat' ], 10, 2 );
+	}
+
+	/**
+	 */
+	protected function updateHandler() {
+		$aMap = [
+			'insights_last_comment_block_at'  => 'spam_block_bot',
+			'insights_last_firewall_block_at' => 'firewall_block',
+			'insights_last_scan_ufc_at'       => 'ufc_scan_run',
+			'insights_last_scan_apc_at'       => 'apc_scan_run',
+			'insights_last_scan_wcf_at'       => 'wcf_scan_run',
+			'insights_last_scan_ptg_at'       => 'ptg_scan_run',
+			'insights_last_scan_wpv_at'       => 'wpv_scan_run',
+			'insights_last_transgression_at'  => 'ip_offense',
+			'insights_last_ip_block_at'       => 'conn_kill',
+			'insights_xml_block_at'           => 'block_xml',
+			'insights_restapi_block_at'       => 'block_anonymous_restapi',
+			'insights_last_2fa_login_at'      => '2fa_success',
+			'insights_last_login_block_at'    => 'block_login',
+			'insights_test_cron_last_run_at'  => 'test_cron_run',
+			'insights_last_password_block_at' => 'password_policy_block',
+		];
+		foreach ( $this->getOptionsVo()->getOptionsKeys() as $sOptKey ) {
+			if ( strpos( $sOptKey, 'insights_' ) === 0 && isset( $aMap[ $sOptKey ] ) ) {
+				$this->addStatEvent( $aMap[ $sOptKey ], [ 'ts' => $this->getOpt( $sOptKey ) ] );
+			}
+		}
 	}
 
 	/**
@@ -71,25 +98,27 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @param string $sEvent
+	 * @param array  $aMetaData
 	 */
-	public function eventStat( $sEvent ) {
+	public function eventStat( $sEvent, $aMetaData = [] ) {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
 			if ( $aDef[ 'stat' ] ) { // only stat if it's a statable event
-				$this->addStatEvent( $sEvent );
+				$this->addStatEvent( $sEvent, $aMetaData );
 			}
 		}
 	}
 
 	/**
 	 * @param string $sEvent
+	 * @param array  $aMetaData
 	 * @return $this
 	 */
-	protected function addStatEvent( $sEvent ) {
+	protected function addStatEvent( $sEvent, $aMetaData = [] ) {
 		if ( !is_array( self::$aStatEvents ) ) {
 			self::$aStatEvents = [];
 		}
-		self::$aStatEvents[] = $sEvent;
+		self::$aStatEvents[ $sEvent ] = isset( $aMetaData[ 'ts' ] ) ? $aMetaData[ 'ts' ] : Services::Request()->ts();
 		return $this;
 	}
 
@@ -97,7 +126,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return string[]
 	 */
 	public function getRegisteredEvents() {
-		return self::$aStatEvents;
+		return is_array( self::$aStatEvents ) ? self::$aStatEvents : [];
 	}
 
 	/**

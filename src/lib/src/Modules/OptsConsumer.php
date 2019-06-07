@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options;
+
 /**
  * Trait OptsConsumer
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules
@@ -9,19 +11,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
 trait OptsConsumer {
 
 	/**
-	 * @var \ICWP_WPSF_OptionsVO
+	 * @var Options
 	 */
 	private $oOpts;
 
 	/**
-	 * @return \ICWP_WPSF_OptionsVO
+	 * @return Options
 	 */
 	public function getOpts() {
 		return $this->oOpts;
 	}
 
 	/**
-	 * @param \ICWP_WPSF_OptionsVO $oOpts
+	 * @param Options $oOpts
 	 * @return $this
 	 */
 	public function setOpts( $oOpts ) {

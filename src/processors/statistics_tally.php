@@ -79,15 +79,15 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getCreateTableSql() {
 		return "CREATE TABLE %s (
-				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				stat_key varchar(100) NOT NULL DEFAULT 0,
-				parent_stat_key varchar(100) NOT NULL DEFAULT '',
-				tally int(11) UNSIGNED NOT NULL DEFAULT 0,
-				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				modified_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				PRIMARY KEY  (id)
-			) %s;";
+			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+			stat_key varchar(100) NOT NULL DEFAULT 0,
+			parent_stat_key varchar(100) NOT NULL DEFAULT '',
+			tally int(11) UNSIGNED NOT NULL DEFAULT 0,
+			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			modified_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY  (id)
+		) %s;";
 	}
 
 	/**

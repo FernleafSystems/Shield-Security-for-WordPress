@@ -1918,7 +1918,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();
 		foreach ( $this->getModules() as $oModule ) {
 			( new \FernleafSystems\Wordpress\Plugin\Shield\Tests\VerifyConfig() )
-				->setOpts( $oModule->getOptionsVo() )
+				->setOpts( $oModule->getOptions() )
 				->run();
 		}
 	}

@@ -18,6 +18,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	protected function updateHandler() {
+		parent::updateHandler();
 		$this->deleteAllPluginCrons();
 	}
 
