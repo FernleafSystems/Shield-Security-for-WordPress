@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
@@ -15,12 +17,15 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @throws \Exception
 	 */
 	protected function performCheckWithException() {
+		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		$oFO = $this->getMod();
 
 		if ( !$this->isFactorTested() ) {
-
 			try {
-				$this->checkRequestRecaptcha();
 				$this->setFactorTested( true );
+				( new Shield\Utilities\ReCaptcha\TestRequest() )
+					->setMod( $oFO )
+					->test();
 				$this->doStatIncrement( 'login.recaptcha.verified' );
 			}
 			catch ( \Exception $oE ) {

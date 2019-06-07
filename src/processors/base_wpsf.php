@@ -72,45 +72,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function getRecaptchaResponse() {
-		return $this->loadRequest()->post( 'g-recaptcha-response' );
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function checkRequestRecaptcha() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-
-		$sCaptchaResponse = $this->getRecaptchaResponse();
-
-		if ( empty( $sCaptchaResponse ) ) {
-			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
-		}
-		else {
-			$oResponse = ( new \ReCaptcha\ReCaptcha(
-				$oFO->getGoogleRecaptchaSecretKey(),
-				new Shield\Utilities\ReCaptcha\WordpressPost() )
-			)
-				->verify( $sCaptchaResponse, $this->ip() );
-			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-				$aMsg = [
-					__( 'Whoops.', 'wp-simple-firewall' ),
-					__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' ),
-					Services::WpGeneral()->isAjax() ?
-						__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : ''
-				];
-				throw new \Exception( implode( ' ', $aMsg ), 2 );
-			}
-		}
-		return true;
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function getIfLogRequest() {
