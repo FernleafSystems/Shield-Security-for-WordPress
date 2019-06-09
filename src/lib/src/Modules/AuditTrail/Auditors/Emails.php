@@ -47,10 +47,13 @@ class Emails extends Base {
 			$aData[ 'bt_file' ] = empty( $aBacktrace[ 'file' ] ) ? 'unavailable' : str_replace( ABSPATH, '', $aBacktrace[ 'file' ] );
 			$aData[ 'bt_line' ] = empty( $aBacktrace[ 'line' ] ) ? 'unavailable' : $aBacktrace[ 'line' ];
 
-			$this->getCon()->fireEvent( 'email_attempt_send', $aData );
+			$this->getCon()->fireEvent( 'email_attempt_send', [ 'audit' => $aData ] );
 		}
 		else {
-			$this->getCon()->fireEvent( 'email_send_invalid', [ 'type' => 'array' ] );
+			$this->getCon()->fireEvent(
+				'email_send_invalid',
+				[ 'audit' => [ 'type' => 'array' ] ]
+			);
 		}
 
 		return $aEmail;

@@ -377,8 +377,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$this->getCon()->fireEvent(
 				'user_hard_suspended',
 				[
-					'user_id' => $nUserId,
-					'admin'   => $sAdminUser,
+					'audit' => [
+						'user_id' => $nUserId,
+						'admin'   => $sAdminUser,
+					]
 				]
 			);
 		}
@@ -388,8 +390,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$this->getCon()->fireEvent(
 				'user_hard_unsuspended',
 				[
-					'user_id' => $nUserId,
-					'admin'   => $sAdminUser,
+					'audit' => [
+						'user_id' => $nUserId,
+						'admin'   => $sAdminUser,
+					]
 				]
 			);
 		}

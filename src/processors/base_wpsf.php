@@ -241,16 +241,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated
-	 */
-	protected function getIfIpTransgressed() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getIfIpTransgressed();
-	}
-
-	/**
 	 * @param string $sMsg
 	 * @param int    $nCategory
 	 * @param string $sEvent

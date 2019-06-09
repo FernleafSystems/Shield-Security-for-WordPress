@@ -127,8 +127,10 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? '2fa_backupcode_verified' : '2fa_backupcode_fail',
 			[
-				'user_login' => $oUser->user_login,
-				'method'     => 'Backup Code',
+				'audit' => [
+					'user_login' => $oUser->user_login,
+					'method'     => 'Backup Code',
+				]
 			]
 		);
 	}

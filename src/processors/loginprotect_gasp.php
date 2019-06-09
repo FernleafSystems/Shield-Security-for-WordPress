@@ -58,8 +58,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 			$this->getCon()->fireEvent(
 				'botbox_fail',
 				[
-					'user_login' => $sUsername,
-					'action'     => $sActionAttempted,
+					'audit' => [
+						'user_login' => $sUsername,
+						'action'     => $sActionAttempted,
+					]
 				]
 			);
 			$this->setLoginAsFailed( $sActionAttempted.'.gasp.checkbox.fail' );
@@ -69,8 +71,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 			$this->getCon()->fireEvent(
 				'honeypot_fail',
 				[
-					'user_login' => $sUsername,
-					'action'     => $sActionAttempted,
+					'audit' => [
+						'user_login' => $sUsername,
+						'action'     => $sActionAttempted,
+					]
 				]
 			);
 			$this->setLoginAsFailed( $sActionAttempted.'.gasp.honeypot.fail' );
@@ -81,9 +85,6 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 		}
 
 		if ( !$bValid ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getMod();
-			$oFO->setIpTransgressed();
 			throw new \Exception( $sError );
 		}
 	}

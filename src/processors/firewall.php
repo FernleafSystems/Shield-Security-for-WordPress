@@ -136,13 +136,15 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 			if ( $bFAIL ) {
 				$this->getCon()
-					 ->fireEvent( 'firewall_block' )
 					 ->fireEvent(
 						 'block_exeupload',
 						 [
-							 'blockresponse' => $oFO->getBlockResponse(),
-							 'blockkey'      => $sKey,
+							 'audit' => [
+								 'blockresponse' => $oFO->getBlockResponse(),
+								 'blockkey'      => $sKey,
+							 ]
 						 ]
+
 					 );
 				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
 			}
@@ -206,14 +208,15 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			];
 
 			$this->getCon()
-				 ->fireEvent( 'firewall_block' )
 				 ->fireEvent(
 					 'blockparam_'.$sBlockKey,
-					 [ // param order is critical
-					   'param'         => $sParam,
-					   'val'           => $mValue,
-					   'blockresponse' => $oFO->getBlockResponse(),
-					   'blockkey'      => $sBlockKey,
+					 [
+						 'audit' => [
+							 'param'         => $sParam,
+							 'val'           => $mValue,
+							 'blockresponse' => $oFO->getBlockResponse(),
+							 'blockkey'      => $sBlockKey,
+						 ]
 					 ]
 				 );
 			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
@@ -254,11 +257,10 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
 			$this->getCon()->fireEvent(
 				$this->sendBlockEmail( $sRecipient ) ? 'email_send_success' : 'email_send_fail',
-				[ 'recipient' => $sRecipient ]
+				[ 'audit' => [ 'recipient' => $sRecipient ] ]
 			);
 		}
-
-		$oFO->setIpTransgressed();
+		$this->getCon()->fireEvent( 'firewall_block' );
 	}
 
 	/**

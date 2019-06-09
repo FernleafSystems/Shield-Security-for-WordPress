@@ -214,9 +214,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		}
 		$this->getCon()->fireEvent(
 			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[
-				'fragment' => $sBaseName
-			]
+			[ 'audit' => [ 'fragment' => $sBaseName ] ]
 		);
 		return $bSuccess;
 	}
@@ -631,8 +629,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$this->getCon()->fireEvent(
 			'ptg_alert_sent',
 			[
-				'to'  => $sTo,
-				'via' => 'email',
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
 			]
 		);
 	}

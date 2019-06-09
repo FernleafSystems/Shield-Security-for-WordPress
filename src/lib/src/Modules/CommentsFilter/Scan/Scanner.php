@@ -90,9 +90,8 @@ class Scanner {
 				$this->getCon()
 					 ->fireEvent(
 						 'spam_block_'.$mResult->get_error_code(),
-						 $mResult->get_error_data()
+						 [ 'audit' => $mResult->get_error_data() ]
 					 );
-				$oMod->setIpTransgressed();
 
 				if ( $mResult->get_error_code() == 'human' ) {
 					$this->mCommentStatus = $oMod->getOpt( 'comments_default_action_human_spam' );

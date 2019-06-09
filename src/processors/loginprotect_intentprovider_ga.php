@@ -296,8 +296,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? 'googleauth_verified' : 'googleauth_fail',
 			[
-				'user_login' => $oUser->user_login,
-				'method'     => 'Google Authenticator',
+				'audit' => [
+					'user_login' => $oUser->user_login,
+					'method'     => 'Google Authenticator',
+				]
 			]
 		);
 	}

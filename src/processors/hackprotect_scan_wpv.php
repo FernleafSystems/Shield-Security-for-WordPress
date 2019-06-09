@@ -111,7 +111,9 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		$this->getCon()->fireEvent(
 			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
 			[
-				'name' => Services::WpPlugins()->getPluginAsVo( $oItem->slug )->Name
+				'audit' => [
+					'name' => Services::WpPlugins()->getPluginAsVo( $oItem->slug )->Name
+				]
 			]
 		);
 		return $bSuccess;
@@ -281,8 +283,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		$this->getCon()->fireEvent(
 			'wpv_alert_sent',
 			[
-				'to'  => $sTo,
-				'via' => 'email',
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
 			]
 		);
 	}

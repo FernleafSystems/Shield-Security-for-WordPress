@@ -36,8 +36,10 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? 'email_verified' : 'email_fail',
 			[
-				'user_login' => $oUser->user_login,
-				'method'     => 'Email',
+				'audit' => [
+					'user_login' => $oUser->user_login,
+					'method'     => 'Email',
+				]
 			]
 		);
 	}
@@ -170,7 +172,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 
 		$this->getCon()->fireEvent(
 			$bResult ? '2fa_email_send_success' : '2fa_email_send_fail',
-			[ 'user_login' => $oUser->user_login, ]
+			[
+				'audit' => [
+					'user_login' => $oUser->user_login,
+				]
+			]
 		);
 		return $this;
 	}

@@ -17,7 +17,10 @@ class Posts extends Base {
 	public function auditDeletedPost( $nPostId ) {
 		$oPost = Services::WpPost()->getById( $nPostId );
 		if ( $oPost instanceof \WP_Post && !$this->isIgnoredPostType( $oPost ) ) {
-			$this->getCon()->fireEvent( 'post_deleted', [ 'title' => $oPost->post_title ] );
+			$this->getCon()->fireEvent(
+				'post_deleted',
+				[ 'audit' => [ 'title' => $oPost->post_title ] ]
+			);
 		}
 	}
 
@@ -58,8 +61,10 @@ class Posts extends Base {
 		$this->getCon()->fireEvent(
 			$sEvent,
 			[
-				'title' => $oPost->post_title,
-				'type'  => $oPost->post_type,
+				'audit' => [
+					'title' => $oPost->post_title,
+					'type'  => $oPost->post_type,
+				]
 			]
 		);
 	}

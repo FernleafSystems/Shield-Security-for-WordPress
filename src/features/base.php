@@ -200,6 +200,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @param string $sKey
+	 * @return bool
+	 */
+	public function isOffenseEvent( $sKey ) {
+		return $this->isSupportedEvent( $sKey ) && $this->getEvents()[ $sKey ][ 'offense' ];
+	}
+
+	/**
 	 * Should be over-ridden by each new class to handle upgrades.
 	 * Called upon construction and after plugin options are initialized.
 	 */

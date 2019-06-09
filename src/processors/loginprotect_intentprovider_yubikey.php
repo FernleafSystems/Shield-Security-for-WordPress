@@ -234,8 +234,10 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 		$this->getCon()->fireEvent(
 			$bIsSuccess ? 'yubikey_verified' : 'yubikey_fail',
 			[
-				'user_login' => $oUser->user_login,
-				'method'     => 'Yubikey',
+				'audit' => [
+					'user_login' => $oUser->user_login,
+					'method'     => 'Yubikey',
+				]
 			]
 		);
 	}

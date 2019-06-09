@@ -55,6 +55,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	protected function setupCustomHooks() {
+		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventOffense' ], 10, 2 );
 		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
 		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventStat' ], 10, 2 );
 	}
@@ -92,10 +93,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @param string $sEvent
-	 * @param array  $aData
+	 * @param array  $aMeta
 	 * @return $this
 	 */
-	public function eventAudit( $sEvent = '', $aData = [] ) {
+	public function eventAudit( $sEvent = '', $aMeta = [] ) {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
 			if ( $aDef[ 'audit' ] ) { // only audit if it's an auditable event
@@ -103,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				$oEntry->event = $sEvent;
 				$oEntry->category = $aDef[ 'cat' ];
 				$oEntry->context = $aDef[ 'context' ];
-				$oEntry->meta = $aData;
+				$oEntry->meta = isset( $aMeta[ 'audit' ] ) ? $aMeta[ 'audit' ] : [];
 				if ( !is_array( self::$aAuditLogs ) ) {
 					self::$aAuditLogs = [];
 				}
@@ -115,27 +116,40 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @param string $sEvent
-	 * @param array  $aMetaData
+	 * @param array  $aMeta
 	 */
-	public function eventStat( $sEvent, $aMetaData = [] ) {
+	public function eventOffense( $sEvent, $aMeta = [] ) {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
-			if ( $aDef[ 'stat' ] ) { // only stat if it's a statable event
-				$this->addStatEvent( $sEvent, $aMetaData );
+			if ( $aDef[ 'offense' ] ) {
+				$this->setIpAction( isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1 );
 			}
 		}
 	}
 
 	/**
 	 * @param string $sEvent
-	 * @param array  $aMetaData
+	 * @param array  $aMeta
+	 */
+	public function eventStat( $sEvent, $aMeta = [] ) {
+		if ( $this->isSupportedEvent( $sEvent ) ) {
+			$aDef = $this->getEventDef( $sEvent );
+			if ( $aDef[ 'stat' ] ) { // only stat if it's a statable event
+				$this->addStatEvent( $sEvent, $aMeta );
+			}
+		}
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
 	 * @return $this
 	 */
-	protected function addStatEvent( $sEvent, $aMetaData = [] ) {
+	protected function addStatEvent( $sEvent, $aMeta = [] ) {
 		if ( !is_array( self::$aStatEvents ) ) {
 			self::$aStatEvents = [];
 		}
-		self::$aStatEvents[ $sEvent ] = isset( $aMetaData[ 'ts' ] ) ? $aMetaData[ 'ts' ] : Services::Request()->ts();
+		self::$aStatEvents[ $sEvent ] = isset( $aMeta[ 'ts' ] ) ? $aMeta[ 'ts' ] : Services::Request()->ts();
 		return $this;
 	}
 
@@ -423,16 +437,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function getIfIpTransgressed() {
-		$mAction = $this->getIpAction();
-		return !empty( $mAction ) &&
-			   ( ( is_numeric( $mAction ) && $mAction > 0 ) || in_array( $mAction, [ 'block' ] ) );
+		return in_array( $this->getIpAction(), $this->getPossibleOffenses(), true );
 	}
 
 	/**
 	 * @return int|string|null
 	 */
 	public function getIpAction() {
-		return self::$mIpAction;
+		return isset( self::$mIpAction ) ? self::$mIpAction : 0;
 	}
 
 	/**
@@ -440,7 +452,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return $this
 	 */
 	public function setIpBlocked() {
-		return $this->setIpAction( 'block' );
+		return $this->setIpAction( PHP_INT_MAX );
 	}
 
 	/**
@@ -449,21 +461,29 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return $this
 	 */
 	public function setIpTransgressed( $nIncrementCount = 1 ) {
-		return $this->setIpAction( $nIncrementCount );
+		return $this;//$this->setIpAction( $nIncrementCount );
 	}
 
 	/**
-	 * @param string|int $mNewAction
+	 * @param string|int $mAct
 	 * @return $this
 	 */
-	private function setIpAction( $mNewAction ) {
-		if ( in_array( $mNewAction, [ 'block' ] ) ) {
-			self::$mIpAction = $mNewAction;
+	private function setIpAction( $mAct ) {
+		if ( !isset( self::$mIpAction ) ) {
+			self::$mIpAction = 0;
 		}
-		else if ( empty( self::$mIpAction ) || ( is_numeric( self::$mIpAction ) && $mNewAction > self::$mIpAction ) ) {
-			self::$mIpAction = $mNewAction;
+
+		if ( in_array( $mAct, $this->getPossibleOffenses(), true ) && $mAct > self::$mIpAction ) {
+			self::$mIpAction = $mAct;
 		}
 		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getPossibleOffenses() {
+		return [ 1, 2, PHP_INT_MAX ];
 	}
 
 	/**

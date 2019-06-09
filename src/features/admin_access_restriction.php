@@ -321,13 +321,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			// The 1st approach uses raw, unescaped. The 2nd approach uses the older escaped $_POST.
 			$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest )
 						|| $this->verifyAccessKey( $oReq->post( 'admin_access_key_request', '' ) );
-			if ( $bSuccess ) {
-				$this->getCon()->fireEvent( 'key_success' );
-			}
-			else {
-				$this->getCon()->fireEvent( 'key_fail' );
-				$this->setIpTransgressed();
-			}
+
+			$this->getCon()->fireEvent( $bSuccess ? 'key_success' : 'key_fail' );
 		}
 		return $bSuccess;
 	}

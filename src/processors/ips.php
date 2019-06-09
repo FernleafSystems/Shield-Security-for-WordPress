@@ -32,11 +32,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		$this->processBlacklist();
 
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isAutoBlackListEnabled() ) {
-			add_filter( $oFO->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
-			add_action( $oFO->prefix( 'pre_plugin_shutdown' ), [ $this, 'doBlackMarkCurrentVisitor' ] );
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isAutoBlackListEnabled() ) {
+			add_filter( $oMod->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
+			add_action( $oMod->prefix( 'pre_plugin_shutdown' ), [ $this, 'doBlackMarkCurrentVisitor' ] );
 		}
 	}
 
@@ -168,6 +168,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bKill ) {
+			error_log( $this->ip() );
+			error_log( $this->getCon()->getShortRequestId() );
 			$this->getCon()->fireEvent( 'conn_kill' );
 			$this->setIfLogRequest( false )// don't log traffic from killed requests
 				 ->doStatIncrement( 'ip.connection.killed' );
@@ -296,12 +298,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	public function doBlackMarkCurrentVisitor() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isAutoBlackListEnabled() && !$this->getCon()->isPluginDeleting()
-			 && $oFO->getIfIpTransgressed() && !$oFO->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
-
+		if ( $oMod->isAutoBlackListEnabled() && !$this->getCon()->isPluginDeleting()
+			 && $oMod->getIfIpTransgressed() && !$oMod->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
 			$this->processTransgression();
 		}
 	}
@@ -309,8 +310,8 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	private function processTransgression() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 
 		$oBlackIp = $this->getAutoBlackListIp( $this->ip() );
@@ -319,24 +320,31 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $oBlackIp instanceof IPs\EntryVO ) {
-			$nLimit = $oFO->getOptTransgressionLimit();
+			$nLimit = $oMod->getOptTransgressionLimit();
 			$nCurrentTrans = $oBlackIp->transgressions;
+
+			if ( $nCurrentTrans < $nLimit ) {
+
+				$mAction = $oMod->getIpAction();
+				$bBlock = ( $mAction == PHP_INT_MAX ) || ( $nLimit - $nCurrentTrans == 1 );
+				$nToIncrement = $bBlock ? ( $nLimit - $nCurrentTrans ) : $mAction;
+				$nNewOffenses = min( $nLimit, $oBlackIp->transgressions + $nToIncrement );
+
+				/** @var IPs\Update $oUp */
+				$oUp = $this->getDbHandler()->getQueryUpdater();
+				$oUp->updateTransgressions( $oBlackIp, $nNewOffenses );
+				$this->doStatIncrement( 'ip.transgression.incremented' );
+
+				$oCon->fireEvent( $bBlock ? 'ip_blocked' : 'ip_offense',
+					[
+						'audit' => [
+							'from' => $nCurrentTrans,
+							'to'   => $nNewOffenses,
+						]
+					]
+				);
+			}
 			// At this stage we know it's a transgression. But is it an outright block?
-			$bBlock = ( $oFO->getIpAction() == 'block' ) || ( $nLimit - $nCurrentTrans == 1 );
-			$nToIncrement = $bBlock ? ( $nLimit - $nCurrentTrans ) : $oFO->getIpAction();
-
-			/** @var IPs\Update $oUp */
-			$oUp = $this->getDbHandler()->getQueryUpdater();
-			$oUp->incrementTransgressions( $oBlackIp, $nToIncrement );
-
-			$this->doStatIncrement( 'ip.transgression.incremented' );
-
-			$oCon->fireEvent( $bBlock ? 'ip_blocked' : 'ip_offense',
-				[
-					'from' => $nCurrentTrans,
-					'to'   => $oBlackIp->transgressions,
-				]
-			);
 		}
 	}
 

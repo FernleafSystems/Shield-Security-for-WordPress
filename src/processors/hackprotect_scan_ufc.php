@@ -92,9 +92,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$bSuccess = $this->getRepairer()->repairItem( $oItem );
 		$this->getCon()->fireEvent(
 			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[
-				'fragment' => $oItem->path_fragment
-			]
+			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
 		);
 		return $bSuccess;
 	}
@@ -142,8 +140,10 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$this->getCon()->fireEvent(
 			'ufc_alert_sent',
 			[
-				'to'  => $sTo,
-				'via' => 'email',
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
 			]
 		);
 	}

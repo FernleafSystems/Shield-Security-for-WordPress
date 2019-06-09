@@ -298,7 +298,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 			$this->getCon()->fireEvent(
 				'import_notify_received',
-				[ 'master_site' => $oFO->getImportExportMasterImportUrl() ]
+				[ 'audit' => [ 'master_site' => $oFO->getImportExportMasterImportUrl() ] ]
 			);
 		}
 	}
@@ -342,16 +342,25 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			$aData = $this->getExportData();
 			$sMessage = 'Options Exported Successfully';
 
-			$this->getCon()->fireEvent( 'options_exported', [ 'site' => $sUrl ] );
+			$this->getCon()->fireEvent(
+				'options_exported',
+				[ 'audit' => [ 'site' => $sUrl ] ]
+			);
 
 			if ( $bDoNetwork ) {
 				if ( $sNetworkOpt === 'Y' ) {
 					$oFO->addUrlToImportExportWhitelistUrls( $sUrl );
-					$this->getCon()->fireEvent( 'whitelist_site_added', [ 'site' => $sUrl ] );
+					$this->getCon()->fireEvent(
+						'whitelist_site_added',
+						[ 'audit' => [ 'site' => $sUrl ] ]
+					);
 				}
 				else {
 					$oFO->removeUrlFromImportExportWhitelistUrls( $sUrl );
-					$this->getCon()->fireEvent( 'whitelist_site_removed', [ 'site' => $sUrl ] );
+					$this->getCon()->fireEvent(
+						'whitelist_site_removed',
+						[ 'audit' => [ 'site' => $sUrl ] ]
+					);
 				}
 			}
 		}
@@ -487,7 +496,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					}
 					else if ( $bEnableNetwork === true ) {
 						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
-						$this->getCon()->fireEvent( 'master_url_set', [ 'site' => $sMasterSiteUrl ] );
+						$this->getCon()->fireEvent(
+							'master_url_set',
+							[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
+						);
 					}
 					else if ( $bEnableNetwork === false ) {
 						$oFO->setImportExportMasterImportUrl( '' );
@@ -513,7 +525,10 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		if ( md5( serialize( $aImportData ) ) != $oFO->getImportExportLastImportHash() ) {
 			do_action( $oFO->prefix( 'import_options' ), $aImportData );
 			$oFO->setImportExportLastImportHash( md5( serialize( $aImportData ) ) );
-			$this->getCon()->fireEvent( 'options_imported', [ 'site' => $sImportSource ] );
+			$this->getCon()->fireEvent(
+				'options_imported',
+				[ 'audit' => [ 'site' => $sImportSource ] ]
+			);
 		}
 		return $bImported;
 	}

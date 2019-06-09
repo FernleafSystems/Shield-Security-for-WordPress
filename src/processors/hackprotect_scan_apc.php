@@ -133,8 +133,10 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		$this->getCon()->fireEvent(
 			'apc_alert_sent',
 			[
-				'to'  => $sTo,
-				'via' => 'email',
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
 			]
 		);
 	}

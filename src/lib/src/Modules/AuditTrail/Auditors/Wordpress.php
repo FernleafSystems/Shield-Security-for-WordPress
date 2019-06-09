@@ -18,8 +18,10 @@ class Wordpress extends Base {
 		$this->getCon()->fireEvent(
 			'core_updated',
 			[
-				'old' => Services::WpGeneral()->getVersion(),
-				'new' => $sNewCoreVersion,
+				'audit' => [
+					'old' => Services::WpGeneral()->getVersion(),
+					'new' => $sNewCoreVersion,
+				]
 			]
 		);
 	}
@@ -32,8 +34,10 @@ class Wordpress extends Base {
 		$this->getCon()->fireEvent(
 			'permalinks_structure',
 			[
-				'old' => $sOld,
-				'new' => $sNew,
+				'audit' => [
+					'old' => $sOld,
+					'new' => $sNew,
+				]
 			]
 		);
 	}

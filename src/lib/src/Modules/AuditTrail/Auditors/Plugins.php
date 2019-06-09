@@ -15,7 +15,10 @@ class Plugins extends Base {
 	 */
 	public function auditActivatedPlugin( $sPlugin ) {
 		if ( !empty( $sPlugin ) ) {
-			$this->getCon()->fireEvent( 'plugin_activated', [ 'plugin' => $sPlugin ] );
+			$this->getCon()->fireEvent(
+				'plugin_activated',
+				[ 'audit' => [ 'plugin' => $sPlugin ] ]
+			);
 		}
 	}
 
@@ -24,7 +27,10 @@ class Plugins extends Base {
 	 */
 	public function auditDeactivatedPlugin( $sPlugin ) {
 		if ( !empty( $sPlugin ) ) {
-			$this->getCon()->fireEvent( 'plugin_deactivated', [ 'plugin' => $sPlugin ] );
+			$this->getCon()->fireEvent(
+				'plugin_deactivated',
+				[ 'audit' => [ 'plugin' => $sPlugin ] ]
+			);
 		}
 	}
 
@@ -35,7 +41,10 @@ class Plugins extends Base {
 	public function auditEditedFile( $sAction, $bResult ) {
 		$sStub = 'edit-plugin_';
 		if ( strpos( $sAction, $sStub ) === 0 ) {
-			$this->getCon()->fireEvent( 'plugin_file_edited', [ 'file' => str_replace( $sStub, '', $sAction ) ] );
+			$this->getCon()->fireEvent(
+				'plugin_file_edited',
+				[ 'audit' => [ 'file' => str_replace( $sStub, '', $sAction ) ] ]
+			);
 		}
 	}
 }

@@ -511,8 +511,7 @@
       },
       {
         "slug":          "events",
-        "storage_key":   "events",
-        "load_priority": 11
+        "storage_key":   "events"
       },
       {
         "slug":          "statistics",

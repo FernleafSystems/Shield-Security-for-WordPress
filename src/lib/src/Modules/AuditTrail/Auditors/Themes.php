@@ -14,7 +14,10 @@ class Themes extends Base {
 	 */
 	public function auditSwitchTheme( $sThemeName ) {
 		if ( !empty( $sThemeName ) ) {
-			$this->getCon()->fireEvent( 'theme_activated', [ 'theme' => $sThemeName ] );
+			$this->getCon()->fireEvent(
+				'theme_activated',
+				[ 'audit' => [ 'theme' => $sThemeName ] ]
+			);
 		}
 	}
 
@@ -25,7 +28,10 @@ class Themes extends Base {
 	public function auditEditedThemeFile( $sAction, $bResult ) {
 		$sStub = 'edit-theme_';
 		if ( strpos( $sAction, $sStub ) === 0 ) {
-			$this->getCon()->fireEvent( 'theme_file_edited', [ 'file' => str_replace( $sStub, '', $sAction ) ] );
+			$this->getCon()->fireEvent(
+				'theme_file_edited',
+				[ 'audit' => [ 'file' => str_replace( $sStub, '', $sAction ) ] ]
+			);
 		}
 	}
 }

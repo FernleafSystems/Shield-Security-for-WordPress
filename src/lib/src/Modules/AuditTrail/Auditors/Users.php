@@ -17,7 +17,14 @@ class Users extends Base {
 	 */
 	public function auditUserLoginSuccess( $sUsername ) {
 		if ( !empty( $sUsername ) ) {
-			$this->getCon()->fireEvent( 'user_login', [ 'user' => sanitize_user( $sUsername ) ] );
+			$this->getCon()->fireEvent(
+				'user_login',
+				[
+					'audit' => [
+						'user'  => sanitize_user( $sUsername ),
+					]
+				]
+			);
 		}
 	}
 
@@ -30,8 +37,10 @@ class Users extends Base {
 			$this->getCon()->fireEvent(
 				'user_registered',
 				[
-					'user'  => sanitize_user( $oUser->user_login ),
-					'email' => $oUser->user_email,
+					'audit' => [
+						'user'  => sanitize_user( $oUser->user_login ),
+						'email' => $oUser->user_email,
+					]
 				]
 			);
 		}
@@ -49,15 +58,24 @@ class Users extends Base {
 			$this->getCon()->fireEvent(
 				'user_deleted',
 				[
-					'user'  => sanitize_user( $oUser->user_login ),
-					'email' => $oUser->user_email,
+					'audit' => [
+						'user'  => sanitize_user( $oUser->user_login ),
+						'email' => $oUser->user_email,
+					]
 				]
 			);
 		}
 
 		$oReassignedUser = empty( $nReassigned ) ? null : $oWpUsers->getUserById( $nReassigned );
 		if ( $oReassignedUser instanceof \WP_User ) {
-			$this->getCon()->fireEvent( 'user_deleted', [ 'user' => sanitize_user( $oReassignedUser->user_login ) ] );
+			$this->getCon()->fireEvent(
+				'user_deleted_reassigned',
+				[
+					'audit' => [
+						'user'  => sanitize_user( $oReassignedUser->user_login ),
+					]
+				]
+			);
 		}
 	}
 }

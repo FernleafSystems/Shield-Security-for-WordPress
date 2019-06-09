@@ -33,8 +33,27 @@ abstract class Base {
 	 * @return $this
 	 */
 	protected function writeAudit() {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
+		$oFO = $this->getMod();
+
+		if ( $oFO->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
+			$bCount = PHP_INT_MAX;
+		}
+		else if ( $oFO->isTrackOptTransgression( static::OPT_KEY ) ) {
+			$bCount = $oFO->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
+		}
+		else {
+			$bCount = 0;
+		}
+
 		$this->getCon()
-			 ->fireEvent( 'bot'.static::OPT_KEY, $this->getAuditData() );
+			 ->fireEvent(
+				 'bot'.static::OPT_KEY,
+				 [
+					 'audit'         => $this->getAuditData(),
+					 'offense_count' => $bCount
+				 ]
+			 );
 		return $this;
 	}
 
