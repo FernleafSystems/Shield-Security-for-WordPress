@@ -55,16 +55,6 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	protected $nTemplateEngine;
 
 	/**
-	 * @var \Twig\Environment
-	 */
-	protected $oTwigEnv;
-
-	/**
-	 * @var \Twig\Loader\FilesystemLoader
-	 */
-	protected $oTwigLoader;
-
-	/**
 	 * @return string
 	 * @throws \Exception
 	 */

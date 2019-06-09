@@ -73,7 +73,7 @@ class Strings extends Base\Strings {
 				__( 'There was an attempt to send an email using the "wp_mail" function.', 'wp-simple-firewall' ),
 				__( "This log entry doesn't mean it was sent or received successfully, but only that an attempt was made.", 'wp-simple-firewall' ),
 				__( 'It was sent to "%s" with the subject "%s".', 'wp-simple-firewall' ),
-				"CC'd / BCC'd: %s / %s",
+				"CC/BCC Recipients: %s / %s",
 				__( 'The "wp_mail" function was called from the file "%s" on line %s.', 'wp-simple-firewall' )
 			],
 			'email_send_invalid'      => [
