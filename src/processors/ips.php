@@ -168,8 +168,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		if ( $bKill ) {
-			error_log( $this->ip() );
-			error_log( $this->getCon()->getShortRequestId() );
 			$this->getCon()->fireEvent( 'conn_kill' );
 			$this->setIfLogRequest( false )// don't log traffic from killed requests
 				 ->doStatIncrement( 'ip.connection.killed' );
