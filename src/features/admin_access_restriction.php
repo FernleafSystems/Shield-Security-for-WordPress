@@ -321,7 +321,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 						// Workaround for escaping of passwords
 						$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sEscaped ) );
 						if ( $bValid ) {
-							$this->setOpt( 'admin_access_key', Services::Request()->post( 'sec_admin_key' ) );
+							$this->setOpt( 'admin_access_key', md5( $sReqKey ) );
 						}
 					}
 				}
