@@ -1306,12 +1306,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	protected function doExtraSubmitProcessing() {
 	}
 
-	protected function setSaveUserResponse() {
-		if ( $this->isAdminOptionsPage() ) {
-			$this->setFlashAdminNotice( __( 'Plugin options updated successfully.', 'wp-simple-firewall' ) );
-		}
-	}
-
 	/**
 	 * @param string $sMsg
 	 * @param bool   $bError

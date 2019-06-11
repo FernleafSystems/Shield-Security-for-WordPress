@@ -10,7 +10,7 @@ class Options extends Base\Options {
 	/**
 	 * @return string
 	 */
-	protected function getAccessKeyHash() {
+	public function getAccessKeyHash() {
 		return $this->getOpt( 'admin_access_key' );
 	}
 
@@ -78,5 +78,13 @@ class Options extends Base\Options {
 		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
 		return ( isset( $aOptions[ $sType.'_pages' ] ) && is_array( $aOptions[ $sType.'_pages' ] ) ) ? $aOptions[ $sType.'_pages' ] : [];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasAccessKey() {
+		$sKey = $this->getAccessKeyHash();
+		return !empty( $sKey ) && strlen( $sKey ) == 32;
 	}
 }

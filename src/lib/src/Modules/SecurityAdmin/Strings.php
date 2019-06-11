@@ -94,6 +94,8 @@ class Strings extends Base\Strings {
 	public function getOptionStrings( $sOptKey ) {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
 		$sPlugName = $this->getCon()->getHumanName();
 
 		switch ( $sOptKey ) {
@@ -108,8 +110,8 @@ class Strings extends Base\Strings {
 				$sName = __( 'Security Admin Access Key', 'wp-simple-firewall' );
 				$sSummary = __( 'Provide/Update Security Admin Access Key', 'wp-simple-firewall' );
 				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'If you forget this, you could potentially lock yourself out from using this plugin.', 'wp-simple-firewall' ) )
-								.'<br/><strong>'.( $oMod->hasAccessKey() ? __( 'Security Key Currently Set', 'wp-simple-firewall' ) : __( 'Security Key NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>'
-								.( $oMod->hasAccessKey() ? '<br/>'.sprintf( __( 'To delete the current security key, type exactly "%s" and save.', 'wp-simple-firewall' ), '<strong>DELETE</strong>' ) : '' );
+								.'<br/><strong>'.( $oOpts->hasAccessKey() ? __( 'Security Key Currently Set', 'wp-simple-firewall' ) : __( 'Security Key NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>'
+								.( $oOpts->hasAccessKey() ? '<br/>'.sprintf( __( 'To delete the current security key, type exactly "%s" and save.', 'wp-simple-firewall' ), '<strong>DELETE</strong>' ) : '' );
 				break;
 
 			case 'sec_admin_users' :

@@ -10,12 +10,12 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	protected $sOptionRegexPattern;
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		$oMod = $this->getMod();
 
-		add_filter( $oFO->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
+		add_filter( $oMod->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
 
-		if ( $oFO->isWlEnabled() ) {
+		if ( $oMod->isWlEnabled() ) {
 			$this->getSubProWhitelabel()->run();
 		}
 	}
@@ -27,23 +27,22 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	public function adjustUserAdminPermissions( $bHasPermission = true ) {
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
-		return $bHasPermission &&
-			   ( $oFO->isRegisteredSecAdminUser() || $oFO->isSecAdminSessionValid()
-				 || $oFO->checkAdminAccessKeySubmission() );
+		return $bHasPermission && ( $oFO->isRegisteredSecAdminUser() || $oFO->isSecAdminSessionValid()
+									|| $oFO->testSecAccessKeyRequest() );
 	}
 
 	public function onWpInit() {
 		parent::onWpInit();
 
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-			$oFO = $this->getMod();
+			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+			$oMod = $this->getMod();
 
-			if ( !$oFO->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
+			if ( !$oMod->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
 				add_filter( 'pre_update_option', [ $this, 'blockOptionsSaves' ], 1, 3 );
 			}
 
-			if ( $oFO->isAdminAccessAdminUsersEnabled() ) {
+			if ( $oMod->isAdminAccessAdminUsersEnabled() ) {
 				add_filter( 'editable_roles', [ $this, 'restrictEditableRoles' ], 100, 1 );
 				add_filter( 'user_has_cap', [ $this, 'restrictAdminUserChanges' ], 100, 3 );
 				add_action( 'delete_user', [ $this, 'restrictAdminUserDelete' ], 100, 1 );
@@ -52,17 +51,17 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				add_action( 'set_user_role', [ $this, 'restrictSetUserRole' ], 100, 3 );
 			}
 
-			$aPluginRestrictions = $oFO->getAdminAccessArea_Plugins();
+			$aPluginRestrictions = $oMod->getAdminAccessArea_Plugins();
 			if ( !empty( $aPluginRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disablePluginManipulation' ], 0, 3 );
 			}
 
-			$aThemeRestrictions = $oFO->getAdminAccessArea_Themes();
+			$aThemeRestrictions = $oMod->getAdminAccessArea_Themes();
 			if ( !empty( $aThemeRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disableThemeManipulation' ], 0, 3 );
 			}
 
-			$aPostRestrictions = $oFO->getAdminAccessArea_Posts();
+			$aPostRestrictions = $oMod->getAdminAccessArea_Posts();
 			if ( !empty( $aPostRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disablePostsManipulation' ], 0, 3 );
 			}

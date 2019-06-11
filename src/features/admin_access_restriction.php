@@ -1,11 +1,17 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	const HASH_DELETE = '32f68a60cef40faedbc6af20298c1a1e';
+
+	/**
+	 * @var bool
+	 */
+	private $bValidSecAdminRequest;
 
 	/**
 	 */
@@ -69,7 +75,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$bSuccess = false;
 		$sHtml = '';
 
-		if ( $this->checkAdminAccessKeySubmission() ) {
+		if ( $this->testSecAccessKeyRequest() ) {
 
 			if ( $this->setSecurityAdminStatusOnOff( true ) ) {
 				$bSuccess = true;
@@ -174,7 +180,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 */
 	protected function doExtraSubmitProcessing() {
-		if ( $this->isAccessKeyRequest() && $this->checkAdminAccessKeySubmission() ) {
+		if ( $this->isValidSecAdminRequest() ) {
 			$this->setSecurityAdminStatusOnOff( true );
 		}
 
@@ -234,23 +240,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return array_unique( $aFiltered );
 	}
 
-	protected function setSaveUserResponse() {
-		if ( $this->isAccessKeyRequest() ) {
-			$bSuccess = $this->checkAdminAccessKeySubmission();
-
-			if ( $bSuccess ) {
-				$sMessage = __( 'Security Admin key accepted.', 'wp-simple-firewall' );
-			}
-			else {
-				$sMessage = __( 'Security Admin key not accepted.', 'wp-simple-firewall' );
-			}
-			$this->setFlashAdminNotice( $sMessage, $bSuccess );
-		}
-		else {
-			parent::setSaveUserResponse();
-		}
-	}
-
 	/**
 	 * @return int
 	 */
@@ -288,9 +277,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isEnabledSecurityAdmin() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		return $this->isModOptEnabled() &&
 			   ( $this->hasSecAdminUsers() ||
-				 ( $this->hasAccessKey() && $this->getSecAdminTimeout() > 0 )
+				 ( $oOpts->hasAccessKey() && $this->getSecAdminTimeout() > 0 )
 			   );
 	}
 
@@ -309,27 +300,45 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @return bool
 	 */
-	public function checkAdminAccessKeySubmission() {
-		$bSuccess = false;
-		$oReq = Services::Request();
-		$sAccessKeyRequest = $oReq->post( 'admin_access_key_request', '' );
-		if ( !empty( $sAccessKeyRequest ) ) {
-			// Made the hither-to unknown discovery that WordPress magic quotes all $_POST variables
-			// So the Admin Password initially provided may have been escaped with "\"
-			// The 1st approach uses raw, unescaped. The 2nd approach uses the older escaped $_POST.
-			$bSuccess = $this->verifyAccessKey( $sAccessKeyRequest )
-						|| $this->verifyAccessKey( $oReq->post( 'admin_access_key_request', '' ) );
-
-			$this->getCon()->fireEvent( $bSuccess ? 'key_success' : 'key_fail' );
-		}
-		return $bSuccess;
+	public function isValidSecAdminRequest() {
+		return $this->isAccessKeyRequest() && $this->testSecAccessKeyRequest();
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function isAccessKeyRequest() {
-		return strlen( Services::Request()->post( 'admin_access_key_request', '' ) ) > 0;
+	public function testSecAccessKeyRequest() {
+		if ( !isset( $this->bValidSecAdminRequest ) ) {
+			$bValid = false;
+			$sReqKey = Services::Request()->post( 'sec_admin_key' );
+			if ( !empty( $sReqKey ) ) {
+				/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
+				$oOpts = $this->getOptions();
+				$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sReqKey ) );
+				if ( !$bValid ) {
+					$sEscaped = isset( $_POST[ 'sec_admin_key' ] ) ? $_POST[ 'sec_admin_key' ] : '';
+					if ( !empty( $sEscaped ) ) {
+						// Workaround for escaping of passwords
+						$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sEscaped ) );
+						if ( $bValid ) {
+							$this->setOpt( 'admin_access_key', Services::Request()->post( 'sec_admin_key' ) );
+						}
+					}
+				}
+
+				$this->getCon()->fireEvent( $bValid ? 'key_success' : 'key_fail' );
+			}
+
+			$this->bValidSecAdminRequest = $bValid;
+		}
+		return $this->bValidSecAdminRequest;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isAccessKeyRequest() {
+		return strlen( Services::Request()->post( 'sec_admin_key', '' ) ) > 0;
 	}
 
 	/**
@@ -700,5 +709,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		$sType = empty( $sType ) ? ( Services::WpGeneral()->isMultisite() ? 'wpms' : 'wp' ) : 'wp';
 		$aOptions = $this->getRestrictedOptions();
 		return ( isset( $aOptions[ $sType.'_pages' ] ) && is_array( $aOptions[ $sType.'_pages' ] ) ) ? $aOptions[ $sType.'_pages' ] : [];
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 7.5
+	 */
+	public function checkAdminAccessKeySubmission() {
+		return $this->testSecAccessKeyRequest();
 	}
 }
