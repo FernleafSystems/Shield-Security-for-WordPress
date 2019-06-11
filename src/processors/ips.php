@@ -17,7 +17,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	protected $bVisitorIsWhitelisted;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Ips $oModCon
+	 * @param \ICWP_WPSF_FeatureHandler_Ips $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Ips $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getDef( 'ip_lists_table_name' ) );
@@ -32,11 +32,12 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		$this->processBlacklist();
 
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		if ( $oMod->isAutoBlackListEnabled() ) {
 			add_filter( $oMod->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
 			add_action( $oMod->prefix( 'pre_plugin_shutdown' ), [ $this, 'doBlackMarkCurrentVisitor' ] );
+			add_action( 'shield_security_offense', [ $this, 'processCustomShieldOffense' ], 10, 3 );
 		}
 	}
 
@@ -80,6 +81,30 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				( new BotTrack\TrackLinkCheese() )
 					->setMod( $oFO )
 					->run();
+			}
+		}
+	}
+
+	/**
+	 * @param string $sMessage
+	 * @param int    $nOffenseCount
+	 * @param bool   $bIncludeLoggedIn
+	 */
+	public function processCustomShieldOffense( $sMessage, $nOffenseCount = 1, $bIncludeLoggedIn = true ) {
+		if ( $this->getCon()->isPremiumActive() ) {
+			if ( empty( $sMessage ) ) {
+				$sMessage = __( 'No custom message provided.', 'wp-simple-firewall' );
+			}
+
+			if ( $bIncludeLoggedIn || !did_action( 'init' ) || !Services::WpUsers()->isUserLoggedIn() ) {
+				$this->getCon()
+					 ->fireEvent(
+						 'custom_offense',
+						 [
+							 'audit'         => [ 'message' => $sMessage ],
+							 'offense_count' => $nOffenseCount
+						 ]
+					 );
 			}
 		}
 	}
@@ -323,7 +348,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 			if ( $nCurrentTrans < $nLimit ) {
 
-				$mAction = $oMod->getIpAction();
+				$mAction = $oMod->getIpOffenceCount();
 				$bBlock = ( $mAction == PHP_INT_MAX ) || ( $nLimit - $nCurrentTrans == 1 );
 				$nToIncrement = $bBlock ? ( $nLimit - $nCurrentTrans ) : $mAction;
 				$nNewOffenses = min( $nLimit, $oBlackIp->transgressions + $nToIncrement );
@@ -342,7 +367,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 					]
 				);
 			}
-			// At this stage we know it's a transgression. But is it an outright block?
 		}
 	}
 
@@ -394,7 +418,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param string $sIp
-	 * @return bool|array - will return the associative array of the single row data
+	 * @return bool
 	 */
 	public function isIpToBeBlocked( $sIp ) {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */

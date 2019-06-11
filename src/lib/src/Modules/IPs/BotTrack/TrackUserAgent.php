@@ -10,7 +10,7 @@ class TrackUserAgent extends Base {
 
 	protected function process() {
 		$sAgent = trim( Services::Request()->getUserAgent() );
-		if ( empty( $sAgent ) || strlen( $sAgent ) < 2 ) { //in_array( $sAgent, [ '-' ] )
+		if ( empty( $sAgent ) || strlen( $sAgent ) < 2 ) {
 			$this->doTransgression();
 		}
 	}

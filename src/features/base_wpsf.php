@@ -28,15 +28,19 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	static protected $bIsVerifiedBot;
 
 	/**
-	 * @var string
+	 * @var int
 	 */
-	static private $mIpAction;
+	static private $nIpOffenceCount = 0;
 
 	/**
 	 * @return ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
-		return self::$oSessProcessor;
+		/** @var ICWP_WPSF_Processor_Sessions $oP */
+		$oP = $this->getCon()
+				   ->getModule_Sessions()
+				   ->getProcessor();
+		return $oP;
 	}
 
 	/**
@@ -122,7 +126,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
 			if ( $aDef[ 'offense' ] ) {
-				$this->setIpAction( isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1 );
+				self::$nIpOffenceCount = max(
+					(int)self::$nIpOffenceCount,
+					isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1
+				);
 			}
 		}
 	}
@@ -437,53 +444,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function getIfIpTransgressed() {
-		return in_array( $this->getIpAction(), $this->getPossibleOffenses(), true );
+		return $this->getIpOffenceCount() > 0;
 	}
 
 	/**
-	 * @return int|string|null
+	 * @return int
 	 */
-	public function getIpAction() {
-		return isset( self::$mIpAction ) ? self::$mIpAction : 0;
-	}
-
-	/**
-	 * Used to mark an IP address for immediate block
-	 * @return $this
-	 */
-	public function setIpBlocked() {
-		return $this->setIpAction( PHP_INT_MAX );
-	}
-
-	/**
-	 * Used to mark an IP address for transgression/black-mark
-	 * @param int $nIncrementCount
-	 * @return $this
-	 */
-	public function setIpTransgressed( $nIncrementCount = 1 ) {
-		return $this;//$this->setIpAction( $nIncrementCount );
-	}
-
-	/**
-	 * @param string|int $mAct
-	 * @return $this
-	 */
-	private function setIpAction( $mAct ) {
-		if ( !isset( self::$mIpAction ) ) {
-			self::$mIpAction = 0;
-		}
-
-		if ( in_array( $mAct, $this->getPossibleOffenses(), true ) && $mAct > self::$mIpAction ) {
-			self::$mIpAction = $mAct;
-		}
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	private function getPossibleOffenses() {
-		return [ 1, 2, PHP_INT_MAX ];
+	public function getIpOffenceCount() {
+		return isset( self::$nIpOffenceCount ) ? self::$nIpOffenceCount : 0;
 	}
 
 	/**
@@ -492,6 +460,33 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @deprecated 7.5
 	 */
 	public function setOptInsightsAt( $sKey ) {
+		return $this;
+	}
+
+	/**
+	 * Used to mark an IP address for immediate block
+	 * @return $this
+	 * @deprecated
+	 */
+	public function setIpBlocked() {
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 7.5
+	 */
+	public function getIpAction() {
+		return $this->getIpOffenceCount();
+	}
+
+	/**
+	 * Used to mark an IP address for transgression/black-mark
+	 * @param int $nIncrementCount
+	 * @return $this
+	 * @deprecated 7.5
+	 */
+	public function setIpTransgressed( $nIncrementCount = 1 ) {
 		return $this;
 	}
 }

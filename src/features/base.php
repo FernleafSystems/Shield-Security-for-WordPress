@@ -435,7 +435,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * Override this and adapt per feature
-	 * @return ICWP_WPSF_Processor_Base
+	 * @return ICWP_WPSF_Processor_Base|mixed
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {

@@ -7,7 +7,8 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	/**
 	 * Override this and adapt per feature
-	 * @return ICWP_WPSF_Processor_Base
+	 * @return ICWP_WPSF_Processor_Sessions
+	 * @deprecated 7.5
 	 */
 	protected function loadProcessor() {
 		$oP = parent::loadProcessor();

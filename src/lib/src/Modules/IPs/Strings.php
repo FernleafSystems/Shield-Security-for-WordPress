@@ -212,34 +212,41 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'conn_kill'  => [
+			'custom_offense'          => [
+				sprintf(
+					__( 'A custom %s offense was registered on the site.', 'wp-simple-firewall' ),
+					$this->getCon()->getHumanName()
+				),
+				str_replace( '{{MESSAGE}}', __( 'Message', 'wp-simple-firewall' ), '{{MESSAGE}}: "%s"' ),
+			],
+			'conn_kill'               => [
 				__( 'Visitor found on the Black List and their connection was killed.', 'wp-simple-firewall' )
 			],
-			'ip_offense' => [
+			'ip_offense'              => [
 				__( 'Auto Black List offenses counter was incremented from %s to %s.', 'wp-simple-firewall' )
 			],
-			'ip_blocked' => [
+			'ip_blocked'              => [
 				__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' )
 			],
-			'bottrack_404' => [
+			'bottrack_404'            => [
 				__( '404 detected at "%s".', 'wp-simple-firewall' )
 			],
 			'bottrack_fakewebcrawler' => [
 				__( 'Fake Web Crawler detected at "%s".', 'wp-simple-firewall' )
 			],
-			'bottrack_linkcheese' => [
+			'bottrack_linkcheese'     => [
 				__( 'Link cheese access detected at "%s".', 'wp-simple-firewall' )
 			],
-			'bottrack_loginfailed' => [
+			'bottrack_loginfailed'    => [
 				__( 'Attempted login failed by user "%s".', 'wp-simple-firewall' )
 			],
-			'bottrack_logininvalid' => [
+			'bottrack_logininvalid'   => [
 				__( 'Attempted login with invalid user "%s".', 'wp-simple-firewall' )
 			],
-			'bottrack_useragent' => [
+			'bottrack_useragent'      => [
 				__( 'Empty user agent detected at "%s".', 'wp-simple-firewall' )
 			],
-			'bottrack_xmlrpc' => [
+			'bottrack_xmlrpc'         => [
 				__( 'Access to XML-RPC detected at "%s".', 'wp-simple-firewall' )
 			],
 		];

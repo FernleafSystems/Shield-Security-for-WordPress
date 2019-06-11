@@ -1725,6 +1725,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_AuditTrail
+	 */
+	public function getModule_AuditTrail() {
+		return $this->getModule( 'audit_trail' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_FeatureHandler_Events
 	 */
 	public function getModule_Events() {
@@ -1739,17 +1746,17 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_FeatureHandler_AuditTrail
-	 */
-	public function getModule_AuditTrail() {
-		return $this->getModule( 'audit_trail' );
-	}
-
-	/**
 	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction
 	 */
 	public function getModule_SecAdmin() {
 		return $this->getModule( 'admin_access_restriction' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_FeatureHandler_Sessions
+	 */
+	public function getModule_Sessions() {
+		return $this->getModule( 'sessions' );
 	}
 
 	/**

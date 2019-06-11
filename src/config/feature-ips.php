@@ -494,6 +494,10 @@
       "deleted_at"
     ],
     "events":                {
+      "custom_offense":               {
+        "cat": 3,
+        "offense": true
+      },
       "conn_kill":               {
         "cat": 3
       },
