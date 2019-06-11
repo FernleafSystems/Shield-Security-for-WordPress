@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
+ * @deprecated
+ */
 class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbProcessor {
 
 	/**

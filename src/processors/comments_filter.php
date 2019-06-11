@@ -18,17 +18,14 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oWpUsers = Services::WpUsers();
 
 		$bLoadComProc = !$oWpUsers->isUserLoggedIn() ||
-					   !( new IsEmailTrusted() )->trusted(
-						   $oWpUsers->getCurrentWpUser()->user_email,
-						   $oMod->getApprovedMinimum(),
-						   $oMod->getTrustedRoles()
-					   );
+						!( new IsEmailTrusted() )->trusted(
+							$oWpUsers->getCurrentWpUser()->user_email,
+							$oMod->getApprovedMinimum(),
+							$oMod->getTrustedRoles()
+						);
 
 		if ( $bLoadComProc ) {
 
-			if ( $oMod->isEnabledGaspCheck() ) {
-				$this->getSubProGasp()->run();
-			}
 			if ( $oMod->isGoogleRecaptchaEnabled() ) {
 				$this->getSubProRecaptcha()->run();
 			}
@@ -38,6 +35,11 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 					->setMod( $oMod )
 					->run();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
+			}
+			else {
+				if ( $oMod->isEnabledGaspCheck() ) {
+					$this->getSubProGasp()->run();
+				}
 			}
 		}
 	}
@@ -55,20 +57,20 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProMap() {
 		return [
-			'gasp'      => 'ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam',
+			'bot'       => 'ICWP_WPSF_Processor_CommentsFilter_BotSpam',
 			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',
 		];
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
+	 * @return ICWP_WPSF_Processor_CommentsFilter_BotSpam
 	 */
 	private function getSubProGasp() {
-		return $this->getSubPro( 'gasp' );
+		return $this->getSubPro( 'bot' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
+	 * @return ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha
 	 */
 	private function getSubProRecaptcha() {
 		return $this->getSubPro( 'recaptcha' );
