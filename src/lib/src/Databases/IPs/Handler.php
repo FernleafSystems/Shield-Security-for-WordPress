@@ -4,8 +4,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Ips\Options;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Handler extends Base\Handler {
+
+	public function autoCleanDb() {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
+		/** @var Delete $oDel */
+		$oDel = $this->getQueryDeleter();
+		$oDel->filterByLists( [ $oMod::LIST_AUTO_BLACK, $oMod::LIST_MANUAL_BLACK ] )
+			 ->filterByLastAccessBefore( Services::Request()->ts() - $oOpts->getAutoExpireTime() )
+			 ->query();
+	}
 
 	/**
 	 * @param int $nTimeStamp

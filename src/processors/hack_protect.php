@@ -88,10 +88,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $oMod->getProcessor();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oPro->getSubProScanner()->getDbHandler()->getQuerySelector();
+		$oSelector = $oMod->getDbHandler()->getQuerySelector();
 
 		$oCarbon = new \Carbon\Carbon();
 		$aData = [
@@ -251,7 +249,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oPro = $oMod->getProcessor();
 		$oProPtg = $oPro->getSubProScanner()->getSubProcessorPtg();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oPro->getSubProScanner()->getDbHandler()->getQuerySelector();
+		$oSelector = $oMod->getDbHandler()->getQuerySelector();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */
 		$aPtgResults = $oSelector->filterByNotIgnored()

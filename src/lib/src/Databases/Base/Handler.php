@@ -48,6 +48,35 @@ class Handler {
 	public function __construct() {
 	}
 
+	public function autoCleanDb() {
+	}
+
+	/**
+	 * @param int $nAutoExpireDays
+	 * @return $this;
+	 */
+	public function cleanDb( $nAutoExpireDays ) {
+		$nAutoExpire = $nAutoExpireDays*DAY_IN_SECONDS;
+		if ( $nAutoExpire > 0 ) {
+			$this->deleteRowsOlderThan( Services::Request()->ts() - $nAutoExpire );
+		}
+		return $this;
+	}
+
+	/**
+	 * @param int $nRowsLimit
+	 * @return $this;
+	 */
+	public function trimDb( $nRowsLimit ) {
+		try {
+			$this->getQueryDeleter()
+				 ->deleteExcess( $nRowsLimit );
+		}
+		catch ( \Exception $oE ) {
+		}
+		return $this;
+	}
+
 	/**
 	 * @param int $nTimeStamp
 	 * @return bool
@@ -86,8 +115,14 @@ class Handler {
 	 * @return string
 	 */
 	public function getTable() {
-		$sTable = empty( $this->sTable ) ? $this->getDefaultTableName() : $this->sTable;
-		return Services::WpDb()->getPrefix().esc_sql( $sTable );
+		return Services::WpDb()->getPrefix().esc_sql( $this->getTableSlug() );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getTableSlug() {
+		return empty( $this->sTable ) ? $this->getDefaultTableName() : $this->sTable;
 	}
 
 	/**
@@ -203,6 +238,12 @@ class Handler {
 			unset( $this->bTableExist );
 			unset( $this->aColActual );
 		}
+
+		$sTableSlug = $this->getTableSlug();
+		if ( empty( $sTableSlug ) ) {
+			throw new \Exception( 'Table name not provided' );
+		}
+
 		return $this->isTable() && $this->verifyTableStructure();
 	}
 

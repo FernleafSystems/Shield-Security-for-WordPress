@@ -2,6 +2,10 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\GeoIp;
 
+/**
+ * Class ICWP_WPSF_Processor_Plugin_Geoip
+ * @deprecated 7.5
+ */
 class ICWP_WPSF_Processor_Plugin_Geoip extends ICWP_WPSF_BaseDbProcessor {
 
 	const DAYS_TO_KEEP = 30;

@@ -20,6 +20,13 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * @return Shield\Databases\Tally\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Tally\Handler();
+	}
+
+	/**
 	 * @return Shield\Modules\Statistics\Options
 	 */
 	protected function loadOptions() {

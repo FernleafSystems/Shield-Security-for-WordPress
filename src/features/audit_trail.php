@@ -40,11 +40,8 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$sMessage = __( 'Invalid audit entry selected for this action', 'wp-simple-firewall' );
 		}
 		else {
-			/** @var ICWP_WPSF_Processor_AuditTrail $oPro */
-			$oPro = $this->getProcessor();
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			$oEntry = $oPro->getSubProAuditor()
-						   ->getDbHandler()
+			$oEntry = $this->getDbHandler()
 						   ->getQuerySelector()
 						   ->byId( $nId );
 
@@ -127,8 +124,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	public function onWpPrivacyExport( $aExportItems, $sEmail, $nPage = 1 ) {
-		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-		$oProc = $this->getProcessor();
 
 		$oUser = Services::WpUsers()->getUserByEmail( $sEmail );
 
@@ -141,11 +136,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		];
 
 		try {
-			$oFinder = $oProc->getSubProAuditor()
-							 ->getDbHandler()
-							 ->getQuerySelector()
-							 ->addWhereSearch( 'wp_username', $oUser->user_login )
-							 ->setResultsAsVo( true );
+			$oFinder = $this->getDbHandler()
+							->getQuerySelector()
+							->addWhereSearch( 'wp_username', $oUser->user_login )
+							->setResultsAsVo( true );
 
 			$oWp = Services::WpGeneral();
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
@@ -176,17 +170,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
-
-		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-		$oProc = $this->getProcessor();
-
 		try {
 			$oThisUsername = Services::WpUsers()->getUserByEmail( $sEmail )->user_login;
-			$oProc->getSubProAuditor()
-				  ->getDbHandler()
-				  ->getQueryDeleter()
-				  ->addWhereSearch( 'wp_username', $oThisUsername )
-				  ->all();
+			$this->getDbHandler()
+				 ->getQueryDeleter()
+				 ->addWhereSearch( 'wp_username', $oThisUsername )
+				 ->all();
 			$aData[ 'messages' ][] = sprintf( '%s Audit Entries deleted', $this->getCon()->getHumanName() );
 		}
 		catch ( \Exception $oE ) {

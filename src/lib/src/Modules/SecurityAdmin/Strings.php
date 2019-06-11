@@ -12,10 +12,10 @@ class Strings extends Base\Strings {
 	protected function getAuditMessages() {
 		return [
 			'key_success'                 => [
-				__( 'Successful authentication with security admin key.', 'wp-simple-firewall' ),
+				__( 'Successful authentication using security admin key.', 'wp-simple-firewall' ),
 			],
 			'key_fail'                 => [
-				__( 'Failed authentication with security admin key.', 'wp-simple-firewall' ),
+				__( 'Failed authentication using security admin key.', 'wp-simple-firewall' ),
 			],
 		];
 	}

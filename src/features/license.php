@@ -24,9 +24,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::getIfShowModuleMenuItem() && !$this->isPremium();
 	}
 
-	public function action_doFeatureShutdown() {
+	public function onPluginShutdown() {
 		$this->verifyLicense( false );
-		parent::action_doFeatureShutdown();
+		parent::onPluginShutdown();
 	}
 
 	/**

@@ -300,9 +300,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function setSecurityAdminStatusOnOff( $bSetOn = false ) {
 		/** @var Shield\Databases\Session\Update $oUpdater */
-		$oUpdater = $this->getSessionsProcessor()
-						 ->getDbHandler()
-						 ->getQueryUpdater();
+		$oUpdater = $this->getDbHandler_Sessions()->getQueryUpdater();
 		return $bSetOn ?
 			$oUpdater->startSecurityAdmin( $this->getSession() )
 			: $oUpdater->terminateSecurityAdmin( $this->getSession() );

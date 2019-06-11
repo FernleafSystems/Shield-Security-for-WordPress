@@ -129,7 +129,8 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	 */
 	public function downloadItemFile( $sItemId ) {
 		/** @var Scanner\EntryVO $oEntry */
-		$oEntry = $this->getDbHandler()
+		$oEntry = $this->getMod()
+					   ->getDbHandler()
 					   ->getQuerySelector()
 					   ->byId( (int)$sItemId );
 		if ( !empty( $oEntry ) ) {

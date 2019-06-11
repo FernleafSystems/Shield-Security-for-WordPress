@@ -7,6 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Options extends Base\Options {
 
 	/**
+	 * @return int
+	 */
+	public function getAutoExpireTime() {
+		return constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getDbColumns_IPs() {

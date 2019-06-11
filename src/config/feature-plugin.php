@@ -443,6 +443,8 @@
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "https://icwp.io/wpshieldprivacypolicy",
+    "db_autoexpire_notes":    0,
+    "db_autoexpire_geoip":    30,
     "db_notes_name":          "notes",
     "db_notes_table_columns": [
       "id",
@@ -510,8 +512,8 @@
         "storage_key": "lockdown"
       },
       {
-        "slug":          "events",
-        "storage_key":   "events"
+        "slug":        "events",
+        "storage_key": "events"
       },
       {
         "slug":          "statistics",

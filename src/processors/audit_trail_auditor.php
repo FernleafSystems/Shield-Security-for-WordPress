@@ -18,14 +18,6 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		add_action( $this->getCon()->prefix( 'add_new_audit_entry' ), [ $this, 'addAuditTrialEntry' ] );
-	}
-
-	/**
 	 */
 	public function run() {
 		if ( !$this->isReadyToRun() ) {
@@ -79,33 +71,15 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 		}
 	}
 
-	public function cleanupDatabase() {
-		parent::cleanupDatabase(); // Deletes based on time.
-		$this->trimTable();
-	}
-
-	/**
-	 * ABstract this and move it into base DB class
-	 */
-	protected function trimTable() {
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
-		try {
-			$this->getDbHandler()
-				 ->getQueryDeleter()
-				 ->deleteExcess( $oFO->getMaxEntries() );
-		}
-		catch ( \Exception $oE ) {
-		}
-	}
-
 	/**
 	 * @param string $sContext
 	 * @return array|bool
 	 */
 	public function countAuditEntriesForContext( $sContext = 'all' ) {
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+		$oFO = $this->getMod();
 		/** @var AuditTrail\Select $oCounter */
-		$oCounter = $this->getDbHandler()->getQuerySelector();
+		$oCounter = $oFO->getDbHandler()->getQuerySelector();
 		if ( $sContext != 'all' ) {
 			$oCounter->filterByContext( $sContext );
 		}
@@ -122,31 +96,20 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	 * @return AuditTrail\EntryVO[]
 	 */
 	public function getAuditEntriesForContext( $sContext = 'all', $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
+		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+		$oFO = $this->getMod();
 		/** @var AuditTrail\Select $oSelect */
-		$oSelect = $this->getDbHandler()
-						->getQuerySelector()
-						->setResultsAsVo( true )
-						->setOrderBy( $sOrderBy, $sOrder )
-						->setLimit( $nLimit )
-						->setPage( $nPage );
+		$oSelect = $oFO->getDbHandler()
+					   ->getQuerySelector()
+					   ->setResultsAsVo( true )
+					   ->setOrderBy( $sOrderBy, $sOrder )
+					   ->setLimit( $nLimit )
+					   ->setPage( $nPage );
 		if ( $sContext != 'all' ) {
 			$oSelect->filterByContext( $sContext );
 		}
 
 		return $oSelect->query();
-	}
-
-	/**
-	 * @param AuditTrail\EntryVO $oEntryVo
-	 */
-	public function addAuditTrialEntry( $oEntryVo ) {
-		$oCon = $this->getCon();
-		if ( !$oCon->isPluginDeleting() && $oEntryVo instanceof AuditTrail\EntryVO ) {
-			$oEntryVo->rid = $oCon->getShortRequestId();
-			/** @var AuditTrail\Insert $oInsQ */
-			$oInsQ = $this->getDbHandler()->getQueryInserter();
-			$oInsQ->insert( $oEntryVo );
-		}
 	}
 
 	/**
@@ -195,8 +158,23 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @return AuditTrail\Handler
+	 * @deprecated 7.5
 	 */
 	protected function createDbHandler() {
 		return new AuditTrail\Handler();
+	}
+
+	/**
+	 * @param AuditTrail\EntryVO $oEntryVo
+	 * @deprecated 7.5
+	 */
+	public function addAuditTrialEntry( $oEntryVo ) {
+		return;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	protected function trimTable() {
 	}
 }

@@ -39,8 +39,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			 ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
 			 ->setSqlCreate( $this->getCreateTableSql() )
 			 ->tableInit();
-
-		add_action( $this->getCon()->prefix( 'delete_plugin' ), [ $this->getDbHandler(), 'deleteTable' ] );
 	}
 
 	/**
@@ -65,7 +63,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function getDbHandler() {
 		if ( !isset( $this->oDbh ) ) {
-			$this->oDbh = $this->createDbHandler();
+			$this->oDbh = $this->getMod()->getDbHandler();
 		}
 		return $this->oDbh;
 	}

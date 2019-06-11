@@ -220,6 +220,13 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
+	 * @return Shield\Databases\Comments\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Comments\Handler();
+	}
+
+	/**
 	 * @return Shield\Modules\CommentsFilter\Options
 	 */
 	protected function loadOptions() {

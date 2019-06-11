@@ -1748,6 +1748,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	/**
 	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction
 	 */
+	public function getModule_Plugin() {
+		return $this->getModule( 'plugin' );
+	}
+
+	/**
+	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction
+	 */
 	public function getModule_SecAdmin() {
 		return $this->getModule( 'admin_access_restriction' );
 	}

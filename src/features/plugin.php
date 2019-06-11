@@ -5,6 +5,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @var Shield\Databases\AdminNotes\Handler
+	 */
+	private $oDbh_Notes;
+
+	/**
+	 * @var Shield\Databases\GeoIp\Handler
+	 */
+	private $oDbh_GeoIp;
+
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setVisitorIp();
@@ -269,11 +279,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-
-			/** @var ICWP_WPSF_Processor_Plugin $oPro */
-			$oPro = $this->getProcessor();
 			/** @var Shield\Databases\AdminNotes\Delete $oDel */
-			$oDel = $oPro->getSubProcessorNotes()->getDbHandler()->getQueryDeleter();
+			$oDel = $this->getDbHandler_Notes()->getQueryDeleter();
 			foreach ( $aIds as $nId ) {
 				if ( is_numeric( $nId ) ) {
 					$oDel->deleteById( $nId );
@@ -355,11 +362,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sMessage = __( 'Note not found.', 'wp-simple-firewall' );
 		}
 		else {
-			/** @var ICWP_WPSF_Processor_Plugin $oPro */
-			$oPro = $this->getProcessor();
 			try {
-				$bSuccess = $oPro->getSubProcessorNotes()
-								 ->getDbHandler()
+				$bSuccess = $this->getDbHandler_Notes()
 								 ->getQueryDeleter()
 								 ->deleteById( $sItemId );
 
@@ -430,12 +434,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $this->getProcessor();
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$oInserter = $oP->getSubProcessorNotes()
-							->getDbHandler()
-							->getQueryInserter();
+			$oInserter = $this->getDbHandler_Notes()->getQueryInserter();
 			$bSuccess = $oInserter->create( $sNote );
 			$sMessage = $bSuccess ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
 		}
@@ -449,15 +449,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return array
 	 */
 	protected function ajaxExec_RenderTableAdminNotes() {
-		/** @var ICWP_WPSF_Processor_Plugin $oPro */
-		$oPro = $this->getProcessor();
-		$oTableBuilder = ( new Shield\Tables\Build\AdminNotes() )
-			->setMod( $this )
-			->setDbHandler( $oPro->getSubProcessorNotes()->getDbHandler() );
-
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
+			'html'    => ( new Shield\Tables\Build\AdminNotes() )
+				->setMod( $this )
+				->setDbHandler( $this->getDbHandler_Notes() )
+				->buildTable()
 		];
 	}
 
@@ -1069,6 +1066,37 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	public function onPluginDelete() {
+		$this->getDbHandler_GeoIp()->deleteTable();
+		$this->getDbHandler_Notes()->deleteTable();
+		parent::onPluginDelete();
+	}
+
+	protected function cleanupDatabases() {
+		$this->getDbHandler_GeoIp()->autoCleanDb();
+		$this->getDbHandler_Notes()->autoCleanDb();
+	}
+
+	/**
+	 * @return Shield\Databases\GeoIp\Handler
+	 */
+	public function getDbHandler_GeoIp() {
+		if ( !isset( $this->oDbh_GeoIp ) ) {
+			$this->oDbh_GeoIp = ( new Shield\Databases\GeoIp\Handler() )->setMod( $this );
+		}
+		return $this->oDbh_GeoIp;
+	}
+
+	/**
+	 * @return Shield\Databases\AdminNotes\Handler
+	 */
+	public function getDbHandler_Notes() {
+		if ( !isset( $this->oDbh_Notes ) ) {
+			$this->oDbh_Notes = ( new Shield\Databases\AdminNotes\Handler() )->setMod( $this );
+		}
+		return $this->oDbh_Notes;
 	}
 
 	/**

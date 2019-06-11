@@ -27,8 +27,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->getSubProImportExport()->run();
 		}
 
-		$this->getSubProGeoip()->run();
-
 		switch ( Services::Request()->query( 'shield_action', '' ) ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
@@ -63,13 +61,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Geoip
-	 */
-	public function getSubProGeoip() {
-		return $this->getSubPro( 'geoip' );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_Plugin_CronDaily
 	 */
 	protected function getSubProCronDaily() {
@@ -98,21 +89,12 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Notes
-	 */
-	public function getSubProcessorNotes() {
-		return $this->getSubPro( 'notes' );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {
 		return [
 			'badge'        => 'ICWP_WPSF_Processor_Plugin_Badge',
-			'geoip'        => 'ICWP_WPSF_Processor_Plugin_Geoip',
 			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
-			'notes'        => 'ICWP_WPSF_Processor_Plugin_Notes',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
 			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
 			'cronhourly'   => 'ICWP_WPSF_Processor_Plugin_CronHourly',

@@ -198,7 +198,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				 ->doStatIncrement( 'ip.connection.killed' );
 
 			/** @var IPs\Update $oUp */
-			$oUp = $this->getDbHandler()->getQueryUpdater();
+			$oUp = $this->getMod()
+						->getDbHandler()
+						->getQueryUpdater();
 			$oUp->updateLastAccessAt( $this->getAutoBlackListIp( $sIp ) );
 
 			try {
@@ -216,11 +218,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @throws \Exception
 	 */
 	private function processAutoUnblockRequest() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
-		if ( $oFO->isEnabledAutoUserRecover() && $oReq->isPost()
+		if ( $oMod->isEnabledAutoUserRecover() && $oReq->isPost()
 			 && $oReq->request( 'action' ) == $this->prefix() && $oReq->request( 'exec' ) == 'uau' ) {
 
 			if ( check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
@@ -241,13 +243,13 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				throw new \Exception( 'GASP failed' );
 			}
 
-			if ( !$oFO->getCanIpRequestAutoUnblock( $sIp ) ) {
+			if ( !$oMod->getCanIpRequestAutoUnblock( $sIp ) ) {
 				throw new \Exception( 'IP already processed in the last 24hrs' );
 			}
-			$oFO->updateIpRequestAutoUnblockTs( $sIp );
+			$oMod->updateIpRequestAutoUnblockTs( $sIp );
 
 			/** @var IPs\Delete $oDel */
-			$oDel = $this->getDbHandler()->getQueryDeleter();
+			$oDel = $oMod->getDbHandler()->getQueryDeleter();
 			$oDel->deleteIpFromBlacklists( $sIp );
 			Services::Response()->redirectToHome();
 		}
@@ -354,7 +356,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				$nNewOffenses = min( $nLimit, $oBlackIp->transgressions + $nToIncrement );
 
 				/** @var IPs\Update $oUp */
-				$oUp = $this->getDbHandler()->getQueryUpdater();
+				$oUp = $oMod->getDbHandler()->getQueryUpdater();
 				$oUp->updateTransgressions( $oBlackIp, $nNewOffenses );
 				$this->doStatIncrement( 'ip.transgression.incremented' );
 

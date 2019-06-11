@@ -8,13 +8,13 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
-	public function action_doFeatureShutdown() {
+	public function onPluginShutdown() {
 		if ( $this->isAutoDisable() && Services::Request()->ts() - $this->getAutoDisableAt() > 0 ) {
 			$this->setOpt( 'auto_disable', 'N' )
 				 ->setOpt( 'autodisable_at', 0 )
 				 ->setIsMainFeatureEnabled( false );
 		}
-		parent::action_doFeatureShutdown();
+		parent::onPluginShutdown();
 	}
 
 	/**
@@ -184,16 +184,20 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	private function ajaxExec_BuildTableTraffic() {
-		/** @var ICWP_WPSF_Processor_Traffic $oPro */
-		$oPro = $this->getProcessor();
-		$oTableBuilder = ( new Shield\Tables\Build\Traffic() )
-			->setMod( $this )
-			->setDbHandler( $oPro->getProcessorLogger()->getDbHandler() );
-
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
+			'html'    => ( new Shield\Tables\Build\Traffic() )
+				->setMod( $this )
+				->setDbHandler( $this->getDbHandler() )
+				->buildTable()
 		];
+	}
+
+	/**
+	 * @return Shield\Databases\Traffic\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Traffic\Handler();
 	}
 
 	/**

@@ -153,7 +153,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getAllAbandoned() {
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()
+		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		$aVos = $oSel->filterByScan( static::SCAN_SLUG )

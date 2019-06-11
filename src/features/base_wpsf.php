@@ -44,6 +44,24 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return Shield\Databases\Session\Handler
+	 */
+	public function getDbHandler_Sessions() {
+		return $this->getCon()
+					->getModule_Sessions()
+					->getDbHandler();
+	}
+
+	/**
+	 * @return Shield\Databases\GeoIp\Handler
+	 */
+	public function getDbHandler_GeoIp() {
+		return $this->getCon()
+					->getModule_Plugin()
+					->getDbHandler_GeoIp();
+	}
+
+	/**
 	 * @return Shield\Databases\Session\EntryVO|null
 	 */
 	public function getSession() {

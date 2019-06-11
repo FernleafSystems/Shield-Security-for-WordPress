@@ -116,9 +116,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete $oTerminator */
-		$oTerminator = $oFO->getSessionsProcessor()
-						   ->getDbHandler()
-						   ->getQueryDeleter();
+		$oTerminator = $oFO->getDbHandler_Sessions()->getQueryDeleter();
 
 		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
 		// And if User Management is active, then it'll draw in that value.
@@ -151,7 +149,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSel */
-		$oSel = $oFO->getSessionsProcessor()->getDbHandler()->getQuerySelector();
+		$oSel = $oFO->getDbHandler_Sessions()->getQuerySelector();
 
 		if ( $oFO->hasMaxSessionTimeout() ) {
 			$oSel->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
@@ -168,7 +166,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	private function getLoginExpiredBoundary() {
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		return $this->time() - $oFO->getMaxSessionTime();
+		return Services::Request()->ts() - $oFO->getMaxSessionTime();
 	}
 
 	/**
@@ -198,11 +196,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
 		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
 			$this->setLoginCaptured();
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 			$oFO = $this->getMod();
 			try {
-				$oFO->getSessionsProcessor()
-					->getDbHandler()
+				$oFO->getDbHandler_Sessions()
 					->getQueryDeleter()
 					->addWhere( 'wp_username', $oUser->user_login )
 					->deleteExcess( $nSessionLimit, 'last_activity_at', true );

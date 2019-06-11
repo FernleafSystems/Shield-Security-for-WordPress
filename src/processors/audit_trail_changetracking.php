@@ -46,29 +46,11 @@ class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ICWP_WPSF_BaseDbProc
 	private function runSnapshot() {
 		$oVo = $this->buildSnapshot();
 		/** @var ChangeTracking\Insert $oInsert */
-		$oInsert = $this->getDbHandler()->getQueryInserter();
+		$oInsert = $this->getMod()
+						->getDbHandler()
+						->getQueryInserter();
 		$oInsert->insert( $oVo );
 		return $oVo;
-	}
-
-	public function cleanupDatabase() {
-		parent::cleanupDatabase(); // Deletes based on time.
-		$this->trimTable();
-	}
-
-	/**
-	 * ABstract this and move it into base DB class
-	 */
-	protected function trimTable() {
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
-		try {
-			$this->getDbHandler()
-				 ->getQueryDeleter()
-				 ->deleteExcess( $oFO->getCTMaxSnapshots() );
-		}
-		catch ( \Exception $oE ) {
-		}
 	}
 
 	/**

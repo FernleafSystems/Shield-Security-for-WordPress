@@ -149,12 +149,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function getScanHasProblem( $sScan ) {
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->getProcessor();
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oPro->getSubProScanner()
-					 ->getDbHandler()
-					 ->getQuerySelector();
+		$oSel = $this->getDbHandler()->getQuerySelector();
 		return $oSel->filterByNotIgnored()
 					->filterByScan( $sScan )
 					->count() > 0;
@@ -689,11 +685,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$sHtml = 'SCAN SLUG NOT SPECIFIED';
 		}
 		else {
-			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
 			$sHtml = $oTableBuilder
 				->setMod( $this )
-				->setDbHandler( $oPro->getSubProScanner()->getDbHandler() )
+				->setDbHandler( $this->getDbHandler() )
 				->buildTable();
 		}
 
@@ -1262,6 +1256,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			[ 'inav' => 'scans' ],
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
+	}
+
+	/**
+	 * @return Shield\Databases\Scanner\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Scanner\Handler();
 	}
 
 	/**

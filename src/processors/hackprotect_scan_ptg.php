@@ -378,7 +378,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		if ( $bPluginsRebuildReqd || $bThemesRebuildReqd ) {
 			// grab all the existing results
-			$oDbH = $this->getScannerDb()->getDbHandler();
+			$oDbH = $this->getMod()->getDbHandler();
 			/** @var Shield\Databases\Scanner\Select $oSel */
 			$oSel = $oDbH->getQuerySelector();
 			/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
@@ -672,7 +672,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 			// clear the results
 			( new Shield\Scans\Ptg\ScanResults\Clean() )
-				->setDbHandler( $this->getScannerDb()->getDbHandler() )
+				->setDbHandler( $this->getMod()->getDbHandler() )
 				->setScannerProfile( $this->getScannerProfile() )
 				->deleteAllForScan();
 		}

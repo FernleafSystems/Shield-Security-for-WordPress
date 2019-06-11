@@ -30,6 +30,13 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return Shield\Databases\Session\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Session\Handler();
+	}
+
+	/**
 	 * @return Shield\Modules\Sessions\Options
 	 */
 	protected function loadOptions() {

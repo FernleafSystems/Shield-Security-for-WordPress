@@ -7,6 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Options;
 
 class Handler extends Base\Handler {
 
+	public function autoCleanDb() {
+		$this->cleanDb( 30 );
+	}
+
 	/**
 	 * @return string[]
 	 */

@@ -7,6 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
 
 class Handler extends Base\Handler {
 
+	public function autoCleanDb() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		$this->cleanDb( $oOpts->getTokenExpireInterval()/DAY_IN_SECONDS );
+	}
+
 	/**
 	 * @return string[]
 	 */

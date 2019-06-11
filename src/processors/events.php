@@ -11,10 +11,12 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 	private $bStat = false;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Events $oModCon
+	 * @param \ICWP_WPSF_FeatureHandler_Events $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Events $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getEventsTableName() );
+		/** @var Events\Handler $oDbh */
+		$oDbh = $oModCon->getDbHandler();
+		parent::__construct( $oModCon, $oDbh->getTable() );
 	}
 
 	public function run() {
@@ -32,9 +34,7 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 	 * @return Events\Handler
 	 */
 	protected function createDbHandler() {
-		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getDbHandler();
+		return $this->getMod()->getDbHandler();
 	}
 
 	/**
@@ -51,7 +51,7 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
 		/** @var Events\Handler $oDbh */
-		$oDbh = $this->getDbHandler();
+		$oDbh = $oMod->getDbHandler();
 		$oDbh->commitEvents( $oMod->getRegisteredEvents( true ) );
 	}
 

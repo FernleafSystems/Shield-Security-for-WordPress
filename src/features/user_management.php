@@ -40,7 +40,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	private function ajaxExec_BulkItemAction() {
 		$oReq = Services::Request();
-		$oProcessor = $this->getSessionsProcessor();
 
 		$bSuccess = false;
 
@@ -53,7 +52,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
-			$nYourId = $oProcessor->getCurrentSession()->id;
+			$nYourId = $this->getSession()->id;
 			$bIncludesYourSession = in_array( $nYourId, $aIds );
 
 			if ( $bIncludesYourSession && ( count( $aIds ) == 1 ) ) {
@@ -63,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				$bSuccess = true;
 
 				/** @var Shield\Databases\Session\Delete $oDel */
-				$oDel = $oProcessor->getDbHandler()->getQueryDeleter();
+				$oDel = $this->getDbHandler_Sessions()->getQueryDeleter();
 				foreach ( $aIds as $nId ) {
 					if ( is_numeric( $nId ) && ( $nId != $nYourId ) ) {
 						$oDel->deleteById( $nId );
@@ -86,18 +85,15 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 * @return array
 	 */
 	private function ajaxExec_SessionDelete() {
-		$oReq = Services::Request();
-		$oProcessor = $this->getSessionsProcessor();
-
 		$bSuccess = false;
-		$nId = $oReq->post( 'rid', -1 );
+		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
 		else if ( $this->getSession()->id === $nId ) {
 			$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
-		else if ( $oProcessor->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
+		else if ( $this->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'User session deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}
@@ -123,7 +119,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $this )
-			->setDbHandler( $this->getSessionsProcessor()->getDbHandler() )
+			->setDbHandler( $this->getDbHandler_Sessions() )
 			->setSecAdminUsers( $oSecAdminMod->getSecurityAdminUsers() );
 
 		return [
@@ -194,7 +190,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	public function isUserSessionsManagementEnabled() {
 		try {
 			return $this->isOpt( 'enable_user_management', 'Y' )
-				   && $this->getSessionsProcessor()->getDbHandler()->isReady();
+				   && $this->getDbHandler_Sessions()->isReady();
 		}
 		catch ( \Exception $oE ) {
 			return false;

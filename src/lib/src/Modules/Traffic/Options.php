@@ -7,6 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Options extends Base\Options {
 
 	/**
+	 * @return int
+	 */
+	public function getAutoCleanDays() {
+		return (int)$this->getOpt( 'auto_clean' );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getDbColumns_TrafficLog() {

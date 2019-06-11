@@ -7,6 +7,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 
 class Handler extends Base\Handler {
 
+	public function autoCleanDb() {
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
+		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		$this->cleanDb( $oOpts->getAutoCleanDays() );
+		$this->trimDb( $oMod->getMaxEntries() );
+	}
+
 	/**
 	 * @return string[]
 	 */

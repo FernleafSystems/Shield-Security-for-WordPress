@@ -198,7 +198,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getMod();
 		if ( $oFO->hasSession() ) {
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
+			$oUpd = $oFO->getDbHandler_Sessions()->getQueryUpdater();
 			$oUpd->updateLoginIntentExpiresAt( $oFO->getSession(), $nExpirationTime );
 		}
 		return $this;

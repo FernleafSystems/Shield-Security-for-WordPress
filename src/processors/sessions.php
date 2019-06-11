@@ -218,7 +218,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		}
 
 		/** @var Session\Insert $oInsert */
-		$oInsert = $this->getDbHandler()->getQueryInserter();
+		$oInsert = $this->getMod()
+						->getDbHandler()
+						->getQueryInserter();
 		$bSuccess = $oInsert->create( $sSessionId, $sUsername );
 		if ( $bSuccess ) {
 			$this->doStatIncrement( 'user.session.start' );
@@ -234,7 +236,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	private function queryGetSession( $sSessionId, $sUsername = '' ) {
 		/** @var Session\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
+		$oSel = $this->getMod()
+					 ->getDbHandler()
+					 ->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
 	}
 
@@ -248,7 +252,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$this->doStatIncrement( 'user.session.terminate' );
 
-		return $this->getDbHandler()
+		return $this->getMod()
+					->getDbHandler()
 					->getQueryDeleter()
 					->deleteEntry( $oSession );
 	}

@@ -83,7 +83,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function deleteResultsSet( $oToDelete ) {
 		( new Shield\Scans\Base\ScanResults\Clean() )
-			->setDbHandler( $this->getScannerDb()->getDbHandler() )
+			->setDbHandler( $this->getMod()->getDbHandler() )
 			->deleteResults( $oToDelete );
 	}
 
@@ -92,7 +92,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function readScanResultsFromDb() {
 		/** @var Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $this->getScannerDb()->getDbHandler()->getQuerySelector();
+		$oSelector = $this->getMod()->getDbHandler()->getQuerySelector();
 		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
 	}
 
@@ -100,7 +100,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function storeNewScanResults( $oResults ) {
-		$oInsert = $this->getScannerDb()->getDbHandler()->getQueryInserter();
+		$oInsert = $this->getMod()->getDbHandler()->getQueryInserter();
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oInsert->insert( $oVo );
 		}
@@ -110,7 +110,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function updateExistingScanResults( $oResults ) {
-		$oUp = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
+		$oUp = $this->getMod()->getDbHandler()->getQueryUpdater();
 		/** @var Shield\Databases\Scanner\EntryVO $oVo */
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oUp->reset()
@@ -149,7 +149,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function getVoFromResultItem( $oItem ) {
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()
+		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO $oVo */
@@ -164,7 +164,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function resetIgnoreStatus() {
 		/** @var Shield\Databases\Scanner\Handler $oUpd */
-		$oDbh = $this->getScannerDb()->getDbHandler();
+		$oDbh = $this->getMod()->getDbHandler();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $oDbh->getQuerySelector();
 
@@ -181,7 +181,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function resetNotifiedStatus() {
 		/** @var Shield\Databases\Scanner\Handler $oUpd */
-		$oDbh = $this->getScannerDb()->getDbHandler();
+		$oDbh = $this->getMod()->getDbHandler();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $oDbh->getQuerySelector();
 
@@ -203,7 +203,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		$bSuccess = false;
 		if ( is_numeric( $sItemId ) ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $this->getScannerDb()
+			$oEntry = $this->getMod()
 						   ->getDbHandler()
 						   ->getQuerySelector()
 						   ->byId( $sItemId );
@@ -310,7 +310,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		}
 
 		/** @var Shield\Databases\Scanner\Update $oUp */
-		$oUp = $this->getScannerDb()
+		$oUp = $this->getMod()
 					->getDbHandler()
 					->getQueryUpdater();
 
@@ -350,7 +350,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()
+		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
@@ -388,7 +388,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	private function updateLastNotifiedAt( $aRes ) {
 		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
+		$oUpd = $this->getMod()->getDbHandler()->getQueryUpdater();
 		foreach ( $aRes as $oVo ) {
 			$oUpd->reset()
 				 ->setNotified( $oVo );

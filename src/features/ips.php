@@ -67,15 +67,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function ajaxExec_IpDelete() {
-		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $this->getProcessor();
 
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = __( 'Invalid entry selected', 'wp-simple-firewall' );
 		}
-		else if ( $oProcessor->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
+		else if ( $this->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'IP address deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}
@@ -140,7 +138,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					$oIp = $oProcessor->addIpToBlackList( $sIp, $sLabel );
 					if ( !empty( $oIp ) ) {
 						/** @var Shield\Databases\IPs\Update $oUpd */
-						$oUpd = $oProcessor->getDbHandler()->getQueryUpdater();
+						$oUpd = $this->getDbHandler()->getQueryUpdater();
 						$oUpd->updateTransgressions( $oIp, $this->getOptTransgressionLimit() );
 					}
 					break;
@@ -174,7 +172,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 		$oTableBuilder = ( new Shield\Tables\Build\Ip() )
 			->setMod( $this )
-			->setDbHandler( $oPro->getDbHandler() );
+			->setDbHandler( $this->getDbHandler() );
 
 		return [
 			'success' => true,
@@ -396,11 +394,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
-	public function action_doFeatureShutdown() {
+	public function onPluginShutdown() {
 		if ( !$this->getCon()->isPluginDeleting() ) {
 			$this->addFilterIpsToWhiteList();
 		}
-		parent::action_doFeatureShutdown(); //save
+		parent::onPluginShutdown(); //save
 	}
 
 	/**
@@ -448,6 +446,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				);
 			}
 		}
+	}
+
+	/**
+	 * @return Shield\Databases\IPs\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\IPs\Handler();
 	}
 
 	/**

@@ -19,4 +19,11 @@ class Options extends Base\Options {
 	public function getDbTable_Spam() {
 		return $this->getCon()->prefixOption( $this->getDef( 'spambot_comments_filter_table_name' ) );
 	}
+
+	/**
+	 * @return int
+	 */
+	public function getTokenExpireInterval() {
+		return (int)$this->getOpt( 'comments_token_expire_interval' );
+	}
 }

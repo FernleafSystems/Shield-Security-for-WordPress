@@ -113,13 +113,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		add_filter( $this->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
 		add_filter( $this->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
 		add_filter( $this->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
-		add_action( $this->prefix( 'plugin_shutdown' ), [ $this, 'action_doFeatureShutdown' ] );
-		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'deactivatePlugin' ] );
-		add_action( $this->prefix( 'delete_plugin' ), [ $this, 'deletePluginOptions' ] );
+		add_action( $this->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
+		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
+		add_action( $this->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
 		add_filter( $this->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
 
 		add_filter( $this->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
 		add_filter( $this->prefix( 'gather_options_for_export' ), [ $this, 'exportTransferableOptions' ] );
+
+		add_action( $this->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
 		// supply our supported plugin events for this module
 		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
@@ -139,6 +142,20 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	protected function doPostConstruction() {
+	}
+
+	public function runDailyCron() {
+		$this->cleanupDatabases();
+	}
+
+	public function runHourlyCron() {
+	}
+
+	protected function cleanupDatabases() {
+		$oDbh = $this->getDbHandler();
+		if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
+			$oDbh->autoCleanDb();
+		}
 	}
 
 	/**
@@ -503,8 +520,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
-	public function action_doFeatureShutdown() {
+	public function onPluginShutdown() {
 		if ( !$this->getCon()->isPluginDeleting() ) {
+			if ( rand( 1, 40 ) === 2 ) {
+				// cleanup databases randomly just in-case cron doesn't run.
+				$this->cleanupDatabases();
+			}
 			$this->savePluginOptions();
 		}
 	}
@@ -1197,14 +1218,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 */
-	public function deactivatePlugin() {
+	public function onPluginDeactivate() {
 	}
 
-	/**
-	 * Deletes all the options including direct save.
-	 */
-	public function deletePluginOptions() {
-		$this->getOptionsVo()->doOptionsDelete();
+	public function onPluginDelete() {
+		$oDbh = $this->getDbHandler();
+		if ( !empty( $oDbh ) ) {
+			$oDbh->deleteTable();
+		}
+		$this->getOptions()->doOptionsDelete();
 	}
 
 	/**
@@ -2054,7 +2076,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function getDbHandler() {
 		if ( !isset( $this->oDbh ) ) {
-			$this->oDbh = $this->loadDbHandler()->setMod( $this );
+			$this->oDbh = $this->loadDbHandler();
+			if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
+				$this->oDbh->setMod( $this );
+			}
 		}
 		return $this->oDbh;
 	}
@@ -2070,10 +2095,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return Shield\Databases\Base\Handler|mixed
+	 * @return Shield\Databases\Base\Handler|mixed|false
 	 */
 	protected function loadDbHandler() {
-		return new Shield\Databases\Base\Handler();
+		return false;
 	}
 
 	/**
@@ -2105,5 +2130,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	protected function setBypassAdminProtection( $bBypass ) {
 		return $this;
+	}
+
+	/**
+	 * @deprecated 7.5
+	 */
+	public function action_doFeatureShutdown() {
+		$this->onPluginShutdown();
 	}
 }

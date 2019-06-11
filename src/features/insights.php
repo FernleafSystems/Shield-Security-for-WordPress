@@ -34,11 +34,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
-		/** @var ICWP_WPSF_Processor_Traffic $oTrafficPro */
-		$oTrafficPro = $oTrafficMod->getProcessor();
 		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
-		$oTrafficSelector = $oTrafficPro->getProcessorLogger()
-										->getDbHandler()
+		$oTrafficSelector = $oTrafficMod->getDbHandler()
 										->getQuerySelector();
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
@@ -49,10 +46,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
 		$oIpMod = $oCon->getModule( 'ips' );
 
-		/** @var ICWP_WPSF_Processor_Sessions $oProSessions */
-		$oProSessions = $oCon->getModule( 'sessions' )->getProcessor();
 		/** @var Shield\Databases\Session\Select $oSessionSelect */
-		$oSessionSelect = $oProSessions->getDbHandler()->getQuerySelector();
+		$oSessionSelect = $this->getDbHandler_Sessions()->getQuerySelector();
 
 		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oModUsers */
 		$oModUsers = $oCon->getModule( 'user_management' );
@@ -643,10 +638,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_Processor_Statistics $oStats */
 		$oStats = $oConn->getModule( 'statistics' )->getProcessor();
 
-		/** @var ICWP_WPSF_Processor_Ips $oIPs */
-		$oIPs = $oConn->getModule( 'ips' )->getProcessor();
 		/** @var Shield\Databases\IPs\Select $oSelect */
-		$oSelect = $oIPs->getDbHandler()->getQuerySelector();
+		$oSelect = $this->getCon()
+						->getModule( 'ips' )
+						->getDbHandler()
+						->getQuerySelector();
 
 		$aStats = $oStats->getInsightsStats();
 		return [

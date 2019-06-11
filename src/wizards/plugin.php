@@ -654,11 +654,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function wizardConfirmDelete() {
 		$bDelete = Services::Request()->post( 'ConfirmDelete' ) === 'Y';
 		if ( $bDelete ) {
-			/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-			$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
-			$oDeleter = $oProc->getSubProAuditor()
-							  ->getDbHandler()
-							  ->getQueryDeleter();
+			$oMod = $this->getPluginCon()->getModule_AuditTrail();
+			$oDeleter = $oMod->getDbHandler()
+							 ->getQueryDeleter();
 			foreach ( $this->getGdprSearchItems() as $sItem ) {
 				$oDeleter->reset()
 						 ->addWhereSearch( 'wp_username', $sItem )
@@ -747,12 +745,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array[]
 	 */
 	private function runGdprSearch() {
-		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-		$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
-		$oFinder = $oProc->getSubProAuditor()
-						 ->getDbHandler()
-						 ->getQuerySelector()
-						 ->setResultsAsVo( false );
+		$oMod = $this->getPluginCon()->getModule_AuditTrail();
+		$oFinder = $oMod->getDbHandler()
+						->getQuerySelector()
+						->setResultsAsVo( false );
 
 		$aItems = [];
 		foreach ( $this->getGdprSearchItems() as $sItem ) {
