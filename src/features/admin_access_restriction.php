@@ -211,6 +211,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private function verifySecAdminUsers( $aSecUsers ) {
 		$oDP = Services::Data();
 		$oWpUsers = Services::WpUsers();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aFiltered = [];
 		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
@@ -232,7 +234,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		// We now run a bit of a sanity check to ensure that the current user is
 		// not adding users here that aren't themselves without a key to still gain access
 		$oCurrent = $oWpUsers->getCurrentWpUser();
-		if ( !empty( $aFiltered ) && !$this->hasAccessKey() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
+		if ( !empty( $aFiltered ) && !$oOpts->hasAccessKey() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
 			$aFiltered[] = $oCurrent->user_login;
 		}
 

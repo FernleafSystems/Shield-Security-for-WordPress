@@ -255,9 +255,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	public function onWpActivatePlugin() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
-		$oP = $this->getModule( 'plugin' );
-		$oP->setActivatedAt();
+		$this->getModule_Plugin()->setActivatedAt();
 	}
 
 	/**
@@ -1746,7 +1744,7 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_FeatureHandler_AdminAccessRestriction
+	 * @return ICWP_WPSF_FeatureHandler_Plugin
 	 */
 	public function getModule_Plugin() {
 		return $this->getModule( 'plugin' );

@@ -224,70 +224,46 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return int
-	 */
-	protected function getSecAdminTimeLeft() {
-		return $this->getCon()
-					->getModule_SecAdmin()
-					->getSecAdminTimeLeft();
-	}
-
-	/**
 	 * @return array
 	 */
-	protected function getGoogleRecaptchaConfig() {
-		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), [] );
-		if ( !is_array( $aConfig ) ) {
-			$aConfig = [];
-		}
-		$aConfig = array_merge(
-			[
-				'key'    => '',
-				'secret' => '',
-				'style'  => 'light',
-			],
-			$aConfig
-		);
-		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
-			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
-		}
-		return $aConfig;
+	public function getGoogleRecaptchaConfig() {
+		/** @var Shield\Modules\Plugin\Options $oOpts */
+		$oOpts = $this->getCon()
+					  ->getModule_Plugin()
+					  ->getOptions();
+		return $oOpts->getGoogleRecaptchaConfig();
 	}
 
 	/**
-	 * Overridden in the plugin handler getting the option value
 	 * @return string
+	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSecretKey() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		return $aConfig[ 'secret' ];
+		return $this->getGoogleRecaptchaConfig()[ 'secret' ];
 	}
 
 	/**
-	 * Overriden in the plugin handler getting the option value
 	 * @return string
+	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSiteKey() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		return $aConfig[ 'key' ];
+		return $this->getGoogleRecaptchaConfig()[ 'key' ];
 	}
 
 	/**
-	 * Overriden in the plugin handler getting the option value
 	 * @return string
+	 * @deprecated
 	 */
 	public function getGoogleRecaptchaStyle() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		return $aConfig[ 'style' ];
+		return $this->getGoogleRecaptchaConfig()[ 'style' ];
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isGoogleRecaptchaReady() {
-		$sKey = $this->getGoogleRecaptchaSiteKey();
-		$sSecret = $this->getGoogleRecaptchaSecretKey();
-		return ( !empty( $sSecret ) && !empty( $sKey ) );
+		$aConfig = $this->getGoogleRecaptchaConfig();
+		return ( !empty( $aConfig[ 'secret' ] ) && !empty( $aConfig[ 'key' ] ) );
 	}
 
 	/**
@@ -419,10 +395,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getCon()
-					->getModule( 'plugin' );
-		return $oFO->isXmlrpcBypass();
+		return $this->getCon()
+					->getModule_Plugin()
+					->isXmlrpcBypass();
 	}
 
 	/**

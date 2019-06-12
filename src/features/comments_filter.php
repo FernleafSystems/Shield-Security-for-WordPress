@@ -175,8 +175,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 		switch ( $sSection ) {
 			case 'section_recaptcha':
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
-				$oP = $this->getCon()->getModule( 'plugin' );
+				$oP = $this->getCon()->getModule_Plugin();
 				if ( !$oP->isGoogleRecaptchaReady() ) {
 					$aWarnings[] = sprintf(
 						__( 'Please remember to supply reCAPTCHA keys: %s', 'wp-simple-firewall' ),

@@ -24,7 +24,7 @@ class TestRequest {
 			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
-			$oResponse = ( new ReCaptcha( $oMod->getGoogleRecaptchaSecretKey(), new WordpressPost() ) )
+			$oResponse = ( new ReCaptcha( $oMod->getGoogleRecaptchaConfig()[ 'secret' ], new WordpressPost() ) )
 				->verify( $sCaptchaResponse, Services::IP()->getRequestIp() );
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
 				$aMsg = [

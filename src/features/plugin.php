@@ -24,7 +24,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		parent::setupCustomHooks();
 		add_filter( $this->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
 		add_filter( $this->prefix( 'globally_disabled' ), [ $this, 'filter_IsPluginGloballyDisabled' ] );
-		add_filter( $this->prefix( 'google_recaptcha_config' ), [ $this, 'supplyGoogleRecaptchaConfig' ], 10, 0 );
+		add_filter( $this->prefix( 'google_recaptcha_config' ), [ $this, 'getGoogleRecaptchaConfig' ], 10, 0 );
 	}
 
 	protected function updateHandler() {
@@ -472,12 +472,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return array
 	 */
-	public function supplyGoogleRecaptchaConfig() {
-		return [
+	public function getGoogleRecaptchaConfig() {
+		$aConfig = [
 			'key'    => $this->getOpt( 'google_recaptcha_site_key' ),
 			'secret' => $this->getOpt( 'google_recaptcha_secret_key' ),
 			'style'  => $this->getOpt( 'google_recaptcha_style' ),
 		];
+		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
+			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
+		}
+		return $aConfig;
 	}
 
 	/**
@@ -1118,5 +1122,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	private function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
+	}
+
+	/**
+	 * @return array
+	 * @deprecated
+	 */
+	public function supplyGoogleRecaptchaConfig() {
+		return $this->getGoogleRecaptchaConfig();
 	}
 }

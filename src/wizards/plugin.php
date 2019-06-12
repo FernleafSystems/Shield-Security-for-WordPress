@@ -353,10 +353,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = 'Strange, the address source could not be found from this IP.';
 			}
 			else {
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
-				$oModule = $this->getPluginCon()->getModule( 'plugin' );
-				$oModule->setVisitorAddressSource( $sSource )
-						->savePluginOptions();
+				$this->getPluginCon()
+					 ->getModule_Plugin()
+					 ->setVisitorAddressSource( $sSource )
+					 ->savePluginOptions();
 				$oResponse->setSuccessful( true );
 				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '
 							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
@@ -572,8 +572,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardOptin() {
 		$oReq = Services::Request();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'plugin' );
+		$oMod = $this->getPluginCon()->getModule_Plugin();
 
 		$bSuccess = false;
 		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
@@ -584,7 +583,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			if ( !empty( $sInput ) ) {
 				$bEnabled = $sInput === 'Y';
-				$oModule->setIsDisplayPluginBadge( $bEnabled );
+				$oMod->setIsDisplayPluginBadge( $bEnabled );
 				$bSuccess = true;
 				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
 			}
@@ -594,7 +593,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			if ( !empty( $sInput ) ) {
 				$bEnabled = $sInput === 'Y';
-				$oModule->setPluginTrackingPermission( $bEnabled );
+				$oMod->setPluginTrackingPermission( $bEnabled );
 				$bSuccess = true;
 				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
 			}

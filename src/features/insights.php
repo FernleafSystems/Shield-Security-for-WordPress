@@ -7,9 +7,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oP */
-		$oP = $this->getCon()->getModule( 'plugin' );
-		$nActivatedAt = $oP->getActivatedAt();
+		$nActivatedAt = $this->getCon()
+							 ->getModule_Plugin()
+							 ->getActivatedAt();
 		if ( $nActivatedAt > 0 && Services::Request()->ts() - $nActivatedAt < 5 ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
@@ -55,8 +55,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
 		$oModLicense = $oCon->getModule( 'license' );
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
-		$oModPlugin = $oCon->getModule( 'plugin' );
+		$oModPlugin = $oCon->getModule_Plugin();
 		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
 		$oProPlugin = $oModPlugin->getProcessor();
 
@@ -271,7 +270,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aTopNav[ 'settings' ][ 'subnavs' ] = $aSettingsSubNav;
 
 //		$aTopNav[ 'full_options' ] = [
-//			'href'   => $this->getCon()->getModule( 'plugin' )->getUrl_AdminPage(),
+//			'href'   => $this->getCon()->getModule_Plugin( )->getUrl_AdminPage(),
 //			'name'   => __( 'Settings', 'wp-simple-firewall' ),
 //			'active' => false
 //		];

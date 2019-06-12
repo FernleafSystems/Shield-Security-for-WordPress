@@ -63,8 +63,7 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	protected function getToken( $nTs, $nPostId ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getCon()->getModule( 'plugin' );
+		$oMod = $this->getCon()->getModule_Plugin();
 		return hash_hmac( 'sha1', $nPostId.$this->ip().$nTs, $oMod->getPluginInstallationId() );
 	}
 

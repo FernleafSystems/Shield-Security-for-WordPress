@@ -22,8 +22,7 @@ class ICWP_WPSF_Processor_HackProtect_Realtime extends ICWP_WPSF_Processor_BaseW
 		$oMod = $this->getMod();
 		$oProc = new Shield\Scans\Realtime\Files\Process();
 
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
-		$oModPlugin = $this->getCon()->getModule( 'plugin' );
+		$oModPlugin = $this->getCon()->getModule_Plugin();
 		$oProc->priv_key = $oModPlugin->getOpenSslPrivateKey();
 		$oProc->original_path = Services::WpGeneral()->getPath_WpConfig();
 		$oProc->original_path_hash = $oMod->getRtFileHash( $oProc->original_path );

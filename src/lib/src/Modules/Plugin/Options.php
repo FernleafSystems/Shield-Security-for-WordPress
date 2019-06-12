@@ -33,4 +33,19 @@ class Options extends Base\Options {
 	public function getDbColumns_Notes() {
 		return $this->getDef( 'db_notes_table_columns' );
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getGoogleRecaptchaConfig() {
+		$aConfig = [
+			'key'    => $this->getOpt( 'google_recaptcha_site_key' ),
+			'secret' => $this->getOpt( 'google_recaptcha_secret_key' ),
+			'style'  => $this->getOpt( 'google_recaptcha_style' ),
+		];
+		if ( !$this->getCon()->isPremiumActive() && $aConfig[ 'style' ] != 'light' ) {
+			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
+		}
+		return $aConfig;
+	}
 }
