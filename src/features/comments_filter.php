@@ -238,4 +238,11 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	protected function loadStrings() {
 		return new Shield\Modules\CommentsFilter\Strings();
 	}
+
+	protected function updateHandler() {
+		$oDbh = $this->getDbHandler();
+		if ( !empty( $oDbh ) ) {
+			$oDbh->deleteTable();
+		}
+	}
 }
