@@ -175,11 +175,18 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$aRenderData = [
 			'strings'     => [
 				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
+				'download'           => sprintf(
+					__( 'For best security practices, %s will download and re-install the latest available version of this plugin.', 'wp-simple-firewall' ),
+					$this->getCon()->getHumanName()
+				)
 			],
 			'js_snippets' => []
 		];
 		echo $this->getMod()
-				  ->renderTemplate( 'snippets/hg-plugins-reinstall-dialogs.php', $aRenderData );
+				  ->renderTemplate(
+					  'snippets/hg-plugins-reinstall-dialogs.php',
+					  $aRenderData
+				  );
 	}
 
 	/**

@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -194,12 +195,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return $this
 	 */
 	protected function setLoginIntentExpiresAt( $nExpirationTime ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->hasSession() ) {
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->updateLoginIntentExpiresAt( $oFO->getSession(), $nExpirationTime );
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->hasSession() ) {
+			/** @var Shield\Databases\Session\Update $oUpd */
+			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+			$oUpd->updateLoginIntentExpiresAt( $oMod->getSession(), $nExpirationTime );
 		}
 		return $this;
 	}
@@ -354,8 +355,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$this->removeLoginIntent();
 
 		// support for WooCommerce Social Login
-		if ( $oFO->getIfSupport3rdParty() ) {
-			$this->getCon()->getCurrentUserMeta()->wc_social_login_valid = false;
+		$oMeta = $this->getCon()->getCurrentUserMeta();
+		if ( $oFO->getIfSupport3rdParty() && $oMeta instanceof Shield\Users\ShieldUserMeta ) {
+			$oMeta->wc_social_login_valid = false;
 		}
 	}
 
