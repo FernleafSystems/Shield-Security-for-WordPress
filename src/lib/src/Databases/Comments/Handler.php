@@ -14,6 +14,15 @@ class Handler extends Base\Handler {
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function getDefaultTableName() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return $oOpts->getDbTable_Spam();
+	}
+
+	/**
 	 * @return string[]
 	 */
 	protected function getDefaultColumnsDefinition() {

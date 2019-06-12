@@ -241,7 +241,7 @@ class Handler {
 
 		$sTableSlug = $this->getTableSlug();
 		if ( empty( $sTableSlug ) ) {
-			throw new \Exception( 'Table name not provided' );
+			throw new \Exception( 'Table name not provided for '.( new \ReflectionClass( $this ) )->getNamespaceName() );
 		}
 
 		return $this->isTable() && $this->verifyTableStructure();
