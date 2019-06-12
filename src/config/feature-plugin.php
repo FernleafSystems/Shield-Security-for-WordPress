@@ -489,7 +489,7 @@
       {
         "slug":          "firewall",
         "storage_key":   "firewall",
-        "load_priority": 13
+        "load_priority": 1000
       },
       {
         "slug":        "user_management",
@@ -519,8 +519,7 @@
         "slug":          "statistics",
         "storage_key":   "statistics",
         "load_priority": 11,
-        "hidden":        false,
-        "min_php":       "5.4"
+        "hidden":        false
       },
       {
         "slug":          "sessions",

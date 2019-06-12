@@ -22,13 +22,6 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return Events\Handler
-	 */
-	protected function createDbHandler() {
-		return $this->getMod()->getDbHandler();
-	}
-
-	/**
 	 */
 	private function commitEvents() {
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
