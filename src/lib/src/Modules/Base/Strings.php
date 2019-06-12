@@ -13,6 +13,7 @@ class Strings {
 	 * @return string[]
 	 */
 	public function getDisplayStrings() {
+		$oCon = $this->getCon();
 		return Services::DataManipulation()->mergeArraysRecursive(
 			[
 				'see_help_video'    => __( 'Watch Help Video' ),
@@ -25,7 +26,7 @@ class Strings {
 				'off'               => __( 'Off', 'wp-simple-firewall' ),
 				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
-				'save_all_settings' => __( 'Save All Settings', 'wp-simple-firewall' ),
+				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
 				'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),

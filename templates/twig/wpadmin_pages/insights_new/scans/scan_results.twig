@@ -4,7 +4,7 @@
 			{% for scankey,scanvars in scans %}
 				<a class="nav-link " id="v-pills-home-tab" data-toggle="pill" href="#v-pills-{{ scankey }}"
 				   role="tab" aria-controls="v-pills-{{ scankey }}" aria-selected="true">
-					<span class="badge badge-{% if scanvars.count > 0 %}danger{% else %}info{% endif %}"
+					<span class="badge badge-{% if scanvars.count > 0 %}danger{% else %}success{% endif %}"
 					>{{ scanvars.count }}</span>
 					{{ scanvars.strings.title }}
 				</a>

@@ -187,7 +187,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		foreach ( $aEvts as $sKey => $aEvt ) {
 			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
 			$aEvts[ $sKey ][ 'key' ] = $sKey;
-			$aEvts[ $sKey ][ 'msg' ] = $this->getStrings()->getAuditMessage( $sKey );
 		}
 		return $aEvts;
 	}
@@ -807,9 +806,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 //		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
-			'%s: %s',
+			'%s%s',
 			$aSum[ 'name' ],
-			sprintf( __( 'Module %s', 'wp-simple-firewall' ), ( $aSum[ 'enabled' ] ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' ) ) )
+			( $aSum[ 'enabled' ] ? '' : ' ('.strtolower( __( 'Disabled', 'wp-simple-firewall' ) ).')' )
 		);
 		return $aSum;
 	}
@@ -1557,15 +1556,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		$oCon = $this->getCon();
 
 		return [
-			'sPluginName'     => $oCon->getHumanName(),
-			'sFeatureName'    => $this->getMainFeatureName(),
-			'bFeatureEnabled' => $this->isModuleEnabled(),
-			'sTagline'        => $this->getOptionsVo()->getFeatureTagline(),
-			'nonce_field'     => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
-			'form_action'     => 'admin.php?page='.$this->getModSlug(),
-			'nOptionsPerRow'  => 1,
-			'aPluginLabels'   => $oCon->getLabels(),
-			'help_video'      => [
+			'sPluginName'   => $oCon->getHumanName(),
+			'sTagline'      => $this->getOptionsVo()->getFeatureTagline(),
+			'nonce_field'   => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
+			'form_action'   => 'admin.php?page='.$this->getModSlug(),
+			'aPluginLabels' => $oCon->getLabels(),
+			'help_video'    => [
 				'auto_show'   => $this->getIfAutoShowHelpVideo(),
 				'iframe_url'  => $this->getHelpVideoUrl( $this->getHelpVideoId() ),
 				'display_id'  => 'ShieldHelpVideo'.$this->getSlug(),
@@ -1575,22 +1571,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'width'       => 772,
 				'height'      => 454,
 			],
-			'aSummaryData'    => $this->getModulesSummaryData(),
+			'aSummaryData'  => $this->getModulesSummaryData(),
 
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
-			'sPageTitle'      => $this->getMainFeatureName(),
-			'data'            => [
+			'sPageTitle'    => $this->getMainFeatureName(),
+			'data'          => [
 				'form_nonce'     => $this->genNonce( '' ),
 				'mod_slug'       => $this->getModSlug( true ),
 				'mod_slug_short' => $this->getModSlug( false ),
 				'all_options'    => $this->buildOptions(),
 				'hidden_options' => $this->getOptionsVo()->getHiddenOptions()
 			],
-			'ajax'            => [
+			'ajax'          => [
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
 			],
-			'strings'         => $this->getStrings()->getDisplayStrings(),
-			'flags'           => [
+			'strings'       => $this->getStrings()->getDisplayStrings(),
+			'flags'         => [
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
 				'show_ads'              => $this->getIsShowMarketing(),
 				'wrap_page_content'     => true,
@@ -1599,13 +1595,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 				'show_alt_content'      => false,
 				'has_wizard'            => $this->hasWizard(),
 			],
-			'hrefs'           => [
+			'hrefs'         => [
 				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
 				'goprofooter'    => 'https://icwp.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
 				'wizard_landing' => $this->getUrl_WizardLanding()
 			],
-			'content'         => [
+			'content'       => [
 				'options_form'   => '',
 				'alt'            => '',
 				'actions'        => '',
@@ -1755,7 +1751,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$sTemplate = 'subfeature-access_restricted';
 		}
 
-		// Get the same Base Data as normal display
 		try {
 			return $this->loadRenderer( $this->getCon()->getPath_Templates() )
 						->setTemplate( $sTemplate )

@@ -20,12 +20,6 @@ if ( $flags[ 'wrap_page_content' ] ) : ?>
 
 <?php include_once( $sBaseDirName.'index_footer.php' ); ?>
 
-<?php
-if ( $help_video[ 'show' ] ) {
-	include_once( $sBaseDirName.'snippets/help_video_player.php' );
-}
-?>
-
 <?php if ( !empty( $aPluginLabels[ 'icon_url_128x128' ] ) ) : ?>
 	<style>
 		#TopPluginIcon {

@@ -29,19 +29,19 @@ class Strings extends Base\Strings {
 				__( 'Received notification that options import required.', 'wp-simple-firewall' ),
 				__( 'Current master site: %s', 'wp-simple-firewall' )
 			],
-			'options_exported' => [
+			'options_exported'       => [
 				__( 'Options exported to site: %s', 'wp-simple-firewall' ),
 			],
-			'options_imported' => [
+			'options_imported'       => [
 				__( 'Options imported from site: %s', 'wp-simple-firewall' ),
 			],
-			'whitelist_site_added' => [
+			'whitelist_site_added'   => [
 				__( 'Site added to export white list: %s', 'wp-simple-firewall' ),
 			],
 			'whitelist_site_removed' => [
 				__( 'Site removed from export white list: %s', 'wp-simple-firewall' ),
 			],
-			'master_url_set' => [
+			'master_url_set'         => [
 				__( 'Master Site URL set: %s', 'wp-simple-firewall' ),
 			],
 		];
@@ -132,9 +132,9 @@ class Strings extends Base\Strings {
 		switch ( $sOptKey ) {
 
 			case 'global_enable_plugin_features' :
-				$sName = __( 'Enable/Disable Plugin Modules', 'wp-simple-firewall' );
-				$sSummary = __( 'Enable/Disable All Plugin Modules', 'wp-simple-firewall' );
-				$sDescription = sprintf( __( 'Uncheck this option to disable all %s features.', 'wp-simple-firewall' ), $sPlugName );
+				$sName = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $sPlugName );
+				$sSummary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
+				$sDescription = sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $sPlugName );
 				break;
 
 			case 'enable_notes' :

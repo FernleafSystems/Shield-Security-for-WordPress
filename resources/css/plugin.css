@@ -48,20 +48,22 @@ body {
 }
 #ColumnOptions .form-actions {
 	position: fixed;
-	bottom: 0;
+	bottom: 50px;
 }
 #ColumnOptions .form-actions .row > div {
-	background-color: #d8d8d8;
-	box-shadow: -2px 6px 2px rgba(0, 0, 0, 0.3);
+	background-color: transparent; /*#d8d8d8;*/
 	z-index: 1000;
-	text-align: center;
-	padding: 40px 0;
 }
 #ColumnOptions form {
 	margin-bottom: 50px;
 }
 #ColumnOptions .form-actions .btn {
-	padding: 16px 40px;
+	box-shadow: -1px 2px 2px rgba(0,0,0,0.3);
+	opacity: 0.85;
+}
+#ColumnOptions .form-actions .btn:hover {
+	box-shadow: none;
+	opacity: 1;
 }
 /* Form elements */
 .bootstrap-wpadmin form fieldset {
@@ -149,7 +151,7 @@ a.section-help-video {
 a.section-help-video > span {
 	font-size: 28px;
 	margin-left: 6px;
-	color: red;
+	color: rgba(69, 119, 0, 1);
 }
 /** End-Section summaries **/
 
@@ -874,10 +876,10 @@ th.column-request_info {
 	color: green;
 }
 .nav-link.module.notenabled .module-icon:before {
-	color: rgb(90, 34, 0);
+	color: rgba(0, 0, 0, 0.4);
 }
 .nav-link.module.enabled .module-icon:before {
-	color: rgba(69, 119, 0, 1);
+	color: rgba(50, 50, 50, 1);
 }
 .is-not-pro #NavItem-license {
 	color: #09b740;
@@ -1207,17 +1209,16 @@ input[type=checkbox].form-check-input {
 	color: rgba(69, 119, 0, 1);
 }
 
-
 .tooltip .arrow {
 	display: none !important;
 }
 
 table.odp-table tr.audit-cat-1 td {
-	background-color: #f2faff;
+	background-color: #f8fbff;
 }
 table.odp-table tr.audit-cat-2 td {
-	background-color: #fff7ee;
+	background-color: #fffcfa;
 }
 table.odp-table tr.audit-cat-3 td {
-	background-color: #ffefef;
+	background-color: #fffdfd;
 }

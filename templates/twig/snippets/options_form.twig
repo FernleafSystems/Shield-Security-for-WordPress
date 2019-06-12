@@ -81,9 +81,9 @@
 							{{ aOption.name }}
 							{% if aOption.disabled %}
 								<br />
-								<div class="badge badge-warning">
+								<div class="badge badge-success">
 									<a href="{{ hrefs.go_pro }}" target="_blank"
-									   class="text-dark">{{ strings.pro_only_option }}</a>
+									   class="text-light">{{ strings.pro_only_option }}</a>
 								</div>
 							{% endif %}
 						</label>
@@ -246,8 +246,8 @@
 	</div>
 	<div class="container-fluid form-actions">
 		<div class="row">
-			<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 offset-xl-3 offset-lg-3 offset-md-3 offset-sm-2">
-				<button type="submit" class="btn btn-primary btn-large icwp-form-button"
+			<div class="col">
+				<button type="submit" class="btn btn-primary btn-lg icwp-form-button"
 						name="submit">{{ strings.save_all_settings }}</button>
 			</div>
 		</div>
