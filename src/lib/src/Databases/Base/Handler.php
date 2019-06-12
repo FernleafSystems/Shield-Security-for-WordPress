@@ -82,9 +82,17 @@ class Handler {
 	 * @return bool
 	 */
 	public function deleteRowsOlderThan( $nTimeStamp ) {
-		return $this->getQueryDeleter()
-					->addWhereOlderThan( $nTimeStamp )
-					->query();
+		$bSuccess = false;
+		try {
+			if ( $this->isReady() ) {
+				$bSuccess = $this->getQueryDeleter()
+								 ->addWhereOlderThan( $nTimeStamp )
+								 ->query();
+			}
+		}
+		catch ( \Exception $oE ) {
+		}
+		return $bSuccess;
 	}
 
 	/**
@@ -190,14 +198,11 @@ class Handler {
 	}
 
 	/**
-	 * @return bool
+	 * @return $this
 	 * @throws \Exception
 	 */
 	public function tableInit() {
-
-		$bSuccess = $this->isReady();
-
-		if ( !$bSuccess ) {
+		if ( !$this->isReady() ) {
 
 			// apply DB Delta
 			if ( $this->isTable() ) {
@@ -208,10 +213,8 @@ class Handler {
 				$this->deleteTable();
 				$this->tableCreate();
 			}
-
-			$bSuccess = $this->isReady( true );
 		}
-		return $bSuccess;
+		return $this;
 	}
 
 	/**

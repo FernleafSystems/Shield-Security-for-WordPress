@@ -25,7 +25,14 @@ class BaseBuild {
 	 */
 	public function buildTable() {
 
-		if ( $this->countTotal() > 0 ) {
+		try {
+			$bReady = $this->getDbHandler()->isReady();
+		}
+		catch ( \Exception $oE ) {
+			$bReady = false;
+		}
+
+		if ( $bReady && $this->countTotal() > 0 ) {
 			$oTable = $this->getTableRenderer()
 						   ->setItemEntries( $this->getEntriesFormatted() )
 						   ->setPerPage( $this->getParams()[ 'limit' ] )

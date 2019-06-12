@@ -3,21 +3,12 @@
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
-class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
+class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @var bool
 	 */
 	private $bStat = false;
-
-	/**
-	 * @param \ICWP_WPSF_FeatureHandler_Events $oModCon
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Events $oModCon ) {
-		/** @var Events\Handler $oDbh */
-		$oDbh = $oModCon->getDbHandler();
-		parent::__construct( $oModCon, $oDbh->getTable() );
-	}
 
 	public function run() {
 		$this->bStat = true;
@@ -38,40 +29,12 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getMod()->getDef( 'events_table_columns' );
-		return is_array( $aDef ) ? $aDef : [];
-	}
-
-	/**
 	 */
 	private function commitEvents() {
-		/** @var ICWP_WPSF_FeatureHandler_Events $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
 		/** @var Events\Handler $oDbh */
 		$oDbh = $oMod->getDbHandler();
 		$oDbh->commitEvents( $oMod->getRegisteredEvents( true ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getCreateTableSql() {
-		return "CREATE TABLE %s (
-				id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-				event varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Event ID',
-				count int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Total',
-				created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-				PRIMARY KEY  (id)
-			) %s;";
-	}
-
-	/**
-	 */
-	public function cleanupDatabase() {
-//		$this->consolidateDuplicateKeys();
 	}
 }

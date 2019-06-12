@@ -2076,7 +2076,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( !isset( $this->oDbh ) ) {
 			$this->oDbh = $this->loadDbHandler();
 			if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
-				$this->oDbh->setMod( $this );
+				try {
+					$this->oDbh->setMod( $this )
+							   ->tableInit();
+				}
+				catch ( \Exception$oE ) {
+				}
 			}
 		}
 		return $this->oDbh;

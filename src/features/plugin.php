@@ -1088,7 +1088,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getDbHandler_GeoIp() {
 		if ( !isset( $this->oDbh_GeoIp ) ) {
-			$this->oDbh_GeoIp = ( new Shield\Databases\GeoIp\Handler() )->setMod( $this );
+			try {
+				$this->oDbh_GeoIp = ( new Shield\Databases\GeoIp\Handler() )
+					->setMod( $this )
+					->tableInit();
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
 		return $this->oDbh_GeoIp;
 	}
@@ -1098,7 +1104,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getDbHandler_Notes() {
 		if ( !isset( $this->oDbh_Notes ) ) {
-			$this->oDbh_Notes = ( new Shield\Databases\AdminNotes\Handler() )->setMod( $this );
+			try {
+				$this->oDbh_Notes = ( new Shield\Databases\AdminNotes\Handler() )
+					->setMod( $this )
+					->tableInit();
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
 		return $this->oDbh_Notes;
 	}
