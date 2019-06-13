@@ -137,14 +137,8 @@ class Strings extends Base\Strings {
 				$sDescription = sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $sPlugName );
 				break;
 
-			case 'enable_notes' :
-				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Admin Notes', 'wp-simple-firewall' ) );
-				$sSummary = __( 'Turn-On Admin Notes Section In Insights Dashboard', 'wp-simple-firewall' );
-				$sDescription = __( 'When turned-on it enables administrators to enter custom notes in the Insights Dashboard.', 'wp-simple-firewall' );
-				break;
-
 			case 'enable_tracking' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), __( 'Information Gathering', 'wp-simple-firewall' ) );
+				$sName = __( 'Anonymous Usage Statistics', 'wp-simple-firewall' );
 				$sSummary = __( 'Permit Anonymous Usage Information Gathering', 'wp-simple-firewall' );
 				$sDescription = __( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
 								.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' )
@@ -306,6 +300,7 @@ class Strings extends Base\Strings {
 	 * Kept just in-case.
 	 */
 	protected function old_translations() {
+		__( 'Automatically Detect Visitor IP', 'wp-simple-firewall' );
 		__( 'IP Whitelist', 'wp-simple-firewall' );
 		__( 'IP Address White List', 'wp-simple-firewall' );
 		__( 'Any IP addresses on this list will by-pass all Plugin Security Checking.', 'wp-simple-firewall' );

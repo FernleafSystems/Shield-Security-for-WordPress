@@ -390,7 +390,7 @@ class Options {
 			if ( in_array( $aOptionDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$aNewValueOptions = [];
 				foreach ( $aOptionDef[ 'value_options' ] as $aValueOptions ) {
-					$aNewValueOptions[ $aValueOptions[ 'value_key' ] ] = $aValueOptions[ 'text' ];
+					$aNewValueOptions[ $aValueOptions[ 'value_key' ] ] = __( $aValueOptions[ 'text' ], 'wp-simple-firewall' );
 				}
 				$aOptionDef[ 'value_options' ] = $aNewValueOptions;
 			}
