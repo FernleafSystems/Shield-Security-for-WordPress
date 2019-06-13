@@ -26,6 +26,7 @@ class Strings {
 				'off'               => __( 'Off', 'wp-simple-firewall' ),
 				'yes'               => __( 'Yes' ),
 				'no'                => __( 'No' ),
+				'never'             => __( 'Never', 'wp-simple-firewall' ),
 				'time_until'        => __( 'Until', 'wp-simple-firewall' ),
 				'time_since'        => __( 'Since', 'wp-simple-firewall' ),
 				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
