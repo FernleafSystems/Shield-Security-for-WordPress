@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -87,6 +88,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function buildInsightsVars() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var HackGuard\Strings $oStrings */
+		$oStrings = $oMod->getStrings();
+
+		$aScanNames = $oStrings->getScanNames();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $oMod->getDbHandler()->getQuerySelector();
@@ -108,12 +113,21 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'is_premium' => $oMod->isPremium()
 			],
 			'strings' => [
-				'never'         => __( 'Never', 'wp-simple-firewall' ),
-				'go_pro'        => 'Go Pro!',
-				'options'       => __( 'Scan Options', 'wp-simple-firewall' ),
-				'not_available' => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
-				'not_enabled'   => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
-				'please_enable' => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
+				'never'                 => __( 'Never', 'wp-simple-firewall' ),
+				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
+				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
+				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
+				'click_see_results'     => __( 'Click a scan to see its results', 'wp-simple-firewall' ),
+				'title_scan_site_now'   => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
+				'title_scan_now'        => __( 'Scan Your Site Now', 'wp-simple-firewall' ),
+				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
+				'more_items_longer'     => __( 'The more items that are selected, the longer the scan may take ', 'wp-simple-firewall' ),
+				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
+				'scan_select'           => __( 'Select Scans', 'wp-simple-firewall' ),
+				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
+				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for selected scans only)', 'wp-simple-firewall' ),
+				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
+				'clear_suppression_sub' => __( 'Allow notification emails to be resent (for selected scans only)', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 			],
@@ -136,7 +150,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'count'   => $oSelector->countForScan( 'apc' ),
 					'strings' => [
-						'title'    => __( 'Abandoned Plugins Check', 'wp-simple-firewall' ),
+						'title'    => $aScanNames[ 'apc' ],
 						'subtitle' => __( "Discover abandoned plugins", 'wp-simple-firewall' )
 					],
 				],
@@ -158,7 +172,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'count'   => $oSelector->countForScan( 'wcf' ),
 					'strings' => [
-						'title'    => __( 'WordPress Core File Integrity', 'wp-simple-firewall' ),
+						'title'    => $aScanNames[ 'wcf' ],
 						'subtitle' => __( "Detects changes to core WordPress files", 'wp-simple-firewall' )
 					],
 				],
@@ -180,7 +194,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'count'   => $oSelector->countForScan( 'ufc' ),
 					'strings' => [
-						'title'    => __( 'Unrecognised Core Files', 'wp-simple-firewall' ),
+						'title'    => $aScanNames[ 'ufc' ],
 						'subtitle' => __( "Detects files that maybe shouldn't be there", 'wp-simple-firewall' )
 					],
 				],
@@ -203,7 +217,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					],
 					'count'   => $oSelector->countForScan( 'mal' ),
 					'strings' => [
-						'title'    => _wpsf__( 'Malware Scanner' ),
+						'title'    => $aScanNames[ 'mal' ],
 						'subtitle' => _wpsf__( "Detects malware in files" )
 					],
 				],
@@ -223,9 +237,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wpv' ) )->diffForHumans()
 						),
 					],
-					'count'   => $oSelector->countForScan( 'wpv' ),
+					'count'   => $oSelector->countForScan( '' ),
 					'strings' => [
-						'title'    => __( 'Plugin / Theme Vulnerabilities', 'wp-simple-firewall' ),
+						'title'    => $aScanNames[ 'wpv' ],
 						'subtitle' => __( "Alerts on known security vulnerabilities", 'wp-simple-firewall' )
 					],
 				],
@@ -240,8 +254,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	private function getInsightVarsScan_Ptg() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var HackGuard\Strings $oStrings */
+		$oStrings = $oMod->getStrings();
 		$oCon = $this->getCon();
 		$oCarbon = new \Carbon\Carbon();
 
@@ -371,7 +387,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'count'   => $oSelector->countForScan( 'ptg' ),
 			'assets'  => array_merge( $aPlugins, $aThemes ),
 			'strings' => [
-				'title'               => __( 'Plugin / Theme Modifications', 'wp-simple-firewall' ),
+				'title'               => $oStrings->getScanName( 'ptg' ),
 				'subtitle'            => __( "Detects unauthorized changes to plugins/themes", 'wp-simple-firewall' ),
 				'files_with_problems' => __( 'Files with problems', 'wp-simple-firewall' ),
 				'root_dir'            => __( 'Root directory', 'wp-simple-firewall' ),

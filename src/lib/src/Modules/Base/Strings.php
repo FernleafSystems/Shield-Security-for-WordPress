@@ -24,7 +24,13 @@ class Strings {
 				'go_to_settings'    => __( 'Settings', 'wp-simple-firewall' ),
 				'on'                => __( 'On', 'wp-simple-firewall' ),
 				'off'               => __( 'Off', 'wp-simple-firewall' ),
+				'yes'               => __( 'Yes' ),
+				'no'                => __( 'No' ),
+				'time_until'        => __( 'Until', 'wp-simple-firewall' ),
+				'time_since'        => __( 'Since', 'wp-simple-firewall' ),
 				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
+				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
+				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
 				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
@@ -33,7 +39,14 @@ class Strings {
 				'actions_summary'   => __( 'Perform actions for this module', 'wp-simple-firewall' ),
 				'help_title'        => __( 'Help', 'wp-simple-firewall' ),
 				'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
+				'ip_address'        => __( 'IP Address', 'wp-simple-firewall' ),
+				'select'            => __( 'Select' ),
+				'filters_clear'     => __( 'Clear Filters' ),
+				'filters_apply'     => __( 'Apply Filters' ),
+				'jump_to_option'    => __( 'Find Plugin Option' ),
+				'type_below_search' => __( 'Type below to search all plugin options' ),
 				'pro_only_option'   => __( 'Pro Only' ),
+				'pro_only_feature'  => __( 'This is a pro-only feature', 'wp-simple-firewall' ),
 				'go_pro'            => 'Go Pro!',
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
 					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
@@ -48,6 +61,8 @@ class Strings {
 				'supply_password'              => __( 'Supply Password', 'wp-simple-firewall' ),
 				'confirm_password'             => __( 'Confirm Password', 'wp-simple-firewall' ),
 				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
+
+				'offense' => __( 'offense', 'wp-simple-firewall' )
 			],
 			$this->getAdditionalDisplayStrings()
 		);

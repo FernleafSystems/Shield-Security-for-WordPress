@@ -368,10 +368,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 								 ->deleteById( $sItemId );
 
 				if ( $bSuccess ) {
-					$sMessage = 'Note deleted';
+					$sMessage = __( 'Note deleted', 'wp-simple-firewall' );
 				}
 				else {
-					$sMessage = "Note couldn't be deleted";
+					$sMessage = __( "Note couldn't be deleted", 'wp-simple-firewall' );
 				}
 			}
 			catch ( \Exception $oE ) {

@@ -36,7 +36,7 @@
 									<td>
 										{% if opt.href is defined %}
 											<a href="{{ opt.href }}" target="_blank"
-											   title="Go To Options">&nearr;</a>
+											   title="{{ strings.go_to_options }}">&nearr;</a>
 										{% endif %}
 									</td>
 								</tr>
@@ -47,7 +47,7 @@
 				</div>
 				<div class="card-footer text-right">
 					<a href="{{ config_card.href_options }}"
-					   class="btn btn-sm btn-outline-dark">Module Options &rarr;</a>
+					   class="btn btn-sm btn-outline-dark">{{ strings.go_to_options }} &rarr;</a>
 				</div>
 			</div>
 		</div>

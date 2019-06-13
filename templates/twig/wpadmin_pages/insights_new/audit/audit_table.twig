@@ -3,7 +3,7 @@
 	<div class="col-lg-10 col-md-9 col-sm-8">
 		<div class="card">
 			<div class="card-header">
-				<h5 class="card-title">Audit Trail</h5>
+				<h5 class="card-title">{{ strings.table_title }}</h5>
 				<h6 class="card-subtitle mb-2 text-muted"></h6>
 			</div>
 			<div class="card-body">
@@ -22,7 +22,7 @@
 		<div class="" id="">
 			<form id="AuditFilterForm" autocomplete="off">
 				<div class="form-group">
-					<label for="_fContext">Context</label>
+					<label for="_fContext">{{ strings.context }}</label>
 					<select id="_fContext" name="fContext" class="form-control">
 						{% for context_key,context_name in vars.contexts_for_select %}
 							<option value="{{ context_key }}">{{ context_name }}</option>
@@ -31,57 +31,57 @@
 				</div>
 
 				<div class="form-group">
-					<label for="_fIp">IP Address</label>
+					<label for="_fIp">{{ strings.ip_address }}</label>
 					<select id="_fIp" name="fIp" class="form-control">
-						<option value="">-- select --</option>
+						<option value="">-- {{ strings.select }} --</option>
 						{% for unique_ip in vars.unique_ips %}
 							<option value="{{ unique_ip }}">{{ unique_ip }}</option>
 						{% endfor %}
 					</select>
 				</div>
 				<div class="form-group">
-					<label class="form-check-label" for="_fExludeYou" title="Exclude Your IP From Results">
-						Exclude Your Current IP?</label>
+					<label class="form-check-label" for="_fExludeYou" title="{{ strings.exclude_your_ip_tooltip }}">
+						{{ strings.exclude_your_ip }}?</label>
 					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
 						   class="form-control" />
 				</div>
 
 				<div class="form-group">
-					<label for="_fUsername">Username (ignores 'Logged-In' filter)</label>
+					<label for="_fUsername">{{ strings.username }}</label>
 					<select id="_fUsername" name="fUsername" class="form-control">
-						<option value="">-- select --</option>
+						<option value="">-- {{ strings.select }} --</option>
 						{% for uniq_user in vars.unique_users %}
 							<option value="{{ uniq_user }}">{{ uniq_user }}</option>
 						{% endfor %}
 					</select>
-					<small id="fUsernameHelp" class="form-text text-muted">
-						Providing a username will cause the 'logged-in' filter to be ignored.
-					</small>
+					<small id="fUsernameHelp" class="form-text text-muted">{{ strings.username_ignores }}</small>
 				</div>
 
 				<div class="form-group">
-					<label for="_fLoggedIn">Logged-In?</label>
+					<label for="_fLoggedIn">{{ strings.logged_in }}?</label>
 					<select id="_fLoggedIn" name="fLoggedIn" class="form-control">
-						<option value="-1" selected>-- select --</option>
-						<option value="1">Yes</option>
-						<option value="0">No</option>
+						<option value="-1" selected>-- {{ strings.select }} --</option>
+						<option value="1">{{ strings.yes }}</option>
+						<option value="0">{{ strings.no }}</option>
 					</select>
 				</div>
 
 				<div class="form-group input-daterange">
-					<label class="form-label" for="_fFromDate" title="Show results since...">
-						From:</label>
+					<label class="form-label" for="_fDateFrom" title="{{ strings.show_after }}...">
+						{{ strings.time_since }}:</label>
 					<input type="text" class="form-control date-picker" id="_fDateFrom"
 						   name="fDateFrom" value="" placeholder="YYYY-MM-DD">
-					<div class="input-group-addon">To:</div>
+
+					<label class="form-label" for="_fDateTo" title="{{ strings.show_before }}...">
+						{{ strings.time_until }}:</label>
 					<input type="text" class="form-control date-picker" id="_fDateTo"
 						   name="fDateTo" value="" placeholder="YYYY-MM-DD">
 				</div>
 				
 				<div class="form-group text-right">
 					<input id="SubmitForm" href="#" class="btn btn-info" type="submit"
-						   value="Apply Filters" />
-					<a id="ClearForm" href="#" class="btn btn-link">Clear Filters</a>
+						   value="{{ strings.filters_apply }}" />
+					<a id="ClearForm" href="#" class="btn btn-link">{{ strings.filters_clear }}</a>
 				</div>
 
 			</form>

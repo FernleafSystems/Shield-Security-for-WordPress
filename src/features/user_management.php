@@ -431,7 +431,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		{//password policies
 			if ( !$this->isPasswordPoliciesEnabled() ) {
 				$aNotices[ 'messages' ][ 'password' ] = [
-					'title'   => 'Password Policies',
+					'title'   => __( 'Password Policies', 'wp-simple-firewall' ),
 					'message' => __( "Strong password policies are not enforced.", 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),

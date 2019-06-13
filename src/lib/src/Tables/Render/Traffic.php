@@ -9,10 +9,10 @@ class Traffic extends Base {
 	 */
 	public function get_columns() {
 		return [
-			'path'         => 'Page',
-			'visitor'      => 'Visitor Details',
-			'request_info' => 'Response Info',
-			'created_at'   => 'Date',
+			'path'         => __( 'Page' ),
+			'visitor'      => __( 'Details' ),
+			'request_info' => __( 'Response', 'wp-simple-firewall' ),
+			'created_at'   => __( 'Date' ),
 		];
 	}
 }

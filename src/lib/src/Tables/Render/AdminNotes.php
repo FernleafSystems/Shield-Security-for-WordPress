@@ -17,7 +17,7 @@ class AdminNotes extends Base {
 	 */
 	protected function get_bulk_actions() {
 		return [
-			'delete' => 'Delete',
+			'delete' => __( 'Delete' ),
 		];
 	}
 
@@ -27,9 +27,9 @@ class AdminNotes extends Base {
 	public function get_columns() {
 		return [
 			'cb'          => '&nbsp;',
-			'note'        => 'Note',
-			'wp_username' => 'Username',
-			'created_at'  => 'Date',
+			'note'        => __( 'Note', 'wp-simple-firewall' ),
+			'wp_username' => __( 'Username' ),
+			'created_at'  => __( 'Date' ),
 		];
 	}
 }

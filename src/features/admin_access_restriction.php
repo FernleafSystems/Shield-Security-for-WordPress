@@ -532,13 +532,13 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		{//sec admin
 			if ( !$this->isEnabledSecurityAdmin() ) {
 				$aNotices[ 'messages' ][ 'sec_admin' ] = [
-					'title'   => 'Security Plugin Unprotected',
+					'title'   => __( 'Security Plugin Unprotected', 'wp-simple-firewall' ),
 					'message' => sprintf(
 						__( "The Security Admin protection is not active.", 'wp-simple-firewall' ),
 						$this->getCon()->getHumanName()
 					),
 					'href'    => $this->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options' ) ),
 					'rec'     => __( 'Security Admin should be turned-on to protect your security settings.', 'wp-simple-firewall' )
 				];
 			}

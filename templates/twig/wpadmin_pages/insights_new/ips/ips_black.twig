@@ -13,30 +13,30 @@
 
 					<form class="form-inline m-0 add-ip" id="NewBlackIp" action="#" method="post" autocomplete="off">
 						<input type="hidden" name="list" value="MB" />
-						<label class="sr-only" for="IpAddress">IpAddress</label>
+						<label class="sr-only" for="IpAddress">{{ strings.ip_address }}</label>
 						<div class="input-group w-100">
 							<div class="input-group-prepend">
-								<div class="input-group-text" style="border-radius: 0">New IP:</div>
+								<div class="input-group-text" style="border-radius: 0">{{ strings.ip_new }}:</div>
 							</div>
 							<input type="text" class="form-control" id="IpAddress" name="ip"
 									{% if flags.can_blacklist %}
-										placeholder="enter IP to block"
+										placeholder="{{ strings.enter_ip_block }}"
 									{% else %}
 										readonly
-										placeholder="Manual IP Blocking Is A Pro Feature"
+										placeholder="{{ strings.pro_only_feature }}"
 									{% endif %}
 							/>
 							<div class="input-group-append">
 								<button type="submit" class="btn btn-warning add" style="border-radius: 0;"
 										name="subbutt"
 										{% if flags.can_blacklist %}
-											title="Block IP"
+											title="{{ strings.ip_block }}"
 										{% else %}
 											disabled="disabled"
 											title="Manual IP Blocking Is A Pro Feature"
 										{% endif %}
-										title="Block IP"><span class="dashicons dashicons-plus"></span>
-									<span>Block IP</span></button>
+										><span class="dashicons dashicons-plus"></span>
+									<span>{{ strings.ip_block }}</span></button>
 							</div>
 						</div>
 					</form>
@@ -45,7 +45,7 @@
 				</div>
 				<div class="card-footer">
 					{{ strings.trans_limit|raw }}
-					<br/>{{ strings.auto_expire|raw }}
+					<br />{{ strings.auto_expire|raw }}
 				</div>
 			</div>
 		</div>

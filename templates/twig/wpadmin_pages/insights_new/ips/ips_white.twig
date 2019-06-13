@@ -10,18 +10,18 @@
 				<div class="card-body">
 					<form class="form-inline m-0 add-ip" id="NewWhiteIp" action="#" method="post" autocomplete="off">
 						<input type="hidden" name="list" value="MW" />
-						<label class="sr-only" for="IpAddress">IpAddress</label>
+						<label class="sr-only" for="IpAddress">{{ strings.ip_address }}</label>
 						<div class="input-group w-100">
 							<div class="input-group-prepend">
-								<div class="input-group-text" style="border-radius: 0">New IP:</div>
+								<div class="input-group-text" style="border-radius: 0">{{ strings.ip_new }}:</div>
 							</div>
 							<input type="text" class="form-control" id="IpAddress" name="ip"
-								   placeholder="enter IP to whitelist" />
+								   placeholder="{{ strings.enter_ip_white }}" />
 							<input type="text" class="form-control" id="Label" name="label"
-								   placeholder="label for IP" />
+								   placeholder="{{ strings.label_for_ip }}" />
 							<div class="input-group-append">
 								<button type="submit" class="btn btn-info add" style="border-radius: 0;" name="subbutt"
-										title="Add IP"><span class="dashicons dashicons-plus"></span></button>
+										title="{{ strings.ip_new }}"><span class="dashicons dashicons-plus"></span></button>
 							</div>
 						</div>
 					</form>

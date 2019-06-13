@@ -44,7 +44,8 @@
       "schedule":    "conditions",
       "valid_admin": true,
       "delay_days":  1,
-      "type":        "promo"
+      "type":        "promo",
+      "twig":        true
     },
     "plugin-mailing-list-signup": {
       "id":           "plugin-mailing-list-signup",

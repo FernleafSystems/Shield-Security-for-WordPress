@@ -3,9 +3,10 @@
 	<div class="col-lg-10 col-md-9 col-sm-8">
 		<div class="card">
 			<div class="card-header">
-				<h5 class="card-title">User Sessions</h5>
+				<h5 class="card-title">{{ strings.users_title }}</h5>
 				<h6 class="card-subtitle text-muted">
-					Some sessions may have expired but haven't been automatically cleaned from the database yet
+					{{ strings.users_subtitle }}
+					(<small>{{ strings.users_maybe_expired }}</small>)
 				</h6>
 			</div>
 
@@ -21,26 +22,27 @@
 		<div class="" id="">
 			<form id="SessionsFilter" autocomplete="off">
 				<div class="form-group">
-					<label for="_fIp">IP Address</label>
+					<label for="_fIp">{{ strings.ip_address }}</label>
 					<select id="_fIp" name="fIp" class="form-control">
-						<option value="">-- select --</option>
+						<option value="">-- {{ strings.select }} --</option>
 						{% for unique_ip in vars.unique_ips %}
 							<option value="{{ unique_ip }}">{{ unique_ip }}</option>
 						{% endfor %}
 					</select>
 				</div>
 				<div class="form-group">
-					<label for="_fUsername">Username</label>
+					<label for="_fIp">{{ strings.username }}</label>
 					<select id="_fUsername" name="fUsername" class="form-control">
-						<option value="">-- select --</option>
+						<option value="">-- {{ strings.select }} --</option>
 						{% for uniq_user in vars.unique_users %}
 							<option value="{{ uniq_user }}">{{ uniq_user }}</option>
 						{% endfor %}
 					</select>
 				</div>
 				<div class="form-group text-right">
-					<input id="SubmitForm" href="#" class="btn btn-info" type="submit" value="Apply Filters" />
-					<a id="ClearForm" href="#" class="btn btn-link">Clear Filters</a>
+					<input id="SubmitForm" href="#" class="btn btn-info" type="submit"
+						   value="{{ strings.filters_apply }}" />
+					<a id="ClearForm" href="#" class="btn btn-link">{{ strings.filters_clear }}</a>
 				</div>
 
 			</form>

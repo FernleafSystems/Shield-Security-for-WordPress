@@ -20,12 +20,12 @@ class Strings extends Base\Strings {
 	 */
 	public function getScanNames() {
 		return [
-			'apc' => __( 'Abandoned Plugins' ),
-			'mal' => __( 'Malware' ),
-			'ptg' => __( 'Plugin/Theme Guard' ),
-			'ufc' => __( 'Unrecognised Files' ),
-			'wcf' => __( 'WP Core Files' ),
-			'wpv' => __( 'Vulnerabilities' ),
+			'apc' => __( 'Abandoned Plugins', 'wp-simple-firewall' ),
+			'ptg' => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
+			'mal' => __( 'Malware', 'wp-simple-firewall' ),
+			'ufc' => __( 'Unrecognised Files', 'wp-simple-firewall' ),
+			'wcf' => __( 'WP Core Files', 'wp-simple-firewall' ),
+			'wpv' => __( 'Vulnerabilities', 'wp-simple-firewall' ),
 		];
 	}
 

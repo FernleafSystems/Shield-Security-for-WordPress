@@ -75,7 +75,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
 			if ( !$bEditingDisabled ) { //assumes current user is admin
 				$aNotices[ 'messages' ][ 'disallow_file_edit' ] = [
-					'title'   => 'Code Editor',
+					'title'   => __( 'File Editing via WP', 'wp-simple-firewall' ),
 					'message' => __( 'Direct editing of plugin/theme files is permitted.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
@@ -110,7 +110,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		else {
 			$bEditingDisabled = $this->isOptFileEditingDisabled() || !current_user_can( 'edit_plugins' );
 			$aThis[ 'key_opts' ][ 'editing' ] = [
-				'name'    => __( 'WP File Editing', 'wp-simple-firewall' ),
+				'name'    => __( 'File Editing via WP', 'wp-simple-firewall' ),
 				'enabled' => $bEditingDisabled,
 				'summary' => $bEditingDisabled ?
 					__( 'File editing is disabled', 'wp-simple-firewall' )

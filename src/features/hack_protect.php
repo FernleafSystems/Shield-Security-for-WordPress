@@ -1021,6 +1021,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
+		/** @var Shield\Modules\HackGuard\Strings $oStrings */
+		$oStrings = $this->getStrings();
+		$aScanNames = $oStrings->getScanNames();
+
 		$aNotices = [
 			'title'    => __( 'Scans', 'wp-simple-firewall' ),
 			'messages' => []
@@ -1029,7 +1033,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		{// Core files
 			if ( !$this->isWcfScanEnabled() ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
-					'title'   => 'WP Core Files',
+					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
@@ -1038,7 +1042,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 			else if ( $this->getScanHasProblem( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
-					'title'   => 'WP Core Files',
+					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
@@ -1050,7 +1054,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		{// Unrecognised
 			if ( !$this->isUfcEnabled() ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
-					'title'   => 'Unrecognised Files',
+					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
@@ -1059,7 +1063,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 			else if ( $this->getScanHasProblem( 'ufc' ) ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
-					'title'   => 'Unrecognised Files',
+					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
@@ -1071,7 +1075,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		{// Plugin/Theme Guard
 			if ( !$this->isPtgEnabled() ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
-					'title'   => 'Plugin/Theme Guard',
+					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
@@ -1080,7 +1084,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 			else if ( $this->getScanHasProblem( 'ptg' ) ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
-					'title'   => 'Plugin/Theme Guard',
+					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
@@ -1092,7 +1096,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		{// Vulnerability Scanner
 			if ( !$this->isWpvulnEnabled() ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
-					'title'   => 'Vulnerability Scanner',
+					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
@@ -1101,7 +1105,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 			else if ( $this->getScanHasProblem( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
-					'title'   => 'Vulnerable Items',
+					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
@@ -1113,7 +1117,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		{// Abandoned Plugins
 			if ( !$this->isApcEnabled() ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
-					'title'   => 'Abandoned Plugins Scanner',
+					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
@@ -1122,7 +1126,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 			else if ( $this->getScanHasProblem( 'apc' ) ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
-					'title'   => 'Abandoned Plugins',
+					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
@@ -1142,6 +1146,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
+		/** @var Shield\Modules\HackGuard\Strings $oStrings */
+		$oStrings = $this->getStrings();
+		$aScanNames = $oStrings->getScanNames();
+
 		$aThis = [
 			'strings'      => [
 				'title' => __( 'Hack Guard', 'wp-simple-firewall' ),
@@ -1234,6 +1242,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 			$bPtg = $this->isPtgEnabled();
 			$aThis[ 'key_opts' ][ 'ptg' ] = [
+				'title'   => $aScanNames[ 'ptg' ],
 				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
 				'enabled' => $bPtg,
 				'summary' => $bPtg ?

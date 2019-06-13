@@ -42,9 +42,9 @@
 						{% endfor %}
 
 						<select class="selectpicker" data-live-search="true"
-								title="Jump to plugin option"
+								title="{{ strings.jump_to_option }}"
 								data-size="10" multiple
-								data-header="Type below to search all plugin options ..."
+								data-header="{{ strings.type_below_search }} ..."
 								onchange="location = this.value;">
 							{% for select_section_name,select_section_opts in vars.search_select %}
 								<optgroup label="{{ select_section_name }}">
@@ -78,7 +78,7 @@
 		  jQuery.fn.selectpicker.Constructor.BootstrapVersion = '4';
 
 		  jQuery( '.selectpicker' ).selectpicker()
-		  .removeAttr("selected");
+								   .removeAttr( "selected" );
 	  } );
 	</script>
 	<script async src="https://cdn.headwayapp.co/widget.js"></script>

@@ -9,9 +9,9 @@ class IpWhite extends IpBase {
 	 */
 	public function get_columns() {
 		return [
-			'ip'         => 'IP Address',
-			'label'      => 'Label',
-			'created_at' => 'Added',
+			'ip'         => __( 'IP Address', 'wp-simple-firewall' ),
+			'label'      => __( 'Label', 'wp-simple-firewall' ),
+			'created_at' => __( 'Added', 'wp-simple-firewall' ),
 		];
 	}
 }

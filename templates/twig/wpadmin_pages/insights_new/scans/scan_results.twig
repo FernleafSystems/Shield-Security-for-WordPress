@@ -15,7 +15,7 @@
 		<div class="tab-content" id="v-pills-tabContent">
 			<div class="tab-pane fade show active" id="v-pills-start" role="tabpanel"
 				 aria-labelledby="v-pills-home-tab">
-				<span class="alert alert-dark d-inline-block m-3">&larr; Click a scan to see its results.</span>
+				<span class="alert alert-dark d-inline-block m-3">&larr; {{ strings.click_see_results }}</span>
 			</div>
 			{% for scankey,scanvars in scans %}
 				<div class="tab-pane " id="v-pills-{{ scankey }}" role="tabpanel"

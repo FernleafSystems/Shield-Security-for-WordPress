@@ -25,7 +25,10 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 					'click_to_see'    => __( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' ),
 					'learn_more'      => __( 'Learn More.', 'wp-simple-firewall' ),
 					'site_url'        => 'translate.icontrolwp.com',
-					'yes'             => __( 'Absolutely', 'wp-simple-firewall' )
+					'yes'             => __( 'Absolutely', 'wp-simple-firewall' ),
+					'yes_i_share'     => __( "Yes, I'd be happy share this info", 'wp-simple-firewall' ),
+					'hmm_learn_more'  => __( "I'd like to learn more, please", 'wp-simple-firewall' ),
+					'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 				],
 				'ajax'              => [
 					'set_plugin_tracking_perm' => $oFO->getAjaxActionData( 'set_plugin_tracking_perm', true ),
