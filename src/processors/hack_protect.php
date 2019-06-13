@@ -128,6 +128,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for selected scans only)', 'wp-simple-firewall' ),
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
 				'clear_suppression_sub' => __( 'Allow notification emails to be resent (for selected scans only)', 'wp-simple-firewall' ),
+				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 			],
@@ -151,7 +152,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'count'   => $oSelector->countForScan( 'apc' ),
 					'strings' => [
 						'title'    => $aScanNames[ 'apc' ],
-						'subtitle' => __( "Discover abandoned plugins", 'wp-simple-firewall' )
+						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' )
 					],
 				],
 				'wcf' => [
@@ -173,7 +174,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'count'   => $oSelector->countForScan( 'wcf' ),
 					'strings' => [
 						'title'    => $aScanNames[ 'wcf' ],
-						'subtitle' => __( "Detects changes to core WordPress files", 'wp-simple-firewall' )
+						'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' )
 					],
 				],
 				'ufc' => [
@@ -195,7 +196,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'count'   => $oSelector->countForScan( 'ufc' ),
 					'strings' => [
 						'title'    => $aScanNames[ 'ufc' ],
-						'subtitle' => __( "Detects files that maybe shouldn't be there", 'wp-simple-firewall' )
+						'subtitle' => __( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' )
 					],
 				],
 				'mal' => [
@@ -218,7 +219,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'count'   => $oSelector->countForScan( 'mal' ),
 					'strings' => [
 						'title'    => $aScanNames[ 'mal' ],
-						'subtitle' => _wpsf__( "Detects malware in files" )
+						'subtitle' => _wpsf__( "Detect files that may be infected with malware" )
 					],
 				],
 				'wpv' => [
@@ -240,7 +241,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'count'   => $oSelector->countForScan( '' ),
 					'strings' => [
 						'title'    => $aScanNames[ 'wpv' ],
-						'subtitle' => __( "Alerts on known security vulnerabilities", 'wp-simple-firewall' )
+						'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' )
 					],
 				],
 				'ptg' => $this->getInsightVarsScan_Ptg(),
