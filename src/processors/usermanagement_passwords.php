@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	public function onWpLoaded() {
-		if ( is_admin() && !$this->loadRequest()->isMethodPost() && Services::WpUsers()->isUserLoggedIn() ) {
+		if ( is_admin() && !Services::Request()->isPost() && Services::WpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
 			$this->processFailedCheckPassword();
 		}

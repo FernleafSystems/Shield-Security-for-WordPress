@@ -212,7 +212,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			$this->getCurrentUserMeta()->flash_msg = ( $bError ? 'error' : 'updated' )
 													 .'::'.sanitize_text_field( $sMessage )
-													 .'::'.( $this->loadRequest()->ts() + 300 );
+													 .'::'.( Services::Request()->ts() + 300 );
 		}
 		return $this;
 	}
@@ -221,7 +221,7 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 		$this->flushFlash();
 		if ( $this->hasFlash() ) {
 			$aParts = $this->getFlashParts();
-			if ( empty( $aParts[ 2 ] ) || $this->loadRequest()->ts() < $aParts[ 2 ] ) {
+			if ( empty( $aParts[ 2 ] ) || Services::Request()->ts() < $aParts[ 2 ] ) {
 				echo $this->wrapAdminNoticeHtml( '<p>'.$aParts[ 1 ].'</p>', $aParts[ 0 ] );
 			}
 		}

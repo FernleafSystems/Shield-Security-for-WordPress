@@ -244,32 +244,23 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool true if valid form printed, false otherwise. Should die() if true
 	 */
 	public function printLoginIntentForm() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
-		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), [] );
+		$aLoginIntentFields = apply_filters( $oCon->prefix( 'login-intent-form-fields' ), [] );
 
 		if ( empty( $aLoginIntentFields ) ) {
 			return false; // a final guard against displaying an empty form.
 		}
 
-		$sMessage = $this->loadWpNotices()
-						 ->flushFlash()
-						 ->getFlashText();
-
-		if ( empty( $sMessage ) ) {
-			if ( $oFO->isChainedAuth() ) {
-				$sMessage = __( 'Please supply all authentication codes', 'wp-simple-firewall' );
-			}
-			else {
-				$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
-			}
-			$sMessageType = 'info';
+		if ( $oMod->isChainedAuth() ) {
+			$sMessage = __( 'Please supply all authentication codes', 'wp-simple-firewall' );
 		}
 		else {
-			$sMessageType = 'warning';
+			$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 		}
+		$sMessageType = 'info';
 
 		$sReferUrl = $oReq->server( 'HTTP_REFERER', '' );
 		if ( strpos( $sReferUrl, '?' ) ) {
@@ -294,7 +285,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 
 		$aLabels = $oCon->getLabels();
 		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
-		$nMfaSkip = $oFO->getMfaSkip();
+		$nMfaSkip = $oMod->getMfaSkip();
 		$aDisplayData = [
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
@@ -316,7 +307,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'login_fields'      => $aLoginIntentFields,
 				'time_remaining'    => $this->getLoginIntentExpiresAt() - $this->time(),
 				'message_type'      => $sMessageType,
-				'login_intent_flag' => $oFO->getLoginIntentRequestFlag(),
+				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
 				'page_locale'       => Services::WpGeneral()->getLocale( '-' )
 			],
 			'hrefs'   => [
@@ -333,8 +324,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $oFO->getMfaSkipEnabled(),
-				'show_branded_links' => !$oFO->isWlEnabled(), // white label mitigation
+				'can_skip_mfa'       => $oMod->getMfaSkipEnabled(),
+				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
 			]
 		];
 
