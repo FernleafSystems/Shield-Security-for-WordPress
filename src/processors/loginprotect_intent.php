@@ -247,7 +247,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
-		$oReq = Servicejs::Request();
+		$oReq = Services::Request();
 		$aLoginIntentFields = apply_filters( $oCon->prefix( 'login-intent-form-fields' ), [] );
 
 		if ( empty( $aLoginIntentFields ) ) {
