@@ -96,7 +96,20 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $oMod->getDbHandler()->getQuerySelector();
 
-		$oCarbon = new \Carbon\Carbon();
+		$oCarbon = Services::Request()->carbon();
+
+		$aLatestScans = array_map(
+			function ( $nTime ) {
+				return sprintf(
+					__( 'Last Scan: %s', 'wp-simple-firewall' ),
+					( $nTime > 0 ) ?
+						Services::Request()->carbon()->setTimestamp( $nTime )->diffForHumans()
+						: __( 'Never', 'wp-simple-firewall' )
+				);
+			},
+			$oMod->getLastScansAt()
+		);
+
 		$aData = [
 			'ajax'    => [
 				'start_scans'           => $oMod->getAjaxActionData( 'start_scans', true ),
@@ -144,10 +157,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_apc' )
 					],
 					'vars'    => [
-						'last_scan_at' => sprintf(
-							__( 'Last Scan: %s', 'wp-simple-firewall' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'apc' ) )->diffForHumans()
-						),
+						'last_scan_at' => $aLatestScans[ 'apc' ],
 					],
 					'count'   => $oSelector->countForScan( 'apc' ),
 					'strings' => [
@@ -166,15 +176,16 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
 					],
 					'vars'    => [
-						'last_scan_at' => sprintf(
-							__( 'Last Scan: %s', 'wp-simple-firewall' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wcf' ) )->diffForHumans()
-						),
+						'last_scan_at' => $aLatestScans[ 'wcf' ],
 					],
 					'count'   => $oSelector->countForScan( 'wcf' ),
 					'strings' => [
-						'title'    => $aScanNames[ 'wcf' ],
-						'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' )
+						'title'        => $aScanNames[ 'wcf' ],
+						'subtitle'     => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+						'last_scan_at' => sprintf(
+							__( 'Last Scan: %s', 'wp-simple-firewall' ),
+							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'apc' ) )->diffForHumans()
+						),
 					],
 				],
 				'ufc' => [
@@ -188,10 +199,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
 					],
 					'vars'    => [
-						'last_scan_at' => sprintf(
-							__( 'Last Scan: %s', 'wp-simple-firewall' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ufc' ) )->diffForHumans()
-						),
+						'last_scan_at' => $aLatestScans[ 'ufc' ],
 					],
 					'count'   => $oSelector->countForScan( 'ufc' ),
 					'strings' => [
@@ -211,10 +219,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_scan_malware' ),
 					],
 					'vars'    => [
-						'last_scan_at' => sprintf(
-							_wpsf__( 'Last Scan: %s' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'mal' ) )->diffForHumans()
-						),
+						'last_scan_at' => $aLatestScans[ 'mal' ],
 					],
 					'count'   => $oSelector->countForScan( 'mal' ),
 					'strings' => [
@@ -233,10 +238,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 						'options' => $oMod->getUrl_DirectLinkToSection( 'section_wpvuln_scan' )
 					],
 					'vars'    => [
-						'last_scan_at' => sprintf(
-							__( 'Last Scan: %s', 'wp-simple-firewall' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'wpv' ) )->diffForHumans()
-						),
+						'last_scan_at' => $aLatestScans[ 'wpv' ],
 					],
 					'count'   => $oSelector->countForScan( '' ),
 					'strings' => [

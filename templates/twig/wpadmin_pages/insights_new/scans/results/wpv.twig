@@ -27,17 +27,12 @@
 					{% include '/wpadmin_pages/insights_new/scans/results/common_unavailable.twig' %}
 				{% endif %}
 
-
 			</div>
 
 			<div class="card-footer">
 				<div class="row">
 					<div class="col-sm-6">
-						{% if scan.flags.has_last_scan %}
-							{{ scan.vars.last_scan_at }}
-						{% else %}
-							{{ strings.never }}
-						{% endif %}
+						{{ scan.vars.last_scan_at }}
 					</div>
 					<div class="col-sm-6 text-right">
 						<a href="{{ scan.hrefs.options }}"

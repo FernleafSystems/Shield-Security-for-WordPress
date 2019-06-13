@@ -129,11 +129,36 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return int[] - key is scan slug
+	 */
+	public function getLastScansAt() {
+		/** @var Shield\Databases\Events\Select $oSel */
+		$oSel = $this->getCon()
+					 ->getModule_Events()
+					 ->getDbHandler()
+					 ->getQuerySelector();
+		$aEvents = $oSel->getLatestForAllEvents();
+
+		$aLatest = [];
+		foreach ( $this->getDef( 'all_scan_slugs' ) as $sScan ) {
+			$sEvt = $sScan.'_scan_run';
+			$aLatest[ $sScan ] = isset( $aEvents[ $sEvt ] ) ? $aEvents[ $sEvt ]->created_at : 0;
+		}
+		return $aLatest;
+	}
+
+	/**
 	 * @param string $sScan ptg, wcf, ufc, wpv
 	 * @return int
 	 */
 	public function getLastScanAt( $sScan ) {
-		return (int)$this->getOpt( sprintf( 'insights_last_scan_%s_at', $sScan ), 0 );
+		/** @var Shield\Databases\Events\Select $oSel */
+		$oSel = $this->getCon()
+					 ->getModule_Events()
+					 ->getDbHandler()
+					 ->getQuerySelector();
+		$oEntry = $oSel->getLatestForEvent( $sScan.'_scan_run' );
+		return ( $oEntry instanceof Shield\Databases\Events\EntryVO ) ? $oEntry->created_at : 0;
 	}
 
 	/**
