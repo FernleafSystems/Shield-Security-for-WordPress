@@ -114,8 +114,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'trusted_user_roles' :
-				$sName = __( 'Trusted Users', 'wp-simple-firewall' );
-				$sSummary = __( "Comments By Users With The Following Roles Will Never Be Scanned", 'wp-simple-firewall' );
+				$sName = __( 'Trusted User Roles', 'wp-simple-firewall' );
+				$sSummary = __( "Comments From Users With These Roles Will Never Be Scanned", 'wp-simple-firewall' );
 				$sDescription = __( "Shield doesn't normally scan comments from logged-in or registered users.", 'wp-simple-firewall' )
 								.'<br />'.__( "Specify user roles here that shouldn't be scanned.", 'wp-simple-firewall' )
 								.'<br/>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) )
