@@ -55,8 +55,8 @@ let iCWP_WPSF_OptsPageRender = new function () {
 var iCWP_WPSF_Toaster = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
-		var $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
-		var $oToastBody = jQuery( '.toast-body', $oNewToast );
+		let $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
+		let $oToastBody = jQuery( '.toast-body', $oNewToast );
 		$oToastBody.html( '' );
 
 		jQuery( '<span></span>' ).html( sMessage )

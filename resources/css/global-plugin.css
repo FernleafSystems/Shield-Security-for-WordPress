@@ -297,6 +297,9 @@ tr.icwp-plugin-vulnerability dd {
 .icwp-toaster .toast-body {
 	white-space: nowrap;
 }
+.icwp-toaster.toast {
+	max-width: none;
+}
 .icwpAjaxTableContainer .tablenav {
 	padding: 5px 8px 5px 3px;
 }
