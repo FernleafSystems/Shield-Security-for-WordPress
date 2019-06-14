@@ -240,7 +240,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'vars'    => [
 						'last_scan_at' => $aLatestScans[ 'wpv' ],
 					],
-					'count'   => $oSelector->countForScan( '' ),
+					'count'   => $oSelector->countForScan( 'wpv' ),
 					'strings' => [
 						'title'    => $aScanNames[ 'wpv' ],
 						'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' )
