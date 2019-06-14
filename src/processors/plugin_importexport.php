@@ -39,15 +39,15 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			],
 			'strings' => [
 				'title_import_file'    => __( 'Import From File', 'wp-simple-firewall' ),
-				'subtitle_import_file' => __( 'Supply a previously exported options file', 'wp-simple-firewall' ),
+				'subtitle_import_file' => __( 'Upload an exported options file you downloaded from another site', 'wp-simple-firewall' ),
 				'select_import_file'   => __( 'Select file to import options from', 'wp-simple-firewall' ),
 				'i_understand'         => __( 'I Understand Existing Options Will Be Overwritten', 'wp-simple-firewall' ),
-				'be_sure'              => __( 'Please be sure that this is what you intend.', 'wp-simple-firewall' ),
+				'be_sure'              => __( 'Please be sure that this is what you want.', 'wp-simple-firewall' ),
 				'not_undone'           => __( "This action can't be undone.", 'wp-simple-firewall' ),
 				'title_import_site'    => __( "Import From Site", 'wp-simple-firewall' ),
 
 				'title_download_file'    => __( 'Download Options Export File', 'wp-simple-firewall' ),
-				'subtitle_download_file' => __( 'Use this file with another site to import options', 'wp-simple-firewall' ),
+				'subtitle_download_file' => __( 'Use this file to copy options from this site into another site', 'wp-simple-firewall' ),
 
 				'subtitle_import_site'     => __( 'Import options directly from another site', 'wp-simple-firewall' ),
 				'master_site_url'          => __( 'Master Site URL', 'wp-simple-firewall' ),
