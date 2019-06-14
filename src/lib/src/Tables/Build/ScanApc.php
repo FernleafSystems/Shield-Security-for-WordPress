@@ -18,7 +18,7 @@ class ScanApc extends ScanBase {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		$oCarbon = new Carbon();
+		$oCarbon = Services::Request()->carbon();
 
 		$oWpPlugins = Services::WpPlugins();
 		$nTs = Services::Request()->ts();

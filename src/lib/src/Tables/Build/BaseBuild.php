@@ -68,7 +68,10 @@ class BaseBuild {
 	 * @return string
 	 */
 	protected function formatTimestampField( $nTimestamp ) {
-		return ( new \Carbon\Carbon() )->setTimestamp( $nTimestamp )->diffForHumans()
+		return Services::Request()
+					   ->carbon()
+					   ->setTimestamp( $nTimestamp )
+					   ->diffForHumans()
 			   .'<br/><span class="timestamp-small">'
 			   .Services::WpGeneral()->getTimeStringForDisplay( $nTimestamp ).'</span>';
 	}

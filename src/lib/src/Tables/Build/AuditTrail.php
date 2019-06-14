@@ -39,7 +39,7 @@ class AuditTrail extends BaseBuild {
 		 */
 		if ( !empty( $aParams[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateFrom' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateFrom' ] );
-			$sTs = ( new Carbon() )
+			$sTs = Services::Request()->carbon()
 				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
 				->setTime( 0, 0 )
 				->timestamp;
@@ -48,7 +48,7 @@ class AuditTrail extends BaseBuild {
 
 		if ( !empty( $aParams[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateTo' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateTo' ] );
-			$sTs = ( new Carbon() )
+			$sTs = Services::Request()->carbon()
 				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
 				->setTime( 0, 0 )
 				->addDay()

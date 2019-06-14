@@ -63,7 +63,8 @@ class Strings {
 				'confirm_password'             => __( 'Confirm Password', 'wp-simple-firewall' ),
 				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
 
-				'offense' => __( 'offense', 'wp-simple-firewall' )
+				'offense' => __( 'offense', 'wp-simple-firewall' ),
+				'debug' => __( 'Debug', 'wp-simple-firewall' ),
 			],
 			$this->getAdditionalDisplayStrings()
 		);

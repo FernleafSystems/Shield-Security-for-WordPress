@@ -64,11 +64,10 @@ class Strings extends Base\Strings {
 			'box_welcome_title'   => sprintf( __( 'Welcome To %s Security Insights Dashboard', 'wp-simple-firewall' ), $sName ),
 			'box_receve_subtitle' => sprintf( __( 'Some of the most recent %s events', 'wp-simple-firewall' ), $sName ),
 			'options'             => __( 'Options', 'wp-simple-firewall' ),
-			'not_available'       => __( 'Sorry, this feature would typically be used by professionals and so is a Pro-only feature.', 'wp-simple-firewall' ),
+			'not_available'       => __( 'Sorry, this feature is included with Pro subscriptions.', 'wp-simple-firewall' ),
 			'not_enabled'         => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
-			'please_upgrade'      => __( 'You can activate this feature (along with many others) and support development of this plugin by going pro.', 'wp-simple-firewall' ),
-			'please_enable'       => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
-			'only_1_dollar'       => __( 'for just $1/month', 'wp-simple-firewall' ),
+			'please_upgrade'      => __( 'You can get this feature (along with loads more) by going Pro.', 'wp-simple-firewall' ),
+			'please_enable'       => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' )
 		];
 	}
 }

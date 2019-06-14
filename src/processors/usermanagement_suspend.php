@@ -120,7 +120,10 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 						if ( $oMeta->hard_suspended_at > 0 ) {
 							$sNewContent = sprintf( '%s: %s',
 								__( 'Suspended', 'wp-simple-firewall' ),
-								( new \Carbon\Carbon() )->setTimestamp( $oMeta->hard_suspended_at )->diffForHumans()
+								Services::Request()
+										->carbon()
+										->setTimestamp( $oMeta->hard_suspended_at )
+										->diffForHumans()
 							);
 							$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
 						}

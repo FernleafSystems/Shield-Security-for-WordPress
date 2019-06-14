@@ -24,18 +24,55 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$aData = [
-			'vars'  => [
+			'vars'    => [
 				'form_nonce'  => $oMod->getNonceActionData( 'import_file_upload' ),
 				'form_action' => $oMod->getUrl_AdminPage()
 			],
-			'ajax'  => [
+			'ajax'    => [
 				'import_from_site' => $oMod->getAjaxActionData( 'import_from_site', true ),
 			],
-			'flags' => [
+			'flags'   => [
 				'can_importexport' => $this->getCon()->isPremiumActive(),
 			],
-			'hrefs' => [
+			'hrefs'   => [
 				'export_file_download' => $this->createExportFileDownloadLink()
+			],
+			'strings' => [
+				'title_import_file'    => __( 'Import From File', 'wp-simple-firewall' ),
+				'subtitle_import_file' => __( 'Supply a previously exported options file', 'wp-simple-firewall' ),
+				'select_import_file'   => __( 'Select file to import options from', 'wp-simple-firewall' ),
+				'i_understand'         => __( 'I Understand Existing Options Will Be Overwritten', 'wp-simple-firewall' ),
+				'be_sure'              => __( 'Please be sure that this is what you intend.', 'wp-simple-firewall' ),
+				'not_undone'           => __( "This action can't be undone.", 'wp-simple-firewall' ),
+				'title_import_site'    => __( "Import From Site", 'wp-simple-firewall' ),
+
+				'title_download_file'    => __( 'Download Options Export File', 'wp-simple-firewall' ),
+				'subtitle_download_file' => __( 'Use this file with another site to import options', 'wp-simple-firewall' ),
+
+				'subtitle_import_site'     => __( 'Import options directly from another site', 'wp-simple-firewall' ),
+				'master_site_url'          => __( 'Master Site URL', 'wp-simple-firewall' ),
+				'remember_include'         => sprintf(
+					__( 'Remember to include %s or %s', 'wp-simple-firewall' ),
+					'<code>https://</code>',
+					'<code>http://</code>'
+				),
+				'secret_key'               => __( 'Secret Key', 'wp-simple-firewall' ),
+				'master_site_key'          => __( 'Master Site Secret Key', 'wp-simple-firewall' ),
+				'create_network'           => __( 'Create Shield Network', 'wp-simple-firewall' ),
+				'key_found_under'          => sprintf( __( 'The secret key is found in: %s', 'wp-simple-firewall' ),
+					ucwords( sprintf( '%s > %s > %s ', __( 'General Settings', 'wp-simple-firewall' ), __( 'Import/Export', 'wp-simple-firewall' ), __( 'Secret Key', 'wp-simple-firewall' ) ) )
+				),
+				'turn_on'                  => __( 'Turn On', 'wp-simple-firewall' ),
+				'turn_off'                 => __( 'Turn Off', 'wp-simple-firewall' ),
+				'no_change'                => __( 'No Change', 'wp-simple-firewall' ),
+				'network_explain'          => [
+					__( 'Checking this option on will link this site to Master site.', 'wp-simple-firewall' ),
+					__( 'Options will be automatically imported from the Master site each night', 'wp-simple-firewall' ),
+					__( 'When you adjust options on the Master site, they will be reflected in this site after the automatic import', 'wp-simple-firewall' ),
+				],
+				'import_options'           => __( 'Import Options', 'wp-simple-firewall' ),
+				'downloading_please_wait'  => __( 'Downloading file, please wait..."', 'wp-simple-firewall' ),
+				'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 			]
 		];
 
@@ -163,7 +200,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 			'# Hash: '.sha1( $sExport ),
 			$sExport
 		];
-		Services::Data()->downloadStringAsFile(
+		Services::Response()->downloadStringAsFile(
 			implode( "\n", $aData ),
 			sprintf( 'shieldexport-%s-%s.json',
 				Services::WpGeneral()->getHomeUrl( '', true ),
@@ -177,7 +214,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 	 */
 	public function importFromUploadFile() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new \Exception( 'Not currently logged-in as admin' );
+			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
 		}
 
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
@@ -187,19 +224,19 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$oFs = Services::WpFs();
 		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
 			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
-			throw new \Exception( 'Please select a file to upload' );
+			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) );
 		}
 		if ( $_FILES[ 'import_file' ][ 'size' ] == 0
 			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
 			 || !$oFs->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
 			 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0
 		) {
-			throw new \Exception( 'Uploading of file failed' );
+			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
 		}
 
 		$sContent = Services::WpFs()->getFileContent( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 		if ( empty( $sContent ) ) {
-			throw new \Exception( 'File uploaded was empty' );
+			throw new \Exception( __( 'Uploaded file was empty', 'wp-simple-firewall' ) );
 		}
 
 		{//filter any comment lines
@@ -210,13 +247,13 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 				}
 			);
 			if ( empty( $aParts ) ) {
-				throw new \Exception( 'Options JSON could not be found in uploaded content.' );
+				throw new \Exception( __( 'Options data could not be found in uploaded file', 'wp-simple-firewall' ) );
 			}
 		}
 		{//parse the options json
 			$aData = @json_decode( array_shift( $aParts ), true );
 			if ( empty( $aData ) || !is_array( $aData ) ) {
-				throw new \Exception( 'Uploaded options data was not of the correct format' );
+				throw new \Exception( __( 'Uploaded options data was not of the correct format', 'wp-simple-firewall' ) );
 			}
 		}
 

@@ -616,7 +616,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	public function buildInsightsVars() {
 		$oWp = Services::WpGeneral();
-		$oCarbon = new \Carbon\Carbon();
+		$oCarbon = Services::Request()->carbon();
 
 		$oCurrent = $this->loadLicense();
 

@@ -37,7 +37,7 @@
 	<div class="col-5">
 		<div class="card license-summary">
 			<div class="card-header">
-				<h5 class="mb-0">License Summary</h5>
+				<h5 class="mb-0">{{ strings.title_license_summary }}</h5>
 			</div>
 			<div class="card-body">
 				<table class="table table-hover table-sm mb-0">
@@ -55,7 +55,7 @@
 
 		<div class="card">
 			<div class="card-header">
-				<h5 class="mb-0">License Activation</h5>
+				<h5 class="mb-0">{{ strings.title_license_activation }}</h5>
 			</div>
 			<div class="card-body">
 				<form method="post" class="licenseForm">
@@ -63,20 +63,21 @@
 						<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
 					{% endfor %}
 					<input type="hidden" name="license-action" value="check" />
-					<label>Check License Availability For This Site</label>
+					<label>{{ strings.check_availability }}</label>
 					<button class="btn btn-info m-2" type="submit"
 							{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
-						Check License
+						{{ strings.check_license }}
 					</button>
 
 					<div class="form-text text-muted">
 						<ol>
-							<li class="font-weight-bold">Activate Site in
-								<a target="_blank" href="{{ aHrefs.keyless_cp }}">Keyless Activation Control Panel</a>
+							<li class="font-weight-bold">
+								<a target="_blank" href="{{ aHrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
 							</li>
-							<li>URL To Activate: <code class="font-weight-bold">{{ vars.activation_url }}</code></li>
-							<li>Licenses may only be checked once in 20 seconds.
-								<br />(more frequent checks will be skipped)
+							<li>{{ strings.url_to_activate }}:
+								<code class="font-weight-bold">{{ vars.activation_url }}</code></li>
+							<li>{{ strings.license_check_limit }}.
+								<br />({{ strings.more_frequent }})
 							</li>
 						</ol>
 					</div>
@@ -88,8 +89,8 @@
 						<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
 					{% endfor %}
 					<p class="mb-0 text-right">
-						In case of activation problems, click the link:
-						<button class="btn btn-link btn-sm p-0" type="submit">[Debug]</button>
+						{{ strings.incase_debug }}:
+						<button class="btn btn-link btn-sm p-0" type="submit">[{{ strings.debug }}]</button>
 					</p>
 				</form>
 			</div>

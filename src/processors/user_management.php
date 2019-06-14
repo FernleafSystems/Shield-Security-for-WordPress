@@ -131,7 +131,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 					if ( $oUser instanceof \WP_User ) {
 						$nLastLoginTime = $this->getCon()->getUserMeta( $oUser )->last_login_at;
 						if ( $nLastLoginTime > 0 ) {
-							$sValue = ( new \Carbon\Carbon() )->setTimestamp( $nLastLoginTime )->diffForHumans();
+							$sValue = Services::Request()
+											  ->carbon()
+											  ->setTimestamp( $nLastLoginTime )
+											  ->diffForHumans();
 						}
 					}
 					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $sValue );

@@ -11,6 +11,19 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAdditionalDisplayStrings() {
 		return [
+			'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
+			'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
+			'check_availability'       => __( 'Check License Availability For This Site', 'wp-simple-firewall' ),
+			'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
+			'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
+			'activate_site_in'         => sprintf(
+				__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
+				__( 'Keyless Activation' )
+			),
+			'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
+			'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
+			'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
+
 			'product_name'    => __( 'Name', 'wp-simple-firewall' ),
 			'license_active'  => __( 'Active', 'wp-simple-firewall' ),
 			'license_status'  => __( 'Status', 'wp-simple-firewall' ),

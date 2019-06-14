@@ -3,8 +3,8 @@
 	<div class="col-12">
 		<div class="insights_widget card">
 			<div class="card-header">
-				<h5 class="card-title">Import Options From File</h5>
-				<h6 class="card-subtitle text-muted">Supply a previously exported options file</h6>
+				<h5 class="card-title">{{ strings.title_import_file }}</h5>
+				<h6 class="card-subtitle text-muted">{{ strings.subtitle_import_file }}</h6>
 			</div>
 			<div class="card-body p-4">
 				<form id="ImportExportFileForm" autocomplete="off" method="post"
@@ -13,23 +13,22 @@
 						<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
 					{% endfor %}
 					<div class="form-group">
-						<label for="ImportFile">Select Options Import File</label>
-						<input name="import_file" type="file" class="form-control-file" id="ImportFile">
+						<label for="ImportFile">{{ strings.select_import_file }}</label>
+						<input name="import_file" type="file" class="form-control-file" id="ImportFile"
+							   accept=".json">
 					</div>
 					<div class="form-group">
 						<label for="_confirm_file" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
 								   name="confirm" id="_confirm_file" value="Y" />
-							Yes, I Understand Existing Options Will Be Overwritten
+							{{ strings.i_understand }}
 							<br />
-							<small class="form-text text-muted">
-								Please be sure that this is what you intend - it can't be undone.
-							</small>
+							<small class="form-text text-muted">{{ strings.be_sure }} {{ strings.not_undone }}</small>
 						</label>
 					</div>
 					<div class="form-group text-right">
 						<input id="SubmitForm" href="#" class="btn btn-primary" type="submit"
-							   value="Import Options From File" />
+							   value="{{ strings.import_options }}" />
 					</div>
 				</form>
 			</div>
@@ -39,14 +38,14 @@
 	<div class="col-12 insights_section">
 		<div class="insights_widget card">
 			<div class="card-header">
-				<h5 class="card-title">Download Export File</h5>
-				<h6 class="card-subtitle text-muted">Use this file on another site to import options</h6>
+				<h5 class="card-title">{{ strings.title_download_file }}</h5>
+				<h6 class="card-subtitle text-muted">{{ strings.subtitle_download_file }}</h6>
 			</div>
 			<div class="card-body p-4">
 				<div class="" id="">
 					<div class="form-group text-right">
 						<a id="ExportDownload" href="{{ hrefs.export_file_download }}"
-						   class="btn btn-primary" type="submit">Download Options Export File</a>
+						   class="btn btn-primary" type="submit">{{ strings.title_download_file }}</a>
 					</div>
 				</div>
 			</div>
@@ -60,8 +59,8 @@
 		jQuery( document ).on( "click", "a#ExportDownload", function () {
 			event.preventDefault();
 			jQuery.fileDownload( jQuery( this ).attr( 'href' ), {
-				preparingMessageHtml: "Downloading file, please wait...",
-				failMessageHtml: "There was a problem downloading the file."
+				preparingMessageHtml: "{{ strings.downloading_please_wait }}",
+				failMessageHtml: "{{ strings.problem_downloading_file }}"
 			} );
 			return false;
 		} );
