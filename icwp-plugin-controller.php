@@ -360,10 +360,28 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * In order to prevent certain errors when the back button is used
+	 * @param array $aHeaders
+	 * @return array
+	 */
+	public function adjustNocacheHeaders( $aHeaders ) {
+		if ( is_array( $aHeaders ) && !empty( $aHeaders[ 'Cache-Control' ] ) ) {
+			$aHs = array_map( 'trim', explode( ',', $aHeaders[ 'Cache-Control' ] ) );
+			$aHs[] = 'no-store';
+			$aHeaders[ 'Cache-Control' ] = implode( ', ', array_unique( $aHs ) );
+		}
+		return $aHeaders;
+	}
+
+	/**
 	 */
 	public function onWpInit() {
 		$this->getMeetsBasePermissions();
 		add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueFrontendCss' ], 99 );
+
+		if ( $this->isModulePage() ) {
+			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
+		}
 	}
 
 	/**
