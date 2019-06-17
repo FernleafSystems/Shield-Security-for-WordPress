@@ -357,6 +357,10 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 		if ( Services::Request()->query( $this->prefix( 'runtests' ) ) && $this->isPluginAdmin() ) {
 			$this->runTests();
 		};
+
+		if ( function_exists( 'wp_add_privacy_policy_content' ) ) {
+			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
+		}
 	}
 
 	/**
@@ -1935,6 +1939,36 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 			$aResult = apply_filters( $this->prefix( 'wpPrivacyErase' ), $aResult, $sEmail, $nPage );
 		}
 		return $aResult;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function buildPrivacyPolicyContent() {
+		try {
+			if ( $this->getModule_SecAdmin()->isWlEnabled() ) {
+				$sName = $this->getHumanName();
+				$sHref = $this->getLabels()[ 'PluginURI' ];
+			}
+			else {
+				$sName = $this->getPluginSpec_Menu( 'title' );
+				$sHref = $this->getPluginSpec()[ 'meta' ][ 'privacy_policy_href' ];
+			}
+			$sContent = $this->loadRenderer( $this->getPath_Templates() )
+							 ->setTemplate( 'snippets/privacy_policy' )
+							 ->setTemplateEngineTwig()
+							 ->setRenderVars(
+								 [
+									 'name' => $sName,
+									 'href' => $sHref
+								 ]
+							 )
+							 ->render();
+		}
+		catch ( \Exception $oE ) {
+			$sContent = '';
+		}
+		return empty( $sContent ) ? '' : wp_kses_post( wpautop( $sContent, false ) );
 	}
 
 	/**

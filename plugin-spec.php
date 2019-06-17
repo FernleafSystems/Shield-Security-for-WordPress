@@ -84,7 +84,8 @@
   },
   "meta":         {
     "url_repo_home":        "https://icwp.io/eh",
-    "headway_changelog_id": "xaoEZJ"
+    "headway_changelog_id": "xaoEZJ",
+    "privacy_policy_href": "https://icwp.io/shieldprivacypolicy"
   },
   "plugin_meta":  [
     {

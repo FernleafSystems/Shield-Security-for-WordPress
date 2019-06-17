@@ -29,6 +29,7 @@
       "slug":        "section_bot_comment_spam_protection_filter",
       "title":       "Automatic Bot Comment SPAM Protection Filter",
       "title_short": "Bot SPAM",
+      "primary":     true,
       "summary":     [
         "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
         "Recommendation - Use of this feature is highly recommend."
@@ -55,7 +56,6 @@
     },
     {
       "slug":        "section_bot_comment_spam_common",
-      "primary":     true,
       "title":       "Common Settings For All SPAM Scanning",
       "title_short": "Common Settings",
       "summary":     [

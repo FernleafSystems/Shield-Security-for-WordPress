@@ -131,7 +131,7 @@
     {
       "key":           "auto_expire",
       "section":       "section_auto_black_list",
-      "default":       "hour",
+      "default":       "day",
       "type":          "select",
       "value_options": [
         {

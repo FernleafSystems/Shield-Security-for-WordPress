@@ -18,6 +18,7 @@
   "sections":    [
     {
       "slug":        "section_enable_audit_contexts",
+      "primary":     true,
       "title":       "Enable Audit Contexts",
       "title_short": "Audit Contexts",
       "summary":     [
@@ -27,7 +28,6 @@
     },
     {
       "slug":        "section_audit_trail_options",
-      "primary":     true,
       "title":       "Audit Trail Options",
       "title_short": "Options",
       "summary":     [
