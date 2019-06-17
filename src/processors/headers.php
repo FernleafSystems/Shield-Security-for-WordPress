@@ -19,8 +19,8 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->sendHeaders();
 		}
 		else {
-			add_filter( 'wp_headers', [ $this, 'addToHeaders' ] );
-			add_action( 'send_headers', [ $this, 'sendHeaders' ], 100, 0 );
+			add_filter( 'wp_headers', [ $this, 'addToHeaders' ], PHP_INT_MAX );
+			add_action( 'send_headers', [ $this, 'sendHeaders' ], PHP_INT_MAX, 0 );
 		}
 	}
 
@@ -32,26 +32,62 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
+	 * Tries to ensure duplicate headers are not sent. Previously sent/supplied headers take priority.
+	 * @param array $aCurrentWpHeaders
+	 * @return array
+	 */
+	public function addToHeaders( $aCurrentWpHeaders ) {
+		if ( !$this->isHeadersPushed() ) {
+			$aAlreadySentHeaders = array_map(
+				function ( $sHeader ) {
+					return strtolower( trim( $sHeader ) );
+				},
+				array_keys( $aCurrentWpHeaders )
+			);
+			foreach ( $this->gatherSecurityHeaders() as $sHeader => $sValue ) {
+				if ( !in_array( strtolower( $sHeader ), $aAlreadySentHeaders ) ) {
+					$aCurrentWpHeaders[ $sHeader ] = $sValue;
+				}
+			}
+			$this->setHeadersPushed( true );
+		}
+		return $aCurrentWpHeaders;
+	}
+
+	/**
+	 * Tries to ensure duplicate headers are not sent.
 	 */
 	public function sendHeaders() {
 		if ( !$this->isHeadersPushed() ) {
+			$aAlreadySent = array_map( 'strtolower', array_keys( $this->getAlreadySentHeaders() ) );
 			foreach ( $this->gatherSecurityHeaders() as $sName => $sValue ) {
-				@header( sprintf( '%s: %s', $sName, $sValue ) );
+				if ( !in_array( strtolower( $sName ), $aAlreadySent ) ) {
+					@header( sprintf( '%s: %s', $sName, $sValue ) );
+				}
 			}
 			$this->setHeadersPushed( true );
 		}
 	}
 
 	/**
-	 * @param array $aCurrentWpHeaders
-	 * @return array
+	 * @return string[] - array of all previously sent headers. Keys are header names, values are header values.
 	 */
-	public function addToHeaders( $aCurrentWpHeaders ) {
-		if ( !$this->isHeadersPushed() ) {
-			$aCurrentWpHeaders = array_merge( $aCurrentWpHeaders, $this->gatherSecurityHeaders() );
-			$this->setHeadersPushed( true );
+	private function getAlreadySentHeaders() {
+		$aHeaders = [];
+
+		if ( function_exists( 'headers_list' ) ) {
+			$aSent = headers_list();
+			if ( is_array( $aSent ) ) {
+				foreach ( $aSent as $sHeader ) {
+					if ( strpos( $sHeader, ':' ) ) {
+						list( $sKey, $sValue ) = array_map( 'trim', explode( ':', $sHeader, 2 ) );
+						$aHeaders[ $sKey ] = $sValue;
+					}
+				}
+			}
 		}
-		return $aCurrentWpHeaders;
+
+		return $aHeaders;
 	}
 
 	/**
