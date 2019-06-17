@@ -944,32 +944,32 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$oCon = $this->getCon();
 
 		$aData = [
-			'ajax' => [
+			'ajax'    => [
 				'plugin_badge_close' => $this->getAjaxActionData( 'plugin_badge_close', true ),
+			],
+			'flags'   => [
+				'nofollow' => apply_filters( 'icwp_shield_badge_relnofollow', false ),
+			],
+			'hrefs'   => [
+				'logo' => $oCon->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
+			],
+			'strings' => [
+				'link' => apply_filters( 'icwp_shield_plugin_badge_text', sprintf(
+					__( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
+					sprintf(
+						'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
+						$oCon->getHumanName()
+					)
+				) ),
+				'name' => $oCon->getHumanName()
 			]
 		];
-		$sContents = $this->loadRenderer( $oCon->getPath_Templates() )
-						  ->setTemplateEnginePhp()
-						  ->clearRenderVars()
-						  ->setRenderVars( $aData )
-						  ->setTemplate( 'snippets/plugin_badge' )
-						  ->render();
-
-		$sBadgeText = sprintf(
-			__( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
-			sprintf(
-				'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
-				$oCon->getHumanName()
-			)
-		);
-		$sBadgeText = apply_filters( 'icwp_shield_plugin_badge_text', $sBadgeText );
-		$bNoFollow = apply_filters( 'icwp_shield_badge_relnofollow', false );
-		return sprintf( $sContents,
-			$bNoFollow ? 'rel="nofollow"' : '',
-			$oCon->getPluginUrl_Image( 'pluginlogo_32x32.png' ),
-			$oCon->getHumanName(),
-			$sBadgeText
-		);
+		return $this->loadRenderer( $oCon->getPath_Templates() )
+					->setTemplateEnginePhp()
+					->clearRenderVars()
+					->setRenderVars( $aData )
+					->setTemplate( 'snippets/plugin_badge' )
+					->render();
 	}
 
 	/**
