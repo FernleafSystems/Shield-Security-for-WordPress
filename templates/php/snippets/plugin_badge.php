@@ -14,9 +14,10 @@
 		text-align: left;
 		width: 38px;
 		z-index: 10000;
+		text-wrap: none;
+
 		-webkit-transition: width 0.25s; /* Safari */
 		transition: width 0.25s;
-		text-wrap: none;
 		transition-delay: 1s
 	}
 	#icwpWpsfSiteBadge:hover {
@@ -44,8 +45,14 @@
 		padding-left: 43px;
 		letter-spacing: 0;
 		-webkit-transition: opacity 1s; /* Safari */
-		transition: opacity 1s;
-		text-wrap: none;
+
+		opacity: 0;
+		transition: opacity 0.3s;
+		transition-delay: 1s;
+	}
+	#icwpWpsfSiteBadge:hover .badge-text {
+		opacity: 1;
+		transition-delay: 0s;
 	}
 	#icwpWpsfSiteBadge img {
 		float: left;
