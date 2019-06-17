@@ -94,10 +94,11 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param array $aNoticeAttributes
 	 */
 	public function addNotice_email_verification_sent( $aNoticeAttributes ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isEmailAuthenticationOptionOn() && !$oFO->isEmailAuthenticationActive() && !$oFO->getIfCanSendEmailVerified() ) {
+		if ( $oMod->isEmailAuthenticationOptionOn()
+			 && !$oMod->isEmailAuthenticationActive() && !$oMod->getIfCanSendEmailVerified() ) {
 			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
@@ -113,8 +114,8 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
 				],
 				'ajax'              => [
-					'resend_verification_email' => $oFO->getAjaxActionData( 'resend_verification_email', true ),
-					'disable_2fa_email'         => $oFO->getAjaxActionData( 'disable_2fa_email', true ),
+					'resend_verification_email' => $oMod->getAjaxActionData( 'resend_verification_email', true ),
+					'disable_2fa_email'         => $oMod->getAjaxActionData( 'disable_2fa_email', true ),
 				]
 			];
 			$this->insertAdminNotice( $aRenderData );

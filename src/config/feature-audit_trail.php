@@ -17,21 +17,21 @@
   },
   "sections":    [
     {
+      "slug":        "section_enable_audit_contexts",
+      "title":       "Enable Audit Contexts",
+      "title_short": "Audit Contexts",
+      "summary":     [
+        "Purpose - Specify which types of actions on your site are logged.",
+        "Recommendation - These settings are dependent on your requirements."
+      ]
+    },
+    {
       "slug":        "section_audit_trail_options",
       "primary":     true,
       "title":       "Audit Trail Options",
       "title_short": "Options",
       "summary":     [
         "Purpose - Provides finer control over the audit trail itself.",
-        "Recommendation - These settings are dependent on your requirements."
-      ]
-    },
-    {
-      "slug":        "section_enable_audit_contexts",
-      "title":       "Enable Audit Contexts",
-      "title_short": "Audit Contexts",
-      "summary":     [
-        "Purpose - Specify which types of actions on your site are logged.",
         "Recommendation - These settings are dependent on your requirements."
       ]
     },
@@ -231,7 +231,7 @@
     }
   ],
   "definitions": {
-    "audit_trail_default_max_entries": 50,
+    "audit_trail_default_max_entries": 100,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [
       "id",
