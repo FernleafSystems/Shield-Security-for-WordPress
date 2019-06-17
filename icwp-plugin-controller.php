@@ -1959,8 +1959,9 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 							 ->setTemplateEngineTwig()
 							 ->setRenderVars(
 								 [
-									 'name' => $sName,
-									 'href' => $sHref
+									 'name'             => $sName,
+									 'href'             => $sHref,
+									 'audit_trail_days' => $this->getModule_AuditTrail()->getAutoCleanDays()
 								 ]
 							 )
 							 ->render();
