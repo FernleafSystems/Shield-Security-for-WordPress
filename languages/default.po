@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-06-20 12:21+0100\n"
-"PO-Revision-Date: 2019-06-20 12:21+0100\n"
+"POT-Creation-Date: 2019-06-20 12:52+0100\n"
+"PO-Revision-Date: 2019-06-20 12:52+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -823,6 +823,11 @@ msgstr ""
 #: src/features/insights.php:104
 #, php-format
 msgid "Offenses required for IP block: %s"
+msgstr ""
+
+#: src/features/insights.php:108
+#, php-format
+msgid "Black listed IPs auto-expire after: %s"
 msgstr ""
 
 #: src/features/insights.php:115 src/lib/src/Modules/Plugin/Strings.php:378
@@ -8012,11 +8017,11 @@ msgid "Run the selected scans on your site now to get the latest results"
 msgstr ""
 
 #: src/processors/hack_protect.php:137
-msgid "The more items that are selected, the longer the scan may take "
+msgid "The more scans that are selected, the longer the scan may take."
 msgstr ""
 
 #: src/processors/hack_protect.php:139
-msgid "Select Scans"
+msgid "Select Scans To Run"
 msgstr ""
 
 #: src/processors/hack_protect.php:140
@@ -8024,7 +8029,8 @@ msgid "Clear Ignore Flags"
 msgstr ""
 
 #: src/processors/hack_protect.php:141
-msgid "Previously ignored results will be revealed (for selected scans only)"
+msgid ""
+"Previously ignored results will be revealed (for the selected scans only)"
 msgstr ""
 
 #: src/processors/hack_protect.php:142
@@ -8032,7 +8038,7 @@ msgid "Remove Notification Suppression"
 msgstr ""
 
 #: src/processors/hack_protect.php:143
-msgid "Allow notification emails to be resent (for selected scans only)"
+msgid "Allow notification emails to be resent (for the selected scans only)"
 msgstr ""
 
 #: src/processors/hack_protect.php:144
