@@ -147,7 +147,7 @@ class Strings extends Base\Strings {
 
 			case 'visitor_address_source' :
 				$sName = __( 'IP Source', 'wp-simple-firewall' );
-				$sSummary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' ).'?';
+				$sSummary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );
 				$sDescription = __( 'There are many possible ways to detect visitor IP addresses. If Auto-Detect is not working, please select yours from the list.', 'wp-simple-firewall' )
 								.'<br />'.__( 'If the option you select becomes unavailable, we will revert to auto detection.', 'wp-simple-firewall' )
 								.'<br />'.sprintf(

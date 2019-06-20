@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-06-20 11:41+0100\n"
-"PO-Revision-Date: 2019-06-20 11:42+0100\n"
+"POT-Creation-Date: 2019-06-20 12:21+0100\n"
+"PO-Revision-Date: 2019-06-20 12:21+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -128,7 +128,7 @@ msgstr ""
 msgid "The Security Admin protection is not active."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:541
+#: src/features/admin_access_restriction.php:541 src/features/insights.php:264
 #, php-format
 msgid "Go To %s"
 msgstr ""
@@ -336,37 +336,37 @@ msgstr ""
 msgid "%s isn't automatically updated"
 msgstr ""
 
-#: src/features/base.php:813 src/wizards/plugin.php:488
+#: src/features/base.php:811 src/wizards/plugin.php:488
 #: src/wizards/plugin.php:521 src/wizards/plugin.php:557
 #: src/wizards/plugin.php:701
 msgid "Disabled"
 msgstr ""
 
-#: src/features/base.php:1110
+#: src/features/base.php:1108
 msgid ""
 "Unfortunately your WordPress and/or PHP versions are too old to support this "
 "feature."
 msgstr ""
 
-#: src/features/base.php:1264
+#: src/features/base.php:1262
 #, php-format
 msgid "%s Plugin options updated successfully."
 msgstr ""
 
-#: src/features/base.php:1268
+#: src/features/base.php:1266
 #, php-format
 msgid "Failed to update %s plugin options."
 msgstr ""
 
-#: src/features/base.php:1300
+#: src/features/base.php:1298
 msgid "You don't currently have permission to save settings."
 msgstr ""
 
-#: src/features/base.php:1389
+#: src/features/base.php:1387
 msgid "Password values do not match."
 msgstr ""
 
-#: src/features/base.php:1642 src/lib/src/Modules/AuditTrail/Strings.php:195
+#: src/features/base.php:1640 src/lib/src/Modules/AuditTrail/Strings.php:195
 #: src/lib/src/Modules/HackGuard/Strings.php:194
 #: src/lib/src/Modules/HackGuard/Strings.php:268
 #: src/lib/src/Modules/LoginGuard/Strings.php:265
@@ -378,11 +378,11 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: src/features/base.php:1649
+#: src/features/base.php:1647
 msgid "For more information:"
 msgstr ""
 
-#: src/features/base.php:1650 src/processors/base_plugin.php:65
+#: src/features/base.php:1648 src/processors/base_plugin.php:65
 msgid "Support Forums"
 msgstr ""
 
@@ -951,11 +951,6 @@ msgstr ""
 
 #: src/features/insights.php:262
 msgid "click to toggle"
-msgstr ""
-
-#: src/features/insights.php:264
-#, php-format
-msgid "Go to %s"
 msgstr ""
 
 #: src/features/insights.php:267 src/lib/src/Modules/License/Strings.php:30
@@ -2085,7 +2080,7 @@ msgstr ""
 #: src/lib/src/Modules/Autoupdates/Strings.php:42
 #: src/lib/src/Modules/Autoupdates/Strings.php:53
 #: src/lib/src/Modules/Autoupdates/Strings.php:63
-#: src/lib/src/Modules/Base/Strings.php:118
+#: src/lib/src/Modules/Base/Strings.php:120
 #: src/lib/src/Modules/CommentsFilter/Strings.php:41
 #: src/lib/src/Modules/CommentsFilter/Strings.php:50
 #: src/lib/src/Modules/CommentsFilter/Strings.php:57
@@ -2155,7 +2150,7 @@ msgstr ""
 #: src/lib/src/Modules/Autoupdates/Strings.php:33
 #: src/lib/src/Modules/Autoupdates/Strings.php:45
 #: src/lib/src/Modules/Autoupdates/Strings.php:54
-#: src/lib/src/Modules/Base/Strings.php:119
+#: src/lib/src/Modules/Base/Strings.php:121
 #: src/lib/src/Modules/CommentsFilter/Strings.php:42
 #: src/lib/src/Modules/CommentsFilter/Strings.php:58
 #: src/lib/src/Modules/CommentsFilter/Strings.php:68
@@ -2766,78 +2761,88 @@ msgid "Please upgrade to Pro to control this option"
 msgstr ""
 
 #: src/lib/src/Modules/Base/Strings.php:55
+#: src/lib/src/Modules/SecurityAdmin/Strings.php:208
+msgid "Description"
+msgstr ""
+
+#: src/lib/src/Modules/Base/Strings.php:56 src/processors/ips.php:307
+#: src/processors/loginprotect_gasp.php:31
+msgid "Loading"
+msgstr ""
+
+#: src/lib/src/Modules/Base/Strings.php:57
 msgid "Plugin Access Restricted"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:56
+#: src/lib/src/Modules/Base/Strings.php:58
 msgid ""
 "This security plugin is restricted to administrators with the Security "
 "Access Key."
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:57
+#: src/lib/src/Modules/Base/Strings.php:59
 msgid "Please provide the Security Access Key to manage this plugin."
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:58
+#: src/lib/src/Modules/Base/Strings.php:60
 msgid "To manage this plugin you must enter the access key."
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:59
+#: src/lib/src/Modules/Base/Strings.php:61
 msgid "Enter Access Key"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:60
+#: src/lib/src/Modules/Base/Strings.php:62
 msgid "Submit Security Admin Key"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:61
+#: src/lib/src/Modules/Base/Strings.php:63
 msgid "Forgotten Key"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:62
+#: src/lib/src/Modules/Base/Strings.php:64
 msgid "Supply Password"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:63
+#: src/lib/src/Modules/Base/Strings.php:65
 msgid "Confirm Password"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:64
+#: src/lib/src/Modules/Base/Strings.php:66
 msgid "Show help video for this section"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:66
+#: src/lib/src/Modules/Base/Strings.php:68
 msgid "offense"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:67
+#: src/lib/src/Modules/Base/Strings.php:69
 msgid "Debug"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:115
+#: src/lib/src/Modules/Base/Strings.php:117
 msgid "User Messages"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:116
+#: src/lib/src/Modules/Base/Strings.php:118
 msgid "Messages"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:118
+#: src/lib/src/Modules/Base/Strings.php:120
 msgid "Customize the messages displayed to the user."
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:119
+#: src/lib/src/Modules/Base/Strings.php:121
 msgid ""
 "Use this section if you need to communicate to the user in a particular "
 "manner."
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:120
+#: src/lib/src/Modules/Base/Strings.php:122
 msgid "Hint"
 msgstr ""
 
-#: src/lib/src/Modules/Base/Strings.php:120
+#: src/lib/src/Modules/Base/Strings.php:122
 #, php-format
 msgid "To reset any message to its default, enter the text exactly: %s"
 msgstr ""
@@ -6929,10 +6934,6 @@ msgstr ""
 msgid "Provide the name of your company."
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/Strings.php:208
-msgid "Description"
-msgstr ""
-
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:209
 msgid "The Description Of The Plugin"
 msgstr ""
@@ -8415,10 +8416,6 @@ msgstr ""
 
 #: src/processors/ips.php:303 src/processors/loginprotect_gasp.php:27
 msgid "You MUST enable Javascript to be able to login"
-msgstr ""
-
-#: src/processors/ips.php:307 src/processors/loginprotect_gasp.php:31
-msgid "Loading"
 msgstr ""
 
 #: src/processors/ips.php:527

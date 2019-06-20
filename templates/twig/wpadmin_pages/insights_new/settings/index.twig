@@ -2,9 +2,6 @@
 
 {% block page_main %}
 	<div class="row" id="ModulePageTopRow">
-		<div class="col" id="ColumnOptions">
-			<div class="content-options"> Loading ... </div>
-		</div>
 		<div class="col-1 modules smoothwidth" id="ColumnModules">
 
 			<div class="nav flex-column">
@@ -20,6 +17,9 @@
 					</a>
 				{% endfor %}
 			</div>
+		</div>
+		<div class="col" id="ColumnOptions">
+			<div class="content-options"> {{ strings.loading }} ... </div>
 		</div>
 	</div>
 	<script>

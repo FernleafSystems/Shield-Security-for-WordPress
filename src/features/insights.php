@@ -261,7 +261,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'configuration_summary'     => __( 'Plugin Configuration Summary', 'wp-simple-firewall' ),
 						'click_to_toggle'           => __( 'click to toggle', 'wp-simple-firewall' ),
 						'go_to_options'             => sprintf(
-							__( 'Go to %s', 'wp-simple-firewall' ),
+							__( 'Go To %s', 'wp-simple-firewall' ),
 							__( 'Options' )
 						),
 						'key'                       => __( 'Key' ),

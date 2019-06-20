@@ -647,6 +647,8 @@ input:checked + .icwp-slider:before {
 #ColumnModules {
 	text-align: center;
 	border-left: 1px solid rgba(0, 0, 0, 0.05);
+	max-width: 85px;
+	margin-top: 10px;
 }
 #ColumnOptions {
 	min-width: 590px; /** prevents col breaking **/
@@ -701,8 +703,8 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module.active {
 	border: 1px solid rgba(0, 0, 0, 0.3);
-	border-radius: 5px;
-	background-color: rgba(255, 255, 255, 0.4);
+	border-radius: 0.25rem;
+	background-color: rgba(255, 255, 255, 0.6);
 }
 .modules a.module.active .module-icon {
 }

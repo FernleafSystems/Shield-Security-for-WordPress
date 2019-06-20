@@ -52,6 +52,8 @@ class Strings {
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
 					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
 
+				'description'                  => __( 'Description', 'wp-simple-firewall' ),
+				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
 				'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),
 				'aar_must_supply_key_first'    => __( 'Please provide the Security Access Key to manage this plugin.', 'wp-simple-firewall' ),
@@ -64,7 +66,7 @@ class Strings {
 				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
 
 				'offense' => __( 'offense', 'wp-simple-firewall' ),
-				'debug' => __( 'Debug', 'wp-simple-firewall' ),
+				'debug'   => __( 'Debug', 'wp-simple-firewall' ),
 			],
 			$this->getAdditionalDisplayStrings()
 		);

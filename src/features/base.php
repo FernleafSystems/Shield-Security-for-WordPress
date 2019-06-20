@@ -661,7 +661,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getMainFeatureName() {
-		return $this->getOptionsVo()->getFeatureProperty( 'name' );
+		return __( $this->getOptionsVo()->getFeatureProperty( 'name' ), 'wp-simple-firewall' );
 	}
 
 	/**
@@ -687,23 +687,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 * @return array
 	 */
 	public function supplySubMenuItem( $aItems ) {
-		$sMenuTitleName = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
-		if ( is_null( $sMenuTitleName ) ) {
-			$sMenuTitleName = $this->getMainFeatureName();
-		}
-		$sMenuTitleName = __( $sMenuTitleName, 'wp-simple-firewall' );
-		if ( !empty( $sMenuTitleName ) ) {
+
+		$sTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
+		$sTitle = empty( $sTitle ) ? $this->getMainFeatureName() : __( $sTitle, 'wp-simple-firewall' );
+
+		if ( !empty( $sTitle ) ) {
 
 			$sHumanName = $this->getCon()->getHumanName();
 
 			$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
 			if ( $bMenuHighlighted ) {
-				$sMenuTitleName = sprintf( '<span class="icwp_highlighted">%s</span>', $sMenuTitleName );
+				$sTitle = sprintf( '<span class="icwp_highlighted">%s</span>', $sTitle );
 			}
 
-			$sMenuPageTitle = $sMenuTitleName.' - '.$sHumanName;
+			$sMenuPageTitle = $sTitle.' - '.$sHumanName;
 			$aItems[ $sMenuPageTitle ] = [
-				$sMenuTitleName,
+				$sTitle,
 				$this->getModSlug(),
 				[ $this, 'displayModuleAdminPage' ],
 				$this->getIfShowModuleMenuItem()
@@ -788,13 +787,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'enabled'    => $this->isEnabledForUiSummary(),
 			'active'     => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
 			'slug'       => $this->getSlug(),
-			'name'       => __( $this->getMainFeatureName(), 'wp-simple-firewall' ),
-			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
+			'name'       => $this->getMainFeatureName(),
+			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
 			'sections'   => $aSections,
 			'options'    => [],
 		];
-		$aSum[ 'menu_title' ] = empty( $sMenuTitle ) ? $aSum[ 'name' ] : __( $sMenuTitle, 'wp-simple-firewall' );
 
 		foreach ( $oOptsVo->getVisibleOptionsKeys() as $sOptKey ) {
 			try {
