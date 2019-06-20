@@ -334,7 +334,7 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
       "link_info":     "https://icwp.io/9m",

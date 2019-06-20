@@ -90,11 +90,11 @@
         },
         {
           "value_key": "search",
-          "text":      "Search Bots (i.e. Google, Bing, DuckDuckGo, Yandex, Baidu, Apple)"
+          "text":      "Search Engines"
         },
         {
           "value_key": "uptime",
-          "text":      "Uptime Monitoring Services (i.e. StatusCake, Pingdom, UptimeRobot)"
+          "text":      "Uptime Monitoring Services"
         }
       ],
       "link_info":     "https://icwp.io/eb",

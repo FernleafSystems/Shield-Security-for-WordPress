@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                  "plugin",
-    "name":                  "General",
+    "name":                  "General Settings",
     "menu_title":            "Settings",
     "show_module_menu_item": true,
     "show_module_options":   true,
@@ -312,7 +312,7 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
       "link_info":     "https://icwp.io/dq",

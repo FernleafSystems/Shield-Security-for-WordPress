@@ -691,6 +691,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		if ( is_null( $sMenuTitleName ) ) {
 			$sMenuTitleName = $this->getMainFeatureName();
 		}
+		$sMenuTitleName = __( $sMenuTitleName, 'wp-simple-firewall' );
 		if ( !empty( $sMenuTitleName ) ) {
 
 			$sHumanName = $this->getCon()->getHumanName();
@@ -787,12 +788,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			'enabled'    => $this->isEnabledForUiSummary(),
 			'active'     => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
 			'slug'       => $this->getSlug(),
-			'name'       => $this->getMainFeatureName(),
+			'name'       => __( $this->getMainFeatureName(), 'wp-simple-firewall' ),
 			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : $sMenuTitle,
 			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
 			'sections'   => $aSections,
 			'options'    => [],
 		];
+		$aSum[ 'menu_title' ] = empty( $sMenuTitle ) ? $aSum[ 'name' ] : __( $sMenuTitle, 'wp-simple-firewall' );
 
 		foreach ( $oOptsVo->getVisibleOptionsKeys() as $sOptKey ) {
 			try {

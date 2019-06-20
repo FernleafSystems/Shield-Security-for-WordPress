@@ -214,7 +214,7 @@
       "value_options": [
         {
           "value_key": "edit",
-          "text":      "Create / Edit"
+          "text":      "Create/Edit"
         },
         {
           "value_key": "publish",

@@ -171,7 +171,7 @@
         },
         {
           "value_key": "reject",
-          "text":      "Reject And Redirect"
+          "text":      "Block And Redirect"
         }
       ],
       "link_info":     "https://icwp.io/6j",
@@ -243,11 +243,11 @@
       "value_options": [
         {
           "value_key": 0,
-          "text":      "Mark As Pending Moderation"
+          "text":      "Move To Pending Moderation"
         },
         {
           "value_key": "spam",
-          "text":      "Mark As SPAM"
+          "text":      "Move To SPAM"
         },
         {
           "value_key": "trash",
@@ -255,7 +255,7 @@
         },
         {
           "value_key": "reject",
-          "text":      "Reject And Redirect"
+          "text":      "Block And Redirect"
         }
       ],
       "name":          "Default SPAM Action",
@@ -282,11 +282,7 @@
       "value_options": [
         {
           "value_key": "default",
-          "text":      "Default"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
+          "text":      "Default Style"
         },
         {
           "value_key": "light",
@@ -298,7 +294,7 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
       "link_info":     "https://icwp.io/e4",

@@ -2,7 +2,7 @@
   "slug":        "audit_trail",
   "properties":  {
     "slug":                  "audit_trail",
-    "name":                  "Auditing",
+    "name":                  "Audit Trail",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "audit_trail",

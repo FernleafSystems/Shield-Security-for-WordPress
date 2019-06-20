@@ -153,11 +153,11 @@
         },
         {
           "value_key": "enabled_email",
-          "text":      "Enabled - Send Email Notification"
+          "text":      "Scan Enabled - Send Email Notification"
         },
         {
           "value_key": "enabled_no_email",
-          "text":      "Enabled - No Email Notification"
+          "text":      "Scan Enabled - No Email Notification"
         }
       ],
       "link_info":     "https://icwp.io/du",
@@ -216,11 +216,11 @@
         },
         {
           "value_key": "enabled_email",
-          "text":      "Enabled - Send Email Notification"
+          "text":      "Scan Enabled - Send Email Notification"
         },
         {
           "value_key": "enabled_no_email",
-          "text":      "Enabled - No Email Notification"
+          "text":      "Scan Enabled - No Email Notification"
         }
       ],
       "link_info":     "https://icwp.io/ew",
@@ -334,15 +334,15 @@
         },
         {
           "value_key": "enabled_report_only",
-          "text":      "Email Report Only"
+          "text":      "Scan Enabled - Send Email Notification"
         },
         {
           "value_key": "enabled_delete_only",
-          "text":      "Automatically Delete Files"
+          "text":      "Scan Enabled - Automatically Delete Files"
         },
         {
           "value_key": "enabled_delete_report",
-          "text":      "Auto Delete Files and Email Report"
+          "text":      "Scan Enabled - Delete Files and Send Email Notification"
         }
       ],
       "link_info":     "https://icwp.io/9y",

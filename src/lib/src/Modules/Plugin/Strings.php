@@ -297,9 +297,83 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * Kept just in-case.
+	 * Kept just in-case and represent dynamically translated strings
 	 */
-	protected function old_translations() {
+	private function manual_translations() {
+		{ // selects
+			__( 'Install', 'wp-simple-firewall' );
+			__( 'Update', 'wp-simple-firewall' );
+			__( 'Activate', 'wp-simple-firewall' );
+			__( 'Delete', 'wp-simple-firewall' );
+			__( 'Edit Theme Options', 'wp-simple-firewall' );
+			__( 'Create/Edit', 'wp-simple-firewall' );
+			__( 'Publish', 'wp-simple-firewall' );
+			__( 'Author Name', 'wp-simple-firewall' );
+			__( 'Author Email', 'wp-simple-firewall' );
+			__( 'Comment Content', 'wp-simple-firewall' );
+			__( 'Browser User Agent', 'wp-simple-firewall' );
+			__( 'Login', 'wp-simple-firewall' );
+			__( 'Register', 'wp-simple-firewall' );
+			__( 'Lost Password', 'wp-simple-firewall' );
+			__( 'Checkout (WooCommerce)', 'wp-simple-firewall' );
+			__( 'Simple Requests', 'wp-simple-firewall' );
+			__( 'Logged-In Users', 'wp-simple-firewall' );
+			__( 'Search Engines', 'wp-simple-firewall' );
+			__( 'Uptime Monitoring Services', 'wp-simple-firewall' );
+			__( 'Enabled With Email Reports', 'wp-simple-firewall' );
+			__( 'Never', 'wp-simple-firewall' );
+			__( 'Minor Versions Only', 'wp-simple-firewall' );
+			__( 'Major and Minor Versions', 'wp-simple-firewall' );
+			__( 'Let The Plugin Decide', 'wp-simple-firewall' );
+			__( 'As Soon As Possible', 'wp-simple-firewall' );
+			__( 'Move To Pending Moderation', 'wp-simple-firewall' );
+			__( 'Move To SPAM', 'wp-simple-firewall' );
+			__( 'Move To Trash', 'wp-simple-firewall' );
+			__( 'Block And Redirect', 'wp-simple-firewall' );
+			__( 'Invisible', 'wp-simple-firewall' );
+			__( 'Default Style', 'wp-simple-firewall' );
+			__( 'Redirect To Home Page', 'wp-simple-firewall' );
+			__( 'Return 404', 'wp-simple-firewall' );
+			__( 'Scan Disabled', 'wp-simple-firewall' );
+			__( 'Die', 'wp-simple-firewall' );
+			__( 'Scan Disabled', 'wp-simple-firewall' );
+			__( 'Scan Enabled', 'wp-simple-firewall' );
+			__( 'Scan Enabled - Send Email Notification', 'wp-simple-firewall' );
+			__( 'Scan Enabled - No Email Notification', 'wp-simple-firewall' );
+			__( 'Scan Enabled - Automatically Delete Files', 'wp-simple-firewall' );
+			__( 'Scan Enabled - Delete Files and Send Email Notification', 'wp-simple-firewall' );
+			__( 'Off: iFrames Not Blocked', 'wp-simple-firewall' );
+			__( 'On: Allow iFrames On The Same Domain', 'wp-simple-firewall' );
+			__( 'On: Block All iFrames', 'wp-simple-firewall' );
+			__( "Default: Full Referrer URL (aka 'Unsafe URL')", 'wp-simple-firewall' );
+			__( 'No Referrer', 'wp-simple-firewall' );
+			__( 'No Referrer When Downgrade', 'wp-simple-firewall' );
+			__( 'Same Origin', 'wp-simple-firewall' );
+			__( 'Origin', 'wp-simple-firewall' );
+			__( 'Strict Origin', 'wp-simple-firewall' );
+			__( 'Origin When Cross-Origin', 'wp-simple-firewall' );
+			__( 'Strict Origin When Cross-Origin', 'wp-simple-firewall' );
+			__( 'Empty Header', 'wp-simple-firewall' );
+			__( "Disabled - Don't Send This Header", 'wp-simple-firewall' );
+			__( 'Minute', 'wp-simple-firewall' );
+			__( 'Hour', 'wp-simple-firewall' );
+			__( 'Day', 'wp-simple-firewall' );
+			__( 'Week', 'wp-simple-firewall' );
+			__( 'Month', 'wp-simple-firewall' );
+			__( 'With Shield Bot Protection', 'wp-simple-firewall' );
+			__( 'Audit Log Only', 'wp-simple-firewall' );
+			__( 'Increment Offense Counter', 'wp-simple-firewall' );
+			__( 'Double-Increment Offense Counter', 'wp-simple-firewall' );
+			__( 'Immediate Block', 'wp-simple-firewall' );
+			__( 'Very Weak', 'wp-simple-firewall' );
+			__( 'Weak', 'wp-simple-firewall' );
+			__( 'Medium', 'wp-simple-firewall' );
+			__( 'Strong', 'wp-simple-firewall' );
+			__( 'Very Strong', 'wp-simple-firewall' );
+		}
+
+		__( 'General Settings', 'wp-simple-firewall' );
+		__( 'Security Dashboard', 'wp-simple-firewall' );
 		__( 'Automatically Detect Visitor IP', 'wp-simple-firewall' );
 		__( 'IP Whitelist', 'wp-simple-firewall' );
 		__( 'IP Address White List', 'wp-simple-firewall' );

@@ -149,6 +149,10 @@
         {
           "value_key": "week",
           "text":      "Week"
+        },
+        {
+          "value_key": "month",
+          "text":      "Month"
         }
       ],
       "link_info":     "https://icwp.io/wpsf25",

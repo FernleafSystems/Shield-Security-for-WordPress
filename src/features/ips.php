@@ -28,7 +28,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return int
 	 */
 	public function getAutoExpireTime() {
-		return constant( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) );
+		$sConstant = strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' );
+		return defined( $sConstant ) ? constant( $sConstant ) : ( DAY_IN_SECONDS*30 );
 	}
 
 	/**
