@@ -55,7 +55,8 @@
 
 		<div class="card">
 			<div class="card-header">
-				<h5 class="mb-0">{{ strings.title_license_activation }}</h5>
+				<h5 class="mb-2">{{ strings.title_license_activation }}</h5>
+				<h6 class="card-subtitle text-muted">{{ strings.check_availability }}</h6>
 			</div>
 			<div class="card-body">
 				<form method="post" class="licenseForm">
@@ -63,7 +64,6 @@
 						<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
 					{% endfor %}
 					<input type="hidden" name="license-action" value="check" />
-					<label>{{ strings.check_availability }}</label>
 					<button class="btn btn-info m-2" type="submit"
 							{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
 						{{ strings.check_license }}

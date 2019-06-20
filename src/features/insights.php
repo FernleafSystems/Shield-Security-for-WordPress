@@ -105,7 +105,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpMod->getOptTransgressionLimit() )
 						),
 						'auto_expire'       => sprintf(
-							'Black listed IPs auto-expire after: %s',
+							__( 'Black listed IPs auto-expire after: %s', 'wp-simple-firewall' ),
 							sprintf( '<a href="%s" target="_blank">%s</a>',
 								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ),
 								$oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 1 )
