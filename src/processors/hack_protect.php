@@ -261,8 +261,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oMod = $this->getMod();
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $oMod->getStrings();
-		$oCon = $this->getCon();
-		$oCarbon = new \Carbon\Carbon();
+		$oReq = Services::Request();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
@@ -286,7 +285,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$oIT = array_pop( $aItems );
 			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
 			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
+				$aMeta[ 'ts' ] = $oReq->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
 			else {
 				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
@@ -303,7 +302,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'slug'           => $sSlug,
 				'is_wporg'       => $bIsWpOrg,
 				'can_reinstall'  => $bIsWpOrg,
-				'can_deactivate' => $bInstalled && ( $sSlug !== $oCon->getPluginBaseFile() ),
+				'can_deactivate' => $bInstalled && ( $sSlug !== $this->getCon()->getPluginBaseFile() ),
 				'has_update'     => $bHasUpdate,
 				'count_files'    => $oItemRS->countItems(),
 				'date_snapshot'  => $aMeta[ 'ts' ],
@@ -335,7 +334,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$oIT = array_pop( $aItems );
 			$aMeta = $oProPtg->getSnapshotItemMeta( $oIT->slug );
 			if ( !empty( $aMeta[ 'ts' ] ) ) {
-				$aMeta[ 'ts' ] = $oCarbon->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
+				$aMeta[ 'ts' ] = $oReq->carbon()->setTimestamp( $aMeta[ 'ts' ] )->diffForHumans();
 			}
 			else {
 				$aMeta[ 'ts' ] = __( 'unknown', 'wp-simple-firewall' );
@@ -384,7 +383,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'vars'    => [
 				'last_scan_at' => sprintf(
 					__( 'Last Scan: %s', 'wp-simple-firewall' ),
-					$oCarbon->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
+					$oReq->carbon()->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
 				)
 			],
 			'count'   => $oSelector->countForScan( 'ptg' ),

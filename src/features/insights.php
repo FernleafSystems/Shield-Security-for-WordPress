@@ -60,7 +60,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProPlugin = $oModPlugin->getProcessor();
 
 		$bIsPro = $this->isPremium();
-		$oCarbon = new \Carbon\Carbon();
+		$oCarbon = $oReq->carbon();
 		$nPluginName = $oCon->getHumanName();
 		switch ( $sNavSection ) {
 
@@ -108,7 +108,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							__( 'Black listed IPs auto-expire after: %s', 'wp-simple-firewall' ),
 							sprintf( '<a href="%s" target="_blank">%s</a>',
 								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ),
-								$oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 1 )
+								$oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 100 )
 										->diffForHumans( null, true )
 							)
 						),
