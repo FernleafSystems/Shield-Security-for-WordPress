@@ -30,6 +30,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			return;
 		}
 
+		$this->processAutoUnblockByFlag();
 		$this->processBlacklist();
 
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
@@ -173,6 +174,12 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	private function getTransgressions( $sIp ) {
 		$oBlackIp = $this->getBlackListIp( $sIp );
 		return ( $oBlackIp instanceof IPs\EntryVO ) ? $oBlackIp->getTransgressions() : 0;
+	}
+
+	private function processAutoUnblockByFlag() {
+		( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\UnblockIpByFlag() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	protected function processBlacklist() {

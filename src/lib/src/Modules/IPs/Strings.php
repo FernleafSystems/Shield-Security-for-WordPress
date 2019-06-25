@@ -228,6 +228,9 @@ class Strings extends Base\Strings {
 			'ip_blocked'              => [
 				__( 'IP blocked after incrementing offenses from %s to %s.', 'wp-simple-firewall' )
 			],
+			'ip_unblock_flag'         => [
+				__( "IP address '%s' removed from blacklist using 'unblock' file flag.", 'wp-simple-firewall' )
+			],
 			'bottrack_404'            => [
 				__( '404 detected at "%s".', 'wp-simple-firewall' )
 			],

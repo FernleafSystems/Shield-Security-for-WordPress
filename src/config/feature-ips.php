@@ -511,6 +511,9 @@
       "ip_blocked":              {
         "cat": 2
       },
+      "ip_unblock_flag":            {
+        "cat": 1
+      },
       "bottrack_404":            {
         "cat": 2,
         "offense": true
