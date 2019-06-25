@@ -25,8 +25,8 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 		$oMod = $this->getMod();
 		$aData = [
 			'vars'    => [
-				'form_nonce'  => $oMod->getNonceActionData( 'import_file_upload' ),
-				'form_action' => $oMod->getUrl_AdminPage()
+				'file_upload_nonce' => $oMod->getNonceActionData( 'import_file_upload' ),
+				'form_action'       => $oMod->getUrl_AdminPage()
 			],
 			'ajax'    => [
 				'import_from_site' => $oMod->getAjaxActionData( 'import_from_site', true ),

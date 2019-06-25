@@ -9,7 +9,7 @@
 			<div class="card-body p-4">
 				<form id="ImportExportFileForm" autocomplete="off" method="post"
 					  action="{{ vars.form_action }}" enctype="multipart/form-data">
-					{% for input_name,input_value in vars.form_nonce %}
+					{% for input_name,input_value in vars.file_upload_nonce %}
 						<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
 					{% endfor %}
 					<div class="form-group">

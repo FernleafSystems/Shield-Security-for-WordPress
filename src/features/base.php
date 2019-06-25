@@ -982,35 +982,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		return [
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $sAction,
-			'exec_nonce' => $this->genNonce( $sAction ),
+			'exec_nonce' => wp_create_nonce( $sAction ),
 			'mod_slug'   => $this->getModSlug(),
 		];
-	}
-
-	/**
-	 * @param string $sAction
-	 * @return string
-	 */
-	public function genNonce( $sAction = '' ) {
-		return wp_create_nonce( $sAction );
-	}
-
-	/**
-	 * @param string $sNonce
-	 * @param string $sAction
-	 * @return bool
-	 */
-	public function checkNonceAction( $sNonce, $sAction = '' ) {
-		return wp_verify_nonce( $sNonce, $this->prefix( $sAction ) );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @param string $sDefault
-	 * @return string
-	 */
-	protected function getTranslatedString( $sKey, $sDefault ) {
-		return $sDefault;
 	}
 
 	/**
@@ -1468,7 +1442,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	 */
 	public function hasEncryptOption() {
 		return function_exists( 'md5' );
-		//	return extension_loaded( 'mcrypt' );
 	}
 
 	/**
@@ -1508,15 +1481,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		else {
 			echo $this->renderRestrictedPage();
 		}
-	}
-
-	/**
-	 * Not yet used but may be used above to replace renderModulePage() to load
-	 * options pages by AJAX.
-	 * @return string
-	 */
-	private function renderAdminBootstrap() {
-		return $this->renderTemplate( 'admin_bootstrap.php' );
 	}
 
 	/**
@@ -1576,7 +1540,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			//			'sPageTitle' => sprintf( '%s: %s', $oCon->getHumanName(), $this->getMainFeatureName() ),
 			'sPageTitle'    => $this->getMainFeatureName(),
 			'data'          => [
-				'form_nonce'     => $this->genNonce( '' ),
 				'mod_slug'       => $this->getModSlug( true ),
 				'mod_slug_short' => $this->getModSlug( false ),
 				'all_options'    => $this->buildOptions(),
