@@ -2078,7 +2078,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return array
-	 * @deprecated
+	 * @deprecated 7.5
 	 */
 	protected function getDisplayStrings() {
 		return $this->getStrings()->getDisplayStrings();
@@ -2087,7 +2087,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 	/**
 	 * @param bool $bBypass
 	 * @return $this
-	 * @deprecated
+	 * @deprecated 7.5
 	 */
 	protected function setBypassAdminProtection( $bBypass ) {
 		return $this;

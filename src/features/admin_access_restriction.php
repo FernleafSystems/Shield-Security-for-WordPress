@@ -89,7 +89,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		else {
 			/** @var ICWP_WPSF_Processor_Ips $oIpPro */
 			$oIpPro = $this->getCon()
-						   ->getModule( 'ips' )
+						   ->getModule_IPs()
 						   ->getProcessor();
 			$nRemaining = $oIpPro->getRemainingTransgressions() - 1;
 			$sMsg = __( 'Security access key incorrect.', 'wp-simple-firewall' ).' ';
@@ -562,7 +562,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	protected function doPrePluginOptionsSave() {
 
-		if ( $this->getAccessKeyHash() == self::HASH_DELETE ) {
+		if ( hash_equals( $this->getAccessKeyHash(), self::HASH_DELETE ) ) {
 			$this->clearAdminAccessKey()
 				 ->setSecurityAdminStatusOnOff( false );
 		}

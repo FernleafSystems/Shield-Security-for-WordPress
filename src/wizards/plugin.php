@@ -149,7 +149,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'audit_trail';
 		}
 
-		if ( !$oConn->getModule( 'ips' )->isModuleEnabled() ) {
+		if ( !$oConn->getModule_IPs()->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'ips';
 		}
 
@@ -511,7 +511,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabled = $sInput === 'Y';
 
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
-			$oModule = $this->getPluginCon()->getModule( 'ips' );
+			$oModule = $this->getPluginCon()->getModule_IPs();
 			$oModule->setIsMainFeatureEnabled( $bEnabled )
 					->savePluginOptions();
 

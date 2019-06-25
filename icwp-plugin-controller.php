@@ -1766,6 +1766,13 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 * @return ICWP_WPSF_FeatureHandler_Ips
+	 */
+	public function getModule_IPs() {
+		return $this->getModule( 'ips' );
+	}
+
+	/**
 	 * @return ICWP_WPSF_FeatureHandler_Plugin
 	 */
 	public function getModule_Plugin() {

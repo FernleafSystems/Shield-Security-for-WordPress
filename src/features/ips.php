@@ -486,7 +486,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 7.5
 	 */
 	public function isAutoBlackListFeatureEnabled() {
 		return $this->isAutoBlackListEnabled();

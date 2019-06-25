@@ -43,8 +43,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var Shield\Databases\AuditTrail\Select $oAuditSelect */
 		$oAuditSelect = $oAuditMod->getDbHandler()->getQuerySelector();
 
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oIpMod */
-		$oIpMod = $oCon->getModule( 'ips' );
+		$oIpMod = $oCon->getModule_IPs();
 
 		/** @var Shield\Databases\Session\Select $oSessionSelect */
 		$oSessionSelect = $this->getDbHandler_Sessions()->getQuerySelector();
@@ -684,7 +683,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var Shield\Databases\IPs\Select $oSelect */
 		$oSelect = $this->getCon()
-						->getModule( 'ips' )
+						->getModule_IPs()
 						->getDbHandler()
 						->getQuerySelector();
 
