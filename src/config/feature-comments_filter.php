@@ -159,11 +159,11 @@
       "value_options": [
         {
           "value_key": 0,
-          "text":      "Mark As Pending Moderation"
+          "text":      "Move To Pending Moderation"
         },
         {
           "value_key": "spam",
-          "text":      "Mark As SPAM"
+          "text":      "Move To SPAM"
         },
         {
           "value_key": "trash",
