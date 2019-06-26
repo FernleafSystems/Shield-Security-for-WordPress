@@ -58,13 +58,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private $oOpts;
 
 	/**
-	 * @param ICWP_WPSF_Plugin_Controller $oPluginController
+	 * @param Shield\Controller\Controller $oPluginController
 	 * @param array                       $aMod
 	 * @throws \Exception
 	 */
 	public function __construct( $oPluginController, $aMod = [] ) {
 		if ( empty( self::$oPluginController ) ) {
-			if ( !$oPluginController instanceof ICWP_WPSF_Plugin_Controller ) {
+			if ( !$oPluginController instanceof Shield\Controller\Controller ) {
 				throw new \Exception( 'Plugin controller not supplied to Module' );
 			}
 			$this->setCon( $oPluginController );

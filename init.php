@@ -1,4 +1,7 @@
 <?php
+
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 /** @var string $sRootFile */
 global $oICWP_Wpsf;
 
@@ -17,28 +20,28 @@ class ICWP_WPSF_Shield_Security extends \FernleafSystems\Wordpress\Plugin\Shield
 	private static $oInstance = null;
 
 	/**
-	 * @param ICWP_WPSF_Plugin_Controller $oController
+	 * @param Shield\Controller\Controller $oController
 	 */
-	private function __construct( ICWP_WPSF_Plugin_Controller $oController ) {
+	private function __construct( Shield\Controller\Controller $oController ) {
 		$oController->loadAllFeatures();
 	}
 
 	/**
-	 * @return ICWP_WPSF_Plugin_Controller
+	 * @return Shield\Controller\Controller
 	 * @throws \Exception
 	 */
 	public function getController() {
-		return ICWP_WPSF_Plugin_Controller::GetInstance();
+		return Shield\Controller\Controller::GetInstance();
 	}
 
 	/**
-	 * @param ICWP_WPSF_Plugin_Controller $oController
+	 * @param Shield\Controller\Controller $oController
 	 * @return self
 	 * @throws \Exception
 	 */
-	public static function GetInstance( $oController = null ) {
+	public static function GetInstance( Shield\Controller\Controller $oController = null ) {
 		if ( is_null( self::$oInstance ) ) {
-			if ( !$oController instanceof ICWP_WPSF_Plugin_Controller ) {
+			if ( !$oController instanceof Shield\Controller\Controller ) {
 				throw new \Exception( 'Trying to create a Shield Plugin instance without a valid Controller' );
 			}
 			self::$oInstance = new self( $oController );
@@ -48,7 +51,7 @@ class ICWP_WPSF_Shield_Security extends \FernleafSystems\Wordpress\Plugin\Shield
 }
 
 try {
-	$oICWP_Wpsf_Controller = ICWP_WPSF_Plugin_Controller::GetInstance( $sRootFile );
+	$oICWP_Wpsf_Controller = Shield\Controller\Controller::GetInstance( $sRootFile );
 	$oICWP_Wpsf = ICWP_WPSF_Shield_Security::GetInstance( $oICWP_Wpsf_Controller );
 }
 catch ( \Exception $oE ) {

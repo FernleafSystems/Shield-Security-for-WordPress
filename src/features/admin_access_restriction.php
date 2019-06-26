@@ -194,7 +194,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$oDP = $this->loadDP();
 			$oOpts = $this->getOptionsVo();
 			foreach ( $aImages as $sKey ) {
-				if ( !$oDP->isValidUrl( $this->buildWlImageUrl( $sKey ) ) ) {
+				if ( !Services::Data()->isValidWebUrl( $this->buildWlImageUrl( $sKey ) ) ) {
 					$oOpts->resetOptToDefault( $sKey );
 				}
 			}
@@ -382,7 +382,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return string
 	 */
 	private function buildWlImageUrl( $sKey ) {
-		$oDp = $this->loadDP();
 		$oOpts = $this->getOptionsVo();
 
 		$sLogoUrl = $this->getOpt( $sKey );
@@ -390,7 +389,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$oOpts->resetOptToDefault( $sKey );
 			$sLogoUrl = $this->getOpt( $sKey );
 		}
-		if ( !empty( $sLogoUrl ) && !$oDp->isValidUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
+		if ( !empty( $sLogoUrl ) && !Services::Data()->isValidWebUrl( $sLogoUrl ) && strpos( $sLogoUrl, '/' ) !== 0 ) {
 			$sLogoUrl = $this->getCon()->getPluginUrl_Image( $sLogoUrl );
 			if ( empty( $sLogoUrl ) ) {
 				$oOpts->resetOptToDefault( $sKey );

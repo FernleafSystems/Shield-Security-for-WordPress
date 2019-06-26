@@ -279,7 +279,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		$sCancelHref = $oReq->post( 'cancel_href', '' );
-		if ( empty( $sCancelHref ) && $this->loadDP()->isValidUrl( $sReferUrl ) ) {
+		if ( empty( $sCancelHref ) && Services::Data()->isValidWebUrl( $sReferUrl ) ) {
 			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
 		}
 

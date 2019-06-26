@@ -60,12 +60,10 @@ function icwp_wpsf_init() {
 
 function icwp_wpsf_onactivate() {
 	icwp_wpsf_init();
-	if ( class_exists( 'ICWP_WPSF_Plugin_Controller' ) ) {
-		try {
-			ICWP_WPSF_Plugin_Controller::GetInstance()->onWpActivatePlugin();
-		}
-		catch ( Exception $oE ) {
-		}
+	try {
+		\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
+	}
+	catch ( Exception $oE ) {
 	}
 }
 
