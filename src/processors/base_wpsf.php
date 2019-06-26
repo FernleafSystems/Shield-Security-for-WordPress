@@ -204,18 +204,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		if ( $this->isRecaptchaEnqueue() ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 			$oFO = $this->getMod();
-			echo $this->loadRenderer( $this->getCon()->getPath_Templates() )
-					  ->setTemplateEnginePhp()
-					  ->setRenderVars(
-						  [
-							  'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
-							  'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
-							  'theme'   => $this->getRecaptchaTheme(),
-							  'invis'   => $this->isRecaptchaInvisible(),
-						  ]
-					  )
-					  ->setTemplate( 'snippets/google_recaptcha_js' )
-					  ->render();
+			echo $oFO->renderTemplate(
+				'snippets/google_recaptcha_js',
+				[
+					'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
+					'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
+					'theme'   => $this->getRecaptchaTheme(),
+					'invis'   => $this->isRecaptchaInvisible(),
+				]
+
+			);
 		}
 		else {
 			wp_dequeue_script( self::RECAPTCHA_JS_HANDLE );

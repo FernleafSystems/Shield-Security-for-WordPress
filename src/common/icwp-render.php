@@ -42,11 +42,6 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	/**
 	 * @var string
 	 */
-	protected $sAutoloaderPath;
-
-	/**
-	 * @var string
-	 */
 	protected $sTemplate;
 
 	/**
@@ -150,8 +145,8 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 * @return string
 	 */
 	public function getTemplate() {
-		$this->sTemplate = $this->loadDP()
-								->addExtensionToFilePath( $this->sTemplate, $this->getEngineStub() );
+		$this->sTemplate = \FernleafSystems\Wordpress\Services\Services::Data()
+																	   ->addExtensionToFilePath( $this->sTemplate, $this->getEngineStub() );
 		return $this->sTemplate;
 	}
 
@@ -187,7 +182,8 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 		if ( empty( $sTemplate ) ) {
 			$sTemplate = $this->getTemplate();
 		}
-		$sTemplate = $this->loadDP()->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
+		$sTemplate = \FernleafSystems\Wordpress\Services\Services::Data()
+																 ->addExtensionToFilePath( $sTemplate, $this->getEngineStub() );
 		return path_join( $this->getTemplateRootMain(), $sTemplate );
 	}
 
@@ -228,15 +224,6 @@ class ICWP_WPSF_Render extends ICWP_WPSF_Foundation {
 	 */
 	public function setRenderVars( $aVars ) {
 		$this->aRenderVars = $aVars;
-		return $this;
-	}
-
-	/**
-	 * @param string $sPath
-	 * @return $this
-	 */
-	public function setAutoloaderPath( $sPath ) {
-		$this->sAutoloaderPath = $sPath;
 		return $this;
 	}
 

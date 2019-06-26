@@ -12,7 +12,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 	protected function getUserCanSlide( $sSlide ) {
 		$aSlide = $this->getStepsDefinition()[ $sSlide ];
 		$bRestricted = !isset( $aSlide[ 'security_admin' ] ) || $aSlide[ 'security_admin' ];
-		return !$bRestricted || $this->getPluginCon()->isPluginAdmin();
+		return !$bRestricted || $this->getCon()->isPluginAdmin();
 	}
 
 	/**
@@ -97,7 +97,7 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 
 		$bSuccess = false;
 		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'admin_access_restriction' );
+		$oModule = $this->getCon()->getModule( 'admin_access_restriction' );
 
 		$sMessage = '';
 		if ( empty( $sKey ) ) {

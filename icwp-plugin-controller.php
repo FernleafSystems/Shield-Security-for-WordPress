@@ -20,7 +20,7 @@
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
+class ICWP_WPSF_Plugin_Controller extends Shield\Deprecated\Foundation {
 
 	/**
 	 * @var \stdClass
@@ -197,10 +197,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				]
 			];
 
-			$this->loadRenderer( $this->getPath_Templates() )
-				 ->setTemplate( 'notices/does-not-meet-requirements' )
-				 ->setRenderVars( $aDisplayData )
-				 ->display();
+			Services::Render()
+					->setTemplateRoot( $this->getPath_Templates() )
+					->setTemplate( 'notices/does-not-meet-requirements' )
+					->setRenderVars( $aDisplayData )
+					->display();
 		}
 	}
 
@@ -213,10 +214,11 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				'more_information' => $this->sAdminNoticeError
 			]
 		];
-		$this->loadRenderer( $this->getPath_Templates() )
-			 ->setTemplate( 'notices/plugin-failed-to-load' )
-			 ->setRenderVars( $aDisplayData )
-			 ->display();
+		Services::Render()
+				->setTemplateRoot( $this->getPath_Templates() )
+				->setTemplate( 'notices/plugin-failed-to-load' )
+				->setRenderVars( $aDisplayData )
+				->display();
 	}
 
 	/**
@@ -1961,17 +1963,18 @@ class ICWP_WPSF_Plugin_Controller extends ICWP_WPSF_Foundation {
 				$sName = $this->getPluginSpec_Menu( 'title' );
 				$sHref = $this->getPluginSpec()[ 'meta' ][ 'privacy_policy_href' ];
 			}
-			$sContent = $this->loadRenderer( $this->getPath_Templates() )
-							 ->setTemplate( 'snippets/privacy_policy' )
-							 ->setTemplateEngineTwig()
-							 ->setRenderVars(
-								 [
-									 'name'             => $sName,
-									 'href'             => $sHref,
-									 'audit_trail_days' => $this->getModule_AuditTrail()->getAutoCleanDays()
-								 ]
-							 )
-							 ->render();
+			$sContent = Services::Render()
+								->setTemplateRoot( $this->getPath_Templates() )
+								->setTemplate( 'snippets/privacy_policy' )
+								->setTemplateEngineTwig()
+								->setRenderVars(
+									[
+										'name'             => $sName,
+										'href'             => $sHref,
+										'audit_trail_days' => $this->getModule_AuditTrail()->getAutoCleanDays()
+									]
+								)
+								->render();
 		}
 		catch ( \Exception $oE ) {
 			$sContent = '';

@@ -329,10 +329,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			]
 		];
 
-		$this->loadRenderer( $this->getCon()->getPath_Templates() )
-			 ->setTemplate( 'page/login_intent' )
-			 ->setRenderVars( $aDisplayData )
-			 ->display();
+		echo $oMod->renderTemplate( 'page/login_intent', $aDisplayData );
 
 		return true;
 	}

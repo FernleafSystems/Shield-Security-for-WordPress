@@ -9,7 +9,7 @@ if ( isset( $oICWP_Wpsf ) ) {
 
 // By requiring this file here, we assume we wont need to require it anywhere else.
 
-class ICWP_WPSF_Shield_Security extends ICWP_WPSF_Foundation {
+class ICWP_WPSF_Shield_Security extends \FernleafSystems\Wordpress\Plugin\Shield\Deprecated\Foundation {
 
 	/**
 	 * @var ICWP_WPSF_Shield_Security

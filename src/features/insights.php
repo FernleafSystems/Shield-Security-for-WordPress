@@ -484,7 +484,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	protected function getNoticesSite() {
-		$oSslService = $this->loadSslService();
+		$oSslService = new \FernleafSystems\Wordpress\Services\Utilities\Ssl();
 
 		$aNotices = [
 			'title'    => __( 'Site', 'wp-simple-firewall' ),

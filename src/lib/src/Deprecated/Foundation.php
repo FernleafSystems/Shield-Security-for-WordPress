@@ -1,6 +1,8 @@
 <?php
 
-class ICWP_WPSF_Foundation {
+namespace FernleafSystems\Wordpress\Plugin\Shield\Deprecated;
+
+class Foundation {
 
 	const DEFAULT_SERVICE_PREFIX = 'icwp_wpsf_';
 
@@ -18,142 +20,143 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_DataProcessor
+	 * @return \ICWP_WPSF_DataProcessor
 	 */
 	static public function loadDP() {
 		$sKey = 'icwp-data';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_DataProcessor::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_DataProcessor::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpFilesystem
+	 * @return \ICWP_WPSF_WpFilesystem
 	 */
 	static public function loadFS() {
 		$sKey = 'icwp-wpfilesystem';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpFilesystem::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpFilesystem::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpFunctions
+	 * @return \ICWP_WPSF_WpFunctions
 	 */
 	static public function loadWp() {
 		$sKey = 'icwp-wpfunctions';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpFunctions::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpFunctions::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpFunctions_Plugins
+	 * @return \ICWP_WPSF_WpFunctions_Plugins
 	 * @deprecated
 	 */
 	public function loadWpPlugins() {
 		$sKey = 'icwp-wpfunctions-plugins';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpFunctions_Plugins::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpFunctions_Plugins::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpFunctions_Themes
+	 * @return \ICWP_WPSF_WpFunctions_Themes
 	 * @deprecated
 	 */
 	public function loadWpThemes() {
 		$sKey = 'icwp-wpfunctions-themes';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpFunctions_Themes::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpFunctions_Themes::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpCron
+	 * @return \ICWP_WPSF_WpCron
 	 * @deprecated
 	 */
 	static public function loadWpCronProcessor() {
 		$sKey = 'icwp-wpcron';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpCron::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpCron::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpUpgrades
+	 * @return \ICWP_WPSF_WpUpgrades
 	 * @deprecated
 	 */
 	static public function loadWpUpgrades() {
 		$sKey = 'icwp-wpupgrades';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpUpgrades::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpUpgrades::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpDb
+	 * @return \ICWP_WPSF_WpDb
 	 */
 	static public function loadDbProcessor() {
 		$sKey = 'icwp-wpdb';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpDb::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpDb::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Request
+	 * @return \ICWP_WPSF_Request
 	 */
 	public function loadRequest() {
 		$sKey = 'icwp-request';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_Request::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_Request::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_ServiceProviders
+	 * @return \ICWP_WPSF_ServiceProviders
 	 */
 	public function loadServiceProviders() {
 		$sKey = 'icwp-serviceproviders';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_ServiceProviders::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_ServiceProviders::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpIncludes
+	 * @return \ICWP_WPSF_WpIncludes
 	 * @deprecated
 	 */
 	static public function loadWpIncludes() {
 		$sKey = 'icwp-wpincludes';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpIncludes::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpIncludes::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
 	 * @param string $sTemplatePath
-	 * @return ICWP_WPSF_Render
+	 * @return \ICWP_WPSF_Render
+	 * @deprecated
 	 */
 	static public function loadRenderer( $sTemplatePath = '' ) {
 		$sKey = 'icwp-render';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_Render::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_Render::GetInstance() );
 		}
 
-		/** @var ICWP_WPSF_Render $oR */
+		/** @var \ICWP_WPSF_Render $oR */
 		$oR = self::getService( $sKey );
 		if ( !empty( $sTemplatePath ) ) {
 			$oR->setTemplateRoot( $sTemplatePath );
@@ -162,45 +165,48 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpAdminNotices
+	 * @return \ICWP_WPSF_WpAdminNotices
+	 * @deprecated
 	 */
 	static public function loadWpNotices() {
 		$sKey = 'wp-admin-notices';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpAdminNotices::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpAdminNotices::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpUsers
+	 * @return \ICWP_WPSF_WpUsers
+	 * @deprecated
 	 */
 	static public function loadWpUsers() {
 		$sKey = 'wp-users';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpUsers::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpUsers::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpComments
+	 * @return \ICWP_WPSF_WpComments
+	 * @deprecated
 	 */
 	static public function loadWpComments() {
 		$sKey = 'wp-comments';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_WpComments::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_WpComments::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Edd
+	 * @return \ICWP_WPSF_Edd
 	 */
 	static public function loadEdd() {
 		$sKey = 'icwp-edd';
 		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_Edd::GetInstance() );
+			self::setService( $sKey, \ICWP_WPSF_Edd::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
@@ -244,7 +250,7 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_WpAdminNotices
+	 * @return \ICWP_WPSF_WpAdminNotices
 	 * @deprecated
 	 */
 	static public function loadAdminNoticesProcessor() {

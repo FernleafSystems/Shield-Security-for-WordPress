@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
+abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 
 	use Shield\Modules\ModConsumer,
 		Shield\AuditTrail\Auditor;

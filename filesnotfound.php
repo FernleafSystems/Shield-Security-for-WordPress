@@ -2,8 +2,6 @@
 
 foreach (
 	[
-		'ICWP_WPSF_Foundation',
-		'ICWP_WPSF_OptionsVO',
 		'ICWP_WPSF_Plugin_Controller',
 		'ICWP_WPSF_FeatureHandler_Base',
 		'ICWP_WPSF_FeatureHandler_BaseWpsf',

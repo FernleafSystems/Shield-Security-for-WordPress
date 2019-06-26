@@ -964,12 +964,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'name' => $oCon->getHumanName()
 			]
 		];
-		return $this->loadRenderer( $oCon->getPath_Templates() )
-					->setTemplateEnginePhp()
-					->clearRenderVars()
-					->setRenderVars( $aData )
-					->setTemplate( 'snippets/plugin_badge' )
-					->render();
+		return $this->renderTemplate( 'snippets/plugin_badge', $aData );
 	}
 
 	/**

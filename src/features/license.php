@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -52,7 +53,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param Shield\License\EddLicenseVO $oLic
+	 * @param Utilities\Licenses\EddLicenseVO $oLic
 	 * @return $this
 	 */
 	protected function setLicenseData( $oLic ) {
@@ -106,14 +107,14 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
 		}
 		else if ( $sLicenseAction == 'remove' ) {
-			$oLicense = $this->loadEdd()
-							 ->deactivateLicense(
-								 $this->getLicenseStoreUrl(),
-								 $this->getLicenseKey(),
-								 $this->getLicenseItemId()
-							 );
+			$oLicense = ( new Utilities\Licenses\Lookup() )
+				->deactivateLicense(
+					$this->getLicenseStoreUrl(),
+					$this->getLicenseKey(),
+					$this->getLicenseItemId()
+				);
 			if ( $oLicense ) {
-				$bSuccess = $oLicense->isSuccess();
+				$bSuccess = $oLicense->success;
 			}
 			$this->deactivate( 'User submitted deactivation' );
 		}
@@ -197,13 +198,10 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				 ->setLicenseLastCheckedAt()
 				 ->savePluginOptions();
 
-			/** @var ICWP_WPSF_Processor_License $oPro */
-			$oPro = $this->getProcessor();
-
 			$oLookupLicense = $this->lookupOfficialLicense();
 			if ( $oLookupLicense->isValid() ) {
 				$oCurrent = $oLookupLicense;
-				$oLookupLicense->updateLastVerifiedAt( true );
+				$oCurrent->updateLastVerifiedAt( true );
 				$this->activateLicense()
 					 ->clearLastErrors();
 				$oCon->fireEvent( 'check_success' );
@@ -231,7 +229,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				}
 			}
 
-			$oCurrent->setLastRequestAt( Services::Request()->ts() );
+			$oCurrent->last_request_at = Services::Request()->ts();
 			$this->setLicenseData( $oCurrent )
 				 ->savePluginOptions();
 		}
@@ -293,8 +291,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function activateLicense() {
 		if ( !$this->isLicenseActive() ) {
-			$nAt = $this->loadLicense()->getLastRequestAt();
-			$this->setOptAt( 'license_activated_at', $nAt > 0 ? $nAt : null );
+			$this->setOptAt( 'license_activated_at', Services::Request()->ts() );
 		}
 		return $this;
 	}
@@ -342,7 +339,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\License\EddLicenseVO
+	 * @return Utilities\Licenses\EddLicenseVO
 	 */
 	private function lookupOfficialLicense() {
 
@@ -352,9 +349,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) )
 			 ->savePluginOptions();
 
-		$oLicense = $this->loadEdd()
-						 ->setRequestParams( [ 'nonce' => $sPass ] )
-						 ->activateLicenseKeyless( $this->getLicenseStoreUrl(), $this->getLicenseItemId() );
+		$oLicense = ( new Utilities\Licenses\Lookup() )
+			->setRequestParams( [ 'nonce' => $sPass ] )
+			->activateLicenseKeyless( $this->getLicenseStoreUrl(), $this->getLicenseItemId() );
 
 		// clear the handshake data
 		$this->setKeylessRequestAt( 0 )
@@ -411,7 +408,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return string
 	 */
 	public function getLicenseItemName() {
-		return $this->loadLicense()->isCentral() ?
+		return $this->loadLicense()->is_central ?
 			$this->getDef( 'license_item_name_sc' ) :
 			$this->getDef( 'license_item_name' );
 	}
@@ -488,7 +485,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isLastVerifiedExpired() {
-		return ( Services::Request()->ts() - $this->loadLicense()->getLastVerifiedAt() )
+		return ( Services::Request()->ts() - $this->loadLicense()->last_verified_at )
 			   > $this->getDef( 'lic_verify_expire_days' )*DAY_IN_SECONDS;
 	}
 
@@ -498,7 +495,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function isLastVerifiedGraceExpired() {
 		$nGracePeriod = ( $this->getDef( 'lic_verify_expire_days' ) + $this->getDef( 'lic_verify_expire_grace_days' ) )
 						*DAY_IN_SECONDS;
-		return ( Services::Request()->ts() - $this->loadLicense()->getLastVerifiedAt() ) > $nGracePeriod;
+		return ( Services::Request()->ts() - $this->loadLicense()->last_verified_at ) > $nGracePeriod;
 	}
 
 	/**
@@ -629,7 +626,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$sExpiresAt = 'n/a';
 		}
 
-		$nLastReqAt = $oCurrent->getLastRequestAt();
+		$nLastReqAt = $oCurrent->last_request_at;
 		if ( empty( $nLastReqAt ) ) {
 			$sChecked = __( 'Never', 'wp-simple-firewall' );
 		}
@@ -641,7 +638,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'product_name'    => $this->getLicenseItemName(),
 			'license_active'  => $this->hasValidWorkingLicense() ? __( 'Yes', 'wp-simple-firewall' ) : __( 'Not Active', 'wp-simple-firewall' ),
 			'license_expires' => $sExpiresAt,
-			'license_email'   => $oCurrent->getCustomerEmail(),
+			'license_email'   => $oCurrent->customer_email,
 			'last_checked'    => $sChecked,
 			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		];

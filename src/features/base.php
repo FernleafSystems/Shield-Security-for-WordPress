@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
+abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundation {
 
 	use Shield\Modules\PluginControllerConsumer;
 
@@ -996,7 +996,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			if ( !class_exists( $sClassName ) ) {
 				return null;
 			}
-			$this->oWizard = new $sClassName( $this );
+			$this->oWizard = new $sClassName();
+			$this->oWizard->setMod( $this );
 		}
 		return $this->oWizard;
 	}
@@ -1715,11 +1716,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 		}
 
 		try {
-			return $this->loadRenderer( $this->getCon()->getPath_Templates() )
-						->setTemplate( $sTemplate )
-						->setRenderVars( $this->getBaseDisplayData() )
-						->setTemplateEngineTwig()
-						->render();
+			return Services::Render()
+						   ->setTemplateRoot( $this->getCon()->getPath_Templates() )
+						   ->setTemplate( $sTemplate )
+						   ->setRenderVars( $this->getBaseDisplayData() )
+						   ->setTemplateEngineTwig()
+						   ->render();
 		}
 		catch ( \Exception $oE ) {
 			return 'Error rendering options form: '.$oE->getMessage();
@@ -1810,7 +1812,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends ICWP_WPSF_Foundation {
 			$aData[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
-			$oRndr = $this->loadRenderer( $this->getCon()->getPath_Templates() );
+			$oRndr = Services::Render()
+						   ->setTemplateRoot( $this->getCon()->getPath_Templates() );
 			if ( $bUseTwig ) {
 				$oRndr->setTemplateEngineTwig();
 			}

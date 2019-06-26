@@ -1,6 +1,6 @@
 <?php
 
-class ICWP_WPSF_AuditTrail_Auditor_Base extends ICWP_WPSF_Foundation {
+class ICWP_WPSF_AuditTrail_Auditor_Base extends \FernleafSystems\Wordpress\Plugin\Shield\Deprecated\Foundation {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\AuditTrail\Auditor;
 
