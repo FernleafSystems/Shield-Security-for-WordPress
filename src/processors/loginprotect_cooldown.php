@@ -24,7 +24,6 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 									$nRemaining
 								);
 
-				$this->setLoginAsFailed( 'login.cooldown.fail' );
 				$this->getCon()->fireEvent( 'cooldown_fail' );
 				throw new \Exception( $sErrorString );
 			}

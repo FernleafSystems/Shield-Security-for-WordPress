@@ -13,15 +13,29 @@ class Handler extends Base\Handler {
 	 */
 	public function commitEvents( $aEvents ) {
 		foreach ( $aEvents as $sEvent => $nTs ) {
-			/** @var EntryVO $oEvt */
-			$oEvt = $this->getVo();
-			$oEvt->event = $sEvent;
-			$oEvt->count = 1;
-			$oEvt->created_at = empty( $nTs ) ? Services::Request()->ts() : $nTs;
-			/** @var Insert $oQI */
-			$oQI = $this->getQueryInserter();
-			$oQI->insert( $oEvt );
+			$this->commitEvent( $sEvent, 1, $nTs );
 		}
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param null   $nTs
+	 * @param int    $nCount
+	 * @return bool
+	 */
+	public function commitEvent( $sEvent, $nCount = 1, $nTs = null ) {
+		if ( empty( $nTs ) || !is_numeric( $nTs ) ) {
+			$nTs = Services::Request()->ts();
+		}
+
+		/** @var EntryVO $oEvt */
+		$oEvt = $this->getVo();
+		$oEvt->event = $sEvent;
+		$oEvt->count = max( 1, (int)$nCount );
+		$oEvt->created_at = max( 1, $nTs );
+		/** @var Insert $oQI */
+		$oQI = $this->getQueryInserter();
+		return $oQI->insert( $oEvt );
 	}
 
 	/**

@@ -366,7 +366,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 
 		if ( !$this->getCon()->isPluginAdmin()
 			 && ( $this->isOptionForThisPlugin( $sOptionKey ) || $this->isOptionRestricted( $sOptionKey ) ) ) {
-			$this->doStatIncrement( 'option.save.blocked' );
 			$mNewOptionValue = $mOldValue;
 		}
 

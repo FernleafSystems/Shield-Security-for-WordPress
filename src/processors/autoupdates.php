@@ -191,8 +191,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function forceRunAutoUpdates() {
 		if ( $this->getIfForceRunAutoupdates() ) {
-			$this->doStatIncrement( 'autoupdates.forcerun' );
-			$this->loadWp()->doForceRunAutomaticUpdates();
+			Services::WpGeneral()->doForceRunAutomaticUpdates();
 		}
 	}
 
@@ -210,15 +209,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bUpdate = false;
 		}
 		else if ( !$oFO->isDelayUpdates() ) { // the delay is handles elsewhere
-
-			if ( $oFO->isAutoUpdateCoreMajor() ) {
-				$this->doStatIncrement( 'autoupdates.core.major.allowed' );
-				$bUpdate = true;
-			}
-			else {
-				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
-				$bUpdate = false;
-			}
+			$bUpdate = $oFO->isAutoUpdateCoreMajor();
 		}
 
 		return $bUpdate;
@@ -238,15 +229,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bUpdate = false;
 		}
 		else if ( !$oFO->isDelayUpdates() ) {//TODO delay
-
-			if ( $oFO->isAutoUpdateCoreMinor() ) {
-				$this->doStatIncrement( 'autoupdates.core.minor.allowed' );
-				$bUpdate = true;
-			}
-			else {
-				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
-				$bUpdate = false;
-			}
+			$bUpdate = $oFO->isAutoUpdateCoreMinor();
 		}
 		return $bUpdate;
 	}
@@ -301,7 +284,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 			// first, is global auto updates for plugins set
 			if ( $oFO->isAutoupdateAllPlugins() ) {
-				$this->doStatIncrement( 'autoupdates.plugins.all' );
 				$bDoAutoUpdate = true;
 			}
 			else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
@@ -342,7 +324,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 			// first, is global auto updates for themes set
 			if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
-				$this->doStatIncrement( 'autoupdates.themes.all' );
 				return true;
 			}
 

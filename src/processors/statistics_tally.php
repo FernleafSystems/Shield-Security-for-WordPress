@@ -39,12 +39,14 @@ class ICWP_WPSF_Processor_Statistics_Tally extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 */
 	protected function commit() {
+		/** @var ICWP_WPSF_FeatureHandler_Statistics $oMod */
+		$oMod = $this->getMod();
 		$aEntries = apply_filters( $this->getMod()->prefix( 'collect_stats' ), [] );
 		if ( empty( $aEntries ) || !is_array( $aEntries ) ) {
 			return;
 		}
 
-		$oDbh = $this->getDbHandler();
+		$oDbh = $oMod->getDbHandler();
 		foreach ( $aEntries as $aCollection ) {
 			foreach ( $aCollection as $sStatKey => $nTally ) {
 

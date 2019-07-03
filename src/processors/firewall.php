@@ -137,7 +137,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			if ( $bFAIL ) {
 				$this->getCon()
 					 ->fireEvent(
-						 'block_exeupload',
+						 'block_exefile',
 						 [
 							 'audit' => [
 								 'blockresponse' => $oFO->getBlockResponse(),
@@ -146,7 +146,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 						 ]
 
 					 );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
 			}
 		}
 		return !$bFAIL;
@@ -219,7 +218,6 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 						 ]
 					 ]
 				 );
-			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
 		}
 
 		return !$bFAIL;

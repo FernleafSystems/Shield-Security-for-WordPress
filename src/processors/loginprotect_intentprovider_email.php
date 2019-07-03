@@ -21,8 +21,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$oUpd->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
-			$this->doStatIncrement( 'login.twofactor.started' )
-				 ->sendEmailTwoFactorVerify( $oUser )
+			$this->sendEmailTwoFactorVerify( $oUser )
 				 ->setLoginCaptured();
 		}
 		return $oUser;

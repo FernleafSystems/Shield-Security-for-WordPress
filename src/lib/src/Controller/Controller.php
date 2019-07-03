@@ -386,7 +386,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpDashboardSetup() {
-		if ( $this->isValidAdminArea() && $this->isPluginAdmin() ) {
+		if ( $this->isValidAdminArea() ) {
 			wp_add_dashboard_widget(
 				$this->prefix( 'dashboard_widget' ),
 				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),

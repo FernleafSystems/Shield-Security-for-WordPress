@@ -420,7 +420,7 @@
       "blockparam_phpcode":         {
         "cat": 3
       },
-      "block_exeupload":            {
+      "block_exefile":              {
         "cat": 3
       },
       "email_send_fail":            {

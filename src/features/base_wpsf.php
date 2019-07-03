@@ -85,6 +85,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 */
 	protected function updateHandler() {
+		$this->updateHandler_ConvertInsights();
+	}
+
+	private function updateHandler_ConvertInsights() {
 		$aMap = [
 			'insights_last_comment_block_at'  => 'spam_block_bot',
 			'insights_last_firewall_block_at' => 'firewall_block',

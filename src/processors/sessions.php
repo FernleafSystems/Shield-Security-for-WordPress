@@ -119,8 +119,8 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			$this->setLoginCaptured();
 			// If they have a currently active session, terminate it (i.e. we replace it)
 			$oSession = $this->queryGetSession( $this->getSessionId(), $oUser->user_login );
-			if ( !empty( $oSession ) ) {
-				$this->queryTerminateSession( $oSession );
+			if ( $oSession instanceof Session\EntryVO ) {
+				$this->terminateSession( $oSession->id );
 				$this->clearCurrentSession();
 			}
 
@@ -137,16 +137,31 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return boolean
+	 * @param int $nSessionId
+	 * @return bool
+	 */
+	public function terminateSession( $nSessionId ) {
+		$this->getCon()->fireEvent( 'terminate_session' );
+		return $this->getMod()
+					->getDbHandler()
+					->getQueryDeleter()
+					->deleteById( $nSessionId );
+	}
+
+	/**
+	 * @return bool
 	 */
 	protected function terminateCurrentSession() {
-		$mResult = false;
+		$bSuccess = false;
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
-			$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
+			$oSes = $this->getCurrentSession();
+			if ( $oSes instanceof Session\EntryVO ) {
+				$bSuccess = $this->terminateSession( $oSes->id );
+			}
 			$this->getCon()->clearSession();
 			$this->clearCurrentSession();
 		}
-		return $mResult;
+		return $bSuccess;
 	}
 
 	/**
@@ -217,15 +232,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			return null;
 		}
 
+		$this->getCon()->fireEvent( 'start_session' );
+
 		/** @var Session\Insert $oInsert */
 		$oInsert = $this->getMod()
 						->getDbHandler()
 						->getQueryInserter();
-		$bSuccess = $oInsert->create( $sSessionId, $sUsername );
-		if ( $bSuccess ) {
-			$this->doStatIncrement( 'user.session.start' );
-		}
-		return $bSuccess;
+		return $oInsert->create( $sSessionId, $sUsername );
 	}
 
 	/**
@@ -243,22 +256,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param Session\EntryVO $oSession
-	 * @return bool|int
-	 */
-	public function queryTerminateSession( $oSession ) {
-		if ( empty( $oSession ) ) {
-			return true;
-		}
-		$this->doStatIncrement( 'user.session.terminate' );
-
-		return $this->getMod()
-					->getDbHandler()
-					->getQueryDeleter()
-					->deleteEntry( $oSession );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getTableColumnsByDefinition() {
@@ -271,5 +268,14 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	protected function getAutoExpirePeriod() {
 		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
+	}
+
+	/**
+	 * @param Session\EntryVO $oSes
+	 * @return bool
+	 * @deprecated 7.5
+	 */
+	public function queryTerminateSession( $oSes ) {
+		return ( $oSes instanceof Session\EntryVO ) ? $this->terminateSession( $oSes->id ) : true;
 	}
 }

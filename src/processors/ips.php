@@ -201,8 +201,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		if ( $bKill ) {
 			$this->getCon()->fireEvent( 'conn_kill' );
-			$this->setIfLogRequest( false )// don't log traffic from killed requests
-				 ->doStatIncrement( 'ip.connection.killed' );
+			$this->setIfLogRequest( false ); // don't log traffic from killed requests
 
 			/** @var IPs\Update $oUp */
 			$oUp = $this->getMod()
@@ -365,7 +364,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				/** @var IPs\Update $oUp */
 				$oUp = $oMod->getDbHandler()->getQueryUpdater();
 				$oUp->updateTransgressions( $oBlackIp, $nNewOffenses );
-				$this->doStatIncrement( 'ip.transgression.incremented' );
 
 				$oCon->fireEvent( $bBlock ? 'ip_blocked' : 'ip_offense',
 					[

@@ -211,7 +211,7 @@ class Strings extends Base\Strings {
 			'blockparam_phpcode'         => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'PHP Code', 'wp-simple-firewall' ) )
 			],
-			'block_exeupload'            => [
+			'block_exefile'              => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'EXE File Uploads', 'wp-simple-firewall' ) )
 			],
 			'email_send_success'         => [

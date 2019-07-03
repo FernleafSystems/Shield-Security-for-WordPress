@@ -527,6 +527,9 @@
         "recent": true,
         "offense": true
       },
+      "hide_login_url":          {
+        "audit":  false
+      },
       "2fa_success":             {
         "audit":  false,
         "recent": true

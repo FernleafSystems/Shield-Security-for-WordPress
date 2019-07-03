@@ -26,10 +26,8 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 				( new Shield\Utilities\ReCaptcha\TestRequest() )
 					->setMod( $oFO )
 					->test();
-				$this->doStatIncrement( 'login.recaptcha.verified' );
 			}
 			catch ( \Exception $oE ) {
-				$this->setLoginAsFailed( 'login.recaptcha.fail' );
 				throw $oE;
 			}
 		}

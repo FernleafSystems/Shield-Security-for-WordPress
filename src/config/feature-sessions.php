@@ -66,6 +66,14 @@
       "secadmin_at",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":               {
+      "start_session":             {
+        "audit":  false
+      },
+      "terminate_session":             {
+        "audit":  false
+      }
+    }
   }
 }

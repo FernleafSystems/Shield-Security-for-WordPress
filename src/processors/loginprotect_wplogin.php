@@ -213,14 +213,13 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * Will by default send a 404 response screen. Has a filter to specify redirect URL.
 	 */
 	protected function doWpLoginFailedRedirect404() {
-
-		$this->doStatIncrement( 'login.rename.fail' );
+		$this->getCon()->fireEvent( 'hide_login_url' );
 
 		$sRedirectUrl = apply_filters( 'icwp_shield_renamewplogin_redirect_url', false );
 		if ( !empty( $sRedirectUrl ) ) {
 			$sRedirectUrl = esc_url( $sRedirectUrl );
 			if ( @parse_url( $sRedirectUrl ) !== false ) {
-				Services::WpGeneral()->doRedirect( $sRedirectUrl, [], false );
+				Services::Response()->redirect( $sRedirectUrl, [], false );
 			}
 		}
 

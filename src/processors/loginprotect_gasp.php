@@ -64,7 +64,6 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 					]
 				]
 			);
-			$this->setLoginAsFailed( $sActionAttempted.'.gasp.checkbox.fail' );
 			$sError = __( "You must check that box to say you're not a bot.", 'wp-simple-firewall' );
 		}
 		else if ( !empty( $sHoney ) ) {
@@ -77,7 +76,6 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 					]
 				]
 			);
-			$this->setLoginAsFailed( $sActionAttempted.'.gasp.honeypot.fail' );
 			$sError = __( 'You appear to be a bot.', 'wp-simple-firewall' );
 		}
 		else {

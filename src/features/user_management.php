@@ -66,6 +66,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 				foreach ( $aIds as $nId ) {
 					if ( is_numeric( $nId ) && ( $nId != $nYourId ) ) {
 						$oDel->deleteById( $nId );
+						$this->getCon()->fireEvent( 'terminate_session' );
 					}
 				}
 				$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );

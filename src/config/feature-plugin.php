@@ -576,6 +576,12 @@
       },
       "master_url_set":         {
         "stat": false
+      },
+      "recaptcha_success":             {
+        "audit":  false
+      },
+      "recaptcha_fail":             {
+        "audit":  false
       }
     },
     "wizards":                {
