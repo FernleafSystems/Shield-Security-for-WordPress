@@ -32,6 +32,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return bool
 	 */
+	public function isAvailable() {
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
 	abstract public function isEnabled();
 
 	/**

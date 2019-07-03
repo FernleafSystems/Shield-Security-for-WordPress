@@ -147,6 +147,7 @@ p.code-description {
 /** Section summaries **/
 a.section-help-video {
 	text-decoration: none;
+	margin: 0 12px 0 0;
 }
 a.section-help-video > span {
 	font-size: 28px;

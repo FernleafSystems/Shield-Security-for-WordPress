@@ -43,6 +43,16 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return ICWP_WPSF_Processor_ScanBase|null
+	 */
+	public function getScannerFromSlug( $sSlug ) {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return in_array( $sSlug, $oFO->getAllScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_Apc
 	 */
 	public function getSubProcessorApc() {

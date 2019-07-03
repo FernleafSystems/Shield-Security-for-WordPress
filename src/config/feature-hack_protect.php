@@ -18,7 +18,6 @@
   "sections":    [
     {
       "slug":        "section_scan_options",
-      "primary":     true,
       "title":       "Scan Options",
       "title_short": "Schedule",
       "summary":     [
@@ -26,25 +25,8 @@
       ]
     },
     {
-      "slug":        "section_scan_malware",
-      "title":       "Malware Scan",
-      "title_short": "Malware Scan",
-      "summary":     [
-        "Purpose - Detect malicious changes to your themes and plugins.",
-        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
-      ]
-    },
-    {
-      "slug":        "section_realtime",
-      "title":       "Realtime Protection",
-      "title_short": "Realtime Protection",
-      "summary":     [
-        "Purpose - Provides realtime protection for certain key files.",
-        "Recommendation - Keep realtime protection turned on to protect key files."
-      ]
-    },
-    {
-      "slug":        "section_core_file_integrity_scan",
+      "slug":        "section_scan_wcf",
+      "primary":     true,
       "title":       "WordPress Core File Scanner",
       "title_short": "WP Core File Scanner",
       "summary":     [
@@ -53,7 +35,7 @@
       ]
     },
     {
-      "slug":        "section_unrecognised_file_scan",
+      "slug":        "section_scan_ufc",
       "title":       "Unrecognised Files Scanner",
       "title_short": "Unrecognised Files Scanner",
       "summary":     [
@@ -71,7 +53,25 @@
       ]
     },
     {
-      "slug":        "section_pluginthemes_guard",
+      "slug":        "section_realtime",
+      "title":       "Realtime Protection",
+      "title_short": "Realtime Protection",
+      "summary":     [
+        "Purpose - Provides realtime protection for certain key files.",
+        "Recommendation - Keep realtime protection turned on to protect key files."
+      ]
+    },
+    {
+      "slug":        "section_scan_mal",
+      "title":       "Malware Scan",
+      "title_short": "Malware Scan",
+      "summary":     [
+        "Purpose - Detect malicious changes to your themes and plugins.",
+        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
+      ]
+    },
+    {
+      "slug":        "section_scan_ptg",
       "help_video":  {
         "provider":  "vimeo",
         "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
@@ -85,7 +85,7 @@
       ]
     },
     {
-      "slug":        "section_wpvuln_scan",
+      "slug":        "section_scan_wpv",
       "title":       "Vulnerability Scanner",
       "title_short": "Vulnerability Scanner",
       "summary":     [
@@ -142,7 +142,7 @@
     },
     {
       "key":           "enable_wpvuln_scan",
-      "section":       "section_wpvuln_scan",
+      "section":       "section_scan_wpv",
       "premium":       true,
       "default":       "enabled_email",
       "type":          "select",
@@ -168,7 +168,7 @@
     },
     {
       "key":         "wpvuln_scan_autoupdate",
-      "section":     "section_wpvuln_scan",
+      "section":     "section_scan_wpv",
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
@@ -180,7 +180,7 @@
     },
     {
       "key":           "wpvuln_scan_display",
-      "section":       "section_wpvuln_scan",
+      "section":       "section_scan_wpv",
       "default":       "enabled_admin",
       "premium":       true,
       "type":          "select",
@@ -231,7 +231,7 @@
     },
     {
       "key":         "enable_core_file_integrity_scan",
-      "section":     "section_core_file_integrity_scan",
+      "section":     "section_scan_wcf",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://icwp.io/wpsf36",
@@ -242,7 +242,7 @@
     },
     {
       "key":         "attempt_auto_file_repair",
-      "section":     "section_core_file_integrity_scan",
+      "section":     "section_scan_wcf",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://icwp.io/wpsf36",
@@ -324,7 +324,7 @@
     },
     {
       "key":           "enable_unrecognised_file_cleaner_scan",
-      "section":       "section_unrecognised_file_scan",
+      "section":       "section_scan_ufc",
       "default":       "enabled_report_only",
       "type":          "select",
       "value_options": [
@@ -353,7 +353,7 @@
     },
     {
       "key":         "ufc_scan_uploads",
-      "section":     "section_unrecognised_file_scan",
+      "section":     "section_scan_ufc",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://icwp.io/95",
@@ -364,7 +364,7 @@
     },
     {
       "key":         "ufc_exclusions",
-      "section":     "section_unrecognised_file_scan",
+      "section":     "section_scan_ufc",
       "default":     [
         "error_log",
         ".htaccess",
@@ -406,7 +406,7 @@
     },
     {
       "key":           "mal_scan_enable",
-      "section":       "section_scan_malware",
+      "section":       "section_scan_mal",
       "premium":       true,
       "default":       "disabled",
       "type":          "select",
@@ -428,7 +428,7 @@
     },
     {
       "key":         "mal_autorepair_core",
-      "section":     "section_scan_malware",
+      "section":     "section_scan_mal",
       "type":        "checkbox",
       "default":     "Y",
       "link_info":   "",
@@ -439,7 +439,7 @@
     },
     {
       "key":         "mal_autorepair_plugins",
-      "section":     "section_scan_malware",
+      "section":     "section_scan_mal",
       "type":        "checkbox",
       "default":     "Y",
       "link_info":   "",
@@ -450,7 +450,7 @@
     },
     {
       "key":         "mal_autorepair_surgical",
-      "section":     "section_scan_malware",
+      "section":     "section_scan_mal",
       "type":        "checkbox",
       "default":     "N",
       "link_info":   "",
@@ -461,7 +461,7 @@
     },
     {
       "key":           "ptg_enable",
-      "section":       "section_pluginthemes_guard",
+      "section":       "section_scan_ptg",
       "premium":       true,
       "default":       "disabled",
       "type":          "select",
@@ -483,7 +483,7 @@
     },
     {
       "key":         "ptg_depth",
-      "section":     "section_pluginthemes_guard",
+      "section":     "section_scan_ptg",
       "premium":     true,
       "type":        "integer",
       "default":     1,
@@ -496,7 +496,7 @@
     },
     {
       "key":         "ptg_extensions",
-      "section":     "section_pluginthemes_guard",
+      "section":     "section_scan_ptg",
       "premium":     true,
       "default":     [
         "php",
@@ -514,7 +514,7 @@
     },
     {
       "key":         "ptg_reinstall_links",
-      "section":     "section_pluginthemes_guard",
+      "section":     "section_scan_ptg",
       "premium":     true,
       "type":        "checkbox",
       "default":     "Y",

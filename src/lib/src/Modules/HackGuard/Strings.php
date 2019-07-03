@@ -95,7 +95,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_wpvuln_scan' :
+			case 'section_scan_wpv' :
 				$sTitleShort = __( 'Vulnerabilities', 'wp-simple-firewall' );
 				$sTitle = __( 'Vulnerabilities Scanner', 'wp-simple-firewall' );
 				$aSummary = [
@@ -105,7 +105,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_core_file_integrity_scan' :
+			case 'section_scan_wcf' :
 				$sTitleShort = __( 'Core Files', 'wp-simple-firewall' );
 				$sTitle = __( 'WordPress Core File Scanner', 'wp-simple-firewall' );
 				$aSummary = [
@@ -114,7 +114,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_unrecognised_file_scan' :
+			case 'section_scan_ufc' :
 				$sTitleShort = __( 'Unrecognised Files', 'wp-simple-firewall' );
 				$sTitle = __( 'Unrecognised Files Scanner', 'wp-simple-firewall' );
 				$aSummary = [
@@ -133,7 +133,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_pluginthemes_guard' :
+			case 'section_scan_ptg' :
 				$sTitle = __( 'Plugins and Themes Guard', 'wp-simple-firewall' );
 				$sTitleShort = __( 'Plugins/Themes Guard', 'wp-simple-firewall' );
 				$aSummary = [
@@ -142,7 +142,7 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_scan_malware' :
+			case 'section_scan_mal' :
 				$sTitleShort = __( 'Malware', 'wp-simple-firewall' );
 				$sTitle = __( 'Malware Scanner', 'wp-simple-firewall' );
 				$aSummary = [

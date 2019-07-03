@@ -129,6 +129,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getAllScanSlugs() {
+		return $this->getDef( 'all_scan_slugs' );
+	}
+
+	/**
 	 * @return int[] - key is scan slug
 	 */
 	public function getLastScansAt() {
@@ -140,7 +147,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aEvents = $oSel->getLatestForAllEvents();
 
 		$aLatest = [];
-		foreach ( $this->getDef( 'all_scan_slugs' ) as $sScan ) {
+		foreach ( $this->getAllScanSlugs() as $sScan ) {
 			$sEvt = $sScan.'_scan_run';
 			$aLatest[ $sScan ] = isset( $aEvents[ $sEvt ] ) ? $aEvents[ $sEvt ]->created_at : 0;
 		}
@@ -638,23 +645,23 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aNotices = [];
 		switch ( $sSectionSlug ) {
 
-			case 'section_core_file_integrity_scan':
+			case 'section_scan_wcf':
 				$nTime = $this->getLastScanAt( 'wcf' );
 				break;
 
-			case 'section_unrecognised_file_scan':
+			case 'section_scan_ufc':
 				$nTime = $this->getLastScanAt( 'ufc' );
 				break;
 
-			case 'section_pluginthemes_guard':
+			case 'section_scan_ptg':
 				$nTime = $this->getLastScanAt( 'ptg' );
 				break;
 
-			case 'section_wpvuln_scan':
+			case 'section_scan_wpv':
 				$nTime = $this->getLastScanAt( 'wpv' );
 				break;
 
-			case 'section_scan_malware':
+			case 'section_scan_mal':
 				$nTime = $this->getLastScanAt( 'mal' );
 				break;
 
@@ -731,12 +738,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $this->getProcessor();
+		$oScanPro = $oP->getSubProScanner();
 		if ( !empty( $aFormParams ) ) {
 			foreach ( array_keys( $aFormParams ) as $sScan ) {
 
-				$oTablePro = $this->getScannerFromSlug( $sScan );
+				$oTablePro = $oScanPro->getScannerFromSlug( $sScan );
 
-				if ( !empty( $oTablePro ) && $oTablePro->isEnabled() ) {
+				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
 					$oTablePro->doScan();
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
@@ -773,7 +783,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aItemIds = $oReq->post( 'ids' );
 		$sScannerSlug = $oReq->post( 'fScan' );
 
-		$oTablePro = $this->getScannerFromSlug( $sScannerSlug );
+		/** @var ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $this->getProcessor();
+		$oTablePro = $oP->getSubProScanner()->getScannerFromSlug( $sScannerSlug );
 
 		if ( empty( $oTablePro ) ) {
 			$sMessage = __( 'Unsupported scanner', 'wp-simple-firewall' );
@@ -817,41 +829,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sSlug
-	 * @return ICWP_WPSF_Processor_ScanBase|null
-	 */
-	private function getScannerFromSlug( $sSlug ) {
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oScanPro = $oP->getSubProScanner();
-		switch ( $sSlug ) {
-			case 'apc':
-				$oScannerPro = $oScanPro->getSubProcessorApc();
-				break;
-			case 'mal':
-				$oScannerPro = $oScanPro->getSubProcessorMal();
-				break;
-			case 'ptg':
-				$oScannerPro = $oScanPro->getSubProcessorPtg();
-				break;
-			case 'ufc':
-				$oScannerPro = $oScanPro->getSubProcessorUfc();
-				break;
-			case 'wcf':
-				$oScannerPro = $oScanPro->getSubProcessorWcf();
-				break;
-			case 'wpv':
-				$oScannerPro = $oScanPro->getSubProcessorWpv();
-				break;
-			default:
-				$oScannerPro = null;
-				break;
-		}
-
-		return $oScannerPro;
-	}
-
-	/**
 	 * @param string $sSection
 	 * @return array
 	 */
@@ -860,7 +837,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		switch ( $sSection ) {
 
-			case 'section_pluginthemes_guard':
+			case 'section_scan_ptg':
 				if ( !$this->canPtgWriteToDisk() ) {
 					$aWarnings[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"', 'wp-simple-firewall' ), $this->getPtgSnapsBaseDir() );
 				}
@@ -1060,7 +1037,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wcf' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 				];
@@ -1081,7 +1058,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
 				];
@@ -1102,7 +1079,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
 				];
@@ -1123,7 +1100,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
 				];
@@ -1207,7 +1184,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					__( 'Core files scanned regularly for hacks', 'wp-simple-firewall' )
 					: __( "Core files are never scanned for hacks!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wcf' ),
 			];
 			if ( $bCore && !$this->isWcfScanAutoRepair() ) {
 				$aThis[ 'key_opts' ][ 'wcf_repair' ] = [
@@ -1217,7 +1194,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
 						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
 					'weight'  => 1,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wcf' ),
 				];
 			}
 
@@ -1229,7 +1206,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					__( 'Core directories scanned regularly for unrecognised files', 'wp-simple-firewall' )
 					: __( "WP Core is never scanned for unrecognised files!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
 			];
 			if ( $bUcf && !$this->isUfcDeleteFiles() ) {
 				$aThis[ 'key_opts' ][ 'ufc_repair' ] = [
@@ -1239,7 +1216,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
 						: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
 					'weight'  => 1,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
 				];
 			}
 
@@ -1251,7 +1228,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					__( 'Regularly scanning for known vulnerabilities', 'wp-simple-firewall' )
 					: __( "Plugins/Themes never scanned for vulnerabilities!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 			];
 			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
 				$aThis[ 'key_opts' ][ 'wpv_repair' ] = [
@@ -1261,7 +1238,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
 						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
 					'weight'  => 1,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 				];
 			}
 
@@ -1274,7 +1251,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
 					: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
 			];
 		}
 

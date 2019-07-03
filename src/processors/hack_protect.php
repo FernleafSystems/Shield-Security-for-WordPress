@@ -88,15 +88,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	public function buildInsightsVars() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var HackGuard\Strings $oStrings */
-		$oStrings = $oMod->getStrings();
-
-		$aScanNames = $oStrings->getScanNames();
-
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler()->getQuerySelector();
-
-		$oCarbon = Services::Request()->carbon();
 
 		$aLatestScans = array_map(
 			function ( $nTime ) {
@@ -110,6 +101,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$oMod->getLastScansAt()
 		);
 
+		$oScannerMain = $this->getSubProScanner();
 		$aData = [
 			'ajax'    => [
 				'start_scans'           => $oMod->getAjaxActionData( 'start_scans', true ),
@@ -148,107 +140,74 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'scans'   => [
 				'apc' => [
 					'flags'   => [
-						'is_enabled'    => true,
-						'is_available'  => true,
-						'has_items'     => true,
-						'has_last_scan' => $oMod->getLastScanAt( 'apc' ) > 0
+						'has_items' => true,
 					],
-					'hrefs'   => [
-						'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_apc' )
-					],
-					'vars'    => [
-						'last_scan_at' => $aLatestScans[ 'apc' ],
-					],
-					'count'   => $oSelector->countForScan( 'apc' ),
+					'hrefs'   => [],
+					'vars'    => [],
 					'strings' => [
-						'title'    => $aScanNames[ 'apc' ],
 						'subtitle' => __( "Discover plugins that may have been abandoned by their authors", 'wp-simple-firewall' )
 					],
 				],
 				'wcf' => [
 					'flags'   => [
-						'is_enabled'    => true,
-						'is_available'  => true,
-						'has_items'     => true,
-						'has_last_scan' => $oMod->getLastScanAt( 'wcf' ) > 0
+						'has_items' => true,
 					],
-					'hrefs'   => [
-						'options' => $oMod->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' )
-					],
-					'vars'    => [
-						'last_scan_at' => $aLatestScans[ 'wcf' ],
-					],
-					'count'   => $oSelector->countForScan( 'wcf' ),
+					'hrefs'   => [],
+					'vars'    => [],
 					'strings' => [
-						'title'        => $aScanNames[ 'wcf' ],
 						'subtitle'     => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
-						'last_scan_at' => sprintf(
-							__( 'Last Scan: %s', 'wp-simple-firewall' ),
-							$oCarbon->setTimestamp( $oMod->getLastScanAt( 'apc' ) )->diffForHumans()
-						),
 					],
 				],
 				'ufc' => [
 					'flags'   => [
-						'is_enabled'    => true,
-						'is_available'  => true,
-						'has_items'     => true,
-						'has_last_scan' => $oMod->getLastScanAt( 'ufc' ) > 0
+						'has_items' => true,
 					],
-					'hrefs'   => [
-						'options' => $oMod->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' )
-					],
-					'vars'    => [
-						'last_scan_at' => $aLatestScans[ 'ufc' ],
-					],
-					'count'   => $oSelector->countForScan( 'ufc' ),
+					'hrefs'   => [],
+					'vars'    => [],
 					'strings' => [
-						'title'    => $aScanNames[ 'ufc' ],
 						'subtitle' => __( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' )
 					],
 				],
 				'mal' => [
 					'flags'   => [
-						'is_enabled'    => $oMod->isMalScanEnabled(),
-						'is_available'  => $oMod->isPremium(),
-						'has_items'     => true,
-						'has_last_scan' => $oMod->getLastScanAt( 'mal' ) > 0
+						'has_items' => true,
 					],
-					'hrefs'   => [
-						'options'       => $oMod->getUrl_DirectLinkToSection( 'section_scan_malware' ),
-						'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_scan_malware' ),
-					],
-					'vars'    => [
-						'last_scan_at' => $aLatestScans[ 'mal' ],
-					],
-					'count'   => $oSelector->countForScan( 'mal' ),
+					'hrefs'   => [],
+					'vars'    => [],
 					'strings' => [
-						'title'    => $aScanNames[ 'mal' ],
 						'subtitle' => _wpsf__( "Detect files that may be infected with malware" )
 					],
 				],
 				'wpv' => [
 					'flags'   => [
-						'is_enabled'    => $oMod->isWpvulnEnabled(),
-						'is_available'  => $oMod->isPremium(),
-						'has_items'     => true,
-						'has_last_scan' => $oMod->getLastScanAt( 'wpv' ) > 0
+						'has_items' => true,
 					],
-					'hrefs'   => [
-						'options' => $oMod->getUrl_DirectLinkToSection( 'section_wpvuln_scan' )
-					],
-					'vars'    => [
-						'last_scan_at' => $aLatestScans[ 'wpv' ],
-					],
-					'count'   => $oSelector->countForScan( 'wpv' ),
+					'hrefs'   => [],
+					'vars'    => [],
 					'strings' => [
-						'title'    => $aScanNames[ 'wpv' ],
 						'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' )
 					],
 				],
 				'ptg' => $this->getInsightVarsScan_Ptg(),
 			],
 		];
+
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
+		$oSelector = $oMod->getDbHandler()->getQuerySelector();
+		/** @var HackGuard\Strings $oStrings */
+		$oStrings = $oMod->getStrings();
+		$aScanNames = $oStrings->getScanNames();
+		foreach ( $aData[ 'scans' ] as $sSlug => &$aScanData ) {
+			$oScanner = $oScannerMain->getScannerFromSlug( $sSlug );
+			$aScanData[ 'flags' ][ 'is_available' ] = $oScanner->isAvailable();
+			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanner->isEnabled();
+			$aScanData[ 'flags' ][ 'has_last_scan' ] = $oMod->getLastScanAt( $sSlug ) > 0;
+			$aScanData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $sSlug ];
+			$aScanData[ 'strings' ][ 'title' ] = $aScanNames[ $sSlug ];
+			$aScanData[ 'hrefs' ][ 'options' ] = $oMod->getUrl_DirectLinkToSection( 'section_scan_'.$sSlug );
+			$aScanData[ 'hrefs' ][ 'please_enable' ] = $oMod->getUrl_DirectLinkToSection( 'section_scan_'.$sSlug );
+			$aScanData[ 'count' ] = $oSelector->countForScan( $sSlug );
+		}
 
 		return $aData;
 	}
@@ -259,8 +218,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	private function getInsightVarsScan_Ptg() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var HackGuard\Strings $oStrings */
-		$oStrings = $oMod->getStrings();
 		$oReq = Services::Request();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
@@ -369,27 +326,14 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		return [
 			'flags'   => [
-				'is_enabled'    => $oMod->isPtgEnabled(),
-				'is_available'  => $oMod->isPremium(),
-				'has_last_scan' => $oMod->getLastScanAt( 'ptg' ) > 0,
-				'has_items'     => $oFullResults->hasItems(),
-				'has_plugins'   => !empty( $aPlugins ),
-				'has_themes'    => !empty( $aThemes ),
+				'has_items'    => $oFullResults->hasItems(),
+				'has_plugins'  => !empty( $aPlugins ),
+				'has_themes'   => !empty( $aThemes ),
 			],
-			'hrefs'   => [
-				'options'       => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-				'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-			],
-			'vars'    => [
-				'last_scan_at' => sprintf(
-					__( 'Last Scan: %s', 'wp-simple-firewall' ),
-					$oReq->carbon()->setTimestamp( $oMod->getLastScanAt( 'ptg' ) )->diffForHumans()
-				)
-			],
-			'count'   => $oSelector->countForScan( 'ptg' ),
+			'hrefs'   => [],
+			'vars'    => [],
 			'assets'  => array_merge( $aPlugins, $aThemes ),
 			'strings' => [
-				'title'               => $oStrings->getScanName( 'ptg' ),
 				'subtitle'            => __( "Detects unauthorized changes to plugins/themes", 'wp-simple-firewall' ),
 				'files_with_problems' => __( 'Files with problems', 'wp-simple-firewall' ),
 				'root_dir'            => __( 'Root directory', 'wp-simple-firewall' ),
