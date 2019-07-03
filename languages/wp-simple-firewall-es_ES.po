@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Shield Security package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2019-06-24 20:57:46+0000\n"
+"PO-Revision-Date: 2019-07-03 11:45:59+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,10 @@ msgstr ""
 "X-Generator: GlotPress/2.3.1\n"
 "Language: es\n"
 "Project-Id-Version: Shield Security\n"
+
+#: src/lib/src/Modules/IPs/Strings.php:232
+msgid "IP address '%s' removed from blacklist using 'unblock' file flag."
+msgstr "La dirección IP '%s' se eliminó de la lista negra usando el archivo bandera 'desbloquear'."
 
 #: src/lib/src/Modules/HackGuard/Strings.php:147
 msgid "Malware Scanner"
@@ -559,7 +563,7 @@ msgstr "Proporcionado por %s"
 msgid "Highlight Plugins"
 msgstr "Plugins Destacados"
 
-#: src/lib/src/Modules/License/Strings.php:34 src/wizards/base.php:218
+#: src/lib/src/Modules/License/Strings.php:34 src/wizards/base.php:211
 msgid "Error"
 msgstr "Error"
 
@@ -1115,7 +1119,7 @@ msgstr "Intentamos enviarle un correo electrónico para que confirme la eliminac
 
 #: src/lib/src/Modules/HackGuard/Strings.php:282
 msgid "Enabling this option for every page low may slow down your site with large numbers of users."
-msgstr "Habilitar esta opción para cada página baja que pueda ralentizar su sitio con un gran número de usuarios."
+msgstr "Habilitar esta opción para cada subpágina que pueda ralentizar su sitio con un gran número de usuarios."
 
 #: src/lib/src/Modules/Lockdown/Strings.php:114
 msgid "Disable Ability To Edit Files From Within WordPress"
@@ -1170,11 +1174,11 @@ msgstr "Equivale a configurar \"DISALLOW_FILE_EDIT\" a TRUE."
 msgid "Origin When Cross-Origin"
 msgstr "Origen Cuando hay Origen Cruzado"
 
-#: src/lib/src/Tables/Build/Traffic.php:118 src/processors/hack_protect.php:292
-#: src/processors/hack_protect.php:300 src/processors/hack_protect.php:301
-#: src/processors/hack_protect.php:320 src/processors/hack_protect.php:321
-#: src/processors/hack_protect.php:341 src/processors/hack_protect.php:349
-#: src/processors/hack_protect.php:350 src/processors/hack_protect.php:351
+#: src/lib/src/Tables/Build/Traffic.php:118 src/processors/hack_protect.php:291
+#: src/processors/hack_protect.php:299 src/processors/hack_protect.php:300
+#: src/processors/hack_protect.php:319 src/processors/hack_protect.php:320
+#: src/processors/hack_protect.php:340 src/processors/hack_protect.php:348
+#: src/processors/hack_protect.php:349 src/processors/hack_protect.php:350
 msgid "unknown"
 msgstr "desconocido"
 
@@ -1539,7 +1543,7 @@ msgstr "Resaltar Plugins Abandonados"
 msgid "User \"%s\" attempted %s but they were caught by the honeypot."
 msgstr "El usuario \"%s\" intentó %s pero fue capturado por el honeypot."
 
-#: src/lib/src/Modules/Plugin/Strings.php:381 src/processors/ips.php:124
+#: src/lib/src/Modules/Plugin/Strings.php:381 src/processors/ips.php:125
 #: src/processors/plugin_badge.php:43
 msgid "Your IP address is: %s"
 msgstr "Su dirección IP es: %s"
@@ -3007,7 +3011,7 @@ msgid "Restrict Access To Key WordPress Plugin Actions"
 msgstr "Restringir el Acceso A Acciones Claves de Plugins de WordPress"
 
 #: src/processors/hack_protect.php:104 src/processors/hack_protect.php:186
-#: src/processors/hack_protect.php:386
+#: src/processors/hack_protect.php:385
 msgid "Last Scan: %s"
 msgstr "Último Escaneo: %s"
 
@@ -3395,7 +3399,7 @@ msgstr "Combinado con su Clave API Yubikey conforma la base de su Autenticación
 msgid "The name of the plugin that will be displayed to your site users."
 msgstr "El nombre del plugin que se mostrará a los usuarios de su sitio."
 
-#: src/processors/hack_protect.php:324
+#: src/processors/hack_protect.php:323
 #: src/processors/hackprotect_scan_apc.php:112
 #: src/processors/hackprotect_scan_wpv.php:258
 msgid "Plugin"
@@ -3417,7 +3421,7 @@ msgstr "Por favor, revise la información del enlace para saber cómo obtener su
 msgid "Menu Title"
 msgstr "Título del Menú"
 
-#: src/processors/hack_protect.php:366
+#: src/processors/hack_protect.php:365
 #: src/processors/hackprotect_scan_apc.php:115
 #: src/processors/hackprotect_scan_wpv.php:261
 msgid "Theme"
@@ -3440,7 +3444,7 @@ msgstr "Clave de API Yubikey"
 msgid "The Main Menu Title Of The Plugin"
 msgstr "Título del Menú Principal Del Plugin"
 
-#: src/processors/hack_protect.php:394
+#: src/processors/hack_protect.php:393
 msgid "Detects unauthorized changes to plugins/themes"
 msgstr "Detecta cambios no autorizados a plugins/temas"
 
@@ -3460,7 +3464,7 @@ msgstr "Su Clave Única de API App de Yubikey "
 msgid "The Main Menu Title Of The Plugin. If left empty, the \"%s\" will be used."
 msgstr "Título del Menú Principal del Plugin. Si se deja vacío, se usará \"%s\"."
 
-#: src/processors/hack_protect.php:395
+#: src/processors/hack_protect.php:394
 msgid "Files with problems"
 msgstr "Archivos con problemas"
 
@@ -3480,7 +3484,7 @@ msgstr "Combinado con su App ID de Yubikey, esto formará la base de su Autentif
 msgid "Company Name"
 msgstr "Nombre de Empresa"
 
-#: src/processors/hack_protect.php:396
+#: src/processors/hack_protect.php:395
 msgid "Root directory"
 msgstr "Directorio raíz"
 
@@ -3500,7 +3504,7 @@ msgstr "Por favor, revise la información del enlace para saber cómo obtener su
 msgid "The Name Of Your Company"
 msgstr "El Nombre De Su Empresa"
 
-#: src/processors/hack_protect.php:397
+#: src/processors/hack_protect.php:396
 msgid "Snapshot taken"
 msgstr "Instantánea tomada"
 
@@ -3520,7 +3524,7 @@ msgstr "Claves Únicas de Yubikey"
 msgid "Provide the name of your company."
 msgstr "Proporcione el nombre de su empresa."
 
-#: src/processors/hack_protect.php:398
+#: src/processors/hack_protect.php:397
 msgid "Re-Install"
 msgstr "Reinstalar"
 
@@ -3540,7 +3544,7 @@ msgstr "Este método para Yubikeys ya no es compatible. Por favor vea su perfil 
 msgid "The Description Of The Plugin"
 msgstr "La Descripción Del Plugin"
 
-#: src/processors/hack_protect.php:399
+#: src/processors/hack_protect.php:398
 msgid "Deactivate and Ignore"
 msgstr "Desactivar e Ignorar"
 
@@ -3560,7 +3564,7 @@ msgstr "Formatear"
 msgid "The description of the plugin displayed on the plugins page."
 msgstr "La descripción del plugin que se muestra en la página de plugins."
 
-#: src/processors/hack_protect.php:400
+#: src/processors/hack_protect.php:399
 msgid "Accept"
 msgstr "Aceptar"
 
@@ -3580,7 +3584,7 @@ msgstr "Escriba las parejas Usuario<->Yubikey que se pueden usar en este sitio."
 msgid "Home URL"
 msgstr "URL de Inicio"
 
-#: src/processors/hack_protect.php:401
+#: src/processors/hack_protect.php:400
 msgid "Upgrade"
 msgstr "Actualizar"
 
@@ -3709,7 +3713,7 @@ msgstr "El %s debe medir %s."
 msgid "Abandoned Plugin(s) Discovered On Your Site."
 msgstr "Plugin(s) Abandonado(s) Descubierto En Su Sitio."
 
-#: src/wizards/base.php:215
+#: src/wizards/base.php:208
 msgid "Next Step"
 msgstr "Próximo Paso"
 
@@ -3729,7 +3733,7 @@ msgstr "icono"
 msgid "Run Scanner"
 msgstr "Ejecutar Escaner"
 
-#: src/wizards/base.php:370
+#: src/wizards/base.php:360
 msgid "%s Wizard"
 msgstr "Asistente de %s"
 
@@ -3750,7 +3754,7 @@ msgstr "Logotipo del Panel"
 msgid "Modified Core WordPress Files Discovered"
 msgstr "Se Descubren Archivos del Núcleo de WordPress Modificados "
 
-#: src/wizards/base.php:513
+#: src/wizards/base.php:504
 msgid "No Access"
 msgstr "Sin Acceso"
 
@@ -4423,7 +4427,7 @@ msgstr "Se han importado con éxito las opciones a su sitio."
 msgid "Successfully sent Firewall Block email alert to: %s"
 msgstr "Correo eléctronico de alerta de Bloqueo del Firewall enviado satisfactoriamente a: %s."
 
-#: src/lib/src/Modules/IPs/Strings.php:232
+#: src/lib/src/Modules/IPs/Strings.php:235
 msgid "404 detected at \"%s\"."
 msgstr "404 detectado en \"%s\"."
 
@@ -4447,7 +4451,7 @@ msgstr "La clave secreta estaba vacía."
 msgid "Failed to send Firewall Block email alert to: %s"
 msgstr "Falló el envio de correo eléctronico de alerta de Bloqueo del Firewall a: %s"
 
-#: src/lib/src/Modules/IPs/Strings.php:235
+#: src/lib/src/Modules/IPs/Strings.php:238
 msgid "Fake Web Crawler detected at \"%s\"."
 msgstr "Se detectó un Rastreador Web Falso en \"%s\"."
 
@@ -4471,7 +4475,7 @@ msgstr "La clave secreta no tenía 40 caracteres."
 msgid "Page parameter failed firewall check."
 msgstr "El parámetro de página no superó el chequeo del firewall."
 
-#: src/lib/src/Modules/IPs/Strings.php:238
+#: src/lib/src/Modules/IPs/Strings.php:241
 msgid "Link cheese access detected at \"%s\"."
 msgstr "Acceso a enlace de queso detectado a  \"%s\"."
 
@@ -4495,7 +4499,7 @@ msgstr "La clave secreta contiene caracteres no válidos, debe ser solo letras y
 msgid "The offending parameter was \"%s\" with a value of \"%s\"."
 msgstr "El parámetro malicioso era \"%s\" con valor de \"%s\"."
 
-#: src/lib/src/Modules/IPs/Strings.php:241
+#: src/lib/src/Modules/IPs/Strings.php:244
 msgid "Attempted login failed by user \"%s\"."
 msgstr "El usuario \"%s\" no pudo iniciar sesión."
 
@@ -4519,7 +4523,7 @@ msgstr "La URL del sitio de origen no se pudo analizar correctamente."
 msgid "Visitor connection was killed with wp_die()"
 msgstr "La conexión de visita fue terminada con wp_die()"
 
-#: src/lib/src/Modules/IPs/Strings.php:244
+#: src/lib/src/Modules/IPs/Strings.php:247
 msgid "Attempted login with invalid user \"%s\"."
 msgstr "Se intentó iniciar sesión con usuario no válido \"%s\"."
 
@@ -4543,7 +4547,7 @@ msgstr "No se pudo analizar la respuesta del sitio."
 msgid "Visitor connection was killed with wp_die() and a message"
 msgstr "La conexión visitante fue eliminada con wp_die() y un mensaje"
 
-#: src/lib/src/Modules/IPs/Strings.php:247
+#: src/lib/src/Modules/IPs/Strings.php:250
 msgid "Empty user agent detected at \"%s\"."
 msgstr "Agente de usuario vacío detectado en \"%s\"."
 
@@ -4567,7 +4571,7 @@ msgstr "Compruebe que la clave secreta es correcta para el sitio remoto."
 msgid "Visitor was sent HOME"
 msgstr "Visitante fue enviado a CASA"
 
-#: src/lib/src/Modules/IPs/Strings.php:250
+#: src/lib/src/Modules/IPs/Strings.php:253
 msgid "Access to XML-RPC detected at \"%s\"."
 msgstr "Acceso a XML-RPC detectado en \"%s\"."
 
@@ -4653,7 +4657,7 @@ msgstr "Desmarque esta opción para ocultar ciertos avisos de administración de
 msgid "Last Activity At"
 msgstr "Última Actividad En"
 
-#: src/processors/ips.php:96
+#: src/processors/ips.php:97
 msgid "No custom message provided."
 msgstr "No se ha proporcionado el mensaje personalizado."
 
@@ -4678,7 +4682,7 @@ msgstr "Mostrar Insignia del Plugin"
 msgid "Last Activity URI"
 msgstr "URI de Última Actividad"
 
-#: src/processors/ips.php:123
+#: src/processors/ips.php:124
 msgid "%s is ignoring you"
 msgstr "%s lo está ignorando"
 
@@ -4705,7 +4709,7 @@ msgstr "Mostrar la Insignia del Plugin En Su Sitio"
 msgid "Login IP"
 msgstr "IP de Acceso"
 
-#: src/processors/ips.php:125
+#: src/processors/ips.php:126
 msgid "Your IP address is whitelisted and NO features you activate apply to you."
 msgstr "Su dirección IP está en la lista blanca y NINGUNAS de las características que active se aplican a usted."
 
@@ -4730,7 +4734,7 @@ msgstr "Habilitando esta opción, ayudas a mantener el plugin, difundiéndolo en
 msgid "You need to enable the User Management feature to view and manage user sessions."
 msgstr "Necesita habilitar la funcionalidad Gestión de Usuario para ver y gestionar sesiones de usuario."
 
-#: src/processors/ips.php:126
+#: src/processors/ips.php:127
 msgid "Including the hiding the WP Login page."
 msgstr "Incluyendo ocultar la página de Inicio de Sesión de WP."
 
@@ -4756,7 +4760,7 @@ msgstr "La insignia del plugin también permite a sus visitantes saber que se to
 msgid "User Management offers real user sessions, finer control over user session time-out, and ensures users have logged-in in a correct manner."
 msgstr "Gestión de Usuario ofrece sesiones de usuario reales, un control más exhaustivo sobre la caducidad de sesiones, y asegura que los usuarios se han conectado de forma correcta."
 
-#: src/processors/ips.php:274
+#: src/processors/ips.php:281
 msgid "You've been blocked by the %s plugin"
 msgstr "Has sido bloqueado por el plugin %s"
 
@@ -4780,7 +4784,7 @@ msgstr "Lea esto cuidadosamente antes de habilitar esta opción."
 msgid "Have full control over passwords used by users on the site."
 msgstr "Tener control total sobre las contraseñas utilizadas por los usuarios en el sitio."
 
-#: src/processors/ips.php:281
+#: src/processors/ips.php:288
 msgid "Time remaining on black list: %s"
 msgstr "Tiempo restante en la lista negra:  %s"
 
@@ -4804,7 +4808,7 @@ msgstr "Borrar Ajustes del Plugin"
 msgid "Requirements"
 msgstr "Requerimientos"
 
-#: src/processors/ips.php:282
+#: src/processors/ips.php:289
 msgid "%s minute"
 msgid_plural "%s minutes"
 msgstr[0] "%s minuto"
@@ -4830,7 +4834,7 @@ msgstr "Borra Todos las Configuraciones del Plugin Tras Desactivarlo"
 msgid "Admin Login Notification"
 msgstr "Notificación de Inicio de Sesión del Administrador"
 
-#: src/processors/ips.php:284
+#: src/processors/ips.php:291
 msgid "You tripped the security plugin defenses a total of %s times making you a suspect."
 msgstr "Ha disparado las defensas del plugin de seguridad un total de %s veces, convirtiéndolo en un sospechoso."
 
@@ -4854,7 +4858,7 @@ msgstr "Cuidado: Borra todos las opciones del plugin al desactivarlo"
 msgid "So you can be made aware of when a WordPress administrator has logged into your site when you are not expecting it."
 msgstr "Así usted será advertido cuando se conecta un administrador de WordPressa su página y no está previsto que se conecte."
 
-#: src/processors/ips.php:285
+#: src/processors/ips.php:292
 msgid "If you believe this to be in error, please contact the site owner and quote your IP address below."
 msgstr "Si cree que esto es un error, comuníquese con el propietario del sitio y escriba a continuación y entre comillas su dirección IP."
 
@@ -4874,7 +4878,7 @@ msgstr "Compatibilidad XML-RPC"
 msgid "Notifications"
 msgstr "Notificaciones"
 
-#: src/processors/ips.php:289
+#: src/processors/ips.php:296
 msgid "Auto-Unblock Your IP"
 msgstr "Auto-Desbloquear Su IP"
 
@@ -4894,7 +4898,7 @@ msgstr "Permitir el Inicio de Sesión A Través de XML-RPC Para Pasar por Alto l
 msgid "Multi-Factor User Authentication"
 msgstr "Autenticación de Usuario Multi-Factor"
 
-#: src/processors/ips.php:290
+#: src/processors/ips.php:297
 msgid "You can automatically unblock your IP address by clicking the button below."
 msgstr "Puede desbloquear automáticamente su dirección IP haciendo clic en el botón de abajo."
 
@@ -4914,7 +4918,7 @@ msgstr "Activar si necesita funcionalidad XML-RPC, p. ej. si usas la aplicación
 msgid "User Session Management"
 msgstr "Gestión de Sesiones de Usuario"
 
-#: src/processors/ips.php:291
+#: src/processors/ips.php:298
 msgid "Unblock My IP Address"
 msgstr "Desbloquear Mi Dirección IP"
 
@@ -4934,7 +4938,7 @@ msgstr "Permitir Importar/Exportar"
 msgid "Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing."
 msgstr "Le permite controlar mejor las sesiones de usuario en su página, expirar las sesiones inactivas y prevenir que se compartan cuentas."
 
-#: src/processors/ips.php:303 src/processors/loginprotect_gasp.php:27
+#: src/processors/ips.php:310 src/processors/loginprotect_gasp.php:27
 msgid "You MUST enable Javascript to be able to login"
 msgstr "DEBE habilitar Javascript para poder iniciar sesión"
 
@@ -4956,7 +4960,7 @@ msgstr "Permitir Importación Y Exportación De Opciones En Este Sitio"
 msgid "Session Options"
 msgstr "Opciones de Sesión"
 
-#: src/processors/ips.php:527
+#: src/processors/ips.php:534
 msgid "No Label"
 msgstr "Sin Etiqueta"
 
@@ -5386,7 +5390,7 @@ msgstr "Fija Una Sesión de Usuario A Una Dirección IP"
 msgid "Calculating"
 msgstr "Calculando"
 
-#: src/features/insights.php:724
+#: src/features/insights.php:723
 msgid "Blacklist IPs"
 msgstr "Lista Negra de IPs"
 
@@ -5394,11 +5398,11 @@ msgstr "Lista Negra de IPs"
 msgid "If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates."
 msgstr "Si usas SVN o GIT y WordPress lo detecta, las actualizaciones automáticas se desactivaran por defecto. Marca la casilla para ignorar los sistemas de control de versión y permitir las actualizaciones automáticas. "
 
-#: icwp-plugin-controller.php:697
+#: src/lib/src/Controller/Controller.php:684
 msgid "Update Now To Keep Your Security Current With The Latest Features."
 msgstr "Actualice Ahora Para Mantener Su Actual Seguridad Con Las Últimas Características."
 
-#: src/features/insights.php:732
+#: src/features/insights.php:731
 msgid "Current IP addresses with offenses against the site."
 msgstr "Direcciones IP actuales con infracciones contra el sitio."
 
@@ -5410,7 +5414,7 @@ msgstr "Enviar Informe Por Correo Electrónico"
 msgid "Security Admin Access Key Accepted."
 msgstr "Clave de Acceso de Administrador de Seguridad Aceptada."
 
-#: src/features/insights.php:779
+#: src/features/insights.php:778
 msgid "Not yet recorded"
 msgstr "No grabado aún"
 
@@ -5490,8 +5494,8 @@ msgstr "Lista de IP no se ha proporcionado"
 msgid "%s will delay upgrades until the new update has been available for the set number of days."
 msgstr "%s retrasará las actualizaciones hasta que la nueva actualización haya estado disponible durante el número de días establecido."
 
-#: src/features/admin_access_restriction.php:456
-#: src/features/admin_access_restriction.php:458
+#: src/features/admin_access_restriction.php:455
+#: src/features/admin_access_restriction.php:457
 msgid "Security Admin session has timed-out."
 msgstr "La sesión de Administrador de Seguridad ha caducado."
 
@@ -5503,7 +5507,7 @@ msgstr "La dirección IP no es una IP válida o un rango CIDR"
 msgid "This helps ensure updates are more stable before they're automatically applied to your site."
 msgstr "Esto ayuda a garantizar que las actualizaciones sean más estables antes de que se apliquen automáticamente a su sitio."
 
-#: src/features/admin_access_restriction.php:456
+#: src/features/admin_access_restriction.php:455
 msgid "Reload now?"
 msgstr "Recargar ahora?"
 
@@ -5515,7 +5519,7 @@ msgstr "Actualice a Pro si desea agregar IPs a la lista negra manualmente."
 msgid "Watch Help Video"
 msgstr "Ver Video de Ayuda"
 
-#: src/features/admin_access_restriction.php:457
+#: src/features/admin_access_restriction.php:456
 msgid "Security Admin session has nearly timed-out."
 msgstr "La sesión de Administrador de Seguridad está próxima a caducar."
 
@@ -5527,8 +5531,8 @@ msgstr "Los rangos de IP no son compatibles actualmente para la lista negra."
 msgid "Save Options"
 msgstr "Guardar Opciones"
 
-#: src/features/admin_access_restriction.php:472
-#: src/features/admin_access_restriction.php:485
+#: src/features/admin_access_restriction.php:471
+#: src/features/admin_access_restriction.php:484
 #: src/lib/src/Modules/Plugin/Strings.php:397
 #: src/lib/src/Modules/Plugin/Strings.php:399
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:35
@@ -5547,7 +5551,7 @@ msgstr "No se admite agregrar manualmente su dirección IP actual a la lista neg
 msgid "Help"
 msgstr "Ayuda"
 
-#: src/features/admin_access_restriction.php:473
+#: src/features/admin_access_restriction.php:472
 msgid "Prevent Tampering With %s Settings"
 msgstr "Prevenir la Manipulación Con Configuración %s"
 
@@ -5559,7 +5563,7 @@ msgstr "Esta IP está reservada y no puede ser incluida en la lista negra."
 msgid "Wizards"
 msgstr "Asistentes"
 
-#: src/features/admin_access_restriction.php:488
+#: src/features/admin_access_restriction.php:487
 msgid "Security plugin is protected against tampering"
 msgstr "El plugin de seguridad está protegido contra manipulación"
 
@@ -5571,7 +5575,7 @@ msgstr "Dirección IP agregada exitosamente"
 msgid "No Wizards"
 msgstr "No hay Asistentes"
 
-#: src/features/admin_access_restriction.php:489
+#: src/features/admin_access_restriction.php:488
 msgid "Security plugin is vulnerable to tampering"
 msgstr "El plugin de seguridad es vulnerable a manipulación"
 
@@ -5604,7 +5608,7 @@ msgstr "Nota"
 msgid "No"
 msgstr "No"
 
-#: src/features/admin_access_restriction.php:496
+#: src/features/admin_access_restriction.php:495
 msgid "Important Options"
 msgstr "Opciones Importantes"
 
@@ -5616,7 +5620,7 @@ msgstr "El bloqueo de IP está apagado porque el límite de infracciones está c
 msgid "Until"
 msgstr "Hasta"
 
-#: src/features/admin_access_restriction.php:499
+#: src/features/admin_access_restriction.php:498
 msgid "Important WP options are protected against tampering"
 msgstr "Opciones importantes de WP están protegidas contra manipulación"
 
@@ -5628,7 +5632,7 @@ msgstr "Dado que el límite de infracciones se establece en 0, estas opciones no
 msgid "Since"
 msgstr "Ya que"
 
-#: src/features/admin_access_restriction.php:500
+#: src/features/admin_access_restriction.php:499
 msgid "Important WP options aren't protected against tampering"
 msgstr "Opciones importantes de WP no están protegidas contra manipulación"
 
@@ -5640,7 +5644,7 @@ msgstr "Su Agente de Usuario parece estar vacío. Recomendamos no activar esta o
 msgid "Info"
 msgstr "Información"
 
-#: src/features/admin_access_restriction.php:507
+#: src/features/admin_access_restriction.php:506
 msgid "WP Admins"
 msgstr "Administradores de WP"
 
@@ -5671,7 +5675,7 @@ msgstr "Advertencia"
 msgid "Logged-In"
 msgstr "Conectado"
 
-#: src/features/admin_access_restriction.php:510
+#: src/features/admin_access_restriction.php:509
 msgid "Admin users are protected against tampering"
 msgstr "Los usuarios administradores están protegidos contra manipulación"
 
@@ -5683,7 +5687,7 @@ msgstr "Los intentos de inicio de sesión repetidos que fallen darán como resul
 msgid "Blog"
 msgstr "Blog"
 
-#: src/features/admin_access_restriction.php:511
+#: src/features/admin_access_restriction.php:510
 msgid "Admin users aren't protected against tampering"
 msgstr "Los usuarios administradores no están protegidos contra manipulación"
 
@@ -5695,7 +5699,7 @@ msgstr "Usted tiene %s infracción(es) en contra de este sitio por lo que su dir
 msgid "Save %s Settings"
 msgstr "Guardar Configuraciones %s "
 
-#: src/features/admin_access_restriction.php:528
+#: src/features/admin_access_restriction.php:527
 msgid "Security Admin Protection"
 msgstr "Protección de Seguridad de Administrador"
 
@@ -5707,7 +5711,7 @@ msgstr "En serio, deje de repetir lo que está haciendo o será bloqueado."
 msgid "Configure Module"
 msgstr "Configurar Módulo"
 
-#: src/features/admin_access_restriction.php:535
+#: src/features/admin_access_restriction.php:534
 msgid "Security Plugin Unprotected"
 msgstr "Plugin de Seguridad Desprotegido"
 
@@ -5719,11 +5723,11 @@ msgstr "Lo sentimos, la función %s puede no estar deshabilitada mientras haya d
 msgid "Actions and Info"
 msgstr "Acciones e Información"
 
-#: src/features/admin_access_restriction.php:537
+#: src/features/admin_access_restriction.php:536
 msgid "The Security Admin protection is not active."
 msgstr "La protección del Administrador de Seguridad no está activa."
 
-#: src/features/license.php:99
+#: src/features/license.php:100
 msgid "Please wait %s before attempting another license check."
 msgstr "Espere %s antes de intentar otra verificación de licencia."
 
@@ -5731,11 +5735,11 @@ msgstr "Espere %s antes de intentar otra verificación de licencia."
 msgid "Perform actions for this module"
 msgstr "Realizar acciones para este módulo"
 
-#: src/features/admin_access_restriction.php:541 src/features/insights.php:264
+#: src/features/admin_access_restriction.php:540 src/features/insights.php:263
 msgid "Go To %s"
 msgstr "Ir A %s"
 
-#: src/features/license.php:100
+#: src/features/license.php:101
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] "%s segundo"
@@ -5745,11 +5749,11 @@ msgstr[1] "%s segundos"
 msgid "Learn More"
 msgstr "Saber Más"
 
-#: src/features/admin_access_restriction.php:541
+#: src/features/admin_access_restriction.php:540
 #: src/features/autoupdates.php:220 src/features/hack_protect.php:1064
 #: src/features/hack_protect.php:1085 src/features/hack_protect.php:1106
 #: src/features/hack_protect.php:1127 src/features/hack_protect.php:1148
-#: src/features/insights.php:265 src/features/insights.php:667
+#: src/features/insights.php:264 src/features/insights.php:666
 #: src/features/lockdown.php:81 src/features/user_management.php:437
 #: src/lib/src/Modules/Base/Strings.php:21
 #: src/lib/src/Modules/Base/Strings.php:37
@@ -5757,7 +5761,7 @@ msgstr "Saber Más"
 msgid "Options"
 msgstr "Opciones"
 
-#: src/features/license.php:106
+#: src/features/license.php:107
 msgid "Valid license found."
 msgstr "Licencia válida encontrada."
 
@@ -5765,11 +5769,11 @@ msgstr "Licencia válida encontrada."
 msgid "Select"
 msgstr "Seleccionar"
 
-#: src/features/admin_access_restriction.php:542
+#: src/features/admin_access_restriction.php:541
 msgid "Security Admin should be turned-on to protect your security settings."
 msgstr "El Administrador de Seguridad debe estar activado para proteger la configuración de seguridad."
 
-#: src/features/license.php:106
+#: src/features/license.php:107
 msgid "Valid license couldn't be found."
 msgstr "No se pudo encontrar una licencia válida."
 
@@ -5777,11 +5781,11 @@ msgstr "No se pudo encontrar una licencia válida."
 msgid "Clear Filters"
 msgstr "Borrar Filtros"
 
-#: src/features/admin_access_restriction.php:611
+#: src/features/admin_access_restriction.php:610
 msgid "Sorry, this plugin is protected against unauthorised attempts to disable it."
 msgstr "Lo sentimos, este plugin está protegido contra intentos no autorizados de desactivarlo."
 
-#: src/features/license.php:220
+#: src/features/license.php:218
 msgid "Automatic license verification failed."
 msgstr "La verificación automática de la licencia falló."
 
@@ -5789,11 +5793,11 @@ msgstr "La verificación automática de la licencia falló."
 msgid "Apply Filters"
 msgstr "Aplicar Filtros"
 
-#: src/features/admin_access_restriction.php:614
+#: src/features/admin_access_restriction.php:613
 msgid "You'll just need to authenticate first and try again."
 msgstr "Solo deberá autenticarse e intentarlo de nuevo."
 
-#: src/features/license.php:310
+#: src/features/license.php:307
 msgid "Attempts to verify Shield Pro license has just failed."
 msgstr "Intentos de verificar que la licencia de Shield Pro haya fallado."
 
@@ -5805,7 +5809,7 @@ msgstr "Encontrar la Opción del Plugin"
 msgid "Invalid audit entry selected for this action"
 msgstr "La entrada de auditoría seleccionada para esta acción no es válida"
 
-#: src/features/license.php:311 src/features/license.php:332
+#: src/features/license.php:308 src/features/license.php:329
 msgid "Please check your license on-site: %s"
 msgstr "Por favor revise su licencia en el sitio: %s"
 
@@ -5817,7 +5821,7 @@ msgstr "Escriba a continuación para buscar todas las opciones de plugin"
 msgid "Audit entry could not be loaded."
 msgstr "No se pudo cargar la entrada de auditoría."
 
-#: src/features/license.php:312 src/features/license.php:333
+#: src/features/license.php:309 src/features/license.php:330
 msgid "If this problem persists, please contact support: %s"
 msgstr "Si el problema persiste, contacte con el servicio de asistencia: %s"
 
@@ -5831,7 +5835,7 @@ msgstr "Sólo para Pro"
 msgid "Parameter associated with this audit entry could not be found."
 msgstr "No se pudo encontrar el parámetro asociado con esta entrada de auditoría."
 
-#: src/features/license.php:331
+#: src/features/license.php:328
 msgid "All attempts to verify Shield Pro license have failed."
 msgstr "Todos los intentos de verificar la licencia de Shield Pro han fallado."
 
@@ -5843,7 +5847,7 @@ msgstr "Esta es una característica pro solamente"
 msgid "Parameter \"%s\" whitelisted successfully"
 msgstr "El parámetro \"%s\" fue incluido en la lista blanca con éxito"
 
-#: src/features/license.php:642 src/lib/src/Modules/Base/Strings.php:27
+#: src/features/license.php:639 src/lib/src/Modules/Base/Strings.php:27
 #: src/lib/src/Tables/Build/Ip.php:51 src/lib/src/Tables/Build/Sessions.php:68
 #: src/lib/src/Tables/Build/Traffic.php:109
 msgid "Yes"
@@ -5857,7 +5861,7 @@ msgstr "Por favor actualice a Pro para controlar esta opción"
 msgid "[%s] Audit Trail Entries"
 msgstr "[%s] Entradas de Pistas de Auditoría"
 
-#: src/features/license.php:642
+#: src/features/license.php:639
 msgid "Not Active"
 msgstr "No Activo"
 
@@ -5874,7 +5878,7 @@ msgstr "Registro de Auditoría de Actividad"
 msgid "WP Lockdown"
 msgstr "Cierre de WP"
 
-#: src/lib/src/Modules/Base/Strings.php:56 src/processors/ips.php:307
+#: src/lib/src/Modules/Base/Strings.php:56 src/processors/ips.php:314
 #: src/processors/loginprotect_gasp.php:31
 msgid "Loading"
 msgstr "Cargando"
@@ -6012,8 +6016,8 @@ msgstr "API REST"
 msgid "offense"
 msgstr "Infracción"
 
-#: src/features/audit_trail.php:250 src/features/insights.php:75
-#: src/features/insights.php:282 src/lib/src/Modules/AuditTrail/Strings.php:122
+#: src/features/audit_trail.php:250 src/features/insights.php:74
+#: src/features/insights.php:281 src/lib/src/Modules/AuditTrail/Strings.php:122
 #: src/lib/src/Modules/Plugin/Strings.php:400 src/wizards/plugin.php:487
 #: src/wizards/plugin.php:492
 msgid "Audit Trail"
@@ -6152,7 +6156,7 @@ msgstr "Colaboradores"
 
 #: src/lib/src/Modules/CommentsFilter/Scan/Bot.php:43
 msgid "cooldown"
-msgstr "enfriarse"
+msgstr "Enfriamiento"
 
 #: src/features/autoupdates.php:256
 msgid "Disabled All"
@@ -6317,7 +6321,7 @@ msgstr "El envío de correo electrónico ya ha sido verificado."
 msgid "Comments Filter"
 msgstr "Filtro de Comentarios"
 
-#: src/features/base.php:1108
+#: src/features/base.php:1083
 msgid "Unfortunately your WordPress and/or PHP versions are too old to support this feature."
 msgstr "Desafortunadamente, las versiones de WordPress y/o PHP son demasiado antiguas para admitir esta función."
 
@@ -6329,7 +6333,7 @@ msgstr "Correo electrónico de verificación reenviado."
 msgid "Common Settings"
 msgstr "Ajustes Comunes"
 
-#: src/features/base.php:1262
+#: src/features/base.php:1237
 msgid "%s Plugin options updated successfully."
 msgstr "Las opciones del Plugin %s se actualizaron satisfactoriamente."
 
@@ -6344,7 +6348,7 @@ msgstr "Guardia de Inicio de Sesión"
 msgid "Common Settings For All SPAM Scanning"
 msgstr "Configuraciones Comunes Para Todos los Análisis de SPAM"
 
-#: src/features/base.php:1266
+#: src/features/base.php:1241
 msgid "Failed to update %s plugin options."
 msgstr "Error al actualizar las opciones del plugin %s."
 
@@ -6356,7 +6360,7 @@ msgstr "Protección de Fuerza Bruta y Verificación de Identidad"
 msgid "Settings that apply to all comment SPAM scanning."
 msgstr "Configuraciones que se aplican a todos los análisis de comentarios SPAM."
 
-#: src/features/base.php:1298
+#: src/features/base.php:1273
 msgid "You don't currently have permission to save settings."
 msgstr "Actualmente no tienes permiso para guardar configuraciones."
 
@@ -6368,7 +6372,7 @@ msgstr "Inicio de Sesión de Fuerza Bruta"
 msgid "%s Comment SPAM Protection"
 msgstr "Protección de Comentarios SPAM %s"
 
-#: src/features/base.php:1387
+#: src/features/base.php:1362
 msgid "Password values do not match."
 msgstr "Los valores de contraseña no coinciden."
 
@@ -6380,7 +6384,7 @@ msgstr "Los formularios de inicio de sesión están protegidos contra ataques de
 msgid "Automatic Bot"
 msgstr "Bot automático"
 
-#: src/features/base.php:1640 src/lib/src/Modules/AuditTrail/Strings.php:195
+#: src/features/base.php:1604 src/lib/src/Modules/AuditTrail/Strings.php:195
 #: src/lib/src/Modules/HackGuard/Strings.php:194
 #: src/lib/src/Modules/HackGuard/Strings.php:268
 #: src/lib/src/Modules/LoginGuard/Strings.php:265
@@ -6400,7 +6404,7 @@ msgstr "Los formularios de inicio de sesión no están protegidos contra los ata
 msgid "Blocks 100% of all automated bot-generated comment SPAM."
 msgstr "Bloquea el 100% de todos los comentarios de SPAM generados por bots automatizados."
 
-#: src/features/base.php:1647
+#: src/features/base.php:1611
 msgid "For more information:"
 msgstr "Para más información:"
 
@@ -6423,7 +6427,7 @@ msgstr "Registro de Usuarios Bot"
 msgid "Use of this feature is highly recommend."
 msgstr "Es muy recomendable el uso de esta funcionalidad."
 
-#: src/features/base.php:1648 src/processors/base_plugin.php:65
+#: src/features/base.php:1612 src/processors/base_plugin.php:65
 msgid "Support Forums"
 msgstr "Foros de Apoyo"
 
@@ -6435,10 +6439,6 @@ msgstr "Los formularios de inscripción están protegidos contra ataques de bot"
 msgid "Adds Google reCAPTCHA to the Comment Forms."
 msgstr "Agrega reCAPTCHA de Google a los Formularios de Comentarios."
 
-#: src/features/base_wpsf.php:342
-msgid "Nonce security checking failed - the nonce value was empty."
-msgstr "La comprobación de seguridad Nonce falló, el valor nonce estaba vacío."
-
 #: src/features/login_protect.php:726
 msgid "Registration forms are not protected against automated bots"
 msgstr "Los formularios de inscripción no están protegidos contra bots automatizados"
@@ -6448,10 +6448,6 @@ msgstr "Los formularios de inscripción no están protegidos contra bots automat
 msgid "Keep this turned on."
 msgstr "Mantenga esto encendido."
 
-#: src/features/base_wpsf.php:343
-msgid "Nonce security checking failed - the nonce supplied was \"%s\"."
-msgstr "La comprobación de seguridad Nonce falló: el nonce suministrado fue \"%s\"."
-
 #: src/features/login_protect.php:731
 msgid "Brute Force Lost Password"
 msgstr "Contraseña de Fuerza Bruta Perdida"
@@ -6460,7 +6456,7 @@ msgstr "Contraseña de Fuerza Bruta Perdida"
 msgid "%s Comment SPAM Protection Filter"
 msgstr "%s Filtro de Protección de Comentarios SPAM"
 
-#: src/features/base_wpsf.php:428
+#: src/features/base_wpsf.php:420
 msgid "Module Disabled"
 msgstr "Módulo Desactivado"
 
@@ -6472,7 +6468,7 @@ msgstr "Los formularios de contraseña perdida están protegidos contra ataques 
 msgid "Human"
 msgstr "Humano"
 
-#: src/features/base_wpsf.php:430
+#: src/features/base_wpsf.php:422
 msgid "All features of this module are completely disabled"
 msgstr "Todas las características de este módulo están completamente deshabilitadas"
 
@@ -6484,7 +6480,7 @@ msgstr "Los formularios de contraseñas perdidas no están protegidos contra bot
 msgid "Uses a 3rd party SPAM dictionary to detect human-based comment SPAM."
 msgstr "Utiliza un diccionario de SPAM de terceros para detectar comentarios SPAM generado por la acción humana."
 
-#: src/features/comments_filter.php:79
+#: src/features/comments_filter.php:65
 msgid "I'm not a spammer."
 msgstr "No soy un spammer."
 
@@ -6496,7 +6492,7 @@ msgstr "Verificación de Identidad"
 msgid "This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis."
 msgstr "Esta herramienta, al contrario de otras herramientas de SPAM como Akismet, no enviará datos de sus comentarios a ningún servicio de terceros para su análisis."
 
-#: src/features/comments_filter.php:82
+#: src/features/comments_filter.php:68
 msgid "Please check the box to confirm you're not a spammer."
 msgstr "Por favor, marque la casilla para confirmar que no es un spammer."
 
@@ -6508,7 +6504,7 @@ msgstr "Al menos 1 opción 2FA está habilitada"
 msgid "Enable (or Disable) The Comment SPAM Protection Feature"
 msgstr "Habilitar (o deshabilitar) La Característica de Protección de Comentarios SPAM "
 
-#: src/features/comments_filter.php:85
+#: src/features/comments_filter.php:71
 msgid "Please wait %s seconds before posting your comment."
 msgstr "Por favor, espere %s segundos antes de publicar su comentario."
 
@@ -6521,7 +6517,7 @@ msgstr "No hay opciones 2FA activas, por ej: Autenticador de Google"
 msgid "Comment SPAM Protection"
 msgstr "Protección de Comentarios SPAM"
 
-#: src/features/comments_filter.php:88
+#: src/features/comments_filter.php:74
 msgid "Please reload this page to post a comment."
 msgstr "Por favor, vuelva a cargar esta página para publicar un comentario."
 
@@ -6533,7 +6529,7 @@ msgstr "Opciones importadas exitosamente"
 msgid "Trusted Commenter Minimum"
 msgstr "Mínimo de Comentarista de Confianza"
 
-#: src/features/comments_filter.php:134
+#: src/features/comments_filter.php:120
 msgid "SPAM Blocking"
 msgstr "Bloqueo de SPAM"
 
@@ -6545,7 +6541,7 @@ msgstr "No hay elementos seleccionados."
 msgid "Minimum Number Of Approved Comments Before Commenter Is Trusted"
 msgstr "Número Mínimo De Comentarios Aprobados Antes Que El Comentarista Sea Confiable"
 
-#: src/features/comments_filter.php:135
+#: src/features/comments_filter.php:121
 msgid "Block Bot & Human Comment SPAM"
 msgstr "Bloquear Bot y Comentario Humano SPAM"
 
@@ -6557,7 +6553,7 @@ msgstr "No es una acción soportada."
 msgid "Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned."
 msgstr "Especifique cuántos comentarios aprobados deben existir antes de que un comentarista sea de confianza y sus comentarios ya no sean analizados."
 
-#: src/features/comments_filter.php:146
+#: src/features/comments_filter.php:132
 #: src/lib/src/Modules/CommentsFilter/Strings.php:60
 msgid "Bot SPAM"
 msgstr "SPAM Bot"
@@ -6570,7 +6566,7 @@ msgstr "Los elementos seleccionados fueron eliminados."
 msgid "Normally WordPress will trust after 1 comment."
 msgstr "Normalmente WordPress confiará después de 1 comentario."
 
-#: src/features/comments_filter.php:149
+#: src/features/comments_filter.php:135
 msgid "Bot SPAM comments are blocked"
 msgstr "Comentarios Bot SPAM  están bloqueados"
 
@@ -6582,7 +6578,7 @@ msgstr "El archivo no se pudo eliminar automáticamente."
 msgid "Trusted User Roles"
 msgstr "Roles de Usuario de Confianza"
 
-#: src/features/comments_filter.php:150
+#: src/features/comments_filter.php:136
 msgid "There is no protection against Bot SPAM comments"
 msgstr "No hay protección contra los comentarios Bot SPAM"
 
@@ -6594,7 +6590,7 @@ msgstr "No se encuentra la nota."
 msgid "Comments From Users With These Roles Will Never Be Scanned"
 msgstr "Los Comentarios De Usuarios Con Estos Roles Nunca Serán Escaneados"
 
-#: src/features/comments_filter.php:155
+#: src/features/comments_filter.php:141
 #: src/lib/src/Modules/CommentsFilter/Strings.php:79
 msgid "Human SPAM"
 msgstr "SPAM Humano"
@@ -6607,7 +6603,7 @@ msgstr "Nota eliminada"
 msgid "Shield doesn't normally scan comments from logged-in or registered users."
 msgstr "Normalmente, Shield no escanea los comentarios de usuarios registrados o que han inciado sesión."
 
-#: src/features/comments_filter.php:158
+#: src/features/comments_filter.php:144
 msgid "Comments posted by humans are checked for SPAM"
 msgstr "Los comentarios publicados por personas son revisados en busca de SPAM"
 
@@ -6619,7 +6615,7 @@ msgstr "No se pudo eliminar la nota"
 msgid "Specify user roles here that shouldn't be scanned."
 msgstr "Especifique los roles de usuario que no se deben analizar aquí."
 
-#: src/features/comments_filter.php:159
+#: src/features/comments_filter.php:145
 msgid "Comments posted by humans aren't checked for SPAM"
 msgstr "Los comentarios publicados por personas no son revisados en busca de SPAM"
 
@@ -6641,7 +6637,7 @@ msgstr "Por favor, marque la casilla para confirmar su intención de sobrescribi
 msgid "Important"
 msgstr "Importante"
 
-#: src/features/comments_filter.php:181
+#: src/features/comments_filter.php:167
 msgid "Please remember to supply reCAPTCHA keys: %s"
 msgstr "Recuerde proporcionar las claves reCAPTCHA: %s"
 
@@ -6654,7 +6650,7 @@ msgstr "Las opciones no se pudieron importar"
 msgid "Take a new line for each user role."
 msgstr "Use una nueva línea para cada rol de usuario."
 
-#: src/features/comments_filter.php:182
+#: src/features/comments_filter.php:168
 msgid "reCAPTCHA Settings"
 msgstr "Ajustes reCAPTCHA"
 
@@ -6722,7 +6718,7 @@ msgstr "Elementos del Filtro de Comentarios"
 msgid "Your site is not protected against malicious requests"
 msgstr "Su sitio no está protegido contra solicitudes maliciosas"
 
-#: src/features/plugin.php:1026 src/lib/src/Modules/Plugin/Strings.php:375
+#: src/features/plugin.php:1021 src/lib/src/Modules/Plugin/Strings.php:375
 #: src/processors/plugin_importexport.php:63
 msgid "General Settings"
 msgstr "Configuración General"
@@ -6735,7 +6731,7 @@ msgstr "Seleccione Los Elementos A Escanear En Busca de SPAM"
 msgid "Ignore Admins"
 msgstr "Ignorar Administradores"
 
-#: src/features/plugin.php:1027
+#: src/features/plugin.php:1022
 msgid "General %s Settings"
 msgstr "Configuración General de %s"
 
@@ -6747,7 +6743,7 @@ msgstr "Cuando un usuario envía un comentario, sólo las partes seleccionadas d
 msgid "Firewall rules are also applied to admins"
 msgstr "Las reglas del Firewall también se aplican a los administradores"
 
-#: src/features/plugin.php:1040
+#: src/features/plugin.php:1035
 msgid "Visitor IP"
 msgstr "IP de Visitante"
 
@@ -6759,7 +6755,7 @@ msgstr "Recomendado: %s"
 msgid "Firewall rules aren't applied to admins"
 msgstr "Las reglas del Firewall no se aplican a los administradores"
 
-#: src/features/plugin.php:1042
+#: src/features/plugin.php:1037
 msgid "Visitor IP address source is: %s"
 msgstr "La dirección IP de origen del visitante es: %s"
 
@@ -6771,7 +6767,7 @@ msgstr "Todo"
 msgid "%s per day"
 msgstr "%s por día"
 
-#: src/features/plugin.php:1049
+#: src/features/plugin.php:1044
 msgid "Reporting Email"
 msgstr "Informe de Correo Electrónico"
 
@@ -6780,14 +6776,14 @@ msgstr "Informe de Correo Electrónico"
 msgid "Default SPAM Action"
 msgstr "Acción SPAM por defecto"
 
-#: src/features/hack_protect.php:668 src/features/license.php:634
+#: src/features/hack_protect.php:668 src/features/license.php:631
 #: src/lib/src/Modules/Base/Strings.php:29
 #: src/lib/src/Modules/Plugin/Strings.php:324
 #: src/processors/hack_protect.php:107 src/processors/hack_protect.php:129
 msgid "Never"
 msgstr "Nunca"
 
-#: src/features/plugin.php:1052
+#: src/features/plugin.php:1047
 msgid "Email address for reports set to: %s"
 msgstr "Dirección de correo electrónico para los informes establecidos en: %s"
 
@@ -6800,7 +6796,7 @@ msgstr "Cómo Categorizar Comentarios Cuando Son Identificados Como SPAM"
 msgid "Last Scan Time: %s"
 msgstr "Último Tiempo de Escaneo: %s"
 
-#: src/features/plugin.php:1053
+#: src/features/plugin.php:1048
 msgid "No address provided - defaulting to: %s"
 msgstr "No se proporcionó una dirección, por defecto: %s"
 
@@ -6813,7 +6809,7 @@ msgstr "Cuando un comentario es detectano como SPAM desde %s, el comentario ser�
 msgid "No scans were selected"
 msgstr "Ningún análisis fue seleccionado"
 
-#: src/features/plugin.php:1061
+#: src/features/plugin.php:1056
 msgid "reCAPTCHA"
 msgstr "reCAPTCHA"
 
@@ -6825,7 +6821,7 @@ msgstr "un comentarista humano"
 msgid "Scans completed."
 msgstr "Análisis completado."
 
-#: src/features/plugin.php:1064
+#: src/features/plugin.php:1059
 msgid "Google reCAPTCHA keys have been provided"
 msgstr "Se han proporcionado claves reCAPTCHA de Google"
 
@@ -6837,7 +6833,7 @@ msgstr "Protección de Bot SPAM"
 msgid "Reloading page"
 msgstr "Volviendo a cargar la página"
 
-#: src/features/plugin.php:1065
+#: src/features/plugin.php:1060
 msgid "Google reCAPTCHA keys haven't been provided"
 msgstr "No se han proporcionado las claves reCAPTCHA de Google"
 
@@ -6917,7 +6913,7 @@ msgstr "Sesión de usuario eliminada"
 msgid "Limit posting comments to X seconds after the page has loaded"
 msgstr "Limitar la publicación de comentarios a X segundos después de que la página haya cargado"
 
-#: src/features/hack_protect.php:1054 src/features/insights.php:280
+#: src/features/hack_protect.php:1054 src/features/insights.php:279
 msgid "Scans"
 msgstr "Escaneos"
 
@@ -7643,7 +7639,7 @@ msgstr "Mensaje"
 msgid "This will block WordPress specific terms in application parameters (wp_, user_login, etc.)."
 msgstr "Se bloquearán términos específicos de WordPress en los parámetros de la aplicación (wp_, user_login, etc.)."
 
-#: src/features/insights.php:76
+#: src/features/insights.php:75
 msgid "Audit Trail Filters"
 msgstr "Filtros de Pista de Auditoría"
 
@@ -7656,7 +7652,7 @@ msgstr "Categoría"
 msgid "Field Truncation"
 msgstr "Truncamiento de Campo"
 
-#: src/features/insights.php:77 src/features/insights.php:170
+#: src/features/insights.php:76 src/features/insights.php:169
 msgid "Providing a username will cause the 'logged-in' filter to be ignored."
 msgstr "Proporcionar un nombre de usuario hará que se ignore el filtro de \"inicio de sesión\"."
 
@@ -7677,7 +7673,7 @@ msgstr "Dirección IP"
 msgid "Block Field Truncation Attacks"
 msgstr "Bloquear Ataques de Truncamiento de Campo"
 
-#: src/features/insights.php:78 src/features/insights.php:168
+#: src/features/insights.php:77 src/features/insights.php:167
 msgid "Exclude Your Current IP"
 msgstr "Excluye Su IP Actual"
 
@@ -7692,12 +7688,12 @@ msgstr "Usted"
 msgid "This will block field truncation attacks in application parameters."
 msgstr "Se bloquearán los ataques de truncamiento de campo en los parámetros de la aplicación. "
 
-#: src/features/insights.php:79 src/features/insights.php:169
+#: src/features/insights.php:78 src/features/insights.php:168
 msgid "Exclude Your IP From Results"
 msgstr "Excluye Su IP De Los Resultados"
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:103
-msgid "There are currently no audit entries this is section."
+msgid "There are currently no audit entries in this section."
 msgstr "Actualmente no hay entradas de auditoría."
 
 #: src/lib/src/Modules/Firewall/Strings.php:116
@@ -7705,7 +7701,7 @@ msgstr "Actualmente no hay entradas de auditoría."
 msgid "PHP Code"
 msgstr "Código PHP"
 
-#: src/features/insights.php:80
+#: src/features/insights.php:79
 msgid "Context"
 msgstr "Contexto"
 
@@ -7732,7 +7728,7 @@ msgstr "Activado"
 msgid "Block %s"
 msgstr "Bloque %s"
 
-#: src/features/insights.php:81
+#: src/features/insights.php:80
 msgid "show results that occurred after"
 msgstr "mostrar resultados que ocurrieron después"
 
@@ -7759,7 +7755,7 @@ msgstr "Desactivado"
 msgid "PHP Code Includes"
 msgstr "El código PHP incluye"
 
-#: src/features/insights.php:82
+#: src/features/insights.php:81
 msgid "show results that occurred before"
 msgstr "mostrar resultados que ocurrieron antes"
 
@@ -7785,7 +7781,7 @@ msgstr "Habilitar Módulo: %s"
 msgid "This will block any data that appears to try and include PHP files."
 msgstr "Esto bloqueará cualquier dato que aparezca para probar e incluir archivos PHP."
 
-#: src/features/insights.php:104
+#: src/features/insights.php:103
 msgid "Offenses required for IP block: %s"
 msgstr "Infracciones requeridas para el bloqueo de IP: %s"
 
@@ -7858,7 +7854,7 @@ msgstr "Objetivo"
 msgid "Will probably block saving within the Plugin/Theme file editors."
 msgstr "Probablemente bloqueará guardar dentro de los editores de archivos de Plugin/Tema. "
 
-#: src/features/insights.php:108
+#: src/features/insights.php:107
 msgid "Black listed IPs auto-expire after: %s"
 msgstr "Las IP que figuran en la Lista Negra caducan automáticamente después de: %s"
 
@@ -7870,7 +7866,7 @@ msgstr "Se ha diseñado la Pista de Auditoría de modo que pueda revisar los eve
 msgid "Exe File Uploads"
 msgstr "Cargas de Archivos Exe"
 
-#: src/features/insights.php:115 src/lib/src/Modules/Plugin/Strings.php:378
+#: src/features/insights.php:114 src/lib/src/Modules/Plugin/Strings.php:378
 msgid "IP Whitelist"
 msgstr "Lista Blanca de IPs"
 
@@ -7941,7 +7937,7 @@ msgstr "Recomendación"
 msgid "Block Executable File Uploads"
 msgstr "Bloquear la Carga de Archivos Ejecutables"
 
-#: src/features/insights.php:116
+#: src/features/insights.php:115
 msgid "IP Blacklist"
 msgstr "Lista Negra de IP"
 
@@ -7969,7 +7965,7 @@ msgstr "Mantenga la funcionalidad %s activada."
 msgid "This will block executable file uploads (.php, .exe, etc.)."
 msgstr "Esto bloqueará cargas de archivos ejecutables (.php, .exe, etc.)."
 
-#: src/features/insights.php:117
+#: src/features/insights.php:116
 msgid "IP addresses that are never blocked by %s."
 msgstr "Direcciones IP que nunca son bloqueadas por %s."
 
@@ -7982,7 +7978,7 @@ msgstr "Opciones del Registro de Auditoría"
 msgid "Leading Schemas"
 msgstr "Esquemas Principales"
 
-#: src/features/insights.php:118
+#: src/features/insights.php:117
 msgid "IP addresses that have tripped %s defenses."
 msgstr "Direcciones IP que han disparado las defensas de %s."
 
@@ -7994,7 +7990,7 @@ msgstr "Proporciona un control más detallado sobre la Pista de Auditoría en si
 msgid "Block Leading Schemas (HTTPS / HTTP)"
 msgstr "Bloquear Esquemas Principales (HTTPS/HTTP)"
 
-#: src/features/insights.php:119
+#: src/features/insights.php:118
 msgid "Enter IP address to block"
 msgstr "Ingresar la dirección IP a bloquear"
 
@@ -8008,7 +8004,7 @@ msgstr "Estos valores dependen de sus necesidades."
 msgid "This will block leading schemas http:// and https:// in application parameters (off by default; may cause problems with other plugins)."
 msgstr "Se bloquearán esquemas principales de http:// y https:// en los parámetros de la aplicación (apagado por defecto; puesto que puede ocasionar problemas con otros plugins)."
 
-#: src/features/insights.php:120
+#: src/features/insights.php:119
 msgid "Enter IP address to whitelist"
 msgstr "Ingresar la dirección IP a la lista blanca"
 
@@ -8020,7 +8016,7 @@ msgstr "Habilitar Áreas de Auditoría"
 msgid "Aggressive Scan"
 msgstr "Escaneo Agresivo"
 
-#: src/features/insights.php:121
+#: src/features/insights.php:120
 msgid "Label for IP"
 msgstr "Etiqueta para IP"
 
@@ -8032,7 +8028,7 @@ msgstr "Especifique qué tipo de acciones se registran en su sitio."
 msgid "Aggressively Block Data"
 msgstr "Bloquear Datos Agresivamente"
 
-#: src/features/insights.php:122
+#: src/features/insights.php:121
 msgid "New IP"
 msgstr "Nueva IP"
 
@@ -8056,7 +8052,7 @@ msgstr "Habilitar el Módulo %s"
 msgid "Employs a set of aggressive rules to detect and block malicious data submitted to your site."
 msgstr "Emplear un conjunto de reglas agresivas para detectar y bloquear datos maliciosos enviados a tu sitio."
 
-#: src/features/insights.php:123
+#: src/features/insights.php:122
 msgid "Block IP"
 msgstr "Bloquear IP"
 
@@ -8078,7 +8074,7 @@ msgstr "Habilitar (o Deshabilitar) el Módulo %s"
 msgid "May cause an increase in false-positive firewall blocks."
 msgstr "Puede ocasionar un incremento de falsos-positivos en los bloqueos del firewall."
 
-#: src/features/insights.php:141
+#: src/features/insights.php:140
 msgid "Administrator Notes"
 msgstr "Notas del Administrador"
 
@@ -8101,7 +8097,7 @@ msgstr "Desmarcar esta opción deshabilitará completamente el módulo %s."
 msgid "Block Response"
 msgstr "Respuesta de Bloqueo"
 
-#: src/features/insights.php:142
+#: src/features/insights.php:141
 msgid "Use this feature to make ongoing notes and to-dos"
 msgstr "Utilice esta función para hacer notas en curso y tareas pendientes"
 
@@ -8113,7 +8109,7 @@ msgstr "Longitud Máxima de la Pista"
 msgid "Choose how the firewall responds when it blocks a request"
 msgstr "Selecciona cómo debe responder el firewall cuando bloquea una solicitud"
 
-#: src/features/insights.php:143
+#: src/features/insights.php:142
 msgid "Add Note"
 msgstr "Añadir la Nota"
 
@@ -8125,7 +8121,7 @@ msgstr "Longitud Máxima de la Pista de Auditoría A Mantener"
 msgid "We recommend dying with a message so you know what might have occurred when the firewall blocks you"
 msgstr "Recomendamos morir con un mensaje para que sepa qué pudo haber ocurrido cuando el firewall lo bloquea"
 
-#: src/features/insights.php:144
+#: src/features/insights.php:143
 msgid "New Note"
 msgstr "Nueva Nota"
 
@@ -8137,7 +8133,7 @@ msgstr "Eliminar automáticamente cualquier entrada de pistas de auditoría cuan
 msgid "Send Email Report"
 msgstr "Enviar Informe de Correo Electrónico"
 
-#: src/features/insights.php:145
+#: src/features/insights.php:144
 msgid "Enter new note here"
 msgstr "Introduce una nueva nota aquí"
 
@@ -8149,7 +8145,7 @@ msgstr "Autolimpieza"
 msgid "When a visitor is blocked the firewall will send an email to the configured email address"
 msgstr "Cuando un visitante es bloqueado, el firewall enviará un correo electrónico a la dirección de correo configurada"
 
-#: src/features/insights.php:163
+#: src/features/insights.php:162
 msgid "Traffic Table Filters"
 msgstr "Filtros de Tabla de Tráfico"
 
@@ -8161,7 +8157,7 @@ msgstr "Purgar Automáticamente Las Entradas Del Registro De Auditoría Anterior
 msgid "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host"
 msgstr "Usar con precaución - Si es atacado por bots automatizados, podría enviar una excesiva cantidad de correos electrónicos que ocasionen su bloqueo por su anfitrión"
 
-#: src/features/insights.php:164 src/features/traffic.php:54
+#: src/features/insights.php:163 src/features/traffic.php:54
 msgid "Traffic Watch"
 msgstr "Vigilancia de Tráfico"
 
@@ -8173,7 +8169,7 @@ msgstr "Los eventos anteriores al número de días especificado serán borrados 
 msgid "Whitelist Parameters"
 msgstr "Parámetros de la Lista Blanca"
 
-#: src/features/insights.php:165
+#: src/features/insights.php:164
 msgid "Watch and review requests to your site"
 msgstr "Mira y revisa las solicitudes a tu sitio"
 
@@ -8187,7 +8183,7 @@ msgstr "Usuarios Y Accesos"
 msgid "Detail pages and parameters that are whitelisted (ignored by the firewall)"
 msgstr "Páginas detalladas y parámetros adjudicados a la lista blanca (ignorados por el firewall)"
 
-#: src/features/insights.php:166 src/lib/src/Tables/Build/Traffic.php:148
+#: src/features/insights.php:165 src/lib/src/Tables/Build/Traffic.php:148
 #: src/lib/src/Tables/Render/Traffic.php:14
 msgid "Response"
 msgstr "Respuesta"
@@ -8206,7 +8202,7 @@ msgstr "Activar Contexto de Auditoría - %s"
 msgid "This should be used with caution and you should only provide parameter names that you must have excluded"
 msgstr "Debe ser usado con precaución y solamente debes proporcionar nombres de parámetros que hayas tenido que excluir"
 
-#: src/features/insights.php:167
+#: src/features/insights.php:166
 msgid "Page/Path Contains"
 msgstr "Contiene Página/Camino "
 
@@ -8225,7 +8221,7 @@ msgstr "Cuando se habilita este contexto, la pista de auditoría trazará la act
 msgid "Ignore %s"
 msgstr "Ignorar %s"
 
-#: src/features/insights.php:202
+#: src/features/insights.php:201
 msgid "Sessions Table Filters"
 msgstr "Filtros de Tabla de Sesión"
 
@@ -8237,7 +8233,7 @@ msgstr "Plugins de WordPress"
 msgid "Authenticated administrator users will not be processed by the firewall rules."
 msgstr "Los administradores autenticados no serán procesados por las reglas del firewall."
 
-#: src/features/insights.php:203 src/processors/statistics.php:192
+#: src/features/insights.php:202 src/processors/statistics.php:192
 msgid "User Sessions"
 msgstr "Sesiones de Usuario"
 
@@ -8249,7 +8245,7 @@ msgstr "Temas de WordPress"
 msgid "Firewall Block Message"
 msgstr "Mensaje de Bloqueo del Firewall"
 
-#: src/features/insights.php:204
+#: src/features/insights.php:203
 msgid "Review and manage current user sessions"
 msgstr "Revisar y administrar las sesiones de usuario actuales"
 
@@ -8262,7 +8258,7 @@ msgstr "Publicaciones y Páginas"
 msgid "Message Displayed To Visitor When A Firewall Block Is Triggered"
 msgstr "Mensaje Mostrado Al Visitante Cuando Se Activa Un Bloqueo del Firewall"
 
-#: src/features/insights.php:205
+#: src/features/insights.php:204
 msgid "Some sessions may have expired but haven't been automatically cleaned from the database yet"
 msgstr "Algunas sesiones pueden haber caducado, pero aún no se han limpiado automáticamente de la base de datos"
 
@@ -8274,7 +8270,7 @@ msgstr "Edición y publicación de entradas y páginas"
 msgid "This is the message displayed to visitors that trigger the firewall."
 msgstr "Este es el mensaje que se muestra a los visitantes que activan el firewall."
 
-#: src/features/insights.php:206 src/lib/src/Modules/AuditTrail/Strings.php:99
+#: src/features/insights.php:205 src/lib/src/Modules/AuditTrail/Strings.php:99
 #: src/lib/src/Modules/Base/Strings.php:34
 #: src/lib/src/Modules/UserManagement/Strings.php:16
 #: src/lib/src/Tables/Render/AdminNotes.php:31
@@ -8294,7 +8290,7 @@ msgstr "WordPress y Ajustes"
 msgid "Skipping firewall checking for this visit: %s."
 msgstr "Se omite la verificación del firewall a esta visita: %s."
 
-#: src/features/insights.php:258
+#: src/features/insights.php:257
 msgid "Recent Events Log"
 msgstr "Registro de Eventos Recientes"
 
@@ -8306,7 +8302,7 @@ msgstr "Actualizaciones de WordPress y cambios a configuraciones particulares de
 msgid "Parsing the URI failed"
 msgstr "El análisis del URI falló"
 
-#: src/features/insights.php:259
+#: src/features/insights.php:258
 msgid "Security Notices"
 msgstr "Avisos de Seguridad"
 
@@ -8325,7 +8321,7 @@ msgstr "Envío de Correo Electrónico"
 msgid "Firewall Trigger: %s."
 msgstr "Disparador de Firewall: %s."
 
-#: src/features/insights.php:260
+#: src/features/insights.php:259
 msgid "Potential security issues on your site right now"
 msgstr "Problemas potenciales de seguridad en su sitio ahora"
 
@@ -8337,7 +8333,7 @@ msgstr "Seguimiento de Cambio del Sitio"
 msgid "Directory Traversal"
 msgstr "Directorio Transversal"
 
-#: src/features/insights.php:261
+#: src/features/insights.php:260
 msgid "Plugin Configuration Summary"
 msgstr "Resumen de Configuración del Plugin"
 
@@ -8349,7 +8345,7 @@ msgstr "Seguimiento de Cambios Mayores En Su Sitio"
 msgid "Leading Schema"
 msgstr "Esquema Principal"
 
-#: src/features/insights.php:262
+#: src/features/insights.php:261
 msgid "click to toggle"
 msgstr "haga clic para alternar"
 
@@ -8357,7 +8353,7 @@ msgstr "haga clic para alternar"
 msgid "Tracking major changes to your site will help you monitor and catch malicious damage."
 msgstr "El seguimiento de los cambios importantes en su sitio lo ayudará a controlar y detectar daños maliciosos."
 
-#: src/features/insights.php:267 src/lib/src/Modules/License/Strings.php:30
+#: src/features/insights.php:266 src/lib/src/Modules/License/Strings.php:30
 msgid "Key"
 msgstr "Llave"
 
@@ -8365,7 +8361,7 @@ msgstr "Llave"
 msgid "Snapshot Per Week"
 msgstr "Instantánea Por Semana"
 
-#: src/features/insights.php:268
+#: src/features/insights.php:267
 msgid "Positive Security"
 msgstr "Seguridad Positiva"
 
@@ -8373,7 +8369,7 @@ msgstr "Seguridad Positiva"
 msgid "Number Of Snapshots To Take Per Week"
 msgstr "Número De Instantáneas A Tomar Por Semana"
 
-#: src/features/insights.php:269
+#: src/features/insights.php:268
 msgid "Potential Warning"
 msgstr "Advertencia Potencial"
 
@@ -8381,7 +8377,7 @@ msgstr "Advertencia Potencial"
 msgid "The number of snapshots to take per week. For daily snapshots, select 7."
 msgstr "El número de instantáneas a tomar por semana. Para las instantáneas diarias, seleccione 7."
 
-#: src/features/insights.php:270
+#: src/features/insights.php:269
 msgid "Potential Danger"
 msgstr "Peligro Potencial"
 
@@ -8389,7 +8385,7 @@ msgstr "Peligro Potencial"
 msgid "Data storage in your database increases with the number of snapshots."
 msgstr "El almacenamiento de datos en su base de datos aumenta con el número de instantáneas."
 
-#: src/features/insights.php:271
+#: src/features/insights.php:270
 msgid "Information"
 msgstr "Información"
 
@@ -8397,7 +8393,7 @@ msgstr "Información"
 msgid "However, increased snapshots provide more granular information on when major site changes occurred."
 msgstr "Sin embargo, el aumento de las instantáneas proporciona información más detallada sobre cuándo ocurrieron cambios importantes en el sitio."
 
-#: src/features/insights.php:278 src/lib/src/Modules/Base/Strings.php:24
+#: src/features/insights.php:277 src/lib/src/Modules/Base/Strings.php:24
 msgid "Settings"
 msgstr "Ajustes"
 
@@ -8405,7 +8401,7 @@ msgstr "Ajustes"
 msgid "Max Snapshots"
 msgstr "Maximo de Instantáneas"
 
-#: src/features/insights.php:279
+#: src/features/insights.php:278
 msgid "Overview"
 msgstr "Resumen"
 
@@ -8413,7 +8409,7 @@ msgstr "Resumen"
 msgid "Maximum Number Of Snapshots To Retain"
 msgstr "Número Máximo De Instantáneas A Conservar"
 
-#: src/features/insights.php:281
+#: src/features/insights.php:280
 msgid "IP Lists"
 msgstr "Listas de IP"
 
@@ -8421,7 +8417,7 @@ msgstr "Listas de IP"
 msgid "The more snapshots you retain, the further back you can look at changes over your site."
 msgstr "Cuantas más instantáneas conserve, más posibilidades de ver los cambios que han ocurrido en su sitio anteriormente."
 
-#: src/features/insights.php:283 src/features/user_management.php:415
+#: src/features/insights.php:282 src/features/user_management.php:415
 #: src/lib/src/Modules/AuditTrail/Strings.php:90
 msgid "Users"
 msgstr "Usuarios"
@@ -8430,7 +8426,7 @@ msgstr "Usuarios"
 msgid "You will need to consider the implications to database storage requirements."
 msgstr "Deberá considerar las implicaciones a los requirimientos de almacenamiento de la base de datos."
 
-#: src/features/insights.php:284 src/features/insights.php:291
+#: src/features/insights.php:283 src/features/insights.php:290
 msgid "Pro"
 msgstr "Pro"
 
@@ -8438,7 +8434,7 @@ msgstr "Pro"
 msgid "Automatic Updates lets you manage the WordPress automatic updates engine so you choose what exactly gets updated automatically."
 msgstr "Las Actualizaciones Automáticas le permiten gestionar el motor de actualizaciones automáticas de WordPress de modo que pueda escoger exactamente qué se actualiza automáticamente."
 
-#: src/features/insights.php:285
+#: src/features/insights.php:284
 msgid "Traffic"
 msgstr "Tráfico"
 
@@ -8446,7 +8442,7 @@ msgstr "Tráfico"
 msgid "Disable ALL WordPress Automatic Updates"
 msgstr "Deshabilitar TODAS las Actualizaciones Automáticas de WordPress"
 
-#: src/features/insights.php:286
+#: src/features/insights.php:285
 msgid "Notes"
 msgstr "Notas"
 
@@ -8454,7 +8450,7 @@ msgstr "Notas"
 msgid "If you never want WordPress to automatically update anything on your site, turn on this option."
 msgstr "Si no quiere que Wordpress actualice automáticamente nada de su web, active esta opción."
 
-#: src/features/insights.php:287 src/lib/src/Modules/Plugin/Strings.php:77
+#: src/features/insights.php:286 src/lib/src/Modules/Plugin/Strings.php:77
 #: src/lib/src/Modules/Plugin/Strings.php:82
 msgid "Import"
 msgstr "Importar"
@@ -8463,7 +8459,7 @@ msgstr "Importar"
 msgid "Do not turn on this option unless you really need to block updates."
 msgstr "No active esta opción a menos que realmente necesite bloquear las actualizaciones."
 
-#: src/features/insights.php:287 src/lib/src/Modules/Plugin/Strings.php:77
+#: src/features/insights.php:286 src/lib/src/Modules/Plugin/Strings.php:77
 #: src/lib/src/Modules/Plugin/Strings.php:82
 msgid "Export"
 msgstr "Exportar"
@@ -8473,7 +8469,7 @@ msgstr "Exportar"
 msgid "Turn Off"
 msgstr "Apagar"
 
-#: src/features/insights.php:491
+#: src/features/insights.php:490
 msgid "Site"
 msgstr "Sitio"
 
@@ -8481,7 +8477,7 @@ msgstr "Sitio"
 msgid "Automatic Plugin Self-Update"
 msgstr "Actualización automática del plugin"
 
-#: src/features/insights.php:515
+#: src/features/insights.php:514
 msgid "SSL certificate for this site has expired."
 msgstr "El certificado SSL para este sitio ha caducado."
 
@@ -8489,7 +8485,7 @@ msgstr "El certificado SSL para este sitio ha caducado."
 msgid "Allows the %s plugin to automatically update itself when an update is available."
 msgstr "Permite al plugin %s actualizarse automáticamente cuando hay una actualización disponible."
 
-#: src/features/insights.php:518
+#: src/features/insights.php:517
 msgid "SSL certificate will expire soon (in %s days)"
 msgstr "El certificado SSL caducará pronto (en %s días)"
 
@@ -8497,7 +8493,7 @@ msgstr "El certificado SSL caducará pronto (en %s días)"
 msgid "Keep this option turned on."
 msgstr "Mantenga esta opción activada."
 
-#: src/features/insights.php:525
+#: src/features/insights.php:524
 msgid "Check or renew your SSL certificate."
 msgstr "Compruebe o renueve su certificado SSL."
 
@@ -8505,7 +8501,7 @@ msgstr "Compruebe o renueve su certificado SSL."
 msgid "Self-Update"
 msgstr "Actualización Automática"
 
-#: src/features/insights.php:548
+#: src/features/insights.php:547
 msgid "DB Password appears to be weak."
 msgstr "La contraseña de DB parece ser débil."
 
@@ -8513,7 +8509,7 @@ msgstr "La contraseña de DB parece ser débil."
 msgid "Automatic Updates For WordPress Components"
 msgstr "Actualizaciones Automáticas Para Componentes WordPress"
 
-#: src/features/insights.php:550
+#: src/features/insights.php:549
 msgid "The database password should be strong."
 msgstr "La contraseña de la base de datos debe ser fuerte."
 
@@ -8521,7 +8517,7 @@ msgstr "La contraseña de la base de datos debe ser fuerte."
 msgid "Control how automatic updates for each WordPress component is handled."
 msgstr "Controle cómo se resuelven las actualizaciones automáticas de cada componente de WordPress."
 
-#: src/features/insights.php:565 src/features/insights.php:576
+#: src/features/insights.php:564 src/features/insights.php:575
 #: src/lib/src/Modules/AuditTrail/Strings.php:91
 #: src/lib/src/Modules/AuditTrail/Strings.php:211
 #: src/lib/src/Modules/AuditTrail/Strings.php:212
@@ -8534,7 +8530,7 @@ msgstr "Plugins"
 msgid "You should at least allow minor updates for the WordPress core."
 msgstr "Debería permitir al menos las actualizaciones menores del núcleo de WordPress."
 
-#: src/features/insights.php:573
+#: src/features/insights.php:572
 msgid "Inactive"
 msgstr "Inactivo"
 
@@ -8542,7 +8538,7 @@ msgstr "Inactivo"
 msgid "WordPress Components"
 msgstr "Componentes de WordPress"
 
-#: src/features/insights.php:574
+#: src/features/insights.php:573
 msgid "%s inactive plugin(s)"
 msgstr "%s plugin(s) inactivo(s)"
 
@@ -8551,7 +8547,7 @@ msgstr "%s plugin(s) inactivo(s)"
 msgid "Auto-Update Options"
 msgstr "Opciones de Actualización Automática"
 
-#: src/features/insights.php:577
+#: src/features/insights.php:576
 msgid "Unused plugins should be removed."
 msgstr "Los plugins no utilizados deben ser eliminados."
 
@@ -8559,7 +8555,7 @@ msgstr "Los plugins no utilizados deben ser eliminados."
 msgid "Make adjustments to how automatic updates are handled on your site."
 msgstr "Realice ajustes en cómo se manejan las actualizaciones automáticas en su sitio."
 
-#: src/features/insights.php:587
+#: src/features/insights.php:586
 msgid "%s plugin update(s)"
 msgstr "%s actualizaciones de plugin"
 
@@ -8567,8 +8563,8 @@ msgstr "%s actualizaciones de plugin"
 msgid "Disable All"
 msgstr "Deshabilitar Todo"
 
-#: src/features/insights.php:589 src/features/insights.php:629
-#: src/features/insights.php:655
+#: src/features/insights.php:588 src/features/insights.php:628
+#: src/features/insights.php:654
 msgid "Updates"
 msgstr "Actualizaciones"
 
@@ -8576,8 +8572,8 @@ msgstr "Actualizaciones"
 msgid "Completely Disable WordPress Automatic Updates"
 msgstr "Deshabilitar Completamente las Actualizaciones Automáticas de WordPress"
 
-#: src/features/insights.php:590 src/features/insights.php:630
-#: src/features/insights.php:656
+#: src/features/insights.php:589 src/features/insights.php:629
+#: src/features/insights.php:655
 msgid "Updates should be applied as early as possible."
 msgstr "Las actualizaciones deben aplicarse lo antes posible."
 
@@ -8585,7 +8581,7 @@ msgstr "Las actualizaciones deben aplicarse lo antes posible."
 msgid "When selected, regardless of any other settings, all WordPress automatic updates on this site will be completely disabled!"
 msgstr "¡Cuando se selecciona, a pesar de cualquier otro ajuste, todas las actualizaciones automáticas de WordPress en este sitio serán completamente deshabilitadas!"
 
-#: src/features/insights.php:605 src/features/insights.php:616
+#: src/features/insights.php:604 src/features/insights.php:615
 #: src/lib/src/Modules/AuditTrail/Strings.php:92
 #: src/lib/src/Modules/AuditTrail/Strings.php:217
 #: src/lib/src/Modules/AuditTrail/Strings.php:218
@@ -8598,7 +8594,7 @@ msgstr "Temas"
 msgid "Auto Update Plugin"
 msgstr "Auto Actualización del Plugin"
 
-#: src/features/insights.php:614
+#: src/features/insights.php:613
 msgid "%s inactive themes(s)"
 msgstr "%s tema(s) inactivo(s)"
 
@@ -8606,7 +8602,7 @@ msgstr "%s tema(s) inactivo(s)"
 msgid "Always Automatically Update This Plugin"
 msgstr "Siempre Actualizar Automáticamente Este Plugin"
 
-#: src/features/insights.php:617
+#: src/features/insights.php:616
 msgid "Unused themes should be removed."
 msgstr "Los temas no utilizados deben ser eliminados."
 
@@ -8614,7 +8610,7 @@ msgstr "Los temas no utilizados deben ser eliminados."
 msgid "Regardless of any other settings, automatically update the \"%s\" plugin."
 msgstr "Independientemente de cualquier otra configuración, actualice automáticamente el plugin \"%s\"."
 
-#: src/features/insights.php:627
+#: src/features/insights.php:626
 msgid "%s theme update(s)"
 msgstr "%s actualización(s) del tema"
 
@@ -8622,7 +8618,7 @@ msgstr "%s actualización(s) del tema"
 msgid "WordPress Core Updates"
 msgstr "Actualizaciones del Núcleo de WordPress"
 
-#: src/features/insights.php:645
+#: src/features/insights.php:644
 msgid "WordPress Core"
 msgstr "Núcleo de WordPress"
 
@@ -8630,7 +8626,7 @@ msgstr "Núcleo de WordPress"
 msgid "Decide how the WordPress Core will automatically update, if at all"
 msgstr "Decide cómo el Núcleo de WordPress puede actualizarse automáticamente, en todo caso."
 
-#: src/features/insights.php:653
+#: src/features/insights.php:652
 msgid "WordPress Core has an update available."
 msgstr "El Núcleo de WordPress tiene una actualización disponible."
 
@@ -8638,7 +8634,7 @@ msgstr "El Núcleo de WordPress tiene una actualización disponible."
 msgid "At least automatically upgrading minor versions is recommended (and is the WordPress default)."
 msgstr "Por lo menos, se recomienda actualizar automáticamente versiones menores (y es el valor predeteminado de WordPress)."
 
-#: src/features/insights.php:665
+#: src/features/insights.php:664
 msgid "WordPress does not automatically install updates."
 msgstr "WordPress no instala automáticamente las actualizaciones."
 
@@ -8646,7 +8642,7 @@ msgstr "WordPress no instala automáticamente las actualizaciones."
 msgid "Translations"
 msgstr "Traducciones"
 
-#: src/features/insights.php:668
+#: src/features/insights.php:667
 msgid "Minor WordPress upgrades should be applied automatically."
 msgstr "Las actualizaciones menores de WordPress deben aplicarse automáticamente."
 
@@ -8654,7 +8650,7 @@ msgstr "Las actualizaciones menores de WordPress deben aplicarse automáticament
 msgid "Automatically Update Translations"
 msgstr "Actualizar Traducciones Automáticamente"
 
-#: src/features/insights.php:694 src/processors/statistics.php:190
+#: src/features/insights.php:693 src/processors/statistics.php:190
 msgid "Login Blocks"
 msgstr "Accesos Bloqueados"
 
@@ -8662,7 +8658,7 @@ msgstr "Accesos Bloqueados"
 msgid "Note: Automatic updates for translations are enabled on WordPress by default."
 msgstr "Nota: Las actualizaciones automáticas de las traducciones están habilitadas por defecto en WordPress."
 
-#: src/features/insights.php:696
+#: src/features/insights.php:695
 msgid "Total login attempts blocked."
 msgstr "Total de intentos de inicio de sesión bloqueados."
 
@@ -8670,7 +8666,7 @@ msgstr "Total de intentos de inicio de sesión bloqueados."
 msgid "Automatically Update All Plugins"
 msgstr "Actualizar Automáticamente Todos Los Plugins"
 
-#: src/features/insights.php:699 src/processors/statistics.php:189
+#: src/features/insights.php:698 src/processors/statistics.php:189
 msgid "Firewall Blocks"
 msgstr "Bloqueos del Firewall"
 
@@ -8678,7 +8674,7 @@ msgstr "Bloqueos del Firewall"
 msgid "Note: Automatic updates for plugins are disabled on WordPress by default."
 msgstr "Nota: Las actualizaciones automáticas de plugins están deshabilitadas por defecto en WordPress."
 
-#: src/features/insights.php:701
+#: src/features/insights.php:700
 msgid "Total requests blocked by firewall rules."
 msgstr "Total de solicitudes bloqueadas por reglas del Firewall."
 
@@ -8686,7 +8682,7 @@ msgstr "Total de solicitudes bloqueadas por reglas del Firewall."
 msgid "Individually Select Plugins"
 msgstr "Seleccionar Plugins Individualmente"
 
-#: src/features/insights.php:704 src/processors/statistics.php:188
+#: src/features/insights.php:703 src/processors/statistics.php:188
 msgid "Comment Blocks"
 msgstr "Comentarios Bloqueados"
 
@@ -8694,7 +8690,7 @@ msgstr "Comentarios Bloqueados"
 msgid "Select Individual Plugins To Automatically Update"
 msgstr "Seleccione Plugins Individuales Para Actualizar Automáticamente"
 
-#: src/features/insights.php:706
+#: src/features/insights.php:705
 msgid "Total SPAM comments blocked."
 msgstr "Total de comentarios SPAM bloqueados."
 
@@ -8702,7 +8698,7 @@ msgstr "Total de comentarios SPAM bloqueados."
 msgid "Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated."
 msgstr "Activar esto proporcionará una opción en la página de plugins para seleccionar si un plugin se actualiza automáticamente."
 
-#: src/features/insights.php:714 src/lib/src/Tables/Render/IpBase.php:23
+#: src/features/insights.php:713 src/lib/src/Tables/Render/IpBase.php:23
 #: src/lib/src/Tables/Render/IpBlack.php:14
 msgid "Offenses"
 msgstr "Infracciones"
@@ -8711,7 +8707,7 @@ msgstr "Infracciones"
 msgid "Automatically Update Themes"
 msgstr "Actualizar Temas Automáticamente"
 
-#: src/features/insights.php:716
+#: src/features/insights.php:715
 msgid "Total offenses against the site."
 msgstr "Total de infracciones contra el sitio."
 
@@ -8719,7 +8715,7 @@ msgstr "Total de infracciones contra el sitio."
 msgid "Note: Automatic updates for themes are disabled on WordPress by default."
 msgstr "Nota: Las actualizaciones automáticas de temas están desactivadas por defecto en WordPress."
 
-#: src/features/insights.php:719
+#: src/features/insights.php:718
 msgid "IP Blocks"
 msgstr "Bloques de IP"
 
@@ -8727,7 +8723,7 @@ msgstr "Bloques de IP"
 msgid "Ignore Version Control"
 msgstr "Ignorar Control de Versiones"
 
-#: src/features/insights.php:721
+#: src/features/insights.php:720
 msgid "Total connections blocked/killed after too many offenses."
 msgstr "Total de conexiones bloqueadas/terminadas después de demasiadas infracciones."
 

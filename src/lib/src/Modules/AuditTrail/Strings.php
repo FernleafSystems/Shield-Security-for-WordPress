@@ -100,7 +100,7 @@ class Strings extends Base\Strings {
 			'at_category'         => __( 'Category', 'wp-simple-firewall' ),
 			'at_ipaddress'        => __( 'IP Address', 'wp-simple-firewall' ),
 			'at_you'              => __( 'You', 'wp-simple-firewall' ),
-			'at_no_audit_entries' => __( 'There are currently no audit entries this is section.', 'wp-simple-firewall' ),
+			'at_no_audit_entries' => __( 'There are currently no audit entries in this section.', 'wp-simple-firewall' ),
 		];
 	}
 

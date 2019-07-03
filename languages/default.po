@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-06-25 14:44+0100\n"
-"PO-Revision-Date: 2019-06-25 14:45+0100\n"
+"POT-Creation-Date: 2019-07-03 12:44+0100\n"
+"PO-Revision-Date: 2019-07-03 12:44+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -21,10 +21,6 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-3: tests\n"
 "X-Poedit-SearchPathExcluded-4: src/lib/vendor\n"
 "X-Poedit-SearchPathExcluded-5: resources\n"
-
-#: icwp-plugin-controller.php:697
-msgid "Update Now To Keep Your Security Current With The Latest Features."
-msgstr ""
 
 #: src/features/admin_access_restriction.php:82
 msgid "Security Admin Access Key Accepted."
@@ -55,21 +51,21 @@ msgstr ""
 msgid "Enter your Security Admin Access Key"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:456
-#: src/features/admin_access_restriction.php:458
+#: src/features/admin_access_restriction.php:455
+#: src/features/admin_access_restriction.php:457
 msgid "Security Admin session has timed-out."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:456
+#: src/features/admin_access_restriction.php:455
 msgid "Reload now?"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:457
+#: src/features/admin_access_restriction.php:456
 msgid "Security Admin session has nearly timed-out."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:472
-#: src/features/admin_access_restriction.php:485
+#: src/features/admin_access_restriction.php:471
+#: src/features/admin_access_restriction.php:484
 #: src/lib/src/Modules/Plugin/Strings.php:397
 #: src/lib/src/Modules/Plugin/Strings.php:399
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:35
@@ -79,61 +75,61 @@ msgstr ""
 msgid "Security Admin"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:473
+#: src/features/admin_access_restriction.php:472
 #, php-format
 msgid "Prevent Tampering With %s Settings"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:488
+#: src/features/admin_access_restriction.php:487
 msgid "Security plugin is protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:489
+#: src/features/admin_access_restriction.php:488
 msgid "Security plugin is vulnerable to tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:496
+#: src/features/admin_access_restriction.php:495
 msgid "Important Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:499
+#: src/features/admin_access_restriction.php:498
 msgid "Important WP options are protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:500
+#: src/features/admin_access_restriction.php:499
 msgid "Important WP options aren't protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:507
+#: src/features/admin_access_restriction.php:506
 msgid "WP Admins"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:510
+#: src/features/admin_access_restriction.php:509
 msgid "Admin users are protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:511
+#: src/features/admin_access_restriction.php:510
 msgid "Admin users aren't protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:528
+#: src/features/admin_access_restriction.php:527
 msgid "Security Admin Protection"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:535
+#: src/features/admin_access_restriction.php:534
 msgid "Security Plugin Unprotected"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:537
+#: src/features/admin_access_restriction.php:536
 msgid "The Security Admin protection is not active."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:541 src/features/insights.php:263
+#: src/features/admin_access_restriction.php:540 src/features/insights.php:263
 #, php-format
 msgid "Go To %s"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:541
+#: src/features/admin_access_restriction.php:540
 #: src/features/autoupdates.php:220 src/features/hack_protect.php:1064
 #: src/features/hack_protect.php:1085 src/features/hack_protect.php:1106
 #: src/features/hack_protect.php:1127 src/features/hack_protect.php:1148
@@ -145,16 +141,16 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:542
+#: src/features/admin_access_restriction.php:541
 msgid "Security Admin should be turned-on to protect your security settings."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:611
+#: src/features/admin_access_restriction.php:610
 msgid ""
 "Sorry, this plugin is protected against unauthorised attempts to disable it."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:614
+#: src/features/admin_access_restriction.php:613
 msgid "You'll just need to authenticate first and try again."
 msgstr ""
 
@@ -342,31 +338,31 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: src/features/base.php:1082
+#: src/features/base.php:1083
 msgid ""
 "Unfortunately your WordPress and/or PHP versions are too old to support this "
 "feature."
 msgstr ""
 
-#: src/features/base.php:1236
+#: src/features/base.php:1237
 #, php-format
 msgid "%s Plugin options updated successfully."
 msgstr ""
 
-#: src/features/base.php:1240
+#: src/features/base.php:1241
 #, php-format
 msgid "Failed to update %s plugin options."
 msgstr ""
 
-#: src/features/base.php:1272
+#: src/features/base.php:1273
 msgid "You don't currently have permission to save settings."
 msgstr ""
 
-#: src/features/base.php:1361
+#: src/features/base.php:1362
 msgid "Password values do not match."
 msgstr ""
 
-#: src/features/base.php:1603 src/lib/src/Modules/AuditTrail/Strings.php:195
+#: src/features/base.php:1604 src/lib/src/Modules/AuditTrail/Strings.php:195
 #: src/lib/src/Modules/HackGuard/Strings.php:194
 #: src/lib/src/Modules/HackGuard/Strings.php:268
 #: src/lib/src/Modules/LoginGuard/Strings.php:265
@@ -378,11 +374,11 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: src/features/base.php:1610
+#: src/features/base.php:1611
 msgid "For more information:"
 msgstr ""
 
-#: src/features/base.php:1611 src/processors/base_plugin.php:65
+#: src/features/base.php:1612 src/processors/base_plugin.php:65
 msgid "Support Forums"
 msgstr ""
 
@@ -394,63 +390,63 @@ msgstr ""
 msgid "All features of this module are completely disabled"
 msgstr ""
 
-#: src/features/comments_filter.php:79
+#: src/features/comments_filter.php:65
 msgid "I'm not a spammer."
 msgstr ""
 
-#: src/features/comments_filter.php:82
+#: src/features/comments_filter.php:68
 msgid "Please check the box to confirm you're not a spammer."
 msgstr ""
 
-#: src/features/comments_filter.php:85
+#: src/features/comments_filter.php:71
 #, php-format
 msgid "Please wait %s seconds before posting your comment."
 msgstr ""
 
-#: src/features/comments_filter.php:88
+#: src/features/comments_filter.php:74
 msgid "Please reload this page to post a comment."
 msgstr ""
 
-#: src/features/comments_filter.php:134
+#: src/features/comments_filter.php:120
 msgid "SPAM Blocking"
 msgstr ""
 
-#: src/features/comments_filter.php:135
+#: src/features/comments_filter.php:121
 msgid "Block Bot & Human Comment SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:146
+#: src/features/comments_filter.php:132
 #: src/lib/src/Modules/CommentsFilter/Strings.php:60
 msgid "Bot SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:149
+#: src/features/comments_filter.php:135
 msgid "Bot SPAM comments are blocked"
 msgstr ""
 
-#: src/features/comments_filter.php:150
+#: src/features/comments_filter.php:136
 msgid "There is no protection against Bot SPAM comments"
 msgstr ""
 
-#: src/features/comments_filter.php:155
+#: src/features/comments_filter.php:141
 #: src/lib/src/Modules/CommentsFilter/Strings.php:79
 msgid "Human SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:158
+#: src/features/comments_filter.php:144
 msgid "Comments posted by humans are checked for SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:159
+#: src/features/comments_filter.php:145
 msgid "Comments posted by humans aren't checked for SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:181
+#: src/features/comments_filter.php:167
 #, php-format
 msgid "Please remember to supply reCAPTCHA keys: %s"
 msgstr ""
 
-#: src/features/comments_filter.php:182
+#: src/features/comments_filter.php:168
 msgid "reCAPTCHA Settings"
 msgstr ""
 
@@ -494,7 +490,7 @@ msgstr ""
 msgid "%s per day"
 msgstr ""
 
-#: src/features/hack_protect.php:668 src/features/license.php:634
+#: src/features/hack_protect.php:668 src/features/license.php:631
 #: src/lib/src/Modules/Base/Strings.php:29
 #: src/lib/src/Modules/Plugin/Strings.php:324
 #: src/processors/hack_protect.php:107 src/processors/hack_protect.php:129
@@ -1291,55 +1287,55 @@ msgid ""
 "the White List"
 msgstr ""
 
-#: src/features/license.php:99
+#: src/features/license.php:100
 #, php-format
 msgid "Please wait %s before attempting another license check."
 msgstr ""
 
-#: src/features/license.php:100
+#: src/features/license.php:101
 #, php-format
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/features/license.php:106
+#: src/features/license.php:107
 msgid "Valid license found."
 msgstr ""
 
-#: src/features/license.php:106
+#: src/features/license.php:107
 msgid "Valid license couldn't be found."
 msgstr ""
 
-#: src/features/license.php:220
+#: src/features/license.php:218
 msgid "Automatic license verification failed."
 msgstr ""
 
-#: src/features/license.php:310
+#: src/features/license.php:307
 msgid "Attempts to verify Shield Pro license has just failed."
 msgstr ""
 
-#: src/features/license.php:311 src/features/license.php:332
+#: src/features/license.php:308 src/features/license.php:329
 #, php-format
 msgid "Please check your license on-site: %s"
 msgstr ""
 
-#: src/features/license.php:312 src/features/license.php:333
+#: src/features/license.php:309 src/features/license.php:330
 #, php-format
 msgid "If this problem persists, please contact support: %s"
 msgstr ""
 
-#: src/features/license.php:331
+#: src/features/license.php:328
 msgid "All attempts to verify Shield Pro license have failed."
 msgstr ""
 
-#: src/features/license.php:642 src/lib/src/Modules/Base/Strings.php:27
+#: src/features/license.php:639 src/lib/src/Modules/Base/Strings.php:27
 #: src/lib/src/Tables/Build/Ip.php:51 src/lib/src/Tables/Build/Sessions.php:68
 #: src/lib/src/Tables/Build/Traffic.php:109
 msgid "Yes"
 msgstr ""
 
-#: src/features/license.php:642
+#: src/features/license.php:639
 msgid "Not Active"
 msgstr ""
 
@@ -1624,48 +1620,48 @@ msgstr ""
 msgid "This Site Is Protected By %s"
 msgstr ""
 
-#: src/features/plugin.php:1026 src/lib/src/Modules/Plugin/Strings.php:375
+#: src/features/plugin.php:1021 src/lib/src/Modules/Plugin/Strings.php:375
 #: src/processors/plugin_importexport.php:63
 msgid "General Settings"
 msgstr ""
 
-#: src/features/plugin.php:1027
+#: src/features/plugin.php:1022
 #, php-format
 msgid "General %s Settings"
 msgstr ""
 
-#: src/features/plugin.php:1040
+#: src/features/plugin.php:1035
 msgid "Visitor IP"
 msgstr ""
 
-#: src/features/plugin.php:1042
+#: src/features/plugin.php:1037
 #, php-format
 msgid "Visitor IP address source is: %s"
 msgstr ""
 
-#: src/features/plugin.php:1049
+#: src/features/plugin.php:1044
 msgid "Reporting Email"
 msgstr ""
 
-#: src/features/plugin.php:1052
+#: src/features/plugin.php:1047
 #, php-format
 msgid "Email address for reports set to: %s"
 msgstr ""
 
-#: src/features/plugin.php:1053
+#: src/features/plugin.php:1048
 #, php-format
 msgid "No address provided - defaulting to: %s"
 msgstr ""
 
-#: src/features/plugin.php:1061
+#: src/features/plugin.php:1056
 msgid "reCAPTCHA"
 msgstr ""
 
-#: src/features/plugin.php:1064
+#: src/features/plugin.php:1059
 msgid "Google reCAPTCHA keys have been provided"
 msgstr ""
 
-#: src/features/plugin.php:1065
+#: src/features/plugin.php:1060
 msgid "Google reCAPTCHA keys haven't been provided"
 msgstr ""
 
@@ -1802,6 +1798,10 @@ msgstr ""
 
 #: src/features/user_management.php:508
 msgid "Limited or no password polices are active"
+msgstr ""
+
+#: src/lib/src/Controller/Controller.php:684
+msgid "Update Now To Keep Your Security Current With The Latest Features."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Auditors/Emails.php:21
@@ -2008,7 +2008,7 @@ msgid "You"
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:103
-msgid "There are currently no audit entries this is section."
+msgid "There are currently no audit entries in this section."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:117
@@ -5108,7 +5108,7 @@ msgstr ""
 msgid "Checked"
 msgstr ""
 
-#: src/lib/src/Modules/License/Strings.php:34 src/wizards/base.php:218
+#: src/lib/src/Modules/License/Strings.php:34 src/wizards/base.php:211
 msgid "Error"
 msgstr ""
 
@@ -9344,16 +9344,16 @@ msgid ""
 "administrator."
 msgstr ""
 
-#: src/wizards/base.php:215
+#: src/wizards/base.php:208
 msgid "Next Step"
 msgstr ""
 
-#: src/wizards/base.php:370
+#: src/wizards/base.php:360
 #, php-format
 msgid "%s Wizard"
 msgstr ""
 
-#: src/wizards/base.php:513
+#: src/wizards/base.php:504
 msgid "No Access"
 msgstr ""
 
