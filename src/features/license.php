@@ -93,18 +93,28 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		$sLicenseAction = Services::Request()->post( 'license-action' );
 
-		$nCheckInterval = $this->getLicenseNotCheckedForInterval();
-		if ( $nCheckInterval < 20 ) {
-			$nWait = 20 - $nCheckInterval;
-			$sMessage = sprintf(
-				__( 'Please wait %s before attempting another license check.', 'wp-simple-firewall' ),
-				sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
-			);
+		if ( $sLicenseAction == 'clear' ) {
+			$bSuccess = true;
+			$this->deactivate( 'cleared' );
+			$this->clearLicenseData();
+			$sMessage = __( 'Success', 'wp-simple-firewall' )
+						.__( 'Reloading page', 'wp-simple-firewall' ).'...';
 		}
 		else if ( $sLicenseAction == 'check' ) {
-			$bSuccess = $this->verifyLicense( true )
-							 ->hasValidWorkingLicense();
-			$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
+
+			$nCheckInterval = $this->getLicenseNotCheckedForInterval();
+			if ( $nCheckInterval < 20 ) {
+				$nWait = 20 - $nCheckInterval;
+				$sMessage = sprintf(
+					__( 'Please wait %s before attempting another license check.', 'wp-simple-firewall' ),
+					sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
+				);
+			}
+			else {
+				$bSuccess = $this->verifyLicense( true )
+								 ->hasValidWorkingLicense();
+				$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
+			}
 		}
 		else if ( $sLicenseAction == 'remove' ) {
 			$oLicense = ( new Utilities\Licenses\Lookup() )
@@ -674,6 +684,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'button_enabled_remove' => $this->isLicenseKeyValidFormat(),
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
+				'is_pro'                => $this->isPremium()
 			],
 			'strings' => $this->getStrings()->getDisplayStrings(),
 		];

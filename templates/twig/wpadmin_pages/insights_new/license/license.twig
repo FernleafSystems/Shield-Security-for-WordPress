@@ -71,17 +71,31 @@
 
 					<div class="form-text text-muted">
 						<ol>
+							<li>{{ strings.url_to_activate }}:
+								<code class="font-weight-bold">{{ vars.activation_url }}</code></li>
 							<li class="font-weight-bold">
 								<a target="_blank" href="{{ aHrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
 							</li>
-							<li>{{ strings.url_to_activate }}:
-								<code class="font-weight-bold">{{ vars.activation_url }}</code></li>
 							<li>{{ strings.license_check_limit }}.
 								<br />({{ strings.more_frequent }})
 							</li>
 						</ol>
 					</div>
 				</form>
+				{% if flags.is_pro %}
+					<form method="post" class="licenseForm">
+						{% for ajax_key, ajax_val in ajax.license_handling %}
+							<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
+						{% endfor %}
+						<input type="hidden" name="license-action" value="clear" />
+
+						<button class="btn btn-link m-2" type="submit"
+								style="float: right; text-decoration: none; font-size: small;"
+								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
+							<span class="text-danger">&#10008; {{ strings.clear_license }}</span>
+						</button>
+					</form>
+				{% endif %}
 			</div>
 			<div class="card-footer">
 				<form method="post" id="ConnectionDebug">
@@ -234,7 +248,7 @@ var iCWP_WPSF_LicenseHandler = new function () {
 		bRequestCurrentlyRunning = true;
 		event.preventDefault();
 
-		var $oForm = jQuery( this );
+		let $oForm = jQuery( this );
 		jQuery.post( ajaxurl, $oForm.serialize(),
 			function ( oResponse ) {
 				if ( typeof oResponse !== 'undefined' && typeof oResponse.data !== 'undefined' ) {
@@ -261,7 +275,7 @@ var iCWP_WPSF_LicenseHandler = new function () {
 var iCWP_WPSF_ConnectionDebug = new function () {
 	/**
 	 */
-	var connectionDebug = function ( event ) {
+	let connectionDebug = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 		event.preventDefault();
 
