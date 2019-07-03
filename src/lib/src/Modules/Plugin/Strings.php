@@ -334,10 +334,11 @@ class Strings extends Base\Strings {
 			__( 'Default Style', 'wp-simple-firewall' );
 			__( 'Redirect To Home Page', 'wp-simple-firewall' );
 			__( 'Return 404', 'wp-simple-firewall' );
-			__( 'Scan Disabled', 'wp-simple-firewall' );
 			__( 'Die', 'wp-simple-firewall' );
 			__( 'Scan Disabled', 'wp-simple-firewall' );
 			__( 'Scan Enabled', 'wp-simple-firewall' );
+			__( 'Automatic Scan Disabled', 'wp-simple-firewall' );
+			__( 'Automatic Scan Enabled', 'wp-simple-firewall' );
 			__( 'Scan Enabled - Send Email Notification', 'wp-simple-firewall' );
 			__( 'Scan Enabled - No Email Notification', 'wp-simple-firewall' );
 			__( 'Scan Enabled - Automatically Delete Files', 'wp-simple-firewall' );

@@ -97,7 +97,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$bSuccess = true;
 			$this->deactivate( 'cleared' );
 			$this->clearLicenseData();
-			$sMessage = __( 'Success', 'wp-simple-firewall' )
+			$sMessage = __( 'Success', 'wp-simple-firewall' ).'! '
 						.__( 'Reloading page', 'wp-simple-firewall' ).'...';
 		}
 		else if ( $sLicenseAction == 'check' ) {

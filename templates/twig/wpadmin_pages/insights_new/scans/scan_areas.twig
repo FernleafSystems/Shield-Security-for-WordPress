@@ -1,7 +1,7 @@
 <form id="StartScans">
 	<div class="card">
 		<div class="card-header">
-			<h5 class="card-title mb-0">
+			<h5 class="card-title">
 				{{ strings.title_scan_now }}
 				<small>
 					<a class="float-right" data-toggle="collapse"
@@ -21,7 +21,10 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_wcf" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   name="wcf" id="_wcf" value="Y" checked="checked" aria-selected="true" />
+								   name="wcf" id="_wcf" value="Y"
+								   {% if not scans.wcf.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.wcf.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+							/>
 							{{ scans.wcf.strings.title }}
 							<br />
 							<small class="form-text">{{ scans.wcf.strings.subtitle }}</small>
@@ -33,7 +36,10 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_ufc" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   name="ufc" id="_ufc" value="Y" checked="checked" aria-selected="true" />
+								   name="ufc" id="_ufc" value="Y"
+								   {% if not scans.ufc.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.ufc.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+							/>
 							{{ scans.ufc.strings.title }}
 							<br />
 							<small class="form-text">{{ scans.ufc.strings.subtitle }}</small>
@@ -45,10 +51,10 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_ptg" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-									{% if not scans.ptg.flags.is_enabled %}
-										disabled="disabled"
-									{% endif %}
-								   name="ptg" id="_ptg" value="Y" checked="checked" aria-selected="true" />
+								   name="ptg" id="_ptg" value="Y"
+								   {% if not scans.ptg.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.ptg.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+							/>
 							{{ scans.ptg.strings.title }}
 							<br />
 							<small class="form-text">{{ scans.ptg.strings.subtitle }}</small>
@@ -60,10 +66,10 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_wpv" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-									{% if not scans.wpv.flags.is_enabled %}
-										disabled="disabled"
-									{% endif %}
-								   name="wpv" id="_wpv" value="Y" checked="checked" aria-selected="true" />
+								   name="wpv" id="_wpv" value="Y"
+								   {% if not scans.wpv.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.wpv.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+							/>
 							{{ scans.wpv.strings.title }}
 							<br />
 							<small class="form-text">{{ scans.wpv.strings.subtitle }}</small>
@@ -75,8 +81,10 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_mal" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   {% if not scans.mal.flags.is_enabled %}disabled="disabled"{% endif %}
-								   name="mal" id="_mal" value="Y" checked="checked" aria-selected="true" />
+								   name="mal" id="_mal" value="Y"
+								   {% if not scans.mal.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.mal.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+							/>
 							{{ scans.mal.strings.title }}
 							<br />
 							<small class="form-text">{{ scans.mal.strings.subtitle }}</small>
@@ -88,8 +96,10 @@
 					<div class="scan-select pl-2 text-nowrap">
 						<label for="_apc" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   {% if not scans.apc.flags.is_enabled %}disabled="disabled"{% endif %}
-								   name="apc" id="_apc" value="Y" checked="checked" aria-selected="true" />
+								   name="apc" id="_apc" value="Y"
+								   {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.apc.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+							/>
 							{{ scans.apc.strings.title }}
 							<br />
 							<small class="form-text">{{ scans.apc.strings.subtitle }}</small>

@@ -149,7 +149,7 @@
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled_email",
@@ -212,7 +212,7 @@
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled_email",
@@ -330,7 +330,7 @@
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled_report_only",
@@ -413,11 +413,11 @@
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled",
-          "text":      "Scan Enabled"
+          "text":      "Automatic Scan Enabled"
         }
       ],
       "link_info":     "",

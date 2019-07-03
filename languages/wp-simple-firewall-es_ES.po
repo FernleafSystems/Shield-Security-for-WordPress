@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Shield Security package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2019-07-03 11:45:59+0000\n"
+"PO-Revision-Date: 2019-07-03 14:16:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,18 @@ msgstr ""
 "X-Generator: GlotPress/2.3.1\n"
 "Language: es\n"
 "Project-Id-Version: Shield Security\n"
+
+#: src/lib/src/Modules/Plugin/Strings.php:341
+msgid "Automatic Scan Enabled"
+msgstr "Escanear Automático Habilitado"
+
+#: src/lib/src/Modules/License/Strings.php:18
+msgid "Clear License Status"
+msgstr "Borrar Estado de Licencia"
+
+#: src/lib/src/Modules/Plugin/Strings.php:340
+msgid "Automatic Scan Disabled"
+msgstr "Escanear Automático Deshabilitado"
 
 #: src/lib/src/Modules/IPs/Strings.php:232
 msgid "IP address '%s' removed from blacklist using 'unblock' file flag."
@@ -307,7 +319,7 @@ msgstr "Generar un nuevo código reemplazará tu código existente."
 msgid "This is per discovered item or file, not per scan."
 msgstr "Esto es por elemento o archivo descubierto, no por análisis."
 
-#: src/lib/src/Modules/License/Strings.php:18
+#: src/lib/src/Modules/License/Strings.php:19
 msgid "URL To Activate"
 msgstr "URL Para Activar"
 
@@ -328,7 +340,7 @@ msgstr "Use su aplicación Autenticador de Google para escanear este código QR 
 msgid "Email Files List"
 msgstr "Lista de Archivos de Correo Electrónico"
 
-#: src/lib/src/Modules/License/Strings.php:20
+#: src/lib/src/Modules/License/Strings.php:21
 msgid "Activate this site URL in your %s control panel"
 msgstr "Active esta URL del sitio en su panel de control de %s"
 
@@ -351,7 +363,7 @@ msgstr "Si tienes un problema con el escaneo del código QR, introduce el códig
 msgid "Scan Notification Emails Should Include Full Listing Of Files"
 msgstr "Los Correos Electrónicos de Notificación de Escaneos Deben Incluir Una Lista Completa De Archivos"
 
-#: src/lib/src/Modules/License/Strings.php:21
+#: src/lib/src/Modules/License/Strings.php:22
 msgid "Keyless Activation"
 msgstr "Activación sin LLave"
 
@@ -372,7 +384,7 @@ msgstr "Marca la casilla para eliminar la autenticación de inicio de sesión de
 msgid "Scanner notification emails will include a summary list of all affected files."
 msgstr "Los correos electrónicos de notificación del escáner incluirán una lista resumen de todos los archivos afectados."
 
-#: src/lib/src/Modules/License/Strings.php:23
+#: src/lib/src/Modules/License/Strings.php:24
 msgid "Licenses may be checked once every %s seconds"
 msgstr "Las licencias se pueden verificar una vez cada %s segundos"
 
@@ -393,7 +405,7 @@ msgstr "Elimina %s"
 msgid "Daily Cron - %s"
 msgstr "Cron diario - %s"
 
-#: src/lib/src/Modules/License/Strings.php:24
+#: src/lib/src/Modules/License/Strings.php:25
 msgid "more frequent checks will be ignored"
 msgstr "los cheques más frecuentes serán ignorados"
 
@@ -413,7 +425,7 @@ msgstr "Crear un Respaldo del Código de Inicio de Sesión 2FA"
 msgid "Scans Plugins For Known Vulnerabilities"
 msgstr "Escanea los Plugins Por Vulnerabilidades Conocidas"
 
-#: src/lib/src/Modules/License/Strings.php:25
+#: src/lib/src/Modules/License/Strings.php:26
 msgid "In case of activation problems, click the link"
 msgstr "En caso de problemas de activación, haga clic en el enlace"
 
@@ -434,7 +446,7 @@ msgstr "Código Manual"
 msgid "Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities."
 msgstr "Ejecuta un escaneo de todos sus plugins contra una base de datos de vulnerabilidades conocidas de plugins de WordPress."
 
-#: src/lib/src/Modules/License/Strings.php:27
+#: src/lib/src/Modules/License/Strings.php:28
 msgid "Name"
 msgstr "Nombre"
 
@@ -455,7 +467,7 @@ msgstr "Escanear Este Código QR"
 msgid "Vulnerability Scanner"
 msgstr "Escáner de Vulnerabilidad"
 
-#: src/lib/src/Modules/License/Strings.php:28
+#: src/lib/src/Modules/License/Strings.php:29
 msgid "Active"
 msgstr "Activo"
 
@@ -475,7 +487,7 @@ msgstr "Código de Inicio de Sesión de Respaldo "
 msgid "Enable The Vulnerability Scanner"
 msgstr "Habilitar el Escáner de Vulnerabilidad"
 
-#: src/lib/src/Modules/License/Strings.php:29
+#: src/lib/src/Modules/License/Strings.php:30
 msgid "Status"
 msgstr "Estado"
 
@@ -497,7 +509,7 @@ msgstr "Lo sentimos, no se puede agregar %s a la cuenta de otro usuario."
 msgid "Runs a scan of all your plugins against a database of known WordPress vulnerabilities."
 msgstr "Ejecuta un escaneo de todos sus plugins contra una base de datos de vulnerabilidades conocidas de WordPress."
 
-#: src/lib/src/Modules/License/Strings.php:31
+#: src/lib/src/Modules/License/Strings.php:32
 msgid "Expires"
 msgstr "Vence"
 
@@ -519,7 +531,7 @@ msgstr "Lo sentimos,%s solo puede ser eliminado de la cuenta de otro usuario por
 msgid "Apply Updates Automatically To Vulnerable Plugins"
 msgstr "Aplicar Actualizaciones Automáticamente A Los Plugins Vulnerables"
 
-#: src/lib/src/Modules/License/Strings.php:32
+#: src/lib/src/Modules/License/Strings.php:33
 msgid "Owner"
 msgstr "Propietario"
 
@@ -539,7 +551,7 @@ msgstr "Códigos de Respaldo"
 msgid "When an update becomes available, automatically apply updates to items with known vulnerabilities."
 msgstr "Cuando una actualización esté disponible, aplique automáticamente las actualizaciones a los elementos con vulnerabilidades conocidas."
 
-#: src/lib/src/Modules/License/Strings.php:33
+#: src/lib/src/Modules/License/Strings.php:34
 msgid "Checked"
 msgstr "Comprobado"
 
@@ -563,7 +575,7 @@ msgstr "Proporcionado por %s"
 msgid "Highlight Plugins"
 msgstr "Plugins Destacados"
 
-#: src/lib/src/Modules/License/Strings.php:34 src/wizards/base.php:211
+#: src/lib/src/Modules/License/Strings.php:35 src/wizards/base.php:211
 msgid "Error"
 msgstr "Error"
 
@@ -585,7 +597,7 @@ msgstr "Entender cómo eliminar el Autenticador de Google "
 msgid "Highlight Vulnerable Plugins Upon Display"
 msgstr "Resalte los Plugins vulnerables en la pantalla"
 
-#: src/lib/src/Modules/License/Strings.php:44
+#: src/lib/src/Modules/License/Strings.php:45
 msgid "Pro License check succeeded."
 msgstr "La verificación de la Licencia Pro tuvo éxito."
 
@@ -605,7 +617,7 @@ msgstr "Por favor use su Código de Respaldo para iniciar sesión."
 msgid "Vulnerable plugins will be highlighted on the main plugins page."
 msgstr "Los plugins vulnerables se resaltarán en la página principal de plugins."
 
-#: src/lib/src/Modules/License/Strings.php:47
+#: src/lib/src/Modules/License/Strings.php:48
 msgid "License check failed. Sending Warning Email."
 msgstr "Comprobación de licencia fallida. Enviando un Correo Electrónico de Advertencia."
 
@@ -625,7 +637,7 @@ msgstr "Código de Respaldo de Inicio de Sesión"
 msgid "WP Core File Scanner"
 msgstr "Explorador de Archivos del Núcleo de WP "
 
-#: src/lib/src/Modules/License/Strings.php:50
+#: src/lib/src/Modules/License/Strings.php:51
 msgid "License check failed. Deactivating Pro."
 msgstr "Comprobación de licencia fallida. Desactivando Pro."
 
@@ -832,8 +844,7 @@ msgstr "Escanear Carpetas de Cargas Para PHP y Javascript"
 msgid "Permissions"
 msgstr "Permisos"
 
-#: src/lib/src/Modules/Plugin/Strings.php:337
-#: src/lib/src/Modules/Plugin/Strings.php:339
+#: src/lib/src/Modules/Plugin/Strings.php:338
 msgid "Scan Disabled"
 msgstr "Escanear Deshabilitado"
 
@@ -853,7 +864,7 @@ msgstr "Tenga cuidado al activar esta opción; si no está seguro, déjelo desac
 msgid "WordPress Obscurity Options"
 msgstr "Opciones de Oscurecimiento de WordPress"
 
-#: src/lib/src/Modules/Plugin/Strings.php:338
+#: src/lib/src/Modules/Plugin/Strings.php:337
 msgid "Die"
 msgstr "Morir"
 
@@ -873,7 +884,7 @@ msgstr "La carpeta Cargas es principalmente para medios, pero podría usarse par
 msgid "Obscures certain WordPress settings from public view."
 msgstr "Obscurece algunos valores de WordPress ocultándolos de la vista pública."
 
-#: src/lib/src/Modules/Plugin/Strings.php:340
+#: src/lib/src/Modules/Plugin/Strings.php:339
 msgid "Scan Enabled"
 msgstr "Escanear Habilitado"
 
@@ -893,7 +904,7 @@ msgstr "Exclusiones de Archivos"
 msgid "Obscurity is not true security and so these settings are down to your personal tastes."
 msgstr "Obscurecer no es una verdadera seguridad y, por lo tanto, esta configuración se ajusta a sus preferencias personales."
 
-#: src/lib/src/Modules/Plugin/Strings.php:341
+#: src/lib/src/Modules/Plugin/Strings.php:342
 msgid "Scan Enabled - Send Email Notification"
 msgstr "Escanear Habilitado - Enviar Notificación por Correo Electrónico"
 
@@ -913,7 +924,7 @@ msgstr "Proporcionar Una Lista De Archivos Para Ser Excluidos Del Análisis"
 msgid "Obscurity"
 msgstr "Oscuridad"
 
-#: src/lib/src/Modules/Plugin/Strings.php:342
+#: src/lib/src/Modules/Plugin/Strings.php:343
 msgid "Scan Enabled - No Email Notification"
 msgstr "Escanear Habilitado - Sin Notificación por Correo Electrónico"
 
@@ -934,7 +945,7 @@ msgstr "Use una nueva línea para cada archivo que desee excluir del análisis."
 msgid "Disable %s"
 msgstr "Desactivar %s"
 
-#: src/lib/src/Modules/Plugin/Strings.php:343
+#: src/lib/src/Modules/Plugin/Strings.php:344
 msgid "Scan Enabled - Automatically Delete Files"
 msgstr "Escanear habilitado - Eliminar Archivos Automáticamente"
 
@@ -960,7 +971,7 @@ msgstr "No se requieren comas."
 msgid "Disable The %s System"
 msgstr "Desactivar El Sistema %s"
 
-#: src/lib/src/Modules/Plugin/Strings.php:344
+#: src/lib/src/Modules/Plugin/Strings.php:345
 msgid "Scan Enabled - Delete Files and Send Email Notification"
 msgstr "Escanear habilitado - Eliminar Archivos y Enviar Notificaciones por Correo Electrónico"
 
@@ -980,7 +991,7 @@ msgstr "Habilitar Chequeo de Integridad"
 msgid "Checking this option will completely turn off the whole %s system."
 msgstr "Marcando esta opción, apagará completamente todo el sistema %s."
 
-#: src/lib/src/Modules/Plugin/Strings.php:345
+#: src/lib/src/Modules/Plugin/Strings.php:346
 msgid "Off: iFrames Not Blocked"
 msgstr "Apagado: iFrames No Bloqueados"
 
@@ -1002,7 +1013,7 @@ msgstr "Análisis De Cambios Críticos Realizados A Su Sitio de WordPress"
 msgid "Anonymous Rest API"
 msgstr "API REST anónima"
 
-#: src/lib/src/Modules/Plugin/Strings.php:346
+#: src/lib/src/Modules/Plugin/Strings.php:347
 msgid "On: Allow iFrames On The Same Domain"
 msgstr "Encendido: Permitir iFrames En El Mismo Dominio"
 
@@ -1023,7 +1034,7 @@ msgstr "Detecta cambios hechos a su sitio de WordPress desde fuera de WordPress.
 msgid "You can choose to completely disable anonymous access to the REST API."
 msgstr "Puede elegir deshabilitar completamente el acceso anónimo a la API REST."
 
-#: src/lib/src/Modules/Plugin/Strings.php:347
+#: src/lib/src/Modules/Plugin/Strings.php:348
 msgid "On: Block All iFrames"
 msgstr "Encendido: Bloquear Todos los iFrames"
 
@@ -1043,7 +1054,7 @@ msgstr "Monitorear Cuentas de Usuario"
 msgid "Rest API Exclusions"
 msgstr "Exclusiones de API Rest"
 
-#: src/lib/src/Modules/Plugin/Strings.php:348
+#: src/lib/src/Modules/Plugin/Strings.php:349
 msgid "Default: Full Referrer URL (aka 'Unsafe URL')"
 msgstr "Predeterminado: URL de Referencia Completa (también conocida como 'URL No Segura')"
 
@@ -1064,7 +1075,7 @@ msgstr "Análisis Por Cambios Críticos Realizados A Cuentas de Usuario"
 msgid "Anonymous REST API Exclusions"
 msgstr "Exclusiones anónimas de la API REST"
 
-#: src/lib/src/Modules/Plugin/Strings.php:349
+#: src/lib/src/Modules/Plugin/Strings.php:350
 msgid "No Referrer"
 msgstr "Sin Referente"
 
@@ -1085,7 +1096,7 @@ msgstr "Detecta los cambios realizados en la información crítica de la cuenta 
 msgid "Any namespaces provided here will be excluded from the Anonymous API restriction."
 msgstr "Cualquier espacio de nombres provisto aquí será excluido de la restricción de las APIs Anónimas."
 
-#: src/lib/src/Modules/Plugin/Strings.php:350
+#: src/lib/src/Modules/Plugin/Strings.php:351
 msgid "No Referrer When Downgrade"
 msgstr "Sin Referente Cuando Se Degrada"
 
@@ -1105,7 +1116,7 @@ msgstr "Un ejemplo de esto podría ser alguna forma de ataque de inyección de S
 msgid "Disable File Editing"
 msgstr "Desactivar Edición de Archivos"
 
-#: src/lib/src/Modules/Plugin/Strings.php:351
+#: src/lib/src/Modules/Plugin/Strings.php:352
 msgid "Same Origin"
 msgstr "Mismo Origen"
 
@@ -1125,7 +1136,7 @@ msgstr "Habilitar esta opción para cada subpágina que pueda ralentizar su siti
 msgid "Disable Ability To Edit Files From Within WordPress"
 msgstr "Deshabilite la Capacidad Para Editar Archivos Desde Dentro de WordPress"
 
-#: src/lib/src/Modules/Plugin/Strings.php:352
+#: src/lib/src/Modules/Plugin/Strings.php:353
 msgid "Origin"
 msgstr "Origen"
 
@@ -1145,7 +1156,7 @@ msgstr "Esta opción puede causar un problema crítico con los plugins de tercer
 msgid "Removes the option to directly edit any files from within the WordPress admin area."
 msgstr "Revoca la opción de editar directamente cualquier archivo desde dentro del área de administración de WordPress."
 
-#: src/lib/src/Modules/Plugin/Strings.php:353
+#: src/lib/src/Modules/Plugin/Strings.php:354
 msgid "Strict Origin"
 msgstr "Origen Estricto"
 
@@ -1170,7 +1181,7 @@ msgstr "Habilitar %s"
 msgid "Equivalent to setting \"DISALLOW_FILE_EDIT\" to TRUE."
 msgstr "Equivale a configurar \"DISALLOW_FILE_EDIT\" a TRUE."
 
-#: src/lib/src/Modules/Plugin/Strings.php:354
+#: src/lib/src/Modules/Plugin/Strings.php:355
 msgid "Origin When Cross-Origin"
 msgstr "Origen Cuando hay Origen Cruzado"
 
@@ -1194,7 +1205,7 @@ msgstr "Guardia"
 msgid "Force SSL Admin"
 msgstr "Forzar Administrador SSL"
 
-#: src/lib/src/Modules/Plugin/Strings.php:355
+#: src/lib/src/Modules/Plugin/Strings.php:356
 msgid "Strict Origin When Cross-Origin"
 msgstr "Origen Estricto Cuando hay Origen Cruzado"
 
@@ -1214,7 +1225,7 @@ msgstr "Habilitar El Guardia Para Archivos de Plugins Y Temas"
 msgid "Forces WordPress Admin Dashboard To Be Delivered Over SSL"
 msgstr "Forzar el Panel de Administración WordPress A Entregarse Sobre SSL"
 
-#: src/lib/src/Modules/Plugin/Strings.php:356
+#: src/lib/src/Modules/Plugin/Strings.php:357
 msgid "Empty Header"
 msgstr "Encabezado Vacío"
 
@@ -1234,7 +1245,7 @@ msgstr "Cuando esté habilitado, el Guardia buscará automáticamente los cambio
 msgid "Please only enable this option if you have a valid SSL certificate installed."
 msgstr "Por favor active esta opción si tiene un certificado SSL válido instalado."
 
-#: src/lib/src/Modules/Plugin/Strings.php:357
+#: src/lib/src/Modules/Plugin/Strings.php:358
 msgid "Disabled - Don't Send This Header"
 msgstr "Deshabilitado - No Envíe Este Encabezado"
 
@@ -1254,7 +1265,7 @@ msgstr "Profundidad de Guardia/Escaneo  "
 msgid "Equivalent to setting \"FORCE_SSL_ADMIN\" to TRUE."
 msgstr "Equivale a configurar \"FORCE_SSL_ADMIN\" a TRUE."
 
-#: src/lib/src/Modules/Plugin/Strings.php:358
+#: src/lib/src/Modules/Plugin/Strings.php:359
 msgid "Minute"
 msgstr "Minuto"
 
@@ -1277,7 +1288,7 @@ msgstr "¿Cuán profundo se analizan y protegen los directorios de plugins?"
 msgid "Mask WordPress Version"
 msgstr "Enmascarar Versión de WordPress"
 
-#: src/lib/src/Modules/Plugin/Strings.php:359
+#: src/lib/src/Modules/Plugin/Strings.php:360
 msgid "Hour"
 msgstr "Hora"
 
@@ -1297,7 +1308,7 @@ msgstr "La Guardia normalmente escanea solo el nivel superior de una carpeta. Au
 msgid "Prevents Public Display Of Your WordPress Version"
 msgstr "Prevenir la exposición pública de tu versión de WordPress"
 
-#: src/lib/src/Modules/Plugin/Strings.php:360
+#: src/lib/src/Modules/Plugin/Strings.php:361
 msgid "Day"
 msgstr "Día"
 
@@ -1317,7 +1328,7 @@ msgstr "Configurando esto en %s se eliminará este límite y se escanearán toda
 msgid "Enter how you would like your WordPress version displayed publicly. Leave blank to disable this feature."
 msgstr "Introduce cómo te gustaría que tu versión de WordPress se muestre públicamente. Déjalo en blanco para desactivar esta característica. "
 
-#: src/lib/src/Modules/Plugin/Strings.php:361
+#: src/lib/src/Modules/Plugin/Strings.php:362
 msgid "Week"
 msgstr "Semana"
 
@@ -1340,7 +1351,7 @@ msgstr "Tipos de Archivos Incluidos"
 msgid "This may interfere with WordPress plugins that rely on the $wp_version variable."
 msgstr "Esto puede interferir con los plugins de WordPress que se basan en la variable $ wp_version."
 
-#: src/lib/src/Modules/Plugin/Strings.php:362
+#: src/lib/src/Modules/Plugin/Strings.php:363
 msgid "Month"
 msgstr "Mes"
 
@@ -1360,7 +1371,7 @@ msgstr "Los Tipos de Archivos (por Extensión de Archivo) Incluidos En El Análi
 msgid "WP Generator Tag"
 msgstr "Generador de Etiquetas de WP"
 
-#: src/lib/src/Modules/Plugin/Strings.php:363
+#: src/lib/src/Modules/Plugin/Strings.php:364
 msgid "With Shield Bot Protection"
 msgstr "Con Protección Bot Shield"
 
@@ -1380,7 +1391,7 @@ msgstr "Tome una nueva línea para cada extensión de archivo."
 msgid "Remove WP Generator Meta Tag"
 msgstr "Quitar Generador de Etiquetas Meta de WP "
 
-#: src/lib/src/Modules/Plugin/Strings.php:364
+#: src/lib/src/Modules/Plugin/Strings.php:365
 msgid "Audit Log Only"
 msgstr "Registro de Auditoría Solamente"
 
@@ -1400,7 +1411,7 @@ msgstr "No son necessarios las comas (,) o puntos (.)."
 msgid "Remove a meta tag from your WordPress pages that publicly displays that your site is WordPress and its current version."
 msgstr "Elimine una etiqueta meta de sus páginas de WordPress que muestre públicamente que su sitio es WordPress y su versión actual."
 
-#: src/lib/src/Modules/Plugin/Strings.php:365
+#: src/lib/src/Modules/Plugin/Strings.php:366
 msgid "Increment Offense Counter"
 msgstr "Contador de incremento de infracciones "
 
@@ -1422,7 +1433,7 @@ msgstr "Elimine todas las extensiones para escanear todo tipo de archivos (no re
 msgid "Block Username Fishing"
 msgstr "Bloquear la Pesca de Nombres de Usuario"
 
-#: src/lib/src/Modules/Plugin/Strings.php:366
+#: src/lib/src/Modules/Plugin/Strings.php:367
 msgid "Double-Increment Offense Counter"
 msgstr "Contador de Infracciones de Doble Incremento"
 
@@ -1442,7 +1453,7 @@ msgstr "Mostrar Enlaces de Reinstalación"
 msgid "Block the ability to discover WordPress usernames based on author IDs"
 msgstr "Bloquear la habilidad de descubrir el nombre de usuario de WordPress basado en las IDs del autor"
 
-#: src/lib/src/Modules/Plugin/Strings.php:367
+#: src/lib/src/Modules/Plugin/Strings.php:368
 msgid "Immediate Block"
 msgstr "Bloqueo Inmediato"
 
@@ -1462,7 +1473,7 @@ msgstr "Mostrar Enlaces de Reinstalación Para Plugins"
 msgid "When enabled, any URL requests containing \"%s\" will be killed."
 msgstr "Cuando esté habilitado, todas las solicitudes de URL que contengan \"%s\" serán eliminadas."
 
-#: src/lib/src/Modules/Plugin/Strings.php:376
+#: src/lib/src/Modules/Plugin/Strings.php:377
 msgid "Security Dashboard"
 msgstr "Panel de Seguridad"
 
@@ -1483,7 +1494,7 @@ msgstr "Muestre enlaces para volver a instalar plugins y ofrezca reinstalarlos a
 msgid "Enabling this option may interfere with expected operations of your site."
 msgstr "Habilitar esta opción puede interferir con las operaciones planificadas de su sitio. "
 
-#: src/lib/src/Modules/Plugin/Strings.php:377
+#: src/lib/src/Modules/Plugin/Strings.php:378
 msgid "Automatically Detect Visitor IP"
 msgstr "Detectar Automáticamente la IP del Visitante"
 
@@ -1503,7 +1514,7 @@ msgstr "Escaneador de Plugins Abandonados"
 msgid "User \"%s\" attempted \"%s\" but Bot checkbox was not found."
 msgstr "El usuario \"%s\" intentó \"%s\" pero no se encontró la casilla de verificación de Bot."
 
-#: src/lib/src/Modules/Plugin/Strings.php:379
+#: src/lib/src/Modules/Plugin/Strings.php:380
 msgid "IP Address White List"
 msgstr "Lista Blanca de Direcciones IPs"
 
@@ -1523,7 +1534,7 @@ msgstr "Analize sus activos de WordPress.org para ver si han sido abandonados."
 msgid "Login/Register request triggered cooldown and was blocked."
 msgstr "La solicitud de Registro/Inicio de Sesión activó el tiempo de reutilización y se bloqueó."
 
-#: src/lib/src/Modules/Plugin/Strings.php:380
+#: src/lib/src/Modules/Plugin/Strings.php:381
 msgid "Any IP addresses on this list will by-pass all Plugin Security Checking."
 msgstr "Cualquier dirección IP en esta lista pasará por alto todas las Comprobaciones de Seguridad del Plugin."
 
@@ -1543,7 +1554,7 @@ msgstr "Resaltar Plugins Abandonados"
 msgid "User \"%s\" attempted %s but they were caught by the honeypot."
 msgstr "El usuario \"%s\" intentó %s pero fue capturado por el honeypot."
 
-#: src/lib/src/Modules/Plugin/Strings.php:381 src/processors/ips.php:125
+#: src/lib/src/Modules/Plugin/Strings.php:382 src/processors/ips.php:125
 #: src/processors/plugin_badge.php:43
 msgid "Your IP address is: %s"
 msgstr "Su dirección IP es: %s"
@@ -1567,7 +1578,7 @@ msgstr "Los plugins abandonados se resaltarán en la página principal de plugin
 msgid "User \"%s\" verified their identity using %s."
 msgstr "El usuario \"%s\" verificó su identidad usando %s."
 
-#: src/lib/src/Modules/Plugin/Strings.php:382
+#: src/lib/src/Modules/Plugin/Strings.php:383
 msgid "Choose IP Addresses To Blacklist"
 msgstr "Elige la dirección IP para añadir a la Lista Negra"
 
@@ -1591,7 +1602,7 @@ msgstr "Escaneo Automático de Malware"
 msgid "User \"%s\" failed to verify their identity using %s."
 msgstr "El usuario \"%s\" falló al verificar su identidad usando %s."
 
-#: src/lib/src/Modules/Plugin/Strings.php:383
+#: src/lib/src/Modules/Plugin/Strings.php:384
 msgid "Recommendation - %s"
 msgstr "Recomendación - %s"
 
@@ -1611,7 +1622,7 @@ msgstr "Activar el Escaneo Automático de Malware"
 msgid "User \"%s\" sent two-factor authentication email to verify identity."
 msgstr "El usuario \"%s\" envió un correo electrónico de autenticación de dos factores para verificar la identidad."
 
-#: src/lib/src/Modules/Plugin/Strings.php:384
+#: src/lib/src/Modules/Plugin/Strings.php:385
 msgid "Blacklist"
 msgstr "Lista Negra"
 
@@ -1631,7 +1642,7 @@ msgstr "Ejecutar automáticamente el escáner para detectar archivos infectados 
 msgid "Failed to send user \"%s\" two-factor authentication email."
 msgstr "Error al enviar el correo electrónico de autenticación de dos factores del usuario \"%s\"."
 
-#: src/lib/src/Modules/Plugin/Strings.php:385
+#: src/lib/src/Modules/Plugin/Strings.php:386
 msgid "Logging"
 msgstr "Acceso"
 
@@ -1655,7 +1666,7 @@ msgstr "Autoreparación del Núcleo de WP"
 msgid "Login Guard blocks all automated and brute force attempts to log in to your site."
 msgstr "El Guardia de Inición de Sesión bloquea todos los intentos automáticos y de fuerza bruta para iniciar sesión en su sitio."
 
-#: src/lib/src/Modules/Plugin/Strings.php:386
+#: src/lib/src/Modules/Plugin/Strings.php:387
 msgid "User \"%s\" was forcefully logged out as they were not verified by either cookie or IP address (or both)."
 msgstr "Se cerró la sesión del usuario \"%s\" ya que no fue verificado mediante cookie o dirección IP (o ambas)."
 
@@ -1676,7 +1687,7 @@ msgstr "Reparar Automáticamente Archivos del Núcleo de WordPress"
 msgid "Adds Google reCAPTCHA to the Login Forms."
 msgstr "Agrega  reCAPTCHA de Google a los Formularios de Inicio de Sesión."
 
-#: src/lib/src/Modules/Plugin/Strings.php:387
+#: src/lib/src/Modules/Plugin/Strings.php:388
 msgid "User \"%s\" was found to be un-verified at the given IP Address: \"%s\"."
 msgstr "Se encontró que el usuario \"%s\" no estaba verificado para la dirección IP dada: \"%s\"."
 
@@ -1696,7 +1707,7 @@ msgstr "Reinstalar automáticamente cualquier archivos del núcleo que tenga un 
 msgid "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
 msgstr "Deberá registrarse para obtener las claves reCAPTCHA de Google y guardarlas en la configuración del 'Panel de control' de Shield."
 
-#: src/lib/src/Modules/Plugin/Strings.php:388
+#: src/lib/src/Modules/Plugin/Strings.php:389
 msgid "Cookie"
 msgstr "Cookie"
 
@@ -1717,7 +1728,7 @@ msgstr "Auto-Reparación de Plugins de WP"
 msgid "Hide WordPress Login Page"
 msgstr "Ocultar la Página de Inicio de Sesión de WordPress"
 
-#: src/lib/src/Modules/Plugin/Strings.php:390
+#: src/lib/src/Modules/Plugin/Strings.php:391
 #: src/lib/src/Tables/Build/Traffic.php:140
 msgid "IP"
 msgstr "IP"
@@ -1738,7 +1749,7 @@ msgstr "Reparar Automáticamente los Plugins de WordPress.org"
 msgid "Hide Login"
 msgstr "Ocultar Inicio de Sesión"
 
-#: src/lib/src/Modules/Plugin/Strings.php:391
+#: src/lib/src/Modules/Plugin/Strings.php:392
 msgid "This will restrict all user login sessions to a single browser. Use this if your users have dynamic IP addresses."
 msgstr "Esto restringirá todas las sesiones de acceso de los usuarios a un solo navegador. Úselo si sus usuarios poseen una dirección IP dinámica. "
 
@@ -1758,7 +1769,7 @@ msgstr "Reparar automáticamente cualquier archivo de plugin que tenga un malwar
 msgid "To hide your wp-login.php page from brute force attacks and hacking attempts - if your login page cannot be found, no-one can login."
 msgstr "Para esconder su página wp-login.php de ataques de fuerza bruta e intentos de hackeo - si su página de acceso no se puede encontrar, nadie puede acceder."
 
-#: src/lib/src/Modules/Plugin/Strings.php:392
+#: src/lib/src/Modules/Plugin/Strings.php:393
 msgid "All users will be required to authenticate their login by email-based two-factor authentication, when logging in from a new IP address"
 msgstr "Todos los usuarios deberán autenticar su inicio de sesión mediante la autenticación de dos factores basada en el correo electrónico, cuando inicien sesión desde una nueva dirección IP"
 
@@ -1778,7 +1789,7 @@ msgstr "Solo compatible con plugins instalados desde WordPress.org."
 msgid "This is not required for complete security and if your site has irregular or inconsistent configuration it may not work for you."
 msgstr "No se requiere para completar la seguridad y si su sitio tiene configuración inconsistente o irregular puede no funcionar para usted."
 
-#: src/lib/src/Modules/Plugin/Strings.php:393
+#: src/lib/src/Modules/Plugin/Strings.php:394
 msgid "2-Factor Auth"
 msgstr "Autenticación de 2 factores"
 
@@ -1800,7 +1811,7 @@ msgstr "También elimina los archivos sospechosos si no se distribuyeron origina
 msgid "Multi-Factor Authentication"
 msgstr "Autenticación Multi-Factor"
 
-#: src/lib/src/Modules/Plugin/Strings.php:394
+#: src/lib/src/Modules/Plugin/Strings.php:395
 msgid "Include Logged-In Users"
 msgstr "Incluir Usuarios Registrados"
 
@@ -1821,7 +1832,7 @@ msgstr "Auto Reparación Quirúrgica"
 msgid "Multi-Factor Auth"
 msgstr "Autenticación Multifactor"
 
-#: src/lib/src/Modules/Plugin/Strings.php:395
+#: src/lib/src/Modules/Plugin/Strings.php:396
 msgid "You may also enable GASP for logged in users"
 msgstr "También puedes habilitar GASP para usuarios registrados"
 
@@ -1842,7 +1853,7 @@ msgstr "Intente Automáticamente Eliminar Quirúrgicamente el Código Malware"
 msgid "Verifies the identity of users who log in to your site - i.e. they are who they say they are."
 msgstr "Verifica la identidad de los usuarios que inician sesión en su sitio - e.g. son quien dicen ser."
 
-#: src/lib/src/Modules/Plugin/Strings.php:396
+#: src/lib/src/Modules/Plugin/Strings.php:397
 msgid "Since logged-in users would be expected to be vetted already, this is off by default."
 msgstr "Dado que se espera que los usuarios registrados ya hayan sido examinados, esto está apagado por defecto. "
 
@@ -1865,7 +1876,7 @@ msgstr "Intenta eliminar automáticamente el código de los archivos infectados.
 msgid "You may combine multiple authentication factors for increased security."
 msgstr "Puedes combinar múltiples factores de autenticación para incrementar la seguridad."
 
-#: src/lib/src/Modules/Plugin/Strings.php:398
+#: src/lib/src/Modules/Plugin/Strings.php:399
 msgid "Protect your security plugin not just your WordPress site"
 msgstr "Proteja su plugin de seguridad y no sólo su sitio WordPress"
 
@@ -1885,7 +1896,7 @@ msgstr "Esto podría romper su sitio si la eliminación del código deja el cód
 msgid "Email Two-Factor Authentication"
 msgstr "Autenticación de Dos Factores de Correo Electrónico"
 
-#: src/lib/src/Modules/Plugin/Strings.php:401
+#: src/lib/src/Modules/Plugin/Strings.php:402
 msgid "Get a view on what happens on your site, when it happens"
 msgstr "Obtenga una visión de lo que sucede en su sitio, cuando sucede"
 
@@ -1906,7 +1917,7 @@ msgstr "Solo se aplica a los archivos que no entran en otras categorías para re
 msgid "2FA Email"
 msgstr "Correo electrónico 2FA "
 
-#: src/lib/src/Modules/Plugin/Strings.php:402
+#: src/lib/src/Modules/Plugin/Strings.php:403
 msgid "Audit Trail Viewer"
 msgstr "Visor de Pista de Auditoría"
 
@@ -1926,7 +1937,7 @@ msgstr "Configuración de WP"
 msgid "Verifies the identity of users who log in to your site using email-based one-time-passwords."
 msgstr "Verifica la identidad de los usuarios que inician sesión en su sitio mediante contraseñas de un solo uso basadas en correo electrónico."
 
-#: src/lib/src/Modules/Plugin/Strings.php:404
+#: src/lib/src/Modules/Plugin/Strings.php:405
 msgid "Take back full control of WordPress automatic updates"
 msgstr "Recupere el control absoluto de las actualizaciones automáticas de Wordpress"
 
@@ -1947,7 +1958,7 @@ msgstr "Protección en Tiempo Real para el Archivo de Configuración de WP"
 msgid "However, if your host blocks email sending you may lock yourself out."
 msgstr "Sin embargo, si su servidor bloquea el envío de correo, puede que se bloquee usted mismo."
 
-#: src/lib/src/Modules/Plugin/Strings.php:405
+#: src/lib/src/Modules/Plugin/Strings.php:406
 msgid "Comments SPAM"
 msgstr "Comentarios SPAM"
 
@@ -1967,7 +1978,7 @@ msgstr "Protección en tiempo real para el archivo wp-config.php."
 msgid "Google Authenticator Two-Factor Authentication"
 msgstr "Autentificación de Dos Factores del Autenticador de Google "
 
-#: src/lib/src/Modules/Plugin/Strings.php:406
+#: src/lib/src/Modules/Plugin/Strings.php:407
 msgid "Block comment SPAM and retain your privacy"
 msgstr "Bloquee comentarios de SPAM y preserve su privacidad"
 
@@ -1989,7 +2000,7 @@ msgstr "Proteger los visitantes de su sitio por medio de la implementación de e
 msgid "Google Auth"
 msgstr "Autenticación de Google "
 
-#: src/lib/src/Modules/Plugin/Strings.php:409
+#: src/lib/src/Modules/Plugin/Strings.php:410
 msgid "Automatically block malicious URLs and data sent to your site"
 msgstr "Bloquee automáticamente URLs y datos maliciosos enviados a su sitio"
 
@@ -2012,7 +2023,7 @@ msgstr "Se recomienda activar estas funciones, pero debe probarlas a fondo en su
 msgid "Verifies the identity of users who log in to your site using Google Authenticator one-time-passwords."
 msgstr "Verifica la identidad de los usuarios que inician sesión en su sitio utilizando las contraseñas de un solo uso del Autenticador de Google ."
 
-#: src/lib/src/Modules/Plugin/Strings.php:412
+#: src/lib/src/Modules/Plugin/Strings.php:413
 msgid "Control HTTP Security Headers"
 msgstr "Control de los Encabezados de Seguridad HTTP"
 
@@ -2032,7 +2043,7 @@ msgstr "Encabezados de Seguridad Avanzados"
 msgid "Brute Force Login Protection"
 msgstr "Protección contra Inicio de Sesión de Fuerza Fruta"
 
-#: src/lib/src/Modules/Plugin/Strings.php:414
+#: src/lib/src/Modules/Plugin/Strings.php:415
 msgid "Manage Visitor IP Address"
 msgstr "Gestor de la dirección IP del Visitante"
 
@@ -2052,7 +2063,7 @@ msgstr "Encabezados de Seguridad"
 msgid "Bots"
 msgstr "Bots"
 
-#: src/lib/src/Modules/Plugin/Strings.php:416
+#: src/lib/src/Modules/Plugin/Strings.php:417
 msgid "Harden the more loosely controlled settings of your site"
 msgstr "Fortalece las configuraciones menos controladas de su sitio"
 
@@ -2074,7 +2085,7 @@ msgstr "Política de Seguridad del Contenido"
 msgid "Blocks brute force hacking attacks against your login and registration pages."
 msgstr "Bloquea ataques de hackeo de fuerza bruta contra sus páginas de acceso y registro."
 
-#: src/lib/src/Modules/Plugin/Strings.php:418
+#: src/lib/src/Modules/Plugin/Strings.php:419
 msgid "Block brute force attacks and secure user identities with Two-Factor Authentication"
 msgstr "Bloquee los ataque de fuerza bruta y proteja la identidad de los usuarios con la Autenticación de Dos Pasos"
 
@@ -2094,7 +2105,7 @@ msgstr "Restringir las fuentes y tipos de contenido que deben ser cargados y pro
 msgid "Yubikey Two-Factor Authentication"
 msgstr "Autenticación de Dos Factores de Yubikey"
 
-#: src/lib/src/Modules/Plugin/Strings.php:419
+#: src/lib/src/Modules/Plugin/Strings.php:420
 msgid "Dashboard"
 msgstr "Tablero"
 
@@ -2115,7 +2126,7 @@ msgstr "Bloquear iFrames"
 msgid "Yubikey"
 msgstr "Yubikey"
 
-#: src/lib/src/Modules/Plugin/Strings.php:420
+#: src/lib/src/Modules/Plugin/Strings.php:421
 msgid "General Plugin Settings"
 msgstr "Configuración General del Plugin"
 
@@ -2136,7 +2147,7 @@ msgstr "Bloqueo Remoto de los iFrames De Este Sitio"
 msgid "Verifies the identity of users who log in to your site using Yubikey one-time-passwords."
 msgstr "Verifica la identidad de los usuarios que inician sesión en su sitio utilizando las contraseñas de un solo uso de Yubikey."
 
-#: src/lib/src/Modules/Plugin/Strings.php:421
+#: src/lib/src/Modules/Plugin/Strings.php:422
 msgid "Statistics"
 msgstr "Estadísticas"
 
@@ -2156,7 +2167,7 @@ msgstr "La configuración evita que cualquier sitio web externo incruste su siti
 msgid "Hide WP Login Page"
 msgstr "Ocultar la Página de Inicio de Sesión de WP"
 
-#: src/lib/src/Modules/Plugin/Strings.php:422
+#: src/lib/src/Modules/Plugin/Strings.php:423
 msgid "Summary of the main security actions taken by this plugin"
 msgstr "Resumen de las medidas de seguridad realizadas por este plugin"
 
@@ -2176,7 +2187,7 @@ msgstr "Esto es útil para prevenir los conocidos \"ataques ClickJack\"."
 msgid "Hide The WordPress Login Page"
 msgstr "Ocultar la Página de Inicio de Sesión de WordPress"
 
-#: src/lib/src/Modules/Plugin/Strings.php:423
+#: src/lib/src/Modules/Plugin/Strings.php:424
 msgid "Stats Viewer"
 msgstr "Visor de Estadísticas"
 
@@ -2196,7 +2207,7 @@ msgstr "Política de Referencia"
 msgid "Creating a path here will disable your wp-login.php"
 msgstr "Crear una ruta aquí deshabilitará su wp-login.php"
 
-#: src/lib/src/Modules/Plugin/Strings.php:424
+#: src/lib/src/Modules/Plugin/Strings.php:425
 msgid "Premium Support"
 msgstr "Soporte Premium"
 
@@ -2216,7 +2227,7 @@ msgstr "Encabezado de la Política de Referencia"
 msgid "Only letters and numbers are permitted: %s"
 msgstr "Sólo están permitidos números y letras: %s"
 
-#: src/lib/src/Modules/Plugin/Strings.php:425
+#: src/lib/src/Modules/Plugin/Strings.php:426
 msgid "Premium Plugin Support Centre"
 msgstr "Centro de Soporte Premiun del Plugin"
 
@@ -2236,7 +2247,7 @@ msgstr "El Encabezado de Política de Referencia le permite controlar cuándo y 
 msgid "Your current login URL is: %s"
 msgstr "Su URL de acceso actual es: %s"
 
-#: src/lib/src/Modules/Plugin/Strings.php:427
+#: src/lib/src/Modules/Plugin/Strings.php:428
 msgid "Get true user sessions and control account sharing, session duration and timeouts"
 msgstr "Obtenga sesiones reales de usuarios y controle el compartir de cuentas, duración de la sesión y tiempos de espera"
 
@@ -2256,7 +2267,7 @@ msgstr "Protección XSS"
 msgid "Require All Active Authentication Factors"
 msgstr "Se Requieren Todos los Factores Activos de Autenticación"
 
-#: src/lib/src/Modules/Plugin/Strings.php:428
+#: src/lib/src/Modules/Plugin/Strings.php:429
 msgid "Two-Factor Authentication"
 msgstr "Identificación de Dos Factores"
 
@@ -2526,7 +2537,7 @@ msgid "Allows parsing of Javascript and CSS declared in-line in your html docume
 msgstr "Permite el análisis de Javascript y CSS declarados en línea en su documento html."
 
 #: src/lib/src/Modules/LoginGuard/Strings.php:205
-#: src/lib/src/Modules/Plugin/Strings.php:407
+#: src/lib/src/Modules/Plugin/Strings.php:408
 #: src/processors/user_management.php:202
 msgid "Email"
 msgstr "Correo Electrónico"
@@ -2873,7 +2884,7 @@ msgid "Go To Admin"
 msgstr "Ir A Administración."
 
 #: src/lib/src/Modules/IPs/Strings.php:26
-#: src/lib/src/Modules/Plugin/Strings.php:413 src/wizards/plugin.php:520
+#: src/lib/src/Modules/Plugin/Strings.php:414 src/wizards/plugin.php:520
 #: src/wizards/plugin.php:525
 msgid "IP Manager"
 msgstr "Gestor de IP"
@@ -5223,7 +5234,7 @@ msgstr "Notificar a la Lista Blanca"
 msgid "WordPress default is 2 days, or 14 days if you check the \"Remember Me\" box."
 msgstr "El valor por defecto de WordPress es 2 días, o 14 días si marca la casilla \"Recuérdame\"."
 
-#: src/processors/loginprotect_intent.php:152
+#: src/features/license.php:100 src/processors/loginprotect_intent.php:152
 msgid "Success"
 msgstr "Éxito"
 
@@ -5533,8 +5544,8 @@ msgstr "Guardar Opciones"
 
 #: src/features/admin_access_restriction.php:471
 #: src/features/admin_access_restriction.php:484
-#: src/lib/src/Modules/Plugin/Strings.php:397
-#: src/lib/src/Modules/Plugin/Strings.php:399
+#: src/lib/src/Modules/Plugin/Strings.php:398
+#: src/lib/src/Modules/Plugin/Strings.php:400
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:35
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:38
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:104
@@ -5727,7 +5738,7 @@ msgstr "Acciones e Información"
 msgid "The Security Admin protection is not active."
 msgstr "La protección del Administrador de Seguridad no está activa."
 
-#: src/features/license.php:100
+#: src/features/license.php:109
 msgid "Please wait %s before attempting another license check."
 msgstr "Espere %s antes de intentar otra verificación de licencia."
 
@@ -5739,7 +5750,7 @@ msgstr "Realizar acciones para este módulo"
 msgid "Go To %s"
 msgstr "Ir A %s"
 
-#: src/features/license.php:101
+#: src/features/license.php:110
 msgid "%s second"
 msgid_plural "%s seconds"
 msgstr[0] "%s segundo"
@@ -5761,7 +5772,7 @@ msgstr "Saber Más"
 msgid "Options"
 msgstr "Opciones"
 
-#: src/features/license.php:107
+#: src/features/license.php:116
 msgid "Valid license found."
 msgstr "Licencia válida encontrada."
 
@@ -5773,7 +5784,7 @@ msgstr "Seleccionar"
 msgid "Security Admin should be turned-on to protect your security settings."
 msgstr "El Administrador de Seguridad debe estar activado para proteger la configuración de seguridad."
 
-#: src/features/license.php:107
+#: src/features/license.php:116
 msgid "Valid license couldn't be found."
 msgstr "No se pudo encontrar una licencia válida."
 
@@ -5785,7 +5796,7 @@ msgstr "Borrar Filtros"
 msgid "Sorry, this plugin is protected against unauthorised attempts to disable it."
 msgstr "Lo sentimos, este plugin está protegido contra intentos no autorizados de desactivarlo."
 
-#: src/features/license.php:218
+#: src/features/license.php:228
 msgid "Automatic license verification failed."
 msgstr "La verificación automática de la licencia falló."
 
@@ -5797,7 +5808,7 @@ msgstr "Aplicar Filtros"
 msgid "You'll just need to authenticate first and try again."
 msgstr "Solo deberá autenticarse e intentarlo de nuevo."
 
-#: src/features/license.php:307
+#: src/features/license.php:317
 msgid "Attempts to verify Shield Pro license has just failed."
 msgstr "Intentos de verificar que la licencia de Shield Pro haya fallado."
 
@@ -5809,7 +5820,7 @@ msgstr "Encontrar la Opción del Plugin"
 msgid "Invalid audit entry selected for this action"
 msgstr "La entrada de auditoría seleccionada para esta acción no es válida"
 
-#: src/features/license.php:308 src/features/license.php:329
+#: src/features/license.php:318 src/features/license.php:339
 msgid "Please check your license on-site: %s"
 msgstr "Por favor revise su licencia en el sitio: %s"
 
@@ -5821,7 +5832,7 @@ msgstr "Escriba a continuación para buscar todas las opciones de plugin"
 msgid "Audit entry could not be loaded."
 msgstr "No se pudo cargar la entrada de auditoría."
 
-#: src/features/license.php:309 src/features/license.php:330
+#: src/features/license.php:319 src/features/license.php:340
 msgid "If this problem persists, please contact support: %s"
 msgstr "Si el problema persiste, contacte con el servicio de asistencia: %s"
 
@@ -5835,7 +5846,7 @@ msgstr "Sólo para Pro"
 msgid "Parameter associated with this audit entry could not be found."
 msgstr "No se pudo encontrar el parámetro asociado con esta entrada de auditoría."
 
-#: src/features/license.php:328
+#: src/features/license.php:338
 msgid "All attempts to verify Shield Pro license have failed."
 msgstr "Todos los intentos de verificar la licencia de Shield Pro han fallado."
 
@@ -5847,7 +5858,7 @@ msgstr "Esta es una característica pro solamente"
 msgid "Parameter \"%s\" whitelisted successfully"
 msgstr "El parámetro \"%s\" fue incluido en la lista blanca con éxito"
 
-#: src/features/license.php:639 src/lib/src/Modules/Base/Strings.php:27
+#: src/features/license.php:649 src/lib/src/Modules/Base/Strings.php:27
 #: src/lib/src/Tables/Build/Ip.php:51 src/lib/src/Tables/Build/Sessions.php:68
 #: src/lib/src/Tables/Build/Traffic.php:109
 msgid "Yes"
@@ -5861,7 +5872,7 @@ msgstr "Por favor actualice a Pro para controlar esta opción"
 msgid "[%s] Audit Trail Entries"
 msgstr "[%s] Entradas de Pistas de Auditoría"
 
-#: src/features/license.php:639
+#: src/features/license.php:649
 msgid "Not Active"
 msgstr "No Activo"
 
@@ -5874,7 +5885,7 @@ msgstr "Descripción"
 msgid "Activity Audit Log"
 msgstr "Registro de Auditoría de Actividad"
 
-#: src/features/lockdown.php:70 src/lib/src/Modules/Plugin/Strings.php:415
+#: src/features/lockdown.php:70 src/lib/src/Modules/Plugin/Strings.php:416
 msgid "WP Lockdown"
 msgstr "Cierre de WP"
 
@@ -6018,7 +6029,7 @@ msgstr "Infracción"
 
 #: src/features/audit_trail.php:250 src/features/insights.php:74
 #: src/features/insights.php:281 src/lib/src/Modules/AuditTrail/Strings.php:122
-#: src/lib/src/Modules/Plugin/Strings.php:400 src/wizards/plugin.php:487
+#: src/lib/src/Modules/Plugin/Strings.php:401 src/wizards/plugin.php:487
 #: src/wizards/plugin.php:492
 msgid "Audit Trail"
 msgstr "Pista de Auditoría"
@@ -6106,7 +6117,7 @@ msgstr "Para restablecer cualquier mensaje a su valor predeterminado, ingrese el
 #: src/features/autoupdates.php:209 src/features/autoupdates.php:241
 #: src/lib/src/Modules/Autoupdates/Strings.php:25
 #: src/lib/src/Modules/HackGuard/Strings.php:225
-#: src/lib/src/Modules/Plugin/Strings.php:403
+#: src/lib/src/Modules/Plugin/Strings.php:404
 msgid "Automatic Updates"
 msgstr "Actualizaciones Automáticas"
 
@@ -6339,7 +6350,7 @@ msgstr "Las opciones del Plugin %s se actualizaron satisfactoriamente."
 
 #: src/features/login_protect.php:696
 #: src/lib/src/Modules/LoginGuard/Strings.php:71
-#: src/lib/src/Modules/Plugin/Strings.php:417 src/wizards/plugin.php:556
+#: src/lib/src/Modules/Plugin/Strings.php:418 src/wizards/plugin.php:556
 #: src/wizards/plugin.php:561
 msgid "Login Guard"
 msgstr "Guardia de Inicio de Sesión"
@@ -6678,7 +6689,7 @@ msgstr "Filtro de SPAM Humano"
 
 #: src/features/firewall.php:86 src/features/firewall.php:98
 #: src/lib/src/Modules/Firewall/Strings.php:24
-#: src/lib/src/Modules/Plugin/Strings.php:408
+#: src/lib/src/Modules/Plugin/Strings.php:409
 msgid "Firewall"
 msgstr "Firewall"
 
@@ -6718,7 +6729,7 @@ msgstr "Elementos del Filtro de Comentarios"
 msgid "Your site is not protected against malicious requests"
 msgstr "Su sitio no está protegido contra solicitudes maliciosas"
 
-#: src/features/plugin.php:1021 src/lib/src/Modules/Plugin/Strings.php:375
+#: src/features/plugin.php:1021 src/lib/src/Modules/Plugin/Strings.php:376
 #: src/processors/plugin_importexport.php:63
 msgid "General Settings"
 msgstr "Configuración General"
@@ -6776,7 +6787,7 @@ msgstr "Informe de Correo Electrónico"
 msgid "Default SPAM Action"
 msgstr "Acción SPAM por defecto"
 
-#: src/features/hack_protect.php:668 src/features/license.php:631
+#: src/features/hack_protect.php:668 src/features/license.php:641
 #: src/lib/src/Modules/Base/Strings.php:29
 #: src/lib/src/Modules/Plugin/Strings.php:324
 #: src/processors/hack_protect.php:107 src/processors/hack_protect.php:129
@@ -6829,7 +6840,7 @@ msgstr "Se han proporcionado claves reCAPTCHA de Google"
 msgid "SPAM Bot Protection"
 msgstr "Protección de Bot SPAM"
 
-#: src/features/hack_protect.php:751
+#: src/features/hack_protect.php:751 src/features/license.php:101
 msgid "Reloading page"
 msgstr "Volviendo a cargar la página"
 
@@ -6930,7 +6941,7 @@ msgid "Core File scanner is not enabled."
 msgstr "El análisis de los Archivos del Núcleo no está habilitado."
 
 #: src/features/user_management.php:267
-#: src/lib/src/Modules/Plugin/Strings.php:368
+#: src/lib/src/Modules/Plugin/Strings.php:369
 msgid "Very Weak"
 msgstr "Muy Débil"
 
@@ -6943,7 +6954,7 @@ msgid "Automatic WordPress Core File scanner should be turned-on."
 msgstr "El análisis Automático de Archivos del Núcleo de WordPress debe estar activado"
 
 #: src/features/user_management.php:268
-#: src/lib/src/Modules/Plugin/Strings.php:369
+#: src/lib/src/Modules/Plugin/Strings.php:370
 msgid "Weak"
 msgstr "Débil"
 
@@ -6956,7 +6967,7 @@ msgid "Modified WordPress core files found."
 msgstr "Se han encontrado archivos del núcleo de WordPress modificados."
 
 #: src/features/user_management.php:269
-#: src/lib/src/Modules/Plugin/Strings.php:370
+#: src/lib/src/Modules/Plugin/Strings.php:371
 msgid "Medium"
 msgstr "Medio"
 
@@ -6971,7 +6982,7 @@ msgid "Run Scan"
 msgstr "Ejecutar Escaneo"
 
 #: src/features/user_management.php:270
-#: src/lib/src/Modules/Plugin/Strings.php:371
+#: src/lib/src/Modules/Plugin/Strings.php:372
 msgid "Strong"
 msgstr "Fuerte"
 
@@ -6984,7 +6995,7 @@ msgid "Scan WP core files and repair any files that are flagged as modified."
 msgstr "Escanee los archivos del núcleo de WP y repare cualquier archivo marcado como modificado."
 
 #: src/features/user_management.php:271
-#: src/lib/src/Modules/Plugin/Strings.php:372
+#: src/lib/src/Modules/Plugin/Strings.php:373
 msgid "Very Strong"
 msgstr "Muy Fuerte"
 
@@ -7063,7 +7074,7 @@ msgid "Automatic detection of plugin/theme modifications is recommended."
 msgstr "Se recomienda la detección automática de modificaciones de plugins/temas."
 
 #: src/features/user_management.php:456
-#: src/lib/src/Modules/Plugin/Strings.php:426
+#: src/lib/src/Modules/Plugin/Strings.php:427
 #: src/lib/src/Modules/Sessions/Strings.php:24
 #: src/lib/src/Modules/Traffic/Strings.php:32
 #: src/lib/src/Modules/UserManagement/Strings.php:40
@@ -7201,7 +7212,7 @@ msgstr "Mensaje de Recarga de GASP"
 
 #: src/features/hack_protect.php:1180
 #: src/lib/src/Modules/HackGuard/Strings.php:94
-#: src/lib/src/Modules/Plugin/Strings.php:410
+#: src/lib/src/Modules/Plugin/Strings.php:411
 msgid "Hack Guard"
 msgstr "Guardía de Hackeo"
 
@@ -7560,7 +7571,7 @@ msgstr "Se intentó registrar el correo electrónico, pero los datos no eran del
 msgid "This will block directory traversal paths in in application parameters (e.g. %s, etc)."
 msgstr "Esto bloqueará las rutas de acceso del directorio en los parámetros de la aplicación (por ejemplo, %s, etc.)."
 
-#: src/features/headers.php:147 src/lib/src/Modules/Plugin/Strings.php:411
+#: src/features/headers.php:147 src/lib/src/Modules/Plugin/Strings.php:412
 msgid "HTTP Headers"
 msgstr "Cabeceras HTTP"
 
@@ -7658,7 +7669,7 @@ msgstr "Proporcionar un nombre de usuario hará que se ignore el filtro de \"ini
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:101
 #: src/lib/src/Modules/Base/Strings.php:43
-#: src/lib/src/Modules/Plugin/Strings.php:389
+#: src/lib/src/Modules/Plugin/Strings.php:390
 #: src/lib/src/Tables/Render/IpBase.php:21
 #: src/lib/src/Tables/Render/IpBlack.php:16
 #: src/lib/src/Tables/Render/IpWhite.php:12 src/processors/firewall.php:405
@@ -7866,7 +7877,7 @@ msgstr "Se ha diseñado la Pista de Auditoría de modo que pueda revisar los eve
 msgid "Exe File Uploads"
 msgstr "Cargas de Archivos Exe"
 
-#: src/features/insights.php:114 src/lib/src/Modules/Plugin/Strings.php:378
+#: src/features/insights.php:114 src/lib/src/Modules/Plugin/Strings.php:379
 msgid "IP Whitelist"
 msgstr "Lista Blanca de IPs"
 
@@ -8353,7 +8364,7 @@ msgstr "haga clic para alternar"
 msgid "Tracking major changes to your site will help you monitor and catch malicious damage."
 msgstr "El seguimiento de los cambios importantes en su sitio lo ayudará a controlar y detectar daños maliciosos."
 
-#: src/features/insights.php:266 src/lib/src/Modules/License/Strings.php:30
+#: src/features/insights.php:266 src/lib/src/Modules/License/Strings.php:31
 msgid "Key"
 msgstr "Llave"
 
