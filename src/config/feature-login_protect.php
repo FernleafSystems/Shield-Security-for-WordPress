@@ -522,7 +522,7 @@
       },
       "botbox_fail":             {
       },
-      "block_login":             {
+      "login_block":             {
         "audit":  false,
         "recent": true,
         "offense": true

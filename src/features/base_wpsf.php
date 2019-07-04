@@ -102,7 +102,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'insights_xml_block_at'           => 'block_xml',
 			'insights_restapi_block_at'       => 'block_anonymous_restapi',
 			'insights_last_2fa_login_at'      => '2fa_success',
-			'insights_last_login_block_at'    => 'block_login',
+			'insights_last_login_block_at'    => 'login_block',
 			'insights_test_cron_last_run_at'  => 'test_cron_run',
 			'insights_last_password_block_at' => 'password_policy_block',
 		];

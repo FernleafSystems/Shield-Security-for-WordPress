@@ -42,37 +42,57 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 		$aAll = $oSelectTally->all();
 
 		$aNewEvents = [
-			'firewall_block' => 0,
-			'botbox_fail'    => 0,
-			'honeypot_fail'  => 0,
+			'firewall_block'       => 0,
+			'botbox_fail'          => 0,
+			'honeypot_fail'        => 0,
+			'spam_block_bot'       => 0,
+			'spam_block_recaptcha' => 0,
+			'spam_block_human'     => 0,
+			'login_block'          => 0,
 		];
 		foreach ( $aAll as $oTally ) {
 			if ( isset( $aMap[ $oTally->stat_key ] ) ) {
 				$aNewEvents[ $aMap[ $oTally->stat_key ] ] = $oTally->tally;
 			}
-
 			if ( strpos( $oTally->stat_key, 'firewall.blocked.' ) === 0 ) {
 				$aNewEvents[ 'firewall_block' ] += $oTally->tally;
 			}
-
 			if ( strpos( $oTally->stat_key, 'gasp.checkbox.fail' ) === 0 ) {
 				$aNewEvents[ 'botbox_fail' ] += $oTally->tally;
 			}
 			if ( strpos( $oTally->stat_key, 'gasp.honeypot.fail' ) === 0 ) {
 				$aNewEvents[ 'honeypot_fail' ] += $oTally->tally;
 			}
+			if ( strpos( $oTally->stat_key, 'spam.gasp.' ) === 0 ) {
+				$aNewEvents[ 'spam_block_bot' ] += $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'spam.recaptcha.' ) === 0 ) {
+				$aNewEvents[ 'spam_block_recaptcha' ] += $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'spam.human.' ) === 0 ) {
+				$aNewEvents[ 'spam_block_human' ] += $oTally->tally;
+			}
+			if ( preg_match( '#login.*fail#', $oTally->stat_key ) ) {
+				$aNewEvents[ 'login_block' ] += $oTally->tally;
+			}
 		}
 
-		/** @var Shield\Databases\Events\Handler $oDbh */
-		$oDbh = $this->getCon()->getModule_Events()->getDbHandler();
+		/** @var Shield\Databases\Events\Handler $oDbhEvents */
+		$oDbhEvents = $this->getCon()->getModule_Events()->getDbHandler();
 		$nTs = Services::Request()
 					   ->carbon()
 					   ->subYear( 1 )->timestamp;
 		foreach ( array_filter( $aNewEvents ) as $sEvent => $nTally ) {
-			$oDbh->commitEvent( $sEvent, $nTally, $nTs );
+			$oDbhEvents->commitEvent( $sEvent, $nTally, $nTs );
 		}
 
-		// TODO: Zero-out the tallys
+		/** @var Shield\Databases\Tally\Handler $oDbhTallys */
+		$oDbhTallys = $this->getDbHandler();
+		/** @var Shield\Databases\Tally\Delete $oDelTallys */
+		$oDelTallys = $oDbhTallys->getQueryDeleter();
+		foreach ( $aAll as $oTally ) {
+			$oDelTallys->deleteEntry( $oTally );
+		}
 	}
 
 	/**

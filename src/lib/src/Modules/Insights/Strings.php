@@ -40,7 +40,7 @@ class Strings extends Base\Strings {
 			'spam_block_recaptcha'         => __( 'Detected comment SPAM from failed reCAPTCHA', 'wp-simple-firewall' ),
 			'spam_block_human'             => __( 'Detected human comment SPAM with suspicious content', 'wp-simple-firewall' ),
 			'2fa_success'                  => __( 'Successful 2-FA Login', 'wp-simple-firewall' ),
-			'block_login'                  => __( 'Blocked Login', 'wp-simple-firewall' ),
+			'login_block'                  => __( 'Blocked Login', 'wp-simple-firewall' ),
 			'password_policy_force_change' => __( 'Forced password update due to policy', 'wp-simple-firewall' ),
 			'password_policy_block'        => __( 'Prevented password update due to policy', 'wp-simple-firewall' ),
 			'firewall_block'               => __( 'Firewall Block', 'wp-simple-firewall' ),
