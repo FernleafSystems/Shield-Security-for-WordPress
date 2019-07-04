@@ -124,7 +124,7 @@ abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 	}
 
 	public function autoAddToAdminNotices() {
-		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
+		foreach ( $this->getMod()->getOptions()->getAdminNotices() as $sNoticeId => $aAttrs ) {
 
 			$aAttrs = Services::DataManipulation()
 							  ->mergeArraysRecursive(

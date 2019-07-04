@@ -48,6 +48,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private $oDbh;
 
 	/**
+	 * @var Shield\Modules\Base\AdminNotices
+	 */
+	private $oAdminNotices;
+
+	/**
 	 * @var Shield\Modules\Base\Strings
 	 */
 	private $oStrings;
@@ -59,7 +64,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 	/**
 	 * @param Shield\Controller\Controller $oPluginController
-	 * @param array                       $aMod
+	 * @param array                        $aMod
 	 * @throws \Exception
 	 */
 	public function __construct( $oPluginController, $aMod = [] ) {
@@ -130,6 +135,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}, 10, 2 );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
+
+		if ( is_admin() || is_network_admin() ) {
+			$this->getAdminNotices()->run();
+		}
 
 //		if ( $this->isAdminOptionsPage() ) {
 //			add_action( 'current_screen', array( $this, 'onSetCurrentScreen' ) );
@@ -504,13 +513,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			$this->oOptions = $this->getOptions();
 		}
 		return $this->oOptions;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getAdminNotices() {
-		return $this->getOptionsVo()->getAdminNotices();
 	}
 
 	/**
@@ -979,12 +981,25 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return array
 	 */
 	public function getNonceActionData( $sAction = '' ) {
-		return [
-			'action'     => $this->prefix(), //wp ajax doesn't work without this.
-			'exec'       => $sAction,
-			'exec_nonce' => wp_create_nonce( $sAction ),
-			'mod_slug'   => $this->getModSlug(),
-		];
+		$aData = $this->getCon()->getNonceActionData( $sAction );
+		$aData[ 'mod_slug' ] = $this->getModSlug();
+		return $aData;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getDismissedNotices() {
+		$aDN = $this->getOpt( 'dismissed_notices' );
+		return is_array( $aDN ) ? $aDN : [];
+	}
+
+	/**
+	 * @param string[] $aDismissed
+	 * @return $this
+	 */
+	public function setDismissedNotices( $aDismissed ) {
+		return $this->setOpt( 'dismissed_notices', $aDismissed );
 	}
 
 	/**
@@ -1716,12 +1731,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}
 
 		try {
-			return Services::Render()
-						   ->setTemplateRoot( $this->getCon()->getPath_Templates() )
-						   ->setTemplate( $sTemplate )
-						   ->setRenderVars( $this->getBaseDisplayData() )
-						   ->setTemplateEngineTwig()
-						   ->render();
+			return $this->getCon()
+						->getRenderer()
+						->setTemplate( $sTemplate )
+						->setRenderVars( $this->getBaseDisplayData() )
+						->setTemplateEngineTwig()
+						->render();
 		}
 		catch ( \Exception $oE ) {
 			return 'Error rendering options form: '.$oE->getMessage();
@@ -1812,8 +1827,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			$aData[ 'unique_render_id' ] = 'noticeid-'.substr( md5( mt_rand() ), 0, 5 );
 		}
 		try {
-			$oRndr = Services::Render()
-						   ->setTemplateRoot( $this->getCon()->getPath_Templates() );
+			$oRndr = $this->getCon()->getRenderer();
 			if ( $bUseTwig ) {
 				$oRndr->setTemplateEngineTwig();
 			}
@@ -2049,6 +2063,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
+	 * @return Shield\Modules\Base\AdminNotices
+	 */
+	private function getAdminNotices() {
+		if ( !isset( $this->oAdminNotices ) ) {
+			$this->oAdminNotices = $this->loadAdminNotices()->setMod( $this );
+		}
+		return $this->oAdminNotices;
+	}
+
+	/**
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
@@ -2056,6 +2080,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
+	}
+
+	/**
+	 * @return Shield\Modules\Base\AdminNotices
+	 */
+	public function loadAdminNotices() {
+		return new Shield\Modules\Base\AdminNotices();
 	}
 
 	/**

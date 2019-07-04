@@ -182,11 +182,10 @@ class Controller extends Shield\Deprecated\Foundation {
 				]
 			];
 
-			Services::Render()
-					->setTemplateRoot( $this->getPath_Templates() )
-					->setTemplate( 'notices/does-not-meet-requirements' )
-					->setRenderVars( $aDisplayData )
-					->display();
+			$this->getRenderer()
+				 ->setTemplate( 'notices/does-not-meet-requirements' )
+				 ->setRenderVars( $aDisplayData )
+				 ->display();
 		}
 	}
 
@@ -199,11 +198,10 @@ class Controller extends Shield\Deprecated\Foundation {
 				'more_information' => $this->sAdminNoticeError
 			]
 		];
-		Services::Render()
-				->setTemplateRoot( $this->getPath_Templates() )
-				->setTemplate( 'notices/plugin-failed-to-load' )
-				->setRenderVars( $aDisplayData )
-				->display();
+		$this->getRenderer()
+			 ->setTemplate( 'notices/plugin-failed-to-load' )
+			 ->setRenderVars( $aDisplayData )
+			 ->display();
 	}
 
 	/**
@@ -348,6 +346,8 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
 		}
+
+		( new Shield\Utilities\AdminNotices\Controller() )->setCon( $this );
 	}
 
 	/**
@@ -398,6 +398,18 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function displayDashboardWidget() {
 		$aContent = apply_filters( $this->prefix( 'dashboard_widget_content' ), [] );
 		echo implode( '', $aContent );
+	}
+
+	/**
+	 * @param string $sAction
+	 * @return array
+	 */
+	public function getNonceActionData( $sAction = '' ) {
+		return [
+			'action'     => $this->prefix(), //wp ajax doesn't work without this.
+			'exec'       => $sAction,
+			'exec_nonce' => wp_create_nonce( $sAction ),
+		];
 	}
 
 	public function ajaxAction() {
@@ -1866,6 +1878,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \FernleafSystems\Wordpress\Services\Utilities\Render
+	 */
+	public function getRenderer() {
+		return Services::Render()->setTemplateRoot( $this->getPath_Templates() );
+	}
+
+	/**
 	 * @param array[] $aRegistered
 	 * @return array[]
 	 */
@@ -1948,18 +1967,17 @@ class Controller extends Shield\Deprecated\Foundation {
 				$sName = $this->getPluginSpec_Menu( 'title' );
 				$sHref = $this->getPluginSpec()[ 'meta' ][ 'privacy_policy_href' ];
 			}
-			$sContent = Services::Render()
-								->setTemplateRoot( $this->getPath_Templates() )
-								->setTemplate( 'snippets/privacy_policy' )
-								->setTemplateEngineTwig()
-								->setRenderVars(
-									[
-										'name'             => $sName,
-										'href'             => $sHref,
-										'audit_trail_days' => $this->getModule_AuditTrail()->getAutoCleanDays()
-									]
-								)
-								->render();
+			$sContent = $this->getRenderer()
+							 ->setTemplate( 'snippets/privacy_policy' )
+							 ->setTemplateEngineTwig()
+							 ->setRenderVars(
+								 [
+									 'name'             => $sName,
+									 'href'             => $sHref,
+									 'audit_trail_days' => $this->getModule_AuditTrail()->getAutoCleanDays()
+								 ]
+							 )
+							 ->render();
 		}
 		catch ( \Exception $oE ) {
 			$sContent = '';

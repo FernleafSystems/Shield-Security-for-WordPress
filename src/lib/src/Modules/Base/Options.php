@@ -176,8 +176,8 @@ class Options {
 	 * @return array
 	 */
 	public function getAdminNotices() {
-		$aRawConfig = $this->getRawData_FullFeatureConfig();
-		return ( isset( $aRawConfig[ 'admin_notices' ] ) && is_array( $aRawConfig[ 'admin_notices' ] ) ) ? $aRawConfig[ 'admin_notices' ] : [];
+		$aRaw = $this->getRawData_FullFeatureConfig();
+		return ( isset( $aRaw[ 'admin_notices' ] ) && is_array( $aRaw[ 'admin_notices' ] ) ) ? $aRaw[ 'admin_notices' ] : [];
 	}
 
 	/**
@@ -876,12 +876,22 @@ class Options {
 	}
 
 	/**
+	 * @return array
+	 */
+	protected function getVirtualCommonOptions() {
+		return [ 'dismissed_notices' ];
+	}
+
+	/**
 	 */
 	private function cleanOptions() {
 		if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {
 			$this->aOptionsValues = array_intersect_key(
 				$this->getAllOptionsValues(),
-				array_flip( $this->getOptionsKeys() )
+				array_merge(
+					array_flip( $this->getOptionsKeys() ),
+					array_flip( $this->getVirtualCommonOptions() )
+				)
 			);
 		}
 	}

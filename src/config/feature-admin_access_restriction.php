@@ -23,11 +23,13 @@
       "type":        "warning"
     },
     "admin-users-restricted":     {
-      "id":          "admin-users-restricted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "can_dismiss": false,
-      "type":        "warning"
+      "id":                "admin-users-restricted",
+      "schedule":          "conditions",
+      "valid_admin":       true,
+      "plugin_admin_only": false,
+      "can_dismiss":       false,
+      "type":              "warning",
+      "twig":              "true"
     }
   },
   "sections":      [
@@ -351,17 +353,21 @@
     }
   ],
   "definitions":   {
-    "events":              {
+    "restricted_pages_users": [
+      "user-edit.php",
+      "users.php"
+    ],
+    "events":                 {
       "key_success": {
         "recent": true
       },
       "key_fail":    {
-        "cat": 3,
+        "cat":     3,
         "recent":  true,
         "offense": true
       }
     },
-    "options_to_restrict": {
+    "options_to_restrict":    {
       "wpms_options": [
         "admin_email",
         "site_name",
