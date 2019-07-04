@@ -170,14 +170,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return int
-	 */
-	public function getNextScanAt( $sScan ) {
-		return (int)$this->getOpt( sprintf( 'next_scan_%s_at', $sScan ), 0 );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
 	 * @return bool
 	 */
 	public function getScanHasProblem( $sScan ) {
