@@ -355,8 +355,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	protected function isVisitorWhitelisted() {
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
+	public function isVisitorWhitelisted() {
+		/** @var \ICWP_WPSF_Processor_Ips $oPro */
 		$oPro = $this->getCon()
 					 ->getModule_IPs()
 					 ->getProcessor();

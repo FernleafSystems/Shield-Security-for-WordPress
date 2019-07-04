@@ -7,32 +7,34 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
 		// XML-RPC Compatibility
-		if ( Services::WpGeneral()->isXmlrpc() && $oFO->isXmlrpcBypass() ) {
+		if ( Services::WpGeneral()->isXmlrpc() && $oMod->isXmlrpcBypass() ) {
 			return;
 		}
 
-		if ( $oFO->isCustomLoginPathEnabled() ) {
+		// So we can allow access to the login pages if IP is whitelisted
+		if ( $oMod->isCustomLoginPathEnabled() ) {
 			$this->getSubProRename()->run();
 		}
 
-		// Add GASP checking to the login form.
-		if ( $oFO->isEnabledGaspCheck() ) {
-			$this->getSubProGasp()->run();
-		}
+		if ( !$oMod->isVisitorWhitelisted() ) {
+			if ( $oMod->isEnabledGaspCheck() ) {
+				$this->getSubProGasp()->run();
+			}
 
-		if ( $oFO->isCooldownEnabled() && Services::Request()->isPost() ) {
-			$this->getSubProCooldown()->run();
-		}
+			if ( $oMod->isCooldownEnabled() && Services::Request()->isPost() ) {
+				$this->getSubProCooldown()->run();
+			}
 
-		if ( $oFO->isGoogleRecaptchaEnabled() ) {
-			$this->getSubProRecaptcha()->run();
-		}
+			if ( $oMod->isGoogleRecaptchaEnabled() ) {
+				$this->getSubProRecaptcha()->run();
+			}
 
-		$this->getSubProIntent()->run();
+			$this->getSubProIntent()->run();
+		}
 	}
 
 	public function onWpEnqueueJs() {

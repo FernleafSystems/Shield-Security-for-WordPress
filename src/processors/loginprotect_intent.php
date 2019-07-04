@@ -66,7 +66,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
-			if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
+			if ( Services::WpGeneral()->isLoginRequest() || $oFO->getIfSupport3rdParty() ) {
 				/** 20180925 - now using set cookie auth instead so we can capture session */
 //				add_action( 'authenticate', array( $this, 'initLoginIntent' ), 100, 1 );
 			}

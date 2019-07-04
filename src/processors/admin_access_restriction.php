@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
 			$oMod = $this->getMod();
 
-			if ( !$oMod->isUpgrading() && !$this->loadWp()->isRequestUserLogin() ) {
+			if ( !$oMod->isUpgrading() && !Services::WpGeneral()->isLoginRequest() ) {
 				add_filter( 'pre_update_option', [ $this, 'blockOptionsSaves' ], 1, 3 );
 			}
 

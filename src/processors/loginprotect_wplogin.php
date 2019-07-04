@@ -4,21 +4,22 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseWpsf {
 
-	/**
-	 */
-	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+	public function onWpInit() {
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
-		if ( !$oFO->isCustomLoginPathEnabled() || $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
+		if ( $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
+			return;
+		}
+		if ( Services::WpGeneral()->isLoginUrl() &&
+			 ( $oMod->isVisitorWhitelisted() || Services::WpUsers()->isUserLoggedIn() ) ) {
 			return;
 		}
 
-		// Loads the wp-login.php if the correct URL is loaded
-		add_action( 'init', [ $this, 'doBlockPossibleWpLoginLoad' ] );
+		$this->doBlockPossibleWpLoginLoad();
 
-		// Loads the wp-login.php is the correct URL is loaded
-		add_filter( 'wp_loaded', [ $this, 'aLoadWpLogin' ] );
+		// Loads the wp-login.php if the correct URL is loaded
+		add_action( 'wp_loaded', [ $this, 'aLoadWpLogin' ] );
 
 		// Shouldn't be necessary, but in-case something else includes the wp-login.php, we block that too.
 		add_action( 'login_init', [ $this, 'aLoginFormAction' ], 0 );
@@ -99,7 +100,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	public function doBlockPossibleWpLoginLoad() {
 
 		// To begin, we block if it's an access to the admin area and the user isn't logged in (and it's not ajax)
-		$bDoBlock = ( is_admin() && !Services::WpGeneral()->isAjax() && !Services::WpUsers()->isUserLoggedIn() );
+		$bDoBlock = is_admin()
+					&& !Services::WpGeneral()->isAjax() && !Services::WpUsers()->isUserLoggedIn();
 
 		// Next block option is where it's a direct attempt to access the old login URL
 		if ( !$bDoBlock ) {
@@ -159,7 +161,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 */
 	public function fProtectUnauthorizedLoginRedirect( $sLocation, $mStatus ) {
 
-		if ( !$this->loadWp()->isRequestLoginUrl() ) {
+		if ( !Services::WpGeneral()->isLoginUrl() ) {
 			$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
 			$bRedirectIsHiddenUrl = ( $sRedirectPath == $this->getLoginPath() );
 			if ( $bRedirectIsHiddenUrl && !Services::WpUsers()->isUserLoggedIn() ) {
@@ -183,17 +185,16 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	}
 
 	/**
-	 * @return string|void
 	 */
 	public function aLoadWpLogin() {
-		if ( $this->loadWp()->isRequestLoginUrl() ) {
+		if ( Services::WpGeneral()->isLoginUrl() ) {
 			@require_once( ABSPATH.'wp-login.php' );
 			die();
 		}
 	}
 
 	public function aLoginFormAction() {
-		if ( !$this->loadWp()->isRequestLoginUrl() ) {
+		if ( !Services::WpGeneral()->isLoginUrl() ) {
 			$this->doWpLoginFailedRedirect404();
 			die();
 		}

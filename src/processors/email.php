@@ -90,7 +90,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) {
 		return $this->send(
 			$sAddress,
-			wp_specialchars_decode( sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sSubject ) ),
+			wp_specialchars_decode( sprintf( '[%s] %s', Services::WpGeneral()->getSiteName(), $sSubject ) ),
 			'<html>'.implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) ).'</html>'
 		);
 	}
@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		// We help out by trying to correct any funky "from" addresses
 		// So, at the very least, we don't fail on this for our emails.
 		if ( !$oDP->validEmail( $sFrom ) ) {
-			$aUrlParts = @parse_url( $this->loadWp()->getWpUrl() );
+			$aUrlParts = @parse_url( Services::WpGeneral()->getWpUrl() );
 			if ( !empty( $aUrlParts[ 'host' ] ) ) {
 				$sProposedFrom = 'wordpress@'.$aUrlParts[ 'host' ];
 				if ( $oDP->validEmail( $sProposedFrom ) ) {
@@ -177,7 +177,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		else {
 			$sFromName = sprintf( '%s - %s',
-				$this->loadWp()->getSiteName(),
+				Services::WpGeneral()->getSiteName(),
 				$this->getCon()->getHumanName()
 			);
 		}

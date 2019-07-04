@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oDbh = $this->getDbHandler();
 
 		// For multisites that are separated by sub-domains we also show the host.
-		$sLeadingPath = $this->loadWp()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
+		$sLeadingPath = Services::WpGeneral()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';
 
 		/** @var Traffic\EntryVO $oEntry */
 		$oEntry = $oDbh->getVo();

@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			$oWpUsers = Services::WpUsers();
 			$sAction = Services::Request()->query( 'action' );
 			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser && ( !$this->loadWp()->isRequestLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
+			if ( $oUser && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$sMessage .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
