@@ -12,7 +12,6 @@ class Controller {
 	public function __construct() {
 		add_action( 'admin_notices', [ $this, 'onWpAdminNotices' ] );
 		add_action( 'network_admin_notices', [ $this, 'onWpNetworkAdminNotices' ] );
-		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
 	}
 
 	/**

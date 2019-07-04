@@ -34,8 +34,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$oOpts = $this->getMod()->getOptions();
 		$sName = $oCon->getHumanName();
 
-		var_dump(  $this->getMod()->getDismissedNotices() );
-		die();
 		$oNotice->display = in_array(
 								Services::WpPost()->getCurrentPage(), $oOpts->getDef( 'restricted_pages_users' )
 							)
