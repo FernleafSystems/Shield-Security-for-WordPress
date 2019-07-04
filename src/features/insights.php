@@ -677,9 +677,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getStats() {
-		$oConn = $this->getCon();
-		/** @var ICWP_WPSF_Processor_Statistics $oStats */
-		$oStats = $oConn->getModule( 'statistics' )->getProcessor();
+		/** @var Shield\Databases\Events\Handler $oDbhEvents */
+		$oDbhEvents = $this->getCon()->getModule_Events()->getDbHandler();
+		/** @var Shield\Databases\Events\Select $oSelEvents */
+		$oSelEvents = $oDbhEvents->getQuerySelector();
 
 		/** @var Shield\Databases\IPs\Select $oSelect */
 		$oSelect = $this->getCon()
@@ -687,21 +688,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						->getDbHandler()
 						->getQuerySelector();
 
-		$aStats = $oStats->getInsightsStats();
 		return [
 			'login'          => [
 				'title'   => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'     => $aStats[ 'login.blocked.all' ],
+				'val'     => $oSelEvents->sumEvent( 'login_block' ),
 				'tooltip' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
 			],
 			'firewall'       => [
 				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
-				'val'     => $aStats[ 'firewall.blocked.all' ],
+				'val'     => $oSelEvents->sumEvent( 'firewall_block' ),
 				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			],
 			'comments'       => [
 				'title'   => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'     => $aStats[ 'comments.blocked.all' ],
+				'val'     => $oSelEvents->sumEvents( [ 'spam_block_bot', 'spam_block_human', 'spam_block_recaptcha' ] ),
 				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
 			//			'sessions'       => array(
@@ -711,12 +711,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			//			),
 			'transgressions' => [
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'     => $aStats[ 'ip.transgression.incremented' ],
+				'val'     => $oSelEvents->sumEvent( 'ip_offense' ),
 				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
 			'ip_blocks'      => [
 				'title'   => __( 'IP Blocks', 'wp-simple-firewall' ),
-				'val'     => $aStats[ 'ip.connection.killed' ],
+				'val'     => $oSelEvents->sumEvent( 'conn_kill' ),
 				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
 			],
 			'blackips'       => [

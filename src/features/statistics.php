@@ -6,6 +6,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return bool
+	 */
+	public function isModuleEnabled() {
+		return false;
+	}
+
+	/**
 	 */
 	protected function updateHandler() {
 		$this->updateHandler_ConvertStats();
@@ -29,7 +36,7 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 			'login.recaptcha.verified'         => 'recaptcha_success',
 			'login.recaptcha.fail'             => 'recaptcha_fail',
 			'login.cooldown.fail'              => 'block_exefile',
-			'login.twofactor.started'          => 'cooldown_fail',
+			'login.twofactor.verified'         => '2fa_success',
 		];
 		// TODO: Count all firewall.blocked.*
 

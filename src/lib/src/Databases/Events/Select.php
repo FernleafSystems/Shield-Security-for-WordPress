@@ -8,6 +8,25 @@ class Select extends Base\Select {
 
 	/**
 	 * @param string $sEvent
+	 * @return int
+	 */
+	public function sumEvent( $sEvent ) {
+		return $this->sumEvents( [ $sEvent ] );
+	}
+
+	/**
+	 * @param string[] $aEvents
+	 * @return int
+	 */
+	public function sumEvents( $aEvents ) {
+		return (int)$this->reset()
+						 ->filterByEvents( $aEvents )
+						 ->setColumnsToSelect( [ 'count' ] )
+						 ->sum();
+	}
+
+	/**
+	 * @param string $sEvent
 	 * @return EntryVO|null
 	 */
 	public function getLatestForEvent( $sEvent ) {

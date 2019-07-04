@@ -19,6 +19,11 @@ class Select extends BaseQuery {
 	/**
 	 * @var bool
 	 */
+	protected $bIsSum = false;
+
+	/**
+	 * @var bool
+	 */
 	protected $bIsDistinct = false;
 
 	/**
@@ -80,14 +85,19 @@ class Select extends BaseQuery {
 	 * @return string
 	 */
 	protected function buildSelect() {
+		$aCols = $this->getColumnsToSelect();
+
 		if ( $this->isCount() ) {
 			$sSubstitute = 'COUNT(*)';
 		}
+		else if ( $this->isSum() ) {
+			$sSubstitute = sprintf( 'SUM(%s)', array_shift( $aCols ) );
+		}
 		else if ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
-			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $this->getColumnsToSelect() ) );
+			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $aCols ) );
 		}
 		else if ( $this->hasColumnsToSelect() ) {
-			$sSubstitute = implode( ',', $this->getColumnsToSelect() );
+			$sSubstitute = implode( ',', $aCols );
 		}
 		else if ( $this->isCustomSelect() ) {
 			$sSubstitute = $this->sCustomSelect;
@@ -103,6 +113,13 @@ class Select extends BaseQuery {
 	 */
 	public function count() {
 		return $this->setIsCount( true )->query();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function sum() {
+		return $this->setIsSum( true )->query();
 	}
 
 	/**
@@ -178,6 +195,13 @@ class Select extends BaseQuery {
 	/**
 	 * @return bool
 	 */
+	public function isSum() {
+		return (bool)$this->bIsSum;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isCustomSelect() {
 		return !empty( $this->sCustomSelect );
 	}
@@ -193,7 +217,7 @@ class Select extends BaseQuery {
 	 * @return bool
 	 */
 	public function isResultsAsVo() {
-		return (bool)$this->bResultsAsVo;
+		return (bool)$this->bResultsAsVo && !$this->isSum();
 	}
 
 	/**
@@ -201,8 +225,8 @@ class Select extends BaseQuery {
 	 * @return int|string[]|array[]|EntryVO[]|mixed
 	 */
 	public function query() {
-		if ( $this->isCount() ) {
-			$mData = $this->queryCount();
+		if ( $this->isCount() || $this->isSum() ) {
+			$mData = $this->queryVar();
 		}
 		else if ( $this->isDistinct() ) {
 			$mData = $this->queryDistinct();
@@ -238,7 +262,7 @@ class Select extends BaseQuery {
 	/**
 	 * @return int
 	 */
-	protected function queryCount() {
+	protected function queryVar() {
 		return Services::WpDb()->getVar( $this->buildQuery() );
 	}
 
@@ -292,6 +316,15 @@ class Select extends BaseQuery {
 	 */
 	public function setIsCount( $bIsCount ) {
 		$this->bIsCount = $bIsCount;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bSum
+	 * @return $this
+	 */
+	public function setIsSum( $bSum ) {
+		$this->bIsSum = $bSum;
 		return $this;
 	}
 
