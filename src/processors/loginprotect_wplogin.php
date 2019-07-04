@@ -15,6 +15,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 			 ( $oMod->isVisitorWhitelisted() || Services::WpUsers()->isUserLoggedIn() ) ) {
 			return;
 		}
+		if ( is_admin() && $oMod->isVisitorWhitelisted() && !Services::WpUsers()->isUserLoggedIn() ) {
+			return;
+		}
 
 		$this->doBlockPossibleWpLoginLoad();
 
