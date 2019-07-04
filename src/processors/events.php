@@ -74,6 +74,22 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 		return $aContent;
 	}
 
+	/**
+	 * Override the original collection to then add plugin statistics to the mix
+	 * @param $aData
+	 * @return array
+	 */
+	public function tracking_DataCollect( $aData ) {
+		/** @var Shield\Databases\Events\Handler $oDbhEvents */
+		$oDbhEvents = $this->getMod()->getDbHandler();
+		/** @var Shield\Databases\Events\Select $oSelEvents */
+		$oSelEvents = $oDbhEvents->getQuerySelector();
+
+		$aData = parent::tracking_DataCollect( $aData );
+		$aData[ $this->getMod()->getSlug() ][ 'stats' ] = $oSelEvents->sumAllEvents();
+		return $aData;
+	}
+
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
 		if ( $this->bStat && !$this->getCon()->isPluginDeleting() ) {

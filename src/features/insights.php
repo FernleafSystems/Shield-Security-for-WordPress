@@ -682,8 +682,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var Shield\Databases\Events\Select $oSelEvents */
 		$oSelEvents = $oDbhEvents->getQuerySelector();
 
-		/** @var Shield\Databases\IPs\Select $oSelect */
-		$oSelect = $this->getCon()
+		/** @var Shield\Databases\IPs\Select $oSelectIp */
+		$oSelectIp = $this->getCon()
 						->getModule_IPs()
 						->getDbHandler()
 						->getQuerySelector();
@@ -721,7 +721,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			],
 			'blackips'       => [
 				'title'   => __( 'Blacklist IPs', 'wp-simple-firewall' ),
-				'val'     => $oSelect
+				'val'     => $oSelectIp
 					->filterByLists(
 						[
 							ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,

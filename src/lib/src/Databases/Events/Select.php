@@ -26,6 +26,19 @@ class Select extends Base\Select {
 	}
 
 	/**
+	 * @return int[]
+	 */
+	public function sumAllEvents() {
+		$aSums = [];
+		$aAllEvents = ( clone $this )->getAllEvents();
+		natsort( $aAllEvents );
+		foreach ( $aAllEvents as $sEvent ) {
+			$aSums[ $sEvent ] = $this->sumEvent( $sEvent );
+		}
+		return $aSums;
+	}
+
+	/**
 	 * @param string $sEvent
 	 * @return EntryVO|null
 	 */
@@ -34,6 +47,13 @@ class Select extends Base\Select {
 					->setOrderBy( 'created_at', 'DESC' )
 					->setResultsAsVo( true )
 					->first();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getAllEvents() {
+		return $this->reset()->getDistinctForColumn( 'event' );
 	}
 
 	/**
