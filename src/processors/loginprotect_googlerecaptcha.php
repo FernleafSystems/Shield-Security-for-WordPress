@@ -21,13 +21,14 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		$oFO = $this->getMod();
 
 		if ( !$this->isFactorTested() ) {
+			$this->setFactorTested( true );
 			try {
-				$this->setFactorTested( true );
 				( new Shield\Utilities\ReCaptcha\TestRequest() )
 					->setMod( $oFO )
 					->test();
 			}
 			catch ( \Exception $oE ) {
+				$this->processFailure();
 				throw $oE;
 			}
 		}

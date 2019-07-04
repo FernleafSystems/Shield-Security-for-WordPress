@@ -571,16 +571,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param string $sStatToIncrement
 	 * @return $this
 	 */
-	protected function setLoginAsFailed( $sStatToIncrement ) {
-		$this->getCon()->fireEvent( 'block_login' );
-
+	protected function processFailure() {
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
-
-		return $this->doStatIncrement( $sStatToIncrement );
+		$this->getCon()->fireEvent( 'block_login' );
+		return $this;
 	}
 
 	/**

@@ -12,6 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 		$oFO = $this->getMod();
 
 		if ( !$this->isFactorTested() ) {
+			$this->setFactorTested( true );
 
 			// At this point someone has attempted to login within the previous login wait interval
 			// So we remove WordPress's authentication filter and our own user check authentication
@@ -25,12 +26,11 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 								);
 
 				$this->getCon()->fireEvent( 'cooldown_fail' );
+				$this->processFailure();
 				throw new \Exception( $sErrorString );
 			}
-			else {
-				$this->updateLastLoginTime()
-					 ->setFactorTested( true );
-			}
+
+			$this->updateLastLoginTime();
 		}
 	}
 
