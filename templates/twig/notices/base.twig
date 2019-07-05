@@ -10,7 +10,7 @@
 
 		<div class="notice-content">
 			{% if strings.title|default('') is not empty %}
-				<h3 class="notice-title">{{ strings.title }}</h3>
+				<h3 class="notice-title">{{ strings.title|title }}</h3>
 			{% endif %}
 			<div>
 				{% block notice_body %}{% endblock %}

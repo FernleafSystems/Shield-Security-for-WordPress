@@ -115,9 +115,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @throws \Exception
 	 */
 	public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 
-		if ( $oCon->getIsPage_PluginAdmin() && $this->isCurrentIpWhitelisted() ) {
+		if ( $oCon->getIsPage_PluginAdmin() && $oMod->isVisitorWhitelisted() ) {
 			$aRenderData = [
 				'notice_attributes' => $aNoticeAttributes,
 				'strings'           => [
@@ -183,19 +185,19 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	protected function processBlacklist() {
-		if ( $this->isCurrentIpWhitelisted() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isVisitorWhitelisted() ) {
 			return;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
 		$sIp = $this->ip();
 		$bKill = false;
 
 		// TODO: *Maybe* Have a manual black list process first.
 
 		// now try auto black list
-		if ( !$bKill && $oFO->isAutoBlackListEnabled() ) {
+		if ( !$bKill && $oMod->isAutoBlackListEnabled() ) {
 			$bKill = $this->isIpToBeBlocked( $sIp );
 		}
 
@@ -333,7 +335,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oMod = $this->getMod();
 
 		if ( $oMod->isAutoBlackListEnabled() && !$this->getCon()->isPluginDeleting()
-			 && $oMod->getIfIpTransgressed() && !$oMod->isVerifiedBot() && !$this->isCurrentIpWhitelisted() ) {
+			 && $oMod->getIfIpTransgressed() && !$oMod->isVerifiedBot() && !$oMod->isVisitorWhitelisted() ) {
 			$this->processTransgression();
 		}
 	}
@@ -378,7 +380,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * TODO: use basewpsf module isVisitorWhitelisted()
 	 * @return bool
+	 * @deprecated 7.5
 	 */
 	public function isCurrentIpWhitelisted() {
 		if ( !isset( $this->bVisitorIsWhitelisted ) ) {

@@ -17,10 +17,11 @@
   },
   "admin_notices": {
     "visitor-whitelisted": {
-      "id":          "visitor-whitelisted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "info"
+      "id":               "visitor-whitelisted",
+      "schedule":         "conditions",
+      "plugin_page_only": true,
+      "dismiss_per_user": true,
+      "type":             "info"
     }
   },
   "requirements":  {
@@ -498,8 +499,8 @@
       "deleted_at"
     ],
     "events":                {
-      "custom_offense":               {
-        "cat": 3,
+      "custom_offense":          {
+        "cat":     3,
         "offense": true
       },
       "conn_kill":               {
@@ -511,35 +512,35 @@
       "ip_blocked":              {
         "cat": 2
       },
-      "ip_unblock_flag":            {
+      "ip_unblock_flag":         {
         "cat": 1
       },
       "bottrack_404":            {
-        "cat": 2,
+        "cat":     2,
         "offense": true
       },
       "bottrack_fakewebcrawler": {
-        "cat": 2,
+        "cat":     2,
         "offense": true
       },
       "bottrack_linkcheese":     {
-        "cat": 2,
+        "cat":     2,
         "offense": true
       },
       "bottrack_loginfailed":    {
-        "cat": 2,
+        "cat":     2,
         "offense": true
       },
       "bottrack_logininvalid":   {
-        "cat": 2,
+        "cat":     2,
         "offense": true
       },
       "bottrack_useragent":      {
-        "cat": 2,
+        "cat":     2,
         "offense": true
       },
       "bottrack_xmlrpc":         {
-        "cat": 2,
+        "cat":     2,
         "offense": true
       }
     }

@@ -33,6 +33,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	static private $nIpOffenceCount = 0;
 
 	/**
+	 * @var bool
+	 */
+	private $bVisitorIsWhitelisted;
+
+	/**
 	 * @return ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
@@ -356,11 +361,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isVisitorWhitelisted() {
-		/** @var \ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getCon()
-					 ->getModule_IPs()
-					 ->getProcessor();
-		return $oPro->isCurrentIpWhitelisted();
+		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
+			/** @var \ICWP_WPSF_Processor_Ips $oPro */
+			$oPro = $this->getCon()
+						 ->getModule_IPs()
+						 ->getProcessor();
+			$this->bVisitorIsWhitelisted = $oPro->isIpOnWhiteList( Services::IP()->getRequestIp() );
+		}
+		return $this->bVisitorIsWhitelisted;
 	}
 
 	/**

@@ -448,6 +448,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
+	 * @return Shield\Modules\IPs\AdminNotices
+	 */
+	public function loadAdminNotices() {
+		return new Shield\Modules\IPs\AdminNotices();
+	}
+
+	/**
 	 * @return Shield\Databases\IPs\Handler
 	 */
 	protected function loadDbHandler() {
