@@ -14,30 +14,6 @@ class Controller {
 		add_action( 'network_admin_notices', [ $this, 'onWpNetworkAdminNotices' ] );
 	}
 
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-		if ( empty( $aAjaxResponse ) && Services::Request()->request( 'exec' ) === 'dismiss_admin_notice' ) {
-			$aAjaxResponse = $this->ajaxExec_DismissAdminNotice();
-		}
-		return $aAjaxResponse;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_DismissAdminNotice() {
-		// Get all notices and if this notice exists, we set it to "hidden"
-		$sNoticeId = sanitize_key( Services::Request()->query( 'notice_id', '' ) );
-		$aNotices = apply_filters( $this->getPrefix().'register_admin_notices', [] );
-		if ( !empty( $sNoticeId ) && array_key_exists( $sNoticeId, $aNotices ) ) {
-			$this->setMeta( $aNotices[ $sNoticeId ][ 'id' ] );
-		}
-		return [ 'success' => true ];
-	}
-
 	public function onWpAdminNotices() {
 		$this->displayNotices();
 	}
@@ -47,13 +23,26 @@ class Controller {
 	}
 
 	protected function displayNotices() {
+		foreach ( $this->collectAllPluginNotices() as $sKey => $oNotice ) {
+			echo $this->renderNotice( $oNotice );
+		}
+	}
+
+	/**
+	 * @return NoticeVO[]
+	 */
+	protected function collectAllPluginNotices() {
 		/** @var NoticeVO[] $aNotices */
 		$aNotices = apply_filters( $this->getCon()->prefix( 'collectNotices' ), [] );
-		foreach ( $aNotices as $sKey => $oNotice ) {
-			if ( $oNotice instanceof NoticeVO ) {
-				echo $this->renderNotice( $oNotice );
-			}
+		if ( !is_array( $aNotices ) ) {
+			$aNotices = [];
 		}
+		return array_filter(
+			$aNotices,
+			function ( $oNotice ) {
+				return ( $oNotice instanceof NoticeVO );
+			}
+		);
 	}
 
 	/**

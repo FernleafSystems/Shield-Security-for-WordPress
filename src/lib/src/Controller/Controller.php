@@ -312,13 +312,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'onWpPrivacyRegisterExporter' ] );
 		add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'onWpPrivacyRegisterEraser' ] );
 
-		// outsource the collection of admin notices
-		if ( is_admin() ) {
-			$oNofics = $this->loadWpNotices();
-			$oNofics->setPrefix( $this->prefix() );
-			add_filter( $this->prefix( 'ajaxAuthAction' ), [ $oNofics, 'handleAuthAjax' ] );
-		}
-
 		/**
 		 * Support for WP-CLI and it marks the cli as complete plugin admin
 		 */

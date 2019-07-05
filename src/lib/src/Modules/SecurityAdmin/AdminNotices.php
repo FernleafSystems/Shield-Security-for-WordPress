@@ -19,6 +19,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->adminUsersRestricted( $oNotice );
 				break;
 
+			case 'certain-options-restricted':
+				$this->certainOptionsRestricted( $oNotice );
+				break;
+
 			default:
 				parent::processNotice( $oNotice );
 				break;
@@ -28,16 +32,47 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
-	private function adminUsersRestricted( $oNotice ) {
-		$oCon = $this->getCon();
+	private function certainOptionsRestricted( $oNotice ) {
+		$oMod = $this->getMod();
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		$sName = $oCon->getHumanName();
+		$oOpts = $oMod->getOptions();
+		$sName = $this->getCon()->getHumanName();
+
+		$sCurrentPage = Services::WpPost()->getCurrentPage();
+		$sCurrentGetPage = Services::Request()->query( 'page' );
+		$oNotice->display = empty( $sCurrentGetPage )
+							&& in_array( $sCurrentPage, $oOpts->getOptionsPagesToRestrict() );
+
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
+				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
+									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
+			],
+			'hrefs'             => [
+				'setting_page' => sprintf(
+					'<a href="%s" title="%s">%s</a>',
+					$oMod->getUrl_AdminPage(),
+					__( 'Admin Access Login', 'wp-simple-firewall' ),
+					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
+				)
+			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function adminUsersRestricted( $oNotice ) {
+		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
+		$sName = $this->getCon()->getHumanName();
 
 		$oNotice->display = in_array(
-								Services::WpPost()->getCurrentPage(), $oOpts->getDef( 'restricted_pages_users' )
-							)
-							&& !$oCon->isPluginAdmin();
+			Services::WpPost()->getCurrentPage(), $oOpts->getDef( 'restricted_pages_users' )
+		);
 
 		$oNotice->render_data = [
 			'notice_attributes' => [], // TODO
@@ -55,7 +90,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'setting_page' => sprintf(
 					'<a href="%s" title="%s">%s</a>',
-					$this->getMod()->getUrl_AdminPage(),
+					$oMod->getUrl_AdminPage(),
 					__( 'Security Admin Login', 'wp-simple-firewall' ),
 					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
 				)

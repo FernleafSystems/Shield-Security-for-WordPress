@@ -17,19 +17,20 @@
   },
   "admin_notices": {
     "certain-options-restricted": {
-      "id":          "certain-options-restricted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+      "id":               "certain-options-restricted",
+      "schedule":         "conditions",
+      "plugin_admin":     "no",
+      "dismiss_per_user": true,
+      "type":             "warning",
+      "twig":             true
     },
     "admin-users-restricted":     {
-      "id":                "admin-users-restricted",
-      "schedule":          "conditions",
-      "valid_admin":       true,
-      "plugin_admin_only": false,
-      "can_dismiss":       false,
-      "type":              "warning",
-      "twig":              "true"
+      "id":               "admin-users-restricted",
+      "schedule":         "conditions",
+      "plugin_admin":     "no",
+      "type":             "warning",
+      "dismiss_per_user": true,
+      "twig":             true
     }
   },
   "sections":      [
