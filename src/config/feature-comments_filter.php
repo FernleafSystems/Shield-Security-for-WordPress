@@ -18,10 +18,12 @@
   },
   "admin_notices": {
     "akismet-running": {
-      "id":          "akismet-running",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+      "id":               "akismet-running",
+      "schedule":         "conditions",
+      "plugin_admin":     "yes",
+      "plugin_page_only": true,
+      "dismiss_per_user": false,
+      "type":             "warning"
     }
   },
   "sections":      [
@@ -384,15 +386,15 @@
     ],
     "events":                                {
       "spam_block_bot":       {
-        "recent": true,
+        "recent":  true,
         "offense": true
       },
       "spam_block_recaptcha": {
-        "recent": true,
+        "recent":  true,
         "offense": true
       },
       "spam_block_human":     {
-        "recent": true,
+        "recent":  true,
         "offense": true
       }
     }

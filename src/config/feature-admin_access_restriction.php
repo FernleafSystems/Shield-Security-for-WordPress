@@ -21,16 +21,14 @@
       "schedule":         "conditions",
       "plugin_admin":     "no",
       "dismiss_per_user": true,
-      "type":             "warning",
-      "twig":             true
+      "type":             "warning"
     },
     "admin-users-restricted":     {
       "id":               "admin-users-restricted",
       "schedule":         "conditions",
       "plugin_admin":     "no",
       "type":             "warning",
-      "dismiss_per_user": true,
-      "twig":             true
+      "dismiss_per_user": true
     }
   },
   "sections":      [

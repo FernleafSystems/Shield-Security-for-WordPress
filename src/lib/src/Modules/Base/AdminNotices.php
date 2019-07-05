@@ -98,7 +98,7 @@ class AdminNotices {
 										   'plugin_admin'     => 'yes',
 										   'dismiss_per_user' => false,
 										   'display'          => true,
-										   'twig'             => false,
+										   'twig'             => true,
 									   ],
 									   $aNotDef
 								   );
@@ -113,16 +113,19 @@ class AdminNotices {
 	 */
 	protected function preProcessNotice( $oNotice ) {
 		$oCon = $this->getCon();
-		if ( $oNotice->valid_admin && !$oCon->isValidAdminArea() ) {
+		if ( $oNotice->plugin_page_only && !$oCon->isModulePage() ) {
 			$oNotice->display = false;
 		}
-		if ( $oNotice->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
+		else if ( $oNotice->valid_admin && !$oCon->isValidAdminArea() ) {
+			$oNotice->display = false;
+		}
+		else if ( $oNotice->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
 			$oNotice->display = false;
 		}
 		else if ( $oNotice->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
 			$oNotice->display = false;
 		}
-		if ( $this->isNoticeDismissed( $oNotice ) ) {
+		else if ( $this->isNoticeDismissed( $oNotice ) ) {
 			$oNotice->display = false;
 		}
 		$oNotice->template = '/notices/'.$oNotice->id;
