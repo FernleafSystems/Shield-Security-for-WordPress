@@ -2023,7 +2023,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return null|Shield\Modules\Base\Options|mixed
+	 * @return null|Shield\Modules\Base\ShieldOptions|mixed
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
@@ -2097,10 +2097,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return Shield\Modules\Base\Options|mixed
+	 * @return Shield\Modules\Base\ShieldOptions|mixed
 	 */
 	protected function loadOptions() {
-		return new Shield\Modules\Base\Options;
+		return new Shield\Modules\Base\ShieldOptions;
 	}
 
 	/**

@@ -17,6 +17,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property string $plugin_admin     - show when plugin admin: yes, no, ignore
  * @property bool   $valid_admin
  * @property bool   $dismiss_per_user
+ * @property int    $min_install_days
  * @property bool   $twig
  */
 class NoticeVO {

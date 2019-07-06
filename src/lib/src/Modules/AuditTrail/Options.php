@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Options extends Base\Options {
+class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return array

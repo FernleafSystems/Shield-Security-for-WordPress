@@ -26,6 +26,12 @@
       "can_dismiss":      false,
       "type":             "error"
     },
+    "plugin-mailing-list-signup": {
+      "id":           "plugin-mailing-list-signup",
+      "min_install_days":   5,
+      "type":         "promo",
+      "drip_form_id": "250437573"
+    },
     "plugin-update-available":    {
       "id":          "plugin-update-available",
       "schedule":    "conditions",
@@ -46,15 +52,6 @@
       "delay_days":  1,
       "type":        "promo",
       "twig":        true
-    },
-    "plugin-mailing-list-signup": {
-      "id":           "plugin-mailing-list-signup",
-      "schedule":     "once",
-      "valid_admin":  true,
-      "delay_days":   15,
-      "type":         "promo",
-      "twig":         true,
-      "drip_form_id": "250437573"
     },
     "rate-plugin":                {
       "id":          "rate-plugin",

@@ -98,6 +98,7 @@ class AdminNotices {
 										   'plugin_admin'     => 'yes',
 										   'dismiss_per_user' => false,
 										   'display'          => true,
+										   'min_install_days' => 0,
 										   'twig'             => true,
 									   ],
 									   $aNotDef
@@ -113,10 +114,15 @@ class AdminNotices {
 	 */
 	protected function preProcessNotice( $oNotice ) {
 		$oCon = $this->getCon();
+		$oMod = $this->getMod();
+		$oOpts = $oMod->getOptions();
 		if ( $this->isNoticeDismissed( $oNotice ) ) {
 			$oNotice->display = false;
 		}
 		else if ( $oNotice->plugin_page_only && !$oCon->isModulePage() ) {
+			$oNotice->display = false;
+		}
+		else if ( $oNotice->type == 'promo' && !$this->getMod()->getOptions()->isShowPromoAdminNotices() ) {
 			$oNotice->display = false;
 		}
 		else if ( $oNotice->valid_admin && !$oCon->isValidAdminArea() ) {
@@ -126,6 +132,9 @@ class AdminNotices {
 			$oNotice->display = false;
 		}
 		else if ( $oNotice->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
+			$oNotice->display = false;
+		}
+		else if ( $oNotice->min_install_days > 0 && $oNotice->min_install_days < $oOpts->getInstallationDays() ) {
 			$oNotice->display = false;
 		}
 		$oNotice->template = '/notices/'.$oNotice->id;
