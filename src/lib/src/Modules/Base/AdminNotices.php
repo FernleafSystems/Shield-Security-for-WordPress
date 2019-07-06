@@ -113,7 +113,10 @@ class AdminNotices {
 	 */
 	protected function preProcessNotice( $oNotice ) {
 		$oCon = $this->getCon();
-		if ( $oNotice->plugin_page_only && !$oCon->isModulePage() ) {
+		if ( $this->isNoticeDismissed( $oNotice ) ) {
+			$oNotice->display = false;
+		}
+		else if ( $oNotice->plugin_page_only && !$oCon->isModulePage() ) {
 			$oNotice->display = false;
 		}
 		else if ( $oNotice->valid_admin && !$oCon->isValidAdminArea() ) {
@@ -123,9 +126,6 @@ class AdminNotices {
 			$oNotice->display = false;
 		}
 		else if ( $oNotice->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
-			$oNotice->display = false;
-		}
-		else if ( $this->isNoticeDismissed( $oNotice ) ) {
 			$oNotice->display = false;
 		}
 		$oNotice->template = '/notices/'.$oNotice->id;

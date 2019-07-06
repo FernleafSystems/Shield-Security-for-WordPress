@@ -17,10 +17,11 @@
   },
   "admin_notices": {
     "email-verification-sent": {
-      "once":        false,
-      "valid_admin": true,
-      "twig":        true,
-      "type":        "warning"
+      "id":               "email-verification-sent",
+      "once":             false,
+      "type":             "warning",
+      "plugin_admin":     "yes",
+      "dismiss_per_user": false
     }
   },
   "sections":      [
@@ -523,12 +524,12 @@
       "botbox_fail":             {
       },
       "login_block":             {
-        "audit":  false,
-        "recent": true,
+        "audit":   false,
+        "recent":  true,
         "offense": true
       },
       "hide_login_url":          {
-        "audit":  false
+        "audit": false
       },
       "2fa_success":             {
         "audit":  false,
