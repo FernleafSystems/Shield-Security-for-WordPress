@@ -42,11 +42,9 @@
     },
     "allow-tracking":             {
       "id":          "allow-tracking",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "delay_days":  1,
-      "type":        "promo",
-      "twig":        true
+      "plugin_admin": true,
+      "min_install_days":  3,
+      "type":        "promo"
     },
     "rate-plugin":                {
       "id":          "rate-plugin",

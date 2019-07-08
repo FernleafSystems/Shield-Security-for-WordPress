@@ -31,6 +31,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_WelcomeWizard( $oNotice );
 				break;
 
+			case 'allow-tracking':
+				$this->buildNotice_AllowTracking( $oNotice );
+				break;
+
 			default:
 				parent::processNotice( $oNotice );
 				break;
@@ -141,6 +145,42 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'wizard' => $this->getMod()->getUrl_Wizard( 'welcome' ),
 			],
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function buildNotice_AllowTracking( $oNotice ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		$sName = $this->getCon()->getHumanName();
+		$oNotice->display = !$oMod->isTrackingPermissionSet();
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $sName ),
+				'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $sName ),
+				'what_we_collect' => __( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' ),
+				'data_anon'       => __( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
+				'can_turn_off'    => __( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
+				'click_to_see'    => __( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' ),
+				'learn_more'      => __( 'Learn More.', 'wp-simple-firewall' ),
+				'site_url'        => 'translate.icontrolwp.com',
+				'yes'             => __( 'Absolutely', 'wp-simple-firewall' ),
+				'yes_i_share'     => __( "Yes, I'd be happy share this info", 'wp-simple-firewall' ),
+				'hmm_learn_more'  => __( "I'd like to learn more, please", 'wp-simple-firewall' ),
+				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
+			],
+			'ajax'              => [
+				'set_plugin_tracking_perm' => $oMod->getAjaxActionData( 'set_plugin_tracking_perm', true ),
+			],
+			'hrefs'             => [
+				'learn_more'       => 'http://translate.icontrolwp.com',
+				'link_to_see'      => $oMod->getLinkToTrackingDataDump(),
+				'link_to_moreinfo' => 'https://icwp.io/shieldtrackinginfo',
+
+			]
 		];
 	}
 }
