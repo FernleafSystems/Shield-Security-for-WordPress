@@ -63,6 +63,7 @@ class Controller {
 		$aRenderVars[ 'notice_classes' ] = implode( ' ', array_unique( $aRenderVars[ 'notice_classes' ] ) );
 
 		$aRenderVars[ 'unique_render_id' ] = uniqid( $oNotice->id );
+		$aRenderVars[ 'notice_id' ] = $oNotice->id;
 
 		$aAjaxData = $this->getCon()->getNonceActionData( 'dismiss_admin_notice' );
 		$aAjaxData[ 'hide' ] = 1;

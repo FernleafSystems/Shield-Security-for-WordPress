@@ -8,10 +8,11 @@
 	<p>
 		<a href="#" class="button button-primary mr-3" id="icwpButtonPluginTrackingAgree">
 			{{ strings.yes_i_share }}</a>
+
 		<a target="_blank" href="{{ hrefs.link_to_moreinfo }}" class="button mr-3"
 		   id="icwpButtonPluginTrackingMore">{{ strings.hmm_learn_more }}</a>
 
-		<a href="#" id="icwpButtonPluginTrackingDisagree">{{ strings.no_help }}</a>
+		<a class="text-dark" href="#" id="icwpButtonPluginTrackingDisagree">{{ strings.no_help }}</a>
 	</p>
 
 	<script type="text/javascript">
@@ -29,8 +30,9 @@
 		}
 
 		function icwp_PluginTrackingAgreement( bAgree ) {
-			let requestData = {{ ajax.set_plugin_tracking_perm|raw }};
+			let requestData = {{ ajax.set_plugin_tracking|raw }};
 			requestData[ 'agree' ] = bAgree;
+			requestData[ 'notice_id' ] = '{{ notice_id }}';
 
 			jQuery.get( ajaxurl, requestData );
 			$oContainer.fadeOut( 500, function () {

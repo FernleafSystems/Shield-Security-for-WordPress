@@ -161,7 +161,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$aAjaxResponse = $this->ajaxExec_PluginBadgeClose();
 					break;
 
-				case 'set_plugin_tracking_perm':
+				case 'set_plugin_tracking':
 					if ( !$this->isTrackingPermissionSet() ) {
 						$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
 					}
@@ -463,10 +463,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setPluginTrackingPermission( $bOnOrOff = true ) {
-		$this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
-			 ->setOpt( 'tracking_permission_set_at', Services::Request()->ts() )
-			 ->savePluginOptions();
-		return $this;
+		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
+					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
 
 	/**

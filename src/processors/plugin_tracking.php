@@ -31,7 +31,7 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 					'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 				],
 				'ajax'              => [
-					'set_plugin_tracking_perm' => $oFO->getAjaxActionData( 'set_plugin_tracking_perm', true ),
+					'set_plugin_tracking' => $oFO->getAjaxActionData( 'set_plugin_tracking', true ),
 				],
 				'hrefs'             => [
 					'learn_more'       => 'http://translate.icontrolwp.com',

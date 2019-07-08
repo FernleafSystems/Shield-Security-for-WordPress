@@ -8,6 +8,37 @@ use FernleafSystems\Wordpress\Services\Services;
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
+
+				case 'set_plugin_tracking':
+					$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
+					break;
+
+				default:
+					$aAjaxResponse = parent::handleAuthAjax( $aAjaxResponse );
+					break;
+			}
+		}
+		return $aAjaxResponse;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function ajaxExec_SetPluginTrackingPerm() {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		$oMod->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+		return $this->ajaxExec_DismissAdminNotice();
+	}
+
+	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 * @throws \Exception
 	 */
@@ -155,6 +186,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
+
 		$oNotice->display = !$oMod->isTrackingPermissionSet();
 		$oNotice->render_data = [
 			'notice_attributes' => [],
@@ -166,17 +198,17 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'can_turn_off'    => __( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
 				'click_to_see'    => __( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' ),
 				'learn_more'      => __( 'Learn More.', 'wp-simple-firewall' ),
-				'site_url'        => 'translate.icontrolwp.com',
+				'site_url'        => 'translate.fernleafsystems.com',
 				'yes'             => __( 'Absolutely', 'wp-simple-firewall' ),
 				'yes_i_share'     => __( "Yes, I'd be happy share this info", 'wp-simple-firewall' ),
 				'hmm_learn_more'  => __( "I'd like to learn more, please", 'wp-simple-firewall' ),
 				'no_help'         => __( "No, I don't want to help", 'wp-simple-firewall' ),
 			],
 			'ajax'              => [
-				'set_plugin_tracking_perm' => $oMod->getAjaxActionData( 'set_plugin_tracking_perm', true ),
+				'set_plugin_tracking' => $oMod->getAjaxActionData( 'set_plugin_tracking', true ),
 			],
 			'hrefs'             => [
-				'learn_more'       => 'http://translate.icontrolwp.com',
+				'learn_more'       => 'https://translate.fernleafsystems.com',
 				'link_to_see'      => $oMod->getLinkToTrackingDataDump(),
 				'link_to_moreinfo' => 'https://icwp.io/shieldtrackinginfo',
 

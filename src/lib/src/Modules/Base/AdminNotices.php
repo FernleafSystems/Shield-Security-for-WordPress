@@ -137,13 +137,10 @@ class AdminNotices {
 		else if ( $oNotice->min_install_days > 0 && $oNotice->min_install_days < $oOpts->getInstallationDays() ) {
 			$oNotice->display = false;
 		}
-		if ( $oNotice->id == 'allow-tracking' ) {
-			$oNotice->display = true;
-		}
 		$oNotice->template = '/notices/'.$oNotice->id;
 	}
 
-	/**
+	/**z
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 * @return bool
 	 */
