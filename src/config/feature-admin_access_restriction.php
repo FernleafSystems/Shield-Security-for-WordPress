@@ -20,7 +20,7 @@
       "id":               "certain-options-restricted",
       "schedule":         "conditions",
       "plugin_admin":     "no",
-      "dismiss_per_user": true,
+      "per_user": true,
       "type":             "warning"
     },
     "admin-users-restricted":     {
@@ -28,7 +28,7 @@
       "schedule":         "conditions",
       "plugin_admin":     "no",
       "type":             "warning",
-      "dismiss_per_user": true
+      "per_user": true
     }
   },
   "sections":      [

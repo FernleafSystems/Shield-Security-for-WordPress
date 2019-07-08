@@ -23,6 +23,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_PluginMailingListSignup( $oNotice );
 				break;
 
+			case 'plugin-update-available':
+				$this->buildNotice_UpdateAvailable( $oNotice );
+				break;
+
+			case 'wizard_welcome':
+				$this->buildNotice_WelcomeWizard( $oNotice );
+				break;
+
 			default:
 				parent::processNotice( $oNotice );
 				break;
@@ -91,6 +99,48 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'user_email'   => $oUser->user_email,
 				'drip_form_id' => $oNotice->drip_form_id
 			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function buildNotice_UpdateAvailable( $oNotice ) {
+		$oWpPlugins = Services::WpPlugins();
+		$sBaseFile = $this->getCon()->getPluginBaseFile();
+		$oNotice->display = $oWpPlugins->isUpdateAvailable( $sBaseFile ) && !Services::WpPost()->isPage_Updates();
+
+		$sName = $this->getCon()->getHumanName();
+
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'        => sprintf( __( 'Update available for the %s plugin', 'wp-simple-firewall' ), $sName ),
+				'click_update' => __( 'Please click to update immediately', 'wp-simple-firewall' ),
+				'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
+			],
+			'hrefs'             => [
+				'upgrade_link' => $oWpPlugins->getUrl_Upgrade( $sBaseFile )
+			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function buildNotice_WelcomeWizard( $oNotice ) {
+		$sName = $this->getCon()->getHumanName();
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'dismiss' => __( "I don't need the setup wizard just now", 'wp-simple-firewall' ),
+				'title'   => sprintf( __( 'Get started quickly with the %s Setup Wizard', 'wp-simple-firewall' ), $sName ),
+				'setup'   => sprintf( __( 'The welcome wizard will help you get setup quickly and become familiar with some of the core %s features', 'wp-simple-firewall' ), $sName ),
+				'launch'  => sprintf( __( "Launch the welcome wizard", 'wp-simple-firewall' ), $sName ),
+			],
+			'hrefs'             => [
+				'wizard' => $this->getMod()->getUrl_Wizard( 'welcome' ),
+			],
 		];
 	}
 }

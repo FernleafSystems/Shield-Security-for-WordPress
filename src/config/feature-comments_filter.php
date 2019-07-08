@@ -19,10 +19,8 @@
   "admin_notices": {
     "akismet-running": {
       "id":               "akismet-running",
-      "schedule":         "conditions",
       "plugin_admin":     "yes",
       "plugin_page_only": true,
-      "dismiss_per_user": false,
       "type":             "warning"
     }
   },

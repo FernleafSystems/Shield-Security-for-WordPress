@@ -27,22 +27,17 @@
       "type":             "error"
     },
     "plugin-mailing-list-signup": {
-      "id":           "plugin-mailing-list-signup",
-      "min_install_days":   5,
-      "type":         "promo",
-      "drip_form_id": "250437573"
+      "id":               "plugin-mailing-list-signup",
+      "min_install_days": 5,
+      "type":             "promo",
+      "drip_form_id":     "250437573"
     },
     "plugin-update-available":    {
-      "id":          "plugin-update-available",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+      "id":   "plugin-update-available",
+      "type": "warning"
     },
     "wizard_welcome":             {
       "id":          "wizard_welcome",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  0,
       "type":        "promo"
     },
     "allow-tracking":             {
@@ -574,11 +569,11 @@
       "master_url_set":         {
         "stat": false
       },
-      "recaptcha_success":             {
-        "audit":  false
+      "recaptcha_success":      {
+        "audit": false
       },
-      "recaptcha_fail":             {
-        "audit":  false
+      "recaptcha_fail":         {
+        "audit": false
       }
     },
     "wizards":                {

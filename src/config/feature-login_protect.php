@@ -20,8 +20,7 @@
       "id":               "email-verification-sent",
       "once":             false,
       "type":             "warning",
-      "plugin_admin":     "yes",
-      "dismiss_per_user": false
+      "plugin_admin":     "yes"
     }
   },
   "sections":      [

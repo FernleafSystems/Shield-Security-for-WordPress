@@ -96,7 +96,7 @@ class AdminNotices {
 										   'plugin_page_only' => true,
 										   'valid_admin'      => true,
 										   'plugin_admin'     => 'yes',
-										   'dismiss_per_user' => false,
+										   'per_user'         => false,
 										   'display'          => true,
 										   'min_install_days' => 0,
 										   'twig'             => true,
@@ -150,7 +150,7 @@ class AdminNotices {
 		$aDisd = $this->getMod()->getDismissedNotices();
 		$bDismissedMod = isset( $aDisd[ $oNotice->id ] ) && $aDisd[ $oNotice->id ] > 0;
 
-		if ( !$oNotice->dismiss_per_user && $bDismissedUser && !$bDismissedMod ) {
+		if ( !$oNotice->per_user && $bDismissedUser && !$bDismissedMod ) {
 			$this->setNoticeDismissed( $oNotice );
 		}
 
@@ -196,7 +196,7 @@ class AdminNotices {
 	protected function setNoticeDismissed( $oNotice ) {
 		$nTs = Services::Request()->ts();
 
-		if ( $oNotice->dismiss_per_user ) {
+		if ( $oNotice->per_user ) {
 			$oMeta = $this->getCon()->getCurrentUserMeta();
 			if ( $oMeta instanceof PluginUserMeta ) {
 				$sCleanNotice = 'notice_'.str_replace( [ '-', '_' ], '', $oNotice->id );

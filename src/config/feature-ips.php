@@ -20,7 +20,7 @@
       "id":               "visitor-whitelisted",
       "schedule":         "conditions",
       "plugin_page_only": true,
-      "dismiss_per_user": true,
+      "per_user": true,
       "type":             "info"
     }
   },
