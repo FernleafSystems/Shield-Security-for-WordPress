@@ -30,7 +30,10 @@ class Select extends Base\Select {
 	 */
 	public function sumAllEvents() {
 		$aSums = [];
-		$aAllEvents = ( clone $this )->getAllEvents();
+
+		$oNewMe = clone $this;
+		$aAllEvents = $oNewMe->reset()->getAllEvents();
+
 		natsort( $aAllEvents );
 		foreach ( $aAllEvents as $sEvent ) {
 			$aSums[ $sEvent ] = $this->sumEvent( $sEvent );
