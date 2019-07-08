@@ -188,6 +188,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = $oProPlugin->getSubProImportExport()->buildInsightsVars();
 				break;
 
+			case 'reports':
+				$aData = $oProPlugin->getSubProImportExport()->buildInsightsVars();
+				break;
+
 			case 'users':
 				$aData = [
 					'ajax'    => [
@@ -283,6 +287,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
+			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
@@ -344,7 +349,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			],
 			$aData
 		);
-		return $this->renderTemplate( sprintf( '/wpadmin_pages/insights_new/%s/index.twig', $sNavSection ), $aData, true );
+		return $this->renderTemplate( sprintf( '/wpadmin_pages/insights/%s/index.twig', $sNavSection ), $aData, true );
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -684,9 +689,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		/** @var Shield\Databases\IPs\Select $oSelectIp */
 		$oSelectIp = $this->getCon()
-						->getModule_IPs()
-						->getDbHandler()
-						->getQuerySelector();
+						  ->getModule_IPs()
+						  ->getDbHandler()
+						  ->getQuerySelector();
 
 		return [
 			'login'          => [
