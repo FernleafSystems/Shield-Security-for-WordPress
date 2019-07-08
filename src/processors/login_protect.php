@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$sUnique = $this->prefix( $sAsset );
 			wp_register_script(
 				$sUnique,
-				$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+				$oConn->getPluginUrl_Js( $sAsset ),
 				[ 'jquery' ],
 				$oConn->getVersion(),
 				true
@@ -90,38 +90,6 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$aData[ $sSlug ][ 'options' ][ 'email_can_send_verified_at' ]
 			= ( $aData[ $sSlug ][ 'options' ][ 'email_can_send_verified_at' ] > 0 ) ? 1 : 0;
 		return $aData;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 */
-	public function addNotice_email_verification_sent( $aNoticeAttributes ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-
-		if ( $oMod->isEmailAuthenticationOptionOn()
-			 && !$oMod->isEmailAuthenticationActive() && !$oMod->getIfCanSendEmailVerified() ) {
-			$aRenderData = [
-				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => [
-					'title'             => $this->getCon()->getHumanName()
-										   .': '.__( 'Please verify email has been received', 'wp-simple-firewall' ),
-					'need_you_confirm'  => __( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails.", 'wp-simple-firewall' ),
-					'please_click_link' => __( "Please click the link in the email you received.", 'wp-simple-firewall' ),
-					'email_sent_to'     => sprintf(
-						__( "The email has been sent to you at blog admin address: %s", 'wp-simple-firewall' ),
-						get_bloginfo( 'admin_email' )
-					),
-					'how_resend_email'  => __( "Resend verification email", 'wp-simple-firewall' ),
-					'how_turn_off'      => __( "Disable 2FA by email", 'wp-simple-firewall' ),
-				],
-				'ajax'              => [
-					'resend_verification_email' => $oMod->getAjaxActionData( 'resend_verification_email', true ),
-					'disable_2fa_email'         => $oMod->getAjaxActionData( 'disable_2fa_email', true ),
-				]
-			];
-			$this->insertAdminNotice( $aRenderData );
-		}
 	}
 
 	/**
@@ -170,5 +138,14 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function getSubProRename() {
 		return $this->getSubPro( 'rename' );
+	}
+
+	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_email_verification_sent() {
+		return;
 	}
 }

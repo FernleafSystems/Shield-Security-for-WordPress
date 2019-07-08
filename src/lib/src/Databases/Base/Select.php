@@ -283,7 +283,8 @@ class Select extends BaseQuery {
 					->setGroupBy( '' )
 					->setSelectResultsFormat( '' )
 					->setCustomSelect( '' )
-					->setColumnsToSelect( [] );
+					->setColumnsToSelect( [] )
+					->clearWheres();
 	}
 
 	/**

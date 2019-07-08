@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 class Select extends Base\Select {
@@ -19,8 +20,7 @@ class Select extends Base\Select {
 	 * @return int
 	 */
 	public function sumEvents( $aEvents ) {
-		return (int)$this->reset()
-						 ->filterByEvents( $aEvents )
+		return (int)$this->filterByEvents( $aEvents )
 						 ->setColumnsToSelect( [ 'count' ] )
 						 ->sum();
 	}
@@ -36,7 +36,7 @@ class Select extends Base\Select {
 
 		natsort( $aAllEvents );
 		foreach ( $aAllEvents as $sEvent ) {
-			$aSums[ $sEvent ] = $this->sumEvent( $sEvent );
+			$aSums[ $sEvent ] = $this->clearWheres()->sumEvent( $sEvent );
 		}
 		return $aSums;
 	}
@@ -99,6 +99,17 @@ class Select extends Base\Select {
 	 */
 	public function filterByCountGreaterThan( $nGreaterThan ) {
 		return $this->addWhere( 'count', (int)$nGreaterThan, '>' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByDay( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		$oCbn->setTime( 0, 0, 0, 0 )->timestamp;
+		return $this->filterByCreatedAt( $oCbn->setTime( 0, 0, 0, 0 )->timestamp, '>' )
+					->filterByCreatedAt( $oCbn->addDays( 1 )->timestamp, '<' );
 	}
 
 	/**

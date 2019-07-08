@@ -160,6 +160,13 @@ abstract class BaseQuery {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function clearWheres() {
+		return $this->setWheres( [] );
+	}
+
+	/**
 	 * @return int
 	 */
 	protected function getOffset() {

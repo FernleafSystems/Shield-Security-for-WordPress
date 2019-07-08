@@ -30,31 +30,31 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 		$aKeyStats = [
 			'comments'          => [
 				__( 'Comment Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->sumEvents( [ 'spam_block_bot', 'spam_block_human', 'spam_block_recaptcha' ] )
+				$oSelEvents->clearWheres()->sumEvents( [ 'spam_block_bot', 'spam_block_human', 'spam_block_recaptcha' ] )
 			],
 			'firewall'          => [
 				__( 'Firewall Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->sumEvent( 'firewall_block' )
+				$oSelEvents->clearWheres()->sumEvent( 'firewall_block' )
 			],
 			'login_fail'        => [
 				__( 'Login Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->sumEvent( 'login_block' )
+				$oSelEvents->clearWheres()->sumEvent( 'login_block' )
 			],
 			'login_verified'    => [
 				__( 'Login Verified', 'wp-simple-firewall' ),
-				$oSelEvents->sumEvent( '2fa_success' )
+				$oSelEvents->clearWheres()->sumEvent( '2fa_success' )
 			],
 			'start_session'     => [
 				__( 'User Sessions', 'wp-simple-firewall' ),
-				$oSelEvents->sumEvent( 'start_session' )
+				$oSelEvents->clearWheres()->sumEvent( 'start_session' )
 			],
 			'ip_killed'         => [
 				__( 'IP Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->sumEvent( 'conn_kill' )
+				$oSelEvents->clearWheres()->sumEvent( 'conn_kill' )
 			],
 			'ip_transgressions' => [
 				__( 'Total Offenses', 'wp-simple-firewall' ),
-				$oSelEvents->sumEvent( 'ip_offense' )
+				$oSelEvents->clearWheres()->sumEvent( 'ip_offense' )
 			],
 		];
 

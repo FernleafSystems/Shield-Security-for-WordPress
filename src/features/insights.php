@@ -189,7 +189,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'reports':
-				$aData = $oProPlugin->getSubProImportExport()->buildInsightsVars();
+				$aData = $this->buildVars_Reports();
 				break;
 
 			case 'users':
@@ -368,12 +368,35 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$sUnique = $this->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+						$oConn->getPluginUrl_Js( $sAsset ),
 						$aStdDeps,
 						$oConn->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
+					break;
+
+				case 'reports':
+
+					$sAsset = 'chartist.min';
+					$sUnique = $this->prefix( $sAsset );
+					wp_register_script(
+						$sUnique,
+						$oConn->getPluginUrl_Js( $sAsset ),
+						$aStdDeps,
+						$oConn->getVersion(),
+						false
+					);
+					wp_enqueue_script( $sUnique );
+
+					wp_register_style(
+						$sUnique,
+						$oConn->getPluginUrl_Css( $sAsset ),
+						[],
+						$oConn->getVersion(),
+						false
+					);
+					wp_enqueue_style( $sUnique );
 					break;
 
 				case 'scans':
@@ -387,7 +410,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$sUnique = $this->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+						$oConn->getPluginUrl_Js( $sAsset ),
 						$aStdDeps,
 						$oConn->getVersion(),
 						false
@@ -400,7 +423,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
-							$oConn->getPluginUrl_Js( $sAsset.'.js' ),
+							$oConn->getPluginUrl_Js( $sAsset ),
 							array_unique( $aStdDeps ),
 							$oConn->getVersion(),
 							false
@@ -432,6 +455,39 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					break;
 			}
 		}
+	}
+
+	private function buildVars_Reports() {
+		$oEvtsMod = $this->getCon()->getModule_Events();
+		/** @var Shield\Databases\Events\Handler $oDbhEvts */
+		$oDbhEvts = $oEvtsMod->getDbHandler();
+		/** @var Shield\Databases\Events\Select $oSelEvts */
+		$oSelEvts = $oDbhEvts->getQuerySelector();
+
+		$oNow = Services::Request()->carbon();
+
+		$nDays = 0;
+		$aSeries_Offsenses = [];
+		$aLabels = [];
+		do {
+			$aSeries_Offsenses[] = $oSelEvts->filterByDay( $oNow->timestamp )
+											->sumEvent( 'ip_offense' );
+			$aLabels[] = $oNow->toDateString();
+			$oNow->subDay();
+			$nDays++;
+		} while ( $nDays < 7 );
+
+		return [
+			'chart_data' => json_encode(
+				[
+					'labels' => array_reverse( $aLabels ),
+					'series' => [
+						array_reverse( $aSeries_Offsenses )
+					]
+				]
+			)
+
+		];
 	}
 
 	/**
@@ -696,17 +752,21 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		return [
 			'login'          => [
 				'title'   => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->sumEvent( 'login_block' ),
+				'val'     => $oSelEvents->clearWheres()->sumEvent( 'login_block' ),
 				'tooltip' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
 			],
 			'firewall'       => [
 				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->sumEvent( 'firewall_block' ),
+				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
 				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			],
 			'comments'       => [
 				'title'   => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->sumEvents( [ 'spam_block_bot', 'spam_block_human', 'spam_block_recaptcha' ] ),
+				'val'     => $oSelEvents->clearWheres()->sumEvents( [
+					'spam_block_bot',
+					'spam_block_human',
+					'spam_block_recaptcha'
+				] ),
 				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
 			//			'sessions'       => array(
@@ -716,12 +776,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			//			),
 			'transgressions' => [
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->sumEvent( 'ip_offense' ),
+				'val'     => $oSelEvents->clearWheres()->sumEvent( 'ip_offense' ),
 				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
 			'ip_blocks'      => [
 				'title'   => __( 'IP Blocks', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->sumEvent( 'conn_kill' ),
+				'val'     => $oSelEvents->clearWheres()->sumEvent( 'conn_kill' ),
 				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
 			],
 			'blackips'       => [

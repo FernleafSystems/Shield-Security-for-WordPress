@@ -610,7 +610,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
 			$sDep = false;
 			foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
-				$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
+				$sUrl = $this->getPluginUrl_Js( $sAsset );
 				if ( !empty( $sUrl ) ) {
 					$sUnique = $this->prefix( $sAsset );
 					wp_register_script( $sUnique, $sUrl, $sDep ? [ $sDep ] : [], $sVers );
@@ -635,7 +635,7 @@ class Controller extends Shield\Deprecated\Foundation {
 						continue;
 					}
 
-					$sUrl = $this->getPluginUrl_Js( $sAsset.'.js' );
+					$sUrl = $this->getPluginUrl_Js( $sAsset );
 					if ( !empty( $sUrl ) ) {
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script( $sUnique, $sUrl, $sDep ? [ $sDep ] : [], $sVers );
@@ -1259,7 +1259,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Css( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'css/'.$sAsset );
+		return $this->getPluginUrl_Asset( 'css/'.Services::Data()->addExtensionToFilePath( $sAsset, 'css' ) );
 	}
 
 	/**
@@ -1275,7 +1275,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_Js( $sAsset ) {
-		return $this->getPluginUrl_Asset( 'js/'.$sAsset );
+		return $this->getPluginUrl_Asset( 'js/'.Services::Data()->addExtensionToFilePath( $sAsset, 'js' ) );
 	}
 
 	/**

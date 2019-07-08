@@ -300,8 +300,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			],
 			'hrefs'   => [
 				'form_action'   => $oReq->getUri(),
-				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
-				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min.js' ),
+				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
+				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',

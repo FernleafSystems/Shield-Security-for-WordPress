@@ -113,24 +113,10 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @param array $aNoticeAttributes
 	 * @throws \Exception
+	 * @deprecated
 	 */
-	public function addNotice_visitor_whitelisted( $aNoticeAttributes ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oCon = $this->getCon();
-
-		if ( $oCon->getIsPage_PluginAdmin() && $oMod->isVisitorWhitelisted() ) {
-			$aRenderData = [
-				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => [
-					'title'             => sprintf( __( '%s is ignoring you', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-					'your_ip'           => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), $this->ip() ),
-					'notice_message'    => __( 'Your IP address is whitelisted and NO features you activate apply to you.', 'wp-simple-firewall' ),
-					'including_message' => __( 'Including the hiding the WP Login page.', 'wp-simple-firewall' )
-				]
-			];
-			$this->insertAdminNotice( $aRenderData );
-		}
+	public function addNotice_visitor_whitelisted() {
+		return;
 	}
 
 	/**

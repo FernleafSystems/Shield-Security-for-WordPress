@@ -77,36 +77,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @param array $aNoticeAttributes
-	 */
-	protected function addNotice_akismet_running( $aNoticeAttributes ) {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
-
-		// We only warn when the human spam filter is running
-		if ( $oFO->isEnabledHumanCheck() ) {
-
-			$oWpPlugins = Services::WpPlugins();
-			$sPluginFile = $oWpPlugins->findPluginBy( 'Akismet', 'Name' );
-			if ( $oWpPlugins->isActive( $sPluginFile ) ) {
-				$aRenderData = [
-					'notice_attributes' => $aNoticeAttributes,
-					'strings'           => [
-						'title'                   => 'Akismet is Running',
-						'appears_running_akismet' => __( 'It appears you have Akismet Anti-SPAM running alongside the our human Anti-SPAM filter.', 'wp-simple-firewall' ),
-						'not_recommended'         => __( 'This is not recommended and you should disable Akismet.', 'wp-simple-firewall' ),
-						'click_to_deactivate'     => __( 'Click to deactivate Akismet now.', 'wp-simple-firewall' ),
-					],
-					'hrefs'             => [
-						'deactivate' => $oWpPlugins->getUrl_Deactivate( $sPluginFile )
-					]
-				];
-				$this->insertAdminNotice( $aRenderData );
-			}
-		}
-	}
-
-	/**
 	 * When you set a new comment as anything but 'spam' a notification email is sent to the post author.
 	 * We suppress this for when we mark as trash by emptying the email notifications list.
 	 * @param array $aEmails
@@ -118,5 +88,14 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$aEmails = [];
 		}
 		return $aEmails;
+	}
+
+	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_akismet_running() {
+		return;
 	}
 }

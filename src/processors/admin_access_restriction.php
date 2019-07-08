@@ -267,77 +267,19 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	/**
 	 * @param array $aNoticeAttributes
 	 * @throws \Exception
+	 * @deprecated
 	 */
 	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		if ( $this->getCon()->isPluginAdmin() ) {
-			return;
-		}
-
-		$sCurrentPage = Services::WpPost()->getCurrentPage();
-		$sCurrentGetPage = Services::Request()->query( 'page' );
-		if ( !in_array( $sCurrentPage, $oFO->getOptionsPagesToRestrict() ) || !empty( $sCurrentGetPage ) ) {
-			return;
-		}
-
-		$sName = $this->getCon()->getHumanName();
-		$aRenderData = [
-			'notice_attributes' => $aNoticeAttributes,
-			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
-				'notice_message' => __( 'Altering certain options has been restricted by your WordPress security administrator.', 'wp-simple-firewall' )
-									.' '.__( 'Repeated failed attempts to authenticate will probably lock you out of this site.', 'wp-simple-firewall' )
-			],
-			'hrefs'             => [
-				'setting_page' => sprintf(
-					'<a href="%s" title="%s">%s</a>',
-					$oFO->getUrl_AdminPage(),
-					__( 'Admin Access Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
-				)
-			]
-		];
-		add_thickbox();
-		$this->insertAdminNotice( $aRenderData );
+		return;
 	}
 
 	/**
 	 * @param array $aNoticeAttributes
 	 * @throws \Exception
+	 * @deprecated
 	 */
 	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
-		$oCon = $this->getCon();
-		if ( $oCon->isPluginAdmin() ) {
-			return;
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-
-		if ( !in_array( Services::WpPost()->getCurrentPage(), $this->getUserPagesToRestrict() ) ) {
-			return;
-		}
-
-		$sName = $oCon->getHumanName();
-		$aRenderData = [
-			'notice_attributes' => $aNoticeAttributes,
-			'strings'           => [
-				'title'          => sprintf( __( '%s Security Restrictions Applied', 'wp-simple-firewall' ), $sName ),
-				'notice_message' => __( 'Editing existing administrators, promoting existing users to the administrator role, or deleting administrator users is currently restricted.', 'wp-simple-firewall' )
-									.' '.__( 'Please authenticate with the Security Admin system before attempting any administrator user modifications.', 'wp-simple-firewall' ),
-				'unlock_link'    => $this->getUnlockLinkHtml( __( 'Unlock Now', 'wp-simple-firewall' ) ),
-			],
-			'hrefs'             => [
-				'setting_page' => sprintf(
-					'<a href="%s" title="%s">%s</a>',
-					$oFO->getUrl_AdminPage(),
-					__( 'Security Admin Login', 'wp-simple-firewall' ),
-					sprintf( __( 'Go here to manage settings and authenticate with the %s plugin.', 'wp-simple-firewall' ), $sName )
-				)
-			]
-		];
-		$this->insertAdminNotice( $aRenderData );
+		return;
 	}
 
 	/**
