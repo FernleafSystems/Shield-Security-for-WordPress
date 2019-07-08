@@ -550,58 +550,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'gen_backup_codes':
-					$aAjaxResponse = $this->ajaxExec_GenBackupCodes();
-					break;
-
-				case 'del_backup_codes':
-					$aAjaxResponse = $this->ajaxExec_DeleteBackupCodes();
-					break;
-
-				case 'resend_verification_email':
-					$aAjaxResponse = $this->ajaxExec_ResendEmailVerification();
-					break;
-
-				case 'disable_2fa_email':
-					$aAjaxResponse = $this->ajaxExec_Disable2faEmail();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_GenBackupCodes() {
-		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
-		$oPro = $this->loadProcessor();
-		$sPass = $oPro->getSubProIntent()
-					  ->getProcessorBackupCodes()
-					  ->resetSecret( Services::WpUsers()->getCurrentWpUser() );
-
-		foreach ( [ 20, 15, 10, 5 ] as $nPos ) {
-			$sPass = substr_replace( $sPass, '-', $nPos, 0 );
-		}
-
-		return [
-			'code'    => $sPass,
-			'success' => true
-		];
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isEnabledBotJs() {
@@ -616,59 +564,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function getAntiBotFormSelectors() {
 		$aIds = $this->getOpt( 'antibot_form_ids', [] );
 		return is_array( $aIds ) ? $aIds : [];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_DeleteBackupCodes() {
-
-		/** @var ICWP_WPSF_Processor_LoginProtect $oPro */
-		$oPro = $this->loadProcessor();
-		$oPro->getSubProIntent()
-			 ->getProcessorBackupCodes()
-			 ->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
-		$this->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
-		return [
-			'success' => true
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_Disable2faEmail() {
-		$this->setEnabled2FaEmail( false );
-		return [
-			'success'     => true,
-			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
-			'page_reload' => true
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_ResendEmailVerification() {
-		$bSuccess = true;
-
-		if ( !$this->isEmailAuthenticationOptionOn() ) {
-			$sMessage = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
-			$bSuccess = false;
-		}
-		else if ( $this->getIfCanSendEmailVerified() ) {
-			$sMessage = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
-		}
-		else {
-			$sMessage = __( 'Verification email resent.', 'wp-simple-firewall' );
-			$this->setIfCanSendEmail( false )
-				 ->sendEmailVerifyCanSend();
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage
-		];
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -757,8 +652,15 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @return Shield\Modules\LoginGuard\AdminNotices
 	 */
-	public function loadAdminNotices() {
+	protected function loadAdminNotices() {
 		return new Shield\Modules\LoginGuard\AdminNotices();
+	}
+
+	/**
+	 * @return Shield\Modules\Autoupdates\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\Autoupdates\AjaxHandler;
 	}
 
 	/**

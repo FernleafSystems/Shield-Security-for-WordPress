@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
 		$sPath = Services::Request()->getPath();

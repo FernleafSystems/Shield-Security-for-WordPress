@@ -325,7 +325,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( isset( $this->aPageParams ) ) {
 			return $this->aPageParams;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oFO */
 		$oFO = $this->getMod();
 
 		$this->aPageParams = $this->getRawRequestParams();

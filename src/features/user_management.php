@@ -8,128 +8,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	use Shield\AuditTrail\Auditor;
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'render_table_sessions':
-					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
-					break;
-
-				case 'session_delete':
-					$aAjaxResponse = $this->ajaxExec_SessionDelete();
-					break;
-
-				case 'bulk_action':
-					$aAjaxResponse = $this->ajaxExec_BulkItemAction();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BulkItemAction() {
-		$oReq = Services::Request();
-
-		$bSuccess = false;
-
-		$aIds = $oReq->post( 'ids' );
-		if ( empty( $aIds ) || !is_array( $aIds ) ) {
-			$bSuccess = false;
-			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
-		}
-		else if ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
-			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
-		}
-		else {
-			$nYourId = $this->getSession()->id;
-			$bIncludesYourSession = in_array( $nYourId, $aIds );
-
-			if ( $bIncludesYourSession && ( count( $aIds ) == 1 ) ) {
-				$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
-			}
-			else {
-				$bSuccess = true;
-
-				/** @var Shield\Databases\Session\Delete $oDel */
-				$oDel = $this->getDbHandler_Sessions()->getQueryDeleter();
-				foreach ( $aIds as $nId ) {
-					if ( is_numeric( $nId ) && ( $nId != $nYourId ) ) {
-						$oDel->deleteById( $nId );
-						$this->getCon()->fireEvent( 'terminate_session' );
-					}
-				}
-				$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );
-				if ( $bIncludesYourSession ) {
-					$sMessage .= ' *'.__( 'Your session was retained', 'wp-simple-firewall' );
-				}
-			}
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_SessionDelete() {
-		$bSuccess = false;
-		$nId = Services::Request()->post( 'rid', -1 );
-		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = __( 'Invalid session selected', 'wp-simple-firewall' );
-		}
-		else if ( $this->getSession()->id === $nId ) {
-			$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
-		}
-		else if ( $this->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = __( 'User session deleted', 'wp-simple-firewall' );
-			$bSuccess = true;
-		}
-		else {
-			$sMessage = __( "User session wasn't deleted", 'wp-simple-firewall' );
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	private function ajaxExec_BuildTableTraffic() {
-		/** @var ICWP_WPSF_Processor_UserManagement $oPro */
-		$oPro = $this->getProcessor();
-
-		// first clean out the expired sessions before display
-		$oPro->getProcessorSessions()->cleanExpiredSessions();
-
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oSecAdminMod */
-		$oSecAdminMod = $this->getCon()->getModule( 'admin_access_restriction' );
-
-		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
-			->setMod( $this )
-			->setDbHandler( $this->getDbHandler_Sessions() )
-			->setSecAdminUsers( $oSecAdminMod->getSecurityAdminUsers() );
-
-		return [
-			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
-		];
-	}
-
-	/**
 	 * Should have no default email. If no email is set, no notification is sent.
 	 * @return string
 	 */
@@ -514,6 +392,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * @return Shield\Modules\UserManagement\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\UserManagement\AjaxHandler;
 	}
 
 	/**

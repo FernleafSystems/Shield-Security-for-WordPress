@@ -48,6 +48,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private $oDbh;
 
 	/**
+	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AjaxHandlerShield
+	 */
+	private $oAjax;
+
+	/**
 	 * @var Shield\Modules\Base\AdminNotices
 	 */
 	private $oAdminNotices;
@@ -102,9 +107,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
 
 		if ( $this->isModuleRequest() ) {
-			add_filter( $this->prefix( 'ajaxAction' ), [ $this, 'handleAjax' ] );
-			add_filter( $this->prefix( 'ajaxAuthAction' ), [ $this, 'handleAuthAjax' ] );
-			add_filter( $this->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleNonAuthAjax' ] );
+
+			if ( Services::WpGeneral()->isAjax() ) {
+				$this->getAjax();
+			}
 
 			if ( $oReq->request( 'action' ) == $this->prefix()
 				 && check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' )
@@ -244,86 +250,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * This is ajax for anyone logged-in or not logged-care. Due care must be taken here.
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAjax( $aAjaxResponse ) {
-		return $this->normaliseAjaxResponse( $aAjaxResponse );
-	}
-
-	/**
-	 * Ajax for any request not logged-in.
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleNonAuthAjax( $aAjaxResponse ) {
-		return $this->normaliseAjaxResponse( $aAjaxResponse );
-	}
-
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'mod_opts_form_render':
-					$aAjaxResponse = $this->ajaxExec_ModOptionsFormRender();
-					break;
-
-				case 'mod_options':
-					$aAjaxResponse = $this->ajaxExec_ModOptions();
-					break;
-
-				case 'wiz_process_step':
-					if ( $this->hasWizard() ) {
-						$aAjaxResponse = $this->getWizardHandler()
-											  ->ajaxExec_WizProcessStep();
-					}
-					break;
-
-				case 'wiz_render_step':
-					if ( $this->hasWizard() ) {
-						$aAjaxResponse = $this->getWizardHandler()
-											  ->ajaxExec_WizRenderStep();
-					}
-					break;
-			}
-		}
-
-		return $this->normaliseAjaxResponse( $aAjaxResponse );
-	}
-
-	/**
-	 * We check for empty since if it's empty, there's nothing to normalize. It's a filter,
-	 * so if we send something back non-empty, it'll be treated like a "handled" response and
-	 * processing will finish
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	protected function normaliseAjaxResponse( $aAjaxResponse ) {
-		if ( !empty( $aAjaxResponse ) ) {
-			$aAjaxResponse = array_merge(
-				[
-					'success'     => false,
-					'page_reload' => false,
-					'message'     => 'Unknown',
-					'html'        => '',
-				],
-				$aAjaxResponse
-			);
-		}
-		return $aAjaxResponse;
-	}
-
-	/**
 	 * @param string $sEncoding
 	 * @return array
 	 */
-	protected function getAjaxFormParams( $sEncoding = 'none' ) {
+	public function getAjaxFormParams( $sEncoding = 'none' ) {
 		$oReq = Services::Request();
 		$aFormParams = [];
 		$sRaw = $oReq->post( 'form_params', '' );
@@ -539,7 +469,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return string
 	 */
 	protected function getOptionsStorageKey() {
-		return $this->prefixOptionKey( $this->sOptionsStoreKey ).'_options';
+		return $this->getCon()->prefixOption( $this->sOptionsStoreKey ).'_options';
 	}
 
 	/**
@@ -618,7 +548,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	public function isModuleEnabled() {
 		$oOpts = $this->getOptionsVo();
 
-		if ( $this->isAutoEnabled() ) {
+		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true ) {
+			// Auto enabled modules always run regardless
 			$bEnabled = true;
 		}
 		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
@@ -650,13 +581,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function getEnableModOptKey() {
 		return 'enable_'.$this->getSlug();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isAutoEnabled() {
-		return ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
 	}
 
 	/**
@@ -961,7 +885,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @return bool
 	 */
-	protected function isModuleRequest() {
+	public function isModuleRequest() {
 		return ( $this->getModSlug() == Services::Request()->request( 'mod_slug' ) );
 	}
 
@@ -1003,9 +927,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return ICWP_WPSF_Wizard_Base|null
+	 * @return \ICWP_WPSF_Wizard_Base|null
 	 */
-	protected function getWizardHandler() {
+	public function getWizardHandler() {
 		if ( !isset( $this->oWizard ) ) {
 			$sClassName = $this->getWizardClassName();
 			if ( !class_exists( $sClassName ) ) {
@@ -1240,42 +1164,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function ajaxExec_ModOptions() {
-
-		$sName = $this->getCon()->getHumanName();
-
-		try {
-			$this->saveOptionsSubmit();
-			$bSuccess = true;
-			$sMessage = sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $sName );
-		}
-		catch ( \Exception $oE ) {
-			$bSuccess = false;
-			$sMessage = sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $sName )
-						.' '.$oE->getMessage();
-		}
-
-		return [
-			'success' => $bSuccess,
-			'html'    => '', //we reload the page
-			'message' => $sMessage
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_ModOptionsFormRender() {
-		return [
-			'success' => true,
-			'html'    => $this->renderOptionsForm(),
-			'message' => 'loaded'
-		];
-	}
-
-	/**
 	 */
 	public function handleModRequest() {
 	}
@@ -1283,7 +1171,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @throws \Exception
 	 */
-	protected function saveOptionsSubmit() {
+	public function saveOptionsSubmit() {
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
@@ -1458,15 +1346,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function hasEncryptOption() {
 		return function_exists( 'md5' );
-	}
-
-	/**
-	 * Prefixes an option key only if it's needed
-	 * @param $sKey
-	 * @return string
-	 */
-	public function prefixOptionKey( $sKey = '' ) {
-		return $this->prefix( $sKey, '_' );
 	}
 
 	/**
@@ -1721,7 +1600,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @return string
 	 */
-	protected function renderOptionsForm() {
+	public function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
 			$sTemplate = 'snippets/options_form.twig';
@@ -1974,45 +1853,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return $this
-	 */
-	protected function resetHelpVideoOptions() {
-		return $this->setOpt( 'help_video_options', [] );
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function setHelpVideoClosed() {
-		return $this->setHelpVideoOption( 'closed', true );
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function setHelpVideoDisplayed() {
-		return $this->setHelpVideoOption( 'displayed', true );
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function setHelpVideoPlayed() {
-		return $this->setHelpVideoOption( 'played', true );
-	}
-
-	/**
-	 * @param string          $sKey
-	 * @param string|bool|int $mValue
-	 * @return $this
-	 */
-	protected function setHelpVideoOption( $sKey, $mValue ) {
-		$aOpts = $this->getHelpVideoOptions();
-		$aOpts[ $sKey ] = $mValue;
-		return $this->setOpt( 'help_video_options', $aOpts );
-	}
-
-	/**
 	 * @param string $sOpt
 	 * @param int    $nAt
 	 * @return $this
@@ -2073,6 +1913,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
+	 * @return Shield\Modules\Base\AjaxHandlerShield
+	 */
+	private function getAjax() {
+		if ( !isset( $this->oAjax ) ) {
+			$this->oAjax = $this->loadAjaxHandler()->setMod( $this );
+		}
+		return $this->oAjax;
+	}
+
+	/**
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
@@ -2085,7 +1935,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @return Shield\Modules\Base\AdminNotices
 	 */
-	public function loadAdminNotices() {
+	protected function loadAdminNotices() {
 		return new Shield\Modules\Base\AdminNotices();
 	}
 
@@ -2094,6 +1944,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function loadDbHandler() {
 		return false;
+	}
+
+	/**
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AjaxHandlerShield|mixed
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\Base\AjaxHandlerShield;
 	}
 
 	/**
@@ -2132,5 +1989,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function action_doFeatureShutdown() {
 		$this->onPluginShutdown();
+	}
+
+	/**
+	 * Prefixes an option key only if it's needed
+	 * @param $sKey
+	 * @return string
+	 * @deprecated
+	 */
+	public function prefixOptionKey( $sKey = '' ) {
+		return $this->prefix( $sKey, '_' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8
+	 */
+	protected function isAutoEnabled() {
+		return ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
 	}
 }

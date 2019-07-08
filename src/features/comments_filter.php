@@ -207,7 +207,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return Shield\Modules\CommentsFilter\AdminNotices
 	 */
-	public function loadAdminNotices() {
+	protected function loadAdminNotices() {
 		return new Shield\Modules\CommentsFilter\AdminNotices();
 	}
 

@@ -39,148 +39,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		return ( $this->getOptTransgressionLimit() > 0 );
 	}
 
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'ip_insert':
-					$aAjaxResponse = $this->ajaxExec_AddIp();
-					break;
-
-				case 'ip_delete':
-					$aAjaxResponse = $this->ajaxExec_IpDelete();
-					break;
-
-				case 'render_table_ip':
-					$aAjaxResponse = $this->ajaxExec_BuildTableIps();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	protected function ajaxExec_IpDelete() {
-
-		$bSuccess = false;
-		$nId = Services::Request()->post( 'rid', -1 );
-		if ( !is_numeric( $nId ) || $nId < 0 ) {
-			$sMessage = __( 'Invalid entry selected', 'wp-simple-firewall' );
-		}
-		else if ( $this->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
-			$sMessage = __( 'IP address deleted', 'wp-simple-firewall' );
-			$bSuccess = true;
-		}
-		else {
-			$sMessage = __( "IP address wasn't deleted from the list", 'wp-simple-firewall' );
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	protected function ajaxExec_AddIp() {
-		/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $this->getProcessor();
-		$oIpServ = Services::IP();
-
-		$aFormParams = $this->getAjaxFormParams();
-
-		$bSuccess = false;
-		$sMessage = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
-
-		$sIp = preg_replace( '#[^/:\.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
-		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
-
-		$bAcceptableIp = $oIpServ->isValidIp( $sIp ) || $oIpServ->isValidIp4Range( $sIp );
-
-		$bIsBlackList = $sList != self::LIST_MANUAL_WHITE;
-
-		// TODO: Bring this IP verification out of here and make it more accessible
-		if ( empty( $sIp ) ) {
-			$sMessage = __( "IP address not provided", 'wp-simple-firewall' );
-		}
-		else if ( empty( $sList ) ) {
-			$sMessage = __( "IP list not provided", 'wp-simple-firewall' );
-		}
-		else if ( !$bAcceptableIp ) {
-			$sMessage = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
-		}
-		else if ( $bIsBlackList && !$this->isPremium() ) {
-			$sMessage = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
-		}
-		else if ( $bIsBlackList && $oIpServ->isValidIp4Range( $sIp ) ) { // TODO
-			$sMessage = __( "IP ranges aren't currently supported for blacklisting.", 'wp-simple-firewall' );
-		}
-		else if ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
-			$sMessage = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
-		}
-		else if ( $bIsBlackList && in_array( $sIp, $this->getReservedIps() ) ) {
-			$sMessage = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
-		}
-		else {
-			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';
-			switch ( $sList ) {
-
-				case self::LIST_MANUAL_WHITE:
-					$oIp = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
-					break;
-
-				case self::LIST_MANUAL_BLACK:
-					$oIp = $oProcessor->addIpToBlackList( $sIp, $sLabel );
-					if ( !empty( $oIp ) ) {
-						/** @var Shield\Databases\IPs\Update $oUpd */
-						$oUpd = $this->getDbHandler()->getQueryUpdater();
-						$oUpd->updateTransgressions( $oIp, $this->getOptTransgressionLimit() );
-					}
-					break;
-
-				default:
-					$oIp = null;
-					break;
-			}
-
-			if ( !empty( $oIp ) ) {
-				$sMessage = __( 'IP address added successfully', 'wp-simple-firewall' );
-				$bSuccess = true;
-			}
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_BuildTableIps() {
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getProcessor();
-
-		// First Clean
-		$oPro->cleanupDatabase();
-
-		$oTableBuilder = ( new Shield\Tables\Build\Ip() )
-			->setMod( $this )
-			->setDbHandler( $this->getDbHandler() );
-
-		return [
-			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
-		];
-	}
-
 	protected function doExtraSubmitProcessing() {
 		if ( !in_array( $this->getOpt( 'auto_expire' ), [ 'minute', 'hour', 'day', 'week' ] ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
@@ -450,8 +308,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	/**
 	 * @return Shield\Modules\IPs\AdminNotices
 	 */
-	public function loadAdminNotices() {
+	protected function loadAdminNotices() {
 		return new Shield\Modules\IPs\AdminNotices();
+	}
+
+	/**
+	 * @return Shield\Modules\IPs\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\IPs\AjaxHandler;
 	}
 
 	/**

@@ -33,12 +33,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	private function deleteAllPluginCrons() {
+		$oCon = $this->getCon();
 		$oWpCron = Services::WpCron();
 
 		foreach ( $oWpCron->getCrons() as $nKey => $aCronArgs ) {
 			foreach ( $aCronArgs as $sHook => $aCron ) {
 				if ( strpos( $sHook, $this->prefix() ) === 0
-					 || strpos( $sHook, $this->prefixOptionKey() ) === 0 ) {
+					 || strpos( $sHook, $oCon->prefixOption() ) === 0 ) {
 					$oWpCron->deleteCronJob( $sHook );
 				}
 			}
@@ -149,73 +150,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'plugin_badge_close':
-					$aAjaxResponse = $this->ajaxExec_PluginBadgeClose();
-					break;
-
-				case 'set_plugin_tracking':
-					if ( !$this->isTrackingPermissionSet() ) {
-						$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
-					}
-					break;
-
-				case 'send_deactivate_survey':
-					$aAjaxResponse = $this->ajaxExec_SendDeactivateSurvey();
-					break;
-			}
-		}
-		return parent::handleAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'bulk_action':
-					$aAjaxResponse = $this->ajaxExec_BulkItemAction();
-					break;
-
-				case 'delete_forceoff':
-					$aAjaxResponse = $this->ajaxExec_DeleteForceOff();
-					break;
-
-				case 'render_table_adminnotes':
-					$aAjaxResponse = $this->ajaxExec_RenderTableAdminNotes();
-					break;
-
-				case 'note_delete':
-					$aAjaxResponse = $this->ajaxExec_AdminNotesDelete();
-					break;
-
-				case 'note_insert':
-					$aAjaxResponse = $this->ajaxExec_AdminNotesInsert();
-					break;
-
-				case 'import_from_site':
-					$aAjaxResponse = $this->ajaxExec_ImportFromSite();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
 	 */
 	public function handleModRequest() {
 		switch ( Services::Request()->request( 'exec' ) ) {
@@ -260,202 +194,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			[ 'inav' => 'importexport' ],
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_BulkItemAction() {
-		$oReq = Services::Request();
-
-		$bSuccess = false;
-
-		$aIds = $oReq->post( 'ids' );
-		if ( empty( $aIds ) || !is_array( $aIds ) ) {
-			$bSuccess = false;
-			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
-		}
-		else if ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
-			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
-		}
-		else {
-			/** @var Shield\Databases\AdminNotes\Delete $oDel */
-			$oDel = $this->getDbHandler_Notes()->getQueryDeleter();
-			foreach ( $aIds as $nId ) {
-				if ( is_numeric( $nId ) ) {
-					$oDel->deleteById( $nId );
-				}
-			}
-			$bSuccess = true;
-			$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_PluginBadgeClose() {
-		$bSuccess = Services::Response()
-							->cookieSet(
-								$this->getCookieIdBadgeState(),
-								'closed',
-								DAY_IN_SECONDS
-							);
-		return [
-			'success' => $bSuccess,
-			'message' => $bSuccess ? 'Badge Closed' : 'Badge Not Closed'
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_SetPluginTrackingPerm() {
-		$this->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
-		return [ 'success' => true ];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_SendDeactivateSurvey() {
-		$aResults = [];
-		foreach ( $_POST as $sKey => $sValue ) {
-			if ( strpos( $sKey, 'reason_' ) === 0 ) {
-				$aResults[] = str_replace( 'reason_', '', $sKey ).': '.$sValue;
-			}
-		}
-		$this->getEmailProcessor()
-			 ->send(
-				 $this->getSurveyEmail(),
-				 'Shield Deactivation Survey',
-				 implode( "\n<br/>", $aResults )
-			 );
-		return [ 'success' => true ];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_DeleteForceOff() {
-		$bStillActive = $this->getCon()
-							 ->deleteForceOffFile()
-							 ->getIfForceOffActive();
-		if ( $bStillActive ) {
-			$this->setFlashAdminNotice( __( 'File could not be automatically removed.', 'wp-simple-firewall' ), true );
-		}
-		return [ 'success' => !$bStillActive ];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNotesDelete() {
-
-		$sItemId = Services::Request()->post( 'rid' );
-		if ( empty( $sItemId ) ) {
-			$sMessage = __( 'Note not found.', 'wp-simple-firewall' );
-		}
-		else {
-			try {
-				$bSuccess = $this->getDbHandler_Notes()
-								 ->getQueryDeleter()
-								 ->deleteById( $sItemId );
-
-				if ( $bSuccess ) {
-					$sMessage = __( 'Note deleted', 'wp-simple-firewall' );
-				}
-				else {
-					$sMessage = __( "Note couldn't be deleted", 'wp-simple-firewall' );
-				}
-			}
-			catch ( \Exception $oE ) {
-				$sMessage = $oE->getMessage();
-			}
-		}
-
-		return [
-			'success' => true,
-			'message' => $sMessage
-		];
-	}
-
-	private function ajaxExec_ImportFromSite() {
-		$bSuccess = false;
-		$aFormParams = array_merge(
-			[
-				'confirm' => 'N'
-			],
-			$this->getAjaxFormParams()
-		);
-
-		// TODO: align with wizard AND combine with file upload errors
-		if ( $aFormParams[ 'confirm' ] !== 'Y' ) {
-			$sMessage = __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' );
-		}
-		else {
-			$sMasterSiteUrl = $aFormParams[ 'MasterSiteUrl' ];
-			$sSecretKey = $aFormParams[ 'MasterSiteSecretKey' ];
-			$bEnabledNetwork = $aFormParams[ 'ShieldNetwork' ] === 'Y';
-			$bDisableNetwork = $aFormParams[ 'ShieldNetwork' ] === 'N';
-			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
-
-			/** @var ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $this->getProcessor();
-			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$nCode = $oP->getSubProImportExport()
-						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
-			$bSuccess = $nCode == 0;
-			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
-		}
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AdminNotesInsert() {
-		$bSuccess = false;
-		$aFormParams = $this->getAjaxFormParams();
-
-		$sNote = isset( $aFormParams[ 'admin_note' ] ) ? $aFormParams[ 'admin_note' ] : '';
-		if ( !$this->getCanAdminNotes() ) {
-			$sMessage = __( 'Sorry, Admin Notes is only available for Pro subscriptions.', 'wp-simple-firewall' );
-		}
-		else if ( empty( $sNote ) ) {
-			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
-		}
-		else {
-			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$oInserter = $this->getDbHandler_Notes()->getQueryInserter();
-			$bSuccess = $oInserter->create( $sNote );
-			$sMessage = $bSuccess ? __( 'Note created successfully.', 'wp-simple-firewall' ) : __( 'Note could not be created.', 'wp-simple-firewall' );
-		}
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_RenderTableAdminNotes() {
-		return [
-			'success' => true,
-			'html'    => ( new Shield\Tables\Build\AdminNotes() )
-				->setMod( $this )
-				->setDbHandler( $this->getDbHandler_Notes() )
-				->buildTable()
-		];
 	}
 
 	/**
@@ -588,7 +326,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return int
 	 */
 	public function getFirstInstallDate() {
-		return Services::WpGeneral()->getOption( $this->prefixOptionKey( 'install_date' ) );
+		return Services::WpGeneral()->getOption( $this->getCon()->prefixOption( 'install_date' ) );
 	}
 
 	/**
@@ -654,7 +392,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$oWP = Services::WpGeneral();
 		$nNow = Services::Request()->ts();
 
-		$sOptKey = $this->prefixOptionKey( 'install_date' );
+		$sOptKey = $this->getCon()->prefixOption( 'install_date' );
 
 		$nWpDate = $oWP->getOption( $sOptKey );
 		if ( empty( $nWpDate ) ) {
@@ -1111,8 +849,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return Shield\Modules\Plugin\AdminNotices
 	 */
-	public function loadAdminNotices() {
+	protected function loadAdminNotices() {
 		return new Shield\Modules\Plugin\AdminNotices();
+	}
+
+	/**
+	 * @return Shield\Modules\Plugin\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\Plugin\AjaxHandler;
 	}
 
 	/**
@@ -1132,7 +877,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return string
 	 */
-	private function getSurveyEmail() {
+	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
 	}
 

@@ -48,7 +48,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return $this
 	 */
-	protected function clearLicenseData() {
+	public function clearLicenseData() {
 		return $this->setOpt( 'license_data', [] );
 	}
 
@@ -61,122 +61,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'license_handling':
-					$aAjaxResponse = $this->ajaxExec_LicenseHandling();
-					break;
-
-				case 'connection_debug':
-					$aAjaxResponse = $this->ajaxExec_ConnectionDebug();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_LicenseHandling() {
-		$bSuccess = false;
-		$sMessage = 'Unsupported license action';
-
-		$sLicenseAction = Services::Request()->post( 'license-action' );
-
-		if ( $sLicenseAction == 'clear' ) {
-			$bSuccess = true;
-			$this->deactivate( 'cleared' );
-			$this->clearLicenseData();
-			$sMessage = __( 'Success', 'wp-simple-firewall' ).'! '
-						.__( 'Reloading page', 'wp-simple-firewall' ).'...';
-		}
-		else if ( $sLicenseAction == 'check' ) {
-
-			$nCheckInterval = $this->getLicenseNotCheckedForInterval();
-			if ( $nCheckInterval < 20 ) {
-				$nWait = 20 - $nCheckInterval;
-				$sMessage = sprintf(
-					__( 'Please wait %s before attempting another license check.', 'wp-simple-firewall' ),
-					sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
-				);
-			}
-			else {
-				$bSuccess = $this->verifyLicense( true )
-								 ->hasValidWorkingLicense();
-				$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
-			}
-		}
-		else if ( $sLicenseAction == 'remove' ) {
-			$oLicense = ( new Utilities\Licenses\Lookup() )
-				->deactivateLicense(
-					$this->getLicenseStoreUrl(),
-					$this->getLicenseKey(),
-					$this->getLicenseItemId()
-				);
-			if ( $oLicense ) {
-				$bSuccess = $oLicense->success;
-			}
-			$this->deactivate( 'User submitted deactivation' );
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_ConnectionDebug() {
-		$bSuccess = false;
-
-		$oHttpReq = Services::HttpRequest()
-							->request(
-								add_query_arg( [ 'license_ping' => 'Y' ], $this->getLicenseStoreUrl() ),
-								[
-									'body' => [ 'ping' => 'pong' ]
-								],
-								'POST'
-							);
-
-		if ( !$oHttpReq->isSuccess() ) {
-			$sResult = implode( '; ', $oHttpReq->lastError->get_error_messages() );
-		}
-		else if ( !empty( $oHttpReq->lastResponse->body ) ) {
-			$aResult = @json_decode( $oHttpReq->lastResponse->body, true );
-			if ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) {
-				$bSuccess = true;
-				$sResult = 'Successful - no problems detected communicating with license server.';
-			}
-			else {
-				$sResult = 'Unknown failure due to unexpected response.';
-			}
-		}
-		else {
-			$sResult = 'Unknown error as we could not get a response back from the server.';
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sResult
-		];
-	}
-
-	/**
 	 * @param string $sDeactivatedReason
 	 */
-	private function deactivate( $sDeactivatedReason = '' ) {
+	public function deactivate( $sDeactivatedReason = '' ) {
 		if ( $this->isLicenseActive() ) {
 			$this->setOptAt( 'license_deactivated_at' );
 		}
@@ -448,7 +335,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return int
 	 */
-	private function getLicenseNotCheckedForInterval() {
+	public function getLicenseNotCheckedForInterval() {
 		return ( Services::Request()->ts() - $this->getLicenseLastCheckedAt() );
 	}
 
@@ -623,6 +510,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	public function buildInsightsVars() {
 		$oWp = Services::WpGeneral();
+		$oCon = $this->getCon();
 		$oCarbon = Services::Request()->carbon();
 
 		$oCurrent = $this->loadLicense();
@@ -662,7 +550,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			],
 			'inputs'  => [
 				'license_key' => [
-					'name'      => $this->prefixOptionKey( 'license_key' ),
+					'name'      => $oCon->prefixOption( 'license_key' ),
 					'maxlength' => $this->getDef( 'license_key_length' ),
 				]
 			],
@@ -689,6 +577,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'strings' => $this->getStrings()->getDisplayStrings(),
 		];
 		return $aData;
+	}
+
+	/**
+	 * @return Shield\Modules\License\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\License\AjaxHandler;
 	}
 
 	/**

@@ -34,50 +34,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-		$oReq = Services::Request();
-
-		if ( empty( $aAjaxResponse ) ) {
-
-			$sExecAction = $oReq->request( 'exec' );
-			switch ( $sExecAction ) {
-
-				case 'start_scans':
-					$aAjaxResponse = $this->ajaxExec_StartScans();
-					break;
-
-				case 'bulk_action':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'bulk_action' ) );
-					break;
-
-				case 'item_asset_accept':
-				case 'item_asset_deactivate':
-				case 'item_asset_reinstall':
-				case 'item_delete':
-				case 'item_ignore':
-				case 'item_repair':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sExecAction ) );
-					break;
-
-				case 'render_table_scan':
-					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
-					break;
-
-				case 'plugin_reinstall':
-					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
 	 * @param Shield\Databases\Scanner\EntryVO $oEntryVo
 	 * @return string
 	 */
@@ -85,31 +41,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aActionNonce = $this->getNonceActionData( 'scan_file_download' );
 		$aActionNonce[ 'rid' ] = $oEntryVo->id;
 		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_PluginReinstall() {
-		$oReq = Services::Request();
-		$bReinstall = (bool)$oReq->post( 'reinstall' );
-		$bActivate = (bool)$oReq->post( 'activate' );
-		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
-
-		if ( $bReinstall ) {
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$bActivate = $oP->getSubProScanner()
-							->getSubProcessorPtg()
-							->reinstall( $sFile )
-						 && $bActivate;
-		}
-
-		if ( $bActivate ) {
-			Services::WpPlugins()->activate( $sFile );
-		}
-
-		return [ 'success' => true ];
 	}
 
 	/**
@@ -671,156 +602,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function ajaxExec_BuildTableScan() {
-
-		switch ( Services::Request()->post( 'fScan' ) ) {
-
-			case 'apc':
-				$oTableBuilder = new Shield\Tables\Build\ScanApc();
-				break;
-
-			case 'mal':
-				$oTableBuilder = new Shield\Tables\Build\ScanMal();
-				break;
-
-			case 'wcf':
-				$oTableBuilder = new Shield\Tables\Build\ScanWcf();
-				break;
-
-			case 'ptg':
-				$oTableBuilder = new Shield\Tables\Build\ScanPtg();
-				break;
-
-			case 'ufc':
-				$oTableBuilder = new Shield\Tables\Build\ScanUfc();
-				break;
-
-			case 'wpv':
-				$oTableBuilder = new Shield\Tables\Build\ScanWpv();
-				break;
-
-			default:
-				break;
-		}
-
-		if ( empty( $oTableBuilder ) ) {
-			$sHtml = 'SCAN SLUG NOT SPECIFIED';
-		}
-		else {
-			$sHtml = $oTableBuilder
-				->setMod( $this )
-				->setDbHandler( $this->getDbHandler() )
-				->buildTable();
-		}
-
-		return [
-			'success' => !empty( $oTableBuilder ),
-			'html'    => $sHtml
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_StartScans() {
-		$bSuccess = false;
-		$bPageReload = false;
-		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
-		$aFormParams = $this->getAjaxFormParams();
-
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oScanPro = $oP->getSubProScanner();
-		if ( !empty( $aFormParams ) ) {
-			foreach ( array_keys( $aFormParams ) as $sScan ) {
-
-				$oTablePro = $oScanPro->getScannerFromSlug( $sScan );
-
-				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
-					$oTablePro->doScan();
-
-					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
-						$oTablePro->resetIgnoreStatus();
-					}
-					if ( isset( $aFormParams[ 'opt_clear_notification' ] ) ) {
-						$oTablePro->resetNotifiedStatus();
-					}
-
-					$bSuccess = true;
-					$bPageReload = true;
-					$sMessage = __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...';
-				}
-			}
-		}
-
-		return [
-			'success'     => $bSuccess,
-			'page_reload' => $bPageReload,
-			'message'     => $sMessage,
-		];
-	}
-
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	private function ajaxExec_ScanItemAction( $sAction ) {
-		$oReq = Services::Request();
-
-		$bSuccess = false;
-
-		$sItemId = $oReq->post( 'rid' );
-		$aItemIds = $oReq->post( 'ids' );
-		$sScannerSlug = $oReq->post( 'fScan' );
-
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oTablePro = $oP->getSubProScanner()->getScannerFromSlug( $sScannerSlug );
-
-		if ( empty( $oTablePro ) ) {
-			$sMessage = __( 'Unsupported scanner', 'wp-simple-firewall' );
-		}
-		else if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
-			$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
-		}
-		else {
-			if ( empty( $aItemIds ) ) {
-				$aItemIds = [ $sItemId ];
-			}
-
-			try {
-				$aSuccessfulItems = [];
-
-				foreach ( $aItemIds as $sId ) {
-					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
-						$aSuccessfulItems[] = $sId;
-					}
-				}
-
-				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
-					$bSuccess = true;
-					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
-				}
-				else {
-					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
-				}
-				$oTablePro->doScan();
-			}
-			catch ( \Exception $oE ) {
-				$sMessage = $oE->getMessage();
-			}
-		}
-
-		return [
-			'success'     => $bSuccess,
-			'page_reload' => in_array( $sScannerSlug, [ 'apc', 'ptg' ] ),
-			'message'     => $sMessage,
-		];
-	}
-
-	/**
 	 * @param string $sSection
 	 * @return array
 	 */
@@ -1259,6 +1040,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			[ 'inav' => 'scans' ],
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
+	}
+	/**
+	 * @return Shield\Modules\HackGuard\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\HackGuard\AjaxHandler;
 	}
 
 	/**

@@ -241,7 +241,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					],
 					'inputs'  => [
 						'license_key' => [
-							'name'      => $this->prefixOptionKey( 'license_key' ),
+							'name'      => $oCon->prefixOption( 'license_key' ),
 							'maxlength' => $this->getDef( 'license_key_length' ),
 						]
 					],

@@ -275,7 +275,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return string
 	 */
 	protected function getLoginFormParameter() {
-		return $this->getMod()->prefixOptionKey( $this->getStub().'_otp' );
+		return $this->getCon()->prefixOption( $this->getStub().'_otp' );
 	}
 
 	/**

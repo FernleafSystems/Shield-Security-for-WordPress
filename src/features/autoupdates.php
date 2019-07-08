@@ -110,58 +110,6 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'toggle_plugin_autoupdate':
-					$aAjaxResponse = $this->ajaxExec_TogglePluginAutoupdate();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_TogglePluginAutoupdate() {
-		$bSuccess = false;
-		$sMessage = __( 'You do not have permissions to perform this action.', 'wp-simple-firewall' );
-
-		if ( $this->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
-			$oWpPlugins = Services::WpPlugins();
-			$sFile = Services::Request()->post( 'pluginfile' );
-			if ( $oWpPlugins->isInstalled( $sFile ) ) {
-				$this->setPluginToAutoUpdate( $sFile );
-
-				$sMessage = sprintf( __( 'Plugin "%s" will %s.', 'wp-simple-firewall' ),
-					$oWpPlugins->getPluginAsVo( $sFile )->Name,
-					Services::WpPlugins()->isPluginAutomaticallyUpdated( $sFile ) ?
-						__( 'update automatically', 'wp-simple-firewall' )
-						: __( 'not update automatically', 'wp-simple-firewall' )
-				);
-				$bSuccess = true;
-			}
-			else {
-				$sMessage = __( 'Failed to change the update status of the plugin.', 'wp-simple-firewall' );
-			}
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getSelfAutoUpdateOpt() {
@@ -186,7 +134,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @param string $sPluginFile
 	 * @return $this
 	 */
-	protected function setPluginToAutoUpdate( $sPluginFile ) {
+	public function setPluginToAutoUpdate( $sPluginFile ) {
 		$aPlugins = $this->getAutoupdatePlugins();
 		$nKey = array_search( $sPluginFile, $aPlugins );
 
@@ -302,6 +250,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * @return Shield\Modules\Autoupdates\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\Autoupdates\AjaxHandler;
 	}
 
 	/**

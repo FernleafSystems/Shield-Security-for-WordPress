@@ -6,86 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'render_table_audittrail':
-					$aAjaxResponse = $this->ajaxExec_BuildTableAuditTrail();
-					break;
-
-				case 'item_addparamwhite':
-					$aAjaxResponse = $this->ajaxExec_AddParamToFirewallWhitelist();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_AddParamToFirewallWhitelist() {
-		$bSuccess = false;
-
-		$nId = Services::Request()->post( 'rid' );
-		if ( empty( $nId ) || !is_numeric( $nId ) || $nId < 1 ) {
-			$sMessage = __( 'Invalid audit entry selected for this action', 'wp-simple-firewall' );
-		}
-		else {
-			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			$oEntry = $this->getDbHandler()
-						   ->getQuerySelector()
-						   ->byId( $nId );
-
-			if ( empty( $oEntry ) ) {
-				$sMessage = __( 'Audit entry could not be loaded.', 'wp-simple-firewall' );
-			}
-			else {
-				$aData = $oEntry->meta;
-				$sParam = isset( $aData[ 'param' ] ) ? $aData[ 'param' ] : '';
-				$sUri = isset( $aData[ 'uri' ] ) ? $aData[ 'uri' ] : '*';
-				if ( empty( $sParam ) ) {
-					$sMessage = __( 'Parameter associated with this audit entry could not be found.', 'wp-simple-firewall' );
-				}
-				else {
-					/** @var ICWP_WPSF_FeatureHandler_Firewall $oModFire */
-					$oModFire = $this->getCon()->getModule( 'firewall' );
-					$oModFire->addParamToWhitelist( $sParam, $sUri );
-					$sMessage = sprintf( __( 'Parameter "%s" whitelisted successfully', 'wp-simple-firewall' ), $sParam );
-					$bSuccess = true;
-				}
-			}
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_BuildTableAuditTrail() {
-		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
-			->setMod( $this )
-			->setDbHandler( $this->getDbHandler() );
-
-		return [
-			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
-		];
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getMaxEntries() {
@@ -257,6 +177,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * @return Shield\Modules\AuditTrail\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\AuditTrail\AjaxHandler;
 	}
 
 	/**

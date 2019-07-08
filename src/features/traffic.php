@@ -164,33 +164,10 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
+	 * @return Shield\Modules\Autoupdates\AjaxHandler
 	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'render_table_traffic':
-					$aAjaxResponse = $this->ajaxExec_BuildTableTraffic();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	private function ajaxExec_BuildTableTraffic() {
-		return [
-			'success' => true,
-			'html'    => ( new Shield\Tables\Build\Traffic() )
-				->setMod( $this )
-				->setDbHandler( $this->getDbHandler() )
-				->buildTable()
-		];
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\Autoupdates\AjaxHandler;
 	}
 
 	/**

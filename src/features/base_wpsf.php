@@ -285,7 +285,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return array
 	 */
-	protected function getSecAdminLoginAjaxData() {
+	public function getSecAdminLoginAjaxData() {
 		// We set a custom mod_slug so that this module handles the ajax request
 		$aAjaxData = $this->getAjaxActionData( 'sec_admin_login' );
 		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
