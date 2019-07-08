@@ -14,7 +14,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	protected function processAjaxAction( $sAction ) {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
-		$aResponse = [];
 
 		switch ( $sAction ) {
 			case 'bulk_action':
@@ -54,6 +53,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'send_deactivate_survey':
 				$aResponse = $this->ajaxExec_SendDeactivateSurvey();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;

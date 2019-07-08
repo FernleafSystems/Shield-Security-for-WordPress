@@ -12,7 +12,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		$aResponse = [];
 
 		switch ( $sAction ) {
 			case 'gen_backup_codes':
@@ -30,6 +29,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'resend_verification_email':
 				$aResponse = $this->ajaxExec_ResendEmailVerification();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;

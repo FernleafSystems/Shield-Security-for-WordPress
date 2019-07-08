@@ -12,7 +12,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		$aResponse = [];
 
 		switch ( $sAction ) {
 			case 'license_handling':
@@ -21,6 +20,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'connection_debug':
 				$aResponse = $this->ajaxExec_ConnectionDebug();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;

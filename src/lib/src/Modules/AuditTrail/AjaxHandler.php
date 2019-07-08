@@ -12,7 +12,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		$aResponse = [];
 
 		switch ( $sAction ) {
 			case 'render_table_audittrail':
@@ -22,6 +21,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'item_addparamwhite':
 				$aResponse = $this->ajaxExec_AddParamToFirewallWhitelist();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;

@@ -11,7 +11,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		$aResponse = [];
 
 		switch ( $sAction ) {
 			case 'sec_admin_check':
@@ -26,6 +25,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'sec_admin_login_box':
 				$aResponse = $this->ajaxExec_SecAdminLoginBox();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;

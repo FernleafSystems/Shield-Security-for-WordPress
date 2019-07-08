@@ -12,12 +12,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		$aResponse = [];
 
 		switch ( $sAction ) {
 			case 'toggle_plugin_autoupdate':
 				$aResponse = $this->ajaxExec_TogglePluginAutoupdate();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;

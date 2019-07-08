@@ -12,7 +12,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		$aResponse = [];
 
 		switch ( $sAction ) {
 			case 'render_table_sessions':
@@ -26,6 +25,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'session_delete':
 				$aResponse = $this->ajaxExec_SessionDelete();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;

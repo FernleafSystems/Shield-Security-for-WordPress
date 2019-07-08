@@ -38,16 +38,12 @@ class AjaxHandlerShield extends AjaxHandlerBase {
 									  ->ajaxExec_WizRenderStep();
 				}
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getSupportedActions() {
-		return [];
 	}
 
 	/**

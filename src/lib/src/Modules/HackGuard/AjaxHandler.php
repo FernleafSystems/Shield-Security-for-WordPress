@@ -12,7 +12,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		$aResponse = [];
 
 		switch ( $sAction ) {
 
@@ -40,6 +39,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'plugin_reinstall':
 				$aResponse = $this->ajaxExec_PluginReinstall();
 				break;
+
+			default:
+				$aResponse = parent::processAjaxAction( $sAction );
 		}
 
 		return $aResponse;
