@@ -206,18 +206,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	}
 
 	/**
-	 * Must be set with a higher priority than other filters as it will override them
-	 * @param bool    $bIsSubjectTo
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	public function applyUserCanMfaSkip( $bIsSubjectTo, $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		return $bIsSubjectTo && !$oFO->canUserMfaSkip( $oUser );
-	}
-
-	/**
 	 * @return int
 	 */
 	protected function getLoginIntentExpiresAt() {

@@ -237,4 +237,11 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	protected function createDbHandler() {
 		return new Comments\Handler();
 	}
+
+	/**
+	 * @return bool|int
+	 */
+	public function cleanupDatabase() {
+		return false;
+	}
 }
