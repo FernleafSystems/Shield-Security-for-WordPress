@@ -22,7 +22,8 @@
 				// Don't draw the line chart points
 				showPoint: true,
 				// Disable line smoothing
-				lineSmooth: false,
+				lineSmooth: true,
+				showArea: true,
 				// X-Axis specific configuration
 				axisX: {
 					// We can disable the grid for this axis
@@ -32,11 +33,12 @@
 				},
 				// Y-Axis specific configuration
 				axisY: {
+					onlyInteger: true,
 					// The label interpolation function enables you to modify the values
 					// used for the labels on each axis. Here we are converting the
 					// values into million pound.
-					labelInterpolationFnc: function(value) {
-						return value + ' offenses';
+					labelInterpolationFnc: function ( value ) {
+						return value;
 					}
 				}
 			};

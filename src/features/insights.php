@@ -470,7 +470,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$aSeries_Offsenses = [];
 		$aLabels = [];
 		do {
-			$aSeries_Offsenses[] = $oSelEvts->filterByDay( $oNow->timestamp )
+			$aSeries_Offsenses[] = $oSelEvts->filterByDayBoundary( $oNow->timestamp )
 											->sumEvent( 'ip_offense' );
 			$aLabels[] = $oNow->toDateString();
 			$oNow->subDay();
