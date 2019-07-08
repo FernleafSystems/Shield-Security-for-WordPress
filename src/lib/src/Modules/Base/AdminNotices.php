@@ -140,7 +140,7 @@ class AdminNotices {
 		$oNotice->template = '/notices/'.$oNotice->id;
 	}
 
-	/**z
+	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 * @return bool
 	 */

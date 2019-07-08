@@ -427,5 +427,6 @@ class Strings extends Base\Strings {
 		__( 'User Management', 'wp-simple-firewall' );
 		__( 'Get true user sessions and control account sharing, session duration and timeouts', 'wp-simple-firewall' );
 		__( 'Two-Factor Authentication', 'wp-simple-firewall' );
+		__( 'Support Forums', 'wp-simple-firewall' );
 	}
 }

@@ -8,37 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'set_plugin_tracking':
-					$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
-					break;
-
-				default:
-					$aAjaxResponse = parent::handleAuthAjax( $aAjaxResponse );
-					break;
-			}
-		}
-		return $aAjaxResponse;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function ajaxExec_SetPluginTrackingPerm() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oMod->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
-		return $this->ajaxExec_DismissAdminNotice();
-	}
-
-	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 * @throws \Exception
 	 */
@@ -66,10 +35,45 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_AllowTracking( $oNotice );
 				break;
 
+			case 'rate-plugin':
+				$this->buildNotice_RatePlugin( $oNotice );
+				break;
+
 			default:
 				parent::processNotice( $oNotice );
 				break;
 		}
+	}
+
+	/**
+	 * @param array $aAjaxResponse
+	 * @return array
+	 */
+	public function handleAuthAjax( $aAjaxResponse ) {
+
+		if ( empty( $aAjaxResponse ) ) {
+			switch ( Services::Request()->request( 'exec' ) ) {
+
+				case 'set_plugin_tracking':
+					$aAjaxResponse = $this->ajaxExec_SetPluginTrackingPerm();
+					break;
+
+				default:
+					$aAjaxResponse = parent::handleAuthAjax( $aAjaxResponse );
+					break;
+			}
+		}
+		return $aAjaxResponse;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_SetPluginTrackingPerm() {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		$oMod->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+		return $this->ajaxExec_DismissAdminNotice();
 	}
 
 	/**
@@ -212,6 +216,22 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'link_to_see'      => $oMod->getLinkToTrackingDataDump(),
 				'link_to_moreinfo' => 'https://icwp.io/shieldtrackinginfo',
 
+			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function buildNotice_RatePlugin( $oNotice ) {
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'   => __( 'Can You Help Us With A Quick Review?', 'wp-simple-firewall' ),
+				'dismiss' => __( "I'd rather not show this support", 'wp-simple-firewall' ).' / '.__( "I've done this already", 'wp-simple-firewall' ).' :D',
+			],
+			'hrefs'             => [
+				'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
 			]
 		];
 	}

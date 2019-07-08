@@ -37,21 +37,19 @@
       "type": "warning"
     },
     "wizard_welcome":             {
-      "id":          "wizard_welcome",
-      "type":        "promo"
+      "id":   "wizard_welcome",
+      "type": "promo"
     },
     "allow-tracking":             {
-      "id":          "allow-tracking",
-      "plugin_admin": true,
-      "min_install_days":  3,
-      "type":        "promo"
+      "id":               "allow-tracking",
+      "plugin_admin":     true,
+      "min_install_days": 3,
+      "type":             "promo"
     },
     "rate-plugin":                {
-      "id":          "rate-plugin",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  30,
-      "type":        "promo"
+      "id":               "rate-plugin",
+      "min_install_days": 30,
+      "type":             "promo"
     }
   },
   "sections":      [
