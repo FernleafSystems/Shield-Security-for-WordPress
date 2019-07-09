@@ -465,7 +465,7 @@
       {
         "slug":          "ips",
         "storage_key":   "ips",
-        "load_priority": 12
+        "load_priority": 15
       },
       {
         "slug":        "hack_protect",
@@ -502,7 +502,8 @@
       },
       {
         "slug":        "events",
-        "storage_key": "events"
+        "storage_key": "events",
+        "load_priority": 11
       },
       {
         "slug":          "statistics",
