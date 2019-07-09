@@ -10,16 +10,16 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 	 */
 	private function sendTrackingData() {
 		$bSuccess = false;
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isTrackingEnabled() && $oFO->readyToSendTrackingData() ) {
+		if ( $oMod->isTrackingEnabled() && $oMod->readyToSendTrackingData() ) {
 
 			$aData = $this->collectTrackingData();
 			if ( !empty( $aData ) && is_array( $aData ) ) {
-				$oFO->setTrackingLastSentAt();
+				$oMod->setTrackingLastSentAt();
 				$bSuccess = Services::HttpRequest()->post(
-					$oFO->getDef( 'tracking_post_url' ),
+					$oMod->getDef( 'tracking_post_url' ),
 					[
 						'timeout'     => 20,
 						'redirection' => 5,

@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	private $oCurrent;
 
 	/**
-	 * @param ICWP_WPSF_Processor_Sessions $oModCon
+	 * @param \ICWP_WPSF_Processor_Sessions $oModCon
 	 */
 	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oModCon ) {
 		parent::__construct( $oModCon, $oModCon->getDef( 'sessions_table_name' ) );
@@ -77,9 +77,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	private function autoAddSession() {
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
+		if ( !$oMod->hasSession() && $oMod->isAutoAddSessions() ) {
 			$this->queryCreateSession(
 				$this->getCon()->getSessionId( true ),
 				Services::WpUsers()->getCurrentWpUsername()
@@ -94,12 +94,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @throws \Exception
 	 */
 	public function printLinkToAdmin( $sMessage = '' ) {
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		$oU = Services::WpUsers()->getCurrentWpUser();
 
 		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
-			 && ( $oU instanceof \WP_User ) && $oFO->hasSession() ) {
+			 && ( $oU instanceof \WP_User ) && $oMod->hasSession() ) {
 			$sMessage .= sprintf( '<p class="message">%s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' )
 				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oU->user_login ),

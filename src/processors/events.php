@@ -14,14 +14,15 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 	public function run() {
 		$this->bStat = true;
 		if ( $this->isReadyToRun() ) {
-			add_filter( $this->getMod()->prefix( 'dashboard_widget_content' ), [
-				$this,
-				'gatherStatsWidgetContent'
-			], 10 );
+			add_filter( $this->getMod()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
 		}
 	}
 
-	public function gatherStatsWidgetContent( $aContent ) {
+	/**
+	 * @param string[] $aContent
+	 * @return string[]
+	 */
+	public function statsWidget( $aContent ) {
 		/** @var Shield\Databases\Events\Handler $oDbhEvents */
 		$oDbhEvents = $this->getCon()->getModule_Events()->getDbHandler();
 		/** @var Shield\Databases\Events\Select $oSelEvents */
@@ -30,7 +31,11 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 		$aKeyStats = [
 			'comments'          => [
 				__( 'Comment Blocks', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvents( [ 'spam_block_bot', 'spam_block_human', 'spam_block_recaptcha' ] )
+				$oSelEvents->clearWheres()->sumEvents( [
+					'spam_block_bot',
+					'spam_block_human',
+					'spam_block_recaptcha'
+				] )
 			],
 			'firewall'          => [
 				__( 'Firewall Blocks', 'wp-simple-firewall' ),

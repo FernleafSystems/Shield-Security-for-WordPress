@@ -112,11 +112,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
 			 && $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
 
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
+			/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oF */
 			$oF = $this->getMod();
 			if ( !$oF->canUserMfaSkip( $oUser ) ) {
 				$nTimeout = (int)apply_filters( $oF->prefix( 'login_intent_timeout' ), $oF->getDef( 'login_intent_timeout' ) );
-				$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout );
+				$this->setLoginIntentExpiresAt( Services::Request()->ts() + MINUTE_IN_SECONDS*$nTimeout );
 			}
 		}
 	}
@@ -128,7 +128,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oWpResp = Services::Response();
 		$oWpUsers = Services::WpUsers();
 
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
 		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
@@ -225,7 +225,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function hasValidLoginIntent() {
-		return $this->hasLoginIntent() && ( $this->getLoginIntentExpiresAt() > $this->time() );
+		return $this->hasLoginIntent() && ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() );
 	}
 
 	/**
@@ -293,7 +293,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			],
 			'data'    => [
 				'login_fields'      => $aLoginIntentFields,
-				'time_remaining'    => $this->getLoginIntentExpiresAt() - $this->time(),
+				'time_remaining'    => $this->getLoginIntentExpiresAt() - $oReq->ts(),
 				'message_type'      => $sMessageType,
 				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
 				'page_locale'       => Services::WpGeneral()->getLocale( '-' )

@@ -41,17 +41,17 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @return string
 	 */
 	protected function initCommentFormToken() {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
 
 		$nTs = Services::Request()->ts();
 		$nPostId = Services::WpPost()->getCurrentPostId();
 
 		$sToken = $this->getToken( $nTs, $nPostId );
 		Services::WpGeneral()->setTransient(
-			$this->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, $this->ip() ) ) ),
+			$oMod->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) ) ),
 			$sToken,
-			$oFO->getTokenExpireInterval()
+			$oMod->getTokenExpireInterval()
 		);
 
 		return $sToken;
@@ -64,7 +64,10 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 */
 	protected function getToken( $nTs, $nPostId ) {
 		$oMod = $this->getCon()->getModule_Plugin();
-		return hash_hmac( 'sha1', $nPostId.$this->ip().$nTs, $oMod->getPluginInstallationId() );
+		return hash_hmac( 'sha1',
+			$nPostId.Services::IP()->getRequestIp().$nTs,
+			$oMod->getPluginInstallationId()
+		);
 	}
 
 	/**

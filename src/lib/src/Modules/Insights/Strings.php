@@ -32,7 +32,7 @@ class Strings extends Base\Strings {
 			'ufc_item_repair_success'      => __( 'Repaired/Deleted unrecognised file', 'wp-simple-firewall' ),
 			'wcf_item_repair_success'      => __( 'Repaired Core file', 'wp-simple-firewall' ),
 			'wpv_item_repair_success'      => __( 'Repaired vulnerable item', 'wp-simple-firewall' ),
-			'session_terminated'           => __( 'User session terminated and forced to re-login', 'wp-simple-firewall' ),
+			'session_terminate'            => __( 'User session terminated and forced to re-login', 'wp-simple-firewall' ),
 			'conn_kill'                    => __( 'Connection killed for blocked IP address', 'wp-simple-firewall' ),
 			'ip_offense'                   => __( 'Offense registered against IP address', 'wp-simple-firewall' ),
 			'ip_blocked'                   => __( 'IP address blocked after too many offenses', 'wp-simple-firewall' ),

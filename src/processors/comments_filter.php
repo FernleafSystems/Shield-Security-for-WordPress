@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function onWpInit() {
 		parent::onWpInit();
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
 		$oWpUsers = Services::WpUsers();
 
@@ -95,7 +95,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @throws \Exception
 	 * @deprecated
 	 */
-	public function addNotice_akismet_running() {
+	public function addNotice_akismet_running( $aNoticeAttributes ) {
 		return;
 	}
 }

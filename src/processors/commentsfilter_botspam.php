@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends ICWP_WPSF_Processor_Bas
 		$sToken = $this->generateNewToken( $nTs, $nPostId );
 
 		Services::WpGeneral()->setTransient(
-			$this->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, $this->ip() ) ) ),
+			$oMod->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP() ) ) ),
 			$sToken,
 			$oMod->getTokenExpireInterval()
 		);
@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends ICWP_WPSF_Processor_Bas
 	 */
 	private function generateNewToken( $nTs, $nPostId ) {
 		$oMod = $this->getCon()->getModule_Plugin();
-		return hash_hmac( 'sha1', $nPostId.$this->ip().$nTs, $oMod->getPluginInstallationId() );
+		return hash_hmac( 'sha1', $nPostId.Services::IP().$nTs, $oMod->getPluginInstallationId() );
 	}
 
 	/**

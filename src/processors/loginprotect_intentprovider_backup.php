@@ -162,7 +162,7 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
 			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
 			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->ip() ),
+			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP() ),
 			'',
 			__( 'Thank You.', 'wp-simple-firewall' ),
 		];

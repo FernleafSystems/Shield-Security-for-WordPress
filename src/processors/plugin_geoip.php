@@ -4,7 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\GeoIp;
 
 /**
  * Class ICWP_WPSF_Processor_Plugin_Geoip
- * @deprecated 7.5
+ * @deprecated 8
  */
 class ICWP_WPSF_Processor_Plugin_Geoip extends ICWP_WPSF_BaseDbProcessor {
 

@@ -96,7 +96,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( is_null( $nAutoExpirePeriod ) || !$this->getDbHandler()->isTable() ) {
 			return false;
 		}
-		$nTimeStamp = $this->time() - $nAutoExpirePeriod;
+		$nTimeStamp = Services::Request()->ts() - $nAutoExpirePeriod;
 		return $this->getDbHandler()->deleteRowsOlderThan( $nTimeStamp );
 	}
 

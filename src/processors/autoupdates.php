@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				if ( 'autoupdate' == $oUpdate->response ) {
 					$sVersion = $oUpdate->current;
 					if ( !isset( $aItemTk[ $sVersion ] ) ) {
-						$aItemTk[ $sVersion ] = $this->time();
+						$aItemTk[ $sVersion ] = Services::Request()->ts();
 					}
 				}
 			}
@@ -177,7 +177,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				$sNewVersion = isset( $oUpdate->new_version ) ? $oUpdate->new_version : '';
 				if ( !empty( $sNewVersion ) ) {
 					if ( !isset( $aItemTk[ $sNewVersion ] ) ) {
-						$aItemTk[ $sNewVersion ] = $this->time();
+						$aItemTk[ $sNewVersion ] = Services::Request()->ts();
 					}
 					$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
 				}
@@ -344,7 +344,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$bDelayed = false;
 
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isDelayUpdates() ) {
 
@@ -368,7 +368,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 
 			if ( !empty( $sVersion ) && isset( $aItemTk[ $sVersion ] ) ) {
-				$bDelayed = ( $this->time() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
+				$bDelayed = ( Services::Request()->ts() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
 			}
 		}
 

@@ -38,14 +38,14 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	public function onWpEnqueueJs() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isEnabledBotJs() ) {
+		if ( $oMod->isEnabledBotJs() ) {
 			$oConn = $this->getCon();
 
 			$sAsset = 'shield-antibot';
-			$sUnique = $this->prefix( $sAsset );
+			$sUnique = $oMod->prefix( $sAsset );
 			wp_register_script(
 				$sUnique,
 				$oConn->getPluginUrl_Js( $sAsset ),
@@ -59,21 +59,21 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				$sUnique,
 				'icwp_wpsf_vars_lpantibot',
 				[
-					'form_selectors' => implode( ',', $oFO->getAntiBotFormSelectors() ),
+					'form_selectors' => implode( ',', $oMod->getAntiBotFormSelectors() ),
 					'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-					'cbname'         => $oFO->getGaspKey(),
+					'cbname'         => $oMod->getGaspKey(),
 					'strings'        => [
-						'label' => $oFO->getTextImAHuman(),
-						'alert' => $oFO->getTextPleaseCheckBox(),
+						'label' => $oMod->getTextImAHuman(),
+						'alert' => $oMod->getTextPleaseCheckBox(),
 					],
 					'flags'          => [
-						'gasp'  => $oFO->isEnabledGaspCheck(),
-						'recap' => $oFO->isGoogleRecaptchaEnabled(),
+						'gasp'  => $oMod->isEnabledGaspCheck(),
+						'recap' => $oMod->isGoogleRecaptchaEnabled(),
 					]
 				]
 			);
 
-			if ( $oFO->isGoogleRecaptchaEnabled() ) {
+			if ( $oMod->isGoogleRecaptchaEnabled() ) {
 				$this->setRecaptchaToEnqueue();
 			}
 		}

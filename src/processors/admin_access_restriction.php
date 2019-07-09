@@ -265,24 +265,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
-		return;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
-		return;
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getUserPagesToRestrict() {
@@ -503,5 +485,23 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			__( 'Security Admin Login', 'wp-simple-firewall' ),
 			$sLinkText
 		);
+	}
+
+	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
+		return;
+	}
+
+	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
+		return;
 	}
 }

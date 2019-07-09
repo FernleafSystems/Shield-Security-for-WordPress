@@ -90,7 +90,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 		if ( $oFO->isPassExpirationEnabled() ) {
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
-				if ( $this->time() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
+				if ( Services::Request()->ts() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
 					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
 						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oFO->getPassExpireDays() )
@@ -109,7 +109,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
 		if ( $bPassCheckFailed ) {
-			$this->getCon()->fireEvent( 'password_policy_force_change' );
 			$this->redirectToResetPassword(
 				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
@@ -124,22 +123,23 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @uses wp_redirect()
 	 */
 	private function redirectToResetPassword( $sMessage ) {
+		$nNow = Services::Request()->ts();
 
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 		$nLastRedirect = (int)$oMeta->pass_reset_last_redirect_at;
-		if ( $this->time() - $nLastRedirect > MINUTE_IN_SECONDS*2 ) {
+		if ( $nNow - $nLastRedirect > MINUTE_IN_SECONDS*2 ) {
 
-			$oMeta->pass_reset_last_redirect_at = $this->time();
+			$oMeta->pass_reset_last_redirect_at = $nNow;
 
 			$oWpUsers = Services::WpUsers();
 			$sAction = Services::Request()->query( 'action' );
 			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
+			if ( $oUser &&( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$sMessage .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
 					 ->setFlashAdminNotice( $sMessage );
-
+				$this->getCon()->fireEvent( 'password_policy_force_change' );
 				Services::Response()->redirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
 			}
 		}
@@ -374,7 +374,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	private function setPasswordFailedFlag( $oUser, $bFailed = false ) {
 		$oMeta = $this->getCon()->getUserMeta( $oUser );
-		$oMeta->pass_check_failed_at = $bFailed ? $this->time() : 0;
+		$oMeta->pass_check_failed_at = $bFailed ? Services::Request()->ts() : 0;
 		return $this;
 	}
 }

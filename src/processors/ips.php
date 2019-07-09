@@ -112,15 +112,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_visitor_whitelisted() {
-		return;
-	}
-
-	/**
 	 * @param array $aMessages
 	 * @return array
 	 */
@@ -150,7 +141,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		if ( empty( $sIp ) ) {
-			$sIp = $this->ip();
+			$sIp = Services::IP();
 		}
 		return $oFO->getOptTransgressionLimit() - $this->getTransgressions( $sIp );
 	}
@@ -178,7 +169,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			return;
 		}
 
-		$sIp = $this->ip();
+		$sIp = Services::IP();
 		$bKill = false;
 
 		// TODO: *Maybe* Have a manual black list process first.
@@ -213,12 +204,12 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @throws \Exception
 	 */
 	private function processAutoUnblockRequest() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
 		if ( $oMod->isEnabledAutoUserRecover() && $oReq->isPost()
-			 && $oReq->request( 'action' ) == $this->prefix() && $oReq->request( 'exec' ) == 'uau' ) {
+			 && $oReq->request( 'action' ) == $oMod->prefix() && $oReq->request( 'exec' ) == 'uau' ) {
 
 			if ( check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
 				throw new \Exception( 'Nonce failed' );
@@ -226,14 +217,14 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			if ( strlen( $oReq->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
 				throw new \Exception( 'Email should not be provided in honeypot' );
 			}
-			$sIp = $this->ip();
+
+			$sIp = Services::IP();
 			if ( $oReq->post( 'ip' ) != $sIp ) {
 				throw new \Exception( 'IP does not match' );
 			}
 
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oLoginFO */
-			$oLoginFO = $this->getCon()->getModule( 'login_protect' );
-			$sGasp = $oReq->post( $oLoginFO->getGaspKey() );
+			$oLoginMod = $this->getCon()->getModule_LoginGuard();
+			$sGasp = $oReq->post( $oLoginMod->getGaspKey() );
 			if ( empty( $sGasp ) ) {
 				throw new \Exception( 'GASP failed' );
 			}
@@ -253,16 +244,14 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	private function renderKillPage() {
-
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oLoginFO */
-		$oLoginFO = $oCon->getModule( 'login_protect' );
+		$oLoginMod = $oCon->getModule_LoginGuard();
 
 		$sUniqId = 'uau'.uniqid();
 
-		$sIp = $this->ip();
+		$sIp = Services::IP();
 		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
 		$aData = [
 			'strings' => [
@@ -292,9 +281,9 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				'gasp_element' => $oFO->renderTemplate(
 					'snippets/gasp_js.php',
 					[
-						'sCbName'   => $oLoginFO->getGaspKey(),
-						'sLabel'    => $oLoginFO->getTextImAHuman(),
-						'sAlert'    => $oLoginFO->getTextPleaseCheckBox(),
+						'sCbName'   => $oLoginMod->getGaspKey(),
+						'sLabel'    => $oLoginMod->getTextImAHuman(),
+						'sAlert'    => $oLoginMod->getTextPleaseCheckBox(),
 						'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
 						'sUniqId'   => $sUniqId,
 						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
@@ -334,9 +323,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 
-		$oBlackIp = $this->getAutoBlackListIp( $this->ip() );
+		$sIp = Services::IP();
+
+		$oBlackIp = $this->getAutoBlackListIp( $sIp );
 		if ( !$oBlackIp instanceof IPs\EntryVO ) {
-			$oBlackIp = $this->addIpToList( $this->ip(), ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
+			$oBlackIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
 		}
 
 		if ( $oBlackIp instanceof IPs\EntryVO ) {
@@ -373,7 +364,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function isCurrentIpWhitelisted() {
 		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-			$this->bVisitorIsWhitelisted = $this->isIpOnWhiteList( $this->ip() );
+			$this->bVisitorIsWhitelisted = $this->isIpOnWhiteList( Services::IP() );
 		}
 		return $this->bVisitorIsWhitelisted;
 	}
@@ -550,7 +541,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 						   ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
 						   ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
 					   ] )
-					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->filterByLastAccessAfter( Services::Request()->ts() - $oFO->getAutoExpireTime() )
 					   ->first();
 		return $oIp;
 	}
@@ -568,7 +559,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var IPs\EntryVO $oIp */
 		$oIp = $oSelect->filterByIp( $sIp )
 					   ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK )
-					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->filterByLastAccessAfter( Services::Request()->ts() - $oFO->getAutoExpireTime() )
 					   ->first();
 		return $oIp;
 	}
@@ -586,7 +577,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var IPs\EntryVO $oIp */
 		$oIp = $oSelect->filterByIp( $sIp )
 					   ->filterByList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK )
-					   ->filterByLastAccessAfter( $this->time() - $oFO->getAutoExpireTime() )
+					   ->filterByLastAccessAfter( Services::Request()->ts() - $oFO->getAutoExpireTime() )
 					   ->first();
 		return $oIp;
 	}
@@ -629,7 +620,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 * @return int
 	 */
 	protected function getAutoExpirePeriod() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getAutoExpireTime();
 	}
@@ -643,9 +634,17 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			/** @var IPs\Delete $oDel */
 			$oDel = $this->getDbHandler()->getQueryDeleter();
 			$oDel->filterByLists( [ self::LIST_AUTO_BLACK, self::LIST_MANUAL_BLACK ] )
-				 ->filterByLastAccessBefore( $this->time() - $this->getAutoExpirePeriod() )
+				 ->filterByLastAccessBefore( Services::Request()->ts() - $this->getAutoExpirePeriod() )
 				 ->query();
 		}
 		return true;
+	}
+
+	/**
+	 * @throws \Exception
+	 * @deprecated 8
+	 */
+	public function addNotice_visitor_whitelisted() {
+		return;
 	}
 }

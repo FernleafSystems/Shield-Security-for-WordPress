@@ -56,7 +56,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			$oUser = Services::WpUsers()->getCurrentWpUser();
 		}
 		if ( $oUser instanceof WP_User ) {
-			$bIsSubject = apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
+			$bIsSubject = apply_filters( $this->getCon()->prefix( 'user_subject_to_login_intent' ), false, $oUser );
 		}
 
 		return $bIsSubject;
@@ -66,7 +66,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getRecaptchaTheme() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 		$oFO = $this->getMod();
 		return $this->isRecaptchaInvisible() ? 'light' : $oFO->getGoogleRecaptchaStyle();
 	}

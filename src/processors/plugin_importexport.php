@@ -6,14 +6,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 
-		add_action( $this->prefix( 'importexport_notify' ), [ $this, 'runWhitelistNotify' ] );
+		add_action( $oMod->prefix( 'importexport_notify' ), [ $this, 'runWhitelistNotify' ] );
 
-		if ( $oFO->hasImportExportMasterImportUrl() ) {
+		if ( $oMod->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
-			add_action( $oFO->prefix( 'importexport_updatenotified' ), [ $this, 'runImport' ] );
+			add_action( $oMod->prefix( 'importexport_updatenotified' ), [ $this, 'runImport' ] );
 		}
 	}
 

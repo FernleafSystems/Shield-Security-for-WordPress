@@ -201,6 +201,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	protected function updateEmailThrottle() {
+		$nNow = Services::Request()->ts();
 
 		// Throttling Is Effectively Off
 		if ( $this->getThrottleLimit() <= 0 ) {
@@ -218,17 +219,17 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 		}
 
-		if ( !isset( $this->nEmailThrottleTime ) || $this->nEmailThrottleTime > $this->time() ) {
-			$this->nEmailThrottleTime = $this->time();
+		if ( !isset( $this->nEmailThrottleTime ) || $this->nEmailThrottleTime > $nNow ) {
+			$this->nEmailThrottleTime = $nNow;
 		}
 		if ( !isset( $this->nEmailThrottleCount ) ) {
 			$this->nEmailThrottleCount = 0;
 		}
 
 		// If $nNow is greater than throttle interval (1s) we turn off the file throttle and reset the count
-		$nDiff = $this->time() - $this->nEmailThrottleTime;
+		$nDiff = $nNow - $this->nEmailThrottleTime;
 		if ( $nDiff > self::$nThrottleInterval ) {
-			$this->nEmailThrottleTime = $this->time();
+			$this->nEmailThrottleTime = $nNow;
 			$this->nEmailThrottleCount = 1;    //we set to 1 assuming that this was called because we're about to send, or have just sent, an email.
 			$this->setThrottledFile( false );
 		}

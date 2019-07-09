@@ -1780,6 +1780,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_LoginProtect
+	 */
+	public function getModule_LoginGuard() {
+		return $this->getModule( 'login_protect' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_Plugin
 	 */
 	public function getModule_Plugin() {

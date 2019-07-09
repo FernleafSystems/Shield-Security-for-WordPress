@@ -55,7 +55,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	private function updateLastLoginTime() {
 		Services::WpFs()->deleteFile( $this->getLastLoginTimeFilePath() );
-		Services::WpFs()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
+		Services::WpFs()->touch( $this->getLastLoginTimeFilePath(), Services::Request()->ts() );
 		return $this;
 	}
 }

@@ -78,7 +78,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function isServiceIp_Search() {
 		$oSP = $this->loadServiceProviders();
 
-		$sIp = $this->ip();
+		$sIp = Services::IP();
 		$sAgent = (string)Services::Request()->getUserAgent();
 		return $oSP->isIp_GoogleBot( $sIp, $sAgent )
 			   || $oSP->isIp_BingBot( $sIp, $sAgent )
@@ -95,7 +95,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	protected function isServiceIp_Uptime() {
 		$oSP = $this->loadServiceProviders();
 
-		$sIp = $this->ip();
+		$sIp = Services::IP();
 		$sAgent = (string)Services::Request()->getUserAgent();
 		return $oSP->isIp_Statuscake( $sIp, $sAgent )
 			   || $oSP->isIp_UptimeRobot( $sIp, $sAgent )
@@ -103,7 +103,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	protected function logTraffic() {
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oFO */
 		$oFO = $this->getMod();
 		$oReq = Services::Request();
 		$oDbh = $this->getDbHandler();
@@ -116,7 +116,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 
 		$oEntry->rid = $this->getCon()->getShortRequestId();
 		$oEntry->uid = Services::WpUsers()->getCurrentWpUserId();
-		$oEntry->ip = inet_pton( $this->ip() );
+		$oEntry->ip = inet_pton( Services::IP() );
 		$oEntry->verb = $oReq->getMethod();
 		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();

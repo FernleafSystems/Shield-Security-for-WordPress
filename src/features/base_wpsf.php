@@ -82,9 +82,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	protected function setupCustomHooks() {
-		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventOffense' ], 10, 2 );
-		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
-		add_action( $this->getCon()->prefix( 'event' ), [ $this, 'eventStat' ], 10, 2 );
+		$oCon = $this->getCon();
+		add_action( $oCon->prefix( 'event' ), [ $this, 'eventOffense' ], 10, 2 );
+		add_action( $oCon->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
+		add_action( $oCon->prefix( 'event' ), [ $this, 'eventStat' ], 10, 2 );
 	}
 
 	/**

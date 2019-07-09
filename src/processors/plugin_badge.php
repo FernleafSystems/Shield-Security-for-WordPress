@@ -28,7 +28,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function gatherPluginWidgetContent( $aContent ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		$oCon = $this->getCon();
 
@@ -40,7 +40,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		$aDisplayData = [
 			'sInstallationDays' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $this->getInstallationDays() ),
 			'sFooter'           => $sFooter,
-			'sIpAddress'        => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), $this->ip() )
+			'sIpAddress'        => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), Services::IP() )
 		];
 
 		if ( !is_array( $aContent ) ) {
@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
 		if ( !empty( $oFO ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
 			 && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {

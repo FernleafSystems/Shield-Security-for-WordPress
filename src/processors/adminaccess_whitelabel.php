@@ -7,10 +7,10 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		add_filter( $this->prefix( 'is_relabelled' ), '__return_true' );
-		add_filter( $oFO->prefix( 'plugin_labels' ), [ $this, 'doRelabelPlugin' ] );
+		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		$oMod = $this->getMod();
+		add_filter( $oMod->prefix( 'is_relabelled' ), '__return_true' );
+		add_filter( $oMod->prefix( 'plugin_labels' ), [ $this, 'doRelabelPlugin' ] );
 		add_filter( 'plugin_row_meta', [ $this, 'fRemoveDetailsMetaLink' ], 200, 2 );
 		add_action( 'admin_print_footer_scripts-plugin-editor.php', [ $this, 'hideFromPluginEditor' ] );
 	}

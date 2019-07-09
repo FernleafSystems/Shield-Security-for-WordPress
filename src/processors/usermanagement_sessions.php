@@ -102,14 +102,13 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 
 		if ( $oFO->isLockToIp() ) {
 			/** We allow the original session IP, the SERVER_ADDR, and the "what is my IP" */
-			/** @var ICWP_WPSF_FeatureHandler_Plugin $oPluginMod */
-			$oPluginMod = $this->getCon()->getModule( 'plugin' );
+			$oPluginMod = $this->getCon()->getModule_Plugin();
 			$aPossibleIps = [
 				$oSess->ip,
 				Services::Request()->getServerAddress(),
 				$oPluginMod->getMyServerIp()
 			];
-			if ( !in_array( $this->ip(), $aPossibleIps ) ) {
+			if ( !in_array( Services::IP(), $aPossibleIps ) ) {
 				throw new \Exception( 'session_iplock' );
 			}
 		}
@@ -177,9 +176,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 * @return int
 	 */
 	private function getLoginIdleExpiredBoundary() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
-		return $this->time() - $oFO->getIdleTimeoutInterval();
+		return Services::Request()->ts() - $oFO->getIdleTimeoutInterval();
 	}
 
 	/**

@@ -4,8 +4,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
-	protected $aWhitelist;
-
 	/**
 	 * @var array
 	 */
