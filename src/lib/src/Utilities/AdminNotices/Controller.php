@@ -74,11 +74,15 @@ class Controller {
 			$aMess = json_decode( base64_decode( $sMessage ), true );
 			if ( !empty( $aMess[ 'message' ] ) ) {
 				$oNotice = new NoticeVO();
-				$oNotice->render_data = [
-					'message' => sanitize_text_field( $aMess[ 'message' ] ),
-				];
 				$oNotice->type = $aMess[ 'error' ] ? 'error' : 'updated';
 				$oNotice->display = true;
+				$oNotice->render_data = [
+					'notice_classes' => [
+						'flash',
+						$oNotice->type
+					],
+					'message' => sanitize_text_field( $aMess[ 'message' ] ),
+				];
 				$oNotice->template = '/notices/flash-message.twig';
 			}
 			Services::Response()->cookieDelete( $sCookieName );

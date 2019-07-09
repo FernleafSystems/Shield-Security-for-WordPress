@@ -75,6 +75,9 @@
 	display: inline-block;
 	font-size: 48px;
 }
+.flash .notice-icon .dashicons {
+	font-size: 24px;
+}
 .notice-content p a {
 	text-shadow: none;
 	font-weight: bold;
