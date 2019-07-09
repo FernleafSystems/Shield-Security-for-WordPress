@@ -13,6 +13,13 @@ class ICWP_WPSF_FeatureHandler_Events extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return Shield\Modules\Events\AjaxHandler
+	 */
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\Events\AjaxHandler;
+	}
+
+	/**
 	 * @return Shield\Modules\Events\Options
 	 */
 	protected function loadOptions() {

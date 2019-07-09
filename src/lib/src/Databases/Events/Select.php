@@ -107,8 +107,8 @@ class Select extends Base\Select {
 	 */
 	public function filterByDayBoundary( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		$oCbn->setTime( 0, 0, 0, 0 )->timestamp;
-		return $this->filterByCreatedAt( $oCbn->setTime( 0, 0, 0, 0 )->timestamp, '>' )
+		$oCbn->setTime( 0, 0, 0 )->timestamp;
+		return $this->filterByCreatedAt( $oCbn->setTime( 0, 0, 0 )->timestamp, '>' )
 					->filterByCreatedAt( $oCbn->addDays( 1 )->timestamp, '<' );
 	}
 

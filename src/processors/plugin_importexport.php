@@ -522,7 +522,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					$nErrorCode = 8;
 				}
 				else {
-					$this->processDataImport( $aParts[ 'data' ] );
+					$this->processDataImport( $aParts[ 'data' ], $sMasterSiteUrl );
 
 					// Fix for the overwriting of the Master Site URL with an empty string.
 					// Only do so if we're not turning it off. i.e on or no-change
