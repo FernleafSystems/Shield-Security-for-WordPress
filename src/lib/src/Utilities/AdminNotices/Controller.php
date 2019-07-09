@@ -14,6 +14,23 @@ class Controller {
 		add_action( 'network_admin_notices', [ $this, 'onWpNetworkAdminNotices' ] );
 	}
 
+	/**
+	 * @param string $sMessage
+	 * @param bool   $bIsError
+	 * @return $this
+	 */
+	public function addFlash( $sMessage, $bIsError = false ) {
+		Services::Response()->cookieSet(
+			$this->getCon()->prefix( 'flash' ),
+			base64_encode( json_encode( [
+				'message' => sanitize_text_field( $sMessage ),
+				'error'   => $bIsError
+			] ) ),
+			300
+		);
+		return $this;
+	}
+
 	public function onWpAdminNotices() {
 		$this->displayNotices();
 	}
@@ -37,12 +54,36 @@ class Controller {
 		if ( !is_array( $aNotices ) ) {
 			$aNotices = [];
 		}
+		$aNotices[] = $this->getFlashNotice();
 		return array_filter(
 			$aNotices,
 			function ( $oNotice ) {
 				return ( $oNotice instanceof NoticeVO );
 			}
 		);
+	}
+
+	/**
+	 * @return NoticeVO|null
+	 */
+	private function getFlashNotice() {
+		$oNotice = null;
+		$sCookieName = $this->getCon()->prefix( 'flash' );
+		$sMessage = Services::Request()->cookie( $sCookieName, '' );
+		if ( !empty( $sMessage ) ) {
+			$aMess = json_decode( base64_decode( $sMessage ), true );
+			if ( !empty( $aMess[ 'message' ] ) ) {
+				$oNotice = new NoticeVO();
+				$oNotice->render_data = [
+					'message' => sanitize_text_field( $aMess[ 'message' ] ),
+				];
+				$oNotice->type = $aMess[ 'error' ] ? 'error' : 'updated';
+				$oNotice->display = true;
+				$oNotice->template = '/notices/flash-message.twig';
+			}
+			Services::Response()->cookieDelete( $sCookieName );
+		}
+		return $oNotice;
 	}
 
 	/**

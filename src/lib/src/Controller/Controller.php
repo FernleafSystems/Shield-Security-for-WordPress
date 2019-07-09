@@ -83,6 +83,11 @@ class Controller extends Shield\Deprecated\Foundation {
 	protected $aModules;
 
 	/**
+	 * @var Shield\Utilities\AdminNotices\Controller
+	 */
+	protected $oNotices;
+
+	/**
 	 * @param string $sRootFile
 	 * @return Controller
 	 * @throws \Exception
@@ -340,7 +345,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
 		}
 
-		( new Shield\Utilities\AdminNotices\Controller() )->setCon( $this );
+		$this->getAdminNotices();
 	}
 
 	/**
@@ -391,6 +396,16 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function displayDashboardWidget() {
 		$aContent = apply_filters( $this->prefix( 'dashboard_widget_content' ), [] );
 		echo implode( '', $aContent );
+	}
+
+	/**
+	 * @return Shield\Utilities\AdminNotices\Controller
+	 */
+	public function getAdminNotices() {
+		if ( !isset( $this->oNotices ) ) {
+			$this->oNotices = ( new Shield\Utilities\AdminNotices\Controller() )->setCon( $this );
+		}
+		return $this->oNotices;
 	}
 
 	/**

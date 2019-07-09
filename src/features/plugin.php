@@ -156,14 +156,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
-				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				/** @var \ICWP_WPSF_Processor_Plugin $oPro */
 				$oPro = $this->getProcessor();
 				$oPro->getSubProImportExport()
 					 ->doExportDownload();
 				break;
 
 			case 'import_file_upload':
-				/** @var ICWP_WPSF_Processor_Plugin $oPro */
+				/** @var \ICWP_WPSF_Processor_Plugin $oPro */
 				$oPro = $this->getProcessor();
 				try {
 					$oPro->getSubProImportExport()
@@ -175,8 +175,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$bSuccess = false;
 					$sMessage = $oE->getMessage();
 				}
-				$this->loadWpNotices()
-					 ->addFlashUserMessage( $sMessage, !$bSuccess );
+				$this->setFlashAdminNotice( $sMessage, !$bSuccess );
 				Services::Response()->redirect( $this->getUrlImportExport() );
 				break;
 

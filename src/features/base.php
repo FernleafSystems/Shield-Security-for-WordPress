@@ -1193,8 +1193,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return $this
 	 */
 	public function setFlashAdminNotice( $sMsg, $bError = false ) {
-		$this->loadWpNotices()
-			 ->addFlashUserMessage( sprintf( '[%s] %s', $this->getCon()->getHumanName(), $sMsg ), $bError );
+		$this->getCon()
+			 ->getAdminNotices()
+			 ->addFlash( sprintf( '[%s] %s', $this->getCon()->getHumanName(), $sMsg ), $bError );
 		return $this;
 	}
 
