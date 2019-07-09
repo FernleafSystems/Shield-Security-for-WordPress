@@ -112,6 +112,15 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_visitor_whitelisted() {
+		return;
+	}
+
+	/**
 	 * @param array $aMessages
 	 * @return array
 	 */
@@ -141,7 +150,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
 		$oFO = $this->getMod();
 		if ( empty( $sIp ) ) {
-			$sIp = Services::IP();
+			$sIp = Services::IP()->getRequestIp();
 		}
 		return $oFO->getOptTransgressionLimit() - $this->getTransgressions( $sIp );
 	}
@@ -169,7 +178,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			return;
 		}
 
-		$sIp = Services::IP();
+		$sIp = $this->ip();
 		$bKill = false;
 
 		// TODO: *Maybe* Have a manual black list process first.
@@ -218,7 +227,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				throw new \Exception( 'Email should not be provided in honeypot' );
 			}
 
-			$sIp = Services::IP();
+			$sIp = Services::IP()->getRequestIp();
 			if ( $oReq->post( 'ip' ) != $sIp ) {
 				throw new \Exception( 'IP does not match' );
 			}
@@ -251,7 +260,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		$sUniqId = 'uau'.uniqid();
 
-		$sIp = Services::IP();
+		$sIp = Services::IP()->getRequestIp();
 		$nTimeRemaining = max( floor( $oFO->getAutoExpireTime()/60 ), 0 );
 		$aData = [
 			'strings' => [
@@ -323,11 +332,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 
-		$sIp = Services::IP();
+		$sIp = Services::IP()->getRequestIp();
 
 		$oBlackIp = $this->getAutoBlackListIp( $sIp );
 		if ( !$oBlackIp instanceof IPs\EntryVO ) {
-			$oBlackIp = $this->addIpToList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
+			$oBlackIp = $this->addIpToList( $this->ip(), ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
 		}
 
 		if ( $oBlackIp instanceof IPs\EntryVO ) {
@@ -364,7 +373,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	 */
 	public function isCurrentIpWhitelisted() {
 		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-			$this->bVisitorIsWhitelisted = $this->isIpOnWhiteList( Services::IP() );
+			$this->bVisitorIsWhitelisted = $this->isIpOnWhiteList( $this->ip() );
 		}
 		return $this->bVisitorIsWhitelisted;
 	}
@@ -638,13 +647,5 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 				 ->query();
 		}
 		return true;
-	}
-
-	/**
-	 * @throws \Exception
-	 * @deprecated 8
-	 */
-	public function addNotice_visitor_whitelisted() {
-		return;
 	}
 }

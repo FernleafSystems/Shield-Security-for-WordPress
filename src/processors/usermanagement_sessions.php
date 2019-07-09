@@ -108,7 +108,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 				Services::Request()->getServerAddress(),
 				$oPluginMod->getMyServerIp()
 			];
-			if ( !in_array( Services::IP(), $aPossibleIps ) ) {
+			if ( !in_array( Services::IP()->getRequestIp(), $aPossibleIps ) ) {
 				throw new \Exception( 'session_iplock' );
 			}
 		}
