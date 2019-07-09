@@ -379,7 +379,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'reports':
 
 					$aDeps = $aStdDepsJs;
-					$aJsAssets = [ 'chartist.min', 'charts' ];
+					$aJsAssets = [ 'chartist.min', 'chartist-plugin-legend', 'charts' ];
 					foreach ( $aJsAssets as $sAsset ) {
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
@@ -393,15 +393,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						$aDeps[] = $sUnique;
 					}
 
-					$sAsset = 'chartist.min';
-					wp_register_style(
-						$sUnique,
-						$oConn->getPluginUrl_Css( $sAsset ),
-						[],
-						$oConn->getVersion(),
-						false
-					);
-					wp_enqueue_style( $sUnique );
+					$aDeps = [];
+					$aCssAssets = [ 'chartist.min', 'chartist-plugin-legend' ];
+					foreach ( $aCssAssets as $sAsset ) {
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_style(
+							$sUnique,
+							$oConn->getPluginUrl_Css( $sAsset ),
+							$aDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_style( $sUnique );
+						$aDeps[] = $sUnique;
+					}
 					break;
 
 				case 'scans':

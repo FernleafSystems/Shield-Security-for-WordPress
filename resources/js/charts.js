@@ -1,3 +1,40 @@
+jQuery.fn.icwpWpsfChartWithFilters = function ( aOptions ) {
+
+	let resetFilters = function ( evt ) {
+		jQuery( 'input[type=text]', $oForm ).each( function () {
+			jQuery( this ).val( '' );
+		} );
+		jQuery( 'select', $oForm ).each( function () {
+			jQuery( this ).prop( 'selectedIndex', 0 );
+		} );
+		jQuery( 'input[type=checkbox]', $oForm ).each( function () {
+			jQuery( this ).prop( 'checked', false );
+		} );
+		aOpts[ 'table' ].renderChartFromForm( $oForm );
+	};
+
+	let submitFilters = function ( evt ) {
+		evt.preventDefault();
+		aOpts[ 'table' ].renderChartFromForm( $oForm );
+		return false;
+	};
+
+	let initialise = function () {
+		jQuery( document ).ready( function () {
+			$oForm = jQuery( aOpts[ 'selector_filter_form' ] );
+			$oForm.on( 'change', submitFilters );
+			$oForm.on( 'click', 'a#ClearForm', resetFilters );
+		} );
+	};
+
+	let $oThis = this;
+	let aOpts = jQuery.extend( {}, aOptions );
+	let $oForm;
+	initialise();
+
+	return this;
+};
+
 jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 
 	this.reloadChart = function () {
@@ -28,7 +65,17 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 
 		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_render' ], aOpts[ 'req_params' ], aTableRequestParams ),
 			function ( oResponse ) {
-				new Chartist.Line( '.icwpAjaxContainerChart', oResponse.data.chart_data, {} );
+				new Chartist.Line(
+					'.icwpAjaxContainerChart',
+					oResponse.data.chart.data,
+					{
+						plugins: [
+							Chartist.plugins.legend( {
+								legendNames: oResponse.data.chart.legend_names
+							} )
+						]
+					}
+				);
 			}
 		).always(
 			function () {

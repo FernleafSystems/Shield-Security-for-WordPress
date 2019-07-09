@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseQuery {
@@ -207,6 +208,26 @@ abstract class BaseQuery {
 			$this->addWhere( 'created_at', (int)$nTs, $sComparison );
 		}
 		return $this;
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Day( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfDay()->timestamp, '>' )
+					->filterByCreatedAt( $oCbn->endOfDay()->timestamp, '<' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Week( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfWeek()->timestamp, '>' )
+					->filterByCreatedAt( $oCbn->endOfWeek()->timestamp, '<' );
 	}
 
 	/**

@@ -3,7 +3,15 @@
 {% block page_main %}
 	<div class="row">
 		<div class="col-4 insights_section">
-			<h3>IP Offenses</h3>
+			<h3>Daily</h3>
+			<form id="ChartDaily">
+				<label>Chart Your Desired Stats
+					<select name="event">
+						<option value="" disabled="disabled" selected="selected">-- Select --</option>
+						<option value="ip_offense">IP Offenses</option>
+					</select>
+				</label>
+			</form>
 			<div id="ChartOffenses"></div>
 		</div>
 	</div>
@@ -11,15 +19,21 @@
 
 {% block inline_styles %}
 
-	<style>
-	</style>
-
 	<script>
+		let $oChartOffense;
+
 		jQuery( document ).ready( function () {
 
 			let $oChartOffense = jQuery( '#ChartOffenses' ).icwpWpsfAjaxChart(
 				{
 					'ajax_render':{{ ajax.render_chart|raw }}
+				}
+			);
+
+			jQuery( document ).icwpWpsfChartWithFilters(
+				{
+					'table': $oChartOffense,
+					'selector_filter_form': 'form#ChartDaily'
 				}
 			);
 		} );
