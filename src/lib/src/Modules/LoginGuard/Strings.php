@@ -29,7 +29,7 @@ class Strings extends Base\Strings {
 			'2fa_email_verified'      => [
 				__( 'User "%s" verified their identity using %s.', 'wp-simple-firewall' )
 			],
-			'2fa_email_fail'          => [
+			'2fa_email_verify_fail'   => [
 				__( 'User "%s" failed to verify their identity using %s.', 'wp-simple-firewall' )
 			],
 			'2fa_googleauth_verified' => [

@@ -68,11 +68,12 @@
       "deleted_at"
     ],
     "events":               {
-      "start_session":             {
+      "session_start":             {
         "audit":  false
       },
-      "terminate_session":             {
-        "audit":  false
+      "session_terminate":             {
+        "audit":  false,
+        "recent": true
       }
     }
   }

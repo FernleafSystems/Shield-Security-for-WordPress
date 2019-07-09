@@ -423,11 +423,11 @@
       "block_exefile":              {
         "cat": 3
       },
-      "email_send_fail":            {
+      "fw_email_fail":            {
         "cat":  2,
         "stat": false
       },
-      "email_send_success":         {
+      "fw_email_success":         {
         "stat": false
       }
     }

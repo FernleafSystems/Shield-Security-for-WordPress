@@ -101,20 +101,20 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$oCurrent->updateLastVerifiedAt( true );
 				$this->activateLicense()
 					 ->clearLastErrors();
-				$oCon->fireEvent( 'check_success' );
+				$oCon->fireEvent( 'lic_check_success' );
 			}
 			else {
 				if ( $oCurrent->isValid() ) { // we have something valid previously stored
 
 					if ( !$bForceCheck && $this->isWithinVerifiedGraceExpired() ) {
 						$this->sendLicenseWarningEmail();
-						$oCon->fireEvent( 'check_fail_email' );
+						$oCon->fireEvent( 'lic_fail_email' );
 					}
 					else if ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
 						$oCurrent = $oLookupLicense;
 						$this->deactivate( __( 'Automatic license verification failed.', 'wp-simple-firewall' ) );
 						$this->sendLicenseDeactivatedEmail();
-						$oCon->fireEvent( 'check_fail_deactivate' );
+						$oCon->fireEvent( 'lic_fail_deactivate' );
 					}
 				}
 				else {

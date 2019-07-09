@@ -254,7 +254,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
 			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
 			$this->getCon()->fireEvent(
-				$this->sendBlockEmail( $sRecipient ) ? 'email_send_success' : 'email_send_fail',
+				$this->sendBlockEmail( $sRecipient ) ? 'fw_email_success' : 'fw_email_fail',
 				[ 'audit' => [ 'recipient' => $sRecipient ] ]
 			);
 		}

@@ -141,7 +141,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return bool
 	 */
 	public function terminateSession( $nSessionId ) {
-		$this->getCon()->fireEvent( 'terminate_session' );
+		$this->getCon()->fireEvent( 'session_terminate' );
 		return $this->getMod()
 					->getDbHandler()
 					->getQueryDeleter()
@@ -151,7 +151,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	/**
 	 * @return bool
 	 */
-	protected function terminateCurrentSession() {
+	public function terminateCurrentSession() {
 		$bSuccess = false;
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
 			$oSes = $this->getCurrentSession();
@@ -232,7 +232,7 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			return null;
 		}
 
-		$this->getCon()->fireEvent( 'start_session' );
+		$this->getCon()->fireEvent( 'session_start' );
 
 		/** @var Session\Insert $oInsert */
 		$oInsert = $this->getMod()

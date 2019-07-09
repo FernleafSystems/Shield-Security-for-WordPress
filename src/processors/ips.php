@@ -87,6 +87,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
+	 * Allows 3rd parties to trigger Shield offenses
 	 * @param string $sMessage
 	 * @param int    $nOffenseCount
 	 * @param bool   $bIncludeLoggedIn

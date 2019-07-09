@@ -214,10 +214,10 @@ class Strings extends Base\Strings {
 			'block_exefile'              => [
 				sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'EXE File Uploads', 'wp-simple-firewall' ) )
 			],
-			'email_send_success'         => [
+			'fw_email_success'           => [
 				__( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' )
 			],
-			'email_send_fail'            => [
+			'fw_email_fail'              => [
 				__( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' )
 			],
 		];

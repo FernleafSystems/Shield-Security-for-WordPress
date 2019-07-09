@@ -31,6 +31,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	public function ajaxExec_RenderChart() {
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
+		/** @var Strings $oStrs */
+		$oStrs = $oMod->getStrings();
 
 		$aParams = $this->getAjaxFormParams();
 		$sEvent = $aParams[ 'event' ];
@@ -38,22 +40,15 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var Shield\Databases\Events\Handler $oDbhEvts */
 		$oDbhEvts = $oMod->getDbHandler();
 		$nDays = 0;
-		$aSeries_Offsenses = [];
-		$aSeries_Firewall = [];
+		$aSeries = [];
 		$aLabels = [];
 		$oNow = Services::Request()->carbon();
 
 		do {
 			/** @var Shield\Databases\Events\Select $oSelEvts */
 			$oSelEvts = $oDbhEvts->getQuerySelector();
-			$aSeries_Offsenses[] = $oSelEvts->filterByBoundary_Day( $oNow->timestamp )
-											->sumEvent( $sEvent );
-			$oSelEvts = $oDbhEvts->getQuerySelector();
-			$aSeries_Firewall[] = $oSelEvts->filterByBoundary_Day( $oNow->timestamp )
-										   ->sumEvent( $sEvent );
-			$oSelEvts = $oDbhEvts->getQuerySelector();
-			$aSeries_Login[] = $oSelEvts->filterByBoundary_Day( $oNow->timestamp )
-										->sumEvent( $sEvent );
+			$aSeries[] = $oSelEvts->filterByBoundary_Day( $oNow->timestamp )
+								  ->sumEvent( $sEvent );
 			$aLabels[] = $oNow->toDateString();
 			$oNow->subDay();
 			$nDays++;
@@ -66,12 +61,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'data'         => [
 					'labels' => array_reverse( $aLabels ),
 					'series' => [
-						array_reverse( $aSeries_Offsenses ),
-						array_reverse( $aSeries_Firewall ),
-						array_reverse( $aSeries_Login )
+						array_reverse( $aSeries ),
 					]
 				],
-				'legend_names' => [ 'Total Offenses', 'Firewall Blocks', 'Login Blocks' ],
+				'legend_names' => [ 'Total Offenses' ],
 			]
 		];
 	}

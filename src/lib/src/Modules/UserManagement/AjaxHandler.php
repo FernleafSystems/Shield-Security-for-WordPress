@@ -91,7 +91,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				foreach ( $aIds as $nId ) {
 					if ( is_numeric( $nId ) && ( $nId != $nYourId ) ) {
 						$oDel->deleteById( $nId );
-						$this->getCon()->fireEvent( 'terminate_session' );
+						$this->getCon()->fireEvent( 'session_terminate' );
 					}
 				}
 				$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );

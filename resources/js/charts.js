@@ -10,12 +10,12 @@ jQuery.fn.icwpWpsfChartWithFilters = function ( aOptions ) {
 		jQuery( 'input[type=checkbox]', $oForm ).each( function () {
 			jQuery( this ).prop( 'checked', false );
 		} );
-		aOpts[ 'table' ].renderChartFromForm( $oForm );
+		aOpts[ 'chart' ].renderChartFromForm( $oForm );
 	};
 
 	let submitFilters = function ( evt ) {
 		evt.preventDefault();
-		aOpts[ 'table' ].renderChartFromForm( $oForm );
+		aOpts[ 'chart' ].renderChartFromForm( $oForm );
 		return false;
 	};
 
@@ -41,7 +41,7 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 		reqRenderChart();
 	};
 
-	let createTableContainer = function () {
+	let createChartContainer = function () {
 		$oChartContainer = jQuery( '<div />' ).appendTo( $oThis );
 		$oChartContainer.addClass( 'icwpAjaxContainerChart' )
 						.addClass( 'ct-chart' );
@@ -57,13 +57,13 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 		reqRenderChart( { 'form_params': $oForm.serialize() } );
 	};
 
-	let reqRenderChart = function ( aTableRequestParams ) {
+	let reqRenderChart = function ( aRequestParams ) {
 		if ( bReqRunning ) {
 			return false;
 		}
 		bReqRunning = true;
 
-		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_render' ], aOpts[ 'req_params' ], aTableRequestParams ),
+		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_render' ], aOpts[ 'req_params' ], aRequestParams ),
 			function ( oResponse ) {
 				new Chartist.Line(
 					'.icwpAjaxContainerChart',
@@ -89,7 +89,7 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 
 	let initialise = function () {
 		jQuery( document ).ready( function () {
-			createTableContainer();
+			createChartContainer();
 			reqRenderChart();
 			setHandlers();
 		} );

@@ -127,13 +127,13 @@
     "keyless":                      true,
     "keyless_handshake_expire":     90,
     "events":                       {
-      "check_success":         {
+      "lic_check_success":         {
         "stat": false
       },
-      "check_fail_email":      {
+      "lic_fail_email":      {
         "stat": false
       },
-      "check_fail_deactivate": {
+      "lic_fail_deactivate": {
         "cat": 2,
         "stat": false
       }

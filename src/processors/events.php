@@ -44,9 +44,9 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 				__( 'Login Verified', 'wp-simple-firewall' ),
 				$oSelEvents->clearWheres()->sumEvent( '2fa_success' )
 			],
-			'start_session'     => [
+			'session_start'     => [
 				__( 'User Sessions', 'wp-simple-firewall' ),
-				$oSelEvents->clearWheres()->sumEvent( 'start_session' )
+				$oSelEvents->clearWheres()->sumEvent( 'session_start' )
 			],
 			'ip_killed'         => [
 				__( 'IP Blocks', 'wp-simple-firewall' ),

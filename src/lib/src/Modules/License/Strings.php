@@ -41,13 +41,13 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'check_success'         => [
+			'lic_check_success'   => [
 				__( 'Pro License check succeeded.', 'wp-simple-firewall' )
 			],
-			'check_fail_email'      => [
+			'lic_fail_email'      => [
 				__( 'License check failed. Sending Warning Email.', 'wp-simple-firewall' )
 			],
-			'check_fail_deactivate' => [
+			'lic_fail_deactivate' => [
 				__( 'License check failed. Deactivating Pro.', 'wp-simple-firewall' )
 			],
 		];

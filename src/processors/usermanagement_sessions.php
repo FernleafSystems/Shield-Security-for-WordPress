@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
@@ -29,7 +30,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	}
 
 	/**
-	 * @param string  $sUsername
+	 * @param string   $sUsername
 	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
@@ -60,14 +61,17 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	/**
 	 */
 	private function checkCurrentSession() {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 		try {
 			$this->assessSession();
 		}
 		catch ( \Exception $oE ) {
 			$sEvent = $oE->getMessage();
 			$this->getCon()
-				 ->fireEvent( 'session_terminated' )
 				 ->fireEvent( $sEvent );
+			$oMod->getSessionsProcessor()
+				 ->terminateCurrentSession();
 			$oU = Services::WpUsers();
 			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $sEvent ] ) : $oU->logoutUser( true );
 		}

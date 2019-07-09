@@ -332,10 +332,6 @@
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
     "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
     "events":                        {
-      "session_terminated":           {
-        "audit":  false,
-        "recent": true
-      },
       "session_notfound":             {
       },
       "session_expired":              {
