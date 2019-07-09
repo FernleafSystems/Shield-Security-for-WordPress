@@ -34,10 +34,42 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		$aParams = $this->getAjaxFormParams();
 
+		/** @var Shield\Databases\Events\Handler $oDbhEvts */
+		$oDbhEvts = $oMod->getDbHandler();
+		/** @var Shield\Databases\Events\Select $oSelEvts */
+		$oSelEvts = $oDbhEvts->getQuerySelector();
+		$nDays = 0;
+		$aSeries_Offsenses = [];
+		$aSeries_Firewall = [];
+		$aLabels = [];
+		$oNow = Services::Request()->carbon();
+		/** @var Shield\Databases\Events\Select $oSelEvts */
+		do {
+			$oSelEvts = $oDbhEvts->getQuerySelector();
+			$aSeries_Offsenses[] = $oSelEvts->filterByDayBoundary( $oNow->timestamp )
+											->sumEvent( 'ip_offense' );
+			$oSelEvts = $oDbhEvts->getQuerySelector();
+			$aSeries_Firewall[] = $oSelEvts->filterByDayBoundary( $oNow->timestamp )
+										   ->sumEvent( 'firewall_block' );
+			$oSelEvts = $oDbhEvts->getQuerySelector();
+			$aSeries_Login[] = $oSelEvts->filterByDayBoundary( $oNow->timestamp )
+										   ->sumEvent( 'login_block' );
+			$aLabels[] = $oNow->toDateString();
+			$oNow->subDay();
+			$nDays++;
+		} while ( $nDays < 7 );
+
 		return [
-			'success' => true,
-			'message' => 'asdf',
-			'chart_data' => 'asdf'
+			'success'    => true,
+			'message'    => 'asdf',
+			'chart_data' => [
+				'labels' => array_reverse( $aLabels ),
+				'series' => [
+					array_reverse( $aSeries_Offsenses ),
+					array_reverse( $aSeries_Firewall ),
+					array_reverse( $aSeries_Login )
+				]
+			]
 		];
 	}
 }

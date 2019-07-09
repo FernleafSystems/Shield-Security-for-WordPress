@@ -358,7 +358,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		if ( $this->isThisModulePage() ) {
 
 			$oConn = $this->getCon();
-			$aStdDeps = [ $this->prefix( 'plugin' ) ];
+			$aStdDepsJs = [ $this->prefix( 'plugin' ) ];
 			$sNav = Services::Request()->query( 'inav' );
 			switch ( $sNav ) {
 
@@ -369,7 +369,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					wp_register_script(
 						$sUnique,
 						$oConn->getPluginUrl_Js( $sAsset ),
-						$aStdDeps,
+						$aStdDepsJs,
 						$oConn->getVersion(),
 						false
 					);
@@ -378,17 +378,22 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 				case 'reports':
 
-					$sAsset = 'chartist.min';
-					$sUnique = $this->prefix( $sAsset );
-					wp_register_script(
-						$sUnique,
-						$oConn->getPluginUrl_Js( $sAsset ),
-						$aStdDeps,
-						$oConn->getVersion(),
-						false
-					);
-					wp_enqueue_script( $sUnique );
+					$aDeps = $aStdDepsJs;
+					$aJsAssets = [ 'chartist.min', 'charts' ];
+					foreach ( $aJsAssets as $sAsset ) {
+						$sUnique = $this->prefix( $sAsset );
+						wp_register_script(
+							$sUnique,
+							$oConn->getPluginUrl_Js( $sAsset ),
+							$aDeps,
+							$oConn->getVersion(),
+							false
+						);
+						wp_enqueue_script( $sUnique );
+						$aDeps[] = $sUnique;
+					}
 
+					$sAsset = 'chartist.min';
 					wp_register_style(
 						$sUnique,
 						$oConn->getPluginUrl_Css( $sAsset ),
@@ -411,20 +416,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					wp_register_script(
 						$sUnique,
 						$oConn->getPluginUrl_Js( $sAsset ),
-						$aStdDeps,
+						$aStdDepsJs,
 						$oConn->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
 
-					$aStdDeps[] = $sUnique;
+					$aStdDepsJs[] = $sUnique;
 					if ( $sNav == 'scans' ) {
 						$sAsset = 'shield-scans';
 						$sUnique = $this->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
 							$oConn->getPluginUrl_Js( $sAsset ),
-							array_unique( $aStdDeps ),
+							array_unique( $aStdDepsJs ),
 							$oConn->getVersion(),
 							false
 						);
@@ -436,7 +441,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_register_script(
 							$sUnique, //TODO: use an includes services for CNDJS
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
-							array_unique( $aStdDeps ),
+							array_unique( $aStdDepsJs ),
 							$oConn->getVersion(),
 							false
 						);
@@ -464,11 +469,25 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var Shield\Databases\Events\Select $oSelEvts */
 		$oSelEvts = $oDbhEvts->getQuerySelector();
 
+		$aData = [
+			'ajax'    => [
+				'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
+
+			],
+			'flags'   => [],
+			'strings' => [
+			],
+			'vars'    => [
+			],
+		];
+		return $aData;
+
 		$oNow = Services::Request()->carbon();
 
 		$nDays = 0;
 		$aSeries_Offsenses = [];
 		$aLabels = [];
+
 		do {
 			$aSeries_Offsenses[] = $oSelEvts->filterByDayBoundary( $oNow->timestamp )
 											->sumEvent( 'ip_offense' );
@@ -486,7 +505,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					]
 				]
 			)
-
 		];
 	}
 

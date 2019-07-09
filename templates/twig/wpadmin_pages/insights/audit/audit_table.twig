@@ -92,7 +92,7 @@
 </div>
 
 <script>
-	var $oTableAuditTrail = jQuery( '#TableAuditTrail' ).icwpWpsfAjaxTable(
+	let $oTableAuditTrail = jQuery( '#TableAuditTrail' ).icwpWpsfAjaxTable(
 		{
 			'ajax_render':{{ ajax.render_table_audittrail|raw }}
 		}
@@ -112,8 +112,8 @@
 		}
 	);
 
-	var $oDataPickers = jQuery( '.date-picker' );
-	$oDataPickers.datepicker(
+	let $oDatePickers = jQuery( '.date-picker' );
+	$oDatePickers.datepicker(
 		{
 			autoclose: true,
 			clearBtn: true,
@@ -122,6 +122,4 @@
 			maxViewMode: 2
 		}
 	);
-
-
 </script>
