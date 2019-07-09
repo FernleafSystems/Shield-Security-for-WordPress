@@ -164,10 +164,10 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\Autoupdates\AjaxHandler
+	 * @return Shield\Modules\Traffic\AjaxHandler
 	 */
 	protected function loadAjaxHandler() {
-		return new Shield\Modules\Autoupdates\AjaxHandler;
+		return new Shield\Modules\Traffic\AjaxHandler;
 	}
 
 	/**

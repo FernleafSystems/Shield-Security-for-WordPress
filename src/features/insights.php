@@ -469,48 +469,31 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	private function buildVars_Reports() {
 		$oEvtsMod = $this->getCon()->getModule_Events();
-		/** @var Shield\Databases\Events\Handler $oDbhEvts */
-		$oDbhEvts = $oEvtsMod->getDbHandler();
-		/** @var Shield\Databases\Events\Select $oSelEvts */
-		$oSelEvts = $oDbhEvts->getQuerySelector();
+		/** @var Shield\Modules\Events\Strings $oStrs */
+		$oStrs = $oEvtsMod->getStrings();
+		$aEvtNames = $oStrs->getEventNames();
 
 		$aData = [
 			'ajax'    => [
 				'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
-
 			],
 			'flags'   => [],
 			'strings' => [
 			],
 			'vars'    => [
+				'events_options' => array_intersect_key(
+					$aEvtNames,
+					array_flip(
+						[
+							'ip_offense',
+							'conn_kill',
+							'firewall_block',
+						]
+					)
+				)
 			],
 		];
 		return $aData;
-
-		$oNow = Services::Request()->carbon();
-
-		$nDays = 0;
-		$aSeries_Offsenses = [];
-		$aLabels = [];
-
-		do {
-			$aSeries_Offsenses[] = $oSelEvts->filterByDayBoundary( $oNow->timestamp )
-											->sumEvent( 'ip_offense' );
-			$aLabels[] = $oNow->toDateString();
-			$oNow->subDay();
-			$nDays++;
-		} while ( $nDays < 7 );
-
-		return [
-			'chart_data' => json_encode(
-				[
-					'labels' => array_reverse( $aLabels ),
-					'series' => [
-						array_reverse( $aSeries_Offsenses )
-					]
-				]
-			)
-		];
 	}
 
 	/**

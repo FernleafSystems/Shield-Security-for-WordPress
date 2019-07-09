@@ -8,11 +8,13 @@
 				<label>Chart Your Desired Stats
 					<select name="event">
 						<option value="" disabled="disabled" selected="selected">-- Select --</option>
-						<option value="ip_offense">IP Offenses</option>
+						{% for event_key, event_name in vars.events_options %}
+							<option value="{{ event_key }}">{{ event_name }}</option>
+						{% endfor %}
 					</select>
 				</label>
 			</form>
-			<div id="ChartOffenses"></div>
+			<div id="ChartDaily"></div>
 		</div>
 	</div>
 {% endblock %}
@@ -24,7 +26,7 @@
 
 		jQuery( document ).ready( function () {
 
-			let $oChartOffense = jQuery( '#ChartOffenses' ).icwpWpsfAjaxChart(
+			let $oChartOffense = jQuery( '#ChartDaily' ).icwpWpsfAjaxChart(
 				{
 					'ajax_render':{{ ajax.render_chart|raw }}
 				}

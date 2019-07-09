@@ -63,12 +63,22 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 		}
 		bReqRunning = true;
 
+		$oChartContainer.html( 'Loading...' );
+
 		jQuery.post( ajaxurl, jQuery.extend( aOpts[ 'ajax_render' ], aOpts[ 'req_params' ], aRequestParams ),
 			function ( oResponse ) {
+
+				$oChartContainer.html('');
 				new Chartist.Line(
 					'.icwpAjaxContainerChart',
 					oResponse.data.chart.data,
 					{
+						axisY: {
+							onlyInteger: true,
+							labelInterpolationFnc: function ( value ) {
+								return value;
+							}
+						},
 						plugins: [
 							Chartist.plugins.legend( {
 								legendNames: oResponse.data.chart.legend_names
