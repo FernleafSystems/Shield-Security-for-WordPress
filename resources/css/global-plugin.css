@@ -59,7 +59,6 @@
 	.notice-icon {
 		display: block;
 	}
-
 	.notice-content {
 		margin-left: 62px;
 	}
@@ -75,8 +74,12 @@
 	display: inline-block;
 	font-size: 48px;
 }
+.flash .notice-icon {
+	height: 26px;
+}
 .flash .notice-icon .dashicons {
 	font-size: 24px;
+	height: 26px;
 }
 .notice-content p a {
 	text-shadow: none;

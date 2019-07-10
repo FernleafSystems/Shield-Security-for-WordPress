@@ -55,7 +55,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	public function onWpLoaded() {
-		if ( is_admin() && !Services::Request()->isPost() && Services::WpUsers()->isUserLoggedIn() ) {
+		if ( is_admin() && !Services::WpGeneral()->isAjax() && !Services::Request()->isPost()
+			 && Services::WpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
 			$this->processFailedCheckPassword();
 		}
@@ -85,7 +86,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	private function processExpiredPassword() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPassExpirationEnabled() ) {
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
@@ -134,11 +135,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 			$oWpUsers = Services::WpUsers();
 			$sAction = Services::Request()->query( 'action' );
 			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser &&( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
+			if ( $oUser && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$sMessage .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
-					 ->setFlashAdminNotice( $sMessage );
+					 ->setFlashAdminNotice( $sMessage, true, true );
 				$this->getCon()->fireEvent( 'password_policy_force_change' );
 				Services::Response()->redirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
 			}

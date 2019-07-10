@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta;
 
 class Controller {
 
@@ -12,22 +13,39 @@ class Controller {
 	public function __construct() {
 		add_action( 'admin_notices', [ $this, 'onWpAdminNotices' ] );
 		add_action( 'network_admin_notices', [ $this, 'onWpNetworkAdminNotices' ] );
+		add_filter( 'login_message', [ $this, 'onLoginMessage' ] );
+	}
+
+	/**
+	 * TODO doesn't handle error message highlighting
+	 * @param string $sMessage
+	 * @return string
+	 */
+	public function onLoginMessage( $sMessage ) {
+		$aM = $this->retrieveFlashMessage();
+		if ( is_array( $aM ) && isset( $aM[ 'show_login' ] ) && $aM[ 'show_login' ] ) {
+			$sMessage .= sprintf( '<p class="message">%s</p>', sanitize_text_field( $aM[ 'message' ] ) );
+			$this->clearFlashMessage();
+		}
+		return $sMessage;
 	}
 
 	/**
 	 * @param string $sMessage
 	 * @param bool   $bIsError
+	 * @param bool   $bShowOnLoginPage
 	 * @return $this
 	 */
-	public function addFlash( $sMessage, $bIsError = false ) {
-		Services::Response()->cookieSet(
-			$this->getCon()->prefix( 'flash' ),
-			base64_encode( json_encode( [
-				'message' => sanitize_text_field( $sMessage ),
-				'error'   => $bIsError
-			] ) ),
-			8
-		);
+	public function addFlash( $sMessage, $bIsError = false, $bShowOnLoginPage = false ) {
+		$oMeta = $this->getCon()->getCurrentUserMeta();
+		if ( $oMeta instanceof PluginUserMeta ) {
+			$oMeta->flash_msg = [
+				'message'    => sanitize_text_field( $sMessage ),
+				'expires_at' => Services::Request()->ts() + 20,
+				'error'      => $bIsError,
+				'show_login' => $bShowOnLoginPage,
+			];
+		}
 		return $this;
 	}
 
@@ -68,26 +86,49 @@ class Controller {
 	 */
 	private function getFlashNotice() {
 		$oNotice = null;
-		$sCookieName = $this->getCon()->prefix( 'flash' );
-		$sMessage = Services::Request()->cookie( $sCookieName, '' );
-		if ( !empty( $sMessage ) ) {
-			$aMess = json_decode( base64_decode( $sMessage ), true );
-			if ( !empty( $aMess[ 'message' ] ) ) {
-				$oNotice = new NoticeVO();
-				$oNotice->type = $aMess[ 'error' ] ? 'error' : 'updated';
-				$oNotice->display = true;
-				$oNotice->render_data = [
-					'notice_classes' => [
-						'flash',
-						$oNotice->type
-					],
-					'message' => sanitize_text_field( $aMess[ 'message' ] ),
-				];
-				$oNotice->template = '/notices/flash-message.twig';
-			}
-			Services::Response()->cookieDelete( $sCookieName );
+		$aM = $this->retrieveFlashMessage();
+		if ( is_array( $aM ) ) {
+			$oNotice = new NoticeVO();
+			$oNotice->type = $aM[ 'error' ] ? 'error' : 'updated';
+			$oNotice->render_data = [
+				'notice_classes' => [
+					'flash',
+					$oNotice->type
+				],
+				'message'        => sanitize_text_field( $aM[ 'message' ] ),
+			];
+			$oNotice->template = '/notices/flash-message.twig';
+			$oNotice->display = true;
 		}
 		return $oNotice;
+	}
+
+	/**
+	 * @return array|null
+	 */
+	private function retrieveFlashMessage() {
+		$aMessage = null;
+		$oMeta = $this->getCon()->getCurrentUserMeta();
+		if ( $oMeta instanceof PluginUserMeta && is_array( $oMeta->flash_msg ) ) {
+			if ( empty( $aM[ 'expires_at' ] ) || Services::Request()->ts() < $aM[ 'expires_at' ] ) {
+				$aMessage = $oMeta->flash_msg;
+			}
+			else {
+				$this->clearFlashMessage();
+			}
+		}
+		return $aMessage;
+	}
+
+	/**
+	 * @return $this
+	 */
+	private function clearFlashMessage() {
+		$oMeta = $this->getCon()->getCurrentUserMeta();
+		if ( $oMeta instanceof PluginUserMeta && !empty( $oMeta->flash_msg ) ) {
+			$oMeta->flash_msg = null;
+		}
+		return $this;
 	}
 
 	/**

@@ -1192,10 +1192,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param bool   $bError
 	 * @return $this
 	 */
-	public function setFlashAdminNotice( $sMsg, $bError = false ) {
+	public function setFlashAdminNotice( $sMsg, $bError = false, $bShowOnLogin = false ) {
 		$this->getCon()
 			 ->getAdminNotices()
-			 ->addFlash( sprintf( '[%s] %s', $this->getCon()->getHumanName(), $sMsg ), $bError );
+			 ->addFlash(
+				 sprintf( '[%s] %s', $this->getCon()->getHumanName(), $sMsg ),
+				 $bError,
+				 $bShowOnLogin
+			 );
 		return $this;
 	}
 

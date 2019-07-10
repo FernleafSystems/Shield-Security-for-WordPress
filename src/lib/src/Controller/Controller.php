@@ -289,6 +289,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
 		add_action( 'init', [ $this, 'onWpInit' ], -1000 );
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		add_action( 'admin_init', [ $this, 'onWpAdminInit' ] );
 
 		add_action( 'admin_menu', [ $this, 'onWpAdminMenu' ] );
@@ -344,8 +345,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
 		}
-
-		$this->getAdminNotices();
 	}
 
 	/**
@@ -371,6 +370,12 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+	}
+
+	/**
+	 */
+	public function onWpLoaded() {
+		$this->getAdminNotices();
 	}
 
 	/**
