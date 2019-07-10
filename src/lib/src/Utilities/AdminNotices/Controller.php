@@ -99,6 +99,7 @@ class Controller {
 			];
 			$oNotice->template = '/notices/flash-message.twig';
 			$oNotice->display = true;
+			$this->clearFlashMessage();
 		}
 		return $oNotice;
 	}
