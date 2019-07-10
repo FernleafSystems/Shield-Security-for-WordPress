@@ -34,6 +34,7 @@ class Strings {
 				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
 				'save_all_settings' => sprintf( __( 'Save %s Settings', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+				'plugin_name'       => $oCon->getHumanName(),
 				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
 				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
 				'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
@@ -48,7 +49,7 @@ class Strings {
 				'type_below_search' => __( 'Type below to search all plugin options', 'wp-simple-firewall' ),
 				'pro_only_option'   => __( 'Pro Only', 'wp-simple-firewall' ),
 				'pro_only_feature'  => __( 'This is a pro-only feature', 'wp-simple-firewall' ),
-				'go_pro'            => 'Go Pro!',
+				'go_pro'            => __( 'Go Pro!', 'wp-simple-firewall' ),
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
 					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
 
@@ -67,6 +68,12 @@ class Strings {
 
 				'offense' => __( 'offense', 'wp-simple-firewall' ),
 				'debug'   => __( 'Debug', 'wp-simple-firewall' ),
+
+				'privacy_policy_agree' => __( 'Agree To Privacy Policy', 'wp-simple-firewall' ),
+				'privacy_policy_confirm' => __( "I confirm that I've read and I agree to the Privacy Policy", 'wp-simple-firewall' ),
+				'privacy_policy_gdpr' => __( 'We treat your information under our strict, and GDPR-compliant, privacy policy.', 'wp-simple-firewall' ),
+				'privacy_policy'         => __( 'Privacy Policy', 'wp-simple-firewall' ),
+				'privacy_never_spam'         => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
 			],
 			$this->getAdditionalDisplayStrings()
 		);

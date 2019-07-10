@@ -428,19 +428,17 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 	 * @return array
 	 */
 	protected function getRenderData_SlideBase() {
-		$oFO = $this->getMod();
-		$oCon = $this->getMod()->getCon();
+		$oMod = $this->getMod();
 		$aWizards = $this->getModuleWizardsForRender();
 		return [
-			'strings' => [
-				'plugin_name' => $oCon->getHumanName()
-			],
+			'strings' => $oMod->getStrings()->getDisplayStrings()
+			,
 			'flags'   => [
-				'is_premium'        => $oFO->isPremium(),
+				'is_premium'        => $oMod->isPremium(),
 				'has_other_wizards' => false
 			],
 			'hrefs'   => [
-				'dashboard' => $oFO->getUrl_AdminPage(),
+				'dashboard' => $oMod->getUrl_AdminPage(),
 				'gopro'     => 'https://icwp.io/ap',
 			],
 			'imgs'    => [],

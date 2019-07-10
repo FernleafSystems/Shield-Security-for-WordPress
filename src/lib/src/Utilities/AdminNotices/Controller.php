@@ -26,7 +26,7 @@ class Controller {
 				'message' => sanitize_text_field( $sMessage ),
 				'error'   => $bIsError
 			] ) ),
-			300
+			8
 		);
 		return $this;
 	}

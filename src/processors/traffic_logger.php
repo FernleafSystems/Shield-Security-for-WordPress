@@ -103,8 +103,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	protected function logTraffic() {
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
+		$oMod = $this->getMod();
 		$oReq = Services::Request();
 		$oDbh = $this->getDbHandler();
 
@@ -121,7 +121,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_BaseDbProcessor {
 		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
 		$oEntry->ua = $oReq->getUserAgent();
-		$oEntry->trans = $oFO->getIfIpTransgressed() ? 1 : 0;
+		$oEntry->trans = $oMod->getIfIpTransgressed() ? 1 : 0;
 
 		$oDbh->getQueryInserter()
 			 ->insert( $oEntry );

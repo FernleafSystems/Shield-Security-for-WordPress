@@ -220,12 +220,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 						'hrefs'   => [
 							'privacy_policy' => $this->getMod()->getDef( 'href_privacy_policy' )
 						],
-						'strings' => [
-							'privacy_policy' => sprintf(
-								'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
-								$this->getMod()->getDef( 'href_privacy_policy' )
-							),
-						]
 					];
 					break;
 
@@ -339,10 +333,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
 		if ( empty( $sIp ) ) {
-			$sMessage = 'IP address was empty.';
+			$sMessage = __( 'IP address was empty.', 'wp-simple-firewall' );
 		}
 		else if ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
-			$sMessage = 'The IP address supplied was not a valid public IP address.';
+			$sMessage = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
 		}
 //		else if ( $oIps->getIpVersion( $sIp ) != 4 ) {
 //			$sMessage = 'The IP address supplied was not a valid IP address.';
@@ -350,7 +344,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		else {
 			$sSource = $oIps->determineSourceFromIp( $sIp );
 			if ( empty( $sSource ) ) {
-				$sMessage = 'Strange, the address source could not be found from this IP.';
+				$sMessage = __( "The address source couldn't be found from this IP.", 'wp-simple-firewall' );
 			}
 			else {
 				$this->getCon()
@@ -373,7 +367,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$bSuccess = false;
 
-		/** @var ICWP_WPSF_FeatureHandler_License $oModule */
+		/** @var \ICWP_WPSF_FeatureHandler_License $oModule */
 		$oModule = $this->getCon()->getModule( 'license' );
 		try {
 			$bSuccess = $oModule->verifyLicense( true )
