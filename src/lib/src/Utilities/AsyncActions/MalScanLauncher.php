@@ -20,6 +20,13 @@ class MalScanLauncher extends Launcher {
 		$this->setAction( $oAction )
 			 ->readAction();
 		var_dump( $oAction );
+
+		$oResult = ( new Shield\Scans\Mal\ScannerFromFileMap() )
+			->setFileMap( $oAction->files_map )
+			->setMalSigsRegex( $oOpts->getUrlMalSigsRegEx() )
+			->setMalSigsSimple( $oOpts->getUrlMalSigsSimple() )
+			->run();
+		var_dump( $oResult );
 		die();
 
 		$oAction->ts_start = Services::Request()->ts();

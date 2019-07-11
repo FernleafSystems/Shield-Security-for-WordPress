@@ -50,7 +50,7 @@ abstract class ScannerBase {
 								   ->run();
 				if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
 					$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-					continue( 2 );
+					return $oResultItem;
 				}
 			}
 		}
@@ -63,7 +63,7 @@ abstract class ScannerBase {
 								   ->run();
 				if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
 					$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-					continue( 2 );
+					return $oResultItem;
 				}
 			}
 		}
