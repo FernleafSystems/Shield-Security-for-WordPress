@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File;
@@ -12,6 +13,8 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
 abstract class ScannerBase {
+
+	use ModConsumer;
 
 	/**
 	 * @var string[]
