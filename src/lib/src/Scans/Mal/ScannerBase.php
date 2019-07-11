@@ -2,17 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 /**
- * Class Scanner
+ * Class ScannerBase
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
-class Scanner {
+abstract class ScannerBase {
 
 	/**
 	 * @var string[]
@@ -25,66 +24,51 @@ class Scanner {
 	private $aMalSigsSimple;
 
 	/**
-	 * @var string[]
-	 */
-	private $aWhitelistPaths;
-
-	/**
 	 * @return ResultsSet
 	 */
-	public function run() {
-		$oResultSet = new ResultsSet();
+	abstract public function run();
+
+	/**
+	 * @param string $sFullPath
+	 * @return ResultItem|null
+	 */
+	protected function scanPath( $sFullPath ) {
+		$oResultItem = null;
 
 		try {
-			/**
-			 * The filter handles the bulk of the file inclusions and exclusions
-			 * We can set the types (extensions) of the files to include
-			 * useful for the upload directory where we're only interested in JS and PHP
-			 * The filter will also be responsible (in this case) for filtering out
-			 * WP Core files from the collection of files to be assessed
-			 */
-			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5' ], false );
+			$oLocator = ( new File\LocateStrInFile() )->setPath( $sFullPath );
+		}
+		catch ( \Exception $oE ) {
+			return $oResultItem;
+		}
 
-			$oLocator = new File\LocateStrInFile();
-			foreach ( $oDirIt as $oFsItem ) {
-				$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
-				/** @var \SplFileInfo $oFsItem */
-				if ( $this->isWhitelistedPath( $sFullPath ) || $oFsItem->getSize() == 0 ) {
-					continue;
-				}
+		{ // Simple Patterns first
+			$oLocator->setIsRegEx( false );
+			foreach ( $this->getMalSigsSimple() as $sSig ) {
 
-				$oLocator->setPath( $oFsItem->getPathname() );
-
-				$oLocator->setIsRegEx( false );
-				foreach ( $this->getMalSigsSimple() as $sSig ) {
-
-					$aLines = $oLocator->setNeedle( $sSig )
-									   ->run();
-					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$oResultSet->addItem( $this->getResultItemFromLines( $aLines, $sFullPath, $sSig ) );
-						continue( 2 );
-					}
-				}
-
-				$oLocator->setIsRegEx( true );
-				foreach ( $this->getMalSigsRegex() as $sSig ) {
-
-					$aLines = $oLocator->setNeedle( $sSig )
-									   ->run();
-					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$oResultSet->addItem( $this->getResultItemFromLines( $aLines, $sFullPath, $sSig ) );
-						continue( 2 );
-					}
+				$aLines = $oLocator->setNeedle( $sSig )
+								   ->run();
+				if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+					$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+					continue( 2 );
 				}
 			}
 		}
-		catch ( \Exception $oE ) {
-			error_log(
-				sprintf( 'Shield file scanner attempted to read directory but there was error: "%s".', $oE->getMessage() )
-			);
+
+		{ // RegEx Patterns
+			$oLocator->setIsRegEx( true );
+			foreach ( $this->getMalSigsRegex() as $sSig ) {
+
+				$aLines = $oLocator->setNeedle( $sSig )
+								   ->run();
+				if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+					$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+					continue( 2 );
+				}
+			}
 		}
 
-		return $oResultSet;
+		return $oResultItem;
 	}
 
 	/**
@@ -172,28 +156,6 @@ class Scanner {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getWhitelistedPaths() {
-		return is_array($this->aWhitelistPaths) ? $this->aWhitelistPaths : [];
-	}
-
-	/**
-	 * @param string $sThePath
-	 * @return bool
-	 */
-	public function isWhitelistedPath( $sThePath ) {
-		$bWhitelisted = false;
-		foreach ( $this->getWhitelistedPaths() as $sWlPath ) {
-			if ( stripos( $sThePath, $sWlPath ) === 0 ) {
-				$bWhitelisted = true;
-				break;
-			}
-		}
-		return $bWhitelisted;
-	}
-
-	/**
 	 * @param string[] $aSigs
 	 * @return $this
 	 */
@@ -201,21 +163,13 @@ class Scanner {
 		$this->aMalSigsRegex = $aSigs;
 		return $this;
 	}
+
 	/**
 	 * @param string[] $aSigs
 	 * @return $this
 	 */
 	public function setMalSigsSimple( $aSigs ) {
 		$this->aMalSigsSimple = $aSigs;
-		return $this;
-	}
-
-	/**
-	 * @param string[] $aSigs
-	 * @return $this
-	 */
-	public function setWhitelistedPaths( $aSigs ) {
-		$this->aWhitelistPaths = $aSigs;
 		return $this;
 	}
 }

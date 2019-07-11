@@ -154,6 +154,8 @@ class Strings extends Base\Strings {
 			'hide_login_url'               => __( '', 'wp-simple-firewall' ),
 			'2fa_success'                  => __( '', 'wp-simple-firewall' ),
 			'check_skip'                   => __( '', 'wp-simple-firewall' ),
+			'fw_email_fail'                => __( '', 'wp-simple-firewall' ),
+			'fw_email_success'             => __( '', 'wp-simple-firewall' ),
 			'firewall_block'               => __( 'Firewall Block', 'wp-simple-firewall' ),
 			'blockparam_dirtraversal'      => sprintf( '%s: %s',
 				__( 'Firewall', 'wp-simple-firewall' ),
@@ -187,8 +189,6 @@ class Strings extends Base\Strings {
 				__( 'Firewall', 'wp-simple-firewall' ),
 				__( 'EXE File Uploads', 'wp-simple-firewall' )
 			),
-			'fw_email_fail'                => __( '', 'wp-simple-firewall' ),
-			'fw_email_success'             => __( '', 'wp-simple-firewall' ),
 			'session_notfound'             => __( 'Session Not Found', 'wp-simple-firewall' ),
 			'session_expired'              => __( 'Session Expired', 'wp-simple-firewall' ),
 			'session_idle'                 => __( 'Session Idle', 'wp-simple-firewall' ),
