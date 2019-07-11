@@ -131,7 +131,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function eventAudit( $sEvent = '', $aMeta = [] ) {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
-			if ( $aDef[ 'audit' ] ) { // only audit if it's an auditable event
+			if ( $aDef[ 'audit' ] && empty( $aMeta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
 				$oEntry = new Shield\Databases\AuditTrail\EntryVO();
 				$oEntry->event = $sEvent;
 				$oEntry->category = $aDef[ 'cat' ];
@@ -153,7 +153,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function eventOffense( $sEvent, $aMeta = [] ) {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
-			if ( $aDef[ 'offense' ] ) {
+			if ( $aDef[ 'offense' ] && empty( $aMeta[ 'suppress_offense' ] ) ) {
 				self::$nIpOffenceCount = max(
 					(int)self::$nIpOffenceCount,
 					isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1
@@ -169,7 +169,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function eventStat( $sEvent, $aMeta = [] ) {
 		if ( $this->isSupportedEvent( $sEvent ) ) {
 			$aDef = $this->getEventDef( $sEvent );
-			if ( $aDef[ 'stat' ] ) { // only stat if it's a statable event
+			if ( $aDef[ 'stat' ] && empty( $aMeta[ 'suppress_stat' ] ) ) { // only stat if it's a statable event
 				$this->addStatEvent( $sEvent, $aMeta );
 			}
 		}

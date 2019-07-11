@@ -362,6 +362,15 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 						]
 					]
 				);
+
+				/**
+				 * When we block, we also want to increment offense stat, but we don't
+				 * want to also audit the offense (only audit the block),
+				 * so we fire ip_offense but suppress the audit
+				 */
+				if ( $bBlock ) {
+					$oCon->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
+				}
 			}
 		}
 	}

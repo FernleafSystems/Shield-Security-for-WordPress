@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Trait Auditor
  * @package FernleafSystems\Wordpress\Plugin\Shield\AuditTrail
+ * @deprecated
  */
 trait Auditor {
 
