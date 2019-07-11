@@ -35,7 +35,12 @@ jQuery.fn.icwpWpsfStartScans = function ( aOptions ) {
 				}
 
 			}
+		).fail( function () {
+			alert( 'Scan failed because the site killed the request. ' +
+				'Likely your webhost imposes a maximum time limit for processes, and this limit was reached.' );
+			}
 		).always( function () {
+				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
 	};
