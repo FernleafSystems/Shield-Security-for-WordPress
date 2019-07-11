@@ -64,7 +64,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return Shield\Scans\Base\BaseRepair|mixed|null
 	 */
 	abstract protected function getRepairer();
 

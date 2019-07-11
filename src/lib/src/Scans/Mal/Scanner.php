@@ -17,13 +17,22 @@ class Scanner {
 	/**
 	 * @var string[]
 	 */
-	private $aMalSigs;
+	private $aMalSigsRegex;
+
+	/**
+	 * @var string[]
+	 */
+	private $aMalSigsSimple;
+
+	/**
+	 * @var string[]
+	 */
+	private $aWhitelistPaths;
 
 	/**
 	 * @return ResultsSet
 	 */
 	public function run() {
-		$oFs = Services::WpFs();
 		$oResultSet = new ResultsSet();
 
 		try {
@@ -36,34 +45,35 @@ class Scanner {
 			 */
 			$oDirIt = Helpers\StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5' ], false );
 
-			$aSigs = $this->getMalSigs();
 			$oLocator = new File\LocateStrInFile();
 			foreach ( $oDirIt as $oFsItem ) {
-				/** @var \SplFileInfo $oFsItem */
 				$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
+				/** @var \SplFileInfo $oFsItem */
+				if ( $this->isWhitelistedPath( $sFullPath ) || $oFsItem->getSize() == 0 ) {
+					continue;
+				}
 
-				$sContent = $oFs->getFileContent( $sFullPath );
+				$oLocator->setPath( $oFsItem->getPathname() );
 
-				if ( !empty( $sContent ) ) {
-					foreach ( $aSigs as $sSig ) {
+				$oLocator->setIsRegEx( false );
+				foreach ( $this->getMalSigsSimple() as $sSig ) {
 
-						$aLines = $oLocator->setNeedle( $sSig )
-										   ->inFileContent( $sContent );
-						if ( !empty( $aLines ) ) {
+					$aLines = $oLocator->setNeedle( $sSig )
+									   ->run();
+					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+						$oResultSet->addItem( $this->getResultItemFromLines( $aLines, $sFullPath, $sSig ) );
+						continue( 2 );
+					}
+				}
 
-							if ( $this->canExcludeFile( $sFullPath ) ) {
-								continue;
-							}
+				$oLocator->setIsRegEx( true );
+				foreach ( $this->getMalSigsRegex() as $sSig ) {
 
-							$oResultItem = new ResultItem();
-							$oResultItem->path_full = wp_normalize_path( $sFullPath );
-							$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
-							$oResultItem->is_mal = true;
-							$oResultItem->mal_sig = base64_encode( $sSig );
-							$oResultItem->file_lines = $aLines;
-							$oResultSet->addItem( $oResultItem );
-							break;
-						}
+					$aLines = $oLocator->setNeedle( $sSig )
+									   ->run();
+					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+						$oResultSet->addItem( $this->getResultItemFromLines( $aLines, $sFullPath, $sSig ) );
+						continue( 2 );
 					}
 				}
 			}
@@ -75,6 +85,22 @@ class Scanner {
 		}
 
 		return $oResultSet;
+	}
+
+	/**
+	 * @param $aLines
+	 * @param $sFullPath
+	 * @param $sSig
+	 * @return ResultItem
+	 */
+	private function getResultItemFromLines( $aLines, $sFullPath, $sSig ) {
+		$oResultItem = new ResultItem();
+		$oResultItem->path_full = wp_normalize_path( $sFullPath );
+		$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
+		$oResultItem->is_mal = true;
+		$oResultItem->mal_sig = base64_encode( $sSig );
+		$oResultItem->file_lines = $aLines;
+		return $oResultItem;
 	}
 
 	/**
@@ -134,16 +160,63 @@ class Scanner {
 	/**
 	 * @return string[]
 	 */
-	public function getMalSigs() {
-		return $this->aMalSigs;
+	public function getMalSigsRegex() {
+		return $this->aMalSigsRegex;
 	}
 
 	/**
-	 * @param string[] $sFilePathMalSigs
+	 * @return string[]
+	 */
+	public function getMalSigsSimple() {
+		return $this->aMalSigsSimple;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getWhitelistedPaths() {
+		return is_array($this->aWhitelistPaths) ? $this->aWhitelistPaths : [];
+	}
+
+	/**
+	 * @param string $sThePath
+	 * @return bool
+	 */
+	public function isWhitelistedPath( $sThePath ) {
+		$bWhitelisted = false;
+		foreach ( $this->getWhitelistedPaths() as $sWlPath ) {
+			if ( stripos( $sThePath, $sWlPath ) === 0 ) {
+				$bWhitelisted = true;
+				break;
+			}
+		}
+		return $bWhitelisted;
+	}
+
+	/**
+	 * @param string[] $aSigs
 	 * @return $this
 	 */
-	public function setMalSigs( $sFilePathMalSigs ) {
-		$this->aMalSigs = $sFilePathMalSigs;
+	public function setMalSigsRegex( $aSigs ) {
+		$this->aMalSigsRegex = $aSigs;
+		return $this;
+	}
+	/**
+	 * @param string[] $aSigs
+	 * @return $this
+	 */
+	public function setMalSigsSimple( $aSigs ) {
+		$this->aMalSigsSimple = $aSigs;
+		return $this;
+	}
+
+
+	/**
+	 * @param string[] $aSigs
+	 * @return $this
+	 */
+	public function setWhitelistedPaths( $aSigs ) {
+		$this->aWhitelistPaths = $aSigs;
 		return $this;
 	}
 }

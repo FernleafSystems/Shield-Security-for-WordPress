@@ -625,7 +625,7 @@
     }
   ],
   "definitions": {
-    "all_scan_slugs":                [
+    "all_scan_slugs":                       [
       "apc",
       "mal",
       "ptg",
@@ -647,7 +647,11 @@
       "created_at",
       "deleted_at"
     ],
-    "url_mal_sigs":                         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
+    "url_mal_sigs_simple":                  "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
+    "url_mal_sigs_regex":                   "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
+    "malware_whitelist_paths":              [
+      "wp-content/wflogs/"
+    ],
     "cron_all_scans":                       "all-scans",
     "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
     "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
@@ -683,51 +687,51 @@
       "wpv_alert_sent":          {
       },
       "apc_scan_run":            {
-        "audit": false,
+        "audit":  false,
         "recent": true
       },
       "mal_scan_run":            {
-        "audit": false,
+        "audit":  false,
         "recent": true
       },
       "ptg_scan_run":            {
-        "audit": false,
+        "audit":  false,
         "recent": true
       },
       "ufc_scan_run":            {
-        "audit": false,
+        "audit":  false,
         "recent": true
       },
       "wcf_scan_run":            {
-        "audit": false,
+        "audit":  false,
         "recent": true
       },
       "wpv_scan_run":            {
-        "audit": false,
+        "audit":  false,
         "recent": true
       },
       "apc_scan_found":          {
-        "cat": 2,
+        "cat":    2,
         "recent": true
       },
       "mal_scan_found":          {
-        "cat": 3,
+        "cat":    3,
         "recent": true
       },
       "ptg_scan_found":          {
-        "cat": 3,
+        "cat":    3,
         "recent": true
       },
       "ufc_scan_found":          {
-        "cat": 3,
+        "cat":    3,
         "recent": true
       },
       "wcf_scan_found":          {
-        "cat": 3,
+        "cat":    3,
         "recent": true
       },
       "wpv_scan_found":          {
-        "cat": 3,
+        "cat":    3,
         "recent": true
       },
       "apc_item_repair_success": {

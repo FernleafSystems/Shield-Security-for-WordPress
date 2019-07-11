@@ -19,4 +19,35 @@ class Options extends Base\ShieldOptions {
 	public function getDbTable_Scanner() {
 		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanner' ) );
 	}
+
+	/**
+	 * We do some WP Content dir replacement as there may be custom wp-content dir defines
+	 * @return string[]
+	 */
+	public function getMalwareWhitelistPaths() {
+		return array_map(
+			function ( $sFragment ) {
+				return str_replace(
+					wp_normalize_path( ABSPATH.'wp-content' ),
+					rtrim( wp_normalize_path( WP_CONTENT_DIR ), '/' ),
+					wp_normalize_path( path_join( ABSPATH, ltrim( $sFragment, '/' ) ) )
+				);
+			},
+			$this->getDef( 'malware_whitelist_paths' )
+		);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUrlMalSigsSimple() {
+		return;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUrlMalSigsRegEx() {
+		return $this->getDef( 'url_mal_sigs_regex' );
+	}
 }

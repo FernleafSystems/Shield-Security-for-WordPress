@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isMalScanEnabled();
 	}
@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\Repair|mixed
+	 * @return Shield\Scans\Mal\Repair
 	 */
 	protected function getRepairer() {
 		return ( new Shield\Scans\Mal\Repair() )->setMod( $this->getMod() );
@@ -58,23 +58,50 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return Shield\Scans\Mal\Scanner
 	 */
 	protected function getScanner() {
-		return ( new Shield\Scans\Mal\Scanner() )->setMalSigs( $this->getMalSignatures() );
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return ( new Shield\Scans\Mal\Scanner() )
+			->setMalSigsSimple( $this->getMalSignaturesSimple() )
+			->setMalSigsRegex( $this->getMalSignaturesRegex() )
+			->setWhitelistedPaths( $oOpts->getMalwareWhitelistPaths() );
 	}
 
 	/**
 	 * @return string[]
 	 * @throws \Exception
 	 */
-	private function getMalSignatures() {
+	private function getMalSignaturesSimple() {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return $this->getMalSignatures( 'malsigs_simple.txt', $oOpts->getUrlMalSigsSimple() );
+	}
+
+	/**
+	 * @return string[]
+	 * @throws \Exception
+	 */
+	private function getMalSignaturesRegex() {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return $this->getMalSignatures( 'malsigs_regex.txt', $oOpts->getUrlMalSigsRegEx() );
+	}
+
+	/**
+	 * @param string $sFilename
+	 * @param string $sUrl
+	 * @return string[]
+	 * @throws \Exception
+	 */
+	private function getMalSignatures( $sFilename, $sUrl ) {
 		$oWpFs = Services::WpFs();
-		$sFile = $this->getCon()->getPluginCachePath( 'malsigs.txt' );
+		$sFile = $this->getCon()->getPluginCachePath( $sFilename );
 		if ( $oWpFs->exists( $sFile ) ) {
 			$aSigs = explode( "\n", \LZCompressor\LZString::decompress( base64_decode( $oWpFs->getFileContent( $sFile ) ) ) );
 		}
 		else {
 			$aSigs = array_filter(
 				array_map( 'trim',
-					explode( "\n", Services::HttpRequest()->getContent( $this->getMod()->getDef( 'url_mal_sigs' ) ) )
+					explode( "\n", Services::HttpRequest()->getContent( $sUrl ) )
 				),
 				function ( $sLine ) {
 					return ( ( strpos( $sLine, '#' ) !== 0 ) && strlen( $sLine ) > 0 );
