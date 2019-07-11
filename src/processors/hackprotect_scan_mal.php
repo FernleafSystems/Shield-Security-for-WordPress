@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		$oWpFs = Services::WpFs();
 		$sFile = $this->getCon()->getPluginCachePath( $sFilename );
 		if ( $oWpFs->exists( $sFile ) ) {
-			$aSigs = explode( "\n", \LZCompressor\LZString::decompress( base64_decode( $oWpFs->getFileContent( $sFile ) ) ) );
+			$aSigs = explode( "\n", $oWpFs->getFileContent( $sFile, true ) );
 		}
 		else {
 			$aSigs = array_filter(
@@ -108,7 +108,9 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 				}
 			);
 
-			$oWpFs->putFileContent( $sFile, base64_encode( \LZCompressor\LZString::compress( implode( "\n", $aSigs ) ) ) );
+			if ( !empty( $aSigs ) ) {
+				$oWpFs->putFileContent( $sFile, implode( "\n", $aSigs ), true );
+			}
 		}
 		return $aSigs;
 	}

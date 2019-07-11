@@ -41,7 +41,7 @@ class Options extends Base\ShieldOptions {
 	 * @return string
 	 */
 	public function getUrlMalSigsSimple() {
-		return;
+		return $this->getDef( 'url_mal_sigs_simple' );
 	}
 
 	/**
