@@ -19,7 +19,7 @@ class ScannerFromFileMap extends ScannerBase {
 	public function run() {
 		$oResultSet = new ResultsSet();
 
-		foreach ( $this->getFileMap() as $sFullPath ) {
+		foreach ( $this->getFileMap() as $nKey => $sFullPath ) {
 			$oItem = $this->scanPath( $sFullPath );
 			if ( $oItem instanceof ResultItem ) {
 				$oResultSet->addItem( $oItem );

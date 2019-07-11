@@ -19,14 +19,31 @@ class MalScanLauncher extends Launcher {
 		$oAction->id = 'malware_scan';
 		$this->setAction( $oAction )
 			 ->readAction();
-		var_dump( $oAction );
+//		var_dump( $oAction );
+//		die();
 
-		$oResult = ( new Shield\Scans\Mal\ScannerFromFileMap() )
-			->setFileMap( $oAction->files_map )
-			->setMalSigsRegex( $oOpts->getUrlMalSigsRegEx() )
-			->setMalSigsSimple( $oOpts->getUrlMalSigsSimple() )
-			->run();
-		var_dump( $oResult );
+		$oRs = new Shield\Scans\Mal\ResultsSet();
+
+		$nStart = 0;
+		$nSliceLength = 100;
+		do {
+			$aSlice = array_slice( $oAction->files_map, $nStart, $nSliceLength );
+			$oTempRs = ( new Shield\Scans\Mal\ScannerFromFileMap() )
+				->setFileMap( $aSlice )
+				->setMalSigsRegex( $oOpts->getMalSignaturesRegex() )
+				->setMalSigsSimple( $oOpts->getMalSignaturesSimple() )
+				->run();
+
+			( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $oTempRs, $oRs );
+			$nStart += $nSliceLength;
+		} while ( $nStart < count( $oAction->files_map ) );
+
+//		$oResult = ( new Shield\Scans\Mal\ScannerFromFileMap() )
+//			->setFileMap( $oAction->files_map )
+//			->setMalSigsRegex( $oOpts->getMalSignaturesRegex() )
+//			->setMalSigsSimple( $oOpts->getMalSignaturesSimple() )
+//			->run();
+		var_dump( $oRs );
 		die();
 
 		$oAction->ts_start = Services::Request()->ts();
