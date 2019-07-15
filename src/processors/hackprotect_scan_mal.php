@@ -11,13 +11,17 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	public function run() {
 		if ( isset( $_GET[ 'testscan' ] ) ) {
-			$this->testScan();
+			$this->doAsyncScan();
 			die();
 		}
 		parent::run();
 	}
 
-	private function testScan() {
+	/**
+	 * @return bool
+	 */
+	public function doAsyncScan() {
+
 		$oAction = new Shield\Scans\Mal\MalScanActionVO();
 		$oAction->id = 'malware_scan';
 		try {
@@ -28,14 +32,37 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 				->run();
 		}
 		catch ( \Exception $oE ) {
-			return;
+			return false;
 		}
 
-		if ( $oAction->ts_start == $oAction->ts_finish ) {
-			// Means that no files were found in the file build map
+		if ( $oAction->ts_finish > 0 ) {
+			$oResults = new Shield\Scans\Mal\ResultsSet();
+			if ( $oAction->ts_start == $oAction->ts_finish ) {
+				// Means that no files were found in the file build map
+			}
+			else if ( !empty( $oAction->results ) ) {
+				foreach ( $oAction->results as $aRes ) {
+					$oResults->addItem( ( new Shield\Scans\Mal\ResultItem() )->applyFromArray( $aRes ) );
+				}
+				$this->updateScanResultsStore( $oResults );
+			}
+
+			$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_run' );
+			if ( $oResults->countItems() ) {
+				$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_found' );
+			}
+		}
+		else {
+			Services::HttpRequest()
+					->get(
+						add_query_arg( [ 'testscan' => 1 ], Services::WpGeneral()->getHomeUrl() ),
+						[
+							'blocking' => true,
+						]
+					);
 		}
 
-		var_dump( $oAction );
+		return true;
 	}
 
 	/**

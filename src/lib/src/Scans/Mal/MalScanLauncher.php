@@ -35,19 +35,20 @@ class MalScanLauncher extends Shield\Utilities\AsyncActions\Launcher {
 			$oAction->files_map = ( new Shield\Scans\Mal\BuildFileMap() )
 				->setWhitelistedPaths( $oAction->paths_whitelisted )
 				->build();
+			$this->storeAction();
 		}
 		else {
 			$oAction = $this->getAction()
 							->applyFromArray( $aDef );
-		}
 
-		if ( empty( $oAction->files_map ) ) {
-			$oAction->ts_finish = $oReq->ts();
-			$this->deleteAction();
-		}
-		else {
-			$this->scanFileMapSlice();
-			$this->storeAction();
+			if ( empty( $oAction->files_map ) ) {
+				$oAction->ts_finish = $oReq->ts();
+				$this->deleteAction();
+			}
+			else {
+				$this->scanFileMapSlice();
+				$this->storeAction();
+			}
 		}
 
 		$this->unlockAction();

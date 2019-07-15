@@ -50,7 +50,7 @@ class Options extends Base\ShieldOptions {
 	 * @return int
 	 */
 	public function getFileScanLimit() {
-		return 100; // TODO: Def
+		return 300; // TODO: Def
 	}
 
 	/**
