@@ -245,7 +245,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					$bSuccess = true;
 					$bPageReload = true;
 					$sMessage = $bAsync ?
-						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait while scans complete as they make take a few moments.', 'wp-simple-firewall' )
+						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' )
 						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
 				}
 			}
