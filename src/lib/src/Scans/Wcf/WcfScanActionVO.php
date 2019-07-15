@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ScanActionVO;
 
@@ -8,12 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ScanActionVO;
  * Class MalScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\AsyncActions
  * @property string[] files_map
- * @property string[] file_exts
- * @property string[] scan_root_dir
  * @property string[] paths_whitelisted
- * @property string[] patterns_regex
- * @property string[] patterns_simple
+ * @property bool     is_exclude_plugins_themes
  */
-class MalScanActionVO extends ScanActionVO {
+class WcfScanActionVO extends ScanActionVO {
 
 }

@@ -32,8 +32,10 @@ class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
 			$oAction->paths_whitelisted = $oOpts->getMalwareWhitelistPaths();
 			$oAction->patterns_regex = $oOpts->getMalSignaturesRegex();
 			$oAction->patterns_simple = $oOpts->getMalSignaturesSimple();
+			$oAction->file_exts = [ 'php', 'php5' ];
+			$oAction->scan_root_dir = ABSPATH;
 			$oAction->files_map = ( new Shield\Scans\Mal\BuildFileMap() )
-				->setWhitelistedPaths( $oAction->paths_whitelisted )
+				->setScanActionVO( $oAction )
 				->build();
 			$oAction->processed_items = 0;
 			$oAction->total_scan_items = count( $oAction->files_map );

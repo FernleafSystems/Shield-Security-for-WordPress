@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 
 /**
@@ -10,18 +11,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryItera
  */
 class BuildFileMap {
 
-	/**
-	 * @var string[]
-	 */
-	private $aWhitelistPaths;
+	use ScanActionConsumer;
 
 	/**
 	 * @return string[]
 	 */
 	public function build() {
 		$aFiles = [];
+		$this->preBuild();
+
+		/** @var MalScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+
 		try {
-			$oDirIt = StandardDirectoryIterator::create( ABSPATH, 0, [ 'php', 'php5' ], false );
+			$oDirIt = StandardDirectoryIterator::create( $oAction->scan_root_dir, 0, $oAction->file_exts, false );
 			foreach ( $oDirIt as $oFsItem ) {
 				$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
 				/** @var \SplFileInfo $oFsItem */
@@ -39,11 +42,19 @@ class BuildFileMap {
 		return $aFiles;
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getWhitelistedPaths() {
-		return is_array( $this->aWhitelistPaths ) ? $this->aWhitelistPaths : [];
+	protected function preBuild() {
+		/** @var MalScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+
+		if ( empty( $oAction->scan_root_dir ) ) {
+			$oAction->scan_root_dir = ABSPATH;
+		}
+		if ( empty( $oAction->file_exts ) ) {
+			$oAction->file_exts = [ 'php', 'php5' ];
+		}
+		if ( empty( $oAction->paths_whitelisted ) ) {
+			$oAction->paths_whitelisted = [];
+		}
 	}
 
 	/**
@@ -52,22 +63,15 @@ class BuildFileMap {
 	 */
 	private function isWhitelistedPath( $sThePath ) {
 		$bWhitelisted = false;
-		foreach ( $this->getWhitelistedPaths() as $sWlPath ) {
+
+		/** @var MalScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+		foreach ( $oAction->paths_whitelisted as $sWlPath ) {
 			if ( stripos( $sThePath, $sWlPath ) === 0 ) {
 				$bWhitelisted = true;
 				break;
 			}
 		}
 		return $bWhitelisted;
-	}
-
-
-	/**
-	 * @param string[] $aSigs
-	 * @return $this
-	 */
-	public function setWhitelistedPaths( $aSigs ) {
-		$this->aWhitelistPaths = $aSigs;
-		return $this;
 	}
 }
