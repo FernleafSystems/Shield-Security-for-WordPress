@@ -199,14 +199,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
 		$oScanPro = $oP->getSubProScanner();
-		$aRunning = [];
-		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
-			$aRunning[ $sSlug ] = $oScanPro->getScannerFromSlug( $sSlug )->isAsyncScanRunning();
-		}
-
 		return [
 			'success' => true,
-			'running' => $aRunning,
+			'running' => $oScanPro->getScansRunningStates(),
 			'message' => 'running scans',
 		];
 	}
@@ -217,6 +212,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_StartScans() {
 		$oMod = $this->getMod();
 		$bSuccess = false;
+		$bAsync = false;
 		$bPageReload = false;
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
@@ -231,7 +227,13 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
 
-					$oTablePro->isAsyncScanSupported() ? $oTablePro->doAsyncScan() : $oTablePro->doScan();
+					if ( $oTablePro->isAsyncScanSupported() ) {
+						$bAsync = true;
+						$oTablePro->doAsyncScan();
+					}
+					else {
+						$oTablePro->doScan();
+					}
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
 						$oTablePro->resetIgnoreStatus();
@@ -242,15 +244,19 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 					$bSuccess = true;
 					$bPageReload = true;
-					$sMessage = __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...';
+					$sMessage = $bAsync ?
+						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait while scans complete as they make take a few moments.', 'wp-simple-firewall' )
+						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
 				}
 			}
 		}
 
+		$bScansRunning = $oScanPro->hasRunningScans();
 		return [
-			'success'     => $bSuccess,
-			'page_reload' => $bPageReload,
-			'message'     => $sMessage,
+			'success'       => $bSuccess,
+			'scans_running' => $bScansRunning,
+			'page_reload'   => $bPageReload && !$bScansRunning,
+			'message'       => $sMessage,
 		];
 	}
 }

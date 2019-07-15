@@ -137,6 +137,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
+				'initial_check' => $oScannerMain->hasRunningScans()
 			],
 			'scans'   => [
 				'apc' => [
@@ -156,7 +157,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'hrefs'   => [],
 					'vars'    => [],
 					'strings' => [
-						'subtitle'     => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
+						'subtitle' => __( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' ),
 					],
 				],
 				'ufc' => [
@@ -327,9 +328,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		return [
 			'flags'   => [
-				'has_items'    => $oFullResults->hasItems(),
-				'has_plugins'  => !empty( $aPlugins ),
-				'has_themes'   => !empty( $aThemes ),
+				'has_items'   => $oFullResults->hasItems(),
+				'has_plugins' => !empty( $aPlugins ),
+				'has_themes'  => !empty( $aThemes ),
 			],
 			'hrefs'   => [],
 			'vars'    => [],

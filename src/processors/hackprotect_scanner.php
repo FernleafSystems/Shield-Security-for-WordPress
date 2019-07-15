@@ -47,9 +47,36 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	 * @return ICWP_WPSF_Processor_ScanBase|null
 	 */
 	public function getScannerFromSlug( $sSlug ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return in_array( $sSlug, $oFO->getAllScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return in_array( $sSlug, $oMod->getAllScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
+	}
+
+	/**
+	 * @return bool[]
+	 */
+	public function getScansRunningStates() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$aRunning = [];
+		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
+			$aRunning[ $sSlug ] = $this->getScannerFromSlug( $sSlug )->isAsyncScanRunning();
+		}
+		return $aRunning;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getRunningScans() {
+		return array_keys( array_filter( $this->getScansRunningStates() ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasRunningScans() {
+		return count( $this->getRunningScans() ) > 0;
 	}
 
 	/**

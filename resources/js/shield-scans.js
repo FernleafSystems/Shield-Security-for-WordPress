@@ -20,6 +20,13 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 					if ( oResponse.data.page_reload ) {
 						location.reload();
 					}
+					else if ( oResponse.data.scans_running ) {
+						jQuery( document ).icwpWpsfScansCheck(
+							{
+								'ajax_scans_check': aOpts[ 'ajax_scans_check' ]
+							}
+						);
+					}
 					else {
 						plugin.options[ 'table' ].reloadTable();
 						iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
@@ -38,9 +45,9 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 		).fail( function () {
 				alert( 'Scan failed because the site killed the request. ' +
 					'Likely your webhost imposes a maximum time limit for processes, and this limit was reached.' );
+				iCWP_WPSF_BodyOverlay.hide();
 			}
 		).always( function () {
-				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
 	};
