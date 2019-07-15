@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ScannerAsync extends Shield\Scans\Base\BaseScannerAsync {
+class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
 
 	use Shield\Modules\ModConsumer;
 
@@ -35,6 +35,7 @@ class ScannerAsync extends Shield\Scans\Base\BaseScannerAsync {
 			$oAction->files_map = ( new Shield\Scans\Mal\BuildFileMap() )
 				->setWhitelistedPaths( $oAction->paths_whitelisted )
 				->build();
+			$oAction->processed_items = 0;
 			$oAction->total_scan_items = count( $oAction->files_map );
 			$this->storeAction();
 		}
@@ -75,8 +76,13 @@ class ScannerAsync extends Shield\Scans\Base\BaseScannerAsync {
 			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
 
-		{ // update file map to remove scanned files
+		if ( $oAction->file_scan_limit > 0 ) {
 			$oAction->files_map = array_slice( $oAction->files_map, $oAction->file_scan_limit );
+			$oAction->processed_items += $oAction->file_scan_limit;
+		}
+		else {
+			$oAction->processed_items = count( $oAction->files_map );
+			$oAction->files_map = [];
 		}
 
 		return $this;

@@ -13,6 +13,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property int     ts_finish
  * @property bool    is_async
  * @property int     file_scan_limit
+ * @property int     $processed_items
  * @property int     $total_scan_items
  * @property array[] results
  */

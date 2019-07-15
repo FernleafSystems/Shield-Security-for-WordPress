@@ -81,7 +81,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function getScanner();
 
 	/**
-	 * @return Shield\Scans\Base\BaseScannerAsync|null
+	 * @return Shield\Scans\Base\BaseAsyncScanner|null
 	 */
 	protected function getScannerAsync() {
 		return null;
@@ -98,7 +98,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function isAsyncScanSupported() {
-		return ( $this->getScannerAsync() instanceof Shield\Scans\Base\BaseScannerAsync );
+		return ( $this->getScannerAsync() instanceof Shield\Scans\Base\BaseAsyncScanner );
 	}
 
 	/**
