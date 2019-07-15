@@ -5,18 +5,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MalScanLauncher extends Shield\Utilities\AsyncActions\Launcher {
+class ScannerAsync extends Shield\Scans\Base\BaseScannerAsync {
 
 	use Shield\Modules\ModConsumer;
 
 	/**
+	 * @return MalScanActionVO
 	 * @throws \Exception
 	 */
-	public function run() {
-		if ( $this->isActionLocked() ) {
-			throw new \Exception( 'Scan is currently locked.' );
+	protected function scan() {
+		/** @var MalScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+		if ( !$oAction instanceof MalScanActionVO ) {
+			throw new \Exception( 'MalScan Action VO not provided.' );
 		}
-		$this->lockAction();
 
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getMod()->getOptions();
@@ -24,8 +26,6 @@ class MalScanLauncher extends Shield\Utilities\AsyncActions\Launcher {
 
 		$aDef = $this->readActionDefinitionFromDisk();
 		if ( empty( $aDef ) ) {
-			/** @var MalScanActionVO $oAction */
-			$oAction = $this->getAction();
 			$oAction->ts_start = $oReq->ts();
 			$oAction->file_scan_limit = $oOpts->getFileScanLimit();
 			$oAction->is_async = true;
@@ -35,23 +35,22 @@ class MalScanLauncher extends Shield\Utilities\AsyncActions\Launcher {
 			$oAction->files_map = ( new Shield\Scans\Mal\BuildFileMap() )
 				->setWhitelistedPaths( $oAction->paths_whitelisted )
 				->build();
+			$oAction->total_scan_items = count( $oAction->files_map );
 			$this->storeAction();
 		}
 		else {
-			$oAction = $this->getAction()
+			$oAction = $this->getScanActionVO()
 							->applyFromArray( $aDef );
 
 			if ( empty( $oAction->files_map ) ) {
 				$oAction->ts_finish = $oReq->ts();
-				$this->deleteAction();
 			}
 			else {
 				$this->scanFileMapSlice();
-				$this->storeAction();
 			}
 		}
 
-		$this->unlockAction();
+		return $oAction;
 	}
 
 	/**
@@ -59,7 +58,7 @@ class MalScanLauncher extends Shield\Utilities\AsyncActions\Launcher {
 	 */
 	private function scanFileMapSlice() {
 		/** @var MalScanActionVO $oAction */
-		$oAction = $this->getAction();
+		$oAction = $this->getScanActionVO();
 
 		$oTempRs = ( new ScannerFromFileMap() )
 			->setScanActionVO( $oAction )

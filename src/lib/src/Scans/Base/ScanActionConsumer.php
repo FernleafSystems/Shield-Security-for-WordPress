@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AsyncActions;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 trait ScanActionConsumer {
 

@@ -14,7 +14,7 @@ use FernleafSystems\Wordpress\Services\Utilities;
 abstract class ScannerBase {
 
 	use Shield\Modules\ModConsumer,
-		Shield\Utilities\AsyncActions\ScanActionConsumer;
+		Shield\Scans\Base\ScanActionConsumer;
 
 	/**
 	 * @return ResultsSet

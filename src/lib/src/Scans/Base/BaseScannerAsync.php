@@ -1,29 +1,76 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AsyncActions;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class Launcher {
+abstract class BaseScannerAsync {
 
-	/**
-	 * @var ScanActionVO
-	 */
-	protected $oAction;
+	use ScanActionConsumer;
 
 	/**
 	 * @var string
 	 */
 	protected $sTmpDir;
 
-	abstract public function run();
+	/**
+	 * @return $this
+	 * @throws \Exception
+	 */
+	public function run() {
+		$this->preScan();
+		$this->scan();
+		$this->postScan();
+		return $this;
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	protected function preScan() {
+		if ( !Services::WpFs()->exists( $this->getTmpDir() ) ) {
+			throw new \Exception( 'TMP Dir does not exist' );
+		}
+		if ( $this->isActionLocked() ) {
+			throw new \Exception( 'Scan is currently locked.' );
+		}
+
+		$oAction = $this->getScanActionVO();
+		if ( !$oAction instanceof ScanActionVO ) {
+			throw new \Exception( 'Action VO not provided.' );
+		}
+		if ( empty( $oAction->id ) ) {
+			throw new \Exception( 'Action ID not provided.' );
+		}
+
+		@ignore_user_abort( true );
+
+		$this->lockAction();
+	}
+
+	/**
+	 * @return ScanActionVO
+	 */
+	abstract protected function scan();
+
+	protected function postScan() {
+		$oAction = $this->getScanActionVO();
+		if ( $oAction->ts_finish > 0 ) {
+			$this->deleteAction();
+		}
+		else {
+			$this->storeAction();
+		}
+
+		$this->unlockAction();
+	}
 
 	/**
 	 * @return ScanActionVO
 	 */
 	public function readActionDefinition() {
 		$aDef = $this->readActionDefinitionFromDisk();
-		return $this->getAction()
+		return $this->getScanActionVO()
 					->applyFromArray( $aDef );
 	}
 
@@ -57,31 +104,24 @@ abstract class Launcher {
 	public function storeAction() {
 		Services::WpFs()->putFileContent(
 			$this->getActionFilePath(),
-			json_encode( $this->getAction()->getRawDataAsArray() ),
+			json_encode( $this->getScanActionVO()->getRawDataAsArray() ),
 			true
 		);
 		return $this;
 	}
 
 	/**
-	 * @return ScanActionVO
-	 */
-	public function getAction() {
-		return $this->oAction;
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getActionFilePath() {
-		return path_join( $this->getTmpDir(), 'action-'.$this->getAction()->id.'.txt' );
+		return path_join( $this->getTmpDir(), 'action-'.$this->getScanActionVO()->id.'.txt' );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getLockFilePath() {
-		return path_join( $this->getTmpDir(), '.action-'.$this->getAction()->id.'.lock' );
+		return path_join( $this->getTmpDir(), '.action-'.$this->getScanActionVO()->id.'.lock' );
 	}
 
 	/**
@@ -94,7 +134,7 @@ abstract class Launcher {
 	/**
 	 * @return bool
 	 */
-	protected function isActionLocked() {
+	public function isActionLocked() {
 		return Services::WpFs()->exists( $this->getLockFilePath() );
 	}
 
@@ -111,15 +151,6 @@ abstract class Launcher {
 	 */
 	protected function unlockAction() {
 		Services::WpFs()->deleteFile( $this->getLockFilePath() );
-		return $this;
-	}
-
-	/**
-	 * @param ScanActionVO $oAction
-	 * @return $this
-	 */
-	public function setAction( $oAction ) {
-		$this->oAction = $oAction;
 		return $this;
 	}
 

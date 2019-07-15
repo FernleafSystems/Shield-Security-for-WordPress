@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AsyncActions\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ScanActionVO;
 
 /**
  * Class MalScanActionVO

@@ -8,28 +8,18 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'mal';
 
 	/**
-	 */
-	public function run() {
-		if ( isset( $_GET[ 'testscan' ] ) ) {
-			$this->doAsyncScan();
-			die();
-		}
-		parent::run();
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function doAsyncScan() {
+		if ( !$this->isAsyncScanSupported() ) {
+			return false;
+		}
 
-		$oAction = new Shield\Scans\Mal\MalScanActionVO();
-		$oAction->id = 'malware_scan';
 		try {
-			( new Shield\Scans\Mal\MalScanLauncher() )
-				->setMod( $this->getMod() )
-				->setTmpDir( $this->getCon()->getPluginCachePath( '' ) )
-				->setAction( $oAction )
-				->run();
+			/** @var Shield\Scans\Mal\MalScanActionVO $oAction */
+			$oAction = $this->getScannerAsync()
+							->run()
+							->getScanActionVO();
 		}
 		catch ( \Exception $oE ) {
 			return false;
@@ -58,6 +48,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 						add_query_arg( [ 'testscan' => 1 ], Services::WpGeneral()->getHomeUrl() ),
 						[
 							'blocking' => true,
+							'timeout'  => 5,
 						]
 					);
 		}
@@ -122,6 +113,27 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 			->setMalSigsSimple( $oOpts->getMalSignaturesSimple() )
 			->setMalSigsRegex( $oOpts->getMalSignaturesRegex() )
 			->setWhitelistedPaths( $oOpts->getMalwareWhitelistPaths() );
+	}
+
+	/**
+	 * @return Shield\Scans\Mal\MalScanActionVO
+	 */
+	protected function getScanActionVO() {
+		$oAction = new Shield\Scans\Mal\MalScanActionVO();
+		$oAction->id = static::SCAN_SLUG.'scan';
+		return $oAction;
+	}
+
+	/**
+	 * @return Shield\Scans\Mal\ScannerAsync
+	 */
+	protected function getScannerAsync() {
+		$sTmpDir = $this->getCon()->getPluginCachePath( static::SCAN_SLUG );
+		Services::WpFs()->mkdir( $sTmpDir );
+		return ( new Shield\Scans\Mal\ScannerAsync() )
+			->setMod( $this->getMod() )
+			->setTmpDir( $sTmpDir )
+			->setScanActionVO( $this->getScanActionVO() );
 	}
 
 	/**
