@@ -14,10 +14,8 @@ class ScannerFromDirectory extends ScannerFromFileMap {
 	 * @return ResultsSet
 	 */
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getMod()->getOptions();
 
 		$this->setFileMap(
 			( new BuildFileMap() )

@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\File;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
+use FernleafSystems\Wordpress\Services\Utilities;
 
 /**
  * Class ScannerBase
@@ -14,17 +13,8 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
  */
 abstract class ScannerBase {
 
-	use ModConsumer;
-
-	/**
-	 * @var string[]
-	 */
-	private $aMalSigsRegex;
-
-	/**
-	 * @var string[]
-	 */
-	private $aMalSigsSimple;
+	use Shield\Modules\ModConsumer,
+		Shield\Utilities\AsyncActions\ScanActionConsumer;
 
 	/**
 	 * @return ResultsSet
@@ -38,37 +28,39 @@ abstract class ScannerBase {
 	protected function scanPath( $sFullPath ) {
 		$oResultItem = null;
 
+		/** @var MalScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+
 		try {
-			$oLocator = ( new File\LocateStrInFile() )->setPath( $sFullPath );
+			$oLocator = ( new Utilities\File\LocateStrInFile() )->setPath( $sFullPath );
+
+			{ // Simple Patterns first
+				$oLocator->setIsRegEx( false );
+				foreach ( $oAction->patterns_simple as $sSig ) {
+
+					$aLines = $oLocator->setNeedle( $sSig )
+									   ->run();
+					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+						$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+						return $oResultItem;
+					}
+				}
+			}
+
+			{ // RegEx Patterns
+				$oLocator->setIsRegEx( true );
+				foreach ( $oAction->patterns_regex as $sSig ) {
+
+					$aLines = $oLocator->setNeedle( $sSig )
+									   ->run();
+					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+						$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+						return $oResultItem;
+					}
+				}
+			}
 		}
 		catch ( \Exception $oE ) {
-			return $oResultItem;
-		}
-
-		{ // Simple Patterns first
-			$oLocator->setIsRegEx( false );
-			foreach ( $this->getMalSigsSimple() as $sSig ) {
-
-				$aLines = $oLocator->setNeedle( $sSig )
-								   ->run();
-				if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-					$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-					return $oResultItem;
-				}
-			}
-		}
-
-		{ // RegEx Patterns
-			$oLocator->setIsRegEx( true );
-			foreach ( $this->getMalSigsRegex() as $sSig ) {
-
-				$aLines = $oLocator->setNeedle( $sSig )
-								   ->run();
-				if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-					$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-					return $oResultItem;
-				}
-			}
 		}
 
 		return $oResultItem;
@@ -107,7 +99,7 @@ abstract class ScannerBase {
 
 		if ( strpos( $sFullPath, wp_normalize_path( WP_PLUGIN_DIR ) ) === 0 ) {
 
-			$oPluginFiles = new WpOrg\Plugin\Files();
+			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
 			$oThePlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
 			if ( $oThePlugin instanceof WpPluginVo ) {
 				try {
@@ -116,7 +108,7 @@ abstract class ScannerBase {
 						->setWorkingVersion( $oThePlugin->Version )
 						->getOriginalFileFromVcs( $sFullPath );
 					if ( Services::WpFs()->exists( $sTmpFile )
-						 && ( new File\Compare\CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
+						 && ( new Utilities\File\Compare\CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
 						$bCanExclude = true;
 					}
 				}
@@ -136,43 +128,11 @@ abstract class ScannerBase {
 		$sCoreHash = Services::CoreFileHashes()->getFileHash( $sFullPath );
 		try {
 			$bValid = !empty( $sCoreHash )
-					  && ( new File\Compare\CompareHash() )->isEqualFileMd5( $sFullPath, $sCoreHash );
+					  && ( new Utilities\File\Compare\CompareHash() )->isEqualFileMd5( $sFullPath, $sCoreHash );
 		}
 		catch ( \Exception $oE ) {
 			$bValid = false;
 		}
 		return $bValid;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getMalSigsRegex() {
-		return $this->aMalSigsRegex;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getMalSigsSimple() {
-		return $this->aMalSigsSimple;
-	}
-
-	/**
-	 * @param string[] $aSigs
-	 * @return $this
-	 */
-	public function setMalSigsRegex( $aSigs ) {
-		$this->aMalSigsRegex = $aSigs;
-		return $this;
-	}
-
-	/**
-	 * @param string[] $aSigs
-	 * @return $this
-	 */
-	public function setMalSigsSimple( $aSigs ) {
-		$this->aMalSigsSimple = $aSigs;
-		return $this;
 	}
 }

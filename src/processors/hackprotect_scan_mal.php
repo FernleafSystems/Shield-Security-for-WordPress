@@ -8,6 +8,37 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'mal';
 
 	/**
+	 */
+	public function run() {
+		if ( isset( $_GET[ 'testscan' ] ) ) {
+			$this->testScan();
+			die();
+		}
+		parent::run();
+	}
+
+	private function testScan() {
+		$oAction = new Shield\Scans\Mal\MalScanActionVO();
+		$oAction->id = 'malware_scan';
+		try {
+			( new Shield\Scans\Mal\MalScanLauncher() )
+				->setMod( $this->getMod() )
+				->setTmpDir( $this->getCon()->getPluginCachePath( '' ) )
+				->setAction( $oAction )
+				->run();
+		}
+		catch ( \Exception $oE ) {
+			return;
+		}
+
+		if ( $oAction->ts_start == $oAction->ts_finish ) {
+			// Means that no files were found in the file build map
+		}
+
+		var_dump( $oAction );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isAvailable() {

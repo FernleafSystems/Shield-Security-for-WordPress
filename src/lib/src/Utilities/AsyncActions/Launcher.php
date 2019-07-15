@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class Launcher {
 
 	/**
-	 * @var AsyncActionVO
+	 * @var ScanActionVO
 	 */
 	protected $oAction;
 
@@ -19,19 +19,36 @@ abstract class Launcher {
 	abstract public function run();
 
 	/**
-	 * @return AsyncActionVO
+	 * @return ScanActionVO
 	 */
-	public function readAction() {
+	public function readActionDefinition() {
+		$aDef = $this->readActionDefinitionFromDisk();
 		return $this->getAction()
-					->applyFromArray(
-						json_decode(
-							Services::WpFs()->getFileContent(
-								$this->getActionFilePath(),
-								true
-							),
-							true
-						)
-					);
+					->applyFromArray( $aDef );
+	}
+
+	/**
+	 * @return array|null
+	 */
+	protected function readActionDefinitionFromDisk() {
+		$aDef = null;
+		$oFS = Services::WpFs();
+		$sPath = $this->getActionFilePath();
+		if ( $oFS->exists( $sPath ) ) {
+			$sDef = Services::WpFs()->getFileContent( $this->getActionFilePath(), true );
+			if ( !empty( $sDef ) ) {
+				$aDef = json_decode( $sDef, true );
+			}
+		}
+		return ( !empty( $aDef ) && is_array( $aDef ) ) ? $aDef : null;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function deleteAction() {
+		Services::WpFs()->deleteFile( $this->getActionFilePath() );
+		return $this;
 	}
 
 	/**
@@ -47,7 +64,7 @@ abstract class Launcher {
 	}
 
 	/**
-	 * @return AsyncActionVO
+	 * @return ScanActionVO
 	 */
 	public function getAction() {
 		return $this->oAction;
@@ -63,12 +80,42 @@ abstract class Launcher {
 	/**
 	 * @return string
 	 */
+	protected function getLockFilePath() {
+		return path_join( $this->getTmpDir(), '.action-'.$this->getAction()->id.'.lock' );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getTmpDir() {
 		return $this->sTmpDir;
 	}
 
 	/**
-	 * @param AsyncActionVO $oAction
+	 * @return bool
+	 */
+	protected function isActionLocked() {
+		return Services::WpFs()->exists( $this->getLockFilePath() );
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function lockAction() {
+		Services::WpFs()->putFileContent( $this->getLockFilePath(), Services::Request()->ts() );
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function unlockAction() {
+		Services::WpFs()->deleteFile( $this->getLockFilePath() );
+		return $this;
+	}
+
+	/**
+	 * @param ScanActionVO $oAction
 	 * @return $this
 	 */
 	public function setAction( $oAction ) {

@@ -253,7 +253,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function getPluginCachePath( $sFilePath ) {
+	public function getPluginCachePath( $sFilePath = '' ) {
 		if ( !$this->buildPluginCacheDir() ) {
 			throw new \Exception( sprintf( 'Failed to create cache path: "%s"', $this->getPath_PluginCache() ) );
 		}

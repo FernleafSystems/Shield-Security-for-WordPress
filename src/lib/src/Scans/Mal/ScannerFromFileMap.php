@@ -9,39 +9,30 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 class ScannerFromFileMap extends ScannerBase {
 
 	/**
-	 * @var string[]
-	 */
-	private $aFileMap;
-
-	/**
 	 * @return ResultsSet
 	 */
 	public function run() {
 		$oResultSet = new ResultsSet();
+		/** @var MalScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
 
-		foreach ( $this->getFileMap() as $nKey => $sFullPath ) {
-			$oItem = $this->scanPath( $sFullPath );
-			if ( $oItem instanceof ResultItem ) {
-				$oResultSet->addItem( $oItem );
+		if ( !empty( $oAction->files_map ) ) {
+
+			if ( (int)$oAction->file_scan_limit > 0 ) {
+				$aSlice = array_slice( $oAction->files_map, 0, $oAction->file_scan_limit );
+			}
+			else {
+				$aSlice = $oAction->files_map;
+			}
+
+			foreach ( $aSlice as $nKey => $sFullPath ) {
+				$oItem = $this->scanPath( $sFullPath );
+				if ( $oItem instanceof ResultItem ) {
+					$oResultSet->addItem( $oItem );
+				}
 			}
 		}
 
 		return $oResultSet;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getFileMap() {
-		return is_array( $this->aFileMap ) ? $this->aFileMap : [];
-	}
-
-	/**
-	 * @param string[] $aSigs
-	 * @return $this
-	 */
-	public function setFileMap( $aSigs ) {
-		$this->aFileMap = $aSigs;
-		return $this;
 	}
 }
