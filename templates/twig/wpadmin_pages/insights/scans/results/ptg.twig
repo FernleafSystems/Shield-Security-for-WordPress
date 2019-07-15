@@ -42,7 +42,7 @@
 </div>
 <script>
 	jQuery( 'div.scan-table-for-slug' ).each( function () {
-		var $oDiv = jQuery( this );
+		let $oDiv = jQuery( this );
 		$oDiv.icwpWpsfAjaxTable(
 			{
 				'ajax_render':{{ ajax.render_table_scan|raw }},

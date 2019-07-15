@@ -8,6 +8,16 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'mal';
 
 	/**
+	 */
+	public function run() {
+		if ( isset( $_GET[ 'testscan' ] ) ) {
+			$this->doAsyncScan();
+			die( 'here' );
+		}
+		parent::run();
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function doAsyncScan() {

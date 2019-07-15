@@ -149,9 +149,17 @@
 </form>
 
 <script>
-	jQuery( 'form#StartScans' ).icwpWpsfStartScans(
+	jQuery( 'form#StartScans' ).icwpWpsfScansStart(
 		{
-			'ajax_start_scans':{{ ajax.start_scans|raw }}
+			'ajax_scans_start':{{ ajax.scans_start|raw }}
 		}
 	);
+	setTimeout( function () {
+		jQuery( document ).icwpWpsfScansCheck(
+			{
+				'ajax_scans_check':{{ ajax.scans_check|raw }}
+			}
+		);
+	}, 1000 );
+
 </script>

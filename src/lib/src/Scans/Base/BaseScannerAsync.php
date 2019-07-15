@@ -134,6 +134,13 @@ abstract class BaseScannerAsync {
 	/**
 	 * @return bool
 	 */
+	public function isActionRunning() {
+		return Services::WpFs()->exists( $this->getActionFilePath() );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isActionLocked() {
 		return Services::WpFs()->exists( $this->getLockFilePath() );
 	}

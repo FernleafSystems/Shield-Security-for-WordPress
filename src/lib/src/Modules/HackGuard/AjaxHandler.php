@@ -15,8 +15,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		switch ( $sAction ) {
 
-			case 'start_scans':
+			case 'scans_start':
 				$aResponse = $this->ajaxExec_StartScans();
+				break;
+
+			case 'scans_check':
+				$aResponse = $this->ajaxExec_CheckScans();
 				break;
 
 			case 'bulk_action':
@@ -188,6 +192,28 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	/**
 	 * @return array
 	 */
+	private function ajaxExec_CheckScans() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
+		$oP = $oMod->getProcessor();
+		$oScanPro = $oP->getSubProScanner();
+		$aRunning = [];
+		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
+			$aRunning[ $sSlug ] = $oScanPro->getScannerFromSlug( $sSlug )->isAsyncScanRunning();
+		}
+
+		return [
+			'success' => true,
+			'running' => $aRunning,
+			'message' => 'running scans',
+		];
+	}
+
+	/**
+	 * @return array
+	 */
 	private function ajaxExec_StartScans() {
 		$oMod = $this->getMod();
 		$bSuccess = false;
@@ -204,7 +230,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$oTablePro = $oScanPro->getScannerFromSlug( $sScan );
 
 				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
-					$oTablePro->doScan();
+
+					$oTablePro->isAsyncScanSupported() ? $oTablePro->doAsyncScan() : $oTablePro->doScan();
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
 						$oTablePro->resetIgnoreStatus();

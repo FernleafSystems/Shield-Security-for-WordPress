@@ -42,6 +42,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract public function isEnabled();
 
 	/**
+	 * @return bool
+	 */
+	public function doAsyncScan() {
+		return false;
+	}
+
+	/**
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	public function doScan() {
@@ -53,10 +60,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_found' );
 		}
 		return $oResults;
-	}
-
-	public function isAsyncScanRunning() {
-
 	}
 
 	/**
@@ -82,6 +85,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function getScannerAsync() {
 		return null;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAsyncScanRunning() {
+		return $this->isAsyncScanSupported() && $this->getScannerAsync()->isActionRunning();
 	}
 
 	/**

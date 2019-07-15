@@ -104,7 +104,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$oScannerMain = $this->getSubProScanner();
 		$aData = [
 			'ajax'    => [
-				'start_scans'           => $oMod->getAjaxActionData( 'start_scans', true ),
+				'scans_start'           => $oMod->getAjaxActionData( 'scans_start', true ),
+				'scans_check'           => $oMod->getAjaxActionData( 'scans_check', true ),
 				'render_table_scan'     => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'bulk_action'           => $oMod->getAjaxActionData( 'bulk_action', true ),
 				'item_asset_accept'     => $oMod->getAjaxActionData( 'item_asset_accept', true ),

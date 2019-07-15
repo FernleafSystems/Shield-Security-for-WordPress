@@ -83,11 +83,11 @@ iCWP_WPSF_Toaster.initialise();
 
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
-	var bRequestCurrentlyRunning = false;
+	let bRequestCurrentlyRunning = false;
 	var aAjaxReqParams = icwp_wpsf_vars_base.ajax.mod_options;
 
 	this.submit = function ( sMessage, bSuccess ) {
-		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
+		let $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
 		$oDiv.fadeIn().html( sMessage );
 		setTimeout( function () {
 			$oDiv.fadeOut( 5000 );
@@ -232,7 +232,7 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 						iCWP_WPSF_BodyOverlay.show();
 						setTimeout( function () {
 							if ( confirm( icwp_wpsf_vars_secadmin.strings.confirm ) ) {
-								window.location.reload( true );
+								window.location.reload();
 							}
 							else {
 								iCWP_WPSF_BodyOverlay.hide();
@@ -249,9 +249,7 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 			);
 		};
 
-		/**
-		 */
-		var scheduleSecAdminCheck = function () {
+		let scheduleSecAdminCheck = function () {
 			if ( !bCheckInPlace ) {
 				setTimeout( function () {
 					checkSecAdmin();
