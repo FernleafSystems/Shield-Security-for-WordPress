@@ -89,4 +89,49 @@ class Options extends Base\ShieldOptions {
 		}
 		return $aSigs;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getWcfFileExclusions() {
+		$sPattern = null;
+
+		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions' );
+		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
+		// Flywheel specific mods
+		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
+			$aExclusions[] = 'wp-settings.php';
+			$aExclusions[] = 'wp-admin/includes/upgrade.php';
+		}
+
+		if ( is_array( $aExclusions ) && !empty( $aExclusions ) ) {
+			$aQuoted = array_map(
+				function ( $sExcl ) {
+					return preg_quote( $sExcl, '#' );
+				},
+				$aExclusions
+			);
+			$sPattern = '#('.implode( '|', $aQuoted ).')#i';
+		}
+		return $sPattern;
+	}
+
+	/**
+	 * Builds a regex-ready pattern for matching file names to exclude from scan if they're missing
+	 * @return string|null
+	 */
+	public function getWcfMissingExclusions() {
+		$sPattern = null;
+		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions_missing_only' );
+		if ( is_array( $aExclusions ) && !empty( $aExclusions ) ) {
+			$aQuoted = array_map(
+				function ( $sExcl ) {
+					return preg_quote( $sExcl, '#' );
+				},
+				$aExclusions
+			);
+			$sPattern = '#('.implode( '|', $aQuoted ).')#i';
+		}
+		return $sPattern;
+	}
 }

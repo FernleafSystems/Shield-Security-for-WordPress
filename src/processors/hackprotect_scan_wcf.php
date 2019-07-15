@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	protected function getFullExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions' );
+		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions' );
 		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
 
 		// Flywheel specific mods
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	protected function getMissingOnlyExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions_missing_only' );
+		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions_missing_only' );
 		return is_array( $aExclusions ) ? $aExclusions : [];
 	}
 
