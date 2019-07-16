@@ -28,7 +28,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		parent::run();
 		if ( Services::Request()->query( 'async_scan' ) == static::SCAN_SLUG ) {
 			$this->doAsyncScan();
-			die(static::SCAN_SLUG);
+			die( static::SCAN_SLUG );
 		}
 		$this->setupCron();
 	}
@@ -147,7 +147,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return Shield\Scans\Base\BaseAsyncScanner|null
 	 */
 	protected function getScannerAsync() {
-		return null;
+		$oAS = $this->getNewAsyncScanner();
+		if ( $oAS instanceof Shield\Scans\Base\BaseAsyncScanner ) {
+			$sTmpDir = $this->getCon()->getPluginCachePath( static::SCAN_SLUG );
+			Services::WpFs()->mkdir( $sTmpDir );
+			$oAS->setMod( $this->getMod() )
+				->setTmpDir( $sTmpDir )
+				->setScanActionVO( $this->getScanAction() );
+		}
+		return $oAS;
 	}
 
 	/**
@@ -167,8 +175,26 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return Shield\Scans\Base\ScanActionVO|mixed
 	 */
-	protected function getScanActionVO() {
+	protected function getScanAction() {
+		$oAction = $this->getNewActionVO();
+		$oAction->id = static::SCAN_SLUG;
+		return $oAction;
+	}
+
+	/**
+	 * Override this to provide the correct VO
+	 * @return Shield\Scans\Base\ScanActionVO|mixed
+	 */
+	protected function getNewActionVO() {
 		return new Shield\Scans\Base\ScanActionVO();
+	}
+
+	/**
+	 * Override this to provide the correct Async Scanner
+	 * @return Shield\Scans\Base\BaseAsyncScanner|mixed|false
+	 */
+	protected function getNewAsyncScanner() {
+		return null;
 	}
 
 	/**

@@ -83,10 +83,15 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return Shield\Scans\Mal\MalScanActionVO
 	 */
-	protected function getScanActionVO() {
-		$oAction = new Shield\Scans\Mal\MalScanActionVO();
-		$oAction->id = static::SCAN_SLUG.'scan';
-		return $oAction;
+	protected function getNewActionVO() {
+		return new Shield\Scans\Mal\MalScanActionVO();
+	}
+
+	/**
+	 * @return Shield\Scans\Mal\AsyncScanner
+	 */
+	protected function getNewAsyncScanner() {
+		return new Shield\Scans\Mal\AsyncScanner();
 	}
 
 	/**
@@ -98,7 +103,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		return ( new Shield\Scans\Mal\AsyncScanner() )
 			->setMod( $this->getMod() )
 			->setTmpDir( $sTmpDir )
-			->setScanActionVO( $this->getScanActionVO() );
+			->setScanActionVO( $this->getScanAction() );
 	}
 
 	/**

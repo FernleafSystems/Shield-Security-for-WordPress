@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -29,9 +29,9 @@ class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
 			$oAction->ts_start = $oReq->ts();
 			$oAction->file_scan_limit = $oOpts->getFileScanLimit();
 			$oAction->is_async = true;
-			$oAction->exclusions_missing_regex = $oOpts->getWcfMissingExclusions();
-			$oAction->exclusions_files_regex = $oOpts->getWcfFileExclusions();
-			$oAction->files_map = ( new Shield\Scans\Wcf\BuildFileMap() )
+			$oAction->exclusions = $oOpts->getUfcFileExclusions();
+			$oAction->scan_dirs = $oOpts->getUfcScanDirectories();
+			$oAction->files_map = ( new Shield\Scans\Ufc\BuildFileMap() )
 				->setScanActionVO( $oAction )
 				->build();
 			$oAction->processed_items = 0;

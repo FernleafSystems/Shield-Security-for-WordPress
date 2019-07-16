@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\FileScanActionVO;
  * @property string   $exclusions_missing_regex
  * @property string   $exclusions_files_regex
  */
-class WcfScanActionVO extends FileScanActionVO {
+class ScanActionVO extends FileScanActionVO {
 
 	/**
 	 * @return ResultItem

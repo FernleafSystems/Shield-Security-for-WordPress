@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 /**
- * Class FilePathScanner
+ * Class FileScanner
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
@@ -42,7 +42,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return false|int
 	 */
 	private function isExcluded( $sPathFragment ) {
-		/** @var WcfScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		return !empty( $oAction->exclusions_files_regex ) && preg_match( $oAction->exclusions_files_regex, $sPathFragment );
 	}
@@ -52,7 +52,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return false|int
 	 */
 	private function isExcludedMissing( $sPathFragment ) {
-		/** @var WcfScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		return !empty( $oAction->exclusions_missing_regex ) && preg_match( $oAction->exclusions_missing_regex, $sPathFragment );
 	}

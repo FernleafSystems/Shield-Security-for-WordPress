@@ -86,16 +86,21 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		return ( new Shield\Scans\Wcf\AsyncScanner() )
 			->setMod( $this->getMod() )
 			->setTmpDir( $sTmpDir )
-			->setScanActionVO( $this->getScanActionVO() );
+			->setScanActionVO( $this->getScanAction() );
 	}
 
 	/**
-	 * @return Shield\Scans\Wcf\WcfScanActionVO
+	 * @return Shield\Scans\Wcf\ScanActionVO
 	 */
-	protected function getScanActionVO() {
-		$oAction = new Shield\Scans\Wcf\WcfScanActionVO();
-		$oAction->id = static::SCAN_SLUG.'scan';
-		return $oAction;
+	protected function getNewActionVO() {
+		return new Shield\Scans\Wcf\ScanActionVO();
+	}
+
+	/**
+	 * @return Shield\Scans\Wcf\AsyncScanner
+	 */
+	protected function getNewAsyncScanner() {
+		return new Shield\Scans\Wcf\AsyncScanner();
 	}
 
 	/**

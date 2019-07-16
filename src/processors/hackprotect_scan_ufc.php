@@ -41,6 +41,20 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Shield\Scans\Ufc\ScanActionVO
+	 */
+	protected function getNewActionVO() {
+		return new Shield\Scans\Ufc\ScanActionVO();
+	}
+
+	/**
+	 * @return Shield\Scans\Ufc\AsyncScanner
+	 */
+	protected function getNewAsyncScanner() {
+		return new Shield\Scans\Ufc\AsyncScanner();
+	}
+
+	/**
 	 * @return Shield\Scans\Ufc\Repair
 	 */
 	protected function getRepairer() {

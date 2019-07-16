@@ -91,6 +91,49 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getUfcFileExclusions() {
+		$aExclusions = $this->getOpt( 'ufc_exclusions', [] );
+		if ( !is_array( $aExclusions ) ) {
+			$aExclusions = [];
+		}
+		return $aExclusions;
+	}
+
+	/**
+	 * Provides an array where the key is the root dir, and the value is the specific file types.
+	 * An empty array means all files.
+	 * @return string[]
+	 */
+	public function getUfcScanDirectories() {
+		$aDirs = [
+			path_join( ABSPATH, 'wp-admin' )    => [],
+			path_join( ABSPATH, 'wp-includes' ) => []
+		];
+
+		if ( $this->isUfcScanUploads() ) {
+			$sUploadsDir = Services::WpGeneral()->getDirUploads();
+			if ( !empty( $sUploadsDir ) ) {
+				$aDirs[] = [
+					'php',
+					'php5',
+					'js',
+				];
+			}
+		}
+
+		return $aDirs;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isUfcScanUploads() {
+		return $this->isOpt( 'ufc_scan_uploads', 'Y' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getWcfFileExclusions() {

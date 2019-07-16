@@ -19,7 +19,7 @@ class BuildFileMap {
 	public function build() {
 		$aFiles = [];
 
-		/** @var WcfScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
 		$oHashes = Services::CoreFileHashes();
@@ -37,7 +37,7 @@ class BuildFileMap {
 	}
 
 	protected function preBuild() {
-		/** @var WcfScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( !isset( $oAction->is_exclude_plugins_themes ) ) {
 			$oAction->is_exclude_plugins_themes = true;
