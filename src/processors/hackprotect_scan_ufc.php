@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return Shield\Scans\Ufc\ScanLauncher
 	 */
-	protected function getScanLauncher() {
+	protected function getNewScanLauncher() {
 		return new Shield\Scans\Ufc\ScanLauncher();
 	}
 
@@ -59,47 +59,6 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getRepairer() {
 		return new Shield\Scans\Ufc\Repair();
-	}
-
-	/**
-	 * @return Shield\Scans\Ufc\ResultsSet
-	 */
-	protected function getNewResultsSet() {
-		return new Shield\Scans\Ufc\ResultsSet();
-	}
-
-	/**
-	 * @return Shield\Scans\Ufc\ResultItem
-	 */
-	protected function getResultItem() {
-		return new Shield\Scans\Ufc\ResultItem();
-	}
-
-	/**
-	 * @return Shield\Scans\Ufc\Scanner
-	 */
-	protected function getScanner() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oScanner = ( new Shield\Scans\Ufc\Scanner() )
-			->setExclusions( $oFO->getUfcFileExclusions() );
-
-		if ( $oFO->isUfsScanUploads() ) {
-			$sUploadsDir = Services::WpGeneral()->getDirUploads();
-			if ( !empty( $sUploadsDir ) ) {
-				$oScanner->addScanDirector( $sUploadsDir )
-						 ->addDirSpecificFileTypes(
-							 $sUploadsDir,
-							 [
-								 'php',
-								 'php5',
-								 'js',
-							 ]
-						 );
-			}
-		}
-		return $oScanner;
 	}
 
 	/**
@@ -216,5 +175,33 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		}
 
 		return $aContent;
+	}
+
+	/**
+	 * @return Shield\Scans\Ufc\Scanner
+	 * @deprecated 8
+	 */
+	protected function getScanner() {
+		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+
+		$oScanner = ( new Shield\Scans\Ufc\Scanner() )
+			->setExclusions( $oFO->getUfcFileExclusions() );
+
+		if ( $oFO->isUfsScanUploads() ) {
+			$sUploadsDir = Services::WpGeneral()->getDirUploads();
+			if ( !empty( $sUploadsDir ) ) {
+				$oScanner->addScanDirector( $sUploadsDir )
+						 ->addDirSpecificFileTypes(
+							 $sUploadsDir,
+							 [
+								 'php',
+								 'php5',
+								 'js',
+							 ]
+						 );
+			}
+		}
+		return $oScanner;
 	}
 }

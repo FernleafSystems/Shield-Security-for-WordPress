@@ -11,7 +11,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isWcfScanEnabled();
 	}
@@ -62,22 +62,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * TODO:
-	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
-	 * if ( empty( $aAutoFixIndexFiles ) ) {
-	 * $aAutoFixIndexFiles = [];
-	 */
-
-	/**
-	 * @return Shield\Scans\Wcf\Scanner
-	 */
-	protected function getScanner() {
-		return ( new Shield\Scans\Wcf\Scanner() )
-			->setExclusions( $this->getFullExclusions() )
-			->setMissingExclusions( $this->getMissingOnlyExclusions() );
-	}
-
-	/**
 	 * @return Shield\Scans\Wcf\ScanActionVO
 	 */
 	protected function getNewActionVO() {
@@ -87,7 +71,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return Shield\Scans\Wcf\ScanLauncher
 	 */
-	protected function getScanLauncher() {
+	protected function getNewScanLauncher() {
 		return new Shield\Scans\Wcf\ScanLauncher();
 	}
 
@@ -238,5 +222,15 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			}
 		}
 		return $aContent;
+	}
+
+	/**
+	 * @return Shield\Scans\Wcf\Scanner
+	 * @deprecated 8
+	 */
+	protected function getScanner() {
+		return ( new Shield\Scans\Wcf\Scanner() )
+			->setExclusions( $this->getFullExclusions() )
+			->setMissingExclusions( $this->getMissingOnlyExclusions() );
 	}
 }

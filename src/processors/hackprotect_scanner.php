@@ -60,7 +60,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		$oMod = $this->getMod();
 		$aRunning = [];
 		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
-			$aRunning[ $sSlug ] = $this->getScannerFromSlug( $sSlug )->isAsyncScanRunning();
+			$aRunning[ $sSlug ] = $this->getScannerFromSlug( $sSlug )->isScanRunning();
 		}
 		return $aRunning;
 	}

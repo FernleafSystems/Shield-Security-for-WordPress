@@ -46,7 +46,7 @@ class ActionStore {
 	/**
 	 * @return string
 	 */
-	protected function getActionFilePath() {
+	public function getActionFilePath() {
 		return path_join( $this->getScanActionVO()->tmp_dir, 'action-'.$this->getScanActionVO()->id.'.txt' );
 	}
 

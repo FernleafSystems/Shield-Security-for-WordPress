@@ -90,7 +90,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return Shield\Scans\Mal\MapScanner
 	 */
-	protected function getScanLauncher() {
+	protected function getNewScanLauncher() {
 		return new Shield\Scans\Mal\MapScanner();
 	}
 

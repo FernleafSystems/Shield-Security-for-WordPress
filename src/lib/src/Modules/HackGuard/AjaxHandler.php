@@ -227,9 +227,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
 
-					if ( $oTablePro->isAsyncScanSupported() ) {
+					if ( $oTablePro->isScanLauncherSupported() ) {
 						$bAsync = true;
-						$oTablePro->doAsyncScan();
+						$oTablePro->launchScan();
 					}
 					else {
 						$oTablePro->doScan();

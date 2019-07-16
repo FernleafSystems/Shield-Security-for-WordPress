@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class BaseScanLauncher {
 
@@ -52,6 +53,16 @@ class BaseScanLauncher {
 		}
 
 		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRunning() {
+		$sFile = ( new Shield\Scans\Base\ActionStore() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->getActionFilePath();
+		return Services::WpFs()->exists( $sFile );
 	}
 
 	/**
