@@ -72,12 +72,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return Shield\Scans\Mal\Scanner
 	 */
 	protected function getScanner() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		return ( new Shield\Scans\Mal\Scanner() )
-			->setMalSigsSimple( $oOpts->getMalSignaturesSimple() )
-			->setMalSigsRegex( $oOpts->getMalSignaturesRegex() )
-			->setWhitelistedPaths( $oOpts->getMalWhitelistPaths() );
+		return false;
 	}
 
 	/**
@@ -88,10 +83,10 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\MapScanner
+	 * @return Shield\Scans\Mal\ScanLauncher
 	 */
 	protected function getNewScanLauncher() {
-		return new Shield\Scans\Mal\MapScanner();
+		return new Shield\Scans\Mal\ScanLauncher();
 	}
 
 	/**
