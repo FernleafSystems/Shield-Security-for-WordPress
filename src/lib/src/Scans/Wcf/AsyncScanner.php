@@ -50,7 +50,7 @@ class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
 				$this->scanFileMapSlice();
 			}
 		}
-
+		error_log( var_export( $oAction->processed_items, true ) );
 		return $oAction;
 	}
 
@@ -78,10 +78,8 @@ class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
 
 		if ( $oAction->file_scan_limit > 0 ) {
 			$oAction->files_map = array_slice( $oAction->files_map, $oAction->file_scan_limit );
-			$oAction->processed_items += $oAction->file_scan_limit;
 		}
 		else {
-			$oAction->processed_items = count( $oAction->files_map );
 			$oAction->files_map = [];
 		}
 

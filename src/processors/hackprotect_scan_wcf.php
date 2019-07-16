@@ -48,6 +48,20 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Shield\Scans\Wcf\ResultsSet
+	 */
+	protected function getResultsSet() {
+		return new Shield\Scans\Wcf\ResultsSet();
+	}
+
+	/**
+	 * @return Shield\Scans\Wcf\ResultItem
+	 */
+	protected function getResultItem() {
+		return new Shield\Scans\Wcf\ResultItem();
+	}
+
+	/**
 	 * TODO:
 	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
 	 * if ( empty( $aAutoFixIndexFiles ) ) {
@@ -61,6 +75,27 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		return ( new Shield\Scans\Wcf\Scanner() )
 			->setExclusions( $this->getFullExclusions() )
 			->setMissingExclusions( $this->getMissingOnlyExclusions() );
+	}
+
+	/**
+	 * @return Shield\Scans\Wcf\AsyncScanner
+	 */
+	protected function getScannerAsync() {
+		$sTmpDir = $this->getCon()->getPluginCachePath( static::SCAN_SLUG );
+		Services::WpFs()->mkdir( $sTmpDir );
+		return ( new Shield\Scans\Wcf\AsyncScanner() )
+			->setMod( $this->getMod() )
+			->setTmpDir( $sTmpDir )
+			->setScanActionVO( $this->getScanActionVO() );
+	}
+
+	/**
+	 * @return Shield\Scans\Wcf\WcfScanActionVO
+	 */
+	protected function getScanActionVO() {
+		$oAction = new Shield\Scans\Wcf\WcfScanActionVO();
+		$oAction->id = static::SCAN_SLUG.'scan';
+		return $oAction;
 	}
 
 	/**

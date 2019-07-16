@@ -25,6 +25,8 @@ class ScannerFromFileMap extends ScannerBase {
 				$aSlice = $oAction->files_map;
 			}
 
+			$oAction->processed_items += count( $aSlice );
+
 			foreach ( $aSlice as $nKey => $sFullPath ) {
 				$oItem = $this->scanPath( $sFullPath );
 				if ( $oItem instanceof ResultItem ) {

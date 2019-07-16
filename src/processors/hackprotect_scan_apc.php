@@ -59,6 +59,20 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Shield\Scans\Apc\ResultsSet
+	 */
+	protected function getResultsSet() {
+		return new Shield\Scans\Apc\ResultsSet();
+	}
+
+	/**
+	 * @return Shield\Scans\Apc\ResultItem
+	 */
+	protected function getResultItem() {
+		return new Shield\Scans\Apc\ResultItem();
+	}
+
+	/**
 	 * @return Shield\Scans\Apc\Scanner
 	 */
 	protected function getScanner() {

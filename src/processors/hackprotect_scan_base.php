@@ -26,6 +26,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function run() {
 		parent::run();
+		if ( Services::Request()->query( 'async_scan' ) == static::SCAN_SLUG ) {
+			$this->doAsyncScan();
+		}
 		$this->setupCron();
 	}
 
@@ -45,7 +48,52 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function doAsyncScan() {
-		return false;
+		if ( !$this->isAsyncScanSupported() ) {
+			return false;
+		}
+
+		try {
+			/** @var Shield\Scans\Base\ScanActionVO $oAction */
+			$oAction = $this->getScannerAsync()
+							->run()
+							->getScanActionVO();
+		}
+		catch ( \Exception $oE ) {
+			return false;
+		}
+
+		if ( $oAction->ts_finish > 0 ) {
+			$oResults = $this->getResultsSet();
+			if ( $oAction->ts_start == $oAction->ts_finish ) {
+				// Means that no files were found in the file build map
+			}
+			else if ( !empty( $oAction->results ) ) {
+				foreach ( $oAction->results as $aRes ) {
+					$oResults->addItem( $this->getResultItem()->applyFromArray( $aRes ) );
+				}
+				$this->updateScanResultsStore( $oResults );
+			}
+
+			$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_run' );
+			if ( $oResults->countItems() ) {
+				$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_found' );
+			}
+		}
+		else {
+			Services::HttpRequest()
+					->get(
+						add_query_arg(
+							[ 'async_scan' => static::SCAN_SLUG ],
+							Services::WpGeneral()->getHomeUrl()
+						),
+						[
+							'blocking' => true,
+							'timeout'  => 5,
+						]
+					);
+		}
+
+		return true;
 	}
 
 	/**
@@ -68,6 +116,20 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	protected function getScannerResults() {
 		/** @var Shield\Scans\Base\BaseResultsSet $oResults */
 		return $this->getScanner()->run();
+	}
+
+	/**
+	 * @return Shield\Scans\Base\BaseResultsSet|mixed
+	 */
+	protected function getResultsSet() {
+		return new Shield\Scans\Base\BaseResultsSet();
+	}
+
+	/**
+	 * @return Shield\Scans\Base\BaseResultItem|mixed
+	 */
+	protected function getResultItem() {
+		return new Shield\Scans\Base\BaseResultItem();
 	}
 
 	/**

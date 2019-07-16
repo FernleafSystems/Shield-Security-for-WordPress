@@ -107,6 +107,20 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
+	 * @return Shield\Scans\Ptg\ResultsSet
+	 */
+	protected function getResultsSet() {
+		return new Shield\Scans\Ptg\ResultsSet();
+	}
+
+	/**
+	 * @return Shield\Scans\Ptg\ResultItem
+	 */
+	protected function getResultItem() {
+		return new Shield\Scans\Ptg\ResultItem();
+	}
+
+	/**
 	 * Shouldn't really be used in this case as it'll only scan the plugins
 	 *
 	 * @return Shield\Scans\Ptg\ScannerPlugins

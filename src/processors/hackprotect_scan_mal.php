@@ -8,65 +8,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'mal';
 
 	/**
-	 */
-	public function run() {
-		if ( isset( $_GET[ 'testscan' ] ) ) {
-			$this->doAsyncScan();
-			die( 'here' );
-		}
-		parent::run();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function doAsyncScan() {
-		if ( !$this->isAsyncScanSupported() ) {
-			return false;
-		}
-
-		try {
-			/** @var Shield\Scans\Mal\MalScanActionVO $oAction */
-			$oAction = $this->getScannerAsync()
-							->run()
-							->getScanActionVO();
-		}
-		catch ( \Exception $oE ) {
-			return false;
-		}
-
-		if ( $oAction->ts_finish > 0 ) {
-			$oResults = new Shield\Scans\Mal\ResultsSet();
-			if ( $oAction->ts_start == $oAction->ts_finish ) {
-				// Means that no files were found in the file build map
-			}
-			else if ( !empty( $oAction->results ) ) {
-				foreach ( $oAction->results as $aRes ) {
-					$oResults->addItem( ( new Shield\Scans\Mal\ResultItem() )->applyFromArray( $aRes ) );
-				}
-				$this->updateScanResultsStore( $oResults );
-			}
-
-			$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_run' );
-			if ( $oResults->countItems() ) {
-				$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_found' );
-			}
-		}
-		else {
-			Services::HttpRequest()
-					->get(
-						add_query_arg( [ 'testscan' => 1 ], Services::WpGeneral()->getHomeUrl() ),
-						[
-							'blocking' => true,
-							'timeout'  => 5,
-						]
-					);
-		}
-
-		return true;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isAvailable() {
@@ -111,6 +52,20 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getRepairer() {
 		return ( new Shield\Scans\Mal\Repair() )->setMod( $this->getMod() );
+	}
+
+	/**
+	 * @return Shield\Scans\Mal\ResultsSet
+	 */
+	protected function getResultsSet() {
+		return new Shield\Scans\Mal\ResultsSet();
+	}
+
+	/**
+	 * @return Shield\Scans\Mal\ResultItem
+	 */
+	protected function getResultItem() {
+		return new Shield\Scans\Mal\ResultItem();
 	}
 
 	/**
