@@ -32,7 +32,7 @@ abstract class BaseScanFromFileMap {
 			$oAction->processed_items += count( $aSlice );
 
 			foreach ( $aSlice as $nKey => $sFullPath ) {
-				$oItem = $this->getPathScanner()->scan( $sFullPath );
+				$oItem = $this->getFileScanner()->scan( $sFullPath );
 				if ( $oItem instanceof Scans\Base\BaseResultItem ) {
 					$oResultSet->addItem( $oItem );
 				}
@@ -45,5 +45,5 @@ abstract class BaseScanFromFileMap {
 	/**
 	 * @return BaseFileScanner
 	 */
-	abstract protected function getPathScanner();
+	abstract protected function getFileScanner();
 }

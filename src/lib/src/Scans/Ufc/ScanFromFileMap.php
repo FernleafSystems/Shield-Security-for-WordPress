@@ -13,7 +13,7 @@ class ScanFromFileMap extends BaseScanFromFileMap {
 	/**
 	 * @return FileScanner
 	 */
-	protected function getPathScanner() {
+	protected function getFileScanner() {
 		return ( new FileScanner() )->setScanActionVO( $this->getScanActionVO() );
 	}
 }

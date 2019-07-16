@@ -25,7 +25,7 @@ class Options extends Base\ShieldOptions {
 	 * We do some WP Content dir replacement as there may be custom wp-content dir defines
 	 * @return string[]
 	 */
-	public function getMalwareWhitelistPaths() {
+	public function getMalWhitelistPaths() {
 		return array_map(
 			function ( $sFragment ) {
 				return str_replace(

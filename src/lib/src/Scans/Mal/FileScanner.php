@@ -20,7 +20,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	public function scan( $sFullPath ) {
 		$oResultItem = null;
 
-		/** @var MalScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
 		try {

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\MalScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BaseAsyncActionQuery extends Shield\Scans\Base\BaseAsyncAction {

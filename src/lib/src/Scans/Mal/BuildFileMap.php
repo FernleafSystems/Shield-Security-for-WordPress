@@ -20,7 +20,7 @@ class BuildFileMap {
 		$aFiles = [];
 		$this->preBuild();
 
-		/** @var MalScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
 		try {
@@ -43,7 +43,7 @@ class BuildFileMap {
 	}
 
 	protected function preBuild() {
-		/** @var MalScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
 		if ( empty( $oAction->scan_root_dir ) ) {
@@ -64,7 +64,7 @@ class BuildFileMap {
 	private function isWhitelistedPath( $sThePath ) {
 		$bWhitelisted = false;
 
-		/** @var MalScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		foreach ( $oAction->paths_whitelisted as $sWlPath ) {
 			if ( stripos( $sThePath, $sWlPath ) === 0 ) {

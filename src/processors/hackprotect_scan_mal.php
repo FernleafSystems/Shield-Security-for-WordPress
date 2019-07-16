@@ -77,14 +77,14 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		return ( new Shield\Scans\Mal\Scanner() )
 			->setMalSigsSimple( $oOpts->getMalSignaturesSimple() )
 			->setMalSigsRegex( $oOpts->getMalSignaturesRegex() )
-			->setWhitelistedPaths( $oOpts->getMalwareWhitelistPaths() );
+			->setWhitelistedPaths( $oOpts->getMalWhitelistPaths() );
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\MalScanActionVO
+	 * @return Shield\Scans\Mal\ScanActionVO
 	 */
 	protected function getNewActionVO() {
-		return new Shield\Scans\Mal\MalScanActionVO();
+		return new Shield\Scans\Mal\ScanActionVO();
 	}
 
 	/**

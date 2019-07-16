@@ -5,13 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\FileScanActionVO;
 
 /**
- * Class MalScanActionVO
+ * Class ScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
+ * @property string[] $file_exts
+ * @property string[] $scan_root_dir
  * @property string[] $paths_whitelisted
  * @property string[] $patterns_regex
  * @property string[] $patterns_simple
  */
-class MalScanActionVO extends FileScanActionVO {
+class ScanActionVO extends FileScanActionVO {
 
 	/**
 	 * @return ResultItem

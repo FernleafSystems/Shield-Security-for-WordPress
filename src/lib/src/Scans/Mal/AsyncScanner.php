@@ -10,13 +10,13 @@ class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
 	use Shield\Modules\ModConsumer;
 
 	/**
-	 * @return MalScanActionVO
+	 * @return ScanActionVO
 	 * @throws \Exception
 	 */
 	protected function scan() {
-		/** @var MalScanActionVO $oAction */
+		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof MalScanActionVO ) {
+		if ( !$oAction instanceof ScanActionVO ) {
 			throw new \Exception( 'MalScan Action VO not provided.' );
 		}
 
@@ -29,7 +29,7 @@ class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
 			$oAction->ts_start = $oReq->ts();
 			$oAction->file_scan_limit = $oOpts->getFileScanLimit();
 			$oAction->is_async = true;
-			$oAction->paths_whitelisted = $oOpts->getMalwareWhitelistPaths();
+			$oAction->paths_whitelisted = $oOpts->getMalWhitelistPaths();
 			$oAction->patterns_regex = $oOpts->getMalSignaturesRegex();
 			$oAction->patterns_simple = $oOpts->getMalSignaturesSimple();
 			$oAction->file_exts = [ 'php', 'php5' ];
