@@ -95,18 +95,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\AsyncScanner
-	 */
-	protected function getScannerAsync() {
-		$sTmpDir = $this->getCon()->getPluginCachePath( static::SCAN_SLUG );
-		Services::WpFs()->mkdir( $sTmpDir );
-		return ( new Shield\Scans\Mal\AsyncScanner() )
-			->setMod( $this->getMod() )
-			->setTmpDir( $sTmpDir )
-			->setScanActionVO( $this->getScanAction() );
-	}
-
-	/**
 	 * @param Shield\Scans\Mal\ResultItem $oItem
 	 * @return bool
 	 * @throws \Exception

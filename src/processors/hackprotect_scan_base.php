@@ -65,10 +65,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 		if ( $oAction->ts_finish > 0 ) {
 			$oResults = $this->getResultsSet();
-			if ( $oAction->ts_start == $oAction->ts_finish ) {
-				// Means that no files were found in the file build map
-			}
-			else if ( !empty( $oAction->results ) ) {
+			if ( !empty( $oAction->results ) ) {
 				foreach ( $oAction->results as $aRes ) {
 					$oResults->addItem( $this->getResultItem()->applyFromArray( $aRes ) );
 				}
