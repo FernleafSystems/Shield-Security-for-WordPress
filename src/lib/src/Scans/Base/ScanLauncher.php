@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseScanLauncher {
+class ScanLauncher {
 
 	use Shield\Modules\ModConsumer,
 		Shield\Scans\Base\ScanActionConsumer;
@@ -69,7 +69,7 @@ class BaseScanLauncher {
 	 * @return BaseScan|mixed
 	 */
 	private function getScanner() {
-		$sClass = $this->getNamespace().'\\Scan';
+		$sClass = $this->getScanNamespace().'\\Scan';
 		/** @var BaseScan $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )
@@ -80,27 +80,10 @@ class BaseScanLauncher {
 	 * @return BaseBuildScanAction|mixed
 	 */
 	private function getScanActionBuilder() {
-		$sClass = $this->getNamespace().'\\BuildScanAction';
+		$sClass = $this->getScanNamespace().'\\BuildScanAction';
 		/** @var BaseBuildScanAction $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )
 				 ->setScanActionVO( $this->getScanActionVO() );
-	}
-
-	protected function loadScanActionBuilder() {
-		return new BaseBuildScanAction();
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getNamespace() {
-		try {
-			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
-		}
-		catch ( \Exception $oE ) {
-			$sName = __NAMESPACE__;
-		}
-		return $sName;
 	}
 }

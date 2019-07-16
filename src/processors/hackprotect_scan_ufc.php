@@ -48,13 +48,6 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Ufc\ScanLauncher
-	 */
-	protected function getNewScanLauncher() {
-		return new Shield\Scans\Ufc\ScanLauncher();
-	}
-
-	/**
 	 * @return Shield\Scans\Ufc\Repair
 	 */
 	protected function getRepairer() {

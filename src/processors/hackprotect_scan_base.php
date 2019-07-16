@@ -167,15 +167,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function getScanner();
 
 	/**
-	 * @return Shield\Scans\Base\BaseScanLauncher|null
+	 * @return Shield\Scans\Base\ScanLauncher|null
 	 */
 	protected function getScanLauncher() {
-		$oAS = $this->getNewScanLauncher();
-		if ( $oAS instanceof Shield\Scans\Base\BaseScanLauncher ) {
-			$oAS->setMod( $this->getMod() )
-				->setScanActionVO( $this->getScanAction() );
-		}
-		return $oAS;
+		return ( new Shield\Scans\Base\ScanLauncher() )
+			->setMod( $this->getMod() )
+			->setScanActionVO( $this->getScanAction() );
 	}
 
 	/**
@@ -189,7 +186,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function isScanLauncherSupported() {
-		return ( $this->getScanLauncher() instanceof Shield\Scans\Base\BaseScanLauncher );
+		return in_array( $this->getScanAction()->id, [ 'wcf', 'ufc', 'mal' ] );
 	}
 
 	/**
@@ -216,14 +213,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function getNewActionVO() {
 		return new Shield\Scans\Base\ScanActionVO();
-	}
-
-	/**
-	 * Override this to provide the correct Async Scanner
-	 * @return Shield\Scans\Base\BaseScan|mixed|false
-	 */
-	protected function getNewScanLauncher() {
-		return null;
 	}
 
 	/**

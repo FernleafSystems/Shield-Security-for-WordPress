@@ -83,13 +83,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\ScanLauncher
-	 */
-	protected function getNewScanLauncher() {
-		return new Shield\Scans\Mal\ScanLauncher();
-	}
-
-	/**
 	 * @param Shield\Scans\Mal\ResultItem $oItem
 	 * @return bool
 	 * @throws \Exception

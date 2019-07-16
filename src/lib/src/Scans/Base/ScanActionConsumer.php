@@ -24,4 +24,17 @@ trait ScanActionConsumer {
 		$this->oScanActionVO = $oScanActionVO;
 		return $this;
 	}
+
+	/**
+	 * @return string
+	 */
+	protected function getScanNamespace() {
+		try {
+			$sName = ( new \ReflectionClass( $this->getScanActionVO() ) )->getNamespaceName();
+		}
+		catch ( \Exception $oE ) {
+			$sName = __NAMESPACE__;
+		}
+		return $sName;
+	}
 }
