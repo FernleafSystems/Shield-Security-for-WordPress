@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
+class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
 
 	use Shield\Modules\ModConsumer;
 
@@ -29,7 +29,6 @@ class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
 			$oAction->ts_start = $oReq->ts();
 			$oAction->file_scan_limit = $oOpts->getFileScanLimit();
 			$oAction->is_async = true;
-			$oAction->paths_whitelisted = $oOpts->getMalwareWhitelistPaths();
 			$oAction->exclusions_missing_regex = $oOpts->getWcfMissingExclusions();
 			$oAction->exclusions_files_regex = $oOpts->getWcfFileExclusions();
 			$oAction->files_map = ( new Shield\Scans\Wcf\BuildFileMap() )
@@ -50,39 +49,14 @@ class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
 				$this->scanFileMapSlice();
 			}
 		}
-		error_log( var_export( $oAction->processed_items, true ) );
+
 		return $oAction;
 	}
 
 	/**
-	 * @return $this
+	 * @return ScanFromFileMap
 	 */
-	private function scanFileMapSlice() {
-		/** @var WcfScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-
-		$oTempRs = ( new ScannerFromFileMap() )
-			->setScanActionVO( $oAction )
-			->run();
-
-		if ( $oTempRs->hasItems() ) {
-			$aNewItems = [];
-			foreach ( $oTempRs->getAllItems() as $oItem ) {
-				$aNewItems[] = $oItem->getRawDataAsArray();
-			}
-			if ( empty( $oAction->results ) ) {
-				$oAction->results = [];
-			}
-			$oAction->results = array_merge( $oAction->results, $aNewItems );
-		}
-
-		if ( $oAction->file_scan_limit > 0 ) {
-			$oAction->files_map = array_slice( $oAction->files_map, $oAction->file_scan_limit );
-		}
-		else {
-			$oAction->files_map = [];
-		}
-
-		return $this;
+	protected function getScanFromFileMap() {
+		return ( new ScanFromFileMap() )->setScanActionVO( $this->getScanActionVO() );
 	}
 }

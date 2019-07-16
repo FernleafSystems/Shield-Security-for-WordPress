@@ -7,28 +7,21 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 /**
- * Class ScannerBase
+ * Class FilePathScanner
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
-abstract class ScannerBase {
-
-	use Shield\Modules\ModConsumer,
-		Shield\Scans\Base\ScanActionConsumer;
-
-	/**
-	 * @return ResultsSet
-	 */
-	abstract public function run();
+class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
 	 * @param string $sFullPath
 	 * @return ResultItem|null
 	 */
-	protected function scanPath( $sFullPath ) {
+	public function scan( $sFullPath ) {
 		$oResult = null;
 		$oHashes = Services::CoreFileHashes();
 
-		$oRes = new ResultItem();
+		/** @var ResultItem $oRes */
+		$oRes = $this->getScanActionVO()->getNewResultItem();
 		$oRes->path_full = $sFullPath;
 		$oRes->path_fragment = $oHashes->getFileFragment( $sFullPath );
 		$oRes->md5_file_wp = $oHashes->getFileHash( $oRes->path_fragment );

@@ -8,24 +8,16 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 /**
- * Class ScannerBase
+ * Class FileScanner
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
-abstract class ScannerBase {
-
-	use Shield\Modules\ModConsumer,
-		Shield\Scans\Base\ScanActionConsumer;
-
-	/**
-	 * @return ResultsSet
-	 */
-	abstract public function run();
+class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
 	 * @param string $sFullPath
 	 * @return ResultItem|null
 	 */
-	protected function scanPath( $sFullPath ) {
+	public function scan( $sFullPath ) {
 		$oResultItem = null;
 
 		/** @var MalScanActionVO $oAction */

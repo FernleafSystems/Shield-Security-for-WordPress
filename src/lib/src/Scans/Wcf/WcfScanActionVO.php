@@ -2,17 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\FileScanActionVO;
 
 /**
- * Class MalScanActionVO
+ * Class WcfScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\AsyncActions
- * @property string[] $files_map
- * @property string[] $paths_whitelisted
  * @property bool     $is_exclude_plugins_themes
  * @property string   $exclusions_missing_regex
  * @property string   $exclusions_files_regex
  */
-class WcfScanActionVO extends ScanActionVO {
+class WcfScanActionVO extends FileScanActionVO {
 
+	/**
+	 * @return ResultItem
+	 */
+	public function getNewResultItem() {
+		return new ResultItem();
+	}
+
+	/**
+	 * @return ResultsSet
+	 */
+	public function getNewResultsSet() {
+		return new ResultsSet();
+	}
 }

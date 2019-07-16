@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
+class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
 
 	use Shield\Modules\ModConsumer;
 
@@ -57,34 +57,9 @@ class AsyncScanner extends Shield\Scans\Base\BaseAsyncScanner {
 	}
 
 	/**
-	 * @return $this
+	 * @return ScanFromFileMap
 	 */
-	private function scanFileMapSlice() {
-		/** @var MalScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-
-		$oTempRs = ( new ScannerFromFileMap() )
-			->setScanActionVO( $oAction )
-			->run();
-
-		if ( $oTempRs->hasItems() ) {
-			$aNewItems = [];
-			foreach ( $oTempRs->getAllItems() as $oItem ) {
-				$aNewItems[] = $oItem->getRawDataAsArray();
-			}
-			if ( empty( $oAction->results ) ) {
-				$oAction->results = [];
-			}
-			$oAction->results = array_merge( $oAction->results, $aNewItems );
-		}
-
-		if ( $oAction->file_scan_limit > 0 ) {
-			$oAction->files_map = array_slice( $oAction->files_map, $oAction->file_scan_limit );
-		}
-		else {
-			$oAction->files_map = [];
-		}
-
-		return $this;
+	protected function getScanFromFileMap() {
+		return ( new ScanFromFileMap() )->setScanActionVO( $this->getScanActionVO() );
 	}
 }

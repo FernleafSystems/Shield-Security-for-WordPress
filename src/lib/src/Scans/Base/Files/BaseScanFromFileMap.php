@@ -1,20 +1,24 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
- * Class ScannerFromFileMap
+ * Class BaseScanFromFileMap
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
-class ScannerFromFileMap extends ScannerBase {
+abstract class BaseScanFromFileMap {
+
+	use Scans\Base\ScanActionConsumer;
 
 	/**
-	 * @return ResultsSet
+	 * @return Scans\Base\BaseResultsSet
 	 */
 	public function run() {
-		$oResultSet = new ResultsSet();
-		/** @var WcfScanActionVO $oAction */
+		/** @var FileScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
+		$oResultSet = $oAction->getNewResultsSet();
 
 		if ( !empty( $oAction->files_map ) ) {
 
@@ -28,8 +32,8 @@ class ScannerFromFileMap extends ScannerBase {
 			$oAction->processed_items += count( $aSlice );
 
 			foreach ( $aSlice as $nKey => $sFullPath ) {
-				$oItem = $this->scanPath( $sFullPath );
-				if ( $oItem instanceof ResultItem ) {
+				$oItem = $this->getPathScanner()->scan( $sFullPath );
+				if ( $oItem instanceof Scans\Base\BaseResultItem ) {
 					$oResultSet->addItem( $oItem );
 				}
 			}
@@ -37,4 +41,9 @@ class ScannerFromFileMap extends ScannerBase {
 
 		return $oResultSet;
 	}
+
+	/**
+	 * @return BaseFileScanner
+	 */
+	abstract protected function getPathScanner();
 }
