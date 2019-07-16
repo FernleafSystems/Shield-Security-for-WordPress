@@ -22,8 +22,8 @@ abstract class BaseScanFromFileMap {
 
 		if ( !empty( $oAction->files_map ) ) {
 
-			if ( (int)$oAction->file_scan_limit > 0 ) {
-				$aSlice = array_slice( $oAction->files_map, 0, $oAction->file_scan_limit );
+			if ( (int)$oAction->item_processing_limit > 0 ) {
+				$aSlice = array_slice( $oAction->files_map, 0, $oAction->item_processing_limit );
 			}
 			else {
 				$aSlice = $oAction->files_map;

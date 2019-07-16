@@ -15,7 +15,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	protected $oScanner;
 
 	/**
-	 * @var Shield\Scans\Base\ScanActionVO
+	 * @var Shield\Scans\Base\BaseScanActionVO
 	 */
 	protected $oScanAction;
 
@@ -190,10 +190,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Scans\Base\ScanActionVO|mixed
+	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	protected function getScanAction() {
-		if ( !$this->oScanAction instanceof Shield\Scans\Base\ScanActionVO ) {
+		if ( !$this->oScanAction instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct = $this->getNewActionVO();
 			$oAct->id = static::SCAN_SLUG;
 
@@ -209,10 +209,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 	/**
 	 * Override this to provide the correct VO
-	 * @return Shield\Scans\Base\ScanActionVO|mixed
+	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	protected function getNewActionVO() {
-		return new Shield\Scans\Base\ScanActionVO();
+		return new Shield\Scans\Base\BaseScanActionVO();
 	}
 
 	/**

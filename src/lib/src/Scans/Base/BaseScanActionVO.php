@@ -11,13 +11,13 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property int     $ts_start
  * @property int     $ts_finish
  * @property bool    $is_async
- * @property int     $file_scan_limit
  * @property int     $processed_items
  * @property int     $total_scan_items
+ * @property int     $item_processing_limit
  * @property string  $tmp_dir
  * @property array[] $results
  */
-class ScanActionVO {
+class BaseScanActionVO {
 
 	use StdClassAdapter;
 
@@ -25,13 +25,28 @@ class ScanActionVO {
 	 * @return BaseResultItem|mixed
 	 */
 	public function getNewResultItem() {
-		return new BaseResultItem();
+		$sClass = $this->getScanNamespace().'\\ResultItem';
+		return new $sClass();
 	}
 
 	/**
 	 * @return BaseResultsSet|mixed
 	 */
 	public function getNewResultsSet() {
-		return new BaseResultsSet();
+		$sClass = $this->getScanNamespace().'\\ResultsSet';
+		return new $sClass();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getScanNamespace() {
+		try {
+			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
+		}
+		catch ( \Exception $oE ) {
+			$sName = __NAMESPACE__;
+		}
+		return $sName;
 	}
 }

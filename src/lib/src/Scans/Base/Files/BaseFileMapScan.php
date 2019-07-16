@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseFileMapScan extends Base\BaseScan {
 
 	/**
-	 * @return Base\ScanActionVO
+	 * @return Base\BaseScanActionVO
 	 * @throws \Exception
 	 */
 	protected function scan() {
@@ -54,8 +54,8 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
 
-		if ( $oAction->file_scan_limit > 0 ) {
-			$oAction->files_map = array_slice( $oAction->files_map, $oAction->file_scan_limit );
+		if ( $oAction->item_processing_limit > 0 ) {
+			$oAction->files_map = array_slice( $oAction->files_map, $oAction->item_processing_limit );
 		}
 		else {
 			$oAction->files_map = [];

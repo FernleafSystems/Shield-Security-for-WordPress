@@ -12,7 +12,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getMod()->getOptions();
 
-		$oAction->file_scan_limit = $oAction->is_async ? $oOpts->getFileScanLimit() : 0;
+		$oAction->item_processing_limit = $oAction->is_async ? $oOpts->getFileScanLimit() : 0;
 		$oAction->exclusions = $oOpts->getUfcFileExclusions();
 		$oAction->scan_dirs = $oOpts->getUfcScanDirectories();
 		$oAction->files_map = ( new Shield\Scans\Ufc\BuildFileMap() )

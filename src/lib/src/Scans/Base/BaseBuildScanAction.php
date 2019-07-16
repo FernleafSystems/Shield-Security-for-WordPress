@@ -14,9 +14,9 @@ class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	public function build() {
-		/** @var ScanActionVO $oAction */
+		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof ScanActionVO ) {
+		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Action VO not provided.' );
 		}
 		if ( empty( $oAction->id ) ) {
@@ -29,7 +29,7 @@ class BaseBuildScanAction {
 	/**
 	 */
 	protected function setStandardFields() {
-		/** @var ScanActionVO $oAction */
+		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		$oAction->ts_start = Services::Request()->ts();
 		$oAction->processed_items = 0;

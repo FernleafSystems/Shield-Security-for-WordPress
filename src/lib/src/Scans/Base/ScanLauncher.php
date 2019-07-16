@@ -16,9 +16,9 @@ class ScanLauncher {
 	 * @throws \Exception
 	 */
 	public function launch() {
-		/** @var ScanActionVO $oAction */
+		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof ScanActionVO ) {
+		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Scan Action VO not provided.' );
 		}
 
@@ -69,7 +69,7 @@ class ScanLauncher {
 	 * @return BaseScan|mixed
 	 */
 	private function getScanner() {
-		$sClass = $this->getScanNamespace().'\\Scan';
+		$sClass = $this->getScanActionVO()->getScanNamespace().'\\Scan';
 		/** @var BaseScan $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )
@@ -80,7 +80,7 @@ class ScanLauncher {
 	 * @return BaseBuildScanAction|mixed
 	 */
 	private function getScanActionBuilder() {
-		$sClass = $this->getScanNamespace().'\\BuildScanAction';
+		$sClass = $this->getScanActionVO()->getScanNamespace().'\\BuildScanAction';
 		/** @var BaseBuildScanAction $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )

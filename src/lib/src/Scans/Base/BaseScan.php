@@ -26,7 +26,7 @@ abstract class BaseScan {
 	 */
 	protected function preScan() {
 		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof ScanActionVO ) {
+		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Action VO not provided.' );
 		}
 		if ( empty( $oAction->id ) ) {
@@ -45,7 +45,7 @@ abstract class BaseScan {
 	}
 
 	/**
-	 * @return ScanActionVO
+	 * @return BaseScanActionVO
 	 */
 	abstract protected function scan();
 
