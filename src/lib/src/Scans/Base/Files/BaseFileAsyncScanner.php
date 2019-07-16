@@ -4,7 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-abstract class BaseFileAsyncScanner extends Base\BaseAsyncAction {
+/**
+ * Class BaseFileAsyncScanner
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files
+ */
+abstract class BaseFileAsyncScanner extends Base\BaseAsyncScanner {
 
 	/**
 	 * @return $this

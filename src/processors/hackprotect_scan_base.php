@@ -28,6 +28,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		parent::run();
 		if ( Services::Request()->query( 'async_scan' ) == static::SCAN_SLUG ) {
 			$this->doAsyncScan();
+			die(static::SCAN_SLUG);
 		}
 		$this->setupCron();
 	}
