@@ -48,10 +48,10 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Ufc\AsyncScanner
+	 * @return Shield\Scans\Ufc\ScanLauncher
 	 */
-	protected function getNewAsyncScanner() {
-		return new Shield\Scans\Ufc\AsyncScanner();
+	protected function getScanLauncher() {
+		return new Shield\Scans\Ufc\ScanLauncher();
 	}
 
 	/**
@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return Shield\Scans\Ufc\ResultsSet
 	 */
-	protected function getResultsSet() {
+	protected function getNewResultsSet() {
 		return new Shield\Scans\Ufc\ResultsSet();
 	}
 

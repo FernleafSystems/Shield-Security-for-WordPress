@@ -50,7 +50,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return Shield\Scans\Wcf\ResultsSet
 	 */
-	protected function getResultsSet() {
+	protected function getNewResultsSet() {
 		return new Shield\Scans\Wcf\ResultsSet();
 	}
 
@@ -85,10 +85,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Wcf\AsyncScanner
+	 * @return Shield\Scans\Wcf\ScanLauncher
 	 */
-	protected function getNewAsyncScanner() {
-		return new Shield\Scans\Wcf\AsyncScanner();
+	protected function getScanLauncher() {
+		return new Shield\Scans\Wcf\ScanLauncher();
 	}
 
 	/**

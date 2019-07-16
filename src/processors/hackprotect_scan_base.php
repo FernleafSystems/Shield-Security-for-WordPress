@@ -15,6 +15,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	protected $oScanner;
 
 	/**
+	 * @var Shield\Scans\Base\ScanActionVO
+	 */
+	protected $oScanAction;
+
+	/**
 	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
@@ -46,25 +51,28 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract public function isEnabled();
 
 	/**
+	 * @param bool $bIsASync
 	 * @return bool
 	 */
-	public function doAsyncScan() {
+	public function doAsyncScan( $bIsASync = true ) {
 		if ( !$this->isAsyncScanSupported() ) {
+			var_dump( 'unsupported' );
 			return false;
 		}
 
 		try {
+			$oScanner = $this->getScannerAsync();
+			$oAction = $oScanner->getScanActionVO();
+			$oAction->is_async = $bIsASync;
 			/** @var Shield\Scans\Base\ScanActionVO $oAction */
-			$oAction = $this->getScannerAsync()
-							->run()
-							->getScanActionVO();
+			$oScanner->launch();
 		}
 		catch ( \Exception $oE ) {
 			return false;
 		}
 
 		if ( $oAction->ts_finish > 0 ) {
-			$oResults = $this->getResultsSet();
+			$oResults = $this->getNewResultsSet();
 			if ( !empty( $oAction->results ) ) {
 				foreach ( $oAction->results as $aRes ) {
 					$oResults->addItem( $this->getResultItem()->applyFromArray( $aRes ) );
@@ -119,7 +127,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return Shield\Scans\Base\BaseResultsSet|mixed
 	 */
-	protected function getResultsSet() {
+	protected function getNewResultsSet() {
 		return new Shield\Scans\Base\BaseResultsSet();
 	}
 
@@ -141,15 +149,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function getScanner();
 
 	/**
-	 * @return Shield\Scans\Base\BaseAsyncScanner|null
+	 * @return Shield\Scans\Base\BaseScanLauncher|null
 	 */
 	protected function getScannerAsync() {
-		$oAS = $this->getNewAsyncScanner();
-		if ( $oAS instanceof Shield\Scans\Base\BaseAsyncScanner ) {
-			$sTmpDir = $this->getCon()->getPluginCachePath( static::SCAN_SLUG );
-			Services::WpFs()->mkdir( $sTmpDir );
+		$oAS = $this->getScanLauncher();
+		if ( $oAS instanceof Shield\Scans\Base\BaseScanLauncher ) {
 			$oAS->setMod( $this->getMod() )
-				->setTmpDir( $sTmpDir )
 				->setScanActionVO( $this->getScanAction() );
 		}
 		return $oAS;
@@ -159,23 +164,35 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function isAsyncScanRunning() {
-		return $this->isAsyncScanSupported() && $this->getScannerAsync()->isActionRunning();
+		return $this->isAsyncScanSupported()
+			   && ( new Shield\Scans\Base\ActionStore() )
+				   ->setScanActionVO( $this->getScanAction() )
+				   ->isActionRunning();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isAsyncScanSupported() {
-		return ( $this->getScannerAsync() instanceof Shield\Scans\Base\BaseAsyncScanner );
+		return ( $this->getScannerAsync() instanceof Shield\Scans\Base\BaseScanLauncher );
 	}
 
 	/**
 	 * @return Shield\Scans\Base\ScanActionVO|mixed
 	 */
 	protected function getScanAction() {
-		$oAction = $this->getNewActionVO();
-		$oAction->id = static::SCAN_SLUG;
-		return $oAction;
+		if ( !$this->oScanAction instanceof Shield\Scans\Base\ScanActionVO ) {
+			$oAct = $this->getNewActionVO();
+			$oAct->id = static::SCAN_SLUG;
+
+			$sTmpDir = $this->getCon()->getPluginCachePath( $oAct->id );
+			Services::WpFs()->mkdir( $sTmpDir );
+			$oAct->tmp_dir = $sTmpDir;
+
+			$this->oScanAction = $oAct;
+		}
+
+		return $this->oScanAction;
 	}
 
 	/**
@@ -188,9 +205,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 	/**
 	 * Override this to provide the correct Async Scanner
-	 * @return Shield\Scans\Base\BaseAsyncScanner|mixed|false
+	 * @return Shield\Scans\Base\BaseScan|mixed|false
 	 */
-	protected function getNewAsyncScanner() {
+	protected function getScanLauncher() {
 		return null;
 	}
 

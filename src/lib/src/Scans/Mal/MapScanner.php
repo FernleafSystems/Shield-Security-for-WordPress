@@ -1,11 +1,11 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
+class MapScanner extends Shield\Scans\Base\Files\BaseFileMapScan {
 
 	use Shield\Modules\ModConsumer;
 
@@ -17,25 +17,15 @@ class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( !$oAction instanceof ScanActionVO ) {
-			throw new \Exception( 'Scan Action VO not provided.' );
+			throw new \Exception( 'MalScan Action VO not provided.' );
 		}
-
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		$oReq = Services::Request();
 
 		$aDef = $this->readActionDefinitionFromDisk();
 		if ( empty( $aDef ) ) {
-			$oAction->ts_start = $oReq->ts();
-			$oAction->file_scan_limit = $oOpts->getFileScanLimit();
-			$oAction->is_async = true;
-			$oAction->exclusions_missing_regex = $oOpts->getWcfMissingExclusions();
-			$oAction->exclusions_files_regex = $oOpts->getWcfFileExclusions();
-			$oAction->files_map = ( new Shield\Scans\Wcf\BuildFileMap() )
+			( new BuildScanAction )
+				->setMod( $this->getMod() )
 				->setScanActionVO( $oAction )
 				->build();
-			$oAction->processed_items = 0;
-			$oAction->total_scan_items = count( $oAction->files_map );
 			$this->storeAction();
 		}
 		else {
@@ -43,7 +33,7 @@ class AsyncScanner extends Shield\Scans\Base\Files\BaseFileAsyncScanner {
 							->applyFromArray( $aDef );
 
 			if ( empty( $oAction->files_map ) ) {
-				$oAction->ts_finish = $oReq->ts();
+				$oAction->ts_finish = Services::Request()->ts();
 			}
 			else {
 				$this->scanFileMapSlice();

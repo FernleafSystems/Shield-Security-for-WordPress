@@ -39,14 +39,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string[]
-	 * @throws \Exception
-	 */
-	public function getMalSignaturesSimple() {
-		return $this->getMalSignatures( 'malsigs_simple.txt', $this->getDef( 'url_mal_sigs_simple' ) );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getFileScanLimit() {
@@ -55,7 +47,13 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return string[]
-	 * @throws \Exception
+	 */
+	public function getMalSignaturesSimple() {
+		return $this->getMalSignatures( 'malsigs_simple.txt', $this->getDef( 'url_mal_sigs_simple' ) );
+	}
+
+	/**
+	 * @return string[]
 	 */
 	public function getMalSignaturesRegex() {
 		return $this->getMalSignatures( 'malsigs_regex.txt', $this->getDef( 'url_mal_sigs_regex' ) );
@@ -65,7 +63,6 @@ class Options extends Base\ShieldOptions {
 	 * @param string $sFilename
 	 * @param string $sUrl
 	 * @return string[]
-	 * @throws \Exception
 	 */
 	public function getMalSignatures( $sFilename, $sUrl ) {
 		$oWpFs = Services::WpFs();

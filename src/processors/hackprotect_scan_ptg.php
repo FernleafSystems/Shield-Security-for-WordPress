@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	/**
 	 * @return Shield\Scans\Ptg\ResultsSet
 	 */
-	protected function getResultsSet() {
+	protected function getNewResultsSet() {
 		return new Shield\Scans\Ptg\ResultsSet();
 	}
 

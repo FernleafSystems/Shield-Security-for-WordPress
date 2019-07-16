@@ -3,12 +3,34 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class BaseFileAsyncScanner
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files
  */
-abstract class BaseFileAsyncScanner extends Base\BaseAsyncScanner {
+abstract class BaseFileMapScan extends Base\BaseScan {
+
+	/**
+	 * @return Base\ScanActionVO
+	 * @throws \Exception
+	 */
+	protected function scan() {
+		/** @var FileScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+
+		if ( empty( $oAction->files_map ) ) {
+			$oAction->ts_finish = Services::Request()->ts();
+		}
+		else {
+			$this->scanFileMapSlice();
+			if ( empty( $oAction->files_map ) ) {
+				$oAction->ts_finish = Services::Request()->ts();
+			}
+		}
+
+		return $oAction;
+	}
 
 	/**
 	 * @return $this

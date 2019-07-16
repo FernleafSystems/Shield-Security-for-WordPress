@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	/**
 	 * @return Shield\Scans\Wpv\ResultsSet
 	 */
-	protected function getResultsSet() {
+	protected function getNewResultsSet() {
 		return new Shield\Scans\Wpv\ResultsSet();
 	}
 

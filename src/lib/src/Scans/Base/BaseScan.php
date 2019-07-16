@@ -2,9 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseAsyncScanner extends BaseAsyncAction {
+abstract class BaseScan {
+
+	use ModConsumer,
+		ScanActionConsumer;
 
 	/**
 	 * @return $this
@@ -21,13 +25,6 @@ abstract class BaseAsyncScanner extends BaseAsyncAction {
 	 * @throws \Exception
 	 */
 	protected function preScan() {
-		if ( !Services::WpFs()->exists( $this->getTmpDir() ) ) {
-			throw new \Exception( 'TMP Dir does not exist' );
-		}
-		if ( $this->isActionLocked() ) {
-			throw new \Exception( 'Scan is currently locked.' );
-		}
-
 		$oAction = $this->getScanActionVO();
 		if ( !$oAction instanceof ScanActionVO ) {
 			throw new \Exception( 'Action VO not provided.' );
@@ -35,10 +32,16 @@ abstract class BaseAsyncScanner extends BaseAsyncAction {
 		if ( empty( $oAction->id ) ) {
 			throw new \Exception( 'Action ID not provided.' );
 		}
+		if ( !Services::WpFs()->exists( $oAction->tmp_dir ) ) {
+			throw new \Exception( 'TMP Dir does not exist' );
+		}
 
-		@ignore_user_abort( true );
+		$oStore = ( new ActionStore() )->setScanActionVO( $oAction );
+		if ( $oStore->isActionLocked() ) {
+			throw new \Exception( 'Scan is currently locked.' );
+		}
 
-		$this->lockAction();
+		$oStore->lockAction();
 	}
 
 	/**
@@ -48,13 +51,15 @@ abstract class BaseAsyncScanner extends BaseAsyncAction {
 
 	protected function postScan() {
 		$oAction = $this->getScanActionVO();
+		$oStore = ( new ActionStore() )->setScanActionVO( $oAction );
+
 		if ( $oAction->ts_finish > 0 ) {
-			$this->deleteAction();
+			$oStore->deleteAction();
 		}
 		else {
-			$this->storeAction();
+			$oStore->storeAction();
 		}
 
-		$this->unlockAction();
+		$oStore->unlockAction();
 	}
 }

@@ -57,7 +57,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return Shield\Scans\Mal\ResultsSet
 	 */
-	protected function getResultsSet() {
+	protected function getNewResultsSet() {
 		return new Shield\Scans\Mal\ResultsSet();
 	}
 
@@ -88,10 +88,10 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\AsyncScanner
+	 * @return Shield\Scans\Mal\MapScanner
 	 */
-	protected function getNewAsyncScanner() {
-		return new Shield\Scans\Mal\AsyncScanner();
+	protected function getScanLauncher() {
+		return new Shield\Scans\Mal\MapScanner();
 	}
 
 	/**
