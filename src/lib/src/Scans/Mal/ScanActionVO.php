@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\FileScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 
 /**
  * Class ScanActionVO
@@ -13,19 +13,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\FileScanActionVO;
  * @property string[] $patterns_regex
  * @property string[] $patterns_simple
  */
-class ScanActionVO extends FileScanActionVO {
-
-	/**
-	 * @return ResultItem
-	 */
-	public function getNewResultItem() {
-		return new ResultItem();
-	}
-
-	/**
-	 * @return ResultsSet
-	 */
-	public function getNewResultsSet() {
-		return new ResultsSet();
-	}
+class ScanActionVO extends BaseScanActionVO {
 }

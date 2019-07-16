@@ -21,9 +21,9 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oAction->file_exts = [ 'php', 'php5' ];
 		$oAction->scan_root_dir = ABSPATH;
 
-		$oAction->files_map = ( new Shield\Scans\Mal\BuildFileMap() )
+		$oAction->scan_items = ( new Shield\Scans\Mal\BuildFileMap() )
 			->setScanActionVO( $oAction )
 			->build();
-		$oAction->total_scan_items = count( $oAction->files_map );
+		$oAction->total_scan_items = count( $oAction->scan_items );
 	}
 }

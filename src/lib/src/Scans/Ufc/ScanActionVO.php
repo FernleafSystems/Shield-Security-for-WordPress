@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\FileScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 
 /**
  * Class ScanActionVO
@@ -10,19 +10,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\FileScanActionVO;
  * @property string[] $scan_dirs
  * @property string[] $exclusions
  */
-class ScanActionVO extends FileScanActionVO {
-
-	/**
-	 * @return ResultItem
-	 */
-	public function getNewResultItem() {
-		return new ResultItem();
-	}
-
-	/**
-	 * @return ResultsSet
-	 */
-	public function getNewResultsSet() {
-		return new ResultsSet();
-	}
+class ScanActionVO extends BaseScanActionVO {
 }

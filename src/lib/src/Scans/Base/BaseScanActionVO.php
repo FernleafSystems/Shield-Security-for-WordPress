@@ -7,15 +7,16 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 /**
  * Class ScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
- * @property string  $id
- * @property int     $ts_start
- * @property int     $ts_finish
- * @property bool    $is_async
- * @property int     $processed_items
- * @property int     $total_scan_items
- * @property int     $item_processing_limit
- * @property string  $tmp_dir
- * @property array[] $results
+ * @property string   $id
+ * @property int      $ts_start
+ * @property int      $ts_finish
+ * @property bool     $is_async
+ * @property int      $processed_items
+ * @property int      $total_scan_items
+ * @property int      $item_processing_limit
+ * @property string   $tmp_dir
+ * @property string[] $scan_items
+ * @property array[]  $results
  */
 class BaseScanActionVO {
 

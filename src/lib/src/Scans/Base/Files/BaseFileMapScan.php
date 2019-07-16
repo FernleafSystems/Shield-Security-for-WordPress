@@ -15,15 +15,15 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 	 * @throws \Exception
 	 */
 	protected function scan() {
-		/** @var FileScanActionVO $oAction */
+		/** @var Base\BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		if ( empty( $oAction->files_map ) ) {
+		if ( empty( $oAction->scan_items ) ) {
 			$oAction->ts_finish = Services::Request()->ts();
 		}
 		else {
 			$this->scanFileMapSlice();
-			if ( empty( $oAction->files_map ) ) {
+			if ( empty( $oAction->scan_items ) ) {
 				$oAction->ts_finish = Services::Request()->ts();
 			}
 		}
@@ -33,7 +33,7 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 	 * @return $this
 	 */
 	protected function scanFileMapSlice() {
-		/** @var FileScanActionVO $oAction */
+		/** @var Base\BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
 		$oTempRs = $this->getScanFromFileMap()
@@ -52,10 +52,10 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 		}
 
 		if ( $oAction->item_processing_limit > 0 ) {
-			$oAction->files_map = array_slice( $oAction->files_map, $oAction->item_processing_limit );
+			$oAction->scan_items = array_slice( $oAction->scan_items, $oAction->item_processing_limit );
 		}
 		else {
-			$oAction->files_map = [];
+			$oAction->scan_items = [];
 		}
 
 		return $this;

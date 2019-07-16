@@ -16,17 +16,17 @@ abstract class BaseScanFromFileMap {
 	 * @return Scans\Base\BaseResultsSet
 	 */
 	public function run() {
-		/** @var FileScanActionVO $oAction */
+		/** @var Scans\Base\BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		$oResultSet = $oAction->getNewResultsSet();
 
-		if ( !empty( $oAction->files_map ) ) {
+		if ( !empty( $oAction->scan_items ) ) {
 
 			if ( (int)$oAction->item_processing_limit > 0 ) {
-				$aSlice = array_slice( $oAction->files_map, 0, $oAction->item_processing_limit );
+				$aSlice = array_slice( $oAction->scan_items, 0, $oAction->item_processing_limit );
 			}
 			else {
-				$aSlice = $oAction->files_map;
+				$aSlice = $oAction->scan_items;
 			}
 
 			$oAction->processed_items += count( $aSlice );

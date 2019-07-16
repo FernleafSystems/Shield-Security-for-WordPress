@@ -15,9 +15,9 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oAction->item_processing_limit = $oAction->is_async ? $oOpts->getFileScanLimit() : 0;
 		$oAction->exclusions_missing_regex = $oOpts->getWcfMissingExclusions();
 		$oAction->exclusions_files_regex = $oOpts->getWcfFileExclusions();
-		$oAction->files_map = ( new Shield\Scans\Wcf\BuildFileMap() )
+		$oAction->scan_items = ( new Shield\Scans\Wcf\BuildFileMap() )
 			->setScanActionVO( $oAction )
 			->build();
-		$oAction->total_scan_items = count( $oAction->files_map );
+		$oAction->total_scan_items = count( $oAction->scan_items );
 	}
 }
