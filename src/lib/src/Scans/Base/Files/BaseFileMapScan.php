@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseFileMapScan extends Base\BaseScan {
 
 	/**
-	 * @return Base\BaseScanActionVO
 	 * @throws \Exception
 	 */
 	protected function scan() {
@@ -28,8 +27,6 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 				$oAction->ts_finish = Services::Request()->ts();
 			}
 		}
-
-		return $oAction;
 	}
 
 	/**

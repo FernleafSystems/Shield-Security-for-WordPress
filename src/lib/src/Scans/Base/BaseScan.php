@@ -45,7 +45,7 @@ abstract class BaseScan {
 	}
 
 	/**
-	 * @return BaseScanActionVO
+	 * @return void
 	 */
 	abstract protected function scan();
 

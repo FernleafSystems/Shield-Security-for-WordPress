@@ -186,7 +186,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function isScanLauncherSupported() {
-		return in_array( $this->getScanAction()->id, [ 'wcf', 'ufc', 'mal' ] );
+		return in_array( $this->getScanAction()->id, [ 'apc', 'wcf', 'ufc', 'mal' ] );
 	}
 
 	/**

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 /**
  * Class WcfScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\AsyncActions
- * @property string[] $plugins
+ * @property string[] $scan_items
  * @property int      $abandoned_limit
  */
 class ScanActionVO extends Shield\Scans\Base\BaseScanActionVO {
