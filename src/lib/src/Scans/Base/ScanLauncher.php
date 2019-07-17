@@ -36,7 +36,7 @@ class ScanLauncher {
 			$this->getScanActionBuilder()
 				 ->setMod( $this->getMod() )
 				 ->setScanActionVO( $oAction )
-				 ->build( false );
+				 ->build( !$oAction->is_async );
 			if ( $oAction->is_async ) {
 				$oStore->storeAction();
 			}

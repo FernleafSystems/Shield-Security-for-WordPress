@@ -7,6 +7,16 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Scan extends Shield\Scans\Base\BaseScan {
 
+	/**
+	 * @var Shield\Scans\Ptg\Snapshots\Store
+	 */
+	private $oPluginHashes;
+
+	/**
+	 * @var Shield\Scans\Ptg\Snapshots\Store
+	 */
+	private $oThemeHashes;
+
 	protected function scanSlice() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
@@ -27,15 +37,14 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
 		$oItemScanner = $this->getItemScanner();
-		foreach ( $aSlice as $sFile => $sContext ) {
-
+		foreach ( $aSlice as $sSlug => $sContext ) {
 			if ( $sContext == 'plugins' ) {
-				$sRootDir = $oWpPlugins->getInstallationDir( $sFile );
-				$aHashes = $oAction->existing_hashes_plugins[ $sFile ];
+				$sRootDir = $oWpPlugins->getInstallationDir( $sSlug );
+				$aHashes = $this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ];
 			}
 			else {
-				$sRootDir = $oWpThemes->getInstallationDir( $sFile );
-				$aHashes = $oAction->existing_hashes_themes[ $sFile ];
+				$sRootDir = $oWpThemes->getInstallationDir( $sSlug );
+				$aHashes = $this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ];
 			}
 
 			$oNewRes = $oItemScanner->scan( $sRootDir, $aHashes );
@@ -54,6 +63,34 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			}
 			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
+	}
+
+	/**
+	 * @return Snapshots\Store
+	 */
+	private function getPluginHashes() {
+		/** @var ScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+		if ( empty( $this->oPluginHashes ) ) {
+			$this->oPluginHashes = ( new Shield\Scans\Ptg\Snapshots\Store() )
+				->setContext( 'plugins' )
+				->setStorePath( $oAction->hashes_base_path );
+		}
+		return $this->oPluginHashes;
+	}
+
+	/**
+	 * @return Snapshots\Store
+	 */
+	private function getThemeHashes() {
+		/** @var ScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+		if ( empty( $this->oThemeHashes ) ) {
+			$this->oThemeHashes = ( new Shield\Scans\Ptg\Snapshots\Store() )
+				->setContext( 'themes' )
+				->setStorePath( $oAction->hashes_base_path );
+		}
+		return $this->oThemeHashes;
 	}
 
 	/**

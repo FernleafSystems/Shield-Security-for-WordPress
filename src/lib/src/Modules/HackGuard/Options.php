@@ -88,6 +88,28 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getPtgFileExtensions() {
+		$aExt = $this->getOpt( 'ptg_extensions' );
+		return is_array( $aExt ) ? $aExt : [];
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPtgScanDepth() {
+		return (int)$this->getOpt( 'ptg_depth' );
+	}
+
+	/**
+	 * @return string|false
+	 */
+	public function getPtgSnapsBaseDir() {
+		return $this->getCon()->getPluginCachePath( 'ptguard/' );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {

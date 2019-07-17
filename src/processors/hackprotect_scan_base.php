@@ -27,8 +27,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		$this->getScannerProfile()->scan_slug = static::SCAN_SLUG;
 	}
 
-	/**
-	 */
 	public function run() {
 		parent::run();
 		$this->processAsyncScan();
@@ -90,6 +88,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			return false;
 		}
 
+		var_dump( $oAction );
 		if ( $oAction->ts_finish > 0 ) {
 			$oResults = $this->getScanActionResults();
 			$this->updateScanResultsStore( $oResults );
