@@ -10,28 +10,19 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	protected function buildItems() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		$oAction->scan_items = array_merge(
-			array_map(
-				function ( $nKey ) {
-					return 'plugin';
-				},
-				array_flip( Services::WpPlugins()->getInstalledPluginFiles() )
-			),
-			array_map(
-				function ( $nKey ) {
-					return 'theme';
-				},
-				array_flip(
-					array_map(
-						function ( $oT ) {
-							/** @var \WP_Theme $oT */
-							return $oT->get_stylesheet();
-						},
-						Services::WpThemes()->getThemes()
-					)
-				)
-			)
+
+		$aItems = array_map(
+			function ( $nKey ) {
+				return 'plugins';
+			},
+			array_flip( Services::WpPlugins()->getInstalledPluginFiles() )
 		);
+
+		$oWpT = Services::WpThemes();
+		$oTheme = $oWpT->isActiveThemeAChild() ? $oWpT->getCurrentParent() : $oWpT->getCurrent();
+		$aItems[ $oTheme->get_stylesheet() ] = 'themes';
+
+		$oAction->scan_items = $aItems;
 	}
 
 	protected function setCustomFields() {

@@ -66,7 +66,7 @@ var iCWP_WPSF_Toaster = new function () {
 		$oNewToast.css( 'z-index', 1000 );
 		$oNewToast.toast( 'show' );
 		$oNewToast.on( 'hidden.bs.toast', function () {
-			this.css( 'z-index', -10 )
+			$oNewToast.css( 'z-index', -10 )
 		} );
 	};
 
