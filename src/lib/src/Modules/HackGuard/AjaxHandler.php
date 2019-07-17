@@ -175,7 +175,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				else {
 					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
 				}
-				$oTablePro->doScan();
+				$oTablePro->launchScan();
 			}
 			catch ( \Exception $oE ) {
 				$sMessage = $oE->getMessage();
@@ -184,7 +184,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		return [
 			'success'     => $bSuccess,
-			'page_reload' => in_array( $sScannerSlug, [ 'apc', 'ptg' ] ),
+			'page_reload' => true,
 			'message'     => $sMessage,
 		];
 	}
@@ -232,14 +232,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$oTablePro = $oScanPro->getScannerFromSlug( $sScan );
 
 				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
-
-					if ( $oTablePro->isScanLauncherSupported() ) {
-						$bAsync = true;
-						$oTablePro->launchScan();
-					}
-					else {
-						$oTablePro->doScan();
-					}
+					$bAsync = true;
+					$oTablePro->launchScan( $bAsync );
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
 						$oTablePro->resetIgnoreStatus();

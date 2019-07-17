@@ -74,10 +74,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function launchScan( $bIsASync = true ) {
-		if ( !$this->isScanLauncherSupported() ) {
-			return false;
-		}
-
 		try {
 			$oAction = $this->getScanAction();
 			$oAction->is_async = $bIsASync;
@@ -88,7 +84,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			return false;
 		}
 
-		var_dump( $oAction );
 		if ( $oAction->ts_finish > 0 ) {
 			$oResults = $this->getScanActionResults();
 			$this->updateScanResultsStore( $oResults );
@@ -155,15 +150,8 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	protected function getLiveResults() {
-		/** @var Shield\Scans\Base\BaseResultsSet $oResults */
-		if ( $this->isScanLauncherSupported() ) {
-			$this->launchScan( false );
-			$oRes = $this->getScanActionResults();
-		}
-		else {
-			$oRes = $this->getScanner()->run();
-		}
-		return $oRes;
+		$this->launchScan( false );
+		return $this->getScanActionResults();
 	}
 
 	/**
