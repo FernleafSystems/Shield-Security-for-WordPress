@@ -12,7 +12,7 @@
 				{% if scan.flags.is_restricted %}
 					{% include '/wpadmin_pages/insights/scans/results/common_unavailable.twig' %}
 				{% else %}
-					{% if scan.flags.is_enabled %}
+					{% if scan.flags.is_available %}
 
 						{% if not scan.flags.has_items %}
 							<div class="alert alert-info m-0">No items discovered</div>

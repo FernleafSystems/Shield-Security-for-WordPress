@@ -918,12 +918,28 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		return is_array( $aDN ) ? $aDN : [];
 	}
 
+
+	/**
+	 * @return string[]
+	 */
+	public function getUiTrack() {
+		$aDN = $this->getOpt( 'ui_track' );
+		return is_array( $aDN ) ? $aDN : [];
+	}
+
 	/**
 	 * @param string[] $aDismissed
 	 * @return $this
 	 */
 	public function setDismissedNotices( $aDismissed ) {
 		return $this->setOpt( 'dismissed_notices', $aDismissed );
+	}
+	/**
+	 * @param string[] $aDismissed
+	 * @return $this
+	 */
+	public function setUiTrack( $aDismissed ) {
+		return $this->setOpt( 'ui_track', $aDismissed );
 	}
 
 	/**

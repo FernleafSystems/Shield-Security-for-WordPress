@@ -409,13 +409,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return string|false
 	 */
 	public function getPtgSnapsBaseDir() {
-		try {
-			$sPath = $this->getCon()->getPluginCachePath( 'ptguard/' );
-		}
-		catch ( \Exception $oE ) {
-			$sPath = false;
-		}
-		return $sPath;
+		return $this->getCon()->getPluginCachePath( 'ptguard/' );
 	}
 
 	/**

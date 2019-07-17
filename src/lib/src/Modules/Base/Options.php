@@ -879,7 +879,7 @@ class Options {
 	 * @return array
 	 */
 	protected function getVirtualCommonOptions() {
-		return [ 'dismissed_notices' ];
+		return [ 'dismissed_notices', 'ui_track' ];
 	}
 
 	/**

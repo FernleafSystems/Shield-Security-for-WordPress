@@ -101,6 +101,11 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$oMod->getLastScansAt()
 		);
 
+		$aUiTrack = $oMod->getUiTrack();
+		if ( empty( $aUiTrack[ 'selected_scans' ] ) ) {
+			$aUiTrack[ 'selected_scans' ] = $oMod->getAllScanSlugs();
+		}
+
 		$oScannerMain = $this->getSubProScanner();
 		$aData = [
 			'ajax'    => [
@@ -204,6 +209,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$aScanData[ 'flags' ][ 'is_available' ] = $oScanner->isAvailable();
 			$aScanData[ 'flags' ][ 'is_restricted' ] = $oScanner->isRestricted();
 			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanner->isEnabled();
+			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanner->isAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
 			$aScanData[ 'flags' ][ 'has_last_scan' ] = $oMod->getLastScanAt( $sSlug ) > 0;
 			$aScanData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $sSlug ];
 			$aScanData[ 'strings' ][ 'title' ] = $aScanNames[ $sSlug ];

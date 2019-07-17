@@ -632,7 +632,7 @@
     }
   ],
   "definitions": {
-    "all_scan_slugs":                       [
+    "all_scan_slugs":                     [
       "apc",
       "mal",
       "ptg",
@@ -640,10 +640,10 @@
       "wcf",
       "ufc"
     ],
-    "plugin_vulnerabilities_data_source":   "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
-    "notifications_cron_name":              "plugin-vulnerabilities-notification",
-    "table_name_scanner":                   "scanner",
-    "table_columns_scanner":                [
+    "plugin_vulnerabilities_data_source": "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
+    "notifications_cron_name":            "plugin-vulnerabilities-notification",
+    "table_name_scanner":                 "scanner",
+    "table_columns_scanner":              [
       "id",
       "hash",
       "meta",
@@ -654,33 +654,33 @@
       "created_at",
       "deleted_at"
     ],
-    "url_mal_sigs_simple":                  "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
-    "url_mal_sigs_regex":                   "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
-    "malware_whitelist_paths":              [
+    "url_mal_sigs_simple":                "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
+    "url_mal_sigs_regex":                 "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
+    "malware_whitelist_paths":            [
       "wp-content/wflogs/"
     ],
-    "cron_all_scans":                       "all-scans",
-    "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
-    "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
-    "url_wordress_core_svn_il8n":           "https://svn.automattic.com/wordpress-i18n/",
-    "wpvulndb_api_url_root":                "https://wpvulndb.com/api/v2/",
-    "wcf_exclusions":              [
+    "cron_all_scans":                     "all-scans",
+    "url_checksum_api":                   "https://api.wordpress.org/core/checksums/1.0/",
+    "url_wordress_core_svn":              "https://core.svn.wordpress.org/",
+    "url_wordress_core_svn_il8n":         "https://svn.automattic.com/wordpress-i18n/",
+    "wpvulndb_api_url_root":              "https://wpvulndb.com/api/v2/",
+    "wcf_exclusions":                     [
       "readme.html",
       "license.txt",
       "licens-sv_SE.txt",
       "wp-config-sample.php",
       "wp-content/"
     ],
-    "wcf_exclusions_missing_only": [
+    "wcf_exclusions_missing_only":        [
       "wp-admin/install.php",
       "xmlrpc.php"
     ],
-    "corechecksum_autofix":                 [
+    "corechecksum_autofix":               [
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
     ],
-    "events":                               {
+    "events":                             {
       "apc_alert_sent":          {
       },
       "mal_alert_sent":          {

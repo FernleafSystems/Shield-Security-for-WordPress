@@ -221,7 +221,13 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oP = $oMod->getProcessor();
 		$oScanPro = $oP->getSubProScanner();
 		if ( !empty( $aFormParams ) ) {
-			foreach ( array_keys( $aFormParams ) as $sScan ) {
+			$aSelectedScans = array_keys( $aFormParams );
+
+			$aUiTrack = $oMod->getUiTrack();
+			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
+			$oMod->setUiTrack( $aUiTrack );
+
+			foreach ( $aSelectedScans as $sScan ) {
 
 				$oTablePro = $oScanPro->getScannerFromSlug( $sScan );
 

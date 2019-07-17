@@ -23,7 +23,7 @@
 							<input type="checkbox" class="form-control text-right"
 								   name="wcf" id="_wcf" value="Y"
 								   {% if not scans.wcf.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.wcf.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+									{% if scans.wcf.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
 							{{ scans.wcf.strings.title }}
 							<br />
@@ -38,7 +38,7 @@
 							<input type="checkbox" class="form-control text-right"
 								   name="ufc" id="_ufc" value="Y"
 								   {% if not scans.ufc.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.ufc.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+									{% if scans.ufc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
 							{{ scans.ufc.strings.title }}
 							<br />
@@ -53,7 +53,7 @@
 							<input type="checkbox" class="form-control text-right"
 								   name="apc" id="_apc" value="Y"
 								   {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.apc.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+									{% if scans.apc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
 							{{ scans.apc.strings.title }}
 							<br />
@@ -68,7 +68,7 @@
 							<input type="checkbox" class="form-control text-right"
 								   name="ptg" id="_ptg" value="Y"
 								   {% if not scans.ptg.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.ptg.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+									{% if scans.ptg.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
 							{{ scans.ptg.strings.title }}
 							<br />
@@ -83,7 +83,7 @@
 							<input type="checkbox" class="form-control text-right"
 								   name="wpv" id="_wpv" value="Y"
 								   {% if not scans.wpv.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.wpv.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+									{% if scans.wpv.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
 							{{ scans.wpv.strings.title }}
 							<br />
@@ -98,7 +98,7 @@
 							<input type="checkbox" class="form-control text-right"
 								   name="mal" id="_mal" value="Y"
 								   {% if not scans.mal.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.mal.flags.is_available %}checked="checked" aria-selected="true"{% endif %}
+									{% if scans.mal.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
 							{{ scans.mal.strings.title }}
 							<br />
