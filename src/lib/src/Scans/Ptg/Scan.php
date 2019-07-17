@@ -48,7 +48,9 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			}
 
 			$oNewRes = $oItemScanner->scan( $sRootDir, $aHashes );
-			if ( $oNewRes instanceof Shield\Scans\Base\BaseResultsSet ) {
+			if ( $oNewRes instanceof ResultsSet ) {
+				$oNewRes->setSlugOnAllItems( $sSlug )
+						->setContextOnAllItems( $sContext );
 				( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $oNewRes, $oTempRs );
 			}
 		}
