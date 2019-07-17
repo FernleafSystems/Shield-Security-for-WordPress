@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,29 +17,18 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isWcfScanEnabled() ) {
-			$this->getSubProcessorWcf()->run();
-		}
-		if ( $oFO->isUfcEnabled() ) {
-			$this->getSubProcessorUfc()->run();
-		}
-		if ( $oFO->isMalScanEnabled() ) {
+		$this->getSubProcessorApc()->run();
+		$this->getSubProcessorUfc()->run();
+		$this->getSubProcessorWcf()->run();
+		if ( $oMod->isPremium() ) {
 			$this->getSubProcessorMal()->run();
-		}
-		if ( $oFO->isPtgEnabled() ) {
-			$this->getSubProcessorPtg()->run();
-		}
-		if ( $oFO->isWpvulnEnabled() ) {
 			$this->getSubProcessorWpv()->run();
-		}
-		if ( $oFO->isApcEnabled() ) {
-			$this->getSubProcessorApc()->run();
-		}
-		if ( $oFO->isIcEnabled() ) {
-//			$this->getSubProcessorIntegrity()->run();
+			if ( $oMod->isPtgEnabled() ) {
+				$this->getSubProcessorPtg()->run();
+			}
 		}
 	}
 
@@ -59,8 +49,12 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$aRunning = [];
+
+		$oQuery = new Shield\Scans\Base\ScanActionQuery();
 		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
-			$aRunning[ $sSlug ] = $this->getScannerFromSlug( $sSlug )->isScanRunning();
+			$aRunning[ $sSlug ] = $oQuery
+				->setScanActionVO( $this->getScannerFromSlug( $sSlug )->getScanAction() )
+				->isRunning();
 		}
 		return $aRunning;
 	}

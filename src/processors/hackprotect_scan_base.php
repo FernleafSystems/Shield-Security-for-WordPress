@@ -29,8 +29,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 	public function run() {
 		parent::run();
-		$this->processAsyncScan();
-		$this->setupCron();
+		if ( $this->isAvailable() ) {
+			$this->processAsyncScan();
+			if ( $this->isEnabled() ) {
+				$this->setupCron();
+			}
+		}
 	}
 
 	/**
@@ -193,7 +197,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function isScanRunning() {
-		return $this->isScanLauncherSupported() && $this->getScanLauncher()->isRunning();
+		return ( new Shield\Scans\Base\ScanActionQuery() )
+			->setScanActionVO( $this->getScanAction() )
+			->isRunning();
 	}
 
 	/**
@@ -206,7 +212,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
-	protected function getScanAction() {
+	public function getScanAction() {
 		if ( !$this->oScanAction instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct = $this->getNewActionVO();
 			$oAct->id = static::SCAN_SLUG;

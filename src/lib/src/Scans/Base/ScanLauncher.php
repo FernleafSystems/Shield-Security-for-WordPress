@@ -67,16 +67,6 @@ class ScanLauncher {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isRunning() {
-		$sFile = ( new Shield\Scans\Base\ActionStore() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->getActionFilePath();
-		return Services::WpFs()->exists( $sFile );
-	}
-
-	/**
 	 * @return BaseScan|mixed
 	 */
 	private function getScanner() {
