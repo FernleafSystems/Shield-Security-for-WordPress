@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
-	protected function setCustomFields() {
+	protected function buildItems() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		$oAction->scan_items = array_merge(
@@ -32,7 +32,11 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 				)
 			)
 		);
-		$oAction->total_scan_items = count( $oAction->scan_items );
+	}
+
+	protected function setCustomFields() {
+		/** @var ScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
 		$oAction->item_processing_limit = $oAction->is_async ? 3 : 0;
 	}
 }

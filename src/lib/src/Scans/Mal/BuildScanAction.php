@@ -6,6 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
+	protected function buildItems() {
+		/** @var ScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+		$oAction->scan_items = ( new Shield\Scans\Mal\BuildFileMap() )
+			->setScanActionVO( $oAction )
+			->build();
+	}
+
 	/**
 	 */
 	protected function setCustomFields() {
@@ -20,10 +28,5 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oAction->patterns_simple = $oOpts->getMalSignaturesSimple();
 		$oAction->file_exts = [ 'php', 'php5' ];
 		$oAction->scan_root_dir = ABSPATH;
-
-		$oAction->scan_items = ( new Shield\Scans\Mal\BuildFileMap() )
-			->setScanActionVO( $oAction )
-			->build();
-		$oAction->total_scan_items = count( $oAction->scan_items );
 	}
 }

@@ -36,15 +36,25 @@ class ScanLauncher {
 			$this->getScanActionBuilder()
 				 ->setMod( $this->getMod() )
 				 ->setScanActionVO( $oAction )
-				 ->build();
+				 ->build( false );
 			if ( $oAction->is_async ) {
 				$oStore->storeAction();
 			}
 		}
 		else {
 			$oAction->applyFromArray( $aDef );
+			try { // Build the scan items if it's not already done
+				$this->getScanActionBuilder()
+					 ->setMod( $this->getMod() )
+					 ->setScanActionVO( $oAction )
+					 ->buildScanItems();
+				$oStore->storeAction();
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
 
+		error_log( var_export( $bRunScan, true ) );
 		if ( $bRunScan ) {
 			$this->getScanner()
 				 ->setScanActionVO( $oAction )

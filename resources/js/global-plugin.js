@@ -291,12 +291,19 @@ var iCWP_WPSF_Growl = new function () {
 
 var iCWP_WPSF_BodyOverlay = new function () {
 
+	let nOverlays = 0;
+
 	this.show = function () {
+		nOverlays++;
 		jQuery( 'div#icwp-fade-wrapper' ).fadeIn( 1000 );
 	};
 
 	this.hide = function () {
-		jQuery( 'div#icwp-fade-wrapper' ).stop().fadeOut();
+		nOverlays--;
+		if ( nOverlays < 1 ) {
+			nOverlays = 0;
+			jQuery( 'div#icwp-fade-wrapper' ).stop().fadeOut();
+		}
 	};
 
 	this.initialise = function () {
