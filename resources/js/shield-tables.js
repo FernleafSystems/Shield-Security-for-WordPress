@@ -188,37 +188,36 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			},
 
 			bulkAction: function () {
-				var aRequestData = this.options[ 'ajax_bulk_action' ];
+				let aRequestData = this.options[ 'ajax_bulk_action' ];
 				this.sendReq( aRequestData );
 			},
 
 			deleteEntry: function () {
-				var aRequestData = this.options[ 'ajax_item_delete' ];
+				let aRequestData = this.options[ 'ajax_item_delete' ];
 				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
 				this.sendReq( aRequestData );
 			},
 
 			insertEntry: function () {
-				var requestData = this.options[ 'ajax_item_insert' ];
+				let requestData = this.options[ 'ajax_item_insert' ];
 				requestData[ 'form_params' ] = this.$oFormInsert.serialize();
 				this.sendReq( requestData );
 			},
 
 			ignoreEntry: function () {
-				var aRequestData = this.options[ 'ajax_item_ignore' ];
+				let aRequestData = this.options[ 'ajax_item_ignore' ];
 				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
 				this.sendReq( aRequestData );
 			},
 
 			repairEntry: function () {
-				var aRequestData = this.options[ 'ajax_item_repair' ];
+				let aRequestData = this.options[ 'ajax_item_repair' ];
 				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
 				this.sendReq( aRequestData );
 			},
 
 			customAction: function () {
-				var aRequestData = this.options[ 'working_custom_action' ];
-				this.sendReq( aRequestData );
+				this.sendReq( this.options[ 'working_custom_action' ] );
 			},
 
 			hrefDownload: function () {
@@ -240,15 +239,16 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						if ( oResponse.success ) {
 							iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
 							if ( oResponse.data.page_reload ) {
-								location.reload( true );
+								location.reload();
 							}
 							else {
 								plugin.options[ 'table' ].reloadTable();
 								iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
+								iCWP_WPSF_BodyOverlay.hide();
 							}
 						}
 						else {
-							var sMessage = 'Communications error with site.';
+							let sMessage = 'Communications error with site.';
 							if ( oResponse.data.message !== undefined ) {
 								sMessage = oResponse.data.message;
 							}
