@@ -310,7 +310,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
-		add_action( 'shutdown', [ $this, 'onWpShutdown' ] );
+		add_action( 'shutdown', [ $this, 'onWpShutdown' ], 0 );
 		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// GDPR
