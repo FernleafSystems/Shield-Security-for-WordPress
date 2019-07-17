@@ -223,7 +223,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			$oAct = $this->getNewActionVO();
 			$oAct->id = static::SCAN_SLUG;
 
-			$sTmpDir = $this->getCon()->getPluginCachePath( $oAct->id );
+			$sTmpDir = $this->getCon()->getPluginCachePath( 'scans' );
 			Services::WpFs()->mkdir( $sTmpDir );
 			$oAct->tmp_dir = $sTmpDir;
 
