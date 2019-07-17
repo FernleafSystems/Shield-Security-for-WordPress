@@ -174,4 +174,16 @@ class Options extends Base\ShieldOptions {
 		}
 		return $sPattern;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getScanKey() {
+		$sKey = $this->getOpt( 'scan_key' );
+		if ( empty( $sKey ) ) {
+			$sKey = substr( sha1( uniqid() ), 3, 10 );
+			$this->setOpt( 'scan_key', $sKey );
+		}
+		return $sKey;
+	}
 }

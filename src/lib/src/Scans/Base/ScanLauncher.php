@@ -81,7 +81,6 @@ class ScanLauncher {
 	 */
 	private function getScanActionBuilder() {
 		$sClass = $this->getScanActionVO()->getScanNamespace().'\\BuildScanAction';
-		var_dump( $sClass );
 		/** @var BaseBuildScanAction $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )

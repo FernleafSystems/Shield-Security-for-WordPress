@@ -112,7 +112,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 
 		try {
 			$oReq = Services::Request();
-			switch ( $oReq->query( 'shield_action' ) ) {
+			switch ( $this->getCon()->getShieldAction() ) {
 
 				case 'importexport_export':
 					$this->executeExport( $oReq->query( 'method' ) );

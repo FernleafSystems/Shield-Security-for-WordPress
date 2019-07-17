@@ -31,9 +31,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function run() {
 		parent::run();
-		if ( Services::Request()->query( 'async_scan' ) == static::SCAN_SLUG ) {
-			$this->launchScan( true );
-		}
+		$this->processAsyncScan();
 		$this->setupCron();
 	}
 
@@ -48,6 +46,23 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	abstract public function isEnabled();
+
+	protected function processAsyncScan() {
+		if ( $this->isThisAsyncScanRequest() ) {
+			$this->launchScan( true );
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isThisAsyncScanRequest() {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return ( !Services::WpGeneral()->isAjax() &&
+				 $this->getCon()->getShieldAction() == 'scan_async_'.static::SCAN_SLUG
+				 && Services::Request()->query( 'scan_key' ) == $oOpts->getScanKey() );
+	}
 
 	/**
 	 * @param bool $bIsASync
@@ -78,10 +93,16 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			}
 		}
 		else if ( $oAction->is_async ) {
+			/** @var Shield\Modules\HackGuard\Options $oOpts */
+			$oOpts = $this->getMod()->getOptions();
+			error_log( 'sent: '.static::SCAN_SLUG );
 			Services::HttpRequest()
 					->get(
 						add_query_arg(
-							[ 'async_scan' => static::SCAN_SLUG ],
+							[
+								'shield_action' => 'scan_async_'.static::SCAN_SLUG,
+								'scan_key'      => $oOpts->getScanKey()
+							],
 							Services::WpGeneral()->getHomeUrl()
 						),
 						[

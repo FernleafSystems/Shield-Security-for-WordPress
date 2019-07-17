@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 		// performs the license check
 		add_action( $oFO->prefix( 'adhoc_cron_license_check' ), [ $oFO, 'verifyLicense' ] );
 
-		switch ( $oReq->query( 'shield_action' ) ) {
+		switch ( $this->getCon()->getShieldAction() ) {
 
 			case 'keyless_handshake':
 				$sNonce = $oReq->query( 'nonce' );

@@ -14,7 +14,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 	 */
 	public function run() {
 		parent::run();
-		if ( Services::Request()->query( 'shield_action' ) == 'garemovalconfirm' ) {
+		if ( $this->getCon()->getShieldAction() == 'garemovalconfirm' ) {
 			add_action( 'wp_loaded', [ $this, 'validateUserGaRemovalLink' ], 10 );
 		}
 	}

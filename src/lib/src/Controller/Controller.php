@@ -1478,6 +1478,14 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getShieldAction() {
+		$sAction = sanitize_key( Services::Request()->query( 'shield_action', '' ) );
+		return empty( $sAction ) ? '' : $sAction;
+	}
+
+	/**
 	 * @return mixed|\stdClass
 	 */
 	protected function getPluginControllerOptions() {

@@ -1259,7 +1259,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				if ( $sOptType == 'integer' ) {
 					$sOptionValue = intval( $sOptionValue );
 				}
-				else if ( $sOptType == 'password' && $this->hasEncryptOption() ) { //md5 any password fields
+				else if ( $sOptType == 'password' ) {
 					$sTempValue = trim( $sOptionValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
@@ -1343,7 +1343,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return bool
 	 */
 	protected function isWizardPage() {
-		return ( Services::Request()->query( 'shield_action' ) == 'wizard' && $this->isThisModulePage() );
+		return ( $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage() );
 	}
 
 	/**

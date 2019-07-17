@@ -149,7 +149,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	private function canLicenseCheck() {
-		return !in_array( Services::Request()->query( 'shield_action' ), [ 'keyless_handshake', 'license_check' ] )
+		return !in_array( $this->getCon()->getShieldAction(), [ 'keyless_handshake', 'license_check' ] )
 			   && $this->canLicenseCheck_FileFlag();
 	}
 
