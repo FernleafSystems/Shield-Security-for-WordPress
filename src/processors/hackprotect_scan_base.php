@@ -45,6 +45,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	/**
 	 * @return bool
 	 */
+	public function isRestricted() {
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
 	abstract public function isEnabled();
 
 	protected function processAsyncScan() {
@@ -206,7 +213,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function isScanLauncherSupported() {
-		return in_array( $this->getScanAction()->id, [ 'apc', 'mal', 'ufc', 'wcf', 'wpv' ] );
+		return in_array( $this->getScanAction()->id, [ 'apc', 'mal', 'ptg', 'ufc', 'wcf', 'wpv' ] );
 	}
 
 	/**

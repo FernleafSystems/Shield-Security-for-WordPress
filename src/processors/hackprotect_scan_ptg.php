@@ -54,7 +54,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return bool
 	 */
 	public function isAvailable() {
-		return $this->isEnabled() && $this->getMod()->isPremium();
+		return $this->isEnabled() && !$this->isRestricted();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestricted() {
+		return !$this->getMod()->isPremium();
 	}
 
 	/**
@@ -104,6 +111,13 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 */
 	protected function getRepairer() {
 		return new Shield\Scans\Ptg\Repair();
+	}
+
+	/**
+	 * @return Shield\Scans\Ptg\ScanActionVO
+	 */
+	protected function getNewActionVO() {
+		return new Shield\Scans\Ptg\ScanActionVO();
 	}
 
 	/**

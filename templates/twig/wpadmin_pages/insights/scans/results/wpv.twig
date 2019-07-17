@@ -9,8 +9,9 @@
 
 			<div class="card-body">
 
-				{% if scan.flags.is_available %}
-
+				{% if scan.flags.is_restricted %}
+					{% include '/wpadmin_pages/insights/scans/results/common_unavailable.twig' %}
+				{% else %}
 					{% if scan.flags.is_enabled %}
 
 						{% if not scan.flags.has_items %}
@@ -22,9 +23,6 @@
 					{% else %}
 						{% include '/wpadmin_pages/insights/scans/results/'~scankey~'_disabled.twig' %}
 					{% endif %}
-
-				{% else %}
-					{% include '/wpadmin_pages/insights/scans/results/common_unavailable.twig' %}
 				{% endif %}
 
 			</div>

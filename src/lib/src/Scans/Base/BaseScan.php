@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseScan {
 
-	use ModConsumer,
+	use Shield\Modules\ModConsumer,
 		ScanActionConsumer;
 
 	/**
@@ -44,10 +44,27 @@ abstract class BaseScan {
 		$oStore->lockAction();
 	}
 
+	protected function scan() {
+		/** @var BaseScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+
+		if ( empty( $oAction->scan_items ) ) {
+			$oAction->ts_finish = Services::Request()->ts();
+		}
+		else {
+			$this->scanSlice();
+			if ( empty( $oAction->scan_items ) ) {
+				$oAction->ts_finish = Services::Request()->ts();
+			}
+		}
+
+		return $oAction;
+	}
+
 	/**
 	 * @return void
 	 */
-	abstract protected function scan();
+	abstract protected function scanSlice();
 
 	protected function postScan() {
 		$oAction = $this->getScanActionVO();

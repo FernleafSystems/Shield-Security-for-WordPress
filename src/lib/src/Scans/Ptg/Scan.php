@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,8 +24,21 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$oTempRs = $oAction->getNewResultsSet();
 
+		$oWpPlugins = Services::WpPlugins();
+		$oWpThemes = Services::WpThemes();
+		$oItemScanner = $this->getItemScanner();
 		foreach ( $aSlice as $sFile => $sContext ) {
-			$oNewRes = $this->getItemScanner( $sContext )->scan( $sFile );
+
+			if ( $sContext == 'plugins' ) {
+				$sRootDir = $oWpPlugins->getInstallationDir( $sFile );
+				$aHashes = $oAction->existing_hashes_plugins[ $sFile ];
+			}
+			else {
+				$sRootDir = $oWpThemes->getInstallationDir( $sFile );
+				$aHashes = $oAction->existing_hashes_themes[ $sFile ];
+			}
+
+			$oNewRes = $oItemScanner->scan( $sRootDir, $aHashes );
 			if ( $oNewRes instanceof Shield\Scans\Base\BaseResultsSet ) {
 				( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $oNewRes, $oTempRs );
 			}
@@ -44,15 +57,9 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	}
 
 	/**
-	 * @param string $sContext
-	 * @return PluginScanner|ThemeScanner
+	 * @return ItemScanner
 	 */
-	protected function getItemScanner( $sContext ) {
-		if ( $sContext == 'plugins' ) {
-			return ( new PluginScanner() )->setScanActionVO( $this->getScanActionVO() );
-		}
-		else {
-			return ( new ThemeScanner() )->setScanActionVO( $this->getScanActionVO() );
-		}
+	protected function getItemScanner() {
+		return ( new ItemScanner() )->setScanActionVO( $this->getScanActionVO() );
 	}
 }

@@ -33,7 +33,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @return bool
 	 */
 	public function isAvailable() {
-		return $this->getMod()->isPremium();
+		return !$this->isRestricted();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestricted() {
+		return !$this->getMod()->isPremium();
 	}
 
 	/**

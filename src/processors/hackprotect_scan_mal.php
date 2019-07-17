@@ -11,7 +11,14 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isAvailable() {
-		return $this->getMod()->isPremium();
+		return !$this->isRestricted();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestricted() {
+		return !$this->getMod()->isPremium();
 	}
 
 	/**

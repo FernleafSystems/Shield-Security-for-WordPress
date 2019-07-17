@@ -3,26 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Scan extends Shield\Scans\Base\BaseScan {
-
-	protected function scan() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-
-		if ( empty( $oAction->scan_items ) ) {
-			$oAction->ts_finish = Services::Request()->ts();
-		}
-		else {
-			$this->scanSlice();
-			if ( empty( $oAction->scan_items ) ) {
-				$oAction->ts_finish = Services::Request()->ts();
-			}
-		}
-
-		return $oAction;
-	}
 
 	protected function scanSlice() {
 		/** @var ScanActionVO $oAction */
