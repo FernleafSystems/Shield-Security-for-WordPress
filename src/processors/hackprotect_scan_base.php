@@ -95,7 +95,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		else if ( $oAction->is_async ) {
 			/** @var Shield\Modules\HackGuard\Options $oOpts */
 			$oOpts = $this->getMod()->getOptions();
-			error_log( 'sent: '.static::SCAN_SLUG );
 			Services::HttpRequest()
 					->get(
 						add_query_arg(
