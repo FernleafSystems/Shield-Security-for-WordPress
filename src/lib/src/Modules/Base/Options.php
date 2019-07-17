@@ -142,7 +142,7 @@ class Options {
 				unset( $aOptions[ $aOptionData[ 'key' ] ] );
 			}
 		}
-		return $aOptions;
+		return array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
 	}
 
 	/**
@@ -872,14 +872,14 @@ class Options {
 	 * @return array
 	 */
 	protected function getCommonStandardOptions() {
-		return [ 'help_video_options' ];
+		return [];
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getVirtualCommonOptions() {
-		return [ 'dismissed_notices', 'ui_track' ];
+		return [ 'dismissed_notices', 'ui_track', 'help_video_options' ];
 	}
 
 	/**

@@ -240,6 +240,7 @@
       "key":          "importexport_whitelist",
       "section":      "section_importexport",
       "transferable": false,
+      "sensitive":    true,
       "default":      [],
       "type":         "array",
       "link_info":    "",
@@ -251,6 +252,7 @@
     {
       "key":         "importexport_whitelist_notify",
       "section":     "section_importexport",
+      "sensitive":    true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
