@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Suspended extends Base {
 
@@ -17,7 +18,10 @@ class Suspended extends Base {
 		if ( $oMeta->hard_suspended_at > 0 ) {
 			$oUser = new \WP_Error(
 				$this->getCon()->prefix( 'hard-suspended' ),
-				'Sorry, this account is suspended. Please contact your website administrator.'
+				implode( ' ', [
+					__( 'Sorry, this account is suspended.', 'wp-simple-firewall' ),
+					__( 'Please contact your website administrator.', 'wp-simple-firewall' ),
+				] )
 			);
 		}
 		return $oUser;
