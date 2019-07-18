@@ -79,6 +79,7 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
 			function ( oResponse ) {
 
+				bCurrentlyRunning = false;
 				if ( oResponse.data.running !== undefined ) {
 					for ( const scankey of Object.keys( oResponse.data.running ) ) {
 						if ( oResponse.data.running[ scankey ] ) {
@@ -86,7 +87,6 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 							bCurrentlyRunning = true;
 							break;
 						}
-						bCurrentlyRunning = false;
 					}
 				}
 			}
@@ -97,6 +97,7 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 					}, 4000 );
 				}
 				else if ( bFoundRunning ) {
+					iCWP_WPSF_Toaster.showMessage( 'Scans Complete.', true );
 					location.reload();
 				}
 				else {
