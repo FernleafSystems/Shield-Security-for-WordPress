@@ -507,7 +507,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	private function cronScan() {
-		$this->doScan();
+		$this->launchScan();
 		$this->cronProcessScanResults();
 	}
 
@@ -516,7 +516,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * only for items that have not been notified recently.
 	 */
 	protected function cronProcessScanResults() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $this->getMod()
