@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScanActionQuery {
@@ -11,12 +10,37 @@ class ScanActionQuery {
 	use ScanActionConsumer;
 
 	/**
+	 * @param int $nExpiration
+	 * @return bool
+	 */
+	public function isLockExpired( $nExpiration = 20 ) {
+		$oFS = Services::WpFs();
+		$sFile = $this->getActionStore()->getActionFilePath();
+		return $oFS->exists( $sFile ) &&
+			   ( Services::Request()->ts() - (int)$oFS->getFileContent( $sFile ) > $nExpiration );
+	}
+
+	/**
+	 * @param int $nExpiration
+	 * @return bool
+	 */
+	public function isScanExpired( $nExpiration = 60 ) {
+		$bExpired = false;
+		if ( $this->isRunning() ) {
+			$aDef = $this->getActionStore()->readActionDefinitionFromDisk();
+			if ( !empty( $aDef ) ) {
+				$oAction = ( new BaseScanActionVO() )->applyFromArray( $aDef );
+				$bExpired = Services::Request()->ts() - $oAction->ts_start > $nExpiration;
+			}
+		}
+		return $bExpired;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isRunning() {
-		$sFile = ( new Shield\Scans\Base\ActionStore() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->getActionFilePath();
+		$sFile = $this->getActionStore()->getActionFilePath();
 		return (bool)Services::WpFs()->exists( $sFile );
 	}
 
@@ -27,12 +51,9 @@ class ScanActionQuery {
 	public function getPercentageComplete() {
 		$nPercent = null;
 		if ( $this->isRunning() ) {
-			$aDef = ( new Shield\Scans\Base\ActionStore() )
-				->setScanActionVO( $this->getScanActionVO() )
-				->readActionDefinitionFromDisk();
+			$aDef = $this->getActionStore()->readActionDefinitionFromDisk();
 			if ( !empty( $aDef ) ) {
-				$oAction = $this->getScanActionVO()
-								->applyFromArray( $aDef );
+				$oAction = ( new BaseScanActionVO() )->applyFromArray( $aDef );
 
 				if ( $oAction->ts_finish > 0 ) {
 					$nPercent = 100;
@@ -44,5 +65,13 @@ class ScanActionQuery {
 		}
 
 		return $nPercent;
+	}
+
+	/**
+	 * @return ActionStore
+	 */
+	protected function getActionStore() {
+		return ( new ActionStore() )
+			->setScanActionVO( $this->getScanActionVO() );
 	}
 }

@@ -53,7 +53,7 @@ class ActionStore {
 	/**
 	 * @return string
 	 */
-	protected function getLockFilePath() {
+	public function getLockFilePath() {
 		return path_join( $this->getScanActionVO()->tmp_dir, '.action-'.$this->getScanActionVO()->id.'.lock' );
 	}
 
@@ -67,7 +67,7 @@ class ActionStore {
 	/**
 	 * @return bool
 	 */
-	public function isActionLocked() {
+	public function isLocked() {
 		return Services::WpFs()->exists( $this->getLockFilePath() );
 	}
 

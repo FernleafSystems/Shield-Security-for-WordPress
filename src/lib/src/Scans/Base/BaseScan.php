@@ -37,8 +37,19 @@ abstract class BaseScan {
 		}
 
 		$oStore = ( new ActionStore() )->setScanActionVO( $oAction );
-		if ( $oStore->isActionLocked() ) {
-			throw new \Exception( 'Scan is currently locked.' );
+		$oQ = ( new ScanActionQuery() )->setScanActionVO( $oAction );
+		if ( $oStore->isLocked() ) {
+			if ( $oQ->isLockExpired() ) {
+				$oStore->unlockAction();
+			}
+			else {
+				throw new \Exception( 'Scan is currently locked.' );
+			}
+		}
+
+		if ( $oQ->isScanExpired() ) {
+			$oStore->deleteAction();
+			throw new \Exception( 'Scan was expired and was forcefully deleted.' );
 		}
 
 		$oStore->lockAction();
