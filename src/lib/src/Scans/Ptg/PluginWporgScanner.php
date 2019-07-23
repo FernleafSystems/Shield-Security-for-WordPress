@@ -45,18 +45,19 @@ class PluginWporgScanner {
 				}
 
 				$sFullPath = wp_normalize_path( $oFile->getPathname() );
+				$sRelAbsPath = str_replace( wp_normalize_path( ABSPATH ), '', $sFullPath );
 				$sPathFragment = str_replace( $sAssetDir, '', $sFullPath );
 
-				if ( array_key_exists( $sPathFragment, $aLive ) ) {
-					if ( !$oCompare->isEqualFileMd5( $sFullPath, $aLive[ $sPathFragment ] ) ) {
+				if ( array_key_exists( $sRelAbsPath, $aLive ) ) {
+					if ( !$oCompare->isEqualFileMd5( $sFullPath, $aLive[ $sRelAbsPath ] ) ) {
 						$oItem = $this->getNewItem( $sFullPath );
 						$oItem->path_fragment = $sPathFragment;
 						$oItem->is_different = true;
 						$oResults->addItem( $oItem );
 					}
-					unset( $aLive[ $sPathFragment ] );
+					unset( $aLive[ $sRelAbsPath ] );
 				}
-				else if ( !array_key_exists( $sPathFragment, $aLive ) ) {
+				else if ( !array_key_exists( $sRelAbsPath, $aLive ) ) {
 					$oItem = $this->getNewItem( $sFullPath );
 					$oItem->path_fragment = $sPathFragment;
 					$oItem->is_unrecognised = true;
@@ -65,9 +66,10 @@ class PluginWporgScanner {
 			}
 
 			// After looking at all files, now check for missing files.
-			foreach ( $aLive as $sPathFragment => $sHash ) {
-				$oItem = $this->getNewItem( path_join( $sAssetDir, $sPathFragment ) );
-				$oItem->path_fragment = $sPathFragment;
+			foreach ( $aLive as $sRelAbsPath => $sHash ) {
+				$sFullPath = path_join( ABSPATH, $sRelAbsPath );
+				$oItem = $this->getNewItem( $sFullPath );
+				$oItem->path_fragment = str_replace( $sAssetDir, '', $sFullPath );
 				$oItem->is_missing = true;
 				$oResults->addItem( $oItem );
 			}

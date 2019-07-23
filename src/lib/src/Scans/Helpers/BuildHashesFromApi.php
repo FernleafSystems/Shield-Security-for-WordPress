@@ -24,7 +24,7 @@ class BuildHashesFromApi {
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
 	 * @param string $sPluginFile
-	 * @return string[]
+	 * @return string[] - keys are file paths relative to ABSPATH
 	 */
 	public function build( $sPluginFile ) {
 		$oWpPlugins = Services::WpPlugins();

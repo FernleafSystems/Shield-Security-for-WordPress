@@ -38,16 +38,28 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$oWpThemes = Services::WpThemes();
 		$oItemScanner = $this->getItemScanner();
 		foreach ( $aSlice as $sSlug => $sContext ) {
+
 			if ( $sContext == 'plugins' ) {
-				$sRootDir = $oWpPlugins->getInstallationDir( $sSlug );
-				$aHashes = $this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ];
+				// use live hashes if it's a WP.org plugin
+				if ( $oWpPlugins->isWpOrg( $sSlug ) ) {
+					$oNewRes = ( new PluginWporgScanner() )
+						->setScanActionVO( $oAction )
+						->scan( $sSlug );
+				}
+				else {
+					$oNewRes = $oItemScanner->scan(
+						$oWpPlugins->getInstallationDir( $sSlug ),
+						$this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ]
+					);
+				}
 			}
 			else {
-				$sRootDir = $oWpThemes->getInstallationDir( $sSlug );
-				$aHashes = $this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ];
+				$oNewRes = $oItemScanner->scan(
+					$oWpThemes->getInstallationDir( $sSlug ),
+					$this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ]
+				);
 			}
 
-			$oNewRes = $oItemScanner->scan( $sRootDir, $aHashes );
 			if ( $oNewRes instanceof ResultsSet ) {
 				$oNewRes->setSlugOnAllItems( $sSlug )
 						->setContextOnAllItems( $sContext );

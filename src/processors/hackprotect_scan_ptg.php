@@ -200,6 +200,13 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @throws \Exception
 	 */
 	protected function assetAccept( $oItem ) {
+		/** @var Shield\Scans\Ptg\ResultsSet $oRes */
+		$oRes = $this->readScanResultsFromDb();
+		// We ignore the item (so for WP.org plugins it wont flag up again)
+		foreach ( $oRes->getItemsForSlug( $oItem->slug ) as $oItem ) {
+			$this->itemIgnore( $oItem );
+		}
+
 		// we run it for both since it doesn't matter which context it's in, it'll be removed
 		$this->updatePluginSnapshot( $oItem->slug );
 		$this->updateThemeSnapshot( $oItem->slug );
@@ -251,7 +258,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @param string $sBaseName
 	 */
 	public function onDeactivatePlugin( $sBaseName ) {
-		$this->deletePluginFromSnapshot( $sBaseName );
+		// can't use update snapshot because active plugins setting hasn't been updated yet by WP
+		$this->removeItemSnapshot( $sBaseName );
 	}
 
 	/**
@@ -325,25 +333,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param string $sBaseName - the basename for plugin
-	 * @return $this
-	 */
-	private function deletePluginFromSnapshot( $sBaseName ) {
-
-		$oStore = $this->getStore_Plugins();
-		if ( $oStore->itemExists( $sBaseName ) ) {
-			try {
-				$oStore->removeItemSnapshot( $sBaseName )
-					   ->save();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		return $this;
-	}
-
-	/**
 	 * Will also remove a plugin if it's found to be in-active
 	 * Careful: Cannot use this for the activate and deactivate hooks as the WP option
 	 * wont be updated
@@ -361,14 +350,35 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			catch ( \Exception $oE ) {
 			}
 		}
-		else if ( $oStore->itemExists( $sBaseName ) ) {
-			try {
-				$oStore->removeItemSnapshot( $sBaseName )
-					   ->save();
-			}
-			catch ( \Exception $oE ) {
-			}
+		else {
+			$this->removeItemSnapshot( $sBaseName );
 		}
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return $this
+	 */
+	protected function removeItemSnapshot( $sSlug ) {
+		if ( $this->getContextFromSlug( $sSlug ) == self::CONTEXT_PLUGINS ) {
+			$oStore = $this->getStore_Plugins();
+		}
+		else {
+			$oStore = $this->getStore_Themes();
+		}
+
+		try {
+			$oStore->removeItemSnapshot( $sSlug )
+				   ->save();
+		}
+		catch ( \Exception $oE ) {
+		}
+
+		/** @var Shield\Scans\Ptg\ResultsSet $oRes */
+		$oRes = $this->readScanResultsFromDb();
+		$this->deleteResultsSet( $oRes->getResultsSetForSlug( $sSlug ) );
+
+		return $this;
 	}
 
 	/**
@@ -385,13 +395,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			catch ( \Exception $oE ) {
 			}
 		}
-		else if ( $oStore->itemExists( $sSlug ) ) {
-			try {
-				$oStore->removeItemSnapshot( $sSlug )
-					   ->save();
-			}
-			catch ( \Exception $oE ) {
-			}
+		else {
+			$this->removeItemSnapshot( $sSlug );
 		}
 	}
 
