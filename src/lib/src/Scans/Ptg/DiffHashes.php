@@ -31,8 +31,9 @@ class DiffHashes {
 		}
 
 		// find common files where hashes are different.
+//		$oCompare = new CompareHash();
 		foreach ( array_intersect_key( $aExistingHashes, $aNewHashes ) as $sFile => $sHash ) {
-			if ( $sHash != $aNewHashes[ $sFile ] ) {
+			if ( !hash_equals( $sHash, $aNewHashes[ $sFile ] ) ) {
 				$oItem = $this->getNewItem( $sFile );
 				$oItem->is_different = true;
 				$oRes->addItem( $oItem );
