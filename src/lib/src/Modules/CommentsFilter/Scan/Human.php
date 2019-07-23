@@ -57,19 +57,21 @@ class Human {
 	 * @return string[]
 	 */
 	private function getSpamBlacklist() {
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
 		$aList = [];
 		$oFs = Services::WpFs();
-		$sBLFile = $this->getSpamBlacklistFile();
+		$sBLFile = $oMod->getSpamBlacklistFile();
 
 		// Download if doesn't exist or expired.
 		if ( !$oFs->exists( $sBLFile )
 			 || ( Services::Request()->ts() - $oFs->getModifiedTime( $sBLFile ) > WEEK_IN_SECONDS ) ) {
-			Services::WpFs()->deleteFile( $this->getSpamBlacklistFile() );
+			Services::WpFs()->deleteFile( $sBLFile );
 			$this->importBlacklist();
 		}
 
 		if ( $oFs->exists( $sBLFile ) ) {
-			$sList = $oFs->getFileContent( $sBLFile );
+			$sList = $oFs->getFileContent( $sBLFile, true );
 			if ( !empty( $sList ) ) {
 				$aList = array_map( 'base64_decode', explode( "\n", $sList ) );
 			}
@@ -80,8 +82,10 @@ class Human {
 	/**
 	 */
 	private function importBlacklist() {
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
 		$oFs = Services::WpFs();
-		$sBLFile = $this->getSpamBlacklistFile();
+		$sBLFile = $oMod->getSpamBlacklistFile();
 		if ( !$oFs->exists( $sBLFile ) ) {
 			$sRawList = Services::HttpRequest()->getContent( $this->getMod()->getDef( 'url_spam_blacklist_terms' ) );
 			$sList = '';
@@ -89,14 +93,7 @@ class Human {
 				$sList = implode( "\n", array_map( 'base64_encode', array_filter( array_map( 'trim', explode( "\n", $sRawList ) ) ) ) );
 			}
 			// save the list to disk for the future.
-			$oFs->putFileContent( $sBLFile, $sList );
+			$oFs->putFileContent( $sBLFile, $sList, true );
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getSpamBlacklistFile() {
-		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
 	}
 }

@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -237,6 +238,17 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		if ( !empty( $oDbh ) ) {
 			$oDbh->deleteTable();
 		}
+		$oFs = Services::WpFs();
+		if ( $oFs->exists( $this->getSpamBlacklistFile() ) ) {
+			$oFs->deleteFile( $this->getSpamBlacklistFile() );
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSpamBlacklistFile() {
+		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
 	}
 
 	/**
