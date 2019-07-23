@@ -74,15 +74,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Ptg\ResultsSet
-	 */
-	protected function getLiveResults() {
-		$oResults = $this->scanPlugins();
-		( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $this->scanThemes(), $oResults );
-		return $oResults;
-	}
-
-	/**
 	 * @param Shield\Scans\Ptg\ResultsSet $oResults
 	 * @return Shield\Databases\Scanner\EntryVO[]
 	 */
@@ -208,8 +199,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		}
 
 		// we run it for both since it doesn't matter which context it's in, it'll be removed
-		$this->updatePluginSnapshot( $oItem->slug );
-		$this->updateThemeSnapshot( $oItem->slug );
+		$this->updateItemInSnapshot( $oItem->slug );
 		return true;
 	}
 
