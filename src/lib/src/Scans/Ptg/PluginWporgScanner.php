@@ -19,6 +19,7 @@ class PluginWporgScanner {
 	/**
 	 * @param string $sSlug - plugin base file
 	 * @return ResultsSet
+	 * @throws \Exception
 	 */
 	public function scan( $sSlug ) {
 		$oResults = new ResultsSet();

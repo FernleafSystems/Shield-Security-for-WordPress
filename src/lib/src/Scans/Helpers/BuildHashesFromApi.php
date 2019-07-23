@@ -25,6 +25,7 @@ class BuildHashesFromApi {
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
 	 * @param string $sPluginFile
 	 * @return string[] - keys are file paths relative to ABSPATH
+	 * @throws \Exception
 	 */
 	public function build( $sPluginFile ) {
 		$oWpPlugins = Services::WpPlugins();
@@ -34,6 +35,9 @@ class BuildHashesFromApi {
 
 		$aHashes = ( new Hashes() )
 			->getHashes( $oPluginVo->slug, $oPluginVo->Version, 'md5' );
+		if ( empty( $aHashes ) ) {
+			throw new \Exception( 'Could not retrieve live hashes.' );
+		}
 
 		$aSnaps = [];
 		$oDP = Services::Data();
