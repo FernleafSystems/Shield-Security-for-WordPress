@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Hashes;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Hashes;
 
 /**
  * Class BuildHashesFromDir
@@ -33,7 +33,7 @@ class BuildHashesFromApi {
 
 		$sInstallDir = $oWpPlugins->getInstallationDir( $sPluginFile );
 
-		$aHashes = ( new Hashes() )
+		$aHashes = ( new Hashes\Plugin() )
 			->getHashes( $oPluginVo->slug, $oPluginVo->Version, 'md5' );
 		if ( empty( $aHashes ) ) {
 			throw new \Exception( 'Could not retrieve live hashes.' );
