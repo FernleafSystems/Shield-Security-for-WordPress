@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 			$this->interceptCanonicalRedirects();
 
-			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+			/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 			$oFO = $this->getMod();
 			if ( $oFO->isRestApiAnonymousAccessDisabled() ) {
 				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
@@ -111,8 +111,9 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 		$oWpRest = Services::Rest();
 
-		if ( $mStatus !== true && !is_wp_error( $mStatus )
-			 && !$oFO->isPermittedAnonRestApiNamespace( $oWpRest->getNamespace() ) ) {
+		$sNamespace = $oWpRest->getNamespace();
+		if ( !empty( $sNamespace ) && $mStatus !== true && !is_wp_error( $mStatus )
+			 && !$oFO->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
@@ -123,7 +124,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->getCon()
 				 ->fireEvent(
 					 'block_anonymous_restapi',
-					 [ 'audit' => [ 'namespace' => Services::Rest()->getNamespace() ] ]
+					 [ 'audit' => [ 'namespace' => $sNamespace ] ]
 				 );
 		}
 
