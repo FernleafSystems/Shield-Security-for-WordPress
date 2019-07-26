@@ -8,6 +8,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * Class ScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
  * @property string   $id
+ * @property int      $ts_init
  * @property int      $ts_start
  * @property int      $ts_finish
  * @property bool     $is_async

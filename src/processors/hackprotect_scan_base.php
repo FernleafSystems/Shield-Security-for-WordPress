@@ -6,18 +6,14 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
 
 	use Shield\Crons\StandardCron,
-		Shield\Scans\Base\ScannerProfileConsumer;
+		Shield\Scans\Base\ScannerProfileConsumer,
+		Shield\Scans\Base\ScanActionConsumer;
 	const SCAN_SLUG = 'base';
 
 	/**
 	 * @var ICWP_WPSF_Processor_HackProtect_Scanner
 	 */
 	protected $oScanner;
-
-	/**
-	 * @var Shield\Scans\Base\BaseScanActionVO
-	 */
-	protected $oScanAction;
 
 	/**
 	 * Resets the object values to be re-used anew
@@ -79,7 +75,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function launchScan( $bIsASync = true ) {
 		try {
-			$oAction = $this->getScanAction();
+			$oAction = $this->getScanActionVO();
 			$oAction->is_async = $bIsASync;
 			$this->getScanLauncher()
 				 ->launch();
@@ -89,13 +85,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		}
 
 		if ( $oAction->ts_finish > 0 ) {
-			$oResults = $this->getScanActionResults();
-			$this->updateScanResultsStore( $oResults );
-
-			$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_run' );
-			if ( $oResults->countItems() ) {
-				$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_found' );
-			}
+			$this->postScanActionProcess( $oAction );
 		}
 		else if ( $oAction->is_async ) {
 			/** @var Shield\Modules\HackGuard\Options $oOpts */
@@ -123,10 +113,25 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 * TODO: Generic so lift out of base
+	 * @param Shield\Scans\Base\BaseScanActionVO $oAction
+	 */
+	public function postScanActionProcess( $oAction ) {
+		$oResults = $this->setScanActionVO( $oAction )
+						 ->getScanActionResults();
+		$this->updateScanResultsStore( $oResults );
+
+		$this->getCon()->fireEvent( $oAction->id.'_scan_run' );
+		if ( $oResults->countItems() ) {
+			$this->getCon()->fireEvent( $oAction->id.'_scan_found' );
+		}
+	}
+
+	/**
 	 * @return Shield\Scans\Base\BaseResultsSet|mixed
 	 */
 	protected function getScanActionResults() {
-		$oAction = $this->getScanAction();
+		$oAction = $this->getScanActionVO();
 		$oResults = $oAction->getNewResultsSet();
 		if ( !empty( $oAction->results ) ) {
 			foreach ( $oAction->results as $aRes ) {
@@ -163,7 +168,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @deprecated
 	 */
 	protected function getNewResultsSet() {
-		return $this->getScanAction()->getNewResultsSet();
+		return $this->getScanActionVO()->getNewResultsSet();
 	}
 
 	/**
@@ -171,7 +176,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @deprecated
 	 */
 	protected function getResultItem() {
-		return $this->getScanAction()->getNewResultItem();
+		return $this->getScanActionVO()->getNewResultItem();
 	}
 
 	/**
@@ -185,12 +190,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function getScanner();
 
 	/**
-	 * @return Shield\Scans\Base\ScanLauncher|null
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanLauncher|null
 	 */
 	protected function getScanLauncher() {
-		return ( new Shield\Scans\Base\ScanLauncher() )
+		return ( new Shield\Scans\Common\ScanLauncher() )
 			->setMod( $this->getMod() )
-			->setScanActionVO( $this->getScanAction() );
+			->setScanActionVO( $this->getScanActionVO() );
 	}
 
 	/**
@@ -198,7 +203,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function isScanRunning() {
 		return ( new Shield\Scans\Base\ScanActionQuery() )
-			->setScanActionVO( $this->getScanAction() )
+			->setScanActionVO( $this->getScanActionVO() )
 			->isRunning();
 	}
 
@@ -206,14 +211,14 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return bool
 	 */
 	public function isScanLauncherSupported() {
-		return in_array( $this->getScanAction()->id, [ 'apc', 'mal', 'ptg', 'ufc', 'wcf', 'wpv' ] );
+		return in_array( $this->getScanActionVO()->id, [ 'apc', 'mal', 'ptg', 'ufc', 'wcf', 'wpv' ] );
 	}
 
 	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
-	public function getScanAction() {
-		if ( !$this->oScanAction instanceof Shield\Scans\Base\BaseScanActionVO ) {
+	public function getScanActionVO() {
+		if ( !$this->oScanActionVO instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct = $this->getNewActionVO();
 			$oAct->id = static::SCAN_SLUG;
 
@@ -221,10 +226,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			Services::WpFs()->mkdir( $sTmpDir );
 			$oAct->tmp_dir = $sTmpDir;
 
-			$this->oScanAction = $oAct;
+			$this->oScanActionVO = $oAct;
 		}
 
-		return $this->oScanAction;
+		return $this->oScanActionVO;
 	}
 
 	/**

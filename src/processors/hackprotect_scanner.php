@@ -7,6 +7,11 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
+	 * @var Shield\Scans\Common\AsyncScansController
+	 */
+	private $oAsyncScanController;
+
+	/**
 	 * ICWP_WPSF_Processor_HackProtect_Scanner constructor.
 	 * @param ICWP_WPSF_FeatureHandler_HackProtect $oModCon
 	 */
@@ -30,6 +35,66 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 				$this->getSubProcessorPtg()->run();
 			}
 		}
+
+		$this->handleAsyncScanRequest();
+	}
+
+	/**
+	 * @param string[] $aScans
+	 * @param bool     $bIsASync
+	 */
+	public function launchScans( $aScans, $bIsASync = true ) {
+		if ( $bIsASync ) {
+			$this->getAsyncScanController()
+				 ->setScansInitiated( $aScans );
+			$this->processAsyncScans();
+		}
+		else {
+			foreach ( $aScans as $sScan ) {
+				$this->getSubPro( $sScan )
+					 ->launchScan( false );
+			}
+		}
+	}
+
+	/**
+	 *
+	 */
+	private function handleAsyncScanRequest() {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		$bIsScanRequest = ( !Services::WpGeneral()->isAjax() &&
+							$this->getCon()->getShieldAction() == 'scan_async_process'
+							&& Services::Request()->query( 'scan_key' ) == $oOpts->getScanKey() );
+		if ( $bIsScanRequest ) {
+			$this->processAsyncScans();
+			die();
+		}
+	}
+
+	/**
+	 */
+	private function processAsyncScans() {
+		try {
+			$oAction = $this->getAsyncScanController()->runScans();
+			if ( $oAction->ts_finish > 0 ) {
+				$this->getSubPro( $oAction->id )
+					 ->postScanActionProcess( $oAction );
+			}
+		}
+		catch ( \Exception $e ) {
+		}
+	}
+
+	/**
+	 * @return Shield\Scans\Common\AsyncScansController
+	 */
+	private function getAsyncScanController() {
+		if ( empty( $this->oAsyncScanController ) ) {
+			$this->oAsyncScanController = ( new Shield\Scans\Common\AsyncScansController() )
+				->setMod( $this->getMod() );
+		}
+		return $this->oAsyncScanController;
 	}
 
 	/**
@@ -53,7 +118,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		$oQuery = new Shield\Scans\Base\ScanActionQuery();
 		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
 			$aRunning[ $sSlug ] = $oQuery
-				->setScanActionVO( $this->getScannerFromSlug( $sSlug )->getScanAction() )
+				->setScanActionVO( $this->getScannerFromSlug( $sSlug )->getScanActionVO() )
 				->isRunning();
 		}
 		return $aRunning;

@@ -1,8 +1,9 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Common;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 class ScanLauncher {
 
@@ -15,9 +16,8 @@ class ScanLauncher {
 	 * @throws \Exception
 	 */
 	public function launch() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		if ( !$oAction instanceof BaseScanActionVO ) {
+		if ( !$oAction instanceof Base\BaseScanActionVO ) {
 			throw new \Exception( 'Scan Action VO not provided.' );
 		}
 
@@ -66,22 +66,22 @@ class ScanLauncher {
 	}
 
 	/**
-	 * @return BaseScan|mixed
+	 * @return Base\BaseScan|mixed
 	 */
 	private function getScanner() {
 		$sClass = $this->getScanActionVO()->getScanNamespace().'\\Scan';
-		/** @var BaseScan $o */
+		/** @var Base\BaseScan $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )
 				 ->setScanActionVO( $this->getScanActionVO() );
 	}
 
 	/**
-	 * @return BaseBuildScanAction|mixed
+	 * @return Base\BaseBuildScanAction|mixed
 	 */
 	private function getScanActionBuilder() {
 		$sClass = $this->getScanActionVO()->getScanNamespace().'\\BuildScanAction';
-		/** @var BaseBuildScanAction $o */
+		/** @var Base\BaseBuildScanAction $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )
 				 ->setScanActionVO( $this->getScanActionVO() );

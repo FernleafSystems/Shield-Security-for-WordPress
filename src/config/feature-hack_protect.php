@@ -525,6 +525,13 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
+      "key":          "running_scans",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
       "key":          "scan_key",
       "section":      "section_non_ui",
       "transferable": false,
