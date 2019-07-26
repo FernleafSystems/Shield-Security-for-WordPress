@@ -85,9 +85,9 @@ class AsyncScansController {
 		if ( $oAct instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct->applyFromArray( $aWorkingScan );
 
-			$sTmpDir = $this->getCon()->getPluginCachePath( 'scans' );
-			Services::WpFs()->mkdir( $sTmpDir );
-			$oAct->tmp_dir = $sTmpDir;
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
+			$oAct->tmp_dir = $oMod->getScansTempDir();
 		}
 
 		return $oAct;

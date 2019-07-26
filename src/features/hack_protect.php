@@ -16,6 +16,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		parent::updateHandler();
 		$this->setPtgUpdateStoreFormat( true );
 //			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
+		Services::WpFs()->deleteDir( $this->getScansTempDir() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getScansTempDir() {
+		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
+		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
 	}
 
 	/**
@@ -1035,6 +1044,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
 	}
+
 	/**
 	 * @return Shield\Modules\HackGuard\AjaxHandler
 	 */
