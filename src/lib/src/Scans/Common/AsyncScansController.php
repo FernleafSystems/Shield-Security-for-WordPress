@@ -32,6 +32,8 @@ class AsyncScansController {
 
 		$this->start();
 
+		@ignore_user_abort( true );
+
 		$aInitedScans = $this->getInitiatedScans();
 		$aWorkingScan = array_shift( $aInitedScans );
 

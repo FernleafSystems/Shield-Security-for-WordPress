@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ScanActionConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 

@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 class ScanLauncher {
 
 	use Shield\Modules\ModConsumer,
-		Shield\Scans\Base\ScanActionConsumer;
+		Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * Builds the Action Definition and handles the storage to and from disk.
@@ -20,8 +20,6 @@ class ScanLauncher {
 		if ( !$oAction instanceof Base\BaseScanActionVO ) {
 			throw new \Exception( 'Scan Action VO not provided.' );
 		}
-
-		@ignore_user_abort( true );
 
 		$oStore = ( new Shield\Scans\Base\ActionStore() )
 			->setScanActionVO( $oAction );

@@ -41,20 +41,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 
 	/**
 	 * @param string[] $aScans
-	 * @param bool     $bIsASync
 	 */
-	public function launchScans( $aScans, $bIsASync = true ) {
-		if ( $bIsASync ) {
-			$this->getAsyncScanController()
-				 ->setScansInitiated( $aScans );
-			$this->processAsyncScans();
-		}
-		else {
-			foreach ( $aScans as $sScan ) {
-				$this->getSubPro( $sScan )
-					 ->launchScan( false );
-			}
-		}
+	public function launchScans( $aScans ) {
+		$this->getAsyncScanController()
+			 ->setScansInitiated( $aScans );
+		$this->processAsyncScans();
 	}
 
 	/**

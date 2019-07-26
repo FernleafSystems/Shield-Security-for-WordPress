@@ -146,7 +146,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
-		$oTablePro = $oP->getSubProScanner()->getScannerFromSlug( $sScannerSlug );
+		$oScanner = $oP->getSubProScanner();
+		$oTablePro = $oScanner->getScannerFromSlug( $sScannerSlug );
 
 		if ( empty( $oTablePro ) ) {
 			$sMessage = __( 'Unsupported scanner', 'wp-simple-firewall' );
@@ -175,7 +176,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				else {
 					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
 				}
-				$oTablePro->launchScan();
+				$oScanner->launchScans( [ $sScannerSlug ] );
 			}
 			catch ( \Exception $oE ) {
 				$sMessage = $oE->getMessage();
@@ -219,7 +220,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
-		$oScanPro = $oP->getSubProScanner();
+		$oScanner = $oP->getSubProScanner();
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );
 
@@ -227,13 +228,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
 			$oMod->setUiTrack( $aUiTrack );
 
-			foreach ( $aSelectedScans as $sScan ) {
+			$aScansToRun = [];
+			foreach ( $aSelectedScans as $sScanSlug ) {
 
-				$oTablePro = $oScanPro->getScannerFromSlug( $sScan );
+				$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
 
 				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
 					$bAsync = true;
-					$oTablePro->launchScan( $bAsync );
+					$aScansToRun[] = $sScanSlug;
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
 						$oTablePro->resetIgnoreStatus();
@@ -249,9 +251,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
 				}
 			}
+			$oScanner->launchScans( $aScansToRun );
 		}
 
-		$bScansRunning = $oScanPro->hasRunningScans();
+		$bScansRunning = $oScanner->hasRunningScans();
 		return [
 			'success'       => $bSuccess,
 			'scans_running' => $bScansRunning,

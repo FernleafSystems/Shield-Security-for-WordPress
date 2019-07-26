@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield,
 	FernleafSystems\Wordpress\Services;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Api;
 
 class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
 
@@ -23,6 +24,25 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		parent::run();
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
+
+		if ( $_GET[ 'test' ] ) {
+			$aH = ( new Services\Utilities\WpOrg\Plugin\Hashes() )
+				->setHashAlgo( 'md5' )
+				->getHashes( 'uk-cookie-consent', '2.3.14' );
+			var_dump( $aH );
+
+			try {
+				$oP = ( new Api() )
+					->setWorkingSlug( 'uk-cookie-consent' )
+					->getPluginInfo();
+				var_dump( $oP );
+			}
+			catch ( Exception $oE ) {
+				var_dump( $oE );
+			}
+
+			die;
+		}
 
 		$this->initSnapshots();
 

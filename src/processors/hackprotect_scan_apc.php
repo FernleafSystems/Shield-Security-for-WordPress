@@ -18,13 +18,13 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isApcEnabled();
 	}
 
 	public function onDeletedPlugin() {
-		$this->launchScan();
+		$this->getScannerDb()->launchScans( [ static::SCAN_SLUG ] );
 	}
 
 	/**

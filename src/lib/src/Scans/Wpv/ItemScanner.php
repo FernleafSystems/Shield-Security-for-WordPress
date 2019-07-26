@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\WpVulnVO;
  */
 abstract class ItemScanner {
 
-	use Shield\Scans\Base\ScanActionConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @param string $sFile

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ScanActionConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**

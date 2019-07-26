@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class PluginScanner extends ItemScanner {
 
-	use Shield\Scans\Base\ScanActionConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @param string $sFile

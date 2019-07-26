@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScanActionQuery {
 
-	use ScanActionConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @param int $nExpiration

@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseBuildScanAction {
 
 	use Shield\Modules\ModConsumer,
-		Shield\Scans\Base\ScanActionConsumer;
+		Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @param bool $bBuildItems

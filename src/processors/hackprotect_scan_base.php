@@ -7,7 +7,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 
 	use Shield\Crons\StandardCron,
 		Shield\Scans\Base\ScannerProfileConsumer,
-		Shield\Scans\Base\ScanActionConsumer;
+		Shield\Scans\Common\ScanActionConsumer;
 	const SCAN_SLUG = 'base';
 
 	/**
@@ -26,7 +26,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	public function run() {
 		parent::run();
 		if ( $this->isAvailable() ) {
-			$this->processAsyncScan();
 			if ( $this->isEnabled() ) {
 				$this->setupCron();
 			}
@@ -52,64 +51,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	abstract public function isEnabled();
 
-	protected function processAsyncScan() {
-		if ( $this->isThisAsyncScanRequest() ) {
-			$this->launchScan( true );
-		}
-	}
-
 	/**
-	 * @return bool
 	 */
-	private function isThisAsyncScanRequest() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		return ( !Services::WpGeneral()->isAjax() &&
-				 $this->getCon()->getShieldAction() == 'scan_async_'.static::SCAN_SLUG
-				 && Services::Request()->query( 'scan_key' ) == $oOpts->getScanKey() );
-	}
-
-	/**
-	 * @param bool $bIsASync
-	 * @return bool
-	 */
-	public function launchScan( $bIsASync = true ) {
-		try {
-			$oAction = $this->getScanActionVO();
-			$oAction->is_async = $bIsASync;
-			$this->getScanLauncher()
-				 ->launch();
-		}
-		catch ( \Exception $oE ) {
-			return false;
-		}
-
-		if ( $oAction->ts_finish > 0 ) {
-			$this->postScanActionProcess( $oAction );
-		}
-		else if ( $oAction->is_async ) {
-			/** @var Shield\Modules\HackGuard\Options $oOpts */
-			$oOpts = $this->getMod()->getOptions();
-			Services::HttpRequest()
-					->get(
-						add_query_arg(
-							[
-								'shield_action' => 'scan_async_'.static::SCAN_SLUG,
-								'scan_key'      => $oOpts->getScanKey()
-							],
-							Services::WpGeneral()->getHomeUrl()
-						),
-						[
-							'blocking' => true,
-							'timeout'  => 5,
-						]
-					);
-		}
-		else {
-			return false; // Should never reach here unless something serious has happened
-		}
-
-		return true;
+	public function launchScan() {
+		$this->getScannerDb()->launchScans( [ static::SCAN_SLUG ] );
 	}
 
 	/**
@@ -137,20 +82,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			foreach ( $oAction->results as $aRes ) {
 				$oResults->addItem( $oAction->getNewResultItem()->applyFromArray( $aRes ) );
 			}
-		}
-		return $oResults;
-	}
-
-	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
-	 */
-	public function doScan() {
-		$oResults = $this->getLiveResults();
-		$this->updateScanResultsStore( $oResults );
-
-		$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_run' );
-		if ( $oResults->countItems() ) {
-			$this->getCon()->fireEvent( static::SCAN_SLUG.'_scan_found' );
 		}
 		return $oResults;
 	}
@@ -512,7 +443,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	private function cronScan() {
-		$this->launchScan();
+		$this->getScannerDb()->launchScans( [ static::SCAN_SLUG ] );
 		$this->cronProcessScanResults();
 	}
 

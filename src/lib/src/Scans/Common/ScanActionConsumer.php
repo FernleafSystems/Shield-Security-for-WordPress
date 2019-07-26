@@ -1,6 +1,8 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Common;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 
 trait ScanActionConsumer {
 

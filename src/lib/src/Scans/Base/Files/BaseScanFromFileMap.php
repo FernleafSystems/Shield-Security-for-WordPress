@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 abstract class BaseScanFromFileMap {
 
-	use Scans\Base\ScanActionConsumer;
+	use Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @return Scans\Base\BaseResultsSet
