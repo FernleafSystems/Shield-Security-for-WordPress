@@ -21,11 +21,13 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 						location.reload();
 					}
 					else if ( oResponse.data.scans_running ) {
-						jQuery( document ).icwpWpsfScansCheck(
-							{
-								'ajax_scans_check': aOpts[ 'ajax_scans_check' ]
-							}
-						);
+						setTimeout( function () {
+							jQuery( document ).icwpWpsfScansCheck(
+								{
+									'ajax_scans_check': aOpts[ 'ajax_scans_check' ]
+								}
+							);
+						}, 2000 );
 					}
 					else {
 						plugin.options[ 'table' ].reloadTable();
@@ -71,6 +73,7 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 
 	let bFoundRunning = false;
 	let bCurrentlyRunning = false;
+	let nRunningCount = 0;
 
 	let sendReq = function ( aParams ) {
 		iCWP_WPSF_BodyOverlay.show();
@@ -80,21 +83,23 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 			function ( oResponse ) {
 
 				bCurrentlyRunning = false;
+				nRunningCount = 0;
 				if ( oResponse.data.running !== undefined ) {
 					for ( const scankey of Object.keys( oResponse.data.running ) ) {
 						if ( oResponse.data.running[ scankey ] ) {
+							nRunningCount++;
 							bFoundRunning = true;
 							bCurrentlyRunning = true;
-							break;
 						}
 					}
 				}
 			}
 		).always( function () {
 				if ( bCurrentlyRunning ) {
+					iCWP_WPSF_Toaster.showMessage( 'Progress Update: '+nRunningCount+' Scan(s) Waiting To Complete', true );
 					setTimeout( function () {
 						sendReq();
-					}, 4000 );
+					}, 5000 );
 				}
 				else if ( bFoundRunning ) {
 					iCWP_WPSF_Toaster.showMessage( 'Scans Complete.', true );
