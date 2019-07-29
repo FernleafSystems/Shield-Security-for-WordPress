@@ -19,6 +19,21 @@ class AsyncScansController {
 	private $bIsRunning;
 
 	/**
+	 * @return $this
+	 */
+	public function cleanStaleScans() {
+		$nBoundary = Services::Request()->ts() - 120;
+		$aScns = $this->getInitiatedScans();
+		foreach ( $aScns as $sScanSlug => $aInfo ) {
+			$nInitTs = $this->getScanInitTime( $sScanSlug );
+			if ( $nInitTs > 0 && $nBoundary > $nInitTs ) {
+				$this->removeInitiatedScan( $sScanSlug );
+			}
+		}
+		return $this;
+	}
+
+	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 * @throws \Exception
 	 */
