@@ -15,7 +15,7 @@
 					{% if scan.flags.is_available %}
 
 						{% if not scan.flags.has_items %}
-							<div class="alert alert-info m-0">No items discovered</div>
+							<div class="alert alert-info m-0">{{ strings.no_entries_to_display }}</div>
 						{% else %}
 							<div id="TableScanWpv" class="container-scantable"></div>
 						{% endif %}

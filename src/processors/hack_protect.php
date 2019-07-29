@@ -140,6 +140,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
 				'clear_suppression_sub' => __( 'Allow notification emails to be resent (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
+				'no_entries_to_display' => __( 'No entries to display.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'initial_check' => $oScannerMain->hasRunningScans()

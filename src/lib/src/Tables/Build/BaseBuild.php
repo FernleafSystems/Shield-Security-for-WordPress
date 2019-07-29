@@ -46,7 +46,7 @@ class BaseBuild {
 			$sRendered = $this->buildEmpty();
 		}
 
-		return empty( $sRendered ) ? 'There was an error retrieving entries.' : $sRendered;
+		return empty( $sRendered ) ? __( 'There was an error retrieving entries.', 'wp-simple-firewall' ) : $sRendered;
 	}
 
 	/**

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,7 +20,6 @@ class ScanApc extends ScanBase {
 		$oCarbon = Services::Request()->carbon();
 
 		$oWpPlugins = Services::WpPlugins();
-		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oIt = ( new Shield\Scans\Apc\ConvertVosToResults() )->convertItem( $oEntry );

@@ -24,7 +24,6 @@ class ScanWpv extends ScanBase {
 		$oWpPlugins->getUpdates( true );
 		$oWpThemes->getUpdates( true );
 
-		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oIt = ( new Shield\Scans\Wpv\ConvertVosToResults() )->convertItem( $oEntry );

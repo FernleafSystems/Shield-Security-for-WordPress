@@ -115,7 +115,7 @@ class Traffic extends BaseBuild {
 			if ( $oEntry->uid > 0 ) {
 				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
 					$oUser = $oWpUsers->getUserById( $oEntry->uid );
-					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? __( 'unknown', 'wp-simple-firewall' ) :
+					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
 							$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
 				}

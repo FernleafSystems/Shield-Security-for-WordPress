@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -20,7 +17,7 @@ class AuditTrail extends BaseBuild {
 	 */
 	protected function applyCustomQueryFilters() {
 		$aParams = $this->getParams();
-		/** @var Databases\AuditTrail\Select $oSelector */
+		/** @var Shield\Databases\AuditTrail\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
 		$oSelector->filterByContext( $aParams[ 'fContext' ] );
@@ -92,7 +89,7 @@ class AuditTrail extends BaseBuild {
 		$sYou = Services::IP()->getRequestIp();
 		$oCon = $this->getCon();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Databases\AuditTrail\EntryVO $oEntry */
+			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
 
 			$sMsg = 'Audit message could not be retrieved';
 			if ( empty( $oEntry->message ) ) {
@@ -147,9 +144,9 @@ class AuditTrail extends BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\AuditTrail
+	 * @return Shield\Tables\Render\AuditTrail
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\AuditTrail();
+		return new Shield\Tables\Render\AuditTrail();
 	}
 }
