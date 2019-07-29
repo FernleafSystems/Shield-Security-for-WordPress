@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-07-29 13:36+0100\n"
-"PO-Revision-Date: 2019-07-29 13:36+0100\n"
+"POT-Creation-Date: 2019-07-29 17:26+0100\n"
+"PO-Revision-Date: 2019-07-29 17:26+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -3881,25 +3881,63 @@ msgstr ""
 msgid "Unsupported item(s) selected"
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:218
-msgid "No scans were selected"
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:174
+msgid "Action successful."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:250
-msgid "Scans started."
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:177
+msgid "An error occurred."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:250
-msgid "Please wait, as this will take a few moments."
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:177
+msgid "Some items may not have been processed."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:251
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:183
+msgid "Rescanning"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:186
+msgid "Reloading"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:220
+msgid "No scan running."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:230
+msgid "Current Scan"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:235
+msgid "Please be patient."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:236
+msgid "Some scans can take quite a while to complete."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:237
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:286
 msgid "Scans completed."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:251
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:237
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:286
 #: src/lib/src/Modules/License/AjaxHandler.php:88
 msgid "Reloading page"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:253
+msgid "No scans were selected"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:285
+msgid "Scans started."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:285
+msgid "Please wait, as this will take a few moments."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:39
