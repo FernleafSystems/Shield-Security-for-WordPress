@@ -34,6 +34,13 @@ class AsyncScansController {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function abortAllScans() {
+		return $this->setScans( [] );
+	}
+
+	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 * @throws \Exception
 	 */

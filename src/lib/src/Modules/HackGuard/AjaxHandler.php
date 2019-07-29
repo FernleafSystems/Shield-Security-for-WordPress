@@ -171,12 +171,20 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
 					$bSuccess = true;
-					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
+					$sMessage = __( 'Action successful.' );
 				}
 				else {
-					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
+					$sMessage = __( 'An error occurred.' ).' '.__( 'Some items may not have been processed.' );
 				}
-				$oScanner->launchScans( [ $sScannerSlug ] );
+
+				// We don't rescan for ignores.
+				if ( !in_array( $sAction, [ 'ignore' ] ) ) {
+					$oScanner->launchScans( [ $sScannerSlug ] );
+					$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
+				}
+				else {
+					$sMessage .= ' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
+				}
 			}
 			catch ( \Exception $oE ) {
 				$sMessage = $oE->getMessage();
@@ -196,7 +204,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_CheckScans() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
 		$oScanPro = $oP->getSubProScanner();
