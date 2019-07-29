@@ -22,7 +22,7 @@ class AsyncScansController {
 	 * @return $this
 	 */
 	public function cleanStaleScans() {
-		$nBoundary = Services::Request()->ts() - 120;
+		$nBoundary = Services::Request()->ts() - 600;
 		$aScns = $this->getInitiatedScans();
 		foreach ( $aScns as $sScanSlug => $aInfo ) {
 			$nInitTs = $this->getScanInitTime( $sScanSlug );
