@@ -27,7 +27,7 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 									'ajax_scans_check': aOpts[ 'ajax_scans_check' ]
 								}
 							);
-						}, 2000 );
+						}, 4000 );
 					}
 					else {
 						plugin.options[ 'table' ].reloadTable();
@@ -101,12 +101,9 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 						sendReq();
 					}, 5000 );
 				}
-				else if ( bFoundRunning ) {
+				else {
 					iCWP_WPSF_Toaster.showMessage( 'Scans Complete.', true );
 					location.reload();
-				}
-				else {
-					iCWP_WPSF_BodyOverlay.hide();
 				}
 			}
 		);
