@@ -109,6 +109,19 @@ class AsyncScansController {
 	}
 
 	/**
+	 * @return float
+	 */
+	public function getScanJobProgress() {
+		if ( $this->hasScansToRun() ) {
+			$nProgress = 1 - ( count( $this->getUnfinishedScans() )/count( $this->getInitiatedScans() ) );
+		}
+		else {
+			$nProgress = 1;
+		}
+		return $nProgress;
+	}
+
+	/**
 	 * @param array $aWorkingScan
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */

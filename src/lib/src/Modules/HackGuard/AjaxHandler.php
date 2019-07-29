@@ -213,29 +213,31 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		$aCurrent = $oScanCon->getCurrentScan();
 		$bHasCurrent = !empty( $aCurrent );
-
-		if ( $oScanCon->hasScansToRun() ) {
-			$nProgress = 1 - ( count( $oScanCon->getUnfinishedScans() )/count( $oScanCon->getInitiatedScans() ) );
+		if ( $bHasCurrent ) {
+			$sCurrentScan = $oStrings->getScanName( $aCurrent[ 'id' ] );
 		}
 		else {
-			$nProgress = 1;
+			$sCurrentScan = __( 'No scan running.' );
 		}
 
 		return [
 			'success' => true,
 			'running' => $oScanPro->getScansRunningStates(),
 			'vars'    => [
-				'has_current'   => $bHasCurrent,
-				'current'       => $bHasCurrent ? $oStrings->getScanName( $aCurrent[ 'id' ] ) : __( 'No scan running.' ),
-				'progress'      => $bHasCurrent ? 35 : 0, // TODO
 				'progress_html' => $oMod->renderTemplate(
 					'/wpadmin_pages/insights/scans/modal_progress_snippet.twig',
 					[
-						'progress' => 100*$nProgress,
+						'current_scan'    => __( 'Current Scan' ),
+						'scan'            => $sCurrentScan,
+						'remaining_scans' => sprintf( '%s of %s scans remaining.',
+							count( $oScanCon->getUnfinishedScans() ), count( $oScanCon->getInitiatedScans() ) ),
+						'progress'        => 100*$oScanCon->getScanJobProgress(),
+						'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
+						'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
+						'completed'       => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
 					],
 					true
 				),
-				'message'       => 'running scans',
 			]
 		];
 	}

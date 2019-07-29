@@ -27,7 +27,7 @@ jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 									'ajax_scans_check': aOpts[ 'ajax_scans_check' ]
 								}
 							);
-						}, 4000 );
+						}, 1000 );
 					}
 					else {
 						plugin.options[ 'table' ].reloadTable();
@@ -93,14 +93,9 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 						}
 					}
 				}
-
-				if ( oResp.data.vars.has_current ) {
-					let $oModal = jQuery( '#ScanProgressModal' );
-					jQuery( '.modal-body', $oModal ).html( oResp.data.vars.progress_html );
-					$oModal.modal( 'show' );
-					iCWP_WPSF_Toaster.showMessage( oResp.data.vars.current, true );
-				}
-
+				let $oModal = jQuery( '#ScanProgressModal' );
+				jQuery( '.modal-body', $oModal ).html( oResp.data.vars.progress_html );
+				$oModal.modal( 'show' );
 			}
 		).always( function () {
 				if ( bCurrentlyRunning ) {
@@ -109,8 +104,9 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 					}, 5000 );
 				}
 				else {
-					iCWP_WPSF_Toaster.showMessage( 'Scans Complete.', true );
-					location.reload();
+					setTimeout( function () {
+						location.reload();
+					}, 1000 );
 				}
 			}
 		);
