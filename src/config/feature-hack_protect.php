@@ -525,7 +525,7 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key":          "running_scans",
+      "key":          "scans_job",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "array",

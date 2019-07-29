@@ -37,7 +37,7 @@ class AsyncScansController {
 	 * @return $this
 	 */
 	public function abortAllScans() {
-		return $this->setScans( [] );
+		return $this->setScansJob( [] );
 	}
 
 	/**
@@ -56,8 +56,12 @@ class AsyncScansController {
 
 		@ignore_user_abort( true );
 
-		$aInitedScans = $this->getInitiatedScans();
-		$aWorkingScan = array_shift( $aInitedScans );
+		$aWorkingScan = $this->getCurrentScan();
+		if ( empty( $aWorkingScan ) ) {
+			$aUnfinished = $this->getUnfinishedScans();
+			$aWorkingScan = array_shift( $aUnfinished );
+			$this->setScanAsCurrent( $aWorkingScan[ 'id' ] );
+		}
 
 		$oAction = $this->getScanAction( $aWorkingScan );
 		$oAction->is_async = true;
@@ -74,7 +78,10 @@ class AsyncScansController {
 
 		// Remove scan from list so we know whether to fire another round
 		if ( $oAction->ts_finish > 0 ) {
-			$this->removeInitiatedScan( $oAction->id );
+			$aWorkingScan = $this->getScanInfo( $oAction->id );
+			$aWorkingScan[ 'ts_finish' ] = $oAction->ts_finish;
+			$this->setScanInfo( $aWorkingScan );
+			$this->setScanAsCurrent( $oAction->id, false );
 		}
 
 		if ( $this->hasScansToRun() ) {
@@ -92,6 +99,9 @@ class AsyncScansController {
 							'timeout'  => 5,
 						]
 					);
+		}
+		else {
+			$this->abortAllScans();
 		}
 
 		$this->end();
@@ -154,25 +164,85 @@ class AsyncScansController {
 
 	/**
 	 * @param string $sScanSlug
-	 * @return int
+	 * @return array
 	 */
-	private function getScanInfo( $sScanSlug ) {
-		$aSns = $this->getInitiatedScans();
+	public function getScanInfo( $sScanSlug ) {
+		$aSns = $this->getScansJob();
 		$aScan = isset( $aSns[ $sScanSlug ] ) ? $aSns[ $sScanSlug ] : [];
 		return array_merge(
 			[
-				'slug'    => '', // always set the slug
+				'id'      => $sScanSlug, // always set the slug
 				'ts_init' => 0,
+				'current' => false,
 			],
 			$aScan
 		);
 	}
 
 	/**
+	 * @return array|null
+	 */
+	public function getCurrentScan() {
+		$aCurrent = null;
+		foreach ( $this->getInitiatedScans() as $aScanInfo ) {
+			if ( isset( $aScanInfo[ 'current' ] ) && $aScanInfo[ 'current' ] ) {
+				$aCurrent = $aScanInfo;
+				break;
+			}
+		}
+		return $aCurrent;
+	}
+
+	/**
+	 * @param string $sScanSlug
+	 * @param bool   $bSetAsCurrent
+	 * @return $this
+	 */
+	public function setScanAsCurrent( $sScanSlug, $bSetAsCurrent = true ) {
+		if ( is_null( $this->getCurrentScan() ) && $bSetAsCurrent ) {
+			$aScanInfo = $this->getScanInfo( $sScanSlug );
+			if ( $aScanInfo[ 'ts_init' ] > 0 ) {
+				$aScanInfo[ 'current' ] = true;
+			}
+			$this->setScanInfo( $aScanInfo );
+		}
+		else if ( !$bSetAsCurrent ) {
+			$aScanInfo = $this->getScanInfo( $sScanSlug );
+			$aScanInfo[ 'current' ] = false;
+			$this->setScanInfo( $aScanInfo );
+		}
+		return $this;
+	}
+
+	/**
 	 * @return array[] - keys: scan slugs; values: array of ts_init, id
 	 */
 	public function getInitiatedScans() {
-		$aSn = $this->getOpts()->getOpt( 'running_scans' );
+		return array_filter(
+			$this->getScansJob(),
+			function ( $aScan ) {
+				return !empty( $aScan[ 'ts_init' ] );
+			}
+		);
+	}
+
+	/**
+	 * @return array[] - keys: scan slugs; values: array of ts_init, id
+	 */
+	public function getUnfinishedScans() {
+		return array_filter(
+			$this->getInitiatedScans(),
+			function ( $aScan ) {
+				return empty( $aScan[ 'ts_finish' ] );
+			}
+		);
+	}
+
+	/**
+	 * @return array[] - keys: scan slugs; values: array of ts_init, id
+	 */
+	public function getScansJob() {
+		$aSn = $this->getOpts()->getOpt( 'scans_job' );
 		return is_array( $aSn ) ? $aSn : [];
 	}
 
@@ -180,7 +250,7 @@ class AsyncScansController {
 	 * @return bool
 	 */
 	public function hasScansToRun() {
-		return count( $this->getInitiatedScans() ) > 0;
+		return count( $this->getUnfinishedScans() ) > 0;
 	}
 
 	/**
@@ -197,19 +267,11 @@ class AsyncScansController {
 	 */
 	public function removeInitiatedScan( $sScanSlug ) {
 		if ( $this->isScanInited( $sScanSlug ) ) {
-			$aScans = $this->getInitiatedScans();
-			unset( $aScans[ $sScanSlug ] );
-			$this->setScans( $aScans );
+			$aScan = $this->getScanInfo( $sScanSlug );
+			$aScan[ 'ts_init' ] = 0;
+			$this->setScanInfo( $aScan );
 		}
 		return $this;
-	}
-
-	/**
-	 * @param string $sScanSlug
-	 * @return $this
-	 */
-	public function setScanInitiated( $sScanSlug ) {
-		return $this->setScansInitiated( [ $sScanSlug ] );
 	}
 
 	/**
@@ -229,7 +291,7 @@ class AsyncScansController {
 			}
 		}
 		if ( $bUpdated ) {
-			$this->setScans( $aScans );
+			$this->setScansJob( $aScans );
 		}
 		return $this;
 	}
@@ -238,10 +300,20 @@ class AsyncScansController {
 	 * @param array $aScans
 	 * @return $this
 	 */
-	private function setScans( $aScans ) {
-		$this->getOpts()->setOpt( 'running_scans', $aScans );
+	private function setScansJob( $aScans ) {
+		$this->getOpts()->setOpt( 'scans_job', $aScans );
 		$this->getMod()->savePluginOptions();
 		return $this;
+	}
+
+	/**
+	 * @param array $aScanInfo
+	 * @return $this
+	 */
+	private function setScanInfo( $aScanInfo ) {
+		$aScans = $this->getScansJob();
+		$aScans[ $aScanInfo[ 'id' ] ] = $aScanInfo;
+		return $this->setScansJob( $aScans );
 	}
 
 	/**

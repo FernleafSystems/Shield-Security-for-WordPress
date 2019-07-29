@@ -206,11 +206,37 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oMod = $this->getMod();
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
+		/** @var Strings $oStrings */
+		$oStrings = $oMod->getStrings();
 		$oScanPro = $oP->getSubProScanner();
+		$oScanCon = $oScanPro->getAsyncScanController();
+
+		$aCurrent = $oScanCon->getCurrentScan();
+		$bHasCurrent = !empty( $aCurrent );
+
+		if ( $oScanCon->hasScansToRun() ) {
+			$nProgress = 1 - ( count( $oScanCon->getUnfinishedScans() )/count( $oScanCon->getInitiatedScans() ) );
+		}
+		else {
+			$nProgress = 1;
+		}
+
 		return [
 			'success' => true,
 			'running' => $oScanPro->getScansRunningStates(),
-			'message' => 'running scans',
+			'vars'    => [
+				'has_current'   => $bHasCurrent,
+				'current'       => $bHasCurrent ? $oStrings->getScanName( $aCurrent[ 'id' ] ) : __( 'No scan running.' ),
+				'progress'      => $bHasCurrent ? 35 : 0, // TODO
+				'progress_html' => $oMod->renderTemplate(
+					'/wpadmin_pages/insights/scans/modal_progress_snippet.twig',
+					[
+						'progress' => 100*$nProgress,
+					],
+					true
+				),
+				'message'       => 'running scans',
+			]
 		];
 	}
 

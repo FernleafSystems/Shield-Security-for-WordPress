@@ -80,23 +80,30 @@ jQuery.fn.icwpWpsfScansCheck = function ( aOptions ) {
 
 		let aReqData = aOpts[ 'ajax_scans_check' ];
 		jQuery.post( ajaxurl, jQuery.extend( aReqData, aParams ),
-			function ( oResponse ) {
+			function ( oResp ) {
 
 				bCurrentlyRunning = false;
 				nRunningCount = 0;
-				if ( oResponse.data.running !== undefined ) {
-					for ( const scankey of Object.keys( oResponse.data.running ) ) {
-						if ( oResponse.data.running[ scankey ] ) {
+				if ( oResp.data.running !== undefined ) {
+					for ( const scankey of Object.keys( oResp.data.running ) ) {
+						if ( oResp.data.running[ scankey ] ) {
 							nRunningCount++;
 							bFoundRunning = true;
 							bCurrentlyRunning = true;
 						}
 					}
 				}
+
+				if ( oResp.data.vars.has_current ) {
+					let $oModal = jQuery( '#ScanProgressModal' );
+					jQuery( '.modal-body', $oModal ).html( oResp.data.vars.progress_html );
+					$oModal.modal( 'show' );
+					iCWP_WPSF_Toaster.showMessage( oResp.data.vars.current, true );
+				}
+
 			}
 		).always( function () {
 				if ( bCurrentlyRunning ) {
-					iCWP_WPSF_Toaster.showMessage( 'Progress Update: '+nRunningCount+' Scan(s) Waiting To Complete', true );
 					setTimeout( function () {
 						sendReq();
 					}, 5000 );
