@@ -297,7 +297,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'This method for Yubikeys is no longer supported. Please see your user profile', 'wp-simple-firewall' );
 				$sDescription = '<strong>'.sprintf( '%s: %s', __( 'Format', 'wp-simple-firewall' ), 'Username,Yubikey' ).'</strong>'
 								.'<br />- '.__( 'Provide Username<->Yubikey Pairs that are usable for this site.', 'wp-simple-firewall' )
-								.'<br />- '.__( 'If a Username if not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
+								.'<br />- '.__( 'If a Username is not assigned a Yubikey, Yubikey Authentication is OFF for that user.', 'wp-simple-firewall' )
 								.'<br />- '.__( 'Each [Username,Key] pair should be separated by a new line: you only need to provide the first 12 characters of the yubikey.', 'wp-simple-firewall' );
 				break;
 
