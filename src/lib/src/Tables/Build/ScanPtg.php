@@ -26,8 +26,9 @@ class ScanPtg extends ScanBase {
 			$oIt = ( new Shield\Scans\Ptg\ConvertVosToResults() )->convertItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'path' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unrecognised' );
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+			$aE[ 'status' ] = $oIt->is_different ? __( 'Modified', 'wp-simple-firewall' )
+				: ( $oIt->is_missing ? __( 'Missing', 'wp-simple-firewall' ) : __( 'Unrecognised', 'wp-simple-firewall' ) );
+			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'href_download' ] = $oIt->is_missing ? false : $oMod->createFileDownloadLink( $oEntry );
 			$aEntries[ $nKey ] = $aE;

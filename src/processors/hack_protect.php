@@ -182,7 +182,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 					'hrefs'   => [],
 					'vars'    => [],
 					'strings' => [
-						'subtitle' => _wpsf__( "Detect files that may be infected with malware" )
+						'subtitle' => __( "Detect files that may be infected with malware", 'wp-simple-firewall' )
 					],
 				],
 				'wpv' => [

@@ -26,8 +26,8 @@ class ScanUfc extends ScanBase {
 			$oIt = ( new Shield\Scans\Ufc\ConvertVosToResults() )->convertItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'path' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = 'Unrecognised File';
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+			$aE[ 'status' ] = __( 'Unrecognised', 'wp-simple-firewall' );
+			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? __( 'Yes' ) : __( 'No' );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'href_download' ] = $oMod->createFileDownloadLink( $oEntry );
 			$aEntries[ $nKey ] = $aE;

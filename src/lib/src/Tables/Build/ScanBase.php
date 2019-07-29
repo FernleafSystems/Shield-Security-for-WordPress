@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class ScanBase
@@ -48,5 +49,13 @@ class ScanBase extends BaseBuild {
 		$aP = parent::getParamDefaults();
 		$aP[ 'limit' ] = PHP_INT_MAX;
 		return $aP;
+	}
+
+	/**
+	 * @param Scanner\EntryVO $oEntry
+	 * @return string
+	 */
+	protected function formatIsIgnored( $oEntry ) {
+		return ( $oEntry->ignored_at > 0 && Services::Request()->ts() > $oEntry->ignored_at ) ? __( 'Yes' ) : __( 'No' );
 	}
 }
