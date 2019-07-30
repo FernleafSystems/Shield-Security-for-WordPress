@@ -5,8 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
 
-	use Shield\Crons\StandardCron,
-		Shield\Scans\Base\ScannerProfileConsumer,
+	use Shield\Scans\Base\ScannerProfileConsumer,
 		Shield\Scans\Common\ScanActionConsumer;
 	const SCAN_SLUG = 'base';
 
@@ -21,15 +20,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	public function init() {
 		parent::init();
 		$this->getScannerProfile()->scan_slug = static::SCAN_SLUG;
-	}
-
-	public function run() {
-		parent::run();
-		if ( $this->isAvailable() ) {
-			if ( $this->isEnabled() ) {
-				$this->setupCron();
-			}
-		}
 	}
 
 	/**
@@ -70,6 +60,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		if ( $oResults->countItems() ) {
 			$this->getCon()->fireEvent( $oAction->id.'_scan_found' );
 		}
+
+		if ( $oAction->is_cron ) {
+			$this->cronProcessScanResults();
+		}
 	}
 
 	/**
@@ -90,7 +84,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	protected function getLiveResults() {
-		$this->launchScan( false );
+		$this->launchScan();
 		return $this->getScanActionResults();
 	}
 
@@ -436,18 +430,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * Cron callback
-	 */
-	public function runCron() {
-		Services::WpGeneral()->getIfAutoUpdatesInstalled() ? $this->resetCron() : $this->cronScan();
-	}
-
-	private function cronScan() {
-		$this->getScannerDb()->launchScans( [ static::SCAN_SLUG ] );
-		$this->cronProcessScanResults();
-	}
-
-	/**
 	 * Because it's the cron and we'll maybe be notifying user, we look
 	 * only for items that have not been notified recently.
 	 */
@@ -511,24 +493,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 			'border:2px solid #e66900;padding:20px;line-height:19px;margin:15px 20px 10px;display:inline-block;text-align:center;width:200px;font-size:18px;color: #e66900;border-radius:3px;',
 			__( 'Run Scanner', 'wp-simple-firewall' )
 		);
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getCronFrequency() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getScanFrequency();
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDef( 'cron_all_scans' ) );
 	}
 
 	/**

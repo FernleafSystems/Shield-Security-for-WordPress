@@ -210,7 +210,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oStrings = $oMod->getStrings();
 		$oScanPro = $oP->getSubProScanner();
 		$oScanCon = $oScanPro->getAsyncScanController();
-
+//		$oScanCon->abortAllScans();
 		$aCurrent = $oScanCon->getCurrentScan();
 		$bHasCurrent = !empty( $aCurrent );
 		if ( $bHasCurrent ) {

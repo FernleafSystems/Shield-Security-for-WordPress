@@ -19,6 +19,11 @@ class AsyncScansController {
 	private $bIsRunning;
 
 	/**
+	 * @var bool
+	 */
+	private $bMarkAsCron;
+
+	/**
 	 * @return $this
 	 */
 	public function cleanStaleScans() {
@@ -76,7 +81,7 @@ class AsyncScansController {
 		}
 		catch ( \Exception $oE ) {
 			$this->end();
-			throw new $oE();
+			throw $oE;
 		}
 
 		// Remove scan from list so we know whether to fire another round
@@ -136,6 +141,14 @@ class AsyncScansController {
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 			$oMod = $this->getMod();
 			$oAct->tmp_dir = $oMod->getScansTempDir();
+
+			/**
+			 * Only update is_cron if this is true so we don't overwrite it
+			 * later with false on an async-request
+			 */
+			if ( $this->isMarkAsCron() ) {
+				$oAct->is_cron = true;
+			}
 		}
 
 		return $oAct;
@@ -351,6 +364,22 @@ class AsyncScansController {
 	 */
 	private function end() {
 		return $this->bIsRunning = false;
+	}
+
+	/**
+	 * @param bool $bIsCron
+	 * @return $this
+	 */
+	public function markAsCron( $bIsCron = true ) {
+		$this->bMarkAsCron = $bIsCron;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isMarkAsCron() {
+		return (bool)$this->bMarkAsCron;
 	}
 
 	/**

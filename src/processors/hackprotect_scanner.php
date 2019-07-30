@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor {
 
+	use Shield\Crons\StandardCron;
+
 	/**
 	 * @var Shield\Scans\Common\AsyncScansController
 	 */
@@ -37,6 +39,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		}
 
 		$this->handleAsyncScanRequest();
+		$this->setupCron();
 	}
 
 	/**
@@ -75,6 +78,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			}
 		}
 		catch ( \Exception $oE ) {
+//			error_log( $oE->getMessage() );
 		}
 	}
 
@@ -84,7 +88,8 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	public function getAsyncScanController() {
 		if ( empty( $this->oAsyncScanController ) ) {
 			$this->oAsyncScanController = ( new Shield\Scans\Common\AsyncScansController() )
-				->setMod( $this->getMod() );
+				->setMod( $this->getMod() )
+				->markAsCron( Services::WpGeneral()->isCron() );
 		}
 		return $this->oAsyncScanController;
 	}
@@ -230,6 +235,49 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		}
 
 		wp_die( "Something about this request wasn't right" );
+	}
+
+	/**
+	 * Cron callback
+	 */
+	public function runCron() {
+		Services::WpGeneral()->getIfAutoUpdatesInstalled() ? $this->resetCron() : $this->cronScan();
+	}
+
+	private function cronScan() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		$aScansToRun = array_filter(
+			$oMod->getAllScanSlugs(),
+			function ( $sScanSlug ) {
+				$oProc = $this->getSubPro( $sScanSlug );
+				return $oProc->isAvailable() && $oProc->isEnabled();
+			}
+		);
+
+		error_log( var_export( $aScansToRun, true ) );
+		if ( !empty( $aScansToRun ) ) {
+			$this->launchScans( $aScansToRun );
+		}
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getCronFrequency() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->getScanFrequency();
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function getCronName() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		$oFO = $this->getMod();
+		return $oFO->prefix( $oFO->getDef( 'cron_all_scans' ) );
 	}
 
 	/**
