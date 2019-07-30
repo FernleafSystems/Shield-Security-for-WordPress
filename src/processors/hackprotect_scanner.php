@@ -255,7 +255,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 			}
 		);
 
-		error_log( var_export( $aScansToRun, true ) );
 		if ( !empty( $aScansToRun ) ) {
 			$this->launchScans( $aScansToRun );
 		}

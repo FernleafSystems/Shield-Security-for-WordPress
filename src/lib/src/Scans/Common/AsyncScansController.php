@@ -325,6 +325,7 @@ class AsyncScansController {
 	 * @return $this
 	 */
 	private function setScansJob( $aScans ) {
+		ksort( $aScans );
 		$this->getOpts()->setOpt( 'scans_job', $aScans );
 		$this->getMod()->savePluginOptions();
 		return $this;
