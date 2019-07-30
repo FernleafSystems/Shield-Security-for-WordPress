@@ -19,11 +19,6 @@ class AsyncScansController {
 	private $bIsRunning;
 
 	/**
-	 * @var bool
-	 */
-	private $bMarkAsCron;
-
-	/**
 	 * @return $this
 	 */
 	public function cleanStaleScans() {
@@ -146,7 +141,7 @@ class AsyncScansController {
 			 * Only update is_cron if this is true so we don't overwrite it
 			 * later with false on an async-request
 			 */
-			if ( $this->isMarkAsCron() ) {
+			if ( Services::WpGeneral()->isCron() ) {
 				$oAct->is_cron = true;
 			}
 		}
@@ -364,22 +359,6 @@ class AsyncScansController {
 	 */
 	private function end() {
 		return $this->bIsRunning = false;
-	}
-
-	/**
-	 * @param bool $bIsCron
-	 * @return $this
-	 */
-	public function markAsCron( $bIsCron = true ) {
-		$this->bMarkAsCron = $bIsCron;
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	private function isMarkAsCron() {
-		return (bool)$this->bMarkAsCron;
 	}
 
 	/**

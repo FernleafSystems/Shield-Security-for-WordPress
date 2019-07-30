@@ -88,8 +88,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	public function getAsyncScanController() {
 		if ( empty( $this->oAsyncScanController ) ) {
 			$this->oAsyncScanController = ( new Shield\Scans\Common\AsyncScansController() )
-				->setMod( $this->getMod() )
-				->markAsCron( Services::WpGeneral()->isCron() );
+				->setMod( $this->getMod() );
 		}
 		return $this->oAsyncScanController;
 	}
