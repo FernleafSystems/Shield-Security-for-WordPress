@@ -450,7 +450,7 @@
     },
     {
       "key":         "mal_autorepair_surgical",
-      "section":     "section_scan_mal",
+      "section":     "section_non_ui",
       "type":        "checkbox",
       "default":     "N",
       "link_info":   "",

@@ -128,7 +128,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( '[%s] %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Modified Core WordPress Files Discovered', 'wp-simple-firewall' ) ),
+				 sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Potential Malware Detected', 'wp-simple-firewall' ) ),
 				 $this->buildEmailBodyFromFiles( $oResults )
 			 );
 
@@ -148,13 +148,16 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
 		$aContent = [
-			sprintf( __( "The %s Core File Scanner found files with potential problems.", 'wp-simple-firewall' ), $sName ),
+			sprintf( __( "The %s Malware Scanner found files with potential malware.", 'wp-simple-firewall' ), $sName ),
+			sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+				__( "You must examine the file(s) carefully to determine whether suspicious code is really present.", 'wp-simple-firewall' ) ),
+			sprintf( __( "The %s Malware Scanner searches for common malware patterns and so false positives (detection errors) are to be expected sometimes.", 'wp-simple-firewall' ), $sName ),
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
