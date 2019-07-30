@@ -169,32 +169,4 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
 		return $aContent;
 	}
-
-	/**
-	 * @return Shield\Scans\Ufc\Scanner
-	 * @deprecated 8
-	 */
-	protected function getScanner() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oScanner = ( new Shield\Scans\Ufc\Scanner() )
-			->setExclusions( $oFO->getUfcFileExclusions() );
-
-		if ( $oFO->isUfsScanUploads() ) {
-			$sUploadsDir = Services::WpGeneral()->getDirUploads();
-			if ( !empty( $sUploadsDir ) ) {
-				$oScanner->addScanDirector( $sUploadsDir )
-						 ->addDirSpecificFileTypes(
-							 $sUploadsDir,
-							 [
-								 'php',
-								 'php5',
-								 'js',
-							 ]
-						 );
-			}
-		}
-		return $oScanner;
-	}
 }

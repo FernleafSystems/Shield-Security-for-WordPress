@@ -48,7 +48,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	public function launchScans( $aScans ) {
 		$this->getAsyncScanController()
 			 ->abortAllScans()
-			 ->setScansInitiated( $aScans );
+			 ->setupNewScanJob( $aScans );
 		$this->processAsyncScans();
 	}
 
@@ -113,8 +113,9 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 
 		$oS = $this->getAsyncScanController();
 		$oS->cleanStaleScans();
+		$oJob = $oS->loadScansJob();
 		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
-			$aRunning[ $sSlug ] = $oS->isScanInited( $sSlug );
+			$aRunning[ $sSlug ] = $oJob->isScanInited( $sSlug );
 		}
 		return $aRunning;
 	}

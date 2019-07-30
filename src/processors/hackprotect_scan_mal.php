@@ -76,13 +76,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\Scanner
-	 */
-	protected function getScanner() {
-		return false;
-	}
-
-	/**
 	 * @return Shield\Scans\Mal\ScanActionVO
 	 */
 	protected function getNewActionVO() {

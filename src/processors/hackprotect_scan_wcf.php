@@ -216,14 +216,4 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 		}
 		return $aContent;
 	}
-
-	/**
-	 * @return Shield\Scans\Wcf\Scanner
-	 * @deprecated 8
-	 */
-	protected function getScanner() {
-		return ( new Shield\Scans\Wcf\Scanner() )
-			->setExclusions( $this->getFullExclusions() )
-			->setMissingExclusions( $this->getMissingOnlyExclusions() );
-	}
 }

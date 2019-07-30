@@ -66,13 +66,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return false
-	 */
-	protected function getScanner() {
-		return false;
-	}
-
-	/**
 	 * @param Shield\Scans\Apc\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {

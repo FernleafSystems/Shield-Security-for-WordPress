@@ -105,13 +105,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Wpv\Scanner
-	 */
-	protected function getScanner() {
-		return new Shield\Scans\Wpv\Scanner();
-	}
-
-	/**
 	 * @param Shield\Scans\Wpv\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {

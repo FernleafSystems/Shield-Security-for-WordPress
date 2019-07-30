@@ -110,11 +110,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract protected function getRepairer();
 
 	/**
-	 * @return mixed
-	 */
-	abstract protected function getScanner();
-
-	/**
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanLauncher|null
 	 */
 	protected function getScanLauncher() {
@@ -509,5 +504,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	public function setScannerDb( $oScanner ) {
 		$this->oScanner = $oScanner;
 		return $this;
+	}
+
+	/**
+	 * @return false
+	 * @deprecated 8
+	 */
+	protected function getScanner() {
+		return false;
 	}
 }

@@ -146,15 +146,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * Shouldn't really be used in this case as it'll only scan the plugins
-	 *
-	 * @return Shield\Scans\Ptg\ScannerPlugins
-	 */
-	protected function getScanner() {
-		return $this->getContextScanner();
-	}
-
-	/**
 	 * @param string $sContext
 	 * @return Shield\Scans\Ptg\ScannerPlugins|Shield\Scans\Ptg\ScannerThemes
 	 */

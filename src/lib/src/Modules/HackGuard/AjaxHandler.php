@@ -210,8 +210,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oStrings = $oMod->getStrings();
 		$oScanPro = $oP->getSubProScanner();
 		$oScanCon = $oScanPro->getAsyncScanController();
+		$oJob = $oScanCon->loadScansJob();
 //		$oScanCon->abortAllScans();
-		$aCurrent = $oScanCon->getCurrentScan();
+		$aCurrent = $oJob->getCurrentScan();
 		$bHasCurrent = !empty( $aCurrent );
 		if ( $bHasCurrent ) {
 			$sCurrentScan = $oStrings->getScanName( $aCurrent[ 'id' ] );
@@ -230,8 +231,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 						'current_scan'    => __( 'Current Scan' ),
 						'scan'            => $sCurrentScan,
 						'remaining_scans' => sprintf( '%s of %s scans remaining.',
-							count( $oScanCon->getUnfinishedScans() ), count( $oScanCon->getInitiatedScans() ) ),
-						'progress'        => 100*$oScanCon->getScanJobProgress(),
+							count( $oJob->getUnfinishedScans() ), count( $oJob->getInitiatedScans() ) ),
+						'progress'        => 100*$oJob->getScanJobProgress(),
 						'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
 						'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
 						'completed'       => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
