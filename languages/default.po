@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-07-29 17:26+0100\n"
-"PO-Revision-Date: 2019-07-29 17:26+0100\n"
+"POT-Creation-Date: 2019-07-30 16:57+0100\n"
+"PO-Revision-Date: 2019-07-30 16:57+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -22,21 +22,21 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-4: src/lib/vendor\n"
 "X-Poedit-SearchPathExcluded-5: resources\n"
 
-#: src/features/admin_access_restriction.php:344
-#: src/features/admin_access_restriction.php:346
+#: src/features/admin_access_restriction.php:343
+#: src/features/admin_access_restriction.php:345
 msgid "Security Admin session has timed-out."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:344
+#: src/features/admin_access_restriction.php:343
 msgid "Reload now?"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:345
+#: src/features/admin_access_restriction.php:344
 msgid "Security Admin session has nearly timed-out."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:360
-#: src/features/admin_access_restriction.php:373
+#: src/features/admin_access_restriction.php:359
+#: src/features/admin_access_restriction.php:372
 #: src/lib/src/Modules/Plugin/Strings.php:398
 #: src/lib/src/Modules/Plugin/Strings.php:400
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:35
@@ -46,61 +46,61 @@ msgstr ""
 msgid "Security Admin"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:361
+#: src/features/admin_access_restriction.php:360
 #, php-format
 msgid "Prevent Tampering With %s Settings"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:376
+#: src/features/admin_access_restriction.php:375
 msgid "Security plugin is protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:377
+#: src/features/admin_access_restriction.php:376
 msgid "Security plugin is vulnerable to tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:384
+#: src/features/admin_access_restriction.php:383
 msgid "Important Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:387
+#: src/features/admin_access_restriction.php:386
 msgid "Important WP options are protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:388
+#: src/features/admin_access_restriction.php:387
 msgid "Important WP options aren't protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:395
+#: src/features/admin_access_restriction.php:394
 msgid "WP Admins"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:398
+#: src/features/admin_access_restriction.php:397
 msgid "Admin users are protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:399
+#: src/features/admin_access_restriction.php:398
 msgid "Admin users aren't protected against tampering"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:416
+#: src/features/admin_access_restriction.php:415
 msgid "Security Admin Protection"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:423
+#: src/features/admin_access_restriction.php:422
 msgid "Security Plugin Unprotected"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:425
+#: src/features/admin_access_restriction.php:424
 msgid "The Security Admin protection is not active."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:429 src/features/insights.php:267
+#: src/features/admin_access_restriction.php:428 src/features/insights.php:267
 #, php-format
 msgid "Go To %s"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:429
+#: src/features/admin_access_restriction.php:428
 #: src/features/autoupdates.php:168 src/features/hack_protect.php:817
 #: src/features/hack_protect.php:838 src/features/hack_protect.php:859
 #: src/features/hack_protect.php:880 src/features/hack_protect.php:901
@@ -112,16 +112,16 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: src/features/admin_access_restriction.php:430
+#: src/features/admin_access_restriction.php:429
 msgid "Security Admin should be turned-on to protect your security settings."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:499
+#: src/features/admin_access_restriction.php:498
 msgid ""
 "Sorry, this plugin is protected against unauthorised attempts to disable it."
 msgstr ""
 
-#: src/features/admin_access_restriction.php:502
+#: src/features/admin_access_restriction.php:501
 msgid "You'll just need to authenticate first and try again."
 msgstr ""
 
@@ -1093,7 +1093,7 @@ msgstr ""
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:149
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:170
 #: src/lib/src/Tables/Render/AdminNotes.php:30
-#: src/processors/hackprotect_scan_ptg.php:235
+#: src/processors/hackprotect_scan_ptg.php:226
 msgid "Note"
 msgstr ""
 
@@ -1121,12 +1121,12 @@ msgstr ""
 #: src/lib/src/Modules/Lockdown/Strings.php:143
 #: src/lib/src/Modules/Plugin/AdminNotices.php:91
 #: src/lib/src/Modules/Plugin/Strings.php:214
-#: src/processors/hackprotect_scan_apc.php:135
-#: src/processors/hackprotect_scan_mal.php:138
-#: src/processors/hackprotect_scan_ptg.php:691
+#: src/processors/hackprotect_scan_apc.php:128
+#: src/processors/hackprotect_scan_mal.php:131
+#: src/processors/hackprotect_scan_ptg.php:682
 #: src/processors/hackprotect_scan_ufc.php:116
 #: src/processors/hackprotect_scan_wcf.php:139
-#: src/processors/hackprotect_scan_wpv.php:313
+#: src/processors/hackprotect_scan_wpv.php:306
 #: src/processors/loginprotect_wplogin.php:74
 #: src/processors/loginprotect_wplogin.php:92
 msgid "Warning"
@@ -2899,6 +2899,7 @@ msgstr ""
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:70
 #: src/lib/src/Modules/UserManagement/Strings.php:212
 #: src/lib/src/Modules/UserManagement/Strings.php:229
+#: src/processors/hackprotect_scan_mal.php:158
 #: src/processors/loginprotect_intentprovider_backup.php:29
 msgid "Important"
 msgstr ""
@@ -3901,28 +3902,28 @@ msgstr ""
 msgid "Reloading"
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:220
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:221
 msgid "No scan running."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:230
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:231
 msgid "Current Scan"
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:235
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:236
 msgid "Please be patient."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:236
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:237
 msgid "Some scans can take quite a while to complete."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:237
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:238
 #: src/lib/src/Modules/HackGuard/AjaxHandler.php:286
 msgid "Scans completed."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/AjaxHandler.php:237
+#: src/lib/src/Modules/HackGuard/AjaxHandler.php:238
 #: src/lib/src/Modules/HackGuard/AjaxHandler.php:286
 #: src/lib/src/Modules/License/AjaxHandler.php:88
 msgid "Reloading page"
@@ -8267,6 +8268,7 @@ msgid "Abandoned"
 msgstr ""
 
 #: src/lib/src/Tables/Build/ScanMal.php:26
+#: src/processors/hackprotect_scan_mal.php:131
 msgid "Potential Malware Detected"
 msgstr ""
 
@@ -8373,9 +8375,9 @@ msgid "Deactivate"
 msgstr ""
 
 #: src/lib/src/Tables/Render/ScanWpv.php:55
-#: src/processors/hackprotect_scan_mal.php:179
+#: src/processors/hackprotect_scan_mal.php:175
 #: src/processors/hackprotect_scan_wcf.php:180
-#: src/processors/hackprotect_scan_wpv.php:253
+#: src/processors/hackprotect_scan_wpv.php:246
 #: src/processors/loginprotect_intent.php:285
 msgid "More Info"
 msgstr ""
@@ -8412,7 +8414,7 @@ msgid ""
 msgstr ""
 
 #: src/processors/admin_access_restriction.php:460
-#: src/processors/hackprotect_scan_ptg.php:241 src/processors/plugin.php:140
+#: src/processors/hackprotect_scan_ptg.php:232 src/processors/plugin.php:140
 msgid "Editing this option is currently restricted."
 msgstr ""
 
@@ -8673,14 +8675,14 @@ msgid "unknown"
 msgstr ""
 
 #: src/processors/hack_protect.php:290
-#: src/processors/hackprotect_scan_apc.php:119
-#: src/processors/hackprotect_scan_wpv.php:293
+#: src/processors/hackprotect_scan_apc.php:112
+#: src/processors/hackprotect_scan_wpv.php:286
 msgid "Plugin"
 msgstr ""
 
 #: src/processors/hack_protect.php:332
-#: src/processors/hackprotect_scan_apc.php:122
-#: src/processors/hackprotect_scan_wpv.php:296
+#: src/processors/hackprotect_scan_apc.php:115
+#: src/processors/hackprotect_scan_wpv.php:289
 msgid "Theme"
 msgstr ""
 
@@ -8716,52 +8718,59 @@ msgstr ""
 msgid "Upgrade"
 msgstr ""
 
-#: src/processors/hackprotect_scan_apc.php:108
+#: src/processors/hackprotect_scan_apc.php:101
 #, php-format
 msgid "%s has detected abandoned plugins installed on your site."
 msgstr ""
 
-#: src/processors/hackprotect_scan_apc.php:109
+#: src/processors/hackprotect_scan_apc.php:102
 msgid ""
 "Running code that hasn't seen any updates for over 2 years is far from ideal."
 msgstr ""
 
-#: src/processors/hackprotect_scan_apc.php:110
-#: src/processors/hackprotect_scan_wpv.php:284
+#: src/processors/hackprotect_scan_apc.php:103
+#: src/processors/hackprotect_scan_wpv.php:277
 msgid "Details for the items(s) are below:"
 msgstr ""
 
-#: src/processors/hackprotect_scan_apc.php:126
-#: src/processors/hackprotect_scan_wpv.php:301
+#: src/processors/hackprotect_scan_apc.php:119
+#: src/processors/hackprotect_scan_wpv.php:294
 msgid "Item"
 msgstr ""
 
-#: src/processors/hackprotect_scan_apc.php:127
+#: src/processors/hackprotect_scan_apc.php:120
 #, php-format
 msgid "Last Updated: %s"
 msgstr ""
 
-#: src/processors/hackprotect_scan_apc.php:135
+#: src/processors/hackprotect_scan_apc.php:128
 msgid "Abandoned Plugin(s) Discovered On Your Site."
 msgstr ""
 
-#: src/processors/hackprotect_scan_base.php:512
+#: src/processors/hackprotect_scan_base.php:489
 msgid "Run Scanner"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:138
-#: src/processors/hackprotect_scan_wcf.php:139
-msgid "Modified Core WordPress Files Discovered"
-msgstr ""
-
-#: src/processors/hackprotect_scan_mal.php:164
-#: src/processors/hackprotect_scan_wcf.php:165
+#: src/processors/hackprotect_scan_mal.php:157
 #, php-format
-msgid "The %s Core File Scanner found files with potential problems."
+msgid "The %s Malware Scanner found files with potential malware."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:165
-#: src/processors/hackprotect_scan_ptg.php:666
+#: src/processors/hackprotect_scan_mal.php:159
+msgid ""
+"You must examine the file(s) carefully to determine whether suspicious code "
+"is really present."
+msgstr ""
+
+#: src/processors/hackprotect_scan_mal.php:160
+#, php-format
+msgid ""
+"The %s Malware Scanner searches for common malware patterns and so false "
+"positives (detection errors) are to be expected sometimes."
+msgstr ""
+
+#: src/processors/hackprotect_scan_mal.php:161
+#: src/processors/hackprotect_scan_ptg.php:657
 #: src/processors/hackprotect_scan_ufc.php:146
 #: src/processors/hackprotect_scan_wcf.php:166
 #: src/processors/user_management.php:200
@@ -8769,115 +8778,115 @@ msgstr ""
 msgid "Site URL"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:173
+#: src/processors/hackprotect_scan_mal.php:169
 #: src/processors/hackprotect_scan_wcf.php:174
 #, php-format
 msgid "%s has already attempted to repair the files."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:174
+#: src/processors/hackprotect_scan_mal.php:170
 #: src/processors/hackprotect_scan_wcf.php:175
 msgid ""
 "But, you should always check these files to ensure everything is as you "
 "expect."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:177
+#: src/processors/hackprotect_scan_mal.php:173
 #: src/processors/hackprotect_scan_wcf.php:178
 msgid ""
 "You should review these files and replace them with official versions if "
 "required."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:178
+#: src/processors/hackprotect_scan_mal.php:174
 #: src/processors/hackprotect_scan_wcf.php:179
 msgid ""
 "Alternatively you can have the plugin attempt to repair/replace these files "
 "automatically."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:184
+#: src/processors/hackprotect_scan_mal.php:180
 #: src/processors/hackprotect_scan_ufc.php:162
 #: src/processors/hackprotect_scan_wcf.php:185
 msgid "We recommend you run the scanner to review your site"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:189
+#: src/processors/hackprotect_scan_mal.php:185
 #: src/processors/hackprotect_scan_ufc.php:167
 #: src/processors/hackprotect_scan_wcf.php:190
 msgid "More Info On This Scanner"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:201
+#: src/processors/hackprotect_scan_mal.php:197
 msgid "The following files contain suspected malware:"
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:231
+#: src/processors/hackprotect_scan_ptg.php:222
 msgid "Are you sure?"
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:232
+#: src/processors/hackprotect_scan_ptg.php:223
 msgid "Really Re-Install Plugin"
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:233
+#: src/processors/hackprotect_scan_ptg.php:224
 msgid ""
 "WordPress will now download and install the latest available version of this "
 "plugin."
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:236
+#: src/processors/hackprotect_scan_ptg.php:227
 msgid ""
 "In case of possible failure, it may be better to do this while the plugin is "
 "inactive."
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:238
+#: src/processors/hackprotect_scan_ptg.php:229
 msgid "Re-install first?"
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:239
+#: src/processors/hackprotect_scan_ptg.php:230
 msgid "This ensures files for this plugin haven't been corrupted in any way."
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:240
+#: src/processors/hackprotect_scan_ptg.php:231
 msgid ""
 "You can choose to 'Activate Only' (not recommended), or close this message "
 "to cancel activation."
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:243
+#: src/processors/hackprotect_scan_ptg.php:234
 #, php-format
 msgid ""
 "For best security practices, %s will download and re-install the latest "
 "available version of this plugin."
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:662
+#: src/processors/hackprotect_scan_ptg.php:653
 #, php-format
 msgid ""
 "%s has detected at least 1 Plugins/Themes have been modified on your site."
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:664
+#: src/processors/hackprotect_scan_ptg.php:655
 msgid ""
 "You will receive only 1 email notification about these changes in a 1 week "
 "period."
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:668
+#: src/processors/hackprotect_scan_ptg.php:659
 msgid "Details of the problem items are below:"
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:673
+#: src/processors/hackprotect_scan_ptg.php:664
 msgid "Modified Plugins:"
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:681
+#: src/processors/hackprotect_scan_ptg.php:672
 msgid "Modified Themes:"
 msgstr ""
 
-#: src/processors/hackprotect_scan_ptg.php:691
+#: src/processors/hackprotect_scan_ptg.php:682
 msgid "Plugins/Themes Have Been Altered"
 msgstr ""
 
@@ -8899,6 +8908,15 @@ msgstr ""
 msgid "%s has attempted to delete these files based on your current settings."
 msgstr ""
 
+#: src/processors/hackprotect_scan_wcf.php:139
+msgid "Modified Core WordPress Files Discovered"
+msgstr ""
+
+#: src/processors/hackprotect_scan_wcf.php:165
+#, php-format
+msgid "The %s Core File Scanner found files with potential problems."
+msgstr ""
+
 #: src/processors/hackprotect_scan_wcf.php:205
 msgid "The following files have different content:"
 msgstr ""
@@ -8907,59 +8925,59 @@ msgstr ""
 msgid "The following files are missing:"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:216
+#: src/processors/hackprotect_scan_wpv.php:209
 msgid "Vulnerable"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:248
+#: src/processors/hackprotect_scan_wpv.php:241
 #, php-format
 msgid ""
 "%s has discovered that the currently installed version of the %s plugin has "
 "known security vulnerabilities."
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:250
+#: src/processors/hackprotect_scan_wpv.php:243
 msgid "Vulnerability Name"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:251
+#: src/processors/hackprotect_scan_wpv.php:244
 msgid "Vulnerability Type"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:252
+#: src/processors/hackprotect_scan_wpv.php:245
 msgid "Fixed Versions"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:282
+#: src/processors/hackprotect_scan_wpv.php:275
 #, php-format
 msgid "%s has detected items with known security vulnerabilities."
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:283
+#: src/processors/hackprotect_scan_wpv.php:276
 msgid "You should update or remove these items at your earliest convenience."
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:302
+#: src/processors/hackprotect_scan_wpv.php:295
 #, php-format
 msgid "Vulnerability Title: %s"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:303
+#: src/processors/hackprotect_scan_wpv.php:296
 #, php-format
 msgid "Vulnerability Type: %s"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:304
+#: src/processors/hackprotect_scan_wpv.php:297
 #, php-format
 msgid "Fixed Version: %s"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:305
+#: src/processors/hackprotect_scan_wpv.php:298
 #, php-format
 msgid "Further Information: %s"
 msgstr ""
 
-#: src/processors/hackprotect_scan_wpv.php:313
+#: src/processors/hackprotect_scan_wpv.php:306
 msgid "Plugin(s) Discovered With Known Security Vulnerabilities."
 msgstr ""
 
