@@ -37,6 +37,9 @@ class AsyncScansController {
 	 * @return $this
 	 */
 	public function abortAllScans() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		Services::WpFs()->deleteDir( $oMod->getScansTempDir() );
 		return $this->setScansJob( [] );
 	}
 

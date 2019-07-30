@@ -248,7 +248,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_StartScans() {
 		$oMod = $this->getMod();
 		$bSuccess = false;
-		$bAsync = false;
 		$bPageReload = false;
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
