@@ -12,7 +12,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-
+		
 		switch ( $sAction ) {
 			case 'gen_backup_codes':
 				$aResponse = $this->ajaxExec_GenBackupCodes();
@@ -50,7 +50,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		foreach ( [ 20, 15, 10, 5 ] as $nPos ) {
 			$sPass = substr_replace( $sPass, '-', $nPos, 0 );
 		}
-
+		error_log( $sPass );
 		return [
 			'code'    => $sPass,
 			'success' => true

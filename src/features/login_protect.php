@@ -657,10 +657,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return Shield\Modules\Autoupdates\AjaxHandler
+	 * @return Shield\Modules\LoginGuard\AjaxHandler
 	 */
 	protected function loadAjaxHandler() {
-		return new Shield\Modules\Autoupdates\AjaxHandler;
+		return new Shield\Modules\LoginGuard\AjaxHandler;
 	}
 
 	/**

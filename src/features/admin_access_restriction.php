@@ -1,7 +1,6 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -100,7 +99,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private function verifySecAdminUsers( $aSecUsers ) {
 		$oDP = Services::Data();
 		$oWpUsers = Services::WpUsers();
-		/** @var Options $oOpts */
+		/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$aFiltered = [];
@@ -168,7 +167,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isEnabledSecurityAdmin() {
-		/** @var Options $oOpts */
+		/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $this->isModOptEnabled() &&
 			   ( $this->hasSecAdminUsers() ||
@@ -513,7 +512,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AjaxHandlerShield
+	 * @return Shield\Modules\SecurityAdmin\AjaxHandler
 	 */
 	protected function loadAjaxHandler() {
 		return new Shield\Modules\SecurityAdmin\AjaxHandler;
