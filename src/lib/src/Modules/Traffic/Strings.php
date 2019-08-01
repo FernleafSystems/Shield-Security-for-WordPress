@@ -110,16 +110,17 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'DB cleanup will delete logs to maintain this maximum number of records.', 'wp-simple-firewall' );
 				break;
 
-			case 'limit_time_span' :
-				$sName = __( 'Request Limit Time Interval', 'wp-simple-firewall' );
-				$sSummary = __( 'The Time Interval To Test For Excessive Requests', 'wp-simple-firewall' );
-			$sDescription = __( 'The time limit within which to monitor for excessive requests that exceed the limit.', 'wp-simple-firewall' );
-				break;
-
 			case 'limit_requests' :
 				$sName = __( 'Max Request Limit', 'wp-simple-firewall' );
 				$sSummary = __( 'Maximum Number Of Requests Allowed In Time Limit', 'wp-simple-firewall' );
 				$sDescription = __( 'The maximum number of requests that are allowed in the given time limit.', 'wp-simple-firewall' );
+				break;
+
+			case 'limit_time_span' :
+				$sName = __( 'Request Limit Time Interval', 'wp-simple-firewall' );
+				$sSummary = __( 'The Time Interval To Test For Excessive Requests', 'wp-simple-firewall' );
+				$sDescription = __( 'The time limit within which to monitor for excessive requests that exceed the limit.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Interval is measured in seconds.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'auto_disable' :
