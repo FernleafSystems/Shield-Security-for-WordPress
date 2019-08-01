@@ -32,6 +32,16 @@
       ]
     },
     {
+      "slug":        "section_traffic_limiter",
+      "primary":     true,
+      "title":       "Traffic Limiter",
+      "title_short": "Options",
+      "summary":     [
+        "Purpose - Provides ability to restrict excessive requests from a single visitor.",
+        "Recommendation - These settings are dependent on your requirements."
+      ]
+    },
+    {
       "slug":        "section_enable_plugin_feature_traffic",
       "title":       "Enable Module: Traffic Watch",
       "title_short": "Disable Module",
@@ -150,6 +160,30 @@
       "description": "Turn on to prevent unnecessary long-term traffic logging. Timer resets each time you save."
     },
     {
+      "key":         "limit_time_span",
+      "section":     "section_non_ui",
+      "default":     "20",
+      "min":         0,
+      "type":        "integer",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Request Limit Time Interval",
+      "summary":     "The Time Interval To Test For Excessive Requests",
+      "description": "The time limit within which to monitor for excessive requests that exceed the limit."
+    },
+    {
+      "key":         "limit_requests",
+      "section":     "section_non_ui",
+      "default":     "20",
+      "min":         0,
+      "type":        "integer",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Max Request Limit",
+      "summary":     "Maximum Number Of Requests Allowed In Time Limit",
+      "description": "The maximum number of requests that are allowed in the given time limit."
+    },
+    {
       "key":          "autodisable_at",
       "section":      "section_non_ui",
       "type":         "integer",
@@ -171,6 +205,12 @@
       "trans",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                {
+      "request_limit_exceeded": {
+        "cat":     3,
+        "offense": true
+      }
+    }
   }
 }

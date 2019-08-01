@@ -14,6 +14,27 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getLimitTimeSpan() {
+		return (int)$this->getOpt( 'limit_time_span' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getLimitRequestCount() {
+		return (int)$this->getOpt( 'limit_requests' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTrafficLimitEnabled() {
+		return ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getDbColumns_TrafficLog() {

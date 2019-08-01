@@ -7,6 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Strings extends Base\Strings {
 
 	/**
+	 * @return string[][]
+	 */
+	protected function getAuditMessages() {
+		return [
+			'request_limit_exceeded' => [
+				__( 'Visitor exceeded the maximum allowable requests (%s) within %s seconds.', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
+	/**
 	 * @param string $sSectionSlug
 	 * @return array
 	 * @throws \Exception
@@ -29,6 +40,15 @@ class Strings extends Base\Strings {
 				$sTitle = __( 'Traffic Watch Options', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides finer control over the Traffic Watch system.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
+				];
+				$sTitleShort = __( 'Traffic Logging Options', 'wp-simple-firewall' );
+				break;
+
+			case 'section_traffic_limiter' :
+				$sTitle = __( 'Traffic Limiter', 'wp-simple-firewall' );
+				$aSummary = [
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides ability to restrict excessive requests from a single visitor.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
 				];
 				$sTitleShort = __( 'Traffic Logging Options', 'wp-simple-firewall' );
@@ -88,6 +108,18 @@ class Strings extends Base\Strings {
 				$sName = __( 'Max Log Length', 'wp-simple-firewall' );
 				$sSummary = __( 'Maximum Traffic Log Length To Keep', 'wp-simple-firewall' );
 				$sDescription = __( 'DB cleanup will delete logs to maintain this maximum number of records.', 'wp-simple-firewall' );
+				break;
+
+			case 'limit_time_span' :
+				$sName = __( 'Request Limit Time Interval', 'wp-simple-firewall' );
+				$sSummary = __( 'The Time Interval To Test For Excessive Requests', 'wp-simple-firewall' );
+			$sDescription = __( 'The time limit within which to monitor for excessive requests that exceed the limit.', 'wp-simple-firewall' );
+				break;
+
+			case 'limit_requests' :
+				$sName = __( 'Max Request Limit', 'wp-simple-firewall' );
+				$sSummary = __( 'Maximum Number Of Requests Allowed In Time Limit', 'wp-simple-firewall' );
+				$sDescription = __( 'The maximum number of requests that are allowed in the given time limit.', 'wp-simple-firewall' );
 				break;
 
 			case 'auto_disable' :

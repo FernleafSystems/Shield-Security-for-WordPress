@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return ICWP_WPSF_Processor_TrafficLogger|mixed
 	 */
 	public function getProcessorLogger() {
-		return $this->getSubPro( 'traffic_logger' );
+		return $this->getSubPro( 'logger' );
 	}
 
 	/**
@@ -21,7 +21,8 @@ class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProMap() {
 		return [
-			'traffic_logger' => 'ICWP_WPSF_Processor_TrafficLogger',
+			'logger'  => 'ICWP_WPSF_Processor_TrafficLogger',
+			'limiter' => 'ICWP_WPSF_Processor_TrafficLogger',
 		];
 	}
 }
