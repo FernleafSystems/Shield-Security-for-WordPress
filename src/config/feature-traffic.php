@@ -33,7 +33,6 @@
     },
     {
       "slug":        "section_traffic_limiter",
-      "primary":     true,
       "title":       "Traffic Limiter",
       "title_short": "Options",
       "summary":     [

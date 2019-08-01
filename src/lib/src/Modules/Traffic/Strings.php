@@ -47,11 +47,13 @@ class Strings extends Base\Strings {
 
 			case 'section_traffic_limiter' :
 				$sTitle = __( 'Traffic Limiter', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Brute Force Traffic Limiter', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides ability to restrict excessive requests from a single visitor.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) )
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) ),
+					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use this feature with care.', 'wp-simple-firewall' ) )
+					.' '.sprintf( __( 'You could block legitimate visitors who load many pages in quick succession on your site.', 'wp-simple-firewall' ) )
 				];
-				$sTitleShort = __( 'Traffic Logging Options', 'wp-simple-firewall' );
 				break;
 
 			default:
@@ -113,14 +115,20 @@ class Strings extends Base\Strings {
 			case 'limit_requests' :
 				$sName = __( 'Max Request Limit', 'wp-simple-firewall' );
 				$sSummary = __( 'Maximum Number Of Requests Allowed In Time Limit', 'wp-simple-firewall' );
-				$sDescription = __( 'The maximum number of requests that are allowed in the given time limit.', 'wp-simple-firewall' );
+				$sDescription = __( 'The maximum number of requests that are allowed in the given request time limit.', 'wp-simple-firewall' )
+								.'<br/>'.__( 'Any visitor that exceeds this number of requests in the given time period will register an offense against their IP address.', 'wp-simple-firewall' )
+								.'<br/>'.__( 'Enough offenses will result in a ban of the IP address.', 'wp-simple-firewall' );
 				break;
 
 			case 'limit_time_span' :
 				$sName = __( 'Request Limit Time Interval', 'wp-simple-firewall' );
 				$sSummary = __( 'The Time Interval To Test For Excessive Requests', 'wp-simple-firewall' );
-				$sDescription = __( 'The time limit within which to monitor for excessive requests that exceed the limit.', 'wp-simple-firewall' )
-								.'<br/>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Interval is measured in seconds.', 'wp-simple-firewall' ) );
+				$sDescription = __( 'The time period within which to monitor for multiple requests that exceed the max request limit.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Interval is measured in seconds.', 'wp-simple-firewall' ) )
+								.'<br/>'.sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
+						sprintf( __( 'Use %s to test for excessive requests within a %s minutes interval.', 'wp-simple-firewall' ), '<code>300</code>', 5 ) )
+								.'<br/>'.sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
+						sprintf( __( 'Use %s to test for excessive requests within a %s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) );
 				break;
 
 			case 'auto_disable' :

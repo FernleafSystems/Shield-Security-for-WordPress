@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-07-31 16:03+0100\n"
-"PO-Revision-Date: 2019-07-31 16:04+0100\n"
+"POT-Creation-Date: 2019-08-01 15:16+0100\n"
+"PO-Revision-Date: 2019-08-01 15:16+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -1092,6 +1092,7 @@ msgstr ""
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:142
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:149
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:170
+#: src/lib/src/Modules/Traffic/Strings.php:127
 #: src/lib/src/Tables/Render/AdminNotes.php:30
 #: src/processors/hackprotect_scan_ptg.php:226
 msgid "Note"
@@ -1121,6 +1122,7 @@ msgstr ""
 #: src/lib/src/Modules/Lockdown/Strings.php:143
 #: src/lib/src/Modules/Plugin/AdminNotices.php:91
 #: src/lib/src/Modules/Plugin/Strings.php:214
+#: src/lib/src/Modules/Traffic/Strings.php:54
 #: src/processors/hackprotect_scan_apc.php:128
 #: src/processors/hackprotect_scan_mal.php:131
 #: src/processors/hackprotect_scan_ptg.php:682
@@ -1505,7 +1507,8 @@ msgstr ""
 #: src/features/user_management.php:335
 #: src/lib/src/Modules/Plugin/Strings.php:427
 #: src/lib/src/Modules/Sessions/Strings.php:24
-#: src/lib/src/Modules/Traffic/Strings.php:32
+#: src/lib/src/Modules/Traffic/Strings.php:43
+#: src/lib/src/Modules/Traffic/Strings.php:53
 #: src/lib/src/Modules/UserManagement/Strings.php:40
 msgid "User Management"
 msgstr ""
@@ -1801,7 +1804,7 @@ msgstr ""
 #: src/lib/src/Modules/Sessions/Strings.php:20
 #: src/lib/src/Modules/Statistics/Strings.php:20
 #: src/lib/src/Modules/Statistics/Strings.php:29
-#: src/lib/src/Modules/Traffic/Strings.php:20
+#: src/lib/src/Modules/Traffic/Strings.php:31
 #: src/lib/src/Modules/UserManagement/Strings.php:36
 msgid "On"
 msgstr ""
@@ -1820,7 +1823,7 @@ msgstr ""
 #: src/lib/src/Modules/Sessions/Strings.php:20
 #: src/lib/src/Modules/Statistics/Strings.php:20
 #: src/lib/src/Modules/Statistics/Strings.php:29
-#: src/lib/src/Modules/Traffic/Strings.php:20
+#: src/lib/src/Modules/Traffic/Strings.php:31
 #: src/lib/src/Modules/UserManagement/Strings.php:36
 msgid "Off"
 msgstr ""
@@ -1838,7 +1841,7 @@ msgstr ""
 #: src/lib/src/Modules/Sessions/Strings.php:21
 #: src/lib/src/Modules/Statistics/Strings.php:21
 #: src/lib/src/Modules/Statistics/Strings.php:30
-#: src/lib/src/Modules/Traffic/Strings.php:21
+#: src/lib/src/Modules/Traffic/Strings.php:32
 #: src/lib/src/Modules/UserManagement/Strings.php:37
 #, php-format
 msgid "Enable Module: %s"
@@ -1898,8 +1901,9 @@ msgstr ""
 #: src/lib/src/Modules/Statistics/Strings.php:23
 #: src/lib/src/Modules/Statistics/Strings.php:32
 #: src/lib/src/Modules/Statistics/Strings.php:40
-#: src/lib/src/Modules/Traffic/Strings.php:23
-#: src/lib/src/Modules/Traffic/Strings.php:31
+#: src/lib/src/Modules/Traffic/Strings.php:34
+#: src/lib/src/Modules/Traffic/Strings.php:42
+#: src/lib/src/Modules/Traffic/Strings.php:52
 #: src/lib/src/Modules/UserManagement/Strings.php:39
 #: src/lib/src/Modules/UserManagement/Strings.php:48
 #: src/lib/src/Modules/UserManagement/Strings.php:57
@@ -1967,8 +1971,9 @@ msgstr ""
 #: src/lib/src/Modules/Statistics/Strings.php:24
 #: src/lib/src/Modules/Statistics/Strings.php:33
 #: src/lib/src/Modules/Statistics/Strings.php:41
-#: src/lib/src/Modules/Traffic/Strings.php:24
-#: src/lib/src/Modules/Traffic/Strings.php:32
+#: src/lib/src/Modules/Traffic/Strings.php:35
+#: src/lib/src/Modules/Traffic/Strings.php:43
+#: src/lib/src/Modules/Traffic/Strings.php:53
 #: src/lib/src/Modules/UserManagement/Strings.php:40
 #: src/lib/src/Modules/UserManagement/Strings.php:49
 #: src/lib/src/Modules/UserManagement/Strings.php:58
@@ -2010,7 +2015,8 @@ msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:130
 #: src/lib/src/Modules/AuditTrail/Strings.php:139
-#: src/lib/src/Modules/Traffic/Strings.php:32
+#: src/lib/src/Modules/Traffic/Strings.php:43
+#: src/lib/src/Modules/Traffic/Strings.php:53
 msgid "These settings are dependent on your requirements."
 msgstr ""
 
@@ -2033,7 +2039,7 @@ msgstr ""
 #: src/lib/src/Modules/LoginGuard/Strings.php:164
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:104
 #: src/lib/src/Modules/Sessions/Strings.php:50
-#: src/lib/src/Modules/Traffic/Strings.php:61
+#: src/lib/src/Modules/Traffic/Strings.php:83
 #: src/lib/src/Modules/UserManagement/Strings.php:113
 #, php-format
 msgid "Enable %s Module"
@@ -2048,7 +2054,7 @@ msgstr ""
 #: src/lib/src/Modules/Lockdown/Strings.php:90
 #: src/lib/src/Modules/LoginGuard/Strings.php:165
 #: src/lib/src/Modules/Sessions/Strings.php:51
-#: src/lib/src/Modules/Traffic/Strings.php:62
+#: src/lib/src/Modules/Traffic/Strings.php:84
 #: src/lib/src/Modules/UserManagement/Strings.php:114
 #, php-format
 msgid "Enable (or Disable) The %s Module"
@@ -2064,7 +2070,7 @@ msgstr ""
 #: src/lib/src/Modules/Lockdown/Strings.php:91
 #: src/lib/src/Modules/LoginGuard/Strings.php:166
 #: src/lib/src/Modules/Sessions/Strings.php:52
-#: src/lib/src/Modules/Traffic/Strings.php:63
+#: src/lib/src/Modules/Traffic/Strings.php:85
 #: src/lib/src/Modules/UserManagement/Strings.php:115
 #, php-format
 msgid "Un-Checking this option will completely disable the %s module."
@@ -7692,111 +7698,191 @@ msgstr ""
 msgid "Sharing"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:23
+#: src/lib/src/Modules/Traffic/Strings.php:15
+#, php-format
+msgid "Visitor exceeded the maximum allowable requests (%s) within %s seconds."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:34
 msgid "Monitor and review all requests to your site."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:24
+#: src/lib/src/Modules/Traffic/Strings.php:35
 msgid ""
 "Required only if you need to review and investigate and monitor requests to "
 "your site"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:29
+#: src/lib/src/Modules/Traffic/Strings.php:40
 msgid "Traffic Watch Options"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:31
+#: src/lib/src/Modules/Traffic/Strings.php:42
 msgid "Provides finer control over the Traffic Watch system."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:34
+#: src/lib/src/Modules/Traffic/Strings.php:45
 msgid "Traffic Logging Options"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:67
+#: src/lib/src/Modules/Traffic/Strings.php:49
+msgid "Traffic Limiter"
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:50
+msgid "Brute Force Traffic Limiter"
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:52
+msgid "Provides ability to restrict excessive requests from a single visitor."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:54
+msgid "Use this feature with care."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:55
+msgid ""
+"You could block legitimate visitors who load many pages in quick succession "
+"on your site."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:89
 msgid "Traffic Log Exclusions"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:68
+#: src/lib/src/Modules/Traffic/Strings.php:90
 msgid "Select Which Types Of Requests To Exclude"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:69
+#: src/lib/src/Modules/Traffic/Strings.php:91
 msgid ""
 "Select request types that you don't want to appear in the traffic viewer."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:70
+#: src/lib/src/Modules/Traffic/Strings.php:92
 msgid ""
 "If a request matches any exclusion rule, it will not show on the traffic "
 "viewer."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:74
+#: src/lib/src/Modules/Traffic/Strings.php:96
 msgid "Custom Exclusions"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:75
+#: src/lib/src/Modules/Traffic/Strings.php:97
 msgid "Provide Custom Traffic Exclusions"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:76
+#: src/lib/src/Modules/Traffic/Strings.php:98
 msgid ""
 "For each entry, if the text is present in either the User Agent or request "
 "Path, it will be excluded."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:77
+#: src/lib/src/Modules/Traffic/Strings.php:99
 msgid "Take a new line for each entry."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:78
+#: src/lib/src/Modules/Traffic/Strings.php:100
 msgid "Comparisons are case-insensitive."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:82
+#: src/lib/src/Modules/Traffic/Strings.php:104
 msgid "Auto Expiry Cleaning"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:83
+#: src/lib/src/Modules/Traffic/Strings.php:105
 msgid "Enable Traffic Log Auto Expiry"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:84
+#: src/lib/src/Modules/Traffic/Strings.php:106
 msgid "DB cleanup will delete logs older than this maximum value (in days)."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:88
+#: src/lib/src/Modules/Traffic/Strings.php:110
 msgid "Max Log Length"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:89
+#: src/lib/src/Modules/Traffic/Strings.php:111
 msgid "Maximum Traffic Log Length To Keep"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:90
+#: src/lib/src/Modules/Traffic/Strings.php:112
 msgid "DB cleanup will delete logs to maintain this maximum number of records."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:94
+#: src/lib/src/Modules/Traffic/Strings.php:116
+msgid "Max Request Limit"
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:117
+msgid "Maximum Number Of Requests Allowed In Time Limit"
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:118
+msgid ""
+"The maximum number of requests that are allowed in the given request time "
+"limit."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:119
+msgid ""
+"Any visitor that exceeds this number of requests in the given time period "
+"will register an offense against their IP address."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:120
+msgid "Enough offenses will result in a ban of the IP address."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:124
+msgid "Request Limit Time Interval"
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:125
+msgid "The Time Interval To Test For Excessive Requests"
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:126
+msgid ""
+"The time period within which to monitor for multiple requests that exceed "
+"the max request limit."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:127
+msgid "Interval is measured in seconds."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:128
+#: src/lib/src/Modules/Traffic/Strings.php:130
+msgid "Example"
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:129
+#: src/lib/src/Modules/Traffic/Strings.php:131
+#, php-format
+msgid "Use %s to test for excessive requests within a %s minutes interval."
+msgstr ""
+
+#: src/lib/src/Modules/Traffic/Strings.php:135
 msgid "Auto Disable"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:95
+#: src/lib/src/Modules/Traffic/Strings.php:136
 msgid "Auto Disable Traffic Logging After 1 Week"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:98
+#: src/lib/src/Modules/Traffic/Strings.php:139
 #, php-format
 msgid "Auto Disable At: %s"
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:103
+#: src/lib/src/Modules/Traffic/Strings.php:144
 msgid "Turn on to prevent unnecessary long-term traffic logging."
 msgstr ""
 
-#: src/lib/src/Modules/Traffic/Strings.php:104
+#: src/lib/src/Modules/Traffic/Strings.php:145
 msgid "Timer resets after options save."
 msgstr ""
 
