@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-08-01 15:16+0100\n"
-"PO-Revision-Date: 2019-08-01 15:16+0100\n"
+"POT-Creation-Date: 2019-08-06 10:21+0100\n"
+"PO-Revision-Date: 2019-08-06 10:21+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -301,7 +301,7 @@ msgstr ""
 msgid "For more information:"
 msgstr ""
 
-#: src/features/base.php:1527 src/lib/src/Modules/Plugin/Strings.php:430
+#: src/features/base.php:1527 src/lib/src/Modules/Plugin/Strings.php:431
 msgid "Support Forums"
 msgstr ""
 
@@ -388,7 +388,7 @@ msgstr ""
 #: src/lib/src/Modules/Events/Strings.php:185
 #: src/lib/src/Modules/Events/Strings.php:189
 #: src/lib/src/Modules/Firewall/Strings.php:24
-#: src/lib/src/Modules/Plugin/Strings.php:409
+#: src/lib/src/Modules/Plugin/Strings.php:410
 msgid "Firewall"
 msgstr ""
 
@@ -551,7 +551,7 @@ msgstr ""
 
 #: src/features/hack_protect.php:933
 #: src/lib/src/Modules/HackGuard/Strings.php:94
-#: src/lib/src/Modules/Plugin/Strings.php:411
+#: src/lib/src/Modules/Plugin/Strings.php:412
 msgid "Hack Guard"
 msgstr ""
 
@@ -668,7 +668,7 @@ msgstr ""
 msgid "Protect Visitors With Powerful HTTP Headers"
 msgstr ""
 
-#: src/features/headers.php:147 src/lib/src/Modules/Plugin/Strings.php:412
+#: src/features/headers.php:147 src/lib/src/Modules/Plugin/Strings.php:413
 msgid "HTTP Headers"
 msgstr ""
 
@@ -1191,7 +1191,7 @@ msgstr ""
 msgid "Not Active"
 msgstr ""
 
-#: src/features/lockdown.php:70 src/lib/src/Modules/Plugin/Strings.php:416
+#: src/features/lockdown.php:70 src/lib/src/Modules/Plugin/Strings.php:417
 msgid "WP Lockdown"
 msgstr ""
 
@@ -1335,7 +1335,7 @@ msgstr ""
 
 #: src/features/login_protect.php:591
 #: src/lib/src/Modules/LoginGuard/Strings.php:71
-#: src/lib/src/Modules/Plugin/Strings.php:418 src/wizards/plugin.php:550
+#: src/lib/src/Modules/Plugin/Strings.php:419 src/wizards/plugin.php:550
 #: src/wizards/plugin.php:555
 msgid "Login Guard"
 msgstr ""
@@ -1505,7 +1505,7 @@ msgid "Password policies should be turned-on."
 msgstr ""
 
 #: src/features/user_management.php:335
-#: src/lib/src/Modules/Plugin/Strings.php:427
+#: src/lib/src/Modules/Plugin/Strings.php:428
 #: src/lib/src/Modules/Sessions/Strings.php:24
 #: src/lib/src/Modules/Traffic/Strings.php:43
 #: src/lib/src/Modules/Traffic/Strings.php:53
@@ -4790,7 +4790,7 @@ msgid ""
 msgstr ""
 
 #: src/lib/src/Modules/IPs/Strings.php:28
-#: src/lib/src/Modules/Plugin/Strings.php:414 src/wizards/plugin.php:514
+#: src/lib/src/Modules/Plugin/Strings.php:415 src/wizards/plugin.php:514
 #: src/wizards/plugin.php:519
 msgid "IP Manager"
 msgstr ""
@@ -5969,7 +5969,7 @@ msgid "Two-Factor Login Authentication By %s"
 msgstr ""
 
 #: src/lib/src/Modules/LoginGuard/Strings.php:205
-#: src/lib/src/Modules/Plugin/Strings.php:408
+#: src/lib/src/Modules/Plugin/Strings.php:409
 #: src/processors/user_management.php:202
 msgid "Email"
 msgstr ""
@@ -7166,66 +7166,70 @@ msgid "Comments SPAM"
 msgstr ""
 
 #: src/lib/src/Modules/Plugin/Strings.php:407
+msgid "Block Bad IPs/Visitors"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Strings.php:408
 msgid "Block comment SPAM and retain your privacy"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:410
+#: src/lib/src/Modules/Plugin/Strings.php:411
 msgid "Automatically block malicious URLs and data sent to your site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:413
+#: src/lib/src/Modules/Plugin/Strings.php:414
 msgid "Control HTTP Security Headers"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:415
+#: src/lib/src/Modules/Plugin/Strings.php:416
 msgid "Manage Visitor IP Address"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:417
+#: src/lib/src/Modules/Plugin/Strings.php:418
 msgid "Harden the more loosely controlled settings of your site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:419
+#: src/lib/src/Modules/Plugin/Strings.php:420
 msgid ""
 "Block brute force attacks and secure user identities with Two-Factor "
 "Authentication"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:420
+#: src/lib/src/Modules/Plugin/Strings.php:421
 msgid "Dashboard"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:421
+#: src/lib/src/Modules/Plugin/Strings.php:422
 msgid "General Plugin Settings"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:422
+#: src/lib/src/Modules/Plugin/Strings.php:423
 msgid "Statistics"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:423
+#: src/lib/src/Modules/Plugin/Strings.php:424
 msgid "Summary of the main security actions taken by this plugin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:424
+#: src/lib/src/Modules/Plugin/Strings.php:425
 msgid "Stats Viewer"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:425
+#: src/lib/src/Modules/Plugin/Strings.php:426
 msgid "Premium Support"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:426
+#: src/lib/src/Modules/Plugin/Strings.php:427
 msgid "Premium Plugin Support Centre"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:428
+#: src/lib/src/Modules/Plugin/Strings.php:429
 msgid ""
 "Get true user sessions and control account sharing, session duration and "
 "timeouts"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:429
+#: src/lib/src/Modules/Plugin/Strings.php:430
 msgid "Two-Factor Authentication"
 msgstr ""
 

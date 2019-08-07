@@ -108,7 +108,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
-		$this->doLoadTextDomain();
 	}
 
 	/**
@@ -317,6 +316,13 @@ class Controller extends Shield\Deprecated\Foundation {
 		// GDPR
 		add_filter( 'wp_privacy_personal_data_exporters', [ $this, 'onWpPrivacyRegisterExporter' ] );
 		add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'onWpPrivacyRegisterEraser' ] );
+
+		/**
+		 * Translations override - we want to use our in-plugin translations, not those
+		 * provided by WordPress.org since getting our existing translations into the WP.org
+		 * system is full of friction, though that's where we'd like to end-up eventually.
+		 */
+		add_filter( 'load_textdomain_mofile', [ $this, 'overrideTranslations' ], 100, 2 );
 
 		/**
 		 * Support for WP-CLI and it marks the cli as complete plugin admin
@@ -945,16 +951,6 @@ class Controller extends Shield\Deprecated\Foundation {
 			unset( $oPlugins->response[ $this->getPluginBaseFile() ] );
 		}
 		return $oPlugins;
-	}
-
-	/**
-	 */
-	protected function doLoadTextDomain() {
-		return load_plugin_textdomain(
-			$this->getTextDomain(),
-			false,
-			plugin_basename( $this->getPath_Languages() )
-		);
 	}
 
 	/**
@@ -1913,6 +1909,23 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * Path of format -
+	 * wp-content/languages/plugins/wp-simple-firewall-de_DE.mo
+	 * @param string $sMoFilePath
+	 * @param string $sDomain
+	 * @return string
+	 */
+	public function overrideTranslations( $sMoFilePath, $sDomain ) {
+		if ( $sDomain == $this->getTextDomain() ) {
+			$sMaybeFile = path_join( $this->getPath_Languages(), $this->getTextDomain().'-'.determine_locale().'.mo' );
+			if ( Services::WpFs()->exists( $sMaybeFile ) ) {
+				$sMoFilePath = $sMaybeFile;
+			}
+		}
+		return $sMoFilePath;
+	}
+
+	/**
 	 * @param array[] $aRegistered
 	 * @return array[]
 	 */
@@ -2034,5 +2047,17 @@ class Controller extends Shield\Deprecated\Foundation {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated v8
+	 */
+	protected function doLoadTextDomain() {
+		return load_plugin_textdomain(
+			$this->getTextDomain(),
+			false,
+			plugin_basename( $this->getPath_Languages() )
+		);
 	}
 }

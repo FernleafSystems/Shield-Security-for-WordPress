@@ -404,6 +404,7 @@ class Strings extends Base\Strings {
 		__( 'Automatic Updates', 'wp-simple-firewall' );
 		__( 'Take back full control of WordPress automatic updates', 'wp-simple-firewall' );
 		__( 'Comments SPAM', 'wp-simple-firewall' );
+		__( 'Block Bad IPs/Visitors', 'wp-simple-firewall' );
 		__( 'Block comment SPAM and retain your privacy', 'wp-simple-firewall' );
 		__( 'Email', 'wp-simple-firewall' );
 		__( 'Firewall', 'wp-simple-firewall' );
