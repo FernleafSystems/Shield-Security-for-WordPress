@@ -108,6 +108,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
+		$this->doLoadTextDomain();
 	}
 
 	/**
@@ -333,6 +334,17 @@ class Controller extends Shield\Deprecated\Foundation {
 			}
 			return $bByPass;
 		}, PHP_INT_MAX );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function doLoadTextDomain() {
+		return load_plugin_textdomain(
+			$this->getTextDomain(),
+			false,
+			plugin_basename( $this->getPath_Languages() )
+		);
 	}
 
 	/**
@@ -2047,17 +2059,5 @@ class Controller extends Shield\Deprecated\Foundation {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated v8
-	 */
-	protected function doLoadTextDomain() {
-		return load_plugin_textdomain(
-			$this->getTextDomain(),
-			false,
-			plugin_basename( $this->getPath_Languages() )
-		);
 	}
 }
