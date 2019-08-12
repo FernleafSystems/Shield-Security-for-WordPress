@@ -71,7 +71,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWp
 					__( 'When you adjust options on the Master site, they will be reflected in this site after the automatic import', 'wp-simple-firewall' ),
 				],
 				'import_options'           => __( 'Import Options', 'wp-simple-firewall' ),
-				'downloading_please_wait'  => __( 'Downloading file, please wait..."', 'wp-simple-firewall' ),
+				'downloading_please_wait'  => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
 				'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
 			]
 		];

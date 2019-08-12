@@ -153,7 +153,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			$sLinkTemplate = '<a href="javascript:void(0)">%s</a>';
 			$aLinks[ 'icwp-reinstall' ] = sprintf(
 				$sLinkTemplate,
-				'Re-Install'
+				__( 'Re-Install', 'wp-simple-firewall' )
 			);
 		}
 

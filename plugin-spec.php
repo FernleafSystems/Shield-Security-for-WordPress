@@ -2,7 +2,7 @@
   "properties":   {
     "version":                 "7.4.2",
     "release_timestamp":       1559221200,
-    "build":                   "201908.1203",
+    "build":                   "201908.1205",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
@@ -98,8 +98,8 @@
     "remove": null,
     "add":    [
       {
-        "name":   "Dashboard",
-        "title":  "Go To Shield Dashboard",
+        "name":   "Security Dashboard",
+        "title":  "Go To Security Dashboard",
         "href":   "getPluginUrl_AdminMainPage",
         "target": "_top",
         "show":   "always"

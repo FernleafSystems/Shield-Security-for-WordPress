@@ -104,28 +104,43 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 				};
 
 				var $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
-				oShareSettings[ 'buttons' ] = {
-					"Okay, Re-Install It": function () {
-						jQuery( this ).dialog( "close" );
-						reinstall_plugin( 1 );
+				oShareSettings[ 'buttons' ] = [
+					{
+						text: icwp_wpsf_vars_hp.strings.okay_reinstall,
+						id: 'btnOkayReinstall',
+						click: function () {
+							jQuery( this ).dialog( "close" );
+							reinstall_plugin( 1 );
+						}
 					},
-					"Cancel": function () {
-						jQuery( this ).dialog( "close" );
+					{
+						text: icwp_wpsf_vars_hp.strings.cancel,
+						id: 'btnCancel',
+						click: function () {
+							jQuery( this ).dialog( "close" );
+						}
 					}
-				};
+				];
 				$oReinstallDialog.dialog( oShareSettings );
 
 				var $oActivateReinstallDialog = jQuery( '#icwpWpsfActivateReinstall' );
-				oShareSettings[ 'buttons' ] = {
-					"Re-Install First, Then Activate": function () {
-						jQuery( this ).dialog( "close" );
-						reinstall_plugin( 1 );
+				oShareSettings[ 'buttons' ] = [
+					{
+						text: icwp_wpsf_vars_hp.strings.reinstall_first,
+						id: 'btnReinstallFirst',
+						click: function () {
+							jQuery( this ).dialog( "close" );
+							reinstall_plugin( 1 );
+						}
 					},
-					"Activate Only": function () {
-						jQuery( this ).dialog( "close" );
-						reinstall_plugin( 0 );
+					{
+						text: icwp_wpsf_vars_hp.strings.activate_only,
+						id: 'btnActivateOnly',
+						click: function () {
+							reinstall_plugin( 0 );
+						}
 					}
-				};
+				];
 				$oActivateReinstallDialog.dialog( oShareSettings );
 			} );
 		};

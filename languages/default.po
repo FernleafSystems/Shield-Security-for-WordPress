@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-08-12 15:22+0100\n"
-"PO-Revision-Date: 2019-08-12 15:23+0100\n"
+"POT-Creation-Date: 2019-08-12 17:06+0100\n"
+"PO-Revision-Date: 2019-08-12 17:07+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -96,9 +96,9 @@ msgid "The Security Admin protection is not active."
 msgstr ""
 
 #: src/features/admin_access_restriction.php:428
-#: src/features/autoupdates.php:168 src/features/hack_protect.php:822
-#: src/features/hack_protect.php:843 src/features/hack_protect.php:864
-#: src/features/hack_protect.php:885 src/features/hack_protect.php:906
+#: src/features/autoupdates.php:168 src/features/hack_protect.php:830
+#: src/features/hack_protect.php:851 src/features/hack_protect.php:872
+#: src/features/hack_protect.php:893 src/features/hack_protect.php:914
 #: src/features/insights.php:267 src/features/insights.php:642
 #: src/features/insights.php:655 src/features/insights.php:682
 #: src/features/insights.php:695 src/features/insights.php:721
@@ -109,9 +109,9 @@ msgid "Go To %s"
 msgstr ""
 
 #: src/features/admin_access_restriction.php:428
-#: src/features/autoupdates.php:168 src/features/hack_protect.php:822
-#: src/features/hack_protect.php:843 src/features/hack_protect.php:864
-#: src/features/hack_protect.php:885 src/features/hack_protect.php:906
+#: src/features/autoupdates.php:168 src/features/hack_protect.php:830
+#: src/features/hack_protect.php:851 src/features/hack_protect.php:872
+#: src/features/hack_protect.php:893 src/features/hack_protect.php:914
 #: src/features/insights.php:268 src/features/insights.php:733
 #: src/features/lockdown.php:81 src/features/user_management.php:316
 #: src/lib/src/Modules/Base/Strings.php:21
@@ -429,242 +429,272 @@ msgstr ""
 msgid "%s per day"
 msgstr ""
 
-#: src/features/hack_protect.php:606 src/features/license.php:529
+#: src/features/hack_protect.php:565
+msgid "Re-install First"
+msgstr ""
+
+#: src/features/hack_protect.php:566
+#, fuzzy
+#| msgid "License Options"
+msgid "Then Activate"
+msgstr "Licence Options"
+
+#: src/features/hack_protect.php:568 src/features/license.php:537
+#: src/lib/src/Modules/Base/Strings.php:27 src/lib/src/Tables/Build/Ip.php:51
+#: src/lib/src/Tables/Build/ScanBase.php:59
+#: src/lib/src/Tables/Build/Sessions.php:68
+#: src/lib/src/Tables/Build/Traffic.php:109
+msgid "Yes"
+msgstr ""
+
+#: src/features/hack_protect.php:568
+msgid "Re-Install It"
+msgstr ""
+
+#: src/features/hack_protect.php:569
+msgid "Activate Only"
+msgstr ""
+
+#: src/features/hack_protect.php:570
+msgid "Cancel"
+msgstr ""
+
+#: src/features/hack_protect.php:614 src/features/license.php:529
 #: src/lib/src/Modules/Base/Strings.php:29
 #: src/lib/src/Modules/Plugin/Strings.php:324
 #: src/processors/hack_protect.php:98 src/processors/hack_protect.php:127
 msgid "Never"
 msgstr ""
 
-#: src/features/hack_protect.php:607
+#: src/features/hack_protect.php:615
 #, php-format
 msgid "Last Scan Time: %s"
 msgstr ""
 
-#: src/features/hack_protect.php:623
+#: src/features/hack_protect.php:631
 #, php-format
 msgid ""
 "Sorry, this feature is not available because we cannot write to disk at this "
 "location: \"%s\""
 msgstr ""
 
-#: src/features/hack_protect.php:629
+#: src/features/hack_protect.php:637
 #, php-format
 msgid "Not available because the %s extension is not available."
 msgstr ""
 
-#: src/features/hack_protect.php:632
+#: src/features/hack_protect.php:640
 msgid ""
 "Not available because PHP/WordPress doesn't have direct filesystem access."
 msgstr ""
 
-#: src/features/hack_protect.php:637
+#: src/features/hack_protect.php:645
 #, php-format
 msgid "The %s file isn't writable and so can't be further protected."
 msgstr ""
 
-#: src/features/hack_protect.php:812 src/features/insights.php:283
+#: src/features/hack_protect.php:820 src/features/insights.php:283
 msgid "Scans"
 msgstr ""
 
-#: src/features/hack_protect.php:820
+#: src/features/hack_protect.php:828
 msgid "Core File scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:823
+#: src/features/hack_protect.php:831
 msgid "Automatic WordPress Core File scanner should be turned-on."
 msgstr ""
 
-#: src/features/hack_protect.php:829
+#: src/features/hack_protect.php:837
 msgid "Modified WordPress core files found."
 msgstr ""
 
-#: src/features/hack_protect.php:831 src/features/hack_protect.php:852
-#: src/features/hack_protect.php:873 src/features/hack_protect.php:894
-#: src/features/hack_protect.php:915
+#: src/features/hack_protect.php:839 src/features/hack_protect.php:860
+#: src/features/hack_protect.php:881 src/features/hack_protect.php:902
+#: src/features/hack_protect.php:923
 msgid "Run Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:832
+#: src/features/hack_protect.php:840
 msgid "Scan WP core files and repair any files that are flagged as modified."
 msgstr ""
 
-#: src/features/hack_protect.php:841
+#: src/features/hack_protect.php:849
 msgid "Unrecognised File scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:844
+#: src/features/hack_protect.php:852
 msgid "Automatic scanning for non-WordPress core files is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:850
+#: src/features/hack_protect.php:858
 msgid "Unrecognised files found in WordPress Core directory."
 msgstr ""
 
-#: src/features/hack_protect.php:853
+#: src/features/hack_protect.php:861
 msgid ""
 "Scan and remove any files that are not meant to be in the WP core "
 "directories."
 msgstr ""
 
-#: src/features/hack_protect.php:862
+#: src/features/hack_protect.php:870
 msgid "Automatic Plugin/Themes Guard is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:865
+#: src/features/hack_protect.php:873
 msgid "Automatic detection of plugin/theme modifications is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:871
+#: src/features/hack_protect.php:879
 msgid "A plugin/theme was found to have been modified."
 msgstr ""
 
-#: src/features/hack_protect.php:874
+#: src/features/hack_protect.php:882
 msgid "Reviewing modifications to your plugins/themes is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:883
+#: src/features/hack_protect.php:891
 msgid "Vulnerability Scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:886
+#: src/features/hack_protect.php:894
 msgid "Automatic detection of vulnerabilities is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:892
+#: src/features/hack_protect.php:900
 msgid "At least 1 item has known vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:895
+#: src/features/hack_protect.php:903
 msgid ""
 "Items with known vulnerabilities should be updated, removed, or replaced."
 msgstr ""
 
-#: src/features/hack_protect.php:904
+#: src/features/hack_protect.php:912
 msgid "Abandoned Plugins Scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:907
+#: src/features/hack_protect.php:915
 msgid "Automatic detection of abandoned plugins is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:913
+#: src/features/hack_protect.php:921
 msgid "At least 1 plugin on your site is abandoned."
 msgstr ""
 
-#: src/features/hack_protect.php:916
+#: src/features/hack_protect.php:924
 msgid ""
 "Plugins that have been abandoned represent a potential risk to your site."
 msgstr ""
 
-#: src/features/hack_protect.php:938
+#: src/features/hack_protect.php:946
 #: src/lib/src/Modules/HackGuard/Strings.php:94
 #: src/lib/src/Modules/Plugin/Strings.php:412
 msgid "Hack Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:939
+#: src/features/hack_protect.php:947
 msgid "Threats/Intrusions Detection & Repair"
 msgstr ""
 
-#: src/features/hack_protect.php:951
+#: src/features/hack_protect.php:959
 msgid "Scan Frequency"
 msgstr ""
 
-#: src/features/hack_protect.php:954
+#: src/features/hack_protect.php:962
 msgid "Automatic scanners run more than once per day"
 msgstr ""
 
-#: src/features/hack_protect.php:955
+#: src/features/hack_protect.php:963
 msgid "Automatic scanners only run once per day"
 msgstr ""
 
-#: src/features/hack_protect.php:962
+#: src/features/hack_protect.php:970
 msgid "WP Core File Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:965
+#: src/features/hack_protect.php:973
 msgid "Core files scanned regularly for hacks"
 msgstr ""
 
-#: src/features/hack_protect.php:966
+#: src/features/hack_protect.php:974
 msgid "Core files are never scanned for hacks!"
 msgstr ""
 
-#: src/features/hack_protect.php:972
+#: src/features/hack_protect.php:980
 msgid "WP Core File Repair"
 msgstr ""
 
-#: src/features/hack_protect.php:975
+#: src/features/hack_protect.php:983
 msgid "Core files are automatically repaired"
 msgstr ""
 
-#: src/features/hack_protect.php:976
+#: src/features/hack_protect.php:984
 msgid "Core files aren't automatically repaired!"
 msgstr ""
 
-#: src/features/hack_protect.php:984 src/lib/src/Modules/Events/Strings.php:94
+#: src/features/hack_protect.php:992 src/lib/src/Modules/Events/Strings.php:94
 #: src/lib/src/Modules/Events/Strings.php:118
 #: src/lib/src/Modules/HackGuard/Strings.php:26
 #: src/lib/src/Modules/HackGuard/Strings.php:118
 msgid "Unrecognised Files"
 msgstr ""
 
-#: src/features/hack_protect.php:987
+#: src/features/hack_protect.php:995
 msgid "Core directories scanned regularly for unrecognised files"
 msgstr ""
 
-#: src/features/hack_protect.php:988
+#: src/features/hack_protect.php:996
 msgid "WP Core is never scanned for unrecognised files!"
 msgstr ""
 
-#: src/features/hack_protect.php:994
+#: src/features/hack_protect.php:1002
 msgid "Unrecognised Files Removal"
 msgstr ""
 
-#: src/features/hack_protect.php:997
+#: src/features/hack_protect.php:1005
 msgid "Unrecognised files are automatically removed"
 msgstr ""
 
-#: src/features/hack_protect.php:998
+#: src/features/hack_protect.php:1006
 msgid "Unrecognised files aren't automatically removed!"
 msgstr ""
 
-#: src/features/hack_protect.php:1006
+#: src/features/hack_protect.php:1014
 msgid "Vulnerability Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:1009
+#: src/features/hack_protect.php:1017
 msgid "Regularly scanning for known vulnerabilities"
 msgstr ""
 
-#: src/features/hack_protect.php:1010
+#: src/features/hack_protect.php:1018
 msgid "Plugins/Themes never scanned for vulnerabilities!"
 msgstr ""
 
-#: src/features/hack_protect.php:1016
+#: src/features/hack_protect.php:1024
 msgid "Auto Update"
 msgstr ""
 
-#: src/features/hack_protect.php:1019
+#: src/features/hack_protect.php:1027
 msgid "Vulnerable items are automatically updated"
 msgstr ""
 
-#: src/features/hack_protect.php:1020
+#: src/features/hack_protect.php:1028
 msgid "Vulnerable items aren't automatically updated!"
 msgstr ""
 
-#: src/features/hack_protect.php:1029 src/lib/src/Modules/Events/Strings.php:90
+#: src/features/hack_protect.php:1037 src/lib/src/Modules/Events/Strings.php:90
 #: src/lib/src/Modules/Events/Strings.php:114
 #: src/lib/src/Modules/HackGuard/Strings.php:24
 msgid "Plugin/Theme Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:1032
+#: src/features/hack_protect.php:1040
 msgid "Plugins and Themes are guarded against tampering"
 msgstr ""
 
-#: src/features/hack_protect.php:1033
+#: src/features/hack_protect.php:1041
 msgid "Plugins and Themes are never scanned for tampering!"
 msgstr ""
 
@@ -1188,13 +1218,6 @@ msgstr ""
 msgid "All attempts to verify Shield Pro license have failed."
 msgstr ""
 
-#: src/features/license.php:537 src/lib/src/Modules/Base/Strings.php:27
-#: src/lib/src/Tables/Build/Ip.php:51 src/lib/src/Tables/Build/ScanBase.php:59
-#: src/lib/src/Tables/Build/Sessions.php:68
-#: src/lib/src/Tables/Build/Traffic.php:109
-msgid "Yes"
-msgstr ""
-
 #: src/features/license.php:537
 msgid "Not Active"
 msgstr ""
@@ -1570,7 +1593,7 @@ msgstr ""
 msgid "Limited or no password polices are active"
 msgstr ""
 
-#: src/lib/src/Controller/Controller.php:727
+#: src/lib/src/Controller/Controller.php:729
 msgid "Update Now To Keep Your Security Current With The Latest Features."
 msgstr ""
 
@@ -7263,6 +7286,10 @@ msgstr ""
 msgid "Twice"
 msgstr ""
 
+#: src/lib/src/Modules/Plugin/Strings.php:436
+msgid "Go To Security Dashboard"
+msgstr ""
+
 #: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:49
 #: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:80
 #, php-format
@@ -8859,6 +8886,7 @@ msgid "Snapshot taken"
 msgstr ""
 
 #: src/processors/hack_protect.php:354
+#: src/processors/hackprotect_scan_ptg.php:156
 msgid "Re-Install"
 msgstr ""
 
@@ -9756,7 +9784,7 @@ msgid "Import Options"
 msgstr ""
 
 #: src/processors/plugin_importexport.php:74
-msgid "Downloading file, please wait...\""
+msgid "Downloading file, please wait..."
 msgstr ""
 
 #: src/processors/plugin_importexport.php:75

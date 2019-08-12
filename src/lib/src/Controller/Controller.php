@@ -613,6 +613,8 @@ class Controller extends Shield\Deprecated\Foundation {
 						continue;
 					}
 
+					$aLink[ 'name' ] = __( $aLink[ 'name' ], 'wp-simple-firewall' );
+
 					$sLink = sprintf( $sLinkTemplate, $aLink[ 'href' ], $aLink[ 'target' ], $aLink[ 'title' ], $aLink[ 'name' ] );
 					if ( $aLink[ 'highlight' ] ) {
 						$sLink = sprintf( '<span style="font-weight: bold;">%s</span>', $sLink );

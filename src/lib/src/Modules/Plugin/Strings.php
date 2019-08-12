@@ -433,5 +433,6 @@ class Strings extends Base\Strings {
 		__( 'Dark Theme', 'wp-simple-firewall' );
 		__( 'Once', 'wp-simple-firewall' );
 		__( 'Twice', 'wp-simple-firewall' );
+		__( 'Go To Security Dashboard', 'wp-simple-firewall' );
 	}
 }
