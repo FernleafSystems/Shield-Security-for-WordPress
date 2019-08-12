@@ -23,9 +23,9 @@ class ScanPtg extends ScanBase {
 	 */
 	public function get_columns() {
 		return [
-			'path'       => 'File',
-			'status'     => 'Status',
-			'created_at' => 'Discovered',
+			'path'       => __( 'File', 'wp-simple-firewall' ),
+			'status'     => __( 'Status', 'wp-simple-firewall' ),
+			'created_at' => __( 'Discovered', 'wp-simple-firewall' ),
 		];
 	}
 }
