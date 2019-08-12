@@ -13,8 +13,13 @@ class ScanMal extends ScanBase {
 	public function column_path( $aItem ) {
 		$aButtons = [
 			$this->getActionButton_Ignore( $aItem[ 'id' ] ),
-			$this->getActionButton_Repair( $aItem[ 'id' ] ),
 		];
+		if ( $aItem[ 'can_repair' ] ) {
+			$aButtons[] = $this->getActionButton_Repair( $aItem[ 'id' ] );
+		}
+		else {
+			$aButtons[] = $this->getActionButton_Delete( $aItem[ 'id' ] );
+		}
 		if ( !empty( $aItem[ 'href_download' ] ) ) {
 			$aButtons[] = $this->getActionButton_DownloadFile( $aItem[ 'href_download' ] );
 		}

@@ -18,13 +18,15 @@ class ScanMal extends ScanBase {
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		$oRepairer = ( new Shield\Scans\Mal\Repair() )->setMod( $oMod );
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oIt = ( new Shield\Scans\Ufc\ConvertVosToResults() )->convertItem( $oEntry );
+			$oIt = ( new Shield\Scans\Mal\ConvertVosToResults() )->convertItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'path' ] = $oIt->path_fragment;
 			$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
 			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
+			$aE[ 'can_repair' ] = $oRepairer->canAutoRepairFromSource( $oIt );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'href_download' ] = $oMod->createFileDownloadLink( $oEntry );
 			$aEntries[ $nKey ] = $aE;

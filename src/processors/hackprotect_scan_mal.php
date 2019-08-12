@@ -97,6 +97,14 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @param Shield\Scans\Mal\ResultItem $oItem
+	 * @return bool
+	 */
+	protected function itemDelete( $oItem ) {
+		return $this->getRepairer()->repairItemByDelete( $oItem );
+	}
+
+	/**
 	 * @param Shield\Scans\Mal\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {

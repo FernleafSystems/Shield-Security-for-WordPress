@@ -45,6 +45,27 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 	 * @param ResultItem $oItem
 	 * @return bool
 	 */
+	public function repairItemByDelete( $oItem ) {
+		return Services\Services::WpFs()->deleteFile( $oItem->path_full );
+	}
+
+	/**
+	 * @param ResultItem $oItem
+	 * @return bool
+	 */
+	public function canAutoRepairFromSource( $oItem ) {
+		$bCanRepair = Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment );
+		if ( !$bCanRepair ) {
+			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
+			$bCanRepair = ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() );
+		}
+		return $bCanRepair;
+	}
+
+	/**
+	 * @param ResultItem $oItem
+	 * @return bool
+	 */
 	private function repairCoreItem( $oItem ) {
 		$oFiles = Services\Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
 		try {

@@ -76,7 +76,7 @@ class AsyncScansController {
 		}
 
 		// Mark scan as finished so we know whether to fire another round
-		if ( $oAction->ts_finish > 0 ) {
+		if ( $oAction->ts_finish > 0 || $oAction->ts_init == 0 ) {
 			$this->setScanAsFinished( $oAction );
 		}
 
