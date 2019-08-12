@@ -1929,7 +1929,26 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function overrideTranslations( $sMoFilePath, $sDomain ) {
 		if ( $sDomain == $this->getTextDomain() ) {
-			$sMaybeFile = path_join( $this->getPath_Languages(), $this->getTextDomain().'-'.determine_locale().'.mo' );
+			$sLocale = Services::WpGeneral()->getLocale();
+
+			{
+				/**
+				 * Cater for duplicate language translations that don't exist (yet)
+				 * E.g. where Spanish-Spain is present
+				 * This isn't ideal, and in-time we'll like full localizations, but we aren't there.
+				 */
+				$sCountry = substr( $sLocale, 0, 2 );
+				$aDuplicateMappings = [
+					'es' => 'es_ES',
+					'fr' => 'fr_FR',
+					'pt' => 'pt_BR',
+				];
+				if ( array_key_exists( $sCountry, $aDuplicateMappings ) ) {
+					$sLocale = $aDuplicateMappings[ $sCountry ];
+				}
+			}
+
+			$sMaybeFile = path_join( $this->getPath_Languages(), $this->getTextDomain().'-'.$sLocale.'.mo' );
 			if ( Services::WpFs()->exists( $sMaybeFile ) ) {
 				$sMoFilePath = $sMaybeFile;
 			}
