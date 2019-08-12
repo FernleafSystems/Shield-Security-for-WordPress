@@ -31,8 +31,7 @@ class ScanMal extends ScanBase {
 	 */
 	protected function get_bulk_actions() {
 		return [
-			'repair' => 'Repair',
-			'ignore' => 'Ignore',
+			'ignore' => __( 'Ignore', 'wp-simple-firewall' ),
 		];
 	}
 

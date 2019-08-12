@@ -218,7 +218,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sCurrentScan = $oStrings->getScanName( $aCurrent[ 'id' ] );
 		}
 		else {
-			$sCurrentScan = __( 'No scan running.' );
+			$sCurrentScan = __( 'No scan running.', 'wp-simple-firewall' );
 		}
 
 		return [

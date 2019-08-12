@@ -62,6 +62,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oOpts = $this->getOptionsVo();
 		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 			$this->setPtgLastBuildAt( 0 );
+			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+			$oPro = $this->getProcessor();
+			$oPro->getSubProScanner()
+				 ->getSubProcessorPtg()
+				 ->resetScan();
 		}
 
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );

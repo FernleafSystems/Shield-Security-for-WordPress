@@ -22,7 +22,7 @@ class ScanApc extends ScanBase {
 	 */
 	protected function get_bulk_actions() {
 		return [
-			'ignore' => 'Ignore'
+			'ignore' => __( 'Ignore', 'wp-simple-firewall' ),
 		];
 	}
 

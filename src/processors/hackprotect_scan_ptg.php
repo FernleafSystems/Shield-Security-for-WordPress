@@ -423,7 +423,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 			$oCleaner = ( new Shield\Scans\Ptg\ScanResults\Clean() )
 				->setDbHandler( $oDbH )
-				->setScannerProfile( $this->getScannerProfile() )
+				->setScanActionVO( $this->getScanActionVO() )
 				->setWorkingResultsSet( $this->convertVosToResults( $aRes ) );
 
 			if ( $bPluginsRebuildReqd ) {
@@ -701,17 +701,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
 	 * are unreliable once the plugin has been deactivated.
 	 */
-	public function deactivatePlugin() {
+	public function resetScan() {
+		parent::resetScan();
 		try {
 			// clear the snapshots
 			$this->getStore_Themes()->deleteSnapshots();
 			$this->getStore_Plugins()->deleteSnapshots();
-
-			// clear the results
-			( new Shield\Scans\Ptg\ScanResults\Clean() )
-				->setDbHandler( $this->getMod()->getDbHandler() )
-				->setScannerProfile( $this->getScannerProfile() )
-				->deleteAllForScan();
 		}
 		catch ( \Exception $oE ) {
 		}

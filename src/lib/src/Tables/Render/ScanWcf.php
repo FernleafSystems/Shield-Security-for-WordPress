@@ -26,8 +26,8 @@ class ScanWcf extends ScanBase {
 	 */
 	protected function get_bulk_actions() {
 		return [
-			'repair' => 'Repair',
-			'ignore' => 'Ignore',
+			'repair' => __( 'Repair', 'wp-simple-firewall' ),
+			'ignore' => __( 'Ignore', 'wp-simple-firewall' ),
 		];
 	}
 

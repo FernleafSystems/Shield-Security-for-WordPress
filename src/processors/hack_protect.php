@@ -29,7 +29,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Scanner|mixed
+	 * @return \ICWP_WPSF_Processor_HackProtect_Scanner|mixed
 	 */
 	public function getSubProScanner() {
 		return $this->getSubPro( 'scanner' );
@@ -230,6 +230,8 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $oMod->getOptions();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
@@ -337,13 +339,13 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		return [
 			'flags'   => [
-				'has_items'   => $oFullResults->hasItems(),
+				'has_items'   => $oMod->isPtgEnabled() ? $oFullResults->hasItems() : false,
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
 			],
 			'hrefs'   => [],
 			'vars'    => [],
-			'assets'  => array_merge( $aPlugins, $aThemes ),
+			'assets'  => $oMod->isPtgEnabled() ? array_merge( $aPlugins, $aThemes ) : [],
 			'strings' => [
 				'subtitle'            => __( "Detects unauthorized changes to plugins/themes", 'wp-simple-firewall' ),
 				'files_with_problems' => __( 'Files with problems', 'wp-simple-firewall' ),

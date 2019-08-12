@@ -28,7 +28,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	public function init() {
 		parent::init();
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'collect_stats' ), [ $this, 'stats_Collect' ] );
 		add_filter( $oFO->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
 	}
 
@@ -122,37 +121,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * A filter used to collect all the stats gathered in the plugin.
-	 *
-	 * @param array $aStats
-	 * @return array
-	 */
-	public function stats_Collect( $aStats ) {
-		if ( !is_array( $aStats ) ) {
-			$aStats = [];
-		}
-		$aThisStats = $this->stats_Get();
-		if ( !empty( $aThisStats ) && is_array( $aThisStats ) ) {
-			$aStats[] = $aThisStats;
-		}
-		return $aStats;
-	}
-
-	/**
-	 * @param string $sStatKey
-	 * @return $this
-	 */
-	private function stats_Increment( $sStatKey ) {
-		$aStats = $this->stats_Get();
-		if ( !isset( $aStats[ $sStatKey ] ) ) {
-			$aStats[ $sStatKey ] = 0;
-		}
-		$aStats[ $sStatKey ] = $aStats[ $sStatKey ] + 1;
-		$this->aStatistics = $aStats;
-		return $this;
-	}
-
-	/**
 	 * @return array
 	 */
 	public function stats_Get() {
@@ -178,20 +146,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		$oFO = $this->getMod();
 		$aData[ $oFO->getSlug() ] = [ 'options' => $oFO->collectOptionsForTracking() ];
 		return $aData;
-	}
-
-	/**
-	 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
-	 *
-	 * @param string $sStatKey
-	 * @param string $sParentStatKey
-	 * @return $this
-	 */
-	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
-		if ( empty( $sParentStatKey ) ) {
-			$sParentStatKey = $this->getMod()->getSlug();
-		}
-		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
 	}
 
 	/**
@@ -254,9 +208,57 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @param string $sEvent
 	 * @param array  $aData
 	 * @return $this
-	 * @deprecated 7.5
+	 * @deprecated 8
 	 */
 	public function auditEvent( $sEvent = '', $aData = [] ) {
+		return $this;
+	}
+
+	/**
+	 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
+	 *
+	 * @param string $sStatKey
+	 * @param string $sParentStatKey
+	 * @return $this
+	 * @deprecated 8
+	 */
+	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
+		if ( empty( $sParentStatKey ) ) {
+			$sParentStatKey = $this->getMod()->getSlug();
+		}
+		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
+	}
+
+	/**
+	 * A filter used to collect all the stats gathered in the plugin.
+	 *
+	 * @param array $aStats
+	 * @return array
+	 * @deprecated 8
+	 */
+	public function stats_Collect( $aStats ) {
+		if ( !is_array( $aStats ) ) {
+			$aStats = [];
+		}
+		$aThisStats = $this->stats_Get();
+		if ( !empty( $aThisStats ) && is_array( $aThisStats ) ) {
+			$aStats[] = $aThisStats;
+		}
+		return $aStats;
+	}
+
+	/**
+	 * @param string $sStatKey
+	 * @return $this
+	 * @deprecated 8
+	 */
+	private function stats_Increment( $sStatKey ) {
+		$aStats = $this->stats_Get();
+		if ( !isset( $aStats[ $sStatKey ] ) ) {
+			$aStats[ $sStatKey ] = 0;
+		}
+		$aStats[ $sStatKey ] = $aStats[ $sStatKey ] + 1;
+		$this->aStatistics = $aStats;
 		return $this;
 	}
 }

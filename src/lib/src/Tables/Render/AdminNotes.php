@@ -17,7 +17,7 @@ class AdminNotes extends Base {
 	 */
 	protected function get_bulk_actions() {
 		return [
-			'delete' => __( 'Delete' ),
+			'delete' => __( 'Delete', 'wp-simple-firewall' ),
 		];
 	}
 

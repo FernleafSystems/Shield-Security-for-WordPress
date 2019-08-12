@@ -5,22 +5,13 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
 
-	use Shield\Scans\Base\ScannerProfileConsumer,
-		Shield\Scans\Common\ScanActionConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 	const SCAN_SLUG = 'base';
 
 	/**
 	 * @var ICWP_WPSF_Processor_HackProtect_Scanner
 	 */
 	protected $oScanner;
-
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$this->getScannerProfile()->scan_slug = static::SCAN_SLUG;
-	}
 
 	/**
 	 * @return bool
@@ -248,7 +239,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO $oVo */
 		$oVo = $oSel->filterByHash( $oItem->hash )
-					->filterByScan( $this->getScannerProfile()->scan_slug )
+					->filterByScan( $this->getScanActionVO()->id )
 					->first();
 		return $oVo;
 	}
@@ -491,14 +482,31 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
+	 */
+	public function deactivatePlugin() {
+		$this->resetScan();
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function resetScan() {
+		( new Shield\Scans\Ptg\ScanResults\Clean() )
+			->setDbHandler( $this->getMod()->getDbHandler() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->deleteAllForScan();
+		return $this;
+	}
+
+	/**
+	 * @return \ICWP_WPSF_Processor_HackProtect_Scanner
 	 */
 	public function getScannerDb() {
 		return $this->oScanner;
 	}
 
 	/**
-	 * @param ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
+	 * @param \ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
 	 * @return $this
 	 */
 	public function setScannerDb( $oScanner ) {

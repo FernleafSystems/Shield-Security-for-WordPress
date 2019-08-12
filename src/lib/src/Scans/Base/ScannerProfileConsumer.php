@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 /**
  * Class ScannerProfileConsumer
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
+ * @deprecated
  */
 trait ScannerProfileConsumer {
 
