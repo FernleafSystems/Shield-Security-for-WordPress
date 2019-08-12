@@ -78,7 +78,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 					'title'   => __( 'File Editing via WP', 'wp-simple-firewall' ),
 					'message' => __( 'Direct editing of plugin/theme files is permitted.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToOption( 'disable_file_editing' ),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'WP Plugin file editing should be disabled.', 'wp-simple-firewall' )
 				];
 			}

@@ -72,9 +72,9 @@ class ScanWpv extends ScanBase {
 	public function get_columns() {
 		return [
 			'cb'            => '&nbsp;',
-			'vulnerability' => 'Vulnerability',
-			'asset'         => 'Asset Details',
-			'created_at'    => 'Discovered',
+			'vulnerability' => __( 'Vulnerability', 'wp-simple-firewall' ),
+			'asset'         => __( 'Asset Details', 'wp-simple-firewall' ),
+			'created_at'    => __( 'Discovered', 'wp-simple-firewall' ),
 		];
 	}
 }

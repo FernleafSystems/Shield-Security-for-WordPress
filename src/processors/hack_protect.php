@@ -141,6 +141,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'clear_suppression_sub' => __( 'Allow notification emails to be resent (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
 				'no_entries_to_display' => __( 'No entries to display.', 'wp-simple-firewall' ),
+				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'initial_check' => $oScannerMain->hasRunningScans()
@@ -349,7 +350,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'root_dir'            => __( 'Root directory', 'wp-simple-firewall' ),
 				'date_snapshot'       => __( 'Snapshot taken', 'wp-simple-firewall' ),
 				'reinstall'           => __( 'Re-Install', 'wp-simple-firewall' ),
-				'deactivate'          => __( 'Deactivate and Ignore' ),
+				'deactivate'          => __( 'Deactivate and Ignore', 'wp-simple-firewall' ),
 				'accept'              => __( 'Accept', 'wp-simple-firewall' ),
 				'update'              => __( 'Upgrade', 'wp-simple-firewall' ),
 			]

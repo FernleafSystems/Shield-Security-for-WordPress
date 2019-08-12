@@ -761,15 +761,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			'href_options' => $this->getUrl_AdminPage()
 		];
 
+		$oOpts = $this->getOptions();
 		if ( $this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$sSource = $this->getOptionsVo()->getSelectOptionValueText( 'visitor_address_source' );
 			$aThis[ 'key_opts' ][ 'editing' ] = [
 				'name'    => __( 'Visitor IP', 'wp-simple-firewall' ),
 				'enabled' => true,
-				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ), $sSource ),
+				'summary' => sprintf( __( 'Visitor IP address source is: %s', 'wp-simple-firewall' ),
+					__( $oOpts->getSelectOptionValueText( 'visitor_address_source' ), 'wp-simple-firewall' ) ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			];

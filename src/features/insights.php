@@ -639,7 +639,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'title'   => __( 'Inactive', 'wp-simple-firewall' ),
 					'message' => sprintf( __( '%s inactive plugin(s)', 'wp-simple-firewall' ), $nCount ),
 					'href'    => Services::WpGeneral()->getAdminUrl_Plugins( true ),
-					'action'  => sprintf( 'Go To %s', __( 'Plugins', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Plugins', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Unused plugins should be removed.', 'wp-simple-firewall' )
 				];
 			}
@@ -652,7 +652,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'title'   => 'Updates',
 					'message' => sprintf( __( '%s plugin update(s)', 'wp-simple-firewall' ), $nCount ),
 					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
 			}
@@ -679,7 +679,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'title'   => 'Inactive',
 					'message' => sprintf( __( '%s inactive themes(s)', 'wp-simple-firewall' ), $nInactive ),
 					'href'    => Services::WpGeneral()->getAdminUrl_Themes( true ),
-					'action'  => sprintf( 'Go To %s', __( 'Themes', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Unused themes should be removed.', 'wp-simple-firewall' )
 				];
 			}
@@ -692,7 +692,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'title'   => 'Updates',
 					'message' => sprintf( __( '%s theme update(s)', 'wp-simple-firewall' ), $nCount ),
 					'href'    => Services::WpGeneral()->getAdminUrl_Updates( true ),
-					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
 			}
@@ -718,7 +718,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'title'   => 'Updates',
 					'message' => __( 'WordPress Core has an update available.', 'wp-simple-firewall' ),
 					'href'    => $oWp->getAdminUrl_Updates( true ),
-					'action'  => sprintf( 'Go To %s', __( 'Updates', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Updates', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Updates should be applied as early as possible.', 'wp-simple-firewall' )
 				];
 			}
@@ -730,7 +730,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'title'   => 'Auto Updates',
 					'message' => __( 'WordPress does not automatically install updates.', 'wp-simple-firewall' ),
 					'href'    => $this->getCon()->getModule( 'autoupdates' )->getUrl_AdminPage(),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Minor WordPress upgrades should be applied automatically.', 'wp-simple-firewall' )
 				];
 			}

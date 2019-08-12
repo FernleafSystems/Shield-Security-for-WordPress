@@ -814,7 +814,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wcf' ),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 				];
 			}
@@ -835,7 +835,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
 				];
 			}
@@ -856,7 +856,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
 				];
 			}
@@ -877,7 +877,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
 				];
 			}
@@ -898,7 +898,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
 				];
 			}

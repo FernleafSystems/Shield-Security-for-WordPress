@@ -19,7 +19,7 @@ class Strings extends Base\Strings {
 			'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
 			'activate_site_in'         => sprintf(
 				__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
-				__( 'Keyless Activation' )
+				__( 'Keyless Activation', 'wp-simple-firewall' )
 			),
 			'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
 			'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),

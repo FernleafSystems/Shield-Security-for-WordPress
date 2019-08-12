@@ -228,9 +228,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'progress_html' => $oMod->renderTemplate(
 					'/wpadmin_pages/insights/scans/modal_progress_snippet.twig',
 					[
-						'current_scan'    => __( 'Current Scan' ),
+						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
 						'scan'            => $sCurrentScan,
-						'remaining_scans' => sprintf( '%s of %s scans remaining.',
+						'remaining_scans' => sprintf( __( '%s of %s scans remaining.', 'wp-simple-firewall' ),
 							count( $oJob->getUnfinishedScans() ), count( $oJob->getInitiatedScans() ) ),
 						'progress'        => 100*$oJob->getScanJobProgress(),
 						'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),

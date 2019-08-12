@@ -313,7 +313,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 					'title'   => __( 'Password Policies', 'wp-simple-firewall' ),
 					'message' => __( "Strong password policies are not enforced.", 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_passwords' ),
-					'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 					'rec'     => __( 'Password policies should be turned-on.', 'wp-simple-firewall' )
 				];
 			}

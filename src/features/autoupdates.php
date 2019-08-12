@@ -165,7 +165,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 						'title'   => 'Auto Updates Not Really Disabled',
 						'message' => __( 'Automatic Updates Are Not Disabled As Expected.', 'wp-simple-firewall' ),
 						'href'    => $this->getUrl_DirectLinkToOption( 'enable_autoupdate_disable_all' ),
-						'action'  => sprintf( 'Go To %s', __( 'Options', 'wp-simple-firewall' ) ),
+						'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
 						'rec'     => sprintf( __( 'A plugin/theme other than %s is affecting your automatic update settings.', 'wp-simple-firewall' ), $this->getCon()
 																																							->getHumanName() )
 					];
