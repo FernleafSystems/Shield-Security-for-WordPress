@@ -124,7 +124,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
 
 						if ( sAction === "-1" ) {
-							alert( 'Please first select an action to perform' );
+							alert( icwp_wpsf_vars_insights.strings.select_action );
 						}
 						else {
 							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
@@ -157,7 +157,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 							plugin.options[ 'working_custom_action' ][ 'rid' ] = $oButt.data( 'rid' );
 							plugin.customAction.call( plugin );
 						}
-						else{
+						else {
 							/** This should never be reached live: **/
 							alert( 'custom action not supported: ' + sCustomAction );
 						}
@@ -222,8 +222,8 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 
 			hrefDownload: function () {
 				$.fileDownload( this.options[ 'working_href_download' ], {
-					preparingMessageHtml: "Downloading file, please wait...",
-					failMessageHtml: "There was a problem downloading the file."
+					preparingMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file,
+					failMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file_problem
 				} );
 				return false;
 			},

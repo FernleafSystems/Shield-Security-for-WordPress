@@ -464,6 +464,18 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 					break;
 			}
+
+			wp_localize_script(
+				$this->prefix( 'plugin' ),
+				'icwp_wpsf_vars_insights',
+				[
+					'strings' => [
+						'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
+						'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+						'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
+					],
+				]
+			);
 		}
 	}
 
