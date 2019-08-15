@@ -13,6 +13,16 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected $oScanner;
 
+	public function run() {
+		parent::run();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		add_action( $oMod->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
+			$this->launchScan();
+		} );
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -36,6 +46,16 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function launchScan() {
 		$this->getScannerDb()->launchScans( [ static::SCAN_SLUG ] );
+	}
+
+	/**
+	 * @param int $nDelay
+	 */
+	public function scheduleOnDemandScan( $nDelay = 3 ) {
+		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG );
+		if ( !wp_next_scheduled( $sHook ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
+		}
 	}
 
 	/**

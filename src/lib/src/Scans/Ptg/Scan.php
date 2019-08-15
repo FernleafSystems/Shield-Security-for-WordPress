@@ -61,16 +61,22 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 			if ( $bUseStaticHashes ) {
 				if ( $sContext == 'plugins' ) {
-					$oNewRes = $oItemScanner->scan(
-						$oWpPlugins->getInstallationDir( $sSlug ),
-						$this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ]
-					);
+					$aHashes = $this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ];
+					if ( !empty( $aHashes ) ) {
+						$oNewRes = $oItemScanner->scan(
+							$oWpPlugins->getInstallationDir( $sSlug ),
+							$this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ]
+						);
+					}
 				}
 				else {
-					$oNewRes = $oItemScanner->scan(
-						$oWpThemes->getInstallationDir( $sSlug ),
-						$this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ]
-					);
+					$aHashes = $this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ];
+					if ( !empty( $aHashes ) ) {
+						$oNewRes = $oItemScanner->scan(
+							$oWpThemes->getInstallationDir( $sSlug ),
+							$this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ]
+						);
+					}
 				}
 			}
 

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\BuildHashesFromDir;
 /**
  * Class ScanAssetDir
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
+ * @deprecated
  */
 class ScanAssetDir {
 
