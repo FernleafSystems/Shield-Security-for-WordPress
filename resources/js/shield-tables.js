@@ -81,8 +81,10 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					'button.action.delete',
 					function ( evt ) {
 						evt.preventDefault();
-						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-						plugin.deleteEntry.call( plugin );
+						if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+							plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
+							plugin.deleteEntry.call( plugin );
+						}
 					}
 				);
 
