@@ -429,8 +429,9 @@
     {
       "key":         "mal_autorepair_core",
       "section":     "section_scan_mal",
+      "premium":     true,
       "type":        "checkbox",
-      "default":     "Y",
+      "default":     "N",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Auto-Repair WP Core",
@@ -440,8 +441,9 @@
     {
       "key":         "mal_autorepair_plugins",
       "section":     "section_scan_mal",
+      "premium":     true,
       "type":        "checkbox",
-      "default":     "Y",
+      "default":     "N",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Auto-Repair WP Plugins",
@@ -451,6 +453,7 @@
     {
       "key":         "mal_autorepair_surgical",
       "section":     "section_non_ui",
+      "premium":     true,
       "type":        "checkbox",
       "default":     "N",
       "link_info":   "",

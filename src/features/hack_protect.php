@@ -926,6 +926,27 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 
+		{// Malware
+			if ( !$this->isMalScanEnabled() ) {
+				$aNotices[ 'messages' ][ 'mal' ] = [
+					'title'   => $aScanNames[ 'mal' ],
+					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
+				];
+			}
+			else if ( $this->getScanHasProblem( 'mal' ) ) {
+				$aNotices[ 'messages' ][ 'mal' ] = [
+					'title'   => $aScanNames[ 'mal' ],
+					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),
+					'href'    => $this->getUrlManualScan(),
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Files identified as potential malware should be examined as soon as possible.', 'wp-simple-firewall' )
+				];
+			}
+		}
+
 		$aNotices[ 'count' ] = count( $aNotices[ 'messages' ] );
 
 		$aAllNotices[ 'scans' ] = $aNotices;

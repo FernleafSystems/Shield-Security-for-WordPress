@@ -378,8 +378,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function getGoogleRecaptchaStyle() {
 		$sStyle = $this->getOpt( 'enable_google_recaptcha_login' );
-		if ( $sStyle == 'default' ) {
-			$sStyle = parent::getGoogleRecaptchaStyle();
+		$aConfig = $this->getGoogleRecaptchaConfig();
+		if ( $aConfig[ 'style_override' ] || $sStyle == 'default' ) {
+			$sStyle = $aConfig[ 'style' ];
 		}
 		return $sStyle;
 	}

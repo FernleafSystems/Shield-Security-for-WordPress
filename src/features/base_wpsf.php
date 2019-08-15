@@ -262,7 +262,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @return string
-	 * @deprecated
 	 */
 	public function getGoogleRecaptchaStyle() {
 		return $this->getGoogleRecaptchaConfig()[ 'style' ];

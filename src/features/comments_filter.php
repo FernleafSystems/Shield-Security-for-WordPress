@@ -31,8 +31,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function getGoogleRecaptchaStyle() {
 		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
-		if ( $sStyle == 'default' ) {
-			$sStyle = parent::getGoogleRecaptchaStyle();
+		$aConfig = $this->getGoogleRecaptchaConfig();
+		if ( $aConfig[ 'style_override' ] || $sStyle == 'default' ) {
+			$sStyle = $aConfig[ 'style' ];
 		}
 		return $sStyle;
 	}

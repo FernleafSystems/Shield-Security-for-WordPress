@@ -13,7 +13,6 @@ class Options extends Base\ShieldOptions {
 		return $this->getCon()->prefixOption( $this->getDef( 'geoip_table_name' ) );
 	}
 
-
 	/**
 	 * @return string
 	 */
@@ -27,6 +26,7 @@ class Options extends Base\ShieldOptions {
 	public function getDbColumns_GeoIp() {
 		return $this->getDef( 'geoip_table_columns' );
 	}
+
 	/**
 	 * @return string[]
 	 */
@@ -39,11 +39,12 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getGoogleRecaptchaConfig() {
 		$aConfig = [
-			'key'    => $this->getOpt( 'google_recaptcha_site_key' ),
-			'secret' => $this->getOpt( 'google_recaptcha_secret_key' ),
-			'style'  => $this->getOpt( 'google_recaptcha_style' ),
+			'key'            => $this->getOpt( 'google_recaptcha_site_key' ),
+			'secret'         => $this->getOpt( 'google_recaptcha_secret_key' ),
+			'style'          => $this->getOpt( 'google_recaptcha_style' ),
+			'style_override' => !$this->getCon()->isPremiumActive()
 		];
-		if ( !$this->getCon()->isPremiumActive() && $aConfig[ 'style' ] != 'light' ) {
+		if ( $aConfig[ 'style_override' ] ) {
 			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
 		}
 		return $aConfig;

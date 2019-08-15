@@ -90,7 +90,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function isRecaptchaInvisible() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 		$oFO = $this->getMod();
 		return ( $oFO->getGoogleRecaptchaStyle() == 'invisible' );
 	}
