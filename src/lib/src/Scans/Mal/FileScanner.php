@@ -33,8 +33,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					$aLines = $oLocator->setNeedle( $sSig )
 									   ->run();
 					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-						return $oResultItem;
+						return $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
 					}
 				}
 			}
@@ -46,8 +45,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					$aLines = $oLocator->setNeedle( $sSig )
 									   ->run();
 					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-						return $oResultItem;
+						return $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
 					}
 				}
 			}
@@ -79,7 +77,33 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		return $this->isValidCoreFile( $sFullPath ) || $this->isPluginFileValid( $sFullPath );
+		return $this->isValidCoreFile( $sFullPath ) || $this->isPluginFileValid( $sFullPath )
+			   || $this->isPathWhitelisted( $sFullPath );
+	}
+
+	/**
+	 * @param string $sFullPath
+	 * @return bool
+	 */
+	private function isPathWhitelisted( $sFullPath ) {
+		$bWhitelisted = false;
+		return false;
+		/** @var ScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+		if ( isset( $oAction->whitelist_hashes[ basename( $sFullPath ) ] ) ) {
+			try {
+				$oHasher = new Utilities\File\Compare\CompareHash();
+				foreach ( $oAction->whitelist_hashes[ basename( $sFullPath ) ] as $sWlHash ) {
+					if ( $oHasher->isEqualFileSha1( $sFullPath, $sWlHash ) ) {
+						$bWhitelisted = true;
+						break;
+					}
+				}
+			}
+			catch ( \InvalidArgumentException $oE ) {
+			}
+		}
+		return $bWhitelisted;
 	}
 
 	/**
