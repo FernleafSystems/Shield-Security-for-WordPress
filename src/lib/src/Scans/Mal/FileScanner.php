@@ -87,7 +87,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private function isPathWhitelisted( $sFullPath ) {
 		$bWhitelisted = false;
-		return false;
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( isset( $oAction->whitelist_hashes[ basename( $sFullPath ) ] ) ) {
