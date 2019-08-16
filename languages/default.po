@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-08-12 17:06+0100\n"
-"PO-Revision-Date: 2019-08-12 17:07+0100\n"
+"POT-Creation-Date: 2019-08-16 08:49+0100\n"
+"PO-Revision-Date: 2019-08-16 08:50+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -99,11 +99,11 @@ msgstr ""
 #: src/features/autoupdates.php:168 src/features/hack_protect.php:830
 #: src/features/hack_protect.php:851 src/features/hack_protect.php:872
 #: src/features/hack_protect.php:893 src/features/hack_protect.php:914
-#: src/features/insights.php:267 src/features/insights.php:642
-#: src/features/insights.php:655 src/features/insights.php:682
-#: src/features/insights.php:695 src/features/insights.php:721
-#: src/features/insights.php:733 src/features/lockdown.php:81
-#: src/features/user_management.php:316
+#: src/features/hack_protect.php:935 src/features/insights.php:267
+#: src/features/insights.php:655 src/features/insights.php:668
+#: src/features/insights.php:695 src/features/insights.php:708
+#: src/features/insights.php:734 src/features/insights.php:746
+#: src/features/lockdown.php:81 src/features/user_management.php:316
 #, php-format
 msgid "Go To %s"
 msgstr ""
@@ -112,9 +112,9 @@ msgstr ""
 #: src/features/autoupdates.php:168 src/features/hack_protect.php:830
 #: src/features/hack_protect.php:851 src/features/hack_protect.php:872
 #: src/features/hack_protect.php:893 src/features/hack_protect.php:914
-#: src/features/insights.php:268 src/features/insights.php:733
-#: src/features/lockdown.php:81 src/features/user_management.php:316
-#: src/lib/src/Modules/Base/Strings.php:21
+#: src/features/hack_protect.php:935 src/features/insights.php:268
+#: src/features/insights.php:746 src/features/lockdown.php:81
+#: src/features/user_management.php:316 src/lib/src/Modules/Base/Strings.php:21
 #: src/lib/src/Modules/Base/Strings.php:38
 #: src/lib/src/Modules/Insights/Strings.php:66
 msgid "Options"
@@ -313,71 +313,71 @@ msgstr ""
 msgid "Support Forums"
 msgstr ""
 
-#: src/features/base_wpsf.php:433
+#: src/features/base_wpsf.php:432
 msgid "Module Disabled"
 msgstr ""
 
-#: src/features/base_wpsf.php:435
+#: src/features/base_wpsf.php:434
 msgid "All features of this module are completely disabled"
 msgstr ""
 
-#: src/features/comments_filter.php:66
+#: src/features/comments_filter.php:67
 msgid "I'm not a spammer."
 msgstr ""
 
-#: src/features/comments_filter.php:69
+#: src/features/comments_filter.php:70
 msgid "Please check the box to confirm you're not a spammer."
 msgstr ""
 
-#: src/features/comments_filter.php:72
+#: src/features/comments_filter.php:73
 #, php-format
 msgid "Please wait %s seconds before posting your comment."
 msgstr ""
 
-#: src/features/comments_filter.php:75
+#: src/features/comments_filter.php:76
 msgid "Please reload this page to post a comment."
 msgstr ""
 
-#: src/features/comments_filter.php:121
+#: src/features/comments_filter.php:122
 msgid "SPAM Blocking"
 msgstr ""
 
-#: src/features/comments_filter.php:122
+#: src/features/comments_filter.php:123
 msgid "Block Bot & Human Comment SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:133
+#: src/features/comments_filter.php:134
 #: src/lib/src/Modules/CommentsFilter/Strings.php:60
 msgid "Bot SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:136
+#: src/features/comments_filter.php:137
 msgid "Bot SPAM comments are blocked"
 msgstr ""
 
-#: src/features/comments_filter.php:137
+#: src/features/comments_filter.php:138
 msgid "There is no protection against Bot SPAM comments"
 msgstr ""
 
-#: src/features/comments_filter.php:142
+#: src/features/comments_filter.php:143
 #: src/lib/src/Modules/CommentsFilter/Strings.php:79
 msgid "Human SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:145
+#: src/features/comments_filter.php:146
 msgid "Comments posted by humans are checked for SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:146
+#: src/features/comments_filter.php:147
 msgid "Comments posted by humans aren't checked for SPAM"
 msgstr ""
 
-#: src/features/comments_filter.php:168
+#: src/features/comments_filter.php:169
 #, php-format
 msgid "Please remember to supply reCAPTCHA keys: %s"
 msgstr ""
 
-#: src/features/comments_filter.php:169
+#: src/features/comments_filter.php:170
 msgid "reCAPTCHA Settings"
 msgstr ""
 
@@ -511,7 +511,7 @@ msgstr ""
 
 #: src/features/hack_protect.php:839 src/features/hack_protect.php:860
 #: src/features/hack_protect.php:881 src/features/hack_protect.php:902
-#: src/features/hack_protect.php:923
+#: src/features/hack_protect.php:923 src/features/hack_protect.php:944
 msgid "Run Scan"
 msgstr ""
 
@@ -587,114 +587,132 @@ msgid ""
 "Plugins that have been abandoned represent a potential risk to your site."
 msgstr ""
 
-#: src/features/hack_protect.php:946
+#: src/features/hack_protect.php:933
+#, php-format
+msgid "%s Scanner is not enabled."
+msgstr ""
+
+#: src/features/hack_protect.php:936
+msgid "Automatic detection of Malware is recommended."
+msgstr ""
+
+#: src/features/hack_protect.php:942
+msgid "At least 1 file with potential Malware has been discovered."
+msgstr ""
+
+#: src/features/hack_protect.php:945
+msgid ""
+"Files identified as potential malware should be examined as soon as possible."
+msgstr ""
+
+#: src/features/hack_protect.php:967
 #: src/lib/src/Modules/HackGuard/Strings.php:94
 #: src/lib/src/Modules/Plugin/Strings.php:412
 msgid "Hack Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:947
+#: src/features/hack_protect.php:968
 msgid "Threats/Intrusions Detection & Repair"
 msgstr ""
 
-#: src/features/hack_protect.php:959
+#: src/features/hack_protect.php:980
 msgid "Scan Frequency"
 msgstr ""
 
-#: src/features/hack_protect.php:962
+#: src/features/hack_protect.php:983
 msgid "Automatic scanners run more than once per day"
 msgstr ""
 
-#: src/features/hack_protect.php:963
+#: src/features/hack_protect.php:984
 msgid "Automatic scanners only run once per day"
 msgstr ""
 
-#: src/features/hack_protect.php:970
+#: src/features/hack_protect.php:991
 msgid "WP Core File Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:973
+#: src/features/hack_protect.php:994
 msgid "Core files scanned regularly for hacks"
 msgstr ""
 
-#: src/features/hack_protect.php:974
+#: src/features/hack_protect.php:995
 msgid "Core files are never scanned for hacks!"
 msgstr ""
 
-#: src/features/hack_protect.php:980
+#: src/features/hack_protect.php:1001
 msgid "WP Core File Repair"
 msgstr ""
 
-#: src/features/hack_protect.php:983
+#: src/features/hack_protect.php:1004
 msgid "Core files are automatically repaired"
 msgstr ""
 
-#: src/features/hack_protect.php:984
+#: src/features/hack_protect.php:1005
 msgid "Core files aren't automatically repaired!"
 msgstr ""
 
-#: src/features/hack_protect.php:992 src/lib/src/Modules/Events/Strings.php:94
+#: src/features/hack_protect.php:1013 src/lib/src/Modules/Events/Strings.php:94
 #: src/lib/src/Modules/Events/Strings.php:118
 #: src/lib/src/Modules/HackGuard/Strings.php:26
 #: src/lib/src/Modules/HackGuard/Strings.php:118
 msgid "Unrecognised Files"
 msgstr ""
 
-#: src/features/hack_protect.php:995
+#: src/features/hack_protect.php:1016
 msgid "Core directories scanned regularly for unrecognised files"
 msgstr ""
 
-#: src/features/hack_protect.php:996
+#: src/features/hack_protect.php:1017
 msgid "WP Core is never scanned for unrecognised files!"
 msgstr ""
 
-#: src/features/hack_protect.php:1002
+#: src/features/hack_protect.php:1023
 msgid "Unrecognised Files Removal"
 msgstr ""
 
-#: src/features/hack_protect.php:1005
+#: src/features/hack_protect.php:1026
 msgid "Unrecognised files are automatically removed"
 msgstr ""
 
-#: src/features/hack_protect.php:1006
+#: src/features/hack_protect.php:1027
 msgid "Unrecognised files aren't automatically removed!"
 msgstr ""
 
-#: src/features/hack_protect.php:1014
+#: src/features/hack_protect.php:1035
 msgid "Vulnerability Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:1017
+#: src/features/hack_protect.php:1038
 msgid "Regularly scanning for known vulnerabilities"
 msgstr ""
 
-#: src/features/hack_protect.php:1018
+#: src/features/hack_protect.php:1039
 msgid "Plugins/Themes never scanned for vulnerabilities!"
 msgstr ""
 
-#: src/features/hack_protect.php:1024
+#: src/features/hack_protect.php:1045
 msgid "Auto Update"
 msgstr ""
 
-#: src/features/hack_protect.php:1027
+#: src/features/hack_protect.php:1048
 msgid "Vulnerable items are automatically updated"
 msgstr ""
 
-#: src/features/hack_protect.php:1028
+#: src/features/hack_protect.php:1049
 msgid "Vulnerable items aren't automatically updated!"
 msgstr ""
 
-#: src/features/hack_protect.php:1037 src/lib/src/Modules/Events/Strings.php:90
+#: src/features/hack_protect.php:1058 src/lib/src/Modules/Events/Strings.php:90
 #: src/lib/src/Modules/Events/Strings.php:114
 #: src/lib/src/Modules/HackGuard/Strings.php:24
 msgid "Plugin/Theme Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:1040
+#: src/features/hack_protect.php:1061
 msgid "Plugins and Themes are guarded against tampering"
 msgstr ""
 
-#: src/features/hack_protect.php:1041
+#: src/features/hack_protect.php:1062
 msgid "Plugins and Themes are never scanned for tampering!"
 msgstr ""
 
@@ -945,10 +963,6 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-#: src/features/insights.php:290
-msgid "Reports"
-msgstr ""
-
 #: src/features/insights.php:291 src/lib/src/Modules/Plugin/Strings.php:77
 #: src/lib/src/Modules/Plugin/Strings.php:82
 msgid "Import"
@@ -959,32 +973,48 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
-#: src/features/insights.php:557
+#: src/features/insights.php:473 src/processors/plugin_importexport.php:74
+msgid "Downloading file, please wait..."
+msgstr ""
+
+#: src/features/insights.php:474 src/processors/plugin_importexport.php:75
+msgid "There was a problem downloading the file."
+msgstr ""
+
+#: src/features/insights.php:475
+msgid "Please select an action to perform."
+msgstr ""
+
+#: src/features/insights.php:476 src/processors/hackprotect_scan_ptg.php:202
+msgid "Are you sure?"
+msgstr ""
+
+#: src/features/insights.php:570
 msgid "Site"
 msgstr ""
 
-#: src/features/insights.php:581
+#: src/features/insights.php:594
 msgid "SSL certificate for this site has expired."
 msgstr ""
 
-#: src/features/insights.php:584
+#: src/features/insights.php:597
 #, php-format
 msgid "SSL certificate will expire soon (in %s days)"
 msgstr ""
 
-#: src/features/insights.php:591
+#: src/features/insights.php:604
 msgid "Check or renew your SSL certificate."
 msgstr ""
 
-#: src/features/insights.php:614
+#: src/features/insights.php:627
 msgid "DB Password appears to be weak."
 msgstr ""
 
-#: src/features/insights.php:616
+#: src/features/insights.php:629
 msgid "The database password should be strong."
 msgstr ""
 
-#: src/features/insights.php:631 src/features/insights.php:642
+#: src/features/insights.php:644 src/features/insights.php:655
 #: src/lib/src/Modules/AuditTrail/Strings.php:91
 #: src/lib/src/Modules/AuditTrail/Strings.php:211
 #: src/lib/src/Modules/AuditTrail/Strings.php:212
@@ -993,35 +1023,35 @@ msgstr ""
 msgid "Plugins"
 msgstr ""
 
-#: src/features/insights.php:639
+#: src/features/insights.php:652
 msgid "Inactive"
-msgstr ""
-
-#: src/features/insights.php:640
-#, php-format
-msgid "%s inactive plugin(s)"
-msgstr ""
-
-#: src/features/insights.php:643
-msgid "Unused plugins should be removed."
 msgstr ""
 
 #: src/features/insights.php:653
 #, php-format
+msgid "%s inactive plugin(s)"
+msgstr ""
+
+#: src/features/insights.php:656
+msgid "Unused plugins should be removed."
+msgstr ""
+
+#: src/features/insights.php:666
+#, php-format
 msgid "%s plugin update(s)"
 msgstr ""
 
-#: src/features/insights.php:655 src/features/insights.php:695
-#: src/features/insights.php:721
+#: src/features/insights.php:668 src/features/insights.php:708
+#: src/features/insights.php:734
 msgid "Updates"
 msgstr ""
 
-#: src/features/insights.php:656 src/features/insights.php:696
-#: src/features/insights.php:722
+#: src/features/insights.php:669 src/features/insights.php:709
+#: src/features/insights.php:735
 msgid "Updates should be applied as early as possible."
 msgstr ""
 
-#: src/features/insights.php:671 src/features/insights.php:682
+#: src/features/insights.php:684 src/features/insights.php:695
 #: src/lib/src/Modules/AuditTrail/Strings.php:92
 #: src/lib/src/Modules/AuditTrail/Strings.php:217
 #: src/lib/src/Modules/AuditTrail/Strings.php:218
@@ -1030,86 +1060,86 @@ msgstr ""
 msgid "Themes"
 msgstr ""
 
-#: src/features/insights.php:680
+#: src/features/insights.php:693
 #, php-format
 msgid "%s inactive themes(s)"
 msgstr ""
 
-#: src/features/insights.php:683
+#: src/features/insights.php:696
 msgid "Unused themes should be removed."
 msgstr ""
 
-#: src/features/insights.php:693
+#: src/features/insights.php:706
 #, php-format
 msgid "%s theme update(s)"
 msgstr ""
 
-#: src/features/insights.php:711
+#: src/features/insights.php:724
 msgid "WordPress Core"
 msgstr ""
 
-#: src/features/insights.php:719
+#: src/features/insights.php:732
 msgid "WordPress Core has an update available."
 msgstr ""
 
-#: src/features/insights.php:731
+#: src/features/insights.php:744
 msgid "WordPress does not automatically install updates."
 msgstr ""
 
-#: src/features/insights.php:734
+#: src/features/insights.php:747
 msgid "Minor WordPress upgrades should be applied automatically."
 msgstr ""
 
-#: src/features/insights.php:760 src/processors/events.php:45
+#: src/features/insights.php:773 src/processors/events.php:45
 msgid "Login Blocks"
 msgstr ""
 
-#: src/features/insights.php:762
+#: src/features/insights.php:775
 msgid "Total login attempts blocked."
 msgstr ""
 
-#: src/features/insights.php:765 src/processors/events.php:41
+#: src/features/insights.php:778 src/processors/events.php:41
 msgid "Firewall Blocks"
 msgstr ""
 
-#: src/features/insights.php:767
+#: src/features/insights.php:780
 msgid "Total requests blocked by firewall rules."
 msgstr ""
 
-#: src/features/insights.php:770 src/processors/events.php:33
+#: src/features/insights.php:783 src/processors/events.php:33
 msgid "Comment Blocks"
 msgstr ""
 
-#: src/features/insights.php:776
+#: src/features/insights.php:789
 msgid "Total SPAM comments blocked."
 msgstr ""
 
-#: src/features/insights.php:784 src/lib/src/Tables/Render/IpBase.php:23
+#: src/features/insights.php:797 src/lib/src/Tables/Render/IpBase.php:23
 #: src/lib/src/Tables/Render/IpBlack.php:14
 msgid "Offenses"
 msgstr ""
 
-#: src/features/insights.php:786
+#: src/features/insights.php:799
 msgid "Total offenses against the site."
 msgstr ""
 
-#: src/features/insights.php:789 src/processors/events.php:57
+#: src/features/insights.php:802 src/processors/events.php:57
 msgid "IP Blocks"
 msgstr ""
 
-#: src/features/insights.php:791
+#: src/features/insights.php:804
 msgid "Total connections blocked/killed after too many offenses."
 msgstr ""
 
-#: src/features/insights.php:794
+#: src/features/insights.php:807
 msgid "Blacklist IPs"
 msgstr ""
 
-#: src/features/insights.php:802
+#: src/features/insights.php:815
 msgid "Current IP addresses with offenses against the site."
 msgstr ""
 
-#: src/features/insights.php:849
+#: src/features/insights.php:862
 msgid "Not yet recorded"
 msgstr ""
 
@@ -1334,92 +1364,92 @@ msgstr ""
 msgid "Administrators"
 msgstr ""
 
-#: src/features/login_protect.php:463
+#: src/features/login_protect.php:464
 msgid "I'm a human."
 msgstr ""
 
-#: src/features/login_protect.php:467
+#: src/features/login_protect.php:468
 msgid "Please check the box to show us you're a human."
 msgstr ""
 
-#: src/features/login_protect.php:502
+#: src/features/login_protect.php:503
 #, php-format
 msgid "Support for login protection with %s is a Pro-only feature."
 msgstr ""
 
-#: src/features/login_protect.php:508
+#: src/features/login_protect.php:509
 msgid ""
 "2FA by email demands that your WP site is properly configured to send email."
 msgstr ""
 
-#: src/features/login_protect.php:509
+#: src/features/login_protect.php:510
 msgid ""
 "This is a common problem and you may get locked out in the future if you "
 "ignore this."
 msgstr ""
 
-#: src/features/login_protect.php:510
+#: src/features/login_protect.php:511
 #: src/lib/src/Modules/Plugin/AdminNotices.php:204
 #: src/processors/lockdown.php:95
 msgid "Learn More."
 msgstr ""
 
-#: src/features/login_protect.php:591
+#: src/features/login_protect.php:592
 #: src/lib/src/Modules/LoginGuard/Strings.php:71
 #: src/lib/src/Modules/Plugin/Strings.php:419 src/wizards/plugin.php:550
 #: src/wizards/plugin.php:555
 msgid "Login Guard"
 msgstr ""
 
-#: src/features/login_protect.php:592
+#: src/features/login_protect.php:593
 msgid "Brute Force Protection & Identity Verification"
 msgstr ""
 
-#: src/features/login_protect.php:608
+#: src/features/login_protect.php:609
 msgid "Brute Force Login"
 msgstr ""
 
-#: src/features/login_protect.php:611
+#: src/features/login_protect.php:612
 msgid "Login forms are protected against bot attacks"
 msgstr ""
 
-#: src/features/login_protect.php:612
+#: src/features/login_protect.php:613
 msgid "Login forms are not protected against brute force bot attacks"
 msgstr ""
 
-#: src/features/login_protect.php:617
+#: src/features/login_protect.php:618
 msgid "Bot User Register"
 msgstr ""
 
-#: src/features/login_protect.php:620
+#: src/features/login_protect.php:621
 msgid "Registration forms are protected against bot attacks"
 msgstr ""
 
-#: src/features/login_protect.php:621
+#: src/features/login_protect.php:622
 msgid "Registration forms are not protected against automated bots"
 msgstr ""
 
-#: src/features/login_protect.php:626
+#: src/features/login_protect.php:627
 msgid "Brute Force Lost Password"
 msgstr ""
 
-#: src/features/login_protect.php:629
+#: src/features/login_protect.php:630
 msgid "Lost Password forms are protected against bot attacks"
 msgstr ""
 
-#: src/features/login_protect.php:630
+#: src/features/login_protect.php:631
 msgid "Lost Password forms are not protected against automated bots"
 msgstr ""
 
-#: src/features/login_protect.php:638
+#: src/features/login_protect.php:639
 msgid "Identity Verification"
 msgstr ""
 
-#: src/features/login_protect.php:641
+#: src/features/login_protect.php:642
 msgid "At least 1 2FA option is enabled"
 msgstr ""
 
-#: src/features/login_protect.php:642
+#: src/features/login_protect.php:643
 msgid "No 2FA options, such as Google Authenticator, are active"
 msgstr ""
 
@@ -8926,7 +8956,7 @@ msgstr ""
 msgid "Abandoned Plugin(s) Discovered On Your Site."
 msgstr ""
 
-#: src/processors/hackprotect_scan_base.php:480
+#: src/processors/hackprotect_scan_base.php:500
 msgid "Run Scanner"
 msgstr ""
 
@@ -8998,10 +9028,6 @@ msgstr ""
 
 #: src/processors/hackprotect_scan_mal.php:205
 msgid "The following files contain suspected malware:"
-msgstr ""
-
-#: src/processors/hackprotect_scan_ptg.php:202
-msgid "Are you sure?"
 msgstr ""
 
 #: src/processors/hackprotect_scan_ptg.php:203
@@ -9781,14 +9807,6 @@ msgstr ""
 
 #: src/processors/plugin_importexport.php:73
 msgid "Import Options"
-msgstr ""
-
-#: src/processors/plugin_importexport.php:74
-msgid "Downloading file, please wait..."
-msgstr ""
-
-#: src/processors/plugin_importexport.php:75
-msgid "There was a problem downloading the file."
 msgstr ""
 
 #: src/processors/plugin_importexport.php:217

@@ -1943,7 +1943,7 @@ class Controller extends Shield\Deprecated\Foundation {
 				$aDuplicateMappings = [
 					'es' => 'es_ES',
 					'fr' => 'fr_FR',
-					'pt' => 'pt_BR',
+					'pt' => 'pt_PT',
 				];
 				if ( array_key_exists( $sCountry, $aDuplicateMappings ) ) {
 					$sLocale = $aDuplicateMappings[ $sCountry ];

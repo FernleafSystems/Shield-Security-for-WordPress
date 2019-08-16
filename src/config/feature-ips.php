@@ -225,7 +225,7 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fo",
       "link_blog":     "https://icwp.io/f7",
       "name":          "404 Detect",
       "summary":       "Identify A Bot When It Hits A 404",
@@ -259,7 +259,7 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fo",
       "link_blog":     "https://icwp.io/f6",
       "name":          "Link Cheese",
       "summary":       "Tempt A Bot With A Fake Link To Follow",
@@ -293,7 +293,7 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fo",
       "link_blog":     "https://icwp.io/f7",
       "name":          "XML-RPC Access",
       "summary":       "Identify A Bot When It Accesses XML-RPC",
@@ -326,7 +326,7 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fn",
       "link_blog":     "https://icwp.io/f7",
       "name":          "Failed Login",
       "summary":       "Detect Failed Login Attempts By Valid Usernames",
@@ -360,7 +360,7 @@
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fn",
       "link_blog":     "https://icwp.io/f7",
       "name":          "Invalid Usernames",
       "summary":       "Detect Invalid Username Logins",

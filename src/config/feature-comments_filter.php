@@ -104,7 +104,7 @@
       "default":     1,
       "min":         1,
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/fu",
       "link_blog":   "",
       "name":        "Trusted Commenter Minimum",
       "summary":     "Minimum Number Of Approved Comments Before Commenter Is Trusted",
@@ -122,7 +122,7 @@
         "subscriber"
       ],
       "type":        "array",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/fu",
       "link_blog":   "",
       "name":        "Trusted Users",
       "summary":     "Don't Scan Comments For Users With The Following Roles",

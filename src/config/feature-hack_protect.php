@@ -420,7 +420,7 @@
           "text":      "Automatic Scan Enabled"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://icwp.io/fp",
       "link_blog":     "",
       "name":          "Automatic Malware Scan",
       "summary":       "Enable Malware File Scanner",
