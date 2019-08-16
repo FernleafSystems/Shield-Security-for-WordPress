@@ -19,7 +19,7 @@
   },
   "requirements": {
     "php":       "5.4.0",
-    "wordpress": "3.5.0"
+    "wordpress": "3.5.2"
   },
   "paths":        {
     "source":    "src",
