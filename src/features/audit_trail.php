@@ -150,13 +150,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 				];
 			}
 			else {
-//				$aThis[ 'key_opts' ][ 'audit' ] = array(
-//					'name'    => _wpsf__( 'Audit Areas' ),
-//					'enabled' => true,
-//					'summary' => sprintf( _wpsf__( 'Important areas are being audited: %s' ), implode( ', ', $aAudit ) ),
-//					'weight'  => 2,
-//					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
-//				);
 				$aThis[ 'key_opts' ][ 'nonaudit' ] = [
 					'name'    => __( 'Audit Events', 'wp-simple-firewall' ),
 					'enabled' => false,
