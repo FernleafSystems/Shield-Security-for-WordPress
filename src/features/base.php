@@ -1605,13 +1605,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function hasCustomActions() {
-		return (bool)$this->getOptionsVo()->getFeatureProperty( 'has_custom_actions' );
-	}
-
-	/**
 	 * @return boolean
 	 */
 	protected function getIsShowMarketing() {

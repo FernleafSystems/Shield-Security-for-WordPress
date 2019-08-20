@@ -11,7 +11,6 @@
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "has_custom_actions":    false,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true,
@@ -37,8 +36,9 @@
       "type": "warning"
     },
     "wizard_welcome":             {
-      "id":   "wizard_welcome",
-      "type": "promo"
+      "id":       "wizard_welcome",
+      "per_user": false,
+      "type":     "info"
     },
     "allow-tracking":             {
       "id":               "allow-tracking",
@@ -252,7 +252,7 @@
     {
       "key":         "importexport_whitelist_notify",
       "section":     "section_importexport",
-      "sensitive":    true,
+      "sensitive":   true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -503,8 +503,8 @@
         "storage_key": "lockdown"
       },
       {
-        "slug":        "events",
-        "storage_key": "events",
+        "slug":          "events",
+        "storage_key":   "events",
         "load_priority": 11
       },
       {

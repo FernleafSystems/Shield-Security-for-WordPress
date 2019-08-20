@@ -65,13 +65,13 @@ class AdminNotices {
 	protected function buildNotices() {
 		$aNotices = [];
 
-		foreach ( $this->getAdminNotices() as $oNotice ) {
-			$this->preProcessNotice( $oNotice );
-			if ( $oNotice->display ) {
+		foreach ( $this->getAdminNotices() as $oNtc ) {
+			$this->preProcessNotice( $oNtc );
+			if ( $oNtc->display ) {
 				try {
-					$this->processNotice( $oNotice );
-					if ( $oNotice->display ) {
-						$aNotices[] = $oNotice;
+					$this->processNotice( $oNtc );
+					if ( $oNtc->display ) {
+						$aNotices[] = $oNtc;
 					}
 				}
 				catch ( \Exception $oE ) {
@@ -110,34 +110,46 @@ class AdminNotices {
 	}
 
 	/**
-	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNtc
 	 */
-	protected function preProcessNotice( $oNotice ) {
+	protected function preProcessNotice( $oNtc ) {
 		$oCon = $this->getCon();
 		$oMod = $this->getMod();
 		$oOpts = $oMod->getOptions();
-		if ( $this->isNoticeDismissed( $oNotice ) ) {
-			$oNotice->display = false;
+
+		if ( $this->isNoticeDismissed( $oNtc ) ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'dismissed';
 		}
-		else if ( $oNotice->plugin_page_only && !$oCon->isModulePage() ) {
-			$oNotice->display = false;
+		else if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'plugin_page_only';
 		}
-		else if ( $oNotice->type == 'promo' && !$this->getMod()->getOptions()->isShowPromoAdminNotices() ) {
-			$oNotice->display = false;
+		else if ( $oNtc->type == 'promo' && !$this->getMod()->getOptions()->isShowPromoAdminNotices() ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'promo_hidden';
 		}
-		else if ( $oNotice->valid_admin && !$oCon->isValidAdminArea() ) {
-			$oNotice->display = false;
+		else if ( $oNtc->valid_admin && !$oCon->isValidAdminArea() ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'not_admin_area';
 		}
-		else if ( $oNotice->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
-			$oNotice->display = false;
+		else if ( $oNtc->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'not_plugin_admin';
 		}
-		else if ( $oNotice->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
-			$oNotice->display = false;
+		else if ( $oNtc->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'is_plugin_admin';
 		}
-		else if ( $oNotice->min_install_days > 0 && $oNotice->min_install_days < $oOpts->getInstallationDays() ) {
-			$oNotice->display = false;
+		else if ( $oNtc->min_install_days > 0 && $oNtc->min_install_days < $oOpts->getInstallationDays() ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'min_install_days';
 		}
-		$oNotice->template = '/notices/'.$oNotice->id;
+		else {
+			$oNtc->non_display_reason = 'n/a';
+		}
+		
+		$oNtc->template = '/notices/'.$oNtc->id;
 	}
 
 	/**

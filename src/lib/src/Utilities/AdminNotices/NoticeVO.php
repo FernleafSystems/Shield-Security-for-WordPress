@@ -9,6 +9,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities\Notices
  * @property string $id
  * @property bool   $display
+ * @property string $non_display_reason
  * @property array  $render_data
  * @property string $template
  * @property string $schedule
