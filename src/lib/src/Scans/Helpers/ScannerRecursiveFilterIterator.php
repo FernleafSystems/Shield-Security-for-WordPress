@@ -29,7 +29,7 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 		if ( in_array( $oCurr->getFilename(), [ '.', '..' ] )
 			 || $oCurr->isFile() && (
 				( $this->isFilterOutCoreFiles() && $this->isWpCoreFile() )
-				|| ( $this->hasFileExts() && !in_array( $oCurr->getExtension(), $this->getFileExts() ) )
+				|| ( $this->hasFileExts() && !in_array( strtolower( $oCurr->getExtension() ), $this->getFileExts() ) )
 			)
 		) {
 			$bRecurse = false;

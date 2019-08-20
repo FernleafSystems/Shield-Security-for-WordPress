@@ -241,7 +241,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				// ignore it
 			}
 			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
-				$sExclusion = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', $sExclusion ) );
+				$sExclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $sExclusion ) );
 			}
 
 			if ( !empty( $sExclusion ) ) {
