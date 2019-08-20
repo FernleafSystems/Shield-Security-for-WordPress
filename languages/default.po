@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-08-16 08:49+0100\n"
-"PO-Revision-Date: 2019-08-16 08:50+0100\n"
+"POT-Creation-Date: 2019-08-20 15:34+0100\n"
+"PO-Revision-Date: 2019-08-20 15:35+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -180,23 +180,23 @@ msgstr ""
 msgid "No areas are set to be audited: %s"
 msgstr ""
 
-#: src/features/audit_trail.php:161
+#: src/features/audit_trail.php:154
 msgid "Audit Events"
 msgstr ""
 
-#: src/features/audit_trail.php:163
+#: src/features/audit_trail.php:156
 #, php-format
 msgid "Important events aren't being audited: %s"
 msgstr ""
 
-#: src/features/audit_trail.php:170 src/features/insights.php:74
+#: src/features/audit_trail.php:163 src/features/insights.php:74
 #: src/features/insights.php:285 src/lib/src/Modules/AuditTrail/Strings.php:122
 #: src/lib/src/Modules/Plugin/Strings.php:401 src/wizards/plugin.php:481
 #: src/wizards/plugin.php:486
 msgid "Audit Trail"
 msgstr ""
 
-#: src/features/audit_trail.php:172
+#: src/features/audit_trail.php:165
 #, php-format
 msgid "Maximum Audit Trail entries limited to %s"
 msgstr ""
@@ -2515,12 +2515,12 @@ msgid ""
 "applied to your site."
 msgstr ""
 
-#: src/lib/src/Modules/Base/AjaxHandlerShield.php:59
+#: src/lib/src/Modules/Base/AjaxHandlerShield.php:58
 #, php-format
 msgid "%s Plugin options updated successfully."
 msgstr ""
 
-#: src/lib/src/Modules/Base/AjaxHandlerShield.php:63
+#: src/lib/src/Modules/Base/AjaxHandlerShield.php:62
 #, php-format
 msgid "Failed to update %s plugin options."
 msgstr ""
@@ -8447,6 +8447,14 @@ msgstr ""
 #: src/lib/src/Tables/Build/ScanMal.php:27
 #: src/processors/hackprotect_scan_mal.php:139
 msgid "Potential Malware Detected"
+msgstr ""
+
+#: src/lib/src/Tables/Build/ScanMal.php:34
+msgid "Repair Unavailable"
+msgstr ""
+
+#: src/lib/src/Tables/Build/ScanMal.php:35
+msgid "Plugin developer doesn't use SVN tags for official releases."
 msgstr ""
 
 #: src/lib/src/Tables/Build/ScanPtg.php:26

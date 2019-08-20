@@ -31,7 +31,7 @@ class ScanMal extends ScanBase {
 			}
 			catch ( \Exception $oE ) {
 				$aE[ 'status' ] .= sprintf( '<br/>%s: %s',
-					__( "Repair Unavailable", 'wp-simple-firewall' ),
+					__( 'Repair Unavailable', 'wp-simple-firewall' ),
 					__( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' )
 				);
 				$bCanRepair = false;
