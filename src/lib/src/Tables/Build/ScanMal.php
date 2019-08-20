@@ -26,7 +26,17 @@ class ScanMal extends ScanBase {
 			$aE[ 'path' ] = $oIt->path_fragment;
 			$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
 			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
-			$aE[ 'can_repair' ] = $oRepairer->canAutoRepairFromSource( $oIt );
+			try {
+				$bCanRepair = $oRepairer->canAutoRepairFromSource( $oIt );
+			}
+			catch ( \Exception $oE ) {
+				$aE[ 'status' ] .= sprintf( '<br/>%s: %s',
+					__( "Repair Unavailable", 'wp-simple-firewall' ),
+					__( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' )
+				);
+				$bCanRepair = false;
+			}
+			$aE[ 'can_repair' ] = $bCanRepair;
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'href_download' ] = $oMod->createFileDownloadLink( $oEntry );
 			$aEntries[ $nKey ] = $aE;

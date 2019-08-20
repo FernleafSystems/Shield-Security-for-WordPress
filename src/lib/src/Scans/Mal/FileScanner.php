@@ -117,17 +117,25 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
 			$oThePlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
 			if ( $oThePlugin instanceof WpPluginVo ) {
-				try {
-					$sTmpFile = $oPluginFiles
-						->setWorkingSlug( $oThePlugin->slug )
-						->setWorkingVersion( $oThePlugin->Version )
-						->getOriginalFileFromVcs( $sFullPath );
-					if ( Services::WpFs()->exists( $sTmpFile )
-						 && ( new Utilities\File\Compare\CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
-						$bCanExclude = true;
+
+				$oPlugVersion = ( new Utilities\WpOrg\Plugin\Versions() )
+					->setWorkingSlug( $oThePlugin->slug )
+					->setWorkingVersion( $oThePlugin->Version );
+
+				// Only try to download load a file if the plugin actually uses SVN Tags.
+				if ( $oPlugVersion->getWhetherLatestUsesSvnTag() ) {
+					try {
+						$sTmpFile = $oPluginFiles
+							->setWorkingSlug( $oThePlugin->slug )
+							->setWorkingVersion( $oThePlugin->Version )
+							->getOriginalFileFromVcs( $sFullPath );
+						if ( Services::WpFs()->exists( $sTmpFile )
+							 && ( new Utilities\File\Compare\CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
+							$bCanExclude = true;
+						}
 					}
-				}
-				catch ( \Exception $oE ) {
+					catch ( \Exception $oE ) {
+					}
 				}
 			}
 		}

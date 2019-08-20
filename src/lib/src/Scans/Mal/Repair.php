@@ -50,14 +50,23 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 	}
 
 	/**
+	 * Can only repair a WP Core file, or a plugin that is WP.org, has no update available
+	 * and the latest version uses SVN tags.
 	 * @param ResultItem $oItem
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public function canAutoRepairFromSource( $oItem ) {
 		$bCanRepair = Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment );
 		if ( !$bCanRepair ) {
 			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-			$bCanRepair = ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() );
+			$bCanRepair = ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() )
+						  && !Services\Services::WpPlugins()->isUpdateAvailable( $oPlugin->file );
+			if ( $bCanRepair && !( new WpOrg\Plugin\Versions() )
+					->setWorkingSlug( $oPlugin->slug )
+					->getWhetherLatestUsesSvnTag() ) {
+				throw new \Exception( 'Plugin does not use SVN tags.' );
+			};
 		}
 		return $bCanRepair;
 	}
