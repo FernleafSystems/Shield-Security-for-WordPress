@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-08-20 15:34+0100\n"
-"PO-Revision-Date: 2019-08-20 15:35+0100\n"
+"POT-Creation-Date: 2019-08-20 16:46+0100\n"
+"PO-Revision-Date: 2019-08-20 16:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -8427,6 +8427,21 @@ msgstr ""
 msgid "Please contact your website administrator."
 msgstr ""
 
+#: src/lib/src/Scans/Mal/Repair.php:67
+#, php-format
+msgid "%s not installed from WordPress.org."
+msgstr ""
+
+#: src/lib/src/Scans/Mal/Repair.php:68 src/processors/hack_protect.php:293
+#: src/processors/hackprotect_scan_apc.php:112
+#: src/processors/hackprotect_scan_wpv.php:286
+msgid "Plugin"
+msgstr ""
+
+#: src/lib/src/Scans/Mal/Repair.php:75
+msgid "Plugin developer doesn't use SVN tags for official releases."
+msgstr ""
+
 #: src/lib/src/Tables/Build/AuditTrail.php:132
 msgid "Not logged-in"
 msgstr ""
@@ -8451,10 +8466,6 @@ msgstr ""
 
 #: src/lib/src/Tables/Build/ScanMal.php:34
 msgid "Repair Unavailable"
-msgstr ""
-
-#: src/lib/src/Tables/Build/ScanMal.php:35
-msgid "Plugin developer doesn't use SVN tags for official releases."
 msgstr ""
 
 #: src/lib/src/Tables/Build/ScanPtg.php:26
@@ -8893,12 +8904,6 @@ msgstr ""
 #: src/processors/hack_protect.php:318 src/processors/hack_protect.php:319
 #: src/processors/hack_protect.php:320
 msgid "unknown"
-msgstr ""
-
-#: src/processors/hack_protect.php:293
-#: src/processors/hackprotect_scan_apc.php:112
-#: src/processors/hackprotect_scan_wpv.php:286
-msgid "Plugin"
 msgstr ""
 
 #: src/processors/hack_protect.php:335

@@ -122,8 +122,8 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					->setWorkingSlug( $oThePlugin->slug )
 					->setWorkingVersion( $oThePlugin->Version );
 
-				// Only try to download load a file if the plugin actually uses SVN Tags.
-				if ( $oPlugVersion->getWhetherLatestUsesSvnTag() ) {
+				// Only try to download load a file if the plugin actually uses SVN Tags for this version.
+				if ( $oPlugVersion->exists( $oThePlugin->Version, true ) ) {
 					try {
 						$sTmpFile = $oPluginFiles
 							->setWorkingSlug( $oThePlugin->slug )

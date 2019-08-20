@@ -60,13 +60,21 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 		$bCanRepair = Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment );
 		if ( !$bCanRepair ) {
 			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-			$bCanRepair = ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() )
-						  && !Services\Services::WpPlugins()->isUpdateAvailable( $oPlugin->file );
-			if ( $bCanRepair && !( new WpOrg\Plugin\Versions() )
+			$bCanRepair = ( $oPlugin instanceof Services\Core\VOs\WpPluginVo );
+			if ( $bCanRepair ) {
+				if ( !$oPlugin->isWpOrg() ) {
+					throw new \Exception( sprintf(
+							__( "%s not installed from WordPress.org.", 'wp-simple-firewall' ),
+							__( 'Plugin', 'wp-simple-firewall' )
+						)
+					);
+				};
+				if ( !( new WpOrg\Plugin\Versions() )
 					->setWorkingSlug( $oPlugin->slug )
-					->getWhetherLatestUsesSvnTag() ) {
-				throw new \Exception( 'Plugin does not use SVN tags.' );
-			};
+					->exists( $oPlugin->Version, true ) ) {
+					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
+				};
+			}
 		}
 		return $bCanRepair;
 	}
