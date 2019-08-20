@@ -19,8 +19,8 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 
 		// For display on the Plugins page
 		add_action( 'load-plugins.php', [ $this, 'addPluginVulnerabilityRows' ], 10, 2 );
-		add_action( 'upgrader_process_complete', [ $this, 'scheduleOnDemandScan' ], 10, 2 );
-		add_action( 'deleted_plugin', [ $this, 'scheduleOnDemandScan' ], 10, 2 );
+		add_action( 'upgrader_process_complete', [ $this, 'hookOnDemandScan' ], 10, 0 );
+		add_action( 'deleted_plugin', [ $this, 'hookOnDemandScan' ], 10, 0 );
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();

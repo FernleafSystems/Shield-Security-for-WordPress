@@ -49,6 +49,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
+	 */
+	public function hookOnDemandScan() {
+		$this->scheduleOnDemandScan();
+	}
+
+	/**
 	 * @param int $nDelay
 	 */
 	public function scheduleOnDemandScan( $nDelay = 3 ) {
