@@ -23,18 +23,28 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 		$oMod = $this->getMod();
 		$bSuccess = false;
 
-		if ( $oMod->isMalAutoRepairCore()
-			 && Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
-			$bSuccess = $this->repairCoreItem( $oItem );
+		try {
+			$bCanAutorepair = $this->canAutoRepairFromSource( $oItem );
 		}
-		else {
-			$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-			if ( $oMod->isMalAutoRepairPlugins()
-				 && $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
-				$bSuccess = $this->repairItemInPlugin( $oItem );
+		catch ( \Exception $e ) {
+			$bCanAutorepair = false;
+		}
+
+		if ( $bCanAutorepair ) {
+			
+			if ( $oMod->isMalAutoRepairCore()
+				 && Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
+				$bSuccess = $this->repairCoreItem( $oItem );
 			}
-			else if ( $oMod->isMalAutoRepairSurgical() ) {
-				$bSuccess = $this->repairSurgicalItem( $oItem );
+			else {
+				$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
+				if ( $oMod->isMalAutoRepairPlugins()
+					 && $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
+					$bSuccess = $this->repairItemInPlugin( $oItem );
+				}
+				else if ( $oMod->isMalAutoRepairSurgical() ) {
+					$bSuccess = $this->repairSurgicalItem( $oItem );
+				}
 			}
 		}
 
