@@ -148,7 +148,7 @@ class AdminNotices {
 		else {
 			$oNtc->non_display_reason = 'n/a';
 		}
-		
+
 		$oNtc->template = '/notices/'.$oNtc->id;
 	}
 
