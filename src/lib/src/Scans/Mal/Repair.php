@@ -130,8 +130,8 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 	private function repairItemInPlugin( $oItem ) {
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
-			if ( $oFiles->isValidFileFromPlugin( $oItem->path_fragment ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_fragment );
+			if ( $oFiles->isValidFileFromPlugin( $oItem->path_full ) ) {
+				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
 			}
 			else {
 				$bSuccess = Services\Services::WpFs()->deleteFile( $oItem->path_full );
