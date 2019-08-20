@@ -27,7 +27,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oAction->patterns_regex = $oOpts->getMalSignaturesRegex();
 		$oAction->patterns_simple = $oOpts->getMalSignaturesSimple();
 		$oAction->whitelist_hashes = $oOpts->getMalWhitelistHashes();
-		$oAction->file_exts = [ 'php', 'php5', 'php7', 'phtml' ];
+		$oAction->file_exts = [ 'php', 'php5', 'php7' ];
 		$oAction->scan_root_dir = ABSPATH;
 	}
 }
