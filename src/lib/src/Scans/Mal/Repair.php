@@ -24,13 +24,13 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 		$bSuccess = false;
 
 		try {
-			$bCanAutorepair = $this->canAutoRepairFromSource( $oItem );
+			$bCanAutoRepair = $this->canAutoRepairFromSource( $oItem );
 		}
 		catch ( \Exception $e ) {
-			$bCanAutorepair = false;
+			$bCanAutoRepair = false;
 		}
 
-		if ( $bCanAutorepair ) {
+		if ( $bCanAutoRepair ) {
 			
 			if ( $oMod->isMalAutoRepairCore()
 				 && Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {

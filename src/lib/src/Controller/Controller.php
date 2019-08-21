@@ -1184,7 +1184,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIsRebuildOptionsFromFile() {
 		if ( isset( $this->bRebuildOptions ) ) {
@@ -1200,7 +1200,8 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		$this->bRebuildOptions = true;
 
-		if ( isset( $oConOptions->hash ) && is_string( $oConOptions->hash ) && ( $oConOptions->hash == $sCurrentHash ) ) {
+		if ( isset( $oConOptions->hash ) && is_string( $oConOptions->hash )
+			 && hash_equals( $oConOptions->hash, $sCurrentHash ) ) {
 			$this->bRebuildOptions = false;
 		}
 		else if ( isset( $oConOptions->mod_time ) && ( $sModifiedTime < $oConOptions->mod_time ) ) {
