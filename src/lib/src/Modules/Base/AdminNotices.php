@@ -201,14 +201,14 @@ class AdminNotices {
 
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 		if ( $oMeta instanceof PluginUserMeta ) {
-			$sCleanNotice = 'notice_'.str_replace( [ '-', '_' ], '', $oNotice->id );
+			$sNoticeMetaKey = $this->getNoticeMetaKey( $oNotice );
 
-			if ( isset( $oMeta->{$sCleanNotice} ) ) {
+			if ( isset( $oMeta->{$sNoticeMetaKey} ) ) {
 				$bDismissed = true;
 
 				// migrate from old-style array storage to plain Timestamp
-				if ( is_array( $oMeta->{$sCleanNotice} ) ) {
-					$oMeta->{$sCleanNotice} = $oMeta->{$sCleanNotice}[ 'time' ];
+				if ( is_array( $oMeta->{$sNoticeMetaKey} ) ) {
+					$oMeta->{$sNoticeMetaKey} = $oMeta->{$sNoticeMetaKey}[ 'time' ];
 				}
 			}
 		}
@@ -231,11 +231,12 @@ class AdminNotices {
 	protected function setNoticeDismissed( $oNotice ) {
 		$nTs = Services::Request()->ts();
 
+		$oMeta = $this->getCon()->getCurrentUserMeta();
+		$sNoticeMetaKey = $this->getNoticeMetaKey( $oNotice );
+
 		if ( $oNotice->per_user ) {
-			$oMeta = $this->getCon()->getCurrentUserMeta();
 			if ( $oMeta instanceof PluginUserMeta ) {
-				$sCleanNotice = 'notice_'.str_replace( [ '-', '_' ], '', $oNotice->id );
-				$oMeta->{$sCleanNotice} = $nTs;
+				$oMeta->{$sNoticeMetaKey} = $nTs;
 			}
 		}
 		else {
@@ -243,7 +244,20 @@ class AdminNotices {
 			$aDismissed = $oMod->getDismissedNotices();
 			$aDismissed[ $oNotice->id ] = $nTs;
 			$oMod->setDismissedNotices( $aDismissed );
+
+			// Clear out any old
+			if ( $oMeta instanceof PluginUserMeta ) {
+				unset( $oMeta->{$sNoticeMetaKey} );
+			}
 		}
 		return $this;
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @return string
+	 */
+	private function getNoticeMetaKey( $oNotice ) {
+		return 'notice_'.str_replace( [ '-', '_' ], '', $oNotice->id );
 	}
 }
