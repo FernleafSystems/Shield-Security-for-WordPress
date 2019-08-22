@@ -10,6 +10,11 @@ class AdminNotices {
 
 	use Shield\Modules\ModConsumer;
 
+	/**
+	 * @var
+	 */
+	static protected $nCount = 0;
+
 	public function run() {
 		$oMod = $this->getMod();
 		add_filter( $oMod->prefix( 'collectNotices' ), [ $this, 'addNotices' ] );
@@ -121,6 +126,10 @@ class AdminNotices {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'dismissed';
 		}
+		else if ( !$this->isDisplayNeeded( $oNtc ) ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'not_needed';
+		}
 		else if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'plugin_page_only';
@@ -145,7 +154,13 @@ class AdminNotices {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'min_install_days';
 		}
+		else if ( $oNtc->type === 'promo' && static::$nCount > 0 ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'max_promo_count';
+		}
 		else {
+			static::$nCount++;
+			$oNtc->display = true;
 			$oNtc->non_display_reason = 'n/a';
 		}
 
@@ -167,6 +182,14 @@ class AdminNotices {
 		}
 
 		return $bDismissedUser || $bDismissedMod;
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @return bool
+	 */
+	protected function isDisplayNeeded( $oNotice ) {
+		return true;
 	}
 
 	/**

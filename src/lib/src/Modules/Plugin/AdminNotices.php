@@ -80,24 +80,21 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNotice_OverrideForceoff( $oNotice ) {
-		$oCon = $this->getCon();
-		$oMod = $this->getMod();
-
-		$oNotice->display = $oCon->getIfForceOffActive();
+		$sName = $this->getCon()->getHumanName();
 
 		$oNotice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $oCon->getHumanName() ) ),
+				'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $sName ) ),
 				'message' => sprintf(
 					__( 'Please delete the "%s" file to reactivate %s protection', 'wp-simple-firewall' ),
 					'forceOff',
-					$oCon->getHumanName()
+					$sName
 				),
 				'delete'  => __( 'Click here to automatically delete the file', 'wp-simple-firewall' )
 			],
 			'ajax'              => [
-				'delete_forceoff' => $oMod->getAjaxActionData( 'delete_forceoff', true )
+				'delete_forceoff' => $this->getMod()->getAjaxActionData( 'delete_forceoff', true )
 			]
 		];
 	}
@@ -106,8 +103,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNotice_PluginMailingListSignup( $oNotice ) {
-		$oMod = $this->getMod();
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getMod()->getOptions();
 
 		$sName = $this->getCon()->getHumanName();
 		$oUser = Services::WpUsers()->getCurrentWpUser();
@@ -125,7 +121,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				and to provide guidance with the %s plugin.', $sName, $sName ),
 				'privacy_policy' => sprintf(
 					'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
-					$oMod->getDef( 'href_privacy_policy' )
+					$oOpts->getDef( 'href_privacy_policy' )
 				),
 				'consent'        => sprintf( __( 'I agree to Ts & Cs', 'wp-simple-firewall' ) )
 			],
@@ -145,12 +141,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNotice_UpdateAvailable( $oNotice ) {
-		$oWpPlugins = Services::WpPlugins();
-		$sBaseFile = $this->getCon()->getPluginBaseFile();
-		$oNotice->display = $oWpPlugins->isUpdateAvailable( $sBaseFile ) && !Services::WpPost()->isPage_Updates();
-
 		$sName = $this->getCon()->getHumanName();
-
 		$oNotice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -159,7 +150,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'dismiss'      => __( 'Dismiss this notice', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
-				'upgrade_link' => $oWpPlugins->getUrl_Upgrade( $sBaseFile )
+				'upgrade_link' => Services::WpPlugins()->getUrl_Upgrade( $this->getCon()->getPluginBaseFile() )
 			]
 		];
 	}
@@ -191,7 +182,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 
-		$oNotice->display = !$oMod->isTrackingPermissionSet();
 		$oNotice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -234,5 +224,35 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'forums' => 'https://wordpress.org/support/plugin/wp-simple-firewall',
 			]
 		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @return bool
+	 */
+	protected function isDisplayNeeded( $oNotice ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+
+		switch ( $oNotice->id ) {
+
+			case 'override-forceoff':
+				$bNeeded = $this->getCon()->getIfForceOffActive();
+				break;
+
+			case 'plugin-update-available':
+				$bNeeded = !Services::WpPost()->isPage_Updates()
+						   && Services::WpPlugins()->isUpdateAvailable( !Services::WpPost()->isPage_Updates() );
+				break;
+
+			case 'allow-tracking':
+				$bNeeded = !$oMod->isTrackingPermissionSet();
+				break;
+
+			default:
+				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				break;
+		}
+		return $bNeeded;
 	}
 }

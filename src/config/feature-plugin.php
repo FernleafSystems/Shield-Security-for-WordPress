@@ -25,6 +25,11 @@
       "can_dismiss":      false,
       "type":             "error"
     },
+    "wizard_welcome":             {
+      "id":       "wizard_welcome",
+      "per_user": false,
+      "type":     "info"
+    },
     "plugin-mailing-list-signup": {
       "id":               "plugin-mailing-list-signup",
       "min_install_days": 5,
@@ -34,11 +39,6 @@
     "plugin-update-available":    {
       "id":   "plugin-update-available",
       "type": "warning"
-    },
-    "wizard_welcome":             {
-      "id":       "wizard_welcome",
-      "per_user": false,
-      "type":     "info"
     },
     "allow-tracking":             {
       "id":               "allow-tracking",
