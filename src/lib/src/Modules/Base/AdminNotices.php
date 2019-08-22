@@ -126,10 +126,6 @@ class AdminNotices {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'dismissed';
 		}
-		else if ( !$this->isDisplayNeeded( $oNtc ) ) {
-			$oNtc->display = false;
-			$oNtc->non_display_reason = 'not_needed';
-		}
 		else if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'plugin_page_only';
@@ -157,6 +153,10 @@ class AdminNotices {
 		else if ( $oNtc->type === 'promo' && static::$nCount > 0 ) {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'max_promo_count';
+		}
+		else if ( !$this->isDisplayNeeded( $oNtc ) ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'not_needed';
 		}
 		else {
 			static::$nCount++;

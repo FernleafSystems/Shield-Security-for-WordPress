@@ -34,14 +34,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 */
 	private function buildNoticeCertainOptionsRestricted( $oNotice ) {
 		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
 		$sName = $this->getCon()->getHumanName();
-
-		$sCurrentPage = Services::WpPost()->getCurrentPage();
-		$sCurrentGetPage = Services::Request()->query( 'page' );
-		$oNotice->display = empty( $sCurrentGetPage )
-							&& in_array( $sCurrentPage, $oOpts->getOptionsPagesToRestrict() );
 
 		$oNotice->render_data = [
 			'notice_attributes' => [],
@@ -66,13 +59,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 */
 	private function buildNoticeAdminUsersRestricted( $oNotice ) {
 		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
 		$sName = $this->getCon()->getHumanName();
-
-		$oNotice->display = in_array(
-			Services::WpPost()->getCurrentPage(), $oOpts->getDef( 'restricted_pages_users' )
-		);
 
 		$oNotice->render_data = [
 			'notice_attributes' => [], // TODO
@@ -96,5 +83,35 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				)
 			]
 		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @return bool
+	 */
+	protected function isDisplayNeeded( $oNotice ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
+
+		$sCurrentPage = Services::WpPost()->getCurrentPage();
+
+		switch ( $oNotice->id ) {
+
+			case 'admin-users-restricted':
+				$bNeeded = in_array( $sCurrentPage, $oOpts->getDef( 'restricted_pages_users' ) );
+				break;
+
+			case 'certain-options-restricted':
+				$sCurrentGetPage = Services::Request()->query( 'page' );
+				$bNeeded = empty( $sCurrentGetPage ) && in_array( $sCurrentPage, $oOpts->getOptionsPagesToRestrict() );
+				break;
+
+			default:
+				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				break;
+		}
+		return $bNeeded;
 	}
 }

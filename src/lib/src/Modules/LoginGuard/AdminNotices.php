@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
@@ -32,9 +31,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 
-		$oNotice->display = $oMod->isEmailAuthenticationOptionOn()
-							&& !$oMod->isEmailAuthenticationActive() && !$oMod->getIfCanSendEmailVerified();
-
 		$oNotice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -54,5 +50,27 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'disable_2fa_email'         => $oMod->getAjaxActionData( 'disable_2fa_email', true ),
 			]
 		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @return bool
+	 */
+	protected function isDisplayNeeded( $oNotice ) {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+
+		switch ( $oNotice->id ) {
+
+			case 'email-verification-sent':
+				$bNeeded = $oMod->isEmailAuthenticationOptionOn()
+						   && !$oMod->isEmailAuthenticationActive() && !$oMod->getIfCanSendEmailVerified();
+				break;
+
+			default:
+				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				break;
+		}
+		return $bNeeded;
 	}
 }

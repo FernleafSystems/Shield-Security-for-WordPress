@@ -29,17 +29,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNoticeAkismetRunning( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
 		$oWpPlugins = Services::WpPlugins();
-
-		if ( $oMod->isEnabledHumanCheck() ) {
-			$sPluginFile = $oWpPlugins->findPluginFileFromDirName( 'akismet' );
-			$oNotice->display = !empty( $sPluginFile ) && $oWpPlugins->isActive( $sPluginFile );
-		}
-		else {
-			$oNotice->display = false;
-		}
 
 		$oNotice->render_data = [
 			'notice_attributes' => [],
@@ -53,5 +43,29 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'deactivate' => $oWpPlugins->getUrl_Deactivate( $oWpPlugins->findPluginFileFromDirName( 'akismet' ) )
 			]
 		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @return bool
+	 */
+	protected function isDisplayNeeded( $oNotice ) {
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
+
+		switch ( $oNotice->id ) {
+
+			case 'akismet-running':
+				$oWpPlugins = Services::WpPlugins();
+				$sPluginFile = $oWpPlugins->findPluginFileFromDirName( 'akismet' );
+				$bNeeded = $oMod->isEnabledHumanCheck()
+						   && !empty( $sPluginFile ) && $oWpPlugins->isActive( $sPluginFile );
+				break;
+
+			default:
+				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				break;
+		}
+		return $bNeeded;
 	}
 }

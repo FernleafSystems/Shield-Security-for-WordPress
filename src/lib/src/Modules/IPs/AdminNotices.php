@@ -29,10 +29,6 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNoticeVisitorWhitelisted( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-
-		$oNotice->display = $oMod->isVisitorWhitelisted();
 		$oNotice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
@@ -48,5 +44,26 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				'including_message' => __( 'Including the hiding the WP Login page.', 'wp-simple-firewall' )
 			]
 		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 * @return bool
+	 */
+	protected function isDisplayNeeded( $oNotice ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
+
+		switch ( $oNotice->id ) {
+
+			case 'visitor-whitelisted':
+				$bNeeded = $oMod->isVisitorWhitelisted();
+				break;
+
+			default:
+				$bNeeded = parent::isDisplayNeeded( $oNotice );
+				break;
+		}
+		return $bNeeded;
 	}
 }
