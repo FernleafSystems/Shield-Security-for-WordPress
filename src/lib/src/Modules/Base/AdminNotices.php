@@ -122,11 +122,7 @@ class AdminNotices {
 		$oMod = $this->getMod();
 		$oOpts = $oMod->getOptions();
 
-		if ( $this->isNoticeDismissed( $oNtc ) ) {
-			$oNtc->display = false;
-			$oNtc->non_display_reason = 'dismissed';
-		}
-		else if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
+		if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'plugin_page_only';
 		}
@@ -153,6 +149,10 @@ class AdminNotices {
 		else if ( $oNtc->type === 'promo' && static::$nCount > 0 ) {
 			$oNtc->display = false;
 			$oNtc->non_display_reason = 'max_promo_count';
+		}
+		else if ( $this->isNoticeDismissed( $oNtc ) ) {
+			$oNtc->display = false;
+			$oNtc->non_display_reason = 'dismissed';
 		}
 		else if ( !$this->isDisplayNeeded( $oNtc ) ) {
 			$oNtc->display = false;

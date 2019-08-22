@@ -15,7 +15,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $oNotice->id ) {
 
 			case 'email-verification-sent':
-				$this->buildNoticeEmailVerificationSent( $oNotice );
+				$this->buildNotice_EmailVerificationSent( $oNotice );
 				break;
 
 			default:
@@ -27,7 +27,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
-	private function buildNoticeEmailVerificationSent( $oNotice ) {
+	private function buildNotice_EmailVerificationSent( $oNotice ) {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 

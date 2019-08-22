@@ -16,11 +16,11 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $oNotice->id ) {
 
 			case 'admin-users-restricted':
-				$this->buildNoticeAdminUsersRestricted( $oNotice );
+				$this->buildNotice_AdminUsersRestricted( $oNotice );
 				break;
 
 			case 'certain-options-restricted':
-				$this->buildNoticeCertainOptionsRestricted( $oNotice );
+				$this->buildNotice_CertainOptionsRestricted( $oNotice );
 				break;
 
 			default:
@@ -32,7 +32,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
-	private function buildNoticeCertainOptionsRestricted( $oNotice ) {
+	private function buildNotice_CertainOptionsRestricted( $oNotice ) {
 		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 
@@ -57,7 +57,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
-	private function buildNoticeAdminUsersRestricted( $oNotice ) {
+	private function buildNotice_AdminUsersRestricted( $oNotice ) {
 		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 

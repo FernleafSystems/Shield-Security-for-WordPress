@@ -16,7 +16,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $oNotice->id ) {
 
 			case 'akismet-running':
-				$this->buildNoticeAkismetRunning( $oNotice );
+				$this->buildNotice_AkismetRunning( $oNotice );
 				break;
 
 			default:
@@ -28,7 +28,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	/**
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
-	private function buildNoticeAkismetRunning( $oNotice ) {
+	private function buildNotice_AkismetRunning( $oNotice ) {
 		$oWpPlugins = Services::WpPlugins();
 
 		$oNotice->render_data = [

@@ -1,7 +1,9 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
+
 
 class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 
@@ -27,33 +29,35 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
 
-		if ( $oMod->isAuditUsers() ) {
+		if ( $oOpts->isAuditUsers() ) {
 			( new Auditors\Users() )
 				->setMod( $oMod )
 				->run();
 		}
-		if ( $oMod->isAuditPlugins() ) {
+		if ( $oOpts->isAuditPlugins() ) {
 			( new Auditors\Plugins() )
 				->setMod( $oMod )
 				->run();
 		}
-		if ( $oMod->isAuditThemes() ) {
+		if ( $oOpts->isAuditThemes() ) {
 			( new Auditors\Themes() )
 				->setMod( $oMod )
 				->run();
 		}
-		if ( $oMod->isAuditWp() ) {
+		if ( $oOpts->isAuditWp() ) {
 			( new Auditors\Wordpress() )
 				->setMod( $oMod )
 				->run();
 		}
-		if ( $oMod->isAuditPosts() ) {
+		if ( $oOpts->isAuditPosts() ) {
 			( new Auditors\Posts() )
 				->setMod( $oMod )
 				->run();
 		}
-		if ( $oMod->isAuditEmails() ) {
+		if ( $oOpts->isAuditEmails() ) {
 			( new Auditors\Emails() )
 				->setMod( $oMod )
 				->run();
@@ -151,14 +155,14 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	 * @return int|null
 	 */
 	protected function getAutoExpirePeriod() {
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getAutoCleanDays()*DAY_IN_SECONDS;
 	}
 
 	/**
 	 * @return AuditTrail\Handler
-	 * @deprecated 7.5
+	 * @deprecated 8
 	 */
 	protected function createDbHandler() {
 		return new AuditTrail\Handler();
@@ -166,7 +170,7 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
 	 * @param AuditTrail\EntryVO $oEntryVo
-	 * @deprecated 7.5
+	 * @deprecated 8
 	 */
 	public function addAuditTrialEntry( $oEntryVo ) {
 		return;
