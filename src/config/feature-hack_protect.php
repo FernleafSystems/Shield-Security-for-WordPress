@@ -421,7 +421,7 @@
         }
       ],
       "link_info":     "https://icwp.io/fp",
-      "link_blog":     "",
+      "link_blog":     "https://icwp.io/fx",
       "name":          "Automatic Malware Scan",
       "summary":       "Enable Malware File Scanner",
       "description":   "When enabled the Malware scanner will run automatically."
