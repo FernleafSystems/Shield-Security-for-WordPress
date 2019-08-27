@@ -7,8 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
-	use Shield\AuditTrail\Auditor,
-		Shield\Modules\ModConsumer;
+	use Shield\Modules\ModConsumer;
 	const OPT_KEY = '';
 
 	public function run() {
@@ -49,12 +48,4 @@ abstract class Base {
 	}
 
 	abstract protected function process();
-
-	/**
-	 * @return $this
-	 * @deprecated 7.5
-	 */
-	protected function writeAudit() {
-		return $this;
-	}
 }

@@ -48,20 +48,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Wcf\ResultsSet
-	 */
-	protected function getNewResultsSet() {
-		return new Shield\Scans\Wcf\ResultsSet();
-	}
-
-	/**
-	 * @return Shield\Scans\Wcf\ResultItem
-	 */
-	protected function getResultItem() {
-		return new Shield\Scans\Wcf\ResultItem();
-	}
-
-	/**
 	 * @return Shield\Scans\Wcf\ScanActionVO
 	 */
 	protected function getNewActionVO() {

@@ -56,11 +56,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return Shield\Databases\Base\Handler
 	 */
-	abstract protected function createDbHandler();
-
-	/**
-	 * @return Shield\Databases\Base\Handler
-	 */
 	public function getDbHandler() {
 		if ( !isset( $this->oDbh ) ) {
 			$this->oDbh = $this->getMod()->getDbHandler();

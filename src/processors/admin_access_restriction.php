@@ -486,22 +486,4 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			$sLinkText
 		);
 	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
-		return;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
-		return;
-	}
 }

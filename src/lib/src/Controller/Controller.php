@@ -2060,19 +2060,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		return empty( $sContent ) ? '' : wp_kses_post( wpautop( $sContent, false ) );
 	}
 
-	/**
-	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
-	 * so we removed the "current_user_can()" or any such sub-call within this function
-	 * @return bool
-	 * @deprecated v6.10.7
-	 */
-	public function getHasPermissionToManage() {
-		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {
-			return true;
-		}
-		return ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'is_plugin_admin' ), true ) );
-	}
-
 	private function runTests() {
 		die();
 		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();

@@ -120,32 +120,23 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Intent
+	 * @return \ICWP_WPSF_Processor_LoginProtect_Intent
 	 */
 	public function getSubProIntent() {
 		return $this->getSubPro( 'intent' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
+	 * @return \ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
 	 */
 	private function getSubProRecaptcha() {
 		return $this->getSubPro( 'recaptcha' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_WpLogin
+	 * @return \ICWP_WPSF_Processor_LoginProtect_WpLogin
 	 */
 	private function getSubProRename() {
 		return $this->getSubPro( 'rename' );
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_email_verification_sent() {
-		return;
 	}
 }

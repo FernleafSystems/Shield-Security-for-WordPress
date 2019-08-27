@@ -81,13 +81,4 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 			$this->sendTrackingData();
 		}
 	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_allow_tracking() {
-		return;
-	}
 }

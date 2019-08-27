@@ -880,12 +880,4 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
 	}
-
-	/**
-	 * @return array
-	 * @deprecated
-	 */
-	public function supplyGoogleRecaptchaConfig() {
-		return $this->getGoogleRecaptchaConfig();
-	}
 }

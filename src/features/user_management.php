@@ -5,8 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	use Shield\AuditTrail\Auditor;
-
 	/**
 	 * Should have no default email. If no email is set, no notification is sent.
 	 * @return string
@@ -74,18 +72,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 		catch ( \Exception $oE ) {
 			return false;
 		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAutoAddSessions() {
-		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
-		if ( $nStartedAt < 1 ) {
-			$nStartedAt = Services::Request()->ts();
-			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
-		}
-		return ( Services::Request()->ts() - $nStartedAt ) < 20;
 	}
 
 	/**

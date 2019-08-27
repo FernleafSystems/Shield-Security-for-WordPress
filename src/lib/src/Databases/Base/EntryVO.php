@@ -95,6 +95,7 @@ class EntryVO {
 
 	/**
 	 * @return int
+	 * @deprecated
 	 */
 	public function getId() {
 		return (int)$this->id;

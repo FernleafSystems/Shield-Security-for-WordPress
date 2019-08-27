@@ -1007,7 +1007,7 @@ class Options {
 	/**
 	 * @param string
 	 * @return mixed|null
-	 * @deprecated 7.5
+	 * @deprecated 8.1
 	 */
 	public function getFeatureDefinition( $sDefinition ) {
 		return $this->getDef( $sDefinition );

@@ -106,22 +106,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Scans\Base\BaseResultsSet|mixed
-	 * @deprecated
-	 */
-	protected function getNewResultsSet() {
-		return $this->getScanActionVO()->getNewResultsSet();
-	}
-
-	/**
-	 * @return Shield\Scans\Base\BaseResultItem|mixed
-	 * @deprecated
-	 */
-	protected function getResultItem() {
-		return $this->getScanActionVO()->getNewResultItem();
-	}
-
-	/**
 	 * @return Shield\Scans\Base\BaseRepair|mixed|null
 	 */
 	abstract protected function getRepairer();
@@ -538,13 +522,5 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	public function setScannerDb( $oScanner ) {
 		$this->oScanner = $oScanner;
 		return $this;
-	}
-
-	/**
-	 * @return false
-	 * @deprecated 8
-	 */
-	protected function getScanner() {
-		return false;
 	}
 }

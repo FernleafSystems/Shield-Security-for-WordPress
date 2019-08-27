@@ -112,15 +112,6 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_visitor_whitelisted() {
-		return;
-	}
-
-	/**
 	 * @param array $aMessages
 	 * @return array
 	 */
@@ -178,7 +169,7 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 			return;
 		}
 
-		$sIp = $this->ip();
+		$sIp = Services::IP()->getRequestIp();
 		$bKill = false;
 
 		// TODO: *Maybe* Have a manual black list process first.
@@ -336,7 +327,11 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 
 		$oBlackIp = $this->getAutoBlackListIp( $sIp );
 		if ( !$oBlackIp instanceof IPs\EntryVO ) {
-			$oBlackIp = $this->addIpToList( $this->ip(), ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK, 'auto' );
+			$oBlackIp = $this->addIpToList(
+				Services::IP()->getRequestIp(),
+				ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+				'auto'
+			);
 		}
 
 		if ( $oBlackIp instanceof IPs\EntryVO ) {
@@ -376,24 +371,12 @@ class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * TODO: use basewpsf module isVisitorWhitelisted()
-	 * @return bool
-	 * @deprecated 7.5
-	 */
-	public function isCurrentIpWhitelisted() {
-		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-			$this->bVisitorIsWhitelisted = $this->isIpOnWhiteList( $this->ip() );
-		}
-		return $this->bVisitorIsWhitelisted;
-	}
-
-	/**
 	 * @return IPs\EntryVO[]
 	 */
 	public function getWhitelistIpsData() {
 		/** @var IPs\Select $oSelect */
 		$oSelect = $this->getDbHandler()->getQuerySelector();
-		return $oSelect->allFromList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+		return $oSelect->allFromList( \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
 	}
 
 	/**

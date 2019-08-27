@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha
+	 * @return \ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha
 	 */
 	private function getSubProRecaptcha() {
 		return $this->getSubPro( 'recaptcha' );
@@ -88,14 +88,5 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$aEmails = [];
 		}
 		return $aEmails;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_akismet_running( $aNoticeAttributes ) {
-		return;
 	}
 }

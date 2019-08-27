@@ -6,17 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * Override this and adapt per feature
-	 * @return ICWP_WPSF_Processor_Sessions
-	 * @deprecated 7.5
-	 */
-	protected function loadProcessor() {
-		$oP = parent::loadProcessor();
-		self::$oSessProcessor = $oP;
-		return $oP;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isAutoAddSessions() {

@@ -339,28 +339,4 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function loadStrings() {
 		return new Shield\Modules\IPs\Strings();
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 7.3
-	 */
-	public function getOptTracking404() {
-		return $this->getOpt( 'track_404' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 7.3
-	 */
-	public function is404Tracking() {
-		return !$this->isOpt( 'track_404', 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 7.5
-	 */
-	public function isAutoBlackListFeatureEnabled() {
-		return $this->isAutoBlackListEnabled();
-	}
 }

@@ -251,19 +251,4 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	public function getSpamBlacklistFile() {
 		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
 	}
-
-	/**
-	 * This is the same as isTrustedCommenter() except with an optimization in the order of the tests
-	 * since we already have a User object loaded and testing roles is quicker than querying for approved comments
-	 * @param \WP_User $oUser
-	 * @return bool
-	 * @deprecated
-	 */
-	public function isUserTrusted( $oUser ) {
-		return ( $oUser instanceof \WP_User )
-			   && (
-				   count( array_intersect( $this->getTrustedRoles(), array_map( 'strtolower', $oUser->roles ) ) ) > 0
-				   || $this->loadWpComments()->countApproved( $oUser->user_email ) >= $this->getApprovedMinimum()
-			   );
-	}
 }

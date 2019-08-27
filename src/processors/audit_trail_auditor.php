@@ -27,7 +27,7 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 		}
 		$this->bAudit = true;
 
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
 		$oMod = $this->getMod();
 		/** @var Options $oOpts */
 		$oOpts = $oMod->getOptions();
@@ -146,39 +146,11 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * override and do not delete
-	 */
-	public function deleteTable() {
-	}
-
-	/**
 	 * @return int|null
 	 */
 	protected function getAutoExpirePeriod() {
 		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getAutoCleanDays()*DAY_IN_SECONDS;
-	}
-
-	/**
-	 * @return AuditTrail\Handler
-	 * @deprecated 8
-	 */
-	protected function createDbHandler() {
-		return new AuditTrail\Handler();
-	}
-
-	/**
-	 * @param AuditTrail\EntryVO $oEntryVo
-	 * @deprecated 8
-	 */
-	public function addAuditTrialEntry( $oEntryVo ) {
-		return;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	protected function trimTable() {
 	}
 }

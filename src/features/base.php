@@ -773,7 +773,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return mixed|null
 	 */
 	public function getDef( $sKey ) {
-		return $this->getOptionsVo()->getFeatureDefinition( $sKey );
+		return $this->getOptions()->getDef( $sKey );
 	}
 
 	/**

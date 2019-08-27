@@ -5,8 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 
-	use Shield\Modules\ModConsumer,
-		Shield\AuditTrail\Auditor;
+	use Shield\Modules\ModConsumer;
 
 	/**
 	 * @var int
@@ -41,7 +40,6 @@ abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 		add_action( $oModCon->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $oModCon->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 		add_action( $oModCon->prefix( 'deactivate_plugin' ), [ $this, 'deactivatePlugin' ] );
-		add_action( $oModCon->prefix( 'generate_admin_notices' ), [ $this, 'autoAddToAdminNotices' ] );
 
 		/**
 		 * 2019-04-19:
@@ -121,32 +119,6 @@ abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 	protected function incrementPromoNoticesCount() {
 		self::$nPromoNoticesCount++;
 		return $this;
-	}
-
-	/**
-	 * @param array $aAttrs
-	 * @return bool
-	 */
-	protected function getIfDisplayAdminNotice( $aAttrs ) {
-		$bDisplay = true;
-		$oCon = $this->getCon();
-		$oWpNotices = $this->loadWpNotices();
-
-		if ( $aAttrs[ 'valid_admin' ] && !( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) ) {
-			$bDisplay = false;
-		}
-		else if ( $aAttrs[ 'plugin_page_only' ] && !$this->getCon()->isModulePage() ) {
-			$bDisplay = false;
-		}
-		else if ( $aAttrs[ 'schedule' ] == 'once'
-				  && ( !Services::WpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
-			$bDisplay = false;
-		}
-		else if ( $aAttrs[ 'type' ] == 'promo' && Services::WpGeneral()->isMobile() ) {
-			$bDisplay = false;
-		}
-
-		return $bDisplay;
 	}
 
 	public function onModuleShutdown() {
@@ -263,35 +235,27 @@ abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * Will prefix and return any string with the unique plugin prefix.
-	 * @param string $sSuffix
-	 * @param string $sGlue
-	 * @return string
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
-	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getMod()->prefix( $sSuffix, $sGlue );
+	public function autoAddToAdminNotices() {
 	}
 
 	/**
 	 * @return string
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	protected function ip() {
 		return Services::IP()->getRequestIp();
 	}
 
 	/**
-	 * @return int
-	 * @deprecated 8
+	 * Will prefix and return any string with the unique plugin prefix.
+	 * @param string $sSuffix
+	 * @param string $sGlue
+	 * @return string
+	 * @deprecated 8.1
 	 */
-	protected function time() {
-		return Services::Request()->ts();
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function autoAddToAdminNotices() {
+	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
+		return $this->getMod()->prefix( $sSuffix, $sGlue );
 	}
 }

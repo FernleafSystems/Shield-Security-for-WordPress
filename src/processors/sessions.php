@@ -269,13 +269,4 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	protected function getAutoExpirePeriod() {
 		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
 	}
-
-	/**
-	 * @param Session\EntryVO $oSes
-	 * @return bool
-	 * @deprecated 7.5
-	 */
-	public function queryTerminateSession( $oSes ) {
-		return ( $oSes instanceof Session\EntryVO ) ? $this->terminateSession( $oSes->id ) : true;
-	}
 }

@@ -185,22 +185,4 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
 	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_override_forceoff() {
-		return;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_plugin_mailing_list_signup() {
-		return;
-	}
 }

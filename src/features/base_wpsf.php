@@ -5,8 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
-	use Shield\AuditTrail\Auditor;
-
 	/**
 	 * @var string[]
 	 */
@@ -16,11 +14,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @var Shield\Databases\AuditTrail\EntryVO[]
 	 */
 	private static $aAuditLogs;
-
-	/**
-	 * @var ICWP_WPSF_Processor_Sessions
-	 */
-	static protected $oSessProcessor;
 
 	/**
 	 * @var bool
@@ -449,41 +442,5 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getIpOffenceCount() {
 		return isset( self::$nIpOffenceCount ) ? self::$nIpOffenceCount : 0;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return $this
-	 * @deprecated 7.5
-	 */
-	public function setOptInsightsAt( $sKey ) {
-		return $this;
-	}
-
-	/**
-	 * Used to mark an IP address for immediate block
-	 * @return $this
-	 * @deprecated
-	 */
-	public function setIpBlocked() {
-		return $this;
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 7.5
-	 */
-	public function getIpAction() {
-		return $this->getIpOffenceCount();
-	}
-
-	/**
-	 * Used to mark an IP address for transgression/black-mark
-	 * @param int $nIncrementCount
-	 * @return $this
-	 * @deprecated 7.5
-	 */
-	public function setIpTransgressed( $nIncrementCount = 1 ) {
-		return $this;
 	}
 }
