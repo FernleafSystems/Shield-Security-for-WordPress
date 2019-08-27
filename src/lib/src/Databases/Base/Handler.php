@@ -31,11 +31,6 @@ class Handler {
 	protected $sTable;
 
 	/**
-	 * @var string
-	 */
-	protected $sNamespace;
-
-	/**
 	 * @var bool
 	 */
 	private $bTableExist;

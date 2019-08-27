@@ -201,14 +201,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated
-	 */
-	public function isEnabledChangeTracking() {
-		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
-	}
-
-	/**
 	 * @return int
 	 * @deprecated
 	 */
@@ -246,20 +238,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	public function isCTSnapshotDue() {
 		return ( Services::Request()->ts() - $this->getCTLastSnapshotAt() > $this->getCTSnapshotInterval() );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated
-	 */
-	public function isEnabledAuditing() {
-		return $this->isAuditEmails()
-			   || $this->isAuditPlugins()
-			   || $this->isAuditThemes()
-			   || $this->isAuditPosts()
-			   || $this->isAuditShield()
-			   || $this->isAuditUsers()
-			   || $this->isAuditWp();
 	}
 
 	/**
@@ -332,5 +310,27 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	public function getAutoCleanDays() {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isEnabledAuditing() {
+		return $this->isAuditEmails()
+			   || $this->isAuditPlugins()
+			   || $this->isAuditThemes()
+			   || $this->isAuditPosts()
+			   || $this->isAuditShield()
+			   || $this->isAuditUsers()
+			   || $this->isAuditWp();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isEnabledChangeTracking() {
+		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
 	}
 }
