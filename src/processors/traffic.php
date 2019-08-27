@@ -37,7 +37,6 @@ class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
 	protected function getSubProMap() {
 		return [
 			'logger'  => 'ICWP_WPSF_Processor_TrafficLogger',
-			'limiter' => 'ICWP_WPSF_Processor_TrafficLogger',
 		];
 	}
 }
