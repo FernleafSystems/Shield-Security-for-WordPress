@@ -341,9 +341,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function processImportOptions( $aOptions ) {
 		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-			$this->getOptionsVo()
+			$this->getOptions()
 				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
@@ -437,6 +437,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 	/**
 	 * @return \ICWP_WPSF_OptionsVO
+	 * @deprecated 8.1
 	 */
 	public function getOptionsVo() {
 		if ( !isset( $this->oOptions ) ) {
@@ -461,7 +462,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				// cleanup databases randomly just in-case cron doesn't run.
 				$this->cleanupDatabases();
 			}
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
@@ -809,7 +810,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return mixed
 	 */
 	public function getOpt( $sOptionKey, $mDefault = false ) {
-		return $this->getOptionsVo()->getOpt( $sOptionKey, $mDefault );
+		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
 	}
 
 	/**
@@ -819,7 +820,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return bool
 	 */
 	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
-		$mOptionValue = $this->getOptionsVo()->getOpt( $sOptionKey );
+		$mOptionValue = $this->getOptions()->getOpt( $sOptionKey );
 		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
 
@@ -868,7 +869,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return $this
 	 */
 	protected function setOpt( $sOptionKey, $mValue ) {
-		$this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
+		$this->getOptions()->setOpt( $sOptionKey, $mValue );
 		return $this;
 	}
 
@@ -918,7 +919,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		return is_array( $aDN ) ? $aDN : [];
 	}
 
-
 	/**
 	 * @return string[]
 	 */
@@ -934,6 +934,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	public function setDismissedNotices( $aDismissed ) {
 		return $this->setOpt( 'dismissed_notices', $aDismissed );
 	}
+
 	/**
 	 * @param string[] $aDismissed
 	 * @return $this
@@ -959,24 +960,32 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 	/**
 	 * Saves the options to the WordPress Options store.
-	 * It will also update the stored plugin options version.
 	 * @return void
+	 * @deprecated 8.1
 	 */
 	public function savePluginOptions() {
+		$this->saveModOptions();
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function saveModOptions() {
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
-			$this->getOptionsVo()
+			$this->getOptions()
 				 ->setNeedSave( true );
 		}
 
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
-		$this->bImportExportWhitelistNotify = $this->getOptionsVo()->getNeedSave();
+		$this->bImportExportWhitelistNotify = $this->getOptions()->getNeedSave();
 		$this->store();
+		return $this;
 	}
 
 	private function store() {
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$this->getOptionsVo()
+		$this->getOptions()
 			 ->doOptionsSave( $this->getCon()->getIsResetPlugin(), $this->isPremium() );
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
@@ -1304,7 +1313,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			}
 		}
 
-		$this->savePluginOptions();
+		$this->saveModOptions();
 
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
@@ -1870,6 +1879,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param string $sOpt
 	 * @param int    $nAt
 	 * @return $this
+	 * @deprecated 8.1 - TODO: Be careful when updating to use `Options` as this is newly-added in 8.1
 	 */
 	protected function setOptAt( $sOpt, $nAt = null ) {
 		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );

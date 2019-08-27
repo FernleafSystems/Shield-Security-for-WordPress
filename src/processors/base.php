@@ -23,7 +23,7 @@ abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 	private $bLoginCaptured;
 
 	/**
-	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
+	 * @param \ICWP_WPSF_FeatureHandler_Base $oModCon
 	 */
 	public function __construct( $oModCon ) {
 		$this->setMod( $oModCon );
@@ -256,6 +256,6 @@ abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 	 * @deprecated 8.1
 	 */
 	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
-		return $this->getMod()->prefix( $sSuffix, $sGlue );
+		return $this->getCon()->prefix( $sSuffix, $sGlue );
 	}
 }

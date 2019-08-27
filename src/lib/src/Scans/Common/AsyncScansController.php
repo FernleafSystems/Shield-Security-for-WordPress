@@ -229,7 +229,7 @@ class AsyncScansController {
 	 */
 	private function storeScansJob( $oJob ) {
 		$this->getOpts()->setOpt( 'scans_job', $oJob->getRawDataAsArray() );
-		$this->getMod()->savePluginOptions();
+		$this->getMod()->saveModOptions();
 		return $this;
 	}
 

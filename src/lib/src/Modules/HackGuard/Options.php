@@ -118,6 +118,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getScanFrequency() {
+		return (int)$this->getOpt( 'scan_frequency', 1 );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {

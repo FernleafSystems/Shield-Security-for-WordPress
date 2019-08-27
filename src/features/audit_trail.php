@@ -7,9 +7,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return int
+	 * @deprecated 8.1 - TODO: Need to handle isPremium() within Options class
 	 */
 	public function getMaxEntries() {
-		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDefaultMaxEntries();
+		/** @var Shield\Modules\AuditTrail\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $this->isPremium() ? (int)$oOpts->getOpt( 'audit_trail_max_entries' ) : $oOpts->getDefaultMaxEntries();
 	}
 
 	/**
@@ -26,13 +29,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			'themes'    => 'Themes',
 			'emails'    => 'Emails',
 		];
-	}
-
-	/**
-	 * @return ICWP_WPSF_FeatureHandler_AuditTrail
-	 */
-	public function updateCTLastSnapshotAt() {
-		return $this->setOptAt( 'ct_last_snapshot_at' );
 	}
 
 	/**
@@ -201,46 +197,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return int
-	 * @deprecated
-	 */
-	public function getCTSnapshotsPerWeek() {
-		return (int)$this->getOpt( 'ct_snapshots_per_week', 7 );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated
-	 */
-	public function getCTMaxSnapshots() {
-		return (int)$this->getOpt( 'ct_max_snapshots', 28 );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated
-	 */
-	public function getCTSnapshotInterval() {
-		return WEEK_IN_SECONDS/$this->getCTSnapshotsPerWeek();
-	}
-
-	/**
-	 * @return int
-	 * @deprecated
-	 */
-	public function getCTLastSnapshotAt() {
-		return $this->getOpt( 'ct_last_snapshot_at' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated
-	 */
-	public function isCTSnapshotDue() {
-		return ( Services::Request()->ts() - $this->getCTLastSnapshotAt() > $this->getCTSnapshotInterval() );
-	}
-
-	/**
 	 * @return bool
 	 * @deprecated
 	 */
@@ -300,14 +256,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return int
 	 * @deprecated
 	 */
-	public function getDefaultMaxEntries() {
-		return $this->getDef( 'audit_trail_default_max_entries' );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated
-	 */
 	public function getAutoCleanDays() {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
 	}
@@ -332,5 +280,13 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	public function isEnabledChangeTracking() {
 		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.1
+	 */
+	public function getDefaultMaxEntries() {
+		return $this->getDef( 'audit_trail_default_max_entries' );
 	}
 }

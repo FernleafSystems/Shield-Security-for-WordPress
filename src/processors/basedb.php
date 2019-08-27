@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_BaseDbProcessor
+ * @deprecated 8.1
+ */
 abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
@@ -14,32 +18,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @var integer
 	 */
 	protected $nAutoExpirePeriod = null;
-
-	/**
-	 * ICWP_WPSF_BaseDbProcessor constructor.
-	 * @param ICWP_WPSF_FeatureHandler_Base $oModCon
-	 * @param string                        $sTableName
-	 * @throws \Exception
-	 */
-	public function __construct( $oModCon, $sTableName = null ) {
-		parent::__construct( $oModCon );
-		$this->initializeTable( $sTableName );
-	}
-
-	/**
-	 * @param string $sTableName
-	 * @throws \Exception
-	 */
-	protected function initializeTable( $sTableName ) {
-		if ( empty( $sTableName ) ) {
-			throw new \Exception( 'Table name is empty' );
-		}
-		$this->getDbHandler()
-			 ->setTable( $this->getCon()->prefixOption( $sTableName ) )
-			 ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
-			 ->setSqlCreate( $this->getCreateTableSql() )
-			 ->tableInit();
-	}
 
 	/**
 	 * @return bool
@@ -111,5 +89,13 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getAutoExpirePeriod() {
 		return null;
+	}
+
+	/**
+	 * @param string $sTableName
+	 * @throws \Exception
+	 * @deprecated 8.1
+	 */
+	protected function initializeTable( $sTableName ) {
 	}
 }

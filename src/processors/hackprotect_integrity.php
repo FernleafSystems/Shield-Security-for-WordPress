@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -142,8 +143,8 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	 * @return int
 	 */
 	protected function getCronFrequency() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getScanFrequency();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return $oOpts->getScanFrequency();
 	}
 }

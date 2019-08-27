@@ -33,7 +33,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oReq = Services::Request();
 		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
 			case  'scan_file_download':
-				/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+				/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
 				$oPro = $this->getProcessor();
 				$oPro->getSubProScanner()->downloadItemFile( $oReq->query( 'rid' ) );
 				break;
@@ -140,17 +140,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getScanFrequency() {
-		return (int)$this->getOpt( 'scan_frequency', 1 );
-	}
-
-	/**
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		$nFreq = $this->getScanFrequency();
+		/** @var Shield\Modules\HackGuard\Options $oStrings */
+		$oOpts = $this->getOptions();
+		$nFreq = $oOpts->getScanFrequency();
 		$this->loadWpCronProcessor()
 			 ->addNewSchedule(
 				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
@@ -960,6 +955,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function addInsightsConfigData( $aAllData ) {
 		/** @var Shield\Modules\HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
+		/** @var Shield\Modules\HackGuard\Options $oStrings */
+		$oOpts = $this->getOptions();
 		$aScanNames = $oStrings->getScanNames();
 
 		$aThis = [
@@ -975,7 +972,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bGoodFrequency = $this->getScanFrequency() > 1;
+			$bGoodFrequency = $oOpts->getScanFrequency() > 1;
 			$aThis[ 'key_opts' ][ 'frequency' ] = [
 				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
 				'enabled' => $bGoodFrequency,
@@ -1105,5 +1102,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function loadStrings() {
 		return new Shield\Modules\HackGuard\Strings();
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.1
+	 */
+	public function getScanFrequency() {
+		return (int)$this->getOpt( 'scan_frequency', 1 );
 	}
 }

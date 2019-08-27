@@ -689,7 +689,7 @@ class Options {
 
 	/**
 	 * @param string $sOptionKey
-	 * @return boolean
+	 * @return $this
 	 */
 	public function resetOptToDefault( $sOptionKey ) {
 		return $this->setOpt( $sOptionKey, $this->getOptDefault( $sOptionKey ) );
@@ -754,11 +754,11 @@ class Options {
 	/**
 	 * @param string $sOptKey
 	 * @param mixed  $mNewValue
-	 * @return mixed
+	 * @return $this
 	 */
 	public function setOpt( $sOptKey, $mNewValue ) {
 
-		// We can't use getOpt() to find the current value since we'll create an infinite loop
+		// NOTE: can't use getOpt() for current value since we'll create an infinite loop
 		$aOptionsValues = $this->getAllOptionsValues();
 		$mCurrent = isset( $aOptionsValues[ $sOptKey ] ) ? $aOptionsValues[ $sOptKey ] : null;
 
@@ -781,15 +781,38 @@ class Options {
 					return $this->resetOptToDefault( $sOptKey );
 				}
 			}
-			$this->setOldOptValue( $sOptKey, $mCurrent );
-			$this->aOptionsValues[ $sOptKey ] = $mNewValue;
+			$this->setOldOptValue( $sOptKey, $mCurrent )
+				 ->setOptValue( $sOptKey, $mNewValue );
 		}
 
 		if ( $bIsResetting ) {
 			unset( $this->aOld[ $sOptKey ] );
 		}
 
-		return true;
+		return $this;
+	}
+
+	/**
+	 * @param string $sOpt
+	 * @param int    $nAt
+	 * @return $this
+	 */
+	public function setOptAt( $sOpt, $nAt = null ) {
+		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
+		return $this->setOpt( $sOpt, $nAt );
+	}
+
+	/**
+	 * Use this to directly set the option value without the risk of any recursion.
+	 * @param string $sOptKey
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	private function setOptValue( $sOptKey, $mValue ) {
+		$aValues = $this->getAllOptionsValues();
+		$aValues[ $sOptKey ] = $mValue;
+		$this->aOptionsValues = $aValues;
+		return $this;
 	}
 
 	/**

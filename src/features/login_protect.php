@@ -64,7 +64,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	private function processEmailSendVerify() {
 		$this->setIfCanSendEmail( true )
-			 ->savePluginOptions();
+			 ->saveModOptions();
 
 		if ( $this->getIfCanSendEmailVerified() ) {
 			$bSuccess = true;

@@ -80,7 +80,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 				'wl_dashboardlogourl',
 				'wl_login2fa_logourl',
 			];
-			$oOpts = $this->getOptionsVo();
+			$oOpts = $this->getOptions();
 			foreach ( $aImages as $sKey ) {
 				if ( !Services::Data()->isValidWebUrl( $this->buildWlImageUrl( $sKey ) ) ) {
 					$oOpts->resetOptToDefault( $sKey );
@@ -270,7 +270,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return string
 	 */
 	private function buildWlImageUrl( $sKey ) {
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 
 		$sLogoUrl = $this->getOpt( $sKey );
 		if ( empty( $sLogoUrl ) ) {
@@ -315,10 +315,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
-		$this->setIsMainFeatureEnabled( true )
-			 ->setOpt( 'admin_access_key', md5( $sKey ) )
-			 ->savePluginOptions();
-		return $this;
+		return $this->setIsMainFeatureEnabled( true )
+					->setOpt( 'admin_access_key', md5( $sKey ) )
+					->saveModOptions();
 	}
 
 	/**

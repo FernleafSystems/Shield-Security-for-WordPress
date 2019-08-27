@@ -213,11 +213,11 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'optin':
 					$oUser = Services::WpUsers()->getCurrentWpUser();
 					$aAdditional = [
-						'vars'    => [
+						'vars'  => [
 							'name'       => $oUser->first_name,
 							'user_email' => $oUser->user_email
 						],
-						'hrefs'   => [
+						'hrefs' => [
 							'privacy_policy' => $this->getMod()->getDef( 'href_privacy_policy' )
 						],
 					];
@@ -350,7 +350,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$this->getCon()
 					 ->getModule_Plugin()
 					 ->setVisitorAddressSource( $sSource )
-					 ->savePluginOptions();
+					 ->saveModOptions();
 				$oResponse->setSuccessful( true );
 				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '
 							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
@@ -471,10 +471,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-			$oModule = $this->getCon()->getModule( 'audit_trail' );
-			$oModule->setIsMainFeatureEnabled( $bEnabled )
-					->savePluginOptions();
+			$oModule = $this->getCon()
+							->getModule_AuditTrail()
+							->setIsMainFeatureEnabled( $bEnabled )
+							->saveModOptions();
 
 			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
@@ -504,10 +504,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
-			$oModule = $this->getCon()->getModule_IPs();
-			$oModule->setIsMainFeatureEnabled( $bEnabled )
-					->savePluginOptions();
+			$oModule = $this->getCon()
+							->getModule_IPs()
+							->setIsMainFeatureEnabled( $bEnabled )
+							->saveModOptions();
 
 			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
@@ -537,13 +537,12 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-			$oModule = $this->getCon()->getModule( 'login_protect' );
+			$oModule = $this->getCon()->getModule_LoginGuard();
 			if ( $bEnabled ) { // we don't disable the whole module
 				$oModule->setIsMainFeatureEnabled( true );
 			}
 			$oModule->setEnabledGaspCheck( $bEnabled )
-					->savePluginOptions();
+					->saveModOptions();
 
 			$bSuccess = $oModule->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
@@ -687,7 +686,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oModule->setIsMainFeatureEnabled( true );
 			}
 			$oModule->setEnabledGasp( $bEnabled )
-					->savePluginOptions();
+					->saveModOptions();
 
 			$bSuccess = $oModule->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {

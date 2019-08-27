@@ -72,15 +72,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string
 	 */
 	public function getMyServerIp() {
+		$oOpts = $this->getOptions();
 
-		$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
+		$sThisServerIp = $oOpts->getOpt( 'this_server_ip', '' );
 		if ( $this->getLastCheckServerIpAtHasExpired() ) {
 			$sThisServerIp = Services::IP()->whatIsMyIp();
 			if ( !empty( $sThisServerIp ) ) {
-				$this->setOpt( 'this_server_ip', $sThisServerIp );
+				$oOpts->setOpt( 'this_server_ip', $sThisServerIp );
 			}
 			// we always update so we don't forever check on every single page load
-			$this->setOptAt( 'this_server_ip_last_check_at' );
+			$oOpts->setOptAt( 'this_server_ip_last_check_at' );
 		}
 		return $sThisServerIp;
 	}
@@ -658,9 +659,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setImportExportMasterImportUrl( $sUrl ) {
-		$this->setOpt( 'importexport_masterurl', $sUrl )
-			 ->savePluginOptions(); //saving will clean the URL
-		return $this;
+		return $this->setOpt( 'importexport_masterurl', $sUrl )
+					->saveModOptions(); //saving will clean the URL
 	}
 
 	/**

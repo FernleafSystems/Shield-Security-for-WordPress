@@ -36,12 +36,12 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getInstallationDays() {
 		$nTimeInstalled = $this->getCon()
-							   ->loadCorePluginFeatureHandler()
+							   ->getModule_Plugin()
 							   ->getInstallDate();
 		if ( empty( $nTimeInstalled ) ) {
 			return 0;
 		}
-		return (int)round( ( $this->loadRequest()->ts() - $nTimeInstalled )/DAY_IN_SECONDS );
+		return (int)round( ( Services::Request()->ts() - $nTimeInstalled )/DAY_IN_SECONDS );
 	}
 
 	/**

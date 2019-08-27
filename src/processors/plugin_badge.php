@@ -7,16 +7,16 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isDisplayPluginBadge() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isDisplayPluginBadge() ) {
 			add_action( 'wp_enqueue_scripts', [ $this, 'includeJquery' ] );
 			add_action( 'login_enqueue_scripts', [ $this, 'includeJquery' ] );
 			add_action( 'wp_footer', [ $this, 'printPluginBadge' ], 100 );
 			add_action( 'login_footer', [ $this, 'printPluginBadge' ], 100 );
 		}
 		add_action( 'widgets_init', [ $this, 'addPluginBadgeWidget' ] );
-		add_filter( $oFO->prefix( 'dashboard_widget_content' ), [ $this, 'gatherPluginWidgetContent' ], 100 );
+		add_filter( $oMod->prefix( 'dashboard_widget_content' ), [ $this, 'gatherPluginWidgetContent' ], 100 );
 	}
 
 	public function includeJquery() {
@@ -28,8 +28,6 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function gatherPluginWidgetContent( $aContent ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
 		$oCon = $this->getCon();
 
 		$aLabels = $oCon->getLabels();
@@ -46,7 +44,8 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !is_array( $aContent ) ) {
 			$aContent = [];
 		}
-		$aContent[] = $oFO->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
+		$aContent[] = $this->getMod()
+						   ->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
 		return $aContent;
 	}
 
@@ -54,11 +53,11 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		if ( !empty( $oFO ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		if ( !empty( $oMod ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
 			 && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
-			register_widget( new ICWP_WPSF_Processor_Plugin_BadgeWidget( $oFO ) );
+			register_widget( new ICWP_WPSF_Processor_Plugin_BadgeWidget( $oMod ) );
 		}
 	}
 
