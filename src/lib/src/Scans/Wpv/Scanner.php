@@ -64,9 +64,9 @@ class Scanner {
 		$oActiveTheme = $oWpThemes->getCurrent();
 		if ( $oActiveTheme instanceof \WP_Theme ) {
 
-			$aThemes = array(
+			$aThemes = [
 				$oActiveTheme->get_stylesheet() => $oActiveTheme->get_stylesheet()
-			);
+			];
 
 			if ( $oWpThemes->isActiveThemeAChild() ) { // is child theme
 				$oParent = $oWpThemes->getCurrentParent();

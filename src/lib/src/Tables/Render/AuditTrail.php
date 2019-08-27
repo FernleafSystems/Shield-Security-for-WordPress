@@ -5,6 +5,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
 class AuditTrail extends Base {
 
 	/**
+	 * Generates content for a single row of the table
+	 *
+	 * @param object $item The current item
+	 * @since 3.1.0
+	 *
+	 */
+	public function single_row( $item ) {
+		echo sprintf( '<tr class="audit-cat-%s">', $item[ 'category' ] );
+		$this->single_row_columns( $item );
+		echo '</tr>';
+	}
+
+	/**
 	 * @param int $nId
 	 * @return string
 	 */
@@ -51,11 +64,10 @@ class AuditTrail extends Base {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
-			'details'    => 'Details',
-			'message'    => 'Message',
-			//			'event'      => 'Event',
-			'created_at' => 'Date',
-		);
+		return [
+			'details'    => __( 'Details' ),
+			'message'    => __( 'Message', 'wp-simple-firewall' ),
+			'created_at' => __( 'Date' ),
+		];
 	}
 }

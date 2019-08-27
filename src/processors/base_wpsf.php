@@ -1,6 +1,7 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services; // TODO: use after Shield 7.5
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
@@ -27,7 +28,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	public function init() {
 		parent::init();
 		$oFO = $this->getMod();
-		add_filter( $oFO->prefix( 'collect_stats' ), [ $this, 'stats_Collect' ] );
 		add_filter( $oFO->prefix( 'collect_tracking_data' ), [ $this, 'tracking_DataCollect' ] );
 	}
 
@@ -55,7 +55,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 			$oUser = Services::WpUsers()->getCurrentWpUser();
 		}
 		if ( $oUser instanceof WP_User ) {
-			$bIsSubject = apply_filters( $this->prefix( 'user_subject_to_login_intent' ), false, $oUser );
+			$bIsSubject = apply_filters( $this->getCon()->prefix( 'user_subject_to_login_intent' ), false, $oUser );
 		}
 
 		return $bIsSubject;
@@ -65,54 +65,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function getRecaptchaTheme() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 		$oFO = $this->getMod();
 		return $this->isRecaptchaInvisible() ? 'light' : $oFO->getGoogleRecaptchaStyle();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getRecaptchaResponse() {
-		return $this->loadRequest()->post( 'g-recaptcha-response' );
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function checkRequestRecaptcha() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-
-		$sCaptchaResponse = $this->getRecaptchaResponse();
-
-		if ( empty( $sCaptchaResponse ) ) {
-			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
-		}
-		else {
-			$oResponse = ( new \ReCaptcha\ReCaptcha( $oFO->getGoogleRecaptchaSecretKey(), new \FernleafSystems\Wordpress\Plugin\Shield\Utilities\WordpressPost() ) )
-				->verify( $sCaptchaResponse, $this->ip() );
-			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
-				$aMsg = [
-					__( 'Whoops.', 'wp-simple-firewall' ),
-					__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' ),
-					Services::WpGeneral()->isAjax() ?
-						__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : ''
-				];
-				throw new \Exception( implode( ' ', $aMsg ), 2 );
-			}
-		}
-		return true;
 	}
 
 	/**
 	 * @return bool
 	 */
 	protected function getIfLogRequest() {
-		return isset( $this->bLogRequest ) ?
-			(bool)$this->bLogRequest
-			: !\FernleafSystems\Wordpress\Services\Services::WpGeneral()->isCron();
+		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !Services::WpGeneral()->isCron();
 	}
 
 	/**
@@ -128,7 +90,7 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 * @return bool
 	 */
 	protected function isRecaptchaInvisible() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 		$oFO = $this->getMod();
 		return ( $oFO->getGoogleRecaptchaStyle() == 'invisible' );
 	}
@@ -149,44 +111,13 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		add_action( 'wp_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 
-		\FernleafSystems\Wordpress\Services\Services::Includes()
-													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
-													->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
+		Services::Includes()
+				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
+				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
 		/**
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
 		 */
-	}
-
-	/**
-	 * A filter used to collect all the stats gathered in the plugin.
-	 *
-	 * @param array $aStats
-	 * @return array
-	 */
-	public function stats_Collect( $aStats ) {
-		if ( !is_array( $aStats ) ) {
-			$aStats = [];
-		}
-		$aThisStats = $this->stats_Get();
-		if ( !empty( $aThisStats ) && is_array( $aThisStats ) ) {
-			$aStats[] = $aThisStats;
-		}
-		return $aStats;
-	}
-
-	/**
-	 * @param string $sStatKey
-	 * @return $this
-	 */
-	private function stats_Increment( $sStatKey ) {
-		$aStats = $this->stats_Get();
-		if ( !isset( $aStats[ $sStatKey ] ) ) {
-			$aStats[ $sStatKey ] = 0;
-		}
-		$aStats[ $sStatKey ] = $aStats[ $sStatKey ] + 1;
-		$this->aStatistics = $aStats;
-		return $this;
 	}
 
 	/**
@@ -218,32 +149,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
-	 *
-	 * @param string $sStatKey
-	 * @param string $sParentStatKey
-	 * @return $this
-	 */
-	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
-		if ( empty( $sParentStatKey ) ) {
-			$sParentStatKey = $this->getMod()->getSlug();
-		}
-		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
-	}
-
-	/**
-	 * @param string $sMsg
-	 * @param int    $nCategory
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
-		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
-		return $this;
-	}
-
-	/**
 	 * If recaptcha is required, it prints the necessary snippet and does not remove the enqueue
 	 *
 	 * @throws \Exception
@@ -253,18 +158,16 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 		if ( $this->isRecaptchaEnqueue() ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 			$oFO = $this->getMod();
-			echo $this->loadRenderer( $this->getCon()->getPath_Templates() )
-					  ->setTemplateEnginePhp()
-					  ->setRenderVars(
-						  [
-							  'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
-							  'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
-							  'theme'   => $this->getRecaptchaTheme(),
-							  'invis'   => $this->isRecaptchaInvisible(),
-						  ]
-					  )
-					  ->setTemplate( 'snippets/google_recaptcha_js' )
-					  ->render();
+			echo $oFO->renderTemplate(
+				'snippets/google_recaptcha_js',
+				[
+					'sitekey' => $oFO->getGoogleRecaptchaSiteKey(),
+					'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
+					'theme'   => $this->getRecaptchaTheme(),
+					'invis'   => $this->isRecaptchaInvisible(),
+				]
+
+			);
 		}
 		else {
 			wp_dequeue_script( self::RECAPTCHA_JS_HANDLE );
@@ -290,12 +193,72 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated
+	 * @param string $sMsg
+	 * @param int    $nCategory
+	 * @param string $sEvent
+	 * @param array  $aData
+	 * @return $this
+	 * @deprecated 7.5
 	 */
-	protected function getIfIpTransgressed() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getIfIpTransgressed();
+	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
+		return $this;
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aData
+	 * @return $this
+	 * @deprecated 8
+	 */
+	public function auditEvent( $sEvent = '', $aData = [] ) {
+		return $this;
+	}
+
+	/**
+	 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
+	 *
+	 * @param string $sStatKey
+	 * @param string $sParentStatKey
+	 * @return $this
+	 * @deprecated 8
+	 */
+	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
+		if ( empty( $sParentStatKey ) ) {
+			$sParentStatKey = $this->getMod()->getSlug();
+		}
+		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
+	}
+
+	/**
+	 * A filter used to collect all the stats gathered in the plugin.
+	 *
+	 * @param array $aStats
+	 * @return array
+	 * @deprecated 8
+	 */
+	public function stats_Collect( $aStats ) {
+		if ( !is_array( $aStats ) ) {
+			$aStats = [];
+		}
+		$aThisStats = $this->stats_Get();
+		if ( !empty( $aThisStats ) && is_array( $aThisStats ) ) {
+			$aStats[] = $aThisStats;
+		}
+		return $aStats;
+	}
+
+	/**
+	 * @param string $sStatKey
+	 * @return $this
+	 * @deprecated 8
+	 */
+	private function stats_Increment( $sStatKey ) {
+		$aStats = $this->stats_Get();
+		if ( !isset( $aStats[ $sStatKey ] ) ) {
+			$aStats[ $sStatKey ] = 0;
+		}
+		$aStats[ $sStatKey ] = $aStats[ $sStatKey ] + 1;
+		$this->aStatistics = $aStats;
+		return $this;
 	}
 }

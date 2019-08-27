@@ -48,49 +48,22 @@ body {
 }
 #ColumnOptions .form-actions {
 	position: fixed;
-	bottom: 0;
+	bottom: 50px;
 }
 #ColumnOptions .form-actions .row > div {
-	background-color: #d8d8d8;
-	box-shadow: -2px 6px 2px rgba(0, 0, 0, 0.3);
+	background-color: transparent; /*#d8d8d8;*/
 	z-index: 1000;
-	text-align: center;
-	padding: 40px 0;
 }
 #ColumnOptions form {
 	margin-bottom: 50px;
 }
 #ColumnOptions .form-actions .btn {
-	padding: 16px 40px;
+	box-shadow: -1px 2px 2px rgba(0,0,0,0.3);
+	opacity: 0.85;
 }
-table.table-audit_trail {
-	border: 2px solid #777777;
-	margin-bottom: 40px;
-	width: auto;
-}
-table.table-audit_trail .cell-time {
-	width: 90px;
-	max-width: 90px;
-}
-table.table-audit_trail .cell-username {
-	width: 120px;
-	max-width: 120px;
-}
-table.table-audit_trail .cell-event {
-	width: 100px;
-	max-width: 100px;
-}
-table.table-audit_trail .cell-category {
-	width: 80px;
-	max-width: 80px;
-}
-table.table-audit_trail .cell-message {
-	width: 200px;
-	max-width: 250px;
-}
-table.table-audit_trail .cell-ip {
-	width: 200px;
-	max-width: 240px;
+#ColumnOptions .form-actions .btn:hover {
+	box-shadow: none;
+	opacity: 1;
 }
 /* Form elements */
 .bootstrap-wpadmin form fieldset {
@@ -174,11 +147,12 @@ p.code-description {
 /** Section summaries **/
 a.section-help-video {
 	text-decoration: none;
+	margin: 0 12px 0 0;
 }
 a.section-help-video > span {
 	font-size: 28px;
 	margin-left: 6px;
-	color: red;
+	color: rgba(69, 119, 0, 1);
 }
 /** End-Section summaries **/
 
@@ -672,8 +646,10 @@ input:checked + .icwp-slider:before {
 	left: 1px;
 }
 #ColumnModules {
-	max-width: 77px;
 	text-align: center;
+	border-left: 1px solid rgba(0, 0, 0, 0.05);
+	max-width: 85px;
+	margin-top: 10px;
 }
 #ColumnOptions {
 	min-width: 590px; /** prevents col breaking **/
@@ -691,14 +667,10 @@ input:checked + .icwp-slider:before {
 	display: block;
 }
 .modules a.module {
-	font-size: 15px;
+	height: 54px;
+	width: 66px;
+	margin: auto;
 	padding: 0.6rem 0.9rem;
-	color: #222222;
-	font-weight: bolder;
-	text-shadow: 0 0 0 rgba(255, 255, 255, 0.5);
-
-	border-bottom: 1px solid transparent;
-	border-top: 1px solid transparent;
 }
 .modules a.module:first-child {
 }
@@ -731,13 +703,14 @@ input:checked + .icwp-slider:before {
 	box-shadow: none;
 }
 .modules a.module.active {
-	background-color: #f1f1f1; /** == #ColumnOptions */
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	border-radius: 0.25rem;
+	background-color: rgba(255, 255, 255, 0.6);
+}
+.modules a.module.active .module-icon {
+}
+.modules a.module.active .module-icon:before {
 	color: #222222;
-
-	margin-right: -1px;
-	z-index: 2;
-	border-bottom-color: #cccccc;
-	border-top-color: #cccccc;
 }
 .icwp-options-page .tab-content {
 	background-color: #f1f1f1;
@@ -906,10 +879,10 @@ th.column-request_info {
 	color: green;
 }
 .nav-link.module.notenabled .module-icon:before {
-	color: rgb(90, 34, 0);
+	color: rgba(0, 0, 0, 0.4);
 }
 .nav-link.module.enabled .module-icon:before {
-	color: rgba(69, 119, 0, 1);
+	color: rgba(50, 50, 50, 1);
 }
 .is-not-pro #NavItem-license {
 	color: #09b740;
@@ -1011,7 +984,7 @@ a.ip-whois {
 
 /** Sessions Table **/
 th.column-is_secadmin {
-	width: 80px;
+	width: 120px;
 }
 /** End Sessions Table **/
 /** IPS Insights **/
@@ -1239,7 +1212,16 @@ input[type=checkbox].form-check-input {
 	color: rgba(69, 119, 0, 1);
 }
 
-
 .tooltip .arrow {
 	display: none !important;
+}
+
+table.odp-table tr.audit-cat-1 td {
+	background-color: #f8fbff;
+}
+table.odp-table tr.audit-cat-2 td {
+	background-color: #fffcfa;
+}
+table.odp-table tr.audit-cat-3 td {
+	background-color: #fffdfd;
 }

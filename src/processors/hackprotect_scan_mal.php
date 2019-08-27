@@ -10,8 +10,22 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return bool
 	 */
+	public function isAvailable() {
+		return !$this->isRestricted();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestricted() {
+		return !$this->getMod()->isPremium();
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isMalScanEnabled();
 	}
@@ -41,41 +55,31 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\Repair|mixed
+	 * @return Shield\Scans\Mal\Repair
 	 */
 	protected function getRepairer() {
-		return new Shield\Scans\Mal\Repair();
+		return ( new Shield\Scans\Mal\Repair() )->setMod( $this->getMod() );
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\Scanner
+	 * @return Shield\Scans\Mal\ResultsSet
 	 */
-	protected function getScanner() {
-		return ( new Shield\Scans\Mal\Scanner() )->setMalSigs( $this->getMalSignatures() );
+	protected function getNewResultsSet() {
+		return new Shield\Scans\Mal\ResultsSet();
 	}
 
 	/**
-	 * @return string[]
-	 * @throws \Exception
+	 * @return Shield\Scans\Mal\ResultItem
 	 */
-	private function getMalSignatures() {
-		$oWpFs = Services::WpFs();
-		$sFile = $this->getCon()->getPluginCachePath( 'malsigs.txt' );
-		if ( $oWpFs->exists( $sFile ) ) {
-			$aSigs = explode( "\n", \LZCompressor\LZString::decompress( base64_decode( $oWpFs->getFileContent( $sFile ) ) ) );
-		}
-		else {
-			$aSigs = array_filter(
-				array_map( 'trim', explode( "\n", Services::HttpRequest()->getContent( $this->getMod()
-																							->getDef( 'url_mal_sigs' ) ) ) ),
-				function ( $sLine ) {
-					return ( ( strpos( $sLine, '#' ) !== 0 ) && strlen( $sLine ) > 0 );
-				}
-			);
+	protected function getResultItem() {
+		return new Shield\Scans\Mal\ResultItem();
+	}
 
-			$oWpFs->putFileContent( $sFile, base64_encode( \LZCompressor\LZString::compress( implode( "\n", $aSigs ) ) ) );
-		}
-		return $aSigs;
+	/**
+	 * @return Shield\Scans\Mal\ScanActionVO
+	 */
+	protected function getNewActionVO() {
+		return new Shield\Scans\Mal\ScanActionVO();
 	}
 
 	/**
@@ -84,9 +88,20 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
-		$this->getRepairer()->repairItem( $oItem );
-		$this->doStatIncrement( 'file.malware.replaced' );
-		return true;
+		$bSuccess = $this->getRepairer()->repairItem( $oItem );
+		$this->getCon()->fireEvent(
+			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
+		);
+		return $bSuccess;
+	}
+
+	/**
+	 * @param Shield\Scans\Mal\ResultItem $oItem
+	 * @return bool
+	 */
+	protected function itemDelete( $oItem ) {
+		return $this->getRepairer()->repairItemByDelete( $oItem );
 	}
 
 	/**
@@ -96,7 +111,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isMalScanAutoRepair() ) {
-			$this->getRepairer()->repairResultsSet( $oRes );
+			$this->getRepairer()
+				 ->repairResultsSet( $oRes );
 		}
 	}
 
@@ -120,12 +136,18 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( '[%s] %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Modified Core WordPress Files Discovered', 'wp-simple-firewall' ) ),
+				 sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Potential Malware Detected', 'wp-simple-firewall' ) ),
 				 $this->buildEmailBodyFromFiles( $oResults )
 			 );
 
-		$this->addToAuditEntry(
-			sprintf( __( 'Sent Checksum Scan Notification email alert to: %s', 'wp-simple-firewall' ), $sTo )
+		$this->getCon()->fireEvent(
+			'mal_alert_sent',
+			[
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
+			]
 		);
 	}
 
@@ -134,13 +156,16 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
 		$aContent = [
-			sprintf( __( "The %s Core File Scanner found files with potential problems.", 'wp-simple-firewall' ), $sName ),
+			sprintf( __( "The %s Malware Scanner found files with potential malware.", 'wp-simple-firewall' ), $sName ),
+			sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+				__( "You must examine the file(s) carefully to determine whether suspicious code is really present.", 'wp-simple-firewall' ) ),
+			sprintf( __( "The %s Malware Scanner searches for common malware patterns and so false positives (detection errors) are to be expected sometimes.", 'wp-simple-firewall' ), $sName ),
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 

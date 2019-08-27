@@ -15,11 +15,4 @@ class Track404 extends Base {
 			}
 		} );
 	}
-
-	/**
-	 * @return $this
-	 */
-	protected function getAuditMsg() {
-		return sprintf( __( '404 detected at "%s".', 'wp-simple-firewall' ), Services::Request()->getPath() );
-	}
 }

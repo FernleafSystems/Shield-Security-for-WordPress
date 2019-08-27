@@ -1,0 +1,43 @@
+{% extends "/notices/base-info.twig" %}
+
+{% block notice_body %}
+	<p>{{ strings.want_to_track }} {{ strings.what_we_collect }}</p>
+	<p>{{ strings.data_anon }} {{ strings.can_turn_off }}
+		<br /><a target="_blank" href="{{ hrefs.link_to_see }}">{{ strings.click_to_see }}</a>
+	</p>
+	<p>
+		<a href="#" class="button button-primary mr-3" id="icwpButtonPluginTrackingAgree">
+			{{ strings.yes_i_share }}</a>
+
+		<a target="_blank" href="{{ hrefs.link_to_moreinfo }}" class="button mr-3"
+		   id="icwpButtonPluginTrackingMore">{{ strings.hmm_learn_more }}</a>
+
+		<a class="text-dark" href="#" id="icwpButtonPluginTrackingDisagree">{{ strings.no_help }}</a>
+	</p>
+
+	<script type="text/javascript">
+		let $oContainer = jQuery( '#{{ unique_render_id }}' );
+
+		jQuery( document ).on( 'click', 'a#icwpButtonPluginTrackingAgree', icwp_PluginTrackingAgree );
+		jQuery( document ).on( 'click', 'a#icwpButtonPluginTrackingDisagree', icwp_PluginTrackingDisagree );
+
+		function icwp_PluginTrackingAgree() {
+			icwp_PluginTrackingAgreement( 1 );
+		}
+
+		function icwp_PluginTrackingDisagree() {
+			icwp_PluginTrackingAgreement( 0 );
+		}
+
+		function icwp_PluginTrackingAgreement( bAgree ) {
+			let requestData = {{ ajax.set_plugin_tracking|raw }};
+			requestData[ 'agree' ] = bAgree;
+			requestData[ 'notice_id' ] = '{{ notice_id }}';
+
+			jQuery.get( ajaxurl, requestData );
+			$oContainer.fadeOut( 500, function () {
+				$oContainer.remove();
+			} );
+		}
+	</script>
+{% endblock %}

@@ -19,12 +19,22 @@ class Select extends BaseQuery {
 	/**
 	 * @var bool
 	 */
+	protected $bIsSum = false;
+
+	/**
+	 * @var bool
+	 */
 	protected $bIsDistinct = false;
 
 	/**
 	 * @var bool
 	 */
 	protected $bResultsAsVo;
+
+	/**
+	 * @var string
+	 */
+	protected $sCustomSelect;
 
 	/**
 	 * @var string
@@ -42,7 +52,7 @@ class Select extends BaseQuery {
 	}
 
 	/**
-	 * @return array[]|int|string[]
+	 * @return array[]|int|string[]|EntryVO[]|mixed
 	 */
 	public function all() {
 		return $this->reset()->query();
@@ -75,16 +85,25 @@ class Select extends BaseQuery {
 	 * @return string
 	 */
 	protected function buildSelect() {
-		$sSubstitute = '*';
+		$aCols = $this->getColumnsToSelect();
+
 		if ( $this->isCount() ) {
 			$sSubstitute = 'COUNT(*)';
 		}
+		else if ( $this->isSum() ) {
+			$sSubstitute = sprintf( 'SUM(%s)', array_shift( $aCols ) );
+		}
 		else if ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
-			$aCols = $this->getColumnsToSelect();
-			$sSubstitute = sprintf( 'DISTINCT %s', array_pop( $aCols ) );
+			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $aCols ) );
 		}
 		else if ( $this->hasColumnsToSelect() ) {
-			$sSubstitute = implode( ',', $this->getColumnsToSelect() );
+			$sSubstitute = implode( ',', $aCols );
+		}
+		else if ( $this->isCustomSelect() ) {
+			$sSubstitute = $this->sCustomSelect;
+		}
+		else {
+			$sSubstitute = '*';
 		}
 		return $sSubstitute;
 	}
@@ -97,10 +116,17 @@ class Select extends BaseQuery {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function sum() {
+		return $this->setIsSum( true )->query();
+	}
+
+	/**
 	 * @return EntryVO|\stdClass|mixed|null
 	 */
 	public function first() {
-		$aR = $this->query();
+		$aR = $this->setLimit( 1 )->query();
 		return empty( $aR ) ? null : array_shift( $aR );
 	}
 
@@ -147,7 +173,7 @@ class Select extends BaseQuery {
 			$sForm = ARRAY_A;
 		}
 		else {
-			$sForm = in_array( $this->sResultFormat, array( OBJECT_K, ARRAY_A ) ) ? $this->sResultFormat : OBJECT_K;
+			$sForm = in_array( $this->sResultFormat, [ OBJECT_K, ARRAY_A ] ) ? $this->sResultFormat : OBJECT_K;
 		}
 		return $sForm;
 	}
@@ -169,6 +195,20 @@ class Select extends BaseQuery {
 	/**
 	 * @return bool
 	 */
+	public function isSum() {
+		return (bool)$this->bIsSum;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCustomSelect() {
+		return !empty( $this->sCustomSelect );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isDistinct() {
 		return (bool)$this->bIsDistinct;
 	}
@@ -177,7 +217,7 @@ class Select extends BaseQuery {
 	 * @return bool
 	 */
 	public function isResultsAsVo() {
-		return (bool)$this->bResultsAsVo;
+		return (bool)$this->bResultsAsVo && !$this->isSum();
 	}
 
 	/**
@@ -185,8 +225,8 @@ class Select extends BaseQuery {
 	 * @return int|string[]|array[]|EntryVO[]|mixed
 	 */
 	public function query() {
-		if ( $this->isCount() ) {
-			$mData = $this->queryCount();
+		if ( $this->isCount() || $this->isSum() ) {
+			$mData = $this->queryVar();
 		}
 		else if ( $this->isDistinct() ) {
 			$mData = $this->queryDistinct();
@@ -222,7 +262,7 @@ class Select extends BaseQuery {
 	/**
 	 * @return int
 	 */
-	protected function queryCount() {
+	protected function queryVar() {
 		return Services::WpDb()->getVar( $this->buildQuery() );
 	}
 
@@ -240,7 +280,11 @@ class Select extends BaseQuery {
 		parent::reset();
 		return $this->setIsCount( false )
 					->setIsDistinct( false )
-					->setColumnsToSelect( [] );
+					->setGroupBy( '' )
+					->setSelectResultsFormat( '' )
+					->setCustomSelect( '' )
+					->setColumnsToSelect( [] )
+					->clearWheres();
 	}
 
 	/**
@@ -259,11 +303,29 @@ class Select extends BaseQuery {
 	}
 
 	/**
+	 * @param string $sSelect
+	 * @return $this
+	 */
+	public function setCustomSelect( $sSelect ) {
+		$this->sCustomSelect = $sSelect;
+		return $this;
+	}
+
+	/**
 	 * @param bool $bIsCount
 	 * @return $this
 	 */
 	public function setIsCount( $bIsCount ) {
 		$this->bIsCount = $bIsCount;
+		return $this;
+	}
+
+	/**
+	 * @param bool $bSum
+	 * @return $this
+	 */
+	public function setIsSum( $bSum ) {
+		$this->bIsSum = $bSum;
 		return $this;
 	}
 

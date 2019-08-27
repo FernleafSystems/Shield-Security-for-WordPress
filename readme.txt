@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 7.4.2
+Stable tag: 8.0.0
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,17 +370,25 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 7.4.2 - Current Release =
-*Released: 30th May, 2019* - [Release Notes](https://icwp.io/fc)
+= 8.0 - Current Release =
+*Released: 27th September, 2019* - [Release Notes](https://icwp.io/fv)
+
+* **(v.0)**  NEW:		[**PRO**] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
+* **(v.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
+* **(v.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.
+* **(v.0)**  IMPROVED:	Plugin notification system is much improved.
+* **(v.0)**  IMPROVED:	[**PRO**] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://icwp.io/fw).
+* **(v.0)**  CHANGED:	Comment SPAM system now uses WordPress Transients API instead of dedicated DB table.
+* **(v.0)**  ADDED:		100% Translation coverage for French, Spanish, German, Portuguese, Serbian, Bosnian, Dutch. (Russian on the way)
+* **(v.0)**  CHANGED:	Major code cleaning/refactoring for much of the plugin. More to come.
+
+= 7.4 - Series =
+*Released: 13th May, 2019* - [Release Notes](https://icwp.io/fc)
 
 * **(v.2)**  NEW:		Options finder/jumper menu lets you find and jump to any option in the plugin instantly.
 * **(v.2)**  NEW:		Help/explainer videos for a few sections - more to come.
 * **(v.2)**  FIXES:		Fixes for a few problems introduced with the recent UI changes.
 * **(v.2)**  FIXED:		Welcome wizard launching was broken.
-
-= 7.4 - Series =
-*Released: 13th May, 2019* - [Release Notes](https://icwp.io/fc)
-
 * **(v.1)**  NEW:		Adjustments and redesign of Shield options pages.
 * **(v.1)**  IMPROVED:	Further prep for better internationalization.
 * **(v.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://icwp.io/fa)
@@ -392,29 +400,5 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  FIXED:		Inconsistent behaviour with Anonymous API blocking.
 * **(v.0)**  IMPROVED:	Code improvements and refactoring.
 * **(v.0)**  ADDED:		Prep for upcoming malware scanner.
-
-= 7.3 - Series =
-*Released: 15th April, 2019* - [Release Notes](https://icwp.io/f0)
-
-* **(v.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://icwp.io/ez) options.
-* **(v.2)**  CHANGED:	Added a workaround for WPML plugin using old, buggy version of TWIG library.
-* **(v.1)**  FIX:		Protection against 404 tracking blocking visitors in some cases.
-* **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://icwp.io/ez) - rules to catch and block bad bots.
-* **(v.0)**  ADDED:		Date picker for filtering Audit Log entries.
-* **(v.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
-* **(v.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
-* **(v.0)**  FIX:		Error displayed when deleting plugins in some cases.
-* **(v.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
-
-= 7.2 - Series =
-*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
-
-* **(v.2)**  SKIPPED:	with error.
-* **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
-* **(v.1)**  FIX:		Fix PHP warning notice on login page.
-* **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
-* **(v.0)**  NEW:		[Scanner to detect and alert](https://icwp.io/eq) to presence of abandoned plugins.
-* **(v.0)**  FIX:		Fix bug with Security Admin passwords.
-* **(v.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
 
 #### [Full Changelog](https://icwp.io/shieldwporgfullchangelog)

@@ -83,14 +83,14 @@ class Base extends \WP_List_Table {
 	public function prepare_items() {
 		$aCols = $this->get_columns();
 		$aHidden = [];
-		$this->_column_headers = array( $aCols, $aHidden, $this->get_sortable_columns() );
+		$this->_column_headers = [ $aCols, $aHidden, $this->get_sortable_columns() ];
 		$this->items = $this->getItemEntries();
 
 		$this->set_pagination_args(
-			array(
+			[
 				'total_items' => $this->getTotalRecords(),
 				'per_page'    => $this->getPerPage()
-			)
+			]
 		);
 		return $this;
 	}

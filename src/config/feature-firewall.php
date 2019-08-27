@@ -388,6 +388,48 @@
           "'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+"
         ]
       }
+    },
+    "events":            {
+      "check_skip":                 {
+        "cat":  2,
+        "stat": false
+      },
+      "firewall_block":    {
+        "audit": false,
+        "recent": true,
+        "offense": true
+      },
+      "blockparam_dirtraversal":    {
+        "cat": 3
+      },
+      "blockparam_wpterms":         {
+        "cat": 3
+      },
+      "blockparam_fieldtruncation": {
+        "cat": 3
+      },
+      "blockparam_sqlqueries":      {
+        "cat": 3
+      },
+      "blockparam_schema":          {
+        "cat": 3
+      },
+      "blockparam_aggressive":      {
+        "cat": 3
+      },
+      "blockparam_phpcode":         {
+        "cat": 3
+      },
+      "block_exefile":              {
+        "cat": 3
+      },
+      "fw_email_fail":            {
+        "cat":  2,
+        "stat": false
+      },
+      "fw_email_success":         {
+        "stat": false
+      }
     }
   }
 }

@@ -5,8 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf {
 
-	use Shield\Crons\StandardCron,
-		Shield\Scans\Base\ScannerProfileConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 	const SCAN_SLUG = 'base';
 
 	/**
@@ -14,19 +13,28 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected $oScanner;
 
-	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		$this->getScannerProfile()->scan_slug = static::SCAN_SLUG;
+	public function run() {
+		parent::run();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		add_action( $oMod->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
+			$this->launchScan();
+		} );
 	}
 
 	/**
+	 * @return bool
 	 */
-	public function run() {
-		parent::run();
-		$this->setupCron();
+	public function isAvailable() {
+		return true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestricted() {
+		return true;
 	}
 
 	/**
@@ -35,46 +43,139 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	abstract public function isEnabled();
 
 	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
-	public function doScan() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+	public function launchScan() {
+		$this->getScannerDb()->launchScans( [ static::SCAN_SLUG ] );
+	}
 
-		$oResults = $this->getScannerResults();
+	/**
+	 */
+	public function hookOnDemandScan() {
+		$this->scheduleOnDemandScan();
+	}
+
+	/**
+	 * @param int $nDelay
+	 */
+	public function scheduleOnDemandScan( $nDelay = 3 ) {
+		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG );
+		if ( !wp_next_scheduled( $sHook ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
+		}
+	}
+
+	/**
+	 * TODO: Generic so lift out of base
+	 * @param Shield\Scans\Base\BaseScanActionVO $oAction
+	 */
+	public function postScanActionProcess( $oAction ) {
+		$oResults = $this->setScanActionVO( $oAction )
+						 ->getScanActionResults();
 		$this->updateScanResultsStore( $oResults );
-		$oFO->setLastScanAt( static::SCAN_SLUG )
-			->setNextScanAt( static::SCAN_SLUG, $this->getNextCronRun() );
 
+		$this->getCon()->fireEvent( $oAction->id.'_scan_run' );
+		if ( $oResults->countItems() ) {
+			$this->getCon()->fireEvent( $oAction->id.'_scan_found' );
+		}
+
+		if ( $oAction->is_cron ) {
+			$this->cronProcessScanResults();
+		}
+	}
+
+	/**
+	 * @return Shield\Scans\Base\BaseResultsSet|mixed
+	 */
+	protected function getScanActionResults() {
+		$oAction = $this->getScanActionVO();
+		$oResults = $oAction->getNewResultsSet();
+		if ( !empty( $oAction->results ) ) {
+			foreach ( $oAction->results as $aRes ) {
+				$oResults->addItem( $oAction->getNewResultItem()->applyFromArray( $aRes ) );
+			}
+		}
 		return $oResults;
 	}
 
 	/**
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
-	protected function getScannerResults() {
-		/** @var Shield\Scans\Base\BaseResultsSet $oResults */
-		return $this->getScanner()->run();
+	protected function getLiveResults() {
+		$this->launchScan();
+		return $this->getScanActionResults();
 	}
 
 	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
+	 * @return Shield\Scans\Base\BaseResultsSet|mixed
+	 * @deprecated
 	 */
-	public function doScanAndFullRepair() {
-		$oResultSet = $this->doScan();
-		$this->getRepairer()->repairResultsSet( $oResultSet );
-		return $oResultSet;
+	protected function getNewResultsSet() {
+		return $this->getScanActionVO()->getNewResultsSet();
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return Shield\Scans\Base\BaseResultItem|mixed
+	 * @deprecated
+	 */
+	protected function getResultItem() {
+		return $this->getScanActionVO()->getNewResultItem();
+	}
+
+	/**
+	 * @return Shield\Scans\Base\BaseRepair|mixed|null
 	 */
 	abstract protected function getRepairer();
 
 	/**
-	 * @return mixed
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanLauncher|null
 	 */
-	abstract protected function getScanner();
+	protected function getScanLauncher() {
+		return ( new Shield\Scans\Common\ScanLauncher() )
+			->setMod( $this->getMod() )
+			->setScanActionVO( $this->getScanActionVO() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isScanRunning() {
+		return ( new Shield\Scans\Base\ScanActionQuery() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->isRunning();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isScanLauncherSupported() {
+		return in_array( $this->getScanActionVO()->id, [ 'apc', 'mal', 'ptg', 'ufc', 'wcf', 'wpv' ] );
+	}
+
+	/**
+	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
+	 */
+	public function getScanActionVO() {
+		if ( !$this->oScanActionVO instanceof Shield\Scans\Base\BaseScanActionVO ) {
+			$oAct = $this->getNewActionVO();
+			$oAct->id = static::SCAN_SLUG;
+
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
+			$oAct->tmp_dir = $oMod->getScansTempDir();
+
+			$this->oScanActionVO = $oAct;
+		}
+
+		return $this->oScanActionVO;
+	}
+
+	/**
+	 * Override this to provide the correct VO
+	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
+	 */
+	protected function getNewActionVO() {
+		return new Shield\Scans\Base\BaseScanActionVO();
+	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultsSet $oNewResults
@@ -93,7 +194,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function deleteResultsSet( $oToDelete ) {
 		( new Shield\Scans\Base\ScanResults\Clean() )
-			->setDbHandler( $this->getScannerDb()->getDbHandler() )
+			->setDbHandler( $this->getMod()->getDbHandler() )
 			->deleteResults( $oToDelete );
 	}
 
@@ -102,7 +203,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function readScanResultsFromDb() {
 		/** @var Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $this->getScannerDb()->getDbHandler()->getQuerySelector();
+		$oSelector = $this->getMod()->getDbHandler()->getQuerySelector();
 		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
 	}
 
@@ -110,7 +211,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function storeNewScanResults( $oResults ) {
-		$oInsert = $this->getScannerDb()->getDbHandler()->getQueryInserter();
+		$oInsert = $this->getMod()->getDbHandler()->getQueryInserter();
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oInsert->insert( $oVo );
 		}
@@ -120,7 +221,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 * @param Shield\Scans\Base\BaseResultsSet $oResults
 	 */
 	protected function updateExistingScanResults( $oResults ) {
-		$oUp = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
+		$oUp = $this->getMod()->getDbHandler()->getQueryUpdater();
 		/** @var Shield\Databases\Scanner\EntryVO $oVo */
 		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
 			$oUp->reset()
@@ -159,12 +260,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	protected function getVoFromResultItem( $oItem ) {
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()
+		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO $oVo */
 		$oVo = $oSel->filterByHash( $oItem->hash )
-					->filterByScan( $this->getScannerProfile()->scan_slug )
+					->filterByScan( $this->getScanActionVO()->id )
 					->first();
 		return $oVo;
 	}
@@ -174,7 +275,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function resetIgnoreStatus() {
 		/** @var Shield\Databases\Scanner\Handler $oUpd */
-		$oDbh = $this->getScannerDb()->getDbHandler();
+		$oDbh = $this->getMod()->getDbHandler();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $oDbh->getQuerySelector();
 
@@ -191,7 +292,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	public function resetNotifiedStatus() {
 		/** @var Shield\Databases\Scanner\Handler $oUpd */
-		$oDbh = $this->getScannerDb()->getDbHandler();
+		$oDbh = $this->getMod()->getDbHandler();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $oDbh->getQuerySelector();
 
@@ -213,7 +314,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		$bSuccess = false;
 		if ( is_numeric( $sItemId ) ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $this->getScannerDb()
+			$oEntry = $this->getMod()
 						   ->getDbHandler()
 						   ->getQuerySelector()
 						   ->byId( $sItemId );
@@ -320,7 +421,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 		}
 
 		/** @var Shield\Databases\Scanner\Update $oUp */
-		$oUp = $this->getScannerDb()
+		$oUp = $this->getMod()
 					->getDbHandler()
 					->getQueryUpdater();
 
@@ -341,26 +442,14 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * Cron callback
-	 */
-	public function runCron() {
-		Services::WpGeneral()->getIfAutoUpdatesInstalled() ? $this->resetCron() : $this->cronScan();
-	}
-
-	private function cronScan() {
-		$this->doScan();
-		$this->cronProcessScanResults();
-	}
-
-	/**
 	 * Because it's the cron and we'll maybe be notifying user, we look
 	 * only for items that have not been notified recently.
 	 */
 	protected function cronProcessScanResults() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()
+		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
@@ -398,7 +487,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	 */
 	private function updateLastNotifiedAt( $aRes ) {
 		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getScannerDb()->getDbHandler()->getQueryUpdater();
+		$oUpd = $this->getMod()->getDbHandler()->getQueryUpdater();
 		foreach ( $aRes as $oVo ) {
 			$oUpd->reset()
 				 ->setNotified( $oVo );
@@ -419,36 +508,43 @@ abstract class ICWP_WPSF_Processor_ScanBase extends ICWP_WPSF_Processor_BaseWpsf
 	}
 
 	/**
-	 * @return int
 	 */
-	protected function getCronFrequency() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getScanFrequency();
+	public function deactivatePlugin() {
+		$this->resetScan();
 	}
 
 	/**
-	 * @return int
+	 * @return $this
 	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDef( 'cron_all_scans' ) );
+	public function resetScan() {
+		( new Shield\Scans\Ptg\ScanResults\Clean() )
+			->setDbHandler( $this->getMod()->getDbHandler() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->deleteAllForScan();
+		return $this;
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Scanner
+	 * @return \ICWP_WPSF_Processor_HackProtect_Scanner
 	 */
 	public function getScannerDb() {
 		return $this->oScanner;
 	}
 
 	/**
-	 * @param ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
+	 * @param \ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
 	 * @return $this
 	 */
 	public function setScannerDb( $oScanner ) {
 		$this->oScanner = $oScanner;
 		return $this;
+	}
+
+	/**
+	 * @return false
+	 * @deprecated 8
+	 */
+	protected function getScanner() {
+		return false;
 	}
 }

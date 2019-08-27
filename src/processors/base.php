@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
+abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 
 	use Shield\Modules\ModConsumer,
 		Shield\AuditTrail\Auditor;
@@ -121,34 +121,6 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	protected function incrementPromoNoticesCount() {
 		self::$nPromoNoticesCount++;
 		return $this;
-	}
-
-	public function autoAddToAdminNotices() {
-		foreach ( $this->getMod()->getAdminNotices() as $sNoticeId => $aAttrs ) {
-
-			$aAttrs = $this->loadDP()
-						   ->mergeArraysRecursive(
-							   [
-								   'schedule'         => 'conditions',
-								   'type'             => 'promo',
-								   'plugin_page_only' => true,
-								   'valid_admin'      => true,
-								   'twig'             => false,
-							   ],
-							   $aAttrs
-						   );
-
-			if ( !$this->getIfDisplayAdminNotice( $aAttrs ) ) {
-				continue;
-			}
-
-			$sMethodName = 'addNotice_'.str_replace( '-', '_', $sNoticeId );
-			if ( method_exists( $this, $sMethodName ) ) {
-				$aAttrs[ 'id' ] = $sNoticeId;
-				$aAttrs[ 'notice_id' ] = $sNoticeId;
-				call_user_func( [ $this, $sMethodName ], $aAttrs );
-			}
-		}
 	}
 
 	/**
@@ -276,6 +248,11 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	}
 
 	/**
+	 */
+	public function deactivatePlugin() {
+	}
+
+	/**
 	 * @return ICWP_WPSF_Processor_Base[]
 	 */
 	protected function getSubProcessors() {
@@ -290,6 +267,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 	 * @param string $sSuffix
 	 * @param string $sGlue
 	 * @return string
+	 * @deprecated
 	 */
 	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
 		return $this->getMod()->prefix( $sSuffix, $sGlue );
@@ -297,6 +275,7 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return string
+	 * @deprecated
 	 */
 	protected function ip() {
 		return Services::IP()->getRequestIp();
@@ -304,13 +283,15 @@ abstract class ICWP_WPSF_Processor_Base extends ICWP_WPSF_Foundation {
 
 	/**
 	 * @return int
+	 * @deprecated 8
 	 */
 	protected function time() {
 		return Services::Request()->ts();
 	}
 
 	/**
+	 * @deprecated
 	 */
-	public function deactivatePlugin() {
+	public function autoAddToAdminNotices() {
 	}
 }

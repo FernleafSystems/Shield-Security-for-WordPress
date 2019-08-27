@@ -42,8 +42,8 @@ class Traffic extends BaseBuild {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
 
-		if ( $aParams[ 'fTransgression' ] >= 0 ) {
-			$oSelector->filterByIsTransgression( $aParams[ 'fTransgression' ] );
+		if ( $aParams[ 'fOffense' ] >= 0 ) {
+			$oSelector->filterByIsTransgression( $aParams[ 'fOffense' ] );
 		}
 
 		$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
@@ -58,13 +58,13 @@ class Traffic extends BaseBuild {
 	 */
 	protected function getCustomParams() {
 		return [
-			'fIp'            => '',
-			'fUsername'      => '',
-			'fLoggedIn'      => -1,
-			'fPath'          => '',
-			'fTransgression' => -1,
-			'fResponse'      => '',
-			'fExludeYou'     => '',
+			'fIp'        => '',
+			'fUsername'  => '',
+			'fLoggedIn'  => -1,
+			'fPath'      => '',
+			'fOffense'   => -1,
+			'fResponse'  => '',
+			'fExludeYou' => '',
 		];
 	}
 
@@ -74,11 +74,11 @@ class Traffic extends BaseBuild {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		/** @var \ICWP_WPSF_Processor_Plugin $oPluginPro */
-		$oPluginPro = $this->getCon()->getModule( 'plugin' )->getProcessor();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 
 		$oWpUsers = Services::WpUsers();
-		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $oPluginPro->getSubProGeoip()->getDbHandler() );
+		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $oMod->getDbHandler_GeoIp() );
 		$oIpSrv = Services::IP();
 		$sYou = $oIpSrv->getRequestIp();
 
@@ -115,7 +115,7 @@ class Traffic extends BaseBuild {
 			if ( $oEntry->uid > 0 ) {
 				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
 					$oUser = $oWpUsers->getUserById( $oEntry->uid );
-					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? __( 'unknown', 'wp-simple-firewall' ) :
+					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
 							$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
 				}
@@ -146,7 +146,7 @@ class Traffic extends BaseBuild {
 
 			$aInfo = [
 				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $aEntry[ 'code' ] ),
-				sprintf( '%s: %s', __( 'Transgression', 'wp-simple-firewall' ), $aEntry[ 'trans' ] ),
+				sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ), $aEntry[ 'trans' ] ),
 			];
 			$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
 			$aEntries[ $nKey ] = $aEntry;

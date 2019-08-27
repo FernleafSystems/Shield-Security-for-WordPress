@@ -12,6 +12,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 		$oFO = $this->getMod();
 
 		if ( !$this->isFactorTested() ) {
+			$this->setFactorTested( true );
 
 			// At this point someone has attempted to login within the previous login wait interval
 			// So we remove WordPress's authentication filter and our own user check authentication
@@ -24,15 +25,12 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 									$nRemaining
 								);
 
-				$this->setLoginAsFailed( 'login.cooldown.fail' )
-					 ->addToAuditEntry( __( 'Cooldown triggered and request (login/register/lost-password) was blocked.', 'wp-simple-firewall' ) );
+				$this->getCon()->fireEvent( 'cooldown_fail' );
+				$this->processFailure();
 				throw new \Exception( $sErrorString );
 			}
-			else {
-				$this->updateLastLoginTime()
-					 ->setFactorTested( true )
-					 ->doStatIncrement( 'login.cooldown.success' );
-			}
+
+			$this->updateLastLoginTime();
 		}
 	}
 
@@ -57,7 +55,7 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 	 */
 	private function updateLastLoginTime() {
 		Services::WpFs()->deleteFile( $this->getLastLoginTimeFilePath() );
-		Services::WpFs()->touch( $this->getLastLoginTimeFilePath(), $this->time() );
+		Services::WpFs()->touch( $this->getLastLoginTimeFilePath(), Services::Request()->ts() );
 		return $this;
 	}
 }

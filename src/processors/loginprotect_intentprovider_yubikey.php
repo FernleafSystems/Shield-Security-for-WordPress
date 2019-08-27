@@ -113,10 +113,10 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return array
 	 */
-	protected function getYubiIds( WP_User $oUser ) {
+	protected function getYubiIds( \WP_User $oUser ) {
 		return explode( ',', parent::getSecret( $oUser ) );
 	}
 
@@ -133,24 +133,22 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	 * @param string  $sKey
 	 * @return bool
 	 */
-	protected function hasYubiIdInProfile( WP_User $oUser, $sKey ) {
+	protected function hasYubiIdInProfile( \WP_User $oUser, $sKey ) {
 		return in_array( $sKey, $this->getYubiIds( $oUser ) );
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @param string  $sOneTimePassword
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOneTimePassword ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
 		$bSuccess = false;
 
 		$aYubiKeys = $this->getYubiIds( $oUser );
 
 		// Only process the 1st secret if premium
-		if ( !$oFO->isPremium() ) {
+		if ( !$this->getCon()->isPremiumActive() ) {
 			$aYubiKeys = array_slice( $aYubiKeys, 0, 1 );
 		}
 
@@ -196,7 +194,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @param string  $sNewKey
 	 * @return $this
 	 */
@@ -207,7 +205,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @param string  $sKey
 	 * @return $this
 	 */
@@ -217,7 +215,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @param array   $aKeys
 	 * @return $this
 	 */
@@ -227,26 +225,19 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @param bool    $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
-		if ( $bIsSuccess ) {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" verified their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Yubikey OTP', 'wp-simple-firewall' )
-				), 2, 'login_protect_yubikey_login_success'
-			);
-			$this->doStatIncrement( 'login.yubikey.verified' );
-		}
-		else {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" failed to verify their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Yubikey OTP', 'wp-simple-firewall' )
-				), 2, 'login_protect_yubikey_failed'
-			);
-			$this->doStatIncrement( 'login.yubikey.failed' );
-		}
+		$this->getCon()->fireEvent(
+			$bIsSuccess ? 'yubikey_verified' : 'yubikey_fail',
+			[
+				'audit' => [
+					'user_login' => $oUser->user_login,
+					'method'     => 'Yubikey',
+				]
+			]
+		);
 	}
 
 	/**

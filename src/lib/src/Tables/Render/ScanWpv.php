@@ -61,20 +61,20 @@ class ScanWpv extends ScanBase {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
-			'ignore'           => 'Ignore',
-		);
+		return [
+			'ignore' => __( 'Ignore', 'wp-simple-firewall' ),
+		];
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'cb'            => '&nbsp;',
-			'vulnerability' => 'Vulnerability',
-			'asset'         => 'Asset Details',
-			'created_at'    => 'Discovered',
-		);
+			'vulnerability' => __( 'Vulnerability', 'wp-simple-firewall' ),
+			'asset'         => __( 'Asset Details', 'wp-simple-firewall' ),
+			'created_at'    => __( 'Discovered', 'wp-simple-firewall' ),
+		];
 	}
 }

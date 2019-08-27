@@ -16,8 +16,8 @@
 
 <script type="text/javascript">
 	jQuery( document ).ready( function ( $ ) {
-		var $oSubButton = $( 'form#drip-embedded-subscribe-form button' );
-		var $oCheck = $( '#OptinConsent' );
+		let $oSubButton = $( 'form#drip-embedded-subscribe-form button' );
+		let $oCheck = $( '#OptinConsent' );
 		$oSubButton.attr( "disabled", "disabled" );
 		$( document ).on( 'change', $oCheck, function () {
 			$oSubButton.prop( "disabled", !$oCheck.is( ":checked" ) );

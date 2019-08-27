@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
@@ -38,8 +39,6 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 			 ->setColumnsDefinition( $this->getTableColumnsByDefinition() )
 			 ->setSqlCreate( $this->getCreateTableSql() )
 			 ->tableInit();
-
-		add_action( $this->getCon()->prefix( 'delete_plugin' ), [ $this->getDbHandler(), 'deleteTable' ] );
 	}
 
 	/**
@@ -55,16 +54,16 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler
+	 * @return Shield\Databases\Base\Handler
 	 */
 	abstract protected function createDbHandler();
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler
+	 * @return Shield\Databases\Base\Handler
 	 */
 	public function getDbHandler() {
 		if ( !isset( $this->oDbh ) ) {
-			$this->oDbh = $this->createDbHandler();
+			$this->oDbh = $this->getMod()->getDbHandler();
 		}
 		return $this->oDbh;
 	}
@@ -97,7 +96,7 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( is_null( $nAutoExpirePeriod ) || !$this->getDbHandler()->isTable() ) {
 			return false;
 		}
-		$nTimeStamp = $this->time() - $nAutoExpirePeriod;
+		$nTimeStamp = Services::Request()->ts() - $nAutoExpirePeriod;
 		return $this->getDbHandler()->deleteRowsOlderThan( $nTimeStamp );
 	}
 

@@ -64,7 +64,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 			$this->interceptCanonicalRedirects();
 
-			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
+			/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oFO */
 			$oFO = $this->getMod();
 			if ( $oFO->isRestApiAnonymousAccessDisabled() ) {
 				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
@@ -76,10 +76,7 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array|false
 	 */
 	public function disableXmlrpc() {
-		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getMod();
-		$oFO->setOptInsightsAt( 'xml_block_at' )
-			->setIpTransgressed();
+		$this->getCon()->fireEvent( 'block_xml' );
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : [];
 	}
 
@@ -114,23 +111,21 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		$oFO = $this->getMod();
 		$oWpRest = Services::Rest();
 
-		if ( $mStatus !== true && !is_wp_error( $mStatus )
-			 && !$oFO->isPermittedAnonRestApiNamespace( $oWpRest->getNamespace() ) ) {
+		$sNamespace = $oWpRest->getNamespace();
+		if ( !empty( $sNamespace ) && $mStatus !== true && !is_wp_error( $mStatus )
+			 && !$oFO->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
 				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), $this->getCon()
 																																   ->getHumanName() ),
 				[ 'status' => rest_authorization_required_code() ] );
-			$this->addToAuditEntry(
-				sprintf( 'Blocked Anonymous API Access through "%s" namespace', Services::Rest()->getNamespace() ),
-				1,
-				'anonymous_api'
-			);
 
-			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-			$oFO = $this->getMod();
-			$oFO->setOptInsightsAt( 'restapi_block_at' );
+			$this->getCon()
+				 ->fireEvent(
+					 'block_anonymous_restapi',
+					 [ 'audit' => [ 'namespace' => $sNamespace ] ]
+				 );
 		}
 
 		return $mStatus;

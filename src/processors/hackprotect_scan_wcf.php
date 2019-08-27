@@ -11,7 +11,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isWcfScanEnabled();
 	}
@@ -48,26 +48,31 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * TODO:
-	 * $aAutoFixIndexFiles = $this->getMod()->getDef( 'corechecksum_autofix' );
-	 * if ( empty( $aAutoFixIndexFiles ) ) {
-	 * $aAutoFixIndexFiles = [];
+	 * @return Shield\Scans\Wcf\ResultsSet
 	 */
+	protected function getNewResultsSet() {
+		return new Shield\Scans\Wcf\ResultsSet();
+	}
 
 	/**
-	 * @return Shield\Scans\Wcf\Scanner
+	 * @return Shield\Scans\Wcf\ResultItem
 	 */
-	protected function getScanner() {
-		return ( new Shield\Scans\Wcf\Scanner() )
-			->setExclusions( $this->getFullExclusions() )
-			->setMissingExclusions( $this->getMissingOnlyExclusions() );
+	protected function getResultItem() {
+		return new Shield\Scans\Wcf\ResultItem();
+	}
+
+	/**
+	 * @return Shield\Scans\Wcf\ScanActionVO
+	 */
+	protected function getNewActionVO() {
+		return new Shield\Scans\Wcf\ScanActionVO();
 	}
 
 	/**
 	 * @return array
 	 */
 	protected function getFullExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions' );
+		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions' );
 		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
 
 		// Flywheel specific mods
@@ -82,7 +87,7 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	protected function getMissingOnlyExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'corechecksum_exclusions_missing_only' );
+		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions_missing_only' );
 		return is_array( $aExclusions ) ? $aExclusions : [];
 	}
 
@@ -92,9 +97,12 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
-		$this->getRepairer()->repairItem( $oItem );
-		$this->doStatIncrement( 'file.corechecksum.replaced' );
-		return true;
+		$bSuccess = $this->getRepairer()->repairItem( $oItem );
+		$this->getCon()->fireEvent(
+			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
+		);
+		return $bSuccess;
 	}
 
 	/**
@@ -132,8 +140,14 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 				 $this->buildEmailBodyFromFiles( $oResults )
 			 );
 
-		$this->addToAuditEntry(
-			sprintf( __( 'Sent Checksum Scan Notification email alert to: %s', 'wp-simple-firewall' ), $sTo )
+		$this->getCon()->fireEvent(
+			'wcf_alert_sent',
+			[
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
+			]
 		);
 	}
 

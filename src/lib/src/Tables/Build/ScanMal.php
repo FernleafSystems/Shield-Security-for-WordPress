@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class ScanMal
@@ -19,15 +18,25 @@ class ScanMal extends ScanBase {
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-
-		$nTs = Services::Request()->ts();
+		$oRepairer = ( new Shield\Scans\Mal\Repair() )->setMod( $oMod );
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oIt = ( new Shield\Scans\Ufc\ConvertVosToResults() )->convertItem( $oEntry );
+			$oIt = ( new Shield\Scans\Mal\ConvertVosToResults() )->convertItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'path' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = 'Unrecognised File';
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+			$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
+			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
+			try {
+				$bCanRepair = $oRepairer->canAutoRepairFromSource( $oIt );
+			}
+			catch ( \Exception $oE ) {
+				$aE[ 'status' ] .= sprintf( '<br/>%s: %s',
+					__( 'Repair Unavailable', 'wp-simple-firewall' ),
+					$oE->getMessage()
+				);
+				$bCanRepair = false;
+			}
+			$aE[ 'can_repair' ] = $bCanRepair;
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'href_download' ] = $oMod->createFileDownloadLink( $oEntry );
 			$aEntries[ $nKey ] = $aE;
@@ -37,9 +46,9 @@ class ScanMal extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanUfc
+	 * @return Shield\Tables\Render\ScanMal
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanUfc();
+		return new Shield\Tables\Render\ScanMal();
 	}
 }

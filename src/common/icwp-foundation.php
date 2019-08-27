@@ -132,17 +132,6 @@ class ICWP_WPSF_Foundation {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Ssl
-	 */
-	public function loadSslService() {
-		$sKey = 'icwp-ssl';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, ICWP_WPSF_Ssl::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return ICWP_WPSF_WpIncludes
 	 * @deprecated
 	 */

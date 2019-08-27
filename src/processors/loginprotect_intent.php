@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
 
 class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -65,7 +66,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		if ( $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
-			if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
+			if ( Services::WpGeneral()->isLoginRequest() || $oFO->getIfSupport3rdParty() ) {
 				/** 20180925 - now using set cookie auth instead so we can capture session */
 //				add_action( 'authenticate', array( $this, 'initLoginIntent' ), 100, 1 );
 			}
@@ -111,11 +112,11 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
 			 && $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
 
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oF */
+			/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oF */
 			$oF = $this->getMod();
 			if ( !$oF->canUserMfaSkip( $oUser ) ) {
 				$nTimeout = (int)apply_filters( $oF->prefix( 'login_intent_timeout' ), $oF->getDef( 'login_intent_timeout' ) );
-				$this->setLoginIntentExpiresAt( $this->time() + MINUTE_IN_SECONDS*$nTimeout );
+				$this->setLoginIntentExpiresAt( Services::Request()->ts() + MINUTE_IN_SECONDS*$nTimeout );
 			}
 		}
 	}
@@ -124,10 +125,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
 	private function processLoginIntent() {
-		$oWp = Services::WpGeneral();
+		$oWpResp = Services::Response();
 		$oWpUsers = Services::WpUsers();
 
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
 		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
@@ -139,7 +140,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				if ( $oReq->post( 'cancel' ) == 1 ) {
 					$oWpUsers->logoutUser(); // clears the login and login intent
 					$sRedirectHref = $oReq->post( 'cancel_href' );
-					empty( $sRedirectHref ) ? $oWp->redirectToLogin() : $oWp->doRedirect( rawurldecode( $sRedirectHref ) );
+					empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
 				}
 				else if ( $this->isLoginIntentValid() ) {
 
@@ -154,15 +155,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 //								   .' '.sprintf( '<a href="%s">%s</a>', $oWpUsers->getAdminUrl_ProfileEdit(), _wpsf__( 'Go' ) );
 					}
 
-					$oFO->setFlashAdminNotice( $sFlash )
-						->setOptInsightsAt( 'last_2fa_login_at' );
+					$this->getCon()->fireEvent( '2fa_success' );
+					$oFO->setFlashAdminNotice( $sFlash );
 
 					$sRedirectHref = $oReq->post( 'redirect_to' );
-					empty( $sRedirectHref ) ? $oWp->redirectHere() : $oWp->doRedirect( rawurldecode( $sRedirectHref ) );
+					empty( $sRedirectHref ) ? $oWpResp->redirectHere() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
 				}
 				else {
 					$oFO->setFlashAdminNotice( __( 'One or more of your authentication codes failed or was missing', 'wp-simple-firewall' ), true );
-					$oWp->redirectHere();
+					$oWpResp->redirectHere();
 				}
 				return; // we've redirected anyway.
 			}
@@ -172,7 +173,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 		else if ( $this->hasLoginIntent() ) { // there was an old login intent
 			$oWpUsers->logoutUser(); // clears the login and login intent
-			$oWp->redirectHere();
+			$oWpResp->redirectHere();
 		}
 		else {
 			// no login intent present -
@@ -194,26 +195,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return $this
 	 */
 	protected function setLoginIntentExpiresAt( $nExpirationTime ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->hasSession() ) {
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
-			$oUpd->updateLoginIntentExpiresAt( $oFO->getSession(), $nExpirationTime );
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->hasSession() ) {
+			/** @var Shield\Databases\Session\Update $oUpd */
+			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+			$oUpd->updateLoginIntentExpiresAt( $oMod->getSession(), $nExpirationTime );
 		}
 		return $this;
-	}
-
-	/**
-	 * Must be set with a higher priority than other filters as it will override them
-	 * @param bool    $bIsSubjectTo
-	 * @param WP_User $oUser
-	 * @return bool
-	 */
-	public function applyUserCanMfaSkip( $bIsSubjectTo, $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		return $bIsSubjectTo && !$oFO->canUserMfaSkip( $oUser );
 	}
 
 	/**
@@ -236,39 +225,30 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 	 * @return bool
 	 */
 	protected function hasValidLoginIntent() {
-		return $this->hasLoginIntent() && ( $this->getLoginIntentExpiresAt() > $this->time() );
+		return $this->hasLoginIntent() && ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() );
 	}
 
 	/**
 	 * @return bool true if valid form printed, false otherwise. Should die() if true
 	 */
 	public function printLoginIntentForm() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
-		$aLoginIntentFields = apply_filters( $oFO->prefix( 'login-intent-form-fields' ), [] );
+		$aLoginIntentFields = apply_filters( $oCon->prefix( 'login-intent-form-fields' ), [] );
 
 		if ( empty( $aLoginIntentFields ) ) {
 			return false; // a final guard against displaying an empty form.
 		}
 
-		$sMessage = $this->loadWpNotices()
-						 ->flushFlash()
-						 ->getFlashText();
-
-		if ( empty( $sMessage ) ) {
-			if ( $oFO->isChainedAuth() ) {
-				$sMessage = __( 'Please supply all authentication codes', 'wp-simple-firewall' );
-			}
-			else {
-				$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
-			}
-			$sMessageType = 'info';
+		if ( $oMod->isChainedAuth() ) {
+			$sMessage = __( 'Please supply all authentication codes', 'wp-simple-firewall' );
 		}
 		else {
-			$sMessageType = 'warning';
+			$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 		}
+		$sMessageType = 'info';
 
 		$sReferUrl = $oReq->server( 'HTTP_REFERER', '' );
 		if ( strpos( $sReferUrl, '?' ) ) {
@@ -287,13 +267,13 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		}
 
 		$sCancelHref = $oReq->post( 'cancel_href', '' );
-		if ( empty( $sCancelHref ) && $this->loadDP()->isValidUrl( $sReferUrl ) ) {
+		if ( empty( $sCancelHref ) && Services::Data()->isValidWebUrl( $sReferUrl ) ) {
 			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
 		}
 
 		$aLabels = $oCon->getLabels();
 		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
-		$nMfaSkip = $oFO->getMfaSkip();
+		$nMfaSkip = $oMod->getMfaSkip();
 		$aDisplayData = [
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
@@ -313,15 +293,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 			],
 			'data'    => [
 				'login_fields'      => $aLoginIntentFields,
-				'time_remaining'    => $this->getLoginIntentExpiresAt() - $this->time(),
+				'time_remaining'    => $this->getLoginIntentExpiresAt() - $oReq->ts(),
 				'message_type'      => $sMessageType,
-				'login_intent_flag' => $oFO->getLoginIntentRequestFlag(),
+				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
 				'page_locale'       => Services::WpGeneral()->getLocale( '-' )
 			],
 			'hrefs'   => [
 				'form_action'   => $oReq->getUri(),
-				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min.css' ),
-				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min.js' ),
+				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
+				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
 				'redirect_to'   => $sRedirectTo,
 				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
@@ -332,15 +312,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $oFO->getMfaSkipEnabled(),
-				'show_branded_links' => !$oFO->isWlEnabled(), // white label mitigation
+				'can_skip_mfa'       => $oMod->getMfaSkipEnabled(),
+				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
 			]
 		];
 
-		$this->loadRenderer( $this->getCon()->getPath_Templates() )
-			 ->setTemplate( 'page/login_intent' )
-			 ->setRenderVars( $aDisplayData )
-			 ->display();
+		echo $oMod->renderTemplate( 'page/login_intent', $aDisplayData );
 
 		return true;
 	}
@@ -354,8 +331,9 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$this->removeLoginIntent();
 
 		// support for WooCommerce Social Login
-		if ( $oFO->getIfSupport3rdParty() ) {
-			$this->getCon()->getCurrentUserMeta()->wc_social_login_valid = false;
+		$oMeta = $this->getCon()->getCurrentUserMeta();
+		if ( $oFO->getIfSupport3rdParty() && $oMeta instanceof Shield\Users\ShieldUserMeta ) {
+			$oMeta->wc_social_login_valid = false;
 		}
 	}
 

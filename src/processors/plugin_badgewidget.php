@@ -13,16 +13,17 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 			try {
 				$oMod = ICWP_WPSF_Shield_Security::GetInstance()
 												 ->getController()
-												 ->getModule( 'plugin' );
+												 ->getModule_Plugin();
 			}
 			catch ( \Exception $oE ) {
 				return;
 			}
 		}
 		$this->setMod( $oMod );
+		$oCon = $this->getCon();
 		parent::__construct(
-			$oMod->prefixOptionKey( 'plugin_badge' ),
-			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $this->getCon()->getHumanName() ),
+			$oCon->prefixOption( 'plugin_badge' ),
+			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 			[
 				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ), $this->getCon()
 																																						 ->getHumanName() ),
@@ -70,10 +71,6 @@ class ICWP_WPSF_Processor_Plugin_BadgeWidget extends ICWP_WPSF_WpWidget {
 		];
 
 		return $this->getMod()
-					->loadRenderer( $oCon->getPath_Templates().'php' )
-					->setRenderVars( $aData )
-					->setTemplate( 'snippets/plugin_badge_widget' )
-					->setTemplateEnginePhp()
-					->render();
+					->renderTemplate( 'snippets/plugin_badge_widget', $aData );
 	}
 }

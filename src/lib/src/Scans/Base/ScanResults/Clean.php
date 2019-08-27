@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class Clean {
 
 	use Shield\Databases\Base\HandlerConsumer,
-		Shield\Scans\Base\ScannerProfileConsumer;
+		Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @var Shield\Scans\Base\BaseResultsSet
@@ -22,11 +22,11 @@ class Clean {
 	 * @return $this
 	 */
 	public function deleteAllForScan() {
-		$sScan = $this->getScannerProfile()->scan_slug;
+		$sScan = $this->getScanActionVO()->id;
 		if ( !empty( $sScan ) ) {
 			/** @var Shield\Databases\Scanner\Delete $oDel */
 			$oDel = $this->getDbHandler()->getQueryDeleter();
-			$oDel->filterByScan( $sScan )->query();
+			$oDel->forScan( $sScan );
 		}
 		return $this;
 	}

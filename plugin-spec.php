@@ -1,7 +1,8 @@
 {
   "properties":   {
-    "version":                 "7.4.2",
-    "release_timestamp":       1559221200,
+    "version":                 "8.0.0",
+    "release_timestamp":       1566896000,
+    "build":                   "201908.2701",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
@@ -18,7 +19,7 @@
   },
   "requirements": {
     "php":       "5.4.0",
-    "wordpress": "3.5.0"
+    "wordpress": "3.5.2"
   },
   "paths":        {
     "source":    "src",
@@ -84,7 +85,8 @@
   },
   "meta":         {
     "url_repo_home":        "https://icwp.io/eh",
-    "headway_changelog_id": "xaoEZJ"
+    "headway_changelog_id": "xaoEZJ",
+    "privacy_policy_href":  "https://icwp.io/shieldprivacypolicy"
   },
   "plugin_meta":  [
     {
@@ -96,8 +98,8 @@
     "remove": null,
     "add":    [
       {
-        "name":   "Dashboard",
-        "title":  "Go To Shield Dashboard",
+        "name":   "Security Dashboard",
+        "title":  "Go To Security Dashboard",
         "href":   "getPluginUrl_AdminMainPage",
         "target": "_top",
         "show":   "always"

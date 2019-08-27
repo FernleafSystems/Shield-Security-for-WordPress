@@ -24,7 +24,6 @@ class ScanWpv extends ScanBase {
 		$oWpPlugins->getUpdates( true );
 		$oWpThemes->getUpdates( true );
 
-		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oIt = ( new Shield\Scans\Wpv\ConvertVosToResults() )->convertItem( $oEntry );
@@ -47,7 +46,7 @@ class ScanWpv extends ScanBase {
 			}
 			$aE[ 'slug' ] = $oIt->slug;
 			$aE[ 'wpvuln_vo' ] = $oIt->getWpVulnVo();
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aEntries[ $nKey ] = $aE;
 		}

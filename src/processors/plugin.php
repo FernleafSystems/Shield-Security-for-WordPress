@@ -27,9 +27,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			$this->getSubProImportExport()->run();
 		}
 
-		$this->getSubProGeoip()->run();
-
-		switch ( Services::Request()->query( 'shield_action', '' ) ) {
+		switch ( $this->getCon()->getShieldAction() ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
 				break;
@@ -63,13 +61,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Geoip
-	 */
-	public function getSubProGeoip() {
-		return $this->getSubPro( 'geoip' );
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_Plugin_CronDaily
 	 */
 	protected function getSubProCronDaily() {
@@ -98,21 +89,12 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Notes
-	 */
-	public function getSubProcessorNotes() {
-		return $this->getSubPro( 'notes' );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {
 		return [
 			'badge'        => 'ICWP_WPSF_Processor_Plugin_Badge',
-			'geoip'        => 'ICWP_WPSF_Processor_Plugin_Geoip',
 			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
-			'notes'        => 'ICWP_WPSF_Processor_Plugin_Notes',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
 			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
 			'cronhourly'   => 'ICWP_WPSF_Processor_Plugin_CronHourly',
@@ -158,7 +140,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				],
 				'inputs'      => [
-					'checkboxes' => $this->loadDP()->shuffleArray( $aOpts )
+					'checkboxes' => Services::DataManipulation()->shuffleArray( $aOpts )
 				],
 				'js_snippets' => []
 			];
@@ -180,7 +162,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	public function runDailyCron() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
 		$oFO = $this->getMod();
-		$oFO->updateTestCronLastRunAt();
+		$this->getCon()->fireEvent( 'test_cron_run' );
 	}
 
 	/**
@@ -196,81 +178,29 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @param array $aNoticeAttributes
-	 * @see autoAddToAdminNotices()
-	 */
-	protected function addNotice_override_forceoff( $aNoticeAttributes ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-
-		$oCon = $this->getCon();
-		if ( $oCon->getIfForceOffActive() ) {
-			$aRenderData = [
-				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => [
-					'title'   => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $oCon->getHumanName() ) ),
-					'message' => sprintf(
-						__( 'Please delete the "%s" file to reactivate %s protection', 'wp-simple-firewall' ),
-						'forceOff',
-						$oCon->getHumanName()
-					),
-					'delete'  => __( 'Click here to automatically delete the file', 'wp-simple-firewall' )
-				],
-				'ajax'              => [
-					'delete_forceoff' => $oFO->getAjaxActionData( 'delete_forceoff', true )
-				]
-			];
-			$this->insertAdminNotice( $aRenderData );
-		}
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @see autoAddToAdminNotices()
-	 */
-	protected function addNotice_plugin_mailing_list_signup( $aNoticeAttributes ) {
-		$oModCon = $this->getMod();
-		$sName = $this->getCon()->getHumanName();
-		$nDays = $this->getInstallationDays();
-		if ( $this->getIfShowAdminNotices() && $nDays >= 5 ) {
-			$oUser = Services::WpUsers()->getCurrentWpUser();
-			$aRenderData = [
-				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => [
-					'yes'            => "Yes please! I'd love to join in and learn more",
-					'no'             => "No thanks, I'm not interested in such groups",
-					'your_name'      => __( 'Your Name', 'wp-simple-firewall' ),
-					'your_email'     => __( 'Your Email', 'wp-simple-firewall' ),
-					'signup'         => __( 'Sign-Up', 'wp-simple-firewall' ),
-					'dismiss'        => "No thanks, I'm not interested in such informative groups",
-					'summary'        => sprintf( 'The %s team is helping raise awareness of WP Security issues
-				and to provide guidance with the %s plugin.', $sName, $sName ),
-					'privacy_policy' => sprintf(
-						'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
-						$this->getMod()->getDef( 'href_privacy_policy' )
-					),
-					'consent'        => sprintf( __( 'I agree to Ts & Cs', 'wp-simple-firewall' ) )
-				],
-				'hrefs'             => [
-					'privacy_policy' => $oModCon->getDef( 'href_privacy_policy' )
-				],
-				'install_days'      => $nDays,
-				'vars'              => [
-					'name'         => $oUser->first_name,
-					'user_email'   => $oUser->user_email,
-					'drip_form_id' => $aNoticeAttributes[ 'drip_form_id' ]
-				]
-			];
-			$this->insertAdminNotice( $aRenderData );
-		}
-	}
-
-	/**
 	 * Lets you remove certain plugin conflicts that might interfere with this plugin
 	 */
 	protected function removePluginConflicts() {
 		if ( class_exists( 'AIO_WP_Security' ) && isset( $GLOBALS[ 'aio_wp_security' ] ) ) {
 			remove_action( 'init', [ $GLOBALS[ 'aio_wp_security' ], 'wp_security_plugin_init' ], 0 );
 		}
+	}
+
+	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_override_forceoff() {
+		return;
+	}
+
+	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_plugin_mailing_list_signup() {
+		return;
 	}
 }

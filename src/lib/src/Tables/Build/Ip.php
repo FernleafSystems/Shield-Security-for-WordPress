@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class Ip
@@ -26,9 +27,9 @@ class Ip extends BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array(
+		return [
 			'fLists' => '',
-		);
+		];
 	}
 
 	/**
@@ -44,7 +45,7 @@ class Ip extends BaseBuild {
 			/** @var IPs\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();
 			$bBlocked = $oEntry->transgressions >= $nTransLimit;
-			$aE[ 'last_trans_at' ] = ( new \Carbon\Carbon() )->setTimestamp( $oEntry->last_access_at )->diffForHumans();
+			$aE[ 'last_trans_at' ] = Services::Request()->carbon()->setTimestamp( $oEntry->last_access_at )->diffForHumans();
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );

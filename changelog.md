@@ -1,4 +1,28 @@
 
+= 7.3 - Series =
+*Released: 15th April, 2019* - [Release Notes](https://icwp.io/f0)
+
+* **(v.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://icwp.io/ez) options.
+* **(v.2)**  CHANGED:	Added a workaround for WPML plugin using old, buggy version of TWIG library.
+* **(v.1)**  FIX:		Protection against 404 tracking blocking visitors in some cases.
+* **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://icwp.io/ez) - rules to catch and block bad bots.
+* **(v.0)**  ADDED:		Date picker for filtering Audit Log entries.
+* **(v.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
+* **(v.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
+* **(v.0)**  FIX:		Error displayed when deleting plugins in some cases.
+* **(v.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
+
+= 7.2 - Series =
+*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
+
+* **(v.2)**  SKIPPED:	with error.
+* **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
+* **(v.1)**  FIX:		Fix PHP warning notice on login page.
+* **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
+* **(v.0)**  NEW:		[Scanner to detect and alert](https://icwp.io/eq) to presence of abandoned plugins.
+* **(v.0)**  FIX:		Fix bug with Security Admin passwords.
+* **(v.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
+
 = 7.1 - Series =
 *Released: 21st February, 2019* - [Release Notes](https://icwp.io/ek)
 

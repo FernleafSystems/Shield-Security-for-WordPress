@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                  "plugin",
-    "name":                  "General",
+    "name":                  "General Settings",
     "menu_title":            "Settings",
     "show_module_menu_item": true,
     "show_module_options":   true,
@@ -11,7 +11,6 @@
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "has_custom_actions":    false,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true,
@@ -26,41 +25,31 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "plugin-update-available":    {
-      "id":          "plugin-update-available",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
-    },
     "wizard_welcome":             {
-      "id":          "wizard_welcome",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  0,
-      "type":        "promo"
-    },
-    "allow-tracking":             {
-      "id":          "allow-tracking",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "delay_days":  1,
-      "type":        "promo"
+      "id":       "wizard_welcome",
+      "per_user": false,
+      "type":     "info"
     },
     "plugin-mailing-list-signup": {
-      "id":           "plugin-mailing-list-signup",
-      "schedule":     "once",
-      "valid_admin":  true,
-      "delay_days":   15,
-      "type":         "promo",
-      "twig":         true,
-      "drip_form_id": "250437573"
+      "id":               "plugin-mailing-list-signup",
+      "min_install_days": 5,
+      "type":             "promo",
+      "drip_form_id":     "250437573"
+    },
+    "plugin-update-available":    {
+      "id":   "plugin-update-available",
+      "type": "warning"
+    },
+    "allow-tracking":             {
+      "id":               "allow-tracking",
+      "plugin_admin":     true,
+      "min_install_days": 3,
+      "type":             "promo"
     },
     "rate-plugin":                {
-      "id":          "rate-plugin",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  30,
-      "type":        "promo"
+      "id":               "rate-plugin",
+      "min_install_days": 30,
+      "type":             "promo"
     }
   },
   "sections":      [
@@ -251,6 +240,7 @@
       "key":          "importexport_whitelist",
       "section":      "section_importexport",
       "transferable": false,
+      "sensitive":    true,
       "default":      [],
       "type":         "array",
       "link_info":    "",
@@ -262,6 +252,7 @@
     {
       "key":         "importexport_whitelist_notify",
       "section":     "section_importexport",
+      "sensitive":   true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -311,7 +302,7 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
       "link_info":     "https://icwp.io/dq",
@@ -443,6 +434,8 @@
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "https://icwp.io/wpshieldprivacypolicy",
+    "db_autoexpire_notes":    0,
+    "db_autoexpire_geoip":    30,
     "db_notes_name":          "notes",
     "db_notes_table_columns": [
       "id",
@@ -474,7 +467,7 @@
       {
         "slug":          "ips",
         "storage_key":   "ips",
-        "load_priority": 12
+        "load_priority": 15
       },
       {
         "slug":        "hack_protect",
@@ -487,7 +480,7 @@
       {
         "slug":          "firewall",
         "storage_key":   "firewall",
-        "load_priority": 13
+        "load_priority": 1000
       },
       {
         "slug":        "user_management",
@@ -510,11 +503,15 @@
         "storage_key": "lockdown"
       },
       {
+        "slug":          "events",
+        "storage_key":   "events",
+        "load_priority": 11
+      },
+      {
         "slug":          "statistics",
         "storage_key":   "statistics",
         "load_priority": 11,
-        "hidden":        false,
-        "min_php":       "5.4"
+        "hidden":        false
       },
       {
         "slug":          "sessions",
@@ -543,6 +540,41 @@
         "storage_key": "email"
       }
     ],
+    "events":                 {
+      "test_cron_run":          {
+        "audit":  false,
+        "recent": true
+      },
+      "import_notify_sent":     {
+        "stat": false
+      },
+      "import_notify_received": {
+        "stat": false
+      },
+      "options_exported":       {
+        "stat":   true,
+        "recent": true
+      },
+      "options_imported":       {
+        "stat":   true,
+        "recent": true
+      },
+      "whitelist_site_added":   {
+        "stat": false
+      },
+      "whitelist_site_removed": {
+        "stat": false
+      },
+      "master_url_set":         {
+        "stat": false
+      },
+      "recaptcha_success":      {
+        "audit": false
+      },
+      "recaptcha_fail":         {
+        "audit": false
+      }
+    },
     "wizards":                {
       "welcome": {
         "title":                "Getting Started Setup Wizard",

@@ -26,10 +26,10 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 
 		$bRecurse = true; // I.e. consume the file.
 		// i.e. exclude core files, hidden system dirs, and files that don't have extensions we're looking for
-		if ( in_array( $oCurr->getFilename(), array( '.', '..' ) )
+		if ( in_array( $oCurr->getFilename(), [ '.', '..' ] )
 			 || $oCurr->isFile() && (
 				( $this->isFilterOutCoreFiles() && $this->isWpCoreFile() )
-				|| ( $this->hasFileExts() && !in_array( $oCurr->getExtension(), $this->getFileExts() ) )
+				|| ( $this->hasFileExts() && !in_array( strtolower( $oCurr->getExtension() ), $this->getFileExts() ) )
 			)
 		) {
 			$bRecurse = false;

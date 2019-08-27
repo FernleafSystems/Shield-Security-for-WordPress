@@ -41,37 +41,17 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
+	 * @return Shield\Scans\Ufc\ScanActionVO
+	 */
+	protected function getNewActionVO() {
+		return new Shield\Scans\Ufc\ScanActionVO();
+	}
+
+	/**
 	 * @return Shield\Scans\Ufc\Repair
 	 */
 	protected function getRepairer() {
 		return new Shield\Scans\Ufc\Repair();
-	}
-
-	/**
-	 * @return Shield\Scans\Ufc\Scanner
-	 */
-	protected function getScanner() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oScanner = ( new Shield\Scans\Ufc\Scanner() )
-			->setExclusions( $oFO->getUfcFileExclusions() );
-
-		if ( $oFO->isUfsScanUploads() ) {
-			$sUploadsDir = Services::WpGeneral()->getDirUploads();
-			if ( !empty( $sUploadsDir ) ) {
-				$oScanner->addScanDirector( $sUploadsDir )
-						 ->addDirSpecificFileTypes(
-							 $sUploadsDir,
-							 [
-								 'php',
-								 'php5',
-								 'js',
-							 ]
-						 );
-			}
-		}
-		return $oScanner;
 	}
 
 	/**
@@ -89,9 +69,12 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
-		$this->getRepairer()->repairItem( $oItem );
-		$this->doStatIncrement( 'file.corechecksum.replaced' ); //TODO
-		return true;
+		$bSuccess = $this->getRepairer()->repairItem( $oItem );
+		$this->getCon()->fireEvent(
+			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
+		);
+		return $bSuccess;
 	}
 
 	/**
@@ -134,8 +117,14 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 				 $this->buildEmailBodyFromFiles( $oRes->getItemsPathsFull() )
 			 );
 
-		$this->addToAuditEntry(
-			sprintf( __( 'Sent Unrecognised File Scan Notification email alert to: %s', 'wp-simple-firewall' ), $sTo )
+		$this->getCon()->fireEvent(
+			'ufc_alert_sent',
+			[
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
+			]
 		);
 	}
 

@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam
+ * @deprecated
+ */
 class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
@@ -10,16 +14,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	 * @var string
 	 */
 	protected $sFormId;
-
-	/**
-	 * @var string
-	 */
-	protected $sCommentStatus;
-
-	/**
-	 * @var string
-	 */
-	protected $sCommentStatusExplanation;
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_CommentsFilter $oModCon
@@ -31,143 +25,63 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	/**
 	 */
 	public function run() {
-		if ( $this->isReadyToRun() ) {
+		if ( $this->isReadyToRun() && !Services::Request()->isPost() ) {
 			// Add GASP checking to the comment form.
-			add_action( 'wp', [ $this, 'setupForm' ] );
-			add_filter( 'preprocess_comment', [ $this, 'doCommentChecking' ], 5 );
-			add_filter( $this->getMod()->prefix( 'cf_status' ), [ $this, 'getCommentStatus' ], 1 );
-			add_filter( $this->getMod()->prefix( 'cf_status_expl' ), [ $this, 'getCommentStatusExplanation' ], 1 );
-		}
-	}
-
-	public function setupForm() {
-		if ( !Services::Request()->isPost() ) {
 			add_action( 'comment_form', [ $this, 'printGaspFormItems' ], 1 );
-		}
-	}
-
-	/**
-	 * A private plugin filter that lets us return up the newly set comment status.
-	 * @param $sCurrentCommentStatus
-	 * @return string
-	 */
-	public function getCommentStatus( $sCurrentCommentStatus ) {
-		return empty( $sCurrentCommentStatus ) ? $this->sCommentStatus : $sCurrentCommentStatus;
-	}
-
-	/**
-	 * A private plugin filter that lets us return up the newly set comment status explanation
-	 * @param $sCurrentCommentStatusExplanation
-	 * @return string
-	 */
-	public function getCommentStatusExplanation( $sCurrentCommentStatusExplanation ) {
-		return empty( $sCurrentCommentStatusExplanation ) ? $this->sCommentStatusExplanation : $sCurrentCommentStatusExplanation;
-	}
-
-	/**
-	 * @param array $aCommData
-	 * @return array
-	 */
-	public function doCommentChecking( $aCommData ) {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
-
-		$nPostId = $aCommData[ 'comment_post_ID' ];
-		if ( $oFO->getIfDoCommentsCheck( $nPostId, $aCommData[ 'comment_author_email' ] ) ) {
-
-			$this->doGaspCommentCheck( $nPostId );
-
-			// Now we check whether comment status is to completely reject and then we simply redirect to "home"
-			if ( $this->sCommentStatus == 'reject' ) {
-				Services::Response()->redirectToHome();
-			}
-		}
-
-		return $aCommData;
-	}
-
-	/**
-	 * Performs the actual GASP comment checking
-	 * @param $nPostId
-	 */
-	protected function doGaspCommentCheck( $nPostId ) {
-
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
-
-		// Check that we haven't already marked the comment through another scan
-		if ( !empty( $this->sCommentStatus ) ) {
-			return;
-		}
-
-		$bIsSpam = true;
-		$sStatKey = '';
-		$sExplanation = '';
-
-		$oReq = Services::Request();
-		$sFieldCheckboxName = $oReq->post( 'cb_nombre' );
-		$sFieldHoney = $oReq->post( 'sugar_sweet_email' );
-		$sCommentToken = $oReq->post( 'comment_token' );
-
-		// we have the cb name, is it set?
-		if ( !$sFieldCheckboxName || !$oReq->post( $sFieldCheckboxName ) ) {
-			$sExplanation = sprintf( __( 'Failed GASP Bot Filter Test (%s)', 'wp-simple-firewall' ), __( 'checkbox', 'wp-simple-firewall' ) );
-			$sStatKey = 'checkbox';
-		}
-		// honeypot check
-		else if ( !empty( $sFieldHoney ) ) {
-			$sExplanation = sprintf( __( 'Failed GASP Bot Filter Test (%s)', 'wp-simple-firewall' ), __( 'honeypot', 'wp-simple-firewall' ) );
-			$sStatKey = 'honeypot';
-		}
-		// check the unique comment token is present
-		else if ( $oFO->getIfCheckCommentToken() && !$this->checkCommentToken( $sCommentToken, $nPostId ) ) {
-			$sExplanation = sprintf( __( 'Failed GASP Bot Filter Test (%s)', 'wp-simple-firewall' ), __( 'comment token failure', 'wp-simple-firewall' ) );
-			$sStatKey = 'token';
-		}
-		else {
-			$bIsSpam = false;
-		}
-
-		if ( $bIsSpam ) {
-			$this->doStatIncrement( sprintf( 'spam.gasp.%s', $sStatKey ) );
-			$this->sCommentStatus = $this->getOption( 'comments_default_action_spam_bot' );
-			$this->setCommentStatusExplanation( $sExplanation );
-			$oFO->setOptInsightsAt( 'last_comment_block_at' )
-				->setIpTransgressed();
 		}
 	}
 
 	public function printGaspFormItems() {
 		$oToken = $this->initCommentFormToken();
-		if ( $oToken instanceof Comments\EntryVO ) {
-			echo $this->getGaspCommentsHookHtml( $oToken );
-			echo $this->getGaspCommentsHtml();
-		}
+		echo $this->getGaspCommentsHookHtml( $oToken );
+		echo $this->getGaspCommentsHtml();
 	}
 
 	/**
-	 * @return Comments\EntryVO|null
-	 */
-	protected function initCommentFormToken() {
-		/** @var Comments\EntryVO $oToken */
-		$oToken = $this->getDbHandler()->getVo();
-		$oToken->post_id = Services::WpPost()->getCurrentPostId();
-		$oToken->unique_token = md5( $this->getCon()->getUniqueRequestId( false ) );
-		return $this->getDbHandler()
-					->getQueryInserter()
-					->insert( $oToken ) ? $oToken : null;
-	}
-
-	/**
-	 * @param Comments\EntryVO $oToken
 	 * @return string
 	 */
-	protected function getGaspCommentsHookHtml( $oToken ) {
+	protected function initCommentFormToken() {
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
+
+		$nTs = Services::Request()->ts();
+		$nPostId = Services::WpPost()->getCurrentPostId();
+
+		$sToken = $this->getToken( $nTs, $nPostId );
+		Services::WpGeneral()->setTransient(
+			$oMod->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) ) ),
+			$sToken,
+			$oMod->getTokenExpireInterval()
+		);
+
+		return $sToken;
+	}
+
+	/**
+	 * @param int    $nTs
+	 * @param string $nPostId
+	 * @return string
+	 */
+	protected function getToken( $nTs, $nPostId ) {
+		$oMod = $this->getCon()->getModule_Plugin();
+		return hash_hmac( 'sha1',
+			$nPostId.Services::IP()->getRequestIp().$nTs,
+			$oMod->getPluginInstallationId()
+		);
+	}
+
+	/**
+	 * @param string $sToken
+	 * @return string
+	 */
+	protected function getGaspCommentsHookHtml( $sToken ) {
+		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
+		$oFO = $this->getMod();
 		$aHtml = [
 			'<p id="'.$this->getUniqueFormId().'"></p>', // we use this unique <p> to hook onto using javascript
 			'<input type="hidden" id="_sugar_sweet_email" name="sugar_sweet_email" value="" />',
-			sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />',
-				$oToken->unique_token )
+			sprintf( '<input type="hidden" id="_botts" name="botts" value="%s" />', Services::Request()->ts() ),
+			sprintf( '<input type="hidden" id="_comment_token" name="comment_token" value="%s" />', $sToken )
 		];
 		return implode( '', $aHtml );
 	}
@@ -289,46 +203,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @param string $sToken
-	 * @param        $sPostId
-	 * @return bool
-	 */
-	protected function checkCommentToken( $sToken, $sPostId ) {
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oFO */
-		$oFO = $this->getMod();
-
-		$bValidToken = false;
-
-		$oToken = $this->getPostCommentToken( $sToken, $sPostId );
-		if ( $oToken instanceof Comments\EntryVO ) {
-			// Did sufficient time pass and is it not-expired?
-			$nAge = $this->time() - $oToken->getCreatedAt();
-			$nExpires = $oFO->getTokenExpireInterval();
-
-			$bValidToken = ( $nAge > $oFO->getTokenCooldown() )
-						   && ( $nExpires < 1 || $nAge < $nExpires );
-
-			// Tokens are 1 time only.
-			$this->getDbHandler()
-				 ->getQueryDeleter()
-				 ->deleteEntry( $oToken );
-		}
-
-		return $bValidToken;
-	}
-
-	/**
-	 * @param string $sCommentToken
-	 * @param int    $sPostId
-	 * @return Comments\EntryVO|null
-	 */
-	private function getPostCommentToken( $sCommentToken, $sPostId ) {
-		/** @var Comments\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
-		return $oSel->getTokenForPost( $sCommentToken, $sPostId, $this->ip() );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getCreateTableSql() {
@@ -352,19 +226,6 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @param $sExplanation
-	 */
-	protected function setCommentStatusExplanation( $sExplanation ) {
-		$this->sCommentStatusExplanation =
-			'[* '.sprintf(
-				__( '%s plugin marked this comment as "%s".', 'wp-simple-firewall' ).' '.__( 'Reason: %s', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName(),
-				$this->sCommentStatus,
-				$sExplanation
-			)." *]\n";
-	}
-
-	/**
 	 * @return int
 	 */
 	protected function getAutoExpirePeriod() {
@@ -374,9 +235,16 @@ class ICWP_WPSF_Processor_CommentsFilter_AntiBotSpam extends ICWP_WPSF_BaseDbPro
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler
+	 * @return Comments\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments\Handler();
+		return new Comments\Handler();
+	}
+
+	/**
+	 * @return bool|int
+	 */
+	public function cleanupDatabase() {
+		return false;
 	}
 }

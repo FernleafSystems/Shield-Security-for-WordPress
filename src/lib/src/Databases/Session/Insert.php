@@ -13,10 +13,10 @@ class Insert extends Base\Insert {
 	 * @return bool
 	 */
 	public function create( $sSessionId, $sUsername ) {
-		$aData = array(
+		$aData = [
 			'session_id'  => $sSessionId,
 			'wp_username' => $sUsername,
-		);
+		];
 		return $this->setInsertData( $aData )->query() === 1;
 	}
 

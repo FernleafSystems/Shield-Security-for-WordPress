@@ -16,16 +16,16 @@
 
 			<div class="form-group row no-gutters">
 
-				<label class="form-label col-3 col-form-label" for="admin_access_key_request">
+				<label class="form-label col-3 col-form-label" for="sec_admin_key">
 					<span class="optname"><?php echo $strings[ 'aar_enter_access_key' ]; ?></span>
 				</label>
 
 				<div class="col-8 col-xs-offset-1 option_container">
 
 					<div class="option_section">
-						<label class="admin_access_key_request">
-							<input type="password" name="admin_access_key_request"
-								   id="admin_access_key_request" value="" autocomplete="off" autofocus />
+						<label class="sec_admin_key">
+							<input type="password" name="sec_admin_key"
+								   id="sec_admin_key" value="" autocomplete="off" autofocus />
 						</label>
 						<p class="help-block"><?php echo $strings[ 'aar_to_manage_must_enter_key' ]; ?></p>
 					</div>

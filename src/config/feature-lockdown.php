@@ -184,6 +184,16 @@
       "tho",
       "wpstatistics",
       "woocommerce"
-    ]
+    ],
+    "events":                     {
+      "block_anonymous_restapi": {
+        "recent": true
+      },
+      "block_xml":               {
+        "audit":  false,
+        "recent": true,
+        "offense": true
+      }
+    }
   }
 }

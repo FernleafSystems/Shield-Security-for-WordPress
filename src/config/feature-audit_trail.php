@@ -2,7 +2,7 @@
   "slug":        "audit_trail",
   "properties":  {
     "slug":                  "audit_trail",
-    "name":                  "Auditing",
+    "name":                  "Audit Trail",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "audit_trail",
@@ -17,17 +17,8 @@
   },
   "sections":    [
     {
-      "slug":        "section_audit_trail_options",
-      "primary":     true,
-      "title":       "Audit Trail Options",
-      "title_short": "Options",
-      "summary":     [
-        "Purpose - Provides finer control over the audit trail itself.",
-        "Recommendation - These settings are dependent on your requirements."
-      ]
-    },
-    {
       "slug":        "section_enable_audit_contexts",
+      "primary":     true,
       "title":       "Enable Audit Contexts",
       "title_short": "Audit Contexts",
       "summary":     [
@@ -36,8 +27,17 @@
       ]
     },
     {
+      "slug":        "section_audit_trail_options",
+      "title":       "Audit Trail Options",
+      "title_short": "Options",
+      "summary":     [
+        "Purpose - Provides finer control over the audit trail itself.",
+        "Recommendation - These settings are dependent on your requirements."
+      ]
+    },
+    {
       "slug":        "section_change_tracking",
-      "hidden": true,
+      "hidden":      true,
       "title":       "Change Tracking",
       "title_short": "Change Tracking",
       "summary":     [
@@ -199,28 +199,28 @@
       "description":   "Tracking major changes to your site will help you monitor and catch malicious damage."
     },
     {
-      "key":           "ct_snapshots_per_week",
-      "section":       "section_change_tracking",
-      "type":          "integer",
-      "default":       7,
-      "min":           1,
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Snapshot Per Week",
-      "summary":       "Number Of Snapshots To Take Per Week",
-      "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
+      "key":         "ct_snapshots_per_week",
+      "section":     "section_change_tracking",
+      "type":        "integer",
+      "default":     7,
+      "min":         1,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Snapshot Per Week",
+      "summary":     "Number Of Snapshots To Take Per Week",
+      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
     },
     {
-      "key":           "ct_max_snapshots",
-      "section":       "section_change_tracking",
-      "type":          "integer",
-      "default":       28,
-      "min":           1,
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Snapshot Per Week",
-      "summary":       "Number Of Snapshots To Take Per Week",
-      "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
+      "key":         "ct_max_snapshots",
+      "section":     "section_change_tracking",
+      "type":        "integer",
+      "default":     28,
+      "min":         1,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Snapshot Per Week",
+      "summary":     "Number Of Snapshots To Take Per Week",
+      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
     },
     {
       "key":          "ct_last_snapshot_at",
@@ -231,7 +231,7 @@
     }
   ],
   "definitions": {
-    "audit_trail_default_max_entries": 50,
+    "audit_trail_default_max_entries": 100,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [
       "id",
@@ -247,13 +247,72 @@
       "created_at",
       "deleted_at"
     ],
-    "table_name_changetracking":          "changetracking",
-    "table_columns_changetracking":       [
+    "table_name_changetracking":       "changetracking",
+    "table_columns_changetracking":    [
       "id",
       "data",
       "meta",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                          {
+      "plugin_activated":        {
+        "context": "plugins"
+      },
+      "plugin_deactivated":      {
+        "context": "plugins"
+      },
+      "plugin_file_edited":      {
+        "context": "plugins"
+      },
+      "theme_activated":         {
+        "context": "themes"
+      },
+      "theme_file_edited":       {
+        "context": "themes"
+      },
+      "core_updated":            {
+        "context": "wordpress"
+      },
+      "permalinks_structure":    {
+        "context": "wordpress"
+      },
+      "post_deleted":            {
+        "context": "posts"
+      },
+      "post_trashed":            {
+        "context": "posts"
+      },
+      "post_recovered":          {
+        "context": "posts"
+      },
+      "post_updated":            {
+        "context": "posts"
+      },
+      "post_published":          {
+        "context": "posts"
+      },
+      "post_unpublished":        {
+        "context": "posts"
+      },
+      "user_login":              {
+        "context": "users"
+      },
+      "user_registered":         {
+        "context": "users"
+      },
+      "user_deleted":            {
+        "context": "users"
+      },
+      "user_deleted_reassigned": {
+        "context": "users"
+      },
+      "email_attempt_send": {
+        "context": "emails"
+      },
+      "email_send_invalid": {
+        "context": "emails"
+      }
+    }
   }
 }

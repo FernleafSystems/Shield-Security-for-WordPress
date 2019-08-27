@@ -3,7 +3,7 @@
  * Plugin Name: Shield Security
  * Plugin URI: https://icwp.io/2f
  * Description: Powerful, Easy-To-Use #1 Rated WordPress Security System
- * Version: 7.4.2
+ * Version: 8.0.0
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages
  * Author: One Dollar Plugin
@@ -36,11 +36,20 @@ if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
 }
 
 if ( !function_exists( '_wpsf_e' ) ) {
+	/**
+	 * @param $sStr
+	 * @deprecated
+	 */
 	function _wpsf_e( $sStr ) {
 		_e( $sStr, 'wp-simple-firewall' );
 	}
 }
 if ( !function_exists( '_wpsf__' ) ) {
+	/**
+	 * @param $sStr
+	 * @return string|void
+	 * @deprecated
+	 */
 	function _wpsf__( $sStr ) {
 		return __( $sStr, 'wp-simple-firewall' );
 	}
@@ -60,12 +69,10 @@ function icwp_wpsf_init() {
 
 function icwp_wpsf_onactivate() {
 	icwp_wpsf_init();
-	if ( class_exists( 'ICWP_WPSF_Plugin_Controller' ) ) {
-		try {
-			ICWP_WPSF_Plugin_Controller::GetInstance()->onWpActivatePlugin();
-		}
-		catch ( Exception $oE ) {
-		}
+	try {
+		\FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller::GetInstance()->onWpActivatePlugin();
+	}
+	catch ( Exception $oE ) {
 	}
 }
 

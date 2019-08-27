@@ -81,15 +81,6 @@
       "created_at",
       "modified_at",
       "deleted_at"
-    ],
-    "reporting_table_name":              "reporting",
-    "reporting_consolidation_cron_name": "reporting-consolidation",
-    "reporting_table_columns":           [
-      "id",
-      "stat_key",
-      "tally",
-      "created_at",
-      "deleted_at"
     ]
   }
 }

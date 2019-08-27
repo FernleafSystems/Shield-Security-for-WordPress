@@ -30,12 +30,12 @@ class Sessions extends Base {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'cb'               => '&nbsp;',
-			'details'          => 'Details',
-			'is_secadmin'      => 'Security Admin',
-			'last_activity_at' => 'Last Activity',
-			'logged_in_at'     => 'Logged In',
-		);
+			'details'          => __( 'Details', 'wp-simple-firewall' ),
+			'is_secadmin'      => __( 'Security Admin', 'wp-simple-firewall' ),
+			'last_activity_at' => __( 'Last Activity At', 'wp-simple-firewall' ),
+			'logged_in_at'     => __( 'Logged-In', 'wp-simple-firewall' ),
+		];
 	}
 }

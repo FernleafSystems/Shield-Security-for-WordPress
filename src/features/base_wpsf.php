@@ -5,6 +5,18 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
+	use Shield\AuditTrail\Auditor;
+
+	/**
+	 * @var string[]
+	 */
+	private static $aStatEvents;
+
+	/**
+	 * @var Shield\Databases\AuditTrail\EntryVO[]
+	 */
+	private static $aAuditLogs;
+
 	/**
 	 * @var ICWP_WPSF_Processor_Sessions
 	 */
@@ -16,15 +28,42 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	static protected $bIsVerifiedBot;
 
 	/**
-	 * @var string
+	 * @var int
 	 */
-	static private $mIpAction;
+	static private $nIpOffenceCount = 0;
+
+	/**
+	 * @var bool
+	 */
+	private $bVisitorIsWhitelisted;
 
 	/**
 	 * @return ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
-		return self::$oSessProcessor;
+		/** @var ICWP_WPSF_Processor_Sessions $oP */
+		$oP = $this->getCon()
+				   ->getModule_Sessions()
+				   ->getProcessor();
+		return $oP;
+	}
+
+	/**
+	 * @return Shield\Databases\Session\Handler
+	 */
+	public function getDbHandler_Sessions() {
+		return $this->getCon()
+					->getModule_Sessions()
+					->getDbHandler();
+	}
+
+	/**
+	 * @return Shield\Databases\GeoIp\Handler
+	 */
+	public function getDbHandler_GeoIp() {
+		return $this->getCon()
+					->getModule_Plugin()
+					->getDbHandler_GeoIp();
 	}
 
 	/**
@@ -42,6 +81,137 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
 	}
 
+	protected function setupCustomHooks() {
+		$oCon = $this->getCon();
+		add_action( $oCon->prefix( 'event' ), [ $this, 'eventOffense' ], 10, 2 );
+		add_action( $oCon->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
+		add_action( $oCon->prefix( 'event' ), [ $this, 'eventStat' ], 10, 2 );
+	}
+
+	/**
+	 */
+	protected function updateHandler() {
+		$this->updateHandler_ConvertInsights();
+	}
+
+	private function updateHandler_ConvertInsights() {
+		$aMap = [
+			'insights_last_comment_block_at'  => 'spam_block_bot',
+			'insights_last_firewall_block_at' => 'firewall_block',
+			'insights_last_scan_ufc_at'       => 'ufc_scan_run',
+			'insights_last_scan_apc_at'       => 'apc_scan_run',
+			'insights_last_scan_wcf_at'       => 'wcf_scan_run',
+			'insights_last_scan_ptg_at'       => 'ptg_scan_run',
+			'insights_last_scan_wpv_at'       => 'wpv_scan_run',
+			'insights_last_transgression_at'  => 'ip_offense',
+			'insights_last_ip_block_at'       => 'conn_kill',
+			'insights_xml_block_at'           => 'block_xml',
+			'insights_restapi_block_at'       => 'block_anonymous_restapi',
+			'insights_last_2fa_login_at'      => '2fa_success',
+			'insights_last_login_block_at'    => 'login_block',
+			'insights_test_cron_last_run_at'  => 'test_cron_run',
+			'insights_last_password_block_at' => 'password_policy_block',
+		];
+		foreach ( $this->getOptionsVo()->getOptionsKeys() as $sOpt ) {
+			if ( strpos( $sOpt, 'insights_' ) === 0 && isset( $aMap[ $sOpt ] ) && $this->getOpt( $sOpt ) > 0 ) {
+				$this->addStatEvent( $aMap[ $sOpt ], [ 'ts' => $this->getOpt( $sOpt ) ] );
+				$this->setOpt( $sOpt, 0 );
+			}
+		}
+		/** @var Shield\Databases\Events\Handler $oDbh */
+		$oDbh = $this->getCon()->getModule_Events()->getDbHandler();
+		$oDbh->commitEvents( $this->getRegisteredEvents( true ) );
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 * @return $this
+	 */
+	public function eventAudit( $sEvent = '', $aMeta = [] ) {
+		if ( $this->isSupportedEvent( $sEvent ) ) {
+			$aDef = $this->getEventDef( $sEvent );
+			if ( $aDef[ 'audit' ] && empty( $aMeta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
+				$oEntry = new Shield\Databases\AuditTrail\EntryVO();
+				$oEntry->event = $sEvent;
+				$oEntry->category = $aDef[ 'cat' ];
+				$oEntry->context = $aDef[ 'context' ];
+				$oEntry->meta = isset( $aMeta[ 'audit' ] ) ? $aMeta[ 'audit' ] : [];
+				if ( !is_array( self::$aAuditLogs ) ) {
+					self::$aAuditLogs = [];
+				}
+				self::$aAuditLogs[ $sEvent ] = $oEntry;
+			}
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 */
+	public function eventOffense( $sEvent, $aMeta = [] ) {
+		if ( $this->isSupportedEvent( $sEvent ) ) {
+			$aDef = $this->getEventDef( $sEvent );
+			if ( $aDef[ 'offense' ] && empty( $aMeta[ 'suppress_offense' ] ) ) {
+				self::$nIpOffenceCount = max(
+					(int)self::$nIpOffenceCount,
+					isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1
+				);
+			}
+		}
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 */
+	public function eventStat( $sEvent, $aMeta = [] ) {
+		if ( $this->isSupportedEvent( $sEvent ) ) {
+			$aDef = $this->getEventDef( $sEvent );
+			if ( $aDef[ 'stat' ] && empty( $aMeta[ 'suppress_stat' ] ) ) { // only stat if it's a statable event
+				$this->addStatEvent( $sEvent, $aMeta );
+			}
+		}
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 * @return $this
+	 */
+	protected function addStatEvent( $sEvent, $aMeta = [] ) {
+		if ( !is_array( self::$aStatEvents ) ) {
+			self::$aStatEvents = [];
+		}
+		self::$aStatEvents[ $sEvent ] = isset( $aMeta[ 'ts' ] ) ? $aMeta[ 'ts' ] : Services::Request()->ts();
+		return $this;
+	}
+
+	/**
+	 * @param bool $bFlush
+	 * @return Shield\Databases\AuditTrail\EntryVO[]
+	 */
+	public function getRegisteredAuditLogs( $bFlush = false ) {
+		$aEntries = self::$aAuditLogs;
+		if ( $bFlush ) {
+			self::$aAuditLogs = [];
+		}
+		return is_array( $aEntries ) ? $aEntries : [];
+	}
+
+	/**
+	 * @param bool $bFlush
+	 * @return string[]
+	 */
+	public function getRegisteredEvents( $bFlush = false ) {
+		$aEntries = self::$aStatEvents;
+		if ( $bFlush ) {
+			self::$aStatEvents = [];
+		}
+		return is_array( $aEntries ) ? $aEntries : [];
+	}
+
 	/**
 	 * A action added to WordPress 'init' hook
 	 */
@@ -54,7 +224,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	protected function redirectToInsightsSubPage() {
 		Services::Response()->redirect(
-			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
 			[
 				'inav'   => 'settings',
 				'subnav' => $this->getSlug()
@@ -64,71 +234,45 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return int
-	 */
-	protected function getSecAdminTimeLeft() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getCon()
-					->getModule( 'admin_access_restriction' );
-		return $oFO->getSecAdminTimeLeft();
-	}
-
-	/**
 	 * @return array
 	 */
-	protected function getGoogleRecaptchaConfig() {
-		$aConfig = apply_filters( $this->prefix( 'google_recaptcha_config' ), [] );
-		if ( !is_array( $aConfig ) ) {
-			$aConfig = [];
-		}
-		$aConfig = array_merge(
-			[
-				'key'    => '',
-				'secret' => '',
-				'style'  => 'light',
-			],
-			$aConfig
-		);
-		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
-			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
-		}
-		return $aConfig;
+	public function getGoogleRecaptchaConfig() {
+		/** @var Shield\Modules\Plugin\Options $oOpts */
+		$oOpts = $this->getCon()
+					  ->getModule_Plugin()
+					  ->getOptions();
+		return $oOpts->getGoogleRecaptchaConfig();
 	}
 
 	/**
-	 * Overridden in the plugin handler getting the option value
 	 * @return string
+	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSecretKey() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		return $aConfig[ 'secret' ];
+		return $this->getGoogleRecaptchaConfig()[ 'secret' ];
 	}
 
 	/**
-	 * Overriden in the plugin handler getting the option value
 	 * @return string
+	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSiteKey() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		return $aConfig[ 'key' ];
+		return $this->getGoogleRecaptchaConfig()[ 'key' ];
 	}
 
 	/**
-	 * Overriden in the plugin handler getting the option value
 	 * @return string
 	 */
 	public function getGoogleRecaptchaStyle() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		return $aConfig[ 'style' ];
+		return $this->getGoogleRecaptchaConfig()[ 'style' ];
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isGoogleRecaptchaReady() {
-		$sKey = $this->getGoogleRecaptchaSiteKey();
-		$sSecret = $this->getGoogleRecaptchaSecretKey();
-		return ( !empty( $sSecret ) && !empty( $sKey ) );
+		$aConfig = $this->getGoogleRecaptchaConfig();
+		return ( !empty( $aConfig[ 'secret' ] ) && !empty( $aConfig[ 'key' ] ) );
 	}
 
 	/**
@@ -141,7 +285,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return array
 	 */
-	protected function getSecAdminLoginAjaxData() {
+	public function getSecAdminLoginAjaxData() {
 		// We set a custom mod_slug so that this module handles the ajax request
 		$aAjaxData = $this->getAjaxActionData( 'sec_admin_login' );
 		$aAjaxData[ 'mod_slug' ] = $this->prefix( 'admin_access_restriction' );
@@ -166,42 +310,16 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param bool $bRenderEmbeddedContent
 	 * @return array
 	 */
-	protected function getBaseDisplayData( $bRenderEmbeddedContent = true ) {
+	protected function getBaseDisplayData() {
 		$sHelpUrl = $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://icwp.io/b5';
 
-		return $this->loadDP()->mergeArraysRecursive(
-			parent::getBaseDisplayData( $bRenderEmbeddedContent ),
+		return Services::DataManipulation()->mergeArraysRecursive(
+			parent::getBaseDisplayData(),
 			[
 				'ajax'    => [
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
-				],
-				'strings' => [
-					'go_to_settings'          => __( 'Settings', 'wp-simple-firewall' ),
-					'on'                      => __( 'On', 'wp-simple-firewall' ),
-					'off'                     => __( 'Off', 'wp-simple-firewall' ),
-					'more_info'               => __( 'Info', 'wp-simple-firewall' ),
-					'blog'                    => __( 'Blog', 'wp-simple-firewall' ),
-					'save_all_settings'       => __( 'Save All Settings', 'wp-simple-firewall' ),
-					'options_title'           => __( 'Options', 'wp-simple-firewall' ),
-					'options_summary'         => __( 'Configure Module', 'wp-simple-firewall' ),
-					'actions_title'           => __( 'Actions and Info', 'wp-simple-firewall' ),
-					'actions_summary'         => __( 'Perform actions for this module', 'wp-simple-firewall' ),
-					'help_title'              => __( 'Help', 'wp-simple-firewall' ),
-					'help_summary'            => __( 'Learn More', 'wp-simple-firewall' ),
-					'supply_password'         => __( 'Supply Password', 'wp-simple-firewall' ),
-					'confirm_password'        => __( 'Confirm Password', 'wp-simple-firewall' ),
-					'show_help_video_section' => __( 'Show help video for this section', 'wp-simple-firewall' ),
-
-					'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
-					'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),
-					'aar_must_supply_key_first'    => __( 'Please provide the Security Access Key to manage this plugin.', 'wp-simple-firewall' ),
-					'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the access key.', 'wp-simple-firewall' ),
-					'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
-					'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
-					'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' ),
 				],
 				'flags'   => [
 					'has_session' => $this->hasSession()
@@ -222,54 +340,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return $this->loadDP()->mergeArraysRecursive(
-			parent::getDisplayStrings(),
-			[
-				'back_to_dashboard' => sprintf( __( 'Back To %s Dashboard', 'wp-simple-firewall' ), $this->getCon()
-																										 ->getHumanName() ),
-				'go_to_settings'    => __( 'Settings', 'wp-simple-firewall' ),
-				'on'                => __( 'On', 'wp-simple-firewall' ),
-				'off'               => __( 'Off', 'wp-simple-firewall' ),
-				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
-				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
-				'save_all_settings' => __( 'Save All Settings', 'wp-simple-firewall' ),
-				'options_title'     => __( 'Options', 'wp-simple-firewall' ),
-				'options_summary'   => __( 'Configure Module', 'wp-simple-firewall' ),
-				'actions_title'     => __( 'Actions and Info', 'wp-simple-firewall' ),
-				'actions_summary'   => __( 'Perform actions for this module', 'wp-simple-firewall' ),
-				'help_title'        => __( 'Help', 'wp-simple-firewall' ),
-				'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
-				'pro_only_option'   => __( 'Pro Only' ),
-				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
-					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
-
-				'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
-				'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),
-				'aar_must_supply_key_first'    => __( 'Please provide the Security Access Key to manage this plugin.', 'wp-simple-firewall' ),
-				'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the access key.', 'wp-simple-firewall' ),
-				'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
-				'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
-				'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' )
-			]
-		);
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getIfSupport3rdParty() {
 		return $this->isPremium();
-	}
-
-	protected function getTranslatedString( $sKey, $sDefault ) {
-		$aStrings = [
-			'nonce_failed_empty'    => __( 'Nonce security checking failed - the nonce value was empty.', 'wp-simple-firewall' ),
-			'nonce_failed_supplied' => __( 'Nonce security checking failed - the nonce supplied was "%s".', 'wp-simple-firewall' ),
-		];
-		return ( isset( $aStrings[ $sKey ] ) ? $aStrings[ $sKey ] : $sDefault );
 	}
 
 	/**
@@ -286,12 +360,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	protected function isVisitorWhitelisted() {
-		/** @var ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $this->getCon()
-					 ->getModule( 'ips' )
-					 ->getProcessor();
-		return $oPro->isCurrentIpWhitelisted();
+	public function isVisitorWhitelisted() {
+		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
+			/** @var \ICWP_WPSF_Processor_Ips $oPro */
+			$oPro = $this->getCon()
+						 ->getModule_IPs()
+						 ->getProcessor();
+			$this->bVisitorIsWhitelisted = $oPro->isIpOnWhiteList( Services::IP()->getRequestIp() );
+		}
+		return $this->bVisitorIsWhitelisted;
 	}
 
 	/**
@@ -322,10 +399,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getCon()
-					->getModule( 'plugin' );
-		return $oFO->isXmlrpcBypass();
+		return $this->getCon()
+					->getModule_Plugin()
+					->isXmlrpcBypass();
 	}
 
 	/**
@@ -351,29 +427,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return array
 	 */
-	public function getInsightsOpts() {
-		$aOpts = [];
-		$oOpts = $this->getOptionsVo();
-		foreach ( $oOpts->getOptionsKeys() as $sOpt ) {
-			if ( strpos( $sOpt, 'insights_' ) === 0 ) {
-				$aOpts[ $sOpt ] = $oOpts->getOpt( $sOpt );
-			}
-		}
-		return $aOpts;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return $this
-	 */
-	public function setOptInsightsAt( $sKey ) {
-		$sKey = 'insights_'.str_replace( 'insights_', '', $sKey );
-		return $this->setOptAt( $sKey );
-	}
-
-	/**
-	 * @return array
-	 */
 	protected function getModDisabledInsight() {
 		return [
 			'name'    => __( 'Module Disabled', 'wp-simple-firewall' ),
@@ -385,75 +438,52 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
-	 */
-	protected function loadStrings_SectionTitlesDefaults( $aOptionsParams ) {
-
-		switch ( $aOptionsParams[ 'slug' ] ) {
-
-			case 'section_user_messages' :
-				$sTitle = __( 'User Messages', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Messages', 'wp-simple-firewall' );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Customize the messages displayed to the user.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Use this section if you need to communicate to the user in a particular manner.', 'wp-simple-firewall' ) ),
-					sprintf( '%s: %s', __( 'Hint', 'wp-simple-firewall' ), sprintf( __( 'To reset any message to its default, enter the text exactly: %s', 'wp-simple-firewall' ), 'default' ) )
-				];
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
-		}
-
-		return [ $sTitle, $sTitleShort, $aSummary ];
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getIfIpTransgressed() {
-		$mAction = $this->getIpAction();
-		return !empty( $mAction ) &&
-			   ( ( is_numeric( $mAction ) && $mAction > 0 ) || in_array( $mAction, [ 'block' ] ) );
+		return $this->getIpOffenceCount() > 0;
 	}
 
 	/**
-	 * @return int|string|null
+	 * @return int
 	 */
-	public function getIpAction() {
-		return self::$mIpAction;
+	public function getIpOffenceCount() {
+		return isset( self::$nIpOffenceCount ) ? self::$nIpOffenceCount : 0;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return $this
+	 * @deprecated 7.5
+	 */
+	public function setOptInsightsAt( $sKey ) {
+		return $this;
 	}
 
 	/**
 	 * Used to mark an IP address for immediate block
 	 * @return $this
+	 * @deprecated
 	 */
 	public function setIpBlocked() {
-		return $this->setIpAction( 'block' );
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 7.5
+	 */
+	public function getIpAction() {
+		return $this->getIpOffenceCount();
 	}
 
 	/**
 	 * Used to mark an IP address for transgression/black-mark
 	 * @param int $nIncrementCount
 	 * @return $this
+	 * @deprecated 7.5
 	 */
 	public function setIpTransgressed( $nIncrementCount = 1 ) {
-		return $this->setIpAction( $nIncrementCount );
-	}
-
-	/**
-	 * @param string|int $mNewAction
-	 * @return $this
-	 */
-	private function setIpAction( $mNewAction ) {
-		if ( in_array( $mNewAction, [ 'block' ] ) ) {
-			self::$mIpAction = $mNewAction;
-		}
-		else if ( empty( self::$mIpAction ) || ( is_numeric( self::$mIpAction ) && $mNewAction > self::$mIpAction ) ) {
-			self::$mIpAction = $mNewAction;
-		}
 		return $this;
 	}
 }

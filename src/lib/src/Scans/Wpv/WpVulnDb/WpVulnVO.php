@@ -29,56 +29,56 @@ class WpVulnVO {
 	}
 
 	/**
-	 * @deprecated
 	 * @return int
+	 * @deprecated
 	 */
 	public function getId() {
 		return $this->id;
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getDateCreated() {
 		return empty( $this->created_at ) ? 0 : strtotime( $this->created_at );
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getDatePublished() {
 		return empty( $this->published_date ) ? 0 : strtotime( $this->published_date );
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getDateUpdated() {
 		return empty( $this->updated_at ) ? 0 : strtotime( $this->updated_at );
 	}
 
 	/**
-	 * @deprecated
 	 * @return \stdClass
+	 * @deprecated
 	 */
 	public function getReferences() {
 		return $this->getRawProperty( 'references', new \stdClass() );
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getTitle() {
 		return $this->getRawProperty( 'title', 'No Title Available' );
 	}
 
 	/**
-	 * @deprecated
 	 * @return string
+	 * @deprecated
 	 */
 	public function getType() {
 		return $this->getRawProperty( 'vuln_type', 'No Type Available' );
@@ -92,8 +92,8 @@ class WpVulnVO {
 	}
 
 	/**
-	 * @deprecated
 	 * @return int
+	 * @deprecated
 	 */
 	public function getVersionFixedIn() {
 		return $this->getRawProperty( 'fixed_in', 'Unknown Fixed Version' );

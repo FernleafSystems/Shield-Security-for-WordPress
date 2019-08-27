@@ -23,9 +23,17 @@ class PasswordExpiry extends Base {
 	 */
 	protected function processUser( $oUser, $oMeta ) {
 		if ( $this->isPassExpired( $oMeta ) ) {
+
 			$oUser = new \WP_Error(
 				$this->getCon()->prefix( 'pass-expired' ),
-				'Sorry, this account is suspended due to expired password. Please reset your password to gain access to your account.'
+				implode( ' ', [
+					__( 'Sorry, this account is suspended because the password has expired.', 'wp-simple-firewall' ),
+					__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),
+					sprintf( '<a href="%s">%s &rarr;</a>',
+						Services::WpGeneral()->getLostPasswordUrl(),
+						__( 'Reset', 'wp-simple-firewall' )
+					),
+				] )
 			);
 		}
 		return $oUser;

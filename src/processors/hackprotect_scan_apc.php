@@ -18,13 +18,13 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isApcEnabled();
 	}
 
 	public function onDeletedPlugin() {
-		$this->doScan();
+		$this->launchScan();
 	}
 
 	/**
@@ -59,10 +59,10 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Apc\Scanner
+	 * @return Shield\Scans\Apc\ScanActionVO
 	 */
-	protected function getScanner() {
-		return new Shield\Scans\Apc\Scanner();
+	protected function getNewActionVO() {
+		return new Shield\Scans\Apc\ScanActionVO();
 	}
 
 	/**
@@ -88,7 +88,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param Shield\Scans\Apc\ResultsSet $oRes
-	 * @return bool
 	 */
 	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -128,16 +127,18 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 
 		$sSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Abandoned Plugin(s) Discovered On Your Site.', 'wp-simple-firewall' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
-		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
+		$this->getEmailProcessor()
+			 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
 
-		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( __( 'Successfully sent Abandoned Plugins Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		else {
-			$this->addToAuditEntry( sprintf( __( 'Failed to send Abandoned Plugins Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		return $bSendSuccess;
+		$this->getCon()->fireEvent(
+			'apc_alert_sent',
+			[
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
+			]
+		);
 	}
 
 	/**
@@ -152,7 +153,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getAllAbandoned() {
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()
+		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		$aVos = $oSel->filterByScan( static::SCAN_SLUG )

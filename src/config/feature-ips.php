@@ -17,10 +17,11 @@
   },
   "admin_notices": {
     "visitor-whitelisted": {
-      "id":          "visitor-whitelisted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "info"
+      "id":               "visitor-whitelisted",
+      "schedule":         "conditions",
+      "plugin_page_only": true,
+      "per_user": true,
+      "type":             "info"
     }
   },
   "requirements":  {
@@ -124,14 +125,14 @@
       "type":        "integer",
       "link_info":   "https://icwp.io/wpsf24",
       "link_blog":   "https://icwp.io/wpsf26",
-      "name":        "Transgression Limit",
+      "name":        "Offense Limit",
       "summary":     "Visitor IP address will be Black Listed after X bad actions on your site",
-      "description": "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these transgressions exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
+      "description": "A black mark is set against an IP address each time a visitor trips the defenses of the Shield plugin. When the number of these offenses exceeds specified limit, they are automatically blocked from accessing the site. Set this to 0 to turn off the Automatic IP Black List feature."
     },
     {
       "key":           "auto_expire",
       "section":       "section_auto_black_list",
-      "default":       "hour",
+      "default":       "day",
       "type":          "select",
       "value_options": [
         {
@@ -149,6 +150,10 @@
         {
           "value_key": "week",
           "text":      "Week"
+        },
+        {
+          "value_key": "month",
+          "text":      "Month"
         }
       ],
       "link_info":     "https://icwp.io/wpsf25",
@@ -189,7 +194,7 @@
       "link_info":   "https://icwp.io/e8",
       "link_blog":   "",
       "name":        "Login Failed",
-      "summary":     "Visitor Triggers The IP Transgression System Through A Failed Login",
+      "summary":     "Visitor Triggers The IP Offenses System Through A Failed Login",
       "description": "This message is displayed if the visitor fails a login attempt."
     },
     {
@@ -209,18 +214,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fo",
       "link_blog":     "https://icwp.io/f7",
       "name":          "404 Detect",
       "summary":       "Identify A Bot When It Hits A 404",
@@ -243,18 +248,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fo",
       "link_blog":     "https://icwp.io/f6",
       "name":          "Link Cheese",
       "summary":       "Tempt A Bot With A Fake Link To Follow",
@@ -277,18 +282,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fo",
       "link_blog":     "https://icwp.io/f7",
       "name":          "XML-RPC Access",
       "summary":       "Identify A Bot When It Accesses XML-RPC",
@@ -310,18 +315,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fn",
       "link_blog":     "https://icwp.io/f7",
       "name":          "Failed Login",
       "summary":       "Detect Failed Login Attempts By Valid Usernames",
@@ -344,18 +349,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fn",
       "link_blog":     "https://icwp.io/f7",
       "name":          "Invalid Usernames",
       "summary":       "Detect Invalid Username Logins",
@@ -378,11 +383,11 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
@@ -412,18 +417,18 @@
         },
         {
           "value_key": "transgression-single",
-          "text":      "Increment Transgression"
+          "text":      "Increment Offense Counter"
         },
         {
           "value_key": "transgression-double",
-          "text":      "Double Transgression"
+          "text":      "Double-Increment Offense Counter"
         },
         {
           "value_key": "block",
           "text":      "Immediate Block"
         }
       ],
-      "link_info":     "https://icwp.io/f5",
+      "link_info":     "https://icwp.io/fi",
       "link_blog":     "https://icwp.io/f7",
       "name":          "Empty User Agents",
       "summary":       "Detect Requests With Empty User Agents",
@@ -438,9 +443,9 @@
       "type":        "text",
       "link_info":   "https://icwp.io/e9",
       "link_blog":   "",
-      "name":        "Remaining Transgressions",
-      "summary":     "Visitor Triggers The IP Transgression System Through A Firewall Block",
-      "description": "This message is displayed if the visitor triggered the IP Transgression system and reports how many transgressions remain before being blocked."
+      "name":        "Remaining Offenses",
+      "summary":     "Visitor Triggers The IP Offenses System Through A Firewall Block",
+      "description": "This message is displayed if the visitor triggered the IP Offenses system and reports how many offenses remain before being blocked."
     },
     {
       "key":          "this_server_ip",
@@ -492,6 +497,52 @@
       "last_access_at",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                {
+      "custom_offense":          {
+        "cat":     3,
+        "offense": true
+      },
+      "conn_kill":               {
+        "cat": 3
+      },
+      "ip_offense":              {
+        "cat": 2
+      },
+      "ip_blocked":              {
+        "cat": 2
+      },
+      "ip_unblock_flag":         {
+        "cat": 1
+      },
+      "bottrack_404":            {
+        "cat":     2,
+        "offense": true
+      },
+      "bottrack_fakewebcrawler": {
+        "cat":     2,
+        "offense": true
+      },
+      "bottrack_linkcheese":     {
+        "cat":     2,
+        "offense": true
+      },
+      "bottrack_loginfailed":    {
+        "cat":     2,
+        "offense": true
+      },
+      "bottrack_logininvalid":   {
+        "cat":     2,
+        "offense": true
+      },
+      "bottrack_useragent":      {
+        "cat":     2,
+        "offense": true
+      },
+      "bottrack_xmlrpc":         {
+        "cat":     2,
+        "offense": true
+      }
+    }
   }
 }

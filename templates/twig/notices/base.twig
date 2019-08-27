@@ -2,8 +2,7 @@
 {% block notice_wrapper %}
 
 	<div id="{{ unique_render_id }}"
-		 class="{{ notice_classes }} odp-admin-notice notice is-dismissible
-		 notice-{{ icwp_admin_notice_template }}">
+		 class="{{ notice_classes }} odp-admin-notice notice is-dismissible">
 
 		<div class="notice-icon">
 			<span class="dashicons dashicons-shield"></span>&nbsp;
@@ -11,7 +10,7 @@
 
 		<div class="notice-content">
 			{% if strings.title|default('') is not empty %}
-				<h3 class="notice-title">{{ strings.title }}</h3>
+				<h3 class="notice-title">{{ strings.title|title }}</h3>
 			{% endif %}
 			<div>
 				{% block notice_body %}{% endblock %}

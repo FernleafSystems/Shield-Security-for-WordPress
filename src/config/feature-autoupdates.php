@@ -170,7 +170,7 @@
       "value_options": [
         {
           "value_key": "auto",
-          "text":      "Let Shield Decide"
+          "text":      "Let The Plugin Decide"
         },
         {
           "value_key": "disabled",

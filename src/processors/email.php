@@ -1,6 +1,6 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services; // TODO: use after 7.5
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
-		$oWp = \FernleafSystems\Wordpress\Services\Services::WpGeneral();
+		$oWp = Services::WpGeneral();
 		$sUrl = [
 			'',
 			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
@@ -74,7 +74,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 				$oWp->getHomeUrl()
 			),
 			__( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ),$oWp->getTimeStampForDisplay() )
+			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() )
 		];
 
 		return apply_filters( 'icwp_shield_email_footer', $sUrl );
@@ -90,7 +90,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) {
 		return $this->send(
 			$sAddress,
-			wp_specialchars_decode( sprintf( '[%s] %s', $this->loadWp()->getSiteName(), $sSubject ) ),
+			wp_specialchars_decode( sprintf( '[%s] %s', Services::WpGeneral()->getSiteName(), $sSubject ) ),
 			'<html>'.implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) ).'</html>'
 		);
 	}
@@ -147,7 +147,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function setMailFrom( $sFrom ) {
-		$oDP = $this->loadDP();
+		$oDP = Services::Data();
 		$sProposedFrom = apply_filters( 'icwp_shield_from_email', '' );
 		if ( $oDP->validEmail( $sProposedFrom ) ) {
 			$sFrom = $sProposedFrom;
@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		// We help out by trying to correct any funky "from" addresses
 		// So, at the very least, we don't fail on this for our emails.
 		if ( !$oDP->validEmail( $sFrom ) ) {
-			$aUrlParts = @parse_url( $this->loadWp()->getWpUrl() );
+			$aUrlParts = @parse_url( Services::WpGeneral()->getWpUrl() );
 			if ( !empty( $aUrlParts[ 'host' ] ) ) {
 				$sProposedFrom = 'wordpress@'.$aUrlParts[ 'host' ];
 				if ( $oDP->validEmail( $sProposedFrom ) ) {
@@ -177,7 +177,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		}
 		else {
 			$sFromName = sprintf( '%s - %s',
-				$this->loadWp()->getSiteName(),
+				Services::WpGeneral()->getSiteName(),
 				$this->getCon()->getHumanName()
 			);
 		}
@@ -201,6 +201,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	protected function updateEmailThrottle() {
+		$nNow = Services::Request()->ts();
 
 		// Throttling Is Effectively Off
 		if ( $this->getThrottleLimit() <= 0 ) {
@@ -218,17 +219,17 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 		}
 
-		if ( !isset( $this->nEmailThrottleTime ) || $this->nEmailThrottleTime > $this->time() ) {
-			$this->nEmailThrottleTime = $this->time();
+		if ( !isset( $this->nEmailThrottleTime ) || $this->nEmailThrottleTime > $nNow ) {
+			$this->nEmailThrottleTime = $nNow;
 		}
 		if ( !isset( $this->nEmailThrottleCount ) ) {
 			$this->nEmailThrottleCount = 0;
 		}
 
 		// If $nNow is greater than throttle interval (1s) we turn off the file throttle and reset the count
-		$nDiff = $this->time() - $this->nEmailThrottleTime;
+		$nDiff = $nNow - $this->nEmailThrottleTime;
 		if ( $nDiff > self::$nThrottleInterval ) {
-			$this->nEmailThrottleTime = $this->time();
+			$this->nEmailThrottleTime = $nNow;
 			$this->nEmailThrottleCount = 1;    //we set to 1 assuming that this was called because we're about to send, or have just sent, an email.
 			$this->setThrottledFile( false );
 		}
@@ -257,7 +258,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string
 	 */
 	public function verifyEmailAddress( $sEmail = '' ) {
-		return $this->loadDP()->validEmail( $sEmail ) ? $sEmail : $this->loadWp()->getSiteAdminEmail();
+		return Services::Data()->validEmail( $sEmail ) ? $sEmail : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
 	public function getThrottleLimit() {

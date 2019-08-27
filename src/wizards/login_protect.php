@@ -11,7 +11,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( __( '%s Multi-Factor Authentication Wizard', 'wp-simple-firewall' ), $this->getPluginCon()
+		return sprintf( __( '%s Multi-Factor Authentication Wizard', 'wp-simple-firewall' ), $this->getCon()
 																								  ->getHumanName() );
 	}
 
@@ -45,7 +45,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function processAuthEmail() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -55,7 +55,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$sCode = $oReq->post( 'code' );
 		$bFa = $oReq->post( 'Email2FAOption' ) === 'Y';
 
-		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
+		if ( !Services::Data()->validEmail( $sEmail ) ) {
 			$sMessage = __( 'Invalid email address', 'wp-simple-firewall' );
 		}
 		else {
@@ -100,7 +100,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function processAuthGa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -151,7 +151,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function processMultiSelect() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 
 		$bEnabledMulti = $this->loadRequest()->post( 'multiselect' ) === 'Y';
 		$oFO->setIsChainedAuth( $bEnabledMulti );
@@ -186,7 +186,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function determineWizardSteps_Mfa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 
 		$aStepsSlugs = array( 'start' );
 
@@ -209,7 +209,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 
 		$aAdditional = array();
 

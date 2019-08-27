@@ -8,17 +8,22 @@
 		color: #000000;
 		height: 33px;
 		left: 9px;
-		opacity: 0.9;
+		opacity: 0.8;
 		padding: 7px 4px 7px 10px;
 		position: fixed;
 		text-align: left;
-		width: auto;
+		width: 38px;
 		z-index: 10000;
-		-webkit-transition: width 0.5s; /* Safari */
-		transition: width 0.5s;
+		text-wrap: none;
+
+		-webkit-transition: width 0.25s; /* Safari */
+		transition: width 0.25s;
+		transition-delay: 1s
 	}
 	#icwpWpsfSiteBadge:hover {
 		opacity: 1.0;
+		width: 220px;
+		transition-delay: 0s;
 	}
 	#icwpWpsfSiteBadge a {
 		border: 0 none;
@@ -40,7 +45,14 @@
 		padding-left: 43px;
 		letter-spacing: 0;
 		-webkit-transition: opacity 1s; /* Safari */
-		transition: opacity 1s;
+
+		opacity: 0;
+		transition: opacity 0.3s;
+		transition-delay: 1s;
+	}
+	#icwpWpsfSiteBadge:hover .badge-text {
+		opacity: 1;
+		transition-delay: 0s;
 	}
 	#icwpWpsfSiteBadge img {
 		float: left;
@@ -49,6 +61,7 @@
 		background-color: #ffffff;
 		border: 1px solid #ddd;
 		border-radius: 4px;
+		display: none;
 		font-size: 10px;
 		height: 10px;
 		left: -2px;
@@ -59,6 +72,9 @@
 		top: -3px;
 		width: 10px;
 		z-index: 1001;
+	}
+	#icwpWpsfSiteBadge:hover a#icwpWpsfCloseButton {
+		display: block;
 	}
 	#icwpWpsfCloseButton:hover {
 		cursor: pointer;
@@ -84,18 +100,18 @@
 	<a id="icwpWpsfCloseButton">x</a>
 	<a href="https://icwp.io/wpsecurityfirewall" target="_blank"
 	   title="This site is protected by the Shield Security plugin."
-	   %s>
-		<img src="%s" alt="%s Logo" />
-        <div class="badge-text">%s</div>
+		<?php echo $flags[ 'nofollow' ] ? 'rel="nofollow"' : '' ?>
+	><img src="<?php echo $hrefs[ 'logo' ]; ?>" alt="<?php echo $strings[ 'name' ]; ?> Logo" />
+        <div class="badge-text"><?php echo $strings[ 'link' ]; ?></div>
 	</a>
 </div>
 
 <script type="text/javascript">
-	var iCWP_WPSF_PluginBadgeClose = new function () {
+	let iCWP_WPSF_PluginBadgeClose = new function () {
 
-		var closeBadge = function () {
+		let closeBadge = function () {
 
-			var aData = <?php echo $ajax[ 'plugin_badge_close' ]; ?>;
+			let aData = <?php echo $ajax[ 'plugin_badge_close' ]; ?>;
 			jQuery.post( aData[ 'ajaxurl' ], aData,
 				function ( oResponse ) {
 				}

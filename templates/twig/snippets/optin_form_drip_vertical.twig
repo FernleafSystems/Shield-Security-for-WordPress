@@ -4,11 +4,11 @@
 
 	{{ icwp_macros.formInput_Text( 'fields[first_name]', vars.name, 'Your Name', vars.name ) }}
 	{{ icwp_macros.formInput_Email( 'fields[email]', vars.user_email, 'Your Email',
-		vars.user_email, 'We never SPAM and you can remove yourself at any time.' ) }}
+		vars.user_email, strings.privacy_never_spam ) }}
 	{{ icwp_macros.formInput_Checkbox(
-		'OptinConsent', 'Y', 'Agree To Privacy Policy',
-		strings.privacy_policy,
-		'We treat your membership information under our strict, and GDPR-compliant, privacy policy.',
+		'OptinConsent', 'Y', strings.privacy_policy_agree,
+		strings.privacy_policy_confirm,
+		'<a href="'~hrefs.privacy_policy~'" target="_blank">'~ strings.privacy_policy_gdpr ~ '</a>',
 		'OptinConsent'
 	) }}
 	{{ icwp_macros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}

@@ -31,9 +31,11 @@ class TrackLoginInvalid extends Base {
 	}
 
 	/**
-	 * @return $this
+	 * @return array
 	 */
-	protected function getAuditMsg() {
-		return sprintf( __( 'Attempted login with invalid user "%s".', 'wp-simple-firewall' ), $this->user_login );
+	protected function getAuditData() {
+		return [
+			'login' => $this->user_login
+		];
 	}
 }

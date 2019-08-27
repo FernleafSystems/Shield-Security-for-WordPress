@@ -40,8 +40,8 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 */
 	private function updateUserMetaVersion() {
 		$oCon = $this->getCon();
-		$nVersion = $this->getCon()->getVersionNumeric();
-		$sMetaKey = $this->prefix( 'meta-version' );
+		$nVersion = $oCon->getVersionNumeric();
+		$sMetaKey = $oCon->prefix( 'meta-version' );
 
 		$nCount = 0;
 
@@ -105,7 +105,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 */
 	public function addUserListSuspendedFlag( $aColumns ) {
 
-		$sCustomColumnName = $this->prefix( 'col_user_status' );
+		$sCustomColumnName = $this->getCon()->prefix( 'col_user_status' );
 		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
 			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
@@ -120,7 +120,10 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 						if ( $oMeta->hard_suspended_at > 0 ) {
 							$sNewContent = sprintf( '%s: %s',
 								__( 'Suspended', 'wp-simple-firewall' ),
-								( new \Carbon\Carbon() )->setTimestamp( $oMeta->hard_suspended_at )->diffForHumans()
+								Services::Request()
+										->carbon()
+										->setTimestamp( $oMeta->hard_suspended_at )
+										->diffForHumans()
 							);
 							$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
 						}
@@ -140,10 +143,8 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 */
 	public function addUserBlockOption( $oUser ) {
 		$oCon = $this->getCon();
-		$oWpUsers = Services::WpUsers();
 		$oMeta = $oCon->getUserMeta( $oUser );
-
-		$oWpUsers->isUserAdmin( $oUser );
+		$oWpUsers = Services::WpUsers();
 
 		$aData = [
 			'strings' => [
@@ -181,9 +182,8 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 			$oFO->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
 
 			if ( $bIsSuspend ) { // Delete any existing user sessions
-				$oProcessor = $oFO->getSessionsProcessor();
 				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete $oDel */
-				$oDel = $oProcessor->getDbHandler()->getQueryDeleter();
+				$oDel = $oFO->getDbHandler_Sessions()->getQueryDeleter();
 				$oDel->forUsername( $oEditedUser->user_login );
 			}
 		}

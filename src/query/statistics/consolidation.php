@@ -42,7 +42,7 @@ class ICWP_WPSF_Query_Statistics_Consolidation extends ICWP_WPSF_Query_Statistic
 		$oDB = $this->loadDbProcessor();
 		foreach ( $aStatKeyCounter as $sStatKey => $nTally ) {
 			$oDB->insertDataIntoTable(
-				$this->getMod()->getFullReportingTableName(),
+				$this->getMod()->getFullEventsTableName(),
 				array(
 					'stat_key'   => $sStatKey,
 					'tally'      => 1,

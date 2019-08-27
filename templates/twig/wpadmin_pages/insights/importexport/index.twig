@@ -1,0 +1,18 @@
+{% extends '/wpadmin_pages/insights/base.twig' %}
+
+{% block page_main %}
+	<div class="row">
+		{% if flags.can_importexport %}
+			<div class="col-md-6 insights_section">
+				{% include '/wpadmin_pages/insights/importexport/from_file.twig' %}
+			</div>
+			<div class="col-md-6 insights_section">
+				{% include '/wpadmin_pages/insights/importexport/from_site.twig' %}
+			</div>
+		{% else %}
+			<div class="col-12 insights_section">
+				{% include '/wpadmin_pages/insights/common/feature_unavailable.twig' %}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

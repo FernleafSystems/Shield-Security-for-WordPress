@@ -28,7 +28,7 @@
     {
       "slug":        "section_passwords",
       "reqs":        {
-        "wp_min":  "4.4"
+        "wp_min": "4.4"
       },
       "title":       "Password Policies",
       "title_short": "Password Policies",
@@ -252,8 +252,8 @@
       "premium":     true,
       "type":        "checkbox",
       "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://icwp.io/fq",
+      "link_blog":   "https://icwp.io/fr",
       "name":        "Allow Manual User Suspension",
       "summary":     "Manually Suspend User Accounts To Prevent Login",
       "description": "Users may be suspended by administrators to prevent login."
@@ -264,8 +264,8 @@
       "premium":     true,
       "type":        "checkbox",
       "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://icwp.io/fs",
+      "link_blog":   "https://icwp.io/fr",
       "name":        "Auto-Suspend Expired Passwords",
       "summary":     "Automatically Suspend Users With Expired Passwords",
       "description": "Suspend login by users and require password reset to unsuspend."
@@ -277,8 +277,8 @@
       "type":        "integer",
       "default":     0,
       "min":         0,
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://icwp.io/ft",
+      "link_blog":   "https://icwp.io/fr",
       "name":        "Auto-Suspend Idle Users",
       "summary":     "Automatically Suspend Idle User Accounts",
       "description": "Prevent login by idle users and require password reset to unsuspend."
@@ -293,7 +293,7 @@
         "editor",
         "author"
       ],
-      "link_info":   "",
+      "link_info":   "https://icwp.io/ft",
       "link_blog":   "",
       "name":        "Auto-Suspend Idle Users",
       "summary":     "Automatically Suspend Idle User Accounts",
@@ -330,6 +330,33 @@
   ],
   "definitions": {
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
-    "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/"
+    "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
+    "events":                        {
+      "session_notfound":             {
+      },
+      "session_expired":              {
+      },
+      "session_idle":                 {
+      },
+      "session_iplock":               {
+      },
+      "session_browserlock":          {
+      },
+      "session_unverified":           {
+      },
+      "password_expired":             {
+      },
+      "password_policy_force_change": {
+        "recent": true
+      },
+      "password_policy_block":        {
+        "recent": true
+      },
+      "user_hard_suspended":          {
+        "recent": true
+      },
+      "user_hard_unsuspended":        {
+      }
+    }
   }
 }

@@ -26,7 +26,7 @@
 	}
 
 	function icwp_PluginTrackingAgreement( bAgree ) {
-		var requestData = <?php echo $ajax[ 'set_plugin_tracking_perm' ]; ?>;
+		var requestData = <?php echo $ajax[ 'set_plugin_tracking' ]; ?>;
 		requestData[ 'agree' ] = bAgree;
 		requestData[ 'hide' ] = 1;
 		requestData[ 'notice_id' ] = '<?php echo $notice_attributes[ 'notice_id' ]; ?>';

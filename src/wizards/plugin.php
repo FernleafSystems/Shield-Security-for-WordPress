@@ -11,7 +11,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( __( '%s Welcome Wizard', 'wp-simple-firewall' ), $this->getPluginCon()->getHumanName() );
+		return sprintf( __( '%s Welcome Wizard', 'wp-simple-firewall' ), $this->getCon()->getHumanName() );
 	}
 
 	/**
@@ -124,8 +124,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function determineWizardSteps_Welcome() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getModCon();
-		$oConn = $this->getPluginCon();
+		$oFO = $this->getMod();
+		$oConn = $this->getCon();
 
 		$aStepsSlugs = [
 			'welcome',
@@ -149,7 +149,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'audit_trail';
 		}
 
-		if ( !$oConn->getModule( 'ips' )->isModuleEnabled() ) {
+		if ( !$oConn->getModule_IPs()->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'ips';
 		}
 
@@ -181,7 +181,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
-		$oConn = $this->getPluginCon();
+		$oConn = $this->getCon();
 
 		$aAdditional = [];
 
@@ -218,14 +218,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'user_email' => $oUser->user_email
 						],
 						'hrefs'   => [
-							'privacy_policy' => $this->getModCon()->getDef( 'href_privacy_policy' )
+							'privacy_policy' => $this->getMod()->getDef( 'href_privacy_policy' )
 						],
-						'strings' => [
-							'privacy_policy' => sprintf(
-								'I certify that I have read and agree to the <a href="%s" target="_blank">Privacy Policy</a>',
-								$this->getModCon()->getDef( 'href_privacy_policy' )
-							),
-						]
 					];
 					break;
 
@@ -339,10 +333,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$oResponse = new \FernleafSystems\Utilities\Response();
 		$oResponse->setSuccessful( false );
 		if ( empty( $sIp ) ) {
-			$sMessage = 'IP address was empty.';
+			$sMessage = __( 'IP address was empty.', 'wp-simple-firewall' );
 		}
 		else if ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
-			$sMessage = 'The IP address supplied was not a valid public IP address.';
+			$sMessage = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
 		}
 //		else if ( $oIps->getIpVersion( $sIp ) != 4 ) {
 //			$sMessage = 'The IP address supplied was not a valid IP address.';
@@ -350,13 +344,13 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		else {
 			$sSource = $oIps->determineSourceFromIp( $sIp );
 			if ( empty( $sSource ) ) {
-				$sMessage = 'Strange, the address source could not be found from this IP.';
+				$sMessage = __( "The address source couldn't be found from this IP.", 'wp-simple-firewall' );
 			}
 			else {
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
-				$oModule = $this->getPluginCon()->getModule( 'plugin' );
-				$oModule->setVisitorAddressSource( $sSource )
-						->savePluginOptions();
+				$this->getCon()
+					 ->getModule_Plugin()
+					 ->setVisitorAddressSource( $sSource )
+					 ->savePluginOptions();
 				$oResponse->setSuccessful( true );
 				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '
 							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
@@ -373,8 +367,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$bSuccess = false;
 
-		/** @var ICWP_WPSF_FeatureHandler_License $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'license' );
+		/** @var \ICWP_WPSF_FeatureHandler_License $oModule */
+		$oModule = $this->getCon()->getModule( 'license' );
 		try {
 			$bSuccess = $oModule->verifyLicense( true )
 								->hasValidWorkingLicense();
@@ -399,7 +393,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardImportOptions() {
 		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 		$oREq = Services::Request();
 
 		$sMasterSiteUrl = $oREq->post( 'MasterSiteUrl' );
@@ -448,7 +442,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-			$oModule = $this->getPluginCon()->getModule( 'admin_access_restriction' );
+			$oModule = $this->getCon()->getModule( 'admin_access_restriction' );
 			try {
 				$oModule->setNewAccessKeyManually( $sKey )
 						->setSecurityAdminStatusOnOff( true );
@@ -478,7 +472,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabled = $sInput === 'Y';
 
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
-			$oModule = $this->getPluginCon()->getModule( 'audit_trail' );
+			$oModule = $this->getCon()->getModule( 'audit_trail' );
 			$oModule->setIsMainFeatureEnabled( $bEnabled )
 					->savePluginOptions();
 
@@ -511,7 +505,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabled = $sInput === 'Y';
 
 			/** @var ICWP_WPSF_FeatureHandler_Ips $oModule */
-			$oModule = $this->getPluginCon()->getModule( 'ips' );
+			$oModule = $this->getCon()->getModule_IPs();
 			$oModule->setIsMainFeatureEnabled( $bEnabled )
 					->savePluginOptions();
 
@@ -544,7 +538,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabled = $sInput === 'Y';
 
 			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-			$oModule = $this->getPluginCon()->getModule( 'login_protect' );
+			$oModule = $this->getCon()->getModule( 'login_protect' );
 			if ( $bEnabled ) { // we don't disable the whole module
 				$oModule->setIsMainFeatureEnabled( true );
 			}
@@ -572,8 +566,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function wizardOptin() {
 		$oReq = Services::Request();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModule */
-		$oModule = $this->getPluginCon()->getModule( 'plugin' );
+		$oMod = $this->getCon()->getModule_Plugin();
 
 		$bSuccess = false;
 		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
@@ -584,7 +577,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			if ( !empty( $sInput ) ) {
 				$bEnabled = $sInput === 'Y';
-				$oModule->setIsDisplayPluginBadge( $bEnabled );
+				$oMod->setIsDisplayPluginBadge( $bEnabled );
 				$bSuccess = true;
 				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
 			}
@@ -594,7 +587,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			if ( !empty( $sInput ) ) {
 				$bEnabled = $sInput === 'Y';
-				$oModule->setPluginTrackingPermission( $bEnabled );
+				$oMod->setPluginTrackingPermission( $bEnabled );
 				$bSuccess = true;
 				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
 			}
@@ -619,7 +612,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			}
 			else {
 				$aItems[] = $sInput;
-				if ( $this->loadDP()->validEmail( $sInput ) ) {
+				if ( Services::Data()->validEmail( $sInput ) ) {
 					$oUser = Services::WpUsers()->getUserByEmail( $sInput );
 					if ( !is_null( $oUser ) ) {
 						$aItems[] = $oUser->user_login;
@@ -654,11 +647,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function wizardConfirmDelete() {
 		$bDelete = Services::Request()->post( 'ConfirmDelete' ) === 'Y';
 		if ( $bDelete ) {
-			/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-			$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
-			$oDeleter = $oProc->getSubProAuditor()
-							  ->getDbHandler()
-							  ->getQueryDeleter();
+			$oMod = $this->getCon()->getModule_AuditTrail();
+			$oDeleter = $oMod->getDbHandler()
+							 ->getQueryDeleter();
 			foreach ( $this->getGdprSearchItems() as $sItem ) {
 				$oDeleter->reset()
 						 ->addWhereSearch( 'wp_username', $sItem )
@@ -691,7 +682,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$bEnabled = $sInput === 'Y';
 
 			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-			$oModule = $this->getPluginCon()->getModule( 'comments_filter' );
+			$oModule = $this->getCon()->getModule( 'comments_filter' );
 			if ( $bEnabled ) { // we don't disable the whole module
 				$oModule->setIsMainFeatureEnabled( true );
 			}
@@ -718,7 +709,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array
 	 */
 	private function getGdprSearchItems() {
-		$aItems = Services::WpGeneral()->getTransient( $this->getPluginCon()->prefix( 'gdpr-items' ) );
+		$aItems = Services::WpGeneral()->getTransient( $this->getCon()->prefix( 'gdpr-items' ) );
 		if ( !is_array( $aItems ) ) {
 			$aItems = [];
 		}
@@ -736,7 +727,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$aItems = array_filter( array_unique( $aItems ) );
 		Services::WpGeneral()
 				->setTransient(
-					$this->getPluginCon()->prefix( 'gdpr-items' ),
+					$this->getCon()->prefix( 'gdpr-items' ),
 					$aItems,
 					MINUTE_IN_SECONDS*10
 				);
@@ -747,12 +738,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array[]
 	 */
 	private function runGdprSearch() {
-		/** @var ICWP_WPSF_Processor_AuditTrail $oProc */
-		$oProc = $this->getPluginCon()->getModule( 'audit_trail' )->getProcessor();
-		$oFinder = $oProc->getSubProAuditor()
-						 ->getDbHandler()
-						 ->getQuerySelector()
-						 ->setResultsAsVo( false );
+		$oMod = $this->getCon()->getModule_AuditTrail();
+		$oFinder = $oMod->getDbHandler()
+						->getQuerySelector()
+						->setResultsAsVo( false );
 
 		$aItems = [];
 		foreach ( $this->getGdprSearchItems() as $sItem ) {

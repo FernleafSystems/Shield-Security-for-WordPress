@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseQuery {
@@ -35,6 +36,11 @@ abstract class BaseQuery {
 	 * @var string
 	 */
 	protected $sOrderBy;
+
+	/**
+	 * @var string
+	 */
+	protected $sGroupBy;
 
 	public function __construct() {
 		$this->customInit();
@@ -131,6 +137,7 @@ abstract class BaseQuery {
 	public function buildExtras() {
 		$aExtras = array_filter(
 			[
+				$this->getGroupBy(),
 				$this->getOrderBy(),
 				$this->buildLimitPhrase(),
 				$this->buildOffsetPhrase(),
@@ -151,6 +158,13 @@ abstract class BaseQuery {
 	 */
 	protected function buildOffsetPhrase() {
 		return $this->hasLimit() ? sprintf( 'OFFSET %s', $this->getOffset() ) : '';
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function clearWheres() {
+		return $this->setWheres( [] );
 	}
 
 	/**
@@ -194,6 +208,26 @@ abstract class BaseQuery {
 			$this->addWhere( 'created_at', (int)$nTs, $sComparison );
 		}
 		return $this;
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Day( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfDay()->timestamp, '>' )
+					->filterByCreatedAt( $oCbn->endOfDay()->timestamp, '<' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Week( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfWeek()->timestamp, '>' )
+					->filterByCreatedAt( $oCbn->endOfWeek()->timestamp, '<' );
 	}
 
 	/**
@@ -242,6 +276,13 @@ abstract class BaseQuery {
 			$this->aWheres = [];
 		}
 		return $this->aWheres;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getGroupBy() {
+		return empty( $this->sGroupBy ) ? '' : sprintf( 'GROUP BY `%s`', $this->sGroupBy );
 	}
 
 	/**
@@ -304,6 +345,20 @@ abstract class BaseQuery {
 	 */
 	public function setLimit( $nLimit ) {
 		$this->nLimit = $nLimit;
+		return $this;
+	}
+
+	/**
+	 * @param string $sGroupByColumn
+	 * @return $this
+	 */
+	public function setGroupBy( $sGroupByColumn ) {
+		if ( empty( $sGroupByColumn ) ) {
+			$this->sGroupBy = '';
+		}
+		else if ( $this->getDbH()->hasColumn( $sGroupByColumn ) ) {
+			$this->sGroupBy = $sGroupByColumn;
+		}
 		return $this;
 	}
 

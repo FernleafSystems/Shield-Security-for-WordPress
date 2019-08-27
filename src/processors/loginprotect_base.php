@@ -175,16 +175,16 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 					 ->performCheckWithException();
 			}
 			catch ( \Exception $oE ) {
-				$sFieldNameOrError = new WP_Error( 'shield-fail-login', $oE->getMessage() );
+				$sFieldNameOrError = new \WP_Error( 'shield-fail-login', $oE->getMessage() );
 			}
 		}
 		return $sFieldNameOrError;
 	}
 
 	/**
-	 * @param WP_Error $oWpError
+	 * @param \WP_Error $oWpError
 	 * @param string   $sUsername
-	 * @return WP_Error
+	 * @return \WP_Error
 	 */
 	public function checkReqLogin_Woo( $oWpError, $sUsername ) {
 		try {
@@ -248,14 +248,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 					 ->performCheckWithException();
 			}
 			catch ( \Exception $oE ) {
-				UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
+				\UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
 			}
 		}
 	}
 
 	/**
-	 * @param WP_Error $oWpError
-	 * @return WP_Error
+	 * @param \WP_Error $oWpError
+	 * @return \WP_Error
 	 */
 	public function checkReqLostPassword_Wp( $oWpError ) {
 		try {
@@ -303,8 +303,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 	/**
 	 * This is for the request where the User actually enters their new password
-	 * @param WP_Error $oWpError
-	 * @return WP_Error
+	 * @param \WP_Error $oWpError
+	 * @return \WP_Error
 	 */
 	public function checkReqResetPassword_Wp( $oWpError ) {
 		try {
@@ -346,9 +346,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 
 	/**
 	 * see class-wc-checkout.php
-	 * @param WP_Error $oWpError
+	 * @param \WP_Error $oWpError
 	 * @param array    $aPostedData
-	 * @return WP_Error
+	 * @return \WP_Error
 	 */
 	public function checkReqCheckout_Woo( $aPostedData, $oWpError ) {
 		try {
@@ -377,9 +377,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param WP_Error $oWpError
+	 * @param \WP_Error $oWpError
 	 * @param string   $sUsername
-	 * @return WP_Error
+	 * @return \WP_Error
 	 */
 	public function checkReqRegistration_Woo( $oWpError, $sUsername ) {
 		try {
@@ -423,7 +423,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 					 ->performCheckWithException();
 			}
 			catch ( \Exception $oE ) {
-				$sFieldNameOrError = new WP_Error( 'shield-fail-register', $oE->getMessage() );
+				$sFieldNameOrError = new \WP_Error( 'shield-fail-register', $oE->getMessage() );
 			}
 		}
 		return $sFieldNameOrError;
@@ -444,9 +444,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param WP_Error $oWpError
+	 * @param \WP_Error $oWpError
 	 * @param string   $sUsername
-	 * @return WP_Error
+	 * @return \WP_Error
 	 */
 	public function checkReqRegistrationErrors_Wp( $oWpError, $sUsername ) {
 		try {
@@ -571,27 +571,21 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param string $sStatToIncrement
 	 * @return $this
 	 */
-	protected function setLoginAsFailed( $sStatToIncrement ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		$oFO->setOptInsightsAt( 'last_login_block_at' )
-			->setIpTransgressed();
-
+	protected function processFailure() {
 		remove_filter( 'authenticate', 'wp_authenticate_username_password', 20 );  // wp-includes/user.php
 		remove_filter( 'authenticate', 'wp_authenticate_email_password', 20 );  // wp-includes/user.php
-
-		return $this->doStatIncrement( $sStatToIncrement );
+		$this->getCon()->fireEvent( 'login_block' );
+		return $this;
 	}
 
 	/**
-	 * @param WP_Error $oMaybeWpError
-	 * @return WP_Error
+	 * @param \WP_Error $oMaybeWpError
+	 * @return \WP_Error
 	 */
 	protected function giveMeWpError( $oMaybeWpError ) {
-		return is_wp_error( $oMaybeWpError ) ? $oMaybeWpError : new WP_Error();
+		return is_wp_error( $oMaybeWpError ) ? $oMaybeWpError : new \WP_Error();
 	}
 
 	/**

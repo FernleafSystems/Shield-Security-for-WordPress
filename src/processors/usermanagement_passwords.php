@@ -55,7 +55,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	public function onWpLoaded() {
-		if ( is_admin() && !$this->loadRequest()->isMethodPost() && Services::WpUsers()->isUserLoggedIn() ) {
+		if ( is_admin() && !Services::WpGeneral()->isAjax() && !Services::Request()->isPost()
+			 && Services::WpUsers()->isUserLoggedIn() ) {
 			$this->processExpiredPassword();
 			$this->processFailedCheckPassword();
 		}
@@ -85,13 +86,13 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	}
 
 	private function processExpiredPassword() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isPassExpirationEnabled() ) {
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
-				if ( $this->time() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
-					$this->addToAuditEntry( __( 'Forcing user to update expired password.', 'wp-simple-firewall' ) );
+				if ( Services::Request()->ts() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
+					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
 						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oFO->getPassExpireDays() )
 					);
@@ -109,10 +110,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
 		if ( $bPassCheckFailed ) {
-			$this->addToAuditEntry(
-				__( 'Forcing user to update password that fails to meet policies.', 'wp-simple-firewall' ),
-				'1', 'um_password_force_update'
-			);
 			$this->redirectToResetPassword(
 				__( "Your password doesn't meet requirements set by your security administrator.", 'wp-simple-firewall' )
 			);
@@ -127,30 +124,31 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 * @uses wp_redirect()
 	 */
 	private function redirectToResetPassword( $sMessage ) {
+		$nNow = Services::Request()->ts();
 
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 		$nLastRedirect = (int)$oMeta->pass_reset_last_redirect_at;
-		if ( $this->time() - $nLastRedirect > MINUTE_IN_SECONDS*2 ) {
+		if ( $nNow - $nLastRedirect > MINUTE_IN_SECONDS*2 ) {
 
-			$oMeta->pass_reset_last_redirect_at = $this->time();
+			$oMeta->pass_reset_last_redirect_at = $nNow;
 
 			$oWpUsers = Services::WpUsers();
 			$sAction = Services::Request()->query( 'action' );
 			$oUser = $oWpUsers->getCurrentWpUser();
-			if ( $oUser && ( !$this->loadWp()->isRequestLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
+			if ( $oUser && ( !Services::WpGeneral()->isLoginUrl() || !in_array( $sAction, [ 'rp', 'resetpass' ] ) ) ) {
 
 				$sMessage .= ' '.__( 'For your security, please use the password section below to update your password.', 'wp-simple-firewall' );
 				$this->getMod()
-					 ->setFlashAdminNotice( $sMessage );
-
+					 ->setFlashAdminNotice( $sMessage, true, true );
+				$this->getCon()->fireEvent( 'password_policy_force_change' );
 				Services::Response()->redirect( $oWpUsers->getPasswordResetUrl( $oUser ) );
 			}
 		}
 	}
 
 	/**
-	 * @param WP_Error $oErrors
-	 * @return WP_Error
+	 * @param \WP_Error $oErrors
+	 * @return \WP_Error
 	 */
 	public function checkPassword( $oErrors ) {
 		$aExistingCodes = $oErrors->get_error_code();
@@ -167,15 +165,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 					$sMessage = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' )
 								.'<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$oE->getMessage() );
 					$oErrors->add( 'shield_password_policy', $sMessage );
-
-					/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-					$oFO = $this->getMod();
-					$oFO->setOptInsightsAt( 'last_password_block_at' );
-
-					$this->addToAuditEntry(
-						__( 'Blocked attempted password update that failed policy requirements.', 'wp-simple-firewall' ),
-						'1', 'um_password_update_blocked'
-					);
+					$this->getCon()->fireEvent( 'password_policy_block' );
 				}
 			}
 		}
@@ -385,7 +375,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_B
 	 */
 	private function setPasswordFailedFlag( $oUser, $bFailed = false ) {
 		$oMeta = $this->getCon()->getUserMeta( $oUser );
-		$oMeta->pass_check_failed_at = $bFailed ? $this->time() : 0;
+		$oMeta->pass_check_failed_at = $bFailed ? Services::Request()->ts() : 0;
 		return $this;
 	}
 }

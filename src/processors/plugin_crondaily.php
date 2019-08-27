@@ -18,13 +18,13 @@ class ICWP_WPSF_Processor_Plugin_CronDaily extends ICWP_WPSF_Processor_BaseWpsf 
 	 * @throws \Exception
 	 */
 	protected function getCronName() {
-		return $this->getMod()->prefix( 'daily' );
+		return $this->getCon()->prefix( 'daily' );
 	}
 
 	/**
 	 * Use the included action to hook into the plugin's daily cron
 	 */
 	public function runCron() {
-		do_action( $this->getMod()->prefix( 'daily_cron' ) );
+		do_action( $this->getCon()->prefix( 'daily_cron' ) );
 	}
 }

@@ -24,15 +24,14 @@ class WpCoreFile {
 	/**
 	 * @param string $sPath
 	 * @return bool
-	 * @throws \InvalidArgumentException
 	 */
 	public function replace( $sPath ) {
 		$bSuccess = false;
-		$oWp = Services::WpGeneral();
 		if ( Services::CoreFileHashes()->isCoreFile( $sPath ) ) {
-			$oFiles = $oWp->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
+			$oFiles = Services::WpGeneral()->isClassicPress() ? new WpOrg\Cp\Files() : new WpOrg\Wp\Files();
 			try {
 				$oFiles->replaceFileFromVcs( $sPath );
+				$bSuccess = true;
 			}
 			catch ( \InvalidArgumentException $oE ) {
 			}

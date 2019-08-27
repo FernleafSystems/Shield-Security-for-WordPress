@@ -1,5 +1,11 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes;
+
+/**
+ * Class ICWP_WPSF_Processor_Plugin_Notes
+ * @deprecated 7.5
+ */
 class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 
 	/**
@@ -35,9 +41,9 @@ class ICWP_WPSF_Processor_Plugin_Notes extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Handler
+	 * @return AdminNotes\Handler
 	 */
 	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\AdminNotes\Handler();
+		return new AdminNotes\Handler();
 	}
 }

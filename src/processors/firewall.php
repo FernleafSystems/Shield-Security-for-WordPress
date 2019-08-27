@@ -4,8 +4,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 
-	protected $aWhitelist;
-
 	/**
 	 * @var array
 	 */
@@ -56,8 +54,7 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 			$bPerformScan = false;
 		}
 		else if ( empty( $sPath ) ) {
-			$sAuditMessage = sprintf( __( 'Skipping firewall checking for this visit: %s.', 'wp-simple-firewall' ), __( 'Parsing the URI failed', 'wp-simple-firewall' ) );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'firewall_skip' );
+			$this->getCon()->fireEvent( 'firewall_skip' );
 			$bPerformScan = false;
 		}
 		else if ( count( $this->getParamsToCheck() ) == 0 ) {
@@ -110,6 +107,9 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	protected function doPassCheckBlockExeFileUploads() {
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		$oFO = $this->getMod();
+
 		$sKey = 'exefile';
 		$bFAIL = false;
 		if ( isset( $_FILES ) && !empty( $_FILES ) ) {
@@ -133,9 +133,17 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				}
 			}
 			if ( $bFAIL ) {
-				$sAuditMessage = sprintf( __( 'Firewall Trigger: %s.', 'wp-simple-firewall' ), __( 'EXE File Uploads', 'wp-simple-firewall' ) );
-				$this->addToAuditEntry( $sAuditMessage, 3, 'firewall_block' );
-				$this->doStatIncrement( 'firewall.blocked.'.$sKey );
+				$this->getCon()
+					 ->fireEvent(
+						 'block_exefile',
+						 [
+							 'audit' => [
+								 'blockresponse' => $oFO->getBlockResponse(),
+								 'blockkey'      => $sKey,
+							 ]
+						 ]
+
+					 );
 			}
 		}
 		return !$bFAIL;
@@ -148,6 +156,8 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return boolean
 	 */
 	private function doPassCheck( $sBlockKey ) {
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		$oFO = $this->getMod();
 
 		$aMatchTerms = $this->getFirewallPatterns( $sBlockKey );
 		$aParamValues = $this->getParamsToCheck();
@@ -194,15 +204,18 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 				sprintf( __( 'The offending parameter was "%s" with a value of "%s".', 'wp-simple-firewall' ), $sParam, $mValue )
 			];
 
-			$this->addToAuditEntry(
-				implode( "\n", $this->aAuditBlockMessage ), 3, 'firewall_block',
-				[
-					'param'    => $sParam,
-					'val'      => $mValue,
-					'blockkey' => $sBlockKey,
-				]
-			);
-			$this->doStatIncrement( 'firewall.blocked.'.$sBlockKey );
+			$this->getCon()
+				 ->fireEvent(
+					 'blockparam_'.$sBlockKey,
+					 [
+						 'audit' => [
+							 'param'         => $sParam,
+							 'val'           => $mValue,
+							 'blockresponse' => $oFO->getBlockResponse(),
+							 'blockkey'      => $sBlockKey,
+						 ]
+					 ]
+				 );
 		}
 
 		return !$bFAIL;
@@ -236,38 +249,14 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
 		$oFO = $this->getMod();
 
-		switch ( $oFO->getBlockResponse() ) {
-			case 'redirect_die':
-				$sMessage = __( 'Visitor connection was killed with wp_die()', 'wp-simple-firewall' );
-				break;
-			case 'redirect_die_message':
-				$sMessage = __( 'Visitor connection was killed with wp_die() and a message', 'wp-simple-firewall' );
-				break;
-			case 'redirect_home':
-				$sMessage = __( 'Visitor was sent HOME', 'wp-simple-firewall' );
-				break;
-			case 'redirect_404':
-				$sMessage = __( 'Visitor was sent 404', 'wp-simple-firewall' );
-				break;
-			default:
-				$sMessage = __( 'Unknown', 'wp-simple-firewall' );
-				break;
-		}
-
 		if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
-
 			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
-			if ( $this->sendBlockEmail( $sRecipient ) ) {
-				$this->addToAuditEntry( sprintf( __( 'Successfully sent Firewall Block email alert to: %s', 'wp-simple-firewall' ), $sRecipient ) );
-			}
-			else {
-				$this->addToAuditEntry( sprintf( __( 'Failed to send Firewall Block email alert to: %s', 'wp-simple-firewall' ), $sRecipient ) );
-			}
+			$this->getCon()->fireEvent(
+				$this->sendBlockEmail( $sRecipient ) ? 'fw_email_success' : 'fw_email_fail',
+				[ 'audit' => [ 'recipient' => $sRecipient ] ]
+			);
 		}
-
-		$oFO->setOptInsightsAt( 'last_firewall_block_at' )
-			->setIpTransgressed();
-		$this->addToAuditEntry( sprintf( __( 'Firewall Block Response: %s.', 'wp-simple-firewall' ), $sMessage ) );
+		$this->getCon()->fireEvent( 'firewall_block' );
 	}
 
 	/**
@@ -334,11 +323,12 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( isset( $this->aPageParams ) ) {
 			return $this->aPageParams;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oFO */
 		$oFO = $this->getMod();
 
 		$this->aPageParams = $this->getRawRequestParams();
-		$aWhitelist = $this->loadDP()->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
+		$aWhitelist = Services::DataManipulation()
+							  ->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
 
 		// first we remove globally whitelisted request parameters
 		if ( !empty( $aWhitelist[ '*' ] ) && is_array( $aWhitelist[ '*' ] ) ) {

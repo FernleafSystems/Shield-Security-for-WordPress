@@ -106,7 +106,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function setUserLastLoginTime( $oUser ) {
 		$oMeta = $this->getCon()->getUserMeta( $oUser );
-		$oMeta->last_login_at = $this->time();
+		$oMeta->last_login_at = Services::Request()->ts();
 		return $this;
 	}
 
@@ -117,7 +117,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function addUserStatusLastLogin( $aColumns ) {
 
-		$sCustomColumnName = $this->prefix( 'col_user_status' );
+		$sCustomColumnName = $this->getCon()->prefix( 'col_user_status' );
 		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
 			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
@@ -131,7 +131,10 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 					if ( $oUser instanceof \WP_User ) {
 						$nLastLoginTime = $this->getCon()->getUserMeta( $oUser )->last_login_at;
 						if ( $nLastLoginTime > 0 ) {
-							$sValue = ( new \Carbon\Carbon() )->setTimestamp( $nLastLoginTime )->diffForHumans();
+							$sValue = Services::Request()
+											  ->carbon()
+											  ->setTimestamp( $nLastLoginTime )
+											  ->diffForHumans();
 						}
 					}
 					$sNewContent = sprintf( '%s: %s', __( 'Last Login', 'wp-simple-firewall' ), $sValue );
@@ -197,7 +200,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $sHomeUrl ),
 			'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
 			'- '.sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $oUser->user_email ),
-			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->ip() ),
+			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
 			'',
 			__( 'Thanks.', 'wp-simple-firewall' )
 		];
@@ -225,7 +228,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			__( 'Details for this login are below:', 'wp-simple-firewall' ),
 			'- '.sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), $oWp->getHomeUrl() ),
 			'- '.sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $this->ip() ),
+			'- '.sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
 			'- '.sprintf( '%s: %s', __( 'Time', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() ),
 			'',
 			__( 'If this is unexpected or suspicious, please contact your site administrator immediately.', 'wp-simple-firewall' ),

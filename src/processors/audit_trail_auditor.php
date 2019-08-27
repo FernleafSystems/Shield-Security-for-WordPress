@@ -1,8 +1,16 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
+
 
 class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
+
+	/**
+	 * @var bool
+	 */
+	private $bAudit = false;
 
 	/**
 	 * @param ICWP_WPSF_FeatureHandler_AuditTrail $oModCon
@@ -12,62 +20,58 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * Resets the object values to be re-used anew
-	 */
-	public function init() {
-		parent::init();
-		add_action( $this->getCon()->prefix( 'add_new_audit_entry' ), [ $this, 'addAuditTrialEntry' ] );
-	}
-
-	public function cleanupDatabase() {
-		parent::cleanupDatabase(); // Deletes based on time.
-		$this->trimTable();
-	}
-
-	/**
-	 * ABstract this and move it into base DB class
-	 */
-	protected function trimTable() {
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
-		try {
-			$this->getDbHandler()
-				 ->getQueryDeleter()
-				 ->deleteExcess( $oFO->getMaxEntries() );
-		}
-		catch ( \Exception $oE ) {
-		}
-	}
-
-	/**
 	 */
 	public function run() {
 		if ( !$this->isReadyToRun() ) {
 			return;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
+		$this->bAudit = true;
 
-		if ( $oFO->isAuditUsers() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Users() )->run();
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
+		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
+
+		if ( $oOpts->isAuditUsers() ) {
+			( new Auditors\Users() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditPlugins() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Plugins() )->run();
+		if ( $oOpts->isAuditPlugins() ) {
+			( new Auditors\Plugins() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditThemes() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Themes() )->run();
+		if ( $oOpts->isAuditThemes() ) {
+			( new Auditors\Themes() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditWp() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Wordpress() )->run();
+		if ( $oOpts->isAuditWp() ) {
+			( new Auditors\Wordpress() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditPosts() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Posts() )->run();
+		if ( $oOpts->isAuditPosts() ) {
+			( new Auditors\Posts() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditEmails() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Emails() )->run();
+		if ( $oOpts->isAuditEmails() ) {
+			( new Auditors\Emails() )
+				->setMod( $oMod )
+				->run();
 		}
-		if ( $oFO->isAuditShield() ) {
-			( new ICWP_WPSF_Processor_AuditTrail_Wpsf() )->run();
+	}
+
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
+		if ( $this->bAudit && !$this->getCon()->isPluginDeleting() ) {
+			/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
+			$oMod = $this->getMod();
+			/** @var AuditTrail\Handler $oDbh */
+			$oDbh = $oMod->getDbHandler();
+			$oDbh->commitAudits( $oMod->getRegisteredAuditLogs( true ) );
 		}
 	}
 
@@ -76,8 +80,10 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	 * @return array|bool
 	 */
 	public function countAuditEntriesForContext( $sContext = 'all' ) {
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+		$oFO = $this->getMod();
 		/** @var AuditTrail\Select $oCounter */
-		$oCounter = $this->getDbHandler()->getQuerySelector();
+		$oCounter = $oFO->getDbHandler()->getQuerySelector();
 		if ( $sContext != 'all' ) {
 			$oCounter->filterByContext( $sContext );
 		}
@@ -94,31 +100,20 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	 * @return AuditTrail\EntryVO[]
 	 */
 	public function getAuditEntriesForContext( $sContext = 'all', $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
+		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
+		$oFO = $this->getMod();
 		/** @var AuditTrail\Select $oSelect */
-		$oSelect = $this->getDbHandler()
-						->getQuerySelector()
-						->setResultsAsVo( true )
-						->setOrderBy( $sOrderBy, $sOrder )
-						->setLimit( $nLimit )
-						->setPage( $nPage );
+		$oSelect = $oFO->getDbHandler()
+					   ->getQuerySelector()
+					   ->setResultsAsVo( true )
+					   ->setOrderBy( $sOrderBy, $sOrder )
+					   ->setLimit( $nLimit )
+					   ->setPage( $nPage );
 		if ( $sContext != 'all' ) {
 			$oSelect->filterByContext( $sContext );
 		}
 
 		return $oSelect->query();
-	}
-
-	/**
-	 * @param AuditTrail\EntryVO $oEntryVo
-	 */
-	public function addAuditTrialEntry( $oEntryVo ) {
-		$oCon = $this->getCon();
-		if ( !$oCon->isPluginDeleting() && $oEntryVo instanceof AuditTrail\EntryVO ) {
-			$oEntryVo->rid = $oCon->getShortRequestId();
-			/** @var AuditTrail\Insert $oInsQ */
-			$oInsQ = $this->getDbHandler()->getQueryInserter();
-			$oInsQ->insert( $oEntryVo );
-		}
 	}
 
 	/**
@@ -129,7 +124,7 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			rid varchar(10) NOT NULL DEFAULT '' COMMENT 'Request ID',
 			ip varchar(40) NOT NULL DEFAULT 0 COMMENT 'Visitor IP Address',
-			wp_username varchar(255) NOT NULL DEFAULT 'none' COMMENT 'WP User',
+			wp_username varchar(255) NOT NULL DEFAULT '-' COMMENT 'WP User',
 			context varchar(32) NOT NULL DEFAULT 'none' COMMENT 'Audit Context',
 			event varchar(50) NOT NULL DEFAULT 'none' COMMENT 'Specific Audit Event',
 			category int(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Severity',
@@ -160,15 +155,30 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ICWP_WPSF_BaseDbProcessor {
 	 * @return int|null
 	 */
 	protected function getAutoExpirePeriod() {
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getAutoCleanDays()*DAY_IN_SECONDS;
 	}
 
 	/**
 	 * @return AuditTrail\Handler
+	 * @deprecated 8
 	 */
 	protected function createDbHandler() {
 		return new AuditTrail\Handler();
+	}
+
+	/**
+	 * @param AuditTrail\EntryVO $oEntryVo
+	 * @deprecated 8
+	 */
+	public function addAuditTrialEntry( $oEntryVo ) {
+		return;
+	}
+
+	/**
+	 * @deprecated
+	 */
+	protected function trimTable() {
 	}
 }

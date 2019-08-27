@@ -1,100 +1,125 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services; // TODO: use after 7.5
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return string
+	 * @return bool
 	 */
-	public function getReportingTableName() {
-		return $this->prefix( $this->getDef( 'reporting_table_name' ), '_' );
+	public function isModuleEnabled() {
+		return false;
 	}
 
 	/**
-	 * @return string
 	 */
-	public function getFullReportingTableName() {
-		return \FernleafSystems\Wordpress\Services\Services::WpDb()->getPrefix().$this->getReportingTableName();
+	protected function updateHandler() {
+		$this->updateHandler_ConvertStats();
 	}
 
-	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
-	 */
-	protected function loadStrings_SectionTitles( $aOptionsParams ) {
+	private function updateHandler_ConvertStats() {
+		$aMap = [
+			'firewall.blocked.dirtraversal'    => 'blockparam_dirtraversal',
+			'firewall.blocked.sqlqueries'      => 'blockparam_sqlqueries',
+			'firewall.blocked.wpterms'         => 'blockparam_wpterms',
+			'firewall.blocked.fieldtruncation' => 'blockparam_fieldtruncation',
+			'firewall.blocked.phpcode'         => 'blockparam_phpcode',
+			'firewall.blocked.schema'          => 'blockparam_schema',
+			'firewall.blocked.aggressive'      => 'blockparam_aggressive',
+			'firewall.blocked.exefile'         => 'block_exefile',
+			'ip.connection.killed'             => 'conn_kill',
+			'ip.transgression.incremented'     => 'ip_offense',
+			'login.rename.fail'                => 'hide_login_url',
+			'user.session.start'               => 'session_start',
+			'user.session.terminate'           => 'session_terminate',
+			'login.recaptcha.verified'         => 'recaptcha_success',
+			'login.recaptcha.fail'             => 'recaptcha_fail',
+			'login.cooldown.fail'              => 'block_exefile',
+			'login.twofactor.verified'         => '2fa_success',
+		];
+		// TODO: Count all firewall.blocked.*
 
-		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		switch ( $sSectionSlug ) {
+		/** @var Shield\Databases\Tally\Handler $oDbH */
+		$oDbH = $this->getDbHandler();
+		/** @var Shield\Databases\Tally\Select $oSelectTally */
+		$oSelectTally = $oDbH->getQuerySelector();
 
-			case 'section_enable_plugin_feature_statistics' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Helps you see at a glance how effective the plugin has been.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $this->getMainFeatureName() ) )
-				];
-				break;
+		/** @var Shield\Databases\Tally\EntryVO[] $aAll */
+		$aAll = $oSelectTally->all();
 
-			case 'section_enable_plugin_feature_reporting' :
-				$sTitleShort = sprintf( '%s/%s', __( 'On', 'wp-simple-firewall' ), __( 'Off', 'wp-simple-firewall' ) );
-				$sTitle = sprintf( __( 'Enable Module: %s', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'To track stats and issue reports.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), $this->getMainFeatureName() ) )
-				];
-				break;
-
-			case 'section_stats_sharing' :
-				$sTitle = __( 'Statistics Sharing', 'wp-simple-firewall' );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Help us to provide globally accessible statistics on the effectiveness of the plugin.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enabling this option helps us improve our plugin over time.', 'wp-simple-firewall' ) )
-					.__( 'All statistics data collection is 100% anonymous.', 'wp-simple-firewall' ).__( 'Neither we nor anyone else will be able to trace the data back to the originating site.', 'wp-simple-firewall' )
-
-				];
-				$sTitleShort = __( 'Sharing', 'wp-simple-firewall' );
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
-		}
-		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
-		$aOptionsParams[ 'title_short' ] = $sTitleShort;
-		return $aOptionsParams;
-	}
-
-	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
-	 */
-	protected function loadStrings_Options( $aOptionsParams ) {
-
-		$sKey = $aOptionsParams[ 'key' ];
-		switch ( $sKey ) {
-
-			case 'enable_statistics' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				break;
-
-			case 'enable_reporting' :
-				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $this->getMainFeatureName() );
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
+		$aNewEvents = [
+			'firewall_block'       => 0,
+			'botbox_fail'          => 0,
+			'honeypot_fail'        => 0,
+			'spam_block_bot'       => 0,
+			'spam_block_recaptcha' => 0,
+			'spam_block_human'     => 0,
+			'login_block'          => 0,
+		];
+		foreach ( $aAll as $oTally ) {
+			if ( isset( $aMap[ $oTally->stat_key ] ) ) {
+				$aNewEvents[ $aMap[ $oTally->stat_key ] ] = $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'firewall.blocked.' ) === 0 ) {
+				$aNewEvents[ 'firewall_block' ] += $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'gasp.checkbox.fail' ) === 0 ) {
+				$aNewEvents[ 'botbox_fail' ] += $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'gasp.honeypot.fail' ) === 0 ) {
+				$aNewEvents[ 'honeypot_fail' ] += $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'spam.gasp.' ) === 0 ) {
+				$aNewEvents[ 'spam_block_bot' ] += $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'spam.recaptcha.' ) === 0 ) {
+				$aNewEvents[ 'spam_block_recaptcha' ] += $oTally->tally;
+			}
+			if ( strpos( $oTally->stat_key, 'spam.human.' ) === 0 ) {
+				$aNewEvents[ 'spam_block_human' ] += $oTally->tally;
+			}
+			if ( preg_match( '#login.*fail#', $oTally->stat_key ) ) {
+				$aNewEvents[ 'login_block' ] += $oTally->tally;
+			}
 		}
 
-		$aOptionsParams[ 'name' ] = $sName;
-		$aOptionsParams[ 'summary' ] = $sSummary;
-		$aOptionsParams[ 'description' ] = $sDescription;
-		return $aOptionsParams;
+		/** @var Shield\Databases\Events\Handler $oDbhEvents */
+		$oDbhEvents = $this->getCon()->getModule_Events()->getDbHandler();
+		$nTs = Services::Request()
+					   ->carbon()
+					   ->subYear( 1 )->timestamp;
+		foreach ( array_filter( $aNewEvents ) as $sEvent => $nTally ) {
+			$oDbhEvents->commitEvent( $sEvent, $nTally, $nTs );
+		}
+
+		/** @var Shield\Databases\Tally\Handler $oDbhTallys */
+		$oDbhTallys = $this->getDbHandler();
+		/** @var Shield\Databases\Tally\Delete $oDelTallys */
+		$oDelTallys = $oDbhTallys->getQueryDeleter();
+		foreach ( $aAll as $oTally ) {
+			$oDelTallys->deleteEntry( $oTally );
+		}
+	}
+
+	/**
+	 * @return Shield\Databases\Tally\Handler
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Tally\Handler();
+	}
+
+	/**
+	 * @return Shield\Modules\Statistics\Options
+	 */
+	protected function loadOptions() {
+		return new Shield\Modules\Statistics\Options();
+	}
+
+	/**
+	 * @return Shield\Modules\Statistics\Strings
+	 */
+	protected function loadStrings() {
+		return new Shield\Modules\Statistics\Strings();
 	}
 }

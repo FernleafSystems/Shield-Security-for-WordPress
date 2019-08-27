@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Services\Services;
 class BuildUsers {
 
 	/**
-	 * @uses 2 SQL queries
 	 * @return array[] - key is user ID, values are arrays with keys: id, user_login, user_pass, user_email, is_admin
+	 * @uses 2 SQL queries
 	 */
 	public function run() {
 		$aAdminIds = array_keys( $this->getAdmins() );

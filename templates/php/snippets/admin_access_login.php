@@ -1,7 +1,7 @@
 <div class="input-holder" id="AdminInputHolder-<?php echo $unique_render_id; ?>">
 	<label>
 		<?php echo $strings[ 'access_message' ]; ?>
-		<input type="password" name="admin_access_key_request" />
+		<input type="password" name="sec_admin_key" />
 		<button type="submit">Go!</button>
 	</label>
 </div>
@@ -26,7 +26,7 @@
 		$oInput.prop( 'disabled', true );
 
 		var requestData = <?php echo $ajax[ 'sec_admin_login' ]; ?>;
-		requestData[ 'admin_access_key_request' ] = $oInput.val();
+		requestData[ 'sec_admin_key' ] = $oInput.val();
 
 		jQuery.post( ajaxurl, requestData, function ( oResponse ) {
 			if ( oResponse.success ) {

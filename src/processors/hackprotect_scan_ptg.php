@@ -1,7 +1,7 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield,
-	FernleafSystems\Wordpress\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
 
@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 */
 	public function run() {
 		parent::run();
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
 		$this->initSnapshots();
@@ -53,19 +53,24 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	/**
 	 * @return bool
 	 */
+	public function isAvailable() {
+		return $this->isEnabled() && !$this->isRestricted();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestricted() {
+		return !$this->getMod()->isPremium();
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isEnabled() {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->isPtgEnabled();
-	}
-
-	/**
-	 * @return Shield\Scans\Ptg\ResultsSet
-	 */
-	protected function getScannerResults() {
-		$oResults = $this->scanPlugins();
-		( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $this->scanThemes(), $oResults );
-		return $oResults;
 	}
 
 	/**
@@ -100,12 +105,24 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * Shouldn't really be used in this case as it'll only scan the plugins
-	 *
-	 * @return Shield\Scans\Ptg\ScannerPlugins
+	 * @return Shield\Scans\Ptg\ScanActionVO
 	 */
-	protected function getScanner() {
-		return $this->getContextScanner();
+	protected function getNewActionVO() {
+		return new Shield\Scans\Ptg\ScanActionVO();
+	}
+
+	/**
+	 * @return Shield\Scans\Ptg\ResultsSet
+	 */
+	protected function getNewResultsSet() {
+		return new Shield\Scans\Ptg\ResultsSet();
+	}
+
+	/**
+	 * @return Shield\Scans\Ptg\ResultItem
+	 */
+	protected function getResultItem() {
+		return new Shield\Scans\Ptg\ResultItem();
 	}
 
 	/**
@@ -136,7 +153,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			$sLinkTemplate = '<a href="javascript:void(0)">%s</a>';
 			$aLinks[ 'icwp-reinstall' ] = sprintf(
 				$sLinkTemplate,
-				'Re-Install'
+				__( 'Re-Install', 'wp-simple-firewall' )
 			);
 		}
 
@@ -165,21 +182,43 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @throws \Exception
 	 */
 	protected function assetAccept( $oItem ) {
+		/** @var Shield\Scans\Ptg\ResultsSet $oRes */
+		$oRes = $this->readScanResultsFromDb();
+		// We ignore the item (so for WP.org plugins it wont flag up again)
+		foreach ( $oRes->getItemsForSlug( $oItem->slug ) as $oItem ) {
+			$this->itemIgnore( $oItem );
+		}
+
 		// we run it for both since it doesn't matter which context it's in, it'll be removed
-		$this->updatePluginSnapshot( $oItem->slug );
-		$this->updateThemeSnapshot( $oItem->slug );
+		$this->updateItemInSnapshot( $oItem->slug );
 		return true;
 	}
 
 	public function printPluginReinstallDialogs() {
-		$aRenderData = [
-			'strings'     => [
-				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
+		echo $this->getMod()->renderTemplate(
+			'snippets/dialog_plugins_reinstall.twig',
+			[
+				'strings'     => [
+					'are_you_sure'       => __( 'Are you sure?', 'wp-simple-firewll' ),
+					'really_reinstall'   => __( 'Really Re-Install Plugin', 'wp-simple-firewll' ),
+					'wp_reinstall'       => __( 'WordPress will now download and install the latest available version of this plugin.', 'wp-simple-firewll' ),
+					'in_case'            => sprintf( '%s: %s',
+						__( 'Note', 'wp-simple-firewall' ),
+						__( 'In case of possible failure, it may be better to do this while the plugin is inactive.', 'wp-simple-firewll' )
+					),
+					'reinstall_first'    => __( 'Re-install first?', 'wp-simple-firewall' ),
+					'corrupted'          => __( "This ensures files for this plugin haven't been corrupted in any way.", 'wp-simple-firewall' ),
+					'choose'             => __( "You can choose to 'Activate Only' (not recommended), or close this message to cancel activation.", 'wp-simple-firewall' ),
+					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
+					'download'           => sprintf(
+						__( 'For best security practices, %s will download and re-install the latest available version of this plugin.', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName()
+					)
+				],
+				'js_snippets' => []
 			],
-			'js_snippets' => []
-		];
-		echo $this->getMod()
-				  ->renderTemplate( 'snippets/hg-plugins-reinstall-dialogs.php', $aRenderData );
+			true
+		);
 	}
 
 	/**
@@ -200,7 +239,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @param string $sBaseName
 	 */
 	public function onDeactivatePlugin( $sBaseName ) {
-		$this->deletePluginFromSnapshot( $sBaseName );
+		// can't use update snapshot because active plugins setting hasn't been updated yet by WP
+		$this->removeItemSnapshot( $sBaseName );
 	}
 
 	/**
@@ -208,7 +248,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return bool
 	 */
 	public function reinstall( $sBaseName ) {
-		return parent::reinstall( $sBaseName ) && $this->updateItemInSnapshot( $sBaseName );
+		$bSuccess = parent::reinstall( $sBaseName );
+		if ( $bSuccess ) {
+			$this->updateItemInSnapshot( $sBaseName );
+		}
+		$this->getCon()->fireEvent(
+			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			[ 'audit' => [ 'fragment' => $sBaseName ] ]
+		);
+		return $bSuccess;
 	}
 
 	/**
@@ -266,26 +314,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param string $sBaseName - the basename for plugin
-	 * @return $this
-	 */
-	private function deletePluginFromSnapshot( $sBaseName ) {
-
-		$oStore = $this->getStore_Plugins();
-		if ( $oStore->itemExists( $sBaseName ) ) {
-			try {
-				$oStore->removeItemSnapshot( $sBaseName )
-					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures removed for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		return $this;
-	}
-
-	/**
 	 * Will also remove a plugin if it's found to be in-active
 	 * Careful: Cannot use this for the activate and deactivate hooks as the WP option
 	 * wont be updated
@@ -299,20 +327,39 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->addSnapItem( $sBaseName, $this->buildSnapshotPlugin( $sBaseName ) )
 					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures updated for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
 			}
 			catch ( \Exception $oE ) {
 			}
 		}
-		else if ( $oStore->itemExists( $sBaseName ) ) {
-			try {
-				$oStore->removeItemSnapshot( $sBaseName )
-					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures removed for plugin "%s"', 'wp-simple-firewall' ), $sBaseName ) );
-			}
-			catch ( \Exception $oE ) {
-			}
+		else {
+			$this->removeItemSnapshot( $sBaseName );
 		}
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return $this
+	 */
+	protected function removeItemSnapshot( $sSlug ) {
+		if ( $this->getContextFromSlug( $sSlug ) == self::CONTEXT_PLUGINS ) {
+			$oStore = $this->getStore_Plugins();
+		}
+		else {
+			$oStore = $this->getStore_Themes();
+		}
+
+		try {
+			$oStore->removeItemSnapshot( $sSlug )
+				   ->save();
+		}
+		catch ( \Exception $oE ) {
+		}
+
+		/** @var Shield\Scans\Ptg\ResultsSet $oRes */
+		$oRes = $this->readScanResultsFromDb();
+		$this->deleteResultsSet( $oRes->getResultsSetForSlug( $sSlug ) );
+
+		return $this;
 	}
 
 	/**
@@ -325,19 +372,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			try {
 				$oStore->addSnapItem( $sSlug, $this->buildSnapshotTheme( $sSlug ) )
 					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures updated for theme "%s"', 'wp-simple-firewall' ), $sSlug ) );
 			}
 			catch ( \Exception $oE ) {
 			}
 		}
-		else if ( $oStore->itemExists( $sSlug ) ) {
-			try {
-				$oStore->removeItemSnapshot( $sSlug )
-					   ->save();
-				$this->addToAuditEntry( sprintf( __( 'File signatures removed for theme "%s"', 'wp-simple-firewall' ), $sSlug ) );
-			}
-			catch ( \Exception $oE ) {
-			}
+		else {
+			$this->removeItemSnapshot( $sSlug );
 		}
 	}
 
@@ -375,7 +415,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		if ( $bPluginsRebuildReqd || $bThemesRebuildReqd ) {
 			// grab all the existing results
-			$oDbH = $this->getScannerDb()->getDbHandler();
+			$oDbH = $this->getMod()->getDbHandler();
 			/** @var Shield\Databases\Scanner\Select $oSel */
 			$oSel = $oDbH->getQuerySelector();
 			/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
@@ -383,7 +423,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 			$oCleaner = ( new Shield\Scans\Ptg\ScanResults\Clean() )
 				->setDbHandler( $oDbH )
-				->setScannerProfile( $this->getScannerProfile() )
+				->setScanActionVO( $this->getScanActionVO() )
 				->setWorkingResultsSet( $this->convertVosToResults( $aRes ) );
 
 			if ( $bPluginsRebuildReqd ) {
@@ -620,15 +660,18 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
 		$sEmailSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Plugins/Themes Have Been Altered', 'wp-simple-firewall' ) );
-		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $sTo, $sEmailSubject, $aContent );
+		$this->getEmailProcessor()
+			 ->sendEmailWithWrap( $sTo, $sEmailSubject, $aContent );
 
-		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( __( 'Successfully sent Plugin/Theme Guard email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		else {
-			$this->addToAuditEntry( sprintf( __( 'Failed to send Plugin/Theme Guard email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
+		$this->getCon()->fireEvent(
+			'ptg_alert_sent',
+			[
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
+			]
+		);
 	}
 
 	/**
@@ -655,33 +698,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param string $sMsg
-	 * @param int    $nCategory
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
-		$sMsg = sprintf( '[%s]: %s', __( 'Plugin/Theme Guard', 'wp-simple-firewall' ), $sMsg );
-		$this->createNewAudit( 'wpsf', $sMsg, $nCategory, $sEvent, $aData );
-		return $this;
-	}
-
-	/**
 	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
 	 * are unreliable once the plugin has been deactivated.
 	 */
-	public function deactivatePlugin() {
+	public function resetScan() {
+		parent::resetScan();
 		try {
 			// clear the snapshots
 			$this->getStore_Themes()->deleteSnapshots();
 			$this->getStore_Plugins()->deleteSnapshots();
-
-			// clear the results
-			( new Shield\Scans\Ptg\ScanResults\Clean() )
-				->setDbHandler( $this->getScannerDb()->getDbHandler() )
-				->setScannerProfile( $this->getScannerProfile() )
-				->deleteAllForScan();
 		}
 		catch ( \Exception $oE ) {
 		}

@@ -17,17 +17,18 @@
   },
   "admin_notices": {
     "certain-options-restricted": {
-      "id":          "certain-options-restricted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+      "id":               "certain-options-restricted",
+      "schedule":         "conditions",
+      "plugin_admin":     "no",
+      "per_user": true,
+      "type":             "warning"
     },
     "admin-users-restricted":     {
-      "id":          "admin-users-restricted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "can_dismiss": false,
-      "type":        "warning"
+      "id":               "admin-users-restricted",
+      "schedule":         "conditions",
+      "plugin_admin":     "no",
+      "type":             "warning",
+      "per_user": true
     }
   },
   "sections":      [
@@ -43,13 +44,14 @@
       "help_video_id": "338551188"
     },
     {
-      "slug":        "section_admin_access_restriction_areas",
-      "title":       "Security Admin Restriction Zones",
-      "title_short": "Access Restriction Zones",
-      "summary":     [
+      "slug":          "section_admin_access_restriction_areas",
+      "title":         "Security Admin Restriction Zones",
+      "title_short":   "Access Restriction Zones",
+      "summary":       [
         "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
         "Recommendation - Use of this feature is highly recommend."
-      ]
+      ],
+      "help_video_id": "339824074"
     },
     {
       "slug":        "section_whitelabel",
@@ -213,7 +215,7 @@
       "value_options": [
         {
           "value_key": "edit",
-          "text":      "Create / Edit"
+          "text":      "Create/Edit"
         },
         {
           "value_key": "publish",
@@ -350,7 +352,21 @@
     }
   ],
   "definitions":   {
-    "admin_access_options_to_restrict": {
+    "restricted_pages_users": [
+      "user-edit.php",
+      "users.php"
+    ],
+    "events":                 {
+      "key_success": {
+        "recent": true
+      },
+      "key_fail":    {
+        "cat":     3,
+        "recent":  true,
+        "offense": true
+      }
+    },
+    "options_to_restrict":    {
       "wpms_options": [
         "admin_email",
         "site_name",

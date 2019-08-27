@@ -18,26 +18,18 @@
   },
   "admin_notices": {
     "akismet-running": {
-      "id":          "akismet-running",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+      "id":               "akismet-running",
+      "plugin_admin":     "yes",
+      "plugin_page_only": true,
+      "type":             "warning"
     }
   },
   "sections":      [
     {
-      "slug":        "section_bot_comment_spam_common",
-      "primary":     true,
-      "title":       "Common Settings For All SPAM Scanning",
-      "title_short": "Common Settings",
-      "summary":     [
-        "Purpose - Settings that apply to all comment SPAM scanning."
-      ]
-    },
-    {
       "slug":        "section_bot_comment_spam_protection_filter",
       "title":       "Automatic Bot Comment SPAM Protection Filter",
       "title_short": "Bot SPAM",
+      "primary":     true,
       "summary":     [
         "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
         "Recommendation - Use of this feature is highly recommend."
@@ -60,6 +52,14 @@
       "summary":     [
         "Purpose - Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.",
         "Recommendation - Use of this feature is highly recommend.This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis."
+      ]
+    },
+    {
+      "slug":        "section_bot_comment_spam_common",
+      "title":       "Common Settings For All SPAM Scanning",
+      "title_short": "Common Settings",
+      "summary":     [
+        "Purpose - Settings that apply to all comment SPAM scanning."
       ]
     },
     {
@@ -104,7 +104,7 @@
       "default":     1,
       "min":         1,
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/fu",
       "link_blog":   "",
       "name":        "Trusted Commenter Minimum",
       "summary":     "Minimum Number Of Approved Comments Before Commenter Is Trusted",
@@ -122,7 +122,7 @@
         "subscriber"
       ],
       "type":        "array",
-      "link_info":   "",
+      "link_info":   "https://icwp.io/fu",
       "link_blog":   "",
       "name":        "Trusted Users",
       "summary":     "Don't Scan Comments For Users With The Following Roles",
@@ -159,11 +159,11 @@
       "value_options": [
         {
           "value_key": 0,
-          "text":      "Mark As Pending Moderation"
+          "text":      "Move To Pending Moderation"
         },
         {
           "value_key": "spam",
-          "text":      "Mark As SPAM"
+          "text":      "Move To SPAM"
         },
         {
           "value_key": "trash",
@@ -171,7 +171,7 @@
         },
         {
           "value_key": "reject",
-          "text":      "Reject And Redirect"
+          "text":      "Block And Redirect"
         }
       ],
       "link_info":     "https://icwp.io/6j",
@@ -243,11 +243,11 @@
       "value_options": [
         {
           "value_key": 0,
-          "text":      "Mark As Pending Moderation"
+          "text":      "Move To Pending Moderation"
         },
         {
           "value_key": "spam",
-          "text":      "Mark As SPAM"
+          "text":      "Move To SPAM"
         },
         {
           "value_key": "trash",
@@ -255,7 +255,7 @@
         },
         {
           "value_key": "reject",
-          "text":      "Reject And Redirect"
+          "text":      "Block And Redirect"
         }
       ],
       "name":          "Default SPAM Action",
@@ -282,11 +282,7 @@
       "value_options": [
         {
           "value_key": "default",
-          "text":      "Default"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
+          "text":      "Default Style"
         },
         {
           "value_key": "light",
@@ -298,7 +294,7 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
       "link_info":     "https://icwp.io/e4",
@@ -385,6 +381,20 @@
       "ip",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                                {
+      "spam_block_bot":       {
+        "recent":  true,
+        "offense": true
+      },
+      "spam_block_recaptcha": {
+        "recent":  true,
+        "offense": true
+      },
+      "spam_block_human":     {
+        "recent":  true,
+        "offense": true
+      }
+    }
   }
 }

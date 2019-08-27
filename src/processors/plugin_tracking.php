@@ -6,56 +6,20 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin {
 
 	/**
-	 * @param array $aNoticeAttributes
-	 * @see autoAddToAdminNotices()
-	 */
-	protected function addNotice_allow_tracking( $aNoticeAttributes ) {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		if ( $this->getIfShowAdminNotices() && !$oFO->isTrackingPermissionSet() ) {
-			$oCon = $this->getCon();
-			$aRenderData = [
-				'notice_attributes' => $aNoticeAttributes,
-				'strings'           => [
-					'title'           => sprintf( __( "Make %s even better by sharing usage info?", 'wp-simple-firewall' ), $oCon->getHumanName() ),
-					'want_to_track'   => sprintf( __( "We're hoping to understand how %s is configured and used.", 'wp-simple-firewall' ), $oCon->getHumanName() ),
-					'what_we_collect' => __( "We'd like to understand how effective it is on a global scale.", 'wp-simple-firewall' ),
-					'data_anon'       => __( 'The data sent is always completely anonymous and we can never track you or your site.', 'wp-simple-firewall' ),
-					'can_turn_off'    => __( 'It can be turned-off at any time within the plugin options.', 'wp-simple-firewall' ),
-					'click_to_see'    => __( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' ),
-					'learn_more'      => __( 'Learn More.', 'wp-simple-firewall' ),
-					'site_url'        => 'translate.icontrolwp.com',
-					'yes'             => __( 'Absolutely', 'wp-simple-firewall' )
-				],
-				'ajax'              => [
-					'set_plugin_tracking_perm' => $oFO->getAjaxActionData( 'set_plugin_tracking_perm', true ),
-				],
-				'hrefs'             => [
-					'learn_more'       => 'http://translate.icontrolwp.com',
-					'link_to_see'      => $oFO->getLinkToTrackingDataDump(),
-					'link_to_moreinfo' => 'https://icwp.io/shieldtrackinginfo',
-
-				]
-			];
-			$this->insertAdminNotice( $aRenderData );
-		}
-	}
-
-	/**
 	 * @return bool
 	 */
 	private function sendTrackingData() {
 		$bSuccess = false;
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isTrackingEnabled() && $oFO->readyToSendTrackingData() ) {
+		if ( $oMod->isTrackingEnabled() && $oMod->readyToSendTrackingData() ) {
 
 			$aData = $this->collectTrackingData();
 			if ( !empty( $aData ) && is_array( $aData ) ) {
-				$oFO->setTrackingLastSentAt();
+				$oMod->setTrackingLastSentAt();
 				$bSuccess = Services::HttpRequest()->post(
-					$oFO->getDef( 'tracking_post_url' ),
+					$oMod->getDef( 'tracking_post_url' ),
 					[
 						'timeout'     => 20,
 						'redirection' => 5,
@@ -116,5 +80,14 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin
 		if ( $oFO->isTrackingEnabled() ) {
 			$this->sendTrackingData();
 		}
+	}
+
+	/**
+	 * @param array $aNoticeAttributes
+	 * @throws \Exception
+	 * @deprecated
+	 */
+	public function addNotice_allow_tracking() {
+		return;
 	}
 }

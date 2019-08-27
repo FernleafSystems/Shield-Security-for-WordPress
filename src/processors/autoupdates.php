@@ -134,7 +134,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				if ( 'autoupdate' == $oUpdate->response ) {
 					$sVersion = $oUpdate->current;
 					if ( !isset( $aItemTk[ $sVersion ] ) ) {
-						$aItemTk[ $sVersion ] = $this->time();
+						$aItemTk[ $sVersion ] = Services::Request()->ts();
 					}
 				}
 			}
@@ -177,7 +177,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 				$sNewVersion = isset( $oUpdate->new_version ) ? $oUpdate->new_version : '';
 				if ( !empty( $sNewVersion ) ) {
 					if ( !isset( $aItemTk[ $sNewVersion ] ) ) {
-						$aItemTk[ $sNewVersion ] = $this->time();
+						$aItemTk[ $sNewVersion ] = Services::Request()->ts();
 					}
 					$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
 				}
@@ -191,8 +191,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	private function forceRunAutoUpdates() {
 		if ( $this->getIfForceRunAutoupdates() ) {
-			$this->doStatIncrement( 'autoupdates.forcerun' );
-			$this->loadWp()->doForceRunAutomaticUpdates();
+			Services::WpGeneral()->doForceRunAutomaticUpdates();
 		}
 	}
 
@@ -210,15 +209,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bUpdate = false;
 		}
 		else if ( !$oFO->isDelayUpdates() ) { // the delay is handles elsewhere
-
-			if ( $oFO->isAutoUpdateCoreMajor() ) {
-				$this->doStatIncrement( 'autoupdates.core.major.allowed' );
-				$bUpdate = true;
-			}
-			else {
-				$this->doStatIncrement( 'autoupdates.core.major.blocked' );
-				$bUpdate = false;
-			}
+			$bUpdate = $oFO->isAutoUpdateCoreMajor();
 		}
 
 		return $bUpdate;
@@ -238,15 +229,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			$bUpdate = false;
 		}
 		else if ( !$oFO->isDelayUpdates() ) {//TODO delay
-
-			if ( $oFO->isAutoUpdateCoreMinor() ) {
-				$this->doStatIncrement( 'autoupdates.core.minor.allowed' );
-				$bUpdate = true;
-			}
-			else {
-				$this->doStatIncrement( 'autoupdates.core.minor.blocked' );
-				$bUpdate = false;
-			}
+			$bUpdate = $oFO->isAutoUpdateCoreMinor();
 		}
 		return $bUpdate;
 	}
@@ -301,7 +284,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 			// first, is global auto updates for plugins set
 			if ( $oFO->isAutoupdateAllPlugins() ) {
-				$this->doStatIncrement( 'autoupdates.plugins.all' );
 				$bDoAutoUpdate = true;
 			}
 			else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
@@ -342,7 +324,6 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 			// first, is global auto updates for themes set
 			if ( $this->getMod()->isOpt( 'enable_autoupdate_themes', 'Y' ) ) {
-				$this->doStatIncrement( 'autoupdates.themes.all' );
 				return true;
 			}
 
@@ -363,7 +344,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$bDelayed = false;
 
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isDelayUpdates() ) {
 
@@ -387,7 +368,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 
 			if ( !empty( $sVersion ) && isset( $aItemTk[ $sVersion ] ) ) {
-				$bDelayed = ( $this->time() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
+				$bDelayed = ( Services::Request()->ts() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
 			}
 		}
 
@@ -412,7 +393,7 @@ class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	public function autoupdate_email_override( $aEmailParams ) {
 		$sOverride = $this->getOption( 'override_email_address', '' );
-		if ( $this->loadDP()->validEmail( $sOverride ) ) {
+		if ( Services::Data()->validEmail( $sOverride ) ) {
 			$aEmailParams[ 'to' ] = $sOverride;
 		}
 		return $aEmailParams;

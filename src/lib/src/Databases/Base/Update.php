@@ -47,7 +47,7 @@ class Update extends Insert {
 	 * @return $this
 	 */
 	public function setUpdateId( $nId ) {
-		$this->aUpdateWheres = array( 'id' => $nId );
+		$this->aUpdateWheres = [ 'id' => $nId ];
 		return $this;
 	}
 

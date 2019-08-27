@@ -18,7 +18,6 @@
   "sections":    [
     {
       "slug":        "section_scan_options",
-      "primary":     true,
       "title":       "Scan Options",
       "title_short": "Schedule",
       "summary":     [
@@ -26,26 +25,8 @@
       ]
     },
     {
-      "slug":        "section_scan_malware",
-      "hidden": true,
-      "title":       "Malware Scan",
-      "title_short": "Malware Scan",
-      "summary":     [
-        "Purpose - Detect malicious changes to your themes and plugins.",
-        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
-      ]
-    },
-    {
-      "slug":        "section_realtime",
-      "title":       "Realtime Protection",
-      "title_short": "Realtime Protection",
-      "summary":     [
-        "Purpose - Provides realtime protection for certain key files.",
-        "Recommendation - Keep realtime protection turned on to protect key files."
-      ]
-    },
-    {
-      "slug":        "section_core_file_integrity_scan",
+      "slug":        "section_scan_wcf",
+      "primary":     true,
       "title":       "WordPress Core File Scanner",
       "title_short": "WP Core File Scanner",
       "summary":     [
@@ -54,7 +35,7 @@
       ]
     },
     {
-      "slug":        "section_unrecognised_file_scan",
+      "slug":        "section_scan_ufc",
       "title":       "Unrecognised Files Scanner",
       "title_short": "Unrecognised Files Scanner",
       "summary":     [
@@ -72,7 +53,25 @@
       ]
     },
     {
-      "slug":        "section_pluginthemes_guard",
+      "slug":        "section_realtime",
+      "title":       "Realtime Protection",
+      "title_short": "Realtime Protection",
+      "summary":     [
+        "Purpose - Provides realtime protection for certain key files.",
+        "Recommendation - Keep realtime protection turned on to protect key files."
+      ]
+    },
+    {
+      "slug":        "section_scan_mal",
+      "title":       "Malware Scan",
+      "title_short": "Malware Scan",
+      "summary":     [
+        "Purpose - Detect malicious changes to your themes and plugins.",
+        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
+      ]
+    },
+    {
+      "slug":        "section_scan_ptg",
       "help_video":  {
         "provider":  "vimeo",
         "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
@@ -86,7 +85,7 @@
       ]
     },
     {
-      "slug":        "section_wpvuln_scan",
+      "slug":        "section_scan_wpv",
       "title":       "Vulnerability Scanner",
       "title_short": "Vulnerability Scanner",
       "summary":     [
@@ -143,22 +142,22 @@
     },
     {
       "key":           "enable_wpvuln_scan",
-      "section":       "section_wpvuln_scan",
+      "section":       "section_scan_wpv",
       "premium":       true,
       "default":       "enabled_email",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled_email",
-          "text":      "Enabled - Send Email Notification"
+          "text":      "Scan Enabled - Send Email Notification"
         },
         {
           "value_key": "enabled_no_email",
-          "text":      "Enabled - No Email Notification"
+          "text":      "Scan Enabled - No Email Notification"
         }
       ],
       "link_info":     "https://icwp.io/du",
@@ -169,7 +168,7 @@
     },
     {
       "key":         "wpvuln_scan_autoupdate",
-      "section":     "section_wpvuln_scan",
+      "section":     "section_scan_wpv",
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
@@ -181,9 +180,9 @@
     },
     {
       "key":           "wpvuln_scan_display",
-      "section":       "section_wpvuln_scan",
+      "section":       "section_scan_wpv",
       "default":       "enabled_admin",
-      "premium":     true,
+      "premium":       true,
       "type":          "select",
       "value_options": [
         {
@@ -213,15 +212,15 @@
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled_email",
-          "text":      "Enabled - Send Email Notification"
+          "text":      "Scan Enabled - Send Email Notification"
         },
         {
           "value_key": "enabled_no_email",
-          "text":      "Enabled - No Email Notification"
+          "text":      "Scan Enabled - No Email Notification"
         }
       ],
       "link_info":     "https://icwp.io/ew",
@@ -232,7 +231,7 @@
     },
     {
       "key":         "enable_core_file_integrity_scan",
-      "section":     "section_core_file_integrity_scan",
+      "section":     "section_scan_wcf",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://icwp.io/wpsf36",
@@ -243,7 +242,7 @@
     },
     {
       "key":         "attempt_auto_file_repair",
-      "section":     "section_core_file_integrity_scan",
+      "section":     "section_scan_wcf",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://icwp.io/wpsf36",
@@ -325,25 +324,25 @@
     },
     {
       "key":           "enable_unrecognised_file_cleaner_scan",
-      "section":       "section_unrecognised_file_scan",
+      "section":       "section_scan_ufc",
       "default":       "enabled_report_only",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled_report_only",
-          "text":      "Email Report Only"
+          "text":      "Scan Enabled - Send Email Notification"
         },
         {
           "value_key": "enabled_delete_only",
-          "text":      "Automatically Delete Files"
+          "text":      "Scan Enabled - Automatically Delete Files"
         },
         {
           "value_key": "enabled_delete_report",
-          "text":      "Auto Delete Files and Email Report"
+          "text":      "Scan Enabled - Delete Files and Send Email Notification"
         }
       ],
       "link_info":     "https://icwp.io/9y",
@@ -354,7 +353,7 @@
     },
     {
       "key":         "ufc_scan_uploads",
-      "section":     "section_unrecognised_file_scan",
+      "section":     "section_scan_ufc",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://icwp.io/95",
@@ -365,7 +364,7 @@
     },
     {
       "key":         "ufc_exclusions",
-      "section":     "section_unrecognised_file_scan",
+      "section":     "section_scan_ufc",
       "default":     [
         "error_log",
         ".htaccess",
@@ -407,51 +406,65 @@
     },
     {
       "key":           "mal_scan_enable",
-      "section":       "section_scan_malware",
+      "section":       "section_scan_mal",
       "premium":       true,
       "default":       "disabled",
       "type":          "select",
       "value_options": [
         {
           "value_key": "disabled",
-          "text":      "Scan Disabled"
+          "text":      "Automatic Scan Disabled"
         },
         {
           "value_key": "enabled",
-          "text":      "Scan Enabled"
+          "text":      "Automatic Scan Enabled"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Enable/Disable Malware Scan",
+      "link_info":     "https://icwp.io/fp",
+      "link_blog":     "https://icwp.io/fx",
+      "name":          "Automatic Malware Scan",
       "summary":       "Enable Malware File Scanner",
       "description":   "When enabled the Malware scanner will run automatically."
     },
     {
-      "key":           "mal_autorepair_core",
-      "section":       "section_scan_malware",
-      "type":          "checkbox",
-      "default":       "Y",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Auto-Repair WP Core",
-      "summary":       "Automatically Repair WordPress Core Files",
-      "description":   "Automatically reinstall any core files found to have potential malware."
+      "key":         "mal_autorepair_core",
+      "section":     "section_scan_mal",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "N",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Repair WP Core",
+      "summary":     "Automatically Repair WordPress Core Files",
+      "description": "Automatically reinstall any core files found to have potential malware."
     },
     {
-      "key":           "mal_autorepair_plugins",
-      "section":       "section_scan_malware",
-      "type":          "checkbox",
-      "default":       "Y",
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Auto-Repair WP Plugins",
-      "summary":       "Automatically Repair WordPress.org Plugins",
-      "description":   "Automatically repair any plugin files found to have potential malware."
+      "key":         "mal_autorepair_plugins",
+      "section":     "section_scan_mal",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "N",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Repair WP Plugins",
+      "summary":     "Automatically Repair WordPress.org Plugins",
+      "description": "Automatically repair any plugin files found to have potential malware."
+    },
+    {
+      "key":         "mal_autorepair_surgical",
+      "section":     "section_non_ui",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "N",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Surgical Auto-Repair",
+      "summary":     "Automatically Attempt To Surgically Remove Malware Code",
+      "description": "Attempts to automatically remove code from infected files."
     },
     {
       "key":           "ptg_enable",
-      "section":       "section_pluginthemes_guard",
+      "section":       "section_scan_ptg",
       "premium":       true,
       "default":       "disabled",
       "type":          "select",
@@ -473,7 +486,7 @@
     },
     {
       "key":         "ptg_depth",
-      "section":     "section_pluginthemes_guard",
+      "section":     "section_scan_ptg",
       "premium":     true,
       "type":        "integer",
       "default":     1,
@@ -486,7 +499,7 @@
     },
     {
       "key":         "ptg_extensions",
-      "section":     "section_pluginthemes_guard",
+      "section":     "section_scan_ptg",
       "premium":     true,
       "default":     [
         "php",
@@ -504,7 +517,7 @@
     },
     {
       "key":         "ptg_reinstall_links",
-      "section":     "section_pluginthemes_guard",
+      "section":     "section_scan_ptg",
       "premium":     true,
       "type":        "checkbox",
       "default":     "Y",
@@ -513,6 +526,20 @@
       "name":        "Show Re-Install Links",
       "summary":     "Show Re-Install Links For Plugins",
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
+    },
+    {
+      "key":          "scans_job",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "scan_key",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "text",
+      "default":      ""
     },
     {
       "key":          "ptg_last_build_at",
@@ -558,13 +585,6 @@
       "default":      0
     },
     {
-      "key":          "notready_insights_last_scan_mal_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "insights_last_scan_wcf_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -580,48 +600,6 @@
     },
     {
       "key":          "insights_last_scan_wpv_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_apc_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_ufc_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_mal_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_wcf_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_ptg_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "next_scan_wpv_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
@@ -664,10 +642,16 @@
     }
   ],
   "definitions": {
-    "plugin_vulnerabilities_data_source":   "https://raw.githubusercontent.com/FernleafSystems/wp-plugin-vulnerabilities/master/vulnerabilities.yaml",
-    "notifications_cron_name":              "plugin-vulnerabilities-notification",
-    "table_name_scanner":                   "scanner",
-    "table_columns_scanner":                [
+    "all_scan_slugs":              [
+      "apc",
+      "mal",
+      "ptg",
+      "wpv",
+      "wcf",
+      "ufc"
+    ],
+    "table_name_scanner":          "scanner",
+    "table_columns_scanner":       [
       "id",
       "hash",
       "meta",
@@ -678,27 +662,127 @@
       "created_at",
       "deleted_at"
     ],
-    "url_mal_sigs":                         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
-    "cron_all_scans":                       "all-scans",
-    "url_checksum_api":                     "https://api.wordpress.org/core/checksums/1.0/",
-    "url_wordress_core_svn":                "https://core.svn.wordpress.org/",
-    "url_wordress_core_svn_il8n":           "https://svn.automattic.com/wordpress-i18n/",
-    "wpvulndb_api_url_root":                "https://wpvulndb.com/api/v2/",
-    "corechecksum_exclusions":              [
+    "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
+    "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
+    "mal_whitelist_hashes":        {
+      "Container.php": [
+        "4e187f5c204bd597dd5ea653ee9c04b1413910c7"
+      ]
+    },
+    "url_mal_whitelist":           "https://onedollarplugin.com/",
+    "malware_whitelist_paths":     [
+      "wp-content/wflogs/"
+    ],
+    "cron_all_scans":              "all-scans",
+    "url_checksum_api":            "https://api.wordpress.org/core/checksums/1.0/",
+    "url_wordress_core_svn":       "https://core.svn.wordpress.org/",
+    "url_wordress_core_svn_il8n":  "https://svn.automattic.com/wordpress-i18n/",
+    "url_wp_hashes_api":           "https://wphashes/api/",
+    "wpvulndb_api_url_root":       "https://wpvulndb.com/api/v2/",
+    "wcf_exclusions":              [
       "readme.html",
       "license.txt",
       "licens-sv_SE.txt",
       "wp-config-sample.php",
       "wp-content/"
     ],
-    "corechecksum_exclusions_missing_only": [
+    "wcf_exclusions_missing_only": [
       "wp-admin/install.php",
       "xmlrpc.php"
     ],
-    "corechecksum_autofix":                 [
+    "corechecksum_autofix":        [
       "wp-content/index.php",
       "wp-content/plugins/index.php",
       "wp-content/themes/index.php"
-    ]
+    ],
+    "events":                      {
+      "apc_alert_sent":          {
+      },
+      "mal_alert_sent":          {
+      },
+      "ptg_alert_sent":          {
+      },
+      "ufc_alert_sent":          {
+      },
+      "wcf_alert_sent":          {
+      },
+      "wpv_alert_sent":          {
+      },
+      "apc_scan_run":            {
+        "audit":  false,
+        "recent": true
+      },
+      "mal_scan_run":            {
+        "audit":  false,
+        "recent": true
+      },
+      "ptg_scan_run":            {
+        "audit":  false,
+        "recent": true
+      },
+      "ufc_scan_run":            {
+        "audit":  false,
+        "recent": true
+      },
+      "wcf_scan_run":            {
+        "audit":  false,
+        "recent": true
+      },
+      "wpv_scan_run":            {
+        "audit":  false,
+        "recent": true
+      },
+      "apc_scan_found":          {
+        "cat":    2,
+        "recent": true
+      },
+      "mal_scan_found":          {
+        "cat":    3,
+        "recent": true
+      },
+      "ptg_scan_found":          {
+        "cat":    3,
+        "recent": true
+      },
+      "ufc_scan_found":          {
+        "cat":    3,
+        "recent": true
+      },
+      "wcf_scan_found":          {
+        "cat":    3,
+        "recent": true
+      },
+      "wpv_scan_found":          {
+        "cat":    3,
+        "recent": true
+      },
+      "apc_item_repair_success": {
+      },
+      "apc_item_repair_fail":    {
+      },
+      "mal_item_repair_success": {
+        "recent": true
+      },
+      "mal_item_repair_fail":    {
+      },
+      "ptg_item_repair_success": {
+      },
+      "ptg_item_repair_fail":    {
+      },
+      "ufc_item_repair_success": {
+        "recent": true
+      },
+      "ufc_item_repair_fail":    {
+      },
+      "wcf_item_repair_success": {
+        "recent": true
+      },
+      "wcf_item_repair_fail":    {
+      },
+      "wpv_item_repair_success": {
+      },
+      "wpv_item_repair_fail":    {
+      }
+    }
   }
 }

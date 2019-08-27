@@ -19,14 +19,28 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 
 		// For display on the Plugins page
 		add_action( 'load-plugins.php', [ $this, 'addPluginVulnerabilityRows' ], 10, 2 );
-		add_action( 'upgrader_process_complete', [ $this, 'doScan' ], 10, 2 );
-		add_action( 'deleted_plugin', [ $this, 'doScan' ], 10, 2 );
+		add_action( 'upgrader_process_complete', [ $this, 'hookOnDemandScan' ], 10, 0 );
+		add_action( 'deleted_plugin', [ $this, 'hookOnDemandScan' ], 10, 0 );
 
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAvailable() {
+		return !$this->isRestricted();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRestricted() {
+		return !$this->getMod()->isPremium();
 	}
 
 	/**
@@ -70,10 +84,24 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Wpv\Scanner
+	 * @return Shield\Scans\Wpv\ScanActionVO
 	 */
-	protected function getScanner() {
-		return new Shield\Scans\Wpv\Scanner();
+	protected function getNewActionVO() {
+		return new Shield\Scans\Wpv\ScanActionVO();
+	}
+
+	/**
+	 * @return Shield\Scans\Wpv\ResultsSet
+	 */
+	protected function getNewResultsSet() {
+		return new Shield\Scans\Wpv\ResultsSet();
+	}
+
+	/**
+	 * @return Shield\Scans\Wpv\ResultItem
+	 */
+	protected function getResultItem() {
+		return new Shield\Scans\Wpv\ResultItem();
 	}
 
 	/**
@@ -107,7 +135,16 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
-		return $this->getRepairer()->repairItem( $oItem );
+		$bSuccess = $this->getRepairer()->repairItem( $oItem );
+		$this->getCon()->fireEvent(
+			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			[
+				'audit' => [
+					'name' => Services::WpPlugins()->getPluginAsVo( $oItem->slug )->Name
+				]
+			]
+		);
+		return $bSuccess;
 	}
 
 	/**
@@ -226,7 +263,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 
 	/**
 	 * @param Shield\Scans\Wpv\ResultsSet $oRes
-	 * @return bool
 	 */
 	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -269,16 +305,18 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 
 		$sSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Plugin(s) Discovered With Known Security Vulnerabilities.', 'wp-simple-firewall' ) );
 		$sTo = $oFO->getPluginDefaultRecipientAddress();
-		$bSendSuccess = $this->getEmailProcessor()
-							 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
+		$this->getEmailProcessor()
+			 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
 
-		if ( $bSendSuccess ) {
-			$this->addToAuditEntry( sprintf( __( 'Successfully sent Plugin Vulnerability Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		else {
-			$this->addToAuditEntry( sprintf( __( 'Failed to send Plugin Vulnerability Notification email alert to: %s', 'wp-simple-firewall' ), $sTo ) );
-		}
-		return $bSendSuccess;
+		$this->getCon()->fireEvent(
+			'wpv_alert_sent',
+			[
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
+			]
+		);
 	}
 
 	/**
@@ -293,7 +331,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 */
 	protected function getAllVulnerabilities() {
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getScannerDb()
+		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		$aVos = $oSel->filterByScan( static::SCAN_SLUG )

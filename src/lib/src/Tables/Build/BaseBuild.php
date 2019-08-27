@@ -25,7 +25,14 @@ class BaseBuild {
 	 */
 	public function buildTable() {
 
-		if ( $this->countTotal() > 0 ) {
+		try {
+			$bReady = $this->getDbHandler()->isReady();
+		}
+		catch ( \Exception $oE ) {
+			$bReady = false;
+		}
+
+		if ( $bReady && $this->countTotal() > 0 ) {
 			$oTable = $this->getTableRenderer()
 						   ->setItemEntries( $this->getEntriesFormatted() )
 						   ->setPerPage( $this->getParams()[ 'limit' ] )
@@ -39,7 +46,7 @@ class BaseBuild {
 			$sRendered = $this->buildEmpty();
 		}
 
-		return empty( $sRendered ) ? 'There was an error retrieving entries.' : $sRendered;
+		return empty( $sRendered ) ? __( 'There was an error retrieving entries.', 'wp-simple-firewall' ) : $sRendered;
 	}
 
 	/**
@@ -61,7 +68,10 @@ class BaseBuild {
 	 * @return string
 	 */
 	protected function formatTimestampField( $nTimestamp ) {
-		return ( new \Carbon\Carbon() )->setTimestamp( $nTimestamp )->diffForHumans()
+		return Services::Request()
+					   ->carbon()
+					   ->setTimestamp( $nTimestamp )
+					   ->diffForHumans()
 			   .'<br/><span class="timestamp-small">'
 			   .Services::WpGeneral()->getTimeStringForDisplay( $nTimestamp ).'</span>';
 	}

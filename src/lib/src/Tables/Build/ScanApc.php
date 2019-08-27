@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,10 +17,9 @@ class ScanApc extends ScanBase {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		$oCarbon = new Carbon();
+		$oCarbon = Services::Request()->carbon();
 
 		$oWpPlugins = Services::WpPlugins();
-		$nTs = Services::Request()->ts();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			$oIt = ( new Shield\Scans\Apc\ConvertVosToResults() )->convertItem( $oEntry );
@@ -31,7 +29,7 @@ class ScanApc extends ScanBase {
 			$aE[ 'status' ] = sprintf( '%s: %s',
 				__( 'Abandoned', 'wp-simple-firewall' ), $oCarbon->setTimestamp( $oIt->last_updated_at )
 																 ->diffForHumans() );
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aEntries[ $nKey ] = $aE;
 		}

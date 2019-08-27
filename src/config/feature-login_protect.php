@@ -10,17 +10,17 @@
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "run_if_whitelisted":    false,
+    "run_if_whitelisted":    true,
     "run_if_verified_bot":   false,
     "run_if_wpcli":          false,
     "order":                 40
   },
   "admin_notices": {
     "email-verification-sent": {
-      "once":        false,
-      "valid_admin": true,
-      "twig":        true,
-      "type":        "warning"
+      "id":               "email-verification-sent",
+      "once":             false,
+      "type":             "warning",
+      "plugin_admin":     "yes"
     }
   },
   "sections":      [
@@ -334,7 +334,7 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
       "link_info":     "https://icwp.io/9m",
@@ -490,6 +490,50 @@
     }
   ],
   "definitions":   {
-    "login_intent_timeout": 5
+    "login_intent_timeout": 5,
+    "events":               {
+      "2fa_backupcode_verified": {
+      },
+      "2fa_backupcode_fail":     {
+        "offense": true
+      },
+      "2fa_email_verified":      {
+      },
+      "2fa_email_verify_fail":          {
+        "offense": true
+      },
+      "2fa_googleauth_verified": {
+      },
+      "2fa_google_fail":         {
+        "offense": true
+      },
+      "2fa_yubikey_verified":    {
+      },
+      "2fa_yubikey_fail":        {
+        "offense": true
+      },
+      "2fa_email_send_success":  {
+      },
+      "2fa_email_send_fail":     {
+      },
+      "cooldown_fail":           {
+      },
+      "honeypot_fail":           {
+      },
+      "botbox_fail":             {
+      },
+      "login_block":             {
+        "audit":   false,
+        "recent":  true,
+        "offense": true
+      },
+      "hide_login_url":          {
+        "audit": false
+      },
+      "2fa_success":             {
+        "audit":  false,
+        "recent": true
+      }
+    }
   }
 }

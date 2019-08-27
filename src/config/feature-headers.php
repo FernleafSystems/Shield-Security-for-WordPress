@@ -117,7 +117,7 @@
       "value_options": [
         {
           "value_key": "unsafe-url",
-          "text":      "Default: Full Referrer URL (AKA 'Unsafe URL')"
+          "text":      "Default: Full Referrer URL (aka 'Unsafe URL')"
         },
         {
           "value_key": "no-referrer",
@@ -153,7 +153,7 @@
         },
         {
           "value_key": "disabled",
-          "text":      "Don't Send This Header"
+          "text":      "Disabled - Don't Send This Header"
         }
       ],
       "link_info":     "https://icwp.io/a5",

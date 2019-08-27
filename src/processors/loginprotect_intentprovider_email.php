@@ -17,12 +17,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			 && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
 
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
+			$oUpd = $oFO->getDbHandler_Sessions()->getQueryUpdater();
 			$oUpd->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
-			$this->doStatIncrement( 'login.twofactor.started' )
-				 ->sendEmailTwoFactorVerify( $oUser )
+			$this->sendEmailTwoFactorVerify( $oUser )
 				 ->setLoginCaptured();
 		}
 		return $oUser;
@@ -33,22 +32,15 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @param bool    $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
-		if ( $bIsSuccess ) {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" verified their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Email Auth', 'wp-simple-firewall' )
-				), 2, 'login_protect_emailauth_verified'
-			);
-			$this->doStatIncrement( 'login.emailauth.verified' );
-		}
-		else {
-			$this->addToAuditEntry(
-				sprintf( __( 'User "%s" failed to verify their identity using %s method.', 'wp-simple-firewall' ),
-					$oUser->user_login, __( 'Email Auth', 'wp-simple-firewall' )
-				), 2, 'login_protect_emailauth_failed'
-			);
-			$this->doStatIncrement( 'login.emailauth.failed' );
-		}
+		$this->getCon()->fireEvent(
+			$bIsSuccess ? 'email_verified' : 'email_fail',
+			[
+				'audit' => [
+					'user_login' => $oUser->user_login,
+					'method'     => 'Email',
+				]
+			]
+		);
 	}
 
 	/**
@@ -59,11 +51,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function processOtp( $oUser, $sOtpCode ) {
 		$bValid = !empty( $sOtpCode ) && ( $sOtpCode == $this->getStoredSessionHashCode() );
 		if ( $bValid ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getMod();
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+			$oMod = $this->getMod();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
-			$oUpd->clearLoginIntentCodeEmail( $oFO->getSession() );
+			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+			$oUpd->clearLoginIntentCodeEmail( $oMod->getSession() );
 		}
 		return $bValid;
 	}
@@ -152,8 +144,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @return $this
 	 */
 	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
-		$sIpAddress = $this->ip();
-
 		$aMessage = [
 			__( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
 			__( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
@@ -163,7 +153,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
 			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
 			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), $sIpAddress ),
+			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
 			'',
 		];
 
@@ -172,18 +162,21 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$aContent[] = '';
 		}
 
-		$sEmailSubject = __( 'Two-Factor Login Verification', 'wp-simple-firewall' );
-
 		$bResult = $this->getEmailProcessor()
-						->sendEmailWithWrap( $oUser->user_email, $sEmailSubject, $aMessage );
-		if ( $bResult ) {
-			$sAuditMessage = sprintf( __( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".', 'wp-simple-firewall' ), $oUser->user_login, $sIpAddress );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );
-		}
-		else {
-			$sAuditMessage = sprintf( __( 'Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.', 'wp-simple-firewall' ), $oUser->user_login, $sIpAddress );
-			$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
-		}
+						->sendEmailWithWrap(
+							$oUser->user_email,
+							__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+							$aMessage
+						);
+
+		$this->getCon()->fireEvent(
+			$bResult ? '2fa_email_send_success' : '2fa_email_send_fail',
+			[
+				'audit' => [
+					'user_login' => $oUser->user_login,
+				]
+			]
+		);
 		return $this;
 	}
 

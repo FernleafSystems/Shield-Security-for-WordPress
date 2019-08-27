@@ -21,7 +21,6 @@
 				<div class="row">
 					<div class="col-12">
 						<h5 class="mb-3 mt-3">
-							{{ opt_section.title }}
 							<small>
 								{% if opt_section.help_video_url is not empty %}
 									<a class="section-help-video"
@@ -34,6 +33,7 @@
 									</a>
 								{% endif %}
 							</small>
+							{{ opt_section.title }}
 						</h5>
 					</div>
 					<div class="col-12">
@@ -81,9 +81,9 @@
 							{{ aOption.name }}
 							{% if aOption.disabled %}
 								<br />
-								<div class="badge badge-warning">
+								<div class="badge badge-success">
 									<a href="{{ hrefs.go_pro }}" target="_blank"
-									   class="text-dark">{{ strings.pro_only_option }}</a>
+									   class="text-light">{{ strings.pro_only_option }}</a>
 								</div>
 							{% endif %}
 						</label>
@@ -226,7 +226,7 @@
 							<div class="option-links">
 								<ul>
 									<li><a data-toggle="collapse" href="#Description{{ aOption.key }}" role="button"
-										   class="option-link">Description</a></li>
+										   class="option-link">{{ strings.description }}</a></li>
 									{% if aOption.link_info %}
 										<li><a href="{{ aOption.link_info }}" target="_blank" class="option-link">
 										{{ strings.more_info }}</a></li>
@@ -246,8 +246,8 @@
 	</div>
 	<div class="container-fluid form-actions">
 		<div class="row">
-			<div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 offset-xl-3 offset-lg-3 offset-md-3 offset-sm-2">
-				<button type="submit" class="btn btn-primary btn-large icwp-form-button"
+			<div class="col">
+				<button type="submit" class="btn btn-primary btn-lg icwp-form-button"
 						name="submit">{{ strings.save_all_settings }}</button>
 			</div>
 		</div>

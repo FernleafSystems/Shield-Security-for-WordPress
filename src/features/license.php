@@ -1,18 +1,20 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	protected function redirectToInsightsSubPage() {
 		Services::Response()->redirect(
-			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage(),
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
 			[ 'inav' => 'license' ]
 		);
 	}
 
 	protected function setupCustomHooks() {
+		parent::setupCustomHooks();
 		add_filter( $this->getCon()->getPremiumLicenseFilterName(), [ $this, 'hasValidWorkingLicense' ], PHP_INT_MAX );
 	}
 
@@ -23,35 +25,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return parent::getIfShowModuleMenuItem() && !$this->isPremium();
 	}
 
-	public function action_doFeatureShutdown() {
+	public function onPluginShutdown() {
 		$this->verifyLicense( false );
-		parent::action_doFeatureShutdown();
+		parent::onPluginShutdown();
 	}
 
 	/**
-	 * @return array
-	 */
-	protected function getDisplayStrings() {
-		return Services::DataManipulation()->mergeArraysRecursive(
-			parent::getDisplayStrings(),
-			[
-				'product_name'    => __( 'Name', 'wp-simple-firewall' ),
-				'license_active'  => __( 'Active', 'wp-simple-firewall' ),
-				'license_status'  => __( 'Status', 'wp-simple-firewall' ),
-				'license_key'     => __( 'Key', 'wp-simple-firewall' ),
-				'license_expires' => __( 'Expires', 'wp-simple-firewall' ),
-				'license_email'   => __( 'Owner', 'wp-simple-firewall' ),
-				'last_checked'    => __( 'Checked', 'wp-simple-firewall' ),
-				'last_errors'     => __( 'Error', 'wp-simple-firewall' ),
-			]
-		);
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
+	 * @return Shield\License\EddLicenseVO
 	 */
 	protected function loadLicense() {
-		return ( new EddLicenseVO() )->applyFromArray( $this->getLicenseData() );
+		return ( new Shield\License\EddLicenseVO() )->applyFromArray( $this->getLicenseData() );
 	}
 
 	/**
@@ -65,12 +48,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return $this
 	 */
-	protected function clearLicenseData() {
+	public function clearLicenseData() {
 		return $this->setOpt( 'license_data', [] );
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO $oLic
+	 * @param Utilities\Licenses\EddLicenseVO $oLic
 	 * @return $this
 	 */
 	protected function setLicenseData( $oLic ) {
@@ -78,112 +61,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-
-		if ( empty( $aAjaxResponse ) ) {
-			switch ( Services::Request()->request( 'exec' ) ) {
-
-				case 'license_handling':
-					$aAjaxResponse = $this->ajaxExec_LicenseHandling();
-					break;
-
-				case 'connection_debug':
-					$aAjaxResponse = $this->ajaxExec_ConnectionDebug();
-					break;
-
-				default:
-					break;
-			}
-		}
-		return parent::handleAuthAjax( $aAjaxResponse );
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_LicenseHandling() {
-		$bSuccess = false;
-		$sMessage = 'Unsupported license action';
-
-		$sLicenseAction = Services::Request()->post( 'license-action' );
-
-		$nCheckInterval = $this->getLicenseNotCheckedForInterval();
-		if ( $nCheckInterval < 20 ) {
-			$nWait = 20 - $nCheckInterval;
-			$sMessage = sprintf(
-				__( 'Please wait %s before attempting another license check.', 'wp-simple-firewall' ),
-				sprintf( _n( '%s second', '%s seconds', $nWait, 'wp-simple-firewall' ), $nWait )
-			);
-		}
-		else if ( $sLicenseAction == 'check' ) {
-			$bSuccess = $this->verifyLicense( true )
-							 ->hasValidWorkingLicense();
-			$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
-		}
-		else if ( $sLicenseAction == 'remove' ) {
-			$oLicense = $this->loadEdd()
-							 ->deactivateLicense(
-								 $this->getLicenseStoreUrl(),
-								 $this->getLicenseKey(),
-								 $this->getLicenseItemId()
-							 );
-			if ( $oLicense ) {
-				$bSuccess = $oLicense->isSuccess();
-			}
-			$this->deactivate( 'User submitted deactivation' );
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sMessage,
-		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function ajaxExec_ConnectionDebug() {
-		$bSuccess = false;
-
-		$oHttpReq = Services::HttpRequest()
-							->request(
-								add_query_arg( [ 'license_ping' => 'Y' ], $this->getLicenseStoreUrl() ),
-								[
-									'body' => [ 'ping' => 'pong' ]
-								],
-								'POST'
-							);
-
-		if ( !$oHttpReq->isSuccess() ) {
-			$sResult = implode( '; ', $oHttpReq->lastError->get_error_messages() );
-		}
-		else if ( !empty( $oHttpReq->lastResponse->body ) ) {
-			$aResult = @json_decode( $oHttpReq->lastResponse->body, true );
-			if ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) {
-				$bSuccess = true;
-				$sResult = 'Successful - no problems detected communicating with license server.';
-			}
-			else {
-				$sResult = 'Unknown failure due to unexpected response.';
-			}
-		}
-		else {
-			$sResult = 'Unknown error as we could not get a response back from the server.';
-		}
-
-		return [
-			'success' => $bSuccess,
-			'message' => $sResult
-		];
-	}
-
-	/**
 	 * @param string $sDeactivatedReason
 	 */
-	private function deactivate( $sDeactivatedReason = '' ) {
+	public function deactivate( $sDeactivatedReason = '' ) {
 		if ( $this->isLicenseActive() ) {
 			$this->setOptAt( 'license_deactivated_at' );
 		}
@@ -202,6 +82,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	public function verifyLicense( $bForceCheck = true ) {
+		$oCon = $this->getCon();
 		// Is a check actually required and permitted
 		$bCheckReq = $this->isLicenseCheckRequired() && $this->canLicenseCheck();
 
@@ -214,29 +95,26 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				 ->setLicenseLastCheckedAt()
 				 ->savePluginOptions();
 
-			/** @var ICWP_WPSF_Processor_License $oPro */
-			$oPro = $this->getProcessor();
-
 			$oLookupLicense = $this->lookupOfficialLicense();
 			if ( $oLookupLicense->isValid() ) {
 				$oCurrent = $oLookupLicense;
-				$oLookupLicense->updateLastVerifiedAt( true );
+				$oCurrent->updateLastVerifiedAt( true );
 				$this->activateLicense()
 					 ->clearLastErrors();
-				$oPro->addToAuditEntry( 'Pro License check succeeded.', 1, 'license_check_success' );
+				$oCon->fireEvent( 'lic_check_success' );
 			}
 			else {
 				if ( $oCurrent->isValid() ) { // we have something valid previously stored
 
 					if ( !$bForceCheck && $this->isWithinVerifiedGraceExpired() ) {
 						$this->sendLicenseWarningEmail();
-						$oPro->addToAuditEntry( 'License check failed. Sending Warning Email.', 2, 'license_check_failed' );
+						$oCon->fireEvent( 'lic_fail_email' );
 					}
 					else if ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
 						$oCurrent = $oLookupLicense;
 						$this->deactivate( __( 'Automatic license verification failed.', 'wp-simple-firewall' ) );
 						$this->sendLicenseDeactivatedEmail();
-						$oPro->addToAuditEntry( 'License check failed. Deactivating Pro.', 3, 'license_check_failed' );
+						$oCon->fireEvent( 'lic_fail_deactivate' );
 					}
 				}
 				else {
@@ -248,7 +126,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				}
 			}
 
-			$oCurrent->setLastRequestAt( Services::Request()->ts() );
+			$oCurrent->last_request_at = Services::Request()->ts();
 			$this->setLicenseData( $oCurrent )
 				 ->savePluginOptions();
 		}
@@ -271,7 +149,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	private function canLicenseCheck() {
-		return !in_array( Services::Request()->query( 'shield_action' ), [ 'keyless_handshake', 'license_check' ] )
+		return !in_array( $this->getCon()->getShieldAction(), [ 'keyless_handshake', 'license_check' ] )
 			   && $this->canLicenseCheck_FileFlag();
 	}
 
@@ -310,8 +188,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function activateLicense() {
 		if ( !$this->isLicenseActive() ) {
-			$nAt = $this->loadLicense()->getLastRequestAt();
-			$this->setOptAt( 'license_activated_at', $nAt > 0 ? $nAt : null );
+			$this->setOptAt( 'license_activated_at', Services::Request()->ts() );
 		}
 		return $this;
 	}
@@ -359,7 +236,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO
+	 * @return Utilities\Licenses\EddLicenseVO
 	 */
 	private function lookupOfficialLicense() {
 
@@ -369,9 +246,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) )
 			 ->savePluginOptions();
 
-		$oLicense = $this->loadEdd()
-						 ->setRequestParams( [ 'nonce' => $sPass ] )
-						 ->activateLicenseKeyless( $this->getLicenseStoreUrl(), $this->getLicenseItemId() );
+		$oLicense = ( new Utilities\Licenses\Lookup() )
+			->setRequestParams( [ 'nonce' => $sPass ] )
+			->activateLicenseKeyless( $this->getLicenseStoreUrl(), $this->getLicenseItemId() );
 
 		// clear the handshake data
 		$this->setKeylessRequestAt( 0 )
@@ -428,7 +305,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return string
 	 */
 	public function getLicenseItemName() {
-		return $this->loadLicense()->isCentral() ?
+		return $this->loadLicense()->is_central ?
 			$this->getDef( 'license_item_name_sc' ) :
 			$this->getDef( 'license_item_name' );
 	}
@@ -458,7 +335,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return int
 	 */
-	private function getLicenseNotCheckedForInterval() {
+	public function getLicenseNotCheckedForInterval() {
 		return ( Services::Request()->ts() - $this->getLicenseLastCheckedAt() );
 	}
 
@@ -505,7 +382,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isLastVerifiedExpired() {
-		return ( Services::Request()->ts() - $this->loadLicense()->getLastVerifiedAt() )
+		return ( Services::Request()->ts() - $this->loadLicense()->last_verified_at )
 			   > $this->getDef( 'lic_verify_expire_days' )*DAY_IN_SECONDS;
 	}
 
@@ -515,7 +392,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function isLastVerifiedGraceExpired() {
 		$nGracePeriod = ( $this->getDef( 'lic_verify_expire_days' ) + $this->getDef( 'lic_verify_expire_grace_days' ) )
 						*DAY_IN_SECONDS;
-		return ( Services::Request()->ts() - $this->loadLicense()->getLastVerifiedAt() ) > $nGracePeriod;
+		return ( Services::Request()->ts() - $this->loadLicense()->last_verified_at ) > $nGracePeriod;
 	}
 
 	/**
@@ -633,7 +510,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	public function buildInsightsVars() {
 		$oWp = Services::WpGeneral();
-		$oCarbon = new \Carbon\Carbon();
+		$oCon = $this->getCon();
+		$oCarbon = Services::Request()->carbon();
 
 		$oCurrent = $this->loadLicense();
 
@@ -646,7 +524,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$sExpiresAt = 'n/a';
 		}
 
-		$nLastReqAt = $oCurrent->getLastRequestAt();
+		$nLastReqAt = $oCurrent->last_request_at;
 		if ( empty( $nLastReqAt ) ) {
 			$sChecked = __( 'Never', 'wp-simple-firewall' );
 		}
@@ -658,7 +536,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'product_name'    => $this->getLicenseItemName(),
 			'license_active'  => $this->hasValidWorkingLicense() ? __( 'Yes', 'wp-simple-firewall' ) : __( 'Not Active', 'wp-simple-firewall' ),
 			'license_expires' => $sExpiresAt,
-			'license_email'   => $oCurrent->getCustomerEmail(),
+			'license_email'   => $oCurrent->customer_email,
 			'last_checked'    => $sChecked,
 			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		];
@@ -672,7 +550,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			],
 			'inputs'  => [
 				'license_key' => [
-					'name'      => $this->prefixOptionKey( 'license_key' ),
+					'name'      => $oCon->prefixOption( 'license_key' ),
 					'maxlength' => $this->getDef( 'license_key_length' ),
 				]
 			],
@@ -694,63 +572,31 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'button_enabled_remove' => $this->isLicenseKeyValidFormat(),
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
+				'is_pro'                => $this->isPremium()
 			],
-			'strings' => $this->getDisplayStrings(),
+			'strings' => $this->getStrings()->getDisplayStrings(),
 		];
 		return $aData;
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
+	 * @return Shield\Modules\License\AjaxHandler
 	 */
-	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-
-		$sName = $this->getCon()->getHumanName();
-		switch ( $aOptionsParams[ 'slug' ] ) {
-
-			case 'section_license_options' :
-				$sTitle = __( 'License Options', 'wp-simple-firewall' );
-				$sTitleShort = __( 'License Options', 'wp-simple-firewall' );
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Activate %s Pro Extensions.', 'wp-simple-firewall' ), $sName ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'TODO.', 'wp-simple-firewall' ) )
-				];
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $aOptionsParams[ 'slug' ] ) );
-		}
-
-		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
-		$aOptionsParams[ 'title_short' ] = $sTitleShort;
-		return $aOptionsParams;
+	protected function loadAjaxHandler() {
+		return new Shield\Modules\License\AjaxHandler;
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
+	 * @return Shield\Modules\License\Options
 	 */
-	protected function loadStrings_Options( $aOptionsParams ) {
+	protected function loadOptions() {
+		return new Shield\Modules\License\Options();
+	}
 
-		$sKey = $aOptionsParams[ 'key' ];
-		switch ( $sKey ) {
-			case 'license_key' :
-				$sName = __( 'License Key', 'wp-simple-firewall' );
-				$sSummary = __( 'License Key', 'wp-simple-firewall' );
-				$sDescription = __( 'License Key', 'wp-simple-firewall' );
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
-		}
-
-		$aOptionsParams[ 'name' ] = $sName;
-		$aOptionsParams[ 'summary' ] = $sSummary;
-		$aOptionsParams[ 'description' ] = $sDescription;
-		return $aOptionsParams;
+	/**
+	 * @return Shield\Modules\License\Strings
+	 */
+	protected function loadStrings() {
+		return new Shield\Modules\License\Strings();
 	}
 }

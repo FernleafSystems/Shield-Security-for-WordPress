@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
 
@@ -15,31 +16,45 @@ abstract class Base {
 	}
 
 	protected function doTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
-			$oFO->setIpBlocked();
+		if ( $oMod->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
+			$bCount = PHP_INT_MAX;
 		}
-		else if ( $oFO->isTrackOptTransgression( static::OPT_KEY ) ) {
-			$oFO->setIpTransgressed( $oFO->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1 );
+		else if ( $oMod->isTrackOptTransgression( static::OPT_KEY ) ) {
+			$bCount = $oMod->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
+		}
+		else {
+			$bCount = 0;
 		}
 
-		$this->writeAudit();
+		$this->getCon()
+			 ->fireEvent(
+				 'bot'.static::OPT_KEY,
+				 [
+					 'audit'         => $this->getAuditData(),
+					 'offense_count' => $bCount
+				 ]
+			 );
 	}
 
 	/**
-	 * @return $this
+	 * @return array
 	 */
-	protected function writeAudit() {
-		$this->createNewAudit( 'wpsf', $this->getAuditMsg(), 2, 'bot'.static::OPT_KEY );
-		return $this;
+	protected function getAuditData() {
+		return [
+			'path' => Services::Request()->getPath()
+		];
 	}
 
 	abstract protected function process();
 
 	/**
 	 * @return $this
+	 * @deprecated 7.5
 	 */
-	abstract protected function getAuditMsg();
+	protected function writeAudit() {
+		return $this;
+	}
 }

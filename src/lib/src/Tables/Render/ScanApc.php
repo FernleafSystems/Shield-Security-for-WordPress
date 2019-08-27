@@ -21,9 +21,9 @@ class ScanApc extends ScanBase {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
-			'ignore' => 'Ignore'
-		);
+		return [
+			'ignore' => __( 'Ignore', 'wp-simple-firewall' ),
+		];
 	}
 
 	/**
@@ -32,9 +32,9 @@ class ScanApc extends ScanBase {
 	public function get_columns() {
 		return [
 			'cb'         => '&nbsp;',
-			'plugin'     => 'Item',
-			'status'     => 'Status',
-			'created_at' => 'Discovered',
+			'plugin'     => __( 'Item', 'wp-simple-firewall' ),
+			'status'     => __( 'Status', 'wp-simple-firewall' ),
+			'created_at' => __( 'Discovered', 'wp-simple-firewall' ),
 		];
 	}
 }

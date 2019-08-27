@@ -3,8 +3,22 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Ips\Options;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Handler extends Base\Handler {
+
+	public function autoCleanDb() {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
+		/** @var Delete $oDel */
+		$oDel = $this->getQueryDeleter();
+		$oDel->filterByLists( [ $oMod::LIST_AUTO_BLACK, $oMod::LIST_MANUAL_BLACK ] )
+			 ->filterByLastAccessBefore( Services::Request()->ts() - $oOpts->getAutoExpireTime() )
+			 ->query();
+	}
 
 	/**
 	 * @param int $nTimeStamp
@@ -15,5 +29,42 @@ class Handler extends Base\Handler {
 					->addWhereOlderThan( $nTimeStamp, 'last_access_at' )
 					->addWhere( 'list', \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE, '!=' )
 					->query();
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getDefaultColumnsDefinition() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return $oOpts->getDbColumns_IPs();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultTableName() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return $oOpts->getDbTable_IPs();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultCreateTableSql() {
+		return "CREATE TABLE %s (
+			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+			ip varchar(40) NOT NULL DEFAULT '',
+			label varchar(255) NOT NULL DEFAULT '',
+			list varchar(4) NOT NULL DEFAULT '',
+			ip6 tinyint(1) NOT NULL DEFAULT 0,
+			is_range tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+			transgressions tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+			last_access_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			PRIMARY KEY  (id)
+		) %s;";
 	}
 }
