@@ -8,7 +8,7 @@ Requires at least: 3.5.0
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 7.4.2
+Stable tag: 8.0.0
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -377,7 +377,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
 * **(v.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.
 * **(v.0)**  IMPROVED:	Plugin notification system is much improved.
-* **(v.0)**  IMPROVED:	Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://icwp.io/fw).
+* **(v.0)**  IMPROVED:	[**PRO**] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://icwp.io/fw).
 * **(v.0)**  CHANGED:	Comment SPAM system now uses WordPress Transients API instead of dedicated DB table.
 * **(v.0)**  ADDED:		100% Translation coverage for French, Spanish, German, Portuguese, Serbian, Bosnian, Dutch. (Russian on the way)
 * **(v.0)**  CHANGED:	Major code cleaning/refactoring for much of the plugin. More to come.
