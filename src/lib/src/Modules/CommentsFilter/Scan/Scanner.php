@@ -94,11 +94,17 @@ class Scanner {
 					 );
 
 				if ( $mResult->get_error_code() == 'human' ) {
-					$this->mCommentStatus = $oMod->getOpt( 'comments_default_action_human_spam' );
+					$sStatus = $oMod->getOpt( 'comments_default_action_human_spam' );
 				}
 				else {
-					$this->mCommentStatus = $oMod->getOpt( 'comments_default_action_spam_bot' );
+					$sStatus = $oMod->getOpt( 'comments_default_action_spam_bot' );
 				}
+
+				if ( $sStatus == 'reject' ) {
+					Services::Response()->redirectToHome();
+				}
+
+				$this->mCommentStatus = $sStatus;
 				$this->sCommentExplanation = $mResult->get_error_message();
 			}
 		}
