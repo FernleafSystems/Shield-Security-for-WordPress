@@ -1,9 +1,10 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_TrafficLogger extends ICWP_WPSF_Processor_BaseDb {
+class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 
 	public function onModuleShutdown() {
 		if ( $this->getIfLogRequest() ) {

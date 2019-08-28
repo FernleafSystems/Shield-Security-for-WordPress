@@ -1,9 +1,10 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_Processor_BaseDb {
+class ICWP_WPSF_Processor_Sessions extends ShieldProcessor {
 
 	/**
 	 * @var Session\EntryVO

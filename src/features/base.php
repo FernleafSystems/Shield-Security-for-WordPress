@@ -328,7 +328,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $this->isUpgrading() ) {
 			$this->updateHandler();
 		}
-		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
+		if ( $this->getOptions()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
 		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
@@ -350,10 +350,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
 	 * functionality of the plugin.
+	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		$oProcessor = $this->getProcessor();
-		return ( $oProcessor instanceof ICWP_WPSF_Processor_Base );
+		try {
+			$oDbH = $this->getDbHandler();
+			$bReady = ( $this->getProcessor() instanceof ICWP_WPSF_Processor_Base )
+					  && ( !$oDbH instanceof Shield\Databases\Base\Handler || $oDbH->isReady() );
+		}
+		catch ( \Exception $oE ) {
+			$bReady = false;
+		}
+		return $bReady;
 	}
 
 	protected function doExecuteProcessor() {

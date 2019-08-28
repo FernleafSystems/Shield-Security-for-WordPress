@@ -1,10 +1,11 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Ips extends ICWP_WPSF_Processor_BaseDb {
+class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 
 	/**
 	 */

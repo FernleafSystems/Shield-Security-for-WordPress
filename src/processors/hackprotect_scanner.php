@@ -2,9 +2,10 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_Processor_BaseDb {
+class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 
 	use Shield\Crons\StandardCron;
 
