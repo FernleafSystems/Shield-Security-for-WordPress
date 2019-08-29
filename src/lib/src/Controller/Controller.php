@@ -319,13 +319,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		add_filter( 'wp_privacy_personal_data_erasers', [ $this, 'onWpPrivacyRegisterEraser' ] );
 
 		/**
-		 * Translations override - we want to use our in-plugin translations, not those
-		 * provided by WordPress.org since getting our existing translations into the WP.org
-		 * system is full of friction, though that's where we'd like to end-up eventually.
-		 */
-		add_filter( 'load_textdomain_mofile', [ $this, 'overrideTranslations' ], 100, 2 );
-
-		/**
 		 * Support for WP-CLI and it marks the cli as complete plugin admin
 		 */
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), function ( $bByPass ) {
@@ -340,6 +333,14 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return bool
 	 */
 	protected function doLoadTextDomain() {
+
+		/**
+		 * Translations override - we want to use our in-plugin translations, not those
+		 * provided by WordPress.org since getting our existing translations into the WP.org
+		 * system is full of friction, though that's where we'd like to end-up eventually.
+		 */
+		add_filter( 'load_textdomain_mofile', [ $this, 'overrideTranslations' ], 100, 2 );
+
 		return load_plugin_textdomain(
 			$this->getTextDomain(),
 			false,
@@ -1932,26 +1933,27 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function overrideTranslations( $sMoFilePath, $sDomain ) {
 		if ( $sDomain == $this->getTextDomain() ) {
-			$sLocale = Services::WpGeneral()->getLocale();
 
-			{
-				/**
-				 * Cater for duplicate language translations that don't exist (yet)
-				 * E.g. where Spanish-Spain is present
-				 * This isn't ideal, and in-time we'll like full localizations, but we aren't there.
-				 */
-				$sCountry = substr( $sLocale, 0, 2 );
-				$aDuplicateMappings = [
-					'es' => 'es_ES',
-					'fr' => 'fr_FR',
-					'pt' => 'pt_PT',
-				];
-				if ( array_key_exists( $sCountry, $aDuplicateMappings ) ) {
-					$sLocale = $aDuplicateMappings[ $sCountry ];
-				}
+			$sLocale = apply_filters( 'shield_force_locale', Services::WpGeneral()->getLocale() );
+
+			/**
+			 * Cater for duplicate language translations that don't exist (yet)
+			 * E.g. where Spanish-Spain is present
+			 * This isn't ideal, and in-time we'll like full localizations, but we aren't there.
+			 */
+			$sCountry = substr( $sLocale, 0, 2 );
+			$aDuplicateMappings = [
+				'en' => 'en_GB',
+				'es' => 'es_ES',
+				'fr' => 'fr_FR',
+				'pt' => 'pt_PT',
+			];
+			if ( array_key_exists( $sCountry, $aDuplicateMappings ) ) {
+				$sLocale = $aDuplicateMappings[ $sCountry ];
 			}
 
 			$sMaybeFile = path_join( $this->getPath_Languages(), $this->getTextDomain().'-'.$sLocale.'.mo' );
+
 			if ( Services::WpFs()->exists( $sMaybeFile ) ) {
 				$sMoFilePath = $sMaybeFile;
 			}
