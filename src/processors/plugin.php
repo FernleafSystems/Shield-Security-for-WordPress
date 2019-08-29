@@ -9,7 +9,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	public function run() {
 		parent::run();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 
 		$this->getSubProCronDaily()->run();
@@ -159,7 +159,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'reason_errors'      => "I'm getting errors",
 			];
 
-			$aRenderData = [
+			$aData = [
 				'strings'     => [
 					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				],
@@ -169,7 +169,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'js_snippets' => []
 			];
 			echo $this->getMod()
-					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aRenderData );
+					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aData );
 		}
 	}
 

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class ICWP_WPSF_BaseDbProcessor
  * @deprecated 8.1
  */
-abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 
 	/**
 	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\Handler
@@ -44,12 +44,14 @@ abstract class ICWP_WPSF_BaseDbProcessor extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return string
 	 */
-	abstract protected function getCreateTableSql();
+	protected function getCreateTableSql() {
+	}
 
 	/**
 	 * @return array
 	 */
-	abstract protected function getTableColumnsByDefinition();
+	protected function getTableColumnsByDefinition() {
+	}
 
 	public function runDailyCron() {
 		try {
