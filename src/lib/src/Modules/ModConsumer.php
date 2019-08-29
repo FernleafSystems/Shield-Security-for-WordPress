@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
 /**
  * Trait ModConsumer
@@ -23,7 +24,7 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Base
+	 * @return \ICWP_WPSF_FeatureHandler_Base|Modules\Base\BaseModCon
 	 */
 	public function getMod() {
 		return $this->oMod;
@@ -39,7 +40,7 @@ trait ModConsumer {
 	}
 
 	/**
-	 * @param \ICWP_WPSF_FeatureHandler_Base $oMod
+	 * @param \ICWP_WPSF_FeatureHandler_Base|Modules\Base\BaseModCon $oMod
 	 * @return $this
 	 */
 	public function setMod( $oMod ) {
