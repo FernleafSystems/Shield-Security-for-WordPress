@@ -8,20 +8,25 @@
 		text-align: left;
 		z-index: 100;
 	}
-	.icwp_wpsf_site_badge a {
+
+	.icwp_wpsf_site_badge a,
+	.icwp_wpsf_site_badge a:hover {
 		border: 0 none;
 		box-sizing: inherit;
 		color: inherit !important;
 		display: block;
 		text-decoration: none !important;
+		line-height: 8px;
+		padding: 0;
 	}
-	.icwp_wpsf_site_badge a:hover {
-		text-decoration: none;
-	}
+
 	.icwp_wpsf_site_badge .badge-text {
-		font-size: 10px;
+		font-family: sans-serif;
+		font-size: 12px;
+		font-weight: normal;
 		line-height: 17px;
 		padding-left: 43px;
+		letter-spacing: 0;
 	}
 	.icwp_wpsf_site_badge img {
 		float: left;
@@ -29,10 +34,119 @@
 	.plugin-badge-name {
 		font-weight: bolder;
 	}
+
+	.icwp_wpsf_site_badge.floating_badge {
+		background-color: rgba(241, 241, 241, 0.99);
+		border-radius: 5px;
+		bottom: 9px;
+		box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.47);
+		box-sizing: content-box;
+		color: #000000;
+		height: 33px;
+		left: 9px;
+		opacity: 0.8;
+		padding: 7px 4px 7px 10px;
+		position: fixed;
+		text-align: left;
+		width: 38px;
+		z-index: 10000;
+		text-wrap: none;
+
+		-webkit-transition: width 0.25s; /* Safari */
+		transition: width 0.25s;
+		transition-delay: 1s
+	}
+	.icwp_wpsf_site_badge.floating_badge:hover {
+		opacity: 1.0;
+		width: 220px;
+		transition-delay: 0s;
+	}
+	.icwp_wpsf_site_badge.floating_badge .badge-text {
+		-webkit-transition: opacity 1s; /* Safari */
+		opacity: 0;
+		transition: opacity 0.3s;
+		transition-delay: 1s;
+	}
+	.icwp_wpsf_site_badge.floating_badge:hover .badge-text {
+		opacity: 1;
+		transition-delay: 0s;
+	}
+	a#icwpWpsfCloseButton {
+		background-color: #ffffff;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		display: none;
+		font-size: 10px;
+		height: 10px;
+		left: -2px;
+		line-height: 6px;
+		padding: 2px 1px 0 2px !important;
+		position: absolute;
+		text-align: center;
+		top: -3px;
+		width: 10px;
+		z-index: 1001;
+	}
+	#icwpWpsfSiteBadge:hover a#icwpWpsfCloseButton {
+		display: block;
+	}
+	#icwpWpsfCloseButton:hover {
+		cursor: pointer;
+	}
+	@media (max-width: 600px) {
+		.icwp_wpsf_site_badge.floating_badge {
+			height: 16px;
+			width: 112px;
+		}
+		.icwp_wpsf_site_badge.floating_badge .badge-text {
+			font-size: 8px;
+			font-weight: normal;
+			line-height: 10px;
+			padding-left: 20px;
+		}
+		.icwp_wpsf_site_badge.floating_badge img {
+			height: 16px;
+			width: 16px;
+		}
+	}
 </style>
-<div id="icwpWpsfSiteBadge" class="icwp_wpsf_site_badge">
+<div id="icwpWpsfSiteBadge" class="icwp_wpsf_site_badge {% if flags.is_floating %} floating_badge {% endif %}">
+	{% if flags.is_floating %}
+		<a id="icwpWpsfCloseButton">x</a>
+	{% endif %}
+
 	<a href="{{ hrefs.badge }}" target="_blank" title="{{ strings.name }}">
-		<img src="{{ hrefs.img_src }}" alt="Logo: {{ strings.name }}" />
+		<img src="{{ hrefs.logo }}" alt="Logo: {{ strings.name }}" />
 		<div class="badge-text">{{ strings.protected|raw }} &rarr;</div>
 	</a>
 </div>
+
+{% if flags.is_floating %}
+	<script type="text/javascript">
+		var iCWP_WPSF_PluginBadgeClose = new function () {
+
+			let closeBadge = function () {
+
+				let aData = {{ ajax.plugin_badge_close|raw }};
+				jQuery.post( aData[ 'ajaxurl' ], aData,
+					function ( oResponse ) {
+					}
+				).always( function () {
+						jQuery( '.icwp_wpsf_site_badge.floating_badge' ).remove();
+					}
+				);
+
+				return true;
+			};
+
+			this.initialise = function () {
+				jQuery( document ).ready( function () {
+					jQuery( document ).on( "click", "a#icwpWpsfCloseButton", closeBadge );
+				} );
+			};
+
+		}();
+
+		iCWP_WPSF_PluginBadgeClose.initialise();
+	</script>
+{% endif %}

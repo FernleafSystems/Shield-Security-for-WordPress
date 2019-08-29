@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components\PluginBadge;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
@@ -16,8 +17,10 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			 ->run();
 
 		$this->removePluginConflicts();
-		$this->getSubProBadge()
-			 ->run();
+
+		( new PluginBadge() )
+			->setMod( $oFO )
+			->run();
 
 		if ( $oFO->isTrackingEnabled() || !$oFO->isTrackingPermissionSet() ) {
 			$this->getSubProTracking()->run();
@@ -48,16 +51,39 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	public function onWpLoaded() {
-		if ( $this->getCon()->isValidAdminArea() ) {
+		$oCon = $this->getCon();
+		if ( $oCon->isValidAdminArea() ) {
 			$this->maintainPluginLoadPosition();
 		}
+		add_filter( $oCon->prefix( 'dashboard_widget_content' ), [ $this, 'gatherPluginWidgetContent' ], 100 );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Badge
+	 * @param array $aContent
+	 * @return array
 	 */
-	protected function getSubProBadge() {
-		return $this->getSubPro( 'badge' );
+	public function gatherPluginWidgetContent( $aContent ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		$oCon = $this->getCon();
+
+		$aLabels = $oCon->getLabels();
+		$sFooter = sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
+			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
+		);
+
+		$aDisplayData = [
+			'sInstallationDays' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $this->getInstallationDays() ),
+			'sFooter'           => $sFooter,
+			'sIpAddress'        => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), Services::IP()
+																										  ->getRequestIp() )
+		];
+
+		if ( !is_array( $aContent ) ) {
+			$aContent = [];
+		}
+		$aContent[] = $oMod->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
+		return $aContent;
 	}
 
 	/**
@@ -93,7 +119,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	protected function getSubProMap() {
 		return [
-			'badge'        => 'ICWP_WPSF_Processor_Plugin_Badge',
 			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
 			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
@@ -160,8 +185,6 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	public function runDailyCron() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
 		$this->getCon()->fireEvent( 'test_cron_run' );
 	}
 

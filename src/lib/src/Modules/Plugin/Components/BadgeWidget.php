@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
-class Badge extends \ICWP_WPSF_WpWidget {
+class BadgeWidget extends \ICWP_WPSF_WpWidget {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -14,15 +14,15 @@ class Badge extends \ICWP_WPSF_WpWidget {
 		if ( empty( $oMod ) ) {
 			return;
 		}
-
 		$this->setMod( $oMod );
 		$oCon = $this->getCon();
+
+		$sName = $oCon->getHumanName();
 		parent::__construct(
 			$oCon->prefixOption( 'plugin_badge' ),
-			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+			sprintf( __( '%s Plugin Badge', 'wp-simple-firewall' ), $sName ),
 			[
-				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ), $this->getCon()
-																																						 ->getHumanName() ),
+				'description' => sprintf( __( 'You can now help spread the word about the %s plugin anywhere on your site', 'wp-simple-firewall' ), $sName ),
 			]
 		);
 
@@ -56,22 +56,8 @@ class Badge extends \ICWP_WPSF_WpWidget {
 	 * @throws \Exception
 	 */
 	public function renderBadge() {
-		$oCon = $this->getCon();
-
-		$sName = $oCon->getHumanName();
-		$aData = [
-			'strings' => [
-				'name'      => $sName,
-				'protected' => sprintf( __( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
-					'<br/><span class="plugin-badge-name">'.$sName.'</span>' )
-			],
-			'hrefs'   => [
-				'badge'   => 'https://icwp.io/wpsecurityfirewall',
-				'img_src' => $oCon->getPluginUrl_Image( 'pluginlogo_col_32x32.png' )
-			]
-		];
-
-		return $this->getMod()
-					->renderTemplate( 'snippets/plugin_badge_widget', $aData, true );
+		return ( new PluginBadge() )
+			->setMod( $this->getMod() )
+			->render();
 	}
 }
