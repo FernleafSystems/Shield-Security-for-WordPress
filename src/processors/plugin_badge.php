@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 
@@ -54,11 +55,11 @@ class ICWP_WPSF_Processor_Plugin_Badge extends ICWP_WPSF_Processor_BaseWpsf {
 	 * https://wordpress.org/support/topic/fatal-errors-after-update-to-7-0-2/#post-11169820
 	 */
 	public function addPluginBadgeWidget() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		if ( !empty( $oFO ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		if ( !empty( $oMod ) && Services::WpGeneral()->getWordpressIsAtLeastVersion( '4.6.0' )
 			 && !class_exists( 'Tribe_WP_Widget_Factory' ) ) {
-			register_widget( new ICWP_WPSF_Processor_Plugin_BadgeWidget( $oFO ) );
+			register_widget( new Plugin\Components\Badge( $oMod ) );
 		}
 	}
 
