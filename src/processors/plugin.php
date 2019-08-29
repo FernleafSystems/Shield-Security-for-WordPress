@@ -9,24 +9,23 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	 */
 	public function run() {
 		parent::run();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		$this->getSubProCronDaily()
-			 ->run();
-		$this->getSubProCronHourly()
-			 ->run();
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+
+		$this->getSubProCronDaily()->run();
+		$this->getSubProCronHourly()->run();
 
 		$this->removePluginConflicts();
 
 		( new PluginBadge() )
-			->setMod( $oFO )
+			->setMod( $oMod )
 			->run();
 
-		if ( $oFO->isTrackingEnabled() || !$oFO->isTrackingPermissionSet() ) {
+		if ( $oMod->isTrackingEnabled() || !$oMod->isTrackingPermissionSet() ) {
 			$this->getSubProTracking()->run();
 		}
 
-		if ( $oFO->isImportExportPermitted() ) {
+		if ( $oMod->isImportExportPermitted() ) {
 			$this->getSubProImportExport()->run();
 		}
 
@@ -39,7 +38,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 			case 'importexport_import':
 			case 'importexport_handshake':
 			case 'importexport_updatenotified':
-				if ( $oFO->isImportExportPermitted() ) {
+				if ( $oMod->isImportExportPermitted() ) {
 					add_action( 'init', [ $this->getSubProImportExport(), 'runAction' ] );
 				}
 				break;
@@ -87,28 +86,28 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_CronDaily
+	 * @return \ICWP_WPSF_Processor_Plugin_CronDaily
 	 */
 	protected function getSubProCronDaily() {
 		return $this->getSubPro( 'crondaily' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_CronHourly
+	 * @return \ICWP_WPSF_Processor_Plugin_CronHourly
 	 */
 	protected function getSubProCronHourly() {
 		return $this->getSubPro( 'cronhourly' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_Tracking
+	 * @return \ICWP_WPSF_Processor_Plugin_Tracking
 	 */
 	protected function getSubProTracking() {
 		return $this->getSubPro( 'tracking' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Plugin_ImportExport
+	 * @return \ICWP_WPSF_Processor_Plugin_ImportExport
 	 */
 	public function getSubProImportExport() {
 		return $this->getSubPro( 'importexport' );
