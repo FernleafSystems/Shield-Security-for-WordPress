@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-08-20 16:46+0100\n"
-"PO-Revision-Date: 2019-08-20 16:46+0100\n"
+"POT-Creation-Date: 2019-08-29 09:21+0100\n"
+"PO-Revision-Date: 2019-08-29 09:23+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -273,27 +273,28 @@ msgstr ""
 msgid "%s isn't automatically updated"
 msgstr ""
 
-#: src/features/base.php:737 src/wizards/plugin.php:482
-#: src/wizards/plugin.php:515 src/wizards/plugin.php:551
-#: src/wizards/plugin.php:695
+#: src/features/base.php:737 src/lib/src/Modules/Base/BaseModCon.php:741
+#: src/wizards/plugin.php:482 src/wizards/plugin.php:515
+#: src/wizards/plugin.php:551 src/wizards/plugin.php:695
 msgid "Disabled"
 msgstr ""
 
-#: src/features/base.php:1038
+#: src/features/base.php:1038 src/lib/src/Modules/Base/BaseModCon.php:1042
 msgid ""
 "Unfortunately your WordPress and/or PHP versions are too old to support this "
 "feature."
 msgstr ""
 
-#: src/features/base.php:1192
+#: src/features/base.php:1192 src/lib/src/Modules/Base/BaseModCon.php:1196
 msgid "You don't currently have permission to save settings."
 msgstr ""
 
-#: src/features/base.php:1286
+#: src/features/base.php:1286 src/lib/src/Modules/Base/BaseModCon.php:1290
 msgid "Password values do not match."
 msgstr ""
 
 #: src/features/base.php:1519 src/lib/src/Modules/AuditTrail/Strings.php:195
+#: src/lib/src/Modules/Base/BaseModCon.php:1523
 #: src/lib/src/Modules/HackGuard/Strings.php:194
 #: src/lib/src/Modules/HackGuard/Strings.php:268
 #: src/lib/src/Modules/LoginGuard/Strings.php:265
@@ -305,11 +306,12 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: src/features/base.php:1526
+#: src/features/base.php:1526 src/lib/src/Modules/Base/BaseModCon.php:1530
 msgid "For more information:"
 msgstr ""
 
-#: src/features/base.php:1527 src/lib/src/Modules/Plugin/Strings.php:431
+#: src/features/base.php:1527 src/lib/src/Modules/Base/BaseModCon.php:1531
+#: src/lib/src/Modules/Plugin/Strings.php:431
 msgid "Support Forums"
 msgstr ""
 
@@ -434,10 +436,9 @@ msgid "Re-install First"
 msgstr ""
 
 #: src/features/hack_protect.php:566
-#, fuzzy
 #| msgid "License Options"
 msgid "Then Activate"
-msgstr "Licence Options"
+msgstr ""
 
 #: src/features/hack_protect.php:568 src/features/license.php:537
 #: src/lib/src/Modules/Base/Strings.php:27 src/lib/src/Tables/Build/Ip.php:51
@@ -1188,7 +1189,7 @@ msgstr ""
 #: src/lib/src/Modules/IPs/Strings.php:66
 #: src/lib/src/Modules/Lockdown/Strings.php:130
 #: src/lib/src/Modules/Lockdown/Strings.php:143
-#: src/lib/src/Modules/Plugin/AdminNotices.php:91
+#: src/lib/src/Modules/Plugin/AdminNotices.php:88
 #: src/lib/src/Modules/Plugin/Strings.php:214
 #: src/lib/src/Modules/Traffic/Strings.php:54
 #: src/processors/hackprotect_scan_apc.php:128
@@ -1389,7 +1390,7 @@ msgid ""
 msgstr ""
 
 #: src/features/login_protect.php:511
-#: src/lib/src/Modules/Plugin/AdminNotices.php:204
+#: src/lib/src/Modules/Plugin/AdminNotices.php:194
 #: src/processors/lockdown.php:95
 msgid "Learn More."
 msgstr ""
@@ -1623,7 +1624,7 @@ msgstr ""
 msgid "Limited or no password polices are active"
 msgstr ""
 
-#: src/lib/src/Controller/Controller.php:729
+#: src/lib/src/Controller/Controller.php:730
 msgid "Update Now To Keep Your Security Current With The Latest Features."
 msgstr ""
 
@@ -1649,19 +1650,16 @@ msgid "not provided"
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:15
-#: src/processors/audit_trail_plugins.php:26
 #, php-format
 msgid "Plugin \"%s\" was activated."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:18
-#: src/processors/audit_trail_plugins.php:39
 #, php-format
 msgid "Plugin \"%s\" was deactivated."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:21
-#: src/processors/audit_trail_plugins.php:57
 #, php-format
 msgid ""
 "An attempt was made to edit the plugin file \"%s\" directly through the "
@@ -1669,13 +1667,11 @@ msgid ""
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:24
-#: src/processors/audit_trail_themes.php:22
 #, php-format
 msgid "Theme \"%s\" was activated."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:27
-#: src/processors/audit_trail_themes.php:38
 #, php-format
 msgid ""
 "An attempt was made to edit the theme file \"%s\" directly through the "
@@ -1683,19 +1679,16 @@ msgid ""
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:30
-#: src/processors/audit_trail_wordpress.php:23
 #, php-format
 msgid "WordPress Core was updated from \"%s\" to \"%s\"."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:33
-#: src/processors/audit_trail_wordpress.php:36
 #, php-format
 msgid "WordPress Permalinks Structure was updated from \"%s\" to \"%s\"."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:36
-#: src/processors/audit_trail_posts.php:24
 #, php-format
 msgid "WordPress Post entitled \"%s\" was permanently deleted from trash."
 msgstr ""
@@ -1735,29 +1728,24 @@ msgid "Post entitled \"%s\" was unpublished."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:59
-#: src/processors/audit_trail_users.php:25
 #, php-format
 msgid "Attempted user login by \"%s\" was successful."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:62
-#: src/processors/audit_trail_users.php:39
 msgid "New WordPress user registered."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:63
-#: src/processors/audit_trail_users.php:41
 #, php-format
 msgid "New username is \"%s\" with email address \"%s\"."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:66
-#: src/processors/audit_trail_users.php:55
 msgid "WordPress user deleted."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:67
-#: src/processors/audit_trail_users.php:62
 #, php-format
 msgid "Username was \"%s\" with email address \"%s\"."
 msgstr ""
@@ -1778,7 +1766,6 @@ msgid ""
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:75
-#: src/processors/audit_trail_emails.php:36
 #, php-format
 msgid "It was sent to \"%s\" with the subject \"%s\"."
 msgstr ""
@@ -1789,7 +1776,6 @@ msgid "The \"wp_mail\" function was called from the file \"%s\" on line %s."
 msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:80
-#: src/processors/audit_trail_emails.php:66
 #, php-format
 msgid "Attempting to log email, but data was not of the correct type (%s)"
 msgstr ""
@@ -2744,21 +2730,21 @@ msgstr ""
 msgid "To reset any message to its default, enter the text exactly: %s"
 msgstr ""
 
-#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:47
+#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:37
 msgid "Akismet Anti-SPAM plugin is also running"
 msgstr ""
 
-#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:48
+#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:38
 msgid ""
 "It appears you have Akismet Anti-SPAM running alongside the our human Anti-"
 "SPAM filter."
 msgstr ""
 
-#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:49
+#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:39
 msgid "This is not recommended and you should disable Akismet."
 msgstr ""
 
-#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:50
+#: src/lib/src/Modules/CommentsFilter/AdminNotices.php:40
 msgid "Click to deactivate Akismet now."
 msgstr ""
 
@@ -3537,10 +3523,9 @@ msgid "Plugin File Edited"
 msgstr ""
 
 #: src/lib/src/Modules/Events/Strings.php:228
-#, fuzzy
 #| msgid "License Options"
 msgid "Theme Activated"
-msgstr "Licence Options"
+msgstr ""
 
 #: src/lib/src/Modules/Events/Strings.php:229
 msgid "Theme File Edited"
@@ -3607,16 +3592,14 @@ msgid "License Check Success"
 msgstr ""
 
 #: src/lib/src/Modules/Events/Strings.php:245
-#, fuzzy
 #| msgid "License Key"
 msgid "License Failure Email"
-msgstr "Licence Key"
+msgstr ""
 
 #: src/lib/src/Modules/Events/Strings.php:246
-#, fuzzy
 #| msgid "License Options"
 msgid "License Deactivated"
-msgstr "Licence Options"
+msgstr ""
 
 #: src/lib/src/Modules/Firewall/Strings.php:23
 msgid ""
@@ -4779,24 +4762,24 @@ msgid ""
 "\"."
 msgstr ""
 
-#: src/lib/src/Modules/IPs/AdminNotices.php:40
+#: src/lib/src/Modules/IPs/AdminNotices.php:36
 #, php-format
 msgid "%s is ignoring you"
 msgstr ""
 
-#: src/lib/src/Modules/IPs/AdminNotices.php:44
+#: src/lib/src/Modules/IPs/AdminNotices.php:40
 #: src/lib/src/Modules/Plugin/Strings.php:382
 #: src/processors/plugin_badge.php:43
 #, php-format
 msgid "Your IP address is: %s"
 msgstr ""
 
-#: src/lib/src/Modules/IPs/AdminNotices.php:47
+#: src/lib/src/Modules/IPs/AdminNotices.php:43
 msgid ""
 "Your IP address is whitelisted and NO features you activate apply to you."
 msgstr ""
 
-#: src/lib/src/Modules/IPs/AdminNotices.php:48
+#: src/lib/src/Modules/IPs/AdminNotices.php:44
 msgid "Including the hiding the WP Login page."
 msgstr ""
 
@@ -5452,16 +5435,14 @@ msgid "Valid license couldn't be found."
 msgstr ""
 
 #: src/lib/src/Modules/License/Strings.php:14
-#, fuzzy
 #| msgid "License Key"
 msgid "License Summary"
-msgstr "Licence Key"
+msgstr ""
 
 #: src/lib/src/Modules/License/Strings.php:15
-#, fuzzy
 #| msgid "License Options"
 msgid "License Activation"
-msgstr "Licence Options"
+msgstr ""
 
 #: src/lib/src/Modules/License/Strings.php:16
 msgid "Check License Availability For This Site"
@@ -5735,30 +5716,30 @@ msgid ""
 "Enabling this option may interfere with expected operations of your site."
 msgstr ""
 
-#: src/lib/src/Modules/LoginGuard/AdminNotices.php:42
+#: src/lib/src/Modules/LoginGuard/AdminNotices.php:38
 msgid "Please verify email has been received"
 msgstr ""
 
-#: src/lib/src/Modules/LoginGuard/AdminNotices.php:43
+#: src/lib/src/Modules/LoginGuard/AdminNotices.php:39
 msgid ""
 "Before we can activate email 2-factor authentication, we need you to confirm "
 "your website can send emails."
 msgstr ""
 
-#: src/lib/src/Modules/LoginGuard/AdminNotices.php:44
+#: src/lib/src/Modules/LoginGuard/AdminNotices.php:40
 msgid "Please click the link in the email you received."
 msgstr ""
 
-#: src/lib/src/Modules/LoginGuard/AdminNotices.php:46
+#: src/lib/src/Modules/LoginGuard/AdminNotices.php:42
 #, php-format
 msgid "The email has been sent to you at blog admin address: %s"
 msgstr ""
 
-#: src/lib/src/Modules/LoginGuard/AdminNotices.php:49
+#: src/lib/src/Modules/LoginGuard/AdminNotices.php:45
 msgid "Resend verification email"
 msgstr ""
 
-#: src/lib/src/Modules/LoginGuard/AdminNotices.php:50
+#: src/lib/src/Modules/LoginGuard/AdminNotices.php:46
 msgid "Disable 2FA by email"
 msgstr ""
 
@@ -6320,122 +6301,122 @@ msgid ""
 "don't check the box."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:91
+#: src/lib/src/Modules/Plugin/AdminNotices.php:88
 #, php-format
 msgid "%s is not protecting your site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:93
+#: src/lib/src/Modules/Plugin/AdminNotices.php:90
 #, php-format
 msgid "Please delete the \"%s\" file to reactivate %s protection"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:97
+#: src/lib/src/Modules/Plugin/AdminNotices.php:94
 msgid "Click here to automatically delete the file"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:120
+#: src/lib/src/Modules/Plugin/AdminNotices.php:116
 msgid "Your Name"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:121
+#: src/lib/src/Modules/Plugin/AdminNotices.php:117
 msgid "Your Email"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:122
+#: src/lib/src/Modules/Plugin/AdminNotices.php:118
 msgid "Sign-Up"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:130
+#: src/lib/src/Modules/Plugin/AdminNotices.php:126
 msgid "I agree to Ts & Cs"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:157
+#: src/lib/src/Modules/Plugin/AdminNotices.php:148
 #, php-format
 msgid "Update available for the %s plugin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:158
+#: src/lib/src/Modules/Plugin/AdminNotices.php:149
 msgid "Please click to update immediately"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:159
+#: src/lib/src/Modules/Plugin/AdminNotices.php:150
 msgid "Dismiss this notice"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:175
+#: src/lib/src/Modules/Plugin/AdminNotices.php:166
 msgid "I don't need the setup wizard just now"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:176
+#: src/lib/src/Modules/Plugin/AdminNotices.php:167
 #, php-format
 msgid "Get started quickly with the %s Setup Wizard"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:177
+#: src/lib/src/Modules/Plugin/AdminNotices.php:168
 #, php-format
 msgid ""
 "The welcome wizard will help you get setup quickly and become familiar with "
 "some of the core %s features"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:178
+#: src/lib/src/Modules/Plugin/AdminNotices.php:169
 msgid "Launch the welcome wizard"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:198
+#: src/lib/src/Modules/Plugin/AdminNotices.php:188
 #, php-format
 msgid "Make %s even better by sharing usage info?"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:199
+#: src/lib/src/Modules/Plugin/AdminNotices.php:189
 #, php-format
 msgid "We're hoping to understand how %s is configured and used."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:200
+#: src/lib/src/Modules/Plugin/AdminNotices.php:190
 msgid "We'd like to understand how effective it is on a global scale."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:201
+#: src/lib/src/Modules/Plugin/AdminNotices.php:191
 msgid ""
 "The data sent is always completely anonymous and we can never track you or "
 "your site."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:202
+#: src/lib/src/Modules/Plugin/AdminNotices.php:192
 msgid "It can be turned-off at any time within the plugin options."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:203
+#: src/lib/src/Modules/Plugin/AdminNotices.php:193
 msgid "Click to see the RAW data that would be sent"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:206
+#: src/lib/src/Modules/Plugin/AdminNotices.php:196
 msgid "Absolutely"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:207
+#: src/lib/src/Modules/Plugin/AdminNotices.php:197
 msgid "Yes, I'd be happy share this info"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:208
+#: src/lib/src/Modules/Plugin/AdminNotices.php:198
 msgid "I'd like to learn more, please"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:209
+#: src/lib/src/Modules/Plugin/AdminNotices.php:199
 msgid "No, I don't want to help"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:230
+#: src/lib/src/Modules/Plugin/AdminNotices.php:220
 msgid "Can You Help Us With A Quick Review?"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:231
+#: src/lib/src/Modules/Plugin/AdminNotices.php:221
 msgid "I'd rather not show this support"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/AdminNotices.php:231
+#: src/lib/src/Modules/Plugin/AdminNotices.php:221
 msgid "I've done this already"
 msgstr ""
 
@@ -6944,7 +6925,7 @@ msgstr ""
 
 #: src/lib/src/Modules/Plugin/Strings.php:321
 msgid "Search Engines"
-msgstr "موتورهای جستجو"
+msgstr ""
 
 #: src/lib/src/Modules/Plugin/Strings.php:322
 msgid "Uptime Monitoring Services"
@@ -7320,53 +7301,53 @@ msgstr ""
 msgid "Go To Security Dashboard"
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:49
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:80
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:42
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:67
 #, php-format
 msgid "%s Security Restrictions Applied"
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:50
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:43
 msgid ""
 "Altering certain options has been restricted by your WordPress security "
 "administrator."
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:51
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:44
 msgid ""
 "Repeated failed attempts to authenticate will probably lock you out of this "
 "site."
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:57
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:50
 msgid "Admin Access Login"
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:58
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:95
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:51
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:82
 #, php-format
 msgid "Go here to manage settings and authenticate with the %s plugin."
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:81
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:68
 msgid ""
 "Editing existing administrators, promoting existing users to the "
 "administrator role, or deleting administrator users is currently restricted."
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:82
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:69
 msgid ""
 "Please authenticate with the Security Admin system before attempting any "
 "administrator user modifications."
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:86
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:94
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:73
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:81
 #: src/processors/admin_access_restriction.php:485
 msgid "Security Admin Login"
 msgstr ""
 
-#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:87
+#: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:74
 msgid "Unlock Now"
 msgstr ""
 
@@ -8427,18 +8408,18 @@ msgstr ""
 msgid "Please contact your website administrator."
 msgstr ""
 
-#: src/lib/src/Scans/Mal/Repair.php:67
+#: src/lib/src/Scans/Mal/Repair.php:77
 #, php-format
 msgid "%s not installed from WordPress.org."
 msgstr ""
 
-#: src/lib/src/Scans/Mal/Repair.php:68 src/processors/hack_protect.php:293
+#: src/lib/src/Scans/Mal/Repair.php:78 src/processors/hack_protect.php:293
 #: src/processors/hackprotect_scan_apc.php:112
 #: src/processors/hackprotect_scan_wpv.php:286
 msgid "Plugin"
 msgstr ""
 
-#: src/lib/src/Scans/Mal/Repair.php:75
+#: src/lib/src/Scans/Mal/Repair.php:85
 msgid "Plugin developer doesn't use SVN tags for official releases."
 msgstr ""
 
@@ -8648,59 +8629,6 @@ msgstr ""
 
 #: src/processors/admin_access_restriction.php:480
 msgid "Unlock"
-msgstr ""
-
-#: src/processors/audit_trail_emails.php:35
-#, php-format
-msgid "There was an attempt to send an email using the \"%s\" function."
-msgstr ""
-
-#: src/processors/audit_trail_emails.php:58
-#, php-format
-msgid "The \"%s\" function was called from the file \"%s\" on line %s."
-msgstr ""
-
-#: src/processors/audit_trail_posts.php:43
-msgid "moved to trash"
-msgstr ""
-
-#: src/processors/audit_trail_posts.php:47
-msgid "recovered from trash"
-msgstr ""
-
-#: src/processors/audit_trail_posts.php:53
-#: src/processors/audit_trail_posts.php:66
-msgid "updated"
-msgstr ""
-
-#: src/processors/audit_trail_posts.php:57
-msgid "published"
-msgstr ""
-
-#: src/processors/audit_trail_posts.php:62
-msgid "unpublished"
-msgstr ""
-
-#: src/processors/audit_trail_posts.php:70
-#, php-format
-msgid "Post entitled \"%s\" was %s."
-msgstr ""
-
-#: src/processors/audit_trail_posts.php:71
-msgid "Post Type"
-msgstr ""
-
-#: src/processors/audit_trail_users.php:59
-msgid "User is unknown as it could not be loaded."
-msgstr ""
-
-#: src/processors/audit_trail_users.php:69
-msgid "Their posts were not reassigned to another user."
-msgstr ""
-
-#: src/processors/audit_trail_users.php:72
-#, php-format
-msgid "Their posts were reassigned to user \"%s\"."
 msgstr ""
 
 #: src/processors/autoupdates.php:467
@@ -8969,7 +8897,7 @@ msgstr ""
 msgid "Abandoned Plugin(s) Discovered On Your Site."
 msgstr ""
 
-#: src/processors/hackprotect_scan_base.php:500
+#: src/processors/hackprotect_scan_base.php:506
 msgid "Run Scanner"
 msgstr ""
 

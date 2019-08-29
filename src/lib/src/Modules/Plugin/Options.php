@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Options extends Base\ShieldOptions {
 
@@ -48,5 +49,12 @@ class Options extends Base\ShieldOptions {
 			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
 		}
 		return $aConfig;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isOnFloatingPluginBadge() {
+		return $this->isOpt( 'display_plugin_badge', 'Y' );
 	}
 }

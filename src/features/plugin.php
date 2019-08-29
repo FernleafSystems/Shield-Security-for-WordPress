@@ -89,7 +89,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isDisplayPluginBadge() {
-		return $this->isOpt( 'display_plugin_badge', 'Y' )
+		/** @var Shield\Modules\Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isOnFloatingPluginBadge()
 			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
