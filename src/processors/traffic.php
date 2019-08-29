@@ -1,24 +1,24 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
 /**
  * Class ICWP_WPSF_Processor_Traffic
  */
-class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Traffic extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		$this->getProcessorLogger()->run();
+		$this->getProcessorLogger()->execute();
 	}
 
 	/**
 	 * Not fully tested- aim for 8.1 release
 	 */
 	public function onWpInit() {
-		/** @var Traffic\Options $oOpts */
+		/** @var Modules\Traffic\Options $oOpts */
 		$oOpts = $this->getMod()->getOptions();
 		if ( false && $oOpts->isTrafficLimitEnabled() ) {
-			( new Traffic\Limiter\Limiter() )
+			( new Modules\Traffic\Limiter\Limiter() )
 				->setMod( $this->getMod() )
 				->run();
 		}

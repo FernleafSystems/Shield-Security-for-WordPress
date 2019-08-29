@@ -1,12 +1,13 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Referenced some of https://github.com/BenjaminNelan/PwnedPasswordChecker
  * Class ICWP_WPSF_Processor_UserManagement_Passwords
  */
-class ICWP_WPSF_Processor_UserManagement_Passwords extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		add_action( 'password_reset', [ $this, 'onPasswordReset' ], 100, 1 );

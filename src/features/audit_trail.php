@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -10,7 +11,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @deprecated 8.1 - TODO: Need to handle isPremium() within Options class
 	 */
 	public function getMaxEntries() {
-		/** @var Shield\Modules\AuditTrail\Options $oOpts */
+		/** @var AuditTrail\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $this->isPremium() ? (int)$oOpts->getOpt( 'audit_trail_max_entries' ) : $oOpts->getDefaultMaxEntries();
 	}
@@ -104,6 +105,9 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
+		/** @var AuditTrail\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		$aThis = [
 			'strings'      => [
 				'title' => __( 'Activity Audit Log', 'wp-simple-firewall' ),
@@ -119,12 +123,12 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		else {
 			$aAudit = [];
 			$aNonAudit = [];
-			$this->isAuditShield() ? $aAudit[] = 'Shield' : $aNonAudit[] = 'Shield';
-			$this->isAuditUsers() ? $aAudit[] = __( 'users', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'users', 'wp-simple-firewall' );
-			$this->isAuditPlugins() ? $aAudit[] = __( 'plugins', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'plugins', 'wp-simple-firewall' );
-			$this->isAuditThemes() ? $aAudit[] = __( 'themes', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'themes', 'wp-simple-firewall' );
-			$this->isAuditPosts() ? $aAudit[] = __( 'posts', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'posts', 'wp-simple-firewall' );
-			$this->isAuditEmails() ? $aAudit[] = __( 'emails', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'emails', 'wp-simple-firewall' );
+			$oOpts->isAuditShield() ? $aAudit[] = 'Shield' : $aNonAudit[] = 'Shield';
+			$oOpts->isAuditUsers() ? $aAudit[] = __( 'users', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'users', 'wp-simple-firewall' );
+			$oOpts->isAuditPlugins() ? $aAudit[] = __( 'plugins', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'plugins', 'wp-simple-firewall' );
+			$oOpts->isAuditThemes() ? $aAudit[] = __( 'themes', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'themes', 'wp-simple-firewall' );
+			$oOpts->isAuditPosts() ? $aAudit[] = __( 'posts', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'posts', 'wp-simple-firewall' );
+			$oOpts->isAuditEmails() ? $aAudit[] = __( 'emails', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'emails', 'wp-simple-firewall' );
 			$this->isAuditWp() ? $aAudit[] = 'WP' : $aNonAudit[] = 'WP';
 
 			if ( empty( $aNonAudit ) ) {
@@ -158,7 +162,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$aThis[ 'key_opts' ][ 'length' ] = [
 				'name'    => __( 'Audit Trail', 'wp-simple-firewall' ),
 				'enabled' => true,
-				'summary' => sprintf( __( 'Maximum Audit Trail entries limited to %s', 'wp-simple-firewall' ), $this->getMaxEntries() ),
+				'summary' => sprintf( __( 'Maximum Audit Trail entries limited to %s', 'wp-simple-firewall' ), $oOpts->getMaxEntries() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'audit_trail_max_entries' ),
 			];
@@ -169,13 +173,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return Shield\Modules\AuditTrail\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\AuditTrail\AjaxHandler;
-	}
-
-	/**
 	 * @return Shield\Databases\AuditTrail\Handler
 	 */
 	protected function loadDbHandler() {
@@ -183,22 +180,15 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return Shield\Modules\AuditTrail\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\AuditTrail\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\AuditTrail\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\AuditTrail\Strings();
+	protected function getNamespaceBase() {
+		return 'AuditTrail';
 	}
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function isAuditEmails() {
 		return $this->isOpt( 'enable_audit_context_emails', 'Y' );
@@ -206,7 +196,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function isAuditPlugins() {
 		return $this->isOpt( 'enable_audit_context_plugins', 'Y' );
@@ -214,7 +204,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function isAuditPosts() {
 		return $this->isOpt( 'enable_audit_context_posts', 'Y' );
@@ -222,7 +212,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function isAuditShield() {
 		return $this->isOpt( 'enable_audit_context_wpsf', 'Y' );
@@ -230,7 +220,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function isAuditThemes() {
 		return $this->isOpt( 'enable_audit_context_themes', 'Y' );
@@ -238,7 +228,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function isAuditUsers() {
 		return $this->isOpt( 'enable_audit_context_users', 'Y' );
@@ -246,7 +236,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return bool
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function isAuditWp() {
 		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
@@ -254,7 +244,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 	/**
 	 * @return int
-	 * @deprecated
+	 * @deprecated 8.1
 	 */
 	public function getAutoCleanDays() {
 		return (int)$this->getOpt( 'audit_trail_auto_clean' );
@@ -265,13 +255,15 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 * @deprecated 8.1
 	 */
 	public function isEnabledAuditing() {
-		return $this->isAuditEmails()
-			   || $this->isAuditPlugins()
-			   || $this->isAuditThemes()
-			   || $this->isAuditPosts()
-			   || $this->isAuditShield()
-			   || $this->isAuditUsers()
-			   || $this->isAuditWp();
+		/** @var AuditTrail\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isAuditEmails()
+			   || $oOpts->isAuditPlugins()
+			   || $oOpts->isAuditThemes()
+			   || $oOpts->isAuditPosts()
+			   || $oOpts->isAuditShield()
+			   || $oOpts->isAuditUsers()
+			   || $oOpts->isAuditWp();
 	}
 
 	/**

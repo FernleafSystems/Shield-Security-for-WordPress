@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_BaseWpsf
+ * @deprecated 8.1
+ */
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';

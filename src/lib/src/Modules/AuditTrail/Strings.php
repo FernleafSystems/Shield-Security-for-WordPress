@@ -178,6 +178,8 @@ class Strings extends Base\Strings {
 		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
+		/** @var Options $oOpts */
+		$oOpts = $oMod->getOptions();
 		$sModName = $oMod->getMainFeatureName();
 
 		switch ( $sOptKey ) {
@@ -192,7 +194,7 @@ class Strings extends Base\Strings {
 				$sName = __( 'Max Trail Length', 'wp-simple-firewall' );
 				$sSummary = __( 'Maximum Audit Trail Length To Keep', 'wp-simple-firewall' );
 				$sDescription = __( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' )
-								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getDefaultMaxEntries() );
+								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oOpts->getDefaultMaxEntries() );
 				break;
 
 			case 'audit_trail_auto_clean' :

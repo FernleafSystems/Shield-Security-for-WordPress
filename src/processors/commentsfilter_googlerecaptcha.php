@@ -1,13 +1,13 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		parent::run();
 		add_action( 'wp', [ $this, 'setup' ] );
 	}
 
@@ -19,14 +19,6 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends ICWP_WPSF_Proce
 			add_action( 'wp_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
 			add_action( 'comment_form_after_fields', [ $this, 'printGoogleRecaptchaCheck' ] );
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function printGoogleRecaptchaCheck_Filter() {
-		$this->setRecaptchaToEnqueue();
-		return $this->getGoogleRecaptchaHtml();
 	}
 
 	/**

@@ -1,13 +1,14 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 
 		// XML-RPC Compatibility
@@ -17,28 +18,28 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		// So we can allow access to the login pages if IP is whitelisted
 		if ( $oMod->isCustomLoginPathEnabled() ) {
-			$this->getSubProRename()->run();
+			$this->getSubProRename()->execute();
 		}
 
 		if ( !$oMod->isVisitorWhitelisted() ) {
 			if ( $oMod->isEnabledGaspCheck() ) {
-				$this->getSubProGasp()->run();
+				$this->getSubProGasp()->execute();
 			}
 
 			if ( $oMod->isCooldownEnabled() && Services::Request()->isPost() ) {
-				$this->getSubProCooldown()->run();
+				$this->getSubProCooldown()->execute();
 			}
 
 			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-				$this->getSubProRecaptcha()->run();
+				$this->getSubProRecaptcha()->execute();
 			}
 
-			$this->getSubProIntent()->run();
+			$this->getSubProIntent()->execute();
 		}
 	}
 
 	public function onWpEnqueueJs() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 
 		if ( $oMod->isEnabledBotJs() ) {
@@ -106,14 +107,14 @@ class ICWP_WPSF_Processor_LoginProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Cooldown
+	 * @return \ICWP_WPSF_Processor_LoginProtect_Cooldown
 	 */
 	private function getSubProCooldown() {
 		return $this->getSubPro( 'cooldown' );
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Gasp
+	 * @return \ICWP_WPSF_Processor_LoginProtect_Gasp
 	 */
 	private function getSubProGasp() {
 		return $this->getSubPro( 'gasp' );

@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_Base
+ * @deprecated 8.1
+ */
 abstract class ICWP_WPSF_Processor_Base extends Shield\Deprecated\Foundation {
 
 	use Shield\Modules\ModConsumer;

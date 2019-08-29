@@ -1,8 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_WPSF_Processor_BaseWpsf {
+abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var ICWP_WPSF_Processor_LoginProtect_Track
@@ -12,22 +13,22 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
 		$this->getLoginTrack()->addFactorToTrack( $this->getStub() );
 
-		if ( $oFO->getIfUseLoginIntentPage() ) {
-			add_filter( $oFO->prefix( 'login-intent-form-fields' ), [ $this, 'addLoginIntentField' ] );
-			add_action( $oFO->prefix( 'login-intent-validation' ), [ $this, 'validateLoginIntent' ] );
+		if ( $oMod->getIfUseLoginIntentPage() ) {
+			add_filter( $oMod->prefix( 'login-intent-form-fields' ), [ $this, 'addLoginIntentField' ] );
+			add_action( $oMod->prefix( 'login-intent-validation' ), [ $this, 'validateLoginIntent' ] );
 		}
 
-		if ( Services::WpGeneral()->isLoginRequest() || $oFO->getIfSupport3rdParty() ) {
+		if ( Services::WpGeneral()->isLoginRequest() || $oMod->getIfSupport3rdParty() ) {
 //			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
 		}
 
 		// Necessary so we don't show user intent to people without it
-		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), [ $this, 'filterUserSubjectToIntent' ], 10, 2 );
+		add_filter( $oMod->prefix( 'user_subject_to_login_intent' ), [ $this, 'filterUserSubjectToIntent' ], 10, 2 );
 
 		add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
 		add_action( 'personal_options_update', [ $this, 'handleUserProfileSubmit' ] );

@@ -6,13 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return boolean
-	 */
-	public function getIfCheckCommentToken() {
-		return ( $this->getTokenExpireInterval() > 0 || $this->getTokenCooldown() > 0 );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getTokenCooldown() {
@@ -84,13 +77,13 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 	protected function doExtraSubmitProcessing() {
 		if ( $this->getTokenExpireInterval() != 0 && $this->getTokenCooldown() > $this->getTokenExpireInterval() ) {
-			$this->getOptionsVo()->resetOptToDefault( 'comments_cooldown_interval' );
-			$this->getOptionsVo()->resetOptToDefault( 'comments_token_expire_interval' );
+			$this->getOptions()->resetOptToDefault( 'comments_cooldown_interval' );
+			$this->getOptions()->resetOptToDefault( 'comments_token_expire_interval' );
 		}
 
 		$aCommentsFilters = $this->getOpt( 'enable_comments_human_spam_filter_items' );
 		if ( empty( $aCommentsFilters ) || !is_array( $aCommentsFilters ) ) {
-			$this->getOptionsVo()->resetOptToDefault( 'enable_comments_human_spam_filter_items' );
+			$this->getOptions()->resetOptToDefault( 'enable_comments_human_spam_filter_items' );
 		}
 
 		// clean roles
@@ -207,13 +200,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return Shield\Modules\CommentsFilter\AdminNotices
-	 */
-	protected function loadAdminNotices() {
-		return new Shield\Modules\CommentsFilter\AdminNotices();
-	}
-
-	/**
 	 * @return Shield\Databases\Comments\Handler
 	 */
 	protected function loadDbHandler() {
@@ -221,17 +207,10 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return Shield\Modules\CommentsFilter\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\CommentsFilter\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\CommentsFilter\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\CommentsFilter\Strings();
+	protected function getNamespaceBase() {
+		return 'CommentsFilter';
 	}
 
 	protected function updateHandler() {

@@ -1,7 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -34,7 +34,8 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		if ( $this->isReadyToRun() && $oOpts->isEnabledAutoBlackList() && !Services::WpUsers()->isUserLoggedIn() ) {
+		if ( $this->isReadyToRun() && $oOpts->isEnabledAutoBlackList()
+			 && !Services::WpUsers()->isUserLoggedIn() ) {
 
 			if ( !$oMod->isVerifiedBot() ) {
 				if ( $oOpts->isEnabledTrackXmlRpc() ) {

@@ -26,16 +26,9 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return Shield\Modules\Sessions\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Sessions\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Sessions\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Sessions\Strings();
+	protected function getNamespaceBase() {
+		return 'Sessions';
 	}
 }

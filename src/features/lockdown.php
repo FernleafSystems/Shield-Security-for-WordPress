@@ -167,16 +167,9 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return Shield\Modules\Lockdown\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Lockdown\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Lockdown\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Lockdown\Strings();
+	protected function getNamespaceBase() {
+		return 'Lockdown';
 	}
 }

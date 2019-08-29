@@ -8,6 +8,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\ShieldOptions {
 
 	/**
+	 * @return $this
+	 */
+	public function clearSecurityAdminKey() {
+		return $this->setOpt( 'admin_access_key', '' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getAccessKeyHash() {
@@ -46,9 +53,9 @@ class Options extends Base\ShieldOptions {
 	 * @param string $sArea one of plugins, themes
 	 * @return array
 	 */
-	public function getAdminAccessArea( $sArea = 'plugins' ) {
-		$aSettings = $this->getOpt( 'admin_access_restrict_'.$sArea, [] );
-		return !is_array( $aSettings ) ? [] : $aSettings;
+	private function getAdminAccessArea( $sArea = 'plugins' ) {
+		$aD = $this->getOpt( 'admin_access_restrict_'.$sArea, [] );
+		return is_array( $aD ) ? $aD : [];
 	}
 
 	/**
@@ -86,5 +93,26 @@ class Options extends Base\ShieldOptions {
 	public function hasAccessKey() {
 		$sKey = $this->getAccessKeyHash();
 		return !empty( $sKey ) && strlen( $sKey ) == 32;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledWhitelabel() {
+		return $this->isOpt( 'whitelabel_enable', 'Y' ) && $this->isPremium();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSecAdminRestrictUsersEnabled() {
+		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWlHideUpdates() {
+		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
 	}
 }

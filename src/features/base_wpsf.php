@@ -31,10 +31,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	private $bVisitorIsWhitelisted;
 
 	/**
-	 * @return ICWP_WPSF_Processor_Sessions
+	 * @return \ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
-		/** @var ICWP_WPSF_Processor_Sessions $oP */
+		/** @var \ICWP_WPSF_Processor_Sessions $oP */
 		$oP = $this->getCon()
 				   ->getModule_Sessions()
 				   ->getProcessor();
@@ -105,7 +105,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'insights_test_cron_last_run_at'  => 'test_cron_run',
 			'insights_last_password_block_at' => 'password_policy_block',
 		];
-		foreach ( $this->getOptionsVo()->getOptionsKeys() as $sOpt ) {
+		foreach ( $this->getOptions()->getOptionsKeys() as $sOpt ) {
 			if ( strpos( $sOpt, 'insights_' ) === 0 && isset( $aMap[ $sOpt ] ) && $this->getOpt( $sOpt ) > 0 ) {
 				$this->addStatEvent( $aMap[ $sOpt ], [ 'ts' => $this->getOpt( $sOpt ) ] );
 				$this->setOpt( $sOpt, 0 );

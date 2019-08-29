@@ -21,6 +21,11 @@ class BaseProcessor extends Deprecated\Foundation {
 	private $bLoginCaptured;
 
 	/**
+	 * @var bool
+	 */
+	private $bHasExecuted;
+
+	/**
 	 * @param BaseModCon $oMod
 	 */
 	public function __construct( $oMod ) {
@@ -51,6 +56,7 @@ class BaseProcessor extends Deprecated\Foundation {
 			add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
 		}
 
+		$this->bHasExecuted = false;
 		$this->init();
 	}
 
@@ -64,7 +70,7 @@ class BaseProcessor extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @param string  $sUsername
+	 * @param string   $sUsername
 	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
@@ -105,47 +111,6 @@ class BaseProcessor extends Deprecated\Foundation {
 		return $this;
 	}
 
-	/**
-	 * @return int
-	 */
-	protected function getPromoNoticesCount() {
-		return self::$nPromoNoticesCount;
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function incrementPromoNoticesCount() {
-		self::$nPromoNoticesCount++;
-		return $this;
-	}
-
-	/**
-	 * @param array $aAttrs
-	 * @return bool
-	 */
-	protected function getIfDisplayAdminNotice( $aAttrs ) {
-		$bDisplay = true;
-		$oCon = $this->getCon();
-		$oWpNotices = $this->loadWpNotices();
-
-		if ( $aAttrs[ 'valid_admin' ] && !( $oCon->isValidAdminArea() && $oCon->isPluginAdmin() ) ) {
-			$bDisplay = false;
-		}
-		else if ( $aAttrs[ 'plugin_page_only' ] && !$this->getCon()->isModulePage() ) {
-			$bDisplay = false;
-		}
-		else if ( $aAttrs[ 'schedule' ] == 'once'
-				  && ( !Services::WpUsers()->canSaveMeta() || $oWpNotices->isDismissed( $aAttrs[ 'id' ] ) ) ) {
-			$bDisplay = false;
-		}
-		else if ( $aAttrs[ 'type' ] == 'promo' && Services::WpGeneral()->isMobile() ) {
-			$bDisplay = false;
-		}
-
-		return $bDisplay;
-	}
-
 	public function onModuleShutdown() {
 	}
 
@@ -162,39 +127,20 @@ class BaseProcessor extends Deprecated\Foundation {
 	}
 
 	/**
-	 * Override to set what this processor does when it's "run"
+	 * @return $this
 	 */
-	public function run() {
+	public function execute() {
+		if ( !$this->bHasExecuted ) {
+			$this->run();
+			$this->bHasExecuted;
+		}
+		return $this;
 	}
 
 	/**
-	 * @param array $aNoticeData
-	 * @throws \Exception
+	 * Override to set what this processor does when it's "run"
 	 */
-	protected function insertAdminNotice( $aNoticeData ) {
-		$aAttrs = $aNoticeData[ 'notice_attributes' ];
-		$bIsPromo = isset( $aAttrs[ 'type' ] ) && $aAttrs[ 'type' ] == 'promo';
-		if ( $bIsPromo && $this->getPromoNoticesCount() > 0 ) {
-			return;
-		}
-
-		$bCantDismiss = isset( $aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ] )
-						&& !$aNoticeData[ 'notice_attributes' ][ 'can_dismiss' ];
-
-		$oNotices = $this->loadWpNotices();
-		if ( $bCantDismiss || !$oNotices->isDismissed( $aAttrs[ 'id' ] ) ) {
-
-			$sRenderedNotice = $this->getMod()->renderAdminNotice( $aNoticeData );
-			if ( !empty( $sRenderedNotice ) ) {
-				$oNotices->addAdminNotice(
-					$sRenderedNotice,
-					$aNoticeData[ 'notice_attributes' ][ 'notice_id' ]
-				);
-				if ( $bIsPromo ) {
-					$this->incrementPromoNoticesCount();
-				}
-			}
-		}
+	public function run() {
 	}
 
 	/**

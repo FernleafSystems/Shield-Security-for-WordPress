@@ -1,18 +1,19 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_AuditTrail extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		/** @var AuditTrail\Options $oOpts */
 		$oOpts = $this->getMod()->getOptions();
 		if ( $oOpts->isEnabledAuditing() ) {
-			$this->getSubProAuditor()->run();
+			$this->getSubProAuditor()->execute();
 		}
 		if ( $oOpts->isEnabledChangeTracking() ) {
-			$this->getSubProChangeTracking()->run();
+			$this->getSubProChangeTracking()->execute();
 		}
 	}
 

@@ -788,11 +788,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				] ),
 				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
-			//			'sessions'       => array(
-			//				'title'   => _wpsf__( 'Active Sessions' ),
-			//				'val'     => $oProUsers->getProcessorSessions()->countActiveSessions(),
-			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
-			//			),
 			'transgressions' => [
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'ip_offense' ),
@@ -873,16 +868,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return Shield\Modules\Insights\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Insights\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Insights\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Insights\Strings();
+	protected function getNamespaceBase() {
+		return 'Insights';
 	}
 }

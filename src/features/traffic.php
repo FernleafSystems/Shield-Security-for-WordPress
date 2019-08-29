@@ -89,13 +89,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return int
 	 */
-	public function getMaxEntries() {
-		return (int)$this->getOpt( 'max_entries' );
-	}
-
-	/**
-	 * @return int
-	 */
 	public function getAutoDisableAt() {
 		return (int)$this->getOpt( 'autodisable_at' );
 	}
@@ -164,13 +157,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\Traffic\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\Traffic\AjaxHandler;
-	}
-
-	/**
 	 * @return Shield\Databases\Traffic\Handler
 	 */
 	protected function loadDbHandler() {
@@ -178,16 +164,17 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\Traffic\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Traffic\Options();
+	protected function getNamespaceBase() {
+		return 'Traffic';
 	}
 
 	/**
-	 * @return Shield\Modules\Traffic\Strings
+	 * @return int
+	 * @deprecated 8.1
 	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Traffic\Strings();
+	public function getMaxEntries() {
+		return (int)$this->getOpt( 'max_entries' );
 	}
 }

@@ -1,14 +1,15 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
@@ -17,21 +18,21 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 		/** Everything from this point on must consider XMLRPC compatibility **/
 
 		// XML-RPC Compatibility
-		if ( Services::WpGeneral()->isXmlrpc() && $oFO->isXmlrpcBypass() ) {
+		if ( Services::WpGeneral()->isXmlrpc() && $oMod->isXmlrpcBypass() ) {
 			return;
 		}
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
-		if ( $oFO->isUserSessionsManagementEnabled() ) {
-			$this->getProcessorSessions()->run();
+		if ( $oMod->isUserSessionsManagementEnabled() ) {
+			$this->getProcessorSessions()->execute();
 		}
 
-		if ( $oFO->isPasswordPoliciesEnabled() ) {
-			$this->getProcessorPasswords()->run();
+		if ( $oMod->isPasswordPoliciesEnabled() ) {
+			$this->getProcessorPasswords()->execute();
 		}
 
-		if ( $oFO->isSuspendEnabled() ) {
-			$this->getProcessorSuspend()->run();
+		if ( $oMod->isSuspendEnabled() ) {
+			$this->getProcessorSuspend()->execute();
 		}
 
 		// All newly created users have their first seen and password start date set
@@ -69,14 +70,14 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return $this
 	 */
 	private function sendLoginNotifications( $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		$bAdmin = $oFO->isSendAdminEmailLoginNotification();
-		$bUser = $oFO->isSendUserEmailLoginNotification();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		$bAdmin = $oMod->isSendAdminEmailLoginNotification();
+		$bUser = $oMod->isSendUserEmailLoginNotification();
 
 		// do some magic logic so we don't send both to the same person (the assumption being that the admin
 		// email recipient is actually an admin (or they'll maybe not get any).
-		if ( $bAdmin && $bUser && ( $oFO->getAdminLoginNotificationEmail() === $oUser->user_email ) ) {
+		if ( $bAdmin && $bUser && ( $oMod->getAdminLoginNotificationEmail() === $oUser->user_email ) ) {
 			$bUser = false;
 		}
 
@@ -154,8 +155,8 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return bool
 	 */
 	private function sendAdminLoginEmailNotification( $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
 		$aUserCapToRolesMap = [
 			'network_admin' => 'manage_network',
@@ -209,7 +210,7 @@ class ICWP_WPSF_Processor_UserManagement extends ICWP_WPSF_Processor_BaseWpsf {
 			->getMod()
 			->getEmailProcessor()
 			->sendEmailWithWrap(
-				$oFO->getAdminLoginNotificationEmail(),
+				$oMod->getAdminLoginNotificationEmail(),
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);

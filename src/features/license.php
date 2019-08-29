@@ -593,23 +593,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\License\AjaxHandler
+	 * @return string
 	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\License\AjaxHandler;
-	}
-
-	/**
-	 * @return Shield\Modules\License\Options
-	 */
-	protected function loadOptions() {
-		return new Shield\Modules\License\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\License\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\License\Strings();
+	protected function getNamespaceBase() {
+		return 'License';
 	}
 }

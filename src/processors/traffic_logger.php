@@ -1,7 +1,8 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
@@ -19,11 +20,13 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	protected function getIfLogRequest() {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
 		$oWp = Services::WpGeneral();
 		$bLoggedIn = Services::WpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
 			   && !$this->getCon()->isPluginDeleting()
-			   && ( $oMod->getMaxEntries() > 0 )
+			   && ( $oOpts->getMaxEntries() > 0 )
 			   && ( !$this->isCustomExcluded() )
 			   && ( $oMod->isIncluded_Simple() || count( Services::Request()->getRawRequestParams( false ) ) > 0 )
 			   && ( $oMod->isIncluded_LoggedInUser() || !$bLoggedIn )

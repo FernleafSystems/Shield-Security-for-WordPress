@@ -22,6 +22,13 @@ class ShieldOptions extends Options {
 	/**
 	 * @return bool
 	 */
+	public function isPremium() {
+		return $this->getCon()->isPremiumActive();
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isShowPromoAdminNotices() {
 		return $this->getCon()
 					->getModule_Plugin()

@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield\ChangeTrack;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\ChangeTracking;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ShieldProcessor {

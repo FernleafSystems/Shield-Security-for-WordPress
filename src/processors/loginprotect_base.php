@@ -1,8 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor_BaseWpsf {
+abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var string

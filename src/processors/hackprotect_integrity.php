@@ -1,19 +1,19 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		parent::run();
 		$this->setupSnapshots();
 
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isIcUsersEnabled() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isIcUsersEnabled() ) {
 			add_action( 'user_register', [ $this, 'snapshotUsers' ] );
 			add_action( 'profile_update', [ $this, 'snapshotUsers' ] );
 			add_action( 'after_password_reset', [ $this, 'snapshotUsers' ] );
@@ -46,9 +46,9 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	}
 
 	protected function verifyUsers() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->isIcUsersEnabled() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		if ( !$oMod->isIcUsersEnabled() ) {
 			return;
 		}
 

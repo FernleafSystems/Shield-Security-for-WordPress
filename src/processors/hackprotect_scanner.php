@@ -2,7 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
@@ -20,14 +20,14 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
-		$this->getSubProcessorApc()->run();
-		$this->getSubProcessorUfc()->run();
-		$this->getSubProcessorWcf()->run();
+		$this->getSubProcessorApc()->execute();
+		$this->getSubProcessorUfc()->execute();
+		$this->getSubProcessorWcf()->execute();
 		if ( $oMod->isPremium() ) {
-			$this->getSubProcessorMal()->run();
-			$this->getSubProcessorWpv()->run();
+			$this->getSubProcessorMal()->execute();
+			$this->getSubProcessorWpv()->execute();
 			if ( $oMod->isPtgEnabled() ) {
-				$this->getSubProcessorPtg()->run();
+				$this->getSubProcessorPtg()->execute();
 			}
 		}
 

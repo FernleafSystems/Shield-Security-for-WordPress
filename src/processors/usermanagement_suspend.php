@@ -1,30 +1,31 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isSuspendManualEnabled() ) {
+		if ( $oMod->isSuspendManualEnabled() ) {
 			$this->setupUserFilters();
 			( new Suspend\Suspended() )
 				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oFO->isSuspendAutoIdleEnabled() ) {
+		if ( $oMod->isSuspendAutoIdleEnabled() ) {
 			( new Suspend\Idle() )
 				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oFO->isSuspendAutoPasswordEnabled() ) {
+		if ( $oMod->isSuspendAutoPasswordEnabled() ) {
 			( new Suspend\PasswordExpiry() )
-				->setMaxPasswordAge( $oFO->getPassExpireTimeout() )
+				->setMaxPasswordAge( $oMod->getPassExpireTimeout() )
 				->setMod( $this->getMod() )
 				->run();
 		}
@@ -68,8 +69,8 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 * Sets-up all the UI filters necessary to provide manual user suspension and filter the User Tables
 	 */
 	private function setupUserFilters() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
 		// User profile UI
 		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
@@ -79,7 +80,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
 
 		// Provide Suspended user filter above table
-		$aUserIds = array_keys( $oFO->getSuspendHardUserIds() );
+		$aUserIds = array_keys( $oMod->getSuspendHardUserIds() );
 		if ( !empty( $aUserIds ) ) {
 			// Provide the link above the table.
 			add_filter( 'views_users', function ( $aViews ) use ( $aUserIds ) {

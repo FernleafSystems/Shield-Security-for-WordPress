@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Plugin_Tracking extends ICWP_WPSF_Processor_BasePlugin {
+class ICWP_WPSF_Processor_Plugin_Tracking extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @return bool

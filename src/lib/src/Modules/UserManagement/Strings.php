@@ -104,7 +104,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $sOptKey ) {
-		$oOptsVo = $this->getMod()->getOptionsVo();
+		$oOpts = $this->getOptions();
 		$sModName = $this->getMod()->getMainFeatureName();
 
 		switch ( $sOptKey ) {
@@ -134,7 +134,7 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' )
 								.'<br />'.__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' )
 								.'<br />'.sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' )
-								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$oOptsVo->getOptDefault( 'session_timeout_interval' ).'</strong>' );
+								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$oOpts->getOptDefault( 'session_timeout_interval' ).'</strong>' );
 				break;
 
 			case 'session_idle_timeout_interval' :
@@ -229,7 +229,7 @@ class Strings extends Base\Strings {
 								.'<br/>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) )
 								.'<br/>'.sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ), implode( ', ', Services::WpUsers()
 																																  ->getAvailableUserRoles() ) )
-								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $oOptsVo->getOptDefault( 'auto_idle_roles' ) ) );
+								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $oOpts->getOptDefault( 'auto_idle_roles' ) ) );
 				break;
 
 			default:

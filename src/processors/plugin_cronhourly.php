@@ -1,11 +1,12 @@
 <?php
 
-class ICWP_WPSF_Processor_Plugin_CronHourly extends ICWP_WPSF_Processor_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+class ICWP_WPSF_Processor_Plugin_CronHourly extends Modules\BaseShield\ShieldProcessor {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
 
 	public function run() {
-		parent::run();
 		$this->setupCron();
 	}
 

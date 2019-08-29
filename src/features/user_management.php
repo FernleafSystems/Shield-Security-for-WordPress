@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * Should have no default email. If no email is set, no notification is sent.
@@ -43,7 +43,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 
 	protected function doExtraSubmitProcessing() {
 		if ( !Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() ) ) {
-			$this->getOptionsVo()->resetOptToDefault( 'enable_admin_login_email_notification' );
+			$this->getOptions()->resetOptToDefault( 'enable_admin_login_email_notification' );
 		}
 
 		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
@@ -143,7 +143,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function isPasswordPoliciesEnabled() {
 		return $this->isOpt( 'enable_password_policies', 'Y' )
-			   && $this->getOptionsVo()->isOptReqsMet( 'enable_password_policies' );
+			   && $this->getOptions()->isOptReqsMet( 'enable_password_policies' );
 	}
 
 	/**
@@ -381,23 +381,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return Shield\Modules\UserManagement\AjaxHandler
+	 * @return string
 	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\UserManagement\AjaxHandler;
-	}
-
-	/**
-	 * @return Shield\Modules\UserManagement\Options
-	 */
-	protected function loadOptions() {
-		return new Shield\Modules\UserManagement\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\UserManagement\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\UserManagement\Strings();
+	protected function getNamespaceBase() {
+		return 'UserManagement';
 	}
 }

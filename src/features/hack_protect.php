@@ -59,7 +59,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->cleanFileExclusions();
 		$this->cleanPtgFileExtensions();
 
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 			$this->setPtgLastBuildAt( 0 );
 			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
@@ -463,7 +463,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isPtgEnabled() {
 		return $this->isPremium() && $this->isOpt( 'ptg_enable', 'enabled' )
-			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' )
+			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
 			   && $this->canPtgWriteToDisk();
 	}
 
@@ -660,7 +660,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	private function resetRtBackupFiles() {
 		$oCon = $this->getCon();
 		$oFs = Services::WpFs();
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 		foreach ( [ 'htaccess', 'wpconfig' ] as $sFileKey ) {
 			if ( $oOpts->isOptChanged( 'rt_file_'.$sFileKey ) ) {
 				$sPath = $this->getRtMapFileKeyToFilePath( $sFileKey );
@@ -1077,13 +1077,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return Shield\Modules\HackGuard\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\HackGuard\AjaxHandler;
-	}
-
-	/**
 	 * @return Shield\Databases\Scanner\Handler
 	 */
 	protected function loadDbHandler() {
@@ -1091,17 +1084,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return Shield\Modules\HackGuard\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\HackGuard\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\HackGuard\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\HackGuard\Strings();
+	protected function getNamespaceBase() {
+		return 'HackGuard';
 	}
 
 	/**

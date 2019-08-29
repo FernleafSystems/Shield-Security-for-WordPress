@@ -268,10 +268,9 @@ class Strings extends Base\Strings {
 	 */
 	private function buildIpAddressMap() {
 		$oReq = Services::Request();
+		$oOpts = $this->getOptions();
 
-		$aOptionData = $this->getMod()
-							->getOptionsVo()
-							->getRawData_SingleOption( 'visitor_address_source' );
+		$aOptionData = $oOpts->getRawData_SingleOption( 'visitor_address_source' );
 		$aValueOptions = $aOptionData[ 'value_options' ];
 
 		$aMap = [];
@@ -280,8 +279,7 @@ class Strings extends Base\Strings {
 			$sKey = $aOptionValue[ 'value_key' ];
 			if ( $sKey == 'AUTO_DETECT_IP' ) {
 				$sKey = 'Auto Detect';
-				$sIp = Services::IP()->getRequestIp().sprintf( ' (%s)', $this->getMod()
-																			 ->getOpt( 'last_ip_detect_source' ) );
+				$sIp = Services::IP()->getRequestIp().sprintf( ' (%s)', $oOpts->getOpt( 'last_ip_detect_source' ) );
 			}
 			else {
 				$sIp = $oReq->server( $sKey );

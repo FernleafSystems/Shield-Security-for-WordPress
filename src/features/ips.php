@@ -18,13 +18,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function doExtraSubmitProcessing() {
+		/** @var Shield\Modules\IPs\Options $oOpts */
+		$oOpts = $this->getOptions();
 		if ( !in_array( $this->getOpt( 'auto_expire' ), [ 'minute', 'hour', 'day', 'week' ] ) ) {
-			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
+			$oOpts->resetOptToDefault( 'auto_expire' );
 		}
 
-		$nLimit = $this->getOptTransgressionLimit();
+		$nLimit = $oOpts->getOffenseLimit();
 		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
+			$oOpts->resetOptToDefault( 'transgression_limit' );
 		}
 	}
 
@@ -187,20 +189,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return Shield\Modules\IPs\AdminNotices
-	 */
-	protected function loadAdminNotices() {
-		return new Shield\Modules\IPs\AdminNotices();
-	}
-
-	/**
-	 * @return Shield\Modules\IPs\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\IPs\AjaxHandler;
-	}
-
-	/**
 	 * @return Shield\Databases\IPs\Handler
 	 */
 	protected function loadDbHandler() {
@@ -208,17 +196,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return Shield\Modules\IPs\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\IPs\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\IPs\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\IPs\Strings();
+	protected function getNamespaceBase() {
+		return 'IPs';
 	}
 
 	/**

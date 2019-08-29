@@ -849,31 +849,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return Shield\Modules\Plugin\AdminNotices
+	 * @return string
 	 */
-	protected function loadAdminNotices() {
-		return new Shield\Modules\Plugin\AdminNotices();
-	}
-
-	/**
-	 * @return Shield\Modules\Plugin\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\Plugin\AjaxHandler;
-	}
-
-	/**
-	 * @return Shield\Modules\Plugin\Options
-	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Plugin\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Plugin\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Plugin\Strings();
+	protected function getNamespaceBase() {
+		return 'Plugin';
 	}
 
 	/**

@@ -2044,6 +2044,11 @@ class Controller extends Shield\Deprecated\Foundation {
 				$sName = $this->getPluginSpec_Menu( 'title' );
 				$sHref = $this->getPluginSpec()[ 'meta' ][ 'privacy_policy_href' ];
 			}
+
+			/** @var Shield\Modules\AuditTrail\Options $oOpts */
+			$oOpts = $this->getModule_AuditTrail()
+						  ->getOptions();
+			
 			$sContent = $this->getRenderer()
 							 ->setTemplate( 'snippets/privacy_policy' )
 							 ->setTemplateEngineTwig()
@@ -2051,7 +2056,7 @@ class Controller extends Shield\Deprecated\Foundation {
 								 [
 									 'name'             => $sName,
 									 'href'             => $sHref,
-									 'audit_trail_days' => $this->getModule_AuditTrail()->getAutoCleanDays()
+									 'audit_trail_days' => $oOpts->getAutoCleanDays()
 								 ]
 							 )
 							 ->render();

@@ -1,8 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var array
@@ -262,11 +263,12 @@ class ICWP_WPSF_Processor_Firewall extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 */
 	private function doFirewallBlock() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oMod */
+		$oMod = $this->getMod();
 
-		switch ( $oFO->getBlockResponse() ) {
+		switch ( $oMod->getBlockResponse() ) {
 			case 'redirect_die':
+				Services::WpGeneral()->wpDie();
 				break;
 			case 'redirect_die_message':
 				Services::WpGeneral()->wpDie( $this->getFirewallDieMessageForDisplay() );

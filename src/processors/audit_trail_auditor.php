@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 
 class ICWP_WPSF_Processor_AuditTrail_Auditor extends ShieldProcessor {
 

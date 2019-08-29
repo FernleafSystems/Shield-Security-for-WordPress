@@ -1,6 +1,8 @@
 <?php
 
-class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var bool
