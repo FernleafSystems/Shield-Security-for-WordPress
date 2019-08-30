@@ -21,6 +21,6 @@ class Controller {
 	}
 
 	public function startScan() {
-		
+
 	}
 }

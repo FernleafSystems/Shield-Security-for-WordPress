@@ -5,6 +5,11 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @var Shield\Databases\ScanQueue\Handler
+	 */
+	private $oDbh_ScanQueue;
+
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
@@ -1074,6 +1079,22 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			[ 'inav' => 'scans' ],
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
+	}
+
+	/**
+	 * @return Shield\Databases\ScanQueue\Handler
+	 */
+	public function getDbHandler_ScanQueue() {
+		if ( !isset( $this->oDbh_ScanQueue ) ) {
+			try {
+				$this->oDbh_ScanQueue = ( new Shield\Databases\ScanQueue\Handler() )
+					->setMod( $this )
+					->tableInit();
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $this->oDbh_ScanQueue;
 	}
 
 	/**
