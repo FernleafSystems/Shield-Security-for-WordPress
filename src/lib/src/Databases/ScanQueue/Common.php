@@ -20,6 +20,34 @@ trait Common {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function filterByNotFinished() {
+		return $this->addWhereEquals( 'finished_at', 0 );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByNotStarted() {
+		return $this->addWhereEquals( 'started_at', 0 );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByFinished() {
+		return $this->addWhereOlderThan( 0, 'finished_at' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByStarted() {
+		return $this->addWhereOlderThan( 0, 'started_at' );
+	}
+
+	/**
 	 * @param string $sScan
 	 * @return bool
 	 */
