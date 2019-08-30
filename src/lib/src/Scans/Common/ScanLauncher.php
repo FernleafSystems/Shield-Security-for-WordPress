@@ -67,7 +67,7 @@ class ScanLauncher {
 	 * @return Base\BaseScan|mixed
 	 */
 	private function getScanner() {
-		$sClass = $this->getScanActionVO()->getScanNamespace().'\\Scan';
+		$sClass = $this->getScanActionVO()->getScanNamespace().'Scan';
 		/** @var Base\BaseScan $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )
@@ -78,7 +78,7 @@ class ScanLauncher {
 	 * @return Base\BaseBuildScanAction|mixed
 	 */
 	private function getScanActionBuilder() {
-		$sClass = $this->getScanActionVO()->getScanNamespace().'\\BuildScanAction';
+		$sClass = $this->getScanActionVO()->getScanNamespace().'BuildScanAction';
 		/** @var Base\BaseBuildScanAction $o */
 		$o = new $sClass();
 		return $o->setMod( $this->getMod() )

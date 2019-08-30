@@ -35,8 +35,13 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 				$this->getSubProcessorPtg()->execute();
 			}
 		}
-
-		$this->setupScanQueue();
+		try {
+			$this->setupScanQueue();
+		}
+		catch ( Exception $e ) {
+			var_dump($e);
+			die();
+		}
 		$this->handleAsyncScanRequest();
 		$this->setupCron();
 	}
@@ -56,12 +61,15 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
+	 * @return Shield\Modules\HackGuard\ScanQueue\Controller
+	 * @throws \Exception
 	 */
 	private function setupScanQueue() {
 		if ( !isset( $this->oScanQueueController ) ) {
 			$this->oScanQueueController = ( new Shield\Modules\HackGuard\ScanQueue\Controller() )
 				->setMod( $this->getMod() );
 		}
+		$this->oScanQueueController->getQueueProcessor();
 		return $this->oScanQueueController;
 	}
 

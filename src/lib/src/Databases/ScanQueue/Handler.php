@@ -31,7 +31,7 @@ class Handler extends Base\Handler {
 	protected function getDefaultCreateTableSql() {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			scan varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scanner Slug',
+			scan varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scan Slug',
 			items text COMMENT 'Array of scan items',
 			results text COMMENT 'Array of results',
 			meta text COMMENT 'Meta Data',

@@ -25,11 +25,13 @@ class BaseScanActionVO {
 
 	use StdClassAdapter;
 
+	const ITEM_STORAGE_LIMIT = 1;
+
 	/**
 	 * @return BaseResultItem|mixed
 	 */
 	public function getNewResultItem() {
-		$sClass = $this->getScanNamespace().'\\ResultItem';
+		$sClass = $this->getScanNamespace().'ResultItem';
 		return new $sClass();
 	}
 
@@ -37,7 +39,7 @@ class BaseScanActionVO {
 	 * @return BaseResultsSet|mixed
 	 */
 	public function getNewResultsSet() {
-		$sClass = $this->getScanNamespace().'\\ResultsSet';
+		$sClass = $this->getScanNamespace().'ResultsSet';
 		return new $sClass();
 	}
 
@@ -51,6 +53,6 @@ class BaseScanActionVO {
 		catch ( \Exception $oE ) {
 			$sName = __NAMESPACE__;
 		}
-		return $sName;
+		return rtrim( $sName, '\\' ).'\\';
 	}
 }

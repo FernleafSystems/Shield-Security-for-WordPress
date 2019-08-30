@@ -96,6 +96,7 @@ class QueueProcessor extends \WP_Background_Process {
 	 * @return $this
 	 */
 	public function save() {
+
 		if ( !empty( $this->data ) ) {
 			/** @var ScanQueue\Insert $oInsert */
 			$oInsert = $this->getDbHandler()->getQueryInserter();

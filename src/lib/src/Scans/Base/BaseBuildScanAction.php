@@ -21,7 +21,7 @@ abstract class BaseBuildScanAction {
 			throw new \Exception( 'Action VO not provided.' );
 		}
 		if ( empty( $oAction->scan ) ) {
-			throw new \Exception( 'Action ID not provided.' );
+			throw new \Exception( 'Scan Slug not provided.' );
 		}
 
 		$this->setCustomFields();

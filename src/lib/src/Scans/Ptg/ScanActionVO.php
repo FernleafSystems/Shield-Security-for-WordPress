@@ -13,4 +13,5 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 class ScanActionVO extends Shield\Scans\Base\BaseScanActionVO {
 
+	const ITEM_STORAGE_LIMIT = 100;
 }
