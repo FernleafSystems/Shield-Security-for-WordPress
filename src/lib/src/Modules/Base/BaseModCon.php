@@ -1948,6 +1948,7 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
+	 * All modules have an AJAX handler
 	 * @return $this
 	 */
 	private function loadAjaxHandler() {
