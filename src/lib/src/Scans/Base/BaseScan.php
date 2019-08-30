@@ -59,13 +59,13 @@ abstract class BaseScan {
 		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		if ( empty( $oAction->scan_items ) ) {
-			$oAction->ts_finish = Services::Request()->ts();
+		if ( empty( $oAction->items ) ) {
+			$oAction->finished_at = Services::Request()->ts();
 		}
 		else {
 			$this->scanSlice();
-			if ( empty( $oAction->scan_items ) ) {
-				$oAction->ts_finish = Services::Request()->ts();
+			if ( empty( $oAction->items ) ) {
+				$oAction->finished_at = Services::Request()->ts();
 			}
 		}
 
@@ -81,7 +81,7 @@ abstract class BaseScan {
 		$oAction = $this->getScanActionVO();
 		$oStore = ( new ActionStore() )->setScanActionVO( $oAction );
 
-		if ( $oAction->ts_finish > 0 ) {
+		if ( $oAction->finished_at > 0 ) {
 			$oStore->deleteAction();
 		}
 		else {

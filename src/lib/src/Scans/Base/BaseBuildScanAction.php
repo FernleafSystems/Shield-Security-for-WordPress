@@ -43,7 +43,7 @@ abstract class BaseBuildScanAction {
 		$this->buildItems();
 		$oAction->is_items_built = true;
 		$oAction->processed_items = 0;
-		$oAction->total_scan_items = count( $oAction->scan_items );
+		$oAction->total_scan_items = count( $oAction->items );
 	}
 
 	/**
@@ -55,9 +55,9 @@ abstract class BaseBuildScanAction {
 	protected function setStandardFields() {
 		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		if ( empty( $oAction->ts_start ) ) {
-			$oAction->ts_start = Services::Request()->ts();
-			$oAction->ts_finish = 0;
+		if ( empty( $oAction->started_at ) ) {
+			$oAction->started_at = Services::Request()->ts();
+			$oAction->finished_at = 0;
 		}
 	}
 

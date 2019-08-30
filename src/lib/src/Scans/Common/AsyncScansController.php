@@ -76,7 +76,7 @@ class AsyncScansController {
 		}
 
 		// Mark scan as finished so we know whether to fire another round
-		if ( $oAction->ts_finish > 0 || $oAction->ts_init == 0 ) {
+		if ( $oAction->finished_at > 0 || $oAction->created_at == 0 ) {
 			$this->setScanAsFinished( $oAction );
 		}
 
@@ -130,7 +130,7 @@ class AsyncScansController {
 	protected function setScanAsFinished( $oAction ) {
 		$oJob = $this->loadScansJob();
 		$aWorkingScan = $oJob->getScanInfo( $oAction->id );
-		$aWorkingScan[ 'ts_finish' ] = $oAction->ts_finish;
+		$aWorkingScan[ 'finished_at' ] = $oAction->finished_at;
 		$oJob->setScanInfo( $oAction->id, $aWorkingScan );
 		$oJob->setScanAsCurrent( $oAction->id, false );
 		$this->storeScansJob( $oJob );
@@ -215,8 +215,8 @@ class AsyncScansController {
 
 		foreach ( $aScanSlugs as $sScanSlug ) {
 			$oJob->setScanInfo( $sScanSlug, [
-				'id'      => $sScanSlug,
-				'ts_init' => Services::Request()->ts(),
+				'id'         => $sScanSlug,
+				'created_at' => Services::Request()->ts(),
 			] );
 		}
 

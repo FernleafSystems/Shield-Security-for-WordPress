@@ -20,13 +20,13 @@ abstract class BaseScanFromFileMap {
 		$oAction = $this->getScanActionVO();
 		$oResultSet = $oAction->getNewResultsSet();
 
-		if ( !empty( $oAction->scan_items ) ) {
+		if ( !empty( $oAction->items ) ) {
 
 			if ( (int)$oAction->item_processing_limit > 0 ) {
-				$aSlice = array_slice( $oAction->scan_items, 0, $oAction->item_processing_limit );
+				$aSlice = array_slice( $oAction->items, 0, $oAction->item_processing_limit );
 			}
 			else {
-				$aSlice = $oAction->scan_items;
+				$aSlice = $oAction->items;
 			}
 
 			$oAction->processed_items += count( $aSlice );

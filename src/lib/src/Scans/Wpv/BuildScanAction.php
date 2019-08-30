@@ -22,7 +22,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oTheme = $oWpT->isActiveThemeAChild() ? $oWpT->getCurrentParent() : $oWpT->getCurrent();
 		$aItems[ $oTheme->get_stylesheet() ] = 'themes';
 
-		$oAction->scan_items = $aItems;
+		$oAction->items = $aItems;
 	}
 
 	protected function setCustomFields() {

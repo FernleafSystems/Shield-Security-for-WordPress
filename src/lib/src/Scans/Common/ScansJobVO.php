@@ -42,19 +42,19 @@ class ScansJobVO {
 		return array_filter(
 			$this->getScans(),
 			function ( $aScan ) {
-				return !empty( $aScan[ 'ts_init' ] );
+				return !empty( $aScan[ 'created_at' ] );
 			}
 		);
 	}
 
 	/**
-	 * @return array[] - keys: scan slugs; values: array of ts_init, id
+	 * @return array[] - keys: scan slugs; values: array of created_at, id
 	 */
 	public function getUnfinishedScans() {
 		return array_filter(
 			$this->getInitiatedScans(),
 			function ( $aScan ) {
-				return empty( $aScan[ 'ts_finish' ] );
+				return empty( $aScan[ 'finished_at' ] );
 			}
 		);
 	}
@@ -68,9 +68,9 @@ class ScansJobVO {
 		$aScans = $this->getScans();
 		$aScans[ $sScanSlug ] = array_merge(
 			[
-				'id'      => $sScanSlug,
-				'ts_init' => 0,
-				'current' => false,
+				'id'         => $sScanSlug,
+				'created_at' => 0,
+				'current'    => false,
 			],
 			$aScanInfo
 		);
@@ -86,9 +86,9 @@ class ScansJobVO {
 		$aScanInfo = isset( $aScn[ $sScanSlug ] ) ? $aScn[ $sScanSlug ] : [];
 		return array_merge(
 			[
-				'id'      => $sScanSlug,
-				'ts_init' => 0,
-				'current' => false,
+				'id'         => $sScanSlug,
+				'created_at' => 0,
+				'current'    => false,
 			],
 			$aScanInfo
 		);
@@ -99,7 +99,7 @@ class ScansJobVO {
 	 * @return int
 	 */
 	public function getScanInitTime( $sScanSlug ) {
-		return $this->getScanInfo( $sScanSlug )[ 'ts_init' ];
+		return $this->getScanInfo( $sScanSlug )[ 'created_at' ];
 	}
 
 	/**
@@ -137,7 +137,7 @@ class ScansJobVO {
 	public function removeInitiatedScan( $sScanSlug ) {
 		if ( $this->isScanInited( $sScanSlug ) ) {
 			$aScan = $this->getScanInfo( $sScanSlug );
-			$aScan[ 'ts_init' ] = 0;
+			$aScan[ 'created_at' ] = 0;
 			$this->setScanInfo( $sScanSlug, $aScan );
 		}
 		return $this;
@@ -150,7 +150,7 @@ class ScansJobVO {
 	 */
 	public function setScanAsCurrent( $sScanSlug, $bSetAsCurrent = true ) {
 		$aScanInfo = $this->getScanInfo( $sScanSlug );
-		if ( !empty( $aScanInfo ) && $aScanInfo[ 'ts_init' ] > 0 ) {
+		if ( !empty( $aScanInfo ) && $aScanInfo[ 'created_at' ] > 0 ) {
 			if ( is_null( $this->getCurrentScan() ) && $bSetAsCurrent ) {
 				$aScanInfo[ 'current' ] = true;
 				$this->setScanInfo( $sScanSlug, $aScanInfo );

@@ -10,7 +10,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	protected function buildItems() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		$oAction->scan_items = Services::WpPlugins()->getInstalledPluginFiles();
+		$oAction->items = Services::WpPlugins()->getInstalledPluginFiles();
 	}
 
 	protected function setCustomFields() {

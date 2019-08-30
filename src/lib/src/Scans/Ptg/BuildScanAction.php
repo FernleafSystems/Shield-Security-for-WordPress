@@ -18,7 +18,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 			$aThemes[] = $oTheme->get_template();
 		}
 
-		$oAction->scan_items = array_merge(
+		$oAction->items = array_merge(
 			array_map(
 				function ( $nKey ) {
 					return 'plugins';

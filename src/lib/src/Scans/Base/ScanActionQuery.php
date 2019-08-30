@@ -30,7 +30,7 @@ class ScanActionQuery {
 			$aDef = $this->getActionStore()->readActionDefinitionFromDisk();
 			if ( !empty( $aDef ) ) {
 				$oAction = ( new BaseScanActionVO() )->applyFromArray( $aDef );
-				$bExpired = Services::Request()->ts() - $oAction->ts_start > $nExpiration;
+				$bExpired = Services::Request()->ts() - $oAction->started_at > $nExpiration;
 			}
 		}
 		return $bExpired;
@@ -55,7 +55,7 @@ class ScanActionQuery {
 			if ( !empty( $aDef ) ) {
 				$oAction = ( new BaseScanActionVO() )->applyFromArray( $aDef );
 
-				if ( $oAction->ts_finish > 0 ) {
+				if ( $oAction->finished_at > 0 ) {
 					$nPercent = 100;
 				}
 				else {

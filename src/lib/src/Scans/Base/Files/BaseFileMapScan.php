@@ -34,10 +34,10 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 		}
 
 		if ( $oAction->item_processing_limit > 0 ) {
-			$oAction->scan_items = array_slice( $oAction->scan_items, $oAction->item_processing_limit );
+			$oAction->items = array_slice( $oAction->items, $oAction->item_processing_limit );
 		}
 		else {
-			$oAction->scan_items = [];
+			$oAction->items = [];
 		}
 
 		return $this;

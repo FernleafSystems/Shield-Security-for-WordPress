@@ -13,12 +13,12 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$oTempRs = $oAction->getNewResultsSet();
 
 		if ( (int)$oAction->item_processing_limit > 0 ) {
-			$aSlice = array_slice( $oAction->scan_items, 0, $oAction->item_processing_limit );
-			$oAction->scan_items = array_slice( $oAction->scan_items, $oAction->item_processing_limit );
+			$aSlice = array_slice( $oAction->items, 0, $oAction->item_processing_limit );
+			$oAction->items = array_slice( $oAction->items, $oAction->item_processing_limit );
 		}
 		else {
-			$aSlice = $oAction->scan_items;
-			$oAction->scan_items = [];
+			$aSlice = $oAction->items;
+			$oAction->items = [];
 		}
 
 		$oAction->processed_items += count( $aSlice );

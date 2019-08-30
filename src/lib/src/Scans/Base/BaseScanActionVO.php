@@ -8,9 +8,9 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * Class ScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
  * @property string   $id
- * @property int      $ts_init
- * @property int      $ts_start
- * @property int      $ts_finish
+ * @property int      $created_at
+ * @property int      $started_at
+ * @property int      $finished_at
  * @property bool     $is_async
  * @property bool     $is_cron
  * @property bool     $is_items_built
@@ -18,7 +18,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property int      $total_scan_items
  * @property int      $item_processing_limit
  * @property string   $tmp_dir
- * @property string[] $scan_items
+ * @property string[] $items
  * @property array[]  $results
  */
 class BaseScanActionVO {
