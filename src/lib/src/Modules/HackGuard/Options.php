@@ -15,10 +15,24 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getDbColumns_ScanQueue() {
+		return $this->getDef( 'table_columns_scanqueue' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getDbTable_Scanner() {
 		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanner' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDbTable_ScanQueue() {
+		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanqueue' ) );
 	}
 
 	/**

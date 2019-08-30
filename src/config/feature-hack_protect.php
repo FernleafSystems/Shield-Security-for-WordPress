@@ -662,6 +662,18 @@
       "created_at",
       "deleted_at"
     ],
+    "table_name_scanqueue":        "scanq",
+    "table_columns_scanqueue":     [
+      "id",
+      "scan",
+      "items",
+      "results",
+      "meta",
+      "started_at",
+      "finished_at",
+      "created_at",
+      "deleted_at"
+    ],
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "mal_whitelist_hashes":        {

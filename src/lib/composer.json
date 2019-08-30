@@ -19,14 +19,15 @@
     }
   },
   "require":           {
-    "fernleafsystems/wordpress-services": "dev-develop",
-    "fernleafsystems/utilities":          "^1.0",
-    "nesbot/carbon":                      "~1.37.0",
-    "twig/twig":                          "^1.0",
-    "google/recaptcha":                   "1.1.2",
-    "dolondro/google-authenticator":      "^2.0",
-    "bjeavons/zxcvbn-php":                "^0.3",
-    "nullpunkt/lz-string-php":            "^1.2.0"
+    "fernleafsystems/wordpress-services":  "dev-develop",
+    "fernleafsystems/utilities":           "^1.0",
+    "nesbot/carbon":                       "~1.37.0",
+    "twig/twig":                           "^1.0",
+    "a5hleyrich/wp-background-processing": "^1.0",
+    "google/recaptcha":                    "1.1.2",
+    "dolondro/google-authenticator":       "^2.0",
+    "bjeavons/zxcvbn-php":                 "^0.3",
+    "nullpunkt/lz-string-php":             "^1.2.0"
   },
   "require-dev":       {
   },
