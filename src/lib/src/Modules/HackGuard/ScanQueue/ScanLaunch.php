@@ -37,6 +37,6 @@ class ScanLaunch {
 			->setScanActionVO( $oAction )
 			->enqueue();
 
-//		$oQ->dispatch();
+		$oQ->dispatch();
 	}
 }

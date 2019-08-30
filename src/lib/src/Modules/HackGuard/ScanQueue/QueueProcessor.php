@@ -4,10 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
+use FernleafSystems\Wordpress\Services\Services;
 
 class QueueProcessor extends \WP_Background_Process {
 
 	use Shield\Modules\ModConsumer;
+
+	/**
+	 * @var string
+	 */
+	protected $prefix = 'shield';
 
 	/**
 	 * @var string
@@ -41,15 +47,17 @@ class QueueProcessor extends \WP_Background_Process {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param ScanQueue\EntryVO $item Queue item to iterate over.
+	 * @param ScanQueue\EntryVO $oEntry Queue item to iterate over.
 	 *
 	 * @return mixed
 	 */
-	protected function task( $item ) {
+	protected function task( $oEntry ) {
 		// run scan action from this spec
+		// convert to Scan Action using items and meta
 
-		// mark as finished to update the entry.
-		return $item;
+		// marks the entry as finished and
+		$oEntry->finished_at = Services::Request()->ts();
+		return $oEntry;
 	}
 
 	/**
@@ -78,6 +86,20 @@ class QueueProcessor extends \WP_Background_Process {
 	}
 
 	/**
+	 * Get post args
+	 *
+	 * @return array
+	 */
+	protected function get_post_args() {
+		$aArgs = parent::get_post_args();
+
+		if ( isset( $aArgs[ 'body' ] ) ) {
+			$aArgs[ 'body' ] = ''; // so we don't post the whole scan data.
+		}
+		return $aArgs;
+	}
+
+	/**
 	 * Is queue empty
 	 *
 	 * @return bool
@@ -87,7 +109,7 @@ class QueueProcessor extends \WP_Background_Process {
 		$oSel = $this->getDbHandler()->getQuerySelector();
 		$nUnfinished = $oSel->filterByNotFinished()
 							->count();
-		return $nUnfinished > 0;
+		return $nUnfinished === 0;
 	}
 
 	/**

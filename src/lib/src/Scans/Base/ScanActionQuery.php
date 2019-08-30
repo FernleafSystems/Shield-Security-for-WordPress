@@ -30,7 +30,7 @@ class ScanActionQuery {
 			$aDef = $this->getActionStore()->readActionDefinitionFromDisk();
 			if ( !empty( $aDef ) ) {
 				$oAction = ( new BaseScanActionVO() )->applyFromArray( $aDef );
-				$bExpired = Services::Request()->ts() - $oAction->started_at > $nExpiration;
+				$bExpired = Services::Request()->ts() - $oAction->created_at > $nExpiration;
 			}
 		}
 		return $bExpired;

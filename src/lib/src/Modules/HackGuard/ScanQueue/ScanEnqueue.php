@@ -26,10 +26,9 @@ class ScanEnqueue {
 		$nSliceSize = $oAction::ITEM_STORAGE_LIMIT;
 
 		do {
-			$aSlice = array_slice( $aAllItems, 0, $nSliceSize );
-			$oAction->items = $aSlice;
-			$aAllItems = array_slice( $aAllItems, $nSliceSize );
+			$oAction->items = array_slice( $aAllItems, 0, $nSliceSize );
 			$this->pushActionToQueue( $oAction );
+			$aAllItems = array_slice( $aAllItems, $nSliceSize );
 		} while ( !empty( $aAllItems ) );
 
 		$this->getQueueProcessor()->save();

@@ -55,8 +55,9 @@ abstract class BaseBuildScanAction {
 	protected function setStandardFields() {
 		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		if ( empty( $oAction->started_at ) ) {
-			$oAction->started_at = Services::Request()->ts();
+		if ( empty( $oAction->created_at ) ) {
+			$oAction->created_at = Services::Request()->ts();
+			$oAction->started_at = 0;
 			$oAction->finished_at = 0;
 		}
 	}
