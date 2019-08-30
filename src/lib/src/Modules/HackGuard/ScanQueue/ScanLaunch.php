@@ -19,13 +19,24 @@ class ScanLaunch {
 	 * @throws \Exception
 	 */
 	public function launch( $sSlug ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		if ( ( new IsScanEnqueued() )->setDbHandler( $oMod->getDbHandler_ScanQueue() )->check( $sSlug ) ) {
+			throw new \Exception( 'Scan is already running' );
+		}
+
 		$oAction = ( new BuildScanAction() )
-			->setMod( $this->getMod() )
+			->setMod( $oMod )
 			->build( $sSlug );
+
+		$oQ = $this->getQueueProcessor();
 		( new ScanEnqueue() )
-			->setMod( $this->getMod() )
-			->setQueueProcessor( $this->getQueueProcessor() )
+			->setMod( $oMod )
+			->setQueueProcessor( $oQ )
 			->setScanActionVO( $oAction )
 			->enqueue();
+
+//		$oQ->dispatch();
 	}
 }

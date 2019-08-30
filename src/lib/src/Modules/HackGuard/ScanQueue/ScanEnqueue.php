@@ -23,25 +23,32 @@ class ScanEnqueue {
 		$oAction = $this->getScanActionVO();
 		$aAllItems = (array)$oAction->items;
 
-		$oQP = $this->getQueueProcessor();
 		$nSliceSize = $oAction::ITEM_STORAGE_LIMIT;
 
-		$aFields = $this->getFields();
 		do {
 			$aSlice = array_slice( $aAllItems, 0, $nSliceSize );
 			$oAction->items = $aSlice;
 			$aAllItems = array_slice( $aAllItems, $nSliceSize );
-
-			$oEntry = new EntryVO();
-			foreach ( $aFields as $sField ) {
-				if ( isset( $oAction->{$sField} ) ) {
-					$oEntry->{$sField} = $oAction->{$sField};
-				}
-			}
-			$oQP->push_to_queue($oEntry);
+			$this->pushActionToQueue( $oAction );
 		} while ( !empty( $aAllItems ) );
 
-		$oQP->save();
+		$this->getQueueProcessor()->save();
+	}
+
+	/**
+	 * @param Scans\Base\BaseScanActionVO $oAction
+	 */
+	protected function pushActionToQueue( $oAction ) {
+		$oEntry = new EntryVO();
+		foreach ( $this->getFields() as $sField ) {
+			if ( isset( $oAction->{$sField} ) ) {
+				$oEntry->{$sField} = $oAction->{$sField};
+			}
+		}
+		unset( $oAction->items );
+		$oEntry->meta = $oAction->getRawDataAsArray();
+
+		$this->getQueueProcessor()->push_to_queue( $oEntry );
 	}
 
 	/**
