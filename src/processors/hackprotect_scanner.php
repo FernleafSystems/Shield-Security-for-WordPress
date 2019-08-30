@@ -15,6 +15,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	private $oAsyncScanController;
 
 	/**
+	 * @var Shield\Modules\HackGuard\ScanQueue\Controller
+	 */
+	private $oScanQueueController;
+
+	/**
 	 */
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -31,6 +36,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 			}
 		}
 
+		$this->setupScanQueue();
 		$this->handleAsyncScanRequest();
 		$this->setupCron();
 	}
@@ -43,6 +49,20 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 			 ->abortAllScans() // TODO: not abort all, but append?
 			 ->setupNewScanJob( $aScans );
 		$this->processAsyncScans();
+	}
+
+	public function getScanQueue() {
+		return $this->setupScanQueue();
+	}
+
+	/**
+	 */
+	private function setupScanQueue() {
+		if ( !isset( $this->oScanQueueController ) ) {
+			$this->oScanQueueController = ( new Shield\Modules\HackGuard\ScanQueue\Controller() )
+				->setMod( $this->getMod() );
+		}
+		return $this->oScanQueueController;
 	}
 
 	/**

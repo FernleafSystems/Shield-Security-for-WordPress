@@ -11,6 +11,11 @@ class QueueProcessor extends \WP_Background_Process {
 		Shield\Databases\Base\HandlerConsumer;
 
 	/**
+	 * @var string
+	 */
+	protected $action = 'shield_async_scans';
+
+	/**
 	 * Get batch
 	 *
 	 * @return \stdClass Return the first batch from the queue
@@ -48,6 +53,17 @@ class QueueProcessor extends \WP_Background_Process {
 
 		// mark as finished to update the entry.
 		return $item;
+	}
+
+	/**
+	 * Complete.
+	 *
+	 * Override if applicable, but ensure that the below actions are
+	 * performed, or, call parent::complete().
+	 */
+	protected function complete() {
+		parent::complete();
+		// collate and publish scan results and clean all entries
 	}
 
 	/**
