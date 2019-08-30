@@ -20,7 +20,7 @@ abstract class BaseBuildScanAction {
 		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Action VO not provided.' );
 		}
-		if ( empty( $oAction->id ) ) {
+		if ( empty( $oAction->scan ) ) {
 			throw new \Exception( 'Action ID not provided.' );
 		}
 

@@ -22,7 +22,7 @@ class Clean {
 	 * @return $this
 	 */
 	public function deleteAllForScan() {
-		$sScan = $this->getScanActionVO()->id;
+		$sScan = $this->getScanActionVO()->scan;
 		if ( !empty( $sScan ) ) {
 			/** @var Shield\Databases\Scanner\Delete $oDel */
 			$oDel = $this->getDbHandler()->getQueryDeleter();

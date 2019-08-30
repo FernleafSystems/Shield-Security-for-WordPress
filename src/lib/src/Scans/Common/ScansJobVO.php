@@ -68,7 +68,7 @@ class ScansJobVO {
 		$aScans = $this->getScans();
 		$aScans[ $sScanSlug ] = array_merge(
 			[
-				'id'         => $sScanSlug,
+				'scan'       => $sScanSlug,
 				'created_at' => 0,
 				'current'    => false,
 			],
@@ -86,7 +86,7 @@ class ScansJobVO {
 		$aScanInfo = isset( $aScn[ $sScanSlug ] ) ? $aScn[ $sScanSlug ] : [];
 		return array_merge(
 			[
-				'id'         => $sScanSlug,
+				'scan'       => $sScanSlug,
 				'created_at' => 0,
 				'current'    => false,
 			],

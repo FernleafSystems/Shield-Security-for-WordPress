@@ -7,7 +7,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 /**
  * Class ScanActionVO
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base
- * @property string   $id
+ * @property string   $scan
  * @property int      $created_at
  * @property int      $started_at
  * @property int      $finished_at

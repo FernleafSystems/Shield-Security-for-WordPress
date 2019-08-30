@@ -48,14 +48,14 @@ class ActionStore {
 	 * @return string
 	 */
 	public function getActionFilePath() {
-		return path_join( $this->getScanActionVO()->tmp_dir, 'action-'.$this->getScanActionVO()->id.'.txt' );
+		return path_join( $this->getScanActionVO()->tmp_dir, 'action-'.$this->getScanActionVO()->scan.'.txt' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getLockFilePath() {
-		return path_join( $this->getScanActionVO()->tmp_dir, '.action-'.$this->getScanActionVO()->id.'.lock' );
+		return path_join( $this->getScanActionVO()->tmp_dir, '.action-'.$this->getScanActionVO()->scan.'.lock' );
 	}
 
 	/**

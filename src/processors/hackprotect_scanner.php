@@ -86,7 +86,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		try {
 			$oAction = $this->getAsyncScanController()->runScans();
 			if ( $oAction->finished_at > 0 ) {
-				$this->getSubPro( $oAction->id )
+				$this->getSubPro( $oAction->scan )
 					 ->postScanActionProcess( $oAction );
 			}
 		}

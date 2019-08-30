@@ -114,7 +114,7 @@ class AsyncScansController {
 		if ( empty( $aWorkingScan ) ) {
 			$aUnfinished = $oJob->getUnfinishedScans();
 			$aWorkingScan = array_shift( $aUnfinished );
-			$oJob->setScanAsCurrent( $aWorkingScan[ 'id' ] );
+			$oJob->setScanAsCurrent( $aWorkingScan[ 'scan' ] );
 			$this->storeScansJob( $oJob );
 		}
 
@@ -129,10 +129,10 @@ class AsyncScansController {
 	 */
 	protected function setScanAsFinished( $oAction ) {
 		$oJob = $this->loadScansJob();
-		$aWorkingScan = $oJob->getScanInfo( $oAction->id );
+		$aWorkingScan = $oJob->getScanInfo( $oAction->scan );
 		$aWorkingScan[ 'finished_at' ] = $oAction->finished_at;
-		$oJob->setScanInfo( $oAction->id, $aWorkingScan );
-		$oJob->setScanAsCurrent( $oAction->id, false );
+		$oJob->setScanInfo( $oAction->scan, $aWorkingScan );
+		$oJob->setScanAsCurrent( $oAction->scan, false );
 		$this->storeScansJob( $oJob );
 		return $this;
 	}
@@ -142,7 +142,7 @@ class AsyncScansController {
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	private function getScanAction( $aWorkingScan ) {
-		$oAct = $this->getNewScanActionVO( $aWorkingScan[ 'id' ] );
+		$oAct = $this->getNewScanActionVO( $aWorkingScan[ 'scan' ] );
 		if ( $oAct instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct->applyFromArray( $aWorkingScan );
 
@@ -215,7 +215,7 @@ class AsyncScansController {
 
 		foreach ( $aScanSlugs as $sScanSlug ) {
 			$oJob->setScanInfo( $sScanSlug, [
-				'id'         => $sScanSlug,
+				'scan'         => $sScanSlug,
 				'created_at' => Services::Request()->ts(),
 			] );
 		}

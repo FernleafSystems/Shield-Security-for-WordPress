@@ -29,7 +29,7 @@ abstract class BaseScan {
 		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Action VO not provided.' );
 		}
-		if ( empty( $oAction->id ) ) {
+		if ( empty( $oAction->scan ) ) {
 			throw new \Exception( 'Action ID not provided.' );
 		}
 		if ( !Services::WpFs()->exists( $oAction->tmp_dir ) ) {

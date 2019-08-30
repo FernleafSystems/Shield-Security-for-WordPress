@@ -72,9 +72,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 						 ->getScanActionResults();
 		$this->updateScanResultsStore( $oResults );
 
-		$this->getCon()->fireEvent( $oAction->id.'_scan_run' );
+		$this->getCon()->fireEvent( $oAction->scan.'_scan_run' );
 		if ( $oResults->countItems() ) {
-			$this->getCon()->fireEvent( $oAction->id.'_scan_found' );
+			$this->getCon()->fireEvent( $oAction->scan.'_scan_found' );
 		}
 
 		if ( $oAction->is_cron ) {
@@ -131,7 +131,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return bool
 	 */
 	public function isScanLauncherSupported() {
-		return in_array( $this->getScanActionVO()->id, [ 'apc', 'mal', 'ptg', 'ufc', 'wcf', 'wpv' ] );
+		return in_array( $this->getScanActionVO()->scan, [ 'apc', 'mal', 'ptg', 'ufc', 'wcf', 'wpv' ] );
 	}
 
 	/**
@@ -140,7 +140,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	public function getScanActionVO() {
 		if ( !$this->oScanActionVO instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct = $this->getNewActionVO();
-			$oAct->id = static::SCAN_SLUG;
+			$oAct->scan = static::SCAN_SLUG;
 
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 			$oMod = $this->getMod();
@@ -248,7 +248,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO $oVo */
 		$oVo = $oSel->filterByHash( $oItem->hash )
-					->filterByScan( $this->getScanActionVO()->id )
+					->filterByScan( $this->getScanActionVO()->scan )
 					->first();
 		return $oVo;
 	}
