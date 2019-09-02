@@ -6,19 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
- * Class LaunchScan
+ * Class ScanInitiate
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue
  */
-class ScanLaunch {
+class ScanInitiate {
 
 	use ModConsumer,
 		QueueProcessorConsumer;
 
 	/**
+	 * Build and Enqueue.
 	 * @param string $sSlug
 	 * @throws \Exception
 	 */
-	public function launch( $sSlug ) {
+	public function init( $sSlug ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 

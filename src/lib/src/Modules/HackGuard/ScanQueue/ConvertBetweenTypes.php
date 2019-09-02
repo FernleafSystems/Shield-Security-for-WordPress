@@ -16,8 +16,13 @@ class ConvertBetweenTypes {
 
 	/**
 	 * @param ScanQueue\EntryVO $oEntry
+	 * @return Scans\Base\BaseScanActionVO|mixed
 	 */
 	public function fromDbEntryToAction( $oEntry ) {
+		$oScanAction = ( new ScanActionFromSlug() )->getAction( $oEntry->scan );
+		$oScanAction->applyFromArray( $oEntry->meta );
+		$oScanAction->items = $oEntry->items;
+		return $oScanAction;
 	}
 
 	/**

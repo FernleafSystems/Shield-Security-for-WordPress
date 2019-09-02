@@ -30,10 +30,10 @@ class Controller {
 	 * @throws \Exception
 	 */
 	public function startScan( $sScanSlug ) {
-		( new ScanLaunch() )
+		( new ScanInitiate() )
 			->setMod( $this->getMod() )
 			->setQueueProcessor( $this->getQueueProcessor() )
-			->launch( $sScanSlug );
+			->init( $sScanSlug );
 	}
 
 	/**
