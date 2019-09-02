@@ -118,9 +118,7 @@ class AsyncScansController {
 			$this->storeScansJob( $oJob );
 		}
 
-		$oAction = $this->getScanAction( $aWorkingScan );
-
-		return $oAction;
+		return $this->getScanAction( $aWorkingScan );
 	}
 
 	/**
@@ -142,7 +140,9 @@ class AsyncScansController {
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	private function getScanAction( $aWorkingScan ) {
-		$oAct = $this->getNewScanActionVO( $aWorkingScan[ 'scan' ] );
+		$oAct = ( new Shield\Modules\HackGuard\ScanQueue\ScanActionFromSlug() )
+			->getAction( $aWorkingScan[ 'scan' ] );
+
 		if ( $oAct instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct->applyFromArray( $aWorkingScan );
 
@@ -162,35 +162,6 @@ class AsyncScansController {
 		}
 
 		return $oAct;
-	}
-
-	/**
-	 * @param $sScanSlug
-	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
-	 */
-	private function getNewScanActionVO( $sScanSlug ) {
-		$oVO = null;
-		switch ( $sScanSlug ) {
-			case 'apc':
-				$oVO = new Shield\Scans\Apc\ScanActionVO();
-				break;
-			case 'mal':
-				$oVO = new Shield\Scans\Mal\ScanActionVO();
-				break;
-			case 'ptg':
-				$oVO = new Shield\Scans\Ptg\ScanActionVO();
-				break;
-			case 'ufc':
-				$oVO = new Shield\Scans\Ufc\ScanActionVO();
-				break;
-			case 'wcf':
-				$oVO = new Shield\Scans\Wcf\ScanActionVO();
-				break;
-			case 'wpv':
-				$oVO = new Shield\Scans\Wpv\ScanActionVO();
-				break;
-		}
-		return $oVO;
 	}
 
 	/**

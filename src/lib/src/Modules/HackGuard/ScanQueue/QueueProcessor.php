@@ -68,7 +68,9 @@ class QueueProcessor extends \WP_Background_Process {
 	 */
 	protected function complete() {
 		parent::complete();
-		// collate and publish scan results and clean all entries
+		// 1. Collate all results per scan
+
+		// 2. Delete.
 	}
 
 	/**

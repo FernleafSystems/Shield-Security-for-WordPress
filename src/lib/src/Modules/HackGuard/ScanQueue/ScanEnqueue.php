@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
@@ -22,12 +21,14 @@ class ScanEnqueue {
 	public function enqueue() {
 		$oAction = $this->getScanActionVO();
 		$aAllItems = (array)$oAction->items;
+		unset( $oAction->items );
 
 		$nSliceSize = $oAction::ITEM_STORAGE_LIMIT;
 
 		do {
-			$oAction->items = array_slice( $aAllItems, 0, $nSliceSize );
-			$this->pushActionToQueue( $oAction );
+			$oCurrent = clone $oAction;
+			$oCurrent->items = array_slice( $aAllItems, 0, $nSliceSize );
+			$this->pushActionToQueue( $oCurrent );
 			$aAllItems = array_slice( $aAllItems, $nSliceSize );
 		} while ( !empty( $aAllItems ) );
 
@@ -38,25 +39,9 @@ class ScanEnqueue {
 	 * @param Scans\Base\BaseScanActionVO $oAction
 	 */
 	protected function pushActionToQueue( $oAction ) {
-		$oEntry = new EntryVO();
-		foreach ( $this->getFields() as $sField ) {
-			if ( isset( $oAction->{$sField} ) ) {
-				$oEntry->{$sField} = $oAction->{$sField};
-			}
-		}
-		unset( $oAction->items );
-		$oEntry->meta = $oAction->getRawDataAsArray();
-
+		$oEntry = ( new ConvertBetweenTypes() )
+			->setMod( $this->getMod() )
+			->fromActionToDbEntry( $oAction );
 		$this->getQueueProcessor()->push_to_queue( $oEntry );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function getFields() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_ScanQueue();
-		return $oDbH->getColumnsDefinition();
 	}
 }
