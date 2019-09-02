@@ -18,6 +18,9 @@ class BuildScanAction {
 	 * @throws \Exception
 	 */
 	public function build( $sSlug ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		$oAction = ( new ScanActionFromSlug() )->getAction( $sSlug );
 
 		// Build the action definition:
@@ -25,9 +28,13 @@ class BuildScanAction {
 		$sClass = $oAction->getScanNamespace().'BuildScanAction';
 		/** @var Shield\Scans\Base\BaseBuildScanAction $oBuilder */
 		$oBuilder = new $sClass();
-		$oBuilder->setMod( $this->getMod() )
+		$oBuilder->setMod( $oMod )
 				 ->setScanActionVO( $oAction )
 				 ->build();
+
+		$oAction->tmp_dir = $oMod->getScansTempDir();
+		error_log( $oAction->tmp_dir );
+
 		return $oAction;
 	}
 }

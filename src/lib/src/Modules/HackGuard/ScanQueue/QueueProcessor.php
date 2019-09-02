@@ -52,11 +52,26 @@ class QueueProcessor extends \WP_Background_Process {
 	 * @return mixed
 	 */
 	protected function task( $oEntry ) {
-		// run scan action from this spec
-		// convert to Scan Action using items and meta
+		$oEntry->started_at = Services::Request()->ts();
+		/** @var ScanQueue\Update $oUpd */
+		$oUpd = $this->getDbHandler()->getQueryUpdater();
+		$oUpd->setStarted( $oEntry );
 
-		// marks the entry as finished and
-		$oEntry->finished_at = Services::Request()->ts();
+		try {
+			// The Entry object that comes back from this will have lost data
+			// necessary to update the database.
+			$oEntryWithResults = ( new ScanExecute() )
+				->setMod( $this->getMod() )
+				->execute( $oEntry );
+			if ( !empty( $oEntryWithResults->results ) ) {
+				$oEntry->results = $oEntryWithResults->results;
+			}
+		}
+		catch ( \Exception $oE ) {
+			error_log( $oE->getMessage() );
+		}
+
+		$oUpd->setFinished( $oEntry );
 		return $oEntry;
 	}
 
@@ -109,7 +124,8 @@ class QueueProcessor extends \WP_Background_Process {
 	protected function is_queue_empty() {
 		/** @var ScanQueue\Select $oSel */
 		$oSel = $this->getDbHandler()->getQuerySelector();
-		$nUnfinished = $oSel->filterByNotFinished()
+		$nUnfinished = $oSel->filterByNotStarted()
+							->filterByNotFinished()
 							->count();
 		return $nUnfinished === 0;
 	}
@@ -144,8 +160,8 @@ class QueueProcessor extends \WP_Background_Process {
 	public function update( $key, $data ) {
 		/** @var ScanQueue\Update $oUpd */
 		$oUpd = $this->getDbHandler()->getQueryUpdater();
-		$oUpd->updateEntry( array_shift( $data ) );
-
+		$oToUpdate = array_shift( $data );
+		$oUpd->updateEntry( $oToUpdate );
 		return $this;
 	}
 

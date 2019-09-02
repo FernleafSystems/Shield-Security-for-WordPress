@@ -11,8 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 class ScanExecute {
 
-	use Shield\Modules\ModConsumer,
-		QueueProcessorConsumer;
+	use Shield\Modules\ModConsumer;
 
 	/**
 	 * @param ScanQueue\EntryVO $oEntry

@@ -22,6 +22,7 @@ class ConvertBetweenTypes {
 		$oScanAction = ( new ScanActionFromSlug() )->getAction( $oEntry->scan );
 		$oScanAction->applyFromArray( $oEntry->meta );
 		$oScanAction->items = $oEntry->items;
+		$oScanAction->results = $oEntry->results;
 		return $oScanAction;
 	}
 
@@ -37,6 +38,7 @@ class ConvertBetweenTypes {
 			}
 		}
 		unset( $oAction->items );
+		unset( $oAction->results );
 		$oEntry->meta = $oAction->getRawDataAsArray();
 		return $oEntry;
 	}

@@ -25,12 +25,14 @@ abstract class BaseScan {
 	 * @throws \Exception
 	 */
 	protected function preScan() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		$oAction = $this->getScanActionVO();
 		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Action VO not provided.' );
 		}
 		if ( empty( $oAction->scan ) ) {
-			throw new \Exception( 'Action ID not provided.' );
+			throw new \Exception( 'Action Slug not provided.' );
 		}
 		if ( !Services::WpFs()->exists( $oAction->tmp_dir ) ) {
 			throw new \Exception( 'TMP Dir does not exist' );
