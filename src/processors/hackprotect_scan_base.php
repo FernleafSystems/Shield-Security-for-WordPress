@@ -44,7 +44,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	/**
 	 */
 	public function launchScan() {
-		$this->getScannerDb()->launchScans( [ static::SCAN_SLUG ] );
+		$this->getScannerDb()
+			 ->getScanQueue()
+			 ->startScan( static::SCAN_SLUG );
 	}
 
 	/**
@@ -108,15 +110,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Scans\Base\BaseRepair|mixed|null
 	 */
 	abstract protected function getRepairer();
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanLauncher|null
-	 */
-	protected function getScanLauncher() {
-		return ( new Shield\Scans\Common\ScanLauncher() )
-			->setMod( $this->getMod() )
-			->setScanActionVO( $this->getScanActionVO() );
-	}
 
 	/**
 	 * @return bool

@@ -9,10 +9,39 @@ class Select extends Base\Select {
 	use Common;
 
 	/**
+	 * @return string|null
+	 */
+	public function getCurrentScan() {
+		return $this->reset()
+					->setResultsAsVo( true )
+					->setColumnsToSelect( [ 'scan' ] )
+					->filterByStarted()
+					->filterByNotFinished()
+					->queryVar();
+	}
+
+	/**
 	 * @return string[]
 	 */
-	public function getDistinctSeverity() {
-		return $this->getDistinct_FilterAndSort( 'severity' );
+	public function getInitiatedScans() {
+		return $this->getDistinctForColumn( 'scan' );
+	}
+
+	/**
+	 * @return array[]
+	 */
+	public function getUnfinishedScans() {
+		$aResults = $this->reset()
+						 ->setResultsAsVo( true )
+						 ->setColumnsToSelect( [ 'scan' ] )
+						 ->filterByNotFinished()
+						 ->query();
+		$aScans = [];
+		/** @var EntryVO $oEntry */
+		foreach ( $aResults as $oEntry ) {
+			$aScans[ $oEntry->scan ] = 1;
+		}
+		return array_keys( $aScans );
 	}
 
 	/**

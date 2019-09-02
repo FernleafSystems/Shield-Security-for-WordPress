@@ -528,20 +528,6 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key":          "scans_job",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
-    },
-    {
-      "key":          "scan_key",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "ptg_last_build_at",
       "section":      "section_non_ui",
       "transferable": false,

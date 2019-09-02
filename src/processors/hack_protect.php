@@ -93,6 +93,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		}
 
 		$oScannerMain = $this->getSubProScanner();
+		$oQueCon = $oScannerMain->getScanQueue();
 		$aData = [
 			'ajax'    => [
 				'scans_start'           => $oMod->getAjaxActionData( 'scans_start', true ),
@@ -130,7 +131,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'initial_check' => $oScannerMain->hasRunningScans()
+				'initial_check' => $oQueCon->hasRunningScans()
 			],
 			'scans'   => [
 				'apc' => [

@@ -37,14 +37,14 @@ trait Common {
 	 * @return $this
 	 */
 	public function filterByFinished() {
-		return $this->addWhereOlderThan( 0, 'finished_at' );
+		return $this->addWhereNewerThan( 0, 'finished_at' );
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function filterByStarted() {
-		return $this->addWhereOlderThan( 0, 'started_at' );
+		return $this->addWhereNewerThan( 0, 'started_at' );
 	}
 
 	/**

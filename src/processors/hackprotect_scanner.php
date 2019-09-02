@@ -10,11 +10,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	use Shield\Crons\StandardCron;
 
 	/**
-	 * @var Shield\Scans\Common\AsyncScansController
-	 */
-	private $oAsyncScanController;
-
-	/**
 	 * @var Shield\Modules\HackGuard\ScanQueue\Controller
 	 */
 	private $oScanQueueController;
@@ -35,25 +30,16 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 				$this->getSubProcessorPtg()->execute();
 			}
 		}
-		try {
-			$this->setupScanQueue();
-		}
-		catch ( Exception $e ) {
-			var_dump($e);
-			die();
-		}
-		$this->handleAsyncScanRequest();
+		$this->setupScanQueue();
 		$this->setupCron();
 	}
 
 	/**
-	 * @param string[] $aScans
+	 * @param string $sScanSlug
 	 */
-	public function launchScans( $aScans ) {
-		$this->getAsyncScanController()
-			 ->abortAllScans() // TODO: not abort all, but append?
-			 ->setupNewScanJob( $aScans );
-		$this->processAsyncScans();
+	public function launchScan( $sScanSlug ) {
+		$this->getScanQueue()
+			 ->startScan( $sScanSlug );
 	}
 
 	public function getScanQueue() {
@@ -62,7 +48,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 
 	/**
 	 * @return Shield\Modules\HackGuard\ScanQueue\Controller
-	 * @throws \Exception
 	 */
 	private function setupScanQueue() {
 		if ( !isset( $this->oScanQueueController ) ) {
@@ -74,85 +59,13 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
-	 *
-	 */
-	private function handleAsyncScanRequest() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		$bIsScanRequest = ( !Services::WpGeneral()->isAjax() &&
-							$this->getCon()->getShieldAction() == 'scan_async_process'
-							&& Services::Request()->query( 'scan_key' ) == $oOpts->getScanKey() );
-		if ( $bIsScanRequest ) {
-			$this->processAsyncScans();
-			die();
-		}
-	}
-
-	/**
-	 */
-	private function processAsyncScans() {
-		try {
-			$oAction = $this->getAsyncScanController()->runScans();
-			if ( $oAction->finished_at > 0 ) {
-				$this->getSubPro( $oAction->scan )
-					 ->postScanActionProcess( $oAction );
-			}
-		}
-		catch ( \Exception $oE ) {
-//			error_log( $oE->getMessage() );
-		}
-	}
-
-	/**
-	 * @return Shield\Scans\Common\AsyncScansController
-	 */
-	public function getAsyncScanController() {
-		if ( empty( $this->oAsyncScanController ) ) {
-			$this->oAsyncScanController = ( new Shield\Scans\Common\AsyncScansController() )
-				->setMod( $this->getMod() );
-		}
-		return $this->oAsyncScanController;
-	}
-
-	/**
 	 * @param string $sSlug
-	 * @return ICWP_WPSF_Processor_ScanBase|null
+	 * @return \ICWP_WPSF_Processor_ScanBase|null
 	 */
 	public function getScannerFromSlug( $sSlug ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		return in_array( $sSlug, $oMod->getAllScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
-	}
-
-	/**
-	 * @return bool[]
-	 */
-	public function getScansRunningStates() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$aRunning = [];
-
-		$oS = $this->getAsyncScanController();
-		$oS->cleanStaleScans();
-		$oJob = $oS->loadScansJob();
-		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
-			$aRunning[ $sSlug ] = $oJob->isScanInited( $sSlug );
-		}
-		return $aRunning;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getRunningScans() {
-		return array_keys( array_filter( $this->getScansRunningStates() ) );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasRunningScans() {
-		return count( $this->getRunningScans() ) > 0;
 	}
 
 	/**
@@ -262,16 +175,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
-		$aScansToRun = array_filter(
-			$oMod->getAllScanSlugs(),
-			function ( $sScanSlug ) {
-				$oProc = $this->getSubPro( $sScanSlug );
-				return $oProc->isAvailable() && $oProc->isEnabled();
+		foreach ( $oMod->getAllScanSlugs() as $sScanSlug ) {
+			$oProc = $this->getSubPro( $sScanSlug );
+			if ( $oProc->isAvailable() && $oProc->isEnabled() ) {
+				$this->launchScan( $sScanSlug );
 			}
-		);
-
-		if ( !empty( $aScansToRun ) ) {
-			$this->launchScans( $aScansToRun );
 		}
 	}
 

@@ -142,12 +142,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		$sItemId = $oReq->post( 'rid' );
 		$aItemIds = $oReq->post( 'ids' );
-		$sScannerSlug = $oReq->post( 'fScan' );
+		$sScanSlug = $oReq->post( 'fScan' );
 
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
 		$oScanner = $oP->getSubProScanner();
-		$oTablePro = $oScanner->getScannerFromSlug( $sScannerSlug );
+		$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
 
 		if ( empty( $oTablePro ) ) {
 			$sMessage = __( 'Unsupported scanner', 'wp-simple-firewall' );
@@ -179,7 +179,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				// We don't rescan for ignores.
 				if ( !in_array( $sAction, [ 'ignore' ] ) ) {
-					$oScanner->launchScans( [ $sScannerSlug ] );
+					$oScanner->launchScan( $sScanSlug );
 					$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 				}
 				else {
@@ -208,14 +208,16 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oP = $oMod->getProcessor();
 		/** @var Strings $oStrings */
 		$oStrings = $oMod->getStrings();
+		$oDbH = $oMod->getDbHandler_ScanQueue();
+		/** @var Shield\Databases\ScanQueue\Select $oSel */
+		$oSel = $oDbH->getQuerySelector();
 		$oScanPro = $oP->getSubProScanner();
-		$oScanCon = $oScanPro->getAsyncScanController();
-		$oJob = $oScanCon->loadScansJob();
-//		$oScanCon->abortAllScans();
-		$aCurrent = $oJob->getCurrentScan();
-		$bHasCurrent = !empty( $aCurrent );
+
+		$oQueCon = $oScanPro->getScanQueue();
+		$sCurrent = $oSel->getCurrentScan();
+		$bHasCurrent = !empty( $sCurrent );
 		if ( $bHasCurrent ) {
-			$sCurrentScan = $oStrings->getScanName( $aCurrent[ 'id' ] );
+			$sCurrentScan = $oStrings->getScanName( $sCurrent );
 		}
 		else {
 			$sCurrentScan = __( 'No scan running.', 'wp-simple-firewall' );
@@ -223,7 +225,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		return [
 			'success' => true,
-			'running' => $oScanPro->getScansRunningStates(),
+			'running' => $oQueCon->getScansRunningStates(),
 			'vars'    => [
 				'progress_html' => $oMod->renderTemplate(
 					'/wpadmin_pages/insights/scans/modal_progress_snippet.twig',
@@ -231,8 +233,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
 						'scan'            => $sCurrentScan,
 						'remaining_scans' => sprintf( __( '%s of %s scans remaining.', 'wp-simple-firewall' ),
-							count( $oJob->getUnfinishedScans() ), count( $oJob->getInitiatedScans() ) ),
-						'progress'        => 100*$oJob->getScanJobProgress(),
+							count( $oSel->getUnfinishedScans() ), count( $oSel->getInitiatedScans() ) ),
+						'progress'        => 100*$oQueCon->getScanJobProgress(),
 						'patience_1'      => __( 'Please be patient.', 'wp-simple-firewall' ),
 						'patience_2'      => __( 'Some scans can take quite a while to complete.', 'wp-simple-firewall' ),
 						'completed'       => __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' ).'...'
@@ -256,6 +258,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
 		$oScanner = $oP->getSubProScanner();
+		$oQueCon = $oScanner->getScanQueue();
+
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );
 
@@ -263,14 +267,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
 			$oMod->setUiTrack( $aUiTrack );
 
-			$aScansToRun = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
 
 				$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
 
 				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
 					$bAsync = true;
-					$aScansToRun[] = $sScanSlug;
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
 						$oTablePro->resetIgnoreStatus();
@@ -284,12 +286,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					$sMessage = $bAsync ?
 						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' )
 						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
+
+					$oScanner->launchScan( $sScanSlug );
 				}
 			}
-			$oScanner->launchScans( $aScansToRun );
 		}
 
-		$bScansRunning = $oScanner->hasRunningScans();
+		$bScansRunning = $oQueCon->hasRunningScans();
+
 		return [
 			'success'       => $bSuccess,
 			'scans_running' => $bScansRunning,
