@@ -63,7 +63,7 @@ class QueueProcessor extends \WP_Background_Process {
 				->execute( $oEntry );
 		}
 		catch ( \Exception $oE ) {
-			error_log( $oE->getMessage() );
+//			error_log( $oE->getMessage() );
 		}
 
 		$oUpd->setFinished( $oEntry );
@@ -79,7 +79,10 @@ class QueueProcessor extends \WP_Background_Process {
 	protected function complete() {
 		parent::complete();
 		// 1. Collate all results per scan
-
+		( new CompleteQueue() )
+			->setDbHandler( $this->getDbHandler() )
+			->setMod( $this->getMod() )
+			->complete();
 		// 2. Delete.
 	}
 

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ScanResults;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class Clean extends Scans\Base\ScanResults\Clean {
+class Clean extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Clean {
 
 	/**
 	 * @return $this

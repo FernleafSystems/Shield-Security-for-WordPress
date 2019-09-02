@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
 
 /**
  * Class BuildScanAction
@@ -33,7 +34,6 @@ class BuildScanAction {
 				 ->build();
 
 		$oAction->tmp_dir = $oMod->getScansTempDir();
-		error_log( $oAction->tmp_dir );
 
 		return $oAction;
 	}

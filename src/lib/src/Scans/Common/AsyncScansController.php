@@ -140,7 +140,7 @@ class AsyncScansController {
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	private function getScanAction( $aWorkingScan ) {
-		$oAct = ( new Shield\Modules\HackGuard\ScanQueue\ScanActionFromSlug() )
+		$oAct = ( new Shield\Modules\HackGuard\Scan\ScanActionFromSlug() )
 			->getAction( $aWorkingScan[ 'scan' ] );
 
 		if ( $oAct instanceof Shield\Scans\Base\BaseScanActionVO ) {
