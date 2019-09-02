@@ -28,14 +28,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oResults
-	 * @return Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\Apc\ConvertResultsToVos() )->convert( $oResults );
-	}
-
-	/**
 	 * @param mixed|Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Shield\Scans\Apc\ResultsSet
 	 */
@@ -56,13 +48,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getRepairer() {
 		return null;
-	}
-
-	/**
-	 * @return Shield\Scans\Apc\ScanActionVO
-	 */
-	protected function getNewActionVO() {
-		return new Shield\Scans\Apc\ScanActionVO();
 	}
 
 	/**

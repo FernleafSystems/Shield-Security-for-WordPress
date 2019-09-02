@@ -17,14 +17,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Wcf\ResultsSet $oResults
-	 * @return Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\Wcf\ConvertResultsToVos() )->convert( $oResults );
-	}
-
-	/**
 	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Shield\Scans\Wcf\ResultsSet
 	 */
@@ -45,36 +37,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getRepairer() {
 		return new Shield\Scans\Wcf\Repair();
-	}
-
-	/**
-	 * @return Shield\Scans\Wcf\ScanActionVO
-	 */
-	protected function getNewActionVO() {
-		return new Shield\Scans\Wcf\ScanActionVO();
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getFullExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions' );
-		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
-
-		// Flywheel specific mods
-		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
-			$aExclusions[] = 'wp-settings.php';
-			$aExclusions[] = 'wp-admin/includes/upgrade.php';
-		}
-		return $aExclusions;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getMissingOnlyExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions_missing_only' );
-		return is_array( $aExclusions ) ? $aExclusions : [];
 	}
 
 	/**

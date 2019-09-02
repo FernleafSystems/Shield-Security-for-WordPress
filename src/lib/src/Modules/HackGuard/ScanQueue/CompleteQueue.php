@@ -28,15 +28,24 @@ class CompleteQueue {
 		/** @var Databases\Scanner\Handler $oDbH */
 		$oDbHResults = $oMod->getDbHandler();
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
+
+			$oAction = ( new Scan\ScanActionFromSlug() )->getAction( $sScanSlug );
+
 			$oResultsSet = ( new CollateResults() )
 				->setDbHandler( $oDbH )
 				->collate( $sScanSlug );
 
+			$this->getCon()->fireEvent( $oAction->scan.'_scan_run' );
+
 			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
 				( new Scan\Results\ResultsUpdate() )
 					->setDbHandler( $oDbHResults )
-					->setScanActionVO( ( new Scan\ScanActionFromSlug() )->getAction( $sScanSlug ) )
+					->setScanActionVO( $oAction )
 					->update( $oResultsSet );
+
+				if ( $oResultsSet->countItems() > 0 ) {
+					$this->getCon()->fireEvent( $oAction->scan.'_scan_found' );
+				}
 			}
 
 			/** @var Databases\ScanQueue\Delete $oDel */

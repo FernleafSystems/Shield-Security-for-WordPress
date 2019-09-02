@@ -72,12 +72,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	public function postScanActionProcess( $oAction ) {
 		$oResults = $this->setScanActionVO( $oAction )
 						 ->getScanActionResults();
-		$this->updateScanResultsStore( $oResults );
-
-		$this->getCon()->fireEvent( $oAction->scan.'_scan_run' );
-		if ( $oResults->countItems() ) {
-			$this->getCon()->fireEvent( $oAction->scan.'_scan_found' );
-		}
+//		$this->updateScanResultsStore( $oResults );
 
 		if ( $oAction->is_cron ) {
 			$this->cronProcessScanResults();
@@ -112,22 +107,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	abstract protected function getRepairer();
 
 	/**
-	 * @return bool
-	 */
-	public function isScanRunning() {
-		return ( new Shield\Scans\Base\ScanActionQuery() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->isRunning();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isScanLauncherSupported() {
-		return in_array( $this->getScanActionVO()->scan, [ 'apc', 'mal', 'ptg', 'ufc', 'wcf', 'wpv' ] );
-	}
-
-	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
@@ -150,19 +129,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	protected function getNewActionVO() {
-		return new Shield\Scans\Base\BaseScanActionVO();
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oNewResults
-	 */
-	protected function updateScanResultsStore( $oNewResults ) {
-		$oNewCopy = clone $oNewResults; // so we don't modify these for later use.
-		$oExisting = $this->readScanResultsFromDb();
-		$oItemsToDelete = ( new Shield\Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
-		$this->deleteResultsSet( $oItemsToDelete );
-		$this->storeNewScanResults( $oNewCopy );
-		$this->updateExistingScanResults( $oExisting );
+		return ( new Shield\Modules\HackGuard\Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
 	}
 
 	/**
@@ -182,41 +149,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		$oSelector = $this->getMod()->getDbHandler()->getQuerySelector();
 		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
 	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oResults
-	 */
-	protected function storeNewScanResults( $oResults ) {
-		$oInsert = $this->getMod()->getDbHandler()->getQueryInserter();
-		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
-			$oInsert->insert( $oVo );
-		}
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oResults
-	 */
-	protected function updateExistingScanResults( $oResults ) {
-		$oUp = $this->getMod()->getDbHandler()->getQueryUpdater();
-		/** @var Shield\Databases\Scanner\EntryVO $oVo */
-		foreach ( $this->convertResultsToVos( $oResults ) as $oVo ) {
-			$oUp->reset()
-				->setUpdateData( $oVo->getRawDataAsArray() )
-				->setUpdateWheres(
-					[
-						'scan' => static::SCAN_SLUG,
-						'hash' => $oVo->hash,
-					]
-				)
-				->query();
-		}
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oResults
-	 * @return Shield\Databases\Base\EntryVO[] $aVos
-	 */
-	abstract protected function convertResultsToVos( $oResults );
 
 	/**
 	 * @param Shield\Databases\Scanner\EntryVO[] $aVos

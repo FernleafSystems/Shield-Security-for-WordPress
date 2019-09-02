@@ -18,7 +18,7 @@ class QueueProcessor extends \WP_Background_Process {
 	/**
 	 * @var string
 	 */
-	protected $action = 'shield_async_scans';
+	protected $action = 'async_scans';
 
 	/**
 	 * Get batch
