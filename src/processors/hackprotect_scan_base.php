@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\ShieldProcessor {
@@ -70,35 +71,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param Shield\Scans\Base\BaseScanActionVO $oAction
 	 */
 	public function postScanActionProcess( $oAction ) {
-		$oResults = $this->setScanActionVO( $oAction )
-						 ->getScanActionResults();
-//		$this->updateScanResultsStore( $oResults );
 
 		if ( $oAction->is_cron ) {
 			$this->cronProcessScanResults();
 		}
-	}
-
-	/**
-	 * @return Shield\Scans\Base\BaseResultsSet|mixed
-	 */
-	protected function getScanActionResults() {
-		$oAction = $this->getScanActionVO();
-		$oResults = $oAction->getNewResultsSet();
-		if ( !empty( $oAction->results ) ) {
-			foreach ( $oAction->results as $aRes ) {
-				$oResults->addItem( $oAction->getNewResultItem()->applyFromArray( $aRes ) );
-			}
-		}
-		return $oResults;
-	}
-
-	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
-	 */
-	protected function getLiveResults() {
-		$this->launchScan();
-		return $this->getScanActionResults();
 	}
 
 	/**
@@ -129,14 +105,14 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	protected function getNewActionVO() {
-		return ( new Shield\Modules\HackGuard\Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
+		return ( new Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
 	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultsSet $oToDelete
 	 */
 	protected function deleteResultsSet( $oToDelete ) {
-		( new Shield\Modules\HackGuard\Scan\Results\Clean() )
+		( new Scan\Results\Clean() )
 			->setDbHandler( $this->getMod()->getDbHandler() )
 			->deleteResults( $oToDelete );
 	}
@@ -154,13 +130,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
-	abstract protected function convertVosToResults( $aVos );
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Base\BaseResultItem
-	 */
-	abstract protected function convertVoToResultItem( $oVo );
+	protected function convertVosToResults( $aVos ) {
+		return ( new Scan\Results\ConvertBetweenTypes() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->fromVOsToResultsSet( $aVos );
+	}
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
@@ -230,7 +204,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 				throw new \Exception( 'Item could not be found.' );
 			}
 
-			$oItem = $this->convertVoToResultItem( $oEntry );
+			$oItem = ( new Scan\Results\ConvertBetweenTypes() )
+				->setScanActionVO( $this->getScanActionVO() )
+				->convertVoToResultItem( $oEntry );
 
 			switch ( $sAction ) {
 				case 'delete':
@@ -425,7 +401,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return $this
 	 */
 	public function resetScan() {
-		( new Shield\Scans\Ptg\ScanResults\Clean() )
+		( new Scan\Results\Clean() )
 			->setDbHandler( $this->getMod()->getDbHandler() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->deleteAllForScan();

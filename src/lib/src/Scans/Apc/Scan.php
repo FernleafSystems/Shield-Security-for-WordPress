@@ -21,8 +21,6 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			$oAction->items = [];
 		}
 
-		$oAction->processed_items += count( $aSlice );
-
 		foreach ( $aSlice as $nKey => $sItem ) {
 			$oItem = $this->getItemScanner()->scan( $sItem );
 			if ( $oItem instanceof Shield\Scans\Base\BaseResultItem ) {

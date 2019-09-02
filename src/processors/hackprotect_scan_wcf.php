@@ -17,22 +17,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Wcf\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Wcf\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Wcf\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Wcf\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
 	 * @return Shield\Scans\Wcf\Repair|mixed
 	 */
 	protected function getRepairer() {

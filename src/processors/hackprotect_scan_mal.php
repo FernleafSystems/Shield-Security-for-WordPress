@@ -31,22 +31,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Mal\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Mal\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Mal\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Mal\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
 	 * @return Shield\Scans\Mal\Repair
 	 */
 	protected function getRepairer() {

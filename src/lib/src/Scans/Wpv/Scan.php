@@ -3,31 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Scan extends Shield\Scans\Base\BaseScan {
 
 	protected function scanSlice() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-
-		if ( (int)$oAction->item_processing_limit > 0 ) {
-			$aSlice = array_slice( $oAction->items, 0, $oAction->item_processing_limit );
-			$oAction->items = array_slice( $oAction->items, $oAction->item_processing_limit );
-		}
-		else {
-			$aSlice = $oAction->items;
-			$oAction->items = [];
-		}
-
-		$oAction->processed_items += count( $aSlice );
-
 		$oTempRs = $oAction->getNewResultsSet();
 
-		foreach ( $aSlice as $sFile => $sContext ) {
+		$oCopier = new Shield\Scans\Helpers\CopyResultsSets();
+		foreach ( $oAction->items as $sFile => $sContext ) {
 			$oNewRes = $this->getItemScanner( $sContext )->scan( $sFile );
 			if ( $oNewRes instanceof Shield\Scans\Base\BaseResultsSet ) {
-				( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $oNewRes, $oTempRs );
+				$oCopier->copyTo( $oNewRes, $oTempRs );
 			}
 		}
 

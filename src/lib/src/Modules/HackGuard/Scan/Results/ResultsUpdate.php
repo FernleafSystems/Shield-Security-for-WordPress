@@ -40,7 +40,8 @@ class ResultsUpdate {
 
 		$oUp = $oDbH->getQueryUpdater();
 		/** @var Databases\Scanner\EntryVO $oVo */
-		foreach ( ( new ConvertBetweenTypes() )->fromResultsToVOs( $oExisting ) as $oVo ) {
+		$oConverter = ( new ConvertBetweenTypes() )->setScanActionVO( $oAction );
+		foreach ( $oConverter->fromResultsToVOs( $oExisting ) as $oVo ) {
 			$oUp->reset()
 				->setUpdateData( $oVo->getRawDataAsArray() )
 				->setUpdateWheres(

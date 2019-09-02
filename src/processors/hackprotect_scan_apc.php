@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
@@ -25,22 +26,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 
 	public function onDeletedPlugin() {
 		$this->launchScan();
-	}
-
-	/**
-	 * @param mixed|Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Apc\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Apc\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Apc\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Apc\ConvertVosToResults() )->convertItem( $oVo );
 	}
 
 	/**

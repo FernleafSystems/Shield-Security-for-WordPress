@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -228,8 +229,10 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
 								 ->query();
-		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ConvertVosToResults() )
-			->convert( $aPtgResults );
+		/** @var Shield\Scans\Ptg\ResultsSet $oFullResults */
+		$oFullResults = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			->setScanActionVO( ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( 'ptg' ) )
+			->fromVOsToResultsSet( $aPtgResults );
 
 		// Process Plugins
 		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();

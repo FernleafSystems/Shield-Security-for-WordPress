@@ -53,22 +53,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param mixed|Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Wpv\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Wpv\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Wpv\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Wpv\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
 	 * @return Shield\Scans\Wpv\Repair
 	 */
 	protected function getRepairer() {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,6 +12,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
 class ScanBase extends BaseBuild {
+
+	use ScanActionConsumer;
 
 	/**
 	 * Override this to apply table-specific query filters.

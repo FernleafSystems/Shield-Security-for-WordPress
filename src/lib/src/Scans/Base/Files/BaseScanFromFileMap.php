@@ -29,8 +29,6 @@ abstract class BaseScanFromFileMap {
 				$aSlice = $oAction->items;
 			}
 
-			$oAction->processed_items += count( $aSlice );
-
 			foreach ( $aSlice as $nKey => $sFullPath ) {
 				$oItem = $this->getFileScanner()->scan( $sFullPath );
 				if ( $oItem instanceof Scans\Base\BaseResultItem ) {

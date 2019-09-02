@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
@@ -57,7 +58,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_BuildTableScan() {
 		$oMod = $this->getMod();
 
-		switch ( Services::Request()->post( 'fScan' ) ) {
+		$sScanSlug = Services::Request()->post( 'fScan' );
+		switch ( $sScanSlug ) {
 
 			case 'apc':
 				$oTableBuilder = new Shield\Tables\Build\ScanApc();
@@ -94,6 +96,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sHtml = $oTableBuilder
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler() )
+				->setScanActionVO( ( new Scan\ScanActionFromSlug() )->getAction( $sScanSlug ) )
 				->buildTable();
 		}
 

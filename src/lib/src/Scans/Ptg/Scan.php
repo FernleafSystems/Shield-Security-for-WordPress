@@ -31,8 +31,6 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			$oAction->items = [];
 		}
 
-		$oAction->processed_items += count( $aSlice );
-
 		$oTempRs = $oAction->getNewResultsSet();
 
 		$oWpPlugins = Services::WpPlugins();

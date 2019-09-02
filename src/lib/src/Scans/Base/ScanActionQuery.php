@@ -45,29 +45,6 @@ class ScanActionQuery {
 	}
 
 	/**
-	 * @return float|null
-	 * @throws \Exception
-	 */
-	public function getPercentageComplete() {
-		$nPercent = null;
-		if ( $this->isRunning() ) {
-			$aDef = $this->getActionStore()->readActionDefinitionFromDisk();
-			if ( !empty( $aDef ) ) {
-				$oAction = ( new BaseScanActionVO() )->applyFromArray( $aDef );
-
-				if ( $oAction->finished_at > 0 ) {
-					$nPercent = 100;
-				}
-				else {
-					$nPercent = $oAction->processed_items/$oAction->total_scan_items;
-				}
-			}
-		}
-
-		return $nPercent;
-	}
-
-	/**
 	 * @return ActionStore
 	 */
 	protected function getActionStore() {

@@ -14,7 +14,6 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property bool     $is_async
  * @property bool     $is_cron
  * @property bool     $is_items_built
- * @property int      $processed_items
  * @property int      $total_scan_items
  * @property int      $item_processing_limit
  * @property string   $tmp_dir

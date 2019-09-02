@@ -42,7 +42,6 @@ abstract class BaseBuildScanAction {
 		}
 		$this->buildItems();
 		$oAction->is_items_built = true;
-		$oAction->processed_items = 0;
 		$oAction->total_scan_items = count( $oAction->items );
 	}
 

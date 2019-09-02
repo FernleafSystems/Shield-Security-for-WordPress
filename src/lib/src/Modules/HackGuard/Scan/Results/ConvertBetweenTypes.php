@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * Class ConvertBetweenTypes
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
  */
 class ConvertBetweenTypes {
 

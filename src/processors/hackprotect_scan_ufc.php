@@ -17,22 +17,6 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Ufc\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Ufc\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Ufc\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Ufc\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
 	 * @return Shield\Scans\Ufc\Repair
 	 */
 	protected function getRepairer() {

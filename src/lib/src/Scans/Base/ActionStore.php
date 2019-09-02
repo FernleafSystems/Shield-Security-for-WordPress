@@ -61,13 +61,6 @@ class ActionStore {
 	/**
 	 * @return bool
 	 */
-	public function isActionRunning() {
-		return Services::WpFs()->exists( $this->getActionFilePath() );
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isLocked() {
 		return Services::WpFs()->exists( $this->getLockFilePath() );
 	}
