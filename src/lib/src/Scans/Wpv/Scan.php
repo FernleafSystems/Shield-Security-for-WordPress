@@ -19,16 +19,13 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			}
 		}
 
+		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {
-			$aNewItems = [];
-			foreach ( $oTempRs->getAllItems() as $oNewRes ) {
-				$aNewItems[] = $oNewRes->getRawDataAsArray();
+			foreach ( $oTempRs->getAllItems() as $oItem ) {
+				$aNewItems[] = $oItem->getRawDataAsArray();
 			}
-			if ( empty( $oAction->results ) ) {
-				$oAction->results = [];
-			}
-			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
+		$oAction->results = $aNewItems;
 	}
 
 	/**

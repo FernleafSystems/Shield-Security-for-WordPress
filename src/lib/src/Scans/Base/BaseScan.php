@@ -32,9 +32,6 @@ abstract class BaseScan {
 		if ( empty( $oAction->scan ) ) {
 			throw new \Exception( 'Action Slug not provided.' );
 		}
-		if ( !Services::WpFs()->exists( $oAction->tmp_dir ) ) {
-			throw new \Exception( 'TMP Dir does not exist' );
-		}
 	}
 
 	protected function scan() {

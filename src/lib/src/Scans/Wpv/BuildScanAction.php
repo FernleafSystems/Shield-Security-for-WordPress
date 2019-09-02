@@ -24,10 +24,4 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
 		$oAction->items = $aItems;
 	}
-
-	protected function setCustomFields() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oAction->item_processing_limit = $oAction->is_async ? 3 : 0;
-	}
 }

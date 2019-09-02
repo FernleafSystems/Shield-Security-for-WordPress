@@ -88,8 +88,8 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
@@ -98,11 +98,11 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() ) {
+		if ( $oMod->isWcfScanAutoRepair() || $oMod->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );
 			$aContent[] = '';
 
-			if ( $oFO->isWcfScanAutoRepair() ) {
+			if ( $oMod->isWcfScanAutoRepair() ) {
 				$aContent[] = '<strong>'.sprintf( __( "%s has already attempted to repair the files.", 'wp-simple-firewall' ), $sName ).'</strong>'
 							  .' '.__( 'But, you should always check these files to ensure everything is as you expect.', 'wp-simple-firewall' );
 			}

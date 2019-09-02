@@ -15,11 +15,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	protected $oScanner;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
-		add_action( $oMod->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
-			$this->launchScan();
+		add_action( $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
+			$this->getScannerDb()
+				 ->launchScan( static::SCAN_SLUG );
 		} );
 	}
 
@@ -41,14 +39,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return bool
 	 */
 	abstract public function isEnabled();
-
-	/**
-	 */
-	public function launchScan() {
-		$this->getScannerDb()
-			 ->getScanQueue()
-			 ->startScan( static::SCAN_SLUG );
-	}
 
 	/**
 	 */
@@ -89,11 +79,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		if ( !$this->oScanActionVO instanceof Shield\Scans\Base\BaseScanActionVO ) {
 			$oAct = $this->getNewActionVO();
 			$oAct->scan = static::SCAN_SLUG;
-
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
-			$oAct->tmp_dir = $oMod->getScansTempDir();
-
 			$this->oScanActionVO = $oAct;
 		}
 
@@ -128,7 +113,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 
 	/**
 	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Base\BaseResultsSet
+	 * @return Shield\Scans\Base\BaseResultsSet|mixed
 	 */
 	protected function convertVosToResults( $aVos ) {
 		return ( new Scan\Results\ConvertBetweenTypes() )

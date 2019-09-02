@@ -20,7 +20,6 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getMod()->getOptions();
 
-		$oAction->item_processing_limit = $oAction->is_async ? $oOpts->getFileScanLimit() : 0;
 		$oAction->exclusions_missing_regex = $oOpts->getWcfMissingExclusions();
 		$oAction->exclusions_files_regex = $oOpts->getWcfFileExclusions();
 	}

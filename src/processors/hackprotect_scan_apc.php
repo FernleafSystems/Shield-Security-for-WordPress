@@ -1,7 +1,6 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
@@ -25,7 +24,8 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	public function onDeletedPlugin() {
-		$this->launchScan();
+		$this->getScannerDb()
+			 ->launchScan( static::SCAN_SLUG );
 	}
 
 	/**

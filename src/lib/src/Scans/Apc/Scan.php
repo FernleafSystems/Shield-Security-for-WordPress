@@ -12,32 +12,20 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$oTempRs = $oAction->getNewResultsSet();
 
-		if ( (int)$oAction->item_processing_limit > 0 ) {
-			$aSlice = array_slice( $oAction->items, 0, $oAction->item_processing_limit );
-			$oAction->items = array_slice( $oAction->items, $oAction->item_processing_limit );
-		}
-		else {
-			$aSlice = $oAction->items;
-			$oAction->items = [];
-		}
-
-		foreach ( $aSlice as $nKey => $sItem ) {
+		foreach ( $oAction->items as $nKey => $sItem ) {
 			$oItem = $this->getItemScanner()->scan( $sItem );
 			if ( $oItem instanceof Shield\Scans\Base\BaseResultItem ) {
 				$oTempRs->addItem( $oItem );
 			}
 		}
 
+		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {
-			$aNewItems = [];
 			foreach ( $oTempRs->getAllItems() as $oItem ) {
 				$aNewItems[] = $oItem->getRawDataAsArray();
 			}
-			if ( empty( $oAction->results ) ) {
-				$oAction->results = [];
-			}
-			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
+		$oAction->results = $aNewItems;
 	}
 
 	/**

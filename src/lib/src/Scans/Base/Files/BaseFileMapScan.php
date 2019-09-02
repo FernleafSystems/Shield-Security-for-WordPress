@@ -21,23 +21,13 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 			->setScanActionVO( $oAction )
 			->run();
 
+		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {
-			$aNewItems = [];
 			foreach ( $oTempRs->getAllItems() as $oItem ) {
 				$aNewItems[] = $oItem->getRawDataAsArray();
 			}
-			if ( empty( $oAction->results ) ) {
-				$oAction->results = [];
-			}
-			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
-
-		if ( $oAction->item_processing_limit > 0 ) {
-			$oAction->items = array_slice( $oAction->items, $oAction->item_processing_limit );
-		}
-		else {
-			$oAction->items = [];
-		}
+		$oAction->results = $aNewItems;
 
 		return $this;
 	}

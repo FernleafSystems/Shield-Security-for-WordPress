@@ -13,10 +13,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property int      $finished_at
  * @property bool     $is_async
  * @property bool     $is_cron
- * @property bool     $is_items_built
- * @property int      $total_scan_items
- * @property int      $item_processing_limit
- * @property string   $tmp_dir
+ * @property int      $total_items
  * @property string[] $items
  * @property array[]  $results
  */

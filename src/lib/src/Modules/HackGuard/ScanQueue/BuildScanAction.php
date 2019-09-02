@@ -32,9 +32,6 @@ class BuildScanAction {
 		$oBuilder->setMod( $oMod )
 				 ->setScanActionVO( $oAction )
 				 ->build();
-
-		$oAction->tmp_dir = $oMod->getScansTempDir();
-
 		return $oAction;
 	}
 }
