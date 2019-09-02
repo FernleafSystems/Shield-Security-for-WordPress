@@ -58,14 +58,9 @@ class QueueProcessor extends \WP_Background_Process {
 		$oUpd->setStarted( $oEntry );
 
 		try {
-			// The Entry object that comes back from this will have lost data
-			// necessary to update the database.
-			$oEntryWithResults = ( new ScanExecute() )
+			( new ScanExecute() )
 				->setMod( $this->getMod() )
 				->execute( $oEntry );
-			if ( !empty( $oEntryWithResults->results ) ) {
-				$oEntry->results = $oEntryWithResults->results;
-			}
 		}
 		catch ( \Exception $oE ) {
 			error_log( $oE->getMessage() );

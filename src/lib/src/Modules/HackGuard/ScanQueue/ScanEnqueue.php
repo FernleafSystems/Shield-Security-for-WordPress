@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ScanEnqueue {
 
-	use ModConsumer,
+	use HandlerConsumer,
 		QueueProcessorConsumer,
 		Scans\Common\ScanActionConsumer;
 
@@ -40,7 +40,7 @@ class ScanEnqueue {
 	 */
 	protected function pushActionToQueue( $oAction ) {
 		$oEntry = ( new ConvertBetweenTypes() )
-			->setMod( $this->getMod() )
+			->setDbHandler( $this->getDbHandler() )
 			->fromActionToDbEntry( $oAction );
 		$this->getQueueProcessor()->push_to_queue( $oEntry );
 	}

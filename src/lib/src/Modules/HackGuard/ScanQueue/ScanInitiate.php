@@ -22,6 +22,7 @@ class ScanInitiate {
 	public function init( $sSlug ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		$oDbH = $oMod->getDbHandler_ScanQueue();
 
 		if ( ( new IsScanEnqueued() )->setDbHandler( $oMod->getDbHandler_ScanQueue() )->check( $sSlug ) ) {
 			throw new \Exception( 'Scan is already running' );
@@ -33,7 +34,7 @@ class ScanInitiate {
 
 		$oQ = $this->getQueueProcessor();
 		( new ScanEnqueue() )
-			->setMod( $oMod )
+			->setDbHandler( $oDbH )
 			->setQueueProcessor( $oQ )
 			->setScanActionVO( $oAction )
 			->enqueue();

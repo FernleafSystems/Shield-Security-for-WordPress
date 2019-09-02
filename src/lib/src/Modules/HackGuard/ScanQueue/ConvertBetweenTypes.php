@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -12,10 +11,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ConvertBetweenTypes {
 
-	use ModConsumer;
+	use Databases\Base\HandlerConsumer;
 
 	/**
-	 * @param ScanQueue\EntryVO $oEntry
+	 * @param Databases\ScanQueue\EntryVO $oEntry
 	 * @return Scans\Base\BaseScanActionVO|mixed
 	 */
 	public function fromDbEntryToAction( $oEntry ) {
@@ -28,11 +27,11 @@ class ConvertBetweenTypes {
 
 	/**
 	 * @param Scans\Base\BaseScanActionVO $oAction
-	 * @return ScanQueue\EntryVO
+	 * @return Databases\ScanQueue\EntryVO
 	 */
 	public function fromActionToDbEntry( $oAction ) {
-		$oEntry = new ScanQueue\EntryVO();
-		foreach ( $this->getDbEntryFields() as $sField ) {
+		$oEntry = new Databases\ScanQueue\EntryVO();
+		foreach ( $this->getDbHandler()->getColumnsDefinition() as $sField ) {
 			if ( isset( $oAction->{$sField} ) ) {
 				$oEntry->{$sField} = $oAction->{$sField};
 			}
@@ -41,15 +40,5 @@ class ConvertBetweenTypes {
 		unset( $oAction->results );
 		$oEntry->meta = $oAction->getRawDataAsArray();
 		return $oEntry;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function getDbEntryFields() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_ScanQueue();
-		return $oDbH->getColumnsDefinition();
 	}
 }

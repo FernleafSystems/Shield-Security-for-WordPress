@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -13,25 +11,38 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class CollateResults {
 
-	use ModConsumer,
-		HandlerConsumer;
+	use Databases\Base\HandlerConsumer;
 
 	/**
 	 * @param string $sScanSlug
+	 * @return Scans\Base\BaseResultsSet|mixed|null
 	 */
 	public function collate( $sScanSlug ) {
-		/** @var ScanQueue\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
-		/** @var ScanQueue\EntryVO[] $aAll */
-		$aAll = $oSel->filterByScan( $sScanSlug )
-					 ->setResultsAsVo( true )
-					 ->query();
-		$oAction = ( new ScanActionFromSlug() )->getAction( $sScanSlug );
+		/** @var Databases\ScanQueue\Handler $oDbH */
+		$oDbH = $this->getDbHandler();
+		/** @var Databases\ScanQueue\Select $oSel */
+		$oSel = $oDbH->getQuerySelector();
+		$oSel->filterByScan( $sScanSlug )
+			 ->setResultsAsVo( true );
 
-		$oResultsSet = $oAction->getNewResultsSet();
-		foreach ( $aAll as $oEntry ) {
-			$oCurrent = clone $oAction;
-			$oAction->applyFromArray( $oEntry->meta );
+		$oResultsSet = null;
+		/** @var Databases\ScanQueue\EntryVO $oEntry */
+		foreach ( $oSel->query() as $oEntry ) {
+			$oAction = ( new ConvertBetweenTypes() )
+				->setDbHandler( $oDbH )
+				->fromDbEntryToAction( $oEntry );
+
+			if ( empty( $oResultsSet ) ) {
+				$oResultsSet = $oAction->getNewResultsSet();
+			}
+
+			foreach ( $oAction->results as $aResItemData ) {
+				$oResultsSet->addItem(
+					$oAction->getNewResultItem()->applyFromArray( $aResItemData )
+				);
+			}
 		}
+
+		return $oResultsSet;
 	}
 }

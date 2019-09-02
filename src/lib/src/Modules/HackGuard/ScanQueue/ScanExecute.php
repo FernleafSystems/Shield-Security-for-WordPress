@@ -21,16 +21,19 @@ class ScanExecute {
 	public function execute( $oEntry ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oTypeConverter = ( new ConvertBetweenTypes() )->setMod( $oMod );
+		$oDbH = $oMod->getDbHandler_ScanQueue();
+		$oTypeConverter = ( new ConvertBetweenTypes() )->setDbHandler( $oDbH );
 
 		$oAction = $oTypeConverter->fromDbEntryToAction( $oEntry );
 
 		$this->getScanner( $oAction )
 			 ->setScanActionVO( $oAction )
-			 ->setMod( $this->getMod() )
+			 ->setMod( $oMod )
 			 ->run();
 
-		return $oTypeConverter->fromActionToDbEntry( $oAction );
+		$oEntry->results = $oAction->results;
+
+		return $oEntry;
 	}
 
 	/**
