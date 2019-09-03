@@ -42,6 +42,7 @@
       "../processors/",
       "../query/",
       "../wizards/",
+      "../lib/custom/",
       "../../icwp-plugin-controller.php"
     ]
   }
