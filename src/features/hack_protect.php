@@ -1063,6 +1063,30 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
 			];
+
+			$bMal = $this->isMalScanEnabled();
+			$aThis[ 'key_opts' ][ 'mal' ] = [
+				'title'   => $aScanNames[ 'mal' ],
+				'name'    => $aScanNames[ 'mal' ],
+				'enabled' => $bMal,
+				'summary' => $bMal ?
+					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'mal' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+			];
+
+			$bApc = $this->isApcEnabled();
+			$aThis[ 'key_opts' ][ 'apc' ] = [
+				'title'   => $aScanNames[ 'apc' ],
+				'name'    => $aScanNames[ 'apc' ],
+				'enabled' => $bApc,
+				'summary' => $bApc ?
+					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'apc' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'apc' ] ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
