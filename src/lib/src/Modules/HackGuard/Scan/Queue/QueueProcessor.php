@@ -69,12 +69,11 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function complete() {
 		parent::complete();
-		// 1. Collate all results per scan
+
 		( new CompleteQueue() )
 			->setDbHandler( $this->getDbHandler() )
 			->setMod( $this->getMod() )
 			->complete();
-		// 2. Delete.
 	}
 
 	/**
@@ -87,22 +86,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		/** @var ScanQueue\Delete $oDel */
 		$oDel = $this->getDbHandler()->getQueryDeleter();
 		$oDel->deleteById( $key );
-
 		return $this;
-	}
-
-	/**
-	 * Get post args
-	 *
-	 * @return array
-	 */
-	protected function get_post_args() {
-		$aArgs = parent::get_post_args();
-
-		if ( isset( $aArgs[ 'body' ] ) ) {
-			$aArgs[ 'body' ] = ''; // so we don't post the whole scan data.
-		}
-		return $aArgs;
 	}
 
 	/**
