@@ -199,7 +199,16 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		$oFO = $this->getMod();
 		$nMin = $oFO->getPassMinStrength();
 
-		$aResults = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( $sPassword );
+		/**
+		 * TODO: Upon upgrading minimum PHP 5.6, remove the older, and install newer as-is
+		 */
+		if ( Services::Data()->getPhpVersionIsAtLeast( '5.6' ) ) {
+			$aResults = ( new \ZxcvbnPhp56\Zxcvbn() )->passwordStrength( $sPassword );
+		}
+		else {
+			$aResults = ( new \ZxcvbnPhp\Zxcvbn() )->passwordStrength( $sPassword );
+		}
+
 		$nScore = $aResults[ 'score' ];
 
 		if ( $nMin > 0 && $nScore < $nMin ) {
