@@ -24,6 +24,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 					   ->filterByNotFinished()
 					   ->setOrderBy( 'created_at', 'ASC' )
 					   ->first();
+
 		$oBatch = new \stdClass();
 		$oBatch->key = $oEntry->id;
 		$oBatch->data = [ $oEntry ];
@@ -136,6 +137,15 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		$oToUpdate = array_shift( $data );
 		$oUpd->updateEntry( $oToUpdate );
 		return $this;
+	}
+
+	/**
+	 */
+	public function handleExpiredItems() {
+		$nBoundary = Services::Request()
+							 ->carbon()
+							 ->subSeconds( $this->getExpirationInterval() )->timestamp;
+		$this->getDbHandler()->deleteRowsOlderThan( $nBoundary );
 	}
 
 	/**
