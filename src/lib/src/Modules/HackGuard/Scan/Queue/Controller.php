@@ -113,7 +113,7 @@ class Controller {
 	 */
 	public function getQueueBuilder() {
 		if ( empty( $this->oQueueBuilder ) ) {
-			$this->oQueueBuilder = ( new Build\QueueBuilder() )
+			$this->oQueueBuilder = ( new Build\QueueBuilder( 'shield_scanqbuild' ) )
 				->setMod( $this->getMod() )
 				->setQueueProcessor( $this->getQueueProcessor() );
 		}
@@ -125,7 +125,9 @@ class Controller {
 	 */
 	public function getQueueProcessor() {
 		if ( empty( $this->oQueueProcessor ) ) {
-			$this->oQueueProcessor = ( new QueueProcessor() )->setMod( $this->getMod() );
+			$this->oQueueProcessor = ( new QueueProcessor( 'shield_scanq' ) )
+				->setMod( $this->getMod() )
+				->setExpirationInterval( MINUTE_IN_SECONDS*10 );
 		}
 		return $this->oQueueProcessor;
 	}

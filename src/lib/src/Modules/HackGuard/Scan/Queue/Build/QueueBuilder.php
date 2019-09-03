@@ -4,21 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\B
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Utilities;
 
-class QueueBuilder extends \WP_Background_Process {
+class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	use Shield\Modules\ModConsumer,
 		HackGuard\Scan\Queue\QueueProcessorConsumer;
-
-	/**
-	 * @var string
-	 */
-	protected $prefix = 'shield';
-
-	/**
-	 * @var string
-	 */
-	protected $action = 'scanq_builder';
 
 	/**
 	 * Get batch
