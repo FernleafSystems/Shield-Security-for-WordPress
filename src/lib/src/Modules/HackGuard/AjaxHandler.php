@@ -138,7 +138,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ScanItemAction( $sAction ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		$oScanCon = $oMod->getScanController();
 		$oReq = Services::Request();
 
 		$bSuccess = false;
@@ -182,7 +184,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				// We don't rescan for ignores.
 				if ( !in_array( $sAction, [ 'ignore' ] ) ) {
-					$oScanner->launchScan( $sScanSlug );
+					$oScanCon->startScans( [ $sScanSlug ] );
 					$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 				}
 				else {
@@ -214,9 +216,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oDbH = $oMod->getDbHandler_ScanQueue();
 		/** @var Shield\Databases\ScanQueue\Select $oSel */
 		$oSel = $oDbH->getQuerySelector();
-		$oScanPro = $oP->getSubProScanner();
 
-		$oQueCon = $oScanPro->getScanQueue();
+		$oQueCon = $oMod->getScanController();
 		$sCurrent = $oSel->getCurrentScan();
 		$bHasCurrent = !empty( $sCurrent );
 		if ( $bHasCurrent ) {
@@ -252,6 +253,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_StartScans() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$bSuccess = false;
 		$bPageReload = false;
@@ -261,7 +263,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
 		$oScanner = $oP->getSubProScanner();
-		$oQueCon = $oScanner->getScanQueue();
+		$oScanCon = $oMod->getScanController();
 
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );
@@ -270,12 +272,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$aUiTrack[ 'selected_scans' ] = $aSelectedScans;
 			$oMod->setUiTrack( $aUiTrack );
 
+			$aScansToStart = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
 
 				$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
 
 				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
 					$bAsync = true;
+					$aScansToStart[] = $sScanSlug;
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
 						$oTablePro->resetIgnoreStatus();
@@ -290,12 +294,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' )
 						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
 
-					$oScanner->launchScan( $sScanSlug );
 				}
 			}
+			$oScanCon->startScans( $aScansToStart );
 		}
 
-		$bScansRunning = $oQueCon->hasRunningScans();
+		$bScansRunning = $oScanCon->hasRunningScans();
 
 		return [
 			'success'       => $bSuccess,

@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
 
 /**
  * Class BuildScanAction
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
  */
 class BuildScanAction {
 

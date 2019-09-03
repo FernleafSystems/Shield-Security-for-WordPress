@@ -75,6 +75,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 	public function buildInsightsVars() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aLatestScans = array_map(
 			function ( $nTime ) {
@@ -90,11 +92,11 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 
 		$aUiTrack = $oMod->getUiTrack();
 		if ( empty( $aUiTrack[ 'selected_scans' ] ) ) {
-			$aUiTrack[ 'selected_scans' ] = $oMod->getAllScanSlugs();
+			$aUiTrack[ 'selected_scans' ] = $oOpts->getScanSlugs();
 		}
 
 		$oScannerMain = $this->getSubProScanner();
-		$oQueCon = $oScannerMain->getScanQueue();
+		$oQueCon = $oMod->getScanController();
 		$aData = [
 			'ajax'    => [
 				'scans_start'           => $oMod->getAjaxActionData( 'scans_start', true ),

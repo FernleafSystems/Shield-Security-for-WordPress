@@ -1,13 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * Class ScanInitiate
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
  */
 class ScanInitiate {
 
@@ -38,7 +38,5 @@ class ScanInitiate {
 			->setQueueProcessor( $oQ )
 			->setScanActionVO( $oAction )
 			->enqueue();
-
-		$oQ->dispatch();
 	}
 }

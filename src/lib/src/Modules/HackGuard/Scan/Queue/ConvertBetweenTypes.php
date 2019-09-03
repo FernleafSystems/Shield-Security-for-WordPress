@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * Class ConvertBetweenTypes
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
  */
 class ConvertBetweenTypes {
 

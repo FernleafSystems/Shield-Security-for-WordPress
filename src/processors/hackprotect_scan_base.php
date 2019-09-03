@@ -16,8 +16,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 
 	public function run() {
 		add_action( $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
-			$this->getScannerDb()
-				 ->launchScan( static::SCAN_SLUG );
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
+			$oMod->getScanController()
+				 ->startScans( [ static::SCAN_SLUG ] );
 		} );
 	}
 

@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -10,9 +11,22 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	private $oDbh_ScanQueue;
 
+	/**
+	 * @var HackGuard\Scan\Queue\Controller
+	 */
+	private $oScanQueueController;
+
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
+	}
+
+	/**
+	 * A action added to WordPress 'init' hook
+	 */
+	public function onWpInit() {
+		parent::onWpInit();
+		$this->getScanController();
 	}
 
 	/**
@@ -21,15 +35,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		parent::updateHandler();
 		$this->setPtgUpdateStoreFormat( true );
 //			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
-		Services::WpFs()->deleteDir( $this->getScansTempDir() );
 	}
 
 	/**
-	 * @return string
+	 * @return HackGuard\Scan\Queue\Controller
 	 */
-	public function getScansTempDir() {
-		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
-		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+	public function getScanController() {
+		if ( !isset( $this->oScanQueueController ) ) {
+			$this->oScanQueueController = ( new HackGuard\Scan\Queue\Controller() )
+				->setMod( $this );
+		}
+		return $this->oScanQueueController;
 	}
 
 	/**
@@ -79,16 +95,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getAllScanSlugs() {
-		return $this->getDef( 'all_scan_slugs' );
-	}
-
-	/**
 	 * @return int[] - key is scan slug
 	 */
 	public function getLastScansAt() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var Shield\Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
@@ -97,7 +108,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aEvents = $oSel->getLatestForAllEvents();
 
 		$aLatest = [];
-		foreach ( $this->getAllScanSlugs() as $sScan ) {
+		foreach ( $oOpts->getScanSlugs() as $sScan ) {
 			$sEvt = $sScan.'_scan_run';
 			$aLatest[ $sScan ] = isset( $aEvents[ $sEvt ] ) ? $aEvents[ $sEvt ]->created_at : 0;
 		}
@@ -148,7 +159,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		/** @var Shield\Modules\HackGuard\Options $oStrings */
+		/** @var HackGuard\Options $oStrings */
 		$oOpts = $this->getOptions();
 		$nFreq = $oOpts->getScanFrequency();
 		$this->loadWpCronProcessor()
@@ -812,7 +823,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		/** @var Shield\Modules\HackGuard\Strings $oStrings */
+		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 
@@ -958,9 +969,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		/** @var Shield\Modules\HackGuard\Strings $oStrings */
+		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
-		/** @var Shield\Modules\HackGuard\Options $oStrings */
+		/** @var HackGuard\Options $oStrings */
 		$oOpts = $this->getOptions();
 		$aScanNames = $oStrings->getScanNames();
 
@@ -1117,5 +1128,22 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getScanFrequency() {
 		return (int)$this->getOpt( 'scan_frequency', 1 );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.1
+	 */
+	public function getScansTempDir() {
+		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
+		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.1
+	 */
+	public function getAllScanSlugs() {
+		return $this->getDef( 'all_scan_slugs' );
 	}
 }

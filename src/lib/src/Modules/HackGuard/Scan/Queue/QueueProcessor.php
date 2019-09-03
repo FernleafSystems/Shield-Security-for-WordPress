@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\ScanQueue;
@@ -18,7 +18,7 @@ class QueueProcessor extends \WP_Background_Process {
 	/**
 	 * @var string
 	 */
-	protected $action = 'async_scans';
+	protected $action = 'scanq_process';
 
 	/**
 	 * Get batch

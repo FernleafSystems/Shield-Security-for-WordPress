@@ -24,8 +24,10 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	public function onDeletedPlugin() {
-		$this->getScannerDb()
-			 ->launchScan( static::SCAN_SLUG );
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oMod->getScanController()
+			 ->startScans( [ static::SCAN_SLUG ] );
 	}
 
 	/**

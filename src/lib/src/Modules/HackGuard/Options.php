@@ -139,6 +139,45 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getScanSlugs() {
+		return $this->getDef( 'all_scan_slugs' );
+	}
+
+	/**
+	 * @param string $sScan
+	 * @param bool   $bAdd
+	 * @return Options
+	 */
+	public function addRemoveScanToBuild( $sScan, $bAdd = true ) {
+		$aS = $this->getScansToBuild();
+		if ( $bAdd ) {
+			$aS[ $sScan ] = $sScan;
+		}
+		else if ( isset( $aS[ $sScan ] ) ) {
+			unset( $aS[ $sScan ] );
+		}
+		return $this->setScansToBuild( $aS );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getScansToBuild() {
+		$aS = $this->getOpt( 'scans_to_build' );
+		return is_array( $aS ) ? $aS : [];
+	}
+
+	/**
+	 * @param array $aScans
+	 * @return Options
+	 */
+	public function setScansToBuild( $aScans ) {
+		return $this->setOpt( 'scans_to_build', array_intersect( $aScans, $this->getScanSlugs() ) );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {

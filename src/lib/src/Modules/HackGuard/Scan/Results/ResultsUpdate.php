@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
- * Class UpdateResults
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue
+ * Class ResultsUpdate
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
  */
 class ResultsUpdate {
 

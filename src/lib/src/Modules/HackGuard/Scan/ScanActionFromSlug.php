@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 /**
  * Class ScanActionFromSlug
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\ScanQueue
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
  */
 class ScanActionFromSlug {
 
