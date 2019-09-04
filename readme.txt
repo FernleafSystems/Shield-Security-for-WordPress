@@ -375,6 +375,8 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(v.2)**  IMPROVED:	Password strength metering now better aligns with WordPress library (PHP 5.6+)
 * **(v.2)**  IMPROVED:	Dutch translations have been adjusted.
+* **(v.2)**  FIXED:		Setting 'Month' for IP block duration wasn't being applied.
+* **(v.2)**  FIXED:		Certain admin notices not displayed when they should be.
 
 = 8.0 - Series =
 *Released: 27th September, 2019* - [Release Notes](https://icwp.io/fv)

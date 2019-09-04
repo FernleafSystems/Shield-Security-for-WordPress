@@ -18,6 +18,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property string $plugin_admin     - show when plugin admin: yes, no, ignore
  * @property bool   $valid_admin
  * @property bool   $per_user
+ * @property bool   $can_dismiss
  * @property int    $min_install_days
  * @property bool   $twig
  */
