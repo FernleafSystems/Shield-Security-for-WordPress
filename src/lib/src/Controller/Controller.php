@@ -361,7 +361,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			$this->runTests();
 		};
 
-		if ( function_exists( 'wp_add_privacy_policy_content' ) ) {
+		if ( !Services::WpGeneral()->isAjax() && function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
 		}
 	}
