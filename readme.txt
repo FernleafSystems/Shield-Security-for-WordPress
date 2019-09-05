@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 8.0.1
+Stable tag: 8.0.2
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,17 +370,21 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.0.1 - Current Release =
+= 8.0.2 - Current Release =
 *Released: 29th September, 2019* - [Release Notes](https://icwp.io/fv)
+
+* **(v.2)**  IMPROVED:	Password strength metering now better aligns with WordPress library (PHP 5.6+)
+* **(v.2)**  IMPROVED:	Dutch translations have been adjusted.
+* **(v.2)**  FIXED:		Setting 'Month' for IP block duration wasn't being applied.
+* **(v.2)**  FIXED:		Certain admin notices not displayed when they should be.
+
+= 8.0 - Series =
+*Released: 27th September, 2019* - [Release Notes](https://icwp.io/fv)
 
 * **(v.1)**  FIXED:		Comment SPAM blocking wasn't working if set to "Detect and Reject".
 * **(v.1)**  FIXED:		Shield Widget/Badge broken in some cases.
 * **(v.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://icwp.io/gistshieldlocale).
 * **(v.1)**  ADDED:		Russian translations are now at 100% and some Dutch translations have been adjusted.
-
-= 8.0 - Series =
-*Released: 27th September, 2019* - [Release Notes](https://icwp.io/fv)
-
 * **(v.0)**  NEW:		[**PRO**] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
 * **(v.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
 * **(v.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.

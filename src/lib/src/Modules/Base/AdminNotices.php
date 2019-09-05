@@ -101,8 +101,9 @@ class AdminNotices {
 										   'plugin_page_only' => true,
 										   'valid_admin'      => true,
 										   'plugin_admin'     => 'yes',
+										   'can_dismiss'      => true,
 										   'per_user'         => false,
-										   'display'          => true,
+										   'display'          => false,
 										   'min_install_days' => 0,
 										   'twig'             => true,
 									   ],
@@ -123,39 +124,30 @@ class AdminNotices {
 		$oOpts = $oMod->getOptions();
 
 		if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
-			$oNtc->display = false;
 			$oNtc->non_display_reason = 'plugin_page_only';
 		}
 		else if ( $oNtc->type == 'promo' && !$this->getMod()->getOptions()->isShowPromoAdminNotices() ) {
-			$oNtc->display = false;
 			$oNtc->non_display_reason = 'promo_hidden';
 		}
 		else if ( $oNtc->valid_admin && !$oCon->isValidAdminArea() ) {
-			$oNtc->display = false;
 			$oNtc->non_display_reason = 'not_admin_area';
 		}
 		else if ( $oNtc->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
-			$oNtc->display = false;
 			$oNtc->non_display_reason = 'not_plugin_admin';
 		}
 		else if ( $oNtc->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
-			$oNtc->display = false;
 			$oNtc->non_display_reason = 'is_plugin_admin';
 		}
 		else if ( $oNtc->min_install_days > 0 && $oNtc->min_install_days < $oOpts->getInstallationDays() ) {
-			$oNtc->display = false;
 			$oNtc->non_display_reason = 'min_install_days';
 		}
-		else if ( $oNtc->type === 'promo' && static::$nCount > 0 ) {
-			$oNtc->display = false;
-			$oNtc->non_display_reason = 'max_promo_count';
+		else if ( static::$nCount > 0 && $oNtc->type !== 'error' ) {
+			$oNtc->non_display_reason = 'max_nonerror_count';
 		}
-		else if ( $this->isNoticeDismissed( $oNtc ) ) {
-			$oNtc->display = false;
+		else if ( $oNtc->can_dismiss && $this->isNoticeDismissed( $oNtc ) ) {
 			$oNtc->non_display_reason = 'dismissed';
 		}
 		else if ( !$this->isDisplayNeeded( $oNtc ) ) {
-			$oNtc->display = false;
 			$oNtc->non_display_reason = 'not_needed';
 		}
 		else {

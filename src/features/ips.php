@@ -40,7 +40,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function doExtraSubmitProcessing() {
-		if ( !in_array( $this->getOpt( 'auto_expire' ), [ 'minute', 'hour', 'day', 'week' ] ) ) {
+		if ( !defined( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
 		}
 
