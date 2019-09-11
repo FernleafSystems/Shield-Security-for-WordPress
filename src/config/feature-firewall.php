@@ -269,6 +269,9 @@
         "home",
         "siteurl"
       ],
+      "/wp-admin/plugins.php":         [
+        "plugin"
+      ],
       "/wp-admin/post-new.php":        [],
       "/wp-admin/page-new.php":        [],
       "/wp-admin/link-add.php":        [],
