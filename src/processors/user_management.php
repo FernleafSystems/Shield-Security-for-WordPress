@@ -72,12 +72,13 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	private function sendLoginNotifications( $oUser ) {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
-		$bAdmin = $oMod->isSendAdminEmailLoginNotification();
+		$aAdminEmails = $oMod->getAdminLoginNotificationEmails();
+		$bAdmin = count( $aAdminEmails ) > 0;
 		$bUser = $oMod->isSendUserEmailLoginNotification();
 
 		// do some magic logic so we don't send both to the same person (the assumption being that the admin
 		// email recipient is actually an admin (or they'll maybe not get any).
-		if ( $bAdmin && $bUser && ( $oMod->getAdminLoginNotificationEmail() === $oUser->user_email ) ) {
+		if ( $bAdmin && $bUser && in_array( strtolower( $oUser->user_email ), $aAdminEmails ) ) {
 			$bUser = false;
 		}
 
@@ -206,14 +207,17 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 			__( 'Thanks.', 'wp-simple-firewall' )
 		];
 
-		return $this
-			->getMod()
-			->getEmailProcessor()
-			->sendEmailWithWrap(
-				$oMod->getAdminLoginNotificationEmail(),
+		$oEmailer = $this->getMod()
+						 ->getEmailProcessor();
+		foreach ( $oMod->getAdminLoginNotificationEmails() as $sEmail ) {
+			$oEmailer->sendEmailWithWrap(
+				$sEmail,
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf( __( '%s Just Logged Into %s', 'wp-simple-firewall' ), $sHumanName, $sHomeUrl ) ),
 				$aMessage
 			);
+		}
+
+		return true;
 	}
 
 	/**

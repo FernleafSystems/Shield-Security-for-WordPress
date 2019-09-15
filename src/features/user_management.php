@@ -7,10 +7,30 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * Should have no default email. If no email is set, no notification is sent.
-	 * @return string
+	 * @return string[]
 	 */
-	public function getAdminLoginNotificationEmail() {
-		return $this->getOpt( 'enable_admin_login_email_notification', '' );
+	public function getAdminLoginNotificationEmails() {
+		$aEmails = [];
+
+		$sEmails = $this->getOpt( 'enable_admin_login_email_notification', '' );
+		if ( !empty( $sEmails ) ) {
+			$aEmails = array_values( array_filter(
+				array_map(
+					function ( $sEmail ) {
+						return trim( strtolower( $sEmail ) );
+					},
+					explode( ',', $sEmails )
+				),
+				function ( $sEmail ) {
+					return Services::Data()->validEmail( $sEmail );
+				}
+			) );
+			if ( !$this->isPremium() && !empty( $aEmails ) ) {
+				$aEmails = array_slice( $aEmails, 0, 1 );
+			}
+		}
+
+		return $aEmails;
 	}
 
 	/**
@@ -42,9 +62,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	}
 
 	protected function doExtraSubmitProcessing() {
-		if ( !Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() ) ) {
-			$this->getOptions()->resetOptToDefault( 'enable_admin_login_email_notification' );
-		}
+		$this->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
 
 		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
 			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
@@ -79,13 +97,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 */
 	public function isLockToIp() {
 		return $this->isOpt( 'session_lock_location', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isSendAdminEmailLoginNotification() {
-		return Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() );
 	}
 
 	/**
@@ -385,5 +396,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 */
 	protected function getNamespaceBase() {
 		return 'UserManagement';
+	}
+
+	/**
+	 * Should have no default email. If no email is set, no notification is sent.
+	 * @return string
+	 * @deprecated 8.1
+	 */
+	public function getAdminLoginNotificationEmail() {
+		return $this->getOpt( 'enable_admin_login_email_notification', '' );
 	}
 }

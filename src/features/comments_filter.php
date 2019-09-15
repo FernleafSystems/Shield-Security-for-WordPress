@@ -200,13 +200,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return Shield\Databases\Comments\Handler
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Comments\Handler();
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
@@ -214,10 +207,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function updateHandler() {
-		$oDbh = $this->getDbHandler();
-		if ( !empty( $oDbh ) ) {
-			$oDbh->deleteTable();
-		}
 		$oFs = Services::WpFs();
 		if ( $oFs->exists( $this->getSpamBlacklistFile() ) ) {
 			$oFs->deleteFile( $this->getSpamBlacklistFile() );
