@@ -119,7 +119,8 @@ class Strings extends Base\Strings {
 				$sName = __( 'Admin Login Notification Email', 'wp-simple-firewall' );
 				$sSummary = __( 'Send An Notification Email When Administrator Logs In', 'wp-simple-firewall' );
 				$sDescription = __( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' )
-								.'<br />'.__( 'No email address - No Notification.', 'wp-simple-firewall' );
+								.'<br />'.__( 'No email address - No Notification.', 'wp-simple-firewall' )
+								.'<br />'.__( 'Pro customers may provide multiple email address, separated by commas.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_user_login_email_notification' :
