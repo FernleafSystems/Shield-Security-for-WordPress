@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Hashes\Ping;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 
 class Scan extends Shield\Scans\Base\BaseScan {
 
@@ -30,7 +30,7 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		$oCopier = new Shield\Scans\Helpers\CopyResultsSets();
 
 		// check we can even ping the WP Hashes API.
-		$bLiveHashesPing = ( new Ping() )->ping();
+		$bLiveHashesPing = ( new WpHashes\ApiPing() )->ping();
 		foreach ( $oAction->items as $sSlug => $sContext ) {
 			$oNewRes = null;
 
