@@ -661,8 +661,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setImportExportMasterImportUrl( $sUrl ) {
-		return $this->setOpt( 'importexport_masterurl', $sUrl )
-					->saveModOptions(); //saving will clean the URL
+		$this->setOpt( 'importexport_masterurl', $sUrl ); //saving will clean the URL
+		return $this->saveModOptions();
 	}
 
 	/**

@@ -63,8 +63,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @uses wp_redirect()
 	 */
 	private function processEmailSendVerify() {
-		$this->setIfCanSendEmail( true )
-			 ->saveModOptions();
+		$this->setIfCanSendEmail( true );
+		$this->saveModOptions();
 
 		if ( $this->getIfCanSendEmailVerified() ) {
 			$bSuccess = true;

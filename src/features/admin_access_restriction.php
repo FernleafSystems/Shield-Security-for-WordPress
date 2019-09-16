@@ -305,9 +305,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
 		}
 
-		return $this->setIsMainFeatureEnabled( true )
-					->setOpt( 'admin_access_key', md5( $sKey ) )
-					->saveModOptions();
+		$this->setIsMainFeatureEnabled( true )
+			 ->setOpt( 'admin_access_key', md5( $sKey ) );
+		return $this->saveModOptions();
 	}
 
 	/**

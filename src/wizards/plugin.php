@@ -347,10 +347,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = __( "The address source couldn't be found from this IP.", 'wp-simple-firewall' );
 			}
 			else {
-				$this->getCon()
-					 ->getModule_Plugin()
-					 ->setVisitorAddressSource( $sSource )
-					 ->saveModOptions();
+				$oMod = $this->getCon()
+							 ->getModule_Plugin();
+				$oMod->setVisitorAddressSource( $sSource );
+				$oMod->saveModOptions();
 				$oResponse->setSuccessful( true );
 				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '
 							.sprintf( '"%s" was found to be the best source of visitor IP addresses for your site.', $sSource );
@@ -471,15 +471,15 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			$oModule = $this->getCon()
-							->getModule_AuditTrail()
-							->setIsMainFeatureEnabled( $bEnabled )
-							->saveModOptions();
+			$oMod = $this->getCon()
+						 ->getModule_AuditTrail();
+			$oMod->setIsMainFeatureEnabled( $bEnabled );
+			$oMod->saveModOptions();
 
-			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
+			$bSuccess = $oMod->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', __( 'Audit Trail', 'wp-simple-firewall' ),
-					$oModule->isModuleEnabled() ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+					$oMod->isModuleEnabled() ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
@@ -504,15 +504,15 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			$oModule = $this->getCon()
-							->getModule_IPs()
-							->setIsMainFeatureEnabled( $bEnabled )
-							->saveModOptions();
+			$oMod = $this->getCon()
+						 ->getModule_IPs();
+			$oMod->setIsMainFeatureEnabled( $bEnabled );
+			$oMod->saveModOptions();
 
-			$bSuccess = $oModule->isModuleEnabled() === $bEnabled;
+			$bSuccess = $oMod->isModuleEnabled() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', __( 'IP Manager', 'wp-simple-firewall' ),
-					$oModule->isModuleEnabled() ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
+					$oMod->isModuleEnabled() ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
 				);
 			}
 			else {
@@ -537,14 +537,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			$oModule = $this->getCon()->getModule_LoginGuard();
+			$oMod = $this->getCon()->getModule_LoginGuard();
 			if ( $bEnabled ) { // we don't disable the whole module
-				$oModule->setIsMainFeatureEnabled( true );
+				$oMod->setIsMainFeatureEnabled( true );
 			}
-			$oModule->setEnabledGaspCheck( $bEnabled )
-					->saveModOptions();
+			$oMod->setEnabledGaspCheck( $bEnabled );
+			$oMod->saveModOptions();
 
-			$bSuccess = $oModule->isEnabledGaspCheck() === $bEnabled;
+			$bSuccess = $oMod->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
 					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
@@ -680,15 +680,15 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-			$oModule = $this->getCon()->getModule( 'comments_filter' );
+			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+			$oMod = $this->getCon()->getModule( 'comments_filter' );
 			if ( $bEnabled ) { // we don't disable the whole module
-				$oModule->setIsMainFeatureEnabled( true );
+				$oMod->setIsMainFeatureEnabled( true );
 			}
-			$oModule->setEnabledGasp( $bEnabled )
-					->saveModOptions();
+			$oMod->setEnabledGasp( $bEnabled );
+			$oMod->saveModOptions();
 
-			$bSuccess = $oModule->isEnabledGaspCheck() === $bEnabled;
+			$bSuccess = $oMod->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),
 					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )

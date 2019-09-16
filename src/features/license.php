@@ -93,8 +93,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$oCurrent = $this->loadLicense();
 
 			$this->touchLicenseCheckFileFlag()
-				 ->setLicenseLastCheckedAt()
-				 ->saveModOptions();
+				 ->setLicenseLastCheckedAt();
+			$this->saveModOptions();
 
 			$oLookupLicense = $this->lookupOfficialLicense();
 			if ( $oLookupLicense->isValid() ) {
@@ -128,8 +128,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			}
 
 			$oCurrent->last_request_at = Services::Request()->ts();
-			$this->setLicenseData( $oCurrent )
-				 ->saveModOptions();
+			$this->setLicenseData( $oCurrent );
+			$this->saveModOptions();
 		}
 
 		return $this;
@@ -256,8 +256,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$sPass = wp_generate_password( 16 );
 
 		$this->setKeylessRequestAt()
-			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) )
-			 ->saveModOptions();
+			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) );
+		$this->saveModOptions();
 
 		$oLicense = ( new Utilities\Licenses\Lookup() )
 			->setRequestParams( [ 'nonce' => $sPass ] )
@@ -265,8 +265,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		// clear the handshake data
 		$this->setKeylessRequestAt( 0 )
-			 ->setKeylessRequestHash( '' )
-			 ->saveModOptions();
+			 ->setKeylessRequestHash( '' );
+		$this->saveModOptions();
 
 		return $oLicense;
 	}
@@ -420,7 +420,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	protected function setLicenseLastCheckedAt( $nAt = null ) {
-		return $this->getOptions()->setOptAt( 'license_last_checked_at', $nAt );
+		$this->getOptions()->setOptAt( 'license_last_checked_at', $nAt );
+		return $this;
 	}
 
 	/**
