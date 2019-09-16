@@ -20,7 +20,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getMod()->getOptions();
 		$aScans = $oOpts->getScansToBuild();
-		$sScan = array_key_first( $aScans );
+		$sScan = key( $aScans );
 
 		$oBatch = new \stdClass();
 		$oBatch->key = $sScan;
