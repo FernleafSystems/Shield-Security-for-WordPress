@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Vulnerabilities;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Vulnerabilities;
 
 class Scan extends Shield\Scans\Base\BaseScan {
 
