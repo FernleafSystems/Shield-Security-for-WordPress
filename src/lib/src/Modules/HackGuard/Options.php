@@ -74,14 +74,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getMalWhitelistHashes() {
-		$aH = $this->getDef( 'mal_whitelist_hashes' );
-		return is_array( $aH ) ? $aH : [];
-	}
-
-	/**
 	 * @param string $sFilename
 	 * @param string $sUrl
 	 * @return string[]
