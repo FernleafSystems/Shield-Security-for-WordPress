@@ -632,6 +632,13 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "is_scan_cron",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "boolean",
+      "default":      false
     }
   ],
   "definitions": {

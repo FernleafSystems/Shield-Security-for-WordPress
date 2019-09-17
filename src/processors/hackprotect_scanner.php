@@ -27,6 +27,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 			}
 		}
 		$this->setupCron();
+		$this->handlePostScanCron();
 	}
 
 	/**
@@ -114,6 +115,21 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
+	 * Responsible for sending out emails and doing any automated repairs.
+	 */
+	private function handlePostScanCron() {
+		add_action( $this->getCon()->prefix( 'post_scan' ), function ( $aScansToNotify ) {
+			/** @var HackGuard\Options $oOpts */
+			$oOpts = $this->getOptions();
+			foreach ( array_intersect( $oOpts->getScanSlugs(), $aScansToNotify ) as $sSlug ) {
+				error_log( 'notification: '.$sSlug );
+				$this->getSubPro( $sSlug )
+					 ->cronProcessScanResults();
+			}
+		} );
+	}
+
+	/**
 	 * Based on the Ajax Download File pathway (hence the cookie)
 	 * @param string $sItemId
 	 */
@@ -155,6 +171,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 				$aScans[] = $sScanSlug;
 			}
 		}
+
+		error_log( 'is cron scan' );
+		$oOpts->setIsScanCron( true );
+		$oMod->saveModOptions();
+
 		$oMod->getScanController()
 			 ->startScans( $aScans );
 	}
@@ -172,9 +193,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 * @return int
 	 */
 	protected function getCronName() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		return $oOpts->getDef( 'cron_all_scans' );
+		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
 	}
 
 	/**

@@ -256,4 +256,19 @@ class Options extends Base\ShieldOptions {
 		}
 		return $sPattern;
 	}
+
+	/**
+	 * @return bool
+	 */
+	public function isScanCron() {
+		return (bool)$this->getOpt( 'is_scan_cron' );
+	}
+
+	/**
+	 * @param bool $bIsScanCron
+	 * @return $this
+	 */
+	public function setIsScanCron( $bIsScanCron ) {
+		return $this->setOpt( 'is_scan_cron', $bIsScanCron );
+	}
 }

@@ -21,13 +21,13 @@ class ICWP_WPSF_Processor_Plugin_CronHourly extends Modules\BaseShield\ShieldPro
 	 * @return string
 	 */
 	protected function getCronName() {
-		return $this->getMod()->prefix( 'hourly' );
+		return $this->getCon()->prefix( 'hourly' );
 	}
 
 	/**
 	 * Use the included action to hook into the plugin's daily cron
 	 */
 	public function runCron() {
-		do_action( $this->getMod()->prefix( 'hourly_cron' ) );
+		do_action( $this->getCon()->prefix( 'hourly_cron' ) );
 	}
 }
