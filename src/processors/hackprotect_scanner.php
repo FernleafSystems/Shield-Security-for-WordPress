@@ -122,7 +122,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 			/** @var HackGuard\Options $oOpts */
 			$oOpts = $this->getOptions();
 			foreach ( array_intersect( $oOpts->getScanSlugs(), $aScansToNotify ) as $sSlug ) {
-				error_log( 'notification: '.$sSlug );
 				$this->getSubPro( $sSlug )
 					 ->cronProcessScanResults();
 			}
@@ -172,7 +171,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 			}
 		}
 
-		error_log( 'is cron scan' );
 		$oOpts->setIsScanCron( true );
 		$oMod->saveModOptions();
 
