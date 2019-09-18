@@ -138,7 +138,7 @@ class AdminNotices {
 		else if ( $oNtc->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
 			$oNtc->non_display_reason = 'is_plugin_admin';
 		}
-		else if ( $oNtc->min_install_days > 0 && $oNtc->min_install_days < $oOpts->getInstallationDays() ) {
+		else if ( $oNtc->min_install_days > 0 && $oNtc->min_install_days > $oOpts->getInstallationDays() ) {
 			$oNtc->non_display_reason = 'min_install_days';
 		}
 		else if ( static::$nCount > 0 && $oNtc->type !== 'error' ) {
