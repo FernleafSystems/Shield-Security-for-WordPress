@@ -59,17 +59,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * TODO: Generic so lift out of base
-	 * @param Shield\Scans\Base\BaseScanActionVO $oAction
-	 */
-	public function postScanActionProcess( $oAction ) {
-
-		if ( $oAction->is_cron ) {
-			$this->cronProcessScanResults();
-		}
-	}
-
-	/**
 	 * @return Shield\Scans\Base\BaseRepair|mixed|null
 	 */
 	abstract protected function getRepairer();
@@ -316,16 +305,16 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * Because it's the cron and we'll maybe be notifying user, we look
 	 * only for items that have not been notified recently.
 	 */
-	protected function cronProcessScanResults() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+	public function cronProcessScanResults() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $this->getMod()
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
 		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterForCron( $oFO->getScanNotificationInterval() )
+					 ->filterForCron( $oMod->getScanNotificationInterval() )
 					 ->query();
 
 		if ( !empty( $aRes ) ) {
@@ -409,5 +398,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	public function setScannerDb( $oScanner ) {
 		$this->oScanner = $oScanner;
 		return $this;
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseScanActionVO $oAction
+	 * @deprecated 8.1
+	 */
+	public function postScanActionProcess( $oAction ) {
 	}
 }

@@ -12,7 +12,6 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property int      $started_at
  * @property int      $finished_at
  * @property bool     $is_async
- * @property bool     $is_cron
  * @property int      $total_items
  * @property string[] $items
  * @property array[]  $results

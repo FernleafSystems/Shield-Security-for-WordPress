@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 8.0.2
+Stable tag: 8.1.0
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,17 +370,25 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.0.2 - Current Release =
-*Released: 29th September, 2019* - [Release Notes](https://icwp.io/fv)
+= 8.1.0 - Current Release =
+*Released: 18th September, 2019* - [Release Notes](https://icwp.io/fy)
+
+* **(v.0)**  IMPROVED:	Massive improvements to asynchronous scans in performance and reliability.
+* **(v.0)**  ADDED:		[**PRO**] Possible to supply multiple email addresses for Administrator login notifications.
+* **(v.0)**  ADDED:		New firewall whitelist rule to prevent firewall blocks when activating certain plugins.
+* **(v.0)**  IMPROVED:	Prevent errors caused by other plugins not passing correctly-formatted data through WP filters.
+* **(v.0)**  ADDED:		Japanese translations (14%).
+* **(v.0)**  IMPROVED:	Plugin locale now respects user profile locale setting.
+* **(v.0)**  IMPROVED:	Audit Trail filter for specific events.
+* **(v.0)**  IMPROVED:	Lots of cleanup of deprecated PHP code following the the v7-v8 upgrade.
+
+= 8.0 - Series =
+*Released: 27th August, 2019* - [Release Notes](https://icwp.io/fv)
 
 * **(v.2)**  IMPROVED:	Password strength metering now better aligns with WordPress library (PHP 5.6+)
 * **(v.2)**  IMPROVED:	Dutch translations have been adjusted.
 * **(v.2)**  FIXED:		Setting 'Month' for IP block duration wasn't being applied.
 * **(v.2)**  FIXED:		Certain admin notices not displayed when they should be.
-
-= 8.0 - Series =
-*Released: 27th September, 2019* - [Release Notes](https://icwp.io/fv)
-
 * **(v.1)**  FIXED:		Comment SPAM blocking wasn't working if set to "Detect and Reject".
 * **(v.1)**  FIXED:		Shield Widget/Badge broken in some cases.
 * **(v.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://icwp.io/gistshieldlocale).

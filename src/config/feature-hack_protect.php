@@ -632,6 +632,13 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "is_scan_cron",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "boolean",
+      "default":      false
     }
   ],
   "definitions": {
@@ -669,12 +676,6 @@
     ],
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
-    "mal_whitelist_hashes":        {
-      "Container.php": [
-        "4e187f5c204bd597dd5ea653ee9c04b1413910c7"
-      ]
-    },
-    "url_mal_whitelist":           "https://onedollarplugin.com/",
     "malware_whitelist_paths":     [
       "wp-content/wflogs/"
     ],

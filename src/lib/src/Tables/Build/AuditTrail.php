@@ -20,14 +20,14 @@ class AuditTrail extends BaseBuild {
 		/** @var Shield\Databases\AuditTrail\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
-		$oSelector->filterByContext( $aParams[ 'fContext' ] );
+		$oSelector->filterByEvent( $aParams[ 'fEvent' ] );
 
 		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
 		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 			$oSelector->filterByIp( $aParams[ 'fIp' ] );
 		}
-		else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
+		else if ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
 			$oSelector->filterByNotIp( $oIp->getRequestIp() );
 		}
 
@@ -37,8 +37,8 @@ class AuditTrail extends BaseBuild {
 		if ( !empty( $aParams[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateFrom' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateFrom' ] );
 			$sTs = Services::Request()->carbon()
-				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-				->setTime( 0, 0 )
+						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						   ->setTime( 0, 0 )
 				->timestamp;
 			$oSelector->filterByCreatedAt( $sTs, '>' );
 		}
@@ -46,9 +46,9 @@ class AuditTrail extends BaseBuild {
 		if ( !empty( $aParams[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateTo' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateTo' ] );
 			$sTs = Services::Request()->carbon()
-				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-				->setTime( 0, 0 )
-				->addDay()
+						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						   ->setTime( 0, 0 )
+						   ->addDay()
 				->timestamp;
 			$oSelector->filterByCreatedAt( $sTs, '<' );
 		}
@@ -70,13 +70,13 @@ class AuditTrail extends BaseBuild {
 	 */
 	protected function getCustomParams() {
 		return [
-			'fIp'        => '',
-			'fUsername'  => '',
-			'fContext'   => '',
-			'fLoggedIn'  => -1,
-			'fExludeYou' => '',
-			'fDateFrom'  => '',
-			'fDateTo'    => '',
+			'fIp'         => '',
+			'fUsername'   => '',
+			'fEvent'      => '',
+			'fLoggedIn'   => -1,
+			'fExcludeYou' => '',
+			'fDateFrom'   => '',
+			'fDateTo'     => '',
 		];
 	}
 

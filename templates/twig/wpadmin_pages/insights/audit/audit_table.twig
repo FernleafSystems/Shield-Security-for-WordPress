@@ -22,10 +22,11 @@
 		<div class="" id="">
 			<form id="AuditFilterForm" autocomplete="off">
 				<div class="form-group">
-					<label for="_fContext">{{ strings.context }}</label>
-					<select id="_fContext" name="fContext" class="form-control">
-						{% for context_key,context_name in vars.contexts_for_select %}
-							<option value="{{ context_key }}">{{ context_name }}</option>
+					<label for="_fEvent">{{ strings.event }}</label>
+					<select id="_fEvent" name="fEvent" class="form-control">
+						<option value="">-- {{ strings.select }} --</option>
+						{% for event_key,event_name in vars.events_for_select %}
+							<option value="{{ event_key }}">{{ event_name }}</option>
 						{% endfor %}
 					</select>
 				</div>
@@ -40,9 +41,9 @@
 					</select>
 				</div>
 				<div class="form-group">
-					<label class="form-check-label" for="_fExludeYou" title="{{ strings.exclude_your_ip_tooltip }}">
+					<label class="form-check-label" for="_fExcludeYou" title="{{ strings.exclude_your_ip_tooltip }}">
 						{{ strings.exclude_your_ip }}?</label>
-					<input type="checkbox" id="_fExludeYou" name="fExludeYou" value="Y"
+					<input type="checkbox" id="_fExcludeYou" name="fExcludeYou" value="Y"
 						   class="form-control" />
 				</div>
 

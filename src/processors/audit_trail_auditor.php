@@ -87,10 +87,6 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ShieldProcessor {
 					   ->setOrderBy( $sOrderBy, $sOrder )
 					   ->setLimit( $nLimit )
 					   ->setPage( $nPage );
-		if ( $sContext != 'all' ) {
-			$oSelect->filterByContext( $sContext );
-		}
-
 		return $oSelect->query();
 	}
 }

@@ -27,7 +27,7 @@ class Traffic extends BaseBuild {
 		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 			$oSelector->filterByIp( inet_pton( $aParams[ 'fIp' ] ) );
 		}
-		else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
+		else if ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
 			$oSelector->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
 		}
 
@@ -58,13 +58,13 @@ class Traffic extends BaseBuild {
 	 */
 	protected function getCustomParams() {
 		return [
-			'fIp'        => '',
-			'fUsername'  => '',
-			'fLoggedIn'  => -1,
-			'fPath'      => '',
-			'fOffense'   => -1,
-			'fResponse'  => '',
-			'fExludeYou' => '',
+			'fIp'         => '',
+			'fUsername'   => '',
+			'fLoggedIn'   => -1,
+			'fPath'       => '',
+			'fOffense'    => -1,
+			'fResponse'   => '',
+			'fExcludeYou' => '',
 		];
 	}
 

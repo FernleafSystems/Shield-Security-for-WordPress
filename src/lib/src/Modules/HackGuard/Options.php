@@ -74,14 +74,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getMalWhitelistHashes() {
-		$aH = $this->getDef( 'mal_whitelist_hashes' );
-		return is_array( $aH ) ? $aH : [];
-	}
-
-	/**
 	 * @param string $sFilename
 	 * @param string $sUrl
 	 * @return string[]
@@ -263,5 +255,20 @@ class Options extends Base\ShieldOptions {
 			$sPattern = '#('.implode( '|', $aQuoted ).')#i';
 		}
 		return $sPattern;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isScanCron() {
+		return (bool)$this->getOpt( 'is_scan_cron' );
+	}
+
+	/**
+	 * @param bool $bIsScanCron
+	 * @return $this
+	 */
+	public function setIsScanCron( $bIsScanCron ) {
+		return $this->setOpt( 'is_scan_cron', $bIsScanCron );
 	}
 }

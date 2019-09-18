@@ -44,7 +44,7 @@ class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 				function ( $sHeader ) {
 					return strtolower( trim( $sHeader ) );
 				},
-				array_keys( $aCurrentWpHeaders )
+				( is_array( $aCurrentWpHeaders ) ? array_keys( $aCurrentWpHeaders ) : [] )
 			);
 			foreach ( $this->gatherSecurityHeaders() as $sHeader => $sValue ) {
 				if ( !in_array( strtolower( $sHeader ), $aAlreadySentHeaders ) ) {
