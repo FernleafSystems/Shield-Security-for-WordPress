@@ -43,6 +43,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var Shield\Databases\AuditTrail\Select $oAuditSelect */
 		$oAuditSelect = $oAuditMod->getDbHandler()->getQuerySelector();
 
+		/** @var Shield\Modules\Events\Strings $oEventStrings */
+		$oEventStrings = $oCon->getModule_Events()->getStrings();
+		$aEventsSelect = array_intersect_key( $oEventStrings->getEventNames(), array_flip( $oAuditSelect->getDistinctEvents() ) );
+		asort( $aEventsSelect );
+
 		$oIpMod = $oCon->getModule_IPs();
 
 		/** @var Shield\Databases\Session\Select $oSessionSelect */
@@ -77,13 +82,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
 						'exclude_your_ip_tooltip' => __( 'Exclude Your IP From Results', 'wp-simple-firewall' ),
 						'context'                 => __( 'Context', 'wp-simple-firewall' ),
+						'event'                   => __( 'Event', 'wp-simple-firewall' ),
 						'show_after'              => __( 'show results that occurred after', 'wp-simple-firewall' ),
 						'show_before'             => __( 'show results that occurred before', 'wp-simple-firewall' ),
 					],
 					'vars'    => [
-						'contexts_for_select' => $oAuditMod->getAllContexts(),
-						'unique_ips'          => $oAuditSelect->getDistinctIps(),
-						'unique_users'        => $oAuditSelect->getDistinctUsernames(),
+						'events_for_select' => $aEventsSelect,
+						'unique_ips'        => $oAuditSelect->getDistinctIps(),
+						'unique_users'      => $oAuditSelect->getDistinctUsernames(),
 					],
 				];
 				break;
@@ -287,7 +293,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
-//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
+			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
