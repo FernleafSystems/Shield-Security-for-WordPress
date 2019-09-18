@@ -574,7 +574,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function addUrlToImportExportWhitelistUrls( $sUrl ) {
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $sUrl );
 		if ( $sUrl !== false ) {
 			$aWhitelistUrls = $this->getImportExportWhitelist();
 			$aWhitelistUrls[] = $sUrl;
@@ -589,7 +589,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function removeUrlFromImportExportWhitelistUrls( $sUrl ) {
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $sUrl );
 		if ( $sUrl !== false ) {
 			$aWhitelistUrls = $this->getImportExportWhitelist();
 			$sKey = array_search( $sUrl, $aWhitelistUrls );
@@ -614,7 +614,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	protected function cleanImportExportWhitelistUrls() {
-		$oDP = $this->loadDP();
+		$oDP = Services::Data();
 
 		$aCleaned = [];
 		$aWhitelistUrls = $this->getImportExportWhitelist();
@@ -632,7 +632,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	protected function cleanImportExportMasterImportUrl() {
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
 		if ( $sUrl === false ) {
 			$sUrl = '';
 		}

@@ -45,15 +45,15 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 * @return bool
 	 */
 	protected function isCustomExcluded() {
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
+		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
 		$sAgent = $oReq->getUserAgent();
 		$sPath = $oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 
 		$bExcluded = false;
-		foreach ( $oFO->getCustomExclusions() as $sExcl ) {
+		foreach ( $oMod->getCustomExclusions() as $sExcl ) {
 			if ( stripos( $sAgent, $sExcl ) !== false || stripos( $sPath, $sExcl ) !== false ) {
 				$bExcluded = true;
 			}

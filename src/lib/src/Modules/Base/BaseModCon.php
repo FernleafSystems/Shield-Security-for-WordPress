@@ -1858,14 +1858,12 @@ class BaseModCon extends Deprecated\Foundation {
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
-
-			$oOpts = $this->loadOptions()->setMod( $this );;
-
 			$oCon = $this->getCon();
-			$this->oOpts = $oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
-								 ->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
-								 ->setOptionsStorageKey( $this->getOptionsStorageKey() )
-								 ->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
+			$this->oOpts = $this->loadOptions()->setMod( $this );
+			$this->oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
+						->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
+						->setOptionsStorageKey( $this->getOptionsStorageKey() )
+						->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 		}
 		return $this->oOpts;
 	}

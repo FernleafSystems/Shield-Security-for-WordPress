@@ -1853,19 +1853,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
-
-			if ( @class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options' ) ) {
-				$oOpts = $this->loadOptions()->setMod( $this );;
-			}
-			else {
-				$oOpts = new \ICWP_WPSF_OptionsVO();
-			}
-
 			$oCon = $this->getCon();
-			$this->oOpts = $oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
-								 ->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
-								 ->setOptionsStorageKey( $this->getOptionsStorageKey() )
-								 ->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
+			$this->oOpts = $this->loadOptions()->setMod( $this );
+			$this->oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
+						->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
+						->setOptionsStorageKey( $this->getOptionsStorageKey() )
+						->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 		}
 		return $this->oOpts;
 	}

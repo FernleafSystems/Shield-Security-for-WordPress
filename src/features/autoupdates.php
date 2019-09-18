@@ -37,7 +37,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		if ( !is_array( $aTracking ) ) {
 			$aTracking = [];
 		}
-		$aTracking = $this->loadDP()->mergeArraysRecursive(
+		$aTracking = Services::DataManipulation()->mergeArraysRecursive(
 			[
 				'core'    => [],
 				'plugins' => [],

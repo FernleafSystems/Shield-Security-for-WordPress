@@ -11,11 +11,6 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	const URL_ICONTROLWP_IPS = 'https://serviceips.icontrolwp.com/';
 
 	/**
-	 * @var string
-	 */
-	protected $sPrefix = '';
-
-	/**
 	 * @var ICWP_WPSF_ServiceProviders
 	 */
 	protected static $oInstance = null;
@@ -34,7 +29,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[][]
 	 */
 	public function getIps_CloudFlare() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_cloudflare' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -76,7 +71,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return array[]|string[]
 	 */
 	public function getIps_iControlWP( $bFlat = false ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_icontrolwp' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -92,7 +87,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return array[]
 	 */
 	public function getIps_ManageWp() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_managewp' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -107,7 +102,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[][]
 	 */
 	public function getIps_Pingdom() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_pingdom' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -125,7 +120,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return string[]
 	 */
 	public function getIps_Statuscake() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_statuscake' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -140,7 +135,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return array[]
 	 */
 	public function getIps_UptimeRobot() {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_uptimerobot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -160,7 +155,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIp_AppleBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_applebot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -182,7 +177,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIp_BaiduBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_baidubot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -275,7 +270,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIp_GoogleBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_googlebot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -340,7 +335,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIp_YandexBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_yandexbot' );
 		$aIps = $oWp->getTransient( $sStoreKey );
@@ -363,7 +358,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 	 * @return bool
 	 */
 	public function isIp_YahooBot( $sIp, $sUserAgent ) {
-		$oWp = $this->loadWp();
+		$oWp = Services::WpGeneral();
 
 		$sStoreKey = $this->prefix( 'serviceips_yahoobot' );
 		$aIps = $oWp->getTransient( $sStoreKey );

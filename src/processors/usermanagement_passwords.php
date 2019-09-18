@@ -41,7 +41,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	private function captureLogin( $oUser ) {
 		$sPassword = $this->getLoginPassword();
 
-		if ( $this->loadRequest()->isMethodPost() && !$this->isLoginCaptured()
+		if ( Services::Request()->isPost() && !$this->isLoginCaptured()
 			 && $oUser instanceof WP_User && !empty( $sPassword ) ) {
 			$this->setLoginCaptured();
 			try {
@@ -68,6 +68,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @return string
 	 */
 	public function addPasswordResetMessage( $sMessage = '' ) {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 		$sFlushed = $this->loadWpNotices()
 						 ->flushFlash()
 						 ->getFlashText();
@@ -103,7 +105,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processFailedCheckPassword() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 
@@ -369,7 +371,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 
 		// Edd: edd_user_pass; Woo: password;
 		foreach ( [ 'pwd', 'pass1' ] as $sKey ) {
-			$sP = $this->loadRequest()->post( $sKey );
+			$sP = Services::Request()->post( $sKey );
 			if ( !empty( $sP ) ) {
 				$sPass = $sP;
 				break;

@@ -20,63 +20,6 @@ class Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_DataProcessor
-	 */
-	static public function loadDP() {
-		$sKey = 'icwp-data';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_DataProcessor::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpFilesystem
-	 */
-	static public function loadFS() {
-		$sKey = 'icwp-wpfilesystem';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpFilesystem::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpFunctions
-	 */
-	static public function loadWp() {
-		$sKey = 'icwp-wpfunctions';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpFunctions::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpFunctions_Plugins
-	 * @deprecated
-	 */
-	public function loadWpPlugins() {
-		$sKey = 'icwp-wpfunctions-plugins';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpFunctions_Plugins::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpFunctions_Themes
-	 * @deprecated
-	 */
-	public function loadWpThemes() {
-		$sKey = 'icwp-wpfunctions-themes';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpFunctions_Themes::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return \ICWP_WPSF_WpCron
 	 * @deprecated
 	 */
@@ -84,40 +27,6 @@ class Foundation {
 		$sKey = 'icwp-wpcron';
 		if ( !self::isServiceReady( $sKey ) ) {
 			self::setService( $sKey, \ICWP_WPSF_WpCron::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpUpgrades
-	 * @deprecated
-	 */
-	static public function loadWpUpgrades() {
-		$sKey = 'icwp-wpupgrades';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpUpgrades::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpDb
-	 */
-	static public function loadDbProcessor() {
-		$sKey = 'icwp-wpdb';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpDb::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Request
-	 */
-	public function loadRequest() {
-		$sKey = 'icwp-request';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_Request::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
@@ -134,37 +43,6 @@ class Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_WpIncludes
-	 * @deprecated
-	 */
-	static public function loadWpIncludes() {
-		$sKey = 'icwp-wpincludes';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpIncludes::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @param string $sTemplatePath
-	 * @return \ICWP_WPSF_Render
-	 * @deprecated
-	 */
-	static public function loadRenderer( $sTemplatePath = '' ) {
-		$sKey = 'icwp-render';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_Render::GetInstance() );
-		}
-
-		/** @var \ICWP_WPSF_Render $oR */
-		$oR = self::getService( $sKey );
-		if ( !empty( $sTemplatePath ) ) {
-			$oR->setTemplateRoot( $sTemplatePath );
-		}
-		return ( clone $oR );
-	}
-
-	/**
 	 * @return \ICWP_WPSF_WpAdminNotices
 	 * @deprecated
 	 */
@@ -172,41 +50,6 @@ class Foundation {
 		$sKey = 'wp-admin-notices';
 		if ( !self::isServiceReady( $sKey ) ) {
 			self::setService( $sKey, \ICWP_WPSF_WpAdminNotices::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpUsers
-	 * @deprecated
-	 */
-	static public function loadWpUsers() {
-		$sKey = 'wp-users';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpUsers::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpComments
-	 * @deprecated
-	 */
-	static public function loadWpComments() {
-		$sKey = 'wp-comments';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpComments::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Edd
-	 */
-	static public function loadEdd() {
-		$sKey = 'icwp-edd';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_Edd::GetInstance() );
 		}
 		return self::getService( $sKey );
 	}
@@ -247,13 +90,5 @@ class Foundation {
 		$aDic = self::getDic();
 		$aDic[ $sServiceKey ] = $oService;
 		self::$aDic = $aDic;
-	}
-
-	/**
-	 * @return \ICWP_WPSF_WpAdminNotices
-	 * @deprecated
-	 */
-	static public function loadAdminNoticesProcessor() {
-		return self::loadWpNotices();
 	}
 }
