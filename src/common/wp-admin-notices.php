@@ -2,6 +2,10 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_WpAdminNotices
+ * @deprecated 8.2
+ */
 class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 	/**
@@ -34,7 +38,6 @@ class ICWP_WPSF_WpAdminNotices extends ICWP_WPSF_Foundation {
 
 	public function onWpAdminNotices() {
 	}
-
 
 	/**
 	 * @return \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta

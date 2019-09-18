@@ -43,18 +43,6 @@ class Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_WpAdminNotices
-	 * @deprecated
-	 */
-	static public function loadWpNotices() {
-		$sKey = 'wp-admin-notices';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpAdminNotices::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return array
 	 */
 	static private function getDic() {

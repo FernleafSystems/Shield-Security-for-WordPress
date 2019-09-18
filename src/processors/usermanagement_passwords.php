@@ -14,7 +14,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
-		add_filter( 'login_message', [ $this, 'addPasswordResetMessage' ] );
 	}
 
 	/**
@@ -64,20 +63,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param string $sMessage
-	 * @return string
-	 */
-	public function addPasswordResetMessage( $sMessage = '' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
-		$sFlushed = $this->loadWpNotices()
-						 ->flushFlash()
-						 ->getFlashText();
-		// we overwrite rather than augment the message
-		return empty( $sFlushed ) ? $sMessage : sprintf( '<p class="message">%s</p>', $sFlushed );
-	}
-
-	/**
 	 * @param WP_User $oUser
 	 */
 	public function onPasswordReset( $oUser ) {
@@ -89,15 +74,15 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processExpiredPassword() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isPassExpirationEnabled() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isPassExpirationEnabled() ) {
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
-				if ( Services::Request()->ts() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
+				if ( Services::Request()->ts() - $nPassStartedAt > $oMod->getPassExpireTimeout() ) {
 					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oFO->getPassExpireDays() )
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oMod->getPassExpireDays() )
 					);
 				}
 			}
