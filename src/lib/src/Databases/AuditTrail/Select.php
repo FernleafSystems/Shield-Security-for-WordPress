@@ -10,6 +10,13 @@ class Select extends Base\Select {
 	/**
 	 * @return string[]
 	 */
+	public function getDistinctEvents() {
+		return $this->getDistinct_FilterAndSort( 'event' );
+	}
+
+	/**
+	 * @return string[]
+	 */
 	public function getDistinctIps() {
 		return $this->getDistinct_FilterAndSort( 'ip' );
 	}
@@ -22,12 +29,12 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string $sContext
+	 * @param string $sEvent
 	 * @return $this
 	 */
-	public function filterByContext( $sContext ) {
-		if ( !empty( $sContext ) && strtolower( $sContext ) != 'all' ) {
-			$this->addWhereEquals( 'context', $sContext );
+	public function filterByEvent( $sEvent ) {
+		if ( !empty( $sEvent ) && strtolower( $sEvent ) != 'all' ) {
+			$this->addWhereEquals( 'event', $sEvent );
 		}
 		return $this;
 	}
@@ -79,11 +86,13 @@ class Select extends Base\Select {
 
 	/**
 	 * @param string $sContext
-	 * @return EntryVO[]
+	 * @return $this
+	 * @deprecated 8.1
 	 */
-	public function forContext( $sContext ) {
-		return $this->reset()
-					->filterByContext( $sContext )
-					->query();
+	public function filterByContext( $sContext ) {
+		if ( !empty( $sContext ) && strtolower( $sContext ) != 'all' ) {
+			$this->addWhereEquals( 'context', $sContext );
+		}
+		return $this;
 	}
 }

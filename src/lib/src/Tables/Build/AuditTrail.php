@@ -20,7 +20,7 @@ class AuditTrail extends BaseBuild {
 		/** @var Shield\Databases\AuditTrail\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
-		$oSelector->filterByContext( $aParams[ 'fContext' ] );
+		$oSelector->filterByEvent( $aParams[ 'fEvent' ] );
 
 		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
@@ -37,8 +37,8 @@ class AuditTrail extends BaseBuild {
 		if ( !empty( $aParams[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateFrom' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateFrom' ] );
 			$sTs = Services::Request()->carbon()
-				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-				->setTime( 0, 0 )
+						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						   ->setTime( 0, 0 )
 				->timestamp;
 			$oSelector->filterByCreatedAt( $sTs, '>' );
 		}
@@ -46,9 +46,9 @@ class AuditTrail extends BaseBuild {
 		if ( !empty( $aParams[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateTo' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateTo' ] );
 			$sTs = Services::Request()->carbon()
-				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-				->setTime( 0, 0 )
-				->addDay()
+						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						   ->setTime( 0, 0 )
+						   ->addDay()
 				->timestamp;
 			$oSelector->filterByCreatedAt( $sTs, '<' );
 		}
@@ -72,7 +72,7 @@ class AuditTrail extends BaseBuild {
 		return [
 			'fIp'        => '',
 			'fUsername'  => '',
-			'fContext'   => '',
+			'fEvent'     => '',
 			'fLoggedIn'  => -1,
 			'fExludeYou' => '',
 			'fDateFrom'  => '',

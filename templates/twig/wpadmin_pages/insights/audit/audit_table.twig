@@ -22,10 +22,11 @@
 		<div class="" id="">
 			<form id="AuditFilterForm" autocomplete="off">
 				<div class="form-group">
-					<label for="_fContext">{{ strings.context }}</label>
-					<select id="_fContext" name="fContext" class="form-control">
-						{% for context_key,context_name in vars.contexts_for_select %}
-							<option value="{{ context_key }}">{{ context_name }}</option>
+					<label for="_fEvent">{{ strings.event }}</label>
+					<select id="_fEvent" name="fEvent" class="form-control">
+						<option value="">-- {{ strings.select }} --</option>
+						{% for event_key,event_name in vars.events_for_select %}
+							<option value="{{ event_key }}">{{ event_name }}</option>
 						{% endfor %}
 					</select>
 				</div>
