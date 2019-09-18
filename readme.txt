@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.2
-Stable tag: 8.1.0
+Stable tag: 8.1.1
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,9 +370,10 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.1.0 - Current Release =
+= 8.1.1 - Current Release =
 *Released: 18th September, 2019* - [Release Notes](https://icwp.io/fy)
 
+* **(v.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`
 * **(v.0)**  IMPROVED:	Massive improvements to asynchronous scans in performance and reliability.
 * **(v.0)**  ADDED:		[**PRO**] Possible to supply multiple email addresses for Administrator login notifications.
 * **(v.0)**  ADDED:		New firewall whitelist rule to prevent firewall blocks when activating certain plugins.
