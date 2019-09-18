@@ -528,20 +528,6 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key":          "scans_job",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
-    },
-    {
-      "key":          "scan_key",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "ptg_last_build_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -639,6 +625,20 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "scans_to_build",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "is_scan_cron",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "boolean",
+      "default":      false
     }
   ],
   "definitions": {
@@ -662,14 +662,20 @@
       "created_at",
       "deleted_at"
     ],
+    "table_name_scanqueue":        "scanq",
+    "table_columns_scanqueue":     [
+      "id",
+      "scan",
+      "items",
+      "results",
+      "meta",
+      "started_at",
+      "finished_at",
+      "created_at",
+      "deleted_at"
+    ],
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
-    "mal_whitelist_hashes":        {
-      "Container.php": [
-        "4e187f5c204bd597dd5ea653ee9c04b1413910c7"
-      ]
-    },
-    "url_mal_whitelist":           "https://onedollarplugin.com/",
     "malware_whitelist_paths":     [
       "wp-content/wflogs/"
     ],

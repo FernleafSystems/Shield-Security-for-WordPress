@@ -43,6 +43,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var Shield\Databases\AuditTrail\Select $oAuditSelect */
 		$oAuditSelect = $oAuditMod->getDbHandler()->getQuerySelector();
 
+		/** @var Shield\Modules\Events\Strings $oEventStrings */
+		$oEventStrings = $oCon->getModule_Events()->getStrings();
+		$aEventsSelect = array_intersect_key( $oEventStrings->getEventNames(), array_flip( $oAuditSelect->getDistinctEvents() ) );
+		asort( $aEventsSelect );
+
 		$oIpMod = $oCon->getModule_IPs();
 
 		/** @var Shield\Databases\Session\Select $oSessionSelect */
@@ -77,13 +82,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'exclude_your_ip'         => __( 'Exclude Your Current IP', 'wp-simple-firewall' ),
 						'exclude_your_ip_tooltip' => __( 'Exclude Your IP From Results', 'wp-simple-firewall' ),
 						'context'                 => __( 'Context', 'wp-simple-firewall' ),
+						'event'                   => __( 'Event', 'wp-simple-firewall' ),
 						'show_after'              => __( 'show results that occurred after', 'wp-simple-firewall' ),
 						'show_before'             => __( 'show results that occurred before', 'wp-simple-firewall' ),
 					],
 					'vars'    => [
-						'contexts_for_select' => $oAuditMod->getAllContexts(),
-						'unique_ips'          => $oAuditSelect->getDistinctIps(),
-						'unique_users'        => $oAuditSelect->getDistinctUsernames(),
+						'events_for_select' => $aEventsSelect,
+						'unique_ips'        => $oAuditSelect->getDistinctIps(),
+						'unique_users'      => $oAuditSelect->getDistinctUsernames(),
 					],
 				];
 				break;
@@ -287,7 +293,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
-//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
+			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
@@ -357,7 +363,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		if ( $this->isThisModulePage() ) {
 
-			$oConn = $this->getCon();
+			$oCon = $this->getCon();
 			$aStdDepsJs = [ $this->prefix( 'plugin' ) ];
 			$sNav = Services::Request()->query( 'inav' );
 			switch ( $sNav ) {
@@ -365,12 +371,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'importexport':
 
 					$sAsset = 'shield-import';
-					$sUnique = $this->prefix( $sAsset );
+					$sUnique = $oCon->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oConn->getPluginUrl_Js( $sAsset ),
+						$oCon->getPluginUrl_Js( $sAsset ),
 						$aStdDepsJs,
-						$oConn->getVersion(),
+						$oCon->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
@@ -381,12 +387,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aDeps = $aStdDepsJs;
 					$aJsAssets = [ 'chartist.min', 'chartist-plugin-legend', 'charts' ];
 					foreach ( $aJsAssets as $sAsset ) {
-						$sUnique = $this->prefix( $sAsset );
+						$sUnique = $oCon->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
-							$oConn->getPluginUrl_Js( $sAsset ),
+							$oCon->getPluginUrl_Js( $sAsset ),
 							$aDeps,
-							$oConn->getVersion(),
+							$oCon->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
@@ -396,12 +402,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aDeps = [];
 					$aCssAssets = [ 'chartist.min', 'chartist-plugin-legend' ];
 					foreach ( $aCssAssets as $sAsset ) {
-						$sUnique = $this->prefix( $sAsset );
+						$sUnique = $oCon->prefix( $sAsset );
 						wp_register_style(
 							$sUnique,
-							$oConn->getPluginUrl_Css( $sAsset ),
+							$oCon->getPluginUrl_Css( $sAsset ),
 							$aDeps,
-							$oConn->getVersion(),
+							$oCon->getVersion(),
 							false
 						);
 						wp_enqueue_style( $sUnique );
@@ -417,12 +423,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'users':
 
 					$sAsset = 'shield-tables';
-					$sUnique = $this->prefix( $sAsset );
+					$sUnique = $oCon->prefix( $sAsset );
 					wp_register_script(
 						$sUnique,
-						$oConn->getPluginUrl_Js( $sAsset ),
+						$oCon->getPluginUrl_Js( $sAsset ),
 						$aStdDepsJs,
-						$oConn->getVersion(),
+						$oCon->getVersion(),
 						false
 					);
 					wp_enqueue_script( $sUnique );
@@ -430,12 +436,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aStdDepsJs[] = $sUnique;
 					if ( $sNav == 'scans' ) {
 						$sAsset = 'shield-scans';
-						$sUnique = $this->prefix( $sAsset );
+						$sUnique = $oCon->prefix( $sAsset );
 						wp_register_script(
 							$sUnique,
-							$oConn->getPluginUrl_Js( $sAsset ),
+							$oCon->getPluginUrl_Js( $sAsset ),
 							array_unique( $aStdDepsJs ),
-							$oConn->getVersion(),
+							$oCon->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
@@ -447,7 +453,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							$sUnique, //TODO: use an includes services for CNDJS
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js',
 							array_unique( $aStdDepsJs ),
-							$oConn->getVersion(),
+							$oCon->getVersion(),
 							false
 						);
 						wp_enqueue_script( $sUnique );
@@ -456,7 +462,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							$sUnique,
 							'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css',
 							[],
-							$oConn->getVersion(),
+							$oCon->getVersion(),
 							false
 						);
 						wp_enqueue_style( $sUnique );
@@ -788,11 +794,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				] ),
 				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
-			//			'sessions'       => array(
-			//				'title'   => _wpsf__( 'Active Sessions' ),
-			//				'val'     => $oProUsers->getProcessorSessions()->countActiveSessions(),
-			//				'tooltip' => _wpsf__( 'Currently active user sessions.' )
-			//			),
 			'transgressions' => [
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'ip_offense' ),
@@ -873,16 +874,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return Shield\Modules\Insights\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Insights\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Insights\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Insights\Strings();
+	protected function getNamespaceBase() {
+		return 'Insights';
 	}
 }

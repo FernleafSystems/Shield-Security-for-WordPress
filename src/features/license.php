@@ -64,12 +64,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @param string $sDeactivatedReason
 	 */
 	public function deactivate( $sDeactivatedReason = '' ) {
+		$oOpts = $this->getOptions();
 		if ( $this->isLicenseActive() ) {
-			$this->setOptAt( 'license_deactivated_at' );
+			$oOpts->setOptAt( 'license_deactivated_at' );
 		}
 
 		if ( !empty( $sDeactivatedReason ) ) {
-			$this->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
+			$oOpts->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
 		}
 		// force all options to resave i.e. reset premium to defaults.
 		add_filter( $this->prefix( 'force_options_resave' ), '__return_true' );
@@ -92,8 +93,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$oCurrent = $this->loadLicense();
 
 			$this->touchLicenseCheckFileFlag()
-				 ->setLicenseLastCheckedAt()
-				 ->savePluginOptions();
+				 ->setLicenseLastCheckedAt();
+			$this->saveModOptions();
 
 			$oLookupLicense = $this->lookupOfficialLicense();
 			if ( $oLookupLicense->isValid() ) {
@@ -127,8 +128,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			}
 
 			$oCurrent->last_request_at = Services::Request()->ts();
-			$this->setLicenseData( $oCurrent )
-				 ->savePluginOptions();
+			$this->setLicenseData( $oCurrent );
+			$this->saveModOptions();
 		}
 
 		return $this;
@@ -188,7 +189,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function activateLicense() {
 		if ( !$this->isLicenseActive() ) {
-			$this->setOptAt( 'license_activated_at', Services::Request()->ts() );
+			$this->getOptions()->setOptAt( 'license_activated_at' );
 		}
 		return $this;
 	}
@@ -196,10 +197,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	protected function sendLicenseWarningEmail() {
-		$bCanSend = Services::Request()->ts() - $this->getOpt( 'last_warning_email_sent_at' ) > DAY_IN_SECONDS;
+		$oOpts = $this->getOptions();
+
+		$bCanSend = Services::Request()
+							->carbon()
+							->subDay( 1 )->timestamp > $oOpts->getOpt( 'last_warning_email_sent_at' );
 
 		if ( $bCanSend ) {
-			$this->setOptAt( 'last_warning_email_sent_at' )->savePluginOptions();
+			$oOpts->setOptAt( 'last_warning_email_sent_at' );
+			$this->saveModOptions();
+
 			$aMessage = [
 				__( 'Attempts to verify Shield Pro license has just failed.', 'wp-simple-firewall' ),
 				sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $this->getUrl_AdminPage() ),
@@ -217,10 +224,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 */
 	private function sendLicenseDeactivatedEmail() {
-		$nNow = Services::Request()->ts();
+		$oOpts = $this->getOptions();
 
-		if ( ( $nNow - $this->getOpt( 'last_deactivated_email_sent_at' ) ) > DAY_IN_SECONDS ) {
-			$this->setOptAt( 'last_deactivated_email_sent_at' )->savePluginOptions();
+		$bCanSend = Services::Request()
+							->carbon()
+							->subDay( 1 )->timestamp > $oOpts->getOpt( 'last_deactivated_email_sent_at' );
+
+		if ( $bCanSend ) {
+			$oOpts->setOptAt( 'last_deactivated_email_sent_at' );
+			$this->saveModOptions();
+
 			$aMessage = [
 				__( 'All attempts to verify Shield Pro license have failed.', 'wp-simple-firewall' ),
 				sprintf( __( 'Please check your license on-site: %s', 'wp-simple-firewall' ), $this->getUrl_AdminPage() ),
@@ -243,8 +256,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$sPass = wp_generate_password( 16 );
 
 		$this->setKeylessRequestAt()
-			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) )
-			 ->savePluginOptions();
+			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) );
+		$this->saveModOptions();
 
 		$oLicense = ( new Utilities\Licenses\Lookup() )
 			->setRequestParams( [ 'nonce' => $sPass ] )
@@ -252,8 +265,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		// clear the handshake data
 		$this->setKeylessRequestAt( 0 )
-			 ->setKeylessRequestHash( '' )
-			 ->savePluginOptions();
+			 ->setKeylessRequestHash( '' );
+		$this->saveModOptions();
 
 		return $oLicense;
 	}
@@ -407,7 +420,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return $this
 	 */
 	protected function setLicenseLastCheckedAt( $nAt = null ) {
-		return $this->setOptAt( 'license_last_checked_at', $nAt );
+		$this->getOptions()->setOptAt( 'license_last_checked_at', $nAt );
+		return $this;
 	}
 
 	/**
@@ -580,23 +594,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\License\AjaxHandler
+	 * @return string
 	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\License\AjaxHandler;
-	}
-
-	/**
-	 * @return Shield\Modules\License\Options
-	 */
-	protected function loadOptions() {
-		return new Shield\Modules\License\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\License\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\License\Strings();
+	protected function getNamespaceBase() {
+		return 'License';
 	}
 }

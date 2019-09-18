@@ -1,7 +1,7 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield,
-	FernleafSystems\Wordpress\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services;
 
 abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_Processor_ScanBase {
 

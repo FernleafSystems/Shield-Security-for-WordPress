@@ -1,16 +1,13 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		if ( $this->isReadyToRun() ) {
-			parent::run();
-			add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
-			add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100, 1 );
-		}
+		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
+		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100, 1 );
 	}
 
 	/**
@@ -18,15 +15,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 */
 	public function runDailyCron() {
 		$this->cleanExpiredSessions();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isReadyToRun() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		return ( parent::isReadyToRun() && $oFO->getSessionsProcessor()->isReadyToRun() );
 	}
 
 	/**
@@ -53,7 +41,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	/**
 	 */
 	public function onWpLoaded() {
-		if ( $this->isReadyToRun() && Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
+		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->checkCurrentSession();
 		}
 	}
@@ -81,26 +69,26 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 * @throws \Exception
 	 */
 	private function assessSession() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
-		if ( !$oFO->hasSession() ) {
+		if ( !$oMod->hasSession() ) {
 			throw new \Exception( 'session_notfound' );
 		}
 
-		$oSess = $oFO->getSession();
+		$oSess = $oMod->getSession();
 		$nTime = Services::Request()->ts();
 
 		// timeout interval
-		if ( $oFO->hasMaxSessionTimeout() && ( $nTime - $oSess->logged_in_at > $oFO->getMaxSessionTime() ) ) {
+		if ( $oMod->hasMaxSessionTimeout() && ( $nTime - $oSess->logged_in_at > $oMod->getMaxSessionTime() ) ) {
 			throw new \Exception( 'session_expired' );
 		}
 
-		if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oFO->getIdleTimeoutInterval() ) ) {
+		if ( $oMod->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oMod->getIdleTimeoutInterval() ) ) {
 			throw new \Exception( 'session_idle' );
 		}
 
-		if ( $oFO->isLockToIp() ) {
+		if ( $oMod->isLockToIp() ) {
 			/** We allow the original session IP, the SERVER_ADDR, and the "what is my IP" */
 			$oPluginMod = $this->getCon()->getModule_Plugin();
 			$aPossibleIps = [
@@ -149,7 +137,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select
 	 */
 	private function getActiveSessionsQuerySelector() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSel */
 		$oSel = $oFO->getDbHandler_Sessions()->getQuerySelector();
@@ -218,8 +206,8 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 */
 	public function addLoginMessage( $oError ) {
 
-		if ( !$oError instanceof WP_Error ) {
-			$oError = new WP_Error();
+		if ( !$oError instanceof \WP_Error ) {
+			$oError = new \WP_Error();
 		}
 
 		$sForceLogout = Services::Request()->query( 'shield-forcelogout' );

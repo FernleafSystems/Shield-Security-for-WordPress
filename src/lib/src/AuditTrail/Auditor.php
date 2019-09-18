@@ -8,20 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Trait Auditor
  * @package FernleafSystems\Wordpress\Plugin\Shield\AuditTrail
- * @deprecated
+ * @deprecated 8.1
  */
 trait Auditor {
-
-	/**
-	 * @param string $sContext
-	 * @param string $sMsg
-	 * @param int    $nCategory
-	 * @param string $sEvent
-	 * @param array  $aEventData
-	 * @return EntryVO
-	 * @deprecated 7.5
-	 */
-	public function createNewAudit( $sContext, $sMsg, $nCategory = 1, $sEvent = '', $aEventData = [] ) {
-		return null;
-	}
 }

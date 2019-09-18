@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
 /**
  * Class ScanMal
@@ -19,9 +20,13 @@ class ScanMal extends ScanBase {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oRepairer = ( new Shield\Scans\Mal\Repair() )->setMod( $oMod );
+		$oConverter = ( new Scan\Results\ConvertBetweenTypes() )
+			->setScanActionVO( $this->getScanActionVO() );
+
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oIt = ( new Shield\Scans\Mal\ConvertVosToResults() )->convertItem( $oEntry );
+			/** @var Shield\Scans\Mal\ResultItem $oIt */
+			$oIt = $oConverter->convertVoToResultItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'path' ] = $oIt->path_fragment;
 			$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );

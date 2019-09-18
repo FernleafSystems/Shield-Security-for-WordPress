@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -19,10 +20,14 @@ class ScanApc extends ScanBase {
 
 		$oCarbon = Services::Request()->carbon();
 
+		$oConverter = ( new Scan\Results\ConvertBetweenTypes() )
+			->setScanActionVO( $this->getScanActionVO() );
+
 		$oWpPlugins = Services::WpPlugins();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oIt = ( new Shield\Scans\Apc\ConvertVosToResults() )->convertItem( $oEntry );
+			/** @var Shield\Scans\Apc\ResultItem $oIt */
+			$oIt = $oConverter->convertVoToResultItem( $oEntry );
 			$oPlugin = $oWpPlugins->getPluginAsVo( $oIt->slug );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'plugin' ] = sprintf( '%s (%s)', $oPlugin->Name, $oPlugin->Version );

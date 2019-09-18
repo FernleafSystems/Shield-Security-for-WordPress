@@ -6,12 +6,18 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
  * Class FileScanner
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
+
+	/**
+	 * @var array[]
+	 */
+	private $aWhitelistHashes;
 
 	/**
 	 * @param string $sFullPath
@@ -57,6 +63,19 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
+	 * @return array[]
+	 */
+	protected function getWhitelistHashes() {
+		if ( !is_array( $this->aWhitelistHashes ) ) {
+			$this->aWhitelistHashes = ( new Malware\WhitelistRetrieve() )->getFiles();
+			if ( !is_array( $this->aWhitelistHashes ) ) {
+				$this->aWhitelistHashes = [];
+			};
+		}
+		return $this->aWhitelistHashes;
+	}
+
+	/**
 	 * @param $aLines
 	 * @param $sFullPath
 	 * @param $sSig
@@ -87,12 +106,11 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private function isPathWhitelisted( $sFullPath ) {
 		$bWhitelisted = false;
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		if ( isset( $oAction->whitelist_hashes[ basename( $sFullPath ) ] ) ) {
+		$aWhitelistHashes = $this->getWhitelistHashes();
+		if ( isset( $aWhitelistHashes[ basename( $sFullPath ) ] ) ) {
 			try {
 				$oHasher = new Utilities\File\Compare\CompareHash();
-				foreach ( $oAction->whitelist_hashes[ basename( $sFullPath ) ] as $sWlHash ) {
+				foreach ( $aWhitelistHashes[ basename( $sFullPath ) ] as $sWlHash ) {
 					if ( $oHasher->isEqualFileSha1( $sFullPath, $sWlHash ) ) {
 						$bWhitelisted = true;
 						break;

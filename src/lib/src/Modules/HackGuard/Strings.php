@@ -178,7 +178,8 @@ class Strings extends Base\Strings {
 	 */
 	public function getOptionStrings( $sOptKey ) {
 
-		$sModName = $this->getMod()->getMainFeatureName();
+		$oMod = $this->getMod();
+		$sModName = $oMod->getMainFeatureName();
 
 		switch ( $sOptKey ) {
 
@@ -262,7 +263,7 @@ class Strings extends Base\Strings {
 			case 'ufc_exclusions' :
 				$sName = __( 'File Exclusions', 'wp-simple-firewall' );
 				$sSummary = __( 'Provide A List Of Files To Be Excluded From The Scan', 'wp-simple-firewall' );
-				$sDefaults = implode( ', ', $this->getMod()->getOptionsVo()->getOptDefault( 'ufc_exclusions' ) );
+				$sDefaults = implode( ', ', $oMod->getOptions()->getOptDefault( 'ufc_exclusions' ) );
 				$sDescription = __( 'Take a new line for each file you wish to exclude from the scan.', 'wp-simple-firewall' )
 								.'<br/><strong>'.__( 'No commas are necessary.', 'wp-simple-firewall' ).'</strong>'
 								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $sDefaults );

@@ -169,16 +169,9 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\Headers\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Headers\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Headers\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Headers\Strings();
+	protected function getNamespaceBase() {
+		return 'Headers';
 	}
 }

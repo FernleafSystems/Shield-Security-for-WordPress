@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Hashes\Ping;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 
 class Scan extends Shield\Scans\Base\BaseScan {
 
@@ -22,26 +22,16 @@ class Scan extends Shield\Scans\Base\BaseScan {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		if ( (int)$oAction->item_processing_limit > 0 ) {
-			$aSlice = array_slice( $oAction->scan_items, 0, $oAction->item_processing_limit );
-			$oAction->scan_items = array_slice( $oAction->scan_items, $oAction->item_processing_limit );
-		}
-		else {
-			$aSlice = $oAction->scan_items;
-			$oAction->scan_items = [];
-		}
-
-		$oAction->processed_items += count( $aSlice );
-
 		$oTempRs = $oAction->getNewResultsSet();
 
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
 		$oItemScanner = $this->getItemScanner();
+		$oCopier = new Shield\Scans\Helpers\CopyResultsSets();
 
 		// check we can even ping the WP Hashes API.
-		$bLiveHashesPing = ( new Ping() )->ping();
-		foreach ( $aSlice as $sSlug => $sContext ) {
+		$bLiveHashesPing = ( new WpHashes\ApiPing() )->ping();
+		foreach ( $oAction->items as $sSlug => $sContext ) {
 			$oNewRes = null;
 
 			$bUseStaticHashes = true;
@@ -83,20 +73,17 @@ class Scan extends Shield\Scans\Base\BaseScan {
 			if ( $oNewRes instanceof ResultsSet ) {
 				$oNewRes->setSlugOnAllItems( $sSlug )
 						->setContextOnAllItems( $sContext );
-				( new Shield\Scans\Helpers\CopyResultsSets() )->copyTo( $oNewRes, $oTempRs );
+				$oCopier->copyTo( $oNewRes, $oTempRs );
 			}
 		}
 
+		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {
-			$aNewItems = [];
-			foreach ( $oTempRs->getAllItems() as $oNewRes ) {
-				$aNewItems[] = $oNewRes->getRawDataAsArray();
+			foreach ( $oTempRs->getAllItems() as $oItem ) {
+				$aNewItems[] = $oItem->getRawDataAsArray();
 			}
-			if ( empty( $oAction->results ) ) {
-				$oAction->results = [];
-			}
-			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
+		$oAction->results = $aNewItems;
 	}
 
 	/**

@@ -20,18 +20,9 @@ abstract class BaseScanFromFileMap {
 		$oAction = $this->getScanActionVO();
 		$oResultSet = $oAction->getNewResultsSet();
 
-		if ( !empty( $oAction->scan_items ) ) {
+		if ( is_array( $oAction->items ) ) {
 
-			if ( (int)$oAction->item_processing_limit > 0 ) {
-				$aSlice = array_slice( $oAction->scan_items, 0, $oAction->item_processing_limit );
-			}
-			else {
-				$aSlice = $oAction->scan_items;
-			}
-
-			$oAction->processed_items += count( $aSlice );
-
-			foreach ( $aSlice as $nKey => $sFullPath ) {
+			foreach ( $oAction->items as $nKey => $sFullPath ) {
 				$oItem = $this->getFileScanner()->scan( $sFullPath );
 				if ( $oItem instanceof Scans\Base\BaseResultItem ) {
 					$oResultSet->addItem( $oItem );

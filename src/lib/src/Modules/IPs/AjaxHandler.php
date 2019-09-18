@@ -141,15 +141,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_BuildTableIps() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		/** @var \ICWP_WPSF_Processor_Ips $oPro */
-		$oPro = $oMod->getProcessor();
 
-		// First Clean
-		$oPro->cleanupDatabase();
+		/** @var Shield\Databases\IPs\Handler $oDbH */
+		$oDbH = $oMod->getDbHandler();
+		$oDbH->autoCleanDb();
 
 		$oTableBuilder = ( new Shield\Tables\Build\Ip() )
 			->setMod( $oMod )
-			->setDbHandler( $oMod->getDbHandler() );
+			->setDbHandler( $oDbH );
 
 		return [
 			'success' => true,

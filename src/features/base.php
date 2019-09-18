@@ -8,11 +8,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	use Shield\Modules\PluginControllerConsumer;
 
 	/**
-	 * @var ICWP_WPSF_OptionsVO
-	 */
-	protected $oOptions;
-
-	/**
 	 * @var string
 	 */
 	private $sOptionsStoreKey;
@@ -46,16 +41,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @var Shield\Databases\Base\Handler
 	 */
 	private $oDbh;
-
-	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AjaxHandlerShield
-	 */
-	private $oAjax;
-
-	/**
-	 * @var Shield\Modules\Base\AdminNotices
-	 */
-	private $oAdminNotices;
 
 	/**
 	 * @var Shield\Modules\Base\Strings
@@ -109,7 +94,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $this->isModuleRequest() ) {
 
 			if ( Services::WpGeneral()->isAjax() ) {
-				$this->getAjax();
+				$this->loadAjaxHandler();
 			}
 
 			if ( $oReq->request( 'action' ) == $this->prefix()
@@ -143,7 +128,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 
 		if ( is_admin() || is_network_admin() ) {
-			$this->getAdminNotices()->run();
+			$this->loadAdminNotices();
 		}
 
 //		if ( $this->isAdminOptionsPage() ) {
@@ -292,7 +277,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( !is_array( $aAdminNotices ) ) {
 			$aAdminNotices = [];
 		}
-		return array_merge( $aAdminNotices, $this->getOptionsVo()->getAdminNotices() );
+		return array_merge( $aAdminNotices, $this->getOptions()->getAdminNotices() );
 	}
 
 	/**
@@ -301,7 +286,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private function verifyModuleMeetRequirements() {
 		$bMeetsReqs = true;
 
-		$aPhpReqs = $this->getOptionsVo()->getFeatureRequirement( 'php' );
+		$aPhpReqs = $this->getOptions()->getFeatureRequirement( 'php' );
 		if ( !empty( $aPhpReqs ) ) {
 
 			if ( !empty( $aPhpReqs[ 'version' ] ) ) {
@@ -328,7 +313,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $this->isUpgrading() ) {
 			$this->updateHandler();
 		}
-		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_load_processor' ) ) {
+		if ( $this->getOptions()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
 		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
@@ -341,23 +326,31 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function processImportOptions( $aOptions ) {
 		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-			$this->getOptionsVo()
+			$this->getOptions()
 				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
 	/**
 	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
 	 * functionality of the plugin.
+	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		$oProcessor = $this->getProcessor();
-		return ( $oProcessor instanceof ICWP_WPSF_Processor_Base );
+		try {
+			$oDbH = $this->getDbHandler();
+			$bReady = ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor )
+					  && ( !$oDbH instanceof Shield\Databases\Base\Handler || $oDbH->isReady() );
+		}
+		catch ( \Exception $oE ) {
+			$bReady = false;
+		}
+		return $bReady;
 	}
 
 	protected function doExecuteProcessor() {
-		$this->getProcessor()->run();
+		$this->getProcessor()->execute();
 	}
 
 	/**
@@ -394,7 +387,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 	/**
 	 * Override this and adapt per feature
-	 * @return ICWP_WPSF_Processor_Base|mixed
+	 * @return Shield\Modules\Base\BaseProcessor|mixed
 	 */
 	protected function loadProcessor() {
 		if ( !isset( $this->oProcessor ) ) {
@@ -436,20 +429,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return \ICWP_WPSF_OptionsVO
-	 */
-	public function getOptionsVo() {
-		if ( !isset( $this->oOptions ) ) {
-			$this->oOptions = $this->getOptions();
-		}
-		return $this->oOptions;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isUpgrading() {
-		return $this->getCon()->getIsRebuildOptionsFromFile() || $this->getOptionsVo()->getRebuildFromFile();
+		return $this->getCon()->getIsRebuildOptionsFromFile() || $this->getOptions()->getRebuildFromFile();
 	}
 
 	/**
@@ -461,7 +444,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				// cleanup databases randomly just in-case cron doesn't run.
 				$this->cleanupDatabases();
 			}
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
@@ -473,7 +456,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_Base|mixed
+	 * @return Shield\Modules\Base\BaseProcessor|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();
@@ -496,7 +479,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function getUrl_DirectLinkToOption( $sOptKey ) {
 		$sUrl = $this->getUrl_AdminPage();
-		$aDef = $this->getOptionsVo()->getOptDefinition( $sOptKey );
+		$aDef = $this->getOptions()->getOptDefinition( $sOptKey );
 		if ( !empty( $aDef[ 'section' ] ) ) {
 			$sUrl = $this->getUrl_DirectLinkToSection( $aDef[ 'section' ] );
 		}
@@ -509,7 +492,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function getUrl_DirectLinkToSection( $sSection ) {
 		if ( $sSection == 'primary' ) {
-			$aSec = $this->getOptionsVo()->getPrimarySection();
+			$aSec = $this->getOptions()->getPrimarySection();
 			$sSection = $aSec[ 'slug' ];
 		}
 		return $this->getUrl_AdminPage().'#tab-'.$sSection;
@@ -546,9 +529,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return bool
 	 */
 	public function isModuleEnabled() {
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 
-		if ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true ) {
+		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
 			$bEnabled = true;
 		}
@@ -587,7 +570,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return string
 	 */
 	public function getMainFeatureName() {
-		return __( $this->getOptionsVo()->getFeatureProperty( 'name' ), 'wp-simple-firewall' );
+		return __( $this->getOptions()->getFeatureProperty( 'name' ), 'wp-simple-firewall' );
 	}
 
 	/**
@@ -603,7 +586,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function getSlug() {
 		if ( !isset( $this->sModSlug ) ) {
-			$this->sModSlug = $this->getOptionsVo()->getFeatureProperty( 'slug' );
+			$this->sModSlug = $this->getOptions()->getFeatureProperty( 'slug' );
 		}
 		return $this->sModSlug;
 	}
@@ -614,14 +597,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function supplySubMenuItem( $aItems ) {
 
-		$sTitle = $this->getOptionsVo()->getFeatureProperty( 'menu_title' );
+		$sTitle = $this->getOptions()->getFeatureProperty( 'menu_title' );
 		$sTitle = empty( $sTitle ) ? $this->getMainFeatureName() : __( $sTitle, 'wp-simple-firewall' );
 
 		if ( !empty( $sTitle ) ) {
 
 			$sHumanName = $this->getCon()->getHumanName();
 
-			$bMenuHighlighted = $this->getOptionsVo()->getFeatureProperty( 'highlight_menu_item' );
+			$bMenuHighlighted = $this->getOptions()->getFeatureProperty( 'highlight_menu_item' );
 			if ( $bMenuHighlighted ) {
 				$sTitle = sprintf( '<span class="icwp_highlighted">%s</span>', $sTitle );
 			}
@@ -634,7 +617,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				$this->getIfShowModuleMenuItem()
 			];
 
-			$aAdditionalItems = $this->getOptionsVo()->getAdditionalMenuItems();
+			$aAdditionalItems = $this->getOptions()->getAdditionalMenuItems();
 			if ( !empty( $aAdditionalItems ) && is_array( $aAdditionalItems ) ) {
 
 				foreach ( $aAdditionalItems as $aMenuItem ) {
@@ -693,7 +676,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return array
 	 */
 	protected function buildSummaryData() {
-		$oOptsVo = $this->getOptionsVo();
+		$oOptsVo = $this->getOptions();
 		$sMenuTitle = $oOptsVo->getFeatureProperty( 'menu_title' );
 
 		$aSections = $oOptsVo->getSections();
@@ -750,21 +733,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return boolean
 	 */
 	public function getIfShowModuleMenuItem() {
-		return (bool)$this->getOptionsVo()->getFeatureProperty( 'show_module_menu_item' );
+		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
 	/**
 	 * @return boolean
 	 */
 	public function getIfShowModuleLink() {
-		return (bool)$this->getOptionsVo()->getFeatureProperty( 'show_module_options' );
+		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 
 	/**
 	 * @return boolean
 	 */
 	public function getIfUseSessions() {
-		return $this->getOptionsVo()->getFeatureProperty( 'use_sessions' );
+		return $this->getOptions()->getFeatureProperty( 'use_sessions' );
 	}
 
 	/**
@@ -773,7 +756,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return mixed|null
 	 */
 	public function getDef( $sKey ) {
-		return $this->getOptionsVo()->getFeatureDefinition( $sKey );
+		return $this->getOptions()->getDef( $sKey );
 	}
 
 	/**
@@ -809,7 +792,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return mixed
 	 */
 	public function getOpt( $sOptionKey, $mDefault = false ) {
-		return $this->getOptionsVo()->getOpt( $sOptionKey, $mDefault );
+		return $this->getOptions()->getOpt( $sOptionKey, $mDefault );
 	}
 
 	/**
@@ -819,7 +802,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return bool
 	 */
 	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
-		$mOptionValue = $this->getOptionsVo()->getOpt( $sOptionKey );
+		$mOptionValue = $this->getOptions()->getOpt( $sOptionKey );
 		return $bStrict ? $mOptionValue === $mValueToTest : $mOptionValue == $mValueToTest;
 	}
 
@@ -868,7 +851,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return $this
 	 */
 	protected function setOpt( $sOptionKey, $mValue ) {
-		$this->getOptionsVo()->setOpt( $sOptionKey, $mValue );
+		$this->getOptions()->setOpt( $sOptionKey, $mValue );
 		return $this;
 	}
 
@@ -876,7 +859,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param array $aOptions
 	 */
 	public function setOptions( $aOptions ) {
-		$oVO = $this->getOptionsVo();
+		$oVO = $this->getOptions();
 		foreach ( $aOptions as $sKey => $mValue ) {
 			$oVO->setOpt( $sKey, $mValue );
 		}
@@ -918,7 +901,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		return is_array( $aDN ) ? $aDN : [];
 	}
 
-
 	/**
 	 * @return string[]
 	 */
@@ -934,6 +916,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	public function setDismissedNotices( $aDismissed ) {
 		return $this->setOpt( 'dismissed_notices', $aDismissed );
 	}
+
 	/**
 	 * @param string[] $aDismissed
 	 * @return $this
@@ -959,24 +942,32 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 	/**
 	 * Saves the options to the WordPress Options store.
-	 * It will also update the stored plugin options version.
 	 * @return void
+	 * @deprecated 8.1
 	 */
 	public function savePluginOptions() {
+		$this->saveModOptions();
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function saveModOptions() {
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
-			$this->getOptionsVo()
+			$this->getOptions()
 				 ->setNeedSave( true );
 		}
 
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
-		$this->bImportExportWhitelistNotify = $this->getOptionsVo()->getNeedSave();
+		$this->bImportExportWhitelistNotify = $this->getOptions()->getNeedSave();
 		$this->store();
+		return $this;
 	}
 
 	private function store() {
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
-		$this->getOptionsVo()
+		$this->getOptions()
 			 ->doOptionsSave( $this->getCon()->getIsResetPlugin(), $this->isPremium() );
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 	}
@@ -986,7 +977,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return array
 	 */
 	public function aggregateOptionsValues( $aAggregatedOptions ) {
-		return array_merge( $aAggregatedOptions, $this->getOptionsVo()->getAllOptionsValues() );
+		return array_merge( $aAggregatedOptions, $this->getOptions()->getAllOptionsValues() );
 	}
 
 	/**
@@ -999,7 +990,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 		$bPremiumEnabled = $this->getCon()->isPremiumExtensionsEnabled();
 
-		$oOptsVo = $this->getOptionsVo();
+		$oOptsVo = $this->getOptions();
 		$aOptions = $oOptsVo->getOptionsForPluginUse();
 
 		foreach ( $aOptions as $nSectionKey => $aSection ) {
@@ -1239,7 +1230,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function resetPremiumOptions() {
 		if ( !$this->isPremium() ) {
-			$this->getOptionsVo()->resetPremiumOptsToDefault();
+			$this->getOptions()->resetPremiumOptsToDefault();
 		}
 	}
 
@@ -1304,7 +1295,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			}
 		}
 
-		$this->savePluginOptions();
+		$this->saveModOptions();
 
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
@@ -1437,7 +1428,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 		return [
 			'sPluginName'   => $oCon->getHumanName(),
-			'sTagline'      => $this->getOptionsVo()->getFeatureTagline(),
+			'sTagline'      => $this->getOptions()->getFeatureTagline(),
 			'nonce_field'   => wp_nonce_field( $oCon->getPluginPrefix(), '_wpnonce', true, false ), //don't echo!
 			'form_action'   => 'admin.php?page='.$this->getModSlug(),
 			'aPluginLabels' => $oCon->getLabels(),
@@ -1459,7 +1450,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				'mod_slug'       => $this->getModSlug( true ),
 				'mod_slug_short' => $this->getModSlug( false ),
 				'all_options'    => $this->buildOptions(),
-				'hidden_options' => $this->getOptionsVo()->getHiddenOptions()
+				'hidden_options' => $this->getOptions()->getHiddenOptions()
 			],
 			'ajax'          => [
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
@@ -1640,7 +1631,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return bool
 	 */
 	protected function canDisplayOptionsForm() {
-		return $this->getOptionsVo()->isAccessRestricted() ? $this->getCon()->isPluginAdmin() : true;
+		return $this->getOptions()->isAccessRestricted() ? $this->getCon()->isPluginAdmin() : true;
 	}
 
 	public function onWpEnqueueAdminJs() {
@@ -1745,7 +1736,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( !is_array( $aTransferableOptions ) ) {
 			$aTransferableOptions = [];
 		}
-		$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptionsVo()->getTransferableOptions();
+		$aTransferableOptions[ $this->getOptionsStorageKey() ] = $this->getOptions()->getTransferableOptions();
 		return $aTransferableOptions;
 	}
 
@@ -1753,8 +1744,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return array
 	 */
 	public function collectOptionsForTracking() {
-		$oVO = $this->getOptionsVo();
-		$aOptionsData = $this->getOptionsVo()->getOptionsMaskSensitive();
+		$oVO = $this->getOptions();
+		$aOptionsData = $this->getOptions()->getOptionsMaskSensitive();
 		foreach ( $aOptionsData as $sOption => $mValue ) {
 			unset( $aOptionsData[ $sOption ] );
 			// some cleaning to ensure we don't have disallowed characters
@@ -1870,6 +1861,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param string $sOpt
 	 * @param int    $nAt
 	 * @return $this
+	 * @deprecated 8.1 - TODO: Be careful when updating to use `Options` as this is newly-added in 8.1
 	 */
 	protected function setOptAt( $sOpt, $nAt = null ) {
 		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
@@ -1917,26 +1909,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return Shield\Modules\Base\AdminNotices
-	 */
-	private function getAdminNotices() {
-		if ( !isset( $this->oAdminNotices ) ) {
-			$this->oAdminNotices = $this->loadAdminNotices()->setMod( $this );
-		}
-		return $this->oAdminNotices;
-	}
-
-	/**
-	 * @return Shield\Modules\Base\AjaxHandlerShield
-	 */
-	private function getAjax() {
-		if ( !isset( $this->oAjax ) ) {
-			$this->oAjax = $this->loadAjaxHandler()->setMod( $this );
-		}
-		return $this->oAjax;
-	}
-
-	/**
 	 * @return null|Shield\Modules\Base\Strings
 	 */
 	public function getStrings() {
@@ -1947,13 +1919,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return Shield\Modules\Base\AdminNotices
-	 */
-	protected function loadAdminNotices() {
-		return new Shield\Modules\Base\AdminNotices();
-	}
-
-	/**
 	 * @return Shield\Databases\Base\Handler|mixed|false
 	 */
 	protected function loadDbHandler() {
@@ -1961,65 +1926,78 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\AjaxHandlerShield|mixed
+	 * @return $this
+	 */
+	protected function loadAdminNotices() {
+		$oNotices = $this->loadClass( 'AdminNotices' );
+		if ( $oNotices instanceof Shield\Modules\Base\AdminNotices ) {
+			$oNotices->setMod( $this )->run();
+		}
+		return $this;
+	}
+
+	/**
+	 * @return $this
 	 */
 	protected function loadAjaxHandler() {
-		return new Shield\Modules\Base\AjaxHandlerShield;
+		$oAj = $this->loadClass( 'AjaxHandler' );
+		if ( !$oAj instanceof Shield\Modules\Base\AjaxHandlerBase ) {
+			$oAj = new Shield\Modules\Base\AjaxHandlerShield();
+		}
+		$oAj->setMod( $this );
+		return $this;
 	}
 
 	/**
 	 * @return Shield\Modules\Base\ShieldOptions|mixed
 	 */
 	protected function loadOptions() {
-		return new Shield\Modules\Base\ShieldOptions;
+		return $this->loadClass( 'Options' );
 	}
 
 	/**
 	 * @return Shield\Modules\Base\Strings|mixed
 	 */
 	protected function loadStrings() {
-		return new Shield\Modules\Base\Strings();
+		return $this->loadClass( 'Strings' );
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 7.5
+	 * @param $sClass
+	 * @return \stdClass|mixed|false
 	 */
-	protected function getDisplayStrings() {
-		return $this->getStrings()->getDisplayStrings();
+	private function loadClass( $sClass ) {
+		$sC = $this->getNamespace().$sClass;
+		return @class_exists( $sC ) ? new $sC() : false;
 	}
 
 	/**
-	 * @param bool $bBypass
-	 * @return $this
-	 * @deprecated 7.5
-	 */
-	protected function setBypassAdminProtection( $bBypass ) {
-		return $this;
-	}
-
-	/**
-	 * @deprecated 7.5
-	 */
-	public function action_doFeatureShutdown() {
-		$this->onPluginShutdown();
-	}
-
-	/**
-	 * Prefixes an option key only if it's needed
-	 * @param $sKey
 	 * @return string
-	 * @deprecated
 	 */
-	public function prefixOptionKey( $sKey = '' ) {
-		return $this->prefix( $sKey, '_' );
+	private function getNamespace() {
+		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\\'.$this->getNamespaceBase().'\\';
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 8
+	 * This will eventually be not needed
+	 * @return string
 	 */
-	protected function isAutoEnabled() {
-		return ( $this->getOptionsVo()->getFeatureProperty( 'auto_enabled' ) === true );
+	protected function getNamespaceBase() {
+		return 'Base';
+	}
+
+	/**
+	 * @return \ICWP_WPSF_OptionsVO
+	 * @deprecated 8.1
+	 */
+	public function getOptionsVo() {
+		return $this->getOptions();
+	}
+
+	/**
+	 * @deprecated 8.1
+	 */
+	private function getAjax() {
+		$this->loadAjaxHandler();
 	}
 }

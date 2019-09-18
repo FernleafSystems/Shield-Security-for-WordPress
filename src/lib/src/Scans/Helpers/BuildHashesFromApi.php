@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Hashes;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Hashes;
 
 /**
  * Class BuildHashesFromDir

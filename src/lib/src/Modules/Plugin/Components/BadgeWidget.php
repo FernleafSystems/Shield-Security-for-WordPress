@@ -7,7 +7,7 @@ class BadgeWidget extends \ICWP_WPSF_WpWidget {
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
 	/**
-	 * ICWP_WPSF_Processor_Plugin_BadgeWidget constructor.
+	 * BadgeWidget constructor.
 	 * @param \ICWP_WPSF_FeatureHandler_Base $oMod
 	 */
 	public function __construct( $oMod ) {

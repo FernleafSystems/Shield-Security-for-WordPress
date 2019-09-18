@@ -1,6 +1,8 @@
 <?php
 
-class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var bool
@@ -42,7 +44,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 				function ( $sHeader ) {
 					return strtolower( trim( $sHeader ) );
 				},
-				array_keys( $aCurrentWpHeaders )
+				( is_array( $aCurrentWpHeaders ) ? array_keys( $aCurrentWpHeaders ) : [] )
 			);
 			foreach ( $this->gatherSecurityHeaders() as $sHeader => $sValue ) {
 				if ( !in_array( strtolower( $sHeader ), $aAlreadySentHeaders ) ) {

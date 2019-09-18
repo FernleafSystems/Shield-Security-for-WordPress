@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_BaseWpsf
+ * @deprecated 8.1
+ */
 abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 
 	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
@@ -36,12 +40,12 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	protected function getInstallationDays() {
 		$nTimeInstalled = $this->getCon()
-							   ->loadCorePluginFeatureHandler()
+							   ->getModule_Plugin()
 							   ->getInstallDate();
 		if ( empty( $nTimeInstalled ) ) {
 			return 0;
 		}
-		return (int)round( ( $this->loadRequest()->ts() - $nTimeInstalled )/DAY_IN_SECONDS );
+		return (int)round( ( Services::Request()->ts() - $nTimeInstalled )/DAY_IN_SECONDS );
 	}
 
 	/**
@@ -189,76 +193,6 @@ abstract class ICWP_WPSF_Processor_BaseWpsf extends ICWP_WPSF_Processor_Base {
 	 */
 	public function setRecaptchaToEnqueue() {
 		self::$bRecaptchaEnqueue = true;
-		return $this;
-	}
-
-	/**
-	 * @param string $sMsg
-	 * @param int    $nCategory
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 * @deprecated 7.5
-	 */
-	public function addToAuditEntry( $sMsg = '', $nCategory = 1, $sEvent = '', $aData = [] ) {
-		return $this;
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @param array  $aData
-	 * @return $this
-	 * @deprecated 8
-	 */
-	public function auditEvent( $sEvent = '', $aData = [] ) {
-		return $this;
-	}
-
-	/**
-	 * This is the preferred method over $this->stat_Increment() since it handles the parent stat key
-	 *
-	 * @param string $sStatKey
-	 * @param string $sParentStatKey
-	 * @return $this
-	 * @deprecated 8
-	 */
-	protected function doStatIncrement( $sStatKey, $sParentStatKey = '' ) {
-		if ( empty( $sParentStatKey ) ) {
-			$sParentStatKey = $this->getMod()->getSlug();
-		}
-		return $this->stats_Increment( $sStatKey.':'.$sParentStatKey );
-	}
-
-	/**
-	 * A filter used to collect all the stats gathered in the plugin.
-	 *
-	 * @param array $aStats
-	 * @return array
-	 * @deprecated 8
-	 */
-	public function stats_Collect( $aStats ) {
-		if ( !is_array( $aStats ) ) {
-			$aStats = [];
-		}
-		$aThisStats = $this->stats_Get();
-		if ( !empty( $aThisStats ) && is_array( $aThisStats ) ) {
-			$aStats[] = $aThisStats;
-		}
-		return $aStats;
-	}
-
-	/**
-	 * @param string $sStatKey
-	 * @return $this
-	 * @deprecated 8
-	 */
-	private function stats_Increment( $sStatKey ) {
-		$aStats = $this->stats_Get();
-		if ( !isset( $aStats[ $sStatKey ] ) ) {
-			$aStats[ $sStatKey ] = 0;
-		}
-		$aStats[ $sStatKey ] = $aStats[ $sStatKey ] + 1;
-		$this->aStatistics = $aStats;
 		return $this;
 	}
 }

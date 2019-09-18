@@ -50,6 +50,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getMaxEntries() {
+		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDefaultMaxEntries();
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isEnabledChangeTracking() {
@@ -151,5 +158,12 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isAuditWp() {
 		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function updateCTLastSnapshotAt() {
+		return $this->setOptAt( 'ct_last_snapshot_at' );
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\IsEmailTrusted;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		$oWpUsers = Services::WpUsers();
 
 		$bLoadComProc = !$oWpUsers->isUserLoggedIn() ||
-						!( new IsEmailTrusted() )->trusted(
+						!( new CommentsFilter\Scan\IsEmailTrusted() )->trusted(
 							$oWpUsers->getCurrentWpUser()->user_email,
 							$oMod->getApprovedMinimum(),
 							$oMod->getTrustedRoles()
@@ -27,7 +27,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( $bLoadComProc ) {
 
 			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-				$this->getSubProRecaptcha()->run();
+				$this->getSubProRecaptcha()->execute();
 			}
 
 			if ( Services::Request()->isPost() ) {
@@ -38,7 +38,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			}
 			else {
 				if ( $oMod->isEnabledGaspCheck() ) {
-					$this->getSubProGasp()->run();
+					$this->getSubProGasp()->execute();
 				}
 			}
 		}
@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha
+	 * @return \ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha
 	 */
 	private function getSubProRecaptcha() {
 		return $this->getSubPro( 'recaptcha' );
@@ -88,14 +88,5 @@ class ICWP_WPSF_Processor_CommentsFilter extends ICWP_WPSF_Processor_BaseWpsf {
 			$aEmails = [];
 		}
 		return $aEmails;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_akismet_running( $aNoticeAttributes ) {
-		return;
 	}
 }

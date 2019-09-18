@@ -72,15 +72,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string
 	 */
 	public function getMyServerIp() {
+		$oOpts = $this->getOptions();
 
-		$sThisServerIp = $this->getOpt( 'this_server_ip', '' );
+		$sThisServerIp = $oOpts->getOpt( 'this_server_ip', '' );
 		if ( $this->getLastCheckServerIpAtHasExpired() ) {
 			$sThisServerIp = Services::IP()->whatIsMyIp();
 			if ( !empty( $sThisServerIp ) ) {
-				$this->setOpt( 'this_server_ip', $sThisServerIp );
+				$oOpts->setOpt( 'this_server_ip', $sThisServerIp );
 			}
 			// we always update so we don't forever check on every single page load
-			$this->setOptAt( 'this_server_ip_last_check_at' );
+			$oOpts->setOptAt( 'this_server_ip_last_check_at' );
 		}
 		return $sThisServerIp;
 	}
@@ -660,9 +661,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setImportExportMasterImportUrl( $sUrl ) {
-		$this->setOpt( 'importexport_masterurl', $sUrl )
-			 ->savePluginOptions(); //saving will clean the URL
-		return $this;
+		$this->setOpt( 'importexport_masterurl', $sUrl ); //saving will clean the URL
+		return $this->saveModOptions();
 	}
 
 	/**
@@ -849,31 +849,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return Shield\Modules\Plugin\AdminNotices
+	 * @return string
 	 */
-	protected function loadAdminNotices() {
-		return new Shield\Modules\Plugin\AdminNotices();
-	}
-
-	/**
-	 * @return Shield\Modules\Plugin\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\Plugin\AjaxHandler;
-	}
-
-	/**
-	 * @return Shield\Modules\Plugin\Options
-	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Plugin\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Plugin\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Plugin\Strings();
+	protected function getNamespaceBase() {
+		return 'Plugin';
 	}
 
 	/**
@@ -881,13 +860,5 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
-	}
-
-	/**
-	 * @return array
-	 * @deprecated
-	 */
-	public function supplyGoogleRecaptchaConfig() {
-		return $this->getGoogleRecaptchaConfig();
 	}
 }

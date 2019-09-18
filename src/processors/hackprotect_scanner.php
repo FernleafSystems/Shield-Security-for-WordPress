@@ -2,24 +2,13 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor {
+class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 
 	use Shield\Crons\StandardCron;
-
-	/**
-	 * @var Shield\Scans\Common\AsyncScansController
-	 */
-	private $oAsyncScanController;
-
-	/**
-	 * ICWP_WPSF_Processor_HackProtect_Scanner constructor.
-	 * @param ICWP_WPSF_FeatureHandler_HackProtect $oModCon
-	 */
-	public function __construct( $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getDef( 'table_name_scanner' ) );
-	}
 
 	/**
 	 */
@@ -27,111 +16,28 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
-		$this->getSubProcessorApc()->run();
-		$this->getSubProcessorUfc()->run();
-		$this->getSubProcessorWcf()->run();
+		$this->getSubProcessorApc()->execute();
+		$this->getSubProcessorUfc()->execute();
+		$this->getSubProcessorWcf()->execute();
 		if ( $oMod->isPremium() ) {
-			$this->getSubProcessorMal()->run();
-			$this->getSubProcessorWpv()->run();
+			$this->getSubProcessorMal()->execute();
+			$this->getSubProcessorWpv()->execute();
 			if ( $oMod->isPtgEnabled() ) {
-				$this->getSubProcessorPtg()->run();
+				$this->getSubProcessorPtg()->execute();
 			}
 		}
-
-		$this->handleAsyncScanRequest();
 		$this->setupCron();
-	}
-
-	/**
-	 * @param string[] $aScans
-	 */
-	public function launchScans( $aScans ) {
-		$this->getAsyncScanController()
-			 ->abortAllScans() // TODO: not abort all, but append?
-			 ->setupNewScanJob( $aScans );
-		$this->processAsyncScans();
-	}
-
-	/**
-	 *
-	 */
-	private function handleAsyncScanRequest() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		$bIsScanRequest = ( !Services::WpGeneral()->isAjax() &&
-							$this->getCon()->getShieldAction() == 'scan_async_process'
-							&& Services::Request()->query( 'scan_key' ) == $oOpts->getScanKey() );
-		if ( $bIsScanRequest ) {
-			$this->processAsyncScans();
-			die();
-		}
-	}
-
-	/**
-	 */
-	private function processAsyncScans() {
-		try {
-			$oAction = $this->getAsyncScanController()->runScans();
-			if ( $oAction->ts_finish > 0 ) {
-				$this->getSubPro( $oAction->id )
-					 ->postScanActionProcess( $oAction );
-			}
-		}
-		catch ( \Exception $oE ) {
-//			error_log( $oE->getMessage() );
-		}
-	}
-
-	/**
-	 * @return Shield\Scans\Common\AsyncScansController
-	 */
-	public function getAsyncScanController() {
-		if ( empty( $this->oAsyncScanController ) ) {
-			$this->oAsyncScanController = ( new Shield\Scans\Common\AsyncScansController() )
-				->setMod( $this->getMod() );
-		}
-		return $this->oAsyncScanController;
+		$this->handlePostScanCron();
 	}
 
 	/**
 	 * @param string $sSlug
-	 * @return ICWP_WPSF_Processor_ScanBase|null
+	 * @return \ICWP_WPSF_Processor_ScanBase|null
 	 */
 	public function getScannerFromSlug( $sSlug ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return in_array( $sSlug, $oMod->getAllScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
-	}
-
-	/**
-	 * @return bool[]
-	 */
-	public function getScansRunningStates() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$aRunning = [];
-
-		$oS = $this->getAsyncScanController();
-		$oS->cleanStaleScans();
-		$oJob = $oS->loadScansJob();
-		foreach ( $oMod->getAllScanSlugs() as $sSlug ) {
-			$aRunning[ $sSlug ] = $oJob->isScanInited( $sSlug );
-		}
-		return $aRunning;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getRunningScans() {
-		return array_keys( array_filter( $this->getScansRunningStates() ) );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasRunningScans() {
-		return count( $this->getRunningScans() ) > 0;
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return in_array( $sSlug, $oOpts->getScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
 	}
 
 	/**
@@ -209,10 +115,17 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	}
 
 	/**
-	 * @return Scanner\Handler
+	 * Responsible for sending out emails and doing any automated repairs.
 	 */
-	protected function createDbHandler() {
-		return new Scanner\Handler();
+	private function handlePostScanCron() {
+		add_action( $this->getCon()->prefix( 'post_scan' ), function ( $aScansToNotify ) {
+			/** @var HackGuard\Options $oOpts */
+			$oOpts = $this->getOptions();
+			foreach ( array_intersect( $oOpts->getScanSlugs(), $aScansToNotify ) as $sSlug ) {
+				$this->getSubPro( $sSlug )
+					 ->cronProcessScanResults();
+			}
+		} );
 	}
 
 	/**
@@ -247,61 +160,44 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ICWP_WPSF_BaseDbProcessor 
 	private function cronScan() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		$aScansToRun = array_filter(
-			$oMod->getAllScanSlugs(),
-			function ( $sScanSlug ) {
-				$oProc = $this->getSubPro( $sScanSlug );
-				return $oProc->isAvailable() && $oProc->isEnabled();
+		$aScans = [];
+		foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
+			$oProc = $this->getSubPro( $sScanSlug );
+			if ( $oProc->isAvailable() && $oProc->isEnabled() ) {
+				$aScans[] = $sScanSlug;
 			}
-		);
-
-		if ( !empty( $aScansToRun ) ) {
-			$this->launchScans( $aScansToRun );
 		}
+
+		$oOpts->setIsScanCron( true );
+		$oMod->saveModOptions();
+
+		$oMod->getScanController()
+			 ->startScans( $aScans );
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function getCronFrequency() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getScanFrequency();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		return $oOpts->getScanFrequency();
 	}
 
 	/**
 	 * @return int
 	 */
 	protected function getCronName() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->prefix( $oFO->getDef( 'cron_all_scans' ) );
+		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
 	}
 
 	/**
-	 * @return string
+	 * @param string $sScanSlug
+	 * @deprecated 8.1
 	 */
-	protected function getCreateTableSql() {
-		return "CREATE TABLE %s (
-			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			hash varchar(32) NOT NULL DEFAULT '' COMMENT 'Unique Item Hash',
-			meta text COMMENT 'Relevant Item Data',
-			scan varchar(10) NOT NULL DEFAULT 0 COMMENT 'Scan Type',
-			severity int(3) NOT NULL DEFAULT 1 COMMENT 'Severity',
-			ignored_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Ignored',
-			notified_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Last Notified',
-			created_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Discovered',
-			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Soft Deleted',
-			PRIMARY KEY  (id)
-		) %s;";
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getMod()->getDef( 'table_columns_scanner' );
-		return ( is_array( $aDef ) ? $aDef : [] );
+	public function launchScan( $sScanSlug ) {
 	}
 }

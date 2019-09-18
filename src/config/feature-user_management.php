@@ -99,7 +99,7 @@
       "section":     "section_admin_login_notification",
       "sensitive":   true,
       "default":     "",
-      "type":        "email",
+      "type":        "text",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Admin Login Notification Email",

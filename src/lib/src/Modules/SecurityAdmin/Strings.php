@@ -92,10 +92,8 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $sOptKey ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
 		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getOptions();
 		$sPlugName = $this->getCon()->getHumanName();
 
 		switch ( $sOptKey ) {
@@ -130,8 +128,7 @@ class Strings extends Base\Strings {
 								.sprintf(
 									'%s: %s',
 									__( 'Default', 'wp-simple-firewall' ),
-									sprintf( '%s minutes', $oMod->getOptionsVo()
-																->getOptDefault( 'admin_access_timeout' ) )
+									sprintf( '%s minutes', $oOpts->getOptDefault( 'admin_access_timeout' ) )
 								);
 				break;
 

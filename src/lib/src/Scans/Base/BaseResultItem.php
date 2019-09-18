@@ -6,8 +6,9 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 
 /**
  * Class BaseResultItem
- * @property string hash
- * @property bool   is_excluded
+ * @property string $hash
+ * @property bool   $is_excluded
+ * @property string $scan
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
  */
 class BaseResultItem {

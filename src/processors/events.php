@@ -4,7 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
-class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var bool
@@ -23,9 +23,9 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return string[]
 	 */
 	public function statsWidget( $aContent ) {
-		/** @var Shield\Databases\Events\Handler $oDbhEvents */
+		/** @var Events\Handler $oDbhEvents */
 		$oDbhEvents = $this->getCon()->getModule_Events()->getDbHandler();
-		/** @var Shield\Databases\Events\Select $oSelEvents */
+		/** @var Events\Select $oSelEvents */
 		$oSelEvents = $oDbhEvents->getQuerySelector();
 
 		$aKeyStats = [
@@ -85,9 +85,9 @@ class ICWP_WPSF_Processor_Events extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function tracking_DataCollect( $aData ) {
-		/** @var Shield\Databases\Events\Handler $oDbhEvents */
+		/** @var Events\Handler $oDbhEvents */
 		$oDbhEvents = $this->getMod()->getDbHandler();
-		/** @var Shield\Databases\Events\Select $oSelEvents */
+		/** @var Events\Select $oSelEvents */
 		$oSelEvents = $oDbhEvents->getQuerySelector();
 
 		$aData = parent::tracking_DataCollect( $aData );

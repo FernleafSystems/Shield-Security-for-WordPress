@@ -1934,7 +1934,8 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function overrideTranslations( $sMoFilePath, $sDomain ) {
 		if ( $sDomain == $this->getTextDomain() ) {
 
-			$sLocale = apply_filters( 'shield_force_locale', Services::WpGeneral()->getLocale() );
+			// use determine_locale() as it also considers the user's profile preference
+			$sLocale = apply_filters( 'shield_force_locale', determine_locale() );
 
 			/**
 			 * Cater for duplicate language translations that don't exist (yet)
@@ -2044,6 +2045,11 @@ class Controller extends Shield\Deprecated\Foundation {
 				$sName = $this->getPluginSpec_Menu( 'title' );
 				$sHref = $this->getPluginSpec()[ 'meta' ][ 'privacy_policy_href' ];
 			}
+
+			/** @var Shield\Modules\AuditTrail\Options $oOpts */
+			$oOpts = $this->getModule_AuditTrail()
+						  ->getOptions();
+			
 			$sContent = $this->getRenderer()
 							 ->setTemplate( 'snippets/privacy_policy' )
 							 ->setTemplateEngineTwig()
@@ -2051,7 +2057,7 @@ class Controller extends Shield\Deprecated\Foundation {
 								 [
 									 'name'             => $sName,
 									 'href'             => $sHref,
-									 'audit_trail_days' => $this->getModule_AuditTrail()->getAutoCleanDays()
+									 'audit_trail_days' => $oOpts->getAutoCleanDays()
 								 ]
 							 )
 							 ->render();
@@ -2060,19 +2066,6 @@ class Controller extends Shield\Deprecated\Foundation {
 			$sContent = '';
 		}
 		return empty( $sContent ) ? '' : wp_kses_post( wpautop( $sContent, false ) );
-	}
-
-	/**
-	 * v5.4.1: Nasty looping bug in here where this function was called within the 'user_has_cap' filter
-	 * so we removed the "current_user_can()" or any such sub-call within this function
-	 * @return bool
-	 * @deprecated v6.10.7
-	 */
-	public function getHasPermissionToManage() {
-		if ( apply_filters( $this->prefix( 'bypass_permission_to_manage' ), false ) ) {
-			return true;
-		}
-		return ( $this->isPluginAdmin() && apply_filters( $this->prefix( 'is_plugin_admin' ), true ) );
 	}
 
 	private function runTests() {

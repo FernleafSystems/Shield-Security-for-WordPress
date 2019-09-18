@@ -1,8 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 
 	const Slug = 'email';
 
@@ -35,13 +36,6 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @var boolean
 	 */
 	protected $bEmailIsThrottled;
-
-	/**
-	 * @param ICWP_WPSF_FeatureHandler_Email $oModCon
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Email $oModCon ) {
-		parent::__construct( $oModCon );
-	}
 
 	public function init() {
 		parent::init();
@@ -198,7 +192,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 	 * Whether we're throttled is dependent on 2 signals.  The time interval has changed, or the there's a file
 	 * system object telling us we're throttled.
 	 * The file system object takes precedence.
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function updateEmailThrottle() {
 		$nNow = Services::Request()->ts();
@@ -239,6 +233,7 @@ class ICWP_WPSF_Processor_Email extends ICWP_WPSF_Processor_BaseWpsf {
 		else {
 			$this->nEmailThrottleCount++;
 		}
+		return true;
 	}
 
 	public function setThrottledFile( $infOn = false ) {

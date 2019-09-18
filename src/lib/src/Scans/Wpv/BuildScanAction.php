@@ -22,12 +22,6 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oTheme = $oWpT->isActiveThemeAChild() ? $oWpT->getCurrentParent() : $oWpT->getCurrent();
 		$aItems[ $oTheme->get_stylesheet() ] = 'themes';
 
-		$oAction->scan_items = $aItems;
-	}
-
-	protected function setCustomFields() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		$oAction->item_processing_limit = $oAction->is_async ? 3 : 0;
+		$oAction->items = $aItems;
 	}
 }

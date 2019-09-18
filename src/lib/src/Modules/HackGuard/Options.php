@@ -15,10 +15,24 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getDbColumns_ScanQueue() {
+		return $this->getDef( 'table_columns_scanqueue' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getDbTable_Scanner() {
 		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanner' ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDbTable_ScanQueue() {
+		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanqueue' ) );
 	}
 
 	/**
@@ -57,14 +71,6 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getMalSignaturesRegex() {
 		return $this->getMalSignatures( 'malsigs_regex.txt', $this->getDef( 'url_mal_sigs_regex' ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getMalWhitelistHashes() {
-		$aH = $this->getDef( 'mal_whitelist_hashes' );
-		return is_array( $aH ) ? $aH : [];
 	}
 
 	/**
@@ -115,6 +121,52 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getPtgSnapsBaseDir() {
 		return $this->getCon()->getPluginCachePath( 'ptguard/' );
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getScanFrequency() {
+		return (int)$this->getOpt( 'scan_frequency', 1 );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getScanSlugs() {
+		return $this->getDef( 'all_scan_slugs' );
+	}
+
+	/**
+	 * @param string $sScan
+	 * @param bool   $bAdd
+	 * @return Options
+	 */
+	public function addRemoveScanToBuild( $sScan, $bAdd = true ) {
+		$aS = $this->getScansToBuild();
+		if ( $bAdd ) {
+			$aS[ $sScan ] = $sScan;
+		}
+		else if ( isset( $aS[ $sScan ] ) ) {
+			unset( $aS[ $sScan ] );
+		}
+		return $this->setScansToBuild( $aS );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getScansToBuild() {
+		$aS = $this->getOpt( 'scans_to_build' );
+		return is_array( $aS ) ? $aS : [];
+	}
+
+	/**
+	 * @param array $aScans
+	 * @return Options
+	 */
+	public function setScansToBuild( $aScans ) {
+		return $this->setOpt( 'scans_to_build', array_intersect( $aScans, $this->getScanSlugs() ) );
 	}
 
 	/**
@@ -206,14 +258,17 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string
+	 * @return bool
 	 */
-	public function getScanKey() {
-		$sKey = $this->getOpt( 'scan_key' );
-		if ( empty( $sKey ) ) {
-			$sKey = substr( sha1( uniqid() ), 3, 10 );
-			$this->setOpt( 'scan_key', $sKey );
-		}
-		return $sKey;
+	public function isScanCron() {
+		return (bool)$this->getOpt( 'is_scan_cron' );
+	}
+
+	/**
+	 * @param bool $bIsScanCron
+	 * @return $this
+	 */
+	public function setIsScanCron( $bIsScanCron ) {
+		return $this->setOpt( 'is_scan_cron', $bIsScanCron );
 	}
 }

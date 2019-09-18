@@ -1,9 +1,11 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -15,9 +17,9 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			$this->revSliderPatch_AFU();
 		}
 
-		$this->getSubProScanner()->run();
+		$this->getSubProScanner()->execute();
 		if ( $oMod->isRtEnabledWpConfig() ) {
-			$this->getSubProRealtime()->run();
+			$this->getSubProRealtime()->execute();
 		}
 	}
 
@@ -43,21 +45,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 			'scanner'  => 'ICWP_WPSF_Processor_HackProtect_Scanner',
 			'realtime' => 'ICWP_WPSF_Processor_HackProtect_Realtime',
 		];
-	}
-
-	/**
-	 * Addresses this vulnerability: http://klikki.fi/adv/wordpress2.html
-	 *
-	 * @param string $sCommentContent
-	 * @return string
-	 */
-	public function secXss64kb( $sCommentContent ) {
-		// Comments shouldn't be any longer than 64KB
-		if ( strlen( $sCommentContent ) >= ( 64*1024 ) ) {
-			$sCommentContent = sprintf( __( '%s escaped HTML the following comment due to its size: %s', 'wp-simple-firewall' ), $this->getCon()
-																																	  ->getHumanName(), esc_html( $sCommentContent ) );
-		}
-		return $sCommentContent;
 	}
 
 	protected function revSliderPatch_LFI() {
@@ -86,8 +73,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array
 	 */
 	public function buildInsightsVars() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aLatestScans = array_map(
 			function ( $nTime ) {
@@ -103,10 +92,11 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 
 		$aUiTrack = $oMod->getUiTrack();
 		if ( empty( $aUiTrack[ 'selected_scans' ] ) ) {
-			$aUiTrack[ 'selected_scans' ] = $oMod->getAllScanSlugs();
+			$aUiTrack[ 'selected_scans' ] = $oOpts->getScanSlugs();
 		}
 
 		$oScannerMain = $this->getSubProScanner();
+		$oQueCon = $oMod->getScanController();
 		$aData = [
 			'ajax'    => [
 				'scans_start'           => $oMod->getAjaxActionData( 'scans_start', true ),
@@ -144,7 +134,7 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'initial_check' => $oScannerMain->hasRunningScans()
+				'initial_check' => $oQueCon->hasRunningScans()
 			],
 			'scans'   => [
 				'apc' => [
@@ -230,8 +220,6 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $oMod->getOptions();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $oMod->getProcessor();
@@ -243,8 +231,10 @@ class ICWP_WPSF_Processor_HackProtect extends ICWP_WPSF_Processor_BaseWpsf {
 		$aPtgResults = $oSelector->filterByNotIgnored()
 								 ->filterByScan( 'ptg' )
 								 ->query();
-		$oFullResults = ( new \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ConvertVosToResults() )
-			->convert( $aPtgResults );
+		/** @var Shield\Scans\Ptg\ResultsSet $oFullResults */
+		$oFullResults = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			->setScanActionVO( ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( 'ptg' ) )
+			->fromVOsToResultsSet( $aPtgResults );
 
 		// Process Plugins
 		$aPlugins = $oFullResults->getAllResultsSetsForPluginsContext();

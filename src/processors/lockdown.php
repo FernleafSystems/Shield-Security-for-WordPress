@@ -1,14 +1,15 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isOptFileEditingDisabled() ) {
+		if ( $oMod->isOptFileEditingDisabled() ) {
 			$this->blockFileEditing();
 		}
 
@@ -18,18 +19,18 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			$wp_version = $sWpVersionMask;
 		}
 
-		if ( $oFO->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
+		if ( $oMod->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
 			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
 				define( 'FORCE_SSL_ADMIN', true );
 			}
 			force_ssl_admin( true );
 		}
 
-		if ( $oFO->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
+		if ( $oMod->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
-		if ( $oFO->isXmlrpcDisabled() ) {
+		if ( $oMod->isXmlrpcDisabled() ) {
 			add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
 			add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		}
@@ -107,13 +108,13 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return WP_Error
 	 */
 	public function disableAnonymousRestApi( $mStatus ) {
-		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
+		$oMod = $this->getMod();
 		$oWpRest = Services::Rest();
 
 		$sNamespace = $oWpRest->getNamespace();
 		if ( !empty( $sNamespace ) && $mStatus !== true && !is_wp_error( $mStatus )
-			 && !$oFO->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
+			 && !$oMod->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',

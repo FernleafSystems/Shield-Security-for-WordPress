@@ -21,11 +21,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * We clean the database after saving.
 	 */
 	protected function doExtraSubmitProcessing() {
-		/** @var ICWP_WPSF_Processor_Traffic $oPro */
-		$oPro = $this->getProcessor();
-		$oPro->getProcessorLogger()
-			 ->cleanupDatabase();
-
 		$this->setOpt( 'autodisable_at', $this->isAutoDisable() ? Services::Request()->ts() + WEEK_IN_SECONDS : 0 );
 
 		$aExcls = $this->getCustomExclusions();
@@ -84,13 +79,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	public function getCustomExclusions() {
 		$aEx = $this->getOpt( 'custom_exclusions' );
 		return is_array( $aEx ) ? $aEx : [];
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getMaxEntries() {
-		return (int)$this->getOpt( 'max_entries' );
 	}
 
 	/**
@@ -164,13 +152,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\Traffic\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\Traffic\AjaxHandler;
-	}
-
-	/**
 	 * @return Shield\Databases\Traffic\Handler
 	 */
 	protected function loadDbHandler() {
@@ -178,16 +159,17 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Modules\Traffic\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Traffic\Options();
+	protected function getNamespaceBase() {
+		return 'Traffic';
 	}
 
 	/**
-	 * @return Shield\Modules\Traffic\Strings
+	 * @return int
+	 * @deprecated 8.1
 	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Traffic\Strings();
+	public function getMaxEntries() {
+		return (int)$this->getOpt( 'max_entries' );
 	}
 }

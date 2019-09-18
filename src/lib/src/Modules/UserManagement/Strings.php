@@ -104,7 +104,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $sOptKey ) {
-		$oOptsVo = $this->getMod()->getOptionsVo();
+		$oOpts = $this->getOptions();
 		$sModName = $this->getMod()->getMainFeatureName();
 
 		switch ( $sOptKey ) {
@@ -112,124 +112,125 @@ class Strings extends Base\Strings {
 			case 'enable_user_management' :
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
 				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
-				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				$sDesc = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
 				break;
 
 			case 'enable_admin_login_email_notification' :
 				$sName = __( 'Admin Login Notification Email', 'wp-simple-firewall' );
 				$sSummary = __( 'Send An Notification Email When Administrator Logs In', 'wp-simple-firewall' );
-				$sDescription = __( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' )
-								.'<br />'.__( 'No email address - No Notification.', 'wp-simple-firewall' );
+				$sDesc = __( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' )
+						 .'<br />'.__( 'No email address - No Notification.', 'wp-simple-firewall' )
+						 .'<br />'.__( 'Pro customers may provide multiple email address, separated by commas.', 'wp-simple-firewall' );
 				break;
 
 			case 'enable_user_login_email_notification' :
 				$sName = __( 'User Login Notification Email', 'wp-simple-firewall' );
 				$sSummary = __( 'Send Email Notification To Each User Upon Successful Login', 'wp-simple-firewall' );
-				$sDescription = __( 'A notification is sent to each user when a successful login occurs for their account.', 'wp-simple-firewall' );
+				$sDesc = __( 'A notification is sent to each user when a successful login occurs for their account.', 'wp-simple-firewall' );
 				break;
 
 			case 'session_timeout_interval' :
 				$sName = __( 'Session Timeout', 'wp-simple-firewall' );
 				$sSummary = __( 'Specify How Many Days After Login To Automatically Force Re-Login', 'wp-simple-firewall' );
-				$sDescription = __( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' )
-								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$oOptsVo->getOptDefault( 'session_timeout_interval' ).'</strong>' );
+				$sDesc = __( 'WordPress default is 2 days, or 14 days if you check the "Remember Me" box.', 'wp-simple-firewall' )
+						 .'<br />'.__( 'Think of this as an absolute maximum possible session length.', 'wp-simple-firewall' )
+						 .'<br />'.sprintf( __( 'This cannot be less than %s.', 'wp-simple-firewall' ), '<strong>1</strong>' )
+						 .' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), '<strong>'.$oOpts->getOptDefault( 'session_timeout_interval' ).'</strong>' );
 				break;
 
 			case 'session_idle_timeout_interval' :
 				$sName = __( 'Idle Timeout', 'wp-simple-firewall' );
 				$sSummary = __( 'Specify How Many Hours After Inactivity To Automatically Logout User', 'wp-simple-firewall' );
-				$sDescription = __( 'If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( __( 'Set to %s to turn off this option.', 'wp-simple-firewall' ), '"<strong>0</strong>"' );
+				$sDesc = __( 'If the user is inactive for the number of hours specified, they will be forcefully logged out next time they return.', 'wp-simple-firewall' )
+						 .'<br />'.sprintf( __( 'Set to %s to turn off this option.', 'wp-simple-firewall' ), '"<strong>0</strong>"' );
 				break;
 
 			case 'session_lock_location' :
 				$sName = __( 'Lock To Location', 'wp-simple-firewall' );
 				$sSummary = __( 'Locks A User Session To IP address', 'wp-simple-firewall' );
-				$sDescription = __( 'When selected, a session is restricted to the same IP address as when the user logged in.', 'wp-simple-firewall' )
-								.' '.__( "If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress.", 'wp-simple-firewall' );
+				$sDesc = __( 'When selected, a session is restricted to the same IP address as when the user logged in.', 'wp-simple-firewall' )
+						 .' '.__( "If a logged-in user's IP address changes, the session will be invalidated and they'll be forced to re-login to WordPress.", 'wp-simple-firewall' );
 				break;
 
 			case 'session_username_concurrent_limit' :
 				$sName = __( 'Max Simultaneous Sessions', 'wp-simple-firewall' );
 				$sSummary = __( 'Limit Simultaneous Sessions For The Same Username', 'wp-simple-firewall' );
-				$sDescription = __( 'The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username.', 'wp-simple-firewall' )
-								.'<br />'.__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' );
+				$sDesc = __( 'The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username.', 'wp-simple-firewall' )
+						 .'<br />'.__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' );
 				break;
 
 			case 'enable_password_policies' :
 				$sName = __( 'Enable Password Policies', 'wp-simple-firewall' );
 				$sSummary = __( 'Enable The Password Policies Detailed Below', 'wp-simple-firewall' );
-				$sDescription = __( 'Turn on/off all password policy settings.', 'wp-simple-firewall' );
+				$sDesc = __( 'Turn on/off all password policy settings.', 'wp-simple-firewall' );
 				break;
 
 			case 'pass_prevent_pwned' :
 				$sName = __( 'Prevent Pwned Passwords', 'wp-simple-firewall' );
 				$sSummary = __( 'Prevent Use Of "Pwned" Passwords', 'wp-simple-firewall' );
-				$sDescription = __( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.', 'wp-simple-firewall' );
+				$sDesc = __( 'Prevents users from using any passwords found on the public available list of "pwned" passwords.', 'wp-simple-firewall' );
 				break;
 
 			case 'pass_min_length' :
 				$sName = __( 'Minimum Length', 'wp-simple-firewall' );
 				$sSummary = __( 'Minimum Password Length', 'wp-simple-firewall' );
-				$sDescription = __( 'All passwords that a user sets must be at least this many characters in length.', 'wp-simple-firewall' )
-								.'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
+				$sDesc = __( 'All passwords that a user sets must be at least this many characters in length.', 'wp-simple-firewall' )
+						 .'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'pass_min_strength' :
 				$sName = __( 'Minimum Strength', 'wp-simple-firewall' );
 				$sSummary = __( 'Minimum Password Strength', 'wp-simple-firewall' );
-				$sDescription = __( 'All passwords that a user sets must meet this minimum strength.', 'wp-simple-firewall' );
+				$sDesc = __( 'All passwords that a user sets must meet this minimum strength.', 'wp-simple-firewall' );
 				break;
 
 			case 'pass_force_existing' :
 				$sName = __( 'Apply To Existing Users', 'wp-simple-firewall' );
 				$sSummary = __( 'Apply Password Policies To Existing Users and Their Passwords', 'wp-simple-firewall' );
-				$sDescription = __( "Forces existing users to update their passwords if they don't meet requirements, after they next login.", 'wp-simple-firewall' )
-								.'<br/>'.__( 'Note: You may want to warn users prior to enabling this option.', 'wp-simple-firewall' );
+				$sDesc = __( "Forces existing users to update their passwords if they don't meet requirements, after they next login.", 'wp-simple-firewall' )
+						 .'<br/>'.__( 'Note: You may want to warn users prior to enabling this option.', 'wp-simple-firewall' );
 				break;
 
 			case 'pass_expire' :
 				$sName = __( 'Password Expiration', 'wp-simple-firewall' );
 				$sSummary = __( 'Passwords Expire After This Many Days', 'wp-simple-firewall' );
-				$sDescription = __( 'Users will be forced to reset their passwords after the number of days specified.', 'wp-simple-firewall' )
-								.'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
+				$sDesc = __( 'Users will be forced to reset their passwords after the number of days specified.', 'wp-simple-firewall' )
+						 .'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'manual_suspend' :
 				$sName = __( 'Allow Manual User Suspension', 'wp-simple-firewall' );
 				$sSummary = __( 'Manually Suspend User Accounts To Prevent Login', 'wp-simple-firewall' );
-				$sDescription = __( 'Users may be suspended by administrators to prevent future login.', 'wp-simple-firewall' );
+				$sDesc = __( 'Users may be suspended by administrators to prevent future login.', 'wp-simple-firewall' );
 				break;
 
 			case 'auto_password' :
 				$sName = __( 'Auto-Suspend Expired Passwords', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Suspend Users With Expired Passwords', 'wp-simple-firewall' );
-				$sDescription = __( 'Automatically suspends login by users and requires password reset to unsuspend.', 'wp-simple-firewall' )
-								.'<br/>'.sprintf(
-									'<strong>%s</strong> - %s',
-									__( 'Important', 'wp-simple-firewall' ),
-									__( 'Requires password expiration policy to be set.', 'wp-simple-firewall' )
-								);
+				$sDesc = __( 'Automatically suspends login by users and requires password reset to unsuspend.', 'wp-simple-firewall' )
+						 .'<br/>'.sprintf(
+							 '<strong>%s</strong> - %s',
+							 __( 'Important', 'wp-simple-firewall' ),
+							 __( 'Requires password expiration policy to be set.', 'wp-simple-firewall' )
+						 );
 				break;
 
 			case 'auto_idle_days' :
 				$sName = __( 'Auto-Suspend Idle Users', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Suspend Idle User Accounts', 'wp-simple-firewall' );
-				$sDescription = __( 'Automatically suspends login for idle accounts and requires password reset to unsuspend.', 'wp-simple-firewall' )
-								.'<br/>'.__( 'Specify the number of days since last login to consider a user as idle.', 'wp-simple-firewall' )
-								.'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
+				$sDesc = __( 'Automatically suspends login for idle accounts and requires password reset to unsuspend.', 'wp-simple-firewall' )
+						 .'<br/>'.__( 'Specify the number of days since last login to consider a user as idle.', 'wp-simple-firewall' )
+						 .'<br/>'.__( 'Set to Zero(0) to disable.', 'wp-simple-firewall' );
 				break;
 
 			case 'auto_idle_roles' :
 				$sName = __( 'Auto-Suspend Idle User Roles', 'wp-simple-firewall' );
 				$sSummary = __( 'Apply Automatic Suspension To Accounts With These Roles', 'wp-simple-firewall' );
-				$sDescription = __( 'Automatic suspension for idle accounts applies only to the roles you specify.', 'wp-simple-firewall' )
-								.'<br/>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) )
-								.'<br/>'.sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ), implode( ', ', Services::WpUsers()
-																																  ->getAvailableUserRoles() ) )
-								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $oOptsVo->getOptDefault( 'auto_idle_roles' ) ) );
+				$sDesc = __( 'Automatic suspension for idle accounts applies only to the roles you specify.', 'wp-simple-firewall' )
+						 .'<br/>'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Take a new line for each user role.', 'wp-simple-firewall' ) )
+						 .'<br/>'.sprintf( '%s: %s', __( 'Available Roles', 'wp-simple-firewall' ), implode( ', ', Services::WpUsers()
+																														   ->getAvailableUserRoles() ) )
+						 .'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), implode( ', ', $oOpts->getOptDefault( 'auto_idle_roles' ) ) );
 				break;
 
 			default:
@@ -239,7 +240,7 @@ class Strings extends Base\Strings {
 		return [
 			'name'        => $sName,
 			'summary'     => $sSummary,
-			'description' => $sDescription,
+			'description' => $sDesc,
 		];
 	}
 

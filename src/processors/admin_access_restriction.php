@@ -1,8 +1,10 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var string
@@ -10,13 +12,13 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	protected $sOptionRegexPattern;
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
-		$oMod = $this->getMod();
+		/** @var SecurityAdmin\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
 
-		add_filter( $oMod->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
+		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
 
-		if ( $oMod->isWlEnabled() ) {
-			$this->getSubProWhitelabel()->run();
+		if ( $oOpts->isEnabledWhitelabel() ) {
+			$this->getSubProWhitelabel()->execute();
 		}
 	}
 
@@ -25,7 +27,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return bool
 	 */
 	public function adjustUserAdminPermissions( $bHasPermission = true ) {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 		return $bHasPermission && ( $oFO->isRegisteredSecAdminUser() || $oFO->isSecAdminSessionValid()
 									|| $oFO->testSecAccessKeyRequest() );
@@ -35,14 +37,16 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		parent::onWpInit();
 
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
 			$oMod = $this->getMod();
+			/** @var SecurityAdmin\Options $oOpts */
+			$oOpts = $oMod->getOptions();
 
 			if ( !$oMod->isUpgrading() && !Services::WpGeneral()->isLoginRequest() ) {
 				add_filter( 'pre_update_option', [ $this, 'blockOptionsSaves' ], 1, 3 );
 			}
 
-			if ( $oMod->isAdminAccessAdminUsersEnabled() ) {
+			if ( $oOpts->isSecAdminRestrictUsersEnabled() ) {
 				add_filter( 'editable_roles', [ $this, 'restrictEditableRoles' ], 100, 1 );
 				add_filter( 'user_has_cap', [ $this, 'restrictAdminUserChanges' ], 100, 3 );
 				add_action( 'delete_user', [ $this, 'restrictAdminUserDelete' ], 100, 1 );
@@ -51,17 +55,17 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				add_action( 'set_user_role', [ $this, 'restrictSetUserRole' ], 100, 3 );
 			}
 
-			$aPluginRestrictions = $oMod->getAdminAccessArea_Plugins();
+			$aPluginRestrictions = $oOpts->getAdminAccessArea_Plugins();
 			if ( !empty( $aPluginRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disablePluginManipulation' ], 0, 3 );
 			}
 
-			$aThemeRestrictions = $oMod->getAdminAccessArea_Themes();
+			$aThemeRestrictions = $oOpts->getAdminAccessArea_Themes();
 			if ( !empty( $aThemeRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disableThemeManipulation' ], 0, 3 );
 			}
 
-			$aPostRestrictions = $oMod->getAdminAccessArea_Posts();
+			$aPostRestrictions = $oOpts->getAdminAccessArea_Posts();
 			if ( !empty( $aPostRestrictions ) ) {
 				add_filter( 'user_has_cap', [ $this, 'disablePostsManipulation' ], 0, 3 );
 			}
@@ -73,7 +77,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_AdminAccess_Whitelabel|mixed
+	 * @return \ICWP_WPSF_Processor_AdminAccess_Whitelabel|mixed
 	 */
 	protected function getSubProWhitelabel() {
 		return $this->getSubPro( 'wl' );
@@ -310,12 +314,15 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 */
 	protected function isOptionRestricted( $sOptionKey ) {
 		$bRestricted = false;
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->getAdminAccessArea_Options() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		$oMod = $this->getMod();
+		/** @var SecurityAdmin\Options $oOpts */
+		$oOpts = $oMod->getOptions();
+
+		if ( $oOpts->getAdminAccessArea_Options() ) {
 			$bRestricted = in_array(
 				$sOptionKey,
-				$oFO->getOptionsToRestrict()
+				$oOpts->getOptionsToRestrict()
 			);
 		}
 		return $bRestricted;
@@ -328,8 +335,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
+		/** @var SecurityAdmin\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
 		$oReq = Services::Request();
 
 		/** @var string $sRequestedCapability */
@@ -347,7 +354,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		$aEditCapabilities = [ 'activate_plugins', 'delete_plugins', 'install_plugins', 'update_plugins' ];
 
 		if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
-			$aAreaRestrictions = $oFO->getAdminAccessArea_Plugins();
+			$aAreaRestrictions = $oOpts->getAdminAccessArea_Plugins();
 			if ( in_array( $sRequestedCapability, $aAreaRestrictions ) ) {
 				$aAllCaps[ $sRequestedCapability ] = false;
 			}
@@ -368,8 +375,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			return $aAllCaps;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
+		/** @var SecurityAdmin\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -382,7 +389,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 		];
 
 		if ( in_array( $sRequestedCapability, $aEditCapabilities ) ) {
-			$aAreaRestrictions = $oFO->getAdminAccessArea_Themes();
+			$aAreaRestrictions = $oOpts->getAdminAccessArea_Themes();
 			if ( in_array( $sRequestedCapability, $aAreaRestrictions ) ) {
 				$aAllCaps[ $sRequestedCapability ] = false;
 			}
@@ -402,8 +409,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			return $aAllCaps;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
+		/** @var SecurityAdmin\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -428,7 +435,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 				'_post',
 				'_page'
 			], '', $sRequestedCapability ); //Order of items in this array is important!
-			$aAreaRestrictions = $oFO->getAdminAccessArea_Posts();
+			$aAreaRestrictions = $oOpts->getAdminAccessArea_Posts();
 			if ( in_array( $sRequestedCapabilityTrimmed, $aAreaRestrictions ) ) {
 				$aAllCaps[ $sRequestedCapability ] = false;
 			}
@@ -449,26 +456,28 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 	}
 
 	public function printAdminAccessAjaxForm() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		$oMod = $this->getMod();
+		/** @var SecurityAdmin\Options $oOpts */
+		$oOpts = $oMod->getOptions();
 
 		$aRenderData = [
 			'flags'       => [
-				'restrict_options' => $oFO->getAdminAccessArea_Options()
+				'restrict_options' => $oOpts->getAdminAccessArea_Options()
 			],
 			'strings'     => [
 				'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				'unlock_link'        => $this->getUnlockLinkHtml(),
 			],
 			'js_snippets' => [
-				'options_to_restrict' => "'".implode( "','", $oFO->getOptionsToRestrict() )."'",
+				'options_to_restrict' => "'".implode( "','", $oOpts->getOptionsToRestrict() )."'",
 			],
 			'ajax'        => [
-				'sec_admin_login_box' => $oFO->getAjaxActionData( 'sec_admin_login_box', true )
+				'sec_admin_login_box' => $oMod->getAjaxActionData( 'sec_admin_login_box', true )
 			]
 		];
 		add_thickbox();
-		echo $oFO->renderTemplate( 'snippets/admin_access_login_box.php', $aRenderData );
+		echo $oMod->renderTemplate( 'snippets/admin_access_login_box.php', $aRenderData );
 	}
 
 	/**
@@ -485,23 +494,5 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends ICWP_WPSF_Processor_Bas
 			__( 'Security Admin Login', 'wp-simple-firewall' ),
 			$sLinkText
 		);
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_certain_options_restricted( $aNoticeAttributes ) {
-		return;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_admin_users_restricted( $aNoticeAttributes ) {
-		return;
 	}
 }

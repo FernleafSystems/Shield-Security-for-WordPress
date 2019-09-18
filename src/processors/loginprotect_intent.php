@@ -3,7 +3,7 @@
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
 
-class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var ICWP_WPSF_Processor_LoginProtect_Track
@@ -50,19 +50,19 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends ICWP_WPSF_Processor_BaseWp
 		$oFO = $this->getMod();
 
 		if ( $oFO->isEnabledGoogleAuthenticator() ) {
-			$this->getProcessorGoogleAuthenticator()->run();
+			$this->getProcessorGoogleAuthenticator()->execute();
 		}
 
 		if ( $oFO->isEmailAuthenticationActive() ) {
-			$this->getProcessorEmailAuth()->run();
+			$this->getProcessorEmailAuth()->execute();
 		}
 
 		if ( $oFO->isYubikeyActive() ) {
-			$this->getProcessorYubikey()->run();
+			$this->getProcessorYubikey()->execute();
 		}
 
 		if ( $oFO->isEnabledBackupCodes() ) {
-			$this->getProcessorBackupCodes()->run();
+			$this->getProcessorBackupCodes()->execute();
 		}
 
 		if ( $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {

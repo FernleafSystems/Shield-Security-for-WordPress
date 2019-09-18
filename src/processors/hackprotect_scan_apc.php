@@ -24,31 +24,10 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	public function onDeletedPlugin() {
-		$this->launchScan();
-	}
-
-	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oResults
-	 * @return Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\Apc\ConvertResultsToVos() )->convert( $oResults );
-	}
-
-	/**
-	 * @param mixed|Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Apc\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Apc\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Apc\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Apc\ConvertVosToResults() )->convertItem( $oVo );
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oMod->getScanController()
+			 ->startScans( [ static::SCAN_SLUG ] );
 	}
 
 	/**
@@ -56,13 +35,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function getRepairer() {
 		return null;
-	}
-
-	/**
-	 * @return Shield\Scans\Apc\ScanActionVO
-	 */
-	protected function getNewActionVO() {
-		return new Shield\Scans\Apc\ScanActionVO();
 	}
 
 	/**

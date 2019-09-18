@@ -11,4 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  * @property string[] $exclusions
  */
 class ScanActionVO extends BaseScanActionVO {
+
+	const ITEM_STORAGE_LIMIT = 100;
 }

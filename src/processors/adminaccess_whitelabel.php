@@ -1,13 +1,14 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
 		$oMod = $this->getMod();
 		add_filter( $oMod->prefix( 'is_relabelled' ), '__return_true' );
 		add_filter( $oMod->prefix( 'plugin_labels' ), [ $this, 'doRelabelPlugin' ] );
@@ -18,11 +19,9 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	public function onWpInit() {
 		parent::onWpInit();
 
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		$oCon = $this->getCon();
-
-		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$oCon->isPluginAdmin() ) {
+		/** @var Modules\SecurityAdmin\Options $oOpts */
+		$oOpts = $this->getMod()->getOptions();
+		if ( $oOpts->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$this->getCon()->isPluginAdmin() ) {
 			$this->hideUpdates();
 		}
 	}
@@ -67,7 +66,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function doRelabelPlugin( $aPluginLabels ) {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 
 		$aWhiteLabels = $oFO->getWhitelabelOptions();

@@ -5,8 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
-	use Shield\AuditTrail\Auditor;
-
 	/**
 	 * @var string[]
 	 */
@@ -16,11 +14,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @var Shield\Databases\AuditTrail\EntryVO[]
 	 */
 	private static $aAuditLogs;
-
-	/**
-	 * @var ICWP_WPSF_Processor_Sessions
-	 */
-	static protected $oSessProcessor;
 
 	/**
 	 * @var bool
@@ -38,10 +31,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	private $bVisitorIsWhitelisted;
 
 	/**
-	 * @return ICWP_WPSF_Processor_Sessions
+	 * @return \ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
-		/** @var ICWP_WPSF_Processor_Sessions $oP */
+		/** @var \ICWP_WPSF_Processor_Sessions $oP */
 		$oP = $this->getCon()
 				   ->getModule_Sessions()
 				   ->getProcessor();
@@ -112,7 +105,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'insights_test_cron_last_run_at'  => 'test_cron_run',
 			'insights_last_password_block_at' => 'password_policy_block',
 		];
-		foreach ( $this->getOptionsVo()->getOptionsKeys() as $sOpt ) {
+		foreach ( $this->getOptions()->getOptionsKeys() as $sOpt ) {
 			if ( strpos( $sOpt, 'insights_' ) === 0 && isset( $aMap[ $sOpt ] ) && $this->getOpt( $sOpt ) > 0 ) {
 				$this->addStatEvent( $aMap[ $sOpt ], [ 'ts' => $this->getOpt( $sOpt ) ] );
 				$this->setOpt( $sOpt, 0 );
@@ -350,7 +343,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 		return ( $oOpts->isModuleRunIfWhitelisted() || !$this->isVisitorWhitelisted() )
 			   && ( $oOpts->isModuleRunIfVerifiedBot() || !$this->isVerifiedBot() )
 			   && ( $oOpts->isModuleRunUnderWpCli() || !Services::WpGeneral()->isWpCli() )
@@ -449,41 +442,5 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getIpOffenceCount() {
 		return isset( self::$nIpOffenceCount ) ? self::$nIpOffenceCount : 0;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return $this
-	 * @deprecated 7.5
-	 */
-	public function setOptInsightsAt( $sKey ) {
-		return $this;
-	}
-
-	/**
-	 * Used to mark an IP address for immediate block
-	 * @return $this
-	 * @deprecated
-	 */
-	public function setIpBlocked() {
-		return $this;
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 7.5
-	 */
-	public function getIpAction() {
-		return $this->getIpOffenceCount();
-	}
-
-	/**
-	 * Used to mark an IP address for transgression/black-mark
-	 * @param int $nIncrementCount
-	 * @return $this
-	 * @deprecated 7.5
-	 */
-	public function setIpTransgressed( $nIncrementCount = 1 ) {
-		return $this;
 	}
 }

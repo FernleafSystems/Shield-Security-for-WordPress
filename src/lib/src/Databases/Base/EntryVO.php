@@ -7,10 +7,10 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 /**
  * Class BaseEntryVO
  *
- * @property array meta
- * @property int   created_at
- * @property int   deleted_at
- * @property int   id
+ * @property int   $id
+ * @property array $meta
+ * @property int   $created_at
+ * @property int   $deleted_at
  */
 class EntryVO {
 
@@ -95,6 +95,7 @@ class EntryVO {
 
 	/**
 	 * @return int
+	 * @deprecated
 	 */
 	public function getId() {
 		return (int)$this->id;

@@ -112,7 +112,7 @@ class Select extends BaseQuery {
 	 * @return int
 	 */
 	public function count() {
-		return $this->setIsCount( true )->query();
+		return (int)$this->setIsCount( true )->query();
 	}
 
 	/**

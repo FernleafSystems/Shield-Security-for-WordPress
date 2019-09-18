@@ -14,14 +14,4 @@ class Update extends Base\Update {
 	public function incrementTally( $oStat, $nAdditional ) {
 		return $this->updateEntry( $oStat, [ 'tally' => $oStat->tally + $nAdditional, ] );
 	}
-
-	/**
-	 * @param EntryVO $oStat
-	 * @param array   $aUpdateData
-	 * @return bool
-	 * @deprecated
-	 */
-	public function updateStat( $oStat, $aUpdateData = [] ) {
-		return parent::updateEntry( $oStat, $aUpdateData );
-	}
 }

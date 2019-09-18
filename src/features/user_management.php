@@ -3,16 +3,34 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_BaseWpsf {
-
-	use Shield\AuditTrail\Auditor;
+class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * Should have no default email. If no email is set, no notification is sent.
-	 * @return string
+	 * @return string[]
 	 */
-	public function getAdminLoginNotificationEmail() {
-		return $this->getOpt( 'enable_admin_login_email_notification', '' );
+	public function getAdminLoginNotificationEmails() {
+		$aEmails = [];
+
+		$sEmails = $this->getOpt( 'enable_admin_login_email_notification', '' );
+		if ( !empty( $sEmails ) ) {
+			$aEmails = array_values( array_filter(
+				array_map(
+					function ( $sEmail ) {
+						return trim( strtolower( $sEmail ) );
+					},
+					explode( ',', $sEmails )
+				),
+				function ( $sEmail ) {
+					return Services::Data()->validEmail( $sEmail );
+				}
+			) );
+			if ( !$this->isPremium() && !empty( $aEmails ) ) {
+				$aEmails = array_slice( $aEmails, 0, 1 );
+			}
+		}
+
+		return $aEmails;
 	}
 
 	/**
@@ -44,9 +62,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function doExtraSubmitProcessing() {
-		if ( !Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() ) ) {
-			$this->getOptionsVo()->resetOptToDefault( 'enable_admin_login_email_notification' );
-		}
+		$this->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
 
 		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
 			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
@@ -79,27 +95,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function isAutoAddSessions() {
-		$nStartedAt = $this->getOpt( 'autoadd_sessions_started_at', 0 );
-		if ( $nStartedAt < 1 ) {
-			$nStartedAt = Services::Request()->ts();
-			$this->setOpt( 'autoadd_sessions_started_at', $nStartedAt );
-		}
-		return ( Services::Request()->ts() - $nStartedAt ) < 20;
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isLockToIp() {
 		return $this->isOpt( 'session_lock_location', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isSendAdminEmailLoginNotification() {
-		return Services::Data()->validEmail( $this->getAdminLoginNotificationEmail() );
 	}
 
 	/**
@@ -157,7 +154,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function isPasswordPoliciesEnabled() {
 		return $this->isOpt( 'enable_password_policies', 'Y' )
-			   && $this->getOptionsVo()->isOptReqsMet( 'enable_password_policies' );
+			   && $this->getOptions()->isOptReqsMet( 'enable_password_policies' );
 	}
 
 	/**
@@ -395,23 +392,18 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @return Shield\Modules\UserManagement\AjaxHandler
+	 * @return string
 	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\UserManagement\AjaxHandler;
+	protected function getNamespaceBase() {
+		return 'UserManagement';
 	}
 
 	/**
-	 * @return Shield\Modules\UserManagement\Options
+	 * Should have no default email. If no email is set, no notification is sent.
+	 * @return string
+	 * @deprecated 8.1
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\UserManagement\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\UserManagement\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\UserManagement\Strings();
+	public function getAdminLoginNotificationEmail() {
+		return $this->getOpt( 'enable_admin_login_email_notification', '' );
 	}
 }

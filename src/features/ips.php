@@ -17,36 +17,16 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getOptTransgressionLimit() {
-		return $this->getOpt( 'transgression_limit' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getAutoExpireTime() {
-		$sConstant = strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' );
-		return defined( $sConstant ) ? constant( $sConstant ) : ( DAY_IN_SECONDS*30 );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAutoBlackListEnabled() {
-		return ( $this->getOptTransgressionLimit() > 0 );
-	}
-
 	protected function doExtraSubmitProcessing() {
-		if ( !defined( strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
-			$this->getOptionsVo()->resetOptToDefault( 'auto_expire' );
+		/** @var Shield\Modules\IPs\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( !defined( strtoupper( $oOpts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
+			$oOpts->resetOptToDefault( 'auto_expire' );
 		}
 
-		$nLimit = $this->getOptTransgressionLimit();
+		$nLimit = $oOpts->getOffenseLimit();
 		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
-			$this->getOptionsVo()->resetOptToDefault( 'transgression_limit' );
+			$oOpts->resetOptToDefault( 'transgression_limit' );
 		}
 	}
 
@@ -71,16 +51,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @param string $sIp
-	 * @return bool
-	 */
-	public function getCanIpRequestAutoUnblock( $sIp ) {
-		$aExistingIps = $this->getAutoUnblockIps();
-		return !array_key_exists( $sIp, $aExistingIps )
-			   || ( Services::Request()->ts() - $aExistingIps[ $sIp ] > DAY_IN_SECONDS );
-	}
-
-	/**
-	 * @param string $sIp
 	 * @return $this
 	 */
 	public function updateIpRequestAutoUnblockTs( $sIp ) {
@@ -98,106 +68,19 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isEnabledAutoUserRecover() {
-		return !$this->isOpt( 'user_auto_recover', 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrack404() {
-		return $this->isSelectOptionEnabled( 'track_404' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackFakeWebCrawler() {
-		return $this->isSelectOptionEnabled( 'track_fakewebcrawler' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackLoginInvalid() {
-		return $this->isSelectOptionEnabled( 'track_logininvalid' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackLoginFailed() {
-		return $this->isSelectOptionEnabled( 'track_loginfailed' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackLinkCheese() {
-		return $this->isSelectOptionEnabled( 'track_linkcheese' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabledTrackXmlRpc() {
-		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 */
-	public function isTrackOptTransgression( $sOptionKey ) {
-		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 */
-	public function isTrackOptDoubleTransgression( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'transgression-double' );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 */
-	public function isTrackOptLogOnly( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'log' );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 */
-	public function isTrackOptImmediateBlock( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'block' );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 */
-	protected function isSelectOptionEnabled( $sOptionKey ) {
-		$bOptPrem = $this->getOptionsVo()->isOptPremium( $sOptionKey );
-		return ( !$bOptPrem || $this->getCon()->isPremiumActive() ) && !$this->isOpt( $sOptionKey, 'disabled' );
-	}
-
-	/**
 	 * @param string $sSection
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
 		$aWarnings = [];
 
+		/** @var Shield\Modules\IPs\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		switch ( $sSection ) {
 
 			case 'section_auto_black_list':
-				if ( !$this->isAutoBlackListEnabled() ) {
+				if ( !$oOpts->isEnabledAutoBlackList() ) {
 					$aWarnings[] = sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( "IP blocking is turned-off because the offenses limit is set to 0.", 'wp-simple-firewall' ) );
 				}
 				break;
@@ -205,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			case 'section_behaviours':
 			case 'section_probes':
 			case 'section_logins':
-				if ( !$this->isAutoBlackListEnabled() ) {
+				if ( !$oOpts->isEnabledAutoBlackList() ) {
 					$aWarnings[] = __( "Since the offenses limit is set to 0, these options have no effect.", 'wp-simple-firewall' );
 				}
 
@@ -306,20 +189,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return Shield\Modules\IPs\AdminNotices
-	 */
-	protected function loadAdminNotices() {
-		return new Shield\Modules\IPs\AdminNotices();
-	}
-
-	/**
-	 * @return Shield\Modules\IPs\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\IPs\AjaxHandler;
-	}
-
-	/**
 	 * @return Shield\Databases\IPs\Handler
 	 */
 	protected function loadDbHandler() {
@@ -327,40 +196,119 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return Shield\Modules\IPs\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\IPs\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\IPs\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\IPs\Strings();
+	protected function getNamespaceBase() {
+		return 'IPs';
 	}
 
 	/**
 	 * @return string
-	 * @deprecated 7.3
+	 * @deprecated 8.1
 	 */
-	public function getOptTracking404() {
-		return $this->getOpt( 'track_404' );
+	public function getOptTransgressionLimit() {
+		return $this->getOpt( 'transgression_limit' );
 	}
 
 	/**
 	 * @return bool
-	 * @deprecated 7.3
+	 * @deprecated 8.1
 	 */
-	public function is404Tracking() {
-		return !$this->isOpt( 'track_404', 'disabled' );
+	public function isAutoBlackListEnabled() {
+		return ( $this->getOptTransgressionLimit() > 0 );
 	}
 
 	/**
 	 * @return bool
-	 * @deprecated 7.5
+	 * @deprecated 8.1
 	 */
-	public function isAutoBlackListFeatureEnabled() {
-		return $this->isAutoBlackListEnabled();
+	public function isEnabledTrack404() {
+		return $this->isSelectOptionEnabled( 'track_404' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isEnabledTrackFakeWebCrawler() {
+		return $this->isSelectOptionEnabled( 'track_fakewebcrawler' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isEnabledTrackLoginInvalid() {
+		return $this->isSelectOptionEnabled( 'track_logininvalid' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isEnabledTrackLoginFailed() {
+		return $this->isSelectOptionEnabled( 'track_loginfailed' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isEnabledTrackLinkCheese() {
+		return $this->isSelectOptionEnabled( 'track_linkcheese' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isEnabledTrackXmlRpc() {
+		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isTrackOptTransgression( $sOptionKey ) {
+		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isTrackOptDoubleTransgression( $sOptionKey ) {
+		return $this->isOpt( $sOptionKey, 'transgression-double' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	public function isTrackOptImmediateBlock( $sOptionKey ) {
+		return $this->isOpt( $sOptionKey, 'block' );
+	}
+
+	/**
+	 * @param string $sOptionKey
+	 * @return bool
+	 * @deprecated 8.1
+	 */
+	protected function isSelectOptionEnabled( $sOptionKey ) {
+		$bOptPrem = $this->getOptions()->isOptPremium( $sOptionKey );
+		return ( !$bOptPrem || $this->getCon()->isPremiumActive() ) && !$this->isOpt( $sOptionKey, 'disabled' );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.1
+	 */
+	public function getAutoExpireTime() {
+		$sConstant = strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' );
+		return defined( $sConstant ) ? constant( $sConstant ) : ( DAY_IN_SECONDS*30 );
 	}
 }

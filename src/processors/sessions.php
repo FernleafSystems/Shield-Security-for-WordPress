@@ -1,26 +1,15 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
-
-	/**
-	 * @var int
-	 */
-	const DAYS_TO_KEEP = 30;
+class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var Session\EntryVO
 	 */
 	private $oCurrent;
-
-	/**
-	 * @param \ICWP_WPSF_Processor_Sessions $oModCon
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getDef( 'sessions_table_name' ) );
-	}
 
 	public function run() {
 		if ( $this->isReadyToRun() ) {
@@ -64,11 +53,12 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 
 	public function onModuleShutdown() {
 		if ( !Services::Rest()->isRest() ) {
-			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-			$oFO = $this->getMod();
-			if ( $oFO->hasSession() ) {
+			$oSession = $this->getCurrentSession();
+			if ( $oSession instanceof Session\EntryVO) {
 				/** @var Session\Update $oUpd */
-				$oUpd = $this->getDbHandler()->getQueryUpdater();
+				$oUpd = $this->getMod()
+							 ->getDbHandler()
+							 ->getQueryUpdater();
 				$oUpd->updateLastActivity( $this->getCurrentSession() );
 			}
 		}
@@ -165,28 +155,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getCreateTableSql() {
-		return "CREATE TABLE %s (
-			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			session_id varchar(32) NOT NULL DEFAULT '',
-			wp_username varchar(255) NOT NULL DEFAULT '',
-			ip varchar(40) NOT NULL DEFAULT '0',
-			browser varchar(32) NOT NULL DEFAULT '',
-			logged_in_at int(15) NOT NULL DEFAULT 0,
-			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			last_activity_uri text NOT NULL DEFAULT '',
-			li_code_email varchar(6) NOT NULL DEFAULT '',
-			login_intent_expires_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			secadmin_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
- 			PRIMARY KEY  (id)
-		) %s;";
-	}
-
-	/**
 	 * @return Session\EntryVO|null
 	 */
 	public function getCurrentSession() {
@@ -213,13 +181,6 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			$oSession = $this->queryGetSession( $this->getSessionId() );
 		}
 		return $oSession;
-	}
-
-	/**
-	 * @return Session\Handler
-	 */
-	protected function createDbHandler() {
-		return new Session\Handler();
 	}
 
 	/**
@@ -253,29 +214,5 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 					 ->getDbHandler()
 					 ->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getMod()->getDef( 'sessions_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : [] );
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getAutoExpirePeriod() {
-		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
-	}
-
-	/**
-	 * @param Session\EntryVO $oSes
-	 * @return bool
-	 * @deprecated 7.5
-	 */
-	public function queryTerminateSession( $oSes ) {
-		return ( $oSes instanceof Session\EntryVO ) ? $this->terminateSession( $oSes->id ) : true;
 	}
 }

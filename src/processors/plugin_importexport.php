@@ -3,10 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Plugin_ImportExport extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 
 		add_action( $oMod->prefix( 'importexport_notify' ), [ $this, 'runWhitelistNotify' ] );

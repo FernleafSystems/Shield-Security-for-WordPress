@@ -1,8 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor_BaseWpsf {
+abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var string
@@ -194,7 +195,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
 	}
@@ -217,7 +218,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			$oUserOrError = $this->giveMeWpError( $oUserOrError );
-			$oUserOrError->add( $this->prefix( rand() ), $oE->getMessage() );
+			$oUserOrError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oUserOrError;
 	}
@@ -265,7 +266,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
 	}
@@ -318,7 +319,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
 	}
@@ -357,7 +358,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
 	}
@@ -371,7 +372,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			if ( function_exists( 'edd_set_error' ) ) {
-				edd_set_error( $this->prefix( rand() ), $oE->getMessage() );
+				edd_set_error( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 			}
 		}
 	}
@@ -389,7 +390,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
 	}
@@ -456,7 +457,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends ICWP_WPSF_Processor
 		}
 		catch ( \Exception $oE ) {
 			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->prefix( rand() ), $oE->getMessage() );
+			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
 	}

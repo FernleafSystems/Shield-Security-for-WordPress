@@ -63,8 +63,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @uses wp_redirect()
 	 */
 	private function processEmailSendVerify() {
-		$this->setIfCanSendEmail( true )
-			 ->savePluginOptions();
+		$this->setIfCanSendEmail( true );
+		$this->saveModOptions();
 
 		if ( $this->getIfCanSendEmailVerified() ) {
 			$bSuccess = true;
@@ -390,7 +390,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	public function getBotProtectionLocations() {
 		$aLocs = $this->getOpt( 'bot_protection_locations' );
-		return is_array( $aLocs ) ? $aLocs : (array)$this->getOptionsVo()->getOptDefault( 'bot_protection_locations' );
+		return is_array( $aLocs ) ? $aLocs : (array)$this->getOptions()->getOptDefault( 'bot_protection_locations' );
 	}
 
 	/**
@@ -651,30 +651,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return Shield\Modules\LoginGuard\AdminNotices
+	 * @return string
 	 */
-	protected function loadAdminNotices() {
-		return new Shield\Modules\LoginGuard\AdminNotices();
-	}
-
-	/**
-	 * @return Shield\Modules\LoginGuard\AjaxHandler
-	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\LoginGuard\AjaxHandler;
-	}
-
-	/**
-	 * @return Shield\Modules\LoginGuard\Options
-	 */
-	protected function loadOptions() {
-		return new Shield\Modules\LoginGuard\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\LoginGuard\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\LoginGuard\Strings();
+	protected function getNamespaceBase() {
+		return 'LoginGuard';
 	}
 }

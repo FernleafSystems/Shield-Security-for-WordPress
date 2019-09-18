@@ -262,7 +262,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Limit account access requests to every X seconds', 'wp-simple-firewall' );
 				$sDescription = __( 'WordPress will process only ONE account access attempt per number of seconds specified.', 'wp-simple-firewall' )
 								.'<br />'.__( 'Zero (0) turns this off.', 'wp-simple-firewall' )
-								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getOptionsVo()
+								.' '.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getOptions()
 																									->getOptDefault( 'login_limit_interval' ) );
 				break;
 

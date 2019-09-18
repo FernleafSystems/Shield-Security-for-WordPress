@@ -1,32 +1,33 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components\PluginBadge;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
+class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
 		parent::run();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 
-		$this->getSubProCronDaily()->run();
-		$this->getSubProCronHourly()->run();
+		$this->getSubProCronDaily()->execute();
+		$this->getSubProCronHourly()->execute();
 
 		$this->removePluginConflicts();
 
-		( new PluginBadge() )
+		( new Plugin\Components\PluginBadge() )
 			->setMod( $oMod )
 			->run();
 
 		if ( $oMod->isTrackingEnabled() || !$oMod->isTrackingPermissionSet() ) {
-			$this->getSubProTracking()->run();
+			$this->getSubProTracking()->execute();
 		}
 
 		if ( $oMod->isImportExportPermitted() ) {
-			$this->getSubProImportExport()->run();
+			$this->getSubProImportExport()->execute();
 		}
 
 		switch ( $this->getCon()->getShieldAction() ) {
@@ -47,6 +48,10 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		}
 
 		add_action( 'admin_footer', [ $this, 'printAdminFooterItems' ], 100, 0 );
+
+		add_filter( $oMod->prefix( 'delete_on_deactivate' ), function ( $bDelete ) use ( $oMod ) {
+			return $bDelete || $oMod->isOpt( 'delete_on_deactivate', 'Y' );
+		} );
 	}
 
 	public function onWpLoaded() {
@@ -65,6 +70,8 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $oMod->getOptions();
 
 		$aLabels = $oCon->getLabels();
 		$sFooter = sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
@@ -72,7 +79,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 		);
 
 		$aDisplayData = [
-			'sInstallationDays' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $this->getInstallationDays() ),
+			'sInstallationDays' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $oOpts->getInstallationDays() ),
 			'sFooter'           => $sFooter,
 			'sIpAddress'        => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), Services::IP()
 																										  ->getRequestIp() )
@@ -159,7 +166,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'reason_errors'      => "I'm getting errors",
 			];
 
-			$aRenderData = [
+			$aData = [
 				'strings'     => [
 					'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 				],
@@ -169,7 +176,7 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 				'js_snippets' => []
 			];
 			echo $this->getMod()
-					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aRenderData );
+					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aData );
 		}
 	}
 
@@ -209,20 +216,18 @@ class ICWP_WPSF_Processor_Plugin extends ICWP_WPSF_Processor_BasePlugin {
 	}
 
 	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
+	 * Override the original collection to then add plugin statistics to the mix
+	 * @param array $aData
+	 * @return array
 	 */
-	public function addNotice_override_forceoff() {
-		return;
-	}
-
-	/**
-	 * @param array $aNoticeAttributes
-	 * @throws \Exception
-	 * @deprecated
-	 */
-	public function addNotice_plugin_mailing_list_signup() {
-		return;
+	public function tracking_DataCollect( $aData ) {
+		$aData = parent::tracking_DataCollect( $aData );
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		$sSlug = $oMod->getSlug();
+		if ( empty( $aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] ) ) {
+			$aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] = $oMod->getPluginInstallationId();
+		}
+		return $aData;
 	}
 }

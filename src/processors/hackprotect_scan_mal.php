@@ -31,55 +31,10 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Mal\ResultsSet $oResults
-	 * @return Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\Mal\ConvertResultsToVos() )->convert( $oResults );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Mal\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Mal\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Mal\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Mal\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
 	 * @return Shield\Scans\Mal\Repair
 	 */
 	protected function getRepairer() {
 		return ( new Shield\Scans\Mal\Repair() )->setMod( $this->getMod() );
-	}
-
-	/**
-	 * @return Shield\Scans\Mal\ResultsSet
-	 */
-	protected function getNewResultsSet() {
-		return new Shield\Scans\Mal\ResultsSet();
-	}
-
-	/**
-	 * @return Shield\Scans\Mal\ResultItem
-	 */
-	protected function getResultItem() {
-		return new Shield\Scans\Mal\ResultItem();
-	}
-
-	/**
-	 * @return Shield\Scans\Mal\ScanActionVO
-	 */
-	protected function getNewActionVO() {
-		return new Shield\Scans\Mal\ScanActionVO();
 	}
 
 	/**

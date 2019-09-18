@@ -1,13 +1,32 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @var Shield\Databases\ScanQueue\Handler
+	 */
+	private $oDbh_ScanQueue;
+
+	/**
+	 * @var HackGuard\Scan\Queue\Controller
+	 */
+	private $oScanQueueController;
+
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
+	}
+
+	/**
+	 * A action added to WordPress 'init' hook
+	 */
+	public function onWpInit() {
+		parent::onWpInit();
+		$this->getScanController();
 	}
 
 	/**
@@ -16,15 +35,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		parent::updateHandler();
 		$this->setPtgUpdateStoreFormat( true );
 //			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
-		Services::WpFs()->deleteDir( $this->getScansTempDir() );
 	}
 
 	/**
-	 * @return string
+	 * @return HackGuard\Scan\Queue\Controller
 	 */
-	public function getScansTempDir() {
-		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
-		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+	public function getScanController() {
+		if ( !isset( $this->oScanQueueController ) ) {
+			$this->oScanQueueController = ( new HackGuard\Scan\Queue\Controller() )
+				->setMod( $this );
+		}
+		return $this->oScanQueueController;
 	}
 
 	/**
@@ -33,7 +54,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oReq = Services::Request();
 		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
 			case  'scan_file_download':
-				/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+				/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
 				$oPro = $this->getProcessor();
 				$oPro->getSubProScanner()->downloadItemFile( $oReq->query( 'rid' ) );
 				break;
@@ -59,7 +80,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->cleanFileExclusions();
 		$this->cleanPtgFileExtensions();
 
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 			$this->setPtgLastBuildAt( 0 );
 			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
@@ -74,16 +95,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getAllScanSlugs() {
-		return $this->getDef( 'all_scan_slugs' );
-	}
-
-	/**
 	 * @return int[] - key is scan slug
 	 */
 	public function getLastScansAt() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var Shield\Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
@@ -92,7 +108,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aEvents = $oSel->getLatestForAllEvents();
 
 		$aLatest = [];
-		foreach ( $this->getAllScanSlugs() as $sScan ) {
+		foreach ( $oOpts->getScanSlugs() as $sScan ) {
 			$sEvt = $sScan.'_scan_run';
 			$aLatest[ $sScan ] = isset( $aEvents[ $sEvt ] ) ? $aEvents[ $sEvt ]->created_at : 0;
 		}
@@ -140,17 +156,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getScanFrequency() {
-		return (int)$this->getOpt( 'scan_frequency', 1 );
-	}
-
-	/**
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		$nFreq = $this->getScanFrequency();
+		/** @var HackGuard\Options $oStrings */
+		$oOpts = $this->getOptions();
+		$nFreq = $oOpts->getScanFrequency();
 		$this->loadWpCronProcessor()
 			 ->addNewSchedule(
 				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
@@ -468,7 +479,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isPtgEnabled() {
 		return $this->isPremium() && $this->isOpt( 'ptg_enable', 'enabled' )
-			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' )
+			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
 			   && $this->canPtgWriteToDisk();
 	}
 
@@ -665,7 +676,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	private function resetRtBackupFiles() {
 		$oCon = $this->getCon();
 		$oFs = Services::WpFs();
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 		foreach ( [ 'htaccess', 'wpconfig' ] as $sFileKey ) {
 			if ( $oOpts->isOptChanged( 'rt_file_'.$sFileKey ) ) {
 				$sPath = $this->getRtMapFileKeyToFilePath( $sFileKey );
@@ -812,7 +823,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		/** @var Shield\Modules\HackGuard\Strings $oStrings */
+		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 
@@ -958,8 +969,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		/** @var Shield\Modules\HackGuard\Strings $oStrings */
+		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
+		/** @var HackGuard\Options $oStrings */
+		$oOpts = $this->getOptions();
 		$aScanNames = $oStrings->getScanNames();
 
 		$aThis = [
@@ -975,7 +988,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bGoodFrequency = $this->getScanFrequency() > 1;
+			$bGoodFrequency = $oOpts->getScanFrequency() > 1;
 			$aThis[ 'key_opts' ][ 'frequency' ] = [
 				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
 				'enabled' => $bGoodFrequency,
@@ -1104,10 +1117,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return Shield\Modules\HackGuard\AjaxHandler
+	 * @return Shield\Databases\ScanQueue\Handler
 	 */
-	protected function loadAjaxHandler() {
-		return new Shield\Modules\HackGuard\AjaxHandler;
+	public function getDbHandler_ScanQueue() {
+		if ( !isset( $this->oDbh_ScanQueue ) ) {
+			try {
+				$this->oDbh_ScanQueue = ( new Shield\Databases\ScanQueue\Handler() )
+					->setMod( $this )
+					->tableInit();
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $this->oDbh_ScanQueue;
 	}
 
 	/**
@@ -1118,16 +1140,34 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return Shield\Modules\HackGuard\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\HackGuard\Options();
+	protected function getNamespaceBase() {
+		return 'HackGuard';
 	}
 
 	/**
-	 * @return Shield\Modules\HackGuard\Strings
+	 * @return int
+	 * @deprecated 8.1
 	 */
-	protected function loadStrings() {
-		return new Shield\Modules\HackGuard\Strings();
+	public function getScanFrequency() {
+		return (int)$this->getOpt( 'scan_frequency', 1 );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.1
+	 */
+	public function getScansTempDir() {
+		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
+		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.1
+	 */
+	public function getAllScanSlugs() {
+		return $this->getDef( 'all_scan_slugs' );
 	}
 }

@@ -1,11 +1,12 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Autoupdates extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor {
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bDoForceRunAutoupdates = false;
 

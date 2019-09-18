@@ -1,9 +1,9 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * The unique comment token assigned to this page

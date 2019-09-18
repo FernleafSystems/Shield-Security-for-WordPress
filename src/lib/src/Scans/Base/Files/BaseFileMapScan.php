@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class BaseFileAsyncScanner
@@ -22,23 +21,13 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 			->setScanActionVO( $oAction )
 			->run();
 
+		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {
-			$aNewItems = [];
 			foreach ( $oTempRs->getAllItems() as $oItem ) {
 				$aNewItems[] = $oItem->getRawDataAsArray();
 			}
-			if ( empty( $oAction->results ) ) {
-				$oAction->results = [];
-			}
-			$oAction->results = array_merge( $oAction->results, $aNewItems );
 		}
-
-		if ( $oAction->item_processing_limit > 0 ) {
-			$oAction->scan_items = array_slice( $oAction->scan_items, $oAction->item_processing_limit );
-		}
-		else {
-			$oAction->scan_items = [];
-		}
+		$oAction->results = $aNewItems;
 
 		return $this;
 	}

@@ -110,16 +110,9 @@ class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return Shield\Modules\Statistics\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Statistics\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Statistics\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Statistics\Strings();
+	protected function getNamespaceBase() {
+		return 'Statistics';
 	}
 }

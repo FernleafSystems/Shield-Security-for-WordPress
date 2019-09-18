@@ -17,78 +17,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Wcf\ResultsSet $oResults
-	 * @return Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\Wcf\ConvertResultsToVos() )->convert( $oResults );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Wcf\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Wcf\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Wcf\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Wcf\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
 	 * @return Shield\Scans\Wcf\Repair|mixed
 	 */
 	protected function getRepairer() {
 		return new Shield\Scans\Wcf\Repair();
-	}
-
-	/**
-	 * @return Shield\Scans\Wcf\ResultsSet
-	 */
-	protected function getNewResultsSet() {
-		return new Shield\Scans\Wcf\ResultsSet();
-	}
-
-	/**
-	 * @return Shield\Scans\Wcf\ResultItem
-	 */
-	protected function getResultItem() {
-		return new Shield\Scans\Wcf\ResultItem();
-	}
-
-	/**
-	 * @return Shield\Scans\Wcf\ScanActionVO
-	 */
-	protected function getNewActionVO() {
-		return new Shield\Scans\Wcf\ScanActionVO();
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getFullExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions' );
-		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
-
-		// Flywheel specific mods
-		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
-			$aExclusions[] = 'wp-settings.php';
-			$aExclusions[] = 'wp-admin/includes/upgrade.php';
-		}
-		return $aExclusions;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getMissingOnlyExclusions() {
-		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions_missing_only' );
-		return is_array( $aExclusions ) ? $aExclusions : [];
 	}
 
 	/**
@@ -156,8 +88,8 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
@@ -166,11 +98,11 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oFO->isWcfScanAutoRepair() || $oFO->isIncludeFileLists() ) {
+		if ( $oMod->isWcfScanAutoRepair() || $oMod->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );
 			$aContent[] = '';
 
-			if ( $oFO->isWcfScanAutoRepair() ) {
+			if ( $oMod->isWcfScanAutoRepair() ) {
 				$aContent[] = '<strong>'.sprintf( __( "%s has already attempted to repair the files.", 'wp-simple-firewall' ), $sName ).'</strong>'
 							  .' '.__( 'But, you should always check these files to ensure everything is as you expect.', 'wp-simple-firewall' );
 			}

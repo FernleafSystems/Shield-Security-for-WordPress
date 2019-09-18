@@ -1,11 +1,12 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\ShieldProcessor {
 
 	public function onWpInit() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 
 		if ( $this->checkForPluginConflict() || $this->checkForUnsupportedConfiguration() ) {
@@ -131,7 +132,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends ICWP_WPSF_Processor_BaseW
 	 * @return string
 	 */
 	protected function getLoginPath() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 		return $oFO->getCustomLoginPath();
 	}

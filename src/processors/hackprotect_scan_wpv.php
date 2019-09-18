@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		add_action( 'upgrader_process_complete', [ $this, 'hookOnDemandScan' ], 10, 0 );
 		add_action( 'deleted_plugin', [ $this, 'hookOnDemandScan' ], 10, 0 );
 
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
@@ -53,30 +53,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param Shield\Scans\Wpv\ResultsSet $oResults
-	 * @return Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\Wpv\ConvertResultsToVos() )->convert( $oResults );
-	}
-
-	/**
-	 * @param mixed|Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Wpv\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Wpv\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Wpv\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Wpv\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
 	 * @return Shield\Scans\Wpv\Repair
 	 */
 	protected function getRepairer() {
@@ -84,31 +60,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Wpv\ScanActionVO
-	 */
-	protected function getNewActionVO() {
-		return new Shield\Scans\Wpv\ScanActionVO();
-	}
-
-	/**
-	 * @return Shield\Scans\Wpv\ResultsSet
-	 */
-	protected function getNewResultsSet() {
-		return new Shield\Scans\Wpv\ResultsSet();
-	}
-
-	/**
-	 * @return Shield\Scans\Wpv\ResultItem
-	 */
-	protected function getResultItem() {
-		return new Shield\Scans\Wpv\ResultItem();
-	}
-
-	/**
 	 * @param Shield\Scans\Wpv\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
 			$this->getRepairer()->repairResultsSet( $oRes );
@@ -170,7 +125,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	public function addPluginVulnerabilityRows() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 
 		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {

@@ -6,8 +6,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Strings extends Base\Strings {
 
-	public function getEventNames() {
-		return [
+	/**
+	 * @param string $sKey
+	 * @return string
+	 */
+	public function getEventName( $sKey ) {
+		$aE = $this->getEventNames();
+		return empty( $aE[ $sKey ] ) ? '' : $aE[ $sKey ];
+	}
+
+	/**
+	 * @param bool $bAuto
+	 * @return string[]
+	 */
+	public function getEventNames( $bAuto = true ) {
+		$aNames = [
 			'test_cron_run'                => __( 'Test Cron Run', 'wp-simple-firewall' ),
 			'import_notify_sent'           => __( 'Import Notify Sent', 'wp-simple-firewall' ),
 			'import_notify_received'       => __( 'Import Notify Received', 'wp-simple-firewall' ),
@@ -245,5 +258,15 @@ class Strings extends Base\Strings {
 			'lic_fail_email'               => __( 'License Failure Email', 'wp-simple-firewall' ),
 			'lic_fail_deactivate'          => __( 'License Deactivated', 'wp-simple-firewall' ),
 		];
+
+		if ( $bAuto ) {
+			foreach ( $aNames as $sKey => $sName ) {
+				if ( empty( $sName ) ) {
+					$aNames[ $sKey ] = ucwords( str_replace( '_', ' ', $sKey ) );
+				}
+			}
+		}
+
+		return $aNames;
 	}
 }

@@ -122,16 +122,9 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return Shield\Modules\Firewall\Options
+	 * @return string
 	 */
-	protected function loadOptions() {
-		return new Shield\Modules\Firewall\Options();
-	}
-
-	/**
-	 * @return Shield\Modules\Firewall\Strings
-	 */
-	protected function loadStrings() {
-		return new Shield\Modules\Firewall\Strings();
+	protected function getNamespaceBase() {
+		return 'Firewall';
 	}
 }
