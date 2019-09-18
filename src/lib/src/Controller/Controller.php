@@ -1934,7 +1934,8 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function overrideTranslations( $sMoFilePath, $sDomain ) {
 		if ( $sDomain == $this->getTextDomain() ) {
 
-			$sLocale = apply_filters( 'shield_force_locale', Services::WpGeneral()->getLocale() );
+			// use determine_locale() as it also considers the user's profile preference
+			$sLocale = apply_filters( 'shield_force_locale', determine_locale() );
 
 			/**
 			 * Cater for duplicate language translations that don't exist (yet)
