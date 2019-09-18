@@ -1,12 +1,7 @@
 <?php
 
 foreach (
-	[
-		'ICWP_WPSF_FeatureHandler_Base',
-		'ICWP_WPSF_FeatureHandler_BaseWpsf',
-		'ICWP_WPSF_Processor_Base',
-		'ICWP_WPSF_Processor_BaseWpsf',
-	] as $sClass
+	[ 'ICWP_WPSF_FeatureHandler_Base', 'ICWP_WPSF_FeatureHandler_BaseWpsf', ] as $sClass
 ) {
 	if ( !@class_exists( $sClass ) ) {
 		add_action( 'admin_notices', 'icwp_wpsf_checkfilesnotfound' );
