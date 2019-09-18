@@ -1935,7 +1935,10 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( $sDomain == $this->getTextDomain() ) {
 
 			// use determine_locale() as it also considers the user's profile preference
-			$sLocale = apply_filters( 'shield_force_locale', determine_locale() );
+			$sLocale = apply_filters(
+				'shield_force_locale',
+				function_exists( 'determine_locale' ) ? determine_locale() : Services::WpGeneral()->getLocale()
+			);
 
 			/**
 			 * Cater for duplicate language translations that don't exist (yet)
@@ -2049,7 +2052,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			/** @var Shield\Modules\AuditTrail\Options $oOpts */
 			$oOpts = $this->getModule_AuditTrail()
 						  ->getOptions();
-			
+
 			$sContent = $this->getRenderer()
 							 ->setTemplate( 'snippets/privacy_policy' )
 							 ->setTemplateEngineTwig()
