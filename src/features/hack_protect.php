@@ -1145,29 +1145,4 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function getNamespaceBase() {
 		return 'HackGuard';
 	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.1
-	 */
-	public function getScanFrequency() {
-		return (int)$this->getOpt( 'scan_frequency', 1 );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.1
-	 */
-	public function getScansTempDir() {
-		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
-		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 8.1
-	 */
-	public function getAllScanSlugs() {
-		return $this->getDef( 'all_scan_slugs' );
-	}
 }

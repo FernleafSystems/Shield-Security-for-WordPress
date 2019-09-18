@@ -164,12 +164,4 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function getNamespaceBase() {
 		return 'Traffic';
 	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.1
-	 */
-	public function getMaxEntries() {
-		return (int)$this->getOpt( 'max_entries' );
-	}
 }

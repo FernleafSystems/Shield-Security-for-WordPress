@@ -399,11 +399,4 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		$this->oScanner = $oScanner;
 		return $this;
 	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseScanActionVO $oAction
-	 * @deprecated 8.1
-	 */
-	public function postScanActionProcess( $oAction ) {
-	}
 }

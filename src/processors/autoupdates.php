@@ -595,6 +595,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return int
 	 */
 	protected function getHookPriority() {
-		return $this->getMod()->getDef( 'action_hook_priority' );
+		return $this->getOptions()->getDef( 'action_hook_priority' );
 	}
 }

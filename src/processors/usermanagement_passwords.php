@@ -179,12 +179,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @throws \Exception
 	 */
 	protected function applyPasswordChecks( $sPassword ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
 		$this->testPasswordMeetsMinimumLength( $sPassword );
 		$this->testPasswordMeetsMinimumStrength( $sPassword );
-		if ( $oFO->isPassPreventPwned() ) {
+		if ( $oMod->isPassPreventPwned() ) {
 			$this->sendRequestToPwnedRange( $sPassword );
 		}
 	}
@@ -255,7 +255,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	protected function sendRequestToPwned( $sPass ) {
 		$oHttpReq = Services::HttpRequest();
 		$bSuccess = $oHttpReq->get(
-			sprintf( '%s/%s', $this->getMod()->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
+			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
 			[
 				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
 			]
@@ -313,7 +313,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		$sSubHash = substr( $sPassHash, 0, 5 );
 
 		$bSuccess = $oHttpReq->get(
-			sprintf( '%s/%s', $this->getMod()->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
+			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
 			[
 				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
 			]

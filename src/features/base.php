@@ -941,15 +941,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * Saves the options to the WordPress Options store.
-	 * @return void
-	 * @deprecated 8.1
-	 */
-	public function savePluginOptions() {
-		$this->saveModOptions();
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function saveModOptions() {
@@ -1858,17 +1849,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @param string $sOpt
-	 * @param int    $nAt
-	 * @return $this
-	 * @deprecated 8.1 - TODO: Be careful when updating to use `Options` as this is newly-added in 8.1
-	 */
-	protected function setOptAt( $sOpt, $nAt = null ) {
-		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
-		return $this->setOpt( $sOpt, $nAt );
-	}
-
-	/**
 	 * @return null|Shield\Modules\Base\ShieldOptions|mixed
 	 */
 	public function getOptions() {
@@ -1987,17 +1967,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return \ICWP_WPSF_OptionsVO
-	 * @deprecated 8.1
+	 * Saves the options to the WordPress Options store.
+	 * @return void
+	 * @deprecated 8.2
 	 */
-	public function getOptionsVo() {
-		return $this->getOptions();
-	}
-
-	/**
-	 * @deprecated 8.1
-	 */
-	private function getAjax() {
-		$this->loadAjaxHandler();
+	public function savePluginOptions() {
+		$this->saveModOptions();
 	}
 }

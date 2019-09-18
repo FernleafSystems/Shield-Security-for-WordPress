@@ -111,7 +111,6 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @param string $sOptionKey
 	 * @return bool
-	 * @deprecated 8.1
 	 */
 	public function isTrackOptTransgression( $sOptionKey ) {
 		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;

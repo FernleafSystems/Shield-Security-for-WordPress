@@ -61,7 +61,7 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return array
 	 */
-	public function getRestrictedOptions() {
+	private function getRestrictedOptions() {
 		$aOptions = $this->getDef( 'options_to_restrict' );
 		return is_array( $aOptions ) ? $aOptions : [];
 	}

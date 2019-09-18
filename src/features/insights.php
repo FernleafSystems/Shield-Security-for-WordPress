@@ -49,6 +49,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		asort( $aEventsSelect );
 
 		$oIpMod = $oCon->getModule_IPs();
+		/** @var Shield\Modules\IPs\Options $oIpOpts */
+		$oIpOpts = $oIpMod->getOptions();
 
 		/** @var Shield\Databases\Session\Select $oSessionSelect */
 		$oSessionSelect = $this->getDbHandler_Sessions()->getQuerySelector();
@@ -107,13 +109,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'strings' => [
 						'trans_limit'       => sprintf(
 							__( 'Offenses required for IP block: %s', 'wp-simple-firewall' ),
-							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpMod->getOptTransgressionLimit() )
+							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpOpts->getOptTransgressionLimit() )
 						),
 						'auto_expire'       => sprintf(
 							__( 'Black listed IPs auto-expire after: %s', 'wp-simple-firewall' ),
 							sprintf( '<a href="%s" target="_blank">%s</a>',
 								$oIpMod->getUrl_DirectLinkToOption( 'auto_expire' ),
-								$oCarbon->setTimestamp( $oReq->ts() + $oIpMod->getAutoExpireTime() + 100 )
+								$oCarbon->setTimestamp( $oReq->ts() + $oIpOpts->getAutoExpireTime() + 100 )
 										->diffForHumans( null, true )
 							)
 						),

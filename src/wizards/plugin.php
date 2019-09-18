@@ -218,7 +218,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'user_email' => $oUser->user_email
 						],
 						'hrefs' => [
-							'privacy_policy' => $this->getMod()->getDef( 'href_privacy_policy' )
+							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' )
 						],
 					];
 					break;

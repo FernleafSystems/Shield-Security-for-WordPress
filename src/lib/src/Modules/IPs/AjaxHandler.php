@@ -39,6 +39,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_AddIp() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var \ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $oMod->getProcessor();
 		$oIpServ = Services::IP();
@@ -48,7 +50,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$bSuccess = false;
 		$sMessage = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
 
-		$sIp = preg_replace( '#[^/:\.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
+		$sIp = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
 
 		$bAcceptableIp = $oIpServ->isValidIp( $sIp ) || $oIpServ->isValidIp4Range( $sIp );
@@ -90,7 +92,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					if ( !empty( $oIp ) ) {
 						/** @var Shield\Databases\IPs\Update $oUpd */
 						$oUpd = $oMod->getDbHandler()->getQueryUpdater();
-						$oUpd->updateTransgressions( $oIp, $oMod->getOptTransgressionLimit() );
+						$oUpd->updateTransgressions( $oIp, $oOpts->getOffenseLimit() );
 					}
 					break;
 

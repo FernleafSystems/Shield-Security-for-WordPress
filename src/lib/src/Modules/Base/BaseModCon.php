@@ -433,14 +433,6 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_OptionsVO
-	 * @deprecated 8.1
-	 */
-	public function getOptionsVo() {
-		return $this->getOptions();
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isUpgrading() {
@@ -768,7 +760,7 @@ class BaseModCon extends Deprecated\Foundation {
 	 * @return mixed|null
 	 */
 	public function getDef( $sKey ) {
-		return $this->getOptions()->getFeatureDefinition( $sKey );
+		return $this->getOptions()->getDef( $sKey );
 	}
 
 	/**
@@ -1859,16 +1851,6 @@ class BaseModCon extends Deprecated\Foundation {
 		$sId = $this->getHelpVideoId();
 		return false;
 		return !empty( $sId );
-	}
-
-	/**
-	 * @param string $sOpt
-	 * @param int    $nAt
-	 * @return $this
-	 */
-	protected function setOptAt( $sOpt, $nAt = null ) {
-		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
-		return $this->setOpt( $sOpt, $nAt );
 	}
 
 	/**
