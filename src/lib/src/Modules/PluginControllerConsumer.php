@@ -9,13 +9,19 @@ trait PluginControllerConsumer {
 	/**
 	 * @var Controller
 	 */
+	private $oPlugCon;
+
+	/**
+	 * @var Controller
+	 * @deprecated 8.2
+	 */
 	static private $oPluginController;
 
 	/**
 	 * @return Controller
 	 */
 	public function getCon() {
-		return self::$oPluginController;
+		return isset( $this->oPlugCon ) ? $this->oPlugCon : self::$oPluginController;
 	}
 
 	/**
@@ -23,7 +29,7 @@ trait PluginControllerConsumer {
 	 * @return $this
 	 */
 	public function setCon( $oCon ) {
-		self::$oPluginController = $oCon;
+		$this->oPlugCon = $oCon;
 		return $this;
 	}
 }
