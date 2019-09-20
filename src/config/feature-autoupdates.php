@@ -190,7 +190,7 @@
     {
       "key":         "enable_upgrade_notification_email",
       "section":     "section_options",
-      "default":     "",
+      "default":     "Y",
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",
