@@ -34,8 +34,8 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * filter. What this filter decides will ultimately determine the fate of any core upgrade.
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$nFilterPriority = $this->getHookPriority();
 		add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $nFilterPriority );
@@ -46,11 +46,11 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $nFilterPriority, 2 );
 		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $nFilterPriority, 2 );
 
-		if ( $oFO->isOpt( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
 			add_filter( 'automatic_updates_is_vcs_checkout', '__return_false', $nFilterPriority );
 		}
 
-		if ( !$oFO->isDisableAllAutoUpdates() ) {
+		if ( !$oOpts->isDisableAllAutoUpdates() ) {
 			//more parameter options here for later
 			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $nFilterPriority, 1 );
 			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $nFilterPriority, 1 );
@@ -59,12 +59,12 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
 			add_action( 'set_site_transient_update_themes', [ $this, 'trackUpdateTimesThemes' ] );
 
-			if ( $oFO->isSendAutoupdatesNotificationEmail() ) {
+			if ( $oOpts->isSendAutoupdatesNotificationEmail() ) {
 				$this->trackAssetsVersions();
 				add_action( 'automatic_updates_complete', [ $this, 'sendNotificationEmail' ] );
 			}
 
-			if ( $oFO->isAutoupdateIndividualPlugins() ) {
+			if ( $oOpts->isAutoupdateIndividualPlugins() ) {
 				// Adds automatic update indicator column to all plugins in plugin listing.
 				add_filter( 'manage_plugins_columns', [ $this, 'fAddPluginsListAutoUpdateColumn' ] );
 			}
@@ -72,9 +72,9 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	public function onWpLoaded() {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isDisableAllAutoUpdates() ) {
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$this->disableAllAutoUpdates();
 		}
 		else {
@@ -126,10 +126,10 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	public function trackUpdateTimesCore( $oUpdates ) {
 
 		if ( !empty( $oUpdates ) && isset( $oUpdates->updates ) && is_array( $oUpdates->updates ) ) {
-			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-			$oFO = $this->getMod();
+			/** @var Modules\Autoupdates\Options $oOpts */
+			$oOpts = $this->getOptions();
 
-			$aTk = $oFO->getDelayTracking();
+			$aTk = $oOpts->getDelayTracking();
 			$aItemTk = isset( $aTk[ 'core' ][ 'wp' ] ) ? $aTk[ 'core' ][ 'wp' ] : [];
 			foreach ( $oUpdates->updates as $oUpdate ) {
 				if ( 'autoupdate' == $oUpdate->response ) {
@@ -140,7 +140,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 				}
 			}
 			$aTk[ 'core' ][ 'wp' ] = array_slice( $aItemTk, -5 );
-			$oFO->setDelayTracking( $aTk );
+			$oOpts->setDelayTracking( $aTk );
 		}
 	}
 
@@ -163,12 +163,12 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @param string   $sContext - plugins/themes
 	 */
 	protected function trackUpdateTimeCommon( $oUpdates, $sContext ) {
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		if ( !empty( $oUpdates ) && isset( $oUpdates->response ) && is_array( $oUpdates->response ) ) {
-			/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-			$oFO = $this->getMod();
 
-			$aTk = $oFO->getDelayTracking();
+			$aTk = $oOpts->getDelayTracking();
 			foreach ( $oUpdates->response as $sSlug => $oUpdate ) {
 				$aItemTk = isset( $aTk[ $sContext ][ $sSlug ] ) ? $aTk[ $sContext ][ $sSlug ] : [];
 				if ( is_array( $oUpdate ) ) {
@@ -183,7 +183,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 					$aTk[ $sContext ][ $sSlug ] = array_slice( $aItemTk, -3 );
 				}
 			}
-			$oFO->setDelayTracking( $aTk );
+			$oOpts->setDelayTracking( $aTk );
 		}
 	}
 
@@ -203,14 +203,14 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return boolean
 	 */
 	public function autoupdate_core_major( $bUpdate ) {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isDisableAllAutoUpdates() ) {
+		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$bUpdate = false;
 		}
-		else if ( !$oFO->isDelayUpdates() ) { // the delay is handles elsewhere
-			$bUpdate = $oFO->isAutoUpdateCoreMajor();
+		else if ( !$oOpts->isDelayUpdates() ) { // the delay is handles elsewhere
+			$bUpdate = $oOpts->isAutoUpdateCoreMajor();
 		}
 
 		return $bUpdate;
@@ -223,14 +223,14 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return boolean
 	 */
 	public function autoupdate_core_minor( $bUpdate ) {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isDisableAllAutoUpdates() ) {
+		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$bUpdate = false;
 		}
-		else if ( !$oFO->isDelayUpdates() ) {//TODO delay
-			$bUpdate = $oFO->isAutoUpdateCoreMinor();
+		else if ( !$oOpts->isDelayUpdates() ) {//TODO delay
+			$bUpdate = $oOpts->isAutoUpdateCoreMinor();
 		}
 		return $bUpdate;
 	}
@@ -242,7 +242,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return boolean
 	 */
 	public function autoupdate_translations( $bUpdate ) {
-		return $this->getMod()->isOpt( 'enable_autoupdate_translations', 'Y' );
+		return $this->getOptions()->isOpt( 'enable_autoupdate_translations', 'Y' );
 	}
 
 	/**
@@ -251,10 +251,10 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return bool
 	 */
 	public function autoupdate_core( $bDoAutoUpdate, $oCoreUpdate ) {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isDisableAllAutoUpdates() ) {
+		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$bDoAutoUpdate = false;
 		}
 		else if ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
@@ -270,10 +270,10 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return boolean
 	 */
 	public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isDisableAllAutoUpdates() ) {
+		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$bDoAutoUpdate = false;
 		}
 		else {
@@ -284,14 +284,14 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			}
 
 			// first, is global auto updates for plugins set
-			if ( $oFO->isAutoupdateAllPlugins() ) {
+			if ( $oOpts->isAutoupdateAllPlugins() ) {
 				$bDoAutoUpdate = true;
 			}
-			else if ( $oFO->isPluginSetToAutoupdate( $sFile ) ) {
+			else if ( $oOpts->isPluginSetToAutoupdate( $sFile ) ) {
 				$bDoAutoUpdate = true;
 			}
 			else if ( $sFile === $this->getCon()->getPluginBaseFile() ) {
-				$sAuto = $oFO->getSelfAutoUpdateOpt();
+				$sAuto = $oOpts->getSelfAutoUpdateOpt();
 				if ( $sAuto === 'immediate' ) {
 					$bDoAutoUpdate = true;
 				}
@@ -310,10 +310,10 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return boolean
 	 */
 	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isDisableAllAutoUpdates() ) {
+		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$bDoAutoUpdate = false;
 		}
 		else {
@@ -341,15 +341,17 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @param string          $sContext
 	 * @return bool
 	 */
-	protected function isDelayed( $sSlug, $sContext = 'plugins' ) {
+	private function isDelayed( $sSlug, $sContext = 'plugins' ) {
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$bDelayed = false;
 
 		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
 		$oFO = $this->getMod();
-		if ( $oFO->isDelayUpdates() ) {
+		if ( $oOpts->isDelayUpdates() ) {
 
-			$aTk = $oFO->getDelayTracking();
+			$aTk = $oOpts->getDelayTracking();
 
 			$sVersion = '';
 			if ( $sContext == 'core' ) {
@@ -369,7 +371,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			}
 
 			if ( !empty( $sVersion ) && isset( $aItemTk[ $sVersion ] ) ) {
-				$bDelayed = ( Services::Request()->ts() - $aItemTk[ $sVersion ] < $oFO->getDelayUpdatesPeriod() );
+				$bDelayed = ( Services::Request()->ts() - $aItemTk[ $sVersion ] < $oOpts->getDelayUpdatesPeriod() );
 			}
 		}
 
@@ -382,9 +384,9 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return boolean
 	 */
 	public function autoupdate_send_email( $bSendEmail ) {
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isSendAutoupdatesNotificationEmail();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isSendAutoupdatesNotificationEmail();
 	}
 
 	/**
@@ -444,11 +446,12 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		if ( $sColumnName != 'icwp_autoupdate' ) {
 			return;
 		}
-		/** @var ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		$bUpdate = Services::WpPlugins()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
-//		$bUpdate = in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
-		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oFO->getAutoupdatePlugins() );
+//		$bUpdate = in_array( $sPluginBaseFileName, $oOpts->getAutoupdatePlugins() );
+		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oOpts->getAutoupdatePlugins() );
 		echo $this->getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bUpdate, $bDisabled );
 	}
 
