@@ -677,7 +677,8 @@
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "malware_whitelist_paths":     [
-      "wp-content/wflogs/"
+      "wp-content/wflogs/",
+      "wp-content/cache/"
     ],
     "cron_all_scans":              "all-scans",
     "url_checksum_api":            "https://api.wordpress.org/core/checksums/1.0/",
