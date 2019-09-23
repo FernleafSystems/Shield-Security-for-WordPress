@@ -23,21 +23,23 @@ class BuildFileMap {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		try {
-			$oDirIt = StandardDirectoryIterator::create( $oAction->scan_root_dir, 0, $oAction->file_exts, false );
-			foreach ( $oDirIt as $oFsItem ) {
-				$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
-				/** @var \SplFileInfo $oFsItem */
-				if ( $this->isWhitelistedPath( $sFullPath ) || $oFsItem->getSize() == 0 ) {
-					continue;
+		foreach ( $oAction->scan_root_dirs as $sScanDir => $nDepth ) {
+			try {
+				$oDirIt = StandardDirectoryIterator::create( $sScanDir, (int)$nDepth, $oAction->file_exts, false );
+				foreach ( $oDirIt as $oFsItem ) {
+					$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
+					/** @var \SplFileInfo $oFsItem */
+					if ( $this->isWhitelistedPath( $sFullPath ) || $oFsItem->getSize() == 0 ) {
+						continue;
+					}
+					$aFiles[] = $sFullPath;
 				}
-				$aFiles[] = $sFullPath;
 			}
-		}
-		catch ( \Exception $oE ) {
-			error_log(
-				sprintf( 'Shield file scanner attempted to read directory but there was error: "%s".', $oE->getMessage() )
-			);
+			catch ( \Exception $oE ) {
+				error_log(
+					sprintf( 'Shield file scanner attempted to read directory but there was error: "%s".', $oE->getMessage() )
+				);
+			}
 		}
 		return $aFiles;
 	}
@@ -46,8 +48,13 @@ class BuildFileMap {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		if ( empty( $oAction->scan_root_dir ) ) {
-			$oAction->scan_root_dir = ABSPATH;
+		if ( empty( $oAction->scan_root_dirs ) || !is_array( $oAction->scan_root_dirs ) ) {
+			$oAction->scan_root_dirs = [
+				ABSPATH                          => 1,
+				path_join( ABSPATH, WPINC )      => 0,
+				path_join( ABSPATH, 'wp-admin' ) => 0,
+				WP_CONTENT_DIR                   => 0,
+			];
 		}
 		if ( empty( $oAction->file_exts ) ) {
 			$oAction->file_exts = [ 'php', 'php5' ];
