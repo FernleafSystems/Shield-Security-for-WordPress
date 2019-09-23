@@ -132,7 +132,7 @@ class Handler {
 	 * @return Insert
 	 */
 	public function getQueryInserter() {
-		$sClass = $this->getNamespace().'\\Insert';
+		$sClass = $this->getNamespace().'Insert';
 		/** @var Insert $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
@@ -142,7 +142,7 @@ class Handler {
 	 * @return Delete
 	 */
 	public function getQueryDeleter() {
-		$sClass = $this->getNamespace().'\\Delete';
+		$sClass = $this->getNamespace().'Delete';
 		/** @var Delete $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
@@ -152,7 +152,7 @@ class Handler {
 	 * @return Select
 	 */
 	public function getQuerySelector() {
-		$sClass = $this->getNamespace().'\\Select';
+		$sClass = $this->getNamespace().'Select';
 		/** @var Select $o */
 		$o = new $sClass();
 		return $o->setDbH( $this )
@@ -163,7 +163,7 @@ class Handler {
 	 * @return Update
 	 */
 	public function getQueryUpdater() {
-		$sClass = $this->getNamespace().'\\Update';
+		$sClass = $this->getNamespace().'Update';
 		/** @var Update $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
@@ -173,7 +173,7 @@ class Handler {
 	 * @return EntryVO
 	 */
 	public function getVo() {
-		$sClass = $this->getNamespace().'\\EntryVO';
+		$sClass = $this->getNamespace().'EntryVO';
 		return new $sClass();
 	}
 
@@ -323,11 +323,11 @@ class Handler {
 	 */
 	private function getNamespace() {
 		try {
-			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
+			$sNS = ( new \ReflectionClass( $this ) )->getNamespaceName();
 		}
 		catch ( \Exception $oE ) {
-			$sName = __NAMESPACE__;
+			$sNS = __NAMESPACE__;
 		}
-		return $sName;
+		return rtrim( $sNS, '\\' ).'\\';
 	}
 }

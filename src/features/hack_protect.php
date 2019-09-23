@@ -819,6 +819,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getTempDir() {
+		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
+		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
