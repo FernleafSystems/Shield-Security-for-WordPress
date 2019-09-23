@@ -61,13 +61,6 @@ class Options {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function cleanTransientStorage() {
-		return Services::WpGeneral()->deleteTransient( $this->getSpecTransientStorageKey() );
-	}
-
-	/**
 	 * @param bool $bDeleteFirst Used primarily with plugin reset
 	 * @param bool $bIsPremiumLicensed
 	 * @return bool
@@ -90,7 +83,7 @@ class Options {
 	/**
 	 * @return bool
 	 */
-	public function doOptionsDelete() {
+	public function deleteStorage() {
 		$oWp = Services::WpGeneral();
 		$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
 		return $oWp->deleteOption( $this->getOptionsStorageKey() );
