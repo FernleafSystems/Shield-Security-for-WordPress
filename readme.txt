@@ -375,7 +375,7 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(v.1)**  IMPROVED:	Updated default firewall whitelist rules.
 * **(v.1)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
-* **(v.1)**  IMPROVED:	Malware scanner only scans `wp-admin`, 'wp-includes', 'wp-content' folders, and files in top-level directory.
+* **(v.1)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
 * **(v.1)**  IMPROVED:	Malware scanner performance improved with some some file caching.
 * **(v.1)**  IMPROVED:	If the PWNED Passwords API request fails entirely, this password check is skipped.
 * **(v.1)**  FIXED:		PHP error when firewall was set to kill response without a user message.
