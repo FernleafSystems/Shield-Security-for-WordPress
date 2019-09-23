@@ -1150,7 +1150,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( !empty( $oDbh ) ) {
 			$oDbh->deleteTable();
 		}
-		$this->getOptions()->doOptionsDelete();
+		$this->getOptions()->deleteStorage();
 	}
 
 	/**

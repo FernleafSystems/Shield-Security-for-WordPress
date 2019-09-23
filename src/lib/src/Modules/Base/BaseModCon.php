@@ -1154,7 +1154,7 @@ class BaseModCon extends Deprecated\Foundation {
 		if ( !empty( $oDbh ) ) {
 			$oDbh->deleteTable();
 		}
-		$this->getOptions()->doOptionsDelete();
+		$this->getOptions()->deleteStorage();
 	}
 
 	/**
