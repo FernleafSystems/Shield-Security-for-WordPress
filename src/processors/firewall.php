@@ -268,7 +268,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 
 		switch ( $oMod->getBlockResponse() ) {
 			case 'redirect_die':
-				Services::WpGeneral()->wpDie();
+				die( 'Blocked by Shield' );
 				break;
 			case 'redirect_die_message':
 				Services::WpGeneral()->wpDie( $this->getFirewallDieMessageForDisplay() );
