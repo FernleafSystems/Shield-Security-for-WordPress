@@ -346,7 +346,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 			}
 			else {
 				$nPwnedCount = 0;
-				error_log( $oHttpReq->lastResponse->body );
 				foreach ( array_map( 'trim', explode( "\n", trim( $oHttpReq->lastResponse->body ) ) ) as $sRow ) {
 					if ( $sSubHash.substr( strtoupper( $sRow ), 0, 35 ) == $sPassHash ) {
 						$nPwnedCount = substr( $sRow, 36 );
