@@ -21,6 +21,12 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 		$oScanVO->whitelist = ( new Utilities\Whitelist() )
 			->setMod( $this->getMod() )
 			->retrieve();
+
+		$aPatterns = ( new Utilities\Patterns() )
+			->setMod( $this->getMod() )
+			->retrieve();
+		$oScanVO->patterns_simple = $aPatterns[ 'simple' ];
+		$oScanVO->patterns_regex = $aPatterns[ 'regex' ];
 	}
 
 	/**
