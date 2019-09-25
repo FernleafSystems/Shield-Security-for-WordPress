@@ -15,6 +15,22 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false
   },
+  "menu_items":    [
+    {
+      "title": "Scans",
+      "slug": "scans-redirect",
+      "callback": ""
+    }
+  ],
+  "custom_redirects":    [
+    {
+      "source_mod_page": "scans-redirect",
+      "target_mod_page": "insights",
+      "query_args": {
+        "inav": "scans"
+      }
+    }
+  ],
   "sections":    [
     {
       "slug":        "section_scan_options",
