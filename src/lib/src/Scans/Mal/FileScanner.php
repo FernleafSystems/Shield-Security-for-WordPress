@@ -33,9 +33,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					$aLines = $oLocator->setNeedle( $sSig )
 									   ->run();
 					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-						$this->setFalsePositiveConfidence( $oResultItem );
-						return $oResultItem;
+						$nConfidence = $this->getFalsePositiveConfidence( $sFullPath );
+						if ( $nConfidence < $oAction->confidence_threshold ) {
+							$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+							$oResultItem->fp_confidence = $nConfidence;
+							return $oResultItem;
+						}
+						else {
+							return null;
+						}
 					}
 				}
 			}
@@ -47,9 +53,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					$aLines = $oLocator->setNeedle( $sSig )
 									   ->run();
 					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-						$this->setFalsePositiveConfidence( $oResultItem );
-						return $oResultItem;
+						$nConfidence = $this->getFalsePositiveConfidence( $sFullPath );
+						if ( $nConfidence < $oAction->confidence_threshold ) {
+							$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+							$oResultItem->fp_confidence = $nConfidence;
+							return $oResultItem;
+						}
+						else {
+							return null;
+						}
 					}
 				}
 			}
@@ -90,20 +102,21 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @param ResultItem $oItem
+	 * @param string $sFilePath
+	 * @return int
 	 */
-	private function setFalsePositiveConfidence( $oItem ) {
+	private function getFalsePositiveConfidence( $sFilePath ) {
 		/** @var ScanActionVO $oScanVO */
 		$oScanVO = $this->getScanActionVO();
 
-		$oItem->fp_confidence = 0;
-		$sFilePart = basename( $oItem->path_full );
+		$nConfidence = 0;
+		$sFilePart = basename( $sFilePath );
 		if ( isset( $oScanVO->whitelist[ $sFilePart ] ) ) {
 			try {
 				$oHasher = new Utilities\File\Compare\CompareHash();
-				foreach ( $oScanVO->whitelist[ $sFilePart ] as $sWlHash => $nConfidence ) {
-					if ( $oHasher->isEqualFileSha1( $oItem->path_full, $sWlHash ) ) {
-						$oItem->fp_confidence = $nConfidence;
+				foreach ( $oScanVO->whitelist[ $sFilePart ] as $sWlHash => $nHashConfidence ) {
+					if ( $oHasher->isEqualFileSha1( $sFilePath, $sWlHash ) ) {
+						$nConfidence = $nHashConfidence;
 						break;
 					}
 				}
@@ -111,6 +124,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			catch ( \InvalidArgumentException $oE ) {
 			}
 		}
+		return (int)$nConfidence;
 	}
 
 	/**

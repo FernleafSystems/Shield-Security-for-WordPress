@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 /**
  * Class ScanMal
@@ -19,8 +19,9 @@ class ScanMal extends ScanBase {
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+
 		$oRepairer = ( new Shield\Scans\Mal\Repair() )->setMod( $oMod );
-		$oConverter = ( new Scan\Results\ConvertBetweenTypes() )
+		$oConverter = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanActionVO( $this->getScanActionVO() );
 
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
