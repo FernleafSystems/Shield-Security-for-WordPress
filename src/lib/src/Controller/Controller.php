@@ -1707,8 +1707,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			$this->getSessionId(),
 			Services::Request()->ts() + DAY_IN_SECONDS*30,
 			Services::WpGeneral()->getCookiePath(),
-			Services::WpGeneral()->getCookieDomain(),
-			false
+			Services::WpGeneral()->getCookieDomain()
 		);
 	}
 
