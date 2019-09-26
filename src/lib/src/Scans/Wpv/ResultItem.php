@@ -15,8 +15,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv\WpVulnDb\WpVulnVO;
  */
 class ResultItem extends Base\BaseResultItem {
 
-	const SCAN_RESULT_TYPE = 'wpv';
-
 	/**
 	 * @return string
 	 */

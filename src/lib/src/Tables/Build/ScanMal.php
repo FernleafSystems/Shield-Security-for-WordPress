@@ -28,19 +28,26 @@ class ScanMal extends ScanBase {
 			/** @var Shield\Scans\Mal\ResultItem $oIt */
 			$oIt = $oConverter->convertVoToResultItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
+
 			$aE[ 'path' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
 			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
+
+			$aStatus = [
+				__( 'Potential Malware Detected', 'wp-simple-firewall' ),
+				sprintf( '%s: %s/100', __( 'False Positive Confidence' ), sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ) ),
+				sprintf( '%s: %s', __( 'Pattern Detected' ), $this->getPatternForDisplay( base64_decode( $oIt->mal_sig ) ) ),
+				sprintf( '%s: %s', __( 'Affected line numbers' ), implode( ', ', $oIt->file_lines ) ),
+			];
+
 			try {
 				$bCanRepair = $oRepairer->canAutoRepairFromSource( $oIt );
 			}
 			catch ( \Exception $oE ) {
-				$aE[ 'status' ] .= sprintf( '<br/>%s: %s',
-					__( 'Repair Unavailable', 'wp-simple-firewall' ),
-					$oE->getMessage()
-				);
+				$aStatus[] = sprintf( '%s: %s', __( 'Repair Unavailable', 'wp-simple-firewall' ), $oE->getMessage() );
 				$bCanRepair = false;
 			}
+
+			$aE[ 'status' ] = implode( '<br/>', $aStatus );
 			$aE[ 'can_repair' ] = $bCanRepair;
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'href_download' ] = $oMod->createFileDownloadLink( $oEntry );
@@ -48,6 +55,29 @@ class ScanMal extends ScanBase {
 		}
 
 		return $aEntries;
+	}
+
+	/**
+	 * @param string $sText
+	 * @return string
+	 */
+	private function getPatternForDisplay( $sText ) {
+		if ( false && function_exists( 'imagecreate' ) ) {
+			$oImg = imagecreate( 400, 20 );
+			imagecolorallocate( $oImg, 255, 255, 255 );
+			$oTxtColour = imagecolorallocate( $oImg, 25, 25, 25 );
+			imagestring( $oImg, 5, 1, 1, $sText, $oTxtColour );
+			ob_start();
+			imagepng( $oImg );
+			$sImg = ob_get_clean();
+			imagedestroy( $oImg );
+			$sPattern = sprintf( '<img src="data:image/png;base64,%s" alt="Pattern" />', base64_encode( $sImg ) );
+		}
+		else {
+			$sPattern = sprintf( '<code>%s</code>', esc_html( $sText ) );
+		}
+
+		return $sPattern;
 	}
 
 	/**
