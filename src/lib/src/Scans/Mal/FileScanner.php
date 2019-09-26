@@ -63,19 +63,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	}
 
 	/**
-	 * @return array[]
-	 */
-	protected function getWhitelistHashes() {
-		if ( !is_array( $this->aWhitelistHashes ) ) {
-			$this->aWhitelistHashes = ( new Malware\WhitelistRetrieve() )->getFiles();
-			if ( !is_array( $this->aWhitelistHashes ) ) {
-				$this->aWhitelistHashes = [];
-			};
-		}
-		return $this->aWhitelistHashes;
-	}
-
-	/**
 	 * @param $aLines
 	 * @param $sFullPath
 	 * @param $sSig
@@ -106,12 +93,17 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	private function isPathWhitelisted( $sFullPath ) {
 		$bWhitelisted = false;
-		$aWhitelistHashes = $this->getWhitelistHashes();
-		if ( isset( $aWhitelistHashes[ basename( $sFullPath ) ] ) ) {
+
+		/** @var ScanActionVO $oScanVO */
+		$oScanVO = $this->getScanActionVO();
+
+		if ( isset( $oScanVO->whitelist[ basename( $sFullPath ) ] ) ) {
 			try {
 				$oHasher = new Utilities\File\Compare\CompareHash();
-				foreach ( $aWhitelistHashes[ basename( $sFullPath ) ] as $sWlHash ) {
-					if ( $oHasher->isEqualFileSha1( $sFullPath, $sWlHash ) ) {
+				foreach ( $oScanVO->whitelist[ basename( $sFullPath ) ] as $sWlHash => $nConfidence ) {
+					if ( $oHasher->isEqualFileSha1( $sFullPath, $sWlHash )
+						 && $nConfidence > $oScanVO->confidence_threshold ) {
+						error_log( basename( $sFullPath ).': '.$oScanVO->confidence_threshold.' vs '.$nConfidence );
 						$bWhitelisted = true;
 						break;
 					}

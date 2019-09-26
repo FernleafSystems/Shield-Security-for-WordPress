@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Utilities\File\Cache;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
  * Class Patterns
@@ -15,7 +15,6 @@ class Patterns {
 	use Modules\ModConsumer;
 
 	/**
-	 * Uses 1-day file cache wherever possible.
 	 * @return string[][]
 	 */
 	public function retrieve() {
@@ -33,12 +32,12 @@ class Patterns {
 		}
 		else {
 			$oCacheDef->file_fragment = 'cache_patterns.txt';
-			$oCacheDef->expiration = DAY_IN_SECONDS;
+			$oCacheDef->expiration = HOUR_IN_SECONDS;
 			( new Cache\LoadFromCache() )
 				->setCacheDef( $oCacheDef )
 				->load();
 			if ( empty( $oCacheDef->data ) ) {
-				$aNewPatt = ( new WpHashes\Malware\Patterns() )->retrieve();
+				$aNewPatt = ( new Malware\Patterns\Retrieve() )->getPatterns();
 				if ( is_array( $aNewPatt ) && !empty( $aNewPatt[ 'simple' ] ) && !empty( $aNewPatt[ 'regex' ] ) ) {
 					$oCacheDef->data = $aNewPatt;
 					( new Cache\StoreToCache() )

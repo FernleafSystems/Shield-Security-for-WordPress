@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\File\Cache;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
  * Class Whitelist
@@ -15,7 +15,6 @@ class Whitelist {
 	use ModConsumer;
 
 	/**
-	 * Uses 1-day file cache wherever possible.
 	 * @return string[][]
 	 */
 	public function retrieve() {
@@ -27,13 +26,13 @@ class Whitelist {
 			$oCacheDef->data = [];
 		}
 		else {
-			$oCacheDef->file_fragment = 'cache_whitelist.txt';
-			$oCacheDef->expiration = DAY_IN_SECONDS;
+			$oCacheDef->file_fragment = 'cache_whitelist_confidence.txt';
+			$oCacheDef->expiration = HOUR_IN_SECONDS; // Prevent lots of unnecessary HTTP requests out.
 			( new Cache\LoadFromCache() )
 				->setCacheDef( $oCacheDef )
 				->load();
 			if ( empty( $oCacheDef->data ) ) {
-				$oCacheDef->data = ( new WpHashes\Malware\WhitelistRetrieve() )->getFiles();
+				$oCacheDef->data = ( new Malware\Whitelist\Retrieve() )->getWhitelist();
 				( new Cache\StoreToCache() )
 					->setCacheDef( $oCacheDef )
 					->store();

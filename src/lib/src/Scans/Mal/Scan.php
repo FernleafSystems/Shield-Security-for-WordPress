@@ -21,6 +21,7 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 		$oScanVO->whitelist = ( new Utilities\Whitelist() )
 			->setMod( $this->getMod() )
 			->retrieve();
+		$oScanVO->confidence_threshold = 50; // TODO from optiosn
 
 		$aPatterns = ( new Utilities\Patterns() )
 			->setMod( $this->getMod() )
