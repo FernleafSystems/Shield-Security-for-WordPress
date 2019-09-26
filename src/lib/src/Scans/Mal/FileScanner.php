@@ -102,8 +102,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$oHasher = new Utilities\File\Compare\CompareHash();
 				foreach ( $oScanVO->whitelist[ basename( $sFullPath ) ] as $sWlHash => $nConfidence ) {
 					if ( $oHasher->isEqualFileSha1( $sFullPath, $sWlHash )
-						 && $nConfidence > $oScanVO->confidence_threshold ) {
-						error_log( basename( $sFullPath ).': '.$oScanVO->confidence_threshold.' vs '.$nConfidence );
+						 && $nConfidence >= $oScanVO->confidence_threshold ) {
 						$bWhitelisted = true;
 						break;
 					}
