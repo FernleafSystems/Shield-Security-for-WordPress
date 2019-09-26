@@ -36,6 +36,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getMalConfidenceBoundary() {
+		return (int)$this->getOpt( 'mal_fp_confidence' );
+	}
+
+	/**
 	 * We do some WP Content dir replacement as there may be custom wp-content dir defines
 	 * @return string[]
 	 */

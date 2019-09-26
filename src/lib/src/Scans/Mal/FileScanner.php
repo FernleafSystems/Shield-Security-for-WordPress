@@ -6,18 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
  * Class FileScanner
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
-
-	/**
-	 * @var array[]
-	 */
-	private $aWhitelistHashes;
 
 	/**
 	 * @param string $sFullPath
@@ -39,7 +33,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					$aLines = $oLocator->setNeedle( $sSig )
 									   ->run();
 					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						return $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+						$nConfidence = $this->getFalsePositiveConfidence( $sFullPath );
+						if ( $nConfidence < $oAction->confidence_threshold ) {
+							$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+							$oResultItem->fp_confidence = $nConfidence;
+							return $oResultItem;
+						}
+						else {
+							return null;
+						}
 					}
 				}
 			}
@@ -51,7 +53,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 					$aLines = $oLocator->setNeedle( $sSig )
 									   ->run();
 					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						return $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+						$nConfidence = $this->getFalsePositiveConfidence( $sFullPath );
+						if ( $nConfidence < $oAction->confidence_threshold ) {
+							$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+							$oResultItem->fp_confidence = $nConfidence;
+							return $oResultItem;
+						}
+						else {
+							return null;
+						}
 					}
 				}
 			}
@@ -60,19 +70,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		}
 
 		return $oResultItem;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getWhitelistHashes() {
-		if ( !is_array( $this->aWhitelistHashes ) ) {
-			$this->aWhitelistHashes = ( new Malware\WhitelistRetrieve() )->getFiles();
-			if ( !is_array( $this->aWhitelistHashes ) ) {
-				$this->aWhitelistHashes = [];
-			};
-		}
-		return $this->aWhitelistHashes;
 	}
 
 	/**
@@ -87,7 +84,12 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
 		$oResultItem->is_mal = true;
 		$oResultItem->mal_sig = base64_encode( $sSig );
-		$oResultItem->file_lines = $aLines;
+		$oResultItem->file_lines = array_map(
+			function ( $nLineNumber ) {
+				return $nLineNumber + 1;
+			},
+			$aLines // because lines start at ZERO
+		);
 		return $oResultItem;
 	}
 
@@ -96,23 +98,25 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		return $this->isValidCoreFile( $sFullPath ) || $this->isPluginFileValid( $sFullPath )
-			   || $this->isPathWhitelisted( $sFullPath );
+		return $this->isValidCoreFile( $sFullPath ) || $this->isPluginFileValid( $sFullPath );
 	}
 
 	/**
-	 * @param string $sFullPath
-	 * @return bool
+	 * @param string $sFilePath
+	 * @return int
 	 */
-	private function isPathWhitelisted( $sFullPath ) {
-		$bWhitelisted = false;
-		$aWhitelistHashes = $this->getWhitelistHashes();
-		if ( isset( $aWhitelistHashes[ basename( $sFullPath ) ] ) ) {
+	private function getFalsePositiveConfidence( $sFilePath ) {
+		/** @var ScanActionVO $oScanVO */
+		$oScanVO = $this->getScanActionVO();
+
+		$nConfidence = 0;
+		$sFilePart = basename( $sFilePath );
+		if ( isset( $oScanVO->whitelist[ $sFilePart ] ) ) {
 			try {
 				$oHasher = new Utilities\File\Compare\CompareHash();
-				foreach ( $aWhitelistHashes[ basename( $sFullPath ) ] as $sWlHash ) {
-					if ( $oHasher->isEqualFileSha1( $sFullPath, $sWlHash ) ) {
-						$bWhitelisted = true;
+				foreach ( $oScanVO->whitelist[ $sFilePart ] as $sWlHash => $nHashConfidence ) {
+					if ( $oHasher->isEqualFileSha1( $sFilePath, $sWlHash ) ) {
+						$nConfidence = $nHashConfidence;
 						break;
 					}
 				}
@@ -120,7 +124,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			catch ( \InvalidArgumentException $oE ) {
 			}
 		}
-		return $bWhitelisted;
+		return (int)$nConfidence;
 	}
 
 	/**

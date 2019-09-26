@@ -1,6 +1,6 @@
 {
-  "slug":        "hack_protect",
-  "properties":  {
+  "slug":             "hack_protect",
+  "properties":       {
     "slug":                  "hack_protect",
     "name":                  "Hack Guard",
     "show_module_menu_item": false,
@@ -15,23 +15,23 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false
   },
-  "menu_items":    [
+  "menu_items":       [
     {
-      "title": "Scans",
-      "slug": "scans-redirect",
+      "title":    "Scans",
+      "slug":     "scans-redirect",
       "callback": ""
     }
   ],
-  "custom_redirects":    [
+  "custom_redirects": [
     {
       "source_mod_page": "scans-redirect",
       "target_mod_page": "insights",
-      "query_args": {
+      "query_args":      {
         "inav": "scans"
       }
     }
   ],
-  "sections":    [
+  "sections":         [
     {
       "slug":        "section_scan_options",
       "title":       "Scan Options",
@@ -132,7 +132,7 @@
       "hidden": true
     }
   ],
-  "options":     [
+  "options":          [
     {
       "key":         "enable_hack_protect",
       "section":     "section_enable_plugin_feature_hack_protection_tools",
@@ -479,6 +479,20 @@
       "description": "Attempts to automatically remove code from infected files."
     },
     {
+      "key":         "mal_fp_confidence",
+      "section":     "section_scan_mal",
+      "premium":     true,
+      "type":        "integer",
+      "default":     "75",
+      "min":         "0",
+      "max":         "100",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "False Positive Minimum Confidence",
+      "summary":     "False Positive Minimum Confidence Boundary",
+      "description": "Ignore files with potential malware when the confidence of a false positive is greater than this value."
+    },
+    {
       "key":           "ptg_enable",
       "section":       "section_scan_ptg",
       "premium":       true,
@@ -657,7 +671,7 @@
       "default":      false
     }
   ],
-  "definitions": {
+  "definitions":      {
     "all_scan_slugs":              [
       "apc",
       "mal",

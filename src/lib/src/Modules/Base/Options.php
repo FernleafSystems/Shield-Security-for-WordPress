@@ -843,9 +843,11 @@ class Options {
 				if ( !is_null( $nMin ) ) {
 					$bValid = $mPotentialValue >= $nMin;
 				}
-				$nMax = $this->getOptProperty( $sOptKey, 'max' );
-				if ( !is_null( $nMax ) ) {
-					$bValid = $mPotentialValue <= $nMax;
+				if ( $bValid ) {
+					$nMax = $this->getOptProperty( $sOptKey, 'max' );
+					if ( !is_null( $nMax ) ) {
+						$bValid = $mPotentialValue <= $nMax;
+					}
 				}
 				break;
 

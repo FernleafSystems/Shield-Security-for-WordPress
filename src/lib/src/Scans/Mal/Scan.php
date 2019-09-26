@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 /**
  * Class Scan
@@ -16,11 +17,15 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 	protected function preScan() {
 		parent::preScan();
 
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		/** @var ScanActionVO $oScanVO */
 		$oScanVO = $this->getScanActionVO();
 		$oScanVO->whitelist = ( new Utilities\Whitelist() )
 			->setMod( $this->getMod() )
 			->retrieve();
+		$oScanVO->confidence_threshold = $oOpts->getMalConfidenceBoundary();
 
 		$aPatterns = ( new Utilities\Patterns() )
 			->setMod( $this->getMod() )
