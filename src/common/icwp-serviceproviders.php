@@ -38,7 +38,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 				4 => $this->downloadServiceIps_Cloudflare( 4 ),
 				6 => $this->downloadServiceIps_Cloudflare( 6 )
 			];
-			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, $this->getLookupExpiration() );
 		}
 		return $aIps;
 	}
@@ -77,7 +77,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
 			$aIps = $this->downloadServiceIps_iControlWP();
-			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*2 );
+			$oWp->setTransient( $sStoreKey, $aIps, $this->getLookupExpiration() );
 		}
 
 		return $bFlat ? array_merge( $aIps[ 4 ], $aIps[ 6 ] ) : $aIps;
@@ -93,7 +93,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) ) {
 			$aIps = $this->downloadServiceIps_ManageWp();
-			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, $this->getLookupExpiration() );
 		}
 		return $aIps;
 	}
@@ -111,7 +111,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 				4 => $this->downloadServiceIps_Pingdom( 4 ),
 				6 => $this->downloadServiceIps_Pingdom( 6 )
 			];
-			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, $this->getLookupExpiration() );
 		}
 		return $aIps;
 	}
@@ -126,7 +126,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$aIps = $oWp->getTransient( $sStoreKey );
 		if ( empty( $aIps ) || !is_array( $aIps ) ) {
 			$aIps = $this->downloadServiceIps_StatusCake();
-			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, $this->getLookupExpiration() );
 		}
 		return $aIps;
 	}
@@ -144,7 +144,7 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 				4 => $this->downloadServiceIps_UptimeRobot( 4 ),
 				6 => $this->downloadServiceIps_UptimeRobot( 6 )
 			];
-			$oWp->setTransient( $sStoreKey, $aIps, WEEK_IN_SECONDS*4 );
+			$oWp->setTransient( $sStoreKey, $aIps, $this->getLookupExpiration() );
 		}
 		return $aIps;
 	}
@@ -537,5 +537,12 @@ class ICWP_WPSF_ServiceProviders extends ICWP_WPSF_Foundation {
 		$sRaw = Services::HttpRequest()->getContent( $sSourceUrl );
 		$aIps = empty( $sRaw ) ? [] : explode( "\n", $sRaw );
 		return array_filter( array_map( 'trim', $aIps ) );
+	}
+
+	/**
+	 * @return int
+	 */
+	private function getLookupExpiration() {
+		return WEEK_IN_SECONDS*2;
 	}
 }

@@ -75,6 +75,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}
 
 		if ( $this->verifyModuleMeetRequirements() ) {
+			$this->handleAutoPageRedirects();
 			$this->setupHooks( $aMod );
 			$this->doPostConstruction();
 		}
@@ -621,21 +622,38 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			if ( !empty( $aAdditionalItems ) && is_array( $aAdditionalItems ) ) {
 
 				foreach ( $aAdditionalItems as $aMenuItem ) {
-
-					if ( empty( $aMenuItem[ 'callback' ] ) || !method_exists( $this, $aMenuItem[ 'callback' ] ) ) {
-						continue;
-					}
-
 					$sMenuPageTitle = $sHumanName.' - '.$aMenuItem[ 'title' ];
 					$aItems[ $sMenuPageTitle ] = [
-						$aMenuItem[ 'title' ],
+						__( $aMenuItem[ 'title' ], 'wp-simple-firewall' ),
 						$this->prefix( $aMenuItem[ 'slug' ] ),
-						[ $this, $aMenuItem[ 'callback' ] ]
+						[ $this, $aMenuItem[ 'callback' ] ],
+						true
 					];
 				}
 			}
 		}
 		return $aItems;
+	}
+
+	/**
+	 * Handles the case where we want to redirect certain menu requests to other pages
+	 * of the plugin automatically. It lets us create custom menu items.
+	 * This can of course be extended for any other types of redirect.
+	 */
+	public function handleAutoPageRedirects() {
+		$aConf = $this->getOptions()->getRawData_FullFeatureConfig();
+		if ( !empty( $aConf[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
+			foreach ( $aConf[ 'custom_redirects' ] as $aRedirect ) {
+				if ( Services::Request()->query( 'page' ) == $this->prefix( $aRedirect[ 'source_mod_page' ] ) ) {
+					Services::Response()->redirect(
+						$this->getCon()->getModule( $aRedirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
+						$aRedirect[ 'query_args' ],
+						true,
+						false
+					);
+				}
+			}
+		}
 	}
 
 	/**

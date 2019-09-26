@@ -23,8 +23,6 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oOpts = $this->getMod()->getOptions();
 
 		$oAction->paths_whitelisted = $oOpts->getMalWhitelistPaths();
-		$oAction->patterns_regex = $oOpts->getMalSignaturesRegex();
-		$oAction->patterns_simple = $oOpts->getMalSignaturesSimple();
 		$oAction->file_exts = [ 'php', 'php5', 'php7' ];
 	}
 }
