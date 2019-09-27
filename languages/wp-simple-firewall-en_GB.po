@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-09-25 13:12+0100\n"
-"PO-Revision-Date: 2019-09-25 13:12+0100\n"
+"POT-Creation-Date: 2019-09-27 10:51+0100\n"
+"PO-Revision-Date: 2019-09-27 10:51+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -1196,7 +1196,7 @@ msgstr ""
 #: src/lib/src/Modules/HackGuard/Strings.php:259
 #: src/lib/src/Modules/HackGuard/Strings.php:283
 #: src/lib/src/Modules/HackGuard/Strings.php:284
-#: src/lib/src/Modules/HackGuard/Strings.php:350
+#: src/lib/src/Modules/HackGuard/Strings.php:360
 #: src/lib/src/Modules/IPs/Strings.php:66
 #: src/lib/src/Modules/Lockdown/Strings.php:130
 #: src/lib/src/Modules/Lockdown/Strings.php:143
@@ -1204,7 +1204,7 @@ msgstr ""
 #: src/lib/src/Modules/Plugin/Strings.php:214
 #: src/lib/src/Modules/Traffic/Strings.php:54
 #: src/processors/hackprotect_scan_apc.php:100
-#: src/processors/hackprotect_scan_mal.php:94
+#: src/processors/hackprotect_scan_mal.php:111
 #: src/processors/hackprotect_scan_ptg.php:617
 #: src/processors/hackprotect_scan_ufc.php:85
 #: src/processors/hackprotect_scan_wcf.php:71
@@ -2953,14 +2953,14 @@ msgstr ""
 #: src/lib/src/Modules/CommentsFilter/Strings.php:121
 #: src/lib/src/Modules/HackGuard/Strings.php:342
 #: src/lib/src/Modules/HackGuard/Strings.php:343
-#: src/lib/src/Modules/HackGuard/Strings.php:351
+#: src/lib/src/Modules/HackGuard/Strings.php:361
 #: src/lib/src/Modules/LoginGuard/Strings.php:222
 #: src/lib/src/Modules/Plugin/Strings.php:239
 #: src/lib/src/Modules/Plugin/Strings.php:246
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:70
 #: src/lib/src/Modules/UserManagement/Strings.php:213
 #: src/lib/src/Modules/UserManagement/Strings.php:230
-#: src/processors/hackprotect_scan_mal.php:121
+#: src/processors/hackprotect_scan_mal.php:138
 #: src/processors/loginprotect_intentprovider_backup.php:29
 msgid "Important"
 msgstr ""
@@ -4537,38 +4537,74 @@ msgid ""
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:347
-msgid "Surgical Auto-Repair"
+#: src/lib/src/Tables/Build/ScanMal.php:38
+msgid "False Positive Confidence"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:348
-msgid "Automatically Attempt To Surgically Remove Malware Code"
+msgid "False Positive Confidence Boundary"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:349
-msgid "Attempts to automatically remove code from infected files."
+msgid ""
+"Ignore files with potential malware when the confidence of a false positive "
+"is greater than this value."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:350
+msgid "Confidence is measured between 0 and 100 points."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:351
+msgid ""
+"The higher the confidence, the more likely a result is a false positive."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:352
+msgid ""
+"A false positive is when potential malware is discovered, but the file is "
+"actually legitimately clean of malware."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:353
+msgid ""
+"A bit like when an anti-virus alerts to a file that doesnt actually have a "
+"virus."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:357
+msgid "Surgical Auto-Repair"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:358
+msgid "Automatically Attempt To Surgically Remove Malware Code"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:359
+msgid "Attempts to automatically remove code from infected files."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:360
 msgid ""
 "This could break your site if code removal leaves remaining code in an "
 "inconsistent state."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:351
+#: src/lib/src/Modules/HackGuard/Strings.php:361
 msgid ""
 "Only applies to files that don't fall under the other categories for "
 "automatic repair."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:355
+#: src/lib/src/Modules/HackGuard/Strings.php:365
 msgid "WP Config"
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:356
+#: src/lib/src/Modules/HackGuard/Strings.php:366
 msgid "Realtime Protection For WP Config File"
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:357
+#: src/lib/src/Modules/HackGuard/Strings.php:367
 msgid "Realtime protection for the wp-config.php file."
 msgstr ""
 
@@ -8495,12 +8531,20 @@ msgstr ""
 msgid "Abandoned"
 msgstr ""
 
-#: src/lib/src/Tables/Build/ScanMal.php:32
-#: src/processors/hackprotect_scan_mal.php:94
+#: src/lib/src/Tables/Build/ScanMal.php:37
+#: src/processors/hackprotect_scan_mal.php:111
 msgid "Potential Malware Detected"
 msgstr ""
 
 #: src/lib/src/Tables/Build/ScanMal.php:39
+msgid "Pattern Detected"
+msgstr ""
+
+#: src/lib/src/Tables/Build/ScanMal.php:40
+msgid "Affected line numbers"
+msgstr ""
+
+#: src/lib/src/Tables/Build/ScanMal.php:47
 msgid "Repair Unavailable"
 msgstr ""
 
@@ -8631,7 +8675,7 @@ msgid "Deactivate"
 msgstr ""
 
 #: src/lib/src/Tables/Render/ScanWpv.php:55
-#: src/processors/hackprotect_scan_mal.php:138
+#: src/processors/hackprotect_scan_mal.php:155
 #: src/processors/hackprotect_scan_wcf.php:112
 #: src/processors/hackprotect_scan_wpv.php:201
 #: src/processors/loginprotect_intent.php:285
@@ -8951,25 +8995,25 @@ msgstr ""
 msgid "Run Scanner"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:120
+#: src/processors/hackprotect_scan_mal.php:137
 #, php-format
 msgid "The %s Malware Scanner found files with potential malware."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:122
+#: src/processors/hackprotect_scan_mal.php:139
 msgid ""
 "You must examine the file(s) carefully to determine whether suspicious code "
 "is really present."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:123
+#: src/processors/hackprotect_scan_mal.php:140
 #, php-format
 msgid ""
 "The %s Malware Scanner searches for common malware patterns and so false "
 "positives (detection errors) are to be expected sometimes."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:124
+#: src/processors/hackprotect_scan_mal.php:141
 #: src/processors/hackprotect_scan_ptg.php:592
 #: src/processors/hackprotect_scan_ufc.php:115
 #: src/processors/hackprotect_scan_wcf.php:98
@@ -8978,46 +9022,46 @@ msgstr ""
 msgid "Site URL"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:132
+#: src/processors/hackprotect_scan_mal.php:149
 #: src/processors/hackprotect_scan_wcf.php:106
 #, php-format
 msgid "%s has already attempted to repair the files."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:133
+#: src/processors/hackprotect_scan_mal.php:150
 #: src/processors/hackprotect_scan_wcf.php:107
 msgid ""
 "But, you should always check these files to ensure everything is as you "
 "expect."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:136
+#: src/processors/hackprotect_scan_mal.php:153
 #: src/processors/hackprotect_scan_wcf.php:110
 msgid ""
 "You should review these files and replace them with official versions if "
 "required."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:137
+#: src/processors/hackprotect_scan_mal.php:154
 #: src/processors/hackprotect_scan_wcf.php:111
 msgid ""
 "Alternatively you can have the plugin attempt to repair/replace these files "
 "automatically."
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:143
+#: src/processors/hackprotect_scan_mal.php:160
 #: src/processors/hackprotect_scan_ufc.php:131
 #: src/processors/hackprotect_scan_wcf.php:117
 msgid "We recommend you run the scanner to review your site"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:148
+#: src/processors/hackprotect_scan_mal.php:165
 #: src/processors/hackprotect_scan_ufc.php:136
 #: src/processors/hackprotect_scan_wcf.php:122
 msgid "More Info On This Scanner"
 msgstr ""
 
-#: src/processors/hackprotect_scan_mal.php:160
+#: src/processors/hackprotect_scan_mal.php:177
 msgid "The following files contain suspected malware:"
 msgstr ""
 
