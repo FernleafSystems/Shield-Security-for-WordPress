@@ -669,6 +669,13 @@
       "transferable": false,
       "type":         "boolean",
       "default":      false
+    },
+    {
+      "key":          "mal_fp_reports",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":      {
