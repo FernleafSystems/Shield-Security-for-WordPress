@@ -7,6 +7,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return false|Shield\Databases\AuditTrail\Handler
+	 */
+	public function getDbHandler_AuditTrail() {
+		return $this->getDbH( 'audit' );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getAllContexts() {
@@ -43,10 +50,10 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 		];
 
 		try {
-			$oFinder = $this->getDbHandler()
-							->getQuerySelector()
-							->addWhereSearch( 'wp_username', $oUser->user_login )
-							->setResultsAsVo( true );
+			/** @var Shield\Databases\AuditTrail\Select $oFinder */
+			$oFinder = $this->getDbHandler_AuditTrail()
+							->getQuerySelector();
+			$oFinder->filterByUsername( $oUser->user_login );
 
 			$oWp = Services::WpGeneral();
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
@@ -79,7 +86,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	public function onWpPrivacyErase( $aData, $sEmail, $nPage = 1 ) {
 		try {
 			$oThisUsername = Services::WpUsers()->getUserByEmail( $sEmail )->user_login;
-			$this->getDbHandler()
+			$this->getDbHandler_AuditTrail()
 				 ->getQueryDeleter()
 				 ->addWhereSearch( 'wp_username', $oThisUsername )
 				 ->all();
@@ -160,13 +167,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
-	}
-
-	/**
-	 * @return Shield\Databases\AuditTrail\Handler
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\AuditTrail\Handler();
 	}
 
 	/**

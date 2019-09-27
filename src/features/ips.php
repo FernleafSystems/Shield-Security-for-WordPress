@@ -10,6 +10,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_AUTO_BLACK = 'AB';
 
 	/**
+	 * @return false|Shield\Databases\IPs\Handler
+	 */
+	public function getDbHandler_IPs() {
+		return $this->getDbH( 'ips' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
@@ -186,13 +193,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				);
 			}
 		}
-	}
-
-	/**
-	 * @return Shield\Databases\IPs\Handler
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\IPs\Handler();
 	}
 
 	/**

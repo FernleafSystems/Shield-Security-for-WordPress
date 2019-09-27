@@ -60,10 +60,9 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ShieldProcessor {
 	public function onModuleShutdown() {
 		parent::onModuleShutdown();
 		if ( $this->bAudit && !$this->getCon()->isPluginDeleting() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
+			/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
 			$oMod = $this->getMod();
-			/** @var AuditTrail\Handler $oDbh */
-			$oDbh = $oMod->getDbHandler();
+			$oDbh = $oMod->getDbHandler_AuditTrail();
 			$oDbh->commitAudits( $oMod->getRegisteredAuditLogs( true ) );
 		}
 	}
@@ -78,15 +77,13 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ShieldProcessor {
 	 * @return AuditTrail\EntryVO[]
 	 */
 	public function getAuditEntriesForContext( $sContext = 'all', $sOrderBy = 'created_at', $sOrder = 'DESC', $nPage = 1, $nLimit = 50 ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oFO */
-		$oFO = $this->getMod();
-		/** @var AuditTrail\Select $oSelect */
-		$oSelect = $oFO->getDbHandler()
-					   ->getQuerySelector()
-					   ->setResultsAsVo( true )
-					   ->setOrderBy( $sOrderBy, $sOrder )
-					   ->setLimit( $nLimit )
-					   ->setPage( $nPage );
+		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
+		$oMod = $this->getMod();
+		$oSelect = $oMod->getDbHandler_AuditTrail()
+						->getQuerySelector()
+						->setOrderBy( $sOrderBy, $sOrder )
+						->setLimit( $nLimit )
+						->setPage( $nPage );
 		return $oSelect->query();
 	}
 }

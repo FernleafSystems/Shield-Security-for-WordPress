@@ -9,7 +9,7 @@ class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$this->cleanDb( $oOpts->getDef( 'db_autoexpire_geoip' ) );
 	}
 
@@ -18,7 +18,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultColumnsDefinition() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbColumns_GeoIp();
 	}
 
@@ -27,7 +27,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultTableName() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbTable_GeoIp();
 	}
 

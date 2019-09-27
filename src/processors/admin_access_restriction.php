@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 
 	public function run() {
 		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 
 		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
 
@@ -336,7 +336,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 */
 	public function disablePluginManipulation( $aAllCaps, $cap, $aArgs ) {
 		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$oReq = Services::Request();
 
 		/** @var string $sRequestedCapability */
@@ -376,7 +376,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		}
 
 		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];
@@ -410,7 +410,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		}
 
 		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 
 		/** @var string $sRequestedCapability */
 		$sRequestedCapability = $aArgs[ 0 ];

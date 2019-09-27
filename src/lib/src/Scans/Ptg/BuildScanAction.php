@@ -38,7 +38,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$oAction->scan_depth = $oOpts->getPtgScanDepth();
 		$oAction->file_exts = $oOpts->getPtgFileExtensions();
 		$oAction->hashes_base_path = $oOpts->getPtgSnapsBaseDir();

@@ -192,7 +192,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		];
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler()->getQuerySelector();
+		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $oMod->getStrings();
 		$aScanNames = $oStrings->getScanNames();
@@ -225,7 +225,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$oPro = $oMod->getProcessor();
 		$oProPtg = $oPro->getSubProScanner()->getSubProcessorPtg();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler()->getQuerySelector();
+		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO[] $aPtgResults */
 		$aPtgResults = $oSelector->filterByNotIgnored()

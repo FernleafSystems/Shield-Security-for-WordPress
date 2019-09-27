@@ -231,6 +231,9 @@
     }
   ],
   "definitions": {
+    "db_classes":             {
+      "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
+    },
     "audit_trail_default_max_entries": 100,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [

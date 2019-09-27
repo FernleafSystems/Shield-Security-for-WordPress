@@ -285,10 +285,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @return Shield\Scans\Wpv\ResultsSet
 	 */
 	protected function getAllVulnerabilities() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getMod()
-					 ->getDbHandler()
-					 ->getQuerySelector();
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		$aVos = $oSel->filterByScan( static::SCAN_SLUG )
 					 ->filterByNotIgnored()
 					 ->query();

@@ -88,8 +88,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param Shield\Scans\Base\BaseResultsSet $oToDelete
 	 */
 	protected function deleteResultsSet( $oToDelete ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		( new Scan\Results\Clean() )
-			->setDbHandler( $this->getMod()->getDbHandler() )
+			->setDbHandler( $oMod->getDbHandler_ScanResults() )
 			->deleteResults( $oToDelete );
 	}
 
@@ -97,8 +99,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	protected function readScanResultsFromDb() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $this->getMod()->getDbHandler()->getQuerySelector();
+		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
 	}
 
@@ -117,23 +121,22 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Databases\Scanner\EntryVO|null
 	 */
 	protected function getVoFromResultItem( $oItem ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getMod()
-					 ->getDbHandler()
-					 ->getQuerySelector();
-		/** @var Shield\Databases\Scanner\EntryVO $oVo */
-		$oVo = $oSel->filterByHash( $oItem->hash )
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		return $oSel->filterByHash( $oItem->hash )
 					->filterByScan( $this->getScanActionVO()->scan )
 					->first();
-		return $oVo;
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function resetIgnoreStatus() {
-		/** @var Shield\Databases\Scanner\Handler $oUpd */
-		$oDbh = $this->getMod()->getDbHandler();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oDbh = $oMod->getDbHandler_ScanResults();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $oDbh->getQuerySelector();
 
@@ -149,8 +152,9 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return $this
 	 */
 	public function resetNotifiedStatus() {
-		/** @var Shield\Databases\Scanner\Handler $oUpd */
-		$oDbh = $this->getMod()->getDbHandler();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oDbh = $oMod->getDbHandler_ScanResults();
 		/** @var Shield\Databases\Scanner\Select $oSel */
 		$oSel = $oDbh->getQuerySelector();
 
@@ -169,11 +173,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @throws \Exception
 	 */
 	public function executeItemAction( $sItemId, $sAction ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		$bSuccess = false;
 		if ( is_numeric( $sItemId ) ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $this->getMod()
-						   ->getDbHandler()
+			$oEntry = $oMod->getDbHandler_ScanResults()
 						   ->getQuerySelector()
 						   ->byId( $sItemId );
 			if ( empty( $oEntry ) ) {
@@ -274,16 +280,17 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @throws \Exception
 	 */
 	protected function itemIgnore( $oItem ) {
+
 		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 		$oEntry = $this->getVoFromResultItem( $oItem );
 		if ( empty( $oEntry ) ) {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Databases\Scanner\Update $oUp */
-		$oUp = $this->getMod()
-					->getDbHandler()
-					->getQueryUpdater();
+		$oUp = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
 
 		if ( !$oUp->setIgnored( $oEntry ) ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
@@ -309,9 +316,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getMod()
-					 ->getDbHandler()
-					 ->getQuerySelector();
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
 		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
 					 ->filterForCron( $oMod->getScanNotificationInterval() )
@@ -346,8 +351,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param Shield\Databases\Scanner\EntryVO[] $aRes
 	 */
 	private function updateLastNotifiedAt( $aRes ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $this->getMod()->getDbHandler()->getQueryUpdater();
+		$oUpd = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
 		foreach ( $aRes as $oVo ) {
 			$oUpd->reset()
 				 ->setNotified( $oVo );
@@ -377,8 +384,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return $this
 	 */
 	public function resetScan() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		( new Scan\Results\Clean() )
-			->setDbHandler( $this->getMod()->getDbHandler() )
+			->setDbHandler( $oMod->getDbHandler_ScanResults() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->deleteAllForScan();
 		return $this;

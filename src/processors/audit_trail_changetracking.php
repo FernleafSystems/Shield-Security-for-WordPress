@@ -18,7 +18,7 @@ class ICWP_WPSF_Processor_AuditTrail_ChangeTracking extends ShieldProcessor {
 
 	public function runHourlyCron() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		if ( $oOpts->isCTSnapshotDue() && $this->isReadyToRun() ) {
 			$oOpts->updateCTLastSnapshotAt();
 			$this->runSnapshot();

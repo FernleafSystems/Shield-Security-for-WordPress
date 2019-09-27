@@ -20,7 +20,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 
 		$oAction->paths_whitelisted = $oOpts->getMalWhitelistPaths();
 		$oAction->file_exts = [ 'php', 'php5', 'php7' ];

@@ -22,7 +22,7 @@ class UnblockIpByFlag {
 
 				$aLines = array_map( 'trim', explode( "\n", $sContent ) );
 				/** @var Shield\Databases\IPs\Handler $oDbH */
-				$oDbH = $oMod->getDbHandler();
+				$oDbH = $oMod->getDbHandler_IPs();
 				$oIP = Services::IP();
 
 				/** @var Shield\Databases\IPs\Delete $oDel */

@@ -191,6 +191,9 @@
     }
   ],
   "definitions":  {
+    "db_classes":             {
+      "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
+    },
     "traffic_table_name":    "traffic",
     "traffic_table_columns": [
       "id",

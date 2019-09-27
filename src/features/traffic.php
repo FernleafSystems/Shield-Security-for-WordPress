@@ -6,6 +6,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return false|Shield\Databases\Traffic\Handler
+	 */
+	public function getDbHandler_Traffic() {
+		return $this->getDbH( 'traffic' );
+	}
+
+	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
@@ -152,16 +159,17 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Databases\Traffic\Handler
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Traffic\Handler();
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
 		return 'Traffic';
+	}
+
+	/**
+	 * @return Shield\Databases\Traffic\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Traffic\Handler();
 	}
 }

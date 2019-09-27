@@ -1,7 +1,6 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
 class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcessor {
@@ -23,10 +22,11 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 	 * @return string[]
 	 */
 	public function statsWidget( $aContent ) {
-		/** @var Events\Handler $oDbhEvents */
-		$oDbhEvents = $this->getCon()->getModule_Events()->getDbHandler();
 		/** @var Events\Select $oSelEvents */
-		$oSelEvents = $oDbhEvents->getQuerySelector();
+		$oSelEvents = $this->getCon()
+						   ->getModule_Events()
+						   ->getDbHandler_Events()
+						   ->getQuerySelector();
 
 		$aKeyStats = [
 			'comments'          => [
@@ -85,13 +85,13 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 	 * @return array
 	 */
 	public function tracking_DataCollect( $aData ) {
-		/** @var Events\Handler $oDbhEvents */
-		$oDbhEvents = $this->getMod()->getDbHandler();
-		/** @var Events\Select $oSelEvents */
-		$oSelEvents = $oDbhEvents->getQuerySelector();
+		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
+		$oMod = $this->getMod();
 
 		$aData = parent::tracking_DataCollect( $aData );
-		$aData[ $this->getMod()->getSlug() ][ 'stats' ] = $oSelEvents->sumAllEvents();
+		$aData[ $oMod->getSlug() ][ 'stats' ] = $oMod->getDbHandler_Events()
+													 ->getQuerySelector()
+													 ->sumAllEvents();
 		return $aData;
 	}
 
@@ -107,8 +107,7 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 	private function commitEvents() {
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
-		/** @var Events\Handler $oDbh */
-		$oDbh = $oMod->getDbHandler();
-		$oDbh->commitEvents( $oMod->getRegisteredEvents( true ) );
+		$oMod->getDbHandler_Events()
+			 ->commitEvents( $oMod->getRegisteredEvents( true ) );
 	}
 }
