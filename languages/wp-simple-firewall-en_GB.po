@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-09-27 10:51+0100\n"
-"PO-Revision-Date: 2019-09-27 10:51+0100\n"
+"POT-Creation-Date: 2019-09-27 10:59+0100\n"
+"PO-Revision-Date: 2019-09-27 10:59+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
@@ -4547,8 +4547,8 @@ msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:349
 msgid ""
-"Ignore files with potential malware when the confidence of a false positive "
-"is greater than this value."
+"Ignore files with potential malware when the confidence level of a false "
+"positive is greater than this value."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:350
@@ -4562,14 +4562,14 @@ msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:352
 msgid ""
-"A false positive is when potential malware is discovered, but the file is "
-"actually legitimately clean of malware."
+"A false positive happens when a file appears to contain malware and shows up "
+"in scan results, but it's actually clean."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:353
 msgid ""
-"A bit like when an anti-virus alerts to a file that doesnt actually have a "
-"virus."
+"A false positive is similar to when an anti-virus alerts to a file that "
+"doesnt have a virus."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:357
