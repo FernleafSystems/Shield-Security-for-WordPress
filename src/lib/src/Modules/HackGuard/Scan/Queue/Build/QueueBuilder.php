@@ -18,7 +18,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function get_batch() {
 		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$aScans = $oOpts->getScansToBuild();
 		$sScan = key( $aScans );
 
@@ -88,7 +88,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	public function delete( $sScanSlug ) {
 		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$oOpts->addRemoveScanToBuild( $sScanSlug, false );
 		$this->save();
 		return $this;
@@ -101,7 +101,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function is_queue_empty() {
 		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return count( $oOpts->getScansToBuild() ) === 0;
 	}
 

@@ -87,7 +87,7 @@ class Controller {
 	 */
 	public function hasRunningScans() {
 		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return count( $this->getRunningScans() ) > 0 || count( $oOpts->getScansToBuild() ) > 0;
 	}
 
@@ -100,7 +100,7 @@ class Controller {
 		}
 		if ( !empty( $aScanSlugs ) ) {
 			/** @var HackGuard\Options $oOpts */
-			$oOpts = $this->getMod()->getOptions();
+			$oOpts = $this->getOptions();
 			foreach ( $aScanSlugs as $sSlug ) {
 				$oOpts->addRemoveScanToBuild( $sSlug );
 			}

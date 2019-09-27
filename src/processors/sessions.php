@@ -52,13 +52,14 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function onModuleShutdown() {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
+
 		if ( !Services::Rest()->isRest() ) {
 			$oSession = $this->getCurrentSession();
-			if ( $oSession instanceof Session\EntryVO) {
+			if ( $oSession instanceof Session\EntryVO ) {
 				/** @var Session\Update $oUpd */
-				$oUpd = $this->getMod()
-							 ->getDbHandler()
-							 ->getQueryUpdater();
+				$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
 				$oUpd->updateLastActivity( $this->getCurrentSession() );
 			}
 		}
@@ -131,9 +132,10 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	public function terminateSession( $nSessionId ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		$this->getCon()->fireEvent( 'session_terminate' );
-		return $this->getMod()
-					->getDbHandler()
+		return $oMod->getDbHandler_Sessions()
 					->getQueryDeleter()
 					->deleteById( $nSessionId );
 	}
@@ -195,10 +197,10 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 		$this->getCon()->fireEvent( 'session_start' );
 
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		/** @var Session\Insert $oInsert */
-		$oInsert = $this->getMod()
-						->getDbHandler()
-						->getQueryInserter();
+		$oInsert = $oMod->getDbHandler_Sessions()->getQueryInserter();
 		return $oInsert->create( $sSessionId, $sUsername );
 	}
 
@@ -209,10 +211,10 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	 * @return Session\EntryVO|null
 	 */
 	private function queryGetSession( $sSessionId, $sUsername = '' ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		/** @var Session\Select $oSel */
-		$oSel = $this->getMod()
-					 ->getDbHandler()
-					 ->getQuerySelector();
+		$oSel = $oMod->getDbHandler_Sessions()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
 	}
 }

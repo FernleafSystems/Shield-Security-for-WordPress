@@ -10,6 +10,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_AUTO_BLACK = 'AB';
 
 	/**
+	 * @return false|Shield\Databases\IPs\Handler
+	 */
+	public function getDbHandler_IPs() {
+		return $this->getDbH( 'ips' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
@@ -189,13 +196,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return Shield\Databases\IPs\Handler
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\IPs\Handler();
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
@@ -310,5 +310,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function getAutoExpireTime() {
 		$sConstant = strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' );
 		return defined( $sConstant ) ? constant( $sConstant ) : ( DAY_IN_SECONDS*30 );
+	}
+
+	/**
+	 * @return Shield\Databases\IPs\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\IPs\Handler();
 	}
 }

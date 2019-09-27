@@ -35,13 +35,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
 		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
-		$oTrafficSelector = $oTrafficMod->getDbHandler()
-										->getQuerySelector();
+		$oTrafficSelector = $oTrafficMod->getDbHandler_Traffic()->getQuerySelector();
 
 		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oAuditMod */
 		$oAuditMod = $oCon->getModule( 'audit_trail' );
 		/** @var Shield\Databases\AuditTrail\Select $oAuditSelect */
-		$oAuditSelect = $oAuditMod->getDbHandler()->getQuerySelector();
+		$oAuditSelect = $oAuditMod->getDbHandler_AuditTrail()->getQuerySelector();
 
 		/** @var Shield\Modules\Events\Strings $oEventStrings */
 		$oEventStrings = $oCon->getModule_Events()->getStrings();
@@ -765,15 +764,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array[]
 	 */
 	protected function getStats() {
+		$oCon = $this->getCon();
 		/** @var Shield\Databases\Events\Handler $oDbhEvents */
-		$oDbhEvents = $this->getCon()->getModule_Events()->getDbHandler();
+		$oDbhEvents = $oCon->getModule_Events()->getDbHandler_Events();
 		/** @var Shield\Databases\Events\Select $oSelEvents */
 		$oSelEvents = $oDbhEvents->getQuerySelector();
 
 		/** @var Shield\Databases\IPs\Select $oSelectIp */
-		$oSelectIp = $this->getCon()
-						  ->getModule_IPs()
-						  ->getDbHandler()
+		$oSelectIp = $oCon->getModule_IPs()
+						  ->getDbHandler_IPs()
 						  ->getQuerySelector();
 
 		return [
@@ -829,9 +828,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 * @return array
 	 */
 	protected function getRecentEvents() {
+		$oCon = $this->getCon();
 
 		$aEmptyStats = [];
-		foreach ( $this->getCon()->getModules() as $oModule ) {
+		foreach ( $oCon->getModules() as $oModule ) {
 			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
 			$aStat = $oModule->getStatEvents_Recent();
 			$aEmptyStats = array_merge( $aEmptyStats, $aStat );
@@ -841,12 +841,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oStrs = $this->getStrings();
 		$aNames = $oStrs->getInsightStatNames();
 
-		/** @var Shield\Databases\Events\Handler $oEventsDbh */
-		$oEventsDbh = $this->getCon()
-						   ->getModule_Events()
-						   ->getDbHandler();
 		/** @var Shield\Databases\Events\Select $oSel */
-		$oSel = $oEventsDbh->getQuerySelector();
+		$oSel = $oCon->getModule_Events()
+					 ->getDbHandler_Events()
+					 ->getQuerySelector();
 
 		$aLatestStats = array_intersect_key(
 			array_map(

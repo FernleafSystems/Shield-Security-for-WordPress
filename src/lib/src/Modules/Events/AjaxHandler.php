@@ -38,7 +38,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sEvent = $aParams[ 'event' ];
 
 		/** @var Shield\Databases\Events\Handler $oDbhEvts */
-		$oDbhEvts = $oMod->getDbHandler();
+		$oDbhEvts = $oMod->getDbHandler_Events();
 		$nDays = 0;
 		$aSeries = [];
 		$aLabels = [];

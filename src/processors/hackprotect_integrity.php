@@ -144,7 +144,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 	 */
 	protected function getCronFrequency() {
 		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getScanFrequency();
 	}
 }

@@ -22,7 +22,7 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 
 		$oAction->exclusions = $oOpts->getUfcFileExclusions();
 		$oAction->scan_dirs = $oOpts->getUfcScanDirectories();

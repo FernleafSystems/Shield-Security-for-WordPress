@@ -362,15 +362,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * When initiating snapshots, we must clean old results before creating a clean snapshot
 	 */
 	private function initSnapshots() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
-		$bPluginsRebuildReqd = $oFO->isPtgBuildRequired() || !$this->getStore_Plugins()->getSnapStoreExists();
-		$bThemesRebuildReqd = $oFO->isPtgBuildRequired() || !$this->getStore_Themes()->getSnapStoreExists();
+		$bPluginsRebuildReqd = $oMod->isPtgBuildRequired() || !$this->getStore_Plugins()->getSnapStoreExists();
+		$bThemesRebuildReqd = $oMod->isPtgBuildRequired() || !$this->getStore_Themes()->getSnapStoreExists();
 
 		if ( $bPluginsRebuildReqd || $bThemesRebuildReqd ) {
 			// grab all the existing results
-			$oDbH = $this->getMod()->getDbHandler();
+			$oDbH = $oMod->getDbHandler_ScanResults();
 			/** @var Shield\Databases\Scanner\Select $oSel */
 			$oSel = $oDbH->getQuerySelector();
 			/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
@@ -391,17 +391,17 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			}
 		}
 
-		if ( $oFO->isPtgRebuildSelfRequired() ) {
+		if ( $oMod->isPtgRebuildSelfRequired() ) {
 			// rebuilt self when the plugin itself upgrades
 			$this->updatePluginSnapshot( $this->getCon()->getPluginBaseFile() );
-			$oFO->setPtgRebuildSelfRequired( false );
+			$oMod->setPtgRebuildSelfRequired( false );
 		}
 
-		if ( $oFO->isPtgUpdateStoreFormat() ) {
+		if ( $oMod->isPtgUpdateStoreFormat() ) {
 			( new Shield\Scans\Ptg\Snapshots\StoreFormatUpgrade() )
 				->setStore( $this->getStore_Plugins() )->run()
 				->setStore( $this->getStore_Themes() )->run();
-			$oFO->setPtgUpdateStoreFormat( false );
+			$oMod->setPtgUpdateStoreFormat( false );
 		}
 	}
 

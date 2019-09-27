@@ -42,6 +42,9 @@
     }
   ],
   "definitions": {
+    "db_classes":             {
+      "events": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Events\\Handler"
+    },
     "events_table_name":                 "events",
     "events_table_columns":              [
       "id",

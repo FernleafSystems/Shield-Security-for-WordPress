@@ -103,7 +103,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var Shield\Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
-					 ->getDbHandler()
+					 ->getDbHandler_Events()
 					 ->getQuerySelector();
 		$aEvents = $oSel->getLatestForAllEvents();
 
@@ -123,7 +123,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var Shield\Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
-					 ->getDbHandler()
+					 ->getDbHandler_Events()
 					 ->getQuerySelector();
 		$oEntry = $oSel->getLatestForEvent( $sScan.'_scan_run' );
 		return ( $oEntry instanceof Shield\Databases\Events\EntryVO ) ? $oEntry->created_at : 0;
@@ -135,7 +135,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getScanHasProblem( $sScan ) {
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
+		$oSel = $this->getDbHandler_ScanResults()->getQuerySelector();
 		return $oSel->filterByNotIgnored()
 					->filterByScan( $sScan )
 					->count() > 0;
@@ -1125,26 +1125,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return Shield\Databases\ScanQueue\Handler
+	 * @return false|Shield\Databases\ScanQueue\Handler
 	 */
 	public function getDbHandler_ScanQueue() {
-		if ( !isset( $this->oDbh_ScanQueue ) ) {
-			try {
-				$this->oDbh_ScanQueue = ( new Shield\Databases\ScanQueue\Handler() )
-					->setMod( $this )
-					->tableInit();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oDbh_ScanQueue;
+		return $this->getDbH( 'scanq' );
 	}
 
 	/**
-	 * @return Shield\Databases\Scanner\Handler
+	 * @return false|Shield\Databases\Scanner\Handler
 	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Scanner\Handler();
+	public function getDbHandler_ScanResults() {
+		return $this->getDbH( 'scanresults' );
 	}
 
 	/**
@@ -1152,6 +1143,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getNamespaceBase() {
 		return 'HackGuard';
+	}
+
+	/**
+	 * @return Shield\Databases\Scanner\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Scanner\Handler();
 	}
 
 	/**

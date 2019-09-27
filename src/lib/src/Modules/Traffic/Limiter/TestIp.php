@@ -25,7 +25,7 @@ class TestIp {
 		/** @var Shield\Modules\Traffic\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 		/** @var Traffic\Select $oSel */
-		$oSel = $oMod->getDbHandler()->getQuerySelector();
+		$oSel = $oMod->getDbHandler_Traffic()->getQuerySelector();
 
 		$oNow = Services::Request()->carbon();
 

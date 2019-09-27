@@ -1358,13 +1358,6 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
-	 */
-	public function hasEncryptOption() {
-		return function_exists( 'md5' );
-	}
-
-	/**
 	 * Will prefix and return any string with the unique plugin prefix.
 	 * @param string $sSuffix
 	 * @param string $sGlue

@@ -36,7 +36,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultColumnsDefinition() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbColumns_IPs();
 	}
 
@@ -45,7 +45,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultTableName() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbTable_IPs();
 	}
 

@@ -9,7 +9,7 @@ class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$this->cleanDb( $oOpts->getAutoCleanDays() );
 		$this->trimDb( $oOpts->getMaxEntries() );
 	}
@@ -19,7 +19,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultColumnsDefinition() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbColumns_TrafficLog();
 	}
 
@@ -28,7 +28,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultTableName() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbTable_TrafficLog();
 	}
 

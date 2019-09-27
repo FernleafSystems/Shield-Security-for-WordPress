@@ -5,16 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	/**
-	 * @var Shield\Databases\AdminNotes\Handler
-	 */
-	private $oDbh_Notes;
-
-	/**
-	 * @var Shield\Databases\GeoIp\Handler
-	 */
-	private $oDbh_GeoIp;
-
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setVisitorIp();
@@ -811,41 +801,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		parent::onPluginDelete();
 	}
 
-	protected function cleanupDatabases() {
-		$this->getDbHandler_GeoIp()->autoCleanDb();
-		$this->getDbHandler_Notes()->autoCleanDb();
-	}
-
 	/**
 	 * @return Shield\Databases\GeoIp\Handler
 	 */
 	public function getDbHandler_GeoIp() {
-		if ( !isset( $this->oDbh_GeoIp ) ) {
-			try {
-				$this->oDbh_GeoIp = ( new Shield\Databases\GeoIp\Handler() )
-					->setMod( $this )
-					->tableInit();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oDbh_GeoIp;
+		return $this->getDbH( 'geoip' );
 	}
 
 	/**
 	 * @return Shield\Databases\AdminNotes\Handler
 	 */
 	public function getDbHandler_Notes() {
-		if ( !isset( $this->oDbh_Notes ) ) {
-			try {
-				$this->oDbh_Notes = ( new Shield\Databases\AdminNotes\Handler() )
-					->setMod( $this )
-					->tableInit();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oDbh_Notes;
+		return $this->getDbH( 'notes' );
 	}
 
 	/**

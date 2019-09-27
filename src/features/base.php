@@ -53,6 +53,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private $oOpts;
 
 	/**
+	 * @var Shield\Databases\Base\Handler[]
+	 */
+	private $aDbHandlers;
+
+	/**
 	 * @param Shield\Controller\Controller $oPluginController
 	 * @param array                        $aMod
 	 * @throws \Exception
@@ -153,14 +158,79 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	protected function cleanupDatabases() {
-		$oDbh = $this->getDbHandler();
-		try {
-			if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
-				$oDbh->autoCleanDb();
+		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
+			try {
+				if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
+					$oDbh->autoCleanDb();
+				}
+			}
+			catch ( \Exception $oE ) {
 			}
 		}
-		catch ( \Exception $oE ) {
+	}
+
+	/**
+	 * @param bool $bInitAll
+	 * @return Shield\Databases\Base\Handler[]
+	 */
+	protected function getDbHandlers( $bInitAll = false ) {
+		if ( $bInitAll ) {
+			foreach ( $this->getAllDbClasses() as $sDbSlug => $sDbClass ) {
+				$this->getDbH( $sDbSlug );
+			}
 		}
+		return is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
+	}
+
+	/**
+	 * @param string $sDbhKey
+	 * @return Shield\Databases\Base\Handler|mixed|false
+	 */
+	protected function getDbH( $sDbhKey ) {
+		$oDbH = false;
+
+		if ( !is_array( $this->aDbHandlers ) ) {
+			$this->aDbHandlers = [];
+		}
+
+		if ( !empty( $this->aDbHandlers[ $sDbhKey ] ) ) {
+			$oDbH = $this->aDbHandlers[ $sDbhKey ];
+		}
+		else {
+			$aDbClasses = $this->getAllDbClasses();
+			if ( isset( $aDbClasses[ $sDbhKey ] ) ) {
+				/** @var Shield\Databases\Base\Handler $oDbH */
+				$oDbH = new $aDbClasses[ $sDbhKey ]();
+				try {
+					$oDbH->setMod( $this )->tableInit();
+				}
+				catch ( \Exception $oE ) {
+				}
+			}
+			$this->aDbHandlers[ $sDbhKey ] = $oDbH;
+		}
+
+		return $oDbH;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getAllDbClasses() {
+		$aCls = $this->getOptions()->getDef( 'db_classes' );
+		return is_array( $aCls ) ? $aCls : [];
+	}
+
+	/**
+	 * @param string                        $sDbhKey
+	 * @param Shield\Databases\Base\Handler $oDbH
+	 * @return Shield\Databases\Base\Handler|mixed
+	 */
+	protected function setupDbHandler( $sDbhKey, $oDbH ) {
+		if ( !is_array( $this->aDbHandlers ) ) {
+			$this->aDbHandlers = [];
+		}
+		return $oDbH;
 	}
 
 	/**
@@ -340,7 +410,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function isReadyToExecute() {
 		try {
-			$oDbH = $this->getDbHandler();
+			$oDbH = $this->getPrimaryDbHandler();
 			$bReady = ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor )
 					  && ( !$oDbH instanceof Shield\Databases\Base\Handler || $oDbH->isReady() );
 		}
@@ -1164,9 +1234,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	public function onPluginDelete() {
-		$oDbh = $this->getDbHandler();
-		if ( !empty( $oDbh ) ) {
-			$oDbh->deleteTable();
+		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
+			if ( !empty( $oDbh ) ) {
+				$oDbh->deleteTable();
+			}
 		}
 		$this->getOptions()->deleteStorage();
 	}
@@ -1369,13 +1440,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function isWizardPage() {
 		return ( $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage() );
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function hasEncryptOption() {
-		return function_exists( 'md5' );
 	}
 
 	/**
@@ -1909,21 +1973,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
+	 * The primary DB for the
 	 * @return null|Shield\Databases\Base\Handler|mixed
+	 * @deprecated 8.1.2
 	 */
 	public function getDbHandler() {
-		if ( !isset( $this->oDbh ) ) {
-			$this->oDbh = $this->loadDbHandler();
-			if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
-				try {
-					$this->oDbh->setMod( $this )
-							   ->tableInit();
-				}
-				catch ( \Exception$oE ) {
-				}
-			}
+		// TODO: remove this IF, as it's a stop-gap for the newer implementation (below)
+		if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
+			return $this->oDbh;
 		}
-		return $this->oDbh;
+
+		return $this->getPrimaryDbHandler();
+	}
+
+	/**
+	 * The primary DB for the
+	 * @return null|Shield\Databases\Base\Handler|mixed
+	 */
+	public function getPrimaryDbHandler() {
+		$aDBs = $this->getAllDbClasses();
+		return empty( $aDBs ) ? null : $this->getDbH( key( $aDBs ) );
 	}
 
 	/**
@@ -1934,13 +2003,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
-	}
-
-	/**
-	 * @return Shield\Databases\Base\Handler|mixed|false
-	 */
-	protected function loadDbHandler() {
-		return false;
 	}
 
 	/**
@@ -1997,7 +2059,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * This will eventually be not needed
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
@@ -2017,5 +2078,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	private function getAjax() {
 		$this->loadAjaxHandler();
+	}
+
+	/**
+	 * @return Shield\Databases\Base\Handler|mixed|false
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return false;
 	}
 }

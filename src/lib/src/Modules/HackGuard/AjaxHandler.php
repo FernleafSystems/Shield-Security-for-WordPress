@@ -56,6 +56,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_BuildTableScan() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
 		$sScanSlug = Services::Request()->post( 'fScan' );
@@ -95,7 +96,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		else {
 			$sHtml = $oTableBuilder
 				->setMod( $oMod )
-				->setDbHandler( $oMod->getDbHandler() )
+				->setDbHandler( $oMod->getDbHandler_ScanResults() )
 				->setScanActionVO( ( new Scan\ScanActionFromSlug() )->getAction( $sScanSlug ) )
 				->buildTable();
 		}
