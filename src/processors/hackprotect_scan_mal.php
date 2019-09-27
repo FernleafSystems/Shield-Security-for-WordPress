@@ -57,6 +57,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function itemDelete( $oItem ) {
 		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+			->setMod( $this->getMod() )
 			->report( $oItem->path_full, 'sha1', false );
 		return $this->getRepairer()->repairItemByDelete( $oItem );
 	}
@@ -70,6 +71,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		parent::itemIgnore( $oItem );
 
 		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+			->setMod( $this->getMod() )
 			->report( $oItem->path_full, 'sha1', true );
 
 		return true;
