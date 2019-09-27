@@ -2,7 +2,6 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 
 class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 
@@ -57,7 +56,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	protected function itemDelete( $oItem ) {
-		( new WpHashes\Malware\Whitelist\ReportFalsePositive() )
+		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+			->setMod( $this->getMod() )
 			->report( $oItem->path_full, 'sha1', false );
 		return $this->getRepairer()->repairItemByDelete( $oItem );
 	}
@@ -70,7 +70,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	protected function itemIgnore( $oItem ) {
 		parent::itemIgnore( $oItem );
 
-		( new WpHashes\Malware\Whitelist\ReportFalsePositive() )
+		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+			->setMod( $this->getMod() )
 			->report( $oItem->path_full, 'sha1', true );
 
 		return true;

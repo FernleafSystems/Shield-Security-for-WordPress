@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files\BaseScanFromFileMap
 
 /**
  * Class ScanFromFileMap
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
  */
 class ScanFromFileMap extends BaseScanFromFileMap {
 
@@ -14,6 +14,8 @@ class ScanFromFileMap extends BaseScanFromFileMap {
 	 * @return FileScanner
 	 */
 	protected function getFileScanner() {
-		return ( new FileScanner() )->setScanActionVO( $this->getScanActionVO() );
+		return ( new FileScanner() )
+			->setMod( $this->getMod() )
+			->setScanActionVO( $this->getScanActionVO() );
 	}
 }

@@ -98,7 +98,17 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		return $this->isValidCoreFile( $sFullPath ) || $this->isPluginFileValid( $sFullPath );
+		$bExclude = $this->isValidCoreFile( $sFullPath );
+
+		if ( !$bExclude ) {
+			if ( $this->isPluginFileValid( $sFullPath ) ) {
+				$bExclude = true;
+				( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+					->setMod( $this->getMod() )
+					->report( $sFullPath, 'sha1', true );
+			}
+		}
+		return $bExclude;
 	}
 
 	/**

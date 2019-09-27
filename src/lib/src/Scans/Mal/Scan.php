@@ -38,6 +38,8 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 	 * @return ScanFromFileMap
 	 */
 	protected function getScanFromFileMap() {
-		return ( new ScanFromFileMap() )->setScanActionVO( $this->getScanActionVO() );
+		return ( new ScanFromFileMap() )
+			->setMod( $this->getMod() )
+			->setScanActionVO( $this->getScanActionVO() );
 	}
 }
