@@ -396,14 +396,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
-	 * @deprecated 8.1.2
-	 */
-	public function isCooldownEnabled() {
-		return $this->getCooldownInterval() > 0;
-	}
-
-	/**
-	 * @return bool
 	 */
 	public function isChainedAuth() {
 		return $this->isOpt( 'enable_chained_authentication', 'Y' );
@@ -650,6 +642,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1.2
+	 */
+	public function isCooldownEnabled() {
+		return $this->getCooldownInterval() > 0;
 	}
 
 	/**

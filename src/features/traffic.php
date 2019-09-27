@@ -66,13 +66,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getAutoCleanDays() {
-		return (int)$this->getOpt( 'auto_clean' );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getExclusions() {

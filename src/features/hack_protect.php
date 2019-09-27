@@ -7,11 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @var Shield\Databases\ScanQueue\Handler
-	 */
-	private $oDbh_ScanQueue;
-
-	/**
 	 * @var HackGuard\Scan\Queue\Controller
 	 */
 	private $oScanQueueController;
@@ -83,7 +78,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 			$this->setPtgLastBuildAt( 0 );
-			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
 			$oPro = $this->getProcessor();
 			$oPro->getSubProScanner()
 				 ->getSubProcessorPtg()
@@ -221,25 +216,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sOption
-	 * @return $this
-	 */
-	public function setUfcOption( $sOption ) {
-		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
-	}
-
-	/**
-	 * @param array $aExclusions
-	 * @return $this
-	 */
-	public function setUfcFileExclusions( $aExclusions ) {
-		if ( !is_array( $aExclusions ) ) {
-			$aExclusions = [];
-		}
-		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
-	}
-
-	/**
 	 * @return $this
 	 */
 	protected function cleanFileExclusions() {
@@ -281,13 +257,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isUfsScanUploads() {
-		return $this->isOpt( 'ufc_scan_uploads', 'Y' );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function isUfcSendReport() {
@@ -309,22 +278,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isWcfScanEnabled() {
 		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
-	}
-
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setWcfScanEnabled( $bEnabled ) {
-		return $this->setOpt( 'enable_core_file_integrity_scan', $bEnabled ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setWcfScanAutoRepair( $bEnabled ) {
-		return $this->setOpt( 'attempt_auto_file_repair', $bEnabled ? 'Y' : 'N' );
 	}
 
 	/**
@@ -417,13 +370,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getPtgEnabledOption() {
-		return $this->getOpt( 'ptg_enable' );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getPtgLastBuildAt() {
@@ -503,14 +449,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setPtgLastBuildAt( $nTime = null ) {
 		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? Services::Request()->ts() : $nTime );
-	}
-
-	/**
-	 * @param string $sValue
-	 * @return $this
-	 */
-	public function setPtgEnabledOption( $sValue ) {
-		return $this->setOpt( 'ptg_enable', $sValue );
 	}
 
 	/**
