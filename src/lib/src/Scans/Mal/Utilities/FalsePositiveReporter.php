@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
@@ -13,7 +12,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
  */
 class FalsePositiveReporter {
 
-	use ModConsumer;
+	use Modules\ModConsumer;
 
 	/**
 	 * To prevent duplicate reports, we cache what we report and only send the report
@@ -26,10 +25,9 @@ class FalsePositiveReporter {
 	public function report( $sFullPath, $sAlgo = 'sha1', $bIsFalsePositive = true ) {
 		$bReported = false;
 
-		/** @var HackGuard\Options $oOpts */
+		/** @var Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$aReported = $oOpts->getOpt( 'mal_fp_reports', [] );
-
 		$sSig = md5( serialize(
 			[
 				$sFullPath,
@@ -41,14 +39,21 @@ class FalsePositiveReporter {
 		if ( !is_array( $aReported ) ) {
 			$aReported = [];
 		}
-
 		if ( !isset( $aReported[ $sSig ] ) ) {
 			// Haven't reported yet, so we proceed.
 			$bReported = ( new Malware\Whitelist\ReportFalsePositive() )
 				->report( $sFullPath, $sAlgo, $bIsFalsePositive );
-			$aReported[ $sSig ] = Services::Request()->ts();
-			$oOpts->setOpt( 'mal_fp_reports', $aReported );
 		}
+
+		$aReported[ $sSig ] = Services::Request()->ts();
+		$oOpts->setOpt( 'mal_fp_reports', array_filter(
+			$aReported,
+			function ( $nTS ) {
+				return $nTS > Services::Request()->carbon()->subMonth()->timestamp;
+			}
+		) );
+
+		$this->getMod()->saveModOptions(); // important to save immediately due to async nature
 
 		return $bReported;
 	}
