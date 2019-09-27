@@ -371,14 +371,15 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://icwp.io/aa).
 
 = 8.1.2 - Current Release =
-*Released: 25th September, 2019* - [Release Notes](https://icwp.io/fy)
+*Released: 30th September, 2019* - [Release Notes](https://icwp.io/fy)
 
-* **(v.1)**  IMPROVED:	Updated default firewall whitelist rules.
-* **(v.1)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
-* **(v.1)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
-* **(v.1)**  IMPROVED:	Malware scanner performance improved with some some file caching.
-* **(v.1)**  IMPROVED:	If the PWNED Passwords API request fails entirely, this password check is skipped.
-* **(v.1)**  FIXED:		PHP error when firewall was set to kill response without a user message.
+* **(v.2)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
+* **(v.2)**  IMPROVED:	Updated default firewall whitelist rules.
+* **(v.2)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
+* **(v.2)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
+* **(v.2)**  IMPROVED:	Malware scanner performance improved with some file caching.
+* **(v.2)**  IMPROVED:	If the PWNED Passwords API request fails entirely, this password check is skipped.
+* **(v.2)**  FIXED:		PHP error when firewall was set to kill response without a user message.
 
 = 8.0 - Series =
 *Released: 18th September, 2019* - [Release Notes](https://icwp.io/fy)

@@ -346,11 +346,11 @@ class Strings extends Base\Strings {
 			case 'mal_fp_confidence' :
 				$sName = __( 'False Positive Confidence', 'wp-simple-firewall' );
 				$sSummary = __( 'False Positive Confidence Boundary', 'wp-simple-firewall' );
-				$sDescription = __( "Ignore files with potential malware when the confidence of a false positive is greater than this value.", 'wp-simple-firewall' )
+				$sDescription = __( "Ignore files with potential malware when the confidence level of a false positive is greater than this value.", 'wp-simple-firewall' )
 								.'<br />'.__( 'Confidence is measured between 0 and 100 points.', 'wp-simple-firewall' )
 								.'<br />'.__( 'The higher the confidence, the more likely a result is a false positive.', 'wp-simple-firewall' )
-								.'<br />'.__( 'A false positive is when potential malware is discovered, but the file is actually legitimately clean of malware.', 'wp-simple-firewall' )
-								.'<br />('.__( "A bit like when an anti-virus alerts to a file that doesnt actually have a virus.", 'wp-simple-firewall' ).')';
+								.'<br />'.__( "A false positive happens when a file appears to contain malware and shows up in scan results, but it's actually clean.", 'wp-simple-firewall' )
+								.'<br />('.__( "A false positive is similar to when an anti-virus alerts to a file that doesnt have a virus.", 'wp-simple-firewall' ).')';
 				break;
 
 			case 'mal_autorepair_surgical' :
