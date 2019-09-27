@@ -664,48 +664,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	public function renderPluginBadge() {
-		$oCon = $this->getCon();
-
-		$aData = [
-			'ajax'    => [
-				'plugin_badge_close' => $this->getAjaxActionData( 'plugin_badge_close', true ),
-			],
-			'flags'   => [
-				'nofollow' => apply_filters( 'icwp_shield_badge_relnofollow', false ),
-			],
-			'hrefs'   => [
-				'logo' => $oCon->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
-			],
-			'strings' => [
-				'link' => apply_filters( 'icwp_shield_plugin_badge_text', sprintf(
-					__( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
-					sprintf(
-						'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
-						$oCon->getHumanName()
-					)
-				) ),
-				'name' => $oCon->getHumanName()
-			]
-		];
-		return $this->renderTemplate( 'snippets/plugin_badge', $aData );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
 		return $this->isOpt( 'enable_xmlrpc_compatibility', 'Y' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getTestCronLastRunAt() {
-		return (int)$this->getOpt( 'insights_test_cron_last_run_at', 0 );
 	}
 
 	/**
