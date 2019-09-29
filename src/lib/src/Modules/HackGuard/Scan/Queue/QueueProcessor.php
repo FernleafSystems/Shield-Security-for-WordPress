@@ -111,17 +111,17 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	public function save() {
 
-		if ( !empty( $this->data ) ) {
+		if ( is_array( $this->data ) ) {
 			/** @var ScanQueue\Insert $oInsert */
 			$oInsert = $this->getDbHandler()->getQueryInserter();
 			foreach ( $this->data as $nKey => $oEntry ) {
 				if ( $oEntry instanceof ScanQueue\EntryVO ) {
 					$oInsert->insert( $oEntry );
 				}
-				unset( $this->data[ $nKey ] );
 			}
 		}
 
+		$this->data = []; // critical to preventing duplicate entries
 		return $this;
 	}
 
