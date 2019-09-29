@@ -15,13 +15,41 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 	use Shield\Modules\ModConsumer;
 
 	/**
+	 * @var bool
+	 */
+	private $bAllowDelete = false;
+
+	/**
+	 * @return bool
+	 */
+	public function isAllowDelete() {
+		return (bool)$this->bAllowDelete;
+	}
+
+	/**
+	 * @param bool $bAllowDelete
+	 * @return $this
+	 */
+	public function setAllowDelete( $bAllowDelete ) {
+		$this->bAllowDelete = $bAllowDelete;
+		return $this;
+	}
+
+	/**
 	 * @param ResultItem $oItem
 	 * @return bool
 	 */
 	public function repairItem( $oItem ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$bSuccess = false;
+
+		// 1) Report the file as being malware.
+		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+			->setMod( $this->getMod() )
+			->report( $oItem->path_full, 'sha1', false );
+
+		// 2). Repair
 
 		try {
 			$bCanAutoRepair = $this->canAutoRepairFromSource( $oItem );
@@ -31,21 +59,24 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 		}
 
 		if ( $bCanAutoRepair ) {
-			
-			if ( $oMod->isMalAutoRepairCore()
+
+			if ( $oOpts->isMalAutoRepairCore()
 				 && Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
 				$bSuccess = $this->repairCoreItem( $oItem );
 			}
 			else {
 				$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-				if ( $oMod->isMalAutoRepairPlugins()
+				if ( $oOpts->isMalAutoRepairPlugins()
 					 && $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
 					$bSuccess = $this->repairItemInPlugin( $oItem );
 				}
-				else if ( $oMod->isMalAutoRepairSurgical() ) {
+				else if ( $oOpts->isMalAutoRepairSurgical() ) {
 					$bSuccess = $this->repairSurgicalItem( $oItem );
 				}
 			}
+		}
+		else if ( $this->isAllowDelete() ) {
+			$this->repairItemByDelete( $oItem );
 		}
 
 		return $bSuccess;
@@ -55,7 +86,7 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 	 * @param ResultItem $oItem
 	 * @return bool
 	 */
-	public function repairItemByDelete( $oItem ) {
+	private function repairItemByDelete( $oItem ) {
 		return Services\Services::WpFs()->deleteFile( $oItem->path_full );
 	}
 
