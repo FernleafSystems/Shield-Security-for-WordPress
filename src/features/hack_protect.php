@@ -472,34 +472,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isMalScanAutoRepair() {
-		return $this->isMalAutoRepairCore() || $this->isMalAutoRepairPlugins() || $this->isMalAutoRepairSurgical();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairCore() {
-		return $this->isOpt( 'mal_autorepair_core', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairPlugins() {
-		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairSurgical() {
-		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
-	}
-
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
@@ -1074,6 +1046,40 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getDbHandler_ScanResults() {
 		return $this->getDbH( 'scanresults' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalAutoRepairPlugins() {
+		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalScanAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isMalAutoRepair();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalAutoRepairCore() {
+		return $this->isOpt( 'mal_autorepair_core', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalAutoRepairSurgical() {
+		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
 	}
 
 	/**

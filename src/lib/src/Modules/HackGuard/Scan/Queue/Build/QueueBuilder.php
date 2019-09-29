@@ -38,7 +38,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 		// ensure any scheduled scans have been saved before remote post
 		$this->save();
 		// Perform remote post.
-		return parent::dispatch();
+		parent::dispatch();
 	}
 
 	/**
