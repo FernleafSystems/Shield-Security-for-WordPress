@@ -50,7 +50,6 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 			->report( $oItem->path_full, 'sha1', false );
 
 		// 2). Repair
-
 		try {
 			$bCanAutoRepair = $this->canAutoRepairFromSource( $oItem );
 		}
@@ -71,7 +70,7 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 						$bSuccess = $this->repairItemInPlugin( $oItem );
 					}
 				}
-				else if ( $oOpts->isMalAutoRepairSurgical()  ) {
+				else if ( $oOpts->isMalAutoRepairSurgical() ) {
 					$bSuccess = $this->repairSurgicalItem( $oItem );
 				}
 			}
