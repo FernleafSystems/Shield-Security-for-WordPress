@@ -30,7 +30,7 @@ class FalsePositiveReporter {
 		$aReported = $oOpts->getOpt( 'mal_fp_reports', [] );
 		$sSig = md5( serialize(
 			[
-				$sFullPath,
+				basename( $sFullPath ),
 				sha1( Services::DataManipulation()->convertLineEndingsDosToLinux( $sFullPath ) ),
 				$bIsFalsePositive
 			]

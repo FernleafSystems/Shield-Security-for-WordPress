@@ -60,14 +60,12 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 
 		if ( $bCanAutoRepair ) {
 
-			if ( $oOpts->isMalAutoRepairCore()
-				 && Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
+			if ( Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
 				$bSuccess = $this->repairCoreItem( $oItem );
 			}
 			else {
 				$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
-				if ( $oOpts->isMalAutoRepairPlugins()
-					 && $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
+				if ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
 					$bSuccess = $this->repairItemInPlugin( $oItem );
 				}
 				else if ( $oOpts->isMalAutoRepairSurgical() ) {
@@ -76,7 +74,7 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 			}
 		}
 		else if ( $this->isAllowDelete() ) {
-			$this->repairItemByDelete( $oItem );
+			$bSuccess = $this->repairItemByDelete( $oItem );
 		}
 
 		return $bSuccess;

@@ -61,8 +61,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	protected function itemDelete( $oItem ) {
 		/** @var Shield\Scans\Mal\Repair $oRepair */
 		$oRepair = $this->getRepairer();
-		$bSuccess = $oRepair->setAllowDelete( true )
-							->repairItem( $oItem );
+		return $oRepair->setAllowDelete( true )
+					   ->repairItem( $oItem );
 	}
 
 	/**
