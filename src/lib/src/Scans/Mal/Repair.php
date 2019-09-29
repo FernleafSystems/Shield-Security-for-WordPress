@@ -66,9 +66,12 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 			else {
 				$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
 				if ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
-					$bSuccess = $this->repairItemInPlugin( $oItem );
+
+					if ( $this->isManualAction() || $oOpts->isMalAutoRepairPlugins() ) {
+						$bSuccess = $this->repairItemInPlugin( $oItem );
+					}
 				}
-				else if ( $oOpts->isMalAutoRepairSurgical() ) {
+				else if ( $oOpts->isMalAutoRepairSurgical()  ) {
 					$bSuccess = $this->repairSurgicalItem( $oItem );
 				}
 			}

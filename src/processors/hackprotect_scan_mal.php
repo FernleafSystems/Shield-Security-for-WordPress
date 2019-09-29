@@ -44,7 +44,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function itemRepair( $oItem ) {
 		/** @var Shield\Scans\Mal\Repair $oRepair */
-		$oRepair = $this->getRepairer();
+		$oRepair = $this->getRepairer()
+						->setIsManualAction( true );
 		$bSuccess = $oRepair->setAllowDelete( false )
 							->repairItem( $oItem );
 		$this->getCon()->fireEvent(
@@ -60,7 +61,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	protected function itemDelete( $oItem ) {
 		/** @var Shield\Scans\Mal\Repair $oRepair */
-		$oRepair = $this->getRepairer();
+		$oRepair = $this->getRepairer()
+						->setIsManualAction( true );
 		return $oRepair->setAllowDelete( true )
 					   ->repairItem( $oItem );
 	}
@@ -88,6 +90,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isMalAutoRepair() ) {
 			$this->getRepairer()
+				 ->setIsManualAction( false )
+				 ->setAllowDelete( true )
 				 ->repairResultsSet( $oRes );
 		}
 	}
