@@ -67,7 +67,10 @@ class Strings extends Base\Strings {
 			'not_available'       => __( 'Sorry, this feature is included with Pro subscriptions.', 'wp-simple-firewall' ),
 			'not_enabled'         => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
 			'please_upgrade'      => __( 'You can get this feature (along with loads more) by going Pro.', 'wp-simple-firewall' ),
-			'please_enable'       => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' )
+			'please_enable'       => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
+			'no_security_notices' => __( 'There are no important security notices at this time.', 'wp-simple-firewall' ),
+			'this_is_wonderful'   => __( 'This is wonderful!', 'wp-simple-firewall' ),
+			'yyyymmdd'            => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 		];
 	}
 }
