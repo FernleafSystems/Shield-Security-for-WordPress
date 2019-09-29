@@ -91,7 +91,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 		if ( $oOpts->isMalAutoRepair() ) {
 			$this->getRepairer()
 				 ->setIsManualAction( false )
-				 ->setAllowDelete( true )
+				 ->setAllowDelete( false )
 				 ->repairResultsSet( $oRes );
 		}
 	}
