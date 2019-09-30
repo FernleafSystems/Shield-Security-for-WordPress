@@ -570,7 +570,7 @@
         "audit": false
       },
       "recaptcha_fail":         {
-        "audit": false
+        "audit": true
       }
     },
     "wizards":                {

@@ -44,6 +44,9 @@ class Strings extends Base\Strings {
 			'master_url_set'         => [
 				__( 'Master Site URL set: %s', 'wp-simple-firewall' ),
 			],
+			'recaptcha_fail'         => [
+				__( 'Google reCAPTCHA Test Fail', 'wp-simple-firewall' )
+			],
 		];
 	}
 
