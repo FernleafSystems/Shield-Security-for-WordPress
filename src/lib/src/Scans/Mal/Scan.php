@@ -22,9 +22,16 @@ class Scan extends Shield\Scans\Base\Files\BaseFileMapScan {
 
 		/** @var ScanActionVO $oScanVO */
 		$oScanVO = $this->getScanActionVO();
-		$oScanVO->whitelist = ( new Utilities\Whitelist() )
-			->setMod( $this->getMod() )
-			->retrieve();
+
+		if ( $oOpts->isMalUseNetworkIntelligence() ) {
+			$oScanVO->whitelist = ( new Utilities\Whitelist() )
+				->setMod( $this->getMod() )
+				->retrieve();
+		}
+		else {
+			$oScanVO->whitelist = [];
+		}
+
 		$oScanVO->confidence_threshold = $oOpts->getMalConfidenceBoundary();
 
 		$aPatterns = ( new Utilities\Patterns() )
