@@ -757,12 +757,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $aAllData;
 	}
 
-	public function onPluginDelete() {
-		$this->getDbHandler_GeoIp()->deleteTable();
-		$this->getDbHandler_Notes()->deleteTable();
-		parent::onPluginDelete();
-	}
-
 	/**
 	 * @return Shield\Databases\GeoIp\Handler
 	 */
