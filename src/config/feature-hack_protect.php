@@ -699,9 +699,9 @@
     }
   ],
   "definitions":      {
-    "db_classes":             {
+    "db_classes":                  {
       "scanresults": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
-      "scanq": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
+      "scanq":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
     },
     "all_scan_slugs":              [
       "apc",

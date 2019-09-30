@@ -385,7 +385,9 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  IMPROVED:	Updated default firewall whitelist rules.
 * **(v.0)**  IMPROVED:	If the PWNED Passwords API request fails entirely, the password check is skipped.
 * **(v.0)**  ADDED:		Japanese translations are at 100%.
-* **(v.0)**  IMPROVED:	Dutch translations are greatly improved (a huge thank you, Fred!).
+* **(v.0)**  IMPROVED:	Dutch translations are greatly improved (a huge thank you to Fred!).
+* **(v.0)**  FIXED:		Audit Trail correctly logs multiple occurrences for the same type of event on the same page request.
+* **(v.0)**  FIXED:		Audit Trail now correctly logs Google reCAPTCHA failure events.
 * **(v.0)**  FIXED:		PHP error when firewall was set to kill response without a user message.
 
 = 8.1 - Series =
