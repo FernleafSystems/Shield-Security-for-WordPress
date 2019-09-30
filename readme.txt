@@ -370,18 +370,25 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.1.2 - Current Release =
-*Released: 30th September, 2019* - [Release Notes](https://icwp.io/fy)
+= 8.2.0 - Current Release =
+*Released: 1st October, 2019* - [Release Notes](https://icwp.io/fy)
 
-* **(v.2)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
-* **(v.2)**  IMPROVED:	Updated default firewall whitelist rules.
-* **(v.2)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
-* **(v.2)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
-* **(v.2)**  IMPROVED:	Malware scanner performance improved with some file caching.
-* **(v.2)**  IMPROVED:	If the PWNED Passwords API request fails entirely, this password check is skipped.
-* **(v.2)**  FIXED:		PHP error when firewall was set to kill response without a user message.
+* **(v.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
+* **(v.0)**  NEW:		Traffic Watcher feature is now free for all users (no longer Pro-only).
+* **(v.0)**  IMPROVED:	Scanning cron is improved and more efficient.
+* **(v.0)**  ADDED:		Bulk Delete/Repair/Ignore actions now available for Malware scan results.
+* **(v.0)**  IMPROVED:	Malware scan results now provide details of affected line numbers and patterns discovered.
+* **(v.0)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
+* **(v.0)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
+* **(v.0)**  IMPROVED:	Malware scanner performance improved with caching.
+* **(v.0)**  IMPROVED:	Malware auto-repair now works more reliably.
+* **(v.0)**  IMPROVED:	Updated default firewall whitelist rules.
+* **(v.0)**  IMPROVED:	If the PWNED Passwords API request fails entirely, the password check is skipped.
+* **(v.0)**  ADDED:		Japanese translations are at 100%.
+* **(v.0)**  IMPROVED:	Dutch translations are greatly improved (a huge thank you, Fred!).
+* **(v.0)**  FIXED:		PHP error when firewall was set to kill response without a user message.
 
-= 8.0 - Series =
+= 8.1 - Series =
 *Released: 18th September, 2019* - [Release Notes](https://icwp.io/fy)
 
 * **(v.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`
