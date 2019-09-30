@@ -1832,6 +1832,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_Traffic
+	 */
+	public function getModule_Traffic() {
+		return $this->getModule( 'traffic' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_Base[]
 	 */
 	public function getModules() {

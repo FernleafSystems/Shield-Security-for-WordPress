@@ -159,7 +159,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'render_table_traffic' => $oTrafficMod->getAjaxActionData( 'render_table_traffic', true )
 					],
 					'flags'   => [
-						'can_traffic' => $bIsPro,
+						'can_traffic' => true, // since 8.2 it's always available
 						'is_enabled'  => $oTrafficMod->isModOptEnabled(),
 					],
 					'hrefs'   => [

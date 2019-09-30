@@ -52,14 +52,17 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function getSectionWarnings( $sSection ) {
 		$aWarnings = [];
 
-		if ( !$this->isPremium() ) {
-			$aWarnings[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Watch', 'wp-simple-firewall' ) );
+		$oIp = Services::IP();
+		if ( !$oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
+			$aWarnings[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
 		}
-		else {
-			$oIp = Services::IP();
-			if ( !$oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
-				$aWarnings[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
-			}
+
+		switch ( $sSection ) {
+			case 'section_traffic_limiter':
+				if ( !$this->isPremium() ) {
+					$aWarnings[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Limiting', 'wp-simple-firewall' ) );
+				}
+				break;
 		}
 
 		return $aWarnings;

@@ -34,11 +34,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return \ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
-		/** @var \ICWP_WPSF_Processor_Sessions $oP */
-		$oP = $this->getCon()
-				   ->getModule_Sessions()
-				   ->getProcessor();
-		return $oP;
+		return $this->getCon()
+					->getModule_Sessions()
+					->getProcessor();
 	}
 
 	/**
@@ -98,7 +96,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				if ( !is_array( self::$aAuditLogs ) ) {
 					self::$aAuditLogs = [];
 				}
-				self::$aAuditLogs[ $sEvent ] = $oEntry;
+
+				// cater for where certain events may happen more than once in the same request
+				if ( in_array( $sEvent, [ 'email_attempt_send' ] ) ) {
+					self::$aAuditLogs[] = $oEntry;
+				}
+				else {
+					self::$aAuditLogs[ $sEvent ] = $oEntry;
+				}
 			}
 		}
 		return $this;
@@ -265,6 +270,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getPluginDefaultRecipientAddress() {
 		return apply_filters( $this->prefix( 'report_email_address' ), Services::WpGeneral()->getSiteAdminEmail() );
+	}
+
+	/**
+	 * @return Shield\Modules\BaseShield\ShieldProcessor|mixed
+	 */
+	public function getProcessor() {
+		return parent::getProcessor();
 	}
 
 	/**

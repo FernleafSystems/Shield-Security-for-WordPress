@@ -9,7 +9,7 @@
     "tagline":               "Watch All Requests To Your Site",
     "show_central":          true,
     "access_restricted":     true,
-    "premium":               true,
+    "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
