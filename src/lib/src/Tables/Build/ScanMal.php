@@ -19,6 +19,8 @@ class ScanMal extends ScanBase {
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$oRepairer = ( new Shield\Scans\Mal\Repair() )->setMod( $oMod );
 		$oConverter = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
@@ -35,10 +37,13 @@ class ScanMal extends ScanBase {
 
 			$aStatus = [
 				__( 'Potential Malware Detected', 'wp-simple-firewall' ),
-				sprintf( '%s: %s/100', __( 'False Positive Confidence' ), sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ) ),
 				sprintf( '%s: %s', __( 'Pattern Detected' ), $this->getPatternForDisplay( base64_decode( $oIt->mal_sig ) ) ),
 				sprintf( '%s: %s', __( 'Affected line numbers' ), implode( ', ', $oIt->file_lines ) ),
 			];
+
+			if ( $oOpts->isMalUseNetworkIntelligence() ) {
+				$aStatus[] = sprintf( '%s: %s/100', __( 'False Positive Confidence' ), sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ) );
+			}
 
 			try {
 				$bCanRepair = $oRepairer->canAutoRepairFromSource( $oIt );

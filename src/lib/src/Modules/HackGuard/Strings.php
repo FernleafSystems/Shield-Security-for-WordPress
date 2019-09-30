@@ -326,7 +326,7 @@ class Strings extends Base\Strings {
 			case 'mal_scan_enable' :
 				$sName = __( 'Automatic Malware Scan', 'wp-simple-firewall' );
 				$sSummary = __( 'Turn On Automatic Malware Scanning', 'wp-simple-firewall' );
-				$sDescription = __( "Automatically run scanner to detect files infected with malware signatures.", 'wp-simple-firewall' );
+				$sDescription = __( 'Automatically run scanner to detect files infected with malware signatures.', 'wp-simple-firewall' );
 				break;
 
 			case 'mal_autorepair_core' :
@@ -344,13 +344,17 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mal_fp_confidence' :
-				$sName = __( 'False Positive Confidence', 'wp-simple-firewall' );
-				$sSummary = __( 'False Positive Confidence Boundary', 'wp-simple-firewall' );
-				$sDescription = __( "Ignore files with potential malware when the confidence level of a false positive is greater than this value.", 'wp-simple-firewall' )
-								.'<br />'.__( 'Confidence is measured between 0 and 100 points.', 'wp-simple-firewall' )
-								.'<br />'.__( 'The higher the confidence, the more likely a result is a false positive.', 'wp-simple-firewall' )
+				$sName = __( 'False Positive Confidence Level', 'wp-simple-firewall' );
+				$sSummary = __( 'False Positive Confidence Level', 'wp-simple-firewall' );
+				$sDescription = __( "You can choose to ignore files with potential malware, when the level of confidence that it's a 'false positive' meets this value.", 'wp-simple-firewall' )
+								.'<br />'.__( "The higher the confidence level you choose, the more likely that 'false positives' will appears in your scan results.", 'wp-simple-firewall' )
 								.'<br />'.__( "A false positive happens when a file appears to contain malware and shows up in scan results, but it's actually clean.", 'wp-simple-firewall' )
-								.'<br />('.__( "A false positive is similar to when an anti-virus alerts to a file that doesnt have a virus.", 'wp-simple-firewall' ).')';
+								.'<br />('.__( "A false positive is similar to when an anti-virus alerts to a file that doesnt have a virus.", 'wp-simple-firewall' ).')'
+								.'<br />'.__( "Disabling network intelligence turns off 'false positive confidence' levels.", 'wp-simple-firewall' )
+								.' '.__( 'You will no longer benefit from the intelligence gathered from the entire network.', 'wp-simple-firewall' )
+								.' '.__( 'All data shared is completely anonymous.', 'wp-simple-firewall' )
+								.' '.' [<a href="https://icwp.io/moreinfochecksum">'.__( 'More Info', 'wp-simple-firewall' ).'</a>]'
+								.'<br />'.__( 'The more sites that share this information, the stronger and smarter the network becomes.', 'wp-simple-firewall' );
 				break;
 
 			case 'mal_autorepair_surgical' :

@@ -465,13 +465,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->isOpt( 'enabled_scan_apc', 'enabled_email' );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isMalScanEnabled() {
-		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
-	}
-
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
@@ -741,6 +734,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
 		$aScanNames = $oStrings->getScanNames();
@@ -856,7 +851,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Malware
-			if ( !$this->isMalScanEnabled() ) {
+			if ( !$oOpts->isMalScanEnabled() ) {
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
@@ -995,7 +990,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
 			];
 
-			$bMal = $this->isMalScanEnabled();
+			$bMal = $oOpts->isMalScanEnabled();
 			$aThis[ 'key_opts' ][ 'mal' ] = [
 				'title'   => $aScanNames[ 'mal' ],
 				'name'    => $aScanNames[ 'mal' ],
@@ -1046,6 +1041,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getDbHandler_ScanResults() {
 		return $this->getDbH( 'scanresults' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalScanEnabled() {
+		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
 	}
 
 	/**

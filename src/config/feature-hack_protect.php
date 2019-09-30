@@ -443,6 +443,40 @@
       "description":   "When enabled the Malware scanner will run automatically."
     },
     {
+      "key":           "mal_fp_confidence",
+      "section":       "section_scan_mal",
+      "premium":       true,
+      "default":       "75",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "0",
+          "text":      "None - Turn Off Malware Intelligence Network"
+        },
+        {
+          "value_key": "25",
+          "text":      "Low"
+        },
+        {
+          "value_key": "50",
+          "text":      "Medium"
+        },
+        {
+          "value_key": "75",
+          "text":      "High"
+        },
+        {
+          "value_key": "100",
+          "text":      "Full"
+        }
+      ],
+      "link_info":     "https://icwp.io/fp",
+      "link_blog":     "https://icwp.io/fx",
+      "name":          "Automatic Malware Scan",
+      "summary":       "Enable Malware File Scanner",
+      "description":   "When enabled the Malware scanner will run automatically."
+    },
+    {
       "key":         "mal_autorepair_core",
       "section":     "section_scan_mal",
       "premium":     true,
@@ -477,20 +511,6 @@
       "name":        "Surgical Auto-Repair",
       "summary":     "Automatically Attempt To Surgically Remove Malware Code",
       "description": "Attempts to automatically remove code from infected files."
-    },
-    {
-      "key":         "mal_fp_confidence",
-      "section":     "section_scan_mal",
-      "premium":     true,
-      "type":        "integer",
-      "default":     "75",
-      "min":         "0",
-      "max":         "100",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "False Positive Minimum Confidence",
-      "summary":     "False Positive Minimum Confidence Boundary",
-      "description": "Ignore files with potential malware when the confidence of a false positive is greater than this value."
     },
     {
       "key":           "ptg_enable",

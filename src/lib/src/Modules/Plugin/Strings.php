@@ -432,5 +432,11 @@ class Strings extends Base\Strings {
 		__( 'Once', 'wp-simple-firewall' );
 		__( 'Twice', 'wp-simple-firewall' );
 		__( 'Go To Security Dashboard', 'wp-simple-firewall' );
+
+		__( 'None - Turn Off Malware Intelligence Network', 'wp-simple-firewall' );
+		__( 'Low', 'wp-simple-firewall' );
+		__( 'Medium', 'wp-simple-firewall' );
+		__( 'High', 'wp-simple-firewall' );
+		__( 'Full', 'wp-simple-firewall' );
 	}
 }
