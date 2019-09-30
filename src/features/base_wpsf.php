@@ -96,7 +96,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				if ( !is_array( self::$aAuditLogs ) ) {
 					self::$aAuditLogs = [];
 				}
-				self::$aAuditLogs[ $sEvent ] = $oEntry;
+
+				// cater for where certain events may happen more than once in the same request
+				if ( in_array( $sEvent, [ 'email_attempt_send' ] ) ) {
+					self::$aAuditLogs[] = $oEntry;
+				}
+				else {
+					self::$aAuditLogs[ $sEvent ] = $oEntry;
+				}
 			}
 		}
 		return $this;
