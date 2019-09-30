@@ -58,25 +58,25 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return ResultItem|null
 	 */
 	private function scanForSig( $oLocator, $sSig ) {
-		$oItem = null;
+		$oResultItem = null;
 
 		$aLines = $oLocator->setNeedle( $sSig )
 						   ->run();
 		$sFullPath = $oLocator->getPath();
 		if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
 
-			$oItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+			$oMaybeItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
 			$oAction = $this->getScanActionVO();
 			// Zero indicates not using intelligence network
 			if ( $oAction->confidence_threshold > 0 ) {
-				$oItem->fp_confidence = $this->getFalsePositiveConfidence( $sFullPath );
+				$oMaybeItem->fp_confidence = $this->getFalsePositiveConfidence( $sFullPath );
 			}
 
-			if ( $oAction->confidence_threshold == 0 || $oItem->fp_confidence < $oAction->confidence_threshold ) {
-				return $oItem;
+			if ( $oAction->confidence_threshold == 0 || $oMaybeItem->fp_confidence < $oAction->confidence_threshold ) {
+				$oResultItem = $oMaybeItem;
 			}
 		}
-		return $oItem;
+		return $oResultItem;
 	}
 
 	/**
