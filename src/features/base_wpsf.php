@@ -98,7 +98,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				}
 
 				// cater for where certain events may happen more than once in the same request
-				if ( in_array( $sEvent, [ 'email_attempt_send' ] ) ) {
+				if ( !empty( $aDef[ 'audit_multiple' ] ) ) {
 					self::$aAuditLogs[] = $oEntry;
 				}
 				else {
