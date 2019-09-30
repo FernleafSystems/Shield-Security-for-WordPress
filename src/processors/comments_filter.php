@@ -47,7 +47,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	public function runHourlyCron() {
 		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
-		if ( $oMod->isEnabledGaspCheck() ) {
+		if ( $oMod->isEnabledGaspCheck() && function_exists( 'delete_expired_transients' ) ) {
 			delete_expired_transients(); // cleanup unused comment tokens
 		}
 	}
