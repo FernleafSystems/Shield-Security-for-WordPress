@@ -248,12 +248,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		$aEvts = $this->getSupportedEvents();
 
 		$aDefaults = [
-			'context' => $this->getSlug(),
-			'cat'     => 1,
-			'stat'    => true,
-			'audit'   => true,
-			'recent'  => false, // whether to show in the recent events logs
-			'offense' => false, // whether to mark offense against IP
+			'context'        => $this->getSlug(),
+			'cat'            => 1,
+			'stat'           => true,
+			'audit'          => true,
+			'recent'         => false, // whether to show in the recent events logs
+			'offense'        => false, // whether to mark offense against IP
+			'audit_multiple' => false, // allow multiple audit entries in the same request
 		];
 		foreach ( $aEvts as $sKey => $aEvt ) {
 			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );

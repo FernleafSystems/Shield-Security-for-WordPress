@@ -18,7 +18,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return ResultItem|null
 	 */
 	public function scan( $sFullPath ) {
-		$oResultItem = null;
+		$oItem = null;
 
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
@@ -29,19 +29,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			{ // Simple Patterns first
 				$oLocator->setIsRegEx( false );
 				foreach ( $oAction->patterns_simple as $sSig ) {
-
-					$aLines = $oLocator->setNeedle( $sSig )
-									   ->run();
-					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$nConfidence = $this->getFalsePositiveConfidence( $sFullPath );
-						if ( $nConfidence < $oAction->confidence_threshold ) {
-							$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-							$oResultItem->fp_confidence = $nConfidence;
-							return $oResultItem;
-						}
-						else {
-							return null;
-						}
+					$oItem = $this->scanForSig( $oLocator, $sSig );
+					if ( $oItem instanceof ResultItem ) {
+						return $oItem;
 					}
 				}
 			}
@@ -49,19 +39,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			{ // RegEx Patterns
 				$oLocator->setIsRegEx( true );
 				foreach ( $oAction->patterns_regex as $sSig ) {
-
-					$aLines = $oLocator->setNeedle( $sSig )
-									   ->run();
-					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						$nConfidence = $this->getFalsePositiveConfidence( $sFullPath );
-						if ( $nConfidence < $oAction->confidence_threshold ) {
-							$oResultItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-							$oResultItem->fp_confidence = $nConfidence;
-							return $oResultItem;
-						}
-						else {
-							return null;
-						}
+					$oItem = $this->scanForSig( $oLocator, $sSig );
+					if ( $oItem instanceof ResultItem ) {
+						return $oItem;
 					}
 				}
 			}
@@ -69,7 +49,34 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		catch ( \Exception $oE ) {
 		}
 
-		return $oResultItem;
+		return $oItem;
+	}
+
+	/**
+	 * @param Utilities\File\LocateStrInFile $oLocator
+	 * @param string                         $sSig
+	 * @return ResultItem|null
+	 */
+	private function scanForSig( $oLocator, $sSig ) {
+		$oItem = null;
+
+		$aLines = $oLocator->setNeedle( $sSig )
+						   ->run();
+		$sFullPath = $oLocator->getPath();
+		if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+
+			$oItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+			$oAction = $this->getScanActionVO();
+			// Zero indicates not using intelligence network
+			if ( $oAction->confidence_threshold > 0 ) {
+				$oItem->fp_confidence = $this->getFalsePositiveConfidence( $sFullPath );
+			}
+
+			if ( $oAction->confidence_threshold == 0 || $oItem->fp_confidence < $oAction->confidence_threshold ) {
+				return $oItem;
+			}
+		}
+		return $oItem;
 	}
 
 	/**
@@ -84,6 +91,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
 		$oResultItem->is_mal = true;
 		$oResultItem->mal_sig = base64_encode( $sSig );
+		$oResultItem->fp_confidence = 0;
 		$oResultItem->file_lines = array_map(
 			function ( $nLineNumber ) {
 				return $nLineNumber + 1;

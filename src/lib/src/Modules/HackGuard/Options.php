@@ -137,6 +137,20 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isMalScanEnabled() {
+		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalUseNetworkIntelligence() {
+		return $this->getMalConfidenceBoundary() > 0;
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getPtgFileExtensions() {

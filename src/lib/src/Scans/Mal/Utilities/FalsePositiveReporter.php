@@ -27,6 +27,10 @@ class FalsePositiveReporter {
 
 		/** @var Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
+		if ( !$oOpts->isMalUseNetworkIntelligence() ) {
+			return $bReported;
+		}
+
 		$aReported = $oOpts->getOpt( 'mal_fp_reports', [] );
 		$sSig = md5( serialize(
 			[
