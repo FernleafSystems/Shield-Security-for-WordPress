@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: WPSF v2.0\n"
-"POT-Creation-Date: 2019-09-29 14:20+0100\n"
-"PO-Revision-Date: 2019-09-29 14:20+0100\n"
+"POT-Creation-Date: 2019-09-30 17:43+0100\n"
+"PO-Revision-Date: 2019-09-30 17:43+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_GB\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.2.4\n"
 "X-Poedit-KeywordsList: _wpsf__;gettext;gettext_noop;_wpsf_e;_n;_n:1,2;__;_e\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-SourceCharset: UTF-8\n"
@@ -37,8 +37,8 @@ msgstr ""
 
 #: src/features/admin_access_restriction.php:351
 #: src/features/admin_access_restriction.php:364
-#: src/lib/src/Modules/Plugin/Strings.php:396
-#: src/lib/src/Modules/Plugin/Strings.php:398
+#: src/lib/src/Modules/Plugin/Strings.php:399
+#: src/lib/src/Modules/Plugin/Strings.php:401
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:35
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:38
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:102
@@ -96,10 +96,10 @@ msgid "The Security Admin protection is not active."
 msgstr ""
 
 #: src/features/admin_access_restriction.php:420
-#: src/features/autoupdates.php:168 src/features/hack_protect.php:759
-#: src/features/hack_protect.php:780 src/features/hack_protect.php:801
-#: src/features/hack_protect.php:822 src/features/hack_protect.php:843
-#: src/features/hack_protect.php:864 src/features/insights.php:274
+#: src/features/autoupdates.php:168 src/features/hack_protect.php:754
+#: src/features/hack_protect.php:775 src/features/hack_protect.php:796
+#: src/features/hack_protect.php:817 src/features/hack_protect.php:838
+#: src/features/hack_protect.php:859 src/features/insights.php:274
 #: src/features/insights.php:662 src/features/insights.php:675
 #: src/features/insights.php:702 src/features/insights.php:715
 #: src/features/insights.php:741 src/features/insights.php:753
@@ -109,10 +109,10 @@ msgid "Go To %s"
 msgstr ""
 
 #: src/features/admin_access_restriction.php:420
-#: src/features/autoupdates.php:168 src/features/hack_protect.php:759
-#: src/features/hack_protect.php:780 src/features/hack_protect.php:801
-#: src/features/hack_protect.php:822 src/features/hack_protect.php:843
-#: src/features/hack_protect.php:864 src/features/insights.php:275
+#: src/features/autoupdates.php:168 src/features/hack_protect.php:754
+#: src/features/hack_protect.php:775 src/features/hack_protect.php:796
+#: src/features/hack_protect.php:817 src/features/hack_protect.php:838
+#: src/features/hack_protect.php:859 src/features/insights.php:275
 #: src/features/insights.php:753 src/features/lockdown.php:81
 #: src/features/user_management.php:313 src/lib/src/Modules/Base/Strings.php:36
 #: src/lib/src/Modules/Base/Strings.php:53
@@ -191,7 +191,7 @@ msgstr ""
 
 #: src/features/audit_trail.php:170 src/features/insights.php:80
 #: src/features/insights.php:292 src/lib/src/Modules/AuditTrail/Strings.php:122
-#: src/lib/src/Modules/Plugin/Strings.php:399 src/wizards/plugin.php:481
+#: src/lib/src/Modules/Plugin/Strings.php:402 src/wizards/plugin.php:481
 #: src/wizards/plugin.php:486
 msgid "Audit Trail"
 msgstr ""
@@ -204,7 +204,7 @@ msgstr ""
 #: src/features/autoupdates.php:157 src/features/autoupdates.php:189
 #: src/lib/src/Modules/Autoupdates/Strings.php:25
 #: src/lib/src/Modules/HackGuard/Strings.php:226
-#: src/lib/src/Modules/Plugin/Strings.php:402
+#: src/lib/src/Modules/Plugin/Strings.php:405
 msgid "Automatic Updates"
 msgstr ""
 
@@ -273,27 +273,27 @@ msgstr ""
 msgid "%s isn't automatically updated"
 msgstr ""
 
-#: src/features/base.php:808 src/lib/src/Modules/Base/BaseModCon.php:732
+#: src/features/base.php:809 src/lib/src/Modules/Base/BaseModCon.php:732
 #: src/wizards/plugin.php:482 src/wizards/plugin.php:515
 #: src/wizards/plugin.php:550 src/wizards/plugin.php:695
 msgid "Disabled"
 msgstr ""
 
-#: src/features/base.php:1117 src/lib/src/Modules/Base/BaseModCon.php:1033
+#: src/features/base.php:1118 src/lib/src/Modules/Base/BaseModCon.php:1033
 msgid ""
 "Unfortunately your WordPress and/or PHP versions are too old to support this "
 "feature."
 msgstr ""
 
-#: src/features/base.php:1272 src/lib/src/Modules/Base/BaseModCon.php:1187
+#: src/features/base.php:1273 src/lib/src/Modules/Base/BaseModCon.php:1187
 msgid "You don't currently have permission to save settings."
 msgstr ""
 
-#: src/features/base.php:1366 src/lib/src/Modules/Base/BaseModCon.php:1281
+#: src/features/base.php:1367 src/lib/src/Modules/Base/BaseModCon.php:1281
 msgid "Password values do not match."
 msgstr ""
 
-#: src/features/base.php:1592 src/lib/src/Modules/AuditTrail/Strings.php:197
+#: src/features/base.php:1593 src/lib/src/Modules/AuditTrail/Strings.php:197
 #: src/lib/src/Modules/Base/BaseModCon.php:1507
 #: src/lib/src/Modules/HackGuard/Strings.php:195
 #: src/lib/src/Modules/HackGuard/Strings.php:269
@@ -306,20 +306,20 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: src/features/base.php:1599 src/lib/src/Modules/Base/BaseModCon.php:1514
+#: src/features/base.php:1600 src/lib/src/Modules/Base/BaseModCon.php:1514
 msgid "For more information:"
 msgstr ""
 
-#: src/features/base.php:1600 src/lib/src/Modules/Base/BaseModCon.php:1515
-#: src/lib/src/Modules/Plugin/Strings.php:429
+#: src/features/base.php:1601 src/lib/src/Modules/Base/BaseModCon.php:1515
+#: src/lib/src/Modules/Plugin/Strings.php:432
 msgid "Support Forums"
 msgstr ""
 
-#: src/features/base_wpsf.php:390
+#: src/features/base_wpsf.php:402
 msgid "Module Disabled"
 msgstr ""
 
-#: src/features/base_wpsf.php:392
+#: src/features/base_wpsf.php:404
 msgid "All features of this module are completely disabled"
 msgstr ""
 
@@ -398,7 +398,7 @@ msgstr ""
 #: src/lib/src/Modules/Events/Strings.php:198
 #: src/lib/src/Modules/Events/Strings.php:202
 #: src/lib/src/Modules/Firewall/Strings.php:24
-#: src/lib/src/Modules/Plugin/Strings.php:408
+#: src/lib/src/Modules/Plugin/Strings.php:411
 msgid "Firewall"
 msgstr ""
 
@@ -431,15 +431,15 @@ msgstr ""
 msgid "%s per day"
 msgstr ""
 
-#: src/features/hack_protect.php:486
+#: src/features/hack_protect.php:479
 msgid "Re-install First"
 msgstr ""
 
-#: src/features/hack_protect.php:487
+#: src/features/hack_protect.php:480
 msgid "Then Activate"
 msgstr ""
 
-#: src/features/hack_protect.php:489 src/features/license.php:551
+#: src/features/hack_protect.php:482 src/features/license.php:551
 #: src/lib/src/Modules/Base/Strings.php:42 src/lib/src/Tables/Build/Ip.php:54
 #: src/lib/src/Tables/Build/ScanBase.php:62
 #: src/lib/src/Tables/Build/Sessions.php:68
@@ -447,277 +447,277 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: src/features/hack_protect.php:489
+#: src/features/hack_protect.php:482
 msgid "Re-Install It"
 msgstr ""
 
-#: src/features/hack_protect.php:490
+#: src/features/hack_protect.php:483
 msgid "Activate Only"
 msgstr ""
 
-#: src/features/hack_protect.php:491
+#: src/features/hack_protect.php:484
 msgid "Cancel"
 msgstr ""
 
-#: src/features/hack_protect.php:535 src/features/license.php:543
+#: src/features/hack_protect.php:528 src/features/license.php:543
 #: src/lib/src/Modules/Base/Strings.php:44
-#: src/lib/src/Modules/Plugin/Strings.php:322
+#: src/lib/src/Modules/Plugin/Strings.php:325
 #: src/processors/hack_protect.php:87 src/processors/hack_protect.php:117
 msgid "Never"
 msgstr ""
 
-#: src/features/hack_protect.php:536
+#: src/features/hack_protect.php:529
 #, php-format
 msgid "Last Scan Time: %s"
 msgstr ""
 
-#: src/features/hack_protect.php:552
+#: src/features/hack_protect.php:545
 #, php-format
 msgid ""
 "Sorry, this feature is not available because we cannot write to disk at this "
 "location: \"%s\""
 msgstr ""
 
-#: src/features/hack_protect.php:558
+#: src/features/hack_protect.php:551
 #, php-format
 msgid "Not available because the %s extension is not available."
 msgstr ""
 
-#: src/features/hack_protect.php:561
+#: src/features/hack_protect.php:554
 msgid ""
 "Not available because PHP/WordPress doesn't have direct filesystem access."
 msgstr ""
 
-#: src/features/hack_protect.php:566
+#: src/features/hack_protect.php:559
 #, php-format
 msgid "The %s file isn't writable and so can't be further protected."
 msgstr ""
 
-#: src/features/hack_protect.php:749 src/features/insights.php:290
+#: src/features/hack_protect.php:744 src/features/insights.php:290
 msgid "Scans"
 msgstr ""
 
-#: src/features/hack_protect.php:757
+#: src/features/hack_protect.php:752
 msgid "Core File scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:760
+#: src/features/hack_protect.php:755
 msgid "Automatic WordPress Core File scanner should be turned-on."
 msgstr ""
 
-#: src/features/hack_protect.php:766
+#: src/features/hack_protect.php:761
 msgid "Modified WordPress core files found."
 msgstr ""
 
-#: src/features/hack_protect.php:768 src/features/hack_protect.php:789
-#: src/features/hack_protect.php:810 src/features/hack_protect.php:831
-#: src/features/hack_protect.php:852 src/features/hack_protect.php:873
+#: src/features/hack_protect.php:763 src/features/hack_protect.php:784
+#: src/features/hack_protect.php:805 src/features/hack_protect.php:826
+#: src/features/hack_protect.php:847 src/features/hack_protect.php:868
 msgid "Run Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:769
+#: src/features/hack_protect.php:764
 msgid "Scan WP core files and repair any files that are flagged as modified."
 msgstr ""
 
-#: src/features/hack_protect.php:778
+#: src/features/hack_protect.php:773
 msgid "Unrecognised File scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:781
+#: src/features/hack_protect.php:776
 msgid "Automatic scanning for non-WordPress core files is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:787
+#: src/features/hack_protect.php:782
 msgid "Unrecognised files found in WordPress Core directory."
 msgstr ""
 
-#: src/features/hack_protect.php:790
+#: src/features/hack_protect.php:785
 msgid ""
 "Scan and remove any files that are not meant to be in the WP core "
 "directories."
 msgstr ""
 
-#: src/features/hack_protect.php:799
+#: src/features/hack_protect.php:794
 msgid "Automatic Plugin/Themes Guard is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:802
+#: src/features/hack_protect.php:797
 msgid "Automatic detection of plugin/theme modifications is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:808
+#: src/features/hack_protect.php:803
 msgid "A plugin/theme was found to have been modified."
 msgstr ""
 
-#: src/features/hack_protect.php:811
+#: src/features/hack_protect.php:806
 msgid "Reviewing modifications to your plugins/themes is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:820
+#: src/features/hack_protect.php:815
 msgid "Vulnerability Scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:823
+#: src/features/hack_protect.php:818
 msgid "Automatic detection of vulnerabilities is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:829
+#: src/features/hack_protect.php:824
 msgid "At least 1 item has known vulnerabilities."
 msgstr ""
 
-#: src/features/hack_protect.php:832
+#: src/features/hack_protect.php:827
 msgid ""
 "Items with known vulnerabilities should be updated, removed, or replaced."
 msgstr ""
 
-#: src/features/hack_protect.php:841
+#: src/features/hack_protect.php:836
 msgid "Abandoned Plugins Scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:844
+#: src/features/hack_protect.php:839
 msgid "Automatic detection of abandoned plugins is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:850
+#: src/features/hack_protect.php:845
 msgid "At least 1 plugin on your site is abandoned."
 msgstr ""
 
-#: src/features/hack_protect.php:853
+#: src/features/hack_protect.php:848
 msgid ""
 "Plugins that have been abandoned represent a potential risk to your site."
 msgstr ""
 
-#: src/features/hack_protect.php:862 src/features/hack_protect.php:1005
-#: src/features/hack_protect.php:1017
+#: src/features/hack_protect.php:857 src/features/hack_protect.php:1000
+#: src/features/hack_protect.php:1012
 #, php-format
 msgid "%s Scanner is not enabled."
 msgstr ""
 
-#: src/features/hack_protect.php:865
+#: src/features/hack_protect.php:860
 msgid "Automatic detection of Malware is recommended."
 msgstr ""
 
-#: src/features/hack_protect.php:871
+#: src/features/hack_protect.php:866
 msgid "At least 1 file with potential Malware has been discovered."
 msgstr ""
 
-#: src/features/hack_protect.php:874
+#: src/features/hack_protect.php:869
 msgid ""
 "Files identified as potential malware should be examined as soon as possible."
 msgstr ""
 
-#: src/features/hack_protect.php:898
+#: src/features/hack_protect.php:893
 #: src/lib/src/Modules/HackGuard/Strings.php:94
-#: src/lib/src/Modules/Plugin/Strings.php:410
+#: src/lib/src/Modules/Plugin/Strings.php:413
 msgid "Hack Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:899
+#: src/features/hack_protect.php:894
 msgid "Threats/Intrusions Detection & Repair"
 msgstr ""
 
-#: src/features/hack_protect.php:911
+#: src/features/hack_protect.php:906
 msgid "Scan Frequency"
 msgstr ""
 
-#: src/features/hack_protect.php:914
+#: src/features/hack_protect.php:909
 msgid "Automatic scanners run more than once per day"
 msgstr ""
 
-#: src/features/hack_protect.php:915
+#: src/features/hack_protect.php:910
 msgid "Automatic scanners only run once per day"
 msgstr ""
 
-#: src/features/hack_protect.php:922
+#: src/features/hack_protect.php:917
 msgid "WP Core File Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:925
+#: src/features/hack_protect.php:920
 msgid "Core files scanned regularly for hacks"
 msgstr ""
 
-#: src/features/hack_protect.php:926
+#: src/features/hack_protect.php:921
 msgid "Core files are never scanned for hacks!"
 msgstr ""
 
-#: src/features/hack_protect.php:932
+#: src/features/hack_protect.php:927
 msgid "WP Core File Repair"
 msgstr ""
 
-#: src/features/hack_protect.php:935
+#: src/features/hack_protect.php:930
 msgid "Core files are automatically repaired"
 msgstr ""
 
-#: src/features/hack_protect.php:936
+#: src/features/hack_protect.php:931
 msgid "Core files aren't automatically repaired!"
 msgstr ""
 
-#: src/features/hack_protect.php:944 src/lib/src/Modules/Events/Strings.php:107
+#: src/features/hack_protect.php:939 src/lib/src/Modules/Events/Strings.php:107
 #: src/lib/src/Modules/Events/Strings.php:131
 #: src/lib/src/Modules/HackGuard/Strings.php:26
 #: src/lib/src/Modules/HackGuard/Strings.php:118
 msgid "Unrecognised Files"
 msgstr ""
 
-#: src/features/hack_protect.php:947
+#: src/features/hack_protect.php:942
 msgid "Core directories scanned regularly for unrecognised files"
 msgstr ""
 
-#: src/features/hack_protect.php:948
+#: src/features/hack_protect.php:943
 msgid "WP Core is never scanned for unrecognised files!"
 msgstr ""
 
-#: src/features/hack_protect.php:954
+#: src/features/hack_protect.php:949
 msgid "Unrecognised Files Removal"
 msgstr ""
 
-#: src/features/hack_protect.php:957
+#: src/features/hack_protect.php:952
 msgid "Unrecognised files are automatically removed"
 msgstr ""
 
-#: src/features/hack_protect.php:958
+#: src/features/hack_protect.php:953
 msgid "Unrecognised files aren't automatically removed!"
 msgstr ""
 
-#: src/features/hack_protect.php:966
+#: src/features/hack_protect.php:961
 msgid "Vulnerability Scan"
 msgstr ""
 
-#: src/features/hack_protect.php:969
+#: src/features/hack_protect.php:964
 msgid "Regularly scanning for known vulnerabilities"
 msgstr ""
 
-#: src/features/hack_protect.php:970
+#: src/features/hack_protect.php:965
 msgid "Plugins/Themes never scanned for vulnerabilities!"
 msgstr ""
 
-#: src/features/hack_protect.php:976
+#: src/features/hack_protect.php:971
 msgid "Auto Update"
 msgstr ""
 
-#: src/features/hack_protect.php:979
+#: src/features/hack_protect.php:974
 msgid "Vulnerable items are automatically updated"
 msgstr ""
 
-#: src/features/hack_protect.php:980
+#: src/features/hack_protect.php:975
 msgid "Vulnerable items aren't automatically updated!"
 msgstr ""
 
-#: src/features/hack_protect.php:989 src/lib/src/Modules/Events/Strings.php:103
+#: src/features/hack_protect.php:984 src/lib/src/Modules/Events/Strings.php:103
 #: src/lib/src/Modules/Events/Strings.php:127
 #: src/lib/src/Modules/HackGuard/Strings.php:24
 msgid "Plugin/Theme Guard"
 msgstr ""
 
-#: src/features/hack_protect.php:992
+#: src/features/hack_protect.php:987
 msgid "Plugins and Themes are guarded against tampering"
 msgstr ""
 
-#: src/features/hack_protect.php:993
+#: src/features/hack_protect.php:988
 msgid "Plugins and Themes are never scanned for tampering!"
 msgstr ""
 
-#: src/features/hack_protect.php:1004 src/features/hack_protect.php:1016
+#: src/features/hack_protect.php:999 src/features/hack_protect.php:1011
 #, php-format
 msgid "%s Scanner is enabled."
 msgstr ""
@@ -730,7 +730,7 @@ msgstr ""
 msgid "Protect Visitors With Powerful HTTP Headers"
 msgstr ""
 
-#: src/features/headers.php:147 src/lib/src/Modules/Plugin/Strings.php:411
+#: src/features/headers.php:147 src/lib/src/Modules/Plugin/Strings.php:414
 msgid "HTTP Headers"
 msgstr ""
 
@@ -796,7 +796,7 @@ msgstr ""
 msgid "Black listed IPs auto-expire after: %s"
 msgstr ""
 
-#: src/features/insights.php:121 src/lib/src/Modules/Plugin/Strings.php:377
+#: src/features/insights.php:121 src/lib/src/Modules/Plugin/Strings.php:380
 msgid "IP Whitelist"
 msgstr ""
 
@@ -858,7 +858,7 @@ msgstr ""
 msgid "Traffic Table Filters"
 msgstr ""
 
-#: src/features/insights.php:170 src/features/traffic.php:56
+#: src/features/insights.php:170
 msgid "Traffic Watch"
 msgstr ""
 
@@ -973,13 +973,13 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-#: src/features/insights.php:298 src/lib/src/Modules/Plugin/Strings.php:77
-#: src/lib/src/Modules/Plugin/Strings.php:82
+#: src/features/insights.php:298 src/lib/src/Modules/Plugin/Strings.php:80
+#: src/lib/src/Modules/Plugin/Strings.php:85
 msgid "Import"
 msgstr ""
 
-#: src/features/insights.php:298 src/lib/src/Modules/Plugin/Strings.php:77
-#: src/lib/src/Modules/Plugin/Strings.php:82
+#: src/features/insights.php:298 src/lib/src/Modules/Plugin/Strings.php:80
+#: src/lib/src/Modules/Plugin/Strings.php:85
 msgid "Export"
 msgstr ""
 
@@ -1163,9 +1163,9 @@ msgstr ""
 #: src/lib/src/Modules/LoginGuard/Strings.php:213
 #: src/lib/src/Modules/LoginGuard/Strings.php:221
 #: src/lib/src/Modules/LoginGuard/Strings.php:235
-#: src/lib/src/Modules/Plugin/Strings.php:98
-#: src/lib/src/Modules/Plugin/Strings.php:102
-#: src/lib/src/Modules/Plugin/Strings.php:198
+#: src/lib/src/Modules/Plugin/Strings.php:101
+#: src/lib/src/Modules/Plugin/Strings.php:105
+#: src/lib/src/Modules/Plugin/Strings.php:201
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:120
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:139
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:146
@@ -1194,12 +1194,12 @@ msgstr ""
 #: src/lib/src/Modules/HackGuard/Strings.php:259
 #: src/lib/src/Modules/HackGuard/Strings.php:283
 #: src/lib/src/Modules/HackGuard/Strings.php:284
-#: src/lib/src/Modules/HackGuard/Strings.php:360
+#: src/lib/src/Modules/HackGuard/Strings.php:367
 #: src/lib/src/Modules/IPs/Strings.php:66
 #: src/lib/src/Modules/Lockdown/Strings.php:130
 #: src/lib/src/Modules/Lockdown/Strings.php:143
 #: src/lib/src/Modules/Plugin/AdminNotices.php:88
-#: src/lib/src/Modules/Plugin/Strings.php:214
+#: src/lib/src/Modules/Plugin/Strings.php:217
 #: src/lib/src/Modules/Traffic/Strings.php:54
 #: src/processors/hackprotect_scan_apc.php:100
 #: src/processors/hackprotect_scan_mal.php:119
@@ -1255,7 +1255,7 @@ msgstr ""
 msgid "Not Active"
 msgstr ""
 
-#: src/features/lockdown.php:70 src/lib/src/Modules/Plugin/Strings.php:415
+#: src/features/lockdown.php:70 src/lib/src/Modules/Plugin/Strings.php:418
 msgid "WP Lockdown"
 msgstr ""
 
@@ -1399,7 +1399,7 @@ msgstr ""
 
 #: src/features/login_protect.php:586
 #: src/lib/src/Modules/LoginGuard/Strings.php:71
-#: src/lib/src/Modules/Plugin/Strings.php:417 src/wizards/plugin.php:549
+#: src/lib/src/Modules/Plugin/Strings.php:420 src/wizards/plugin.php:549
 #: src/wizards/plugin.php:554
 msgid "Login Guard"
 msgstr ""
@@ -1460,7 +1460,7 @@ msgstr ""
 msgid "Options imported successfully"
 msgstr ""
 
-#: src/features/plugin.php:710 src/lib/src/Modules/Plugin/Strings.php:374
+#: src/features/plugin.php:710 src/lib/src/Modules/Plugin/Strings.php:377
 #: src/processors/plugin_importexport.php:63
 msgid "General Settings"
 msgstr ""
@@ -1505,39 +1505,44 @@ msgstr ""
 msgid "Google reCAPTCHA keys haven't been provided"
 msgstr ""
 
-#: src/features/traffic.php:56
-#, php-format
-msgid "%s is a Pro-only feature."
-msgstr ""
-
-#: src/features/traffic.php:61
+#: src/features/traffic.php:57
 msgid ""
 "Traffic Watcher will not run because visitor IP address detection is not "
 "correctly configured."
 msgstr ""
 
+#: src/features/traffic.php:63
+#, php-format
+msgid "%s is a Pro-only feature."
+msgstr ""
+
+#: src/features/traffic.php:63
+msgid "Traffic Limiting"
+msgstr ""
+
 #: src/features/user_management.php:143
-#: src/lib/src/Modules/Plugin/Strings.php:367
+#: src/lib/src/Modules/Plugin/Strings.php:370
 msgid "Very Weak"
 msgstr ""
 
 #: src/features/user_management.php:144
-#: src/lib/src/Modules/Plugin/Strings.php:368
+#: src/lib/src/Modules/Plugin/Strings.php:371
 msgid "Weak"
 msgstr ""
 
 #: src/features/user_management.php:145
-#: src/lib/src/Modules/Plugin/Strings.php:369
+#: src/lib/src/Modules/Plugin/Strings.php:372
+#: src/lib/src/Modules/Plugin/Strings.php:441
 msgid "Medium"
 msgstr ""
 
 #: src/features/user_management.php:146
-#: src/lib/src/Modules/Plugin/Strings.php:370
+#: src/lib/src/Modules/Plugin/Strings.php:373
 msgid "Strong"
 msgstr ""
 
 #: src/features/user_management.php:147
-#: src/lib/src/Modules/Plugin/Strings.php:371
+#: src/lib/src/Modules/Plugin/Strings.php:374
 msgid "Very Strong"
 msgstr ""
 
@@ -1565,7 +1570,7 @@ msgid "Password policies should be turned-on."
 msgstr ""
 
 #: src/features/user_management.php:332
-#: src/lib/src/Modules/Plugin/Strings.php:426
+#: src/lib/src/Modules/Plugin/Strings.php:429
 #: src/lib/src/Modules/Sessions/Strings.php:24
 #: src/lib/src/Modules/Traffic/Strings.php:43
 #: src/lib/src/Modules/Traffic/Strings.php:53
@@ -1809,7 +1814,7 @@ msgstr ""
 
 #: src/lib/src/Modules/AuditTrail/Strings.php:101
 #: src/lib/src/Modules/Base/Strings.php:59
-#: src/lib/src/Modules/Plugin/Strings.php:388
+#: src/lib/src/Modules/Plugin/Strings.php:391
 #: src/lib/src/Tables/Render/IpBase.php:21
 #: src/lib/src/Tables/Render/IpBlack.php:16
 #: src/lib/src/Tables/Render/IpWhite.php:12 src/processors/firewall.php:403
@@ -1930,10 +1935,10 @@ msgstr ""
 #: src/lib/src/Modules/LoginGuard/Strings.php:117
 #: src/lib/src/Modules/LoginGuard/Strings.php:126
 #: src/lib/src/Modules/LoginGuard/Strings.php:135
-#: src/lib/src/Modules/Plugin/Strings.php:64
-#: src/lib/src/Modules/Plugin/Strings.php:72
-#: src/lib/src/Modules/Plugin/Strings.php:79
-#: src/lib/src/Modules/Plugin/Strings.php:94
+#: src/lib/src/Modules/Plugin/Strings.php:67
+#: src/lib/src/Modules/Plugin/Strings.php:75
+#: src/lib/src/Modules/Plugin/Strings.php:82
+#: src/lib/src/Modules/Plugin/Strings.php:97
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:37
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:46
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:55
@@ -2004,7 +2009,7 @@ msgstr ""
 #: src/lib/src/Modules/LoginGuard/Strings.php:108
 #: src/lib/src/Modules/LoginGuard/Strings.php:127
 #: src/lib/src/Modules/LoginGuard/Strings.php:242
-#: src/lib/src/Modules/Plugin/Strings.php:96
+#: src/lib/src/Modules/Plugin/Strings.php:99
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:38
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:47
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:56
@@ -2907,7 +2912,7 @@ msgstr ""
 #: src/lib/src/Modules/CommentsFilter/Strings.php:76
 #: src/lib/src/Modules/LoginGuard/Strings.php:108
 #: src/lib/src/Modules/LoginGuard/Strings.php:127
-#: src/lib/src/Modules/Plugin/Strings.php:97
+#: src/lib/src/Modules/Plugin/Strings.php:100
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:47
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:56
 #: src/lib/src/Modules/UserManagement/Strings.php:49
@@ -2994,10 +2999,10 @@ msgstr ""
 #: src/lib/src/Modules/CommentsFilter/Strings.php:121
 #: src/lib/src/Modules/HackGuard/Strings.php:342
 #: src/lib/src/Modules/HackGuard/Strings.php:343
-#: src/lib/src/Modules/HackGuard/Strings.php:361
+#: src/lib/src/Modules/HackGuard/Strings.php:368
 #: src/lib/src/Modules/LoginGuard/Strings.php:222
-#: src/lib/src/Modules/Plugin/Strings.php:239
-#: src/lib/src/Modules/Plugin/Strings.php:246
+#: src/lib/src/Modules/Plugin/Strings.php:242
+#: src/lib/src/Modules/Plugin/Strings.php:249
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:70
 #: src/lib/src/Modules/UserManagement/Strings.php:213
 #: src/lib/src/Modules/UserManagement/Strings.php:230
@@ -3167,7 +3172,7 @@ msgstr ""
 
 #: src/lib/src/Modules/CommentsFilter/Strings.php:183
 #: src/lib/src/Modules/LoginGuard/Strings.php:226
-#: src/lib/src/Modules/Plugin/Strings.php:250
+#: src/lib/src/Modules/Plugin/Strings.php:253
 msgid "reCAPTCHA Style"
 msgstr ""
 
@@ -3178,7 +3183,7 @@ msgstr ""
 
 #: src/lib/src/Modules/CommentsFilter/Strings.php:185
 #: src/lib/src/Modules/LoginGuard/Strings.php:228
-#: src/lib/src/Modules/Plugin/Strings.php:252
+#: src/lib/src/Modules/Plugin/Strings.php:255
 msgid ""
 "You can choose the reCAPTCHA display format that best suits your site, "
 "including the new Invisible Recaptcha"
@@ -3296,6 +3301,7 @@ msgid "Google reCAPTCHA Test Success"
 msgstr ""
 
 #: src/lib/src/Modules/Events/Strings.php:33
+#: src/lib/src/Modules/Plugin/Strings.php:48
 msgid "Google reCAPTCHA Test Fail"
 msgstr ""
 
@@ -4574,74 +4580,116 @@ msgid ""
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:347
-#: src/lib/src/Tables/Build/ScanMal.php:38
-msgid "False Positive Confidence"
+msgid "Ignore False Positives Threshold"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:348
-msgid "False Positive Confidence Boundary"
+msgid "Ignore False Positives In Scan Results Automatically"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:349
 msgid ""
-"Ignore files with potential malware when the confidence level of a false "
-"positive is greater than this value."
+"You can choose to ignore files with potential malware, depending on whether "
+"the confidence that it's a 'false positive' meets your minimum threshold."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:350
-msgid "Confidence is measured between 0 and 100 points."
-msgstr ""
-
-#: src/lib/src/Modules/HackGuard/Strings.php:351
-msgid ""
-"The higher the confidence, the more likely a result is a false positive."
-msgstr ""
-
-#: src/lib/src/Modules/HackGuard/Strings.php:352
 msgid ""
 "A false positive happens when a file appears to contain malware and shows up "
 "in scan results, but it's actually clean."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:353
+#: src/lib/src/Modules/HackGuard/Strings.php:351
 msgid ""
 "A false positive is similar to when an anti-virus alerts to a file that "
 "doesnt have a virus."
 msgstr ""
 
+#: src/lib/src/Modules/HackGuard/Strings.php:352
+msgid ""
+"The higher the confidence level, the more likely a result is a false "
+"positive."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:353
+msgid "A low level means it's less likely to be a false positive."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:354
+msgid ""
+"The scan will automatically ignore results whose 'false positive' confidence "
+"level is greater than your chosen threshold."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:355
+msgid ""
+"The higher the confidence threshold you select, the more likely that 'false "
+"positives' will appears in your scan results."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:356
+msgid ""
+"Disabling network intelligence turns off 'false positive confidence' levels."
+msgstr ""
+
 #: src/lib/src/Modules/HackGuard/Strings.php:357
-msgid "Surgical Auto-Repair"
+msgid ""
+"You will no longer benefit from the intelligence gathered from the entire "
+"network."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:358
-msgid "Automatically Attempt To Surgically Remove Malware Code"
+msgid "All data shared is completely anonymous."
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:359
-msgid "Attempts to automatically remove code from infected files."
+#: src/lib/src/Tables/Render/ScanWpv.php:55
+#: src/processors/hackprotect_scan_mal.php:165
+#: src/processors/hackprotect_scan_wcf.php:112
+#: src/processors/hackprotect_scan_wpv.php:201
+#: src/processors/loginprotect_intent.php:285
+msgid "More Info"
 msgstr ""
 
 #: src/lib/src/Modules/HackGuard/Strings.php:360
+msgid ""
+"The more sites that share this information, the stronger and smarter the "
+"network becomes."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:364
+msgid "Surgical Auto-Repair"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:365
+msgid "Automatically Attempt To Surgically Remove Malware Code"
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:366
+msgid "Attempts to automatically remove code from infected files."
+msgstr ""
+
+#: src/lib/src/Modules/HackGuard/Strings.php:367
 msgid ""
 "This could break your site if code removal leaves remaining code in an "
 "inconsistent state."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:361
+#: src/lib/src/Modules/HackGuard/Strings.php:368
 msgid ""
 "Only applies to files that don't fall under the other categories for "
 "automatic repair."
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:365
+#: src/lib/src/Modules/HackGuard/Strings.php:372
 msgid "WP Config"
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:366
+#: src/lib/src/Modules/HackGuard/Strings.php:373
 msgid "Realtime Protection For WP Config File"
 msgstr ""
 
-#: src/lib/src/Modules/HackGuard/Strings.php:367
+#: src/lib/src/Modules/HackGuard/Strings.php:374
 msgid "Realtime protection for the wp-config.php file."
 msgstr ""
 
@@ -4846,7 +4894,7 @@ msgid "%s is ignoring you"
 msgstr ""
 
 #: src/lib/src/Modules/IPs/AdminNotices.php:40
-#: src/lib/src/Modules/Plugin/Strings.php:380 src/processors/plugin.php:84
+#: src/lib/src/Modules/Plugin/Strings.php:383 src/processors/plugin.php:84
 #, php-format
 msgid "Your IP address is: %s"
 msgstr ""
@@ -4916,7 +4964,7 @@ msgid ""
 msgstr ""
 
 #: src/lib/src/Modules/IPs/Strings.php:28
-#: src/lib/src/Modules/Plugin/Strings.php:413 src/wizards/plugin.php:514
+#: src/lib/src/Modules/Plugin/Strings.php:416 src/wizards/plugin.php:514
 #: src/wizards/plugin.php:519
 msgid "IP Manager"
 msgstr ""
@@ -5677,7 +5725,7 @@ msgid "Obscurity"
 msgstr ""
 
 #: src/lib/src/Modules/Lockdown/Strings.php:95
-#: src/lib/src/Modules/Plugin/Strings.php:62
+#: src/lib/src/Modules/Plugin/Strings.php:65
 #, php-format
 msgid "Disable %s"
 msgstr ""
@@ -6140,7 +6188,7 @@ msgid "Two-Factor Login Authentication By %s"
 msgstr ""
 
 #: src/lib/src/Modules/LoginGuard/Strings.php:205
-#: src/lib/src/Modules/Plugin/Strings.php:407
+#: src/lib/src/Modules/Plugin/Strings.php:410
 #: src/processors/user_management.php:204
 msgid "Email"
 msgstr ""
@@ -6170,8 +6218,8 @@ msgid "This setting only applies to %s."
 msgstr ""
 
 #: src/lib/src/Modules/LoginGuard/Strings.php:217
-#: src/lib/src/Modules/Plugin/Strings.php:91
-#: src/lib/src/Modules/Plugin/Strings.php:92
+#: src/lib/src/Modules/Plugin/Strings.php:94
+#: src/lib/src/Modules/Plugin/Strings.php:95
 msgid "Google reCAPTCHA"
 msgstr ""
 
@@ -6190,7 +6238,7 @@ msgid "Use of any theme other than \"%s\", requires a Pro license."
 msgstr ""
 
 #: src/lib/src/Modules/LoginGuard/Strings.php:220
-#: src/lib/src/Modules/Plugin/Strings.php:430
+#: src/lib/src/Modules/Plugin/Strings.php:433
 msgid "Light Theme"
 msgstr ""
 
@@ -6663,348 +6711,348 @@ msgstr ""
 msgid "Master Site URL set: %s"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:61
+#: src/lib/src/Modules/Plugin/Strings.php:64
 msgid "Global Security Plugin Disable"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:64
+#: src/lib/src/Modules/Plugin/Strings.php:67
 msgid "Use this option to completely disable all active Shield Protection."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:69
-#: src/lib/src/Modules/Plugin/Strings.php:70
+#: src/lib/src/Modules/Plugin/Strings.php:72
+#: src/lib/src/Modules/Plugin/Strings.php:73
 msgid "Plugin Defaults"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:72
+#: src/lib/src/Modules/Plugin/Strings.php:75
 msgid "Important default settings used throughout the plugin."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:79
+#: src/lib/src/Modules/Plugin/Strings.php:82
 msgid ""
 "Automatically import options, and deploy configurations across your entire "
 "network."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:80
+#: src/lib/src/Modules/Plugin/Strings.php:83
 msgid "This is a Pro-only feature."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:86
+#: src/lib/src/Modules/Plugin/Strings.php:89
 msgid "General Plugin Options"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:87
+#: src/lib/src/Modules/Plugin/Strings.php:90
 msgid "General Options"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:94
+#: src/lib/src/Modules/Plugin/Strings.php:97
 #, php-format
 msgid "Setup Google reCAPTCHA for use across %s."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:98
+#: src/lib/src/Modules/Plugin/Strings.php:101
 msgid "You must create your own Google reCAPTCHA API Keys."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:100
+#: src/lib/src/Modules/Plugin/Strings.php:103
 msgid "Manage Keys Here"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:102
+#: src/lib/src/Modules/Plugin/Strings.php:105
 #, php-format
 msgid "Invisible Google reCAPTCHA is available with %s Pro."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:107
-#: src/lib/src/Modules/Plugin/Strings.php:108
+#: src/lib/src/Modules/Plugin/Strings.php:110
+#: src/lib/src/Modules/Plugin/Strings.php:111
 msgid "Duo Security"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:135
+#: src/lib/src/Modules/Plugin/Strings.php:138
 #, php-format
 msgid "Enable %s Protection"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:136
+#: src/lib/src/Modules/Plugin/Strings.php:139
 msgid "Switch Off To Disable All Security Protection"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:137
+#: src/lib/src/Modules/Plugin/Strings.php:140
 msgid ""
 "You can keep the security plugin activated, but temporarily disable all "
 "protection it provides."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:141
+#: src/lib/src/Modules/Plugin/Strings.php:144
 msgid "Anonymous Usage Statistics"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:142
+#: src/lib/src/Modules/Plugin/Strings.php:145
 msgid "Permit Anonymous Usage Information Gathering"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:143
+#: src/lib/src/Modules/Plugin/Strings.php:146
 msgid ""
 "Allows us to gather information on statistics and features in-use across our "
 "client installations."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:144
+#: src/lib/src/Modules/Plugin/Strings.php:147
 msgid ""
 "This information is strictly anonymous and contains no personally, or "
 "otherwise, identifiable data."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:145
+#: src/lib/src/Modules/Plugin/Strings.php:148
 msgid "Click to see the exact data that would be sent."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:149
+#: src/lib/src/Modules/Plugin/Strings.php:152
 msgid "IP Source"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:150
+#: src/lib/src/Modules/Plugin/Strings.php:153
 msgid "Which IP Address Is Yours"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:151
+#: src/lib/src/Modules/Plugin/Strings.php:154
 msgid ""
 "There are many possible ways to detect visitor IP addresses. If Auto-Detect "
 "is not working, please select yours from the list."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:152
+#: src/lib/src/Modules/Plugin/Strings.php:155
 msgid ""
 "If the option you select becomes unavailable, we will revert to auto "
 "detection."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:154
+#: src/lib/src/Modules/Plugin/Strings.php:157
 #, php-format
 msgid "Current source is: %s (%s)"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:163
+#: src/lib/src/Modules/Plugin/Strings.php:166
 msgid "Report Email"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:164
+#: src/lib/src/Modules/Plugin/Strings.php:167
 msgid "Where to send email reports"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:165
+#: src/lib/src/Modules/Plugin/Strings.php:168
 #, php-format
 msgid "If this is empty, it will default to the blog admin email address: %s"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:169
+#: src/lib/src/Modules/Plugin/Strings.php:172
 msgid "In-Plugin Notices"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:170
+#: src/lib/src/Modules/Plugin/Strings.php:173
 msgid "Display Plugin Specific Notices"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:171
+#: src/lib/src/Modules/Plugin/Strings.php:174
 msgid ""
 "Disable this option to hide certain plugin admin notices about available "
 "updates and post-update notices."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:175
+#: src/lib/src/Modules/Plugin/Strings.php:178
 msgid "Show Plugin Badge"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:176
+#: src/lib/src/Modules/Plugin/Strings.php:179
 msgid "Display Plugin Badge On Your Site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:177
+#: src/lib/src/Modules/Plugin/Strings.php:180
 msgid ""
 "Enabling this option helps support the plugin by spreading the word about it "
 "on your website."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:178
+#: src/lib/src/Modules/Plugin/Strings.php:181
 msgid ""
 "The plugin badge also lets visitors know your are taking your website "
 "security seriously."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:179
+#: src/lib/src/Modules/Plugin/Strings.php:182
 msgid "Read this carefully before enabling this option."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:183
+#: src/lib/src/Modules/Plugin/Strings.php:186
 msgid "Delete Plugin Settings"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:184
+#: src/lib/src/Modules/Plugin/Strings.php:187
 msgid "Delete All Plugin Settings Upon Plugin Deactivation"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:185
+#: src/lib/src/Modules/Plugin/Strings.php:188
 msgid "Careful: Removes all plugin options when you deactivate the plugin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:189
+#: src/lib/src/Modules/Plugin/Strings.php:192
 msgid "XML-RPC Compatibility"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:190
+#: src/lib/src/Modules/Plugin/Strings.php:193
 msgid "Allow Login Through XML-RPC To By-Pass Accounts Management Rules"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:191
+#: src/lib/src/Modules/Plugin/Strings.php:194
 msgid ""
 "Enable this if you need XML-RPC functionality e.g. if you use the WordPress "
 "iPhone/Android App."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:195
+#: src/lib/src/Modules/Plugin/Strings.php:198
 msgid "Allow Import/Export"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:196
+#: src/lib/src/Modules/Plugin/Strings.php:199
 msgid "Allow Import And Export Of Options On This Site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:197
+#: src/lib/src/Modules/Plugin/Strings.php:200
 msgid "Uncheck this box to completely disable import and export of options."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:198
+#: src/lib/src/Modules/Plugin/Strings.php:201
 msgid "Import/Export is a premium-only feature."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:202
+#: src/lib/src/Modules/Plugin/Strings.php:205
 msgid "Export Whitelist"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:203
+#: src/lib/src/Modules/Plugin/Strings.php:206
 msgid "Whitelisted Sites To Export Options From This Site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:204
+#: src/lib/src/Modules/Plugin/Strings.php:207
 msgid "Whitelisted sites may export options from this site without the key."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:205
+#: src/lib/src/Modules/Plugin/Strings.php:208
 msgid "List each site URL on a new line."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:206
+#: src/lib/src/Modules/Plugin/Strings.php:209
 msgid "This is to be used in conjunction with the Master Import Site feature."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:210
+#: src/lib/src/Modules/Plugin/Strings.php:213
 msgid "Master Import Site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:211
+#: src/lib/src/Modules/Plugin/Strings.php:214
 msgid "Automatically Import Options From This Site URL"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:212
+#: src/lib/src/Modules/Plugin/Strings.php:215
 msgid "Supplying a site URL here will make this site an 'Options Slave'."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:213
+#: src/lib/src/Modules/Plugin/Strings.php:216
 msgid "Options will be automatically exported from the Master site each day."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:214
+#: src/lib/src/Modules/Plugin/Strings.php:217
 msgid ""
 "Use of this feature will overwrite existing options and replace them with "
 "those from the Master Import Site."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:218
+#: src/lib/src/Modules/Plugin/Strings.php:221
 msgid "Notify Whitelist"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:219
+#: src/lib/src/Modules/Plugin/Strings.php:222
 msgid "Notify Sites On The Whitelist To Update Options From Master"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:220
+#: src/lib/src/Modules/Plugin/Strings.php:223
 msgid ""
 "When enabled, manual options saving will notify sites on the whitelist to "
 "export options from the Master site."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:224
+#: src/lib/src/Modules/Plugin/Strings.php:227
 #: src/processors/plugin_importexport.php:59
 #: src/processors/plugin_importexport.php:63
 msgid "Secret Key"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:225
+#: src/lib/src/Modules/Plugin/Strings.php:228
 msgid "Import/Export Secret Key"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:226
+#: src/lib/src/Modules/Plugin/Strings.php:229
 msgid ""
 "Keep this Secret Key private as it will allow the import and export of "
 "options."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:230
+#: src/lib/src/Modules/Plugin/Strings.php:233
 msgid "Installation ID"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:231
+#: src/lib/src/Modules/Plugin/Strings.php:234
 msgid "Unique Plugin Installation ID"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:232
+#: src/lib/src/Modules/Plugin/Strings.php:235
 msgid "Keep this ID private."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:236
+#: src/lib/src/Modules/Plugin/Strings.php:239
 msgid "reCAPTCHA Secret"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:237
+#: src/lib/src/Modules/Plugin/Strings.php:240
 msgid "Google reCAPTCHA Secret Key"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:238
+#: src/lib/src/Modules/Plugin/Strings.php:241
 msgid "Enter your Google reCAPTCHA secret key for use throughout the plugin."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:243
+#: src/lib/src/Modules/Plugin/Strings.php:246
 msgid "reCAPTCHA Site Key"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:244
+#: src/lib/src/Modules/Plugin/Strings.php:247
 msgid "Google reCAPTCHA Site Key"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:245
+#: src/lib/src/Modules/Plugin/Strings.php:248
 msgid "Enter your Google reCAPTCHA site key for use throughout the plugin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:251
+#: src/lib/src/Modules/Plugin/Strings.php:254
 msgid "How Google reCAPTCHA Will Be Displayed By Default"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:302
+#: src/lib/src/Modules/Plugin/Strings.php:305
 msgid "Install"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:303
+#: src/lib/src/Modules/Plugin/Strings.php:306
 msgid "Update"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:304
+#: src/lib/src/Modules/Plugin/Strings.php:307
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:146
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:172
 msgid "Activate"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:305
+#: src/lib/src/Modules/Plugin/Strings.php:308
 #: src/lib/src/Tables/Render/AdminNotes.php:20
 #: src/lib/src/Tables/Render/Base.php:203
 #: src/lib/src/Tables/Render/ScanMal.php:35
@@ -7012,435 +7060,451 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:306
+#: src/lib/src/Modules/Plugin/Strings.php:309
 #: src/lib/src/Modules/SecurityAdmin/Strings.php:173
 msgid "Edit Theme Options"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:307
+#: src/lib/src/Modules/Plugin/Strings.php:310
 msgid "Create/Edit"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:308
+#: src/lib/src/Modules/Plugin/Strings.php:311
 msgid "Publish"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:309
+#: src/lib/src/Modules/Plugin/Strings.php:312
 msgid "Author Name"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:310
+#: src/lib/src/Modules/Plugin/Strings.php:313
 msgid "Author Email"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:311
+#: src/lib/src/Modules/Plugin/Strings.php:314
 msgid "Comment Content"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:312
+#: src/lib/src/Modules/Plugin/Strings.php:315
 msgid "Browser User Agent"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:313
+#: src/lib/src/Modules/Plugin/Strings.php:316
 msgid "Login"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:314
+#: src/lib/src/Modules/Plugin/Strings.php:317
 msgid "Register"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:315
+#: src/lib/src/Modules/Plugin/Strings.php:318
 msgid "Lost Password"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:316
+#: src/lib/src/Modules/Plugin/Strings.php:319
 msgid "Checkout (WooCommerce)"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:317
+#: src/lib/src/Modules/Plugin/Strings.php:320
 msgid "Simple Requests"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:318
+#: src/lib/src/Modules/Plugin/Strings.php:321
 msgid "Logged-In Users"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:319
+#: src/lib/src/Modules/Plugin/Strings.php:322
 msgid "Search Engines"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:320
+#: src/lib/src/Modules/Plugin/Strings.php:323
 msgid "Uptime Monitoring Services"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:321
+#: src/lib/src/Modules/Plugin/Strings.php:324
 msgid "Enabled With Email Reports"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:323
+#: src/lib/src/Modules/Plugin/Strings.php:326
 msgid "Minor Versions Only"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:324
+#: src/lib/src/Modules/Plugin/Strings.php:327
 msgid "Major and Minor Versions"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:325
+#: src/lib/src/Modules/Plugin/Strings.php:328
 msgid "Let The Plugin Decide"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:326
+#: src/lib/src/Modules/Plugin/Strings.php:329
 msgid "As Soon As Possible"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:327
+#: src/lib/src/Modules/Plugin/Strings.php:330
 msgid "Move To Pending Moderation"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:328
+#: src/lib/src/Modules/Plugin/Strings.php:331
 msgid "Move To SPAM"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:329
+#: src/lib/src/Modules/Plugin/Strings.php:332
 msgid "Move To Trash"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:330
+#: src/lib/src/Modules/Plugin/Strings.php:333
 msgid "Block And Redirect"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:331
+#: src/lib/src/Modules/Plugin/Strings.php:334
 msgid "Invisible"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:332
+#: src/lib/src/Modules/Plugin/Strings.php:335
 msgid "Default Style"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:333
+#: src/lib/src/Modules/Plugin/Strings.php:336
 msgid "Redirect To Home Page"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:334
+#: src/lib/src/Modules/Plugin/Strings.php:337
 msgid "Return 404"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:335
+#: src/lib/src/Modules/Plugin/Strings.php:338
 msgid "Die"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:336
+#: src/lib/src/Modules/Plugin/Strings.php:339
 msgid "Scan Disabled"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:337
+#: src/lib/src/Modules/Plugin/Strings.php:340
 msgid "Scan Enabled"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:338
+#: src/lib/src/Modules/Plugin/Strings.php:341
 msgid "Automatic Scan Disabled"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:339
+#: src/lib/src/Modules/Plugin/Strings.php:342
 msgid "Automatic Scan Enabled"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:340
+#: src/lib/src/Modules/Plugin/Strings.php:343
 msgid "Scan Enabled - Send Email Notification"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:341
+#: src/lib/src/Modules/Plugin/Strings.php:344
 msgid "Scan Enabled - No Email Notification"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:342
+#: src/lib/src/Modules/Plugin/Strings.php:345
 msgid "Scan Enabled - Automatically Delete Files"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:343
+#: src/lib/src/Modules/Plugin/Strings.php:346
 msgid "Scan Enabled - Delete Files and Send Email Notification"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:344
+#: src/lib/src/Modules/Plugin/Strings.php:347
 msgid "Off: iFrames Not Blocked"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:345
+#: src/lib/src/Modules/Plugin/Strings.php:348
 msgid "On: Allow iFrames On The Same Domain"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:346
+#: src/lib/src/Modules/Plugin/Strings.php:349
 msgid "On: Block All iFrames"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:347
+#: src/lib/src/Modules/Plugin/Strings.php:350
 msgid "Default: Full Referrer URL (aka 'Unsafe URL')"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:348
+#: src/lib/src/Modules/Plugin/Strings.php:351
 msgid "No Referrer"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:349
+#: src/lib/src/Modules/Plugin/Strings.php:352
 msgid "No Referrer When Downgrade"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:350
+#: src/lib/src/Modules/Plugin/Strings.php:353
 msgid "Same Origin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:351
+#: src/lib/src/Modules/Plugin/Strings.php:354
 msgid "Origin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:352
+#: src/lib/src/Modules/Plugin/Strings.php:355
 msgid "Strict Origin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:353
+#: src/lib/src/Modules/Plugin/Strings.php:356
 msgid "Origin When Cross-Origin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:354
+#: src/lib/src/Modules/Plugin/Strings.php:357
 msgid "Strict Origin When Cross-Origin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:355
+#: src/lib/src/Modules/Plugin/Strings.php:358
 msgid "Empty Header"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:356
+#: src/lib/src/Modules/Plugin/Strings.php:359
 msgid "Disabled - Don't Send This Header"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:357
+#: src/lib/src/Modules/Plugin/Strings.php:360
 msgid "Minute"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:358
+#: src/lib/src/Modules/Plugin/Strings.php:361
 msgid "Hour"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:359
+#: src/lib/src/Modules/Plugin/Strings.php:362
 msgid "Day"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:360
+#: src/lib/src/Modules/Plugin/Strings.php:363
 msgid "Week"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:361
+#: src/lib/src/Modules/Plugin/Strings.php:364
 msgid "Month"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:362
+#: src/lib/src/Modules/Plugin/Strings.php:365
 msgid "With Shield Bot Protection"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:363
+#: src/lib/src/Modules/Plugin/Strings.php:366
 msgid "Audit Log Only"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:364
+#: src/lib/src/Modules/Plugin/Strings.php:367
 msgid "Increment Offense Counter"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:365
+#: src/lib/src/Modules/Plugin/Strings.php:368
 msgid "Double-Increment Offense Counter"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:366
+#: src/lib/src/Modules/Plugin/Strings.php:369
 msgid "Immediate Block"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:375
+#: src/lib/src/Modules/Plugin/Strings.php:378
 msgid "Security Dashboard"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:376
+#: src/lib/src/Modules/Plugin/Strings.php:379
 msgid "Automatically Detect Visitor IP"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:378
+#: src/lib/src/Modules/Plugin/Strings.php:381
 msgid "IP Address White List"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:379
+#: src/lib/src/Modules/Plugin/Strings.php:382
 msgid ""
 "Any IP addresses on this list will by-pass all Plugin Security Checking."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:381
+#: src/lib/src/Modules/Plugin/Strings.php:384
 msgid "Choose IP Addresses To Blacklist"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:382
+#: src/lib/src/Modules/Plugin/Strings.php:385
 #, php-format
 msgid "Recommendation - %s"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:383
+#: src/lib/src/Modules/Plugin/Strings.php:386
 msgid "Blacklist"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:384
+#: src/lib/src/Modules/Plugin/Strings.php:387
 msgid "Logging"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:385
+#: src/lib/src/Modules/Plugin/Strings.php:388
 #, php-format
 msgid ""
 "User \"%s\" was forcefully logged out as they were not verified by either "
 "cookie or IP address (or both)."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:386
+#: src/lib/src/Modules/Plugin/Strings.php:389
 #, php-format
 msgid ""
 "User \"%s\" was found to be un-verified at the given IP Address: \"%s\"."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:387
+#: src/lib/src/Modules/Plugin/Strings.php:390
 msgid "Cookie"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:389
+#: src/lib/src/Modules/Plugin/Strings.php:392
 #: src/lib/src/Tables/Build/Traffic.php:140
 msgid "IP"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:390
+#: src/lib/src/Modules/Plugin/Strings.php:393
 msgid ""
 "This will restrict all user login sessions to a single browser. Use this if "
 "your users have dynamic IP addresses."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:391
+#: src/lib/src/Modules/Plugin/Strings.php:394
 msgid ""
 "All users will be required to authenticate their login by email-based two-"
 "factor authentication, when logging in from a new IP address"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:392
+#: src/lib/src/Modules/Plugin/Strings.php:395
 msgid "2-Factor Auth"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:393
+#: src/lib/src/Modules/Plugin/Strings.php:396
 msgid "Include Logged-In Users"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:394
+#: src/lib/src/Modules/Plugin/Strings.php:397
 msgid "You may also enable GASP for logged in users"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:395
+#: src/lib/src/Modules/Plugin/Strings.php:398
 msgid ""
 "Since logged-in users would be expected to be vetted already, this is off by "
 "default."
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:397
+#: src/lib/src/Modules/Plugin/Strings.php:400
 msgid "Protect your security plugin not just your WordPress site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:400
+#: src/lib/src/Modules/Plugin/Strings.php:403
 msgid "Get a view on what happens on your site, when it happens"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:401
+#: src/lib/src/Modules/Plugin/Strings.php:404
 msgid "Audit Trail Viewer"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:403
+#: src/lib/src/Modules/Plugin/Strings.php:406
 msgid "Take back full control of WordPress automatic updates"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:404
+#: src/lib/src/Modules/Plugin/Strings.php:407
 msgid "Comments SPAM"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:405
+#: src/lib/src/Modules/Plugin/Strings.php:408
 msgid "Block Bad IPs/Visitors"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:406
+#: src/lib/src/Modules/Plugin/Strings.php:409
 msgid "Block comment SPAM and retain your privacy"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:409
+#: src/lib/src/Modules/Plugin/Strings.php:412
 msgid "Automatically block malicious URLs and data sent to your site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:412
+#: src/lib/src/Modules/Plugin/Strings.php:415
 msgid "Control HTTP Security Headers"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:414
+#: src/lib/src/Modules/Plugin/Strings.php:417
 msgid "Manage Visitor IP Address"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:416
+#: src/lib/src/Modules/Plugin/Strings.php:419
 msgid "Harden the more loosely controlled settings of your site"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:418
+#: src/lib/src/Modules/Plugin/Strings.php:421
 msgid ""
 "Block brute force attacks and secure user identities with Two-Factor "
 "Authentication"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:419
+#: src/lib/src/Modules/Plugin/Strings.php:422
 msgid "Dashboard"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:420
+#: src/lib/src/Modules/Plugin/Strings.php:423
 msgid "General Plugin Settings"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:421
+#: src/lib/src/Modules/Plugin/Strings.php:424
 msgid "Statistics"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:422
+#: src/lib/src/Modules/Plugin/Strings.php:425
 msgid "Summary of the main security actions taken by this plugin"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:423
+#: src/lib/src/Modules/Plugin/Strings.php:426
 msgid "Stats Viewer"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:424
+#: src/lib/src/Modules/Plugin/Strings.php:427
 msgid "Premium Support"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:425
+#: src/lib/src/Modules/Plugin/Strings.php:428
 msgid "Premium Plugin Support Centre"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:427
+#: src/lib/src/Modules/Plugin/Strings.php:430
 msgid ""
 "Get true user sessions and control account sharing, session duration and "
 "timeouts"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:428
+#: src/lib/src/Modules/Plugin/Strings.php:431
 msgid "Two-Factor Authentication"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:431
+#: src/lib/src/Modules/Plugin/Strings.php:434
 msgid "Dark Theme"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:432
+#: src/lib/src/Modules/Plugin/Strings.php:435
 msgid "Once"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:433
+#: src/lib/src/Modules/Plugin/Strings.php:436
 msgid "Twice"
 msgstr ""
 
-#: src/lib/src/Modules/Plugin/Strings.php:434
+#: src/lib/src/Modules/Plugin/Strings.php:437
 msgid "Go To Security Dashboard"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Strings.php:439
+msgid "None - Turn Off Malware Intelligence Network"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Strings.php:440
+msgid "Low"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Strings.php:442
+msgid "High"
+msgstr ""
+
+#: src/lib/src/Modules/Plugin/Strings.php:443
+msgid "Full"
 msgstr ""
 
 #: src/lib/src/Modules/SecurityAdmin/AdminNotices.php:42
@@ -8580,20 +8644,24 @@ msgstr ""
 msgid "Abandoned"
 msgstr ""
 
-#: src/lib/src/Tables/Build/ScanMal.php:37
+#: src/lib/src/Tables/Build/ScanMal.php:39
 #: src/processors/hackprotect_scan_mal.php:119
 msgid "Potential Malware Detected"
 msgstr ""
 
-#: src/lib/src/Tables/Build/ScanMal.php:39
+#: src/lib/src/Tables/Build/ScanMal.php:40
 msgid "Pattern Detected"
 msgstr ""
 
-#: src/lib/src/Tables/Build/ScanMal.php:40
+#: src/lib/src/Tables/Build/ScanMal.php:41
 msgid "Affected line numbers"
 msgstr ""
 
-#: src/lib/src/Tables/Build/ScanMal.php:47
+#: src/lib/src/Tables/Build/ScanMal.php:45
+msgid "False Positive Confidence"
+msgstr ""
+
+#: src/lib/src/Tables/Build/ScanMal.php:52
 msgid "Repair Unavailable"
 msgstr ""
 
@@ -8724,14 +8792,6 @@ msgstr ""
 msgid "Deactivate"
 msgstr ""
 
-#: src/lib/src/Tables/Render/ScanWpv.php:55
-#: src/processors/hackprotect_scan_mal.php:165
-#: src/processors/hackprotect_scan_wcf.php:112
-#: src/processors/hackprotect_scan_wpv.php:201
-#: src/processors/loginprotect_intent.php:285
-msgid "More Info"
-msgstr ""
-
 #: src/lib/src/Tables/Render/ScanWpv.php:75
 msgid "Vulnerability"
 msgstr ""
@@ -8749,20 +8809,20 @@ msgstr ""
 msgid "Page"
 msgstr ""
 
-#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:42
-#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:49
+#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:40
+#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:47
 msgid "Whoops."
 msgstr ""
 
-#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:42
+#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:40
 msgid "Google reCAPTCHA was not submitted."
 msgstr ""
 
-#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:50
+#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:48
 msgid "Google reCAPTCHA verification failed."
 msgstr ""
 
-#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:52
+#: src/lib/src/Utilities/ReCaptcha/TestRequest.php:50
 msgid "Maybe refresh the page and try again."
 msgstr ""
 
