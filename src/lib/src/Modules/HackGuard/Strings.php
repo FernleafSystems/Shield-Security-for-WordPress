@@ -344,12 +344,15 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'mal_fp_confidence' :
-				$sName = __( 'False Positive Confidence Level', 'wp-simple-firewall' );
-				$sSummary = __( 'False Positive Confidence Level', 'wp-simple-firewall' );
-				$sDescription = __( "You can choose to ignore files with potential malware, when the level of confidence that it's a 'false positive' meets this value.", 'wp-simple-firewall' )
-								.'<br />'.__( "The higher the confidence level you choose, the more likely that 'false positives' will appears in your scan results.", 'wp-simple-firewall' )
+				$sName = __( 'Ignore False Positives Threshold', 'wp-simple-firewall' );
+				$sSummary = __( 'Ignore False Positives In Scan Results Automatically', 'wp-simple-firewall' );
+				$sDescription = __( "You can choose to ignore files with potential malware, depending on whether the confidence that it's a 'false positive' meets your minimum threshold.", 'wp-simple-firewall' )
 								.'<br />'.__( "A false positive happens when a file appears to contain malware and shows up in scan results, but it's actually clean.", 'wp-simple-firewall' )
-								.'<br />('.__( "A false positive is similar to when an anti-virus alerts to a file that doesnt have a virus.", 'wp-simple-firewall' ).')'
+								.' ('.__( "A false positive is similar to when an anti-virus alerts to a file that doesnt have a virus.", 'wp-simple-firewall' ).')'
+								.'<br />'.__( "The higher the confidence level, the more likely a result is a false positive.", 'wp-simple-firewall' )
+								.' '.__( "A low level means it's less likely to be a false positive.", 'wp-simple-firewall' )
+								.'<br />'.__( "The scan will automatically ignore results whose 'false positive' confidence level is greater than your chosen threshold.", 'wp-simple-firewall' )
+								.'<br />'.__( "The higher the confidence threshold you select, the more likely that 'false positives' will appears in your scan results.", 'wp-simple-firewall' )
 								.'<br />'.__( "Disabling network intelligence turns off 'false positive confidence' levels.", 'wp-simple-firewall' )
 								.' '.__( 'You will no longer benefit from the intelligence gathered from the entire network.', 'wp-simple-firewall' )
 								.' '.__( 'All data shared is completely anonymous.', 'wp-simple-firewall' )
