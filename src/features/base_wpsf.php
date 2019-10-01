@@ -318,6 +318,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		$oOpts = $this->getOptions();

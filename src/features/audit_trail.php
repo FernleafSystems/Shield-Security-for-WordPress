@@ -14,6 +14,16 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_AuditTrail() instanceof Shield\Databases\AuditTrail\Handler )
+			   && $this->getDbHandler_AuditTrail()->isReady()
+			   && parent::isReadyToExecute();
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getAllContexts() {

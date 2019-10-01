@@ -22,6 +22,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		return $this->isEnabledSecurityAdmin() && parent::isReadyToExecute();

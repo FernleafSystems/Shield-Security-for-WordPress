@@ -1045,6 +1045,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_ScanQueue() instanceof Shield\Databases\ScanQueue\Handler )
+			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && ( $this->getDbHandler_ScanResults() instanceof Shield\Databases\Scanner\Handler )
+			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && parent::isReadyToExecute();
+	}
+
+	/**
+	 * @return bool
 	 * @deprecated 8.2
 	 */
 	public function isMalScanEnabled() {

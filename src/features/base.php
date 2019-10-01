@@ -222,18 +222,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @param string                        $sDbhKey
-	 * @param Shield\Databases\Base\Handler $oDbH
-	 * @return Shield\Databases\Base\Handler|mixed
-	 */
-	protected function setupDbHandler( $sDbhKey, $oDbH ) {
-		if ( !is_array( $this->aDbHandlers ) ) {
-			$this->aDbHandlers = [];
-		}
-		return $oDbH;
-	}
-
-	/**
 	 * @param string $sKey
 	 * @return array|null
 	 */
@@ -388,8 +376,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $this->getOptions()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
-		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
-			$this->doExecuteProcessor();
+		try {
+			if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+				$this->doExecuteProcessor();
+			}
+		}
+		catch ( \Exception $oE ) {
 		}
 	}
 
@@ -405,20 +397,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
-	 * functionality of the plugin.
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		try {
-			$oDbH = $this->getPrimaryDbHandler();
-			$bReady = ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor )
-					  && ( !$oDbH instanceof Shield\Databases\Base\Handler || $oDbH->isReady() );
-		}
-		catch ( \Exception $oE ) {
-			$bReady = false;
-		}
-		return $bReady;
+		return ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor );
 	}
 
 	protected function doExecuteProcessor() {
@@ -1278,6 +1261,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @param string $sMsg
 	 * @param bool   $bError
+	 * @param bool   $bShowOnLogin
 	 * @return $this
 	 */
 	public function setFlashAdminNotice( $sMsg, $bError = false, $bShowOnLogin = false ) {

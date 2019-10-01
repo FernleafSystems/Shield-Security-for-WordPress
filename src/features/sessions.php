@@ -26,6 +26,16 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_Sessions() instanceof Shield\Databases\Session\Handler )
+			   && $this->getDbHandler_Sessions()->isReady()
+			   && parent::isReadyToExecute();
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

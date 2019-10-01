@@ -18,10 +18,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		$oIp = Services::IP();
-		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
+		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() )
+			   && ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
+			   && $this->getDbHandler_IPs()->isReady()
+			   && parent::isReadyToExecute();
 	}
 
 	protected function doExtraSubmitProcessing() {
