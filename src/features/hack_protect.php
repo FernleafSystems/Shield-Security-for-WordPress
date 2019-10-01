@@ -7,11 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @var Shield\Databases\ScanQueue\Handler
-	 */
-	private $oDbh_ScanQueue;
-
-	/**
 	 * @var HackGuard\Scan\Queue\Controller
 	 */
 	private $oScanQueueController;
@@ -83,7 +78,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
 			$this->setPtgLastBuildAt( 0 );
-			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
 			$oPro = $this->getProcessor();
 			$oPro->getSubProScanner()
 				 ->getSubProcessorPtg()
@@ -103,7 +98,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var Shield\Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
-					 ->getDbHandler()
+					 ->getDbHandler_Events()
 					 ->getQuerySelector();
 		$aEvents = $oSel->getLatestForAllEvents();
 
@@ -123,7 +118,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		/** @var Shield\Databases\Events\Select $oSel */
 		$oSel = $this->getCon()
 					 ->getModule_Events()
-					 ->getDbHandler()
+					 ->getDbHandler_Events()
 					 ->getQuerySelector();
 		$oEntry = $oSel->getLatestForEvent( $sScan.'_scan_run' );
 		return ( $oEntry instanceof Shield\Databases\Events\EntryVO ) ? $oEntry->created_at : 0;
@@ -135,7 +130,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getScanHasProblem( $sScan ) {
 		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
+		$oSel = $this->getDbHandler_ScanResults()->getQuerySelector();
 		return $oSel->filterByNotIgnored()
 					->filterByScan( $sScan )
 					->count() > 0;
@@ -221,25 +216,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sOption
-	 * @return $this
-	 */
-	public function setUfcOption( $sOption ) {
-		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
-	}
-
-	/**
-	 * @param array $aExclusions
-	 * @return $this
-	 */
-	public function setUfcFileExclusions( $aExclusions ) {
-		if ( !is_array( $aExclusions ) ) {
-			$aExclusions = [];
-		}
-		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
-	}
-
-	/**
 	 * @return $this
 	 */
 	protected function cleanFileExclusions() {
@@ -281,13 +257,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isUfsScanUploads() {
-		return $this->isOpt( 'ufc_scan_uploads', 'Y' );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function isUfcSendReport() {
@@ -309,22 +278,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isWcfScanEnabled() {
 		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
-	}
-
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setWcfScanEnabled( $bEnabled ) {
-		return $this->setOpt( 'enable_core_file_integrity_scan', $bEnabled ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setWcfScanAutoRepair( $bEnabled ) {
-		return $this->setOpt( 'attempt_auto_file_repair', $bEnabled ? 'Y' : 'N' );
 	}
 
 	/**
@@ -417,13 +370,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getPtgEnabledOption() {
-		return $this->getOpt( 'ptg_enable' );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getPtgLastBuildAt() {
@@ -506,14 +452,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sValue
-	 * @return $this
-	 */
-	public function setPtgEnabledOption( $sValue ) {
-		return $this->setOpt( 'ptg_enable', $sValue );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isApcEnabled() {
@@ -525,41 +463,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isApcSendEmail() {
 		return $this->isOpt( 'enabled_scan_apc', 'enabled_email' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalScanEnabled() {
-		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalScanAutoRepair() {
-		return $this->isMalAutoRepairCore() || $this->isMalAutoRepairPlugins() || $this->isMalAutoRepairSurgical();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairCore() {
-		return $this->isOpt( 'mal_autorepair_core', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairPlugins() {
-		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairSurgical() {
-		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -819,10 +722,20 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getTempDir() {
+		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
+		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
 		$aScanNames = $oStrings->getScanNames();
@@ -938,7 +851,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Malware
-			if ( !$this->isMalScanEnabled() ) {
+			if ( !$oOpts->isMalScanEnabled() ) {
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
@@ -1077,7 +990,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
 			];
 
-			$bMal = $this->isMalScanEnabled();
+			$bMal = $oOpts->isMalScanEnabled();
 			$aThis[ 'key_opts' ][ 'mal' ] = [
 				'title'   => $aScanNames[ 'mal' ],
 				'name'    => $aScanNames[ 'mal' ],
@@ -1117,26 +1030,71 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return Shield\Databases\ScanQueue\Handler
+	 * @return false|Shield\Databases\ScanQueue\Handler
 	 */
 	public function getDbHandler_ScanQueue() {
-		if ( !isset( $this->oDbh_ScanQueue ) ) {
-			try {
-				$this->oDbh_ScanQueue = ( new Shield\Databases\ScanQueue\Handler() )
-					->setMod( $this )
-					->tableInit();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oDbh_ScanQueue;
+		return $this->getDbH( 'scanq' );
 	}
 
 	/**
-	 * @return Shield\Databases\Scanner\Handler
+	 * @return false|Shield\Databases\Scanner\Handler
 	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Scanner\Handler();
+	public function getDbHandler_ScanResults() {
+		return $this->getDbH( 'scanresults' );
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_ScanQueue() instanceof Shield\Databases\ScanQueue\Handler )
+			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && ( $this->getDbHandler_ScanResults() instanceof Shield\Databases\Scanner\Handler )
+			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && parent::isReadyToExecute();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalScanEnabled() {
+		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalAutoRepairPlugins() {
+		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalScanAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isMalAutoRepair();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalAutoRepairCore() {
+		return $this->isOpt( 'mal_autorepair_core', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.2
+	 */
+	public function isMalAutoRepairSurgical() {
+		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
 	}
 
 	/**
@@ -1144,6 +1102,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getNamespaceBase() {
 		return 'HackGuard';
+	}
+
+	/**
+	 * @return Shield\Databases\Scanner\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Scanner\Handler();
 	}
 
 	/**

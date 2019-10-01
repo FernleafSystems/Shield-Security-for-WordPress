@@ -485,6 +485,9 @@
     }
   ],
   "definitions":   {
+    "db_classes":             {
+      "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
+    },
     "ip_lists_table_name":   "ip_lists",
     "ip_list_table_columns": [
       "id",

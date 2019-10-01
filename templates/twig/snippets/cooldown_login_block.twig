@@ -1,0 +1,37 @@
+<h3 style="text-align: center;">{{ strings.title|raw }}</h3>
+<ul>
+	{% for line in strings.lines %}
+		<li>{{ line }}</li>
+	{% endfor %}
+</ul>
+<p>{{ strings.time_remaining }}: <span id="TimeRemaining">{{ vars.remaining }}</span></p>
+<script type="text/javascript">
+	var nRemaining = {{ vars.remaining }};
+
+	var timeout = function () {
+		nRemaining--;
+		if ( nRemaining < 1 ) {
+			location.reload();
+		}
+		else {
+			document.getElementById( 'TimeRemaining' ).innerHTML = nRemaining;
+		}
+
+		setTimeout( timeout, 1000 );
+	};
+	timeout();
+</script>
+	<style>
+		p {
+			margin: 10px 0 !important;
+		}
+	</style>
+	<div style="">
+		<form method="get" action="{{ vars.login_url }}">
+			<p><label>
+					<input type="checkbox" name="cooldown_bypass" value="1" />
+					{{ strings.understand }}
+				</label></p>
+			<p><button type="submit">{{ strings.button }}</button></p>
+		</form>
+	</div>

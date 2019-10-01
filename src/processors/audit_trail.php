@@ -8,7 +8,7 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 
 	public function run() {
 		/** @var AuditTrail\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAuditing() ) {
 			$this->getSubProAuditor()->execute();
 		}

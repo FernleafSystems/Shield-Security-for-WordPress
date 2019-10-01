@@ -6,6 +6,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
+	 * @return false|Shield\Databases\Traffic\Handler
+	 */
+	public function getDbHandler_Traffic() {
+		return $this->getDbH( 'traffic' );
+	}
+
+	/**
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
@@ -32,10 +39,14 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		$oIp = Services::IP();
-		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
+		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() )
+			   && ( $this->getDbHandler_Traffic() instanceof Shield\Databases\Traffic\Handler )
+			   && $this->getDbHandler_Traffic()->isReady()
+			   && parent::isReadyToExecute();
 	}
 
 	/**
@@ -45,24 +56,20 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function getSectionWarnings( $sSection ) {
 		$aWarnings = [];
 
-		if ( !$this->isPremium() ) {
-			$aWarnings[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Watch', 'wp-simple-firewall' ) );
+		$oIp = Services::IP();
+		if ( !$oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
+			$aWarnings[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
 		}
-		else {
-			$oIp = Services::IP();
-			if ( !$oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) ) {
-				$aWarnings[] = __( 'Traffic Watcher will not run because visitor IP address detection is not correctly configured.', 'wp-simple-firewall' );
-			}
+
+		switch ( $sSection ) {
+			case 'section_traffic_limiter':
+				if ( !$this->isPremium() ) {
+					$aWarnings[] = sprintf( __( '%s is a Pro-only feature.', 'wp-simple-firewall' ), __( 'Traffic Limiting', 'wp-simple-firewall' ) );
+				}
+				break;
 		}
 
 		return $aWarnings;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getAutoCleanDays() {
-		return (int)$this->getOpt( 'auto_clean' );
 	}
 
 	/**
@@ -152,17 +159,18 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Shield\Databases\Traffic\Handler
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Traffic\Handler();
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
 		return 'Traffic';
+	}
+
+	/**
+	 * @return Shield\Databases\Traffic\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Traffic\Handler();
 	}
 
 	/**

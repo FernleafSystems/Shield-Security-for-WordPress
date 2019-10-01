@@ -10,6 +10,8 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var Modules\LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		// XML-RPC Compatibility
 		if ( Services::WpGeneral()->isXmlrpc() && $oMod->isXmlrpcBypass() ) {
@@ -26,8 +28,15 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 				$this->getSubProGasp()->execute();
 			}
 
-			if ( $oMod->isCooldownEnabled() && Services::Request()->isPost() ) {
-				$this->getSubProCooldown()->execute();
+			if ( $oOpts->isCooldownEnabled() ) {
+				if ( Services::Request()->isPost() ) {
+					$this->getSubProCooldown()->execute();
+				}
+				/*
+				( new Modules\LoginGuard\Lib\CooldownRedirect() )
+					->setMod( $oMod )
+					->run();
+				*/
 			}
 
 			if ( $oMod->isGoogleRecaptchaEnabled() ) {

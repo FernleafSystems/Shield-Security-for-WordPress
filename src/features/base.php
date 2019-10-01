@@ -53,6 +53,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private $oOpts;
 
 	/**
+	 * @var Shield\Databases\Base\Handler[]
+	 */
+	private $aDbHandlers;
+
+	/**
 	 * @param Shield\Controller\Controller $oPluginController
 	 * @param array                        $aMod
 	 * @throws \Exception
@@ -75,6 +80,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}
 
 		if ( $this->verifyModuleMeetRequirements() ) {
+			$this->handleAutoPageRedirects();
 			$this->setupHooks( $aMod );
 			$this->doPostConstruction();
 		}
@@ -152,14 +158,67 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	protected function cleanupDatabases() {
-		$oDbh = $this->getDbHandler();
-		try {
-			if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
-				$oDbh->autoCleanDb();
+		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
+			try {
+				if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
+					$oDbh->autoCleanDb();
+				}
+			}
+			catch ( \Exception $oE ) {
 			}
 		}
-		catch ( \Exception $oE ) {
+	}
+
+	/**
+	 * @param bool $bInitAll
+	 * @return Shield\Databases\Base\Handler[]
+	 */
+	protected function getDbHandlers( $bInitAll = false ) {
+		if ( $bInitAll ) {
+			foreach ( $this->getAllDbClasses() as $sDbSlug => $sDbClass ) {
+				$this->getDbH( $sDbSlug );
+			}
 		}
+		return is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
+	}
+
+	/**
+	 * @param string $sDbhKey
+	 * @return Shield\Databases\Base\Handler|mixed|false
+	 */
+	protected function getDbH( $sDbhKey ) {
+		$oDbH = false;
+
+		if ( !is_array( $this->aDbHandlers ) ) {
+			$this->aDbHandlers = [];
+		}
+
+		if ( !empty( $this->aDbHandlers[ $sDbhKey ] ) ) {
+			$oDbH = $this->aDbHandlers[ $sDbhKey ];
+		}
+		else {
+			$aDbClasses = $this->getAllDbClasses();
+			if ( isset( $aDbClasses[ $sDbhKey ] ) ) {
+				/** @var Shield\Databases\Base\Handler $oDbH */
+				$oDbH = new $aDbClasses[ $sDbhKey ]();
+				try {
+					$oDbH->setMod( $this )->tableInit();
+				}
+				catch ( \Exception $oE ) {
+				}
+			}
+			$this->aDbHandlers[ $sDbhKey ] = $oDbH;
+		}
+
+		return $oDbH;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getAllDbClasses() {
+		$aCls = $this->getOptions()->getDef( 'db_classes' );
+		return is_array( $aCls ) ? $aCls : [];
 	}
 
 	/**
@@ -177,12 +236,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		$aEvts = $this->getSupportedEvents();
 
 		$aDefaults = [
-			'context' => $this->getSlug(),
-			'cat'     => 1,
-			'stat'    => true,
-			'audit'   => true,
-			'recent'  => false, // whether to show in the recent events logs
-			'offense' => false, // whether to mark offense against IP
+			'context'        => $this->getSlug(),
+			'cat'            => 1,
+			'stat'           => true,
+			'audit'          => true,
+			'recent'         => false, // whether to show in the recent events logs
+			'offense'        => false, // whether to mark offense against IP
+			'audit_multiple' => false, // allow multiple audit entries in the same request
 		];
 		foreach ( $aEvts as $sKey => $aEvt ) {
 			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
@@ -316,8 +376,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $this->getOptions()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
-		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
-			$this->doExecuteProcessor();
+		try {
+			if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+				$this->doExecuteProcessor();
+			}
+		}
+		catch ( \Exception $oE ) {
 		}
 	}
 
@@ -333,20 +397,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
-	 * functionality of the plugin.
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		try {
-			$oDbH = $this->getDbHandler();
-			$bReady = ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor )
-					  && ( !$oDbH instanceof Shield\Databases\Base\Handler || $oDbH->isReady() );
-		}
-		catch ( \Exception $oE ) {
-			$bReady = false;
-		}
-		return $bReady;
+		return ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor );
 	}
 
 	protected function doExecuteProcessor() {
@@ -621,21 +676,38 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			if ( !empty( $aAdditionalItems ) && is_array( $aAdditionalItems ) ) {
 
 				foreach ( $aAdditionalItems as $aMenuItem ) {
-
-					if ( empty( $aMenuItem[ 'callback' ] ) || !method_exists( $this, $aMenuItem[ 'callback' ] ) ) {
-						continue;
-					}
-
 					$sMenuPageTitle = $sHumanName.' - '.$aMenuItem[ 'title' ];
 					$aItems[ $sMenuPageTitle ] = [
-						$aMenuItem[ 'title' ],
+						__( $aMenuItem[ 'title' ], 'wp-simple-firewall' ),
 						$this->prefix( $aMenuItem[ 'slug' ] ),
-						[ $this, $aMenuItem[ 'callback' ] ]
+						[ $this, $aMenuItem[ 'callback' ] ],
+						true
 					];
 				}
 			}
 		}
 		return $aItems;
+	}
+
+	/**
+	 * Handles the case where we want to redirect certain menu requests to other pages
+	 * of the plugin automatically. It lets us create custom menu items.
+	 * This can of course be extended for any other types of redirect.
+	 */
+	public function handleAutoPageRedirects() {
+		$aConf = $this->getOptions()->getRawData_FullFeatureConfig();
+		if ( !empty( $aConf[ 'custom_redirects' ] ) && $this->getCon()->isValidAdminArea() ) {
+			foreach ( $aConf[ 'custom_redirects' ] as $aRedirect ) {
+				if ( Services::Request()->query( 'page' ) == $this->prefix( $aRedirect[ 'source_mod_page' ] ) ) {
+					Services::Response()->redirect(
+						$this->getCon()->getModule( $aRedirect[ 'target_mod_page' ] )->getUrl_AdminPage(),
+						$aRedirect[ 'query_args' ],
+						true,
+						false
+					);
+				}
+			}
+		}
 	}
 
 	/**
@@ -1146,11 +1218,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	public function onPluginDelete() {
-		$oDbh = $this->getDbHandler();
-		if ( !empty( $oDbh ) ) {
-			$oDbh->deleteTable();
+		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
+			if ( !empty( $oDbh ) ) {
+				$oDbh->deleteTable();
+			}
 		}
-		$this->getOptions()->doOptionsDelete();
+		$this->getOptions()->deleteStorage();
 	}
 
 	/**
@@ -1197,6 +1270,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @param string $sMsg
 	 * @param bool   $bError
+	 * @param bool   $bShowOnLogin
 	 * @return $this
 	 */
 	public function setFlashAdminNotice( $sMsg, $bError = false, $bShowOnLogin = false ) {
@@ -1351,13 +1425,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function isWizardPage() {
 		return ( $this->getCon()->getShieldAction() == 'wizard' && $this->isThisModulePage() );
-	}
-
-	/**
-	 * @return boolean
-	 */
-	public function hasEncryptOption() {
-		return function_exists( 'md5' );
 	}
 
 	/**
@@ -1891,21 +1958,26 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
+	 * The primary DB for the
 	 * @return null|Shield\Databases\Base\Handler|mixed
+	 * @deprecated 8.1.2
 	 */
 	public function getDbHandler() {
-		if ( !isset( $this->oDbh ) ) {
-			$this->oDbh = $this->loadDbHandler();
-			if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
-				try {
-					$this->oDbh->setMod( $this )
-							   ->tableInit();
-				}
-				catch ( \Exception$oE ) {
-				}
-			}
+		// TODO: remove this IF, as it's a stop-gap for the newer implementation (below)
+		if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
+			return $this->oDbh;
 		}
-		return $this->oDbh;
+
+		return $this->getPrimaryDbHandler();
+	}
+
+	/**
+	 * The primary DB for the
+	 * @return null|Shield\Databases\Base\Handler|mixed
+	 */
+	public function getPrimaryDbHandler() {
+		$aDBs = $this->getAllDbClasses();
+		return empty( $aDBs ) ? null : $this->getDbH( key( $aDBs ) );
 	}
 
 	/**
@@ -1916,13 +1988,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
-	}
-
-	/**
-	 * @return Shield\Databases\Base\Handler|mixed|false
-	 */
-	protected function loadDbHandler() {
-		return false;
 	}
 
 	/**
@@ -1979,7 +2044,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * This will eventually be not needed
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
@@ -1999,5 +2063,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	private function getAjax() {
 		$this->loadAjaxHandler();
+	}
+
+	/**
+	 * @return Shield\Databases\Base\Handler|mixed|false
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return false;
 	}
 }

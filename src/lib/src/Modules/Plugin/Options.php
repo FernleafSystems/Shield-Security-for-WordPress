@@ -57,4 +57,13 @@ class Options extends Base\ShieldOptions {
 	public function isOnFloatingPluginBadge() {
 		return $this->isOpt( 'display_plugin_badge', 'Y' );
 	}
+
+	/**
+	 * @param bool $bOnOrOff
+	 * @return $this
+	 */
+	public function setPluginTrackingPermission( $bOnOrOff = true ) {
+		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
+					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+	}
 }

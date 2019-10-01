@@ -14,7 +14,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 		$sEmails = $this->getOpt( 'enable_admin_login_email_notification', '' );
 		if ( !empty( $sEmails ) ) {
-			$aEmails = array_values( array_filter(
+			$aEmails = array_values( array_unique( array_filter(
 				array_map(
 					function ( $sEmail ) {
 						return trim( strtolower( $sEmail ) );
@@ -24,7 +24,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				function ( $sEmail ) {
 					return Services::Data()->validEmail( $sEmail );
 				}
-			) );
+			) ) );
 			if ( !$this->isPremium() && !empty( $aEmails ) ) {
 				$aEmails = array_slice( $aEmails, 0, 1 );
 			}

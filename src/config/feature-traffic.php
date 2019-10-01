@@ -9,7 +9,7 @@
     "tagline":               "Watch All Requests To Your Site",
     "show_central":          true,
     "access_restricted":     true,
-    "premium":               true,
+    "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
@@ -191,6 +191,9 @@
     }
   ],
   "definitions":  {
+    "db_classes":             {
+      "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
+    },
     "traffic_table_name":    "traffic",
     "traffic_table_columns": [
       "id",

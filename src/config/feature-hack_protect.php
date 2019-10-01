@@ -1,6 +1,6 @@
 {
-  "slug":        "hack_protect",
-  "properties":  {
+  "slug":             "hack_protect",
+  "properties":       {
     "slug":                  "hack_protect",
     "name":                  "Hack Guard",
     "show_module_menu_item": false,
@@ -15,7 +15,23 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false
   },
-  "sections":    [
+  "menu_items":       [
+    {
+      "title":    "Scans",
+      "slug":     "scans-redirect",
+      "callback": ""
+    }
+  ],
+  "custom_redirects": [
+    {
+      "source_mod_page": "scans-redirect",
+      "target_mod_page": "insights",
+      "query_args":      {
+        "inav": "scans"
+      }
+    }
+  ],
+  "sections":         [
     {
       "slug":        "section_scan_options",
       "title":       "Scan Options",
@@ -116,7 +132,7 @@
       "hidden": true
     }
   ],
-  "options":     [
+  "options":          [
     {
       "key":         "enable_hack_protect",
       "section":     "section_enable_plugin_feature_hack_protection_tools",
@@ -427,6 +443,40 @@
       "description":   "When enabled the Malware scanner will run automatically."
     },
     {
+      "key":           "mal_fp_confidence",
+      "section":       "section_scan_mal",
+      "premium":       true,
+      "default":       "75",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "0",
+          "text":      "None - Turn Off Malware Intelligence Network"
+        },
+        {
+          "value_key": "25",
+          "text":      "Low"
+        },
+        {
+          "value_key": "50",
+          "text":      "Medium"
+        },
+        {
+          "value_key": "75",
+          "text":      "High"
+        },
+        {
+          "value_key": "100",
+          "text":      "Full"
+        }
+      ],
+      "link_info":     "https://icwp.io/fp",
+      "link_blog":     "https://icwp.io/fz",
+      "name":          "Automatic Malware Scan",
+      "summary":       "Enable Malware File Scanner",
+      "description":   "When enabled the Malware scanner will run automatically."
+    },
+    {
       "key":         "mal_autorepair_core",
       "section":     "section_scan_mal",
       "premium":     true,
@@ -639,9 +689,20 @@
       "transferable": false,
       "type":         "boolean",
       "default":      false
+    },
+    {
+      "key":          "mal_fp_reports",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
-  "definitions": {
+  "definitions":      {
+    "db_classes":                  {
+      "scanresults": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
+      "scanq":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
+    },
     "all_scan_slugs":              [
       "apc",
       "mal",
@@ -677,7 +738,8 @@
     "url_mal_sigs_simple":         "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_raw.txt",
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "malware_whitelist_paths":     [
-      "wp-content/wflogs/"
+      "wp-content/wflogs/",
+      "wp-content/cache/"
     ],
     "cron_all_scans":              "all-scans",
     "url_checksum_api":            "https://api.wordpress.org/core/checksums/1.0/",

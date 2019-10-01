@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oMod */
 		$oMod = $this->getMod();
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$oWp = Services::WpGeneral();
 		$bLoggedIn = Services::WpUsers()->isUserLoggedIn();
 		return parent::getIfLogRequest()
@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
 		/** @var Traffic\Handler $oDbh */
-		$oDbh = $oMod->getDbHandler();
+		$oDbh = $oMod->getDbHandler_Traffic();
 
 		// For multisites that are separated by sub-domains we also show the host.
 		$sLeadingPath = Services::WpGeneral()->isMultisite_SubdomainInstall() ? $oReq->getHost() : '';

@@ -44,6 +44,9 @@ class Strings extends Base\Strings {
 			'master_url_set'         => [
 				__( 'Master Site URL set: %s', 'wp-simple-firewall' ),
 			],
+			'recaptcha_fail'         => [
+				__( 'Google reCAPTCHA Test Fail', 'wp-simple-firewall' )
+			],
 		];
 	}
 
@@ -432,5 +435,11 @@ class Strings extends Base\Strings {
 		__( 'Once', 'wp-simple-firewall' );
 		__( 'Twice', 'wp-simple-firewall' );
 		__( 'Go To Security Dashboard', 'wp-simple-firewall' );
+
+		__( 'None - Turn Off Malware Intelligence Network', 'wp-simple-firewall' );
+		__( 'Low', 'wp-simple-firewall' );
+		__( 'Medium', 'wp-simple-firewall' );
+		__( 'High', 'wp-simple-firewall' );
+		__( 'Full', 'wp-simple-firewall' );
 	}
 }

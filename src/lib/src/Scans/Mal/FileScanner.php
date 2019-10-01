@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
  * Class FileScanner
@@ -15,16 +14,11 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @var array[]
-	 */
-	private $aWhitelistHashes;
-
-	/**
 	 * @param string $sFullPath
 	 * @return ResultItem|null
 	 */
 	public function scan( $sFullPath ) {
-		$oResultItem = null;
+		$oItem = null;
 
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
@@ -35,11 +29,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			{ // Simple Patterns first
 				$oLocator->setIsRegEx( false );
 				foreach ( $oAction->patterns_simple as $sSig ) {
-
-					$aLines = $oLocator->setNeedle( $sSig )
-									   ->run();
-					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						return $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+					$oItem = $this->scanForSig( $oLocator, $sSig );
+					if ( $oItem instanceof ResultItem ) {
+						return $oItem;
 					}
 				}
 			}
@@ -47,11 +39,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			{ // RegEx Patterns
 				$oLocator->setIsRegEx( true );
 				foreach ( $oAction->patterns_regex as $sSig ) {
-
-					$aLines = $oLocator->setNeedle( $sSig )
-									   ->run();
-					if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
-						return $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+					$oItem = $this->scanForSig( $oLocator, $sSig );
+					if ( $oItem instanceof ResultItem ) {
+						return $oItem;
 					}
 				}
 			}
@@ -59,20 +49,34 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		catch ( \Exception $oE ) {
 		}
 
-		return $oResultItem;
+		return $oItem;
 	}
 
 	/**
-	 * @return array[]
+	 * @param Utilities\File\LocateStrInFile $oLocator
+	 * @param string                         $sSig
+	 * @return ResultItem|null
 	 */
-	protected function getWhitelistHashes() {
-		if ( !is_array( $this->aWhitelistHashes ) ) {
-			$this->aWhitelistHashes = ( new Malware\WhitelistRetrieve() )->getFiles();
-			if ( !is_array( $this->aWhitelistHashes ) ) {
-				$this->aWhitelistHashes = [];
-			};
+	private function scanForSig( $oLocator, $sSig ) {
+		$oResultItem = null;
+
+		$aLines = $oLocator->setNeedle( $sSig )
+						   ->run();
+		$sFullPath = $oLocator->getPath();
+		if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+
+			$oMaybeItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
+			$oAction = $this->getScanActionVO();
+			// Zero indicates not using intelligence network
+			if ( $oAction->confidence_threshold > 0 ) {
+				$oMaybeItem->fp_confidence = $this->getFalsePositiveConfidence( $sFullPath );
+			}
+
+			if ( $oAction->confidence_threshold == 0 || $oMaybeItem->fp_confidence < $oAction->confidence_threshold ) {
+				$oResultItem = $oMaybeItem;
+			}
 		}
-		return $this->aWhitelistHashes;
+		return $oResultItem;
 	}
 
 	/**
@@ -87,7 +91,13 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$oResultItem->path_fragment = str_replace( wp_normalize_path( ABSPATH ), '', $oResultItem->path_full );
 		$oResultItem->is_mal = true;
 		$oResultItem->mal_sig = base64_encode( $sSig );
-		$oResultItem->file_lines = $aLines;
+		$oResultItem->fp_confidence = 0;
+		$oResultItem->file_lines = array_map(
+			function ( $nLineNumber ) {
+				return $nLineNumber + 1;
+			},
+			$aLines // because lines start at ZERO
+		);
 		return $oResultItem;
 	}
 
@@ -96,23 +106,35 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		return $this->isValidCoreFile( $sFullPath ) || $this->isPluginFileValid( $sFullPath )
-			   || $this->isPathWhitelisted( $sFullPath );
+		$bExclude = $this->isValidCoreFile( $sFullPath );
+
+		if ( !$bExclude ) {
+			if ( $this->isPluginFileValid( $sFullPath ) ) {
+				$bExclude = true;
+				( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+					->setMod( $this->getMod() )
+					->report( $sFullPath, 'sha1', true );
+			}
+		}
+		return $bExclude;
 	}
 
 	/**
-	 * @param string $sFullPath
-	 * @return bool
+	 * @param string $sFilePath
+	 * @return int
 	 */
-	private function isPathWhitelisted( $sFullPath ) {
-		$bWhitelisted = false;
-		$aWhitelistHashes = $this->getWhitelistHashes();
-		if ( isset( $aWhitelistHashes[ basename( $sFullPath ) ] ) ) {
+	private function getFalsePositiveConfidence( $sFilePath ) {
+		/** @var ScanActionVO $oScanVO */
+		$oScanVO = $this->getScanActionVO();
+
+		$nConfidence = 0;
+		$sFilePart = basename( $sFilePath );
+		if ( isset( $oScanVO->whitelist[ $sFilePart ] ) ) {
 			try {
 				$oHasher = new Utilities\File\Compare\CompareHash();
-				foreach ( $aWhitelistHashes[ basename( $sFullPath ) ] as $sWlHash ) {
-					if ( $oHasher->isEqualFileSha1( $sFullPath, $sWlHash ) ) {
-						$bWhitelisted = true;
+				foreach ( $oScanVO->whitelist[ $sFilePart ] as $sWlHash => $nHashConfidence ) {
+					if ( $oHasher->isEqualFileSha1( $sFilePath, $sWlHash ) ) {
+						$nConfidence = $nHashConfidence;
 						break;
 					}
 				}
@@ -120,7 +142,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			catch ( \InvalidArgumentException $oE ) {
 			}
 		}
-		return $bWhitelisted;
+		return (int)$nConfidence;
 	}
 
 	/**

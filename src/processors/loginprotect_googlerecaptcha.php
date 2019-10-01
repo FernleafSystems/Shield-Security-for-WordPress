@@ -17,14 +17,11 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 * @throws \Exception
 	 */
 	protected function performCheckWithException() {
-		/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
 			try {
 				( new Shield\Utilities\ReCaptcha\TestRequest() )
-					->setMod( $oFO )
+					->setMod( $this->getMod() )
 					->test();
 			}
 			catch ( \Exception $oE ) {

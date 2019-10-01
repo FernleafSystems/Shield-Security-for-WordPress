@@ -17,8 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  */
 class ResultItem extends Base\BaseResultItem {
 
-	const SCAN_RESULT_TYPE = 'ptg';
-
 	/**
 	 * @return string
 	 */

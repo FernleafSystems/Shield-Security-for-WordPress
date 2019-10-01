@@ -36,6 +36,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getMalConfidenceBoundary() {
+		return (int)$this->getOpt( 'mal_fp_confidence' );
+	}
+
+	/**
 	 * We do some WP Content dir replacement as there may be custom wp-content dir defines
 	 * @return string[]
 	 */
@@ -99,6 +106,48 @@ class Options extends Base\ShieldOptions {
 			}
 		}
 		return $aSigs;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalAutoRepairPlugins() {
+		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalAutoRepair() {
+		return $this->isMalAutoRepairCore() || $this->isMalAutoRepairPlugins() || $this->isMalAutoRepairSurgical();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalAutoRepairCore() {
+		return $this->isOpt( 'mal_autorepair_core', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalAutoRepairSurgical() {
+		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalScanEnabled() {
+		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isMalUseNetworkIntelligence() {
+		return $this->getMalConfidenceBoundary() > 0;
 	}
 
 	/**

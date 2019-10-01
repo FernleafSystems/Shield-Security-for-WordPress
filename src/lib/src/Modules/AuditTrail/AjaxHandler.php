@@ -43,7 +43,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		else {
 			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
-			$oEntry = $oMod->getDbHandler()
+			$oEntry = $oMod->getDbHandler_AuditTrail()
 						   ->getQuerySelector()
 						   ->byId( $nId );
 
@@ -81,7 +81,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oMod = $this->getMod();
 		$oTableBuilder = ( new Shield\Tables\Build\AuditTrail() )
 			->setMod( $oMod )
-			->setDbHandler( $oMod->getDbHandler() );
+			->setDbHandler( $oMod->getDbHandler_AuditTrail() );
 
 		return [
 			'success' => true,

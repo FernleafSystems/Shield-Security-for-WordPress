@@ -184,6 +184,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return int
+	 * @deprecated 8.1.2
 	 */
 	public function getCooldownInterval() {
 		return (int)$this->getOpt( 'login_limit_interval' );
@@ -391,13 +392,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function getBotProtectionLocations() {
 		$aLocs = $this->getOpt( 'bot_protection_locations' );
 		return is_array( $aLocs ) ? $aLocs : (array)$this->getOptions()->getOptDefault( 'bot_protection_locations' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isCooldownEnabled() {
-		return $this->getCooldownInterval() > 0;
 	}
 
 	/**
@@ -648,6 +642,14 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.1.2
+	 */
+	public function isCooldownEnabled() {
+		return $this->getCooldownInterval() > 0;
 	}
 
 	/**

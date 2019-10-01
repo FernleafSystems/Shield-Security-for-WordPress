@@ -14,6 +14,21 @@ class Strings {
 	 */
 	public function getDisplayStrings() {
 		$oCon = $this->getCon();
+
+		$aProFeatures = [
+			__( 'Customer Support', 'wp-simple-firewall' ),
+			__( 'More Scans', 'wp-simple-firewall' ),
+			__( 'Malware Scanner', 'wp-simple-firewall' ),
+			__( 'Scan Every Hour', 'wp-simple-firewall' ),
+			__( 'White Label', 'wp-simple-firewall' ),
+			__( 'Import/Export', 'wp-simple-firewall' ),
+			__( 'Better Bot Detection', 'wp-simple-firewall' ),
+			__( 'Password Policies', 'wp-simple-firewall' ),
+			__( 'WooCommerce Support', 'wp-simple-firewall' ),
+		];
+		$aProFeaturesDisplay = array_intersect_key( $aProFeatures, array_flip( array_rand( $aProFeatures, 6 ) ) );
+		$aProFeaturesDisplay[] = __( 'and much more!' );
+
 		return Services::DataManipulation()->mergeArraysRecursive(
 			[
 				'see_help_video'    => __( 'Watch Help Video' ),
@@ -69,11 +84,16 @@ class Strings {
 				'offense' => __( 'offense', 'wp-simple-firewall' ),
 				'debug'   => __( 'Debug', 'wp-simple-firewall' ),
 
-				'privacy_policy_agree' => __( 'Agree To Privacy Policy', 'wp-simple-firewall' ),
+				'privacy_policy_agree'   => __( 'Agree To Privacy Policy', 'wp-simple-firewall' ),
 				'privacy_policy_confirm' => __( "I confirm that I've read and I agree to the Privacy Policy", 'wp-simple-firewall' ),
-				'privacy_policy_gdpr' => __( 'We treat your information under our strict, and GDPR-compliant, privacy policy.', 'wp-simple-firewall' ),
+				'privacy_policy_gdpr'    => __( 'We treat your information under our strict, and GDPR-compliant, privacy policy.', 'wp-simple-firewall' ),
 				'privacy_policy'         => __( 'Privacy Policy', 'wp-simple-firewall' ),
-				'privacy_never_spam'         => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
+				'privacy_never_spam'     => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
+
+				'pro_features'       => __( 'Pro features include', 'wp-simple-firewall' ),
+				'join_thousands_H'   => __( "Join The 1,000s Who've Already Upgraded Their WordPress Security To Better Protect Their Sites.", 'wp-simple-firewall' ),
+				'join_thousands_P'   => implode( ', ', $aProFeaturesDisplay ),
+				'get_pro_protection' => __( 'Upgrade To Pro Protection', 'wp-simple-firewall' ),
 			],
 			$this->getAdditionalDisplayStrings()
 		);

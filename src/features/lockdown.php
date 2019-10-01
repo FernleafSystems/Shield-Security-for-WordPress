@@ -146,26 +146,6 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		return $aAllData;
 	}
 
-	protected function getCanDoAuthSalts() {
-		$oWpFs = Services::WpFs();
-
-		if ( !$oWpFs->getCanWpRemoteGet() ) {
-			return false;
-		}
-
-		if ( !$oWpFs->getCanDiskWrite() ) {
-			return false;
-		}
-
-		$sWpConfigPath = $oWpFs->exists( ABSPATH.'wp-config.php' ) ? ABSPATH.'wp-config.php' : ABSPATH.'../wp-config.php';
-
-		if ( !$oWpFs->exists( $sWpConfigPath ) ) {
-			return false;
-		}
-		$mResult = $oWpFs->getCanReadWriteFile( $sWpConfigPath );
-		return !empty( $mResult );
-	}
-
 	/**
 	 * @return string
 	 */

@@ -14,7 +14,7 @@ class Handler extends Base\Handler {
 		/** @var Options $oOpts */
 		$oOpts = $oMod->getOptions();
 		$this->cleanDb( $oOpts->getAutoCleanDays() );
-		$this->trimDb( $oMod->getMaxEntries() );
+		$this->trimDb( $oOpts->getMaxEntries() );
 	}
 
 	/**
@@ -62,7 +62,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultColumnsDefinition() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbColumns_AuditTrail();
 	}
 
@@ -71,7 +71,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultTableName() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbTable_AuditTrail();
 	}
 

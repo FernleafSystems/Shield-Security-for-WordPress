@@ -32,10 +32,9 @@ class ScanInitiate {
 			->setMod( $oMod )
 			->build( $sSlug );
 
-		$oQ = $this->getQueueProcessor();
 		( new ScanEnqueue() )
 			->setDbHandler( $oDbH )
-			->setQueueProcessor( $oQ )
+			->setQueueProcessor( $this->getQueueProcessor() )
 			->setScanActionVO( $oAction )
 			->enqueue();
 	}

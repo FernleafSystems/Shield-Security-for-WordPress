@@ -16,7 +16,7 @@ class ICWP_WPSF_Processor_Traffic extends Modules\BaseShield\ShieldProcessor {
 	 */
 	public function onWpInit() {
 		/** @var Modules\Traffic\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		if ( false && $oOpts->isTrafficLimitEnabled() ) {
 			( new Modules\Traffic\Limiter\Limiter() )
 				->setMod( $this->getMod() )

@@ -1707,8 +1707,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			$this->getSessionId(),
 			Services::Request()->ts() + DAY_IN_SECONDS*30,
 			Services::WpGeneral()->getCookiePath(),
-			Services::WpGeneral()->getCookieDomain(),
-			false
+			Services::WpGeneral()->getCookieDomain()
 		);
 	}
 
@@ -1830,6 +1829,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getModule_Sessions() {
 		return $this->getModule( 'sessions' );
+	}
+
+	/**
+	 * @return \ICWP_WPSF_FeatureHandler_Traffic
+	 */
+	public function getModule_Traffic() {
+		return $this->getModule( 'traffic' );
 	}
 
 	/**

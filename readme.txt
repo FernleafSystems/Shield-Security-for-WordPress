@@ -7,8 +7,8 @@ Tags: scan, firewall, two factor authentication, login protection, malware
 Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
-Tested up to: 5.2
-Stable tag: 8.1.1
+Tested up to: 5.3
+Stable tag: 8.2.0
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,7 +370,27 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.1.1 - Current Release =
+= 8.2.0 - Current Release =
+*Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
+
+* **(v.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
+* **(v.0)**  NEW:		Traffic Watcher feature is now free for all users (no longer Pro-only).
+* **(v.0)**  IMPROVED:	Scanning cron is improved and more efficient.
+* **(v.0)**  ADDED:		Bulk Delete/Repair/Ignore actions now available for Malware scan results.
+* **(v.0)**  IMPROVED:	Malware scan results now provide details of affected line numbers and patterns discovered.
+* **(v.0)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
+* **(v.0)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
+* **(v.0)**  IMPROVED:	Malware scanner performance improved with caching.
+* **(v.0)**  IMPROVED:	Malware auto-repair now works more consistently.
+* **(v.0)**  IMPROVED:	Updated default firewall whitelist rules.
+* **(v.0)**  IMPROVED:	If the PWNED Passwords API request fails entirely, the password check is skipped.
+* **(v.0)**  ADDED:		Japanese translations are at 100%.
+* **(v.0)**  IMPROVED:	Dutch translations are greatly improved (a huge thank you to Fred!).
+* **(v.0)**  FIXED:		Audit Trail correctly logs multiple occurrences for the same type of event on the same page request.
+* **(v.0)**  FIXED:		Audit Trail now correctly logs Google reCAPTCHA failure events.
+* **(v.0)**  FIXED:		PHP error when firewall was set to kill response without a user message.
+
+= 8.1 - Series =
 *Released: 18th September, 2019* - [Release Notes](https://icwp.io/fy)
 
 * **(v.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`

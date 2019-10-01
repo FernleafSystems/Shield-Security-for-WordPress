@@ -231,6 +231,9 @@
     }
   ],
   "definitions": {
+    "db_classes":                      {
+      "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
+    },
     "audit_trail_default_max_entries": 100,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [
@@ -257,10 +260,12 @@
     ],
     "events":                          {
       "plugin_activated":        {
-        "context": "plugins"
+        "context":        "plugins",
+        "audit_multiple": true
       },
       "plugin_deactivated":      {
-        "context": "plugins"
+        "context":        "plugins",
+        "audit_multiple": true
       },
       "plugin_file_edited":      {
         "context": "plugins"
@@ -278,22 +283,28 @@
         "context": "wordpress"
       },
       "post_deleted":            {
-        "context": "posts"
+        "context":        "posts",
+        "audit_multiple": true
       },
       "post_trashed":            {
-        "context": "posts"
+        "context":        "posts",
+        "audit_multiple": true
       },
       "post_recovered":          {
-        "context": "posts"
+        "context":        "posts",
+        "audit_multiple": true
       },
       "post_updated":            {
-        "context": "posts"
+        "context":        "posts",
+        "audit_multiple": true
       },
       "post_published":          {
-        "context": "posts"
+        "context":        "posts",
+        "audit_multiple": true
       },
       "post_unpublished":        {
-        "context": "posts"
+        "context":        "posts",
+        "audit_multiple": true
       },
       "user_login":              {
         "context": "users"
@@ -302,16 +313,19 @@
         "context": "users"
       },
       "user_deleted":            {
-        "context": "users"
+        "context":        "users",
+        "audit_multiple": true
       },
       "user_deleted_reassigned": {
         "context": "users"
       },
-      "email_attempt_send": {
-        "context": "emails"
+      "email_attempt_send":      {
+        "context":        "emails",
+        "audit_multiple": true
       },
-      "email_send_invalid": {
-        "context": "emails"
+      "email_send_invalid":      {
+        "context":        "emails",
+        "audit_multiple": true
       }
     }
   }

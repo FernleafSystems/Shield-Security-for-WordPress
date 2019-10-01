@@ -25,9 +25,9 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isMalScanEnabled();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isMalScanEnabled();
 	}
 
 	/**
@@ -43,7 +43,11 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @throws \Exception
 	 */
 	protected function itemRepair( $oItem ) {
-		$bSuccess = $this->getRepairer()->repairItem( $oItem );
+		/** @var Shield\Scans\Mal\Repair $oRepair */
+		$oRepair = $this->getRepairer()
+						->setIsManualAction( true );
+		$bSuccess = $oRepair->setAllowDelete( false )
+							->repairItem( $oItem );
 		$this->getCon()->fireEvent(
 			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
 			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
@@ -56,17 +60,38 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	protected function itemDelete( $oItem ) {
-		return $this->getRepairer()->repairItemByDelete( $oItem );
+		/** @var Shield\Scans\Mal\Repair $oRepair */
+		$oRepair = $this->getRepairer()
+						->setIsManualAction( true );
+		return $oRepair->setAllowDelete( true )
+					   ->repairItem( $oItem );
+	}
+
+	/**
+	 * @param Shield\Scans\Mal\ResultItem $oItem
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function itemIgnore( $oItem ) {
+		parent::itemIgnore( $oItem );
+
+		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+			->setMod( $this->getMod() )
+			->report( $oItem->path_full, 'sha1', true );
+
+		return true;
 	}
 
 	/**
 	 * @param Shield\Scans\Mal\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isMalScanAutoRepair() ) {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isMalAutoRepair() ) {
 			$this->getRepairer()
+				 ->setIsManualAction( false )
+				 ->setAllowDelete( false )
 				 ->repairResultsSet( $oRes );
 		}
 	}
@@ -113,6 +138,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	private function buildEmailBodyFromFiles( $oResults ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
@@ -124,18 +151,18 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oFO->isMalScanAutoRepair() || $oFO->isIncludeFileLists() ) {
+		if ( $oOpts->isMalAutoRepair() || $oFO->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );
 			$aContent[] = '';
 
-			if ( $oFO->isMalScanAutoRepair() ) {
+			if ( $oOpts->isMalAutoRepair() ) {
 				$aContent[] = '<strong>'.sprintf( __( "%s has already attempted to repair the files.", 'wp-simple-firewall' ), $sName ).'</strong>'
 							  .' '.__( 'But, you should always check these files to ensure everything is as you expect.', 'wp-simple-firewall' );
 			}
 			else {
 				$aContent[] = __( 'You should review these files and replace them with official versions if required.', 'wp-simple-firewall' );
 				$aContent[] = __( 'Alternatively you can have the plugin attempt to repair/replace these files automatically.', 'wp-simple-firewall' )
-							  .' [<a href="https://icwp.io/moreinfochecksum">'.__( 'More Info', 'wp-simple-firewall' ).']</a>';
+							  .' [<a href="https://icwp.io/moreinfochecksum">'.__( 'More Info', 'wp-simple-firewall' ).'</a>]';
 			}
 		}
 
@@ -145,7 +172,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 
 		if ( !$this->getCon()->isRelabelled() ) {
 			$aContent[] = '';
-			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'.__( 'More Info On This Scanner', 'wp-simple-firewall' ).' ]</a>';
+			$aContent[] = '[ <a href="https://icwp.io/moreinfochecksum">'.__( 'More Info On This Scanner', 'wp-simple-firewall' ).'</a> ]';
 		}
 
 		return $aContent;

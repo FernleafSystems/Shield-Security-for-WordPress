@@ -2,15 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
  * Class BaseScanFromFileMap
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Files
  */
 abstract class BaseScanFromFileMap {
 
-	use Scans\Common\ScanActionConsumer;
+	use Scans\Common\ScanActionConsumer,
+		ModConsumer;
 
 	/**
 	 * @return Scans\Base\BaseResultsSet

@@ -5,16 +5,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	/**
-	 * @var Shield\Databases\AdminNotes\Handler
-	 */
-	private $oDbh_Notes;
-
-	/**
-	 * @var Shield\Databases\GeoIp\Handler
-	 */
-	private $oDbh_GeoIp;
-
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setVisitorIp();
@@ -201,6 +191,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @param bool $bOnOrOff
 	 * @return $this
+	 * @deprecated 8.2
 	 */
 	public function setPluginTrackingPermission( $bOnOrOff = true ) {
 		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
@@ -674,48 +665,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	public function renderPluginBadge() {
-		$oCon = $this->getCon();
-
-		$aData = [
-			'ajax'    => [
-				'plugin_badge_close' => $this->getAjaxActionData( 'plugin_badge_close', true ),
-			],
-			'flags'   => [
-				'nofollow' => apply_filters( 'icwp_shield_badge_relnofollow', false ),
-			],
-			'hrefs'   => [
-				'logo' => $oCon->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
-			],
-			'strings' => [
-				'link' => apply_filters( 'icwp_shield_plugin_badge_text', sprintf(
-					__( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
-					sprintf(
-						'<br /><span style="font-weight: bold;">The %s &rarr;</span>',
-						$oCon->getHumanName()
-					)
-				) ),
-				'name' => $oCon->getHumanName()
-			]
-		];
-		return $this->renderTemplate( 'snippets/plugin_badge', $aData );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isXmlrpcBypass() {
 		return $this->isOpt( 'enable_xmlrpc_compatibility', 'Y' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getTestCronLastRunAt() {
-		return (int)$this->getOpt( 'insights_test_cron_last_run_at', 0 );
 	}
 
 	/**
@@ -805,47 +758,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $aAllData;
 	}
 
-	public function onPluginDelete() {
-		$this->getDbHandler_GeoIp()->deleteTable();
-		$this->getDbHandler_Notes()->deleteTable();
-		parent::onPluginDelete();
-	}
-
-	protected function cleanupDatabases() {
-		$this->getDbHandler_GeoIp()->autoCleanDb();
-		$this->getDbHandler_Notes()->autoCleanDb();
-	}
-
 	/**
 	 * @return Shield\Databases\GeoIp\Handler
 	 */
 	public function getDbHandler_GeoIp() {
-		if ( !isset( $this->oDbh_GeoIp ) ) {
-			try {
-				$this->oDbh_GeoIp = ( new Shield\Databases\GeoIp\Handler() )
-					->setMod( $this )
-					->tableInit();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oDbh_GeoIp;
+		return $this->getDbH( 'geoip' );
 	}
 
 	/**
 	 * @return Shield\Databases\AdminNotes\Handler
 	 */
 	public function getDbHandler_Notes() {
-		if ( !isset( $this->oDbh_Notes ) ) {
-			try {
-				$this->oDbh_Notes = ( new Shield\Databases\AdminNotes\Handler() )
-					->setMod( $this )
-					->tableInit();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oDbh_Notes;
+		return $this->getDbH( 'notes' );
 	}
 
 	/**

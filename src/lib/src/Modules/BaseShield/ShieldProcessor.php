@@ -65,7 +65,7 @@ class ShieldProcessor extends Base\BaseProcessor {
 	 * @param bool $bLog
 	 * @return $this
 	 */
-	protected function setIfLogRequest( $bLog ) {
+	public function setIfLogRequest( $bLog ) {
 		$this->bLogRequest = $bLog;
 		return $this;
 	}

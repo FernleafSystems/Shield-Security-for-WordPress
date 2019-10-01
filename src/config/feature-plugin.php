@@ -434,6 +434,10 @@
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
     "href_privacy_policy":    "https://icwp.io/wpshieldprivacypolicy",
+    "db_classes":             {
+      "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
+      "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
+    },
     "db_autoexpire_notes":    0,
     "db_autoexpire_geoip":    30,
     "db_notes_name":          "notes",
@@ -508,12 +512,6 @@
         "load_priority": 11
       },
       {
-        "slug":          "statistics",
-        "storage_key":   "statistics",
-        "load_priority": 11,
-        "hidden":        false
-      },
-      {
         "slug":          "sessions",
         "storage_key":   "sessions",
         "load_priority": 5
@@ -572,7 +570,7 @@
         "audit": false
       },
       "recaptcha_fail":         {
-        "audit": false
+        "audit": true
       }
     },
     "wizards":                {

@@ -49,7 +49,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 				$bFailed = false;
 			}
 			catch ( \Exception $oE ) {
-				$bFailed = true;
+				$bFailed = ( $oE->getCode() != 999 ); // We don't fail when the PWNED API is not available.
 			}
 			$this->setPasswordFailedFlag( $oUser, $bFailed );
 		}
@@ -158,11 +158,18 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 			if ( !empty( $sPassword ) ) {
 				try {
 					$this->applyPasswordChecks( $sPassword );
+					$bChecksPassed = true;
+				}
+				catch ( \Exception $oE ) {
+					$bChecksPassed = ( $oE->getCode() === 999 );
+				}
+
+				if ( $bChecksPassed ) {
 					if ( Services::WpUsers()->isUserLoggedIn() ) {
 						$this->getCon()->getCurrentUserMeta()->pass_check_failed_at = 0;
 					}
 				}
-				catch ( \Exception $oE ) {
+				else {
 					$sMessage = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' )
 								.'<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$oE->getMessage() );
 					$oErrors->add( 'shield_password_policy', $sMessage );
@@ -251,6 +258,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @param string $sPass
 	 * @return bool
 	 * @throws \Exception
+	 * @deprecated 8.1.2
 	 */
 	protected function sendRequestToPwned( $sPass ) {
 		$oHttpReq = Services::HttpRequest();
@@ -306,7 +314,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function sendRequestToPwnedRange( $sPass ) {
+	private function sendRequestToPwnedRange( $sPass ) {
 		$oHttpReq = Services::HttpRequest();
 
 		$sPassHash = strtoupper( hash( 'sha1', $sPass ) );
@@ -320,42 +328,48 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		);
 
 		$sError = '';
+		$nErrorCode = 2; // Default To Error
 		if ( !$bSuccess ) {
 			$sError = 'API request failed';
+			$nErrorCode = 999; // We don't fail PWNED passwords on failed API requests.
 		}
 		else {
-			$nCode = $oHttpReq->lastResponse->getCode();
-			if ( empty( $nCode ) ) {
+			$nHttpCode = $oHttpReq->lastResponse->getCode();
+			if ( empty( $nHttpCode ) ) {
 				$sError = 'Unexpected Error: No response code available from the Pwned API';
 			}
-			else if ( $nCode != 200 ) {
+			else if ( $nHttpCode != 200 ) {
 				$sError = 'Unexpected Error: The response from the Pwned API was unexpected';
 			}
 			else if ( empty( $oHttpReq->lastResponse->body ) ) {
 				$sError = 'Unexpected Error: The response from the Pwned API was empty';
 			}
 			else {
-				$nCount = 0;
+				$nPwnedCount = 0;
 				foreach ( array_map( 'trim', explode( "\n", trim( $oHttpReq->lastResponse->body ) ) ) as $sRow ) {
 					if ( $sSubHash.substr( strtoupper( $sRow ), 0, 35 ) == $sPassHash ) {
-						$nCount = substr( $sRow, 36 );
+						$nPwnedCount = substr( $sRow, 36 );
 						break;
 					}
 				}
-				if ( $nCount > 0 ) {
+				if ( $nPwnedCount > 0 ) {
 					$sError = __( 'Please use a different password.', 'wp-simple-firewall' )
 							  .'<br/>'.__( 'This password has been pwned.', 'wp-simple-firewall' )
 							  .' '.sprintf(
 								  '(<a href="%s" target="_blank">%s</a>)',
 								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
-								  sprintf( __( '%s times', 'wp-simple-firewall' ), $nCount )
+								  sprintf( __( '%s times', 'wp-simple-firewall' ), $nPwnedCount )
 							  );
+				}
+				else {
+					// Success: Password is not pwned
+					$nErrorCode = 0;
 				}
 			}
 		}
 
-		if ( !empty( $sError ) ) {
-			throw new \Exception( '[Pwned Request] '.$sError );
+		if ( $nErrorCode != 0 ) {
+			throw new \Exception( '[Pwned Request] '.$sError, $nErrorCode );
 		}
 
 		return true;

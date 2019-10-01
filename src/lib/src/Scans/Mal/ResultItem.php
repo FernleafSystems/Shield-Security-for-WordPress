@@ -11,11 +11,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @property bool   $is_mal
  * @property string $mal_sig
  * @property int[]  $file_lines
+ * @property int    $fp_confidence - false positive confidence level
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal
  */
 class ResultItem extends Base\BaseResultItem {
-
-	const SCAN_RESULT_TYPE = 'mal';
 
 	/**
 	 * @return string

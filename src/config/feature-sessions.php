@@ -51,6 +51,9 @@
     }
   ],
   "definitions": {
+    "db_classes":             {
+      "session": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
+    },
     "sessions_table_name":    "sessions",
     "sessions_table_columns": [
       "id",

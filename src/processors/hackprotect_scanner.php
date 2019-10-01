@@ -133,9 +133,10 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 * @param string $sItemId
 	 */
 	public function downloadItemFile( $sItemId ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Scanner\EntryVO $oEntry */
-		$oEntry = $this->getMod()
-					   ->getDbHandler()
+		$oEntry = $oMod->getDbHandler_ScanResults()
 					   ->getQuerySelector()
 					   ->byId( (int)$sItemId );
 		if ( !empty( $oEntry ) ) {
@@ -183,7 +184,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 */
 	protected function getCronFrequency() {
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getScanFrequency();
 	}
 

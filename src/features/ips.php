@@ -10,11 +10,22 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_AUTO_BLACK = 'AB';
 
 	/**
+	 * @return false|Shield\Databases\IPs\Handler
+	 */
+	public function getDbHandler_IPs() {
+		return $this->getDbH( 'ips' );
+	}
+
+	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		$oIp = Services::IP();
-		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
+		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() )
+			   && ( $this->getDbHandler_IPs() instanceof Shield\Databases\IPs\Handler )
+			   && $this->getDbHandler_IPs()->isReady()
+			   && parent::isReadyToExecute();
 	}
 
 	protected function doExtraSubmitProcessing() {
@@ -174,27 +185,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		}
 	}
 
-	protected function ensureFeatureEnabled() {
-		// we prevent disabling of this feature if the white list isn't empty
-		if ( !$this->isModuleEnabled() ) {
-			/** @var ICWP_WPSF_Processor_Ips $oProcessor */
-			$oProcessor = $this->getProcessor();
-			if ( count( $oProcessor->getWhitelistIpsData() ) > 0 ) {
-				$this->setIsMainFeatureEnabled( true );
-				$this->setFlashAdminNotice(
-					sprintf( __( 'Sorry, the %s feature may not be disabled while there are IP addresses in the White List', 'wp-simple-firewall' ), $this->getMainFeatureName() )
-				);
-			}
-		}
-	}
-
-	/**
-	 * @return Shield\Databases\IPs\Handler
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\IPs\Handler();
-	}
-
 	/**
 	 * @return string
 	 */
@@ -310,5 +300,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function getAutoExpireTime() {
 		$sConstant = strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' );
 		return defined( $sConstant ) ? constant( $sConstant ) : ( DAY_IN_SECONDS*30 );
+	}
+
+	/**
+	 * @return Shield\Databases\IPs\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\IPs\Handler();
 	}
 }

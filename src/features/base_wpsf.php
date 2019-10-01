@@ -34,11 +34,9 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return \ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {
-		/** @var \ICWP_WPSF_Processor_Sessions $oP */
-		$oP = $this->getCon()
-				   ->getModule_Sessions()
-				   ->getProcessor();
-		return $oP;
+		return $this->getCon()
+					->getModule_Sessions()
+					->getProcessor();
 	}
 
 	/**
@@ -47,7 +45,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function getDbHandler_Sessions() {
 		return $this->getCon()
 					->getModule_Sessions()
-					->getDbHandler();
+					->getDbHandler_Sessions();
 	}
 
 	/**
@@ -82,41 +80,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 */
-	protected function updateHandler() {
-		$this->updateHandler_ConvertInsights();
-	}
-
-	private function updateHandler_ConvertInsights() {
-		$aMap = [
-			'insights_last_comment_block_at'  => 'spam_block_bot',
-			'insights_last_firewall_block_at' => 'firewall_block',
-			'insights_last_scan_ufc_at'       => 'ufc_scan_run',
-			'insights_last_scan_apc_at'       => 'apc_scan_run',
-			'insights_last_scan_wcf_at'       => 'wcf_scan_run',
-			'insights_last_scan_ptg_at'       => 'ptg_scan_run',
-			'insights_last_scan_wpv_at'       => 'wpv_scan_run',
-			'insights_last_transgression_at'  => 'ip_offense',
-			'insights_last_ip_block_at'       => 'conn_kill',
-			'insights_xml_block_at'           => 'block_xml',
-			'insights_restapi_block_at'       => 'block_anonymous_restapi',
-			'insights_last_2fa_login_at'      => '2fa_success',
-			'insights_last_login_block_at'    => 'login_block',
-			'insights_test_cron_last_run_at'  => 'test_cron_run',
-			'insights_last_password_block_at' => 'password_policy_block',
-		];
-		foreach ( $this->getOptions()->getOptionsKeys() as $sOpt ) {
-			if ( strpos( $sOpt, 'insights_' ) === 0 && isset( $aMap[ $sOpt ] ) && $this->getOpt( $sOpt ) > 0 ) {
-				$this->addStatEvent( $aMap[ $sOpt ], [ 'ts' => $this->getOpt( $sOpt ) ] );
-				$this->setOpt( $sOpt, 0 );
-			}
-		}
-		/** @var Shield\Databases\Events\Handler $oDbh */
-		$oDbh = $this->getCon()->getModule_Events()->getDbHandler();
-		$oDbh->commitEvents( $this->getRegisteredEvents( true ) );
-	}
-
-	/**
 	 * @param string $sEvent
 	 * @param array  $aMeta
 	 * @return $this
@@ -133,7 +96,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 				if ( !is_array( self::$aAuditLogs ) ) {
 					self::$aAuditLogs = [];
 				}
-				self::$aAuditLogs[ $sEvent ] = $oEntry;
+
+				// cater for where certain events may happen more than once in the same request
+				if ( !empty( $aDef[ 'audit_multiple' ] ) ) {
+					self::$aAuditLogs[] = $oEntry;
+				}
+				else {
+					self::$aAuditLogs[ $sEvent ] = $oEntry;
+				}
 			}
 		}
 		return $this;
@@ -303,6 +273,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return Shield\Modules\BaseShield\ShieldProcessor|mixed
+	 */
+	public function getProcessor() {
+		return parent::getProcessor();
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getBaseDisplayData() {
@@ -341,6 +318,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		$oOpts = $this->getOptions();

@@ -111,7 +111,7 @@ class AdminNotices {
 								   );
 				return ( new Shield\Utilities\AdminNotices\NoticeVO() )->applyFromArray( $aNotDef );
 			},
-			$this->getMod()->getOptions()->getAdminNotices()
+			$this->getOptions()->getAdminNotices()
 		);
 	}
 
@@ -126,7 +126,7 @@ class AdminNotices {
 		if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
 			$oNtc->non_display_reason = 'plugin_page_only';
 		}
-		else if ( $oNtc->type == 'promo' && !$this->getMod()->getOptions()->isShowPromoAdminNotices() ) {
+		else if ( $oNtc->type == 'promo' && !$this->getOptions()->isShowPromoAdminNotices() ) {
 			$oNtc->non_display_reason = 'promo_hidden';
 		}
 		else if ( $oNtc->valid_admin && !$oCon->isValidAdminArea() ) {

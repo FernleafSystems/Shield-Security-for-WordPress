@@ -1,15 +1,24 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Events extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return Shield\Databases\Events\Handler
+	 * @return false|Shield\Databases\Events\Handler
 	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Events\Handler();
+	public function getDbHandler_Events() {
+		return $this->getDbH( 'events' );
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_Events() instanceof Shield\Databases\Events\Handler )
+			   && $this->getDbHandler_Events()->isReady()
+			   && parent::isReadyToExecute();
 	}
 
 	/**
@@ -17,5 +26,13 @@ class ICWP_WPSF_FeatureHandler_Events extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function getNamespaceBase() {
 		return 'Events';
+	}
+
+	/**
+	 * @return Shield\Databases\Events\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Events\Handler();
 	}
 }

@@ -26,8 +26,7 @@ class CompleteQueue {
 		$oDbH = $this->getDbHandler();
 		$oSel = $oDbH->getQuerySelector();
 
-		/** @var Databases\Scanner\Handler $oDbH */
-		$oDbHResults = $oMod->getDbHandler();
+		$oDbHResults = $oMod->getDbHandler_ScanResults();
 		$aScansToNotify = [];
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
 

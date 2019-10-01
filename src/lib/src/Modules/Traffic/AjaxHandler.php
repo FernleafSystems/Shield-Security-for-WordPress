@@ -35,7 +35,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'success' => true,
 			'html'    => ( new Shield\Tables\Build\Traffic() )
 				->setMod( $oMod )
-				->setDbHandler( $oMod->getDbHandler() )
+				->setDbHandler( $oMod->getDbHandler_Traffic() )
 				->buildTable()
 		];
 	}

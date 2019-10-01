@@ -19,10 +19,20 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return Shield\Databases\Session\Handler
+	 * @return false|Shield\Databases\Session\Handler
 	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Session\Handler();
+	public function getDbHandler_Sessions() {
+		return $this->getDbH( 'session' );
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_Sessions() instanceof Shield\Databases\Session\Handler )
+			   && $this->getDbHandler_Sessions()->isReady()
+			   && parent::isReadyToExecute();
 	}
 
 	/**
@@ -30,5 +40,13 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function getNamespaceBase() {
 		return 'Sessions';
+	}
+
+	/**
+	 * @return Shield\Databases\Session\Handler
+	 * @deprecated 8.1.2
+	 */
+	protected function loadDbHandler() {
+		return new Shield\Databases\Session\Handler();
 	}
 }

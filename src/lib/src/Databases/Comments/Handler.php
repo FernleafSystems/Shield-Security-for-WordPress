@@ -9,7 +9,7 @@ class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		$this->cleanDb( $oOpts->getTokenExpireInterval()/DAY_IN_SECONDS );
 	}
 
@@ -18,7 +18,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultTableName() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbTable_Spam();
 	}
 
@@ -27,7 +27,7 @@ class Handler extends Base\Handler {
 	 */
 	protected function getDefaultColumnsDefinition() {
 		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
+		$oOpts = $this->getOptions();
 		return $oOpts->getDbColumns_Spam();
 	}
 

@@ -18,7 +18,8 @@
 							<th colspan="4">
 								<h6 class="m-0">
 									{{ notice_section.title }}
-									<span class="text-muted" style="font-size: smaller;">({{ notice_section.count }})</span>
+									<span class="text-muted"
+										  style="font-size: smaller;">({{ notice_section.count }})</span>
 								</h6>
 							</th>
 						</tr>
@@ -50,7 +51,7 @@
 			</div>
 		{% else %}
 			<div class="alert alert-success">
-				There are no important security notices at this time. This is a wonderful thing! :)
+				{{ strings.no_security_notices }} {{ strings.this_is_wonderful }} :)
 			</div>
 		{% endif %}
 

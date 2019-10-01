@@ -39,6 +39,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_AddIp() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var \ICWP_WPSF_Processor_Ips $oProcessor */
 		$oProcessor = $oMod->getProcessor();
 		$oIpServ = Services::IP();
@@ -48,7 +50,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$bSuccess = false;
 		$sMessage = __( "IP address wasn't added to the list", 'wp-simple-firewall' );
 
-		$sIp = preg_replace( '#[^/:\.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
+		$sIp = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
 
 		$bAcceptableIp = $oIpServ->isValidIp( $sIp ) || $oIpServ->isValidIp4Range( $sIp );
@@ -89,8 +91,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					$oIp = $oProcessor->addIpToBlackList( $sIp, $sLabel );
 					if ( !empty( $oIp ) ) {
 						/** @var Shield\Databases\IPs\Update $oUpd */
-						$oUpd = $oMod->getDbHandler()->getQueryUpdater();
-						$oUpd->updateTransgressions( $oIp, $oMod->getOptTransgressionLimit() );
+						$oUpd = $oMod->getDbHandler_IPs()->getQueryUpdater();
+						$oUpd->updateTransgressions( $oIp, $oOpts->getOffenseLimit() );
 					}
 					break;
 
@@ -115,13 +117,15 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_IpDelete() {
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
 		$bSuccess = false;
 		$nId = Services::Request()->post( 'rid', -1 );
 
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = __( 'Invalid entry selected', 'wp-simple-firewall' );
 		}
-		else if ( $this->getMod()->getDbHandler()->getQueryDeleter()->deleteById( $nId ) ) {
+		else if ( $oMod->getDbHandler_IPs()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'IP address deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}
@@ -142,8 +146,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 
-		/** @var Shield\Databases\IPs\Handler $oDbH */
-		$oDbH = $oMod->getDbHandler();
+		$oDbH = $oMod->getDbHandler_IPs();
 		$oDbH->autoCleanDb();
 
 		$oTableBuilder = ( new Shield\Tables\Build\Ip() )

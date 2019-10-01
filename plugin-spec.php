@@ -1,8 +1,8 @@
 {
   "properties":   {
-    "version":                 "8.1.1",
-    "release_timestamp":       1568814556,
-    "build":                   "201909.1802",
+    "version":                 "8.2.0",
+    "release_timestamp":       1569918000,
+    "build":                   "201910.0101",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
