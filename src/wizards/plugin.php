@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -566,6 +567,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	private function wizardOptin() {
 		$oReq = Services::Request();
 		$oMod = $this->getCon()->getModule_Plugin();
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$bSuccess = false;
 		$sMessage = __( 'No changes were made as no option was selected', 'wp-simple-firewall' );
@@ -586,7 +589,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			if ( !empty( $sInput ) ) {
 				$bEnabled = $sInput === 'Y';
-				$oMod->setPluginTrackingPermission( $bEnabled );
+				$oOpts->setPluginTrackingPermission( $bEnabled );
 				$bSuccess = true;
 				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
 			}

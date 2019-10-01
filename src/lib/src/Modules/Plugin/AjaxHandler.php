@@ -104,7 +104,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_SetPluginTrackingPerm() {
-		$this->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		return [ 'success' => true ];
 	}
 

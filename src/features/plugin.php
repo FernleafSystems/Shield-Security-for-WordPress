@@ -191,6 +191,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @param bool $bOnOrOff
 	 * @return $this
+	 * @deprecated 8.2
 	 */
 	public function setPluginTrackingPermission( $bOnOrOff = true ) {
 		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
@@ -754,12 +755,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
-	}
-
-	public function onPluginDelete() {
-		$this->getDbHandler_GeoIp()->deleteTable();
-		$this->getDbHandler_Notes()->deleteTable();
-		parent::onPluginDelete();
 	}
 
 	/**
