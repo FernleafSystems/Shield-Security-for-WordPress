@@ -222,18 +222,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @param string                        $sDbhKey
-	 * @param Shield\Databases\Base\Handler $oDbH
-	 * @return Shield\Databases\Base\Handler|mixed
-	 */
-	protected function setupDbHandler( $sDbhKey, $oDbH ) {
-		if ( !is_array( $this->aDbHandlers ) ) {
-			$this->aDbHandlers = [];
-		}
-		return $oDbH;
-	}
-
-	/**
 	 * @param string $sKey
 	 * @return array|null
 	 */
@@ -405,20 +393,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
-	 * functionality of the plugin.
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		try {
-			$oDbH = $this->getPrimaryDbHandler();
-			$bReady = ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor )
-					  && ( !$oDbH instanceof Shield\Databases\Base\Handler || $oDbH->isReady() );
-		}
-		catch ( \Exception $oE ) {
-			$bReady = false;
-		}
-		return $bReady;
+		return ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor );
 	}
 
 	protected function doExecuteProcessor() {

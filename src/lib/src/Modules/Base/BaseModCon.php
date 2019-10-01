@@ -57,6 +57,11 @@ class BaseModCon extends Deprecated\Foundation {
 	private $oOpts;
 
 	/**
+	 * @var Shield\Databases\Base\Handler[]
+	 */
+	private $aDbHandlers;
+
+	/**
 	 * @param Shield\Controller\Controller $oPluginController
 	 * @param array                        $aMod
 	 * @throws \Exception
@@ -156,14 +161,67 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	protected function cleanupDatabases() {
-		$oDbh = $this->getDbHandler();
-		try {
-			if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
-				$oDbh->autoCleanDb();
+		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
+			try {
+				if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
+					$oDbh->autoCleanDb();
+				}
+			}
+			catch ( \Exception $oE ) {
 			}
 		}
-		catch ( \Exception $oE ) {
+	}
+
+	/**
+	 * @param bool $bInitAll
+	 * @return Shield\Databases\Base\Handler[]
+	 */
+	protected function getDbHandlers( $bInitAll = false ) {
+		if ( $bInitAll ) {
+			foreach ( $this->getAllDbClasses() as $sDbSlug => $sDbClass ) {
+				$this->getDbH( $sDbSlug );
+			}
 		}
+		return is_array( $this->aDbHandlers ) ? $this->aDbHandlers : [];
+	}
+
+	/**
+	 * @param string $sDbhKey
+	 * @return Shield\Databases\Base\Handler|mixed|false
+	 */
+	protected function getDbH( $sDbhKey ) {
+		$oDbH = false;
+
+		if ( !is_array( $this->aDbHandlers ) ) {
+			$this->aDbHandlers = [];
+		}
+
+		if ( !empty( $this->aDbHandlers[ $sDbhKey ] ) ) {
+			$oDbH = $this->aDbHandlers[ $sDbhKey ];
+		}
+		else {
+			$aDbClasses = $this->getAllDbClasses();
+			if ( isset( $aDbClasses[ $sDbhKey ] ) ) {
+				/** @var Shield\Databases\Base\Handler $oDbH */
+				$oDbH = new $aDbClasses[ $sDbhKey ]();
+				try {
+					$oDbH->setMod( $this )->tableInit();
+				}
+				catch ( \Exception $oE ) {
+				}
+			}
+			$this->aDbHandlers[ $sDbhKey ] = $oDbH;
+		}
+
+		return $oDbH;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getAllDbClasses() {
+		$aCls = $this->getOptions()->getDef( 'db_classes' );
+		return is_array( $aCls ) ? $aCls : [];
 	}
 
 	/**
@@ -181,12 +239,13 @@ class BaseModCon extends Deprecated\Foundation {
 		$aEvts = $this->getSupportedEvents();
 
 		$aDefaults = [
-			'context' => $this->getSlug(),
-			'cat'     => 1,
-			'stat'    => true,
-			'audit'   => true,
-			'recent'  => false, // whether to show in the recent events logs
-			'offense' => false, // whether to mark offense against IP
+			'context'        => $this->getSlug(),
+			'cat'            => 1,
+			'stat'           => true,
+			'audit'          => true,
+			'recent'         => false, // whether to show in the recent events logs
+			'offense'        => false, // whether to mark offense against IP
+			'audit_multiple' => false, // allow multiple audit entries in the same request
 		];
 		foreach ( $aEvts as $sKey => $aEvt ) {
 			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
@@ -337,20 +396,10 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * Used to effect certain processing that is to do with options etc. but isn't related to processing
-	 * functionality of the plugin.
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
-		try {
-			$oDbH = $this->getDbHandler();
-			$bReady = ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor )
-					  && ( !$oDbH instanceof Shield\Databases\Base\Handler || $oDbH->isReady() );
-		}
-		catch ( \Exception $oE ) {
-			$bReady = false;
-		}
-		return $bReady;
+		return ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor );
 	}
 
 	protected function doExecuteProcessor() {
