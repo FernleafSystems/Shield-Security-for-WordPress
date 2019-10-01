@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\BotTrack;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class Base {
@@ -15,14 +16,14 @@ abstract class Base {
 	}
 
 	protected function doTransgression() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var IPs\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oMod->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
+		if ( $oOpts->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
 			$bCount = PHP_INT_MAX;
 		}
-		else if ( $oMod->isTrackOptTransgression( static::OPT_KEY ) ) {
-			$bCount = $oMod->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
+		else if ( $oOpts->isTrackOptTransgression( static::OPT_KEY ) ) {
+			$bCount = $oOpts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
 		}
 		else {
 			$bCount = 0;

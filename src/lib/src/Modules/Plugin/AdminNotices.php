@@ -70,9 +70,9 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return array
 	 */
 	private function ajaxExec_SetPluginTrackingPerm() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oMod->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
 		return $this->ajaxExec_DismissAdminNotice();
 	}
 

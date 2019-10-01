@@ -768,7 +768,7 @@ class BaseModCon extends Deprecated\Foundation {
 	 * @return mixed|null
 	 */
 	public function getDef( $sKey ) {
-		return $this->getOptions()->getFeatureDefinition( $sKey );
+		return $this->getOptions()->getDef( $sKey );
 	}
 
 	/**
@@ -1201,6 +1201,7 @@ class BaseModCon extends Deprecated\Foundation {
 	/**
 	 * @param string $sMsg
 	 * @param bool   $bError
+	 * @param bool   $bShowOnLogin
 	 * @return $this
 	 */
 	public function setFlashAdminNotice( $sMsg, $bError = false, $bShowOnLogin = false ) {
