@@ -12,6 +12,16 @@ class ICWP_WPSF_FeatureHandler_Events extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_Events() instanceof Shield\Databases\Events\Handler )
+			   && $this->getDbHandler_Events()->isReady()
+			   && parent::isReadyToExecute();
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

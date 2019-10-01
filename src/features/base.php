@@ -376,8 +376,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $this->getOptions()->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
-		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
-			$this->doExecuteProcessor();
+		try {
+			if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+				$this->doExecuteProcessor();
+			}
+		}
+		catch ( \Exception $oE ) {
 		}
 	}
 
@@ -394,6 +398,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		return ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor );
@@ -1265,6 +1270,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @param string $sMsg
 	 * @param bool   $bError
+	 * @param bool   $bShowOnLogin
 	 * @return $this
 	 */
 	public function setFlashAdminNotice( $sMsg, $bError = false, $bShowOnLogin = false ) {

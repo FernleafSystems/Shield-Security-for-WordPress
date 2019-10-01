@@ -39,10 +39,14 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	/**
 	 * @return bool
+	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
 		$oIp = Services::IP();
-		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() ) && parent::isReadyToExecute();
+		return $oIp->isValidIp_PublicRange( $oIp->getRequestIp() )
+			   && ( $this->getDbHandler_Traffic() instanceof Shield\Databases\Traffic\Handler )
+			   && $this->getDbHandler_Traffic()->isReady()
+			   && parent::isReadyToExecute();
 	}
 
 	/**

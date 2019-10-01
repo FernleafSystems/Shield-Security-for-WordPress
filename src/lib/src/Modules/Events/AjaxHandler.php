@@ -31,8 +31,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	public function ajaxExec_RenderChart() {
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
-		/** @var Strings $oStrs */
-		$oStrs = $oMod->getStrings();
 
 		$aParams = $this->getAjaxFormParams();
 		$sEvent = $aParams[ 'event' ];
