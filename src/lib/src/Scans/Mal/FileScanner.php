@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -106,15 +107,13 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		$bExclude = $this->isValidCoreFile( $sFullPath );
+		$bExclude = $this->isValidCoreFile( $sFullPath )
+					|| $this->isPluginFileValid( $sFullPath ) || $this->isThemeFileValid( $sFullPath );
 
-		if ( !$bExclude ) {
-			if ( $this->isPluginFileValid( $sFullPath ) ) {
-				$bExclude = true;
-				( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
-					->setMod( $this->getMod() )
-					->report( $sFullPath, 'sha1', true );
-			}
+		if ( $bExclude ) {
+			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+				->setMod( $this->getMod() )
+				->report( $sFullPath, 'sha1', true );
 		}
 		return $bExclude;
 	}
@@ -154,18 +153,18 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 		if ( strpos( $sFullPath, wp_normalize_path( WP_PLUGIN_DIR ) ) === 0 ) {
 
-			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
-			$oThePlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
+			$oFiles = new Utilities\WpOrg\Plugin\Files();
+			$oThePlugin = $oFiles->findPluginFromFile( $sFullPath );
 			if ( $oThePlugin instanceof WpPluginVo ) {
 
-				$oPlugVersion = ( new Utilities\WpOrg\Plugin\Versions() )
+				$oVersion = ( new Utilities\WpOrg\Plugin\Versions() )
 					->setWorkingSlug( $oThePlugin->slug )
 					->setWorkingVersion( $oThePlugin->Version );
 
 				// Only try to download load a file if the plugin actually uses SVN Tags for this version.
-				if ( $oPlugVersion->exists( $oThePlugin->Version, true ) ) {
+				if ( $oVersion->exists( $oThePlugin->Version, true ) ) {
 					try {
-						$sTmpFile = $oPluginFiles
+						$sTmpFile = $oFiles
 							->setWorkingSlug( $oThePlugin->slug )
 							->setWorkingVersion( $oThePlugin->Version )
 							->getOriginalFileFromVcs( $sFullPath );
@@ -175,6 +174,39 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 						}
 					}
 					catch ( \Exception $oE ) {
+					}
+				}
+			}
+		}
+
+		return $bCanExclude;
+	}
+
+	/**
+	 * @param string $sFullPath - normalized
+	 * @return bool
+	 */
+	private function isThemeFileValid( $sFullPath ) {
+		$bCanExclude = false;
+
+		if ( strpos( $sFullPath, wp_normalize_path( get_theme_root() ) ) === 0 ) {
+			$oFiles = new Utilities\WpOrg\Theme\Files();
+			$oTheTheme = $oFiles->findThemeFromFile( $sFullPath );
+			if ( $oTheTheme instanceof WpThemeVo ) {
+				$oVersion = ( new Utilities\WpOrg\Theme\Versions() )
+					->setWorkingSlug( $oTheTheme->stylesheet )
+					->setWorkingVersion( $oTheTheme->wp_theme->get( 'Version' ) );
+
+				// Only try to download load a file if the theme actually uses SVN Tags for this version.
+				if ( $oVersion->exists( $oTheTheme->wp_theme->get( 'Version' ), true ) ) {
+					try {
+						$bCanExclude = $oFiles
+							->setWorkingSlug( $oTheTheme->stylesheet )
+							->setWorkingVersion( $oTheTheme->wp_theme->get( 'Version' ) )
+							->verifyFileContents( $sFullPath );
+					}
+					catch ( \Exception $oE ) {
+//						error_log( $oE->getMessage() );
 					}
 				}
 			}

@@ -501,6 +501,18 @@
       "description": "Automatically repair any plugin files found to have potential malware."
     },
     {
+      "key":         "mal_autorepair_themes",
+      "section":     "section_scan_mal",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "N",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Repair WP Themes",
+      "summary":     "Automatically Repair WordPress.org Themes",
+      "description": "Automatically repair any theme files found to have potential malware."
+    },
+    {
       "key":         "mal_autorepair_surgical",
       "section":     "section_non_ui",
       "premium":     true,
@@ -739,7 +751,8 @@
     "url_mal_sigs_regex":          "https://raw.githubusercontent.com/scr34m/php-malware-scanner/master/definitions/patterns_re.txt",
     "malware_whitelist_paths":     [
       "wp-content/wflogs/",
-      "wp-content/cache/"
+      "wp-content/cache/",
+      "wp-content/icwp/rollback/"
     ],
     "cron_all_scans":              "all-scans",
     "url_checksum_api":            "https://api.wordpress.org/core/checksums/1.0/",
