@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -106,15 +107,13 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		$bExclude = $this->isValidCoreFile( $sFullPath );
+		$bExclude = $this->isValidCoreFile( $sFullPath )
+					|| $this->isPluginFileValid( $sFullPath ) || $this->isThemeFileValid( $sFullPath );
 
-		if ( !$bExclude ) {
-			if ( $this->isPluginFileValid( $sFullPath ) ) {
-				$bExclude = true;
-				( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
-					->setMod( $this->getMod() )
-					->report( $sFullPath, 'sha1', true );
-			}
+		if ( $bExclude ) {
+			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+				->setMod( $this->getMod() )
+				->report( $sFullPath, 'sha1', true );
 		}
 		return $bExclude;
 	}
@@ -150,37 +149,27 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function isPluginFileValid( $sFullPath ) {
-		$bCanExclude = false;
-
-		if ( strpos( $sFullPath, wp_normalize_path( WP_PLUGIN_DIR ) ) === 0 ) {
-
-			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
-			$oThePlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
-			if ( $oThePlugin instanceof WpPluginVo ) {
-
-				$oPlugVersion = ( new Utilities\WpOrg\Plugin\Versions() )
-					->setWorkingSlug( $oThePlugin->slug )
-					->setWorkingVersion( $oThePlugin->Version );
-
-				// Only try to download load a file if the plugin actually uses SVN Tags for this version.
-				if ( $oPlugVersion->exists( $oThePlugin->Version, true ) ) {
-					try {
-						$sTmpFile = $oPluginFiles
-							->setWorkingSlug( $oThePlugin->slug )
-							->setWorkingVersion( $oThePlugin->Version )
-							->getOriginalFileFromVcs( $sFullPath );
-						if ( Services::WpFs()->exists( $sTmpFile )
-							 && ( new Utilities\File\Compare\CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
-							$bCanExclude = true;
-						}
-					}
-					catch ( \Exception $oE ) {
-					}
-				}
-			}
+		try {
+			$bIsValidFile = ( new Utilities\WpOrg\Plugin\Files() )->verifyFileContents( $sFullPath );
 		}
+		catch ( \Exception $oE ) {
+			$bIsValidFile = false;
+		}
+		return $bIsValidFile;
+	}
 
-		return $bCanExclude;
+	/**
+	 * @param string $sFullPath - normalized
+	 * @return bool
+	 */
+	private function isThemeFileValid( $sFullPath ) {
+		try {
+			$bIsValidFile = ( new Utilities\WpOrg\Theme\Files() )->verifyFileContents( $sFullPath );
+		}
+		catch ( \Exception $oE ) {
+			$bIsValidFile = false;
+		}
+		return $bIsValidFile;
 	}
 
 	/**

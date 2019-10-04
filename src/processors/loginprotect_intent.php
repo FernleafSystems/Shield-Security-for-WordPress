@@ -152,7 +152,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 					$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
 					if ( $oFO->isEnabledBackupCodes() ) {
 						$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
-//								   .' '.sprintf( '<a href="%s">%s</a>', $oWpUsers->getAdminUrl_ProfileEdit(), _wpsf__( 'Go' ) );
 					}
 
 					$this->getCon()->fireEvent( '2fa_success' );

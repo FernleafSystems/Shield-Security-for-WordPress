@@ -118,8 +118,16 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
+	public function isMalAutoRepairThemes() {
+		return $this->isOpt( 'mal_autorepair_themes', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isMalAutoRepair() {
-		return $this->isMalAutoRepairCore() || $this->isMalAutoRepairPlugins() || $this->isMalAutoRepairSurgical();
+		return $this->isMalAutoRepairCore() || $this->isMalAutoRepairPlugins() || $this->isMalAutoRepairThemes()
+			   || $this->isMalAutoRepairSurgical();
 	}
 
 	/**

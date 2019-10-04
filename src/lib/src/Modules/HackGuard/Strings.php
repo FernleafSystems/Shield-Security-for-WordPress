@@ -343,6 +343,14 @@ class Strings extends Base\Strings {
 								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the plugin.", 'wp-simple-firewall' ) );
 				break;
 
+			case 'mal_autorepair_themes' :
+				$sName = __( 'Auto-Repair WP Themes', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Repair WordPress.org Themes', 'wp-simple-firewall' );
+				$sDescription = __( "Automatically repair any theme files found to have potential malware.", 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with themes installed from WordPress.org.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the theme.", 'wp-simple-firewall' ) );
+				break;
+
 			case 'mal_fp_confidence' :
 				$sName = __( 'Ignore False Positives Threshold', 'wp-simple-firewall' );
 				$sSummary = __( 'Ignore False Positives In Scan Results Automatically', 'wp-simple-firewall' );
