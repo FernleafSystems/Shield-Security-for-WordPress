@@ -501,18 +501,6 @@
       "description": "Automatically repair any plugin files found to have potential malware."
     },
     {
-      "key":         "mal_autorepair_themes",
-      "section":     "section_scan_mal",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Auto-Repair WP Themes",
-      "summary":     "Automatically Repair WordPress.org Themes",
-      "description": "Automatically repair any theme files found to have potential malware."
-    },
-    {
       "key":         "mal_autorepair_surgical",
       "section":     "section_non_ui",
       "premium":     true,
