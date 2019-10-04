@@ -816,11 +816,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					)->count(),
 				'tooltip' => __( 'Current IP addresses with offenses against the site.', 'wp-simple-firewall' )
 			],
-			//			'pro'            => array(
-			//				'title'   => _wpsf__( 'Pro' ),
-			//				'val'     => $this->isPremium() ? _wpsf__( 'Yes' ) : _wpsf__( 'No' ),
-			//				'tooltip' => sprintf( _wpsf__( 'Is this site running %s Pro' ), $oConn->getHumanName() )
-			//			),
 		];
 	}
 

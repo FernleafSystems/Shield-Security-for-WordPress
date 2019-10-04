@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.2.0
+Stable tag: 8.2.1
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,7 +370,13 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.2.0 - Current Release =
+= 8.2.1 - Current Release =
+*Released: 4th October, 2019* - [Release Notes](https://icwp.io/g0)
+
+* **(v.1)**  IMPROVED:	Malware scanner now also uses SVN trunk data when attempting to verify files for plugins.
+* **(v.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
+
+= 8.2 - Series =
 *Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
 
 * **(v.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
