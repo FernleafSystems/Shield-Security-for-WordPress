@@ -149,37 +149,13 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function isPluginFileValid( $sFullPath ) {
-		$bCanExclude = false;
-
-		if ( strpos( $sFullPath, wp_normalize_path( WP_PLUGIN_DIR ) ) === 0 ) {
-
-			$oFiles = new Utilities\WpOrg\Plugin\Files();
-			$oThePlugin = $oFiles->findPluginFromFile( $sFullPath );
-			if ( $oThePlugin instanceof WpPluginVo ) {
-
-				$oVersion = ( new Utilities\WpOrg\Plugin\Versions() )
-					->setWorkingSlug( $oThePlugin->slug )
-					->setWorkingVersion( $oThePlugin->Version );
-
-				// Only try to download load a file if the plugin actually uses SVN Tags for this version.
-				if ( $oVersion->exists( $oThePlugin->Version, true ) ) {
-					try {
-						$sTmpFile = $oFiles
-							->setWorkingSlug( $oThePlugin->slug )
-							->setWorkingVersion( $oThePlugin->Version )
-							->getOriginalFileFromVcs( $sFullPath );
-						if ( Services::WpFs()->exists( $sTmpFile )
-							 && ( new Utilities\File\Compare\CompareHash() )->isEqualFilesMd5( $sTmpFile, $sFullPath ) ) {
-							$bCanExclude = true;
-						}
-					}
-					catch ( \Exception $oE ) {
-					}
-				}
-			}
+		try {
+			$bIsValidFile = ( new Utilities\WpOrg\Plugin\Files() )->verifyFileContents( $sFullPath );
 		}
-
-		return $bCanExclude;
+		catch ( \Exception $oE ) {
+			$bIsValidFile = false;
+		}
+		return $bIsValidFile;
 	}
 
 	/**
@@ -187,32 +163,13 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function isThemeFileValid( $sFullPath ) {
-		$bCanExclude = false;
-
-		if ( strpos( $sFullPath, wp_normalize_path( get_theme_root() ) ) === 0 ) {
-			$oFiles = new Utilities\WpOrg\Theme\Files();
-			$oTheTheme = $oFiles->findThemeFromFile( $sFullPath );
-			if ( $oTheTheme instanceof WpThemeVo ) {
-				$oVersion = ( new Utilities\WpOrg\Theme\Versions() )
-					->setWorkingSlug( $oTheTheme->stylesheet )
-					->setWorkingVersion( $oTheTheme->wp_theme->get( 'Version' ) );
-
-				// Only try to download load a file if the theme actually uses SVN Tags for this version.
-				if ( $oVersion->exists( $oTheTheme->wp_theme->get( 'Version' ), true ) ) {
-					try {
-						$bCanExclude = $oFiles
-							->setWorkingSlug( $oTheTheme->stylesheet )
-							->setWorkingVersion( $oTheTheme->wp_theme->get( 'Version' ) )
-							->verifyFileContents( $sFullPath );
-					}
-					catch ( \Exception $oE ) {
-//						error_log( $oE->getMessage() );
-					}
-				}
-			}
+		try {
+			$bIsValidFile = ( new Utilities\WpOrg\Theme\Files() )->verifyFileContents( $sFullPath );
 		}
-
-		return $bCanExclude;
+		catch ( \Exception $oE ) {
+			$bIsValidFile = false;
+		}
+		return $bIsValidFile;
 	}
 
 	/**

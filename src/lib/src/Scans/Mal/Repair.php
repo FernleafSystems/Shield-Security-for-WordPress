@@ -44,17 +44,19 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 		$oOpts = $this->getOptions();
 		$bSuccess = false;
 
-		// 1) Report the file as being malware.
-		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
-			->setMod( $this->getMod() )
-			->report( $oItem->path_full, 'sha1', false );
-
 		// 2). Repair
 		try {
 			$bCanAutoRepair = $this->canAutoRepairFromSource( $oItem );
 		}
 		catch ( \Exception $e ) {
 			$bCanAutoRepair = false;
+		}
+
+		if ( $bCanAutoRepair || $this->isManualAction() ) {
+			// 1) Report the file as being malware.
+			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+				->setMod( $this->getMod() )
+				->report( $oItem->path_full, 'sha1', false );
 		}
 
 		if ( $bCanAutoRepair ) {
@@ -146,8 +148,8 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 					};
 					if ( !( new WpOrg\Theme\Versions() )
 						->setWorkingSlug( $oTheme->stylesheet )
-						->exists( $oTheme->wp_theme->get( 'Version' ), true ) ) {
-						throw new \Exception( __( "Theme developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
+						->exists( $oTheme->version, true ) ) {
+						throw new \Exception( __( "Theme version doesn't appear to exist.", 'wp-simple-firewall' ) );
 					};
 
 					$bCanRepair = true;
