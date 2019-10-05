@@ -27,7 +27,7 @@ class Whitelist {
 		}
 		else {
 			$oCacheDef->file_fragment = 'cache_whitelist_confidence.txt';
-			$oCacheDef->expiration = HOUR_IN_SECONDS; // Prevent lots of unnecessary HTTP requests out.
+			$oCacheDef->expiration = MINUTE_IN_SECONDS*10;
 			( new Cache\LoadFromCache() )
 				->setCacheDef( $oCacheDef )
 				->load();
