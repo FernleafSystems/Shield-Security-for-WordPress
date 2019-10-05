@@ -1002,7 +1002,7 @@ class Options {
 	 * @return string
 	 */
 	private function getConfigStorageKey() {
-		return 'mod_config_'.md5( $this->getPathToConfig() );
+		return 'shield_mod_config_'.md5( $this->getPathToConfig() );
 	}
 
 	/**
