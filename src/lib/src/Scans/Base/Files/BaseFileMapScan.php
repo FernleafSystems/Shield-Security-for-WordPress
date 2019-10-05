@@ -18,8 +18,8 @@ abstract class BaseFileMapScan extends Base\BaseScan {
 		$oAction = $this->getScanActionVO();
 
 		$oTempRs = $this->getScanFromFileMap()
-			->setScanActionVO( $oAction )
-			->run();
+						->setScanActionVO( $oAction )
+						->run();
 
 		$aNewItems = [];
 		if ( $oTempRs->hasItems() ) {

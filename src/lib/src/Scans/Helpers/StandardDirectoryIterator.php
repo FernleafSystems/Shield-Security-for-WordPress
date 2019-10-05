@@ -19,11 +19,9 @@ class StandardDirectoryIterator {
 	static public function create( $sDir, $nMaxDepth = 0, $aFileExts = [], $bExcludeCoreFiles = false ) {
 
 		$oDirIterator = new \RecursiveDirectoryIterator( $sDir );
-		if ( method_exists( $oDirIterator, 'setFlags' ) ) {
-			$oDirIterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
-		}
+		$oDirIterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );
 
-		$oFilter = new ScannerRecursiveFilterIterator( new \RecursiveDirectoryIterator( $sDir ) );
+		$oFilter = new ScannerRecursiveFilterIterator( $oDirIterator );
 		$oFilter->setFileExts( $aFileExts )
 				->setIsFilterOutWpCoreFiles( $bExcludeCoreFiles );
 		$oRecurIter = new \RecursiveIteratorIterator( $oFilter );

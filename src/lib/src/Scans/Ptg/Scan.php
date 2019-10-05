@@ -36,36 +36,46 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 			$bUseStaticHashes = true;
 
-			// use live hashes if it's a WP.org plugin
-			if ( $bLiveHashesPing && $oWpPlugins->isWpOrg( $sSlug ) ) {
-				try {
-					$oNewRes = ( new PluginWporgScanner() )
-						->setScanActionVO( $oAction )
-						->scan( $sSlug );
-					$bUseStaticHashes = false;
-				}
-				catch ( \Exception $oE ) {
-					$bUseStaticHashes = true;
-				}
-			}
-
-			if ( $bUseStaticHashes ) {
+			// use live hashes if it's a WP.org plugin/theme
+			if ( $bLiveHashesPing ) {
 				if ( $sContext == 'plugins' ) {
-					$aHashes = $this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ];
-					if ( !empty( $aHashes ) ) {
-						$oNewRes = $oItemScanner->scan(
-							$oWpPlugins->getInstallationDir( $sSlug ),
-							$this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ]
-						);
+
+					if ( $bLiveHashesPing && $oWpPlugins->isWpOrg( $sSlug ) ) {
+						try {
+							$oNewRes = ( new PluginWporgScanner() )
+								->setScanActionVO( $oAction )
+								->scan( $sSlug );
+							$bUseStaticHashes = false;
+						}
+						catch ( \Exception $oE ) {
+							$bUseStaticHashes = true;
+						}
+					}
+
+					if ( $bUseStaticHashes ) {
+						$aHashes = $this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ];
+						if ( !empty( $aHashes ) ) {
+							$oNewRes = $oItemScanner->scan(
+								$oWpPlugins->getInstallationDir( $sSlug ),
+								$this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ]
+							);
+						}
 					}
 				}
-				else {
-					$aHashes = $this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ];
-					if ( !empty( $aHashes ) ) {
-						$oNewRes = $oItemScanner->scan(
-							$oWpThemes->getInstallationDir( $sSlug ),
-							$this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ]
-						);
+				else { // THEMES:
+
+					if ( $bLiveHashesPing && $oWpThemes->isWpOrg( $sSlug ) ) {
+						// TODO
+					}
+
+					if ( $bUseStaticHashes ) {
+						$aHashes = $this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ];
+						if ( !empty( $aHashes ) ) {
+							$oNewRes = $oItemScanner->scan(
+								$oWpThemes->getInstallationDir( $sSlug ),
+								$this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ]
+							);
+						}
 					}
 				}
 			}
@@ -89,7 +99,8 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	/**
 	 * @return Snapshots\Store
 	 */
-	private function getPluginHashes() {
+	private
+	function getPluginHashes() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( empty( $this->oPluginHashes ) ) {
