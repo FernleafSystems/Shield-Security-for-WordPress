@@ -251,7 +251,7 @@ class Options extends Base\ShieldOptions {
 		if ( $this->isUfcScanUploads() ) {
 			$sUploadsDir = Services::WpGeneral()->getDirUploads();
 			if ( !empty( $sUploadsDir ) ) {
-				$aDirs[] = [
+				$aDirs[ $sUploadsDir ] = [
 					'php',
 					'php5',
 					'js',
