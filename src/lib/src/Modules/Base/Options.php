@@ -85,7 +85,7 @@ class Options {
 	 */
 	public function deleteStorage() {
 		$oWp = Services::WpGeneral();
-		$oWp->deleteTransient( $this->getSpecTransientStorageKey() );
+		$oWp->deleteOption( $this->getConfigStorageKey() );
 		return $oWp->deleteOption( $this->getOptionsStorageKey() );
 	}
 
@@ -945,8 +945,8 @@ class Options {
 	private function readConfiguration() {
 		$oWp = Services::WpGeneral();
 
-		$sTransientKey = $this->getSpecTransientStorageKey();
-		$aConfig = $oWp->getTransient( $sTransientKey );
+		$sStorageKey = $this->getConfigStorageKey();
+		$aConfig = $oWp->getOption( $sStorageKey );
 
 		$bRebuild = $this->getRebuildFromFile() || empty( $aConfig );
 		if ( !$bRebuild && !empty( $aConfig ) && is_array( $aConfig ) ) {
@@ -968,7 +968,7 @@ class Options {
 				$aConfig = [];
 			}
 			$aConfig[ 'meta_modts' ] = $this->getConfigModTime();
-			$oWp->setTransient( $sTransientKey, $aConfig, DAY_IN_SECONDS );
+			$oWp->updateOption( $sStorageKey, $aConfig );
 		}
 
 		$this->setRebuildFromFile( $bRebuild );
@@ -1001,8 +1001,8 @@ class Options {
 	/**
 	 * @return string
 	 */
-	private function getSpecTransientStorageKey() {
-		return 'icwp_'.md5( $this->getPathToConfig() );
+	private function getConfigStorageKey() {
+		return 'mod_config_'.md5( $this->getPathToConfig() );
 	}
 
 	/**
