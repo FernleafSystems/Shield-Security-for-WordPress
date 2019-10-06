@@ -17,8 +17,13 @@ class ItemScanner {
 	 * @param string $sRootDir
 	 * @param array  $aExistingHashes
 	 * @return ResultsSet
+	 * @throws \Exception
 	 */
 	public function scan( $sRootDir, $aExistingHashes ) {
+		if ( empty( $aExistingHashes ) ) {
+			throw new \Exception( 'Existing Hashes are empty' );
+		}
+
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
