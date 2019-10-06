@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 
+use FernleafSystems\Wordpress\Services\Core\VOs;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Hashes;
 
@@ -23,18 +24,26 @@ class BuildHashesFromApi {
 
 	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
-	 * @param string $sPluginFile
+	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
 	 * @return string[] - keys are file paths relative to ABSPATH
 	 * @throws \Exception
 	 */
-	public function build( $sPluginFile ) {
-		$oWpPlugins = Services::WpPlugins();
-		$oPluginVo = $oWpPlugins->getPluginAsVo( $sPluginFile );
+	public function build( $oAsset ) {
 
-		$sInstallDir = $oWpPlugins->getInstallationDir( $sPluginFile );
+		if ( $oAsset instanceof VOs\WpPluginVo ) {
+			$sInstallDir = Services::WpPlugins()->getInstallationDir( $oAsset->file );
+			$aHashes = ( new Hashes\Plugin() )
+				->getHashes( $oAsset->slug, $oAsset->Version, 'md5' );
+		}
+		else if ( $oAsset instanceof VOs\WpThemeVo ) {
+			$sInstallDir = $oAsset->wp_theme->get_stylesheet_directory();
+			$aHashes = ( new Hashes\Theme() )
+				->getHashes( $oAsset->stylesheet, $oAsset->version, 'md5' );
+		}
+		else {
+			throw new \Exception( 'Not a supported asset type' );
+		}
 
-		$aHashes = ( new Hashes\Plugin() )
-			->getHashes( $oPluginVo->slug, $oPluginVo->Version, 'md5' );
 		if ( empty( $aHashes ) ) {
 			throw new \Exception( 'Could not retrieve live hashes.' );
 		}
