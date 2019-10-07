@@ -36,6 +36,9 @@ class BuildHashesFromApi {
 				->getHashes( $oAsset->slug, $oAsset->Version, 'md5' );
 		}
 		else if ( $oAsset instanceof VOs\WpThemeVo ) {
+			if ( $oAsset->is_child ) {
+				throw new \Exception( 'Live hashes are not supported for child themes.' );
+			}
 			$sInstallDir = $oAsset->wp_theme->get_stylesheet_directory();
 			$aHashes = ( new Hashes\Theme() )
 				->getHashes( $oAsset->stylesheet, $oAsset->version, 'md5' );
@@ -45,7 +48,7 @@ class BuildHashesFromApi {
 		}
 
 		if ( empty( $aHashes ) ) {
-			throw new \Exception( 'Could not retrieve live hashes.' );
+			throw new \Exception( 'Could not retrieve live hashes for: '.$sInstallDir );
 		}
 
 		$aSnaps = [];
