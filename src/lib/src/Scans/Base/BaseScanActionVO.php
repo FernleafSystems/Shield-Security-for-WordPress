@@ -19,7 +19,6 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 class BaseScanActionVO {
 
 	use StdClassAdapter;
-
 	const ITEM_STORAGE_LIMIT = 1;
 
 	/**

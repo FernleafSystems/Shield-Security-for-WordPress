@@ -18,6 +18,8 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	 */
 	private $oThemeHashes;
 
+	/**
+	 */
 	protected function scanSlice() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
@@ -26,22 +28,34 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
-		$oItemScanner = $this->getItemScanner();
 		$oCopier = new Shield\Scans\Helpers\CopyResultsSets();
 
 		// check we can even ping the WP Hashes API.
-		$bLiveHashesPing = ( new WpHashes\ApiPing() )->ping();
-		foreach ( $oAction->items as $sSlug => $sContext ) {
+		$bUseLiveHashes = ( new WpHashes\ApiPing() )->ping();
+		foreach ( $oAction->items as $sFileOrStylesheet => $sContext ) {
 			$oNewRes = null;
 
 			$bUseStaticHashes = true;
 
-			// use live hashes if it's a WP.org plugin
-			if ( $bLiveHashesPing && $oWpPlugins->isWpOrg( $sSlug ) ) {
+			if ( $sContext == 'plugins' ) {
+				$oAsset = $oWpPlugins->getPluginAsVo( $sFileOrStylesheet );
+			}
+			else {
+				$oAsset = $oWpThemes->getThemeAsVo( $sFileOrStylesheet );
+			}
+			if ( empty( $oAsset ) ) {
+				error_log( sprintf( '"%s" Asset "%s" cannot be loaded', $sContext, $sFileOrStylesheet ) );
+				continue;
+			}
+
+			// use live hashes if it's a WP.org plugin/theme
+			if ( $bUseLiveHashes ) {
+
 				try {
-					$oNewRes = ( new PluginWporgScanner() )
+					$oNewRes = ( new WporgAssetScanner() )
 						->setScanActionVO( $oAction )
-						->scan( $sSlug );
+						->setAsset( $oAsset )
+						->scan();
 					$bUseStaticHashes = false;
 				}
 				catch ( \Exception $oE ) {
@@ -49,29 +63,26 @@ class Scan extends Shield\Scans\Base\BaseScan {
 				}
 			}
 
-			if ( $bUseStaticHashes ) {
+			if ( $bUseStaticHashes ) { // Live hashes didn't work.
 				if ( $sContext == 'plugins' ) {
-					$aHashes = $this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ];
-					if ( !empty( $aHashes ) ) {
-						$oNewRes = $oItemScanner->scan(
-							$oWpPlugins->getInstallationDir( $sSlug ),
-							$this->getPluginHashes()->getSnapItem( $sSlug )[ 'hashes' ]
-						);
-					}
+					$sAssetDir = $oWpPlugins->getInstallationDir( $oAsset->file );
+					$aSnapHashes = $this->getPluginHashes()->getSnapItem( $sFileOrStylesheet )[ 'hashes' ];
 				}
-				else {
-					$aHashes = $this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ];
-					if ( !empty( $aHashes ) ) {
-						$oNewRes = $oItemScanner->scan(
-							$oWpThemes->getInstallationDir( $sSlug ),
-							$this->getThemeHashes()->getSnapItem( $sSlug )[ 'hashes' ]
-						);
-					}
+				else { // THEMES:
+					$sAssetDir = $oAsset->wp_theme->get_stylesheet_directory();
+					$aSnapHashes = $this->getThemeHashes()->getSnapItem( $sFileOrStylesheet )[ 'hashes' ];
+				}
+
+				try {
+					$oNewRes = $this->getItemScanner()
+									->scan( $sAssetDir, $aSnapHashes );
+				}
+				catch ( \Exception $oE ) {
 				}
 			}
 
 			if ( $oNewRes instanceof ResultsSet ) {
-				$oNewRes->setSlugOnAllItems( $sSlug )
+				$oNewRes->setSlugOnAllItems( $sFileOrStylesheet )
 						->setContextOnAllItems( $sContext );
 				$oCopier->copyTo( $oNewRes, $oTempRs );
 			}
