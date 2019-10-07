@@ -371,11 +371,12 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://icwp.io/aa).
 
 = 8.2.1 - Current Release =
-*Released: 6th October, 2019* - [Release Notes](https://icwp.io/g0)
+*Released: 7th October, 2019* - [Release Notes](https://icwp.io/g0)
 
-* **(v.1)**  IMPROVED:	Malware scanner now also uses SVN trunk data when attempting to veri fy files for plugins and themes.
+* **(v.1)**  IMPROVED:	Further reduce Malware false positives by also using SVN trunk data when verifying files for plugins and themes.
 * **(v.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
-* **(v.1)**  FIXED:		PHP notice in the logs.
+* **(v.1)**  ADDED:		Support for using [WP Hashes.com](https://wphashes.com) for WordPress.org themes (already done for plugins).
+* **(v.1)**  FIXED:		PHP notices in the logs.
 
 = 8.2 - Series =
 *Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
