@@ -31,9 +31,6 @@ class WporgAssetScanner {
 		$oResults = new ResultsSet();
 
 		$oAsset = $this->getAsset();
-		if ( !$oAsset->isWpOrg() ) {
-			throw new \Exception( 'Not a WordPress.org asset.' );
-		}
 
 		if ( $oAsset instanceof WpPluginVo ) {
 			$sAssetDir = Services::WpPlugins()->getInstallationDir( $oAsset->file );
@@ -45,12 +42,13 @@ class WporgAssetScanner {
 			throw new \Exception( 'Unsupported Asset Type' );
 		}
 
-		$sAssetDir = trailingslashit( wp_normalize_path( $sAssetDir ) );
+		// Get live hashes if it's possible.
+		$aLive = $this->getLiveHashes();
 
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		$aLive = $this->getLiveHashes();
 		$oCompare = new CompareHash();
+		$sAssetDir = trailingslashit( wp_normalize_path( $sAssetDir ) );
 		try {
 			$oDirIt = StandardDirectoryIterator::create( $sAssetDir, $oAction->scan_depth, $oAction->file_exts );
 			$sAbsPath = wp_normalize_path( ABSPATH );

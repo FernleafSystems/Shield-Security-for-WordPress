@@ -30,6 +30,10 @@ class BuildHashesFromApi {
 	 */
 	public function build( $oAsset ) {
 
+		if ( !$oAsset->isWpOrg() ) {
+			throw new \Exception( 'Not a WordPress.org asset.' );
+		}
+
 		if ( $oAsset instanceof VOs\WpPluginVo ) {
 			$sInstallDir = Services::WpPlugins()->getInstallationDir( $oAsset->file );
 			$aHashes = ( new Hashes\Plugin() )
