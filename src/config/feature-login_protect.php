@@ -459,34 +459,6 @@
       "transferable": false,
       "type":         "boolean",
       "value":        true
-    },
-    {
-      "key":          "insights_last_2fa_login_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_login_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_register_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_reset-password_block_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "default":      0
     }
   ],
   "definitions":   {

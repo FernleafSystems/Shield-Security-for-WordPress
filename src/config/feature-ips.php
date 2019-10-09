@@ -448,35 +448,6 @@
       "description": "This message is displayed if the visitor triggered the IP Offenses system and reports how many offenses remain before being blocked."
     },
     {
-      "key":          "this_server_ip",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "sensitive":    true,
-      "type":         "text",
-      "default":      ""
-    },
-    {
-      "key":          "this_server_ip_last_check_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_transgression_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_ip_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "autounblock_ips",
       "section":      "section_non_ui",
       "transferable": false,
