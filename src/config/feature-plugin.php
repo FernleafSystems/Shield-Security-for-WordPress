@@ -391,19 +391,12 @@
       "default":      ""
     },
     {
-      "key":          "this_server_ip",
+      "key":          "this_server_ip_details",
       "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,
-      "type":         "text",
-      "default":      ""
-    },
-    {
-      "key":          "this_server_ip_last_check_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
+      "type":         "array",
+      "default":      []
     },
     {
       "key":          "last_ip_detect_source",

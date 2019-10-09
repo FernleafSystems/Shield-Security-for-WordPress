@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -48,25 +49,51 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {
-		return ( Services::Request()->ts() - $this->getOpt( 'this_server_ip_last_check_at', 0 ) > DAY_IN_SECONDS );
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$aDetails = $oOpts->getServerIpDetails();
+		$nAge = Services::Request()->ts() - $aDetails[ 'check_ts' ];
+		return ( $nAge > HOUR_IN_SECONDS )
+			   && ( $this->getServerHash() != $aDetails[ 'hash' ] || $nAge > WEEK_IN_SECONDS );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getMyServerIp() {
+		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$sThisServerIp = $oOpts->getOpt( 'this_server_ip', '' );
-		if ( $this->getLastCheckServerIpAtHasExpired() ) {
+		$sThisServerIp = $oOpts->getServerIpDetails()[ 'ip' ];
+		if ( empty( $sThisServerIp ) || $this->getLastCheckServerIpAtHasExpired() ) {
+
 			$sThisServerIp = Services::IP()->whatIsMyIp();
 			if ( !empty( $sThisServerIp ) ) {
-				$oOpts->setOpt( 'this_server_ip', $sThisServerIp );
+				$oOpts->updateServerIpDetails( [
+					'ip'       => $sThisServerIp,
+					'hash'     => $this->getServerHash(),
+					'check_ts' => Services::Request()->ts(),
+				] );
 			}
-			// we always update so we don't forever check on every single page load
-			$oOpts->setOptAt( 'this_server_ip_last_check_at' );
 		}
 		return $sThisServerIp;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getServerHash() {
+		return md5( serialize(
+			array_values( array_intersect_key(
+				$_SERVER,
+				array_flip( [
+					'SERVER_SOFTWARE',
+					'PATH',
+					'DOCUMENT_ROOT',
+					'SERVER_ADDR',
+				] )
+			) )
+		) );
 	}
 
 	/**
@@ -179,16 +206,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			[ 'inav' => 'importexport' ],
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
-	}
-
-	/**
-	 * @param bool $bOnOrOff
-	 * @return $this
-	 * @deprecated 8.2
-	 */
-	public function setPluginTrackingPermission( $bOnOrOff = true ) {
-		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
-					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
 
 	/**

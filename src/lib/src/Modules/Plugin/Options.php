@@ -52,6 +52,29 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getServerIpDetails() {
+		$aDetails = $this->getOpt( 'this_server_ip_details', [] );
+		if ( empty( $aDetails ) ) {
+			$aDetails = [
+				'ip'       => '',
+				'hash'     => '',
+				'check_ts' => Services::Request()->carbon()->subYear()->timestamp,
+			];
+		}
+		return $aDetails;
+	}
+
+	/**
+	 * @param array $aDetails
+	 * @return $this
+	 */
+	public function updateServerIpDetails( $aDetails ) {
+		return $this->setOpt( 'this_server_ip_details', array_merge( $this->getServerIpDetails(), $aDetails ) );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isOnFloatingPluginBadge() {
