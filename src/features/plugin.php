@@ -48,14 +48,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getLastCheckServerIpAtHasExpired() {
-		return ( Services::Request()->ts() - $this->getLastCheckServerIpAt() > DAY_IN_SECONDS );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getLastCheckServerIpAt() {
-		return $this->getOpt( 'this_server_ip_last_check_at', 0 );
+		return ( Services::Request()->ts() - $this->getOpt( 'this_server_ip_last_check_at', 0 ) > DAY_IN_SECONDS );
 	}
 
 	/**
@@ -770,6 +763,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getDbHandler_Notes() {
 		return $this->getDbH( 'notes' );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.2.2
+	 */
+	public function getLastCheckServerIpAt() {
+		return $this->getOpt( 'this_server_ip_last_check_at', 0 );
 	}
 
 	/**

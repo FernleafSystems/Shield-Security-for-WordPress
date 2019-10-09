@@ -406,13 +406,6 @@
       "default":      0
     },
     {
-      "key":          "insights_test_cron_last_run_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
