@@ -202,7 +202,7 @@ class Options extends Base\ShieldOptions {
 	public function addRemoveScanToBuild( $sScan, $bAdd = true ) {
 		$aS = $this->getScansToBuild();
 		if ( $bAdd ) {
-			$aS[ $sScan ] = $sScan;
+			$aS[ $sScan ] = Services::Request()->ts();
 		}
 		else if ( isset( $aS[ $sScan ] ) ) {
 			unset( $aS[ $sScan ] );
@@ -211,11 +211,24 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return array
+	 * @return int[] - keys are scan slugs
 	 */
 	public function getScansToBuild() {
-		$aS = $this->getOpt( 'scans_to_build' );
-		return is_array( $aS ) ? $aS : [];
+		$aS = $this->getOpt( 'scans_to_build', [] );
+		if ( !is_array( $aS ) ) {
+			$aS = [];
+		}
+		if ( !empty( $aS ) ) {
+			// We keep scans "to build" for no longer than a minute to prevent indefinite halting with failed Async HTTP.
+			$aS = array_filter( $aS,
+				function ( $nToBuildAt ) {
+					return is_int( $nToBuildAt )
+						   && Services::Request()->carbon()->subMinute()->timestamp < $nToBuildAt;
+				}
+			);
+			$this->setScansToBuild( $aS );
+		}
+		return $aS;
 	}
 
 	/**
@@ -223,7 +236,7 @@ class Options extends Base\ShieldOptions {
 	 * @return Options
 	 */
 	public function setScansToBuild( $aScans ) {
-		return $this->setOpt( 'scans_to_build', array_intersect( $aScans, $this->getScanSlugs() ) );
+		return $this->setOpt( 'scans_to_build', array_intersect_key( $aScans, array_flip( $this->getScanSlugs() ) ) );
 	}
 
 	/**
