@@ -232,6 +232,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function getCanSiteCallToItself() {
+		$oHttp = Services::HttpRequest();
+		return $oHttp->get( Services::WpGeneral()->getHomeUrl() ) && $oHttp->lastResponse->getCode() < 400;
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getActivePluginFeatures() {
