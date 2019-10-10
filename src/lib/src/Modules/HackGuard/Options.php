@@ -67,6 +67,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getMalQueueExpirationInterval() {
+		return MINUTE_IN_SECONDS*10;
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getMalSignaturesSimple() {
