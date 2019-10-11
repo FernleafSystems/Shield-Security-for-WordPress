@@ -88,6 +88,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$_SERVER,
 				array_flip( [
 					'SERVER_SOFTWARE',
+					'SERVER_SIGNATURE',
 					'PATH',
 					'DOCUMENT_ROOT',
 					'SERVER_ADDR',
