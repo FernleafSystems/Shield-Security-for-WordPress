@@ -88,6 +88,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$_SERVER,
 				array_flip( [
 					'SERVER_SOFTWARE',
+					'SERVER_SIGNATURE',
 					'PATH',
 					'DOCUMENT_ROOT',
 					'SERVER_ADDR',
@@ -229,6 +230,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
 		return $bGloballyDisabled || !$this->isOpt( 'global_enable_plugin_features', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getCanSiteCallToItself() {
+		$oHttp = Services::HttpRequest();
+		return $oHttp->get( Services::WpGeneral()->getHomeUrl() ) && $oHttp->lastResponse->getCode() < 400;
 	}
 
 	/**
