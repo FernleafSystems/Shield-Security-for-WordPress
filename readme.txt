@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.2.1
+Stable tag: 8.2.2
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,17 +370,23 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.2.1 - Current Release =
-*Released: 7th October, 2019* - [Release Notes](https://icwp.io/g0)
+= 8.2.2 - Current Release =
+*Released: 11th October, 2019* - [Release Notes](https://icwp.io/g0)
+
+* **(v.2)**  FIXED:		Fixes for scans running under Windows/IIS.
+* **(v.2)**  IMPROVED:	Adds a check that a site can send an HTTP request to itself before allowing scans to run.
+* **(v.2)**  IMPROVED:	Scans clean up after themselves better, if they fail to run.
+* **(v.2)**  IMPROVED:	Server's own IP address detection when site migrated to a new host.
+* **(v.2)**  UPDATED:	International translations.
+* **(v.2)**  FIXED:		PHP notices when data wasn't as expected.
+
+= 8.2 - Series =
+*Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
 
 * **(v.1)**  IMPROVED:	Further reduce Malware false positives by also using SVN trunk data when verifying files for plugins and themes.
 * **(v.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
 * **(v.1)**  ADDED:		Support for using [WP Hashes.com](https://wphashes.com) for WordPress.org themes (already done for plugins).
 * **(v.1)**  FIXED:		PHP notices in the logs.
-
-= 8.2 - Series =
-*Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
-
 * **(v.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
 * **(v.0)**  NEW:		Traffic Watcher feature is now free for all users (no longer Pro-only).
 * **(v.0)**  IMPROVED:	Scanning cron is improved and more efficient.

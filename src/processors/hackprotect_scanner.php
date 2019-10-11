@@ -164,19 +164,40 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$aScans = [];
-		foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
-			$oProc = $this->getSubPro( $sScanSlug );
-			if ( $oProc->isAvailable() && $oProc->isEnabled() ) {
-				$aScans[] = $sScanSlug;
+		if ( $this->getCanScansExecute() ) {
+			$aScans = [];
+			foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
+				$oProc = $this->getSubPro( $sScanSlug );
+				if ( $oProc->isAvailable() && $oProc->isEnabled() ) {
+					$aScans[] = $sScanSlug;
+				}
 			}
+
+			$oOpts->setIsScanCron( true );
+			$oMod->saveModOptions();
+
+			$oMod->getScanController()
+				 ->startScans( $aScans );
 		}
+		else {
+			error_log( 'Shield scans cannot execute.' );
+		}
+	}
 
-		$oOpts->setIsScanCron( true );
-		$oMod->saveModOptions();
+	/**
+	 * @return string[]
+	 */
+	public function getReasonsScansCantExecute() {
+		return array_keys( array_filter( [
+			'reason_not_call_self' => !$this->getCon()->getModule_Plugin()->getCanSiteCallToItself()
+		] ) );
+	}
 
-		$oMod->getScanController()
-			 ->startScans( $aScans );
+	/**
+	 * @return bool
+	 */
+	public function getCanScansExecute() {
+		return count( $this->getReasonsScansCantExecute() ) === 0;
 	}
 
 	/**

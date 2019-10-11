@@ -887,7 +887,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $sValue == 'default' ) {
 			$sValue = $this->getTextOptDefault( $sOptKey );
 		}
-		return $sValue;
+		return __( $sValue, 'wp-simple-firewall' );
 	}
 
 	/**
