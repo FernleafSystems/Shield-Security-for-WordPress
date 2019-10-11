@@ -95,6 +95,10 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 			$aUiTrack[ 'selected_scans' ] = $oOpts->getScanSlugs();
 		}
 
+		// Can Scan Checks:
+		$aReasonCantScan = $this->getSubProScanner()
+								->getReasonsScansCantExecute();
+
 		$oScannerMain = $this->getSubProScanner();
 		$oQueCon = $oMod->getScanController();
 		$aData = [
@@ -111,7 +115,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'item_repair'           => $oMod->getAjaxActionData( 'item_repair', true ),
 			],
 			'flags'   => [
-				'is_premium' => $oMod->isPremium()
+				'is_premium' => $oMod->isPremium(),
+				'can_scan'   => count( $aReasonCantScan ) === 0,
 			],
 			'strings' => [
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
@@ -132,9 +137,11 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
 				'no_entries_to_display' => __( 'No entries to display.', 'wp-simple-firewall' ),
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
+				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'initial_check' => $oQueCon->hasRunningScans()
+				'initial_check'       => $oQueCon->hasRunningScans(),
+				'cannot_scan_reasons' => $aReasonCantScan
 			],
 			'scans'   => [
 				'apc' => [

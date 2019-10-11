@@ -55,7 +55,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$sResult = 'Successful - no problems detected communicating with license server.';
 			}
 			else {
-				$sResult = 'Unknown failure due to unexpected response.';
+				$sResult = 'Unknown failure due to unexpected response: '.$oHttpReq->lastResponse->body;
 			}
 		}
 		else {

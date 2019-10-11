@@ -141,12 +141,20 @@
 			</div>
 		</div>
 		<div class="card-footer">
-			{{ strings.more_items_longer }}
 			<button class="btn btn-primary float-right"
+					{% if not flags.can_scan %}disabled="disabled"{% endif %}
 					type="submit" id="StartScans">{{ strings.run_scans_now }} &rarr;</button>
+			{% if flags.can_scan %}
+				{{ strings.more_items_longer }}
+			{% else %}
+				<p>Scans are currently disabled because:
+					{% for cannot_scan_reason in vars.cannot_scan_reasons %}
+						<br />-<span class="text-danger">{{ strings[cannot_scan_reason] }}</span>
+					{% endfor %}
+				</p>
+			{% endif %}
 		</div>
 	</div>
-</button>
 	{% include '/wpadmin_pages/insights/scans/modal_progress.twig' %}
 </form>
 

@@ -253,13 +253,6 @@
       "name":        "Firewall Block Message",
       "summary":     "Message Displayed To Visitor When A Firewall Block Is Triggered",
       "description": "When you select the option to display a message to the visitor, this is the message that is displayed."
-    },
-    {
-      "key":          "insights_last_firewall_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
     }
   ],
   "definitions": {

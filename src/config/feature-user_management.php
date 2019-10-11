@@ -307,20 +307,6 @@
       "default":      0
     },
     {
-      "key":          "insights_last_idle_logout_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_password_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "hard_suspended_userids",
       "section":      "section_non_ui",
       "transferable": false,
