@@ -96,9 +96,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		}
 
 		// Can Scan Checks:
-		$aReasonCantScan = array_keys( array_filter( [
-			'reason_not_call_self' => !$this->getCon()->getModule_Plugin()->getCanSiteCallToItself()
-		] ) );
+		$aReasonCantScan = $this->getSubProScanner()
+								->getReasonsScansCantExecute();
 
 		$oScannerMain = $this->getSubProScanner();
 		$oQueCon = $oMod->getScanController();
