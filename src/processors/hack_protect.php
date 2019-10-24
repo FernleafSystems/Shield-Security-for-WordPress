@@ -3,6 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor {
@@ -259,8 +260,9 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 			}
 
 			$bInstalled = $oWpPlugins->isInstalled( $oIT->slug );
-			$bIsWpOrg = $bInstalled && $oWpPlugins->isWpOrg( $sSlug );
-			$bHasUpdate = $bIsWpOrg && $oWpPlugins->isUpdateAvailable( $sSlug );
+			$oPlgn = $oWpPlugins->getPluginAsVo( $oIT->slug );
+			$bIsWpOrg = $bInstalled && $oPlgn instanceof WpPluginVo && $oPlgn->isWpOrg();
+			$bHasUpdate = $bIsWpOrg && $oPlgn->hasUpdate();
 			$aProfile = [
 				'id'             => $oSelector->filterByHash( $oIT->hash )->first()->id,
 				'name'           => __( 'unknown', 'wp-simple-firewall' ),

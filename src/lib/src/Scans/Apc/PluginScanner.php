@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -23,7 +24,8 @@ class PluginScanner {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		if ( Services::WpPlugins()->isWpOrg( $sPluginFile ) ) {
+		$oPlgn = Services::WpPlugins()->getPluginAsVo( $sPluginFile );
+		if ( $oPlgn instanceof WpPluginVo && $oPlgn->isWpOrg() ) {
 			$nLastUpdatedAt = $this->getLastUpdateTime( $sPluginFile );
 			if ( $nLastUpdatedAt > 0
 				 && ( Services::Request()->ts() - $nLastUpdatedAt > $oAction->abandoned_limit ) ) {
