@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.2.2
+Stable tag: 8.2.3
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -373,7 +373,7 @@ You will always be able to use Shield Security and its free features in-full.
 = 8.2.3 - Current Release =
 *Released: 25th October, 2019* - [Release Notes](https://icwp.io/g1)
 
-* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - (more info)[https://icwp.io/g1].
+* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - [more info](https://icwp.io/g1).
 * **(v.3)**  FIXED:		Fix for Rest API detection.
 * **(v.3)**  FIXED:		Fix for translation of some strings.
 
