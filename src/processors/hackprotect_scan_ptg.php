@@ -104,7 +104,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	public function addActionLinkRefresh( $aLinks, $sPluginFile ) {
 		$oWpP = Services\Services::WpPlugins();
 
-		if ( $oWpP->isWpOrg( $sPluginFile ) && !$oWpP->isUpdateAvailable( $sPluginFile ) ) {
+		$oPlgn = $oWpP->getPluginAsVo( $sPluginFile );
+		if ( $oPlgn instanceof Services\Core\VOs\WpPluginVo && $oPlgn->isWpOrg() && !$oWpP->isUpdateAvailable( $sPluginFile ) ) {
 			$sLinkTemplate = '<a href="javascript:void(0)">%s</a>';
 			$aLinks[ 'icwp-reinstall' ] = sprintf(
 				$sLinkTemplate,

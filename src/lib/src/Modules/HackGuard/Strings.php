@@ -43,7 +43,7 @@ class Strings extends Base\Strings {
 				sprintf( __( '%s scan completed and items were discovered.', 'wp-simple-firewall' ), $sScanName ),
 				sprintf( '%s: %s',
 					__( 'Note', 'wp-simple-firewall' ),
-					__( "These items wont display in results if you've previously marked them as ignored." )
+					__( "These items wont display in results if you've previously marked them as ignored.", 'wp-simple-firewall' )
 				)
 			];
 			$aMessages[ $sSlug.'_item_repair_success' ] = [
