@@ -370,8 +370,15 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.2.2 - Current Release =
-*Released: 11th October, 2019* - [Release Notes](https://icwp.io/g0)
+= 8.2.3 - Current Release =
+*Released: 25th October, 2019* - [Release Notes](https://icwp.io/g1)
+
+* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - (more info)[https://icwp.io/g1].
+* **(v.3)**  FIXED:		Fix for Rest API detection.
+* **(v.3)**  FIXED:		Fix for translation of some strings.
+
+= 8.2 - Series =
+*Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
 
 * **(v.2)**  FIXED:		Fixes for scans running under Windows/IIS.
 * **(v.2)**  IMPROVED:	Adds a check that a site can send an HTTP request to itself before allowing scans to run.
@@ -379,10 +386,6 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.2)**  IMPROVED:	Server's own IP address detection when site migrated to a new host.
 * **(v.2)**  UPDATED:	International translations.
 * **(v.2)**  FIXED:		PHP notices when data wasn't as expected.
-
-= 8.2 - Series =
-*Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
-
 * **(v.1)**  IMPROVED:	Further reduce Malware false positives by also using SVN trunk data when verifying files for plugins and themes.
 * **(v.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
 * **(v.1)**  ADDED:		Support for using [WP Hashes.com](https://wphashes.com) for WordPress.org themes (already done for plugins).
