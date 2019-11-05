@@ -389,6 +389,20 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
+		$this->getSiteInstallationId();
+	}
+
+	/**
+	 * @return string - the unique, never-changing site install ID.
+	 */
+	public function getSiteInstallationId() {
+		$sOptKey = $this->prefixOption( 'install_id' );
+		$sId = Services::WpGeneral()->getOption( $sOptKey );
+		if ( empty( $sId ) || strlen( $sId ) != 40 ) {
+			$sId = sha1( uniqid( Services::WpGeneral()->getWpUrl(), true ) );
+			Services::WpGeneral()->updateOption( $sOptKey, $sId );
+		}
+		return $sId;
 	}
 
 	/**
