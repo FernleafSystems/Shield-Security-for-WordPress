@@ -39,6 +39,6 @@ class Signatures {
 			}
 		}
 
-		return $oCacheDef->data;
+		return is_array( $oCacheDef->data ) ? $oCacheDef->data : [];
 	}
 }
