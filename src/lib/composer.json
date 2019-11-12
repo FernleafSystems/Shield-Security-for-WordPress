@@ -19,7 +19,7 @@
     }
   },
   "require":           {
-    "fernleafsystems/wordpress-services": "^0.1.23",
+    "fernleafsystems/wordpress-services": "^0.1.25",
     "fernleafsystems/utilities":          "^1.0",
     "nesbot/carbon":                      "~1.37.0",
     "google/recaptcha":                   "1.1.2",

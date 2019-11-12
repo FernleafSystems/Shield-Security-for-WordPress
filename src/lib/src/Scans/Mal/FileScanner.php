@@ -62,26 +62,36 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$aLines = $oLocator->setNeedle( $sSig )
 						   ->run();
 		$sFullPath = $oLocator->getPath();
-		if ( !empty( $aLines ) && !$this->canExcludeFile( $sFullPath ) ) {
+		if ( !empty( $aLines ) ) {
 
-			$oMaybeItem = $this->getResultItemFromLines( $aLines, $sFullPath, $sSig );
-			$oAction = $this->getScanActionVO();
-			// Zero indicates not using intelligence network
-			if ( $oAction->confidence_threshold > 0 ) {
-				$oMaybeItem->fp_confidence = $this->getFalsePositiveConfidence( $sFullPath );
+			if ( $this->canExcludeFile( $sFullPath ) ) { // we report false positives: file and lines
+				$oReporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+					->setMod( $this->getMod() );
+				foreach ( $aLines as $nLine => $sLine ) {
+					$oReporter->reportSignature( $sLine, true, $sFullPath );
+				}
+				$oReporter->reportPath( $sFullPath, 'sha1', true );
 			}
+			else {
+				$oMaybeItem = $this->getResultItemFromLines( array_keys( $aLines ), $sFullPath, $sSig );
+				$oAction = $this->getScanActionVO();
+				// Zero indicates not using intelligence network
+				if ( $oAction->confidence_threshold > 0 ) {
+					$oMaybeItem->fp_confidence = $this->getFalsePositiveConfidenceForFile( $sFullPath );
+				}
 
-			if ( $oAction->confidence_threshold == 0 || $oMaybeItem->fp_confidence < $oAction->confidence_threshold ) {
-				$oResultItem = $oMaybeItem;
+				if ( $oAction->confidence_threshold == 0 || $oMaybeItem->fp_confidence < $oAction->confidence_threshold ) {
+					$oResultItem = $oMaybeItem;
+				}
 			}
 		}
 		return $oResultItem;
 	}
 
 	/**
-	 * @param $aLines
-	 * @param $sFullPath
-	 * @param $sSig
+	 * @param string[] $aLines
+	 * @param string   $sFullPath
+	 * @param string   $sSig
 	 * @return ResultItem
 	 */
 	private function getResultItemFromLines( $aLines, $sFullPath, $sSig ) {
@@ -105,22 +115,15 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function canExcludeFile( $sFullPath ) {
-		$bExclude = $this->isValidCoreFile( $sFullPath )
-					|| $this->isPluginFileValid( $sFullPath ) || $this->isThemeFileValid( $sFullPath );
-
-		if ( $bExclude ) {
-			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
-				->setMod( $this->getMod() )
-				->report( $sFullPath, 'sha1', true );
-		}
-		return $bExclude;
+		return $this->isValidCoreFile( $sFullPath )
+			   || $this->isPluginFileValid( $sFullPath ) || $this->isThemeFileValid( $sFullPath );
 	}
 
 	/**
 	 * @param string $sFilePath
 	 * @return int
 	 */
-	private function getFalsePositiveConfidence( $sFilePath ) {
+	private function getFalsePositiveConfidenceForFile( $sFilePath ) {
 		/** @var ScanActionVO $oScanVO */
 		$oScanVO = $this->getScanActionVO();
 
