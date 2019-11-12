@@ -137,12 +137,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		$oResultItem->is_mal = true;
 		$oResultItem->mal_sig = base64_encode( $sSig );
 		$oResultItem->fp_confidence = 0;
-		$oResultItem->file_lines = array_map(
-			function ( $nLineNumber ) {
-				return $nLineNumber + 1;
-			},
-			$aLines // because lines start at ZERO
-		);
+		$oResultItem->file_lines = $aLines;
 		return $oResultItem;
 	}
 
