@@ -68,7 +68,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$oReporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 					->setMod( $this->getMod() );
 				foreach ( $aLines as $nLine => $sLine ) {
-					$oReporter->reportSignature( $sLine, true, $sFullPath );
+					$oReporter->reportLine( $sLine, true, $sFullPath );
 				}
 				$oReporter->reportPath( $sFullPath, 'sha1', true );
 			}

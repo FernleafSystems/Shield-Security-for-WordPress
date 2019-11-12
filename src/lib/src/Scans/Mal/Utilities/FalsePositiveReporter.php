@@ -49,7 +49,7 @@ class FalsePositiveReporter {
 	 * @param string $sContainingPath - path to file containing line
 	 * @return mixed
 	 */
-	public function reportSignature( $sLine, $bIsFalsePositive = true, $sContainingPath = '' ) {
+	public function reportLine( $sLine, $bIsFalsePositive = true, $sContainingPath = '' ) {
 		$bReported = false;
 
 		/** @var Modules\HackGuard\Options $oOpts */
@@ -62,7 +62,6 @@ class FalsePositiveReporter {
 				$bIsFalsePositive
 			] ) );
 			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
-				// Haven't reported yet, so we proceed.
 				$bReported = ( new Malware\Signatures\ReportFalsePositive() )
 					->report( $sLine, $bIsFalsePositive );
 			}
@@ -72,14 +71,14 @@ class FalsePositiveReporter {
 	}
 
 	/**
-	 * @param string $sSig
+	 * @param string $sReportHash
 	 */
-	protected function updateReportedCache( $sSig ) {
+	private function updateReportedCache( $sReportHash ) {
 		/** @var Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$aReported = $oOpts->getMalFalsePositiveReports();
-		$aReported[ $sSig ] = Services::Request()->ts();
+		$aReported[ $sReportHash ] = Services::Request()->ts();
 		$oOpts->setMalFalsePositiveReports( $aReported );
 
 		$this->getMod()->saveModOptions(); // important to save immediately due to async nature
