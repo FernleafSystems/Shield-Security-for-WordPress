@@ -68,16 +68,24 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$oReporter = ( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 					->setMod( $this->getMod() );
 				foreach ( $aLines as $nLine => $sLine ) {
-					$oReporter->reportLine( $sLine, true, $sFullPath );
+					$oReporter->reportLine( $sFullPath, $sLine, true );
 				}
 				$oReporter->reportPath( $sFullPath, true );
 			}
 			else {
-				// First filter out lines based on confidence threshold.
-				$aLines = $this->filterLinesBasedOnConfidence( $aLines );
+				$oAction = $this->getScanActionVO();
+
+				// Remove lines that exceed our false positive confidence
+				if ( $oAction->confidence_threshold > 0 ) {
+					foreach ( $aLines as $nLineNum => $sLineContent ) {
+						$nFpConfidence = $this->getFalsePositiveConfidenceForLine( $sFullPath, $sLineContent );
+						if ( $nFpConfidence > $oAction->confidence_threshold ) {
+							unset( $aLines[ $nLineNum ] );
+						}
+					}
+				}
 
 				if ( !empty( $aLines ) ) {
-					$oAction = $this->getScanActionVO();
 					$nFalsePositiveConfidence = $this->getFalsePositiveConfidenceForFile( $sFullPath );
 					if ( $oAction->confidence_threshold == 0 || $nFalsePositiveConfidence < $oAction->confidence_threshold ) {
 						$oResultItem = $this->getResultItemFromLines( array_keys( $aLines ), $sFullPath, $sSig );
@@ -87,41 +95,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			}
 		}
 		return $oResultItem;
-	}
-
-	/**
-	 * @param string[] $aLines
-	 * @return string[]
-	 */
-	private function filterLinesBasedOnConfidence( $aLines ) {
-		$oAction = $this->getScanActionVO();
-		if ( $oAction->confidence_threshold > 0 ) {
-			$aLines = array_filter( $aLines,
-				function ( $sLine ) use ( $oAction ) {
-					/** @var string $sLine */
-					return $this->getFalsePositiveConfidenceForLine( $sLine ) < $oAction->confidence_threshold;
-				}
-			);
-		}
-		return $aLines;
-	}
-
-	/**
-	 * @param string $sLine
-	 * @return int
-	 */
-	private function getFalsePositiveConfidenceForLine( $sLine ) {
-		/** @var ScanActionVO $oScanVO */
-		$oScanVO = $this->getScanActionVO();
-
-		$nConfidence = 0;
-		if ( $oScanVO->confidence_threshold > 0 ) {
-			$sEncodedLine = base64_encode( trim( $sLine ) );
-			if ( isset( $oScanVO->fp_signatures[ $sEncodedLine ] ) ) {
-				$nConfidence = $oScanVO->fp_signatures[ $sEncodedLine ];
-			}
-		}
-		return (int)$nConfidence;
 	}
 
 	/**
@@ -148,6 +121,26 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	private function canExcludeFile( $sFullPath ) {
 		return $this->isValidCoreFile( $sFullPath )
 			   || $this->isPluginFileValid( $sFullPath ) || $this->isThemeFileValid( $sFullPath );
+	}
+
+	/**
+	 * @param string $sFullPath
+	 * @param string $sLine
+	 * @return int
+	 */
+	private function getFalsePositiveConfidenceForLine( $sFullPath, $sLine ) {
+		/** @var ScanActionVO $oScanVO */
+		$oScanVO = $this->getScanActionVO();
+
+		$nConfidence = 0;
+		$sFilePart = basename( $sFullPath );
+		if ( $oScanVO->confidence_threshold > 0 && isset( $oScanVO->fp_signatures[ $sFilePart ] ) ) {
+			$sHashLine = sha1( trim( $sLine ) );
+			if ( isset( $oScanVO->fp_signatures[ $sFilePart ][ $sHashLine ] ) ) {
+				$nConfidence = $oScanVO->fp_signatures[ $sFilePart ][ $sHashLine ];
+			}
+		}
+		return (int)$nConfidence;
 	}
 
 	/**

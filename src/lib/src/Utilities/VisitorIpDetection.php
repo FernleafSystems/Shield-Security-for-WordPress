@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class VisitorIpDetection
  * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities
+ * @deprecated 8.3
  */
 class VisitorIpDetection {
 

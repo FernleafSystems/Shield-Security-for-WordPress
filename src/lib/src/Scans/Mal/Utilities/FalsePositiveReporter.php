@@ -39,7 +39,7 @@ class FalsePositiveReporter {
 				array_flip( $aLines )
 			);
 			foreach ( $aFile as $sLine ) {
-				$this->reportLine( $sLine, $bIsFalsePositive, $sFullPath );
+				$this->reportLine( $sFullPath, $sLine, $bIsFalsePositive );
 			}
 		}
 	}
@@ -73,12 +73,12 @@ class FalsePositiveReporter {
 	}
 
 	/**
+	 * @param string $sFile - path to file containing line
 	 * @param string $sLine
 	 * @param bool   $bIsFalsePositive
-	 * @param string $sContainingPath - path to file containing line
 	 * @return mixed
 	 */
-	public function reportLine( $sLine, $bIsFalsePositive = true, $sContainingPath = '' ) {
+	public function reportLine( $sFile, $sLine, $bIsFalsePositive = true ) {
 		$bReported = false;
 
 		/** @var Modules\HackGuard\Options $oOpts */
@@ -87,12 +87,12 @@ class FalsePositiveReporter {
 
 			$sReportHash = md5( serialize( [
 				$sLine,
-				$sContainingPath,
+				$sFile,
 				$bIsFalsePositive
 			] ) );
-			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
+			if ( true || !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
 				$bReported = ( new Malware\Signatures\ReportFalsePositive() )
-					->report( $sLine, $bIsFalsePositive );
+					->report( $sFile, $sLine, $bIsFalsePositive );
 			}
 			$this->updateReportedCache( $sReportHash );
 		}
