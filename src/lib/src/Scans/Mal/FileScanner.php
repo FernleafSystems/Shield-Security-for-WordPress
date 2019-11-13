@@ -70,7 +70,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				foreach ( $aLines as $nLine => $sLine ) {
 					$oReporter->reportLine( $sLine, true, $sFullPath );
 				}
-				$oReporter->reportPath( $sFullPath, 'sha1', true );
+				$oReporter->reportPath( $sFullPath, true );
 			}
 			else {
 				// First filter out lines based on confidence threshold.

@@ -56,7 +56,7 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 			// 1) Report the file as being malware.
 			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 				->setMod( $this->getMod() )
-				->reportPath( $oItem->path_full, 'sha1', false );
+				->reportResultItem( $oItem, false );
 		}
 
 		if ( $bCanAutoRepair ) {
