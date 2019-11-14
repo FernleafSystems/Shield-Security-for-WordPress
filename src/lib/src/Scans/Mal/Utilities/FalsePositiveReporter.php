@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\File\GetFileAsArray;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
@@ -73,6 +74,9 @@ class FalsePositiveReporter {
 	}
 
 	/**
+	 * Only reports lines if the files has more than 1 line. i.e. 1-liner false positive files are excluded.
+	 * We still report 1-liner "true positive" files.
+	 *
 	 * @param string $sFile - path to file containing line
 	 * @param string $sLine
 	 * @param bool   $bIsFalsePositive
@@ -85,14 +89,16 @@ class FalsePositiveReporter {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isMalUseNetworkIntelligence() ) {
 
-			$sReportHash = md5( serialize( [
-				$sLine,
-				$sFile,
-				$bIsFalsePositive
-			] ) );
-			if ( true || !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
-				$bReported = ( new Malware\Signatures\ReportFalsePositive() )
-					->report( $sFile, $sLine, $bIsFalsePositive );
+			$sReportHash = md5( $sFile.$sLine.( $bIsFalsePositive ? 'true' : 'false' ) );
+			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
+				try {
+					if ( !$bIsFalsePositive || count( ( new GetFileAsArray() )->run( $sFile ) ) > 1 ) {
+						$bReported = ( new Malware\Signatures\ReportFalsePositive() )
+							->report( $sFile, $sLine, $bIsFalsePositive );
+					}
+				}
+				catch ( \Exception $oE ) {
+				}
 			}
 			$this->updateReportedCache( $sReportHash );
 		}
