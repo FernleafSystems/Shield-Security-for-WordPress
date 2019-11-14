@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\File\GetFileAsArray;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
@@ -92,7 +91,7 @@ class FalsePositiveReporter {
 			$sReportHash = md5( $sFile.$sLine.( $bIsFalsePositive ? 'true' : 'false' ) );
 			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
 				try {
-					if ( !$bIsFalsePositive || count( ( new GetFileAsArray() )->run( $sFile ) ) > 1 ) {
+					if ( !$bIsFalsePositive || count( file( $sFile ) ) > 1 ) {
 						$bReported = ( new Malware\Signatures\ReportFalsePositive() )
 							->report( $sFile, $sLine, $bIsFalsePositive );
 					}
