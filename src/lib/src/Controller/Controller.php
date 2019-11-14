@@ -389,7 +389,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( $this->isModulePage() ) {
 			add_filter( 'nocache_headers', [ $this, 'adjustNocacheHeaders' ] );
 		}
-		$this->getSiteInstallationId();
 	}
 
 	/**
@@ -397,12 +396,14 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getSiteInstallationId() {
 		$sOptKey = $this->prefixOption( 'install_id' );
-		$sId = Services::WpGeneral()->getOption( $sOptKey );
-		if ( empty( $sId ) || strlen( $sId ) != 40 ) {
-			$sId = sha1( uniqid( Services::WpGeneral()->getWpUrl(), true ) );
+		$sId = (string)Services::WpGeneral()->getOption( $sOptKey );
+
+		$sUrl = base64_encode( Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ) );
+		if ( empty( $sId ) || strpos( $sId, ':' ) == false || strpos( $sId, $sUrl ) !== 0 ) {
+			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
 			Services::WpGeneral()->updateOption( $sOptKey, $sId );
 		}
-		return $sId;
+		return str_replace( $sUrl.':', '', $sId );
 	}
 
 	/**
@@ -913,6 +914,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
+		$this->getSiteInstallationId();
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
