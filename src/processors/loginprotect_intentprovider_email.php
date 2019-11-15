@@ -10,15 +10,15 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 *                                  not successful but IP is valid. WP_Error otherwise.
 	 */
 	public function processLoginAttempt( $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
-			 && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
+			 && $this->hasValidatedProfile( $oUser ) && !$oMod->canUserMfaSkip( $oUser ) ) {
 
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
+			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+			$oUpd->setLoginIntentCodeEmail( $oMod->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
 			$this->sendEmailTwoFactorVerify( $oUser )
@@ -100,25 +100,17 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function genSessionHash() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		return hash_hmac(
-			'sha1',
-			$this->getCon()->getUniqueRequestId(),
-			$oFO->getTwoAuthSecretKey()
-		);
-	}
-
-	/**
 	 * We don't use user meta as it's dependent on the particular user sessions in-use
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	protected function getSecret( WP_User $oUser ) {
-		return strtoupper( substr( $this->genSessionHash(), 0, 6 ) );
+	protected function getSecret( \WP_User $oUser ) {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		return strtoupper( substr(
+			hash_hmac( 'sha1', $this->getCon()->getUniqueRequestId(), $oMod->getTwoAuthSecretKey() ),
+			0, 6
+		) );
 	}
 
 	/**
@@ -140,10 +132,10 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
-	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
+	private function sendEmailTwoFactorVerify( \WP_User $oUser ) {
 		$aMessage = [
 			__( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
 			__( 'Login requires verification with the following code.', 'wp-simple-firewall' ),

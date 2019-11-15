@@ -1673,7 +1673,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @param boolean $bSetIfNeeded
+	 * @param bool $bSetIfNeeded
 	 * @return string
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
@@ -1691,7 +1691,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @param bool $bSetIfNeeded
 	 * @return string
 	 */
-	public function getUniqueRequestId( $bSetIfNeeded = true ) {
+	public function getUniqueRequestId( $bSetIfNeeded = false ) {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
 				$this->getSessionId( $bSetIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()

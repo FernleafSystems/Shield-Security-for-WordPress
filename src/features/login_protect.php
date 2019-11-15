@@ -235,7 +235,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	public function getCanEmailVerifyCode() {
-		return strtoupper( substr( $this->getTwoAuthSecretKey(), 4, 6 ) );
+		return strtoupper( substr( $this->getTwoAuthSecretKey(), 10, 6 ) );
 	}
 
 	/**
