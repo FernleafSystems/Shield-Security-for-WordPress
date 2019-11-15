@@ -19,8 +19,8 @@
     }
   },
   "require":           {
-    "fernleafsystems/wordpress-services": "^0.1.23",
-    "fernleafsystems/utilities":          "^1.0",
+    "fernleafsystems/wordpress-services": "^0.1.27",
+    "fernleafsystems/utilities":          "^1.3",
     "nesbot/carbon":                      "~1.37.0",
     "google/recaptcha":                   "1.1.2",
     "dolondro/google-authenticator":      "^2.0",

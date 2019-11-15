@@ -708,11 +708,6 @@
       "wp-content/icwp/rollback/"
     ],
     "cron_all_scans":              "all-scans",
-    "url_checksum_api":            "https://api.wordpress.org/core/checksums/1.0/",
-    "url_wordress_core_svn":       "https://core.svn.wordpress.org/",
-    "url_wordress_core_svn_il8n":  "https://svn.automattic.com/wordpress-i18n/",
-    "url_wp_hashes_api":           "https://wphashes/api/",
-    "wpvulndb_api_url_root":       "https://wpvulndb.com/api/v2/",
     "wcf_exclusions":              [
       "readme.html",
       "license.txt",

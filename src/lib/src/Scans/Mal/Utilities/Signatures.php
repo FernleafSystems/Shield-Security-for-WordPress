@@ -7,15 +7,15 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Cache;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 
 /**
- * Class Whitelist
+ * Class Signatures
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities
  */
-class Whitelist {
+class Signatures {
 
 	use ModConsumer;
 
 	/**
-	 * @return string[][]
+	 * @return int[]
 	 */
 	public function retrieve() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -26,13 +26,13 @@ class Whitelist {
 			$oCacheDef->data = [];
 		}
 		else {
-			$oCacheDef->file_fragment = 'cache_whitelist_confidence.txt';
+			$oCacheDef->file_fragment = 'cache_signatures_confidence.txt';
 			$oCacheDef->expiration = MINUTE_IN_SECONDS*10;
 			( new Cache\LoadFromCache() )
 				->setCacheDef( $oCacheDef )
 				->load();
 			if ( empty( $oCacheDef->data ) ) {
-				$oCacheDef->data = ( new Malware\Whitelist\Retrieve() )->getWhitelist();
+				$oCacheDef->data = ( new Malware\Signatures\Retrieve() )->getSignatures();
 				( new Cache\StoreToCache() )
 					->setCacheDef( $oCacheDef )
 					->store();

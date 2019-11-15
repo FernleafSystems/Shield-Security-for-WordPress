@@ -3,6 +3,7 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -119,7 +120,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
 	protected function setVisitorIp() {
-		$oDetector = ( new Shield\Utilities\VisitorIpDetection() )
+		$oDetector = ( new Utilities\Net\VisitorIpDetection() )
 			->setPotentialHostIps(
 				[ $this->getMyServerIp(), Services::Request()->getServerAddress() ]
 			);

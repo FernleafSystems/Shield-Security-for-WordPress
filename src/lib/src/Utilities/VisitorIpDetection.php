@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class VisitorIpDetection
  * @package FernleafSystems\Wordpress\Plugin\Shield\Utilities
+ * @deprecated 8.3
  */
 class VisitorIpDetection {
 
@@ -113,10 +114,15 @@ class VisitorIpDetection {
 	 */
 	protected function getIpsFromSource( $sSource ) {
 		$sRawSource = (string)Services::Request()->server( $sSource );
-		$aRaw = empty( $sRawSource ) ? [] : explode( ',', $sRawSource );
 		return array_filter(
-			array_map( 'trim', $aRaw ),
+			empty( $sRawSource ) ? [] : array_map( 'trim', explode( ',', $sRawSource ) ),
 			function ( $sIp ) {
+				$sIp = trim( $sIp, ':' );
+				/** @var string $sIp */
+				$nSemi = strpos( $sIp, ':' );
+				if ( $nSemi !== false ) {
+					$sIp = substr( $sIp, 0, $nSemi );
+				}
 				return filter_var( $sIp, FILTER_VALIDATE_IP ) !== false;
 			}
 		);

@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 
 		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
 			->setMod( $this->getMod() )
-			->report( $oItem->path_full, 'sha1', true );
+			->reportResultItem( $oItem, true );
 
 		return true;
 	}

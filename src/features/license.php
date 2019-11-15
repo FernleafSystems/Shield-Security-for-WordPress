@@ -256,11 +256,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$sPass = wp_generate_password( 16 );
 
 		$this->setKeylessRequestAt()
-			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl() ) );
+			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl( '', true ) ) );
 		$this->saveModOptions();
 
 		$oLicense = ( new Utilities\Licenses\Lookup() )
-			->setRequestParams( [ 'nonce' => $sPass ] )
+			->setRequestParams(
+				[
+					'installation_id' => $this->getCon()->getSiteInstallationId(),
+					'nonce'           => $sPass,
+				]
+			)
 			->activateLicenseKeyless( $this->getLicenseStoreUrl(), $this->getLicenseItemId() );
 
 		// clear the handshake data

@@ -203,7 +203,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 		Services::Response()->downloadStringAsFile(
 			implode( "\n", $aData ),
 			sprintf( 'shieldexport-%s-%s.json',
-				Services::WpGeneral()->getHomeUrl( '', true ),
+				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
 				$sFilename = date( 'Ymd_His' )
 			)
 		);

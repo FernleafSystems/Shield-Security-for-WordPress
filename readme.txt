@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.2.2
+Stable tag: 8.2.3
 
 Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,16 +370,24 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.2.3 - Current Release =
-*Released: 25th October, 2019* - [Release Notes](https://icwp.io/g1)
+= 8.3.0 - Current Release =
+*Released: 18th November, 2019* - [Release Notes](https://icwp.io/g1)
 
-* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - (more info)[https://icwp.io/g1].
-* **(v.3)**  FIXED:		Fix for Rest API detection.
-* **(v.3)**  FIXED:		Fix for translation of some strings.
+= 8.3 - Series =
+*Released: 18th November, 2019* - [Release Notes](https://icwp.io/g0)
+
+* **(v.0)**  IMPROVED:	Improvements to Malware scanner to now track specific false positives by specific lines, not just by file.
+* **(v.0)**  IMPROVED:	Support colons (:) in IP addresses during visitor IP address detection.
+* **(v.0)**  IMPROVED:	Ensure license lookups use the correct site URL.
+* **(v.0)**  IMPROVED:	Attempt to ensure that if there is an interruption in the API, malware patterns are available for scanning.
+* **(v.0)**  IMPROVED:	Added default whitelist parameter for AffiliateWP requests.
 
 = 8.2 - Series =
 *Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
 
+* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - [more info](https://icwp.io/g1).
+* **(v.3)**  FIXED:		Fix for Rest API detection.
+* **(v.3)**  FIXED:		Fix for translation of some strings.
 * **(v.2)**  FIXED:		Fixes for scans running under Windows/IIS.
 * **(v.2)**  IMPROVED:	Adds a check that a site can send an HTTP request to itself before allowing scans to run.
 * **(v.2)**  IMPROVED:	Scans clean up after themselves better, if they fail to run.
