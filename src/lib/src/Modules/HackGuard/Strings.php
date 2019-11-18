@@ -364,7 +364,7 @@ class Strings extends Base\Strings {
 								.'<br />'.__( "Disabling network intelligence turns off 'false positive confidence' levels.", 'wp-simple-firewall' )
 								.' '.__( 'You will no longer benefit from the intelligence gathered from the entire network.', 'wp-simple-firewall' )
 								.' '.__( 'All data shared is completely anonymous.', 'wp-simple-firewall' )
-								.' '.' [<a href="https://icwp.io/moreinfochecksum">'.__( 'More Info', 'wp-simple-firewall' ).'</a>]'
+								.' '.' [<a href="https://icwp.io/moreinfomalnetwork">'.__( 'More Info', 'wp-simple-firewall' ).'</a>]'
 								.'<br />'.__( 'The more sites that share this information, the stronger and smarter the network becomes.', 'wp-simple-firewall' );
 				break;
 
