@@ -49,7 +49,11 @@ class ScanMal extends ScanBase {
 			];
 
 			if ( $oOpts->isMalUseNetworkIntelligence() ) {
-				$aStatus[] = sprintf( '%s: %s/100', __( 'False Positive Confidence' ), sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ) );
+				$aStatus[] = sprintf( '%s: %s/100 [%s]',
+					__( 'False Positive Confidence' ),
+					sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ),
+					sprintf( '<a href="%s" target="_blank">%s&nearr;</a>', 'https://icwp.io/isthismalware', __( 'more info', 'wp-simple-firewall' ) )
+				);
 			}
 
 			try {

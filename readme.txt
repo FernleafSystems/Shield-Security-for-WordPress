@@ -3,14 +3,14 @@ Contributors: onedollarplugin, paultgoodchild
 Donate link: https://icwp.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: scan, firewall, two factor authentication, login protection, malware
+Tags: scan, malware, firewall, two factor authentication, login protection
 Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.2.3
+Stable tag: 8.3.0
 
-Security protection from hackers through smarter automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
+Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
 == Description ==
 
@@ -371,16 +371,14 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://icwp.io/aa).
 
 = 8.3.0 - Current Release =
-*Released: 18th November, 2019* - [Release Notes](https://icwp.io/g1)
+*Released: 18th November, 2019* - [Release Notes](https://icwp.io/g3)
 
-= 8.3 - Series =
-*Released: 18th November, 2019* - [Release Notes](https://icwp.io/g0)
-
-* **(v.0)**  IMPROVED:	Improvements to Malware scanner to now track specific false positives by specific lines, not just by file.
+* **(v.0)**  IMPROVED:	Improvements to Malware scanner to [now track malware results](https://icwp.io/g3) by specific lines, not just by file.
 * **(v.0)**  IMPROVED:	Support colons (:) in IP addresses during visitor IP address detection.
 * **(v.0)**  IMPROVED:	Ensure license lookups use the correct site URL.
 * **(v.0)**  IMPROVED:	Attempt to ensure that if there is an interruption in the API, malware patterns are available for scanning.
-* **(v.0)**  IMPROVED:	Added default whitelist parameter for AffiliateWP requests.
+* **(v.0)**  IMPROVED:	Added default firewall whitelist parameter for AffiliateWP requests.
+* **(v.0)**  IMPROVED:	Spanish, French, Japanese translations.
 
 = 8.2 - Series =
 *Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
