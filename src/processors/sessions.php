@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	private function autoAddSession() {
 		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
 		$oMod = $this->getMod();
-		if ( !$oMod->hasSession() && $oMod->isAutoAddSessions() ) {
+		if ( !$oMod->getSession() && $oMod->isAutoAddSessions() ) {
 			$this->queryCreateSession(
 				$this->getCon()->getSessionId( true ),
 				Services::WpUsers()->getCurrentWpUsername()
@@ -109,22 +109,10 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		if ( !$this->isLoginCaptured() && $oUser instanceof \WP_User ) {
 			$this->setLoginCaptured();
 			// If they have a currently active session, terminate it (i.e. we replace it)
-			$oSession = $this->queryGetSession( $this->getSessionId(), $oUser->user_login );
-			if ( $oSession instanceof Session\EntryVO ) {
-				$this->terminateSession( $oSession->id );
-				$this->clearCurrentSession();
-			}
-
-			$this->queryCreateSession( $this->getSessionId(), $oUser->user_login );
+			$this->terminateCurrentSession();
+			$this->queryCreateSession( $this->getCon()->getSessionId( true ), $oUser->user_login );
 		}
 		return true;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getSessionId() {
-		return $this->getCon()->getSessionId();
 	}
 
 	/**
@@ -145,14 +133,18 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	 */
 	public function terminateCurrentSession() {
 		$bSuccess = false;
-		if ( Services::WpUsers()->isUserLoggedIn() ) {
+
+		$oCon = $this->getCon();
+		if ( $oCon->hasSessionId() ) {
 			$oSes = $this->getCurrentSession();
 			if ( $oSes instanceof Session\EntryVO ) {
 				$bSuccess = $this->terminateSession( $oSes->id );
 			}
-			$this->getCon()->clearSession();
-			$this->clearCurrentSession();
 		}
+
+		$this->oCurrent = null;
+		$oCon->clearSession();
+
 		return $bSuccess;
 	}
 
@@ -167,20 +159,13 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function clearCurrentSession() {
-		$this->oCurrent = null;
-		return $this;
-	}
-
-	/**
 	 * @return Session\EntryVO|null
 	 */
 	public function loadCurrentSession() {
 		$oSession = null;
-		if ( did_action( 'init' ) ) {
-			$oSession = $this->queryGetSession( $this->getSessionId() );
+		$oCon = $this->getCon();
+		if ( did_action( 'init' ) && $oCon->hasSessionId() ) {
+			$oSession = $this->queryGetSession( $oCon->getSessionId() );
 		}
 		return $oSession;
 	}
@@ -216,5 +201,22 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		/** @var Session\Select $oSel */
 		$oSel = $oMod->getDbHandler_Sessions()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 8.3.0
+	 */
+	private function clearCurrentSession() {
+		$this->oCurrent = null;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.3.0
+	 */
+	private function getSessionId() {
+		return $this->getCon()->getSessionId();
 	}
 }

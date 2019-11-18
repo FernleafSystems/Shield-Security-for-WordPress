@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  * @property string[]   $patterns_regex
  * @property string[]   $patterns_simple
  * @property string[][] $whitelist
+ * @property int[]      $fp_signatures
  * @property int        $confidence_threshold
  */
 class ScanActionVO extends BaseScanActionVO {

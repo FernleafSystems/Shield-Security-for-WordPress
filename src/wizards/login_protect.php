@@ -44,8 +44,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processAuthEmail() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -60,8 +60,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 		else {
 			if ( empty( $sCode ) ) {
-				if ( $oFO->sendEmailVerifyCanSend( $sEmail, false ) ) {
-					$oFO->setIfCanSendEmail( false );
+				if ( $oMod->sendEmailVerifyCanSend( $sEmail, false ) ) {
+					$oMod->setIfCanSendEmail( false );
 					$oResponse->setSuccessful( true );
 					$sMessage = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
 								.' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
@@ -71,14 +71,14 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				}
 			}
 			else {
-				if ( $sCode == $oFO->getCanEmailVerifyCode() ) {
+				if ( $sCode == $oMod->getCanEmailVerifyCode() ) {
 					$oResponse->setSuccessful( true );
 					$sMessage = 'Email sending has been verified successfully.';
 
-					$oFO->setIfCanSendEmail( true );
+					$oMod->setIfCanSendEmail( true );
 
 					if ( $bFa ) {
-						$oFO->setEnabled2FaEmail( true );
+						$oMod->setEnabled2FaEmail( true );
 						$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
 					}
 					else {

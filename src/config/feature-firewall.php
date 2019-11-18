@@ -285,6 +285,7 @@
         "comment"
       ],
       "*":                             [
+        "affwp_action",
         "ajaxurl",
         "g-recaptcha-response",
         "verify_sign",

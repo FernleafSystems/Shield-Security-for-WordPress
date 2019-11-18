@@ -392,6 +392,21 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return string - the unique, never-changing site install ID.
+	 */
+	public function getSiteInstallationId() {
+		$sOptKey = $this->prefixOption( 'install_id' );
+		$sId = (string)Services::WpGeneral()->getOption( $sOptKey );
+
+		$sUrl = base64_encode( Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ) );
+		if ( empty( $sId ) || strpos( $sId, ':' ) == false || strpos( $sId, $sUrl ) !== 0 ) {
+			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
+			Services::WpGeneral()->updateOption( $sOptKey, $sId );
+		}
+		return str_replace( $sUrl.':', '', $sId );
+	}
+
+	/**
 	 */
 	public function onWpLoaded() {
 		$this->getAdminNotices();
@@ -899,6 +914,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
+		$this->getSiteInstallationId();
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
@@ -1657,7 +1673,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @param boolean $bSetIfNeeded
+	 * @param bool $bSetIfNeeded
 	 * @return string
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
@@ -1675,7 +1691,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @param bool $bSetIfNeeded
 	 * @return string
 	 */
-	public function getUniqueRequestId( $bSetIfNeeded = true ) {
+	public function getUniqueRequestId( $bSetIfNeeded = false ) {
 		if ( !isset( self::$sRequestId ) ) {
 			self::$sRequestId = md5(
 				$this->getSessionId( $bSetIfNeeded ).Services::IP()->getRequestIp().Services::Request()->ts().wp_rand()

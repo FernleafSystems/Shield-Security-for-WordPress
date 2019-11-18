@@ -36,6 +36,22 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int[] - keys are the unique report hash
+	 */
+	public function getMalFalsePositiveReports() {
+		$aFP = $this->getOpt( 'mal_fp_reports', [] );
+		return is_array( $aFP ) ? $aFP : [];
+	}
+
+	/**
+	 * @param string $sReportHash
+	 * @return bool
+	 */
+	public function isMalFalsePositiveReported( $sReportHash ) {
+		return isset( $this->getMalFalsePositiveReports()[ $sReportHash ] );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getMalConfidenceBoundary() {
@@ -347,5 +363,18 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function setIsScanCron( $bIsScanCron ) {
 		return $this->setOpt( 'is_scan_cron', $bIsScanCron );
+	}
+
+	/**
+	 * @param array $aFP
+	 * @return $this
+	 */
+	public function setMalFalsePositiveReports( array $aFP ) {
+		return $this->setOpt( 'mal_fp_reports', array_filter(
+			$aFP,
+			function ( $nTS ) {
+				return $nTS > Services::Request()->carbon()->subMonth()->timestamp;
+			}
+		) );
 	}
 }
