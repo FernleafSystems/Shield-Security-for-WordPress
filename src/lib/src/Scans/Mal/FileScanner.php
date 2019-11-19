@@ -82,7 +82,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 						->setMod( $this->getMod() )
 						->queryPath( $sFullPath );
 					if ( $nFalsePositiveConfidence < $oAction->confidence_threshold ) {
-						// 2. Then check each line and filter out fp confident lines
+						// 2. Check each line and filter out fp confident lines
 						$aLineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
 							->setMod( $this->getMod() )
 							->queryFileLines( $sFullPath, array_keys( $aLines ) );
@@ -94,7 +94,10 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 						);
 
 						if ( empty( $aLines ) ) {
-							// TODO: send False Positive report based on all file lines being FPs themselves.
+							// Now send False Positive report for entire file based on all file lines being FPs.
+							( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+								->setMod( $this->getMod() )
+								->reportPath( $sFullPath, true );
 						}
 						else {
 							$bReportItem = true;
