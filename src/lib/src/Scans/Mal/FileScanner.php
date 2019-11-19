@@ -76,25 +76,37 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$oAction = $this->getScanActionVO();
 
 				if ( $oAction->confidence_threshold > 0 ) {
-					$aLineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
-						->setMod( $this->getMod() )
-						->queryFileLines( $sFullPath, array_keys( $aLines ) );
-					$aLines = array_filter(
-						$aLineScores,
-						function ( $nScore ) use ( $oAction ) {
-							return $nScore < $oAction->confidence_threshold;
-						}
-					);
-				}
-
-				if ( !empty( $aLines ) ) {
-					$nFpConfidenceFile = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
+					$bReportItem = false;
+					// 1. First check whether the FP of the whole file means we can filter it
+					$nFalsePositiveConfidence = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
 						->setMod( $this->getMod() )
 						->queryPath( $sFullPath );
-					if ( $oAction->confidence_threshold == 0 || $nFpConfidenceFile < $oAction->confidence_threshold ) {
-						$oResultItem = $this->getResultItemFromLines( array_keys( $aLines ), $sFullPath, $sSig );
-						$oResultItem->fp_confidence = $nFpConfidenceFile;
+					if ( $nFalsePositiveConfidence < $oAction->confidence_threshold ) {
+						// 2. Then check each line and filter out fp confident lines
+						$aLineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
+							->setMod( $this->getMod() )
+							->queryFileLines( $sFullPath, array_keys( $aLines ) );
+						$aLines = array_filter(
+							$aLineScores,
+							function ( $nScore ) use ( $oAction ) {
+								return $nScore < $oAction->confidence_threshold;
+							}
+						);
+
+						if ( empty( $aLines ) ) {
+							// TODO: send False Positive report based on all file lines being FPs themselves.
+						}
+						else {
+							$bReportItem = true;
+						}
 					}
+				}
+				else {
+					$bReportItem = true;
+				}
+
+				if ( $bReportItem ) {
+					$oResultItem = $this->getResultItemFromLines( array_keys( $aLines ), $sFullPath, $sSig );
 				}
 			}
 		}
