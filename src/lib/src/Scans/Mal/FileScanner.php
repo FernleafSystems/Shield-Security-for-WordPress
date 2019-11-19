@@ -75,21 +75,25 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			else {
 				$oAction = $this->getScanActionVO();
 
-				// Remove lines that exceed our false positive confidence
 				if ( $oAction->confidence_threshold > 0 ) {
-					foreach ( $aLines as $nLineNum => $sLineContent ) {
-						$nFpConfidence = $this->getFalsePositiveConfidenceForLine( $sFullPath, $sLineContent );
-						if ( $nFpConfidence > $oAction->confidence_threshold ) {
-							unset( $aLines[ $nLineNum ] );
+					$aLineScores = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
+						->setMod( $this->getMod() )
+						->queryFileLines( $sFullPath, array_keys( $aLines ) );
+					$aLines = array_filter(
+						$aLineScores,
+						function ( $nScore ) use ( $oAction ) {
+							return $nScore < $oAction->confidence_threshold;
 						}
-					}
+					);
 				}
 
 				if ( !empty( $aLines ) ) {
-					$nFalsePositiveConfidence = $this->getFalsePositiveConfidenceForFile( $sFullPath );
-					if ( $oAction->confidence_threshold == 0 || $nFalsePositiveConfidence < $oAction->confidence_threshold ) {
+					$nFpConfidenceFile = ( new Shield\Scans\Mal\Utilities\FalsePositiveQuery() )
+						->setMod( $this->getMod() )
+						->queryPath( $sFullPath );
+					if ( $oAction->confidence_threshold == 0 || $nFpConfidenceFile < $oAction->confidence_threshold ) {
 						$oResultItem = $this->getResultItemFromLines( array_keys( $aLines ), $sFullPath, $sSig );
-						$oResultItem->fp_confidence = $nFalsePositiveConfidence;
+						$oResultItem->fp_confidence = $nFpConfidenceFile;
 					}
 				}
 			}
@@ -121,52 +125,6 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	private function canExcludeFile( $sFullPath ) {
 		return $this->isValidCoreFile( $sFullPath )
 			   || $this->isPluginFileValid( $sFullPath ) || $this->isThemeFileValid( $sFullPath );
-	}
-
-	/**
-	 * @param string $sFullPath
-	 * @param string $sLine
-	 * @return int
-	 */
-	private function getFalsePositiveConfidenceForLine( $sFullPath, $sLine ) {
-		/** @var ScanActionVO $oScanVO */
-		$oScanVO = $this->getScanActionVO();
-
-		$nConfidence = 0;
-		$sFilePart = basename( $sFullPath );
-		if ( $oScanVO->confidence_threshold > 0 && isset( $oScanVO->fp_signatures[ $sFilePart ] ) ) {
-			$sHashLine = sha1( trim( $sLine ) );
-			if ( isset( $oScanVO->fp_signatures[ $sFilePart ][ $sHashLine ] ) ) {
-				$nConfidence = $oScanVO->fp_signatures[ $sFilePart ][ $sHashLine ];
-			}
-		}
-		return (int)$nConfidence;
-	}
-
-	/**
-	 * @param string $sFilePath
-	 * @return int
-	 */
-	private function getFalsePositiveConfidenceForFile( $sFilePath ) {
-		/** @var ScanActionVO $oScanVO */
-		$oScanVO = $this->getScanActionVO();
-
-		$nConfidence = 0;
-		$sFilePart = basename( $sFilePath );
-		if ( $oScanVO->confidence_threshold > 0 && isset( $oScanVO->whitelist[ $sFilePart ] ) ) {
-			try {
-				$oHasher = new Utilities\File\Compare\CompareHash();
-				foreach ( $oScanVO->whitelist[ $sFilePart ] as $sWlHash => $nHashConfidence ) {
-					if ( $oHasher->isEqualFileSha1( $sFilePath, $sWlHash ) ) {
-						$nConfidence = $nHashConfidence;
-						break;
-					}
-				}
-			}
-			catch ( \InvalidArgumentException $oE ) {
-			}
-		}
-		return (int)$nConfidence;
 	}
 
 	/**

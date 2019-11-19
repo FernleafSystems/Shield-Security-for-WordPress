@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Malware;
 /**
  * Class Signatures
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Utilities
+ * @deprecated 8.4
  */
 class Signatures {
 
