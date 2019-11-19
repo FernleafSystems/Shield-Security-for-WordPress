@@ -245,7 +245,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @param string $sPass
 	 * @return bool
 	 * @throws \Exception
-	 * @deprecated 8.1.2
+	 * @deprecated 8.4
 	 */
 	protected function sendRequestToPwned( $sPass ) {
 		$oHttpReq = Services::HttpRequest();

@@ -2,7 +2,7 @@
 
 /**
  * Class ICWP_WPSF_WpWidget
- * @deprecated 8.2
+ * @deprecated 8.4
  */
 abstract class ICWP_WPSF_WpWidget extends \WP_Widget {
 

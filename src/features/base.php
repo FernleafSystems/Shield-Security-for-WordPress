@@ -1933,7 +1933,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * The primary DB for the
 	 * @return null|Shield\Databases\Base\Handler|mixed
-	 * @deprecated 8.1.2
+	 * @deprecated 8.4
 	 */
 	public function getDbHandler() {
 		// TODO: remove this IF, as it's a stop-gap for the newer implementation (below)
@@ -2026,7 +2026,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * Saves the options to the WordPress Options store.
 	 * @return void
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
@@ -2034,7 +2034,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 	/**
 	 * @return Shield\Databases\Base\Handler|mixed|false
-	 * @deprecated 8.1.2
+	 * @deprecated 8.4
 	 */
 	protected function loadDbHandler() {
 		return false;

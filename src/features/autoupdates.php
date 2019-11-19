@@ -135,7 +135,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isSendAutoupdatesNotificationEmail() {
 		return $this->isOpt( 'enable_upgrade_notification_email', 'Y' );
@@ -143,7 +143,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isDisableAllAutoUpdates() {
 		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
@@ -151,7 +151,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isAutoUpdateCoreMajor() {
 		return $this->isOpt( 'autoupdate_core', 'core_major' );
@@ -159,7 +159,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isAutoUpdateCoreMinor() {
 		return !$this->isOpt( 'autoupdate_core', 'core_never' );
@@ -167,7 +167,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return string
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function getSelfAutoUpdateOpt() {
 		return $this->getOpt( 'autoupdate_plugin_self' );
@@ -175,7 +175,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return array
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function getDelayTracking() {
 		$aTracking = $this->getOpt( 'delay_tracking', [] );
@@ -197,7 +197,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return string[]
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function getAutoupdatePlugins() {
 		$aSelected = [];
@@ -212,7 +212,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return int
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function getDelayUpdatesPeriod() {
 		return $this->isPremium() ? $this->getOpt( 'update_delay', 0 )*DAY_IN_SECONDS : 0;
@@ -221,7 +221,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @param array $aTrackingInfo
 	 * @return $this
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function setDelayTracking( $aTrackingInfo ) {
 		return $this->setOpt( 'delay_tracking', $aTrackingInfo );
@@ -229,7 +229,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isAutoupdateAllPlugins() {
 		return $this->isOpt( 'enable_autoupdate_plugins', 'Y' );
@@ -238,7 +238,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @premium
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isAutoupdateIndividualPlugins() {
 		return $this->isOpt( 'enable_individual_autoupdate_plugins', 'Y' );
@@ -246,7 +246,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isDelayUpdates() {
 		return $this->getDelayUpdatesPeriod() > 0;
@@ -255,7 +255,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @param string $sPluginFile
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isPluginSetToAutoupdate( $sPluginFile ) {
 		return in_array( $sPluginFile, $this->getAutoupdatePlugins() );
@@ -264,7 +264,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @param string $sPluginFile
 	 * @return $this
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function setPluginToAutoUpdate( $sPluginFile ) {
 		$aPlugins = $this->getAutoupdatePlugins();

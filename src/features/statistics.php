@@ -5,7 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class ICWP_WPSF_FeatureHandler_Statistics
- * @deprecated 8.1.2
+ * @deprecated 8.4
  */
 class ICWP_WPSF_FeatureHandler_Statistics extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 

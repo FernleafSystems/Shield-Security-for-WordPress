@@ -13,7 +13,7 @@ trait PluginControllerConsumer {
 
 	/**
 	 * @var Controller
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	static private $oPluginController;
 

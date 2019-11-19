@@ -2,7 +2,7 @@
 
 /**
  * Class ICWP_WPSF_Foundation
- * @deprecated 8.2
+ * @deprecated 8.4
  */
 class ICWP_WPSF_Foundation {
 
