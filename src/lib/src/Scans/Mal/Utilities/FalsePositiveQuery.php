@@ -56,9 +56,6 @@ class FalsePositiveQuery {
 	}
 
 	/**
-	 * Only reports lines if the files has more than 1 line. i.e. 1-liner false positive files are excluded.
-	 * We still report 1-liner "true positive" files.
-	 *
 	 * @param string $sFile - path to file containing line
 	 * @param string $sLine
 	 * @return int
