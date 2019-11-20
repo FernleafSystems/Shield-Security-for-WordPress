@@ -108,7 +108,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'strings' => [
 						'trans_limit'       => sprintf(
 							__( 'Offenses required for IP block: %s', 'wp-simple-firewall' ),
-							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpOpts->getOptTransgressionLimit() )
+							sprintf( '<a href="%s" target="_blank">%s</a>', $oIpMod->getUrl_DirectLinkToOption( 'transgression_limit' ), $oIpOpts->getOffenseLimit() )
 						),
 						'auto_expire'       => sprintf(
 							__( 'Black listed IPs auto-expire after: %s', 'wp-simple-firewall' ),
