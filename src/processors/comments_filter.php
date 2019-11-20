@@ -63,7 +63,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_CommentsFilter_BotSpam
+	 * @return \ICWP_WPSF_Processor_CommentsFilter_BotSpam
 	 */
 	private function getSubProGasp() {
 		return $this->getSubPro( 'bot' );

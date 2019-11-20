@@ -38,7 +38,7 @@ if ( typeof shield_comments !== 'undefined' ) {
 
 			var shishoney = document.createElement( "input" );
 			shishoney.type = "hidden";
-			shishoney.name = "icwp_wpsf_login_email";
+			shishoney.name = "sugar_sweet_email";
 
 			shiep.appendChild( shishoney );
 

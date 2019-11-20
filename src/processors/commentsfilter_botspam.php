@@ -15,6 +15,47 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 		add_action( 'comment_form', [ $this, 'printGaspFormItems' ], 1 );
 	}
 
+	public function onWpEnqueueJs() {
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
+		$oConn = $this->getCon();
+
+		$sAsset = 'shield-comments';
+		$sUnique = $oMod->prefix( $sAsset );
+		wp_register_script(
+			$sUnique,
+			$oConn->getPluginUrl_Js( $sAsset ),
+			[ 'jquery' ],
+			$oConn->getVersion(),
+			true
+		);
+		wp_enqueue_script( $sUnique );
+
+		wp_localize_script(
+			$sUnique,
+			'shield_comments',
+			[
+				'form_selectors' => implode( ',', [ '' ] ),
+				'cbname'         => $this->tokenCreateStore(),
+				'vars'           => [
+					'uniq'     => $this->getUniqueFormId(),
+					'cooldown' => $oMod->getTokenCooldown(),
+					'expires' => $oMod->getTokenExpireInterval(),
+				],
+				'strings'        => [
+					'label'           => $oMod->getTextOpt( 'custom_message_checkbox' ),
+					'alert'           => $oMod->getTextOpt( 'custom_message_alert' ),
+					'comment_reload'  => $oMod->getTextOpt( 'custom_message_comment_reload' ),
+					'js_comment_wait' => $oMod->getTextOpt( 'custom_message_comment_wait' ),
+				],
+				'flags'          => [
+					'gasp'  => true,
+					'recap' => $oMod->isGoogleRecaptchaEnabled(),
+				]
+			]
+		);
+	}
+
 	public function printGaspFormItems() {
 		echo $this->getGaspCommentsHtml();
 	}
