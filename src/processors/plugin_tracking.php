@@ -75,9 +75,9 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends Shield\Modules\BaseShield\Shie
 	 * Cron callback
 	 */
 	public function runDailyCron() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isTrackingEnabled() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isTrackingEnabled() ) {
 			$this->sendTrackingData();
 		}
 	}
