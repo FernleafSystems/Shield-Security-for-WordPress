@@ -216,8 +216,28 @@ abstract class BaseQuery {
 	 */
 	public function filterByBoundary_Day( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByCreatedAt( $oCbn->startOfDay()->timestamp, '>' )
-					->filterByCreatedAt( $oCbn->endOfDay()->timestamp, '<' );
+		return $this->filterByCreatedAt( $oCbn->endOfDay()->timestamp, '<=' )
+					->filterByCreatedAt( $oCbn->startOfDay()->timestamp, '>=' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Hour( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->endOfHour()->timestamp, '<=' )
+					->filterByCreatedAt( $oCbn->startOfHour()->timestamp, '>=' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Month( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfMonth()->timestamp, '>=' )
+					->filterByCreatedAt( $oCbn->endOfMonth()->timestamp, '<=' );
 	}
 
 	/**
@@ -226,8 +246,18 @@ abstract class BaseQuery {
 	 */
 	public function filterByBoundary_Week( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByCreatedAt( $oCbn->startOfWeek()->timestamp, '>' )
-					->filterByCreatedAt( $oCbn->endOfWeek()->timestamp, '<' );
+		return $this->filterByCreatedAt( $oCbn->endOfWeek()->timestamp, '<=' )
+					->filterByCreatedAt( $oCbn->startOfWeek()->timestamp, '>=' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Year( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfYear()->timestamp, '>=' )
+					->filterByCreatedAt( $oCbn->endOfYear()->timestamp, '<=' );
 	}
 
 	/**
