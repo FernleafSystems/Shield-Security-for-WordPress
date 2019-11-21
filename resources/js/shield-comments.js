@@ -24,34 +24,58 @@ if ( typeof shield_comments !== 'undefined' ) {
 			nTimerCounter++;
 		};
 
+		var assignElements = function ( shiep ) {
+			var maybecheckbox = document.getElementById( '_shieldcb_nombre' );
+			if ( typeof (maybecheckbox) === "undefined" || maybecheckbox === null ) {
+				var cbnombre = document.createElement( "input" );
+				cbnombre.type = "hidden";
+				cbnombre.id = "_shieldcb_nombre";
+				cbnombre.name = "cb_nombre";
+				cbnombre.value = shield_comments.vars.cbname;
+				var inputBotts = document.createElement( "input" );
+				inputBotts.type = "hidden";
+				inputBotts.name = "botts";
+				inputBotts.value = shield_comments.vars.botts;
+				var inputToken = document.createElement( "input" );
+				inputToken.type = "hidden";
+				inputToken.name = "comment_token";
+				inputToken.value = shield_comments.vars.token;
+
+				shiep.appendChild( cbnombre );
+				shiep.appendChild( inputBotts );
+				shiep.appendChild( inputToken );
+			}
+		};
+
 		var reDisableButton = function () {
 			submitButton.value = shield_comments.strings.comment_reload;
 			submitButton.disabled = true;
 		};
 
-		/**
-		 */
 		var insertPlaceHolder_Gasp = function ( form ) {
-			var uniq = shield_comments.vars.uniq;
+			var shiep = document.getElementById( shield_comments.vars.uniq );
 
-			var shiep = document.getElementById( uniq );
+			var shieThe_cb = document.createElement( "input" );
+			shieThe_cb.type = "checkbox";
+			shieThe_cb.value = "Y";
+			shieThe_cb.name = shield_comments.vars.cbname;
+			shieThe_cb.id = '_' + shieThe_cb.name;
+			shieThe_cb.onchange = function () {
+				assignElements( shiep );
+			};
+
+			var shieThe_lab = document.createElement( "label" );
+			var shieThe_labspan = document.createElement( "span" );
+			shieThe_labspan.innerHTML = shield_comments.strings.label;
+
+			shieThe_lab.appendChild( shieThe_cb );
+			shieThe_lab.appendChild( shieThe_labspan );
 
 			var shishoney = document.createElement( "input" );
 			shishoney.type = "hidden";
 			shishoney.name = "sugar_sweet_email";
 
 			shiep.appendChild( shishoney );
-
-			var shieThe_lab = document.createElement( "label" );
-			var shieThe_labspan = document.createElement( "span" );
-			shieThe_labspan.innerHTML = shield_comments.strings.label;
-			var shieThe_cb = document.createElement( "input" );
-			shieThe_cb.type = "checkbox";
-			shieThe_cb.name = shield_comments.cbname;
-			shieThe_cb.id = '_' + shieThe_cb.name;
-
-			shieThe_lab.appendChild( shieThe_cb );
-			shieThe_lab.appendChild( shieThe_labspan );
 			shiep.appendChild( shieThe_lab );
 
 			var comForm = shieThe_cb.form;

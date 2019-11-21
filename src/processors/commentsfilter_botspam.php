@@ -36,11 +36,13 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 			'shield_comments',
 			[
 				'form_selectors' => implode( ',', [ '' ] ),
-				'cbname'         => $this->tokenCreateStore(),
 				'vars'           => [
+					'cbname'   => 'cb_nombre'.rand(),
+					'botts'    => Services::Request()->ts(),
+					'token'    => $this->tokenCreateStore(),
 					'uniq'     => $this->getUniqueFormId(),
 					'cooldown' => $oMod->getTokenCooldown(),
-					'expires' => $oMod->getTokenExpireInterval(),
+					'expires'  => $oMod->getTokenExpireInterval(),
 				],
 				'strings'        => [
 					'label'           => $oMod->getTextOpt( 'custom_message_checkbox' ),
