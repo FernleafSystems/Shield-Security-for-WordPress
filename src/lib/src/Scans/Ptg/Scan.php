@@ -50,7 +50,6 @@ class Scan extends Shield\Scans\Base\BaseScan {
 
 			// use live hashes if it's a WP.org plugin/theme
 			if ( $bUseLiveHashes ) {
-
 				try {
 					$oNewRes = ( new WporgAssetScanner() )
 						->setScanActionVO( $oAction )
