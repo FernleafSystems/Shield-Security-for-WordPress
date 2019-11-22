@@ -73,8 +73,17 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 					$oThis.selector+' .icwpAjaxContainerChart',
 					oResponse.data.chart.data,
 					{
+						fullWidth: true,
+						showLabel: false,
+						// chartPadding: 5,
+						axisX: {
+							showGrid: false,
+							offset: 0
+						},
 						axisY: {
+							offset: 0,
 							onlyInteger: true,
+							showLabel: false,
 							labelInterpolationFnc: function ( value ) {
 								return value;
 							}

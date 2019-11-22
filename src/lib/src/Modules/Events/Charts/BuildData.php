@@ -108,10 +108,10 @@ class BuildData {
 		if ( empty( $oReq->ticks ) ) {
 			switch ( $oReq->interval ) {
 				case 'daily':
-					$oReq->ticks = 7;
+					$oReq->ticks = 14;
 					break;
 				case 'weekly':
-					$oReq->ticks = 8;
+					$oReq->ticks = 12;
 					break;
 				default:
 					$oReq->ticks = 10;

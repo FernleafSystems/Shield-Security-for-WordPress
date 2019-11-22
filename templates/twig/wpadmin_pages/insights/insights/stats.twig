@@ -5,7 +5,9 @@
 				 {% if stat.tooltip is defined %}title="{{ stat.tooltip }}"{% endif %}
 			>
 				<div class="card-header">{{ stat.title }}</div>
-				<div class="card-body">{{ stat.val }}</div>
+				<div class="card-body">
+{#					{{ stat.val }}#}
+				</div>
 			</div>
 		</div>
 	{% endfor %}
