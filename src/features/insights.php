@@ -29,7 +29,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$nNoticesCount += isset( $aNoticeSection[ 'count' ] ) ? $aNoticeSection[ 'count' ] : 0;
 		}
 
-		$sNavSection = $oReq->query( 'inav' );
+		$sNavSection = $oReq->query( 'inav', 'overview' );
 		$sSubNavSection = $oReq->query( 'subnav' );
 
 		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
@@ -234,10 +234,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				];
 				break;
 
-			case 'insights':
+			case 'overview':
 			case 'index':
 			default:
-				$sNavSection = 'insights';
+				$sNavSection = 'overview';
 				$aData = [
 					'vars'    => [
 						'config_cards'          => $this->getConfigCardsData(),
@@ -289,7 +289,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aTopNav = [
 			'settings'     => __( 'Settings', 'wp-simple-firewall' ),
-			'insights'     => __( 'Overview', 'wp-simple-firewall' ),
+			'overview'     => __( 'Overview', 'wp-simple-firewall' ),
 			'scans'        => __( 'Scans', 'wp-simple-firewall' ),
 			'ips'          => __( 'IP Lists', 'wp-simple-firewall' ),
 			'audit'        => __( 'Audit Trail', 'wp-simple-firewall' ),
@@ -369,7 +369,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 			$oCon = $this->getCon();
 			$aStdDepsJs = [ $this->prefix( 'plugin' ) ];
-			$sNav = Services::Request()->query( 'inav' );
+			$sNav = Services::Request()->query( 'inav', 'overview' );
 			switch ( $sNav ) {
 
 				case 'importexport':
@@ -386,7 +386,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					wp_enqueue_script( $sUnique );
 					break;
 
-				case 'insights':
+				case 'overview':
 				case 'reports':
 
 					$aDeps = $aStdDepsJs;

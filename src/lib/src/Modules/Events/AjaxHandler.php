@@ -62,7 +62,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oChartReq = new Events\Charts\ChartRequestVO();
 		$oChartReq->render_location = $oReq->post( 'render_location' );
 		$oChartReq->chart_params = $oReq->post( 'chart_params' );
-		error_log( var_export( $oChartReq->getRawDataAsArray(),true ) );
+
 		$aChart = ( new Events\Charts\BuildData() )
 			->setMod( $oMod )
 			->build( $oChartReq );
