@@ -66,7 +66,7 @@ class ConsolidateAllEvents {
 			}
 
 			$nHourCount++;
-			$oTime->subDay();
+			$oTime->subHour();
 		} while ( $nHourCount < 48 );
 	}
 
