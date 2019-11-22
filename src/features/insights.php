@@ -63,6 +63,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oModPlugin = $oCon->getModule_Plugin();
 		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
 		$oProPlugin = $oModPlugin->getProcessor();
+		$oEvtsMod = $oCon->getModule_Events();
 
 		$bIsPro = $this->isPremium();
 		$oCarbon = $oReq->carbon();
@@ -252,7 +253,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							'maxlength' => $this->getDef( 'license_key_length' ),
 						]
 					],
-					'ajax'    => [],
+					'ajax'    => [
+						'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
+					],
 					'hrefs'   => [
 						'shield_pro_url'           => 'https://icwp.io/shieldpro',
 						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
@@ -294,7 +297,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
-			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
+			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
@@ -383,6 +386,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					wp_enqueue_script( $sUnique );
 					break;
 
+				case 'insights':
 				case 'reports':
 
 					$aDeps = $aStdDepsJs;
@@ -777,16 +781,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		return [
 			'login'          => [
+				'id'      => 'loginblocks',
 				'title'   => __( 'Login Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'login_block' ),
 				'tooltip' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
 			],
 			'firewall'       => [
+				'id'      => 'firewallblocks',
 				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
 				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			],
 			'comments'       => [
+				'id'      => 'commentblocks',
 				'title'   => __( 'Comment Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvents( [
 					'spam_block_bot',
@@ -796,16 +803,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
 			'transgressions' => [
+				'id'      => 'offenses',
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'ip_offense' ),
 				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
 			'ip_blocks'      => [
+				'id'      => 'ipblocks',
 				'title'   => __( 'IP Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'conn_kill' ),
 				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
 			],
 			'blackips'       => [
+				'id'      => 'ipblacklist',
 				'title'   => __( 'Blacklist IPs', 'wp-simple-firewall' ),
 				'val'     => $oSelectIp
 					->filterByLists(

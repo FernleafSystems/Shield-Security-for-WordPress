@@ -58,16 +58,36 @@
 			   data-featherlight-iframe-height="675">&nbsp;</a>
 		{% endif %}
 	</div>
-	<script>
+{% endblock %}
+
+{% block inline_scripts %}
+	<script type="text/javascript">
+		jQuery( document ).ready( function () {
+
+			{#{% for stat in vars.insight_stats %}#}
+			{#jQuery( '#statcard-{{ stat.id }} .card-body' ).icwpWpsfAjaxChart(#}
+			{#	{#}
+			{#		'ajax_render':{{ ajax.render_chart|raw }},#}
+			{#		'req_params': {#}
+			{#			'stat_id': "{{ stat.id }}",#}
+			{#			'chart_location': "insights-overview-statcard"#}
+			{#		}#}
+			{#	}#}
+			{#);#}
+			{#{% endfor %}#}
+
+		} );
+	</script>
+	<script type="text/javascript">
 		jQuery( '#collapseConfigSummary' ).on( 'shown.bs.collapse', function () {
 			jQuery( 'html, body' ).animate( {
 				scrollTop: jQuery( "#collapseConfigSummaryTitle" ).offset().top - 115
 			}, 750 );
 		} );
 		{% if flags.show_guided_tour %}
-			window.onload = function () {
-				jQuery( '#IntroVideo' ).click();
-			};
+		window.onload = function () {
+			jQuery( '#IntroVideo' ).click();
+		};
 		{% endif %}
 	</script>
 {% endblock %}

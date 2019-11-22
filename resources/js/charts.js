@@ -70,7 +70,7 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 
 				$oChartContainer.html('');
 				new Chartist.Line(
-					'.icwpAjaxContainerChart',
+					$oThis.selector+' .icwpAjaxContainerChart',
 					oResponse.data.chart.data,
 					{
 						axisY: {
