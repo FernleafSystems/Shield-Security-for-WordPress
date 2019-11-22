@@ -808,15 +808,15 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'ip_offense' ),
 				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
-			'ip_blocks'      => [
+			'conn_kills'      => [
 				'id'      => 'conn_kill',
-				'title'   => __( 'IP Blocks', 'wp-simple-firewall' ),
+				'title'   => __( 'Connection Killed', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'conn_kill' ),
 				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
 			],
-			'blackips'       => [
-				'id'      => 'ipblacklist',
-				'title'   => __( 'Blacklist IPs', 'wp-simple-firewall' ),
+			'ip_blocked'       => [
+				'id'      => 'ip_blocked',
+				'title'   => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'val'     => $oSelectIp
 					->filterByLists(
 						[
@@ -824,7 +824,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 							ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
 						]
 					)->count(),
-				'tooltip' => __( 'Current IP addresses with offenses against the site.', 'wp-simple-firewall' )
+				'tooltip' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' )
 			],
 		];
 	}
