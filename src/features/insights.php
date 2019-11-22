@@ -254,7 +254,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						]
 					],
 					'ajax'    => [
-						'render_chart' => $oEvtsMod->getAjaxActionData( 'render_chart', true ),
+						'render_chart_post' => $oEvtsMod->getAjaxActionData( 'render_chart_post', true ),
 					],
 					'hrefs'   => [
 						'shield_pro_url'           => 'https://icwp.io/shieldpro',
@@ -297,7 +297,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
-			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
+//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
@@ -781,19 +781,19 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		return [
 			'login'          => [
-				'id'      => 'loginblocks',
+				'id'      => 'login_block',
 				'title'   => __( 'Login Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'login_block' ),
 				'tooltip' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
 			],
 			'firewall'       => [
-				'id'      => 'firewallblocks',
+				'id'      => 'firewall_block',
 				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
 				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			],
 			'comments'       => [
-				'id'      => 'commentblocks',
+				'id'      => 'comment_block',
 				'title'   => __( 'Comment Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvents( [
 					'spam_block_bot',
@@ -803,13 +803,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
 			'transgressions' => [
-				'id'      => 'offenses',
+				'id'      => 'ip_offense',
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'ip_offense' ),
 				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
 			'ip_blocks'      => [
-				'id'      => 'ipblocks',
+				'id'      => 'conn_kill',
 				'title'   => __( 'IP Blocks', 'wp-simple-firewall' ),
 				'val'     => $oSelEvents->clearWheres()->sumEvent( 'conn_kill' ),
 				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )

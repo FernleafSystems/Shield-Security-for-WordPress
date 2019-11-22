@@ -64,17 +64,19 @@
 	<script type="text/javascript">
 		jQuery( document ).ready( function () {
 
-			{#{% for stat in vars.insight_stats %}#}
-			{#jQuery( '#statcard-{{ stat.id }} .card-body' ).icwpWpsfAjaxChart(#}
-			{#	{#}
-			{#		'ajax_render':{{ ajax.render_chart|raw }},#}
-			{#		'req_params': {#}
-			{#			'stat_id': "{{ stat.id }}",#}
-			{#			'chart_location': "insights-overview-statcard"#}
-			{#		}#}
-			{#	}#}
-			{#);#}
-			{#{% endfor %}#}
+			{% for stat in vars.insight_stats %}
+			jQuery( '#statcard-{{ stat.id }} .card-body' ).icwpWpsfAjaxChart(
+				{
+					'ajax_render':{{ ajax.render_chart_post|raw }},
+					'req_params': {
+						'render_location': "insights-overview-statcard",
+						'chart_params': {
+							'stat_id': "{{ stat.id }}",
+						}
+					}
+				}
+			);
+			{% endfor %}
 
 		} );
 	</script>
