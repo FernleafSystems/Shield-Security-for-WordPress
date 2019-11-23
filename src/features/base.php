@@ -28,7 +28,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private static $oEmailHandler;
 
 	/**
-	 * @var ICWP_WPSF_Processor_Base
+	 * @var Shield\Modules\Base\BaseProcessor
 	 */
 	private $oProcessor;
 
@@ -36,11 +36,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @var ICWP_WPSF_Wizard_Base
 	 */
 	private $oWizard;
-
-	/**
-	 * @var Shield\Databases\Base\Handler
-	 */
-	private $oDbh;
 
 	/**
 	 * @var Shield\Modules\Base\Strings
@@ -1928,20 +1923,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 						->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 		}
 		return $this->oOpts;
-	}
-
-	/**
-	 * The primary DB for the
-	 * @return null|Shield\Databases\Base\Handler|mixed
-	 * @deprecated 8.4
-	 */
-	public function getDbHandler() {
-		// TODO: remove this IF, as it's a stop-gap for the newer implementation (below)
-		if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
-			return $this->oDbh;
-		}
-
-		return $this->getPrimaryDbHandler();
 	}
 
 	/**
