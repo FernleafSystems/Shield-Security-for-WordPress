@@ -1912,25 +1912,6 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @return null|Shield\Databases\Base\Handler|mixed
-	 * @deprecated 8.4.0
-	 */
-	public function getDbHandler() {
-		if ( !isset( $this->oDbh ) ) {
-			$this->oDbh = $this->loadDbHandler();
-			if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
-				try {
-					$this->oDbh->setMod( $this )
-							   ->tableInit();
-				}
-				catch ( \Exception$oE ) {
-				}
-			}
-		}
-		return $this->oDbh;
-	}
-
-	/**
 	 * @return string
 	 */
 	private function getNamespace() {
