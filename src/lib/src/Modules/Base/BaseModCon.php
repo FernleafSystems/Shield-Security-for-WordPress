@@ -1913,6 +1913,7 @@ class BaseModCon extends Deprecated\Foundation {
 
 	/**
 	 * @return null|Shield\Databases\Base\Handler|mixed
+	 * @deprecated 8.4.0
 	 */
 	public function getDbHandler() {
 		if ( !isset( $this->oDbh ) ) {
