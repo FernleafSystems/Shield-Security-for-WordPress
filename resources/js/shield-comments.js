@@ -54,6 +54,9 @@ if ( typeof shield_comments !== 'undefined' ) {
 
 		var insertPlaceHolder_Gasp = function ( form ) {
 			var shiep = document.getElementById( shield_comments.vars.uniq );
+			if ( typeof (shiep) === "undefined" || shiep === null ) {
+				return;
+			}
 
 			var shieThe_cb = document.createElement( "input" );
 			shieThe_cb.type = "checkbox";
