@@ -70,7 +70,7 @@ class BuildData {
 					array_reverse( $aSeries ),
 				]
 			],
-			'legend_names' => [ ],
+			'legend_names' => [],
 		];
 	}
 

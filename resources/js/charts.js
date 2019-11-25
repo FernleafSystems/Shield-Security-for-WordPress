@@ -88,7 +88,7 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 							showGrid: false,
 						},
 						axisY: {
-							offset: 15,
+							offset: 20,
 							onlyInteger: true,
 							showLabel: true,
 							labelInterpolationFnc: function ( value ) {
