@@ -1799,6 +1799,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_CommentsFilter
+	 */
+	public function getModule_Comments() {
+		return $this->getModule( 'comments_filter' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_Events
 	 */
 	public function getModule_Events() {

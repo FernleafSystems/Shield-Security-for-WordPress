@@ -32,18 +32,39 @@ if ( typeof shield_comments !== 'undefined' ) {
 				cbnombre.id = "_shieldcb_nombre";
 				cbnombre.name = "cb_nombre";
 				cbnombre.value = shield_comments.vars.cbname;
-				var inputBotts = document.createElement( "input" );
-				inputBotts.type = "hidden";
-				inputBotts.name = "botts";
-				inputBotts.value = shield_comments.vars.botts;
-				var inputToken = document.createElement( "input" );
-				inputToken.type = "hidden";
-				inputToken.name = "comment_token";
-				inputToken.value = shield_comments.vars.token;
-
 				shiep.appendChild( cbnombre );
-				shiep.appendChild( inputBotts );
-				shiep.appendChild( inputToken );
+
+				document.body.style.cursor = 'wait';
+				submitButton.disabled = true;
+
+				var aAjaxVars = shield_comments.ajax.comment_token;
+				jQuery.post( aAjaxVars.ajaxurl, aAjaxVars,
+					function ( oResponse ) {
+						if ( typeof (oResponse) !== "undefined" && oResponse !== null ) {
+							if ( oResponse.success ) {
+								var inputBotts = document.createElement( "input" );
+								inputBotts.type = "hidden";
+								inputBotts.name = "botts";
+								inputBotts.value = aAjaxVars.ts;
+								var inputToken = document.createElement( "input" );
+								inputToken.type = "hidden";
+								inputToken.name = "comment_token";
+								inputToken.value = oResponse.data.token;
+
+								shiep.appendChild( inputBotts );
+								shiep.appendChild( inputToken );
+							}
+						}
+					}
+				).fail(
+					function () {
+						alert( 'There was a problem with the request. Please try reloading the page.' );
+					}
+				).always( function () {
+						submitButton.disabled = false;
+						document.body.style.cursor = 'default';
+					}
+				);
 			}
 		};
 
@@ -69,7 +90,7 @@ if ( typeof shield_comments !== 'undefined' ) {
 
 			var shieThe_lab = document.createElement( "label" );
 			var shieThe_labspan = document.createElement( "span" );
-			shieThe_labspan.innerHTML = shield_comments.strings.label;
+			shieThe_labspan.innerHTML = '&nbsp;' + shield_comments.strings.label;
 
 			shieThe_lab.appendChild( shieThe_cb );
 			shieThe_lab.appendChild( shieThe_labspan );
