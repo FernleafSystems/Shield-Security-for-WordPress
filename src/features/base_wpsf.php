@@ -333,11 +333,13 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function isVisitorWhitelisted() {
 		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
-			/** @var \ICWP_WPSF_Processor_Ips $oPro */
-			$oPro = $this->getCon()
-						 ->getModule_IPs()
-						 ->getProcessor();
-			$this->bVisitorIsWhitelisted = $oPro->isIpOnWhiteList( Services::IP()->getRequestIp() );
+			$oIpMod = $this->getCon()->getModule_IPs();
+			$oIp = ( new Shield\Modules\IPs\Components\LookupIpOnList() )
+				->setMod( $oIpMod )
+				->setIp( Services::IP()->getRequestIp() )
+				->setList( $oIpMod::LIST_MANUAL_WHITE )
+				->lookup();
+			$this->bVisitorIsWhitelisted = $oIp instanceof Shield\Databases\IPs\EntryVO;
 		}
 		return $this->bVisitorIsWhitelisted;
 	}

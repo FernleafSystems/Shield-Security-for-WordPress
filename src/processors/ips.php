@@ -391,9 +391,15 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	/**
 	 * @param string $sIp
 	 * @return bool
+	 * @deprecated 8.4
 	 */
 	public function isIpOnWhiteList( $sIp ) {
-		return $this->isIpOnList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+		$oIp = ( new IPs\Components\LookupIpOnList() )
+			->setMod( $this->getMod() )
+			->setIp( $sIp )
+			->setList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE )
+			->lookup();
+		return $oIp instanceof Databases\IPs\EntryVO;
 	}
 
 	/**
@@ -411,6 +417,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	 * @param string $sIp
 	 * @param string $sList
 	 * @return bool
+	 * @deprecated 8.4
 	 */
 	private function isIpOnList( $sIp, $sList ) {
 		$bOnList = false;

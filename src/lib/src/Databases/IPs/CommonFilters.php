@@ -13,6 +13,14 @@ trait CommonFilters {
 	}
 
 	/**
+	 * @param bool $bIsRange
+	 * @return $this
+	 */
+	public function filterByIsRange( $bIsRange ) {
+		return $this->addWhereEquals( 'is_range', $bIsRange ? 1 : 0 );
+	}
+
+	/**
 	 * @param string $nLastAccessAfter
 	 * @return $this
 	 */
