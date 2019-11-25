@@ -370,7 +370,16 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://icwp.io/aa).
 
-= 8.3.0 - Current Release =
+= 8.4.0 - Current Release =
+*Released: 26th November, 2019* - [Release Notes](https://icwp.io/g3)
+
+* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
+* **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
+* **(v.0)**  IMPROVED:	Malware scanner false-positive lookups are now use further intelligence from API.
+* **(v.0)**  IMPROVED:	Malware scanner false-positive lookups are now use intelligence from API.
+* **(v.0)**  IMPROVED:	Events statistics table now better cleans up and consolidates data to reduce DB size.
+
+= 8.3 - Series =
 *Released: 18th November, 2019* - [Release Notes](https://icwp.io/g3)
 
 * **(v.0)**  IMPROVED:	Improvements to Malware scanner to [now track malware results](https://icwp.io/g3) by specific lines, not just by file.

@@ -132,7 +132,7 @@ class Traffic extends BaseBuild {
 			}
 
 			$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',
-				$oIpSrv->getIpWhoisLookup( $sIp ), $sIp,
+				$oIpSrv->getIpInfo( $sIp ), $sIp,
 				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
