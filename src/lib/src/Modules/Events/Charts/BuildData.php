@@ -89,18 +89,20 @@ class BuildData {
 			}
 		}
 
+		$aAll = array_keys( $this->getCon()->getAllEvents() );
 		if ( !empty( $oReq->chart_params[ 'stat_id' ] ) ) {
 			switch ( $oReq->chart_params[ 'stat_id' ] ) {
 				case 'comment_block':
-					$oReq->events = [
-						'spam_block_bot',
-						'spam_block_human',
-						'spam_block_recaptcha'
-					];
+					$oReq->events = array_filter(
+						$aAll,
+						function ( $sEvent ) {
+							return strpos( $sEvent, 'spam_block_' ) === 0;
+						}
+					);
 					break;
 				case 'bot_blocks':
 					$oReq->events = array_filter(
-						array_keys($this->getCon()->getAllEvents()),
+						$aAll,
 						function ( $sEvent ) {
 							return strpos( $sEvent, 'bottrack_' ) === 0;
 						}
