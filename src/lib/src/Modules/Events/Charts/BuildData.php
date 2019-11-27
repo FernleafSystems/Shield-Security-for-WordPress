@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Charts;
 
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Services\Services;
 
 class BuildData {
 
@@ -25,7 +24,7 @@ class BuildData {
 		$oDbhEvts = $oMod->getDbHandler_Events();
 
 		$nTick = 0;
-		$oTime = new Carbon();
+		$oTime = Services::Request()->carbon();
 
 		$aLabels = [];
 		$aSeries = [];
