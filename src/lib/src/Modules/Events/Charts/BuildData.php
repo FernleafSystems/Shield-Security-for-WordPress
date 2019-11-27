@@ -16,7 +16,6 @@ class BuildData {
 	 * @return array
 	 */
 	public function build( ChartRequestVO $oReq ) {
-
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
 
@@ -98,6 +97,14 @@ class BuildData {
 						'spam_block_human',
 						'spam_block_recaptcha'
 					];
+					break;
+				case 'bot_blocks':
+					$oReq->events = array_filter(
+						array_keys($this->getCon()->getAllEvents()),
+						function ( $sEvent ) {
+							return strpos( $sEvent, 'bottrack_' ) === 0;
+						}
+					);
 					break;
 				default:
 					$oReq->events = (array)$oReq->chart_params[ 'stat_id' ];

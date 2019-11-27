@@ -105,6 +105,17 @@ abstract class BaseQuery {
 	}
 
 	/**
+	 * @param string $sColumn
+	 * @param string $sLike
+	 * @param string $sLeft
+	 * @param string $sRight
+	 * @return $this
+	 */
+	public function addWhereLike( $sColumn, $sLike, $sLeft = '%', $sRight = '%' ) {
+		return $this->addWhere( $sColumn, $sLeft.$sLike.$sRight, 'LIKE' );
+	}
+
+	/**
 	 * @param int    $nNewerThanTimeStamp
 	 * @param string $sColumn
 	 * @return $this

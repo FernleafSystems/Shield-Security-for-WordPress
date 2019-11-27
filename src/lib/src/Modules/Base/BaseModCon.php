@@ -133,6 +133,9 @@ class BaseModCon extends Deprecated\Foundation {
 		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
 			return $bSupported || $this->isSupportedEvent( $sEventTag );
 		}, 10, 2 );
+		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
+			return array_merge( $aEvents, $this->getEvents() );
+		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 

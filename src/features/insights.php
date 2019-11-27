@@ -297,7 +297,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'license'      => __( 'Pro', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Traffic', 'wp-simple-firewall' ),
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
-//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
+			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
 		];
 		if ( $bIsPro ) {
@@ -769,10 +769,10 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	 */
 	protected function getStats() {
 		$oCon = $this->getCon();
-		/** @var Shield\Databases\Events\Handler $oDbhEvents */
-		$oDbhEvents = $oCon->getModule_Events()->getDbHandler_Events();
 		/** @var Shield\Databases\Events\Select $oSelEvents */
-		$oSelEvents = $oDbhEvents->getQuerySelector();
+		$oSelEvents = $oCon->getModule_Events()
+						   ->getDbHandler_Events()
+						   ->getQuerySelector();
 
 		/** @var Shield\Databases\IPs\Select $oSelectIp */
 		$oSelectIp = $oCon->getModule_IPs()
@@ -783,47 +783,59 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'login'          => [
 				'id'      => 'login_block',
 				'title'   => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->clearWheres()->sumEvent( 'login_block' ),
+				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
+					$oSelEvents->clearWheres()->sumEvent( 'login_block' ) ),
 				'tooltip' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
 			],
-			'firewall'       => [
-				'id'      => 'firewall_block',
-				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
+			//			'firewall'       => [
+			//				'id'      => 'firewall_block',
+			//				'title'   => __( 'Firewall Blocks', 'wp-simple-firewall' ),
+			//				'val'     => $oSelEvents->clearWheres()->sumEvent( 'firewall_block' ),
+			//				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
+			//			],
+			'bot_blocks'     => [
+				'id'      => 'bot_blocks',
+				'title'   => __( 'Bot Detection', 'wp-simple-firewall' ),
+				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
+					$oSelEvents->clearWheres()->sumEventsLike( 'bottrack_' ) ),
 				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			],
 			'comments'       => [
 				'id'      => 'comment_block',
 				'title'   => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->clearWheres()->sumEvents( [
-					'spam_block_bot',
-					'spam_block_human',
-					'spam_block_recaptcha'
-				] ),
+				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
+					$oSelEvents->clearWheres()->sumEvents( [
+						'spam_block_bot',
+						'spam_block_human',
+						'spam_block_recaptcha'
+					] ) ),
 				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
 			'transgressions' => [
 				'id'      => 'ip_offense',
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->clearWheres()->sumEvent( 'ip_offense' ),
+				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
+					$oSelEvents->clearWheres()->sumEvent( 'ip_offense' ) ),
 				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
-			'conn_kills'      => [
+			'conn_kills'     => [
 				'id'      => 'conn_kill',
 				'title'   => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'     => $oSelEvents->clearWheres()->sumEvent( 'conn_kill' ),
+				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
+					$oSelEvents->clearWheres()->sumEvent( 'conn_kill' ) ),
 				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
 			],
-			'ip_blocked'       => [
+			'ip_blocked'     => [
 				'id'      => 'ip_blocked',
 				'title'   => __( 'IP Blocked', 'wp-simple-firewall' ),
-				'val'     => $oSelectIp
-					->filterByLists(
-						[
-							ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-							ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
-						]
-					)->count(),
+				'val'     => sprintf( '%s: %s', __( 'Now' ),
+					$oSelectIp
+						->filterByLists(
+							[
+								ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+								ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+							]
+						)->count() ),
 				'tooltip' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' )
 			],
 		];

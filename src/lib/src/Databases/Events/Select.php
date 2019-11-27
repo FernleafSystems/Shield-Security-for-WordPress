@@ -27,6 +27,16 @@ class Select extends Base\Select {
 	}
 
 	/**
+	 * @param string $sEvent
+	 * @return int
+	 */
+	public function sumEventsLike( $sEvent ) {
+		return (int)$this->addWhereLike( 'event', $sEvent )
+						 ->setColumnsToSelect( [ 'count' ] )
+						 ->sum();
+	}
+
+	/**
 	 * @return int[]
 	 */
 	public function sumAllEvents() {
