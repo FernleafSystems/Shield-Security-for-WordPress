@@ -375,50 +375,9 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
 * **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
+* **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
 * **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
-* **(v.0)**  IMPROVED:	Events statistics table consolidates data to reduce DB size.
+* **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
+* **(v.0)**  IMPROVED:	Consolidate Events/Statistics database table to significantly reduce DB size.
 
-= 8.3 - Series =
-*Released: 18th November, 2019* - [Release Notes](https://shsec.io/g3)
-
-* **(v.0)**  IMPROVED:	Improvements to Malware scanner to [now track malware results](https://shsec.io/g3) by specific lines, not just by file.
-* **(v.0)**  IMPROVED:	Support colons (:) in IP addresses during visitor IP address detection.
-* **(v.0)**  IMPROVED:	Ensure license lookups use the correct site URL.
-* **(v.0)**  IMPROVED:	Attempt to ensure that if there is an interruption in the API, malware patterns are available for scanning.
-* **(v.0)**  IMPROVED:	Added default firewall whitelist parameter for AffiliateWP requests.
-* **(v.0)**  IMPROVED:	Spanish, French, Japanese translations.
-
-= 8.2 - Series =
-*Released: 1st October, 2019* - [Release Notes](https://shsec.io/g0)
-
-* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - [more info](https://shsec.io/g1).
-* **(v.3)**  FIXED:		Fix for Rest API detection.
-* **(v.3)**  FIXED:		Fix for translation of some strings.
-* **(v.2)**  FIXED:		Fixes for scans running under Windows/IIS.
-* **(v.2)**  IMPROVED:	Adds a check that a site can send an HTTP request to itself before allowing scans to run.
-* **(v.2)**  IMPROVED:	Scans clean up after themselves better, if they fail to run.
-* **(v.2)**  IMPROVED:	Server's own IP address detection when site migrated to a new host.
-* **(v.2)**  UPDATED:	International translations.
-* **(v.2)**  FIXED:		PHP notices when data wasn't as expected.
-* **(v.1)**  IMPROVED:	Further reduce Malware false positives by also using SVN trunk data when verifying files for plugins and themes.
-* **(v.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
-* **(v.1)**  ADDED:		Support for using [WP Hashes.com](https://wphashes.com) for WordPress.org themes (already done for plugins).
-* **(v.1)**  FIXED:		PHP notices in the logs.
-* **(v.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
-* **(v.0)**  NEW:		Traffic Watcher feature is now free for all users (no longer Pro-only).
-* **(v.0)**  IMPROVED:	Scanning cron is improved and more efficient.
-* **(v.0)**  ADDED:		Bulk Delete/Repair/Ignore actions now available for Malware scan results.
-* **(v.0)**  IMPROVED:	Malware scan results now provide details of affected line numbers and patterns discovered.
-* **(v.0)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
-* **(v.0)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
-* **(v.0)**  IMPROVED:	Malware scanner performance improved with caching.
-* **(v.0)**  IMPROVED:	Malware auto-repair now works more consistently.
-* **(v.0)**  IMPROVED:	Updated default firewall whitelist rules.
-* **(v.0)**  IMPROVED:	If the PWNED Passwords API request fails entirely, the password check is skipped.
-* **(v.0)**  ADDED:		Japanese translations are at 100%.
-* **(v.0)**  IMPROVED:	Dutch translations are greatly improved (a huge thank you to Fred!).
-* **(v.0)**  FIXED:		Audit Trail correctly logs multiple occurrences for the same type of event on the same page request.
-* **(v.0)**  FIXED:		Audit Trail now correctly logs Google reCAPTCHA failure events.
-* **(v.0)**  FIXED:		PHP error when firewall was set to kill response without a user message.
-
-#### [Full Changelog](https://shsec.io/shieldwporgfullchangelog)
+#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
