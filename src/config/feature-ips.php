@@ -268,8 +268,8 @@
     {
       "key":           "track_xmlrpc",
       "section":       "section_probes",
-      "default":       "log",
       "premium":       true,
+      "default":       "log",
       "type":          "select",
       "value_options": [
         {
@@ -304,6 +304,7 @@
       "section":       "section_logins",
       "default":       "transgression-single",
       "type":          "select",
+      "default":       "log",
       "value_options": [
         {
           "value_key": "disabled",
