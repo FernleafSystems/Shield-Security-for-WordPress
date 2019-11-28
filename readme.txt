@@ -109,7 +109,7 @@ From November 2017, Shield Security now has a Pro version for those that need to
 The Shield Security team prioritises email technical support over the WordPress.org forums.
 Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://icwp.io/ab).
 
-Learn more on going Pro at [our One Dollar Plugin store](https://icwp.io/ab).
+Discover all the perks turning your security Pro at [our Shield Security store](https://icwp.io/ab).
 
 = Our Mission =
 

@@ -6,12 +6,12 @@
  * Version: 8.4.0
  * Text Domain: wp-simple-firewall
  * Domain Path: /languages
- * Author: One Dollar Plugin
+ * Author: Shield Security
  * Author URI: https://icwp.io/bv
  */
 
 /**
- * Copyright (c) 2019 One Dollar Plugin <support@onedollarplugin.com>
+ * Copyright (c) 2019 Shield Security <support@shieldsecurity.io>
  * All rights reserved.
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
  * General Public License, Version 2, June 1991. Copyright (C) 1989, 1991 Free
