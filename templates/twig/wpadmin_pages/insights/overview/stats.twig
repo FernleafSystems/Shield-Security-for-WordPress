@@ -6,7 +6,7 @@
 			>
 				<div class="card-header">{{ stat.title }}</div>
 				<div class="card-body">
-					<p>{{ stat.val }}</p>
+					<p {% if stat.tooltip_p is defined %}title="{{ stat.tooltip_p }}"{% endif %}>{{ stat.val }}</p>
 				</div>
 			</div>
 		</div>

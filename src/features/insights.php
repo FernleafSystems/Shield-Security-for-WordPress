@@ -785,7 +785,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'title'   => __( 'Login Blocks', 'wp-simple-firewall' ),
 				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'login_block' ) ),
-				'tooltip' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
+				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' )
 			],
 			//			'firewall'       => [
 			//				'id'      => 'firewall_block',
@@ -798,7 +798,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'title'   => __( 'Bot Detection', 'wp-simple-firewall' ),
 				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEventsLike( 'bottrack_' ) ),
-				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
+				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' )
 			],
 			'comments'       => [
 				'id'      => 'comment_block',
@@ -809,21 +809,21 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'spam_block_human',
 						'spam_block_recaptcha'
 					] ) ),
-				'tooltip' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
+				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' )
 			],
 			'transgressions' => [
 				'id'      => 'ip_offense',
 				'title'   => __( 'Offenses', 'wp-simple-firewall' ),
 				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'ip_offense' ) ),
-				'tooltip' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
+				'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' )
 			],
 			'conn_kills'     => [
 				'id'      => 'conn_kill',
 				'title'   => __( 'Connection Killed', 'wp-simple-firewall' ),
 				'val'     => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'conn_kill' ) ),
-				'tooltip' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
+				'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' )
 			],
 			'ip_blocked'     => [
 				'id'      => 'ip_blocked',
@@ -836,7 +836,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 								ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
 							]
 						)->count() ),
-				'tooltip' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' )
+				'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' )
 			],
 		];
 	}
