@@ -356,7 +356,7 @@
 		"timestamp": "1491523200",
 		"name": "",
 		"summary": "Introduction of Login Authentication Portal",
-		"link": "https://icwp.io/86",
+		"link": "https://shsec.io/86",
 		"is_patch": false,
 		"options_added": true,
 		"options_removed": true
@@ -700,13 +700,13 @@
     {
       "type": "changed",
       "summary": "Major overhaul of Two-Factor / Multi-Factor Login Authentication",
-      "link": "https://icwp.io/87",
+      "link": "https://shsec.io/87",
       "version": "5.8.0"
     },
     {
       "type": "changed",
       "summary": "Introduction of Login Authentication Portal for improved Multi-Factor Authentication",
-      "link": "https://icwp.io/86",
+      "link": "https://shsec.io/86",
       "version": "5.8.0"
     },
     {
@@ -747,7 +747,7 @@
     {
       "type": "improvements",
       "summary": "Further preparation for Shield Central release",
-      "link": "https://icwp.io/83",
+      "link": "https://shsec.io/83",
       "version": "5.8.0"
     }
   ]

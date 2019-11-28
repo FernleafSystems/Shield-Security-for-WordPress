@@ -204,7 +204,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			'hrefs'             => [
 				'learn_more'       => 'https://translate.fernleafsystems.com',
 				'link_to_see'      => $oMod->getLinkToTrackingDataDump(),
-				'link_to_moreinfo' => 'https://icwp.io/shieldtrackinginfo',
+				'link_to_moreinfo' => 'https://shsec.io/shieldtrackinginfo',
 
 			]
 		];

@@ -274,7 +274,7 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 				],
 				'hrefs'   => [
 					'dashboard'   => $oFO->getUrl_AdminPage(),
-					'goprofooter' => 'https://icwp.io/goprofooter',
+					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
@@ -342,7 +342,7 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 				],
 				'hrefs'   => [
 					'dashboard'   => $oFO->getUrl_AdminPage(),
-					'goprofooter' => 'https://icwp.io/goprofooter',
+					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
 					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
@@ -439,7 +439,7 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 			],
 			'hrefs'   => [
 				'dashboard' => $oMod->getUrl_AdminPage(),
-				'gopro'     => 'https://icwp.io/ap',
+				'gopro'     => 'https://shsec.io/ap',
 			],
 			'imgs'    => [],
 			'data'    => [

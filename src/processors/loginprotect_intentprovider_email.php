@@ -72,7 +72,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 				'value'       => $this->fetchCodeFromRequest(),
 				'placeholder' => __( 'This code was just sent to your registered Email address.', 'wp-simple-firewall' ),
 				'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
-				'help_link'   => 'https://icwp.io/3t'
+				'help_link'   => 'https://shsec.io/3t'
 			];
 		}
 		return $aFields;
@@ -150,7 +150,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 		];
 
 		if ( !$this->getCon()->isRelabelled() ) {
-			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', __( 'Why no login link?', 'wp-simple-firewall' ) );
+			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://shsec.io/96', __( 'Why no login link?', 'wp-simple-firewall' ) );
 			$aContent[] = '';
 		}
 

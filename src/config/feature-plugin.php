@@ -104,7 +104,7 @@
       "section":     "section_general_plugin_options",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/7i",
+      "link_info":   "https://shsec.io/7i",
       "link_blog":   "",
       "name":        "Enable Information Gathering",
       "summary":     "Permit Anonymous Usage Information Gathering",
@@ -162,7 +162,7 @@
           "text":      "HTTP_CLIENT_IP"
         }
       ],
-      "link_info":     "https://icwp.io/dn",
+      "link_info":     "https://shsec.io/dn",
       "link_blog":     "",
       "name":          "Visitor IP Address",
       "summary":       "Which Address Is Yours",
@@ -196,8 +196,8 @@
       "section":     "section_general_plugin_options",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/5v",
-      "link_blog":   "https://icwp.io/wpsf20",
+      "link_info":   "https://shsec.io/5v",
+      "link_blog":   "https://shsec.io/wpsf20",
       "name":        "Show Plugin Badge",
       "summary":     "Display Plugin Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
@@ -219,8 +219,8 @@
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/do",
-      "link_blog":   "https://icwp.io/dp",
+      "link_info":   "https://shsec.io/do",
+      "link_blog":   "https://shsec.io/dp",
       "name":        "Allow Import/Export",
       "summary":     "Allow Import Of Options To, And Export Of Options From, This Site",
       "description": "Uncheck this box to completely disable import and export of options."
@@ -305,7 +305,7 @@
           "text":      "Invisible"
         }
       ],
-      "link_info":     "https://icwp.io/dq",
+      "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
       "name":          "reCAPTCHA Style",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
@@ -317,7 +317,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/shld5",
+      "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
       "name":        "reCAPTCHA Site Key",
       "summary":     "Google reCAPTCHA Site Key - Only v2 or Invisible. v3 NOT supported.",
@@ -329,7 +329,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/shld5",
+      "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
       "name":        "reCAPTCHA Secret",
       "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
@@ -419,7 +419,7 @@
     "tracking_cron_handle":   "plugin_tracking_cron",
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
-    "href_privacy_policy":    "https://icwp.io/wpshieldprivacypolicy",
+    "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
     "db_classes":             {
       "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
       "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"

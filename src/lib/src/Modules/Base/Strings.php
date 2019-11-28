@@ -66,7 +66,7 @@ class Strings {
 				'pro_only_feature'  => __( 'This is a pro-only feature', 'wp-simple-firewall' ),
 				'go_pro'            => __( 'Go Pro!', 'wp-simple-firewall' ),
 				'go_pro_option'     => sprintf( '<a href="%s" target="_blank">%s</a>',
-					'https://icwp.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
+					'https://shsec.io/shieldgoprofeature', __( 'Please upgrade to Pro to control this option', 'wp-simple-firewall' ) ),
 
 				'description'                  => __( 'Description', 'wp-simple-firewall' ),
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),

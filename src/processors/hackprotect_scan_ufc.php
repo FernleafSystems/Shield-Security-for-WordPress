@@ -133,7 +133,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$aContent[] = '';
 
 		if ( !$oCon->isRelabelled() ) {
-			$aContent[] = sprintf( '[ <a href="https://icwp.io/moreinfoufc">%s</a> ]', __( 'More Info On This Scanner', 'wp-simple-firewall' ) );
+			$aContent[] = sprintf( '[ <a href="https://shsec.io/moreinfoufc">%s</a> ]', __( 'More Info On This Scanner', 'wp-simple-firewall' ) );
 		}
 
 		return $aContent;

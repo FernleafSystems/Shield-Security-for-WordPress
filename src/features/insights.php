@@ -257,8 +257,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'render_chart_post' => $oEvtsMod->getAjaxActionData( 'render_chart_post', true ),
 					],
 					'hrefs'   => [
-						'shield_pro_url'           => 'https://icwp.io/shieldpro',
-						'shield_pro_more_info_url' => 'https://icwp.io/shld1',
+						'shield_pro_url'           => 'https://shsec.io/shieldpro',
+						'shield_pro_more_info_url' => 'https://shsec.io/shld1',
 					],
 					'flags'   => [
 						'show_ads'              => false,
@@ -346,7 +346,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
 				],
 				'hrefs'   => [
-					'go_pro'     => 'https://icwp.io/shieldgoprofeature',
+					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
 					'nav_home'   => $this->getUrl_AdminPage(),
 					'top_nav'    => $aTopNav,
 					'img_banner' => $oCon->getPluginUrl_Image( 'pluginlogo_banner-170x40.png' )

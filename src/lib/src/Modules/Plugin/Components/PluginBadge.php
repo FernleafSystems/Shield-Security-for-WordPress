@@ -68,7 +68,7 @@ class PluginBadge {
 				'is_floating' => $bFloating
 			],
 			'hrefs'   => [
-				'badge' => 'https://icwp.io/wpsecurityfirewall',
+				'badge' => 'https://shsec.io/wpsecurityfirewall',
 				'logo'  => $oCon->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
 			],
 			'strings' => [

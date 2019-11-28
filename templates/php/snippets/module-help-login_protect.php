@@ -6,7 +6,7 @@
 	<dt>What is multi-factor authentication (MFA)?</dt>
 	<dd>
 		<p>See the link below for a complete explanation of MFA.</p>
-		<p><a href="https://icwp.io/ai" target="_blank">
+		<p><a href="https://shsec.io/ai" target="_blank">
 				https://www.icontrolwp.com/blog/security-multi-two-factor-authentication-wordpress/</a> .
 		</p>
 		<p>Please read this. It really helps.</p>

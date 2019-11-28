@@ -179,7 +179,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Display Plugin Badge On Your Site', 'wp-simple-firewall' );
 				$sDescription = __( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
 								.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' )
-								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://icwp.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) );
+								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'delete_on_deactivate' :

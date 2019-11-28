@@ -502,7 +502,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$aWarnings[] =
 				__( '2FA by email demands that your WP site is properly configured to send email.', 'wp-simple-firewall' )
 				.'<br/>'.__( 'This is a common problem and you may get locked out in the future if you ignore this.', 'wp-simple-firewall' )
-				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://icwp.io/dd', __( 'Learn More.', 'wp-simple-firewall' ) );
+				.' '.sprintf( '<a href="%s" target="_blank" class="alert-link">%s</a>', 'https://shsec.io/dd', __( 'Learn More.', 'wp-simple-firewall' ) );
 		}
 
 		return $aWarnings;

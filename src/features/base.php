@@ -1522,8 +1522,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				'has_wizard'            => $this->hasWizard(),
 			],
 			'hrefs'         => [
-				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
-				'goprofooter'    => 'https://icwp.io/goprofooter',
+				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
+				'goprofooter'    => 'https://shsec.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
 				'wizard_landing' => $this->getUrl_WizardLanding()
 			],
