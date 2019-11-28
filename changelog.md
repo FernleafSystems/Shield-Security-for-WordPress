@@ -1,3 +1,54 @@
+= 8.1 - Series =
+*Released: 18th September, 2019* - [Release Notes](https://shsec.io/fy)
+
+* **(v.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`
+* **(v.0)**  IMPROVED:	Massive improvements to asynchronous scans in performance and reliability.
+* **(v.0)**  ADDED:		[**PRO**] Possible to supply multiple email addresses for Administrator login notifications.
+* **(v.0)**  ADDED:		New firewall whitelist rule to prevent firewall blocks when activating certain plugins.
+* **(v.0)**  IMPROVED:	Prevent errors caused by other plugins not passing correctly-formatted data through WP filters.
+* **(v.0)**  ADDED:		Japanese translations (14%).
+* **(v.0)**  IMPROVED:	Plugin locale now respects user profile locale setting.
+* **(v.0)**  IMPROVED:	Audit Trail filter for specific events.
+* **(v.0)**  IMPROVED:	Lots of cleanup of deprecated PHP code following the the v7-v8 upgrade.
+
+= 8.0 - Series =
+*Released: 27th August, 2019* - [Release Notes](https://shsec.io/fv)
+
+* **(v.2)**  IMPROVED:	Password strength metering now better aligns with WordPress library (PHP 5.6+)
+* **(v.2)**  IMPROVED:	Dutch translations have been adjusted.
+* **(v.2)**  FIXED:		Setting 'Month' for IP block duration wasn't being applied.
+* **(v.2)**  FIXED:		Certain admin notices not displayed when they should be.
+* **(v.1)**  FIXED:		Comment SPAM blocking wasn't working if set to "Detect and Reject".
+* **(v.1)**  FIXED:		Shield Widget/Badge broken in some cases.
+* **(v.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://shsec.io/gistshieldlocale).
+* **(v.1)**  ADDED:		Russian translations are now at 100% and some Dutch translations have been adjusted.
+* **(v.0)**  NEW:		[**PRO**] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
+* **(v.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
+* **(v.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.
+* **(v.0)**  IMPROVED:	Plugin notification system is much improved.
+* **(v.0)**  IMPROVED:	[**PRO**] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://shsec.io/fw).
+* **(v.0)**  CHANGED:	Comment SPAM system now uses WordPress Transients API instead of dedicated DB table.
+* **(v.0)**  ADDED:		100% Translation coverage for French, Spanish, German, Portuguese, Serbian, Bosnian, Dutch. (Russian on the way)
+* **(v.0)**  CHANGED:	Major code cleaning/refactoring for much of the plugin. More to come.
+
+= 7.4 - Series =
+*Released: 13th May, 2019* - [Release Notes](https://shsec.io/fc)
+
+* **(v.2)**  NEW:		Options finder/jumper menu lets you find and jump to any option in the plugin instantly.
+* **(v.2)**  NEW:		Help/explainer videos for a few sections - more to come.
+* **(v.2)**  FIXES:		Fixes for a few problems introduced with the recent UI changes.
+* **(v.2)**  FIXED:		Welcome wizard launching was broken.
+* **(v.1)**  NEW:		Adjustments and redesign of Shield options pages.
+* **(v.1)**  IMPROVED:	Further prep for better internationalization.
+* **(v.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://shsec.io/fa)
+* **(v.0)**  NEW:		Comment SPAM - Increase minimum number of approved comments before scanning is skipped
+* **(v.0)**  NEW:		[**PRO**] Comment SPAM - Trusted user roles where comments scanning is skipped
+* **(v.0)**  IMPROVED:	AntiBot JS was improperly included when not required.
+* **(v.0)**  IMPROVED:	Added a GeoIP caching table and removed bundled GeoIP database - greatly reduces download size.
+* **(v.0)**  FIXED:		Inconsistent behaviour when PWA plugin is active and it infinitely reloads pages.
+* **(v.0)**  FIXED:		Inconsistent behaviour with Anonymous API blocking.
+* **(v.0)**  IMPROVED:	Code improvements and refactoring.
+* **(v.0)**  ADDED:		Prep for upcoming malware scanner.
 
 = 7.3 - Series =
 *Released: 15th April, 2019* - [Release Notes](https://shsec.io/f0)
