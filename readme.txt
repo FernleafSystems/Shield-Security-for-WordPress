@@ -379,5 +379,6 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
 * **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
 * **(v.0)**  IMPROVED:	Consolidate Events/Statistics database table to significantly reduce DB size.
+* **(v.0)**  CLEANED:	Significant clean-out of old, deprecated, retired code.
 
 #### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
