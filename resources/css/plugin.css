@@ -934,14 +934,13 @@ td.cell_delete_note {
 }
 
 #SectionStats {
-	max-height: 300px;
 	overflow: auto;
 }
 .stat.card {
 }
 .stat.card .card-header {
 	font-size: smaller;
-	white-space: nowrap;
+	/*white-space: nowrap;*/
 }
 .stat.card .card-body {
 	font-size: x-large;

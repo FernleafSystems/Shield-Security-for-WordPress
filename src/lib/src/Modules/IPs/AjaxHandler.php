@@ -53,7 +53,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sIp = preg_replace( '#[^/:.a-f\d]#i', '', ( isset( $aFormParams[ 'ip' ] ) ? $aFormParams[ 'ip' ] : '' ) );
 		$sList = isset( $aFormParams[ 'list' ] ) ? $aFormParams[ 'list' ] : '';
 
-		$bAcceptableIp = $oIpServ->isValidIp( $sIp ) || $oIpServ->isValidIp4Range( $sIp );
+		$bAcceptableIp = $oIpServ->isValidIp( $sIp )
+						 || $oIpServ->isValidIp4Range( $sIp )
+						 || $oIpServ->isValidIp6Range( $sIp );
 
 		$bIsBlackList = $sList != $oMod::LIST_MANUAL_WHITE;
 

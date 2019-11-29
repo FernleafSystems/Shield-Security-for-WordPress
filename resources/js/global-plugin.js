@@ -172,7 +172,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 			jQuery.post( ajaxurl, $aData, function ( oResponse ) {
 
 			} ).always( function () {
-					location.reload( true );
+					location.reload();
 					bActivate = null;
 				}
 			);

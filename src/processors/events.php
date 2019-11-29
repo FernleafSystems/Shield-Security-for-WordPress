@@ -110,4 +110,10 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 		$oMod->getDbHandler_Events()
 			 ->commitEvents( $oMod->getRegisteredEvents( true ) );
 	}
+
+	public function runDailyCron() {
+		( new Shield\Modules\Events\Consolidate\ConsolidateAllEvents() )
+			->setMod( $this->getMod() )
+			->run();
+	}
 }

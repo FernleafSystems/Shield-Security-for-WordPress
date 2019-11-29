@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Autoupdates;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -16,143 +17,13 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string[]
-	 */
-	public function getAutoupdatePlugins() {
-		$aSelected = [];
-		if ( $this->isAutoupdateIndividualPlugins() ) {
-			$aSelected = $this->getOpt( 'selected_plugins', [] );
-			if ( !is_array( $aSelected ) ) {
-				$aSelected = [];
-			}
-		}
-		return $aSelected;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getDelayTracking() {
-		$aTracking = $this->getOpt( 'delay_tracking', [] );
-		if ( !is_array( $aTracking ) ) {
-			$aTracking = [];
-		}
-		$aTracking = $this->loadDP()->mergeArraysRecursive(
-			[
-				'core'    => [],
-				'plugins' => [],
-				'themes'  => [],
-			],
-			$aTracking
-		);
-		$this->setOpt( 'delay_tracking', $aTracking );
-
-		return $aTracking;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getDelayUpdatesPeriod() {
-		return $this->isPremium() ? $this->getOpt( 'update_delay', 0 )*DAY_IN_SECONDS : 0;
-	}
-
-	/**
-	 * @param array $aTrackingInfo
-	 * @return $this
-	 */
-	public function setDelayTracking( $aTrackingInfo ) {
-		return $this->setOpt( 'delay_tracking', $aTrackingInfo );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isDisableAllAutoUpdates() {
-		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAutoupdateAllPlugins() {
-		return $this->isOpt( 'enable_autoupdate_plugins', 'Y' );
-	}
-
-	/**
-	 * @premium
-	 * @return bool
-	 */
-	public function isAutoupdateIndividualPlugins() {
-		return $this->isOpt( 'enable_individual_autoupdate_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isDelayUpdates() {
-		return $this->getDelayUpdatesPeriod() > 0;
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return bool
-	 */
-	public function isPluginSetToAutoupdate( $sPluginFile ) {
-		return in_array( $sPluginFile, $this->getAutoupdatePlugins() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isSendAutoupdatesNotificationEmail() {
-		return $this->isOpt( 'enable_upgrade_notification_email', 'Y' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getSelfAutoUpdateOpt() {
-		return $this->getOpt( 'autoupdate_plugin_self' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAutoUpdateCoreMinor() {
-		return !$this->isOpt( 'autoupdate_core', 'core_never' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAutoUpdateCoreMajor() {
-		return $this->isOpt( 'autoupdate_core', 'core_major' );
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return $this
-	 */
-	public function setPluginToAutoUpdate( $sPluginFile ) {
-		$aPlugins = $this->getAutoupdatePlugins();
-		$nKey = array_search( $sPluginFile, $aPlugins );
-
-		if ( $nKey === false ) {
-			$aPlugins[] = $sPluginFile;
-		}
-		else {
-			unset( $aPlugins[ $nKey ] );
-		}
-
-		return $this->setOpt( 'selected_plugins', $aPlugins );
-	}
-
-	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
+		/** @var Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		$aNotices = [
 			'title'    => __( 'Automatic Updates', 'wp-simple-firewall' ),
 			'messages' => []
@@ -160,7 +31,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		{ //really disabled?
 			$oWp = Services::WpGeneral();
 			if ( $this->isModOptEnabled() ) {
-				if ( $this->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
+				if ( $oOpts->isDisableAllAutoUpdates() && !$oWp->getWpAutomaticUpdater()->is_disabled() ) {
 					$aNotices[ 'messages' ][ 'disabled_auto' ] = [
 						'title'   => 'Auto Updates Not Really Disabled',
 						'message' => __( 'Automatic Updates Are Not Disabled As Expected.', 'wp-simple-firewall' ),
@@ -184,6 +55,9 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
+		/** @var Autoupdates\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		$aThis = [
 			'strings'      => [
 				'title' => __( 'Automatic Updates', 'wp-simple-firewall' ),
@@ -198,7 +72,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 		}
 		else {
 
-			$bAllDisabled = $this->isDisableAllAutoUpdates();
+			$bAllDisabled = $oOpts->isDisableAllAutoUpdates();
 			if ( $bAllDisabled ) {
 				$aThis[ 'key_opts' ][ 'disabled' ] = [
 					'name'    => __( 'Disabled All', 'wp-simple-firewall' ),
@@ -222,7 +96,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 					'href'    => $this->getUrl_DirectLinkToOption( 'autoupdate_core' ),
 				];
 
-				$bHasDelay = $this->isModOptEnabled() && $this->getDelayUpdatesPeriod();
+				$bHasDelay = $this->isModOptEnabled() && $oOpts->getDelayUpdatesPeriod();
 				$aThis[ 'key_opts' ][ 'delay' ] = [
 					'name'    => __( 'Update Delay', 'wp-simple-firewall' ),
 					'enabled' => $bHasDelay,
@@ -235,7 +109,7 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 
 				$sName = $this->getCon()->getHumanName();
 				$bSelfAuto = $this->isModOptEnabled()
-							 && in_array( $this->getSelfAutoUpdateOpt(), [ 'auto', 'immediate' ] );
+							 && in_array( $oOpts->getSelfAutoUpdateOpt(), [ 'auto', 'immediate' ] );
 				$aThis[ 'key_opts' ][ 'self' ] = [
 					'name'    => __( 'Self Auto-Update', 'wp-simple-firewall' ),
 					'enabled' => $bSelfAuto,
@@ -257,5 +131,152 @@ class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getNamespaceBase() {
 		return 'Autoupdates';
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isSendAutoupdatesNotificationEmail() {
+		return $this->isOpt( 'enable_upgrade_notification_email', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isDisableAllAutoUpdates() {
+		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isAutoUpdateCoreMajor() {
+		return $this->isOpt( 'autoupdate_core', 'core_major' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isAutoUpdateCoreMinor() {
+		return !$this->isOpt( 'autoupdate_core', 'core_never' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.4
+	 */
+	public function getSelfAutoUpdateOpt() {
+		return $this->getOpt( 'autoupdate_plugin_self' );
+	}
+
+	/**
+	 * @return array
+	 * @deprecated 8.4
+	 */
+	public function getDelayTracking() {
+		$aTracking = $this->getOpt( 'delay_tracking', [] );
+		if ( !is_array( $aTracking ) ) {
+			$aTracking = [];
+		}
+		$aTracking = Services::DataManipulation()->mergeArraysRecursive(
+			[
+				'core'    => [],
+				'plugins' => [],
+				'themes'  => [],
+			],
+			$aTracking
+		);
+		$this->setOpt( 'delay_tracking', $aTracking );
+
+		return $aTracking;
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.4
+	 */
+	public function getAutoupdatePlugins() {
+		$aSelected = [];
+		if ( $this->isAutoupdateIndividualPlugins() ) {
+			$aSelected = $this->getOpt( 'selected_plugins', [] );
+			if ( !is_array( $aSelected ) ) {
+				$aSelected = [];
+			}
+		}
+		return $aSelected;
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.4
+	 */
+	public function getDelayUpdatesPeriod() {
+		return $this->isPremium() ? $this->getOpt( 'update_delay', 0 )*DAY_IN_SECONDS : 0;
+	}
+
+	/**
+	 * @param array $aTrackingInfo
+	 * @return $this
+	 * @deprecated 8.4
+	 */
+	public function setDelayTracking( $aTrackingInfo ) {
+		return $this->setOpt( 'delay_tracking', $aTrackingInfo );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isAutoupdateAllPlugins() {
+		return $this->isOpt( 'enable_autoupdate_plugins', 'Y' );
+	}
+
+	/**
+	 * @premium
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isAutoupdateIndividualPlugins() {
+		return $this->isOpt( 'enable_individual_autoupdate_plugins', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isDelayUpdates() {
+		return $this->getDelayUpdatesPeriod() > 0;
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @return bool
+	 * @deprecated 8.4
+	 */
+	public function isPluginSetToAutoupdate( $sPluginFile ) {
+		return in_array( $sPluginFile, $this->getAutoupdatePlugins() );
+	}
+
+	/**
+	 * @param string $sPluginFile
+	 * @return $this
+	 * @deprecated 8.4
+	 */
+	public function setPluginToAutoUpdate( $sPluginFile ) {
+		$aPlugins = $this->getAutoupdatePlugins();
+		$nKey = array_search( $sPluginFile, $aPlugins );
+
+		if ( $nKey === false ) {
+			$aPlugins[] = $sPluginFile;
+		}
+		else {
+			unset( $aPlugins[ $nKey ] );
+		}
+
+		return $this->setOpt( 'selected_plugins', $aPlugins );
 	}
 }

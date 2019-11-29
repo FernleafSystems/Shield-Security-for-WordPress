@@ -83,16 +83,4 @@ class Select extends Base\Select {
 	public function filterByUsername( $sUsername ) {
 		return $this->addWhereEquals( 'wp_username', trim( $sUsername ) );
 	}
-
-	/**
-	 * @param string $sContext
-	 * @return $this
-	 * @deprecated 8.1
-	 */
-	public function filterByContext( $sContext ) {
-		if ( !empty( $sContext ) && strtolower( $sContext ) != 'all' ) {
-			$this->addWhereEquals( 'context', $sContext );
-		}
-		return $this;
-	}
 }

@@ -29,16 +29,16 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	public function ajaxExec_TogglePluginAutoupdate() {
-		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $oMod */
-		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		$bSuccess = false;
 		$sMessage = __( 'You do not have permissions to perform this action.', 'wp-simple-firewall' );
 
-		if ( $oMod->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
+		if ( $oOpts->isAutoupdateIndividualPlugins() && $this->getCon()->isPluginAdmin() ) {
 			$oWpPlugins = Services::WpPlugins();
 			$sFile = Services::Request()->post( 'pluginfile' );
 			if ( $oWpPlugins->isInstalled( $sFile ) ) {
-				$oMod->setPluginToAutoUpdate( $sFile );
+				$oOpts->setPluginToAutoUpdate( $sFile );
 
 				$sMessage = sprintf( __( 'Plugin "%s" will %s.', 'wp-simple-firewall' ),
 					$oWpPlugins->getPluginAsVo( $sFile )->Name,

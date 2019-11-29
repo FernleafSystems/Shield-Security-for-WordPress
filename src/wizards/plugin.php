@@ -194,7 +194,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'ip_detect':
 					$aAdditional = [
 						'hrefs' => [
-							'visitor_ip' => 'https://icwp.io/visitorip',
+							'visitor_ip' => 'https://shsec.io/visitorip',
 						]
 					];
 					break;
@@ -203,7 +203,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'import':
 					$aAdditional = [
 						'hrefs' => [
-							'blog_importexport' => 'https://icwp.io/av'
+							'blog_importexport' => 'https://shsec.io/av'
 						],
 						'imgs'  => [
 							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),
@@ -219,7 +219,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 							'user_email' => $oUser->user_email
 						],
 						'hrefs' => [
-							'privacy_policy' => $this->getMod()->getDef( 'href_privacy_policy' )
+							'privacy_policy' => $this->getOptions()->getDef( 'href_privacy_policy' )
 						],
 					];
 					break;
@@ -272,7 +272,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				case 'import':
 					$aAdditional = [
 						'hrefs' => [
-							'blog_importexport' => 'https://icwp.io/av'
+							'blog_importexport' => 'https://shsec.io/av'
 						],
 						'imgs'  => [
 							'shieldnetworkmini' => $oConn->getPluginUrl_Image( 'shield/shieldnetworkmini.png' ),

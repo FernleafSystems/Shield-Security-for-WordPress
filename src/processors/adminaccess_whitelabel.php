@@ -57,7 +57,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\Shie
 
 	public function hideFromPluginEditor() {
 		$oCon = $this->getCon();
-		$sJs = $this->loadDP()->readFileContentsUsingInclude( $oCon->getPath_AssetJs( 'whitelabel.js' ) );
+		$sJs = Services::Data()->readFileContentsUsingInclude( $oCon->getPath_AssetJs( 'whitelabel.js' ) );
 		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $sJs, $oCon->getPluginBaseFile() ) );
 	}
 

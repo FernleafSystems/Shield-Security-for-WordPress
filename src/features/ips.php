@@ -173,7 +173,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
 
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
-			/** @var ICWP_WPSF_Processor_Ips $oPro */
+			/** @var \ICWP_WPSF_Processor_Ips $oPro */
 			$oPro = $this->getProcessor();
 
 			$aWhiteIps = $oPro->getWhitelistIps();
@@ -190,123 +190,5 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function getNamespaceBase() {
 		return 'IPs';
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.1
-	 */
-	public function getOptTransgressionLimit() {
-		return $this->getOpt( 'transgression_limit' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAutoBlackListEnabled() {
-		return ( $this->getOptTransgressionLimit() > 0 );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledTrack404() {
-		return $this->isSelectOptionEnabled( 'track_404' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledTrackFakeWebCrawler() {
-		return $this->isSelectOptionEnabled( 'track_fakewebcrawler' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledTrackLoginInvalid() {
-		return $this->isSelectOptionEnabled( 'track_logininvalid' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledTrackLoginFailed() {
-		return $this->isSelectOptionEnabled( 'track_loginfailed' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledTrackLinkCheese() {
-		return $this->isSelectOptionEnabled( 'track_linkcheese' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledTrackXmlRpc() {
-		return $this->isSelectOptionEnabled( 'track_xmlrpc' );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isTrackOptTransgression( $sOptionKey ) {
-		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isTrackOptDoubleTransgression( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'transgression-double' );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isTrackOptImmediateBlock( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'block' );
-	}
-
-	/**
-	 * @param string $sOptionKey
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	protected function isSelectOptionEnabled( $sOptionKey ) {
-		$bOptPrem = $this->getOptions()->isOptPremium( $sOptionKey );
-		return ( !$bOptPrem || $this->getCon()->isPremiumActive() ) && !$this->isOpt( $sOptionKey, 'disabled' );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.1
-	 */
-	public function getAutoExpireTime() {
-		$sConstant = strtoupper( $this->getOpt( 'auto_expire' ).'_IN_SECONDS' );
-		return defined( $sConstant ) ? constant( $sConstant ) : ( DAY_IN_SECONDS*30 );
-	}
-
-	/**
-	 * @return Shield\Databases\IPs\Handler
-	 * @deprecated 8.1.2
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\IPs\Handler();
 	}
 }

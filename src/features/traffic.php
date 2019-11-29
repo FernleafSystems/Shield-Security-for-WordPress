@@ -167,17 +167,9 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 	/**
 	 * @return Shield\Databases\Traffic\Handler
-	 * @deprecated 8.1.2
+	 * @deprecated 8.4
 	 */
 	protected function loadDbHandler() {
 		return new Shield\Databases\Traffic\Handler();
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.1
-	 */
-	public function getMaxEntries() {
-		return (int)$this->getOpt( 'max_entries' );
 	}
 }

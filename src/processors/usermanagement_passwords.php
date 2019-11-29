@@ -14,7 +14,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100, 3 );
 		add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100, 3 );
-		add_filter( 'login_message', [ $this, 'addPasswordResetMessage' ] );
 	}
 
 	/**
@@ -41,7 +40,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	private function captureLogin( $oUser ) {
 		$sPassword = $this->getLoginPassword();
 
-		if ( $this->loadRequest()->isMethodPost() && !$this->isLoginCaptured()
+		if ( Services::Request()->isPost() && !$this->isLoginCaptured()
 			 && $oUser instanceof WP_User && !empty( $sPassword ) ) {
 			$this->setLoginCaptured();
 			try {
@@ -64,18 +63,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param string $sMessage
-	 * @return string
-	 */
-	public function addPasswordResetMessage( $sMessage = '' ) {
-		$sFlushed = $this->loadWpNotices()
-						 ->flushFlash()
-						 ->getFlashText();
-		// we overwrite rather than augment the message
-		return empty( $sFlushed ) ? $sMessage : sprintf( '<p class="message">%s</p>', $sFlushed );
-	}
-
-	/**
 	 * @param WP_User $oUser
 	 */
 	public function onPasswordReset( $oUser ) {
@@ -87,15 +74,15 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processExpiredPassword() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isPassExpirationEnabled() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isPassExpirationEnabled() ) {
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
-				if ( Services::Request()->ts() - $nPassStartedAt > $oFO->getPassExpireTimeout() ) {
+				if ( Services::Request()->ts() - $nPassStartedAt > $oMod->getPassExpireTimeout() ) {
 					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oFO->getPassExpireDays() )
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oMod->getPassExpireDays() )
 					);
 				}
 			}
@@ -103,7 +90,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processFailedCheckPassword() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
 		$oFO = $this->getMod();
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 
@@ -186,12 +173,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @throws \Exception
 	 */
 	protected function applyPasswordChecks( $sPassword ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
 		$this->testPasswordMeetsMinimumLength( $sPassword );
 		$this->testPasswordMeetsMinimumStrength( $sPassword );
-		if ( $oFO->isPassPreventPwned() ) {
+		if ( $oMod->isPassPreventPwned() ) {
 			$this->sendRequestToPwnedRange( $sPassword );
 		}
 	}
@@ -258,12 +245,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @param string $sPass
 	 * @return bool
 	 * @throws \Exception
-	 * @deprecated 8.1.2
+	 * @deprecated 8.4
 	 */
 	protected function sendRequestToPwned( $sPass ) {
 		$oHttpReq = Services::HttpRequest();
 		$bSuccess = $oHttpReq->get(
-			sprintf( '%s/%s', $this->getMod()->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
+			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
 			[
 				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
 			]
@@ -321,7 +308,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		$sSubHash = substr( $sPassHash, 0, 5 );
 
 		$bSuccess = $oHttpReq->get(
-			sprintf( '%s/%s', $this->getMod()->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
+			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_range' ), $sSubHash ),
 			[
 				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
 			]
@@ -383,7 +370,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 
 		// Edd: edd_user_pass; Woo: password;
 		foreach ( [ 'pwd', 'pass1' ] as $sKey ) {
-			$sP = $this->loadRequest()->post( $sKey );
+			$sP = Services::Request()->post( $sKey );
 			if ( !empty( $sP ) ) {
 				$sPass = $sP;
 				break;

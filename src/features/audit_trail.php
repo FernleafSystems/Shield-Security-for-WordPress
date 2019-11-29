@@ -24,16 +24,6 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	}
 
 	/**
-	 * @return int
-	 * @deprecated 8.1 - TODO: Need to handle isPremium() within Options class
-	 */
-	public function getMaxEntries() {
-		/** @var AuditTrail\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $this->isPremium() ? (int)$oOpts->getOpt( 'audit_trail_max_entries' ) : $oOpts->getDefaultMaxEntries();
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getAllContexts() {
@@ -146,7 +136,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 			$oOpts->isAuditThemes() ? $aAudit[] = __( 'themes', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'themes', 'wp-simple-firewall' );
 			$oOpts->isAuditPosts() ? $aAudit[] = __( 'posts', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'posts', 'wp-simple-firewall' );
 			$oOpts->isAuditEmails() ? $aAudit[] = __( 'emails', 'wp-simple-firewall' ) : $aNonAudit[] = __( 'emails', 'wp-simple-firewall' );
-			$this->isAuditWp() ? $aAudit[] = 'WP' : $aNonAudit[] = 'WP';
+			$oOpts->isAuditWp() ? $aAudit[] = 'WP' : $aNonAudit[] = 'WP';
 
 			if ( empty( $aNonAudit ) ) {
 				$aThis[ 'key_opts' ][ 'audit' ] = [
@@ -194,109 +184,5 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 	 */
 	protected function getNamespaceBase() {
 		return 'AuditTrail';
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAuditEmails() {
-		return $this->isOpt( 'enable_audit_context_emails', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAuditPlugins() {
-		return $this->isOpt( 'enable_audit_context_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAuditPosts() {
-		return $this->isOpt( 'enable_audit_context_posts', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAuditShield() {
-		return $this->isOpt( 'enable_audit_context_wpsf', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAuditThemes() {
-		return $this->isOpt( 'enable_audit_context_themes', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAuditUsers() {
-		return $this->isOpt( 'enable_audit_context_users', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isAuditWp() {
-		return $this->isOpt( 'enable_audit_context_wordpress', 'Y' );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.1
-	 */
-	public function getAutoCleanDays() {
-		return (int)$this->getOpt( 'audit_trail_auto_clean' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledAuditing() {
-		/** @var AuditTrail\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isAuditEmails()
-			   || $oOpts->isAuditPlugins()
-			   || $oOpts->isAuditThemes()
-			   || $oOpts->isAuditPosts()
-			   || $oOpts->isAuditShield()
-			   || $oOpts->isAuditUsers()
-			   || $oOpts->isAuditWp();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.1
-	 */
-	public function isEnabledChangeTracking() {
-		return !$this->isOpt( 'enable_change_tracking', 'disabled' );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.1
-	 */
-	public function getDefaultMaxEntries() {
-		return $this->getDef( 'audit_trail_default_max_entries' );
-	}
-
-	/**
-	 * @return Shield\Databases\AuditTrail\Handler
-	 * @deprecated 8.1.2
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\AuditTrail\Handler();
 	}
 }

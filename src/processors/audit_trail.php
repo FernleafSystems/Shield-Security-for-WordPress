@@ -12,7 +12,7 @@ class ICWP_WPSF_Processor_AuditTrail extends Modules\BaseShield\ShieldProcessor 
 		if ( $oOpts->isEnabledAuditing() ) {
 			$this->getSubProAuditor()->execute();
 		}
-		if ( $oOpts->isEnabledChangeTracking() ) {
+		if ( false && $oOpts->isEnabledChangeTracking() ) {
 			$this->getSubProChangeTracking()->execute();
 		}
 	}

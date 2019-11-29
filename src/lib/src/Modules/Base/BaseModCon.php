@@ -133,6 +133,9 @@ class BaseModCon extends Deprecated\Foundation {
 		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
 			return $bSupported || $this->isSupportedEvent( $sEventTag );
 		}, 10, 2 );
+		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
+			return array_merge( $aEvents, $this->getEvents() );
+		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 
@@ -479,14 +482,6 @@ class BaseModCon extends Deprecated\Foundation {
 				str_replace( ' ', '', ucwords( str_replace( '_', ' ', $this->getSlug() ) ) )
 			]
 		);
-	}
-
-	/**
-	 * @return \ICWP_WPSF_OptionsVO
-	 * @deprecated 8.1
-	 */
-	public function getOptionsVo() {
-		return $this->getOptions();
 	}
 
 	/**
@@ -1513,8 +1508,8 @@ class BaseModCon extends Deprecated\Foundation {
 				'has_wizard'            => $this->hasWizard(),
 			],
 			'hrefs'         => [
-				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
-				'goprofooter'    => 'https://icwp.io/goprofooter',
+				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
+				'goprofooter'    => 'https://shsec.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
 				'wizard_landing' => $this->getUrl_WizardLanding()
 			],
@@ -1905,48 +1900,18 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @param string $sOpt
-	 * @param int    $nAt
-	 * @return $this
-	 */
-	protected function setOptAt( $sOpt, $nAt = null ) {
-		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
-		return $this->setOpt( $sOpt, $nAt );
-	}
-
-	/**
 	 * @return null|Shield\Modules\Base\ShieldOptions|mixed
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
-
-			$oOpts = $this->loadOptions()->setMod( $this );;
-
 			$oCon = $this->getCon();
-			$this->oOpts = $oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
-								 ->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
-								 ->setOptionsStorageKey( $this->getOptionsStorageKey() )
-								 ->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
+			$this->oOpts = $this->loadOptions()->setMod( $this );
+			$this->oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
+						->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
+						->setOptionsStorageKey( $this->getOptionsStorageKey() )
+						->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 		}
 		return $this->oOpts;
-	}
-
-	/**
-	 * @return null|Shield\Databases\Base\Handler|mixed
-	 */
-	public function getDbHandler() {
-		if ( !isset( $this->oDbh ) ) {
-			$this->oDbh = $this->loadDbHandler();
-			if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
-				try {
-					$this->oDbh->setMod( $this )
-							   ->tableInit();
-				}
-				catch ( \Exception$oE ) {
-				}
-			}
-		}
-		return $this->oDbh;
 	}
 
 	/**

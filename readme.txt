@@ -1,6 +1,6 @@
 === Shield Security: Protection with Smarter Automation ===
 Contributors: onedollarplugin, paultgoodchild
-Donate link: https://icwp.io/bw
+Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: scan, malware, firewall, two factor authentication, login protection
@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.3.0
+Stable tag: 8.4.0
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -107,9 +107,9 @@ From November 2017, Shield Security now has a Pro version for those that need to
 ### Dedicated Premium Support
 
 The Shield Security team prioritises email technical support over the WordPress.org forums.
-Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://icwp.io/ab).
+Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://shsec.io/ab).
 
-Learn more on going Pro at [our One Dollar Plugin store](https://icwp.io/ab).
+Discover all the perks turning your security Pro at [our Shield Security store](https://shsec.io/ab).
 
 = Our Mission =
 
@@ -136,19 +136,19 @@ downloading and installing Shield now
 * Exclusive membership to a private security group where you can learn more about WordPress security.
 
 = Super Admin Security Protection =
-The **only** WordPress security plugin with a WordPress-independent security key to protect itself. [more info](https://icwp.io/wpsf05)
+The **only** WordPress security plugin with a WordPress-independent security key to protect itself. [more info](https://shsec.io/wpsf05)
 
 = Audit Trail Activity Monitor =
 With the Audit Trail you can review all major actions that have taken place on your WordPress site, by all users.
 
 = Firewall Protection =
-Blocks all web requests to the site that violate the firewall security rules! [more info](https://icwp.io/wpsf06)
+Blocks all web requests to the site that violate the firewall security rules! [more info](https://shsec.io/wpsf06)
 
 = Brute Force Login Guard and Two-Factor Authentication =
-Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](https://icwp.io/wpsf07)
+Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](https://shsec.io/wpsf07)
 
 = Comment SPAM (Full replacement and upgrade from Akismet) =
-Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](https://icwp.io/wpsf08)
+Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](https://shsec.io/wpsf08)
 
 = FABLE - Fully Automatic Black Listing Engine =
 No more manual IP Black lists. This plugin handles the blocking of IP addresses for hosts that are naughty.
@@ -172,9 +172,9 @@ and force users to verify themselves when they login.
 
 Three core security features provide layers to protect the WordPress Login system.
 
-1.	[Email-based 2-Factor Login Authentication](https://icwp.io/2v) based on IP address! (prevents brute force login attacks)
-1.	[Login Cooldown Interval](https://icwp.io/2t) - WordPress will only process 1 login per interval in seconds (prevents brute force login attacks)
-1.	[GASP Anti-Bot Login Form Protection](https://icwp.io/2u) - Adds 2 protection checks for all WordPress login attempts (prevents brute force login attacks using Bots)
+1.	[Email-based 2-Factor Login Authentication](https://shsec.io/2v) based on IP address! (prevents brute force login attacks)
+1.	[Login Cooldown Interval](https://shsec.io/2t) - WordPress will only process 1 login per interval in seconds (prevents brute force login attacks)
+1.	[GASP Anti-Bot Login Form Protection](https://shsec.io/2u) - Adds 2 protection checks for all WordPress login attempts (prevents brute force login attacks using Bots)
 
 These options alone will protect and secure your WordPress sites from nearly all forms of Brute Force login attacks.
 
@@ -227,7 +227,7 @@ A new menu item will appear on the left-hand side called 'Shield'.
 
 == Frequently Asked Questions ==
 
-Please see the dedicated [help centre](https://icwp.io/firewallhelp) for details on features and some FAQs.
+Please see the dedicated [help centre](https://shsec.io/firewallhelp) for details on features and some FAQs.
 
 = How does the Shield compare with other WordPress Security Plugins? =
 
@@ -318,15 +318,15 @@ When enabled the plugin will prevent more than 1 login attempt to your site ever
 of 60 seconds, only 1 login attempt will be processed every 60 seconds.  If you login incorrectly, you wont be able to attempt another
 login for a further 60 seconds.
 
-More Info: https://icwp.io/2t
+More Info: https://shsec.io/2t
 
 = How does the GASP Login Guard work? =
 
-This is best [described on the blog](https://icwp.io/2u)
+This is best [described on the blog](https://shsec.io/2u)
 
 = How does the 2-factor authentication work? =
 
-[2-Factor Authentication is best described here](https://icwp.io/2v).
+[2-Factor Authentication is best described here](https://shsec.io/2v).
 
 = I'm getting an update message although I have auto update enabled? =
 
@@ -368,101 +368,17 @@ You'll also have access to our email technical support team.
 
 You will always be able to use Shield Security and its free features in-full.
 
-[Go Pro for just $1/month](https://icwp.io/aa).
+[Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.3.0 - Current Release =
-*Released: 18th November, 2019* - [Release Notes](https://icwp.io/g3)
+= 8.4.0 - Current Release =
+*Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
 
-* **(v.0)**  IMPROVED:	Improvements to Malware scanner to [now track malware results](https://icwp.io/g3) by specific lines, not just by file.
-* **(v.0)**  IMPROVED:	Support colons (:) in IP addresses during visitor IP address detection.
-* **(v.0)**  IMPROVED:	Ensure license lookups use the correct site URL.
-* **(v.0)**  IMPROVED:	Attempt to ensure that if there is an interruption in the API, malware patterns are available for scanning.
-* **(v.0)**  IMPROVED:	Added default firewall whitelist parameter for AffiliateWP requests.
-* **(v.0)**  IMPROVED:	Spanish, French, Japanese translations.
+* **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
+* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
+* **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
+* **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
+* **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
+* **(v.0)**  IMPROVED:	Consolidate Events/Statistics database table to significantly reduce DB size.
+* **(v.0)**  CLEANED:	Significant clean-out of old, deprecated, retired code.
 
-= 8.2 - Series =
-*Released: 1st October, 2019* - [Release Notes](https://icwp.io/g0)
-
-* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - [more info](https://icwp.io/g1).
-* **(v.3)**  FIXED:		Fix for Rest API detection.
-* **(v.3)**  FIXED:		Fix for translation of some strings.
-* **(v.2)**  FIXED:		Fixes for scans running under Windows/IIS.
-* **(v.2)**  IMPROVED:	Adds a check that a site can send an HTTP request to itself before allowing scans to run.
-* **(v.2)**  IMPROVED:	Scans clean up after themselves better, if they fail to run.
-* **(v.2)**  IMPROVED:	Server's own IP address detection when site migrated to a new host.
-* **(v.2)**  UPDATED:	International translations.
-* **(v.2)**  FIXED:		PHP notices when data wasn't as expected.
-* **(v.1)**  IMPROVED:	Further reduce Malware false positives by also using SVN trunk data when verifying files for plugins and themes.
-* **(v.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
-* **(v.1)**  ADDED:		Support for using [WP Hashes.com](https://wphashes.com) for WordPress.org themes (already done for plugins).
-* **(v.1)**  FIXED:		PHP notices in the logs.
-* **(v.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
-* **(v.0)**  NEW:		Traffic Watcher feature is now free for all users (no longer Pro-only).
-* **(v.0)**  IMPROVED:	Scanning cron is improved and more efficient.
-* **(v.0)**  ADDED:		Bulk Delete/Repair/Ignore actions now available for Malware scan results.
-* **(v.0)**  IMPROVED:	Malware scan results now provide details of affected line numbers and patterns discovered.
-* **(v.0)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
-* **(v.0)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
-* **(v.0)**  IMPROVED:	Malware scanner performance improved with caching.
-* **(v.0)**  IMPROVED:	Malware auto-repair now works more consistently.
-* **(v.0)**  IMPROVED:	Updated default firewall whitelist rules.
-* **(v.0)**  IMPROVED:	If the PWNED Passwords API request fails entirely, the password check is skipped.
-* **(v.0)**  ADDED:		Japanese translations are at 100%.
-* **(v.0)**  IMPROVED:	Dutch translations are greatly improved (a huge thank you to Fred!).
-* **(v.0)**  FIXED:		Audit Trail correctly logs multiple occurrences for the same type of event on the same page request.
-* **(v.0)**  FIXED:		Audit Trail now correctly logs Google reCAPTCHA failure events.
-* **(v.0)**  FIXED:		PHP error when firewall was set to kill response without a user message.
-
-= 8.1 - Series =
-*Released: 18th September, 2019* - [Release Notes](https://icwp.io/fy)
-
-* **(v.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`
-* **(v.0)**  IMPROVED:	Massive improvements to asynchronous scans in performance and reliability.
-* **(v.0)**  ADDED:		[**PRO**] Possible to supply multiple email addresses for Administrator login notifications.
-* **(v.0)**  ADDED:		New firewall whitelist rule to prevent firewall blocks when activating certain plugins.
-* **(v.0)**  IMPROVED:	Prevent errors caused by other plugins not passing correctly-formatted data through WP filters.
-* **(v.0)**  ADDED:		Japanese translations (14%).
-* **(v.0)**  IMPROVED:	Plugin locale now respects user profile locale setting.
-* **(v.0)**  IMPROVED:	Audit Trail filter for specific events.
-* **(v.0)**  IMPROVED:	Lots of cleanup of deprecated PHP code following the the v7-v8 upgrade.
-
-= 8.0 - Series =
-*Released: 27th August, 2019* - [Release Notes](https://icwp.io/fv)
-
-* **(v.2)**  IMPROVED:	Password strength metering now better aligns with WordPress library (PHP 5.6+)
-* **(v.2)**  IMPROVED:	Dutch translations have been adjusted.
-* **(v.2)**  FIXED:		Setting 'Month' for IP block duration wasn't being applied.
-* **(v.2)**  FIXED:		Certain admin notices not displayed when they should be.
-* **(v.1)**  FIXED:		Comment SPAM blocking wasn't working if set to "Detect and Reject".
-* **(v.1)**  FIXED:		Shield Widget/Badge broken in some cases.
-* **(v.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://icwp.io/gistshieldlocale).
-* **(v.1)**  ADDED:		Russian translations are now at 100% and some Dutch translations have been adjusted.
-* **(v.0)**  NEW:		[**PRO**] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
-* **(v.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
-* **(v.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.
-* **(v.0)**  IMPROVED:	Plugin notification system is much improved.
-* **(v.0)**  IMPROVED:	[**PRO**] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://icwp.io/fw).
-* **(v.0)**  CHANGED:	Comment SPAM system now uses WordPress Transients API instead of dedicated DB table.
-* **(v.0)**  ADDED:		100% Translation coverage for French, Spanish, German, Portuguese, Serbian, Bosnian, Dutch. (Russian on the way)
-* **(v.0)**  CHANGED:	Major code cleaning/refactoring for much of the plugin. More to come.
-
-= 7.4 - Series =
-*Released: 13th May, 2019* - [Release Notes](https://icwp.io/fc)
-
-* **(v.2)**  NEW:		Options finder/jumper menu lets you find and jump to any option in the plugin instantly.
-* **(v.2)**  NEW:		Help/explainer videos for a few sections - more to come.
-* **(v.2)**  FIXES:		Fixes for a few problems introduced with the recent UI changes.
-* **(v.2)**  FIXED:		Welcome wizard launching was broken.
-* **(v.1)**  NEW:		Adjustments and redesign of Shield options pages.
-* **(v.1)**  IMPROVED:	Further prep for better internationalization.
-* **(v.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://icwp.io/fa)
-* **(v.0)**  NEW:		Comment SPAM - Increase minimum number of approved comments before scanning is skipped
-* **(v.0)**  NEW:		[**PRO**] Comment SPAM - Trusted user roles where comments scanning is skipped
-* **(v.0)**  IMPROVED:	AntiBot JS was improperly included when not required.
-* **(v.0)**  IMPROVED:	Added a GeoIP caching table and removed bundled GeoIP database - greatly reduces download size.
-* **(v.0)**  FIXED:		Inconsistent behaviour when PWA plugin is active and it infinitely reloads pages.
-* **(v.0)**  FIXED:		Inconsistent behaviour with Anonymous API blocking.
-* **(v.0)**  IMPROVED:	Code improvements and refactoring.
-* **(v.0)**  ADDED:		Prep for upcoming malware scanner.
-
-#### [Full Changelog](https://icwp.io/shieldwporgfullchangelog)
+#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)

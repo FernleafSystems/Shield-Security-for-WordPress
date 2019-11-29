@@ -1,11 +1,105 @@
+= 8.3 - Series =
+*Released: 18th November, 2019* - [Release Notes](https://shsec.io/g3)
+
+* **(v.0)**  IMPROVED:	Improvements to Malware scanner to [now track malware results](https://shsec.io/g3) by specific lines, not just by file.
+* **(v.0)**  IMPROVED:	Support colons (:) in IP addresses during visitor IP address detection.
+* **(v.0)**  IMPROVED:	Ensure license lookups use the correct site URL.
+* **(v.0)**  IMPROVED:	Attempt to ensure that if there is an interruption in the API, malware patterns are available for scanning.
+* **(v.0)**  IMPROVED:	Added default firewall whitelist parameter for AffiliateWP requests.
+* **(v.0)**  IMPROVED:	Spanish, French, Japanese translations.
+
+= 8.2 - Series =
+*Released: 1st October, 2019* - [Release Notes](https://shsec.io/g0)
+
+* **(v.3)**  FIXED:		Fix for reported RXSS vulnerability - [more info](https://shsec.io/g1).
+* **(v.3)**  FIXED:		Fix for Rest API detection.
+* **(v.3)**  FIXED:		Fix for translation of some strings.
+* **(v.2)**  FIXED:		Fixes for scans running under Windows/IIS.
+* **(v.2)**  IMPROVED:	Adds a check that a site can send an HTTP request to itself before allowing scans to run.
+* **(v.2)**  IMPROVED:	Scans clean up after themselves better, if they fail to run.
+* **(v.2)**  IMPROVED:	Server's own IP address detection when site migrated to a new host.
+* **(v.2)**  UPDATED:	International translations.
+* **(v.2)**  FIXED:		PHP notices when data wasn't as expected.
+* **(v.1)**  IMPROVED:	Further reduce Malware false positives by also using SVN trunk data when verifying files for plugins and themes.
+* **(v.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
+* **(v.1)**  ADDED:		Support for using [WP Hashes.com](https://wphashes.com) for WordPress.org themes (already done for plugins).
+* **(v.1)**  FIXED:		PHP notices in the logs.
+* **(v.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
+* **(v.0)**  NEW:		Traffic Watcher feature is now free for all users (no longer Pro-only).
+* **(v.0)**  IMPROVED:	Scanning cron is improved and more efficient.
+* **(v.0)**  ADDED:		Bulk Delete/Repair/Ignore actions now available for Malware scan results.
+* **(v.0)**  IMPROVED:	Malware scan results now provide details of affected line numbers and patterns discovered.
+* **(v.0)**  IMPROVED:	Malware scanner only scans `wp-admin`, `wp-includes`, `wp-content` folders, and files in top-level directory.
+* **(v.0)**  IMPROVED:	Malware scanner now excludes `wp-content/cache/` directory.
+* **(v.0)**  IMPROVED:	Malware scanner performance improved with caching.
+* **(v.0)**  IMPROVED:	Malware auto-repair now works more consistently.
+* **(v.0)**  IMPROVED:	Updated default firewall whitelist rules.
+* **(v.0)**  IMPROVED:	If the PWNED Passwords API request fails entirely, the password check is skipped.
+* **(v.0)**  ADDED:		Japanese translations are at 100%.
+* **(v.0)**  IMPROVED:	Dutch translations are greatly improved (a huge thank you to Fred!).
+* **(v.0)**  FIXED:		Audit Trail correctly logs multiple occurrences for the same type of event on the same page request.
+* **(v.0)**  FIXED:		Audit Trail now correctly logs Google reCAPTCHA failure events.
+* **(v.0)**  FIXED:		PHP error when firewall was set to kill response without a user message.
+
+= 8.1 - Series =
+*Released: 18th September, 2019* - [Release Notes](https://shsec.io/fy)
+
+* **(v.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`
+* **(v.0)**  IMPROVED:	Massive improvements to asynchronous scans in performance and reliability.
+* **(v.0)**  ADDED:		[**PRO**] Possible to supply multiple email addresses for Administrator login notifications.
+* **(v.0)**  ADDED:		New firewall whitelist rule to prevent firewall blocks when activating certain plugins.
+* **(v.0)**  IMPROVED:	Prevent errors caused by other plugins not passing correctly-formatted data through WP filters.
+* **(v.0)**  ADDED:		Japanese translations (14%).
+* **(v.0)**  IMPROVED:	Plugin locale now respects user profile locale setting.
+* **(v.0)**  IMPROVED:	Audit Trail filter for specific events.
+* **(v.0)**  IMPROVED:	Lots of cleanup of deprecated PHP code following the the v7-v8 upgrade.
+
+= 8.0 - Series =
+*Released: 27th August, 2019* - [Release Notes](https://shsec.io/fv)
+
+* **(v.2)**  IMPROVED:	Password strength metering now better aligns with WordPress library (PHP 5.6+)
+* **(v.2)**  IMPROVED:	Dutch translations have been adjusted.
+* **(v.2)**  FIXED:		Setting 'Month' for IP block duration wasn't being applied.
+* **(v.2)**  FIXED:		Certain admin notices not displayed when they should be.
+* **(v.1)**  FIXED:		Comment SPAM blocking wasn't working if set to "Detect and Reject".
+* **(v.1)**  FIXED:		Shield Widget/Badge broken in some cases.
+* **(v.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://shsec.io/gistshieldlocale).
+* **(v.1)**  ADDED:		Russian translations are now at 100% and some Dutch translations have been adjusted.
+* **(v.0)**  NEW:		[**PRO**] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
+* **(v.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
+* **(v.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.
+* **(v.0)**  IMPROVED:	Plugin notification system is much improved.
+* **(v.0)**  IMPROVED:	[**PRO**] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://shsec.io/fw).
+* **(v.0)**  CHANGED:	Comment SPAM system now uses WordPress Transients API instead of dedicated DB table.
+* **(v.0)**  ADDED:		100% Translation coverage for French, Spanish, German, Portuguese, Serbian, Bosnian, Dutch. (Russian on the way)
+* **(v.0)**  CHANGED:	Major code cleaning/refactoring for much of the plugin. More to come.
+
+= 7.4 - Series =
+*Released: 13th May, 2019* - [Release Notes](https://shsec.io/fc)
+
+* **(v.2)**  NEW:		Options finder/jumper menu lets you find and jump to any option in the plugin instantly.
+* **(v.2)**  NEW:		Help/explainer videos for a few sections - more to come.
+* **(v.2)**  FIXES:		Fixes for a few problems introduced with the recent UI changes.
+* **(v.2)**  FIXED:		Welcome wizard launching was broken.
+* **(v.1)**  NEW:		Adjustments and redesign of Shield options pages.
+* **(v.1)**  IMPROVED:	Further prep for better internationalization.
+* **(v.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://shsec.io/fa)
+* **(v.0)**  NEW:		Comment SPAM - Increase minimum number of approved comments before scanning is skipped
+* **(v.0)**  NEW:		[**PRO**] Comment SPAM - Trusted user roles where comments scanning is skipped
+* **(v.0)**  IMPROVED:	AntiBot JS was improperly included when not required.
+* **(v.0)**  IMPROVED:	Added a GeoIP caching table and removed bundled GeoIP database - greatly reduces download size.
+* **(v.0)**  FIXED:		Inconsistent behaviour when PWA plugin is active and it infinitely reloads pages.
+* **(v.0)**  FIXED:		Inconsistent behaviour with Anonymous API blocking.
+* **(v.0)**  IMPROVED:	Code improvements and refactoring.
+* **(v.0)**  ADDED:		Prep for upcoming malware scanner.
 
 = 7.3 - Series =
-*Released: 15th April, 2019* - [Release Notes](https://icwp.io/f0)
+*Released: 15th April, 2019* - [Release Notes](https://shsec.io/f0)
 
-* **(v.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://icwp.io/ez) options.
+* **(v.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://shsec.io/ez) options.
 * **(v.2)**  CHANGED:	Added a workaround for WPML plugin using old, buggy version of TWIG library.
 * **(v.1)**  FIX:		Protection against 404 tracking blocking visitors in some cases.
-* **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://icwp.io/ez) - rules to catch and block bad bots.
+* **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://shsec.io/ez) - rules to catch and block bad bots.
 * **(v.0)**  ADDED:		Date picker for filtering Audit Log entries.
 * **(v.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
 * **(v.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
@@ -13,18 +107,18 @@
 * **(v.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
 
 = 7.2 - Series =
-*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
+*Released: 7th March, 2019* - [Release Notes](https://shsec.io/ep)
 
 * **(v.2)**  SKIPPED:	with error.
 * **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
 * **(v.1)**  FIX:		Fix PHP warning notice on login page.
 * **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
-* **(v.0)**  NEW:		[Scanner to detect and alert](https://icwp.io/eq) to presence of abandoned plugins.
+* **(v.0)**  NEW:		[Scanner to detect and alert](https://shsec.io/eq) to presence of abandoned plugins.
 * **(v.0)**  FIX:		Fix bug with Security Admin passwords.
 * **(v.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
 
 = 7.1 - Series =
-*Released: 21st February, 2019* - [Release Notes](https://icwp.io/ek)
+*Released: 21st February, 2019* - [Release Notes](https://shsec.io/ek)
 
 * **(v.2)**  IMPROVED:	Firewall email notification content now better reflect the information in the audit trail.
 * **(v.2)**  FIX:		Firewall email notification was breaking in some instances.
@@ -38,7 +132,7 @@
 * **(v.0)**  IMPROVED:	Consolidate crons into fewer crons. e.g. all scans run under the same cron.
 
 = 7.0 - Series =
-*Released: 28th January, 2019* - [Release Notes](https://icwp.io/ef)
+*Released: 28th January, 2019* - [Release Notes](https://shsec.io/ef)
 
 * **(v.4)**  IMPROVED:	Refactored IP address blocking with improved audit trail messages.
 * **(v.4)**  CHANGED:	Expanded anonymous REST API whitelist to include 'wpstatistics' namespace.
@@ -63,7 +157,7 @@
 * **(v.0)**  CHANGED:	Too many many changes and bug fixes to list -best to just take a look! :)
 
 = 6.10 - Series =
-*Released: 15th October, 2018* - [Release Notes](https://icwp.io/dg)
+*Released: 15th October, 2018* - [Release Notes](https://shsec.io/dg)
 
 * **(v.9)**  FIXED:		Admin notices displaying to non-admins.
 * **(v.7)**  ADDED:		[**PRO**] New option to specify usernames for Security Admin role.
@@ -78,7 +172,7 @@
 * **(v.3)**  ADDED:		Support for Ultimate Member forms
 * **(v.3)**  ADDED:		Support for LearnPress login/registration forms
 * **(v.3)**  FIXED:		Security Admin now correctly honours the WordPress Options zone setting.
-* **(v.3)**  IMPROVED:	Distinguish which sub-site (sub-domain) for WPMS installations on [Traffic Watcher](https://icwp.io/c1).
+* **(v.3)**  IMPROVED:	Distinguish which sub-site (sub-domain) for WPMS installations on [Traffic Watcher](https://shsec.io/c1).
 * **(v.3)**  IMPROVED:	Server's own IP lookup is only attempted once.
 * **(v.3)**  ADDED:		Experimental feature to help with some custom 3rd party login/registration forms
 * **(v.2)**  IMPROVED:	Visitor IP address detection
@@ -101,10 +195,10 @@
 * **(v.0)**  ADDED:		Optional plugin deactivation survey.
 
 = 6.9.0 - Series =
-*Released: 6th September, 2018* - [Release Notes](https://icwp.io/dc)
+*Released: 6th September, 2018* - [Release Notes](https://shsec.io/dc)
 
-* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://icwp.io/c1) - live tracking of all requests to your site.
-* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://icwp.io/c1) - Allows for multiple Yubikeys on the same user profile.
+* **(v.0)**  NEW:		[**PRO**] [Traffic Watcher](https://shsec.io/c1) - live tracking of all requests to your site.
+* **(v.0)**  NEW:		[**PRO**] [Yubikey](https://shsec.io/c1) - Allows for multiple Yubikeys on the same user profile.
 * **(v.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
 * **(v.0)**  ADDED:		Option to delete the Security Admin Access Key
 * **(v.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
@@ -129,7 +223,7 @@
 * **(v.0)**  FIXED:		PHP Warning(s).
 
 = 6.8 Series =
-*Released: 11th June, 2018* - [Release Notes](https://icwp.io/d4)
+*Released: 11th June, 2018* - [Release Notes](https://shsec.io/d4)
 
 * **(v.2)**  FIXED:		Bug with multi-factor authentication verification.
 * **(v.2)**  FIXED:		Bug with chosen reCAPTCHA style not being honoured on login pages
@@ -145,7 +239,7 @@
 * **(v.0)**  IMPROVED:	Expired user sessions are cleaned from the DB using a cron, and on Insights Dashboard load.
 
 = 6.7 Series =
-*Released: 21st May, 2018* - [Release Notes](https://icwp.io/cx)
+*Released: 21st May, 2018* - [Release Notes](https://shsec.io/cx)
 
 * **(v.2)**  ADDED:		[**PRO**] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
 * **(v.2)**  UPDATED:	Some translations.
@@ -163,7 +257,7 @@
 * **(v.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
 
 = 6.6 Series =
-*Released: 19th March, 2018* - [Release Notes](https://icwp.io/c3)
+*Released: 19th March, 2018* - [Release Notes](https://shsec.io/c3)
 
 * **(v.7)**  IMPROVED:	reCAPTCHA JS is only included on pages where it's actually used by Shield.
 * **(v.7)**  IMPROVED:	Upgrade Bootstrap library to 4.1.0.
@@ -173,17 +267,17 @@
 * **(v.6)**  ADDED:		Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
 * **(v.1-4)**  FIXED:	Various small fixes and improvements
 * **(v.4)**  FIXED:		PHP Fatal Error on wp object cache.
-* **(v.0)**  NEW:		[**PRO**] [Keyless Activation of Pro licenses](https://icwp.io/c1).
-* **(v.0)**  ADDED:		[WordPress Password Policies](https://icwp.io/c2).
+* **(v.0)**  NEW:		[**PRO**] [Keyless Activation of Pro licenses](https://shsec.io/c1).
+* **(v.0)**  ADDED:		[WordPress Password Policies](https://shsec.io/c2).
 * **(v.0)**  ADDED:		Pwned Passwords Detection.
 * **(v.0)**  IMPROVED:	Major rewrite of plugin AJAX handling.
 * **(v.0)**  IMPROVED:	Notices to indicate the time of the last scans.
 * **(v.0)**  FIXED:		A few bugs
 
 = 6.5 Series =
-*Released: 5th March, 2018* - [Release Notes](https://icwp.io/bu)
+*Released: 5th March, 2018* - [Release Notes](https://shsec.io/bu)
 
-* **(v.0)**  IMPROVED:		[Plugin Guard](https://icwp.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
+* **(v.0)**  IMPROVED:		[Plugin Guard](https://shsec.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
 * **(v.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
 * **(v.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
 * **(v.0)**  ADDED:			[**PRO**] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
@@ -191,25 +285,25 @@
 * **(v.0)**  FIXED:			A few small bugs
 
 = 6.4 Series =
-*Released: 26th February, 2018* - [Release Notes](https://icwp.io/br)
+*Released: 26th February, 2018* - [Release Notes](https://shsec.io/br)
 
 * **(v.1-4)**  FIXED:		Various Fixes
-* **(v.0)**  ADDED:			[**PRO**] New Scanner to [detect file changes for active plugins and themes](https://icwp.io/bq)
-* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](https://icwp.io/bc)
+* **(v.0)**  ADDED:			[**PRO**] New Scanner to [detect file changes for active plugins and themes](https://shsec.io/bq)
+* **(v.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](https://shsec.io/bc)
 * **(v.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
 = 6.3 Series =
-*Released: 12th February, 2018* - [Release Notes](https://icwp.io/bc)
+*Released: 12th February, 2018* - [Release Notes](https://shsec.io/bc)
 
 * **(v.3)**  FIXED:			Bug with automatic updates delay setting
-* **(v.2)**  CHANGED:		Changed a text that seems to cause servers to swallow-up emails. [See here for more reliable email](https://icwp.io/bi)
+* **(v.2)**  CHANGED:		Changed a text that seems to cause servers to swallow-up emails. [See here for more reliable email](https://shsec.io/bi)
 * **(v.1)**  FIXED:			Options page javascript to work around conflicts.
-* **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](https://icwp.io/bc)
-* **(v.0)**  IMPROVED:		Complete [plugin UI rebuild](https://icwp.io/bd), using the new Bootstrap 4.
+* **(v.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](https://shsec.io/bc)
+* **(v.0)**  IMPROVED:		Complete [plugin UI rebuild](https://shsec.io/bd), using the new Bootstrap 4.
 * **(v.0)**  FIXED:			A few bugs with Google Authenticator.
 
 = 6.2 Series =
-*Released: 31st January, 2018* - [Release Notes](https://icwp.io/b6)
+*Released: 31st January, 2018* - [Release Notes](https://shsec.io/b6)
 
 * **(v.2)**  FIXED:			Fix for IP Manager PHP error.
 * **(v.2)**  IMPROVED:		Two-factor verification email.
@@ -222,7 +316,7 @@
 * **(v.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 
 = 6.1 Series =
-*Released: 15th January, 2018* - [Release Notes](https://icwp.io/ay)
+*Released: 15th January, 2018* - [Release Notes](https://shsec.io/ay)
 
 * **(v.1)**  FIXED:			Verify link missing from the two-factor authentication verification email.
 * **(v.0)**  ADDED:			3x more Shield Wizards: Multi-factor Authentication, Core File Scanning, Unrecognised File Scanning.
@@ -235,9 +329,9 @@
 *Released: 18th December, 2017*
 
 * **(v.0)**  ADDED:			All-new Shield Welcome and Setup Wizard - more helpful guided wizards to come.
-* **(v.0)**  ADDED:			[**PRO**] [Shield options import and export](https://icwp.io/at)
+* **(v.0)**  ADDED:			[**PRO**] [Shield options import and export](https://shsec.io/at)
 * **(v.0)**  ADDED:			[**PRO**] In conjunction with import/export - Shield Security Network: automated options syncing.
-* **(v.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](https://icwp.io/au). Existing features will remain unaffected.
+* **(v.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](https://shsec.io/au). Existing features will remain unaffected.
 
 = 5.20 Series =
 *Released: 11th December, 2017*
@@ -317,18 +411,18 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.2)**  IMPROVEMENTS:	Small adjustment to handling of Shield User sessions in conjunction with WordPress sessions.
 * **(v.2)**  FIX:			Restore display of help links for options.
 * **(v.1)**  FIX:			PHP 5.2 incompatibility.
-* **(v.0)**  ADDED:			New option for [Unrecognised File Scanner](https://icwp.io/94) to scan the Uploads folder for JS and PHP files.
-* **(v.0)**  ADDED:			Option to provide custom list of files to be excluded from the [Unrecognised File Scanner](https://icwp.io/94).
+* **(v.0)**  ADDED:			New option for [Unrecognised File Scanner](https://shsec.io/94) to scan the Uploads folder for JS and PHP files.
+* **(v.0)**  ADDED:			Option to provide custom list of files to be excluded from the [Unrecognised File Scanner](https://shsec.io/94).
 
 = 5.12 Series =
 *Released: 3rd August, 2017*
 
-* **(v.2)**  IMPROVEMENTS:	Improved support for Windows IIS hosting for [Unrecognised File Scanner](https://icwp.io/94)
+* **(v.2)**  IMPROVEMENTS:	Improved support for Windows IIS hosting for [Unrecognised File Scanner](https://shsec.io/94)
 * **(v.2)**  CHANGED:		Removed the email-based 2FA automatic login link.
 * **(v.2)**  FIX:			Potential bug with Shield not recognising plugin configuration updates and not rebuilding options accordingly.
-* **(v.1)**  ADDED:			A few more exclusions for the [Unrecognised File Scanner](https://icwp.io/94)
+* **(v.1)**  ADDED:			A few more exclusions for the [Unrecognised File Scanner](https://shsec.io/94)
 * **(v.1)**  FIX:			Fix for Fatal error.
-* **(v.0)**  ADDED:			[Unrecognised File Scanner](https://icwp.io/94) release. Automatically detect and delete
+* **(v.0)**  ADDED:			[Unrecognised File Scanner](https://shsec.io/94) release. Automatically detect and delete
 							any files present in core WordPress directories that aren't part of your core installation.
 * **(v.0)**  ADDED:			Updated Firewall rules for SQL under the 'Aggressive' rule set.
 
@@ -336,14 +430,14 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 *Released: 26th July, 2017*
 
 * **(v.1)**  FIX:			JSON syntax
-* **(v.0)**  IMPROVEMENTS:	Final preparation for [Shield Central](https://icwp.io/83) release.
+* **(v.0)**  IMPROVEMENTS:	Final preparation for [Shield Central](https://shsec.io/83) release.
 
 = 5.10 Series =
 *Released: 19th June, 2017*
 
 * **(v.2)**  FIXED:			Fatal error with GASP + Password Reset.
 * **(v.2)**  FIXED:			Fatal error with failing reCAPTCHA HTTP requests.
-* **(v.1)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://icwp.io/83) release.
+* **(v.1)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://shsec.io/83) release.
 * **(v.0)**  ADDED:			More in-depth reporting and statistics gathering - options for reports will be made available
  							in a later release.
 
@@ -366,8 +460,8 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.2)**  CHANGE:		Changed timeout for two-factor authentication email to 5 minutes to account for slower email-sending providers.
 * **(v.2)**  CHANGE:		Added further clarification to the Login Notification email indicating that two-factor authentication was pending.
 * **(v.1)**  FIXED:			Fixed a couple of bugs with the Login Authentication Portal, for certain edge cases.
-* **(v.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](https://icwp.io/87).
-* **(v.0)**  CHANGE:		[Introduction of Login Authentication Portal](https://icwp.io/86) for improved Multi-Factor Authentication.
+* **(v.0)**  CHANGE:		Major overhaul of [Two-Factor / Multi-Factor Login Authentication](https://shsec.io/87).
+* **(v.0)**  CHANGE:		[Introduction of Login Authentication Portal](https://shsec.io/86) for improved Multi-Factor Authentication.
 * **(v.0)**  ADDED:			Option to choose between two-factor or multi-factor login authentication.
 * **(v.0)**  ADDED:			Administrators can remove Google Authenticator from another user's profile.
 * **(v.0)**  ADDED:			When Security Admin is active, only Security Admins may remove Google Authenticator from other admins.
@@ -375,18 +469,18 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.0)**  CHANGE:		Email-based login authentication no longer uses a separate database table.
 * **(v.0)**  FIXED:			Core file scanning now adequately handles Windows/Unix new lines during scan.
 * **(v.0)**  FIXED:			Certain crons weren't setup correctly.
-* **(v.0)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://icwp.io/83) release.
+* **(v.0)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://shsec.io/83) release.
 
 = 5.7 Series =
 
 * **(v.3)**  FIXED:			Attempt to improve the Google Authenticator flow for more reliable activation.
 * **(v.2)**  IMPROVEMENTS:	More admin notices when saving Google Authenticator settings.
-* **(v.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://icwp.io/83) release.
+* **(v.2)**  IMPROVEMENTS:	Further preparation for [Shield Central](https://shsec.io/83) release.
 * **(v.1)**  Skipped
 * **(v.0)**  ADDED:			Shortcode for displaying plugin badge in pages/posts.
 * **(v.0)**  CHANGE:		Enabled JS eval() for the Content Security Policy by default.
 * **(v.0)**  IMPROVEMENTS:	Replace YAML configuration files with JSON.
-* **(v.0)**  IMPROVEMENTS:	Preparation for [Shield Central](https://icwp.io/83) release.
+* **(v.0)**  IMPROVEMENTS:	Preparation for [Shield Central](https://shsec.io/83) release.
 * **(v.0)**  IMPROVEMENTS:	Security Admin notices are more refined and optimized.
 * **(v.0)**  IMPROVEMENTS:	Removed unnecessary files/code.
 
@@ -414,7 +508,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.2)**  FIXED:			Missing Link
 * **(v.2)**  FIXED:			Plugin Installation ID wasn't always being set
 * **(v.2)**  TRANSLATIONS:	Dutch (56%)
-* **(v.1)**  ADDED:			Built-in forceful protection in the form of a wp_die() against the (currently) un-patched W3 Total Cache XSS vulnerability [more info](https://icwp.io/7j)
+* **(v.1)**  ADDED:			Built-in forceful protection in the form of a wp_die() against the (currently) un-patched W3 Total Cache XSS vulnerability [more info](https://shsec.io/7j)
 * **(v.1)**  IMPROVED:		Better XMLRPC Lockdown - prevents ANY XMLRPC command processing.
 * **(v.1)**  IMPROVED:		Make certain strings translatable
 * **(v.1)**  IMPROVED:		Wrap-up certain login form elements into spans/divs to allow styling etc.
@@ -447,7 +541,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.2)**  ADDED:			A guard around certain modules like, User Sessions, to ensure the DB has been initiated properly before use.
 * **(v.2)**  ADDED:			Exclusion for Swedish license files that don't exist in the SVN repo.
 * **(v.2)**  ADDED:			Parameter exclusion for reCAPTCHA.
-* **(v.2)**  CHANGED:		[HTTP Security Headers](https://icwp.io/7b) module is enabled by default on new installs.
+* **(v.2)**  CHANGED:		[HTTP Security Headers](https://shsec.io/7b) module is enabled by default on new installs.
 * **(v.1)**  FIXED:			Nasty bug that caused an infinite loop bug in some configurations.
 * **(v.0)**  ADDED:			Per-site plugin statistics gathering - summary display on admin dashboard.
 * **(v.0)**  ADDED:			HTML class to the "I'm a human" checkbox field.
@@ -458,11 +552,11 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 
 = 5.3 Series =
 
-* **(v.2)**  IMPROVED:		[HTTP Security Headers](https://icwp.io/7b) Content Security Policy now supports specifying HTTPS for domains/hosts.
+* **(v.2)**  IMPROVED:		[HTTP Security Headers](https://shsec.io/7b) Content Security Policy now supports specifying HTTPS for domains/hosts.
 * **(v.2)**  FIXED:			Human Comment SPAM Feature didn't fire under certain circumstances.
 * **(v.2)**  FIXED:			Fixed parsing of Human Comment SPAM dictionary words.
 * **(v.1)**  TRANSLATIONS:	Dutch (32%)
-* **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](https://icwp.io/7b).
+* **(v.0)**  ADDED:			New Feature - [HTTP Security Headers](https://shsec.io/7b).
 * **(v.0)**  FIXED:			Prevent renaming WP Login to "/login"
 
 = 5.2 Series =
@@ -471,7 +565,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.0)**  CHANGED:		Logic for brute force login checking is improved - they all run before username/password checking
 * **(v.0)**  FIXED:			Certain older versions of PHP don't like combined IPv4 and IPv6 filter flags
 * **(v.0)**  FIXED:			Google reCAPTCHA for WordPress sites that have restrictive settings for sockets etc.
-* **(v.0)**  REMOVED:		[Plugin vulnerabilities scanner](https://icwp.io/75). It's out-of-date and unsuitable.
+* **(v.0)**  REMOVED:		[Plugin vulnerabilities scanner](https://shsec.io/75). It's out-of-date and unsuitable.
 
 = 5.1 Series =
 
@@ -484,15 +578,15 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 5.0 Series =
 
 * **(v.3)**  FIXED:			Issue with setting session cookies with PHP 7
-* **(v.2)**  FIXED:			[Rename WordPress Login URL](https://icwp.io/5s) bug
+* **(v.2)**  FIXED:			[Rename WordPress Login URL](https://shsec.io/5s) bug
 * **(v.2)**  CHANGED:		reCAPTCHA text usage corrected throughout plugin.
-* **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](https://icwp.io/wpsf40) feature.
+* **(v.1)**  CHANGED:		Removed the whole 'wp-content' directory from the [Core File Scanner](https://shsec.io/wpsf40) feature.
 * **(v.1)**  CHANGED:		A WordPress filter to change the plugin badge text content (see FAQ)
 * **(v.1)**  CHANGED:		Tweaked the plugin badge styling.
 * **(v.1)**  CHANGED:		All emails sent by the plugin contain the name of the site and the current plugin version in the email footer.
-* **(v.1)**  ADDED:			In-plugin links to blogs and info articles for Google ReCaptcha and [Google Authenticator](https://icwp.io/wpsf43)
+* **(v.1)**  ADDED:			In-plugin links to blogs and info articles for Google ReCaptcha and [Google Authenticator](https://shsec.io/wpsf43)
 * **(v.0)**  NEW:			WordPress Simple Firewall plugin has been re-branded and is called **Shield**
-* **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](https://icwp.io/shld2) for Comment SPAM and Login protection.
+* **(v.0)**  ADDED:			NEW feature - [Google ReCaptcha](https://shsec.io/shld2) for Comment SPAM and Login protection.
 * **(v.0)**  ADDED:			Support for this plugin is now Premium. Added Premium Support page that links to Helpdesk.
 * **(v.0)**  CHANGED:		Refactor of comment spam code.
 * **(v.0)**  CHANGED:		Core File Scanner now handles the odd Hungarian distribution.
@@ -500,8 +594,8 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 4.17 Series =
 *Released: 17th February, 2016*
 
-* **(v.0)**  ADDED:			NEW feature - [Google Authenticator Login option](https://icwp.io/wpsf43).
-* **(v.0)**  ADDED:			[Core File Scanner](https://icwp.io/wpsf40) now includes an automatic link to repair files (you must be logged in as admin for this link to work!).
+* **(v.0)**  ADDED:			NEW feature - [Google Authenticator Login option](https://shsec.io/wpsf43).
+* **(v.0)**  ADDED:			[Core File Scanner](https://shsec.io/wpsf40) now includes an automatic link to repair files (you must be logged in as admin for this link to work!).
 * **(v.0)**  ADDED:			NEW - if you already have a logged-in session and you open the login screen, you'll be provided with a link to go straight to the admin area.
 * **(v.0)**  CHANGED:		Email-based Two-Factor Authentication is now stateless/session-less - it will not check validity per-page load.
 * **(v.0)**  CHANGED:		Changes to the email-based authentication system - now only 1 option and it no longer locks to IP or browser.
@@ -511,15 +605,15 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 4.16 Series =
 *Released: 20th January, 2016*
 
-* **(v.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](https://icwp.io/wpsf40).
-* **(v.2)**  CHANGED:		Improvements to the [automatic black list system](https://icwp.io/wpsf27) for failed login attempts.
+* **(v.2)**  CHANGED:		Further changes and improvements to the [Core File Scanner](https://shsec.io/wpsf40).
+* **(v.2)**  CHANGED:		Improvements to the [automatic black list system](https://shsec.io/wpsf27) for failed login attempts.
 * **(v.2)**  TRANSLATIONS:	Turkish (100%)
-* **(v.1)**  CHANGED:		Improved the contents of the [Core File Scanner](https://icwp.io/wpsf40) notification email with links to original source files.
+* **(v.1)**  CHANGED:		Improved the contents of the [Core File Scanner](https://shsec.io/wpsf40) notification email with links to original source files.
 * **(v.1)**  CHANGED:		Now also excluding the /wp-content/languages/ directory since translations may update independently.
 * **(v.1)**  CHANGED:		Handles the special case of [old index.php files](https://wordpress.org/support/topic/problem-with-checksum-hashes)
-* **(v.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](https://icwp.io/wpsf40) and detects alterations from the default WordPress Core File data
+* **(v.0)**  ADDED:			Feature: [Automatically scans WordPress Core files](https://shsec.io/wpsf40) and detects alterations from the default WordPress Core File data
 * **(v.0)**  ADDED:			Feature: to automatically attempt to repair/replace WordPress Core files that are discovered which have been altered.
-* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](https://icwp.io/wpsf41).
+* **(v.0)**  ADDED:			Option to toggle the [Plugin Vulnerabilities cron](https://shsec.io/wpsf41).
 * **(v.0)**  ADDED:			Two-Factor Authentication links now honour the WordPress 'redirect_to' parameter.
 
 = 4.15 Series =
@@ -538,7 +632,7 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.1)**  ADDED:			Added WordPress filter option to specify URL instead of present a 404 when Rename WP Login is active. [more info](https://icontrolwp.freshdesk.com/solution/articles/3000044812)
 * **(v.1)**  ADDED:			Added 'Unique Plugin Installation ID' to be utilized in the future.
 * **(v.1)**  FIXED:			WordPress Comments bug where some comments didn't pass through the SPAM filters in a certain scenario.
-* **(v.0)**  ADDED:			[Custom Automatic Update Notifications Email](https://icwp.io/wpsf33) that runs separately to the in-built WordPress core notification email.
+* **(v.0)**  ADDED:			[Custom Automatic Update Notifications Email](https://shsec.io/wpsf33) that runs separately to the in-built WordPress core notification email.
 * **(v.0)**  ADDED:			Filter to remove the admin area IP address footer text
 * **(v.0)**  CHANGED:		Added native support for PayPal return links - whitelisting "verify_sign" parameter.
 * **(v.0)**  CHANGED:		Tweak patterns for matching on 'WordPress terms'.
@@ -561,13 +655,13 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 = 4.12 Series =
 *Released: 10th October, 2015*
 
-* **(v.0)**  NEW:			Option to completely disable the XML-RPC system. [more info](https://icwp.io/wpsf31)
+* **(v.0)**  NEW:			Option to completely disable the XML-RPC system. [more info](https://shsec.io/wpsf31)
 * **(v.0)**  CHANGED:		Logged-in users are automatically forwarded to the WordPress admin only if they are Administrators.
 
 = 4.11 Series =
 *Released: 5th October, 2015*
 
-* **(v.0)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](https://icwp.io/wpsf30)
+* **(v.0)**  NEW:			Ability to now completely block the update/changing of certain WordPress site options. [more info](https://shsec.io/wpsf30)
 * **(v.0)**  FIXED:			Various small bugs with the IP Manager UI ajax.
 * **(v.0)**  FIXED:			Uncaught PHP Exception when a site's hosting isn't properly configured to handle IPv6 addresses.
 * **(v.0)**  TRANSLATIONS:	Danish - 57%, Czech - 100%, Finnish - 94%
@@ -593,8 +687,8 @@ With this release, we fixed a clash of options for Google reCAPTCHA. Every attem
 * **(v.1)**  FIX:       	Removed transgression counting on failed logins - WP data is inconsistent.
 * **(v.1)**  CHANGED:		Original legacy white list now takes priority over new auto black list
 * **(v.1)**  CHANGED:		Default transgressions limit is now 7
-* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file. [more info](https://icwp.io/wpsf28)
-* **(v.0)**  NEW FEATURE:	'FABLE' - [Fully Automatic Black Listing Engine](https://icwp.io/wpsf27).
+* **(v.1)**  ADDED:       	Ability to reset plugin options to default using 'reset' flag file. [more info](https://shsec.io/wpsf28)
+* **(v.0)**  NEW FEATURE:	'FABLE' - [Fully Automatic Black Listing Engine](https://shsec.io/wpsf27).
 
 Simply put, FABLE will automatically block all malicious traffic by IP, based on their activity. This Security Plugin will track malicious behaviour
 and count all transgressions that visitors make against the site.  Once a particular visitor exceeds the specified number transgressions, FABLE
@@ -626,7 +720,7 @@ Which actions will trigger an ABLE transgression?
 * **(v.8)**  CHANGED:       Firewall, User Sessions and Lockdown Feature Modules are now enabled by default for new installations.
 * **(v.8)**  FIX:           Some server email programs can't handle colons (:) in the email subject (because supporting all characters would be waaay too radical man).
 * **(v.8)**  ADDED:       	Function to better get the WordPress home URL to prevent interference from other plugins.
-* **(v.8)**  CHANGED:       Updated Text For [Author Scan Block](https://icwp.io/6e) feature.
+* **(v.8)**  CHANGED:       Updated Text For [Author Scan Block](https://shsec.io/6e) feature.
 * **(v.7)**  CHANGED:       How author query blocking works to be more reliable and stricter - only runs when users are not logged in, and it will DIE instead of redirect.
 * **(v.6)**  ADDED:         New Option: prevent detection of usernames using the ?author=N query. (location under section: Lockdown -> Obscurity)
 * **(v.6)**  FIXED:         Infinite redirect loop logic prevents redirect for rejected comment SPAM that's posted in bulk. This results in email notifications for spam comments.
@@ -641,7 +735,7 @@ Which actions will trigger an ABLE transgression?
 * **(v.2)**  ADDED:         Email notifications sent out to report email address on a daily cron. [more info](https://www.icontrolwp.com/2015/07/plugin-vulnerability-email-notifications/)
 * **(v.2)**  FIX:           Work around a WordPress inline plugin update Javascript bug.
 * **(v.1)**  FIX:           Fix syntax support for earlier versions of PHP.
-* **(v.0)**  FEATURE:       Plugin Vulnerabilities Detection: If you're running plugins with known vulnerabilities you will be warned - [more info](https://icwp.io/wpsf22)
+* **(v.0)**  FEATURE:       Plugin Vulnerabilities Detection: If you're running plugins with known vulnerabilities you will be warned - [more info](https://shsec.io/wpsf22)
 
 = 4.8 Series =
 *Released: 21st June, 2015*
@@ -682,8 +776,8 @@ Which actions will trigger an ABLE transgression?
 = 4.6 Series =
 *Released: 10th April, 2015*
 
-* **(v.3)**  SECURITY:  Added protection against XSS vulnerability in WordPress comments. [Learn More](https://icwp.io/63) - Note: This is not a vulnerability with the Firewall plugin.
-* **(v.3)**  SECURITY:  Added extra precautions to WordPress URL redirects. [Learn More](https://icwp.io/64).
+* **(v.3)**  SECURITY:  Added protection against XSS vulnerability in WordPress comments. [Learn More](https://shsec.io/63) - Note: This is not a vulnerability with the Firewall plugin.
+* **(v.3)**  SECURITY:  Added extra precautions to WordPress URL redirects. [Learn More](https://shsec.io/64).
 * **(v.3)**  TRANSLATIONS: Russian (70%), Czech (67%)
 * **(v.2)**  FIX:       Bug with the database table verification logic.
 * **(v.2)**  TRANSLATIONS: Russian (New- 54%), Romanian (100%), Turkish (89%), Czech (53%)
@@ -691,7 +785,7 @@ Which actions will trigger an ABLE transgression?
 * **(v.1)**  UPDATED:   Plugin Badge styling
 * **(v.1)**  UPDATED:   Updated Czech(41%) and Spanish (60%) translations
 * **(v.0)**  ADDED:     New feature that displays the last login time for all users on the users listing page (User Management feature must be enabled).
-* **(v.0)**  ADDED:     **Completely optional** promotional Plugin Badge option - help us promote the plugin and reassure your site visitors at the same time. [Learn More](https://icwp.io/5x)
+* **(v.0)**  ADDED:     **Completely optional** promotional Plugin Badge option - help us promote the plugin and reassure your site visitors at the same time. [Learn More](https://shsec.io/5x)
 * **(v.0)**  UPDATED:   Updated Czech(38%) translations
 
 = 4.5 Series =
@@ -727,7 +821,7 @@ Which actions will trigger an ABLE transgression?
 * **(v.5)**  CHANGED:   Streamlined the detection of whitelisting and added in-plugin notification if **you** are whitelisted
 * **(v.4)**  FIXES:     Work around for cases where PHP can't successfully run parse_url()
 * **(v.2)**  IMPROVED:  Refactoring for better code organisation
-*   ADDED:      New Feature - [Rename WP Login Page](https://icwp.io/5s).
+*   ADDED:      New Feature - [Rename WP Login Page](https://shsec.io/5s).
 *   ADDED:      UI indicators on whether plugins will be automatically updated in the plugins listing.
 *   CHANGED:    IP Address WhiteList is now global for the whole plugin, and can be accessed under the "Dashboard" area
 *   IMPROVED:   Firewall processing code is simplified and more efficient.
@@ -883,7 +977,7 @@ Which actions will trigger an ABLE transgression?
 = 2.6.3 =
 
 *   ADDED:      More in-line plugin links to help/blog resources
-*   ENHANCED:   [Admin Access Protection](https://icwp.io/5b) is further enhanced in 3 ways:
+*   ENHANCED:   [Admin Access Protection](https://shsec.io/5b) is further enhanced in 3 ways:
 
 1.  More robust cookie values using MD5s
 1.  Blocks plugin options updating right at the point of WordPress options update so nothing can rewrite the actual plugin options.
@@ -952,7 +1046,7 @@ Which actions will trigger an ABLE transgression?
 
 = 2.5.0 =
 
-*	FEATURE:    Two-Factor Authenticated Login using [Yubikey](https://icwp.io/4i) One Time Passwords (OTP).
+*	FEATURE:    Two-Factor Authenticated Login using [Yubikey](https://shsec.io/4i) One Time Passwords (OTP).
 
 = 2.4.3 =
 
@@ -1073,7 +1167,7 @@ Which actions will trigger an ABLE transgression?
 
 = 1.8.1 =
 
-*	ADDED:		Feature- Access Key Restriction [more info](https://icwp.io/2s).
+*	ADDED:		Feature- Access Key Restriction [more info](https://shsec.io/2s).
 *	ADDED:		Feature- WordPress Lockdown. Currently only provides 1 option, but more to come.
 
 = 1.7.3 =

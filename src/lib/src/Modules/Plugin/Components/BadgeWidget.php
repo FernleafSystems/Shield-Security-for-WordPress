@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
-class BadgeWidget extends \ICWP_WPSF_WpWidget {
+class BadgeWidget extends \WP_Widget {
 
 	use \FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
@@ -27,6 +27,20 @@ class BadgeWidget extends \ICWP_WPSF_WpWidget {
 		);
 
 		add_shortcode( 'SHIELD_BADGE', [ $this, 'renderBadge' ] );
+	}
+
+	/**
+	 * @param array  $aWidgetArguments
+	 * @param string $sTitle
+	 * @param string $sContent
+	 * @return string
+	 */
+	protected function standardRender( $aWidgetArguments, $sTitle = '', $sContent = '' ) {
+		echo $aWidgetArguments[ 'before_widget' ];
+		if ( !empty( $sTitle ) ) {
+			echo $aWidgetArguments[ 'before_title' ].$sTitle.$aWidgetArguments[ 'after_title' ];
+		}
+		return $sContent.$aWidgetArguments[ 'after_widget' ];
 	}
 
 	/**

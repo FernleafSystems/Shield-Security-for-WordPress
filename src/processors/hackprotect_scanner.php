@@ -215,11 +215,4 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	protected function getCronName() {
 		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
 	}
-
-	/**
-	 * @param string $sScanSlug
-	 * @deprecated 8.1
-	 */
-	public function launchScan( $sScanSlug ) {
-	}
 }

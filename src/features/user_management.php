@@ -397,13 +397,4 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	protected function getNamespaceBase() {
 		return 'UserManagement';
 	}
-
-	/**
-	 * Should have no default email. If no email is set, no notification is sent.
-	 * @return string
-	 * @deprecated 8.1
-	 */
-	public function getAdminLoginNotificationEmail() {
-		return $this->getOpt( 'enable_admin_login_email_notification', '' );
-	}
 }

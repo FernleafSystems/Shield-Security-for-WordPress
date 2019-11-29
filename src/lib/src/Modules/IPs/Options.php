@@ -137,7 +137,6 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	protected function isSelectOptionEnabled( $sOptionKey ) {
-		$bOptPrem = $this->isOptPremium( $sOptionKey );
-		return ( !$bOptPrem || $this->getCon()->isPremiumActive() ) && !$this->isOpt( $sOptionKey, 'disabled' );
+		return !$this->isOpt( $sOptionKey, 'disabled' );
 	}
 }

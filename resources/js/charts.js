@@ -70,11 +70,27 @@ jQuery.fn.icwpWpsfAjaxChart = function ( aOptions ) {
 
 				$oChartContainer.html('');
 				new Chartist.Line(
-					'.icwpAjaxContainerChart',
+					$oThis.selector+' .icwpAjaxContainerChart',
 					oResponse.data.chart.data,
 					{
+						height: '100px',
+						fullWidth: true,
+						showArea: false,
+						chartPadding: {
+							top: 10,
+							right: 10,
+							bottom: 10,
+							left: 10
+						},
+						axisX: {
+							offset: 5,
+							showLabel: false,
+							showGrid: false,
+						},
 						axisY: {
+							offset: 25,
 							onlyInteger: true,
+							showLabel: true,
 							labelInterpolationFnc: function ( value ) {
 								return value;
 							}

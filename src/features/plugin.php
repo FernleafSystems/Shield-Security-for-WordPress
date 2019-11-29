@@ -585,12 +585,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function addUrlToImportExportWhitelistUrls( $sUrl ) {
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $sUrl );
 		if ( $sUrl !== false ) {
 			$aWhitelistUrls = $this->getImportExportWhitelist();
 			$aWhitelistUrls[] = $sUrl;
-			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls )
-				 ->savePluginOptions();
+			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls );
+			$this->saveModOptions();
 		}
 		return $this;
 	}
@@ -600,15 +600,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function removeUrlFromImportExportWhitelistUrls( $sUrl ) {
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $sUrl );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $sUrl );
 		if ( $sUrl !== false ) {
 			$aWhitelistUrls = $this->getImportExportWhitelist();
 			$sKey = array_search( $sUrl, $aWhitelistUrls );
 			if ( $sKey !== false ) {
 				unset( $aWhitelistUrls[ $sKey ] );
 			}
-			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls )
-				 ->savePluginOptions();
+			$this->setOpt( 'importexport_whitelist', $aWhitelistUrls );
+			$this->saveModOptions();
 		}
 		return $this;
 	}
@@ -625,7 +625,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	protected function cleanImportExportWhitelistUrls() {
-		$oDP = $this->loadDP();
+		$oDP = Services::Data();
 
 		$aCleaned = [];
 		$aWhitelistUrls = $this->getImportExportWhitelist();
@@ -643,7 +643,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	protected function cleanImportExportMasterImportUrl() {
-		$sUrl = $this->loadDP()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
 		if ( $sUrl === false ) {
 			$sUrl = '';
 		}
@@ -654,9 +654,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function startImportExportHandshake() {
-		$this->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 )
-			 ->savePluginOptions();
-		return $this;
+		$this->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
+		return $this->saveModOptions();
 	}
 
 	/**
@@ -794,7 +793,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * @return int
-	 * @deprecated 8.2.2
+	 * @deprecated 8.4
 	 */
 	public function getLastCheckServerIpAt() {
 		return $this->getOpt( 'this_server_ip_last_check_at', 0 );

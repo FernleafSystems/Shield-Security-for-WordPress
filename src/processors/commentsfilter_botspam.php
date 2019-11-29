@@ -11,66 +11,87 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 	 */
 	private $sFormId;
 
+	/**
+	 * @var bool
+	 */
+	private $bFormItemPrinted = false;
+
 	public function run() {
+		add_action( 'wp', [ $this, 'onWp' ] );
+		add_action( 'wp_footer', [ $this, 'maybeDequeueScript' ] );
+	}
+
+	public function onWp() {
 		add_action( 'comment_form', [ $this, 'printGaspFormItems' ], 1 );
 	}
 
-	public function printGaspFormItems() {
-		echo $this->getGaspCommentsHtml();
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getGaspCommentsHtml() {
+	public function onWpEnqueueJs() {
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
+		$oConn = $this->getCon();
 
-		$sCommentWait = $oMod->getTextOpt( 'custom_message_comment_wait' );
-		$aData = [
-			'form_id'         => $this->getUniqueFormId(),
-			'ts'              => Services::Request()->ts(),
-			'token'           => $this->tokenCreateStore(),
-			'alert'           => $oMod->getTextOpt( 'custom_message_alert' ),
-			'comment_reload'  => $oMod->getTextOpt( 'custom_message_comment_reload' ),
-			'cooldown'        => $oMod->getTokenCooldown(),
-			'expire'          => $oMod->getTokenExpireInterval(),
-			'comment_wait'    => $sCommentWait,
-			'js_comment_wait' => str_replace( '%s', '"+nRemaining+"', $sCommentWait ),
-			'confirm'         => $oMod->getTextOpt( 'custom_message_checkbox' ),
-		];
-
-		return $oMod->renderTemplate( 'snippets/comment_form_botbox.twig', $aData, true );
-	}
-
-	/**
-	 * @return string
-	 */
-	private function tokenCreateStore() {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		$sAsset = 'shield-comments';
+		$sUnique = $oMod->prefix( 'shield-comments' );
+		wp_register_script(
+			$sUnique,
+			$oConn->getPluginUrl_Js( $sAsset ),
+			[ 'jquery' ],
+			$oConn->getVersion(),
+			true
+		);
+		wp_enqueue_script( $sUnique );
 
 		$nTs = Services::Request()->ts();
-		$nPostId = Services::WpPost()->getCurrentPostId();
-		$sToken = $this->generateNewToken( $nTs, $nPostId );
+		$aNonce = $oMod->getAjaxActionData( 'comment_token'.Services::IP()->getRequestIp() );
+		$aNonce[ 'ts' ] = $nTs;
+		$aNonce[ 'post_id' ] = Services::WpPost()->getCurrentPostId();
 
-		Services::WpGeneral()->setTransient(
-			$oMod->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) ) ),
-			$sToken,
-			$oMod->getTokenExpireInterval()
+		wp_localize_script(
+			$sUnique,
+			'shield_comments',
+			[
+				'ajax'    => [
+					'comment_token' => $aNonce,
+				],
+				'vars'    => [
+					'cbname'   => 'cb_nombre'.rand(),
+					'botts'    => $nTs,
+					'token'    => 'not created',
+					'uniq'     => $this->getUniqueFormId(),
+					'cooldown' => $oMod->getTokenCooldown(),
+					'expires'  => $oMod->getTokenExpireInterval(),
+				],
+				'strings' => [
+					'label'           => $oMod->getTextOpt( 'custom_message_checkbox' ),
+					'alert'           => $oMod->getTextOpt( 'custom_message_alert' ),
+					'comment_reload'  => $oMod->getTextOpt( 'custom_message_comment_reload' ),
+					'js_comment_wait' => $oMod->getTextOpt( 'custom_message_comment_wait' ),
+				],
+				'flags'   => [
+					'gasp'  => true,
+					'recap' => $oMod->isGoogleRecaptchaEnabled(),
+				]
+			]
 		);
-
-		return $sToken;
 	}
 
 	/**
-	 * @param int    $nTs
-	 * @param string $nPostId
-	 * @return string
+	 * If the comment form component hasn't been printed, there's no comment form to protect.
 	 */
-	private function generateNewToken( $nTs, $nPostId ) {
-		$oMod = $this->getCon()->getModule_Plugin();
-		return hash_hmac( 'sha1', $nPostId.Services::IP()->getRequestIp().$nTs, $oMod->getPluginInstallationId() );
+	public function maybeDequeueScript() {
+		if ( empty( $this->bFormItemPrinted ) ) {
+			wp_dequeue_script( $this->getCon()->prefix( 'shield-comments' ) );
+		}
+	}
+
+	public function printGaspFormItems() {
+		$this->bFormItemPrinted = true;
+		echo $this->getMod()
+				  ->renderTemplate(
+					  'snippets/comment_form_botbox.twig',
+					  [ 'uniq' => $this->getUniqueFormId() ],
+					  true
+				  );
 	}
 
 	/**
@@ -85,5 +106,21 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 				apply_filters( 'icwp_shield_cf_gasp_uniqid', $sId ) );
 		}
 		return $this->sFormId;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.4
+	 */
+	private function getGaspCommentsHtml() {
+		return '';
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.4
+	 */
+	public function tokenCreateStore() {
+		return '';
 	}
 }

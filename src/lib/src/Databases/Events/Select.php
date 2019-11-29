@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
 
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 class Select extends Base\Select {
+
+	use Common;
 
 	/**
 	 * @param string $sEvent
@@ -21,6 +22,16 @@ class Select extends Base\Select {
 	 */
 	public function sumEvents( $aEvents ) {
 		return (int)$this->filterByEvents( $aEvents )
+						 ->setColumnsToSelect( [ 'count' ] )
+						 ->sum();
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @return int
+	 */
+	public function sumEventsLike( $sEvent ) {
+		return (int)$this->addWhereLike( 'event', $sEvent )
 						 ->setColumnsToSelect( [ 'count' ] )
 						 ->sum();
 	}
@@ -48,6 +59,17 @@ class Select extends Base\Select {
 	public function getLatestForEvent( $sEvent ) {
 		return $this->filterByEvent( $sEvent )
 					->setOrderBy( 'created_at', 'DESC' )
+					->setResultsAsVo( true )
+					->first();
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @return EntryVO|null
+	 */
+	public function getOldestForEvent( $sEvent ) {
+		return $this->filterByEvent( $sEvent )
+					->setOrderBy( 'created_at', 'ASC' )
 					->setResultsAsVo( true )
 					->first();
 	}
@@ -99,21 +121,5 @@ class Select extends Base\Select {
 	 */
 	public function filterByCountGreaterThan( $nGreaterThan ) {
 		return $this->addWhere( 'count', (int)$nGreaterThan, '>' );
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @return $this
-	 */
-	public function filterByEvent( $sEvent ) {
-		return $this->filterByEvents( [ $sEvent ] );
-	}
-
-	/**
-	 * @param string[] $aEvents
-	 * @return $this
-	 */
-	public function filterByEvents( $aEvents ) {
-		return $this->addWhereIn( 'event', $aEvents );
 	}
 }

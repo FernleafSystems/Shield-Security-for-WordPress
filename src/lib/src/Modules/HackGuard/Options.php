@@ -311,7 +311,7 @@ class Options extends Base\ShieldOptions {
 	public function getWcfFileExclusions() {
 		$sPattern = null;
 
-		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions' );
+		$aExclusions = $this->getOptions()->getDef( 'wcf_exclusions' );
 		$aExclusions = is_array( $aExclusions ) ? $aExclusions : [];
 		// Flywheel specific mods
 		if ( defined( 'FLYWHEEL_PLUGIN_DIR' ) ) {
@@ -337,7 +337,7 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getWcfMissingExclusions() {
 		$sPattern = null;
-		$aExclusions = $this->getMod()->getDef( 'wcf_exclusions_missing_only' );
+		$aExclusions = $this->getOptions()->getDef( 'wcf_exclusions_missing_only' );
 		if ( is_array( $aExclusions ) && !empty( $aExclusions ) ) {
 			$aQuoted = array_map(
 				function ( $sExcl ) {

@@ -28,7 +28,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private static $oEmailHandler;
 
 	/**
-	 * @var ICWP_WPSF_Processor_Base
+	 * @var Shield\Modules\Base\BaseProcessor
 	 */
 	private $oProcessor;
 
@@ -36,11 +36,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @var ICWP_WPSF_Wizard_Base
 	 */
 	private $oWizard;
-
-	/**
-	 * @var Shield\Databases\Base\Handler
-	 */
-	private $oDbh;
 
 	/**
 	 * @var Shield\Modules\Base\Strings
@@ -130,6 +125,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
 			return $bSupported || $this->isSupportedEvent( $sEventTag );
 		}, 10, 2 );
+		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
+			return array_merge( $aEvents, $this->getEvents() );
+		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
 
@@ -1013,15 +1011,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * Saves the options to the WordPress Options store.
-	 * @return void
-	 * @deprecated 8.1
-	 */
-	public function savePluginOptions() {
-		$this->saveModOptions();
-	}
-
-	/**
 	 * @return $this
 	 */
 	public function saveModOptions() {
@@ -1533,8 +1522,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				'has_wizard'            => $this->hasWizard(),
 			],
 			'hrefs'         => [
-				'go_pro'         => 'https://icwp.io/shieldgoprofeature',
-				'goprofooter'    => 'https://icwp.io/goprofooter',
+				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
+				'goprofooter'    => 'https://shsec.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
 				'wizard_landing' => $this->getUrl_WizardLanding()
 			],
@@ -1925,50 +1914,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @param string $sOpt
-	 * @param int    $nAt
-	 * @return $this
-	 * @deprecated 8.1 - TODO: Be careful when updating to use `Options` as this is newly-added in 8.1
-	 */
-	protected function setOptAt( $sOpt, $nAt = null ) {
-		$nAt = is_null( $nAt ) ? Services::Request()->ts() : max( 0, (int)$nAt );
-		return $this->setOpt( $sOpt, $nAt );
-	}
-
-	/**
 	 * @return null|Shield\Modules\Base\ShieldOptions|mixed
 	 */
 	public function getOptions() {
 		if ( !isset( $this->oOpts ) ) {
-
-			if ( @class_exists( '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options' ) ) {
-				$oOpts = $this->loadOptions()->setMod( $this );;
-			}
-			else {
-				$oOpts = new \ICWP_WPSF_OptionsVO();
-			}
-
 			$oCon = $this->getCon();
-			$this->oOpts = $oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
-								 ->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
-								 ->setOptionsStorageKey( $this->getOptionsStorageKey() )
-								 ->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
+			$this->oOpts = $this->loadOptions()->setMod( $this );
+			$this->oOpts->setPathToConfig( $oCon->getPath_ConfigFile( $this->getSlug() ) )
+						->setRebuildFromFile( $oCon->getIsRebuildOptionsFromFile() )
+						->setOptionsStorageKey( $this->getOptionsStorageKey() )
+						->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 		}
 		return $this->oOpts;
-	}
-
-	/**
-	 * The primary DB for the
-	 * @return null|Shield\Databases\Base\Handler|mixed
-	 * @deprecated 8.1.2
-	 */
-	public function getDbHandler() {
-		// TODO: remove this IF, as it's a stop-gap for the newer implementation (below)
-		if ( $this->oDbh instanceof Shield\Databases\Base\Handler ) {
-			return $this->oDbh;
-		}
-
-		return $this->getPrimaryDbHandler();
 	}
 
 	/**
@@ -2051,23 +2008,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return \ICWP_WPSF_OptionsVO
-	 * @deprecated 8.1
+	 * Saves the options to the WordPress Options store.
+	 * @return void
+	 * @deprecated 8.4
 	 */
-	public function getOptionsVo() {
-		return $this->getOptions();
-	}
-
-	/**
-	 * @deprecated 8.1
-	 */
-	private function getAjax() {
-		$this->loadAjaxHandler();
+	public function savePluginOptions() {
+		$this->saveModOptions();
 	}
 
 	/**
 	 * @return Shield\Databases\Base\Handler|mixed|false
-	 * @deprecated 8.1.2
+	 * @deprecated 8.4
 	 */
 	protected function loadDbHandler() {
 		return false;

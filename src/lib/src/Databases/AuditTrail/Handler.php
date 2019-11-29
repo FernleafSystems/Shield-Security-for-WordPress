@@ -9,10 +9,8 @@ use FernleafSystems\Wordpress\Services\Services;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
-		$oMod = $this->getMod();
 		/** @var Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getMod()->getOptions();
 		$this->cleanDb( $oOpts->getAutoCleanDays() );
 		$this->trimDb( $oOpts->getMaxEntries() );
 	}

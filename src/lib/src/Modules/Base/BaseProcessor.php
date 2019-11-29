@@ -43,7 +43,6 @@ class BaseProcessor extends Deprecated\Foundation {
 		add_action( $oMod->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $oMod->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 		add_action( $oMod->prefix( 'deactivate_plugin' ), [ $this, 'deactivatePlugin' ] );
-		add_action( $oMod->prefix( 'generate_admin_notices' ), [ $this, 'autoAddToAdminNotices' ] );
 
 		/**
 		 * 2019-04-19:
@@ -74,11 +73,6 @@ class BaseProcessor extends Deprecated\Foundation {
 	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
-		/*
-		if ( !$oUser instanceof WP_User ) {
-			$oUser = $this->loadWpUsers()->getUserByUsername( $sUsername );
-		}
-		*/
 	}
 
 	/**
@@ -214,27 +208,5 @@ class BaseProcessor extends Deprecated\Foundation {
 	 */
 	protected function prefix( $sSuffix = '', $sGlue = '-' ) {
 		return $this->getMod()->prefix( $sSuffix, $sGlue );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated
-	 */
-	protected function ip() {
-		return Services::IP()->getRequestIp();
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8
-	 */
-	protected function time() {
-		return Services::Request()->ts();
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function autoAddToAdminNotices() {
 	}
 }

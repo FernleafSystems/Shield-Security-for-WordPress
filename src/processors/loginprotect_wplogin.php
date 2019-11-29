@@ -42,6 +42,8 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return bool - true if conflict exists
 	 */
 	protected function checkForPluginConflict() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
 		$sMessage = '';
 		$bConflicted = false;
@@ -75,7 +77,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 				__( 'Warning', 'wp-simple-firewall' ),
 				$sMessage
 			);
-			$this->loadWpNotices()->addRawAdminNotice( $sNoticeMessage, 'error' );
+			$oMod->setFlashAdminNotice( $sNoticeMessage, true );
 		}
 
 		return $bConflicted;
@@ -84,7 +86,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	/**
 	 * @return bool
 	 */
-	protected function checkForUnsupportedConfiguration() {
+	private function checkForUnsupportedConfiguration() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		$sPath = Services::Request()->getPath();
 		if ( empty( $sPath ) ) {
 
@@ -93,7 +97,7 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 				__( 'Warning', 'wp-simple-firewall' ),
 				__( 'Your login URL is unchanged because your current hosting/PHP configuration cannot parse the necessary information.', 'wp-simple-firewall' )
 			);
-			$this->loadWpNotices()->addRawAdminNotice( $sNoticeMessage, 'error' );
+			$oMod->setFlashAdminNotice( $sNoticeMessage, true );
 			return true;
 		}
 		return false;

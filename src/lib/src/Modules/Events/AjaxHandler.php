@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
@@ -18,6 +19,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_RenderChart();
 				break;
 
+			case 'render_chart_post':
+				$aResponse = $this->ajaxExec_RenderChartPost();
+				break;
+
 			default:
 				$aResponse = parent::processAjaxAction( $sAction );
 		}
@@ -28,42 +33,44 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	/**
 	 * @return array
 	 */
-	public function ajaxExec_RenderChart() {
+	private function ajaxExec_RenderChart() {
 		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
 		$oMod = $this->getMod();
 
 		$aParams = $this->getAjaxFormParams();
-		$sEvent = $aParams[ 'event' ];
-
-		/** @var Shield\Databases\Events\Handler $oDbhEvts */
-		$oDbhEvts = $oMod->getDbHandler_Events();
-		$nDays = 0;
-		$aSeries = [];
-		$aLabels = [];
-		$oNow = Services::Request()->carbon();
-
-		do {
-			/** @var Shield\Databases\Events\Select $oSelEvts */
-			$oSelEvts = $oDbhEvts->getQuerySelector();
-			$aSeries[] = $oSelEvts->filterByBoundary_Day( $oNow->timestamp )
-								  ->sumEvent( $sEvent );
-			$aLabels[] = $oNow->toDateString();
-			$oNow->subDay();
-			$nDays++;
-		} while ( $nDays < 7 );
+		$oReq = new Events\Charts\ChartRequestVO();
+		$oReq->render_location = $aParams[ 'render_location' ];
+		$oReq->chart_params = $aParams[ 'chart_params' ];
+		$aChart = ( new Events\Charts\BuildData() )
+			->setMod( $oMod )
+			->build( $oReq );
 
 		return [
 			'success' => true,
-			'message' => 'asdf',
-			'chart'   => [
-				'data'         => [
-					'labels' => array_reverse( $aLabels ),
-					'series' => [
-						array_reverse( $aSeries ),
-					]
-				],
-				'legend_names' => [ 'Total Offenses' ],
-			]
+			'message' => 'no message',
+			'chart'   => $aChart
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_RenderChartPost() {
+		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
+		$oMod = $this->getMod();
+		$oReq = Services::Request();
+		$oChartReq = new Events\Charts\ChartRequestVO();
+		$oChartReq->render_location = $oReq->post( 'render_location' );
+		$oChartReq->chart_params = $oReq->post( 'chart_params' );
+
+		$aChart = ( new Events\Charts\BuildData() )
+			->setMod( $oMod )
+			->build( $oChartReq );
+
+		return [
+			'success' => true,
+			'message' => 'no message',
+			'chart'   => $aChart
 		];
 	}
 }

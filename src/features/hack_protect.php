@@ -1057,7 +1057,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isMalScanEnabled() {
 		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
@@ -1065,7 +1065,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isMalAutoRepairPlugins() {
 		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
@@ -1073,7 +1073,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isMalScanAutoRepair() {
 		/** @var HackGuard\Options $oOpts */
@@ -1083,7 +1083,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isMalAutoRepairCore() {
 		return $this->isOpt( 'mal_autorepair_core', 'Y' );
@@ -1091,7 +1091,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
-	 * @deprecated 8.2
+	 * @deprecated 8.4
 	 */
 	public function isMalAutoRepairSurgical() {
 		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
@@ -1102,38 +1102,5 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getNamespaceBase() {
 		return 'HackGuard';
-	}
-
-	/**
-	 * @return Shield\Databases\Scanner\Handler
-	 * @deprecated 8.1.2
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Scanner\Handler();
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.1
-	 */
-	public function getScanFrequency() {
-		return (int)$this->getOpt( 'scan_frequency', 1 );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.1
-	 */
-	public function getScansTempDir() {
-		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
-		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 8.1
-	 */
-	public function getAllScanSlugs() {
-		return $this->getDef( 'all_scan_slugs' );
 	}
 }

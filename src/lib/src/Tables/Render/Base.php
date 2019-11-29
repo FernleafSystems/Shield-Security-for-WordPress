@@ -231,13 +231,14 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * TODO Put this into SErvice IPs and grab it from there
+	 * TODO Put this into Service IPs and grab it from there
 	 * @param string $sIp
 	 * @return string
 	 */
 	protected function getIpWhoisLookupLink( $sIp ) {
+		$oIp = Services::IP();
 		return sprintf( '<a href="%s" target="_blank" class="ip-whois">%s</a>',
-			Services::IP()->getIpWhoisLookup( $sIp ),
+			$oIp->isValidIpRange( $sIp ) ? $oIp->getIpWhoisLookup( $sIp ) : $oIp->getIpInfo( $sIp ),
 			$sIp
 		);
 	}

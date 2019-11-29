@@ -252,7 +252,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 				'placeholder' => __( 'Use your Yubikey to generate a new code.', 'wp-simple-firewall' ),
 				'value'       => '',
 				'text'        => __( 'Yubikey OTP', 'wp-simple-firewall' ),
-				'help_link'   => 'https://icwp.io/4i'
+				'help_link'   => 'https://shsec.io/4i'
 			];
 		}
 		return $aFields;

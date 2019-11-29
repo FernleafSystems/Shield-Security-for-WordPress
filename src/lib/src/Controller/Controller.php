@@ -565,6 +565,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAllEvents() {
+		return apply_filters( $this->prefix( 'get_all_events' ), [] );
+	}
+
+	/**
 	 * Displaying all views now goes through this central function and we work out
 	 * what to display based on the name of current hook/filter being processed.
 	 */
@@ -1796,6 +1803,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getModule_AuditTrail() {
 		return $this->getModule( 'audit_trail' );
+	}
+
+	/**
+	 * @return \ICWP_WPSF_FeatureHandler_CommentsFilter
+	 */
+	public function getModule_Comments() {
+		return $this->getModule( 'comments_filter' );
 	}
 
 	/**

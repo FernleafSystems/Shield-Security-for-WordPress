@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -63,7 +64,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function doExtraSubmitProcessing() {
 		$aDomains = $this->getCspHosts();
 		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
-			$oDP = $this->loadDP();
+			$oDP = Services::Data();
 			$aValidDomains = [];
 			foreach ( $aDomains as $sDomain ) {
 				$bValidDomain = false;

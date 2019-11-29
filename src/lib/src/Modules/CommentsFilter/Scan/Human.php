@@ -87,7 +87,7 @@ class Human {
 		$oFs = Services::WpFs();
 		$sBLFile = $oMod->getSpamBlacklistFile();
 		if ( !$oFs->exists( $sBLFile ) ) {
-			$sRawList = Services::HttpRequest()->getContent( $this->getMod()->getDef( 'url_spam_blacklist_terms' ) );
+			$sRawList = Services::HttpRequest()->getContent( $this->getOptions()->getDef( 'url_spam_blacklist_terms' ) );
 			$sList = '';
 			if ( !empty( $sRawList ) ) {
 				$sList = implode( "\n", array_map( 'base64_encode', array_filter( array_map( 'trim', explode( "\n", $sRawList ) ) ) ) );
