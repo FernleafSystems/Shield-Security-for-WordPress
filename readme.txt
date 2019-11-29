@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.3.0
+Stable tag: 8.4.0
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -371,10 +371,10 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://shsec.io/aa).
 
 = 8.4.0 - Current Release =
-*Released: 26th November, 2019* - [Release Notes](https://shsec.io/g3)
+*Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
 
-* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
 * **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
+* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
 * **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
 * **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
 * **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
