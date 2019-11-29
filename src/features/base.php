@@ -58,12 +58,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @throws \Exception
 	 */
 	public function __construct( $oPluginController, $aMod = [] ) {
-		if ( empty( self::$oPluginController ) ) {
-			if ( !$oPluginController instanceof Shield\Controller\Controller ) {
-				throw new \Exception( 'Plugin controller not supplied to Module' );
-			}
-			$this->setCon( $oPluginController );
+		if ( !$oPluginController instanceof Shield\Controller\Controller ) {
+			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
+		$this->setCon( $oPluginController );
 
 		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
@@ -2014,13 +2012,5 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
-	}
-
-	/**
-	 * @return Shield\Databases\Base\Handler|mixed|false
-	 * @deprecated 8.4
-	 */
-	protected function loadDbHandler() {
-		return false;
 	}
 }

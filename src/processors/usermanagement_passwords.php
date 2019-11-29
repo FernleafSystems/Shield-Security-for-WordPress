@@ -245,61 +245,6 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @param string $sPass
 	 * @return bool
 	 * @throws \Exception
-	 * @deprecated 8.4
-	 */
-	protected function sendRequestToPwned( $sPass ) {
-		$oHttpReq = Services::HttpRequest();
-		$bSuccess = $oHttpReq->get(
-			sprintf( '%s/%s', $this->getOptions()->getDef( 'pwned_api_url_password_single' ), hash( 'sha1', $sPass ) ),
-			[
-				'headers' => [ 'user-agent' => sprintf( '%s WP Plugin-v%s', 'Shield', $this->getCon()->getVersion() ) ]
-			]
-		);
-
-		$sError = '';
-		if ( !$bSuccess ) {
-			$sError = 'API request failed';
-		}
-		else {
-			$nCode = $oHttpReq->lastResponse->getCode();
-			if ( empty( $nCode ) ) {
-				$sError = 'Unexpected Error: No response code available from the Response';
-			}
-			else if ( $nCode == 404 ) {
-				// means that the password isn't on the pwned list. It's acceptable.
-			}
-			else if ( empty( $oHttpReq->lastResponse->body ) ) {
-				$sError = 'Unexpected Error: The response from the Pwned API was empty';
-			}
-			else {
-				// password pwned
-				$nCount = intval( $oHttpReq->lastResponse[ 'body' ] );
-				if ( $nCount == 0 ) {
-					$sError = 'Unexpected Error: The API response could not be properly parsed.';
-				}
-				else {
-					$sError = __( 'Please use a different password.', 'wp-simple-firewall' )
-							  .' '.__( 'This password has already been pwned.', 'wp-simple-firewall' )
-							  .' '.sprintf(
-								  '(<a href="%s" target="_blank">%s</a>)',
-								  'https://www.troyhunt.com/ive-just-launched-pwned-passwords-version-2/',
-								  sprintf( __( '%s times', 'wp-simple-firewall' ), $nCount )
-							  );
-				}
-			}
-		}
-
-		if ( !empty( $sError ) ) {
-			throw new \Exception( '[Pwned Request] '.$sError );
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param string $sPass
-	 * @return bool
-	 * @throws \Exception
 	 */
 	private function sendRequestToPwnedRange( $sPass ) {
 		$oHttpReq = Services::HttpRequest();

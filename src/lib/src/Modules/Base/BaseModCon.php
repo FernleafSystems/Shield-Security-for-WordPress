@@ -62,17 +62,15 @@ class BaseModCon extends Deprecated\Foundation {
 	private $aDbHandlers;
 
 	/**
-	 * @param Shield\Controller\Controller $oPluginController
+	 * @param Shield\Controller\Controller $oPlugCon
 	 * @param array                        $aMod
 	 * @throws \Exception
 	 */
-	public function __construct( $oPluginController, $aMod = [] ) {
-		if ( empty( self::$oPluginController ) ) {
-			if ( !$oPluginController instanceof Shield\Controller\Controller ) {
-				throw new \Exception( 'Plugin controller not supplied to Module' );
-			}
-			$this->setCon( $oPluginController );
+	public function __construct( $oPlugCon, $aMod = [] ) {
+		if ( !$oPlugCon instanceof Shield\Controller\Controller ) {
+			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
+		$this->setCon( $oPlugCon );
 
 		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
@@ -1935,13 +1933,6 @@ class BaseModCon extends Deprecated\Foundation {
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
-	}
-
-	/**
-	 * @return Shield\Databases\Base\Handler|mixed|false
-	 */
-	protected function loadDbHandler() {
-		return false;
 	}
 
 	/**

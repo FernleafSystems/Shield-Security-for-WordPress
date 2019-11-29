@@ -792,14 +792,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return int
-	 * @deprecated 8.4
-	 */
-	public function getLastCheckServerIpAt() {
-		return $this->getOpt( 'this_server_ip_last_check_at', 0 );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

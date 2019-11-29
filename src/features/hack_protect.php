@@ -1056,48 +1056,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalScanEnabled() {
-		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalAutoRepairPlugins() {
-		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalScanAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isMalAutoRepair();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalAutoRepairCore() {
-		return $this->isOpt( 'mal_autorepair_core', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalAutoRepairSurgical() {
-		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

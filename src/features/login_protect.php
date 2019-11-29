@@ -183,14 +183,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return int
-	 * @deprecated 8.4
-	 */
-	public function getCooldownInterval() {
-		return (int)$this->getOpt( 'login_limit_interval' );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getCustomLoginPath() {
@@ -642,14 +634,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isCooldownEnabled() {
-		return $this->getCooldownInterval() > 0;
 	}
 
 	/**

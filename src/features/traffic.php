@@ -164,12 +164,4 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function getNamespaceBase() {
 		return 'Traffic';
 	}
-
-	/**
-	 * @return Shield\Databases\Traffic\Handler
-	 * @deprecated 8.4
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Traffic\Handler();
-	}
 }

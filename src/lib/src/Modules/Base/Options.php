@@ -1021,13 +1021,4 @@ class Options {
 		$this->sPathToConfig = $sPathToConfig;
 		return $this;
 	}
-
-	/**
-	 * @param string
-	 * @return mixed|null
-	 * @deprecated 8.4
-	 */
-	public function getFeatureDefinition( $sDefinition ) {
-		return $this->getDef( $sDefinition );
-	}
 }

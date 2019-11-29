@@ -391,53 +391,12 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	/**
 	 * @param string $sIp
 	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isIpOnWhiteList( $sIp ) {
-		$oIp = ( new IPs\Components\LookupIpOnList() )
-			->setMod( $this->getMod() )
-			->setIp( $sIp )
-			->setList( ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE )
-			->lookup();
-		return $oIp instanceof Databases\IPs\EntryVO;
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return bool
 	 */
 	public function isIpToBeBlocked( $sIp ) {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$oIp = $this->getBlackListIp( $sIp );
 		return ( $oIp instanceof Databases\IPs\EntryVO && $oIp->getTransgressions() >= $oOpts->getOffenseLimit() );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @param string $sList
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	private function isIpOnList( $sIp, $sList ) {
-		$bOnList = false;
-
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var Databases\IPs\Select $oSelect */
-		$oSelect = $oMod->getDbHandler_IPs()->getQuerySelector();
-		foreach ( $oSelect->allFromList( $sList ) as $oIp ) {
-			try {
-				if ( Services::IP()->checkIp( $sIp, $oIp->ip ) ) {
-					$bOnList = true;
-					break;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-
-		return $bOnList;
 	}
 
 	/**
