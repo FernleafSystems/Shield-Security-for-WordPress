@@ -20,6 +20,18 @@ class Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_DataProcessor
+	 * @deprecated 8.4.0
+	 */
+	static public function loadDP() {
+		$sKey = 'icwp-data';
+		if ( !self::isServiceReady( $sKey ) ) {
+			self::setService( $sKey, \ICWP_WPSF_DataProcessor::GetInstance() );
+		}
+		return self::getService( $sKey );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_WpCron
 	 * @deprecated
 	 */
