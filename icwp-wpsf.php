@@ -35,26 +35,6 @@ if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
 	return;
 }
 
-if ( !function_exists( '_wpsf_e' ) ) {
-	/**
-	 * @param $sStr
-	 * @deprecated
-	 */
-	function _wpsf_e( $sStr ) {
-		_e( $sStr, 'wp-simple-firewall' );
-	}
-}
-if ( !function_exists( '_wpsf__' ) ) {
-	/**
-	 * @param $sStr
-	 * @return string|void
-	 * @deprecated
-	 */
-	function _wpsf__( $sStr ) {
-		return __( $sStr, 'wp-simple-firewall' );
-	}
-}
-
 require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
 
 if ( !include_once( dirname( __FILE__ ).'/filesnotfound.php' ) ) {

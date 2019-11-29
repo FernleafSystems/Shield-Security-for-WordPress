@@ -392,7 +392,7 @@ class BaseModCon extends Deprecated\Foundation {
 		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 			$this->getOptions()
 				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
@@ -498,7 +498,7 @@ class BaseModCon extends Deprecated\Foundation {
 				// cleanup databases randomly just in-case cron doesn't run.
 				$this->cleanupDatabases();
 			}
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
@@ -995,11 +995,9 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * Saves the options to the WordPress Options store.
-	 * It will also update the stored plugin options version.
-	 * @return void
+	 * @return $this
 	 */
-	public function savePluginOptions() {
+	public function saveModOptions() {
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptions()
@@ -1009,6 +1007,7 @@ class BaseModCon extends Deprecated\Foundation {
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
 		$this->bImportExportWhitelistNotify = $this->getOptions()->getNeedSave();
 		$this->store();
+		return $this;
 	}
 
 	private function store() {
@@ -1342,7 +1341,7 @@ class BaseModCon extends Deprecated\Foundation {
 			}
 		}
 
-		$this->savePluginOptions();
+		$this->saveModOptions();
 
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {

@@ -552,7 +552,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function getImportExportSecretKey() {
 		$sId = $this->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $sId ) || $this->isImportExportSecretKeyExpired() ) {
-			$sId = sha1( $this->getPluginInstallationId().wp_rand( 0, PHP_INT_MAX ) );
+			$sId = sha1( $this->getCon()->getSiteInstallationId().wp_rand( 0, PHP_INT_MAX ) );
 			$this->setOpt( 'importexport_secretkey', $sId )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
 		}

@@ -227,6 +227,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		$sSlug = $oMod->getSlug();
 		if ( empty( $aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] ) ) {
 			$aData[ $sSlug ][ 'options' ][ 'unique_installation_id' ] = $oMod->getPluginInstallationId();
+			$aData[ $sSlug ][ 'options' ][ 'new_unique_installation_id' ] = $this->getCon()->getSiteInstallationId();
 		}
 		return $aData;
 	}
