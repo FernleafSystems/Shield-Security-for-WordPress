@@ -1,4 +1,4 @@
-=== Shield Security: Protection with Smarter Automation ===
+﻿=== Shield Security: Protection with Smarter Automation ===
 Contributors: onedollarplugin, paultgoodchild
 Donate link: https://shsec.io/bw
 License: GPLv3
@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.4.1
+Stable tag: 8.4.3
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,10 +370,10 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.4.1 - Current Release =
+= 8.4.3 - Current Release =
 *Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
 
-* **(v.1)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
+* **(v.3)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
 * **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
 * **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
 * **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
