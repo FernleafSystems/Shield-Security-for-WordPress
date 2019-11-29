@@ -39,7 +39,6 @@
       "../common/",
       "../features/",
       "../processors/",
-      "../query/",
       "../wizards/",
       "../lib/custom/"
     ]
