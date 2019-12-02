@@ -62,6 +62,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sScanSlug = Services::Request()->post( 'fScan' );
 		switch ( $sScanSlug ) {
 
+			case 'aggregate':
+				$oTableBuilder = new Shield\Tables\Build\ScanAggregate();
+				break;
+
 			case 'apc':
 				$oTableBuilder = new Shield\Tables\Build\ScanApc();
 				break;
@@ -91,7 +95,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 
 		if ( empty( $oTableBuilder ) ) {
-			$sHtml = 'SCAN SLUG NOT SPECIFIED';
+			$sHtml = '<div class="alert alert-danger m-0">SCAN SLUG NOT SUPPORTED</div>';
 		}
 		else {
 			$sHtml = $oTableBuilder

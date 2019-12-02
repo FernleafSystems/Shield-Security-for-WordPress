@@ -60,9 +60,17 @@ class Select extends Base\Select {
 	 */
 	public function filterByScan( $sScan ) {
 		if ( !empty( $sScan ) ) {
-			$this->addWhereEquals( 'scan', strtolower( $sScan ) );
+			$this->filterByScans( [ $sScan ] );
 		}
 		return $this;
+	}
+
+	/**
+	 * @param string[] $aScans
+	 * @return $this
+	 */
+	public function filterByScans( $aScans ) {
+		return $this->addWhereIn( 'scan', array_map( 'strtolower', $aScans ) );
 	}
 
 	/**
