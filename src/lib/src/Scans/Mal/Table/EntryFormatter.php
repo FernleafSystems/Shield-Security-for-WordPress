@@ -12,13 +12,23 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @return array
 	 */
 	public function format() {
+		$aE = $this->getBaseData();
+		$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
+		if ( !in_array( 'repair', $aE[ 'actions' ] ) ) {
+			$aE[ 'explanation' ][] = __( 'Repair Unavailable', 'wp-simple-firewall' );
+		}
 
+		return $aE;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getExplanation() {
 		/** @var Mal\ResultItem $oIt */
 		$oIt = $this->getResultItem();
-		$aE = $this->getBaseData();
 
-		$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
-		$aE[ 'explanation' ] = [
+		$aExpl = [
 			sprintf( '%s: %s', __( 'Pattern Detected' ), $this->getPatternForDisplay( base64_decode( $oIt->mal_sig ) ) ),
 			sprintf( '%s: %s', __( 'Affected line numbers' ),
 				implode( ', ', array_map(
@@ -33,18 +43,14 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-			$aE[ 'explanation' ][] = sprintf( '%s: %s/100 [%s]',
+			$aExpl[] = sprintf( '%s: %s/100 [%s]',
 				__( 'False Positive Confidence' ),
 				sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ),
 				sprintf( '<a href="%s" target="_blank">%s&nearr;</a>', 'https://shsec.io/isthismalware', __( 'more info', 'wp-simple-firewall' ) )
 			);
 		}
 
-		if ( !in_array( 'repair', $aE[ 'actions' ] ) ) {
-			$aE[ 'explanation' ][] = __( 'Repair Unavailable', 'wp-simple-firewall' );
-		}
-
-		return $aE;
+		return $aExpl;
 	}
 
 	/**

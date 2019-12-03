@@ -17,12 +17,20 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$oIt = $this->getResultItem();
 
 		$aE = $this->getBaseData();
-
 		$aE[ 'status' ] = $oIt->is_different ? __( 'Modified', 'wp-simple-firewall' )
 			: ( $oIt->is_missing ? __( 'Missing', 'wp-simple-firewall' ) : __( 'Unrecognised', 'wp-simple-firewall' ) );
+		return $aE;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getExplanation() {
+		/** @var ResultItem $oIt */
+		$oIt = $this->getResultItem();
 
 		if ( $oIt->is_different ) {
-			$aE[ 'explanation' ] = [
+			$aExpl = [
 				__( "This file appears to have been modified from its original content.", 'wp-simple-firewall' )
 				.' '.__( "This may be okay if you're editing files directly on your site.", 'wp-simple-firewall' ),
 				__( "You may want to download it to ensure that the contents are as you expect.", 'wp-simple-firewall' )
@@ -31,7 +39,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			];
 		}
 		elseif ( $oIt->is_missing ) {
-			$aE[ 'explanation' ] = [
+			$aExpl = [
 				__( "This file appears to have been removed from your site.", 'wp-simple-firewall' )
 				.' '.__( "This may be okay if you're editing files directly on your site.", 'wp-simple-firewall' ),
 				__( "If you're unsure, you should check whether this is okay.", 'wp-simple-firewall' )
@@ -40,7 +48,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			];
 		}
 		else {
-			$aE[ 'explanation' ] = [
+			$aExpl = [
 				__( "This file appears to have been added to your site.", 'wp-simple-firewall' ),
 				__( "This is not normal in the vast majority of cases.", 'wp-simple-firewall' ),
 				__( "You may want to download it to ensure that the contents are what you expect.", 'wp-simple-firewall' )
@@ -48,7 +56,8 @@ class EntryFormatter extends BaseFileEntryFormatter {
 					__( 'Ignore', 'wp-simple-firewall' ), __( 'Delete', 'wp-simple-firewall' ) ),
 			];
 		}
-		return $aE;
+
+		return $aExpl;
 	}
 
 	/**

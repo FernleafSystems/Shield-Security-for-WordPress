@@ -14,6 +14,7 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 	protected function getBaseData() {
 		$aData = parent::getBaseData();
 		$oIt = $this->getResultItem();
+		$aE[ 'explanation' ] = $this->getExplanation();
 		$aData[ 'path' ] = $oIt->path_fragment;
 		$aData[ 'path_relabs' ] = Services::WpFs()->getPathRelativeToAbsPath( $oIt->path_full );
 		$aData[ 'created_at' ] = $this->formatTimestampField( $this->getEntryVO()->created_at );
@@ -23,5 +24,12 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 			array_flip( array_unique( $this->getSupportedActions() ) )
 		);
 		return $aData;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getExplanation() {
+		return [];
 	}
 }
