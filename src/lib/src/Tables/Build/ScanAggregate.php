@@ -18,6 +18,10 @@ class ScanAggregate extends BaseBuild {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
+		/** @var Shield\Modules\HackGuard\Strings $oStrings */
+		$oStrings = $this->getMod()->getStrings();
+		$aScanNames = $oStrings->getScanNames();
+
 		$aScanRowTracker = [];
 		/** @var Scanner\EntryVO $oEntry */
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
@@ -25,7 +29,7 @@ class ScanAggregate extends BaseBuild {
 				$aScanRowTracker[ $oEntry->scan ] = $oEntry->scan;
 				$aEntries[ $oEntry->scan ] = [
 					'custom_row' => true,
-					'title'      => $oEntry->scan,
+					'title'      => $aScanNames[ $oEntry->scan ],
 				];
 			}
 			$aEntries[ $nKey ] = ( new ScanActionFromSlug() )

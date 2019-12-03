@@ -25,7 +25,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			$aE[ 'explanation' ] = [
 				__( 'This file is an official WordPress core file.', 'wp-simple-firewall' ),
 				__( "But, it appears to have been modified when compared to the official WordPress distribution.", 'wp-simple-firewall' )
-				.__( "This is not normal in the vast majority of cases.", 'wp-simple-firewall' ),
+				.' '.__( "This is not normal in the vast majority of cases.", 'wp-simple-firewall' ),
 				__( "You may want to download it to ensure that the contents are what you expect.", 'wp-simple-firewall' )
 				.' '.sprintf( __( "You can then click to '%s' or '%s' the file.", 'wp-simple-firewall' ),
 					__( 'Ignore', 'wp-simple-firewall' ), __( 'Repair', 'wp-simple-firewall' ) ),

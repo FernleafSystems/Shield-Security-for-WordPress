@@ -58,7 +58,10 @@ class ScanAggregate extends ScanBase {
 	 * @param array $aItem
 	 */
 	public function single_row_custom( $aItem ) {
-		$sRowContent = $aItem[ 'title' ]; // TODO: find out the columns
-		echo sprintf( '<tr><td colspan=%s><h5>%s</h5></td></tr>', count( $this->get_columns() ), $sRowContent );
+		$sRowContent = sprintf( '%s: %s', __( 'Scan Area', 'wp-simple-firewall' ), $aItem[ 'title' ] );
+		echo sprintf( '<tr class="row-sticky"><td colspan=%s><h5>%s</h5></td></tr>',
+			count( $this->get_columns() ),
+			$sRowContent
+		);
 	}
 }
