@@ -18,17 +18,38 @@ class ScanAggregate extends BaseBuild {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		$oActionGetter = new ScanActionFromSlug();
+		$aScanRowTracker = [];
+		/** @var Scanner\EntryVO $oEntry */
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Scanner\EntryVO $oEntry */
-			$aEntries[ $nKey ] = $oActionGetter->getAction( $oEntry->scan )
-											   ->getTableEntryFormatter()
-											   ->setMod( $this->getMod() )
-											   ->setEntryVO( $oEntry )
-											   ->format();
+			if ( empty( $aScanRowTracker[ $oEntry->scan ] ) ) {
+				$aScanRowTracker[ $oEntry->scan ] = $oEntry->scan;
+				$aEntries[ $oEntry->scan ] = [
+					'custom_row' => true,
+					'title'      => $oEntry->scan,
+				];
+			}
+			$aEntries[ $nKey ] = ( new ScanActionFromSlug() )
+				->getAction( $oEntry->scan )
+				->getTableEntryFormatter()
+				->setMod( $this->getMod() )
+				->setEntryVO( $oEntry )
+				->format();
 		}
 
 		return $aEntries;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getParamDefaults() {
+		return array_merge(
+			parent::getParamDefaults(),
+			[
+				'orderby' => 'scan',
+				'limit'   => PHP_INT_MAX
+			]
+		);
 	}
 
 	/**

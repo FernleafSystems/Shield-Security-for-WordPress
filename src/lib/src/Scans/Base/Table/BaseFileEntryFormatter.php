@@ -18,6 +18,7 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 		$aData[ 'path_relabs' ] = Services::WpFs()->getPathRelativeToAbsPath( $oIt->path_full );
 		$aData[ 'created_at' ] = $this->formatTimestampField( $this->getEntryVO()->created_at );
 		$aData[ 'href_download' ] = $this->getMod()->createFileDownloadLink( $this->getEntryVO() );
+		$aData[ 'custom_row' ] = false;
 		return $aData;
 	}
 }

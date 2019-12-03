@@ -52,4 +52,13 @@ class ScanAggregate extends ScanBase {
 			parent::get_columns()
 		);
 	}
+
+	/**
+	 * override this in order to display a custom row
+	 * @param array $aItem
+	 */
+	public function single_row_custom( $aItem ) {
+		$sRowContent = $aItem[ 'title' ]; // TODO: find out the columns
+		echo sprintf( '<tr><td colspan=%s><h5>%s</h5></td></tr>', count( $this->get_columns() ), $sRowContent );
+	}
 }

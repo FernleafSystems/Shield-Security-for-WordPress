@@ -23,7 +23,7 @@ class Base extends \WP_List_Table {
 	protected $nTotalRecords;
 
 	/**
-	 * @var array
+	 * @ array
 	 */
 	protected $aItemEntries;
 
@@ -102,6 +102,23 @@ class Base extends \WP_List_Table {
 	 */
 	protected function get_items_per_page( $option, $default = 20 ) {
 		return $this->getPerPage();
+	}
+
+	public function single_row( $item ) {
+		if ( empty( $item[ 'custom_row' ] ) ) { // it's a normal row so render as always
+			parent::single_row( $item );
+		}
+		else {
+			$this->single_row_custom( $item );
+		}
+	}
+
+	/**
+	 * override this in order to display a custom row
+	 * @param $aItem
+	 */
+	public function single_row_custom( $aItem ) {
+		parent::single_row( $aItem );
 	}
 
 	/**
