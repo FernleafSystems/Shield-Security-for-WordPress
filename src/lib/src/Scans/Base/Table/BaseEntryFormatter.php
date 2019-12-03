@@ -32,7 +32,7 @@ abstract class BaseEntryFormatter {
 	 * @return array[]
 	 */
 	protected function getActionDefinitions() {
-		$aDefs = [
+		return [
 			'ignore'   => [
 				'text'    => __( 'Ignore', 'wp-simple-firewall' ),
 				'classes' => [ 'ignore' ],
@@ -54,11 +54,6 @@ abstract class BaseEntryFormatter {
 				'data'    => [ 'href-download' => $this->getMod()->createFileDownloadLink( $this->getEntryVO() ) ]
 			],
 		];
-		foreach ( $aDefs as $sKey => $aDef ) {
-			$aDefs[ $sKey ][ 'data' ][ 'rid' ] = $this->getEntryVO()->id;
-			$aDefs[ $sKey ][ 'classes' ][] = 'action';
-		}
-		return $aDefs;
 	}
 
 	/**

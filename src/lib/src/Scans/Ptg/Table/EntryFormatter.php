@@ -23,6 +23,30 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	protected function getActionDefinitions() {
+		/** @var ResultItem $oIt */
+		$oIt = $this->getResultItem();
+		$sAssetType = ( $oIt->context == 'plugins' ? __( 'Plugin', 'wp-simple-firewall' ) : __( 'Theme', 'wp-simple-firewall' ) );
+		return array_merge(
+			parent::getActionDefinitions(),
+			[
+				'ignore_asset' => [
+					'text'    => sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), $sAssetType ),
+					'classes' => [ 'reinstall', 'text-warning' ],
+					'data'    => []
+				],
+				'reinstall'    => [
+					'text'    => sprintf( __( 'Re-Install %s', 'wp-simple-firewall' ), $sAssetType ),
+					'classes' => [ 'reinstall', 'text-warning' ],
+					'data'    => []
+				],
+			]
+		);
+	}
+
+	/**
 	 * @return string[]
 	 */
 	protected function getExplanation() {
@@ -70,34 +94,35 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$aExtras = [
 			'ignore_asset'
 		];
-		if ( !$oIt->is_missing ) {
-			$aExtras[] = 'download';
+
+		if ( $oIt->context == 'plugins' ) {
+			$oAsset = Services::WpPlugins()->getPluginAsVo( $oIt->slug );
+			$bCanRepair = ( $oAsset instanceof VOs\WpPluginVo && $oAsset->isWpOrg() && $oAsset->svn_uses_tags );
+			$bHasUpdate = $oAsset->hasUpdate();
+		}
+		else {
+			$oAsset = Services::WpThemes()->getThemeAsVo( $oIt->slug );
+			$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
+			$bHasUpdate = $oAsset->hasUpdate();
+		}
+
+		if ( $bHasUpdate ) {
+			$aExtras[] = 'update';
 		}
 
 		if ( $oIt->is_unrecognised ) {
 			$aExtras[] = 'delete';
 		}
-		else {
-			if ( $oIt->context == 'plugins' ) {
-				$oAsset = Services::WpPlugins()->getPluginAsVo( $oIt->slug );
-				$bCanRepair = ( $oAsset instanceof VOs\WpPluginVo && $oAsset->isWpOrg() && $oAsset->svn_uses_tags );
-				$bHasUpdate = $oAsset->hasUpdate();
-			}
-			else {
-				$oAsset = Services::WpThemes()->getThemeAsVo( $oIt->slug );
-				$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
-				$bHasUpdate = $oAsset->hasUpdate();
-			}
+		elseif ( $bCanRepair ) {
+			$aExtras[] = 'repair';
+		}
 
-			if ( $bHasUpdate ) {
-				$aExtras[] = 'update';
-			}
-			if ( $bCanRepair ) {
-				$aExtras[] = 'repair';
-			}
-			if ( $bCanRepair && !$bHasUpdate ) {
-				$aExtras[] = 'repair_asset';
-			}
+		if ( $bCanRepair && !$bHasUpdate ) {
+			$aExtras[] = 'reinstall';
+		}
+
+		if ( !$oIt->is_missing ) {
+			$aExtras[] = 'download';
 		}
 
 		return array_merge( parent::getSupportedActions(), $aExtras );
