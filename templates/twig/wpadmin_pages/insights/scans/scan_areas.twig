@@ -1,16 +1,14 @@
 <form id="StartScans">
-	<div class="card">
+	<h6 class="text-center mt-2"><a data-toggle="collapse"
+		  href="#Collapse_ScanResults">{{ strings.scan_options }} &updownarrow;</a></h6>
+	<div class="card collapse"  id="Collapse_ScanResults">
 		<div class="card-header">
 			<h5 class="card-title">
 				{{ strings.title_scan_now }}
-				<small>
-					<a class="float-right" data-toggle="collapse"
-					   href="#Collapse_ScanResults">{{ strings.scan_options }} &updownarrow;</a>
-				</small>
 			</h5>
 			<h6 class="card-subtitle text-muted">{{ strings.subtitle_scan_now }}</h6>
 		</div>
-		<div class="card-body pb-2 collapse" id="Collapse_ScanResults">
+		<div class="card-body pb-2">
 
 			<div class="row">
 				<div class="col-12">

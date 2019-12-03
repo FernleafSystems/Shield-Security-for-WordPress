@@ -1,35 +1,42 @@
-<div class="row" id="ScanResultsPills">
-	<div class="col-sm-3 col-md-3 col-xl-2">
-		<nav class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+		<ul class="nav nav-tabs" id="h-tabs-tab" role="tablist">
+
+			<li class="nav-item">
+				<a class="nav-link active ml-3 mr-2" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
+				   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
+					<span class="badge badge-{% if aggregate.count > 0 %}danger{% else %}success{% endif %}"
+					>{{ aggregate.count }}</span>
+					{{ aggregate.strings.title }}
+				</a>
+			</li>
+
 			{% for scankey,scanvars in scans %}
 				{% if scanvars.flags.show_table %}
-					<a class="nav-link " id="v-pills-home-tab" data-toggle="pill" href="#v-pills-{{ scankey }}"
-					   role="tab" aria-controls="v-pills-{{ scankey }}" aria-selected="true">
-						<span class="badge badge-{% if scanvars.count > 0 %}danger{% else %}success{% endif %}"
-						>{{ scanvars.count }}</span>
-							{{ scanvars.strings.title }}
-					</a>
+					<li class="nav-item">
+						<a class="nav-link mr-2" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-{{ scankey }}"
+						   role="tab" aria-controls="h-tabs-{{ scankey }}">
+							<span class="badge badge-{% if scanvars.count > 0 %}danger{% else %}success{% endif %}"
+							>{{ scanvars.count }}</span>
+								{{ scanvars.strings.title }}
+						</a>
+					</li>
 				{% endif %}
 			{% endfor %}
-		</nav>
-	</div>
-	<div class="col-sm-9 col-md-9 col-xl-10">
-		<div class="tab-content" id="v-pills-tabContent">
-			<div class="tab-pane fade show active" id="v-pills-start" role="tabpanel"
-				 aria-labelledby="v-pills-home-tab">
-				<span class="alert alert-dark d-inline-block m-3">&larr; {{ strings.click_see_results }}</span>
+		</ul>
+		<div class="tab-content" id="h-tabs-tabContent">
+			<div class="tab-pane show active" id="h-tabs-aggregate" role="tabpanel"
+				 aria-labelledby="h-tabs-aggregate-tab">
+				{% set scan = aggregate %}
+				{% include '/wpadmin_pages/insights/scans/results/aggregate.twig' %}
 			</div>
 			{% for scankey,scanvars in scans %}
 				{% if scanvars.flags.show_table %}
-					<div class="tab-pane " id="v-pills-{{ scankey }}" role="tabpanel"
-						 aria-labelledby="v-pills-{{ scankey }}-tab">
+					<div class="tab-pane" id="h-tabs-{{ scankey }}" role="tabpanel"
+						 aria-labelledby="h-tabs-{{ scankey }}-tab">
 						{% set scan = attribute(scans, scankey) %}
 						{% include '/wpadmin_pages/insights/scans/results/'~scankey~'.twig' %}
 					</div>
 				{% endif %}
 			{% endfor %}
-			{#<div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">...</div>#}
-			{#<div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">...</div>#}
+			{#<div class="tab-pane fade show active" id="h-tabs-home" role="tabpanel" aria-labelledby="h-tabs-home-tab">...</div>#}
+			{#<div class="tab-pane fade" id="h-tabs-profile" role="tabpanel" aria-labelledby="h-tabs-profile-tab">...</div>#}
 		</div>
-	</div>
-</div>

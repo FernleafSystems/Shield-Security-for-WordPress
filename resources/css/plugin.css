@@ -1037,24 +1037,20 @@ table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
 
-#ScanResultsPills {
-	margin-top: 25px;
+#ScanResultsTabs {
+	margin-top: 15px;
 }
-#ScanResultsPills nav > a.nav-link {
+#ScanResultsTabs ul.nav.nav-tabs a.nav-link {
 	color: #666666;
-	height: 72px;
-	margin-bottom: 15px;
+	font-size: 1.4rem;
 }
-#ScanResultsPills nav > a.nav-link.active {
-	background-color: transparent;
+#ScanResultsTabs ul.nav.nav-tabs a.nav-link.active {
 	color: #333333;
-	font-weight: bolder;
-	font-size: 14px;
 }
-#ScanResultsPills .card.card-scan_results {
+#ScanResultsTabs .card.card-scan_results {
 	margin-top: 0;
 }
-#ScanResultsPills nav > a.nav-link .badge {
+#ScanResultsTabs nav > a.nav-link .badge {
 	font-size: 12px;
 }
 
@@ -1068,10 +1064,9 @@ PTG SCAN TABLES
 	display: none;
 }
 
-
 .card.card-scan_results {
-	/*background-color: transparent;*/
-	/*border: 0 none;*/
+	background-color: transparent;
+	border: 0 none;
 }
 .card.card-scan_results .card-header {
 	background-color: transparent;
@@ -1093,7 +1088,7 @@ table.odp-table.scan-table td.column-path code {
 	/*display: none;*/
 }
 .container-scantable {
-	max-height: 500px;
+	max-height: 650px;
 	overflow: auto;
 }
 .container-scantable .tablenav.top,
