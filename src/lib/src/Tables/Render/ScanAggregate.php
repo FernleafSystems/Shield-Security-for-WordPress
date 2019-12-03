@@ -22,6 +22,18 @@ class ScanAggregate extends ScanBase {
 	}
 
 	/**
+	 * @param array $aItem
+	 * @return string
+	 */
+	public function column_status( $aItem ) {
+		$sStatus = sprintf( '<strong>%s</strong>', $aItem[ 'status' ] );
+		if ( !empty( $aItem[ 'explanation' ] ) ) {
+			$sStatus .= '<ul><li>'.implode( '</li><li>', $aItem[ 'explanation' ] ).'</li></ul>';
+		}
+		return $sStatus;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
