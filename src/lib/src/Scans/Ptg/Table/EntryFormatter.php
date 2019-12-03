@@ -32,14 +32,15 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		return array_merge(
 			parent::getActionDefinitions(),
 			[
-				'ignore_asset' => [
-					'text'    => sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), $sAssetType ),
-					'classes' => [ 'reinstall', 'text-warning' ],
-					'data'    => []
+				'accept_asset' => [
+					'text'    => sprintf( __( 'Accept %s', 'wp-simple-firewall' ), $sAssetType ),
+					'title'   => sprintf( __( 'Accept all existing file changes for this %s.' ), $sAssetType ),
+					'classes' => [ 'accept' ],
+					'data'    => [],
 				],
 				'reinstall'    => [
 					'text'    => sprintf( __( 'Re-Install %s', 'wp-simple-firewall' ), $sAssetType ),
-					'classes' => [ 'reinstall', 'text-warning' ],
+					'classes' => [ 'reinstall' ],
 					'data'    => []
 				],
 			]
@@ -92,7 +93,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$oIt = $this->getResultItem();
 
 		$aExtras = [
-			'ignore_asset'
+			'accept_asset'
 		];
 
 		if ( $oIt->context == 'plugins' ) {

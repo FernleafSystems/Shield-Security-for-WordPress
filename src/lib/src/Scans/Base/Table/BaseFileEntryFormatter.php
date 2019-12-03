@@ -41,22 +41,22 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 	protected function getActionDefinitions() {
 		return [
 			'ignore'   => [
-				'text'    => __( 'Ignore File', 'wp-simple-firewall' ),
+				'text'    => sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
 				'classes' => [ 'ignore' ],
 				'data'    => []
 			],
 			'delete'   => [
-				'text'    => __( 'Delete File', 'wp-simple-firewall' ),
+				'text'    => sprintf( __( 'Delete %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
 				'classes' => [ 'delete', 'text-danger' ],
 				'data'    => []
 			],
 			'repair'   => [
-				'text'    => __( 'Repair File', 'wp-simple-firewall' ),
+				'text'    => sprintf( __( 'Repair %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
 				'classes' => [ 'repair', 'text-success' ],
 				'data'    => []
 			],
 			'download' => [
-				'text'    => __( 'Download File', 'wp-simple-firewall' ),
+				'text'    => sprintf( __( 'Download %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
 				'classes' => [ 'href-download', 'text-info' ],
 				'data'    => [ 'href-download' => $this->getMod()->createFileDownloadLink( $this->getEntryVO() ) ]
 			],
