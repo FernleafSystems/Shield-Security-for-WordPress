@@ -20,7 +20,7 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 		$aData[ 'custom_row' ] = false;
 		$aData[ 'actions' ] = array_intersect_key(
 			$this->getActionDefinitions(),
-			array_flip( $this->getSupportedActions() )
+			array_flip( array_unique( $this->getSupportedActions() ) )
 		);
 		return $aData;
 	}

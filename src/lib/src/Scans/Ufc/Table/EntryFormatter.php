@@ -21,4 +21,14 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		];
 		return $aE;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getSupportedActions() {
+		return array_merge(
+			parent::getSupportedActions(),
+			[ 'delete', 'download' ]
+		);
+	}
 }

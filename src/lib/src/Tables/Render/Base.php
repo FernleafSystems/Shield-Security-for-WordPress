@@ -170,7 +170,7 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param string|string[] $aButtons
+	 * @param string $aButtons
 	 * @return string
 	 */
 	protected function buildActions( $aButtons ) {
