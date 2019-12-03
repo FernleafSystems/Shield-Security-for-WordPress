@@ -178,6 +178,26 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
+	 * @param array $aProps
+	 * @return string
+	 */
+	protected function buildActionButton_CustomArray( $aProps ) {
+		$sTitle = empty( $aProps[ 'title' ] ) ? $aProps[ 'text' ] : $aProps[ 'title' ];
+
+		$aClasses = $aProps[ 'classes' ];
+		if ( in_array( 'disabled', $aClasses ) ) {
+			$aClasses[] = 'text-dark';
+		}
+
+		$aDataAttrs = [];
+		foreach ( $aProps[ 'data' ] as $sKey => $sValue ) {
+			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
+		}
+		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
+			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $aProps[ 'text' ] );
+	}
+
+	/**
 	 * @param array  $aClasses
 	 * @param array  $aData
 	 * @param string $sText
@@ -185,22 +205,13 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) {
-		if ( empty( $sTitle ) ) {
-			$sTitle = $sText;
-		}
-
 		$aClasses[] = 'action';
-
-		if ( in_array( 'disabled', $aClasses ) ) {
-			$aClasses[] = 'text-dark';
-		}
-
-		$aDataAttrs = [];
-		foreach ( $aData as $sKey => $sValue ) {
-			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
-		}
-		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
-			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $sText );
+		return $this->buildActionButton_CustomArray( [
+			'text'    => $sText,
+			'classes' => $aClasses,
+			'data'    => $aData,
+			'title'   => $sTitle
+		] );
 	}
 
 	/**

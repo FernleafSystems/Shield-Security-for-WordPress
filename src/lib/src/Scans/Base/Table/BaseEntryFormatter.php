@@ -20,6 +20,48 @@ abstract class BaseEntryFormatter {
 	abstract public function format();
 
 	/**
+	 * @return string[]
+	 */
+	protected function getSupportedActions() {
+		return [
+			'ignore'
+		];
+	}
+
+	/**
+	 * @return array[]
+	 */
+	protected function getActionDefinitions() {
+		$aDefs = [
+			'ignore'   => [
+				'text'    => __( 'Ignore', 'wp-simple-firewall' ),
+				'classes' => [ 'ignore' ],
+				'data'    => []
+			],
+			'delete'   => [
+				'text'    => __( 'Delete', 'wp-simple-firewall' ),
+				'classes' => [ 'delete', 'text-danger' ],
+				'data'    => []
+			],
+			'repair'   => [
+				'text'    => __( 'Repair', 'wp-simple-firewall' ),
+				'classes' => [ 'repair', 'text-success' ],
+				'data'    => []
+			],
+			'download' => [
+				'text'    => __( 'Download', 'wp-simple-firewall' ),
+				'classes' => [ 'href-download', 'text-info' ],
+				'data'    => [ 'href-download' => $this->getMod()->createFileDownloadLink( $this->getEntryVO() ) ]
+			],
+		];
+		foreach ( $aDefs as $sKey => $aDef ) {
+			$aDefs[ $sKey ][ 'data' ][ 'rid' ] = $this->getEntryVO()->id;
+			$aDefs[ $sKey ][ 'classes' ][] = 'action';
+		}
+		return $aDefs;
+	}
+
+	/**
 	 * @return array
 	 */
 	protected function getBaseData() {

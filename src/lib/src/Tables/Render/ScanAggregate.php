@@ -11,14 +11,21 @@ class ScanAggregate extends ScanBase {
 	 * @return string
 	 */
 	public function column_path( $aItem ) {
-		$aButtons = [
-			$this->getActionButton_Ignore( $aItem[ 'id' ] ),
-			$this->getActionButton_Repair( $aItem[ 'id' ] ),
-		];
-		if ( !empty( $aItem[ 'href_download' ] ) ) {
-			$aButtons[] = $this->getActionButton_DownloadFile( $aItem[ 'href_download' ] );
+
+		$sContent = parent::column_path( $aItem );
+
+		if ( !empty( $aItem[ 'actions' ] ) ) {
+			$sContent .= $this->buildActions(
+				array_map(
+					function ( $aActionDef ) {
+						return $this->buildActionButton_CustomArray( $aActionDef );
+					},
+					$aItem[ 'actions' ]
+				)
+			);
 		}
-		return parent::column_path( $aItem ).$this->buildActions( $aButtons );
+
+		return $sContent;
 	}
 
 	/**
