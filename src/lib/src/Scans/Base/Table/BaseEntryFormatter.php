@@ -20,6 +20,13 @@ abstract class BaseEntryFormatter {
 	abstract public function format();
 
 	/**
+	 * @return array
+	 */
+	protected function getBaseData() {
+		return $this->getEntryVO()->getRawDataAsArray();
+	}
+
+	/**
 	 * @return Scans\Base\BaseResultItem|mixed
 	 */
 	protected function getResultItem() {

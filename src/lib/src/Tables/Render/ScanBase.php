@@ -11,7 +11,10 @@ class ScanBase extends Base {
 	 * @return string
 	 */
 	public function column_path( $aItem ) {
-		return sprintf( '<code>%s</code>', $aItem[ 'path' ] );
+		return sprintf( '<code>%s</code><code>[%s]</code>',
+			$aItem[ 'path' ],
+			sprintf( '%s: %s', __( 'Folder', 'wp-simple-firewall' ), trailingslashit( dirname( $aItem[ 'path_relabs' ] ) ) )
+		);
 	}
 
 	protected function extra_tablenav( $which ) {

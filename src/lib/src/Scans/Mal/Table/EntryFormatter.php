@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal\Table;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseFileEntryFormatter;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
-class EntryFormatter extends BaseEntryFormatter {
+class EntryFormatter extends BaseFileEntryFormatter {
 
 	/**
 	 * @return array
@@ -18,12 +18,9 @@ class EntryFormatter extends BaseEntryFormatter {
 		$oOpts = $this->getOptions();
 		$oRepairer = ( new Mal\Repair() )->setMod( $oMod );
 
-		$oEntry = $this->getEntryVO();
 		/** @var Mal\ResultItem $oIt */
 		$oIt = $this->getResultItem();
-
-		$aE = $oEntry->getRawDataAsArray();
-		$aE[ 'path' ] = $oIt->path_fragment;
+		$aE = $this->getBaseData();
 
 		$aStatus = [
 			__( 'Potential Malware Detected', 'wp-simple-firewall' ),
@@ -56,8 +53,6 @@ class EntryFormatter extends BaseEntryFormatter {
 
 		$aE[ 'status' ] = implode( '<br/>', $aStatus );
 		$aE[ 'can_repair' ] = $bCanRepair;
-		$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-		$aE[ 'href_download' ] = $oMod->createFileDownloadLink( $oEntry );
 		return $aE;
 	}
 
