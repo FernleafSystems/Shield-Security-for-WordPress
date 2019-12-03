@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Table;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseFileEntryFormatter;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem;
+use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Services\Services;
 
 class EntryFormatter extends BaseFileEntryFormatter {
 
@@ -15,9 +17,6 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$oIt = $this->getResultItem();
 
 		$aE = $this->getBaseData();
-		if ( $oIt->is_missing ) {
-			$aE[ 'href_download' ] = false;
-		}
 
 		$aE[ 'status' ] = $oIt->is_different ? __( 'Modified', 'wp-simple-firewall' )
 			: ( $oIt->is_missing ? __( 'Missing', 'wp-simple-firewall' ) : __( 'Unrecognised', 'wp-simple-firewall' ) );
@@ -50,5 +49,48 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			];
 		}
 		return $aE;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function getSupportedActions() {
+		/** @var ResultItem $oIt */
+		$oIt = $this->getResultItem();
+
+		$aExtras = [
+			'ignore_asset'
+		];
+		if ( !$oIt->is_missing ) {
+			$aExtras[] = 'download';
+		}
+
+		if ( $oIt->is_unrecognised ) {
+			$aExtras[] = 'delete';
+		}
+		else {
+			if ( $oIt->context == 'plugins' ) {
+				$oAsset = Services::WpPlugins()->getPluginAsVo( $oIt->slug );
+				$bCanRepair = ( $oAsset instanceof VOs\WpPluginVo && $oAsset->isWpOrg() && $oAsset->svn_uses_tags );
+				$bHasUpdate = $oAsset->hasUpdate();
+			}
+			else {
+				$oAsset = Services::WpThemes()->getThemeAsVo( $oIt->slug );
+				$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
+				$bHasUpdate = $oAsset->hasUpdate();
+			}
+
+			if ( $bHasUpdate ) {
+				$aExtras[] = 'update';
+			}
+			if ( $bCanRepair ) {
+				$aExtras[] = 'repair';
+			}
+			if ( $bCanRepair && !$bHasUpdate ) {
+				$aExtras[] = 'repair_asset';
+			}
+		}
+
+		return array_merge( parent::getSupportedActions(), $aExtras );
 	}
 }

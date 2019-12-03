@@ -15,9 +15,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$oIt = $this->getResultItem();
 
 		$aE = $this->getBaseData();
-		if ( $oIt->is_missing ) {
-			$aE[ 'href_download' ] = false;
-		}
+
 		$aE[ 'status' ] = $oIt->is_checksumfail ? __( 'Modified', 'wp-simple-firewall' )
 			: ( $oIt->is_missing ? __( 'Missing', 'wp-simple-firewall' ) : __( 'Unknown', 'wp-simple-firewall' ) );
 

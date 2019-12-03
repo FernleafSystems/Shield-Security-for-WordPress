@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
 
 /**
@@ -16,22 +17,30 @@ class ScanAggregate extends BaseBuild {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
-		{
-			// first filter out PTG results as we process them a bit separately.
-			$aPtgScanEntries = [];
-			$aRaw = $this->getEntriesRaw();
-			/** @var $oEntry Scanner\EntryVO */
-			foreach ( $aRaw as $nKeyId => $oEntry ) {
-				if ( $oEntry->scan == 'ptg' ) {
-					unset( $aRaw[ $nKeyId ] );
-					$aPtgScanEntries[ $nKeyId ] = $oEntry;
-				}
+		// first filter out PTG results as we process them a bit separately.
+		$aPtgScanEntries = [];
+		$aRaw = $this->getEntriesRaw();
+		/** @var $oEntry Scanner\EntryVO */
+		foreach ( $aRaw as $nKeyId => $oEntry ) {
+			if ( $oEntry->scan == 'ptg' ) {
+				unset( $aRaw[ $nKeyId ] );
+				$aPtgScanEntries[ $nKeyId ] = $oEntry;
 			}
 		}
 
 		$aEntries = $this->processEntriesGroup( $aRaw );
 
-		return $aEntries;
+		// Group all PTG entries together
+		usort( $aPtgScanEntries, function ( $oE1, $oE2 ) {
+			/** @var $oE1 EntryVO */
+			/** @var $oE2 EntryVO */
+			return strcasecmp( $oE1->meta[ 'path_full' ], $oE2->meta[ 'path_full' ] );
+		} );
+
+		return array_merge(
+			$aEntries,
+			$this->processEntriesGroup( $aPtgScanEntries )
+		);
 	}
 
 	/**
