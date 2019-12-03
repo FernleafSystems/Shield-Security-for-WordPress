@@ -26,9 +26,6 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @inheritDoc
 	 */
 	protected function getSupportedActions() {
-		return array_merge(
-			parent::getSupportedActions(),
-			[ 'delete', 'download' ]
-		);
+		return array_merge( parent::getSupportedActions(), [ 'delete', 'download' ] );
 	}
 }

@@ -77,7 +77,7 @@ class BaseBuild {
 	}
 
 	/**
-	 * @return array[]|int|string[]|Shield\Databases\Base\EntryVO[]
+	 * @return array[]|string[]|Shield\Databases\Base\EntryVO[]|array
 	 */
 	protected function getEntriesRaw() {
 		$aEntries = $this->startQueryProcess()

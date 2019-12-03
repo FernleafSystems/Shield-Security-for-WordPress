@@ -16,23 +16,45 @@ class ScanAggregate extends BaseBuild {
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
-		$aEntries = [];
+		{
+			// first filter out PTG results as we process them a bit separately.
+			$aPtgScanEntries = [];
+			$aRaw = $this->getEntriesRaw();
+			/** @var $oEntry Scanner\EntryVO */
+			foreach ( $aRaw as $nKeyId => $oEntry ) {
+				if ( $oEntry->scan == 'ptg' ) {
+					unset( $aRaw[ $nKeyId ] );
+					$aPtgScanEntries[ $nKeyId ] = $oEntry;
+				}
+			}
+		}
+
+		$aEntries = $this->processEntriesGroup( $aRaw );
+
+		return $aEntries;
+	}
+
+	/**
+	 * @param Scanner\EntryVO[] $aEntries
+	 * @return array[]
+	 */
+	private function processEntriesGroup( $aEntries ) {
+		$aProcessedEntries = [];
 
 		/** @var Shield\Modules\HackGuard\Strings $oStrings */
 		$oStrings = $this->getMod()->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 
 		$aScanRowTracker = [];
-		/** @var Scanner\EntryVO $oEntry */
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
+		foreach ( $aEntries as $nKey => $oEntry ) {
 			if ( empty( $aScanRowTracker[ $oEntry->scan ] ) ) {
 				$aScanRowTracker[ $oEntry->scan ] = $oEntry->scan;
-				$aEntries[ $oEntry->scan ] = [
+				$aProcessedEntries[ $oEntry->scan ] = [
 					'custom_row' => true,
 					'title'      => $aScanNames[ $oEntry->scan ],
 				];
 			}
-			$aEntries[ $nKey ] = ( new ScanActionFromSlug() )
+			$aProcessedEntries[ $nKey ] = ( new ScanActionFromSlug() )
 				->getAction( $oEntry->scan )
 				->getTableEntryFormatter()
 				->setMod( $this->getMod() )
@@ -40,7 +62,7 @@ class ScanAggregate extends BaseBuild {
 				->format();
 		}
 
-		return $aEntries;
+		return $aProcessedEntries;
 	}
 
 	/**

@@ -48,9 +48,14 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @inheritDoc
 	 */
 	protected function getSupportedActions() {
-		return array_merge(
-			parent::getSupportedActions(),
-			[ 'repair', 'download' ]
-		);
+		$aExtras = [ 'repair' ];
+
+		/** @var ResultItem $oIt */
+		$oIt = $this->getResultItem();
+		if ( $oIt->is_checksumfail ) {
+			$aExtras[] = 'download';
+		}
+
+		return array_merge( parent::getSupportedActions(), $aExtras );
 	}
 }
