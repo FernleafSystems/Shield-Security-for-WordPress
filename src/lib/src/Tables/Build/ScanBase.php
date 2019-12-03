@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
@@ -14,6 +15,25 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScanBase extends BaseBuild {
 
 	use ScanActionConsumer;
+
+	/**
+	 * @return array[]
+	 */
+	protected function getEntriesFormatted() {
+		$aEntries = [];
+
+		$oActionGetter = new ScanActionFromSlug();
+		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
+			/** @var Scanner\EntryVO $oEntry */
+			$aEntries[ $nKey ] = $oActionGetter->getAction( $oEntry->scan )
+											   ->getTableEntryFormatter()
+											   ->setMod( $this->getMod() )
+											   ->setEntryVO( $oEntry )
+											   ->format();
+		}
+
+		return $aEntries;
+	}
 
 	/**
 	 * Override this to apply table-specific query filters.
@@ -49,9 +69,10 @@ class ScanBase extends BaseBuild {
 	 * @return array
 	 */
 	protected function getParamDefaults() {
-		$aP = parent::getParamDefaults();
-		$aP[ 'limit' ] = PHP_INT_MAX;
-		return $aP;
+		return array_merge(
+			parent::getParamDefaults(),
+			[ 'limit' => PHP_INT_MAX ]
+		);
 	}
 
 	/**
@@ -59,6 +80,7 @@ class ScanBase extends BaseBuild {
 	 * @return string
 	 */
 	protected function formatIsIgnored( $oEntry ) {
-		return ( $oEntry->ignored_at > 0 && Services::Request()->ts() > $oEntry->ignored_at ) ? __( 'Yes' ) : __( 'No' );
+		return ( $oEntry->ignored_at > 0 && Services::Request()->ts() > $oEntry->ignored_at ) ?
+			__( 'Yes' ) : __( 'No' );
 	}
 }
