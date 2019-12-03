@@ -197,6 +197,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 
 				case 'ignore':
 					$bSuccess = $this->itemIgnore( $oItem );
+					error_log( var_export( $bSuccess, true ) );
 					break;
 
 				case 'repair':
@@ -220,7 +221,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 					break;
 
 				default:
-					$bSuccess = false;
+					throw new \Exception( 'Unsupported Scan Item Action' );
 					break;
 			}
 		}

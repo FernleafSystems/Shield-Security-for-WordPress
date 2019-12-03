@@ -116,6 +116,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'item_delete'           => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'           => $oMod->getAjaxActionData( 'item_ignore', true ),
 				'item_repair'           => $oMod->getAjaxActionData( 'item_repair', true ),
+				'item_action'           => $oMod->getAjaxActionData( 'item_action', true ),
 			],
 			'flags'        => [
 				'is_premium' => $oMod->isPremium(),

@@ -76,6 +76,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			bindEvents: function () {
 				var plugin = this;
 
+				/*
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.delete',
@@ -87,7 +88,9 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						}
 					}
 				);
+				 */
 
+				/*
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.ignore',
@@ -97,6 +100,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						plugin.ignoreEntry.call( plugin );
 					}
 				);
+				 */
 
 				if ( typeof this.$oFormInsert !== 'undefined' && this.$oFormInsert.length ) {
 					this.$oFormInsert.on(
@@ -108,6 +112,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					);
 				}
 
+				/*
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.repair',
@@ -115,6 +120,18 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						evt.preventDefault();
 						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
 						plugin.repairEntry.call( plugin );
+					}
+				);
+				 */
+
+				plugin.$element.on(
+					'click' + '.' + plugin._name,
+					'button.action.item_action',
+					function ( evt ) {
+						evt.preventDefault();
+						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
+						plugin.options[ 'working_item_action' ] = $( this ).data( 'item_action' );
+						plugin.itemAction.call( plugin );
 					}
 				);
 
@@ -215,6 +232,13 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			repairEntry: function () {
 				let aRequestData = this.options[ 'ajax_item_repair' ];
 				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
+				this.sendReq( aRequestData );
+			},
+
+			itemAction: function () {
+				let aRequestData = this.options[ 'ajax_item_action' ];
+				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
+				aRequestData[ 'item_action' ] = this.options[ 'working_item_action' ];
 				this.sendReq( aRequestData );
 			},
 

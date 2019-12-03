@@ -28,6 +28,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_ScanItemAction( Services::Request()->post( 'bulk_action' ) );
 				break;
 
+			case 'item_action':
+				$aResponse = $this->ajaxExec_ScanItemAction( Services::Request()->post( 'item_action' ) );
+				break;
+
 			case 'item_asset_accept':
 			case 'item_asset_deactivate':
 			case 'item_asset_reinstall':
@@ -98,7 +102,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sHtml = '<div class="alert alert-danger m-0">SCAN SLUG NOT SUPPORTED</div>';
 		}
 		else {
-			if ( method_exists($oTableBuilder, 'setScanActionVO' )) {
+			if ( method_exists( $oTableBuilder, 'setScanActionVO' ) ) {
 				$oTableBuilder->setScanActionVO( ( new Scan\ScanActionFromSlug() )->getAction( $sScanSlug ) );
 			}
 			$sHtml = $oTableBuilder
@@ -154,17 +158,13 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		$sItemId = $oReq->post( 'rid' );
 		$aItemIds = $oReq->post( 'ids' );
-		$sScanSlug = $oReq->post( 'fScan' );
 
 		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 		$oP = $oMod->getProcessor();
-		$oScanner = $oP->getSubProScanner();
-		$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
 
-		if ( empty( $oTablePro ) ) {
-			$sMessage = __( 'Unsupported scanner', 'wp-simple-firewall' );
-		}
-		else if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
+		$oDbh = $oMod->getDbHandler_ScanResults();
+
+		if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
 			$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
 		}
 		else {
@@ -172,12 +172,26 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aItemIds = [ $sItemId ];
 			}
 
+			$aItemIds = array_filter( array_map( function ( $sId ) {
+				return is_numeric( $sId ) ? (int)$sId : false;
+			}, $aItemIds ) );
+
 			try {
 				$aSuccessfulItems = [];
 
+				$aScanSlugs = [];
 				foreach ( $aItemIds as $sId ) {
-					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
-						$aSuccessfulItems[] = $sId;
+					/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+					$oEntry = $oDbh->getQuerySelector()
+								   ->byId( $sId );
+					if ( $oEntry instanceof Shield\Databases\Scanner\EntryVO ) {
+						$aScanSlugs[] = $oEntry->scan;
+						$bItemActionSuccess = $oP->getSubProScanner()
+												 ->getScannerFromSlug( $oEntry->scan )
+												 ->executeItemAction( $sId, $sAction );
+						if ( $bItemActionSuccess ) {
+							$aSuccessfulItems[] = $sId;
+						}
 					}
 				}
 
@@ -191,7 +205,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				// We don't rescan for ignores.
 				if ( !in_array( $sAction, [ 'ignore' ] ) ) {
-					$oScanCon->startScans( [ $sScanSlug ] );
+					$oScanCon->startScans( $aScanSlugs );
 					$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 				}
 				else {
@@ -300,7 +314,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					$sMessage = $bAsync ?
 						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' )
 						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
-
 				}
 			}
 			$oScanCon->startScans( $aScansToStart );

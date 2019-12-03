@@ -20,17 +20,24 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 		$aData[ 'created_at' ] = $this->formatTimestampField( $this->getEntryVO()->created_at );
 		$aData[ 'custom_row' ] = false;
 
-		$aData[ 'actions' ] = array_map(
-			function ( $aActionDef ) {
-				$aActionDef[ 'data' ][ 'rid' ] = $this->getEntryVO()->id;
-				$aActionDef[ 'classes' ][] = 'action';
-				return $aActionDef;
-			},
-			array_intersect_key(
-				$this->getActionDefinitions(),
-				array_flip( array_unique( $this->getSupportedActions() ) )
-			)
+		$aActionDefs = array_intersect_key(
+			$this->getActionDefinitions(),
+			array_flip( array_unique( $this->getSupportedActions() ) )
 		);
+		foreach ( $aActionDefs as $sKey => $aActionDef ) {
+			$aActionDefs[ $sKey ][ 'data' ] = array_merge(
+				$aActionDef[ 'data' ],
+				[
+					'rid'         => $this->getEntryVO()->id,
+					'item_action' => $sKey,
+				]
+			);
+			$aActionDefs[ $sKey ][ 'classes' ] = array_merge(
+				$aActionDef[ 'classes' ],
+				[ 'action', 'item_action']
+			);
+		}
+		$aData[ 'actions' ] = $aActionDefs;
 
 		return $aData;
 	}

@@ -40,12 +40,8 @@
 		{
 			'table': $oTableScanAggregate,
 			'ajax_bulk_action':{{ ajax.bulk_action|raw }},
-			'ajax_item_delete':{{ ajax.item_delete|raw }},
-			'ajax_item_ignore':{{ ajax.item_ignore|raw }},
-			'ajax_item_repair':{{ ajax.item_repair|raw }},
-			'req_params': {
-				'fScan': 'aggregate'
-			}
+			'ajax_item_action':{{ ajax.item_action|raw }},
+			'req_params': {}
 		}
 	);
 </script>
