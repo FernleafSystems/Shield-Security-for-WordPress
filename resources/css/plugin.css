@@ -1093,7 +1093,7 @@ table.odp-table.scan-table td.column-path code {
 	/*display: none;*/
 }
 .container-scantable {
-	max-height: 300px;
+	max-height: 500px;
 	overflow: auto;
 }
 .container-scantable .tablenav.top,

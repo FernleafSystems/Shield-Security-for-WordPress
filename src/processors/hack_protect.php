@@ -168,7 +168,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 			'scans'        => [
 				'apc' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => true,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -178,7 +179,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 				'wcf' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -188,7 +190,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 				'ufc' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -198,7 +201,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 				'mal' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -206,9 +210,11 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 						'subtitle' => __( "Detect files that may be infected with malware", 'wp-simple-firewall' )
 					],
 				],
+				'ptg' => $this->getInsightVarsScan_Ptg(),
 				'wpv' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => true,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -216,7 +222,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 						'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' )
 					],
 				],
-				'ptg' => $this->getInsightVarsScan_Ptg(),
 			],
 		];
 
@@ -360,6 +365,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'has_items'   => $oMod->isPtgEnabled() ? $oFullResults->hasItems() : false,
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
+				'show_table'  => false,
 			],
 			'hrefs'   => [],
 			'vars'    => [],
