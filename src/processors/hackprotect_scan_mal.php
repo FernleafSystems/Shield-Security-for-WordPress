@@ -31,69 +31,25 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Mal\Repair
+	 * @return Shield\Scans\Mal\Utilities\ItemActionHandler
 	 */
-	protected function getRepairer() {
-		return ( new Shield\Scans\Mal\Repair() )->setMod( $this->getMod() );
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		/** @var Shield\Scans\Mal\Repair $oRepair */
-		$oRepair = $this->getRepairer()
-						->setIsManualAction( true );
-		$bSuccess = $oRepair->setAllowDelete( false )
-							->repairItem( $oItem );
-		$this->getCon()->fireEvent(
-			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
-		);
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultItem $oItem
-	 * @return bool
-	 */
-	protected function itemDelete( $oItem ) {
-		/** @var Shield\Scans\Mal\Repair $oRepair */
-		$oRepair = $this->getRepairer()
-						->setIsManualAction( true );
-		return $oRepair->setAllowDelete( true )
-					   ->repairItem( $oItem );
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemIgnore( $oItem ) {
-		parent::itemIgnore( $oItem );
-
-		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
-			->setMod( $this->getMod() )
-			->reportResultItem( $oItem, true );
-
-		return true;
+	protected function newItemActionHandler() {
+		return new Shield\Scans\Mal\Utilities\ItemActionHandler();
 	}
 
 	/**
 	 * @param Shield\Scans\Mal\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isCronAutoRepair() {
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalAutoRepair() ) {
-			$this->getRepairer()
-				 ->setIsManualAction( false )
-				 ->setAllowDelete( false )
-				 ->repairResultsSet( $oRes );
-		}
+		return $oOpts->isMalAutoRepair();
 	}
 
 	/**

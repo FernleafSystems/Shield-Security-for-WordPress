@@ -86,9 +86,10 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$oIt = $this->getResultItem();
 
 		try {
-			$bCanRepair = ( new Mal\Repair() )
+			$bCanRepair = ( new Mal\Utilities\Repair() )
 				->setMod( $this->getMod() )
-				->canAutoRepairFromSource( $oIt );
+				->setScanItem( $oIt )
+				->canRepair();
 		}
 		catch ( \Exception $oE ) {
 			$bCanRepair = false;

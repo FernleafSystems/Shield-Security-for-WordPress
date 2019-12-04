@@ -1,22 +1,24 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class Repair
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc
  */
-class Repair extends Scans\Base\BaseRepair {
+class Repair extends Scans\Base\Utilities\BaseRepair {
 
 	/**
-	 * @param ResultItem $oItem
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repairItem( $oItem ) {
+	public function repairItem() {
+		/** @var Ufc\ResultItem $oItem */
+		$oItem = $this->getScanItem();
 		$bSuccess = true;
 
 		$oHashes = Services::CoreFileHashes();
@@ -31,5 +33,15 @@ class Repair extends Scans\Base\BaseRepair {
 		}
 
 		return $bSuccess;
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function canRepair() {
+		/** @var Ufc\ResultItem $oItem */
+		$oItem = $this->getScanItem();
+		return Services::WpFs()->exists( $oItem->path_full );
 	}
 }

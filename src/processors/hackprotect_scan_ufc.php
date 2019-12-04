@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
@@ -17,44 +18,19 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Ufc\Repair
+	 * @return Ufc\Utilities\ItemActionHandler
 	 */
-	protected function getRepairer() {
-		return new Shield\Scans\Ufc\Repair();
+	protected function newItemActionHandler() {
+		return new Ufc\Utilities\ItemActionHandler();
 	}
 
 	/**
-	 * @param Shield\Scans\Ufc\ResultItem $oItem
 	 * @return bool
-	 * @throws \Exception
 	 */
-	protected function itemDelete( $oItem ) {
-		return $this->itemRepair( $oItem );
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		$bSuccess = $this->getRepairer()->repairItem( $oItem );
-		$this->getCon()->fireEvent(
-			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
-		);
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isUfcDeleteFiles() ) {
-			$this->getRepairer()->repairResultsSet( $oRes );
-		}
+	protected function isCronAutoRepair() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $oMod->isUfcDeleteFiles();
 	}
 
 	/**
@@ -62,7 +38,7 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$bSend = $oFO->isUfcSendReport();
 		if ( $bSend ) {

@@ -9,11 +9,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	use Shield\Scans\Common\ScanActionConsumer;
 	const SCAN_SLUG = 'base';
 
-	/**
-	 * @var ICWP_WPSF_Processor_HackProtect_Scanner
-	 */
-	protected $oScanner;
-
 	public function run() {
 		add_action( $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -57,11 +52,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
 		}
 	}
-
-	/**
-	 * @return Shield\Scans\Base\BaseRepair|mixed|null
-	 */
-	abstract protected function getRepairer();
 
 	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
@@ -114,20 +104,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		return ( new Scan\Results\ConvertBetweenTypes() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->fromVOsToResultsSet( $aVos );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return Shield\Databases\Scanner\EntryVO|null
-	 */
-	protected function getVoFromResultItem( $oItem ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		return $oSel->filterByHash( $oItem->hash )
-					->filterByScan( $this->getScanActionVO()->scan )
-					->first();
 	}
 
 	/**
@@ -204,17 +180,19 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 */
 	protected function handleItemAction( $oItem, $sAction ) {
 
+		$oItemAction = $this->getItemActionHandler()
+							->setScanItem( $oItem );
 		switch ( $sAction ) {
 			case 'delete':
-				$bSuccess = $this->itemDelete( $oItem );
+				$bSuccess = $oItemAction->delete();
 				break;
 
 			case 'ignore':
-				$bSuccess = $this->itemIgnore( $oItem );
+				$bSuccess = $oItemAction->ignore();
 				break;
 
 			case 'repair':
-				$bSuccess = $this->itemRepair( $oItem );
+				$bSuccess = $oItemAction->repair();
 				break;
 
 			default:
@@ -225,47 +203,18 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
+	 * @return Shield\Scans\Base\Utilities\ItemActionHandler|mixed
 	 */
-	protected function itemDelete( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
+	protected function getItemActionHandler() {
+		return $this->newItemActionHandler()
+					->setMod( $this->getMod() )
+					->setScanActionVO( $this->getScanActionVO() );
 	}
 
 	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
+	 * @return Shield\Scans\Base\Utilities\ItemActionHandler|mixed
 	 */
-	protected function itemIgnore( $oItem ) {
-
-		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getVoFromResultItem( $oItem );
-		if ( empty( $oEntry ) ) {
-			throw new \Exception( 'Item could not be found to ignore.' );
-		}
-
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Update $oUp */
-		$oUp = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
-
-		if ( !$oUp->setIgnored( $oEntry ) ) {
-			throw new \Exception( 'Item could not be ignored at this time.' );
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem|mixed $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
+	abstract protected function newItemActionHandler();
 
 	/**
 	 * Because it's the cron and we'll maybe be notifying user, we look
@@ -296,6 +245,20 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param Shield\Scans\Base\BaseResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
+		if ( $this->isCronAutoRepair() ) {
+			$this->getItemActionHandler()
+				 ->getRepairer()
+				 ->setIsManualAction( false )
+				 ->setAllowDelete( false )
+				 ->repairResultsSet( $oRes );
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isCronAutoRepair() {
+		return false;
 	}
 
 	/**
@@ -353,18 +316,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_HackProtect_Scanner
-	 */
-	public function getScannerDb() {
-		return $this->oScanner;
-	}
-
-	/**
 	 * @param \ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
 	 * @return $this
+	 * @deprecated 8.5
 	 */
 	public function setScannerDb( $oScanner ) {
-		$this->oScanner = $oScanner;
 		return $this;
 	}
 }

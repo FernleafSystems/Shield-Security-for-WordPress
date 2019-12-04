@@ -1,8 +1,9 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Core\VOs;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
@@ -11,35 +12,15 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
  * Class Repair
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
  */
-class Repair extends Scans\Base\BaseRepair {
+class Repair extends Scans\Base\Utilities\BaseRepair {
 
 	/**
-	 * @var bool
-	 */
-	private $bAllowDelete = false;
-
-	/**
-	 * @return bool
-	 */
-	public function isAllowDelete() {
-		return (bool)$this->bAllowDelete;
-	}
-
-	/**
-	 * @param bool $bAllowDelete
-	 * @return $this
-	 */
-	public function setAllowDelete( $bAllowDelete ) {
-		$this->bAllowDelete = $bAllowDelete;
-		return $this;
-	}
-
-	/**
-	 * @param ResultItem $oItem
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repairItem( $oItem ) {
+	public function repairItem() {
+		/** @var Ptg\ResultItem $oItem */
+		$oItem = $this->getScanItem();
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
 			if ( $oFiles->isValidFileFromPlugin( $oItem->path_full ) ) {
@@ -59,10 +40,11 @@ class Repair extends Scans\Base\BaseRepair {
 	}
 
 	/**
-	 * @param ResultItem $oItem
 	 * @return bool
 	 */
-	public function canRepair( $oItem ) {
+	public function canRepair() {
+		/** @var Ptg\ResultItem $oItem */
+		$oItem = $this->getScanItem();
 		if ( $oItem->context == 'plugins' ) {
 			$oAsset = Services::WpPlugins()->getPluginAsVo( $oItem->slug );
 			$bCanRepair = ( $oAsset instanceof VOs\WpPluginVo && $oAsset->isWpOrg() && $oAsset->svn_uses_tags );

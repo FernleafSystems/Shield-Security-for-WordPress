@@ -67,7 +67,7 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {
 			$sContext = self::CONTEXT_PLUGINS;
 		}
-		else if ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
+		elseif ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
 			$sContext = self::CONTEXT_THEMES;
 		}
 		return $sContext;

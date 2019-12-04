@@ -31,13 +31,13 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		return array_merge(
 			parent::getActionDefinitions(),
 			[
-				'asset_accept' => [
+				'asset_accept'    => [
 					'text'    => sprintf( __( 'Accept %s', 'wp-simple-firewall' ), $sAssetType ),
 					'title'   => sprintf( __( 'Accept all current scan results for this %s.' ), $sAssetType ),
 					'classes' => [ 'asset_accept' ],
 					'data'    => [],
 				],
-				'asset_reinstall'    => [
+				'asset_reinstall' => [
 					'text'    => sprintf( __( 'Re-Install %s', 'wp-simple-firewall' ), $sAssetType ),
 					'classes' => [ 'asset_reinstall' ],
 					'data'    => []
@@ -102,7 +102,9 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			$oAsset = Services::WpThemes()->getThemeAsVo( $oIt->slug );
 		}
 
-		$bCanRepair = ( new Ptg\Repair() )->canRepair( $oIt );
+		$bCanRepair = ( new Ptg\Utilities\Repair() )
+			->setScanItem( $oIt )
+			->canRepair();
 		$bHasUpdate = $oAsset->hasUpdate();
 
 		if ( $bHasUpdate ) {

@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
@@ -53,29 +54,27 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Wpv\Repair
+	 * @return Wpv\Utilities\ItemActionHandler
 	 */
-	protected function getRepairer() {
-		return new Shield\Scans\Wpv\Repair();
+	protected function newItemActionHandler() {
+		return new Wpv\Utilities\ItemActionHandler();
 	}
 
 	/**
-	 * @param Shield\Scans\Wpv\ResultsSet $oRes
+	 * @return bool
 	 */
-	protected function runCronAutoRepair( $oRes ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
-			$this->getRepairer()->repairResultsSet( $oRes );
-		}
+	protected function isCronAutoRepair() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $oMod->isWpvulnAutoupdatesEnabled();
 	}
 
 	/**
-	 * @param Shield\Scans\Wpv\ResultsSet $oRes
+	 * @param Wpv\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$bSend = $oFO->isWpvulnSendEmail();
 		if ( $bSend ) {
@@ -85,27 +84,9 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param Shield\Scans\Wpv\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		$bSuccess = $this->getRepairer()->repairItem( $oItem );
-		$this->getCon()->fireEvent(
-			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[
-				'audit' => [
-					'name' => Services::WpPlugins()->getPluginAsVo( $oItem->slug )->Name
-				]
-			]
-		);
-		return $bSuccess;
-	}
-
-	/**
 	 * @param bool            $bDoAutoUpdate
 	 * @param StdClass|string $mItem
-	 * @return boolean
+	 * @return bool
 	 */
 	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
 		$sItemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );

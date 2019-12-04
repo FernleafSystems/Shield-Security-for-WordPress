@@ -1,6 +1,7 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
@@ -17,35 +18,19 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Wcf\Repair|mixed
+	 * @return Wcf\Utilities\ItemActionHandler
 	 */
-	protected function getRepairer() {
-		return new Shield\Scans\Wcf\Repair();
+	protected function newItemActionHandler() {
+		return new Wcf\Utilities\ItemActionHandler();
 	}
 
 	/**
-	 * @param Shield\Scans\Wcf\ResultItem $oItem
 	 * @return bool
-	 * @throws \Exception
 	 */
-	protected function itemRepair( $oItem ) {
-		$bSuccess = $this->getRepairer()->repairItem( $oItem );
-		$this->getCon()->fireEvent(
-			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
-		);
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Wcf\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isWcfScanAutoRepair() ) {
-			$this->getRepairer()->repairResultsSet( $oRes );
-		}
+	protected function isCronAutoRepair() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $oMod->isWcfScanAutoRepair();
 	}
 
 	/**

@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
@@ -31,21 +32,14 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return null
+	 * @return Apc\Utilities\ItemActionHandler
 	 */
-	protected function getRepairer() {
-		return null;
+	protected function newItemActionHandler() {
+		return new Apc\Utilities\ItemActionHandler();
 	}
 
 	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		// no autorepair
-	}
-
-	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oRes
+	 * @param Apc\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
@@ -59,7 +53,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oRes
+	 * @param Apc\ResultsSet $oRes
 	 */
 	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -76,7 +70,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 			'',
 		];
 
-		/** @var Shield\Scans\Apc\ResultItem $oItem */
+		/** @var Apc\ResultItem $oItem */
 		foreach ( $oRes->getItems() as $oItem ) {
 
 			if ( $oItem->context == 'plugins' ) {
@@ -121,7 +115,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @return Shield\Scans\Apc\ResultsSet
+	 * @return Apc\ResultsSet
 	 */
 	protected function getAllAbandoned() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */

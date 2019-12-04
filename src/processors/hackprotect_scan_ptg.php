@@ -74,10 +74,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Ptg\Repair
+	 * @return Shield\Scans\Ptg\Utilities\ItemActionHandler
 	 */
-	protected function getRepairer() {
-		return new Shield\Scans\Ptg\Repair();
+	protected function newItemActionHandler() {
+		return new Shield\Scans\Ptg\Utilities\ItemActionHandler();
 	}
 
 	/**
@@ -128,8 +128,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		elseif ( $this->getStore_Themes()->itemExists( $sItem ) ) {
 			$aItem = $this->getStore_Themes()->getSnapItem( $sItem );
 		}
-		$aMeta = is_array( $aItem ) && !empty( $aItem[ 'meta' ] ) ? $aItem[ 'meta' ] : null;
-		return $aMeta;
+		return ( is_array( $aItem ) && !empty( $aItem[ 'meta' ] ) ) ? $aItem[ 'meta' ] : null;
 	}
 
 	/**
@@ -155,30 +154,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 	/**
 	 * @param Shield\Scans\Ptg\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemDelete( $oItem ) {
-		return $this->getRepairer()
-					->setAllowDelete( true )
-					->repairItem( $oItem );
-	}
-
-	/**
-	 * @param Shield\Scans\Ptg\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		$oRep = $this->getRepairer();
-		if ( !$oRep->canRepair( $oItem ) ) {
-			throw new Exception( 'This item cannot be automatically repaired.' );
-		}
-		return $oRep->repairItem( $oItem );
-	}
-
-	/**
-	 * @param Shield\Scans\Ptg\ResultItem $oItem
 	 * @return true
 	 * @throws \Exception
 	 */
@@ -187,7 +162,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$oRes = $this->readScanResultsFromDb();
 		// We ignore the item (so for WP.org plugins it wont flag up again)
 		foreach ( $oRes->getItemsForSlug( $oItem->slug ) as $oItem ) {
-			$this->itemIgnore( $oItem );
+			$this->getItemActionHandler()
+				 ->setScanItem( $oItem )
+				 ->ignore();
 		}
 
 		// we run it for both since it doesn't matter which context it's in, it'll be removed
@@ -253,10 +230,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		if ( $bSuccess ) {
 			$this->updateItemInSnapshot( $sBaseName );
 		}
-		$this->getCon()->fireEvent(
-			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $sBaseName ] ]
-		);
 		return $bSuccess;
 	}
 
@@ -420,7 +393,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			/** @var Shield\Databases\Scanner\Select $oSel */
 			$oSel = $oDbH->getQuerySelector();
 			/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
-			$aRes = $oSel->filterByScan( static::SCAN_SLUG )->all();
+			$aRes = $oSel->filterByScan( $this->getScanActionVO()->scan )->all();
 
 			$oCleaner = ( new Shield\Scans\Ptg\ScanResults\Clean() )
 				->setDbHandler( $oDbH )
@@ -539,14 +512,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param $sContext
-	 * @return Shield\Scans\Ptg\Snapshots\Store
-	 */
-	private function getStore( $sContext ) {
-		return ( $sContext == self::CONTEXT_PLUGINS ) ? $this->getStore_Plugins() : $this->getStore_Themes();
-	}
-
-	/**
 	 * @return Shield\Scans\Ptg\Snapshots\Store
 	 */
 	private function getStore_Plugins() {
@@ -582,13 +547,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			}
 		}
 		return $this->oSnapshotThemes;
-	}
-
-	/**
-	 * @param Shield\Scans\Ptg\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		// no autorepair
 	}
 
 	/**
@@ -673,29 +631,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 				]
 			]
 		);
-	}
-
-	/**
-	 * @return Shield\Scans\Ptg\ResultsSet
-	 */
-	public function scanPlugins() {
-		return $this->runSnapshotScan( self::CONTEXT_PLUGINS );
-	}
-
-	/**
-	 * @return Shield\Scans\Ptg\ResultsSet
-	 */
-	public function scanThemes() {
-		return $this->runSnapshotScan( self::CONTEXT_THEMES );
-	}
-
-	/**
-	 * @param string $sContext
-	 * @return Shield\Scans\Ptg\ResultsSet
-	 */
-	private function runSnapshotScan( $sContext = self::CONTEXT_PLUGINS ) {
-		$aSnapHashes = $this->getStore( $sContext )->getSnapDataHashesOnly();
-		return $this->getContextScanner( $sContext )->run( $aSnapHashes );
 	}
 
 	/**
