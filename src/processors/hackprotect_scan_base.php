@@ -190,35 +190,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 				->setScanActionVO( $this->getScanActionVO() )
 				->convertVoToResultItem( $oEntry );
 
-			switch ( $sAction ) {
-				case 'delete':
-					$bSuccess = $this->itemDelete( $oItem );
-					break;
-
-				case 'ignore':
-					$bSuccess = $this->itemIgnore( $oItem );
-					break;
-
-				case 'repair':
-					$bSuccess = $this->itemRepair( $oItem );
-					break;
-
-				case 'accept':
-					$bSuccess = $this->itemAccept( $oItem );
-					break;
-
-				case 'asset_deactivate':
-					$bSuccess = $this->assetDeactivate( $oItem );
-					break;
-
-				case 'reinstall':
-					$bSuccess = $this->assetReinstall( $oItem );
-					break;
-
-				default:
-					throw new \Exception( 'Unsupported Scan Item Action' );
-					break;
-			}
+			$bSuccess = $this->handleItemAction( $oItem, $sAction );
 		}
 
 		return $bSuccess;
@@ -226,39 +198,30 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 
 	/**
 	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @param string                           $sAction
 	 * @return bool
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	protected function assetAccept( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
+	protected function handleItemAction( $oItem, $sAction ) {
 
-	/**
-	 * Only plugins may be deactivated, of course.
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function assetDeactivate( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
+		switch ( $sAction ) {
+			case 'delete':
+				$bSuccess = $this->itemDelete( $oItem );
+				break;
 
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function assetReinstall( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
+			case 'ignore':
+				$bSuccess = $this->itemIgnore( $oItem );
+				break;
 
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemAccept( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
+			case 'repair':
+				$bSuccess = $this->itemRepair( $oItem );
+				break;
+
+			default:
+				throw new \Exception( 'Unsupported Scan Item Action' );
+				break;
+		}
+		return $bSuccess;
 	}
 
 	/**

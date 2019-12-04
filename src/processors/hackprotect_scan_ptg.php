@@ -134,6 +134,27 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 
 	/**
 	 * @param Shield\Scans\Ptg\ResultItem $oItem
+	 * @param string                      $sAction
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function handleItemAction( $oItem, $sAction ) {
+		switch ( $sAction ) {
+
+			case 'accept':
+				$bSuccess = $this->assetAccept( $oItem );
+				break;
+
+			default:
+				$bSuccess = parent::handleItemAction( $oItem, $sAction );
+				break;
+		}
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @param Shield\Scans\Ptg\ResultItem $oItem
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -161,7 +182,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return true
 	 * @throws \Exception
 	 */
-	protected function assetAccept( $oItem ) {
+	private function assetAccept( $oItem ) {
 		/** @var Shield\Scans\Ptg\ResultsSet $oRes */
 		$oRes = $this->readScanResultsFromDb();
 		// We ignore the item (so for WP.org plugins it wont flag up again)

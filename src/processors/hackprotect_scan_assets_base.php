@@ -9,6 +9,31 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 	const CONTEXT_THEMES = 'themes';
 
 	/**
+	 * @param Shield\Scans\Ptg\ResultItem $oItem
+	 * @param string                      $sAction
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function handleItemAction( $oItem, $sAction ) {
+		switch ( $sAction ) {
+
+			case 'asset_deactivate':
+				$bSuccess = $this->assetDeactivate( $oItem );
+				break;
+
+			case 'reinstall':
+				$bSuccess = $this->assetReinstall( $oItem );
+				break;
+
+			default:
+				$bSuccess = parent::handleItemAction( $oItem, $sAction );
+				break;
+		}
+
+		return $bSuccess;
+	}
+
+	/**
 	 * Only plugins may be deactivated, of course.
 	 * @param Shield\Scans\Ptg\ResultItem|Shield\Scans\Wpv\ResultItem $oItem
 	 * @return bool
