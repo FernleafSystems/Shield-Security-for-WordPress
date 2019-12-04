@@ -26,10 +26,6 @@
 							{% endif %}
 						</button>
 
-						<button class="btn btn-sm btn-info action custom-action"
-								data-rid="{{ asset_data.id }}" data-custom-action="item_asset_accept"
-						>{{ scan.strings.accept }}</button>
-
 						<button class="btn btn-sm btn-{% if not asset_data.can_deactivate %}outline-{% endif %}warning action custom-action"
 								{% if asset_data.can_deactivate %}
 									data-rid="{{ asset_data.id }}"

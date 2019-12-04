@@ -207,10 +207,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 					$bSuccess = $this->itemAccept( $oItem );
 					break;
 
-				case 'asset_accept':
-					$bSuccess = $this->assetAccept( $oItem );
-					break;
-
 				case 'asset_deactivate':
 					$bSuccess = $this->assetDeactivate( $oItem );
 					break;

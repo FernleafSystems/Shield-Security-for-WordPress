@@ -32,7 +32,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_ScanItemAction( Services::Request()->post( 'item_action' ) );
 				break;
 
-			case 'item_asset_accept':
 			case 'item_asset_deactivate':
 			case 'item_asset_reinstall':
 			case 'item_delete':

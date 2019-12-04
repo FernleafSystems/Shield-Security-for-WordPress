@@ -110,7 +110,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'scans_check'           => $oMod->getAjaxActionData( 'scans_check', true ),
 				'render_table_scan'     => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'bulk_action'           => $oMod->getAjaxActionData( 'bulk_action', true ),
-				'item_asset_accept'     => $oMod->getAjaxActionData( 'item_asset_accept', true ),
 				'item_asset_deactivate' => $oMod->getAjaxActionData( 'item_asset_deactivate', true ),
 				'item_asset_reinstall'  => $oMod->getAjaxActionData( 'item_asset_reinstall', true ),
 				'item_delete'           => $oMod->getAjaxActionData( 'item_delete', true ),
