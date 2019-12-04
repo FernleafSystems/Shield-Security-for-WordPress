@@ -31,15 +31,15 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		return array_merge(
 			parent::getActionDefinitions(),
 			[
-				'accept_asset' => [
+				'asset_accept' => [
 					'text'    => sprintf( __( 'Accept %s', 'wp-simple-firewall' ), $sAssetType ),
 					'title'   => sprintf( __( 'Accept all current scan results for this %s.' ), $sAssetType ),
-					'classes' => [ 'accept' ],
+					'classes' => [ 'asset_accept' ],
 					'data'    => [],
 				],
-				'reinstall'    => [
+				'asset_reinstall'    => [
 					'text'    => sprintf( __( 'Re-Install %s', 'wp-simple-firewall' ), $sAssetType ),
-					'classes' => [ 'reinstall' ],
+					'classes' => [ 'asset_reinstall' ],
 					'data'    => []
 				],
 			]
@@ -92,7 +92,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$oIt = $this->getResultItem();
 
 		$aExtras = [
-			'accept_asset'
+			'asset_accept'
 		];
 
 		if ( $oIt->context == 'plugins' ) {
@@ -117,7 +117,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		}
 
 		if ( $bCanRepair && !$bHasUpdate ) {
-			$aExtras[] = 'reinstall';
+			$aExtras[] = 'asset_reinstall';
 		}
 
 		if ( !$oIt->is_missing ) {

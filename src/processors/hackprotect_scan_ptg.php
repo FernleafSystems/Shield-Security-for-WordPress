@@ -141,7 +141,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	protected function handleItemAction( $oItem, $sAction ) {
 		switch ( $sAction ) {
 
-			case 'accept':
+			case 'asset_accept':
 				$bSuccess = $this->assetAccept( $oItem );
 				break;
 

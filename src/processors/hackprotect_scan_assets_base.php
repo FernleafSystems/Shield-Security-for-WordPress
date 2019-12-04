@@ -21,7 +21,7 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 				$bSuccess = $this->assetDeactivate( $oItem );
 				break;
 
-			case 'reinstall':
+			case 'asset_reinstall':
 				$bSuccess = $this->assetReinstall( $oItem );
 				break;
 
