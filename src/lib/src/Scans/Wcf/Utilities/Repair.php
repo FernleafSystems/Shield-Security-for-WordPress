@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class Repair
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wcf\Utilities
  */
 class Repair extends Scans\Base\Utilities\BaseRepair {
 

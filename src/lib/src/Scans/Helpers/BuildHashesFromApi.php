@@ -39,7 +39,7 @@ class BuildHashesFromApi {
 			$aHashes = ( new Hashes\Plugin() )
 				->getHashes( $oAsset->slug, $oAsset->Version, 'md5' );
 		}
-		else if ( $oAsset instanceof VOs\WpThemeVo ) {
+		elseif ( $oAsset instanceof VOs\WpThemeVo ) {
 			if ( $oAsset->is_child ) {
 				throw new \Exception( 'Live hashes are not supported for child themes.' );
 			}

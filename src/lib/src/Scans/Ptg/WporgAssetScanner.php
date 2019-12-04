@@ -35,7 +35,7 @@ class WporgAssetScanner {
 		if ( $oAsset instanceof WpPluginVo ) {
 			$sAssetDir = Services::WpPlugins()->getInstallationDir( $oAsset->file );
 		}
-		else if ( $oAsset instanceof WpThemeVo ) {
+		elseif ( $oAsset instanceof WpThemeVo ) {
 			$sAssetDir = $oAsset->wp_theme->get_stylesheet_directory();
 		}
 		else {
@@ -72,7 +72,7 @@ class WporgAssetScanner {
 					}
 					unset( $aLive[ $sRelAbsPath ] );
 				}
-				else if ( !array_key_exists( $sRelAbsPath, $aLive ) ) {
+				elseif ( !array_key_exists( $sRelAbsPath, $aLive ) ) {
 					$oItem = $this->getNewItem( $sFullPath );
 					$oItem->path_fragment = $sPathFragment;
 					$oItem->is_unrecognised = true;
