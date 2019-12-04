@@ -80,13 +80,13 @@ class Repair extends Shield\Scans\Base\BaseRepair {
 							$bSuccess = $this->repairItemInTheme( $oItem );
 						}
 					}
-					else if ( $oOpts->isMalAutoRepairSurgical() ) {
+					elseif ( $oOpts->isMalAutoRepairSurgical() ) {
 						$bSuccess = $this->repairSurgicalItem( $oItem );
 					}
 				}
 			}
 		}
-		else if ( $this->isAllowDelete() ) {
+		elseif ( $this->isAllowDelete() ) {
 			$bSuccess = $this->repairItemByDelete( $oItem );
 		}
 

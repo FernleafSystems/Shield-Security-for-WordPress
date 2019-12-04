@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Table;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseFileEntryFormatter;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem;
-use FernleafSystems\Wordpress\Services\Core\VOs;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 use FernleafSystems\Wordpress\Services\Services;
 
 class EntryFormatter extends BaseFileEntryFormatter {
@@ -13,7 +12,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @return array
 	 */
 	public function format() {
-		/** @var ResultItem $oIt */
+		/** @var Ptg\ResultItem $oIt */
 		$oIt = $this->getResultItem();
 
 		$aE = $this->getBaseData();
@@ -26,7 +25,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @inheritDoc
 	 */
 	protected function getActionDefinitions() {
-		/** @var ResultItem $oIt */
+		/** @var Ptg\ResultItem $oIt */
 		$oIt = $this->getResultItem();
 		$sAssetType = ( $oIt->context == 'plugins' ? __( 'Plugin', 'wp-simple-firewall' ) : __( 'Theme', 'wp-simple-firewall' ) );
 		return array_merge(
@@ -34,7 +33,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 			[
 				'accept_asset' => [
 					'text'    => sprintf( __( 'Accept %s', 'wp-simple-firewall' ), $sAssetType ),
-					'title'   => sprintf( __( 'Accept all existing file changes for this %s.' ), $sAssetType ),
+					'title'   => sprintf( __( 'Accept all current scan results for this %s.' ), $sAssetType ),
 					'classes' => [ 'accept' ],
 					'data'    => [],
 				],
@@ -51,7 +50,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @return string[]
 	 */
 	protected function getExplanation() {
-		/** @var ResultItem $oIt */
+		/** @var Ptg\ResultItem $oIt */
 		$oIt = $this->getResultItem();
 
 		if ( $oIt->is_different ) {
@@ -89,7 +88,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	 * @inheritDoc
 	 */
 	protected function getSupportedActions() {
-		/** @var ResultItem $oIt */
+		/** @var Ptg\ResultItem $oIt */
 		$oIt = $this->getResultItem();
 
 		$aExtras = [
@@ -98,14 +97,13 @@ class EntryFormatter extends BaseFileEntryFormatter {
 
 		if ( $oIt->context == 'plugins' ) {
 			$oAsset = Services::WpPlugins()->getPluginAsVo( $oIt->slug );
-			$bCanRepair = ( $oAsset instanceof VOs\WpPluginVo && $oAsset->isWpOrg() && $oAsset->svn_uses_tags );
-			$bHasUpdate = $oAsset->hasUpdate();
 		}
 		else {
 			$oAsset = Services::WpThemes()->getThemeAsVo( $oIt->slug );
-			$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
-			$bHasUpdate = $oAsset->hasUpdate();
 		}
+
+		$bCanRepair = ( new Ptg\Repair() )->canRepair( $oIt );
+		$bHasUpdate = $oAsset->hasUpdate();
 
 		if ( $bHasUpdate ) {
 			$aExtras[] = 'update';

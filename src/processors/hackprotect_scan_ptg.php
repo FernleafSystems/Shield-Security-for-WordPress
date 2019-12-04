@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		if ( $oFO->isPtgBuildRequired() && $bStoresExists ) {
 			$oFO->setPtgLastBuildAt();
 		}
-		else if ( !$bStoresExists ) {
+		elseif ( !$bStoresExists ) {
 			$oFO->setPtgLastBuildAt( 0 );
 		}
 
@@ -74,7 +74,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Wcf\Repair|mixed
+	 * @return Shield\Scans\Ptg\Repair
 	 */
 	protected function getRepairer() {
 		return new Shield\Scans\Ptg\Repair();
@@ -125,11 +125,35 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		if ( $this->getStore_Plugins()->itemExists( $sItem ) ) {
 			$aItem = $this->getStore_Plugins()->getSnapItem( $sItem );
 		}
-		else if ( $this->getStore_Themes()->itemExists( $sItem ) ) {
+		elseif ( $this->getStore_Themes()->itemExists( $sItem ) ) {
 			$aItem = $this->getStore_Themes()->getSnapItem( $sItem );
 		}
 		$aMeta = is_array( $aItem ) && !empty( $aItem[ 'meta' ] ) ? $aItem[ 'meta' ] : null;
 		return $aMeta;
+	}
+
+	/**
+	 * @param Shield\Scans\Ptg\ResultItem $oItem
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function itemDelete( $oItem ) {
+		return $this->getRepairer()
+					->setAllowDelete( true )
+					->repairItem( $oItem );
+	}
+
+	/**
+	 * @param Shield\Scans\Ptg\ResultItem $oItem
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function itemRepair( $oItem ) {
+		$oRep = $this->getRepairer();
+		if ( !$oRep->canRepair( $oItem ) ) {
+			throw new Exception( 'This item cannot be automatically repaired.' );
+		}
+		return $oRep->repairItem( $oItem );
 	}
 
 	/**
@@ -229,20 +253,20 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			$sContext = self::CONTEXT_PLUGINS;
 			$aSlugs = $aInfo[ $sContext ];
 		}
-		else if ( !empty( $aInfo[ self::CONTEXT_THEMES ] ) ) {
+		elseif ( !empty( $aInfo[ self::CONTEXT_THEMES ] ) ) {
 			$sContext = self::CONTEXT_THEMES;
 			$aSlugs = $aInfo[ $sContext ];
 		}
-		else if ( !empty( $aInfo[ 'plugin' ] ) ) {
+		elseif ( !empty( $aInfo[ 'plugin' ] ) ) {
 			$sContext = self::CONTEXT_PLUGINS;
 			$aSlugs = [ $aInfo[ 'plugin' ] ];
 		}
-		else if ( !empty( $aInfo[ 'theme' ] ) ) {
+		elseif ( !empty( $aInfo[ 'theme' ] ) ) {
 			$sContext = self::CONTEXT_THEMES;
 			$aSlugs = [ $aInfo[ 'theme' ] ];
 		}
-		else if ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install' && isset( $aInfo[ 'type' ] )
-				  && !empty( $oUpgrader->result[ 'destination_name' ] ) ) {
+		elseif ( isset( $aInfo[ 'action' ] ) && $aInfo[ 'action' ] == 'install' && isset( $aInfo[ 'type' ] )
+				 && !empty( $oUpgrader->result[ 'destination_name' ] ) ) {
 
 			if ( $aInfo[ 'type' ] == 'plugin' ) {
 				$oWpPlugins = Services\Services::WpPlugins();
@@ -252,7 +276,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 					$aSlugs = [ $sPluginFile ];
 				}
 			}
-			else if ( $aInfo[ 'type' ] == 'theme' ) {
+			elseif ( $aInfo[ 'type' ] == 'theme' ) {
 				$sDir = $oUpgrader->result[ 'destination_name' ];
 				if ( Services\Services::WpThemes()->isActive( $sDir ) ) {
 					$sContext = self::CONTEXT_THEMES;
@@ -352,7 +376,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		if ( $sContext == self::CONTEXT_THEMES ) {
 			$this->updateThemeSnapshot( $sSlug );
 		}
-		else if ( $sContext == self::CONTEXT_PLUGINS ) {
+		elseif ( $sContext == self::CONTEXT_PLUGINS ) {
 			$this->updatePluginSnapshot( $sSlug );
 		}
 

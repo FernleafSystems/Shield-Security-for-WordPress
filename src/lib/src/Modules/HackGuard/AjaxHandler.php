@@ -155,6 +155,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oReq = Services::Request();
 
 		$bSuccess = false;
+		$bPageReload = true;
 
 		$sItemId = $oReq->post( 'rid' );
 		$aItemIds = $oReq->post( 'ids' );
@@ -164,7 +165,13 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		$oDbh = $oMod->getDbHandler_ScanResults();
 
-		if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
+		if ( $sAction == 'download' ) {
+			// A special case since this action is handled using Javascript
+			$bSuccess = true;
+			$bPageReload = false;
+			$sMessage = __( 'File download has started.', 'wp-simple-firewall' );
+		}
+		elseif ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
 			$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
 		}
 		else {
@@ -219,7 +226,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		return [
 			'success'     => $bSuccess,
-			'page_reload' => true,
+			'page_reload' => $bPageReload,
 			'message'     => $sMessage,
 		];
 	}
@@ -230,8 +237,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_CheckScans() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $oMod->getProcessor();
 		/** @var Strings $oStrings */
 		$oStrings = $oMod->getStrings();
 		$oDbH = $oMod->getDbHandler_ScanQueue();

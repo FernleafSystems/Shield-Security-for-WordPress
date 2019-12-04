@@ -76,7 +76,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			bindEvents: function () {
 				var plugin = this;
 
-				/*
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.delete',
@@ -88,9 +87,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						}
 					}
 				);
-				 */
 
-				/*
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.ignore',
@@ -100,7 +97,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						plugin.ignoreEntry.call( plugin );
 					}
 				);
-				 */
 
 				if ( typeof this.$oFormInsert !== 'undefined' && this.$oFormInsert.length ) {
 					this.$oFormInsert.on(
@@ -112,7 +108,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					);
 				}
 
-				/*
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
 					'button.action.repair',
@@ -122,7 +117,6 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						plugin.repairEntry.call( plugin );
 					}
 				);
-				 */
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,

@@ -34,7 +34,7 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 			);
 			$aActionDefs[ $sKey ][ 'classes' ] = array_merge(
 				$aActionDef[ 'classes' ],
-				[ 'action', 'item_action']
+				[ 'action', 'item_action' ]
 			);
 		}
 		$aData[ 'actions' ] = $aActionDefs;
@@ -49,17 +49,17 @@ abstract class BaseFileEntryFormatter extends BaseEntryFormatter {
 		return [
 			'ignore'   => [
 				'text'    => sprintf( __( 'Ignore %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
-				'classes' => [ 'ignore' ],
+				'classes' => [],
 				'data'    => []
 			],
 			'delete'   => [
 				'text'    => sprintf( __( 'Delete %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
-				'classes' => [ 'delete', 'text-danger' ],
+				'classes' => [ 'text-danger' ],
 				'data'    => []
 			],
 			'repair'   => [
 				'text'    => sprintf( __( 'Repair %s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ) ),
-				'classes' => [ 'repair', 'text-success' ],
+				'classes' => [ 'text-success' ],
 				'data'    => []
 			],
 			'download' => [

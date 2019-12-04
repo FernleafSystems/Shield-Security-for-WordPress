@@ -137,6 +137,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = [
 					'ajax'    => [
 						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
+						'item_action_notes'       => $oModPlugin->getAjaxActionData( 'item_action_notes', true ),
 						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
 						'item_insert'             => $oModPlugin->getAjaxActionData( 'note_insert', true ),
 						'bulk_action'             => $oModPlugin->getAjaxActionData( 'bulk_action', true ),
@@ -781,11 +782,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aStatsData = [
 			'login'          => [
-				'id'            => 'login_block',
-				'title'         => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'login_block',
+				'title'     => __( 'Login Blocks', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'login_block' ) ),
-				'tooltip_p'     => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
 			],
 			//			'firewall'       => [
 			//				'id'      => 'firewall_block',
@@ -794,36 +795,36 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			//				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			//			],
 			'bot_blocks'     => [
-				'id'            => 'bot_blocks',
-				'title'         => __( 'Bot Detection', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'bot_blocks',
+				'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEventsLike( 'bottrack_' ) ),
-				'tooltip_p'     => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
 			],
 			'comments'       => [
-				'id'            => 'comment_block',
-				'title'         => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'comment_block',
+				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvents( [
 						'spam_block_bot',
 						'spam_block_human',
 						'spam_block_recaptcha'
 					] ) ),
-				'tooltip_p'     => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
 			],
 			'transgressions' => [
-				'id'            => 'ip_offense',
-				'title'         => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'ip_offense',
+				'title'     => __( 'Offenses', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'ip_offense' ) ),
-				'tooltip_p'     => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
 			],
 			'conn_kills'     => [
-				'id'            => 'conn_kill',
-				'title'         => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'conn_kill',
+				'title'     => __( 'Connection Killed', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'conn_kill' ) ),
-				'tooltip_p'     => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
 			],
 			'ip_blocked'     => [
 				'id'        => 'ip_blocked',

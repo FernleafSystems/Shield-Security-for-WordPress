@@ -197,7 +197,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 
 				case 'ignore':
 					$bSuccess = $this->itemIgnore( $oItem );
-					error_log( var_export( $bSuccess, true ) );
 					break;
 
 				case 'repair':
@@ -216,7 +215,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 					$bSuccess = $this->assetDeactivate( $oItem );
 					break;
 
-				case 'asset_reinstall':
+				case 'reinstall':
 					$bSuccess = $this->assetReinstall( $oItem );
 					break;
 
@@ -301,7 +300,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
+	 * @param Shield\Scans\Base\BaseResultItem|mixed $oItem
 	 * @return bool
 	 * @throws \Exception
 	 */
