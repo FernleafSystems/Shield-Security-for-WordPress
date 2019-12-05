@@ -192,6 +192,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return int
 	 */
+	public function getPtgLastBuildAt() {
+		return $this->getOpt( 'ptg_last_build_at' );
+	}
+
+	/**
+	 * @return int
+	 */
 	public function getPtgScanDepth() {
 		return (int)$this->getOpt( 'ptg_depth' );
 	}
@@ -201,6 +208,17 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getPtgSnapsBaseDir() {
 		return $this->getCon()->getPluginCachePath( 'ptguard/' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgEnabled() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $this->isPremium() && $this->isOpt( 'ptg_enable', 'enabled' )
+			   && $this->isOptReqsMet( 'ptg_enable' )
+			   && $oMod->canPtgWriteToDisk();
 	}
 
 	/**

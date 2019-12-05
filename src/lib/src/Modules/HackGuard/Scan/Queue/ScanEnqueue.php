@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ScanEnqueue {
 
-	use HandlerConsumer,
-		QueueProcessorConsumer,
-		Scans\Common\ScanActionConsumer;
+	use HandlerConsumer;
+	use QueueProcessorConsumer;
+	use Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @throws \Exception

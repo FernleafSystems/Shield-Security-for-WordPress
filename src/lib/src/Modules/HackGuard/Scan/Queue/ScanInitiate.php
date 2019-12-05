@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ScanInitiate {
 
-	use ModConsumer,
-		QueueProcessorConsumer;
+	use ModConsumer;
+	use QueueProcessorConsumer;
 
 	/**
 	 * Build and Enqueue.

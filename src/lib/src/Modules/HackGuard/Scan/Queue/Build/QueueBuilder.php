@@ -8,8 +8,8 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
-	use Shield\Modules\ModConsumer,
-		HackGuard\Scan\Queue\QueueProcessorConsumer;
+	use HackGuard\Scan\Queue\QueueProcessorConsumer;
+	use Shield\Modules\ModConsumer;
 
 	/**
 	 * Get batch
@@ -50,7 +50,6 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * item from the queue.
 	 *
 	 * @param string $sScanSlug .
-	 *
 	 * @return mixed
 	 */
 	protected function task( $sScanSlug ) {

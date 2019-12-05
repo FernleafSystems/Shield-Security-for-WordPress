@@ -227,7 +227,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
 				// ignore it
 			}
-			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
+			elseif ( strpos( $sExclusion, '/' ) === false ) { // filename only
 				$sExclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $sExclusion ) );
 			}
 
@@ -349,14 +349,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanPtgFileExtensions() {
-		return $this->setOpt(
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt(
 			'ptg_extensions',
-			$this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
+			$this->cleanStringArray( $oOpts->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
 		);
+		return $this;
 	}
 
 	/**
 	 * @return string[]
+	 * @deprecated 8.5
 	 */
 	public function getPtgFileExtensions() {
 		return $this->getOpt( 'ptg_extensions' );
@@ -364,6 +368,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5
 	 */
 	public function getPtgDepth() {
 		return $this->getOpt( 'ptg_depth' );
@@ -371,6 +376,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return int
+	 * @deprecated 8.5
 	 */
 	public function getPtgLastBuildAt() {
 		return $this->getOpt( 'ptg_last_build_at' );
@@ -387,7 +393,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgBuildRequired() {
-		return $this->isPtgEnabled() && ( $this->getPtgLastBuildAt() == 0 );
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $this->isPtgEnabled() && ( $oOpts->getPtgLastBuildAt() == 0 );
 	}
 
 	/**
@@ -755,7 +763,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'wcf' ) ) {
+			elseif ( $this->getScanHasProblem( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
@@ -776,7 +784,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'ufc' ) ) {
+			elseif ( $this->getScanHasProblem( 'ufc' ) ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
@@ -797,7 +805,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'ptg' ) ) {
+			elseif ( $this->getScanHasProblem( 'ptg' ) ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
@@ -818,7 +826,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'wpv' ) ) {
+			elseif ( $this->getScanHasProblem( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
@@ -839,7 +847,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'apc' ) ) {
+			elseif ( $this->getScanHasProblem( 'apc' ) ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
@@ -860,7 +868,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'mal' ) ) {
+			elseif ( $this->getScanHasProblem( 'mal' ) ) {
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),

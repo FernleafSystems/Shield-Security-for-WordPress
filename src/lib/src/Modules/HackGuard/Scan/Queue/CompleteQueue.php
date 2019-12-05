@@ -14,8 +14,8 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class CompleteQueue {
 
-	use ModConsumer,
-		Databases\Base\HandlerConsumer;
+	use Databases\Base\HandlerConsumer;
+	use ModConsumer;
 
 	/**
 	 * Take care here not to confuse the 2x DB Handlers
