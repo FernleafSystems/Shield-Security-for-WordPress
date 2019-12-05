@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 abstract class BaseScanActionVO {
 
 	use StdClassAdapter;
-	const ITEM_STORAGE_LIMIT = 1;
+	const QUEUE_GROUP_SIZE_LIMIT = 1;
 
 	/**
 	 * @return BaseResultItem|mixed

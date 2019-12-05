@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 abstract class BaseScanFromFileMap {
 
-	use Scans\Common\ScanActionConsumer,
-		ModConsumer;
+	use ModConsumer;
+	use Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @return Scans\Base\BaseResultsSet

@@ -16,5 +16,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
  */
 class ScanActionVO extends BaseScanActionVO {
 
-	const ITEM_STORAGE_LIMIT = 50;
+	const QUEUE_GROUP_SIZE_LIMIT = 50;
 }
