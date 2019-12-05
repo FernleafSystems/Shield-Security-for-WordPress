@@ -87,12 +87,19 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 		if ( empty( $aHashes ) ) {
 			if ( $oAsset instanceof VOs\WpPluginVo ) {
-				$aHashes = $this->getStorePlugins()
-								->getSnapItem( $oAsset->file );
+				$aSnapHashes = $this->getStorePlugins()
+									->getSnapItem( $oAsset->file );
 			}
 			else {
-				$aHashes = $this->getStoreThemes()
-								->getSnapItem( $oAsset->stylesheet );
+				$aSnapHashes = $this->getStoreThemes()
+									->getSnapItem( $oAsset->stylesheet );
+			}
+			$aHashes = [];
+			// File-saved hashes are relative to ABSPATH so we have to turn paths into a fragment relative to Asset dir.
+			$sInstallDir = $oAsset->getInstallDir();
+			foreach ( $aSnapHashes as $sPath => $sHash ) {
+				$sPath = str_replace( $sInstallDir, '', wp_normalize_path( path_join( ABSPATH, $sPath ) ) );
+				$aHashes[ $sPath ] = $sHash;
 			}
 		}
 
