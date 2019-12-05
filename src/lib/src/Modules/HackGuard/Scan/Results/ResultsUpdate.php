@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ResultsUpdate {
 
-	use Databases\Base\HandlerConsumer,
-		Scans\Common\ScanActionConsumer;
+	use Databases\Base\HandlerConsumer;
+	use Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @param Scans\Base\BaseResultsSet $oNewResults

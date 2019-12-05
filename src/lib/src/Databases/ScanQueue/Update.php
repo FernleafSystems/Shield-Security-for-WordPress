@@ -11,6 +11,15 @@ class Update extends Base\Update {
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
+	public function storeResults( $oEntry ) {
+		return isset( $oEntry->results ) &&
+			   $this->updateEntry( $oEntry, [ 'results' => gzcompress($oEntry->getRawDataAsArray()[ 'results' ]) ] );
+	}
+
+	/**
+	 * @param EntryVO $oEntry
+	 * @return bool
+	 */
 	public function setFinished( $oEntry ) {
 		return $this->updateEntry( $oEntry, [ 'finished_at' => Services::Request()->ts() ] );
 	}
