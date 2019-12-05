@@ -96,7 +96,7 @@ class ScanAggregate extends BaseBuild {
 		/** @var Scanner\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
-		if ( $aParams[ 'fIgnored' ] !== 'Y' ) {
+		if ( empty( $aParams[ 'fIgnored' ] ) || $aParams[ 'fIgnored' ] !== 'Y' ) {
 			$oSelector->filterByNotIgnored();
 		}
 
