@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
 
@@ -21,8 +22,8 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 */
 	public function run() {
 		parent::run();
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
 		$this->initSnapshots();
 
@@ -30,21 +31,21 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 						 && $this->getStore_Themes()->getSnapStoreExists();
 
 		// If a build is indicated as required and the store exists, mark them as built.
-		if ( $oFO->isPtgBuildRequired() && $bStoresExists ) {
-			$oFO->setPtgLastBuildAt();
+		if ( $oMod->isPtgBuildRequired() && $bStoresExists ) {
+			$oMod->setPtgLastBuildAt();
 		}
 		elseif ( !$bStoresExists ) {
-			$oFO->setPtgLastBuildAt( 0 );
+			$oMod->setPtgLastBuildAt( 0 );
 		}
 
-		if ( $oFO->isPtgReadyToScan() ) {
+		if ( $oMod->isPtgReadyToScan() ) {
 			add_action( 'upgrader_process_complete', [ $this, 'updateSnapshotAfterUpgrade' ], 10, 2 );
 			add_action( 'activated_plugin', [ $this, 'onActivatePlugin' ], 10 );
 			add_action( 'deactivated_plugin', [ $this, 'onDeactivatePlugin' ], 10 );
 			add_action( 'switch_theme', [ $this, 'onActivateTheme' ], 10, 0 );
 		}
 
-		if ( $oFO->isPtgReinstallLinks() ) {
+		if ( $oMod->isPtgReinstallLinks() ) {
 			add_filter( 'plugin_action_links', [ $this, 'addActionLinkRefresh' ], 50, 2 );
 			add_action( 'admin_footer', [ $this, 'printPluginReinstallDialogs' ] );
 		}
@@ -61,16 +62,18 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return bool
 	 */
 	public function isRestricted() {
-		return !$this->getMod()->isPremium();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return !$oOpts->isPremium();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isPtgEnabled();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isPtgEnabled();
 	}
 
 	/**
@@ -85,15 +88,15 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return Shield\Scans\Ptg\ScannerPlugins|Shield\Scans\Ptg\ScannerThemes
 	 */
 	protected function getContextScanner( $sContext = self::CONTEXT_PLUGINS ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$oScanner = ( $sContext == self::CONTEXT_PLUGINS ) ?
 			new Shield\Scans\Ptg\ScannerPlugins()
 			: new Shield\Scans\Ptg\ScannerThemes();
 
-		return $oScanner->setDepth( $oFO->getPtgDepth() )
-						->setFileExts( $oFO->getPtgFileExtensions() );
+		return $oScanner->setDepth( $oOpts->getPtgScanDepth() )
+						->setFileExts( $oOpts->getPtgFileExtensions() );
 	}
 
 	/**
