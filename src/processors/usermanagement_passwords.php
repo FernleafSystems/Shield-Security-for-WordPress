@@ -270,10 +270,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 			if ( empty( $nHttpCode ) ) {
 				$sError = 'Unexpected Error: No response code available from the Pwned API';
 			}
-			else if ( $nHttpCode != 200 ) {
+			elseif ( $nHttpCode != 200 ) {
 				$sError = 'Unexpected Error: The response from the Pwned API was unexpected';
 			}
-			else if ( empty( $oHttpReq->lastResponse->body ) ) {
+			elseif ( empty( $oHttpReq->lastResponse->body ) ) {
 				$sError = 'Unexpected Error: The response from the Pwned API was empty';
 			}
 			else {

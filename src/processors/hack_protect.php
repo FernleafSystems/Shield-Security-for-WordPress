@@ -324,7 +324,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 
 		// Process Themes
 		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = Services::WpThemes();;
+		$oWpThemes = Services::WpThemes();
 		foreach ( $aThemes as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */

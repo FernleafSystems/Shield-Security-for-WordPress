@@ -226,8 +226,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param boolean $bGloballyDisabled
-	 * @return boolean
+	 * @param bool $bGloballyDisabled
+	 * @return bool
 	 */
 	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
 		return $bGloballyDisabled || !$this->isOpt( 'global_enable_plugin_features', 'Y' );

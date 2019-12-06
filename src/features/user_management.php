@@ -256,7 +256,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				]
 			);
 		}
-		else if ( !$bAdd && $bIdSuspended ) {
+		elseif ( !$bAdd && $bIdSuspended ) {
 			$oMeta->hard_suspended_at = 0;
 			unset( $aIds[ $nUserId ] );
 			$this->getCon()->fireEvent(

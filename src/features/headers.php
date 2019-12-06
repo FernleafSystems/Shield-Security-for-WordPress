@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isContentSecurityPolicyEnabled() {
 		return $this->isOpt( 'enable_x_content_security_policy', 'Y' );
@@ -86,7 +86,7 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 						$bValidDomain = true;
 					}
 				}
-				else if ( strpos( $sDomain, '://' ) && preg_match( '#^([a-zA-Z]+://)#', $sDomain, $aMatches ) ) {
+				elseif ( strpos( $sDomain, '://' ) && preg_match( '#^([a-zA-Z]+://)#', $sDomain, $aMatches ) ) {
 					// there's a protocol specified
 					$sCustomProtocol = $aMatches[ 1 ];
 					$sDomain = str_replace( $sCustomProtocol, '', $sDomain );
@@ -109,10 +109,10 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 					if ( $bHttp ) {
 //							$sDomain = 'http://'.$sDomain; // it seems there's no need to "explicitly" state http://
 					}
-					else if ( $bHttps ) {
+					elseif ( $bHttps ) {
 						$sDomain = 'https://'.$sDomain;
 					}
-					else if ( !empty( $sCustomProtocol ) ) {
+					elseif ( !empty( $sCustomProtocol ) ) {
 						$sDomain = $sCustomProtocol.$sDomain;
 					}
 					$aValidDomains[] = $sDomain;

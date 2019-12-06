@@ -18,7 +18,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	protected $sModSlug;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bImportExportWhitelistNotify = false;
 
@@ -798,21 +798,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleLink() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfUseSessions() {
 		return $this->getOptions()->getFeatureProperty( 'use_sessions' );
@@ -864,9 +864,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @param string  $sOptionKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
+	 * @param string $sOptionKey
+	 * @param mixed  $mValueToTest
+	 * @param bool   $bStrict
 	 * @return bool
 	 */
 	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
@@ -1541,9 +1541,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min' ),
 				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard' ),
 			],
-			'imgs'    => [
-				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-				'plugin_banner'    => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
+			'imgs'          => [
+				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'plugin_banner' => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
 			],
 			'content'       => [
 				'options_form'   => '',
@@ -1670,7 +1670,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function getIsShowMarketing() {
 		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );

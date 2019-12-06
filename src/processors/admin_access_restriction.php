@@ -149,7 +149,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 				$bRevert = true;
 			}
 			// 2. Setting non-administrator role when previous roles included administrator
-			else if ( !$bNewRoleIsAdmin && in_array( 'administrator', $aOldRoles ) ) {
+			elseif ( !$bNewRoleIsAdmin && in_array( 'administrator', $aOldRoles ) ) {
 				$bRevert = true;
 			}
 			else {

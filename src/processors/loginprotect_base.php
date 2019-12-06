@@ -184,7 +184,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 
 	/**
 	 * @param \WP_Error $oWpError
-	 * @param string   $sUsername
+	 * @param string    $sUsername
 	 * @return \WP_Error
 	 */
 	public function checkReqLogin_Woo( $oWpError, $sUsername ) {
@@ -348,7 +348,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	/**
 	 * see class-wc-checkout.php
 	 * @param \WP_Error $oWpError
-	 * @param array    $aPostedData
+	 * @param array     $aPostedData
 	 * @return \WP_Error
 	 */
 	public function checkReqCheckout_Woo( $aPostedData, $oWpError ) {
@@ -379,7 +379,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 
 	/**
 	 * @param \WP_Error $oWpError
-	 * @param string   $sUsername
+	 * @param string    $sUsername
 	 * @return \WP_Error
 	 */
 	public function checkReqRegistration_Woo( $oWpError, $sUsername ) {
@@ -446,7 +446,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 
 	/**
 	 * @param \WP_Error $oWpError
-	 * @param string   $sUsername
+	 * @param string    $sUsername
 	 * @return \WP_Error
 	 */
 	public function checkReqRegistrationErrors_Wp( $oWpError, $sUsername ) {

@@ -54,15 +54,15 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		if ( count( $this->getRawRequestParams() ) == 0 ) {
 			$bPerformScan = false;
 		}
-		else if ( empty( $sPath ) ) {
+		elseif ( empty( $sPath ) ) {
 			$this->getCon()->fireEvent( 'firewall_skip' );
 			$bPerformScan = false;
 		}
-		else if ( count( $this->getParamsToCheck() ) == 0 ) {
+		elseif ( count( $this->getParamsToCheck() ) == 0 ) {
 			$bPerformScan = false;
 		}
 		// TODO: are we calling is_super_admin() too early?
-		else if ( $oFO->isIgnoreAdmin() && is_super_admin() ) {
+		elseif ( $oFO->isIgnoreAdmin() && is_super_admin() ) {
 			$bPerformScan = false;
 		}
 
@@ -70,7 +70,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @return boolean - true if visitor is permitted, false if it should be blocked.
+	 * @return bool - true if visitor is permitted, false if it should be blocked.
 	 */
 	private function isVisitorRequestPermitted() {
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
@@ -154,7 +154,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * Returns false when check fails - that is, it should be blocked by the firewall.
 	 *
 	 * @param string $sBlockKey
-	 * @return boolean
+	 * @return bool
 	 */
 	private function doPassCheck( $sBlockKey ) {
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
@@ -343,7 +343,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 						}
 					}
 				}
-				else if ( isset( $this->aPageParams[ $sWhitelistParam ] ) ) {
+				elseif ( isset( $this->aPageParams[ $sWhitelistParam ] ) ) {
 					unset( $this->aPageParams[ $sWhitelistParam ] );
 				}
 			}

@@ -219,7 +219,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 
 		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
 			throw new \Exception( __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' ) );
-		};
+		}
 
 		$oFs = Services::WpFs();
 		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
@@ -365,11 +365,11 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 			$sMessage = sprintf( __( 'Not currently running %s Pro.', 'wp-simple-firewall' ), $this->getCon()
 																								   ->getHumanName() );
 		}
-		else if ( !$oFO->isImportExportPermitted() ) {
+		elseif ( !$oFO->isImportExportPermitted() ) {
 			$nCode = 2;
 			$sMessage = __( 'Export of options is currently disabled.', 'wp-simple-firewall' );
 		}
-		else if ( !$this->verifyUrlWithHandshake( $sUrl ) ) {
+		elseif ( !$this->verifyUrlWithHandshake( $sUrl ) ) {
 			$nCode = 3;
 			$sMessage = __( 'Handshake verification failed.', 'wp-simple-firewall' );
 		}
@@ -464,16 +464,16 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 		if ( $bCheckKeyFormat && empty( $sSecretKey ) ) {
 			$nErrorCode = 1;
 		}
-		else if ( $bCheckKeyFormat && strlen( $sSecretKey ) != 40 ) {
+		elseif ( $bCheckKeyFormat && strlen( $sSecretKey ) != 40 ) {
 			$nErrorCode = 2;
 		}
-		else if ( $bCheckKeyFormat && preg_match( '#[^0-9a-z]#i', $sSecretKey ) ) {
+		elseif ( $bCheckKeyFormat && preg_match( '#[^0-9a-z]#i', $sSecretKey ) ) {
 			$nErrorCode = 3; //unused
 		}
-		else if ( empty( $aParts ) ) {
+		elseif ( empty( $aParts ) ) {
 			$nErrorCode = 4;
 		}
-		else if ( $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ) === false ) {
+		elseif ( $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ) === false ) {
 			$nErrorCode = 4; // a final check
 		}
 		else {
@@ -508,7 +508,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 				if ( empty( $aParts ) ) {
 					$nErrorCode = 5;
 				}
-				else if ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
+				elseif ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
 
 					if ( empty ( $aParts[ 'message' ] ) ) {
 						$nErrorCode = 6;
@@ -518,7 +518,7 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 						$sSiteResponse = $aParts[ 'message' ]; // This is crap because we can't use Response objects
 					}
 				}
-				else if ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
+				elseif ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
 					$nErrorCode = 8;
 				}
 				else {
@@ -531,14 +531,14 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 							$oFO->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
 						}
 					}
-					else if ( $bEnableNetwork === true ) {
+					elseif ( $bEnableNetwork === true ) {
 						$oFO->setImportExportMasterImportUrl( $sMasterSiteUrl );
 						$this->getCon()->fireEvent(
 							'master_url_set',
 							[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
 						);
 					}
-					else if ( $bEnableNetwork === false ) {
+					elseif ( $bEnableNetwork === false ) {
 						$oFO->setImportExportMasterImportUrl( '' );
 					}
 

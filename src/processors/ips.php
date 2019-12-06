@@ -438,7 +438,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		if ( empty( $oIp ) ) {
 			$oIp = $this->addIpToList( $sIp, $sList, $sLabel );
 		}
-		else if ( $sLabel != $oIp->getLabel() ) {
+		elseif ( $sLabel != $oIp->getLabel() ) {
 			/** @var Databases\IPs\Update $oUp */
 			$oUp = $oDbh->getQueryUpdater();
 			$oUp->updateLabel( $oIp, $sLabel );

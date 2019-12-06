@@ -147,7 +147,7 @@ class ICWP_WPSF_FeatureHandler_AuditTrail extends ICWP_WPSF_FeatureHandler_BaseW
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_enable_audit_contexts' ),
 				];
 			}
-			else if ( empty( $aAudit ) ) {
+			elseif ( empty( $aAudit ) ) {
 				$aThis[ 'key_opts' ][ 'audit' ] = [
 					'name'    => __( 'Audit Areas', 'wp-simple-firewall' ),
 					'enabled' => false,

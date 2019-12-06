@@ -55,19 +55,19 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 			$sMessage = __( 'Your login URL is unchanged because the Rename WP Login feature is not currently supported on WPMS.', 'wp-simple-firewall' );
 			$bConflicted = true;
 		}
-		else if ( class_exists( 'Rename_WP_Login' ) ) {
+		elseif ( class_exists( 'Rename_WP_Login' ) ) {
 			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Rename WP Login' );
 			$bConflicted = true;
 		}
-		else if ( class_exists( 'Theme_My_Login' ) ) {
+		elseif ( class_exists( 'Theme_My_Login' ) ) {
 			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have the "%s" plugin installed and it is active.', 'wp-simple-firewall' ), 'Theme My Login' );
 			$bConflicted = true;
 		}
-		else if ( !$oWp->isPermalinksEnabled() ) {
+		elseif ( !$oWp->isPermalinksEnabled() ) {
 			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have not enabled %s.', 'wp-simple-firewall' ), __( 'Permalinks' ) );
 			$bConflicted = true;
 		}
-		else if ( $oWp->isPermalinksEnabled() && ( $oWp->getDoesWpSlugExist( $sCustomLoginPath ) || in_array( $sCustomLoginPath, $oWp->getAutoRedirectLocations() ) ) ) {
+		elseif ( $oWp->isPermalinksEnabled() && ( $oWp->getDoesWpSlugExist( $sCustomLoginPath ) || in_array( $sCustomLoginPath, $oWp->getAutoRedirectLocations() ) ) ) {
 			$sMessage = sprintf( __( 'Can not use the Rename WP Login feature because you have chosen a path ("%s") that is reserved on your WordPress site.', 'wp-simple-firewall' ), $sCustomLoginPath );
 			$bConflicted = true;
 		}

@@ -81,7 +81,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @param string $sEmail
 	 * @param bool   $bSendAsLink
-	 * @return boolean
+	 * @return bool
 	 */
 	public function sendEmailVerifyCanSend( $sEmail = null, $bSendAsLink = true ) {
 
@@ -162,7 +162,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param boolean $bAsOptDefaults
+	 * @param bool $bAsOptDefaults
 	 * @return array
 	 */
 	protected function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
@@ -244,7 +244,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$bCanSkip = isset( $aHashes[ $sHash ] )
 						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $oReq->ts();
 		}
-		else if ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
+		elseif ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
 			$oMeta = $this->getCon()->getUserMeta( $oUser );
 			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;

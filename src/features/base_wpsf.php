@@ -18,12 +18,12 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @var bool
 	 */
-	static protected $bIsVerifiedBot;
+	protected static $bIsVerifiedBot;
 
 	/**
 	 * @var int
 	 */
-	static private $nIpOffenceCount = 0;
+	private static $nIpOffenceCount = 0;
 
 	/**
 	 * @var bool
@@ -292,7 +292,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
-					'show_promo'       => !$this->isPremium(),
+					'show_promo'  => !$this->isPremium(),
 					'has_session' => $this->hasSession()
 				],
 				'hrefs'   => [

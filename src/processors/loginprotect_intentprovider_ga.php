@@ -155,7 +155,7 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Pro
 				$this->processRemovalFromAccount( $oSavingUser );
 				$sFlash = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
 			}
-			else if ( empty( $sOtp ) ) {
+			elseif ( empty( $sOtp ) ) {
 
 				if ( $this->sendEmailConfirmationGaRemoval( $oSavingUser ) ) {
 					$sFlash = __( 'An email has been sent to you in order to confirm Google Authenticator removal', 'wp-simple-firewall' );

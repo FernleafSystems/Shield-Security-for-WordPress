@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
 		return parent::getIfShowModuleMenuItem() && !$this->isPremium();
@@ -111,7 +111,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 						$this->sendLicenseWarningEmail();
 						$oCon->fireEvent( 'lic_fail_email' );
 					}
-					else if ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
+					elseif ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
 						$oCurrent = $oLookupLicense;
 						$this->deactivate( __( 'Automatic license verification failed.', 'wp-simple-firewall' ) );
 						$this->sendLicenseDeactivatedEmail();

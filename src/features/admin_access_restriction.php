@@ -136,7 +136,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			if ( $this->isRegisteredSecAdminUser() ) {
 				$nLeft = 0;
 			}
-			else if ( $nSecAdminAt > 0 ) {
+			elseif ( $nSecAdminAt > 0 ) {
 				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
 			}
 		}

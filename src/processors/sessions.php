@@ -103,7 +103,7 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @return boolean
+	 * @return bool
 	 */
 	private function activateUserSession( $oUser ) {
 		if ( !$this->isLoginCaptured() && $oUser instanceof \WP_User ) {
