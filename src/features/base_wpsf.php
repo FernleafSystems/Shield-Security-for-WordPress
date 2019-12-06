@@ -292,6 +292,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
 				],
 				'flags'   => [
+					'show_promo'       => !$this->isPremium(),
 					'has_session' => $this->hasSession()
 				],
 				'hrefs'   => [

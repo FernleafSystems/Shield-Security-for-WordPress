@@ -586,13 +586,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			// Auto enabled modules always run regardless
 			$bEnabled = true;
 		}
-		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+		elseif ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
 			$bEnabled = false;
 		}
-		else if ( $this->getCon()->getIfForceOffActive() ) {
+		elseif ( $this->getCon()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
-		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
+		elseif ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
 		else {
@@ -1309,13 +1309,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
-				else if ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+				elseif ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
 					$sOptionValue = 'N';
 				}
-				else if ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+				elseif ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 					$sOptionValue = [];
 				}
 			}
@@ -1327,7 +1327,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				if ( $sOptType == 'integer' ) {
 					$sOptionValue = intval( $sOptionValue );
 				}
-				else if ( $sOptType == 'password' ) {
+				elseif ( $sOptType == 'password' ) {
 					$sTempValue = trim( $sOptionValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
@@ -1340,13 +1340,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 					$sOptionValue = md5( $sTempValue );
 				}
-				else if ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
+				elseif ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
-				else if ( $sOptType == 'comma_separated_lists' ) {
+				elseif ( $sOptType == 'comma_separated_lists' ) {
 					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 				}
 			}
 
@@ -1471,7 +1471,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 								 ]
 							 ]
 						 );
-		return $this->renderTemplate( 'access_restricted.php', $aData );
+		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
 	}
 
 	/**

@@ -8,7 +8,6 @@ if ( $flags[ 'wrap_page_content' ] ) : ?>
 <?php endif; ?>
 
 <?php if ( $flags[ 'access_restricted' ] ) : ?>
-	<?php include( $sBaseDirName.'access_restricted.php' ); ?>
 <?php else : ?>
 	<?php include( $sBaseDirName.'index_body.php' ); ?>
 <?php endif; ?>

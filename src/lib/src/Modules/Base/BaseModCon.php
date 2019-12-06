@@ -1456,7 +1456,7 @@ class BaseModCon extends Deprecated\Foundation {
 								 ]
 							 ]
 						 );
-		return $this->renderTemplate( 'access_restricted.php', $aData );
+		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
 	}
 
 	/**
