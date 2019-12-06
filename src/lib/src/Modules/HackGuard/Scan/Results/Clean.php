@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 class Clean {
 
-	use Shield\Databases\Base\HandlerConsumer,
-		Shield\Scans\Common\ScanActionConsumer;
+	use Shield\Databases\Base\HandlerConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @var Shield\Scans\Base\BaseResultsSet

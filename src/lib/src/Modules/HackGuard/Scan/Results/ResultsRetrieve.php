@@ -11,8 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ResultsRetrieve {
 
-	use Databases\Base\HandlerConsumer,
-		Scans\Common\ScanActionConsumer;
+	use Databases\Base\HandlerConsumer;
+	use Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @return Scans\Base\BaseResultsSet|mixed

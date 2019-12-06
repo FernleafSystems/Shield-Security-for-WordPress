@@ -21,7 +21,7 @@ class Users extends Base {
 				'user_login',
 				[
 					'audit' => [
-						'user'  => sanitize_user( $sUsername ),
+						'user' => sanitize_user( $sUsername ),
 					]
 				]
 			);
@@ -72,7 +72,7 @@ class Users extends Base {
 				'user_deleted_reassigned',
 				[
 					'audit' => [
-						'user'  => sanitize_user( $oReassignedUser->user_login ),
+						'user' => sanitize_user( $oReassignedUser->user_login ),
 					]
 				]
 			);
