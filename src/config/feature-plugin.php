@@ -27,10 +27,9 @@
     },
     "compat-sgoptimize":          {
       "id":               "compat-sgoptimize",
-      "plugin_page_only": true,
       "schedule":         "conditions",
       "valid_admin":      true,
-      "plugin_admin":     "yes",
+      "plugin_admin":     "ignore",
       "plugin_page_only": false,
       "can_dismiss":      false,
       "type":             "warning"

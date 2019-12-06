@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.4.3
+Stable tag: 8.4.4
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -18,7 +18,7 @@ Smarter security protection from hackers through automation. Powerful scanners, 
 
 Shield - highest average 5* rating for any WordPress security plugin (2019/05). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5).
 
-#### It's 2019 - Don't settle for just another security plugin. Get *smarter* security.
+#### It's 2020 - Don't settle for just another security plugin. Get *smarter* security.
 
 You don't need another 100 email notifications.
 
@@ -370,7 +370,13 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.4.3 - Current Release =
+= 8.4.4 - Current Release =
+*Released: 6th December, 2019* - [Release Notes](https://shsec.io/g5)
+
+* **(v.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
+* **(v.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
+
+= 8.4 - Series =
 *Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
 
 * **(v.3)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
