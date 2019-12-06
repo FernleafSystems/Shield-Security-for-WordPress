@@ -1,13 +1,28 @@
-<ul class="nav nav-tabs" id="ScanPageTabsNav" role="tablist" style="border-bottom: 0 none;">
+<style>
+	#ScanPageTabsNav > li {
+	}
+	#ScanPageTabsNav > li a {
+		opacity: 0.7;
+		border-color: #343a40;
+		font-weight: bolder;
+		color: #343a40;
+	}
+	#ScanPageTabsNav > li a:hover {
+		opacity: 1.0;
+		color: #ffffff;
+	}
+</style>
+
+<ul class="nav nav-tabs d-block" id="ScanPageTabsNav" role="tablist" style="border-bottom: 0 none;">
 
 	<li id="ScanPageTabsNavResults" class="nav-item hidden">
-		<a class="nav-link active mb-3 btn btn-light" data-toggle="tab" href="#ScanPagePaneResults"
+		<a class="nav-link active mb-3 btn btn-outline-dark" data-toggle="tab" href="#ScanPagePaneResults"
 		   role="tab" aria-controls="h-tabs-scanpage" aria-selected="true">
 			&larr; {{ strings.select_view_results }}
 		</a>
 	</li>
 	<li id="ScanPageTabsNavScan" class="nav-item">
-		<a class="nav-link mb-3 btn btn-light" data-toggle="tab" href="#ScanPagePaneScanNow"
+		<a class="nav-link mb-3 btn btn-outline-dark" data-toggle="tab" href="#ScanPagePaneScanNow"
 		   role="tab" aria-controls="h-tabs-scanpage" aria-selected="true">
 			{{ strings.run_scans_now }} &rarr;
 		</a>
