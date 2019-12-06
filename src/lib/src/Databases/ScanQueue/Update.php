@@ -13,7 +13,7 @@ class Update extends Base\Update {
 	 */
 	public function storeResults( $oEntry ) {
 		return isset( $oEntry->results ) &&
-			   $this->updateEntry( $oEntry, [ 'results' => gzcompress($oEntry->getRawDataAsArray()[ 'results' ]) ] );
+			   $this->updateEntry( $oEntry, [ 'results' => gzcompress( $oEntry->getRawDataAsArray()[ 'results' ] ) ] );
 	}
 
 	/**

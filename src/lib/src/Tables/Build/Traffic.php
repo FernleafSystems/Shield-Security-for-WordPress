@@ -27,7 +27,7 @@ class Traffic extends BaseBuild {
 		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 			$oSelector->filterByIp( inet_pton( $aParams[ 'fIp' ] ) );
 		}
-		else if ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
+		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
 			$oSelector->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
 		}
 
@@ -38,7 +38,7 @@ class Traffic extends BaseBuild {
 				$oSelector->filterByUserId( $oUser->ID );
 			}
 		}
-		else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
 
@@ -96,7 +96,7 @@ class Traffic extends BaseBuild {
 			if ( $oEntry->code >= 400 ) {
 				$sCodeType = 'danger';
 			}
-			else if ( $oEntry->code >= 300 ) {
+			elseif ( $oEntry->code >= 300 ) {
 				$sCodeType = 'warning';
 			}
 

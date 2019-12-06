@@ -39,10 +39,10 @@ class Handler extends Base\Handler {
 			if ( $oWpUsers->isUserLoggedIn() ) {
 				$sUser = $oWpUsers->getCurrentWpUsername();
 			}
-			else if ( $oWp->isCron() ) {
+			elseif ( $oWp->isCron() ) {
 				$sUser = 'WP Cron';
 			}
-			else if ( $oWp->isWpCli() ) {
+			elseif ( $oWp->isWpCli() ) {
 				$sUser = 'WP CLI';
 			}
 			else {

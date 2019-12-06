@@ -27,7 +27,7 @@ class AuditTrail extends BaseBuild {
 		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 			$oSelector->filterByIp( $aParams[ 'fIp' ] );
 		}
-		else if ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
+		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
 			$oSelector->filterByNotIp( $oIp->getRequestIp() );
 		}
 
@@ -57,7 +57,7 @@ class AuditTrail extends BaseBuild {
 		if ( !empty( $aParams[ 'fUsername' ] ) ) {
 			$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
 		}
-		else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
 

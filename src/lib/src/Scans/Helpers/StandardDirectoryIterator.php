@@ -16,7 +16,7 @@ class StandardDirectoryIterator {
 	 * @return \RecursiveIteratorIterator
 	 * @throws \Exception
 	 */
-	static public function create( $sDir, $nMaxDepth = 0, $aFileExts = [], $bExcludeCoreFiles = false ) {
+	public static function create( $sDir, $nMaxDepth = 0, $aFileExts = [], $bExcludeCoreFiles = false ) {
 
 		$oDirIterator = new \RecursiveDirectoryIterator( $sDir );
 		$oDirIterator->setFlags( \RecursiveDirectoryIterator::SKIP_DOTS );

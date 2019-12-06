@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BaseBuild {
 
-	use Shield\Modules\ModConsumer,
-		Shield\Databases\Base\HandlerConsumer;
+	use Shield\Databases\Base\HandlerConsumer;
+	use Shield\Modules\ModConsumer;
 
 	/**
 	 * @var Shield\Databases\Base\Select

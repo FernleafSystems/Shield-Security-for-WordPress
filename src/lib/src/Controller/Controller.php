@@ -23,7 +23,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	private $sRootFile;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bRebuildOptions;
 
@@ -359,7 +359,7 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		if ( Services::Request()->query( $this->prefix( 'runtests' ) ) && $this->isPluginAdmin() ) {
 			$this->runTests();
-		};
+		}
 
 		if ( !Services::WpGeneral()->isAjax() && function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
@@ -819,9 +819,9 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
 	 * based on the plugin settings.
-	 * @param boolean       $bDoAutoUpdate
+	 * @param bool          $bDoAutoUpdate
 	 * @param string|object $mItem
-	 * @return boolean
+	 * @return bool
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
 		$oWp = Services::WpGeneral();
@@ -1118,7 +1118,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( !$oWp->isMultisite() && is_admin() ) {
 			return true;
 		}
-		else if ( $oWp->isMultisite() && $this->getIsWpmsNetworkAdminOnly() && ( is_network_admin() || $oWp->isAjax() ) ) {
+		elseif ( $oWp->isMultisite() && $this->getIsWpmsNetworkAdminOnly() && ( is_network_admin() || $oWp->isAjax() ) ) {
 			return true;
 		}
 		return false;
@@ -1152,7 +1152,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getMeetsBasePermissions() {
 		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
@@ -1228,7 +1228,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			 && hash_equals( $oConOptions->hash, $sCurrentHash ) ) {
 			$this->bRebuildOptions = false;
 		}
-		else if ( isset( $oConOptions->mod_time ) && ( $sModifiedTime < $oConOptions->mod_time ) ) {
+		elseif ( isset( $oConOptions->mod_time ) && ( $sModifiedTime < $oConOptions->mod_time ) ) {
 			$this->bRebuildOptions = false;
 		}
 
@@ -1245,7 +1245,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIsResetPlugin() {
 		if ( !isset( $this->bResetPlugin ) ) {
@@ -1256,7 +1256,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIsWpmsNetworkAdminOnly() {
 		return $this->getPluginSpec_Property( 'wpms_network_admin_only' );

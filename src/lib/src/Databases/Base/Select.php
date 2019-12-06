@@ -90,16 +90,16 @@ class Select extends BaseQuery {
 		if ( $this->isCount() ) {
 			$sSubstitute = 'COUNT(*)';
 		}
-		else if ( $this->isSum() ) {
+		elseif ( $this->isSum() ) {
 			$sSubstitute = sprintf( 'SUM(%s)', array_shift( $aCols ) );
 		}
-		else if ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
+		elseif ( $this->isDistinct() && $this->hasColumnsToSelect() ) {
 			$sSubstitute = sprintf( 'DISTINCT %s', implode( ',', $aCols ) );
 		}
-		else if ( $this->hasColumnsToSelect() ) {
+		elseif ( $this->hasColumnsToSelect() ) {
 			$sSubstitute = implode( ',', $aCols );
 		}
-		else if ( $this->isCustomSelect() ) {
+		elseif ( $this->isCustomSelect() ) {
 			$sSubstitute = $this->sCustomSelect;
 		}
 		else {
@@ -228,7 +228,7 @@ class Select extends BaseQuery {
 		if ( $this->isCount() || $this->isSum() ) {
 			$mData = $this->queryVar();
 		}
-		else if ( $this->isDistinct() ) {
+		elseif ( $this->isDistinct() ) {
 			$mData = $this->queryDistinct();
 			if ( is_array( $mData ) ) {
 				$mData = array_map( function ( $aRecord ) {

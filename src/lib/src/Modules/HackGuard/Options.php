@@ -245,7 +245,7 @@ class Options extends Base\ShieldOptions {
 		if ( $bAdd ) {
 			$aS[ $sScan ] = Services::Request()->ts();
 		}
-		else if ( isset( $aS[ $sScan ] ) ) {
+		elseif ( isset( $aS[ $sScan ] ) ) {
 			unset( $aS[ $sScan ] );
 		}
 		return $this->setScansToBuild( $aS );

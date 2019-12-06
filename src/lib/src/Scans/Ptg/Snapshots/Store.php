@@ -208,7 +208,7 @@ class Store {
 		if ( $mTime > DAY_IN_SECONDS ) {
 			$bRelevant = false;
 		}
-		else if ( $mTime > DAY_IN_SECONDS/2 ) {
+		elseif ( $mTime > DAY_IN_SECONDS/2 ) {
 			$oFs->touch( $this->getSnapStorePath() );
 		}
 		return $bRelevant;

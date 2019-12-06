@@ -45,6 +45,7 @@ class Options extends Base\ShieldOptions {
 	public function getDbColumns_IPs() {
 		return $this->getDef( 'ip_list_table_columns' );
 	}
+
 	/**
 	 * @return string
 	 */

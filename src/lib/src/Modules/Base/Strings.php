@@ -95,7 +95,7 @@ class Strings {
 				'join_thousands_P'   => implode( ', ', $aProFeaturesDisplay ),
 				'get_pro_protection' => __( 'Upgrade To Pro Protection', 'wp-simple-firewall' ),
 
-				'page_title'  => 'Twig Page',
+				'page_title' => 'Twig Page',
 			],
 			$this->getAdditionalDisplayStrings()
 		);

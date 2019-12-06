@@ -73,7 +73,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$bSuccess = false;
 			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		else if ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
+		elseif ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
@@ -118,10 +118,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = __( 'Invalid session selected', 'wp-simple-firewall' );
 		}
-		else if ( $oMod->getSession()->id === $nId ) {
+		elseif ( $oMod->getSession()->id === $nId ) {
 			$sMessage = __( 'Please logout if you want to delete your own session.', 'wp-simple-firewall' );
 		}
-		else if ( $oMod->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
+		elseif ( $oMod->getDbHandler_Sessions()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'User session deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}

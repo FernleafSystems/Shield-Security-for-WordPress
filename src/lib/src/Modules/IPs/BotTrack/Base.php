@@ -22,7 +22,7 @@ abstract class Base {
 		if ( $oOpts->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
 			$bCount = PHP_INT_MAX;
 		}
-		else if ( $oOpts->isTrackOptTransgression( static::OPT_KEY ) ) {
+		elseif ( $oOpts->isTrackOptTransgression( static::OPT_KEY ) ) {
 			$bCount = $oOpts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
 		}
 		else {

@@ -100,7 +100,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sMessage = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
 			$bSuccess = false;
 		}
-		else if ( $oMod->getIfCanSendEmailVerified() ) {
+		elseif ( $oMod->getIfCanSendEmailVerified() ) {
 			$sMessage = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
 		else {

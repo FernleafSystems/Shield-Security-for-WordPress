@@ -9,4 +9,5 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv
  */
 class ScanActionVO extends Shield\Scans\Base\BaseScanActionVO {
+
 }

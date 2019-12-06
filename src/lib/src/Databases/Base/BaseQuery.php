@@ -397,7 +397,7 @@ abstract class BaseQuery {
 		if ( empty( $sGroupByColumn ) ) {
 			$this->sGroupBy = '';
 		}
-		else if ( $this->getDbH()->hasColumn( $sGroupByColumn ) ) {
+		elseif ( $this->getDbH()->hasColumn( $sGroupByColumn ) ) {
 			$this->sGroupBy = $sGroupByColumn;
 		}
 		return $this;

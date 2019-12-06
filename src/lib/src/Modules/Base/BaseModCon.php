@@ -22,7 +22,7 @@ class BaseModCon extends Deprecated\Foundation {
 	protected $sModSlug;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bImportExportWhitelistNotify = false;
 
@@ -589,13 +589,13 @@ class BaseModCon extends Deprecated\Foundation {
 			// Auto enabled modules always run regardless
 			$bEnabled = true;
 		}
-		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+		elseif ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
 			$bEnabled = false;
 		}
-		else if ( $this->getCon()->getIfForceOffActive() ) {
+		elseif ( $this->getCon()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
-		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
+		elseif ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
 		else {
@@ -784,21 +784,21 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleLink() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfUseSessions() {
 		return $this->getOptions()->getFeatureProperty( 'use_sessions' );
@@ -850,9 +850,9 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @param string  $sOptionKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
+	 * @param string $sOptionKey
+	 * @param mixed  $mValueToTest
+	 * @param bool   $bStrict
 	 * @return bool
 	 */
 	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
@@ -1294,13 +1294,13 @@ class BaseModCon extends Deprecated\Foundation {
 				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
-				else if ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+				elseif ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
 					$sOptionValue = 'N';
 				}
-				else if ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+				elseif ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 					$sOptionValue = [];
 				}
 			}
@@ -1312,7 +1312,7 @@ class BaseModCon extends Deprecated\Foundation {
 				if ( $sOptType == 'integer' ) {
 					$sOptionValue = intval( $sOptionValue );
 				}
-				else if ( $sOptType == 'password' ) {
+				elseif ( $sOptType == 'password' ) {
 					$sTempValue = trim( $sOptionValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
@@ -1325,13 +1325,13 @@ class BaseModCon extends Deprecated\Foundation {
 
 					$sOptionValue = md5( $sTempValue );
 				}
-				else if ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
+				elseif ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
-				else if ( $sOptType == 'comma_separated_lists' ) {
+				elseif ( $sOptType == 'comma_separated_lists' ) {
 					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 				}
 			}
 
@@ -1635,7 +1635,7 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function getIsShowMarketing() {
 		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
