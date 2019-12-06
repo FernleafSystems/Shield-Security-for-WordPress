@@ -100,6 +100,8 @@ class ScanAggregate extends BaseBuild {
 			$oSelector->filterByNotIgnored();
 		}
 
+		$oSelector->filterByScans( [ 'mal', 'wcf', 'ufc', 'ptg' ] );
+
 		return $this;
 	}
 
