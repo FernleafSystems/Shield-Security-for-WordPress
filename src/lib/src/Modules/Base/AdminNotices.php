@@ -13,7 +13,7 @@ class AdminNotices {
 	/**
 	 * @var
 	 */
-	static protected $nCount = 0;
+	protected static $nCount = 0;
 
 	public function run() {
 		$oMod = $this->getMod();
@@ -126,28 +126,28 @@ class AdminNotices {
 		if ( $oNtc->plugin_page_only && !$oCon->isModulePage() ) {
 			$oNtc->non_display_reason = 'plugin_page_only';
 		}
-		else if ( $oNtc->type == 'promo' && !$this->getOptions()->isShowPromoAdminNotices() ) {
+		elseif ( $oNtc->type == 'promo' && !$this->getOptions()->isShowPromoAdminNotices() ) {
 			$oNtc->non_display_reason = 'promo_hidden';
 		}
-		else if ( $oNtc->valid_admin && !$oCon->isValidAdminArea() ) {
+		elseif ( $oNtc->valid_admin && !$oCon->isValidAdminArea() ) {
 			$oNtc->non_display_reason = 'not_admin_area';
 		}
-		else if ( $oNtc->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
+		elseif ( $oNtc->plugin_admin == 'yes' && !$oCon->isPluginAdmin() ) {
 			$oNtc->non_display_reason = 'not_plugin_admin';
 		}
-		else if ( $oNtc->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
+		elseif ( $oNtc->plugin_admin == 'no' && $oCon->isPluginAdmin() ) {
 			$oNtc->non_display_reason = 'is_plugin_admin';
 		}
-		else if ( $oNtc->min_install_days > 0 && $oNtc->min_install_days > $oOpts->getInstallationDays() ) {
+		elseif ( $oNtc->min_install_days > 0 && $oNtc->min_install_days > $oOpts->getInstallationDays() ) {
 			$oNtc->non_display_reason = 'min_install_days';
 		}
-		else if ( static::$nCount > 0 && $oNtc->type !== 'error' ) {
+		elseif ( static::$nCount > 0 && $oNtc->type !== 'error' ) {
 			$oNtc->non_display_reason = 'max_nonerror_count';
 		}
-		else if ( $oNtc->can_dismiss && $this->isNoticeDismissed( $oNtc ) ) {
+		elseif ( $oNtc->can_dismiss && $this->isNoticeDismissed( $oNtc ) ) {
 			$oNtc->non_display_reason = 'dismissed';
 		}
-		else if ( !$this->isDisplayNeeded( $oNtc ) ) {
+		elseif ( !$this->isDisplayNeeded( $oNtc ) ) {
 			$oNtc->non_display_reason = 'not_needed';
 		}
 		else {

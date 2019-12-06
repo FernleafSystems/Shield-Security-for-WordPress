@@ -25,6 +25,15 @@
       "can_dismiss":      false,
       "type":             "error"
     },
+    "compat-sgoptimize":          {
+      "id":               "compat-sgoptimize",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_admin":     "ignore",
+      "plugin_page_only": false,
+      "can_dismiss":      false,
+      "type":             "warning"
+    },
     "wizard_welcome":             {
       "id":       "wizard_welcome",
       "per_user": false,
