@@ -77,7 +77,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				if ( $this->isUserSubjectToLoginIntent() && !$oFO->canUserMfaSkip( $oWpUsers->getCurrentWpUser() ) ) {
 					$this->processLoginIntent();
 				}
-				else if ( $this->hasLoginIntent() ) {
+				elseif ( $this->hasLoginIntent() ) {
 					// This handles the case where an admin changes a setting while a user is logged-in
 					// So to prevent this, we remove any intent for a user that isn't subject to it right now
 					$this->removeLoginIntent();
@@ -142,7 +142,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 					$sRedirectHref = $oReq->post( 'cancel_href' );
 					empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
 				}
-				else if ( $this->isLoginIntentValid() ) {
+				elseif ( $this->isLoginIntentValid() ) {
 
 					if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
 						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
@@ -170,7 +170,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				die();
 			}
 		}
-		else if ( $this->hasLoginIntent() ) { // there was an old login intent
+		elseif ( $this->hasLoginIntent() ) { // there was an old login intent
 			$oWpUsers->logoutUser(); // clears the login and login intent
 			$oWpResp->redirectHere();
 		}
@@ -316,7 +316,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 			]
 		];
 
-		echo $oMod->renderTemplate( 'page/login_intent', $aDisplayData );
+		echo $oMod->renderTemplate( '/pages/login_intent/index.twig',
+			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );
 
 		return true;
 	}

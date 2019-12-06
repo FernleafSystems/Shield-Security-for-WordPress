@@ -1,6 +1,6 @@
-<html>
+<html lang="">
 <head>
-    <link rel="icon" type="image/png" href="{{ hrefs.favicon }}" />
+    <link rel="icon" type="image/png" href="{{ imgs.favicon }}" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{{ strings.page_title }}</title>
@@ -22,6 +22,8 @@
 		<script type="text/javascript" src="{{ hrefs.js_bootstrap }}"></script>
 		<script type="text/javascript" src="{{ hrefs.js_globalplugin }}"></script>
 	{% endblock %}
+	{% block head_inline_scripts %}
+	{% endblock %}
 </head>
 {% block body %}
 	<body>
@@ -32,9 +34,7 @@
 		<div class="container-fluid">
 			{% block body_content_header %}
 				<div class="row">
-					<div class="col-4 offset-4 col-xl-3 text-center">
-						<img id="ShieldLogo" class="img-fluid" src="{{ hrefs.plugin_banner }}" />
-					</div>
+					<div class="col-4 offset-4"></div>
 				</div>
 			{% endblock %}
 			{% block body_content_main %}

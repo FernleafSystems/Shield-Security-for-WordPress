@@ -94,6 +94,8 @@ class Strings {
 				'join_thousands_H'   => __( "Join The 1,000s Who've Already Upgraded Their WordPress Security To Better Protect Their Sites.", 'wp-simple-firewall' ),
 				'join_thousands_P'   => implode( ', ', $aProFeaturesDisplay ),
 				'get_pro_protection' => __( 'Upgrade To Pro Protection', 'wp-simple-firewall' ),
+
+				'page_title'  => 'Twig Page',
 			],
 			$this->getAdditionalDisplayStrings()
 		);

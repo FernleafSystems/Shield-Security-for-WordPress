@@ -282,7 +282,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return array
 	 */
-	protected function getBaseDisplayData() {
+	public function getBaseDisplayData() {
 		$sHelpUrl = $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/b5';
 
 		return Services::DataManipulation()->mergeArraysRecursive(
