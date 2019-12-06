@@ -1,0 +1,25 @@
+{% extends "/notices/base-error.twig" %}
+
+{% block notice_body %}
+	<p>{{ strings.message }}
+		<a href="https://shsec.io/g7" target="_blank">{{ strings.learn_more }}</a>
+	<p><a href="#" id="SGOptimizerTurnOff">{{ strings.sgoptimizer_turnoff }}</a></p>
+
+	<script type="text/javascript">
+		jQuery( document ).on(
+			'click',
+			'a#SGOptimizerTurnOff',
+			function () {
+				iCWP_WPSF_BodyOverlay.show();
+				jQuery.get( ajaxurl, {{ ajax.sgoptimizer_turnoff|raw }} )
+					  .always(
+						  function () {
+							  location.reload();
+						  }
+					  );
+			}
+		);
+
+
+	</script>
+{% endblock %}

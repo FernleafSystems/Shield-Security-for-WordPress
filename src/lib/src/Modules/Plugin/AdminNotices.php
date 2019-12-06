@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
@@ -17,6 +18,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'override-forceoff':
 				$this->buildNotice_OverrideForceoff( $oNotice );
+				break;
+
+			case 'compat-sgoptimize':
+				$this->buildNotice_CompatSgOptimize( $oNotice );
 				break;
 
 			case 'plugin-mailing-list-signup':
@@ -95,6 +100,31 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'ajax'              => [
 				'delete_forceoff' => $this->getMod()->getAjaxActionData( 'delete_forceoff', true )
+			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function buildNotice_CompatSgOptimize( $oNotice ) {
+		$sName = $this->getCon()->getHumanName();
+
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'               => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+					sprintf( __( 'Site Ground Optimizer plugin has a conflict', 'wp-simple-firewall' ), $sName ) ),
+				'message'             => sprintf(
+											 __( 'The SG Optimizer plugin has 2 settings which are breaking your site and certain %s features.', 'wp-simple-firewall' ),
+											 $sName
+										 )
+										 .' '.sprintf( 'The problematic options are: "Defer Render-blocking JS" and "Remove Query Strings From Static Resources".' ),
+				'learn_more'          => sprintf( 'Click here to learn more' ),
+				'sgoptimizer_turnoff' => __( 'Click here to automatically turn off those options.', 'wp-simple-firewall' )
+			],
+			'ajax'              => [
+				'sgoptimizer_turnoff' => $this->getMod()->getAjaxActionData( 'sgoptimizer_turnoff', true )
 			]
 		];
 	}
@@ -238,6 +268,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'override-forceoff':
 				$bNeeded = $this->getCon()->getIfForceOffActive();
+				break;
+
+			case 'compat-sgoptimize':
+				$bNeeded = ( new Plugin\Components\SiteGroundPluginCompatibility() )->testIsIncompatible();
 				break;
 
 			case 'plugin-update-available':

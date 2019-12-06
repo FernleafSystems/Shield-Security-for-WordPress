@@ -54,6 +54,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_SendDeactivateSurvey();
 				break;
 
+			case 'sgoptimizer_turnoff':
+				$aResponse = $this->ajaxExec_TurnOffSiteGroundOptions();
+				break;
+
 			default:
 				$aResponse = parent::processAjaxAction( $sAction );
 		}
@@ -125,7 +129,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$bSuccess = false;
 			$sMessage = __( 'No items selected.', 'wp-simple-firewall' );
 		}
-		else if ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
+		elseif ( !in_array( $oReq->post( 'bulk_action' ), [ 'delete' ] ) ) {
 			$sMessage = __( 'Not a supported action.', 'wp-simple-firewall' );
 		}
 		else {
@@ -253,7 +257,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	/**
 	 * @return array
 	 */
-	protected function ajaxExec_AdminNotesInsert() {
+	private function ajaxExec_AdminNotesInsert() {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
 		$bSuccess = false;
@@ -263,7 +267,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		if ( !$oMod->getCanAdminNotes() ) {
 			$sMessage = __( 'Sorry, Admin Notes is only available for Pro subscriptions.', 'wp-simple-firewall' );
 		}
-		else if ( empty( $sNote ) ) {
+		elseif ( empty( $sNote ) ) {
 			$sMessage = __( 'Sorry, but it appears your note was empty.', 'wp-simple-firewall' );
 		}
 		else {
@@ -275,6 +279,19 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return [
 			'success' => $bSuccess,
 			'message' => $sMessage
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_TurnOffSiteGroundOptions() {
+		$bSuccess = ( new Shield\Modules\Plugin\Components\SiteGroundPluginCompatibility() )
+			->switchOffOptions();
+		return [
+			'success' => $bSuccess,
+			'message' => $bSuccess ? __( 'Switching-off conflicting options appears to have been successful.', 'wp-simple-firewall' )
+				: __( 'Switching-off conflicting options appears to have failed.', 'wp-simple-firewall' )
 		];
 	}
 }
