@@ -1,7 +1,5 @@
 <form id="StartScans">
-	<h6 class="text-center mt-2"><a data-toggle="collapse"
-		  href="#Collapse_ScanResults">{{ strings.run_scans_now }} &updownarrow;</a></h6>
-	<div class="card collapse"  id="Collapse_ScanResults">
+	<div class="card">
 		<div class="card-header">
 			<h5 class="card-title">
 				{{ strings.title_scan_now }}
@@ -10,9 +8,9 @@
 		</div>
 		<div class="card-body pb-2">
 
-			<div class="row">
+			<div class="row mb-3">
 				<div class="col-12">
-					<h6 class="mt-0 mb-2">{{ strings.scan_select }}</h6>
+					<h6 class="mt-0 mb-2">{{ strings.scanselect_file_areas }}</h6>
 				</div>
 
 				<div class="col-xl-3 col-lg-4 col-md-6">
@@ -47,21 +45,6 @@
 
 				<div class="col-xl-3 col-lg-4 col-md-6">
 					<div class="scan-select pl-2 text-nowrap">
-						<label for="_apc" class="col-form-label">
-							<input type="checkbox" class="form-control text-right"
-								   name="apc" id="_apc" value="Y"
-								   {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.apc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
-							/>
-							{{ scans.apc.strings.title }}
-							<br />
-							<small class="form-text">{{ scans.apc.strings.subtitle }}</small>
-						</label>
-					</div>
-				</div>
-
-				<div class="col-xl-3 col-lg-4 col-md-6">
-					<div class="scan-select pl-2 text-nowrap">
 						<label for="_ptg" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
 								   name="ptg" id="_ptg" value="Y"
@@ -73,6 +56,28 @@
 							<small class="form-text">{{ scans.ptg.strings.subtitle }}</small>
 						</label>
 					</div>
+				</div>
+
+				<div class="col-xl-3 col-lg-4 col-md-6">
+					<div class="scan-select pl-2 text-nowrap">
+						<label for="_mal" class="col-form-label">
+							<input type="checkbox" class="form-control text-right"
+								   name="mal" id="_mal" value="Y"
+								   {% if not scans.mal.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.mal.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
+							/>
+							{{ scans.mal.strings.title }}
+							<br />
+							<small class="form-text">{{ scans.mal.strings.subtitle }}</small>
+						</label>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+
+				<div class="col-12">
+					<h6 class="mt-0 mb-2">{{ strings.scanselect_assets }}</h6>
 				</div>
 
 				<div class="col-xl-3 col-lg-4 col-md-6">
@@ -92,15 +97,15 @@
 
 				<div class="col-xl-3 col-lg-4 col-md-6">
 					<div class="scan-select pl-2 text-nowrap">
-						<label for="_mal" class="col-form-label">
+						<label for="_apc" class="col-form-label">
 							<input type="checkbox" class="form-control text-right"
-								   name="mal" id="_mal" value="Y"
-								   {% if not scans.mal.flags.is_available %}disabled="disabled"{% endif %}
-									{% if scans.mal.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
+								   name="apc" id="_apc" value="Y"
+								   {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
+									{% if scans.apc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
 							/>
-							{{ scans.mal.strings.title }}
+							{{ scans.apc.strings.title }}
 							<br />
-							<small class="form-text">{{ scans.mal.strings.subtitle }}</small>
+							<small class="form-text">{{ scans.apc.strings.subtitle }}</small>
 						</label>
 					</div>
 				</div>
