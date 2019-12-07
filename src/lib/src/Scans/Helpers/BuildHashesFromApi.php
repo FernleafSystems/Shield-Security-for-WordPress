@@ -19,7 +19,42 @@ class BuildHashesFromApi {
 	 */
 	public function build( $oAsset ) {
 		if ( !$oAsset->isWpOrg() ) {
-			throw new \Exception( 'Not a WordPress.org asset.' );
+
+			$bApiSupport = false;
+
+			$aApiInfo = ( new Hashes\ApiInfo() )
+				->setUseQueryCache( true )
+				->getInfo();
+			if ( is_array( $aApiInfo ) && !empty( $aApiInfo[ 'supported_premium' ] ) ) {
+				if ( $oAsset instanceof VOs\WpPluginVo ) {
+					$sSlug = $oAsset->slug;
+					$sFile = $oAsset->file;
+					$sName = $oAsset->Name;
+					$aItems = $aApiInfo[ 'supported_premium' ][ 'plugins' ];
+				}
+				else {
+					$sSlug = $oAsset->stylesheet;
+					$sFile = $oAsset->stylesheet;
+					$sName = $oAsset->wp_theme->get( 'Name' );
+					$aItems = $aApiInfo[ 'supported_premium' ][ 'themes' ];
+				}
+
+				foreach ( $aItems as $aMaybeItem ) {
+
+					if ( $aMaybeItem[ 'slug' ] == $sSlug
+						 || $aMaybeItem[ 'name' ] == $sName || $aMaybeItem[ 'file' ] == $sFile ) {
+						$bApiSupport = true;
+						if ( $oAsset instanceof VOs\WpPluginVo && empty( $oAsset->slug ) ) {
+							$oAsset->slug = $aMaybeItem[ 'slug' ];
+						}
+						break;
+					}
+				}
+			}
+
+			if ( !$bApiSupport ) {
+				throw new \Exception( 'Not a WordPress.org asset.' );
+			}
 		}
 		return $this->retrieveForAsset( $oAsset );
 	}
