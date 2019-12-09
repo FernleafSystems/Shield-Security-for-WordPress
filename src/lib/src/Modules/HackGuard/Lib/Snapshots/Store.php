@@ -83,7 +83,7 @@ class Store extends Base {
 	 * @return array[]
 	 */
 	public function getSnapMeta() {
-		if ( !is_array( $this->aSnapMeta ) ) {
+		if ( empty( $this->aSnapMeta ) ) {
 			$this->loadSnapMetaIfExists();
 		}
 		return is_array( $this->aSnapMeta ) ? $this->aSnapMeta : [];
