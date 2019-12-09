@@ -190,6 +190,30 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array[]
+	 */
+	public function getPtgStoredVersions() {
+		$aVersions = $this->getOpt( 'ptg_stored_versions' );
+		if ( !is_array( $aVersions ) ) {
+			$aVersions = [];
+		}
+		foreach ( [ 'plugins', 'themes' ] as $sKey ) {
+			if ( !isset( $aVersions[ $sKey ] ) || !is_array( $aVersions[ $sKey ] ) ) {
+				$aVersions[ $sKey ] = [];
+			}
+		}
+		return $aVersions;
+	}
+
+	/**
+	 * @param array $aVersions
+	 * @return static
+	 */
+	public function setPtgStoredVersions( $aVersions ) {
+		return $this->setOpt( 'ptg_stored_versions', $aVersions );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getPtgLastBuildAt() {

@@ -621,6 +621,13 @@
       "default":      false
     },
     {
+      "key":          "ptg_stored_versions",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
+    },
+    {
       "key":          "rt_file_hashes",
       "section":      "section_non_ui",
       "transferable": false,
