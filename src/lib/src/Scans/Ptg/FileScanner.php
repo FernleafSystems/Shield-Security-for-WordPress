@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Store
+	 * @var Lib\Snapshots\Store
 	 */
 	private $oAssetStore;
 
@@ -26,6 +26,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 */
 	public function scan( $sFullPath ) {
 		$oItem = null;
+		// file paths are stored in the queue relatives to ABSPATH
 		$sFullPath = path_join( wp_normalize_path( ABSPATH ), $sFullPath );
 		try {
 			$oAsset = ( new Plugin\Files() )->findPluginFromFile( $sFullPath );
@@ -59,6 +60,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	/**
 	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
 	 * @return string[]
+	 * @throws \Exception
 	 */
 	private function getHashes( $oAsset ) {
 		return $this->getStore( $oAsset )->getSnapData();

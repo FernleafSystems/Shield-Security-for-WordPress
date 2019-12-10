@@ -1,10 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Snapshots;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Store;
 
 /**
  * Class StoreFormatUpgrade
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\Snapshots
+ * @needs updating if required
  */
 class StoreFormatUpgrade {
 

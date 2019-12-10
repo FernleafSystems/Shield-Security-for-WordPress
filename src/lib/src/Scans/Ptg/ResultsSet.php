@@ -89,7 +89,7 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @return ResultsSet[]
 	 */
 	public function getAllResultsSetsForPluginsContext() {
-		return $this->getAllResultsSetsForContext( ScannerPlugins::CONTEXT );
+		return $this->getAllResultsSetsForContext( ScanActionVO::CONTEXT_PLUGINS );
 	}
 
 	/**
@@ -111,14 +111,14 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @return ResultsSet
 	 */
 	public function getResultsForPluginsContext() {
-		return $this->getResultsForContext( ScannerPlugins::CONTEXT );
+		return $this->getResultsForContext( ScanActionVO::CONTEXT_PLUGINS );
 	}
 
 	/**
 	 * @return ResultsSet
 	 */
 	public function getResultsForThemesContext() {
-		return $this->getResultsForContext( ScannerThemes::CONTEXT );
+		return $this->getResultsForContext( ScanActionVO::CONTEXT_THEMES );
 	}
 
 	/**
@@ -126,7 +126,7 @@ class ResultsSet extends Base\BaseResultsSet {
 	 * @return ResultsSet[]
 	 */
 	public function getAllResultsSetsForThemesContext() {
-		return $this->getAllResultsSetsForContext( ScannerThemes::CONTEXT );
+		return $this->getAllResultsSetsForContext( ScanActionVO::CONTEXT_THEMES );
 	}
 
 	/**

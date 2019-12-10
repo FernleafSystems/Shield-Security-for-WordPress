@@ -395,7 +395,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Ptg\Snapshots\Store
+	 * @return null
 	 * @deprecated 8.5
 	 */
 	private function getStore_Plugins() {
@@ -403,7 +403,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Ptg\Snapshots\Store
+	 * @return null
 	 * @deprecated 8.5
 	 */
 	private function getStore_Themes() {
