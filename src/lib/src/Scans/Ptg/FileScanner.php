@@ -3,10 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesFromApi;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 use FernleafSystems\Wordpress\Services\Core\VOs;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
-use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiPing;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
 
@@ -17,19 +16,9 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @var Shield\Scans\Ptg\Snapshots\Store
+	 * @var Lib\Snapshots\Store
 	 */
-	private $oPluginHashes;
-
-	/**
-	 * @var Shield\Scans\Ptg\Snapshots\Store
-	 */
-	private $oThemeHashes;
-
-	/**
-	 * @var bool
-	 */
-	private static $bCanUseLiveHashes = null;
+	private $oAssetStore;
 
 	/**
 	 * @param string $sFullPath - in this case it's relative to ABSPATH
@@ -71,76 +60,32 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return string[]
 	 */
 	private function getHashes( $oAsset ) {
-		$aHashes = null;
-		if ( is_null( self::$bCanUseLiveHashes ) ) {
-			self::$bCanUseLiveHashes = ( new ApiPing() )->ping();
-		}
-
-		if ( self::$bCanUseLiveHashes ) {
-			try {
-				$aHashes = $this->getLiveHashes( $oAsset );
-			}
-			catch ( \Exception $oE ) {
-//				error_log( $oE->getMessage() );
-			}
-		}
-
-		if ( empty( $aHashes ) ) {
-			if ( $oAsset instanceof VOs\WpPluginVo ) {
-				$aSnapHashes = $this->getStorePlugins()
-									->getSnapItem( $oAsset->file );
-			}
-			else {
-				$aSnapHashes = $this->getStoreThemes()
-									->getSnapItem( $oAsset->stylesheet );
-			}
-			$aHashes = [];
-			// File-saved hashes are relative to ABSPATH so we have to turn paths into a fragment relative to Asset dir.
-			$sInstallDir = $oAsset->getInstallDir();
-			foreach ( $aSnapHashes as $sPath => $sHash ) {
-				$sPath = str_replace( $sInstallDir, '', wp_normalize_path( path_join( ABSPATH, $sPath ) ) );
-				$aHashes[ $sPath ] = $sHash;
-			}
-		}
-
-		return $aHashes;
-	}
-
-	/**
-	 * @return Snapshots\Store
-	 */
-	private function getStorePlugins() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		if ( empty( $this->oPluginHashes ) ) {
-			$this->oPluginHashes = ( new Shield\Scans\Ptg\Snapshots\Store() )
-				->setContext( 'plugins' )
-				->setStorePath( $oAction->hashes_base_path );
-		}
-		return $this->oPluginHashes;
-	}
-
-	/**
-	 * @return Snapshots\Store
-	 */
-	private function getStoreThemes() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		if ( empty( $this->oThemeHashes ) ) {
-			$this->oThemeHashes = ( new Shield\Scans\Ptg\Snapshots\Store() )
-				->setContext( 'themes' )
-				->setStorePath( $oAction->hashes_base_path );
-		}
-		return $this->oThemeHashes;
+		return $this->getStore( $oAsset )->getSnapData();
 	}
 
 	/**
 	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
-	 * @return string[]
-	 * @throws \Exception
+	 * @return Lib\Snapshots\Store
 	 */
-	private function getLiveHashes( $oAsset ) {
-		return ( new BuildHashesFromApi() )->build( $oAsset );
+	private function getStore( $oAsset ) {
+		/** @var ScanActionVO $oAction */
+		$oAction = $this->getScanActionVO();
+
+		// Re-Use the previous store if it's for the same Asset.
+		if ( !empty( $this->oAssetStore ) ) {
+			$sUniqueId = ( $oAsset instanceof VOs\WpPluginVo ) ? $oAsset->file : $oAsset->stylesheet;
+			$aMeta = $this->oAssetStore->getSnapMeta();
+			if ( $sUniqueId !== $aMeta[ 'unique_id' ] ) {
+				unset( $this->oAssetStore );
+			}
+		}
+
+		if ( empty( $this->oAssetStore ) ) {
+			$this->oAssetStore = ( new Lib\Snapshots\Store( $oAsset ) )
+				->setWorkingDir( $oAction->hashes_base_path );
+		}
+
+		return $this->oAssetStore;
 	}
 
 	/**

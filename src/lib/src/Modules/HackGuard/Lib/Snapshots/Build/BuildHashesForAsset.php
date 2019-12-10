@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 
 /**
  * Class BuildHashesForAsset
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build
  */
 class BuildHashesForAsset {
 

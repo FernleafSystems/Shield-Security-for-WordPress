@@ -51,7 +51,7 @@ class BuildStore {
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 			$oMod = $this->getMod();
 			$oStore = ( new Store( $this->oAsset ) )
-				->setStorePath( $oMod->getPtgSnapsBaseDir() );
+				->setWorkingDir( $oMod->getPtgSnapsBaseDir() );
 			$oStore->setSnapData( $aHashes )
 				   ->setSnapMeta( $aMeta )
 				   ->save();
@@ -66,6 +66,9 @@ class BuildStore {
 			'ts'           => Services::Request()->ts(),
 			'snap_version' => $this->getCon()->getVersion(),
 		];
+		$aMeta[ 'unique_id' ] = ( $this->oAsset instanceof WpPluginVo ) ?
+			$this->oAsset->file
+			: $this->oAsset->stylesheet;
 		$aMeta[ 'name' ] = ( $this->oAsset instanceof WpPluginVo ) ?
 			$this->oAsset->Name
 			: $this->oAsset->wp_theme->get( 'Name' );

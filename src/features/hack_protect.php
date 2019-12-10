@@ -75,16 +75,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->cleanFileExclusions();
 		$this->cleanPtgFileExtensions();
 
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
-			$this->setPtgLastBuildAt( 0 );
-			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
-			$oPro->getSubProScanner()
-				 ->getSubProcessorPtg()
-				 ->resetScan();
-		}
-
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 		$this->resetRtBackupFiles();
 	}
@@ -375,14 +365,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return int
-	 * @deprecated 8.5
-	 */
-	public function getPtgLastBuildAt() {
-		return $this->getOpt( 'ptg_last_build_at' );
-	}
-
-	/**
 	 * @return string|false
 	 */
 	public function getPtgSnapsBaseDir() {
@@ -402,23 +384,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @param bool $bIsRequired
 	 * @return $this
 	 */
-	public function setPtgRebuildSelfRequired( $bIsRequired ) {
-		return $this->setOpt( 'rebuild_self', (bool)$bIsRequired );
-	}
-
-	/**
-	 * @param bool $bIsRequired
-	 * @return $this
-	 */
 	public function setPtgUpdateStoreFormat( $bIsRequired ) {
 		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgRebuildSelfRequired() {
-		return $this->isOpt( 'rebuild_self', true );
 	}
 
 	/**
@@ -440,23 +407,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function isPtgReadyToScan() {
-		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isPtgReinstallLinks() {
 		return $this->isPtgEnabled() && $this->isOpt( 'ptg_reinstall_links', 'Y' );
-	}
-
-	/**
-	 * @param int $nTime
-	 * @return $this
-	 */
-	public function setPtgLastBuildAt( $nTime = null ) {
-		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? Services::Request()->ts() : $nTime );
 	}
 
 	/**
@@ -1068,5 +1020,47 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getNamespaceBase() {
 		return 'HackGuard';
+	}
+
+	/**
+	 * @param int $nTime
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	public function setPtgLastBuildAt( $nTime = null ) {
+		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? Services::Request()->ts() : $nTime );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgReadyToScan() {
+		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5
+	 */
+	public function getPtgLastBuildAt() {
+		return $this->getOpt( 'ptg_last_build_at' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgRebuildSelfRequired() {
+		return $this->isOpt( 'rebuild_self', true );
+	}
+
+	/**
+	 * @param bool $bIsRequired
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	public function setPtgRebuildSelfRequired( $bIsRequired ) {
+		return $this->setOpt( 'rebuild_self', (bool)$bIsRequired );
 	}
 }

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Store extends Base {
+class Store {
 
 	const SEPARATOR = '=::=';
 
@@ -24,6 +24,11 @@ class Store extends Base {
 	 * @var WpPluginVo|WpThemeVo
 	 */
 	private $oAsset;
+
+	/**
+	 * @var string
+	 */
+	protected $sWorkingDir;
 
 	/**
 	 * Store constructor.
@@ -51,14 +56,28 @@ class Store extends Base {
 	 * @return string
 	 */
 	protected function getSnapStorePath() {
-		return path_join( $this->getStorePath(), path_join( $this->getContext(), $this->getSlug() ) ).'.txt';
+		return $this->getBaseSnapPath().'.txt';
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getSnapStoreMetaPath() {
-		return path_join( $this->getStorePath(), path_join( $this->getContext(), $this->getSlug().'_meta' ) ).'.txt';
+		return $this->getBaseSnapPath().'_meta'.'.txt';
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getBaseSnapPath() {
+		return path_join( $this->getWorkingDir(), path_join( $this->getContext(), $this->getSlug() ) );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getWorkingDir() {
+		return $this->sWorkingDir;
 	}
 
 	/**
@@ -70,7 +89,7 @@ class Store extends Base {
 	}
 
 	/**
-	 * @return array[]
+	 * @return string[]
 	 */
 	public function getSnapData() {
 		if ( !is_array( $this->aSnapData ) ) {
@@ -87,85 +106,6 @@ class Store extends Base {
 			$this->loadSnapMetaIfExists();
 		}
 		return is_array( $this->aSnapMeta ) ? $this->aSnapMeta : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @param array  $aData
-	 * @return $this
-	 * @throws \Exception
-	 */
-	public function addSnapItem( $sKey, $aData ) {
-		if ( empty( $aData ) || !is_array( $aData ) ) {
-			throw new \Exception( 'Attempting to store invalid or empty snapshot data' );
-		}
-		$aSnaps = $this->getSnapData();
-		$aSnaps[ $sKey ] = $aData;
-		return $this->setSnapData( $aSnaps );
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function clearSnapshots() {
-		$this->aSnapData = [];
-		return $this;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return array|null
-	 */
-	public function getSnapItem( $sKey ) {
-		return $this->itemExists( $sKey ) ? $this->getSnapData()[ $sKey ] : null;
-	}
-
-	/**
-	 * All Snapshot items have 2x parts: meta & hashes.
-	 * @return array
-	 */
-	public function getSnapDataHashesOnly() {
-		return array_map(
-			function ( $aSnap ) {
-				return $aSnap[ 'hashes' ];
-			},
-			$this->getSnapData()
-		);
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function itemExists( $sKey ) {
-		$aSnapData = $this->getSnapData();
-		return isset( $aSnapData[ $sKey ] );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return $this
-	 */
-	public function removeItemSnapshot( $sKey ) {
-		$aSnapData = $this->getSnapData();
-		if ( isset( $aSnapData[ $sKey ] ) ) {
-			unset( $aSnapData[ $sKey ] );
-		}
-		return $this->setSnapData( $aSnapData );
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	public function deleteSnapshots() {
-		$oFS = Services::WpFs();
-		if ( $this->isReady() ) {
-			$sSnapPath = $this->getSnapStorePath();
-			if ( Services::WpFs()->exists( $sSnapPath ) ) {
-				$oFS->deleteFile( $sSnapPath );
-			}
-		}
-		return $this->clearSnapshots();
 	}
 
 	/**
@@ -323,6 +263,15 @@ class Store extends Base {
 	 */
 	public function setSnapMeta( $aMeta ) {
 		$this->aSnapMeta = $aMeta;
+		return $this;
+	}
+
+	/**
+	 * @param string $sDir
+	 * @return $this
+	 */
+	public function setWorkingDir( $sDir ) {
+		$this->sWorkingDir = $sDir;
 		return $this;
 	}
 }

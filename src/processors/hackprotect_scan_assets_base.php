@@ -74,6 +74,20 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return Services\Core\VOs\WpPluginVo|Services\Core\VOs\WpThemeVo|null
+	 */
+	protected function getAssetFromSlug( $sSlug ) {
+		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {
+			$oAsset = Services\Services::WpPlugins()->getPluginAsVo( $sSlug );
+		}
+		elseif ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
+			$oAsset = Services\Services::WpThemes()->getThemeAsVo( $sSlug );
+		}
+		return $oAsset;
+	}
+
+	/**
 	 * TODO: move to services
 	 * @param string $sContext
 	 * @return Services\Core\Plugins|Services\Core\Themes

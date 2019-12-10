@@ -578,13 +578,6 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key":          "ptg_last_build_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "ptg_candiskwrite",
       "section":      "section_non_ui",
       "transferable": false,
@@ -605,13 +598,6 @@
       "sensitive":    true,
       "type":         "array",
       "default":      []
-    },
-    {
-      "key":          "rebuild_self",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "boolean",
-      "default":      false
     },
     {
       "key":          "ptg_update_store_format",

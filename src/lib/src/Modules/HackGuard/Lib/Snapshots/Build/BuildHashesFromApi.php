@@ -6,8 +6,8 @@ use FernleafSystems\Wordpress\Services\Core\VOs;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Hashes;
 
 /**
- * Class BuildHashesFromDir
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
+ * Class BuildHashesFromApi
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build
  */
 class BuildHashesFromApi {
 

@@ -23,7 +23,7 @@ class FindAssetsToSnap {
 		foreach ( Services::WpPlugins()->getPluginsAsVo() as $oAsset ) {
 			if ( $oAsset->active ) {
 				$aMeta = ( new Store( $oAsset ) )
-					->setStorePath( $oMod->getPtgSnapsBaseDir() )
+					->setWorkingDir( $oMod->getPtgSnapsBaseDir() )
 					->getSnapMeta();
 				if ( empty( $aMeta ) || $oAsset->Version !== $aMeta[ 'version' ] ) {
 					$aAssets[] = $oAsset;
@@ -34,7 +34,7 @@ class FindAssetsToSnap {
 		$oWPT = Services::WpThemes();
 		$oAsset = $oWPT->getThemeAsVo( $oWPT->getCurrent()->get_stylesheet() );
 		$aMeta = ( new Store( $oAsset ) )
-			->setStorePath( $oMod->getPtgSnapsBaseDir() )
+			->setWorkingDir( $oMod->getPtgSnapsBaseDir() )
 			->getSnapMeta();
 		if ( empty( $aMeta ) || $oAsset->version !== $aMeta[ 'version' ] ) {
 			$aAssets[] = $oAsset;
@@ -43,7 +43,7 @@ class FindAssetsToSnap {
 		if ( $oWPT->isActiveThemeAChild() ) {
 			$oAsset = $oWPT->getThemeAsVo( $oAsset->wp_theme->get_template() );
 			$aMeta = ( new Store( $oAsset ) )
-				->setStorePath( $oMod->getPtgSnapsBaseDir() )
+				->setWorkingDir( $oMod->getPtgSnapsBaseDir() )
 				->getSnapMeta();
 			if ( empty( $aMeta ) || $oAsset->version !== $aMeta[ 'version' ] ) {
 				$aAssets[] = $oAsset;
