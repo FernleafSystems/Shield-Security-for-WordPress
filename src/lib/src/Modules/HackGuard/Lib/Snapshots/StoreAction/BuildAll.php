@@ -1,10 +1,11 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-class BuildStores {
+class BuildAll {
 
 	use ModConsumer;
 
@@ -13,8 +14,9 @@ class BuildStores {
 	public function build() {
 		foreach ( ( new FindAssetsToSnap() )->setMod( $this->getMod() )->run() as $oAsset ) {
 			try {
-				( new BuildStore( $oAsset ) )
+				( new Build() )
 					->setMod( $this->getMod() )
+					->setAsset( $oAsset )
 					->build();
 			}
 			catch ( \Exception $oE ) {

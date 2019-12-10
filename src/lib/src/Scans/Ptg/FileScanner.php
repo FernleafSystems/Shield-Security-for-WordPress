@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme;
 class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 
 	/**
-	 * @var Lib\Snapshots\Store
+	 * @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Store
 	 */
 	private $oAssetStore;
 
@@ -50,6 +50,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			}
 		}
 		catch ( \Exception $oE ) {
+			error_log( $oE->getMessage() );
 		}
 
 		return $oItem;
@@ -66,10 +67,9 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	/**
 	 * @param VOs\WpPluginVo|VOs\WpThemeVo $oAsset
 	 * @return Lib\Snapshots\Store
+	 * @throws \Exception
 	 */
 	private function getStore( $oAsset ) {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
 
 		// Re-Use the previous store if it's for the same Asset.
 		if ( !empty( $this->oAssetStore ) ) {
@@ -81,8 +81,10 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		}
 
 		if ( empty( $this->oAssetStore ) ) {
-			$this->oAssetStore = ( new Lib\Snapshots\Store( $oAsset ) )
-				->setWorkingDir( $oAction->hashes_base_path );
+			$this->oAssetStore = ( new Lib\Snapshots\StoreAction\Load() )
+				->setMod( $this->getMod() )
+				->setAsset( $oAsset )
+				->run();
 		}
 
 		return $this->oAssetStore;

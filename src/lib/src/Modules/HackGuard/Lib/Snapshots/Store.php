@@ -55,14 +55,14 @@ class Store {
 	/**
 	 * @return string
 	 */
-	protected function getSnapStorePath() {
+	public function getSnapStorePath() {
 		return $this->getBaseSnapPath().'.txt';
 	}
 
 	/**
 	 * @return string
 	 */
-	protected function getSnapStoreMetaPath() {
+	public function getSnapStoreMetaPath() {
 		return $this->getBaseSnapPath().'_meta'.'.txt';
 	}
 

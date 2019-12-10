@@ -9,16 +9,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	const SCAN_SLUG = 'ptg';
 
 	/**
-	 * @var Shield\Scans\Ptg\Snapshots\Store
-	 */
-	private $oSnapshotPlugins;
-
-	/**
-	 * @var Shield\Scans\Ptg\Snapshots\Store
-	 */
-	private $oSnapshotThemes;
-
-	/**
 	 */
 	public function run() {
 		parent::run();
@@ -66,22 +56,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param string $sContext
-	 * @return Shield\Scans\Ptg\ScannerPlugins|Shield\Scans\Ptg\ScannerThemes
-	 */
-	protected function getContextScanner( $sContext = self::CONTEXT_PLUGINS ) {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$oScanner = ( $sContext == self::CONTEXT_PLUGINS ) ?
-			new Shield\Scans\Ptg\ScannerPlugins()
-			: new Shield\Scans\Ptg\ScannerThemes();
-
-		return $oScanner->setDepth( $oOpts->getPtgScanDepth() )
-						->setFileExts( $oOpts->getPtgFileExtensions() );
-	}
-
-	/**
 	 * @param array  $aLinks
 	 * @param string $sPluginFile
 	 * @return string[]
@@ -106,14 +80,17 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * @return array|null
 	 */
 	public function getSnapshotItemMeta( $sItem ) {
-		$aItem = null;
-		if ( $this->getStore_Plugins()->itemExists( $sItem ) ) {
-			$aItem = $this->getStore_Plugins()->getSnapItem( $sItem );
+		try {
+			$aMeta = ( new HackGuard\Lib\Snapshots\StoreAction\Load() )
+				->setMod( $this->getMod() )
+				->setAsset( $this->getAssetFromSlug( $sItem ) )
+				->run()
+				->getSnapMeta();
 		}
-		elseif ( $this->getStore_Themes()->itemExists( $sItem ) ) {
-			$aItem = $this->getStore_Themes()->getSnapItem( $sItem );
+		catch ( Exception $oE ) {
+			$aMeta = null;
 		}
-		return ( is_array( $aItem ) && !empty( $aItem[ 'meta' ] ) ) ? $aItem[ 'meta' ] : null;
+		return $aMeta;
 	}
 
 	/**
@@ -152,8 +129,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 				 ->ignore();
 		}
 
-		( new HackGuard\Lib\Snapshots\BuildStore( $this->getAssetFromSlug( $oItem->slug ) ) )
+		( new HackGuard\Lib\Snapshots\StoreAction\Build() )
 			->setMod( $this->getMod() )
+			->setAsset( $this->getAssetFromSlug( $oItem->slug ) )
 			->build();
 
 		return true;
@@ -194,8 +172,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		$bSuccess = parent::reinstall( $sBaseName );
 		if ( $bSuccess ) {
 			try {
-				( new HackGuard\Lib\Snapshots\BuildStore( $this->getAssetFromSlug( $sBaseName ) ) )
+				( new HackGuard\Lib\Snapshots\StoreAction\Build() )
 					->setMod( $this->getMod() )
+					->setAsset( $this->getAssetFromSlug( $sBaseName ) )
 					->build();
 			}
 			catch ( Exception $oE ) {
@@ -208,47 +187,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 * When initiating snapshots, we must clean old results before creating a clean snapshot
 	 */
 	private function initSnapshots() {
-		( new HackGuard\Lib\Snapshots\BuildStores() )
+		( new HackGuard\Lib\Snapshots\StoreAction\BuildAll() )
 			->setMod( $this->getMod() )
 			->build();
-	}
-
-	/**
-	 * @return Shield\Scans\Ptg\Snapshots\Store
-	 */
-	private function getStore_Plugins() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		if ( !isset( $this->oSnapshotPlugins ) ) {
-			try {
-				$this->oSnapshotPlugins = ( new Shield\Scans\Ptg\Snapshots\Store() )
-					->setStorePath( $oFO->getPtgSnapsBaseDir() )
-					->setContext( self::CONTEXT_PLUGINS );
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oSnapshotPlugins;
-	}
-
-	/**
-	 * @return Shield\Scans\Ptg\Snapshots\Store
-	 */
-	private function getStore_Themes() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		if ( !isset( $this->oSnapshotThemes ) ) {
-			try {
-				$this->oSnapshotThemes = ( new Shield\Scans\Ptg\Snapshots\Store() )
-					->setStorePath( $oFO->getPtgSnapsBaseDir() )
-					->setContext( self::CONTEXT_THEMES );
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
-		return $this->oSnapshotThemes;
 	}
 
 	/**
@@ -341,13 +282,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 */
 	public function resetScan() {
 		parent::resetScan();
-		try {
-			// clear the snapshots
-			$this->getStore_Themes()->deleteSnapshots();
-			$this->getStore_Plugins()->deleteSnapshots();
-		}
-		catch ( \Exception $oE ) {
-		}
+		( new HackGuard\Lib\Snapshots\StoreAction\DeleteAll() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**
@@ -449,5 +386,21 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 */
 	private function buildSnapshotTheme( $sSlug ) {
 		return [];
+	}
+
+	/**
+	 * @return Shield\Scans\Ptg\Snapshots\Store
+	 * @deprecated 8.5
+	 */
+	private function getStore_Plugins() {
+		return null;
+	}
+
+	/**
+	 * @return Shield\Scans\Ptg\Snapshots\Store
+	 * @deprecated 8.5
+	 */
+	private function getStore_Themes() {
+		return null;
 	}
 }

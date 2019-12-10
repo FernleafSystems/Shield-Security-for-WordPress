@@ -1,16 +1,14 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Store;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildStore {
-
-	use ModConsumer;
+class Build extends Base {
 
 	/**
 	 * @var WpPluginVo|WpThemeVo
@@ -18,27 +16,19 @@ class BuildStore {
 	private $oAsset;
 
 	/**
-	 * Store constructor.
-	 * @param WpPluginVo|WpThemeVo $oAsset
-	 */
-	public function __construct( $oAsset ) {
-		$this->oAsset = $oAsset;
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	public function build() {
 
 		try {
-			$aHashes = ( new Build\BuildHashesFromApi() )->build( $this->oAsset );
+			$aHashes = ( new Snapshots\Build\BuildHashesFromApi() )->build( $this->oAsset );
 		}
-		catch ( \Exception $e ) {
+		catch ( \Exception $oE ) {
 		}
 
 		$aMeta = $this->generateMeta();
 		if ( empty( $aHashes ) ) {
-			$aHashes = ( new Build\BuildHashesForAsset() )
+			$aHashes = ( new Snapshots\Build\BuildHashesForAsset() )
 				->setHashAlgo( 'md5' )
 				->build( $this->oAsset );
 			$aMeta[ 'live_hashes' ] = false;
@@ -50,8 +40,10 @@ class BuildStore {
 		if ( !empty( $aHashes ) ) {
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 			$oMod = $this->getMod();
-			$oStore = ( new Store( $this->oAsset ) )
-				->setWorkingDir( $oMod->getPtgSnapsBaseDir() );
+			$oStore = ( new CreateNew() )
+				->setMod( $oMod )
+				->setAsset( $this->oAsset )
+				->run();
 			$oStore->setSnapData( $aHashes )
 				   ->setSnapMeta( $aMeta )
 				   ->save();
