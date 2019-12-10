@@ -16,11 +16,8 @@ class TouchAll extends BaseBulk {
 					->setMod( $this->getMod() )
 					->setAsset( $oAsset )
 					->run();
-				$oFS = Services::WpFs();
 				foreach ( [ $oStore->getSnapStorePath(), $oStore->getSnapStoreMetaPath() ] as $sPath ) {
-					if ( $oFS->exists( $sPath ) ) {
-						$oFS->touch( $sPath );
-					}
+					Services::WpFs()->touch( $sPath );
 				}
 			}
 			catch ( \Exception $oE ) {

@@ -3,25 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Store;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Build extends BaseAction {
 
 	/**
-	 * @var WpPluginVo|WpThemeVo
-	 */
-	private $oAsset;
-
-	/**
 	 * @throws \Exception
 	 */
 	public function run() {
-
+		$oAsset = $this->getAsset();
 		try {
-			$aHashes = ( new Snapshots\Build\BuildHashesFromApi() )->build( $this->oAsset );
+			$aHashes = ( new Snapshots\Build\BuildHashesFromApi() )->build( $oAsset );
 		}
 		catch ( \Exception $oE ) {
 		}
@@ -30,7 +23,7 @@ class Build extends BaseAction {
 		if ( empty( $aHashes ) ) {
 			$aHashes = ( new Snapshots\Build\BuildHashesForAsset() )
 				->setHashAlgo( 'md5' )
-				->build( $this->oAsset );
+				->build( $oAsset );
 			$aMeta[ 'live_hashes' ] = false;
 		}
 		else {
@@ -42,7 +35,7 @@ class Build extends BaseAction {
 			$oMod = $this->getMod();
 			$oStore = ( new CreateNew() )
 				->setMod( $oMod )
-				->setAsset( $this->oAsset )
+				->setAsset( $oAsset )
 				->run();
 			$oStore->setSnapData( $aHashes )
 				   ->setSnapMeta( $aMeta )
@@ -54,19 +47,18 @@ class Build extends BaseAction {
 	 * @return array
 	 */
 	private function generateMeta() {
+		$oAsset = $this->getAsset();
 		$aMeta = [
 			'ts'           => Services::Request()->ts(),
 			'snap_version' => $this->getCon()->getVersion(),
 		];
-		$aMeta[ 'unique_id' ] = ( $this->oAsset instanceof WpPluginVo ) ?
-			$this->oAsset->file
-			: $this->oAsset->stylesheet;
-		$aMeta[ 'name' ] = ( $this->oAsset instanceof WpPluginVo ) ?
-			$this->oAsset->Name
-			: $this->oAsset->wp_theme->get( 'Name' );
-		$aMeta[ 'version' ] = ( $this->oAsset instanceof WpPluginVo ) ?
-			$this->oAsset->Version
-			: $this->oAsset->version;
+		$aMeta[ 'unique_id' ] = ( $oAsset instanceof WpPluginVo ) ?
+			$oAsset->file
+			: $oAsset->stylesheet;
+		$aMeta[ 'name' ] = ( $oAsset instanceof WpPluginVo ) ?
+			$oAsset->Name
+			: $oAsset->wp_theme->get( 'Name' );
+		$aMeta[ 'version' ] = $oAsset->version;
 		return $aMeta;
 	}
 }

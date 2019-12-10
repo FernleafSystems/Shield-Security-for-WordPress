@@ -34,6 +34,7 @@ class BaseAction {
 		$this->oAsset = $oAsset;
 		return $this;
 	}
+
 	/**
 	 * @return Snapshots\Store
 	 * @throws \Exception

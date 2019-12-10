@@ -3,13 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
+use FernleafSystems\Wordpress\Services\Core\VOs;
 
 class BuildAll extends BaseBulk {
 
 	/**
 	 */
 	public function build() {
-		foreach ( ( new FindAssetsToSnap() )->setMod( $this->getMod() )->run() as $oAsset ) {
+		foreach ( $this->getAssetsThatNeedBuilt() as $oAsset ) {
 			try {
 				( new Build() )
 					->setMod( $this->getMod() )
@@ -19,5 +20,32 @@ class BuildAll extends BaseBulk {
 			catch ( \Exception $oE ) {
 			}
 		}
+	}
+
+	/**
+	 * Only those that don't have a meta file or the versions are different
+	 * @return VOs\WpPluginVo[]|VOs\WpThemeVo[]
+	 */
+	private function getAssetsThatNeedBuilt() {
+
+		return array_filter(
+			( new FindAssetsToSnap() )
+				->setMod( $this->getMod() )
+				->run(),
+			function ( $oAsset ) {
+				/** @var VOs\WpPluginVo|VOs\WpThemeVo $oAsset */
+				try {
+					$aMeta = ( new Load() )
+						->setMod( $this->getMod() )
+						->setAsset( $oAsset )
+						->run()
+						->getSnapMeta();
+				}
+				catch ( \Exception $oE ) {
+					$aMeta = null;
+				}
+				return ( empty( $aMeta ) || $oAsset->version !== $aMeta[ 'version' ] );
+			}
+		);
 	}
 }

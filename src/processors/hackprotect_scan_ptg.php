@@ -12,11 +12,14 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	 */
 	public function run() {
 		parent::run();
+
+		// init snapshots and build as necessary
+		( new HackGuard\Lib\Snapshots\StoreAction\BuildAll() )
+			->setMod( $this->getMod() )
+			->build();
+
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-
-		$this->initSnapshots();
-
 		if ( $oMod->isPtgReinstallLinks() ) {
 			add_filter( 'plugin_action_links', [ $this, 'addActionLinkRefresh' ], 50, 2 );
 			add_action( 'admin_footer', [ $this, 'printPluginReinstallDialogs' ] );
@@ -193,15 +196,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			}
 		}
 		return $bSuccess;
-	}
-
-	/**
-	 * When initiating snapshots, we must clean old results before creating a clean snapshot
-	 */
-	private function initSnapshots() {
-		( new HackGuard\Lib\Snapshots\StoreAction\BuildAll() )
-			->setMod( $this->getMod() )
-			->build();
 	}
 
 	/**

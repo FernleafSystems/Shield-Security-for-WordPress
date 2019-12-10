@@ -14,11 +14,8 @@ class Delete extends BaseAction {
 				->setMod( $this->getMod() )
 				->setAsset( $this->getAsset() )
 				->run();
-			$oFS = Services::WpFs();
 			foreach ( [ $oStore->getSnapStorePath(), $oStore->getSnapStoreMetaPath() ] as $sPath ) {
-				if ( $oFS->exists( $sPath ) ) {
-					$oFS->deleteFile( $sPath );
-				}
+				Services::WpFs()->deleteFile( $sPath );
 			}
 		}
 		catch ( \Exception $oE ) {
