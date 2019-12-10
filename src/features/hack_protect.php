@@ -361,28 +361,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @deprecated 8.5
 	 */
 	public function getPtgDepth() {
-		return $this->getOpt( 'ptg_depth' );
-	}
-
-	/**
-	 * @return string|false
-	 */
-	public function getPtgSnapsBaseDir() {
-		return $this->getCon()->getPluginCachePath( 'ptguard/' );
+		return 0;
 	}
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5
 	 */
 	public function isPtgBuildRequired() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $this->isPtgEnabled() && ( $oOpts->getPtgLastBuildAt() == 0 );
+		return false;
 	}
 
 	/**
 	 * @param bool $bIsRequired
 	 * @return $this
+	 * @deprecated 8.5
 	 */
 	public function setPtgUpdateStoreFormat( $bIsRequired ) {
 		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
@@ -390,6 +383,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5
 	 */
 	public function isPtgUpdateStoreFormat() {
 		return $this->isOpt( 'ptg_update_store_format', true );
@@ -523,6 +517,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		return $aWarnings;
+	}
+
+	/**
+	 * @return string|false
+	 */
+	public function getPtgSnapsBaseDir() {
+		return $this->getCon()->getPluginCachePath( 'ptguard/' );
 	}
 
 	/**
@@ -1023,20 +1024,20 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgReadyToScan() {
+		return $this->isPtgEnabled();
+	}
+
+	/**
 	 * @param int $nTime
 	 * @return $this
 	 * @deprecated 8.5
 	 */
 	public function setPtgLastBuildAt( $nTime = null ) {
-		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? Services::Request()->ts() : $nTime );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isPtgReadyToScan() {
-		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
+		return $this;
 	}
 
 	/**

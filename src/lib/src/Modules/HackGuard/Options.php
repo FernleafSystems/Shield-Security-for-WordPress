@@ -190,48 +190,10 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return array[]
-	 */
-	public function getPtgStoredVersions() {
-		$aVersions = $this->getOpt( 'ptg_stored_versions' );
-		if ( !is_array( $aVersions ) ) {
-			$aVersions = [];
-		}
-		foreach ( [ 'plugins', 'themes' ] as $sKey ) {
-			if ( !isset( $aVersions[ $sKey ] ) || !is_array( $aVersions[ $sKey ] ) ) {
-				$aVersions[ $sKey ] = [];
-			}
-		}
-		return $aVersions;
-	}
-
-	/**
-	 * @param array $aVersions
-	 * @return static
-	 */
-	public function setPtgStoredVersions( $aVersions ) {
-		return $this->setOpt( 'ptg_stored_versions', $aVersions );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getPtgLastBuildAt() {
-		return $this->getOpt( 'ptg_last_build_at' );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getPtgScanDepth() {
-		return (int)$this->getOpt( 'ptg_depth' );
-	}
-
-	/**
-	 * @return string|false
-	 */
-	public function getPtgSnapsBaseDir() {
-		return $this->getCon()->getPluginCachePath( 'ptguard/' );
+		return 0;
 	}
 
 	/**
@@ -418,5 +380,21 @@ class Options extends Base\ShieldOptions {
 				return $nTS > Services::Request()->carbon()->subMonth()->timestamp;
 			}
 		) );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5
+	 */
+	public function getPtgLastBuildAt() {
+		return $this->getOpt( 'ptg_last_build_at' );
+	}
+
+	/**
+	 * @return string|false
+	 * @deprecated 8.5
+	 */
+	public function getPtgSnapsBaseDir() {
+		return $this->getCon()->getPluginCachePath( 'ptguard/' );
 	}
 }
