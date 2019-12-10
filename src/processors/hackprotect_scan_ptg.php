@@ -93,6 +93,18 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		return $aMeta;
 	}
 
+	public function runHourlyCron() {
+		( new HackGuard\Lib\Snapshots\StoreAction\TouchAll() )
+			->setMod( $this->getMod() )
+			->run();
+	}
+
+	public function runDailyCron() {
+		( new HackGuard\Lib\Snapshots\StoreAction\CleanAll() )
+			->setMod( $this->getMod() )
+			->run();
+	}
+
 	/**
 	 * @param Shield\Scans\Ptg\ResultItem $oItem
 	 * @param string                      $sAction
@@ -132,7 +144,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		( new HackGuard\Lib\Snapshots\StoreAction\Build() )
 			->setMod( $this->getMod() )
 			->setAsset( $this->getAssetFromSlug( $oItem->slug ) )
-			->build();
+			->run();
 
 		return true;
 	}
@@ -175,7 +187,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 				( new HackGuard\Lib\Snapshots\StoreAction\Build() )
 					->setMod( $this->getMod() )
 					->setAsset( $this->getAssetFromSlug( $sBaseName ) )
-					->build();
+					->run();
 			}
 			catch ( Exception $oE ) {
 			}

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 
 use FernleafSystems\Wordpress\Services\Services;
 
-class DeleteAll extends Base {
+class DeleteAll extends BaseBulk {
 
 	/**
 	 */

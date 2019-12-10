@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Build extends Base {
+class Build extends BaseAction {
 
 	/**
 	 * @var WpPluginVo|WpThemeVo
@@ -18,7 +18,7 @@ class Build extends Base {
 	/**
 	 * @throws \Exception
 	 */
-	public function build() {
+	public function run() {
 
 		try {
 			$aHashes = ( new Snapshots\Build\BuildHashesFromApi() )->build( $this->oAsset );

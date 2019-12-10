@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 
-class CreateNew extends Base {
+class CreateNew extends BaseAction {
 
 	/**
 	 * Will delete any existing stores for the asset

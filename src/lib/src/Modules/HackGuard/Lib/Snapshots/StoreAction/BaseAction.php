@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 
-class Base {
+class BaseAction {
 
 	use ModConsumer;
 

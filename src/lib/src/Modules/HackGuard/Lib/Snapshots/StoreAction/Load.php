@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Load extends Base {
+class Load extends BaseAction {
 
 	/**
 	 * @return Snapshots\Store
