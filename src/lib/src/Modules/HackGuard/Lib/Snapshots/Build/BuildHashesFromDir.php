@@ -1,10 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 
 /**
- * Class BuildHashesFromDir
- * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
+ * Class BuildHashesFromDirNew
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
  */
 class BuildHashesFromDir {
 
@@ -31,13 +33,13 @@ class BuildHashesFromDir {
 	public function build( $sDir ) {
 		$aSnaps = [];
 		try {
-			$sReplaceDir = wp_normalize_path( ABSPATH );
+			$sDir = wp_normalize_path( $sDir );
 			$sAlgo = $this->getHashAlgo();
 			$oDirIt = StandardDirectoryIterator::create( $sDir, $this->nDepth, $this->aFileExts );
 			foreach ( $oDirIt as $oFile ) {
 				/** @var \SplFileInfo $oFile */
 				$sFullPath = $oFile->getPathname();
-				$sKey = str_replace( $sReplaceDir, '', wp_normalize_path( $sFullPath ) );
+				$sKey = str_replace( $sDir, '', wp_normalize_path( $sFullPath ) );
 				$aSnaps[ $sKey ] = hash_file( $sAlgo, $sFullPath );
 			}
 		}

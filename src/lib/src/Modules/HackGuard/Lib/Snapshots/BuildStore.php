@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\BuildHashesFromApi;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
@@ -29,15 +29,32 @@ class BuildStore {
 	 * @throws \Exception
 	 */
 	public function build() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oStore = ( new Store( $this->oAsset ) )->setStorePath( $oMod->getPtgSnapsBaseDir() );
 
-		$aHashes = ( new BuildHashesFromApi() )->build( $this->oAsset );
+		try {
+			$aHashes = ( new Build\BuildHashesFromApi() )->build( $this->oAsset );
+		}
+		catch ( \Exception $e ) {
+		}
+
+		$aMeta = $this->generateMeta();
+		if ( empty( $aHashes ) ) {
+			$aHashes = ( new Build\BuildHashesForAsset() )
+				->setHashAlgo( 'md5' )
+				->build( $this->oAsset );
+			$aMeta[ 'live_hashes' ] = false;
+		}
+		else {
+			$aMeta[ 'live_hashes' ] = true;
+		}
+
 		if ( !empty( $aHashes ) ) {
-			$oStore->setSnapData( $aHashes );
-			$oStore->setSnapMeta( $this->generateMeta() );
-			$oStore->save();
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
+			$oStore = ( new Store( $this->oAsset ) )
+				->setStorePath( $oMod->getPtgSnapsBaseDir() );
+			$oStore->setSnapData( $aHashes )
+				   ->setSnapMeta( $aMeta )
+				   ->save();
 		}
 	}
 
