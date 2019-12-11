@@ -21,7 +21,7 @@ class Foundation {
 
 	/**
 	 * @return \ICWP_WPSF_WpCron
-	 * @deprecated
+	 * @deprecated 8.5
 	 */
 	public static function loadWpCronProcessor() {
 		$sKey = 'icwp-wpcron';

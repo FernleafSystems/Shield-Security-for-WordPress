@@ -869,8 +869,6 @@ class Controller extends Shield\Deprecated\Foundation {
 					break;
 
 				case 'pass' :
-					break;
-
 				default:
 					break;
 			}
@@ -1554,7 +1552,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	protected function deleteCronJobs() {
-		$oWpCron = $this->loadWpCronProcessor();
+		$oWpCron = Services::WpCron();
 		$aCrons = $oWpCron->getCrons();
 
 		$sPattern = sprintf( '#^(%s|%s)#', $this->getParentSlug(), $this->getPluginSlug() );

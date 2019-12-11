@@ -144,17 +144,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		/** @var HackGuard\Options $oStrings */
+		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$nFreq = $oOpts->getScanFrequency();
-		$this->loadWpCronProcessor()
-			 ->addNewSchedule(
-				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
-				 [
-					 'interval' => DAY_IN_SECONDS/$nFreq,
-					 'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $nFreq )
-				 ]
-			 );
+		Services::WpCron()
+				->addNewSchedule(
+					$this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
+					[
+						'interval' => DAY_IN_SECONDS/$nFreq,
+						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $nFreq )
+					]
+				);
 		return $this;
 	}
 
