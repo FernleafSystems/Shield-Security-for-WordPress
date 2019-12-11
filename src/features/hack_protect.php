@@ -77,6 +77,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 		$this->resetRtBackupFiles();
+
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->getProcessor();
+		$oPro->getSubProScanner()->deleteCron(); // very important if the scan cron schedule is changed.
 	}
 
 	/**
