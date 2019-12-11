@@ -36,29 +36,17 @@ class Clean {
 	 * @return $this
 	 */
 	public function deleteResults( $oRS ) {
+		$aHashes = array_map(
+			function ( $oItem ) {
+				/** @var Shield\Scans\Base\BaseResultItem $oItem */
+				return $oItem->hash;
+			},
+			$oRS->getAllItems()
+		);
 		/** @var Shield\Databases\Scanner\Delete $oDel */
 		$oDel = $this->getDbHandler()->getQueryDeleter();
-		foreach ( $oRS->getAllItems() as $oItem ) {
-			$oDel->reset()
-				 ->filterByHash( $oItem->hash )
-				 ->query();
-		}
-		return $this;
-	}
-
-	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
-	 */
-	public function getWorkingResultsSet() {
-		return $this->oWorkingResultsSet;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oWorkingResultsSet
-	 * @return $this
-	 */
-	public function setWorkingResultsSet( $oWorkingResultsSet ) {
-		$this->oWorkingResultsSet = $oWorkingResultsSet;
+		$oDel->filterByHashes( $aHashes )
+			 ->query();
 		return $this;
 	}
 }

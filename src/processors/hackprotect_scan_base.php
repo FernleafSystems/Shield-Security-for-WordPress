@@ -42,17 +42,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oToDelete
-	 */
-	protected function deleteResultsSet( $oToDelete ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		( new HackGuard\Scan\Results\Clean() )
-			->setDbHandler( $oMod->getDbHandler_ScanResults() )
-			->deleteResults( $oToDelete );
-	}
-
-	/**
 	 * @return Shield\Scans\Base\BaseResultsSet
 	 */
 	protected function readScanResultsFromDb() {

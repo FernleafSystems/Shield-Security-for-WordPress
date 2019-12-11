@@ -6,27 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 class Delete extends Base\Delete {
 
-	/**
-	 * @param string $sHash
-	 * @return $this
-	 */
-	public function filterByHash( $sHash ) {
-		if ( !empty( $sHash ) ) {
-			$this->addWhereEquals( 'hash', $sHash );
-		}
-		return $this;
-	}
-
-	/**
-	 * @param string $sScan
-	 * @return $this
-	 */
-	public function filterByScan( $sScan ) {
-		if ( !empty( $sScan ) ) {
-			$this->addWhereEquals( 'scan', $sScan );
-		}
-		return $this;
-	}
+	use Common;
 
 	/**
 	 * @param string $sScan
