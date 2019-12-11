@@ -233,11 +233,11 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$oStrings = $oMod->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 		foreach ( $aData[ 'scans' ] as $sSlug => &$aScanData ) {
-			$oScanner = $oScannerMain->getScannerFromSlug( $sSlug );
-			$aScanData[ 'flags' ][ 'is_available' ] = $oScanner->isScanningAvailable();
-			$aScanData[ 'flags' ][ 'is_restricted' ] = !$oScanner->isScanningAvailable();
-			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanner->isEnabled();
-			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanner->isScanningAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
+			$oScanCon = $oMod->getScanCon( $sSlug );
+			$aScanData[ 'flags' ][ 'is_available' ] = $oScanCon->isScanningAvailable();
+			$aScanData[ 'flags' ][ 'is_restricted' ] = !$oScanCon->isScanningAvailable();
+			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanCon->isEnabled();
+			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanCon->isScanningAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
 			$aScanData[ 'flags' ][ 'has_last_scan' ] = $oMod->getLastScanAt( $sSlug ) > 0;
 			$aScanData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $sSlug ];
 			$aScanData[ 'strings' ][ 'title' ] = $aScanNames[ $sSlug ];

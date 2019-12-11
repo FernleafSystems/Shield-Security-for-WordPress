@@ -29,6 +29,18 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
+	 */
+	public function deactivatePlugin() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
+			$oMod->getScanCon( $sSlug )->purge();
+		}
+	}
+
+	/**
 	 * @param string $sSlug
 	 * @return \ICWP_WPSF_Processor_ScanBase|null
 	 */
@@ -111,9 +123,8 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		if ( $this->getCanScansExecute() ) {
 			$aScans = [];
 			foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
-				/** @var \ICWP_WPSF_Processor_ScanBase $oProc */
-				$oProc = $this->getSubPro( $sScanSlug );
-				if ( $oProc->isScanningAvailable() && $oProc->isEnabled() ) {
+				$oScanCon = $oMod->getScanCon( $sScanSlug );
+				if ( $oScanCon->isScanningAvailable() && $oScanCon->isEnabled() ) {
 					$aScans[] = $sScanSlug;
 				}
 			}

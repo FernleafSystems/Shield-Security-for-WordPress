@@ -15,22 +15,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 0 );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isApcEnabled();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isPremiumScan() {
-		return false;
-	}
-
 	public function onDeletedPlugin() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();

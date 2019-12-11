@@ -9,35 +9,10 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'ufc';
 
 	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isUfcEnabled();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isPremiumScan() {
-		return false;
-	}
-
-	/**
 	 * @return Ufc\Utilities\ItemActionHandler
 	 */
 	protected function newItemActionHandler() {
 		return new Ufc\Utilities\ItemActionHandler();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isCronAutoRepair() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->isUfcDeleteFiles();
 	}
 
 	/**
@@ -86,8 +61,10 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return string[]
 	 */
 	private function buildEmailBodyFromFiles( $aFiles ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oCon = $this->getCon();
 		$sName = $oCon->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
@@ -98,14 +75,14 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() ) {
+		if ( $oOpts->isUfcDeleteFiles() || $oMod->isIncludeFileLists() ) {
 			$aContent[] = __( 'Files discovered', 'wp-simple-firewall' ).':';
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}
 			$aContent[] = '';
 
-			if ( $oFO->isUfcDeleteFiles() ) {
+			if ( $oOpts->isUfcDeleteFiles() ) {
 				$aContent[] = sprintf( __( '%s has attempted to delete these files based on your current settings.', 'wp-simple-firewall' ), $sName );
 				$aContent[] = '';
 			}

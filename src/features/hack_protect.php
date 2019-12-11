@@ -11,6 +11,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	private $oScanQueueController;
 
+	/**
+	 * @var HackGuard\Scan\Controller\Base[]
+	 */
+	private $aScanCons;
+
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
@@ -33,6 +38,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				->setMod( $this );
 		}
 		return $this->oScanQueueController;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return HackGuard\Scan\Controller\Base|mixed
+	 */
+	public function getScanCon( $sSlug ) {
+		if ( !is_array( $this->aScanCons ) ) {
+			$this->aScanCons = [];
+		}
+		if ( !isset( $this->aScanCons[ $sSlug ] ) ) {
+			$sClass = '\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\\'.ucwords( $sSlug );
+			$this->aScanCons[ $sSlug ] = new $sClass();
+		}
+		return $this->aScanCons[ $sSlug ];
 	}
 
 	/**
@@ -219,13 +239,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isWcfScanAutoRepair() {
-		return $this->isOpt( 'attempt_auto_file_repair', 'Y' );
-	}
-
-	/**
 	 * @return mixed
 	 */
 	public function getWpvulnPluginsHighlightOption() {
@@ -296,10 +309,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	protected function isScanEnabled( $sSlug ) {
-		/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->getProcessor();
-		return $oPro->getSubProScanner()
-					->getScannerFromSlug( $sSlug )
+		return $this->getScanCon( $sSlug )
 					->isEnabled();
 	}
 
@@ -588,8 +598,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
 		$aScanNames = $oStrings->getScanNames();
@@ -1092,5 +1100,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getUnrecognisedFileScannerOption() {
 		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWcfScanAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWcfScanAutoRepair();
 	}
 }

@@ -27,24 +27,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isScanningAvailable() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return parent::isScanningAvailable() && $oMod->canPtgWriteToDisk();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isPtgEnabled();
-	}
-
-	/**
 	 * @return Shield\Scans\Ptg\Utilities\ItemActionHandler
 	 */
 	protected function newItemActionHandler() {
@@ -273,17 +255,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 				]
 			]
 		);
-	}
-
-	/**
-	 * Since we can't track site assets while the plugin is inactive, our snapshots and results
-	 * are unreliable once the plugin has been deactivated.
-	 */
-	public function resetScan() {
-		parent::resetScan();
-		( new HackGuard\Lib\Snapshots\StoreAction\DeleteAll() )
-			->setMod( $this->getMod() )
-			->run();
 	}
 
 	/**

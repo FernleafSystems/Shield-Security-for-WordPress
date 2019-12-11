@@ -31,28 +31,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isWpvulnEnabled();
-	}
-
-	/**
 	 * @return Wpv\Utilities\ItemActionHandler
 	 */
 	protected function newItemActionHandler() {
 		return new Wpv\Utilities\ItemActionHandler();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isCronAutoRepair() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isWpvulnAutoupdatesEnabled();
 	}
 
 	/**

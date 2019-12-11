@@ -285,9 +285,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
-		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $oMod->getProcessor();
-		$oScanner = $oP->getSubProScanner();
 		$oScanCon = $oMod->getScanController();
 
 		if ( !empty( $aFormParams ) ) {
@@ -299,25 +296,21 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			$aScansToStart = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
+				$oThisScanCon = $oMod->getScanCon( $sScanSlug );
+				if ( $oThisScanCon->isScanningAvailable() ) {
 
-				$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
-
-				if ( !empty( $oTablePro ) && $oTablePro->isScanningAvailable() ) {
-					$bAsync = true;
 					$aScansToStart[] = $sScanSlug;
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
-						$oTablePro->resetIgnoreStatus();
+						$oThisScanCon->resetIgnoreStatus();
 					}
 					if ( isset( $aFormParams[ 'opt_clear_notification' ] ) ) {
-						$oTablePro->resetNotifiedStatus();
+						$oThisScanCon->resetNotifiedStatus();
 					}
 
 					$bSuccess = true;
 					$bPageReload = true;
-					$sMessage = $bAsync ?
-						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' )
-						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
+					$sMessage = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
 				}
 			}
 			$oScanCon->startScans( $aScansToStart );

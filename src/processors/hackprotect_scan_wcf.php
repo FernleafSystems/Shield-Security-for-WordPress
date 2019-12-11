@@ -9,35 +9,10 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'wcf';
 
 	/**
-	 * @return bool
-	 */
-	protected function isPremiumScan() {
-		return false;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isWcfScanEnabled();
-	}
-
-	/**
 	 * @return Wcf\Utilities\ItemActionHandler
 	 */
 	protected function newItemActionHandler() {
 		return new Wcf\Utilities\ItemActionHandler();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isCronAutoRepair() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->isWcfScanAutoRepair();
 	}
 
 	/**

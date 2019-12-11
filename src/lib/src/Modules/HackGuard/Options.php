@@ -368,6 +368,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isWcfScanAutoRepair() {
+		return $this->isOpt( 'attempt_auto_file_repair', 'Y' );
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getWcfFileExclusions() {

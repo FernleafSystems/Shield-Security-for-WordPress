@@ -8,15 +8,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'mal';
 
 	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isMalScanEnabled();
-	}
-
-	/**
 	 * @return Shield\Scans\Mal\Utilities\ItemActionHandler
 	 */
 	protected function newItemActionHandler() {
@@ -27,15 +18,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @param Shield\Scans\Mal\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isCronAutoRepair() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isMalAutoRepair();
 	}
 
 	/**
@@ -78,8 +60,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$sName = $this->getCon()->getHumanName();
@@ -93,7 +75,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oOpts->isMalAutoRepair() || $oFO->isIncludeFileLists() ) {
+		if ( $oOpts->isMalAutoRepair() || $oMod->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );
 			$aContent[] = '';
 

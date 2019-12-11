@@ -8,6 +8,26 @@ use FernleafSystems\Wordpress\Services\Services;
 class Update extends Base\Update {
 
 	/**
+	 * @param string $sScan
+	 * @return bool
+	 */
+	public function clearIgnoredAtForScan( $sScan ) {
+		return $this->setUpdateWheres( [ 'scan' => $sScan ] )
+					->setUpdateData( [ 'ignore_at' => 0 ] )
+					->query() !== false;
+	}
+
+	/**
+	 * @param string $sScan
+	 * @return bool
+	 */
+	public function clearNotifiedAtForScan( $sScan ) {
+		return $this->setUpdateWheres( [ 'scan' => $sScan ] )
+					->setUpdateData( [ 'notified_at' => 0 ] )
+					->query() !== false;
+	}
+
+	/**
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */

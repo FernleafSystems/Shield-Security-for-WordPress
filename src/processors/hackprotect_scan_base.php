@@ -19,27 +19,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isScanningAvailable() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return !$this->isPremiumScan() || $oOpts->isPremium();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isPremiumScan() {
-		return true;
-	}
-
-	/**
-	 * @return bool
-	 */
-	abstract public function isEnabled();
-
-	/**
 	 */
 	public function hookOnDemandScan() {
 		$this->scheduleOnDemandScan();
@@ -59,21 +38,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
-		if ( !$this->oScanActionVO instanceof Shield\Scans\Base\BaseScanActionVO ) {
-			$oAct = $this->getNewActionVO();
-			$oAct->scan = static::SCAN_SLUG;
-			$this->oScanActionVO = $oAct;
-		}
-
-		return $this->oScanActionVO;
-	}
-
-	/**
-	 * Override this to provide the correct VO
-	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
-	 */
-	protected function getNewActionVO() {
-		return ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
+		return $this->getThisScanCon()->getScanActionVO();
 	}
 
 	/**
@@ -106,42 +71,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->fromVOsToResultsSet( $aVos );
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function resetIgnoreStatus() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbh = $oMod->getDbHandler_ScanResults();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oDbh->getQuerySelector();
-
-		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $oDbh->getQueryUpdater();
-		foreach ( $oSel->forScan( static::SCAN_SLUG ) as $oEntry ) {
-			$oUpd->reset()->setNotIgnored( $oEntry );
-		}
-		return $this;
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function resetNotifiedStatus() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbh = $oMod->getDbHandler_ScanResults();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oDbh->getQuerySelector();
-
-		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $oDbh->getQueryUpdater();
-		foreach ( $oSel->forScan( static::SCAN_SLUG ) as $oEntry ) {
-			$oUpd->reset()->setNotNotified( $oEntry );
-		}
-		return $this;
 	}
 
 	/**
@@ -247,20 +176,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param Shield\Scans\Base\BaseResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
-		if ( $this->isCronAutoRepair() ) {
+		if ( $this->getThisScanCon()->isCronAutoRepair() ) {
 			$this->getItemActionHandler()
 				 ->getRepairer()
 				 ->setIsManualAction( false )
 				 ->setAllowDelete( false )
 				 ->repairResultsSet( $oRes );
 		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isCronAutoRepair() {
-		return false;
 	}
 
 	/**
@@ -299,22 +221,12 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
+	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
-	public function deactivatePlugin() {
-		$this->resetScan();
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function resetScan() {
+	protected function getThisScanCon() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		( new HackGuard\Scan\Results\Clean() )
-			->setDbHandler( $oMod->getDbHandler_ScanResults() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->deleteAllForScan();
-		return $this;
+		return $oMod->getScanCon( static::SCAN_SLUG );
 	}
 
 	/**
@@ -339,6 +251,33 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @deprecated 8.5
 	 */
 	public function isAvailable() {
-		return $this->isScanningAvailable();
+		return $this->getThisScanCon()->isScanningAvailable();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	protected function isCronAutoRepair() {
+		return $this->getThisScanCon()
+					->isCronAutoRepair();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isEnabled() {
+		return $this->getThisScanCon()
+					->isEnabled();
+	}
+
+	/**
+	 * Override this to provide the correct VO
+	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
+	 * @deprecated 8.5
+	 */
+	protected function getNewActionVO() {
+		return ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
 	}
 }
