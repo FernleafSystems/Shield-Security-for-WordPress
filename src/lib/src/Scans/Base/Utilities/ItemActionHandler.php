@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
@@ -12,6 +14,34 @@ abstract class ItemActionHandler {
 	use ModConsumer;
 	use ScanActionConsumer;
 	use ScanItemConsumer;
+	use HandlerConsumer;
+	use ScanControllerConsumer;
+
+	/**
+	 * @param string $sAction
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function handleAction( $sAction ) {
+		switch ( $sAction ) {
+			case 'delete':
+				$bSuccess = $this->delete();
+				break;
+
+			case 'ignore':
+				$bSuccess = $this->ignore();
+				break;
+
+			case 'repair':
+				$bSuccess = $this->repair();
+				break;
+
+			default:
+				throw new \Exception( 'Unsupported Scan Item Action' );
+				break;
+		}
+		return $bSuccess;
+	}
 
 	/**
 	 * @return bool
@@ -28,7 +58,6 @@ abstract class ItemActionHandler {
 	 * @throws \Exception
 	 */
 	public function ignore() {
-
 		/** @var Scanner\EntryVO $oEntry */
 		$oEntry = $this->getEntryVO();
 		if ( empty( $oEntry ) ) {

@@ -2,9 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class Wcf extends Base {
+
+	/**
+	 * @return Scans\Wcf\Utilities\ItemActionHandler
+	 */
+	protected function getItemActionHandler() {
+		return new Scans\Wcf\Utilities\ItemActionHandler();
+	}
 
 	/**
 	 * @return bool

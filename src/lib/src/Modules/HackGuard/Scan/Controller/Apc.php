@@ -2,9 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class Apc extends Base {
+
+	/**
+	 * @return Scans\Apc\Utilities\ItemActionHandler
+	 */
+	protected function getItemActionHandler() {
+		return new Scans\Apc\Utilities\ItemActionHandler();
+	}
 
 	/**
 	 * @return bool

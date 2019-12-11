@@ -42,87 +42,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
-	 */
-	protected function readScanResultsFromDb() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Base\BaseResultsSet|mixed
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->fromVOsToResultsSet( $aVos );
-	}
-
-	/**
-	 * @param int|string $sItemId
-	 * @param string     $sAction
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function executeItemAction( $sItemId, $sAction ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
-		$bSuccess = false;
-		if ( is_numeric( $sItemId ) ) {
-			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $oMod->getDbHandler_ScanResults()
-						   ->getQuerySelector()
-						   ->byId( $sItemId );
-			if ( empty( $oEntry ) ) {
-				throw new \Exception( 'Item could not be found.' );
-			}
-
-			$oItem = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-				->setScanActionVO( $this->getScanActionVO() )
-				->convertVoToResultItem( $oEntry );
-
-			$bSuccess = $this->handleItemAction( $oItem, $sAction );
-		}
-
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @param string                           $sAction
-	 * @return bool
-	 * @throws Exception
-	 */
-	protected function handleItemAction( $oItem, $sAction ) {
-
-		$oItemAction = $this->getItemActionHandler()
-							->setScanItem( $oItem );
-		switch ( $sAction ) {
-			case 'delete':
-				$bSuccess = $oItemAction->delete();
-				break;
-
-			case 'ignore':
-				$bSuccess = $oItemAction->ignore();
-				break;
-
-			case 'repair':
-				$bSuccess = $oItemAction->repair();
-				break;
-
-			default:
-				throw new \Exception( 'Unsupported Scan Item Action' );
-				break;
-		}
-		return $bSuccess;
-	}
-
-	/**
 	 * @return Shield\Scans\Base\Utilities\ItemActionHandler|mixed
 	 */
 	protected function getItemActionHandler() {
@@ -141,22 +60,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * only for items that have not been notified recently.
 	 */
 	public function cronProcessScanResults() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
-		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterForCron( $oMod->getScanNotificationInterval() )
-					 ->query();
-
-		if ( !empty( $aRes ) ) {
-			$oRes = $this->convertVosToResults( $aRes );
-
+		$oScanCon = $this->getThisScanCon();
+		$oRes = $oScanCon->getAllResultsForCron();
+		if ( $oRes->hasItems() ) {
 			$this->runCronAutoRepair( $oRes );
 
 			if ( $this->runCronUserNotify( $oRes ) ) {
-				$this->updateLastNotifiedAt( $aRes );
+				$oScanCon->updateAllAsNotified();
 			}
 		}
 	}
@@ -180,20 +90,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 */
 	protected function runCronUserNotify( $oRes ) {
 		return false;
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aRes
-	 */
-	private function updateLastNotifiedAt( $aRes ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
-		foreach ( $aRes as $oVo ) {
-			$oUpd->reset()
-				 ->setNotified( $oVo );
-		}
 	}
 
 	/**

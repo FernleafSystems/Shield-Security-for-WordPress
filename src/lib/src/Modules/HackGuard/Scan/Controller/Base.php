@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -15,6 +16,90 @@ abstract class Base {
 	 * @var BaseScanActionVO
 	 */
 	private $oScanActionVO;
+
+	/**
+	 * @param int|string $sItemId
+	 * @param string     $sAction
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function executeItemAction( $sItemId, $sAction ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		$bSuccess = false;
+		if ( is_numeric( $sItemId ) ) {
+			/** @var Databases\Scanner\EntryVO $oEntry */
+			$oEntry = $oMod->getDbHandler_ScanResults()
+						   ->getQuerySelector()
+						   ->byId( $sItemId );
+			if ( empty( $oEntry ) ) {
+				throw new \Exception( 'Item could not be found.' );
+			}
+
+			$oItem = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+				->setScanActionVO( $this->getScanActionVO() )
+				->convertVoToResultItem( $oEntry );
+
+			$bSuccess = $this->getItemActionHandler()
+							 ->setMod( $this->getMod() )
+							 ->setScanActionVO( $this->getScanActionVO() )
+							 ->setScanItem( $oItem )
+							 ->setDbHandler( $oMod->getDbHandler_ScanResults() )
+							 ->handleAction( $sAction );
+		}
+
+		return $bSuccess;
+	}
+
+	/**
+	 * @return Scans\Base\BaseResultsSet|mixed
+	 */
+	public function getAllResultsForCron() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Databases\Scanner\Select $oSel */
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSel->filterByScan( $this->getSlug() )
+			 ->filterForCron( $oMod->getScanNotificationInterval() );
+		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->fromVOsToResultsSet( $oSel->query() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function updateAllAsNotified() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Databases\Scanner\Update $oUpd */
+		$oUpd = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
+		return $oUpd->setAllNotifiedForScan( $this->getSlug() );
+	}
+
+	/**
+	 * @param bool $bIncludeIgnored
+	 * @return Scans\Base\BaseResultsSet|mixed
+	 */
+	public function getAllResults( $bIncludeIgnored = false ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Databases\Scanner\Select $oSel */
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSel->filterByScan( $this->getSlug() );
+		if ( !$bIncludeIgnored ) {
+			$oSel->filterByNotIgnored();
+		}
+		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
+			->setScanActionVO( $this->getScanActionVO() )
+			->fromVOsToResultsSet( $oSel->query() );
+	}
+
+	/**
+	 * @return Scans\Base\Utilities\ItemActionHandler|mixed
+	 */
+	abstract protected function getItemActionHandler();
 
 	/**
 	 * @return BaseScanActionVO|mixed
@@ -66,6 +151,7 @@ abstract class Base {
 		$oUpd->clearIgnoredAtForScan( $this->getSlug() );
 		return $this;
 	}
+
 	/**
 	 * @return $this
 	 */

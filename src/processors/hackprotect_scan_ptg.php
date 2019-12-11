@@ -83,50 +83,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			->run();
 	}
 
-	/**
-	 * @param Shield\Scans\Ptg\ResultItem $oItem
-	 * @param string                      $sAction
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function handleItemAction( $oItem, $sAction ) {
-		switch ( $sAction ) {
-
-			case 'asset_accept':
-				$bSuccess = $this->assetAccept( $oItem );
-				break;
-
-			default:
-				$bSuccess = parent::handleItemAction( $oItem, $sAction );
-				break;
-		}
-
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Ptg\ResultItem $oItem
-	 * @return true
-	 * @throws \Exception
-	 */
-	private function assetAccept( $oItem ) {
-		/** @var Shield\Scans\Ptg\ResultsSet $oRes */
-		$oRes = $this->readScanResultsFromDb();
-		// We ignore the item (so for WP.org plugins it wont flag up again)
-		foreach ( $oRes->getItemsForSlug( $oItem->slug ) as $oItem ) {
-			$this->getItemActionHandler()
-				 ->setScanItem( $oItem )
-				 ->ignore();
-		}
-
-		( new HackGuard\Lib\Snapshots\StoreAction\Build() )
-			->setMod( $this->getMod() )
-			->setAsset( $this->getAssetFromSlug( $oItem->slug ) )
-			->run();
-
-		return true;
-	}
-
 	public function printPluginReinstallDialogs() {
 		echo $this->getMod()->renderTemplate(
 			'snippets/dialog_plugins_reinstall.twig',

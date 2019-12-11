@@ -124,9 +124,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 */
 	public function filterPluginsToView( $aPlugins ) {
 		if ( Services::Request()->query( 'plugin_status' ) == 'vulnerable' ) {
+			/** @var Wpv\ResultsSet $oVulnerableRes */
+			$oVulnerableRes = $this->getThisScanCon()->getAllResults();
 			global $status;
 			$status = 'vulnerable';
-			$aPlugins = array_intersect_key( $aPlugins, array_flip( $this->getVulnerablePlugins() ) );
+			$aPlugins = array_intersect_key(
+				$aPlugins,
+				array_flip( $oVulnerableRes->getUniqueSlugs() )
+			);
 		}
 		return $aPlugins;
 	}
@@ -158,19 +163,11 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @param stdClass $oVuln
-	 * @return string
-	 */
-	protected function getVulnUrl( $oVuln ) {
-		return sprintf( 'https://wpvulndb.com/vulnerabilities/%s', $oVuln->id );
-	}
-
-	/**
 	 * @param Shield\Scans\Wpv\ResultsSet $oRes
 	 */
 	protected function emailResults( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
 		$oCon = $this->getCon();
@@ -208,7 +205,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		$aContent[] = '';
 
 		$sSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Plugin(s) Discovered With Known Security Vulnerabilities.', 'wp-simple-firewall' ) );
-		$sTo = $oFO->getPluginDefaultRecipientAddress();
+		$sTo = $oMod->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
 
@@ -224,44 +221,27 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return string[]
-	 */
-	protected function getVulnerablePlugins() {
-		return $this->getAllVulnerabilities()->getUniqueSlugs();
-	}
-
-	/**
-	 * @return Shield\Scans\Wpv\ResultsSet
-	 */
-	protected function getAllVulnerabilities() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		$aVos = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterByNotIgnored()
-					 ->query();
-		return $this->convertVosToResults( $aVos );
-	}
-
-	/**
 	 * @param string $sFile
 	 * @return Shield\Scans\Wpv\WpVulnDb\WpVulnVO[]
 	 */
-	protected function getPluginVulnerabilities( $sFile ) {
+	private function getPluginVulnerabilities( $sFile ) {
+		/** @var Wpv\ResultsSet $oVulnerableRes */
+		$oVulnerableRes = $this->getThisScanCon()->getAllResults();
 		return array_map(
 			function ( $oItem ) {
 				/** @var Shield\Scans\Wpv\ResultItem $oItem */
 				return $oItem->getWpVulnVo();
 			},
-			$this->getAllVulnerabilities()->getItemsForSlug( $sFile )
+			$oVulnerableRes->getItemsForSlug( $sFile )
 		);
 	}
 
 	/**
 	 * @return bool
 	 */
-	protected function countVulnerablePlugins() {
-		return $this->getAllVulnerabilities()->countUniqueSlugsForPluginsContext();
+	private function countVulnerablePlugins() {
+		/** @var Wpv\ResultsSet $oVulnerableRes */
+		$oVulnerableRes = $this->getThisScanCon()->getAllResults();
+		return $oVulnerableRes->countUniqueSlugsForPluginsContext();
 	}
 }

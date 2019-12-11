@@ -28,6 +28,25 @@ class Update extends Base\Update {
 	}
 
 	/**
+	 * @param string $sScan
+	 * @return bool
+	 */
+	public function setAllNotifiedForScan( $sScan ) {
+		return $this
+				   ->setUpdateWheres(
+					   [
+						   'scan'        => $sScan,
+						   'ignored_at'  => 0,
+						   'notified_at' => 0,
+					   ]
+				   )
+				   ->setUpdateData(
+					   [ 'notified_at' => Services::Request()->ts() ]
+				   )
+				   ->query() !== false;
+	}
+
+	/**
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */

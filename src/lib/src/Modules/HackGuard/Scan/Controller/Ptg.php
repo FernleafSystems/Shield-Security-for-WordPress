@@ -2,9 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 class Ptg extends Base {
+
+	/**
+	 * @return Scans\Ptg\Utilities\ItemActionHandler
+	 */
+	protected function getItemActionHandler() {
+		return new Scans\Ptg\Utilities\ItemActionHandler();
+	}
 
 	/**
 	 * @return bool

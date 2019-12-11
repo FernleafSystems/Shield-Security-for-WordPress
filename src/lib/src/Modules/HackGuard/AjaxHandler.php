@@ -128,7 +128,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
 
 		if ( $bReinstall ) {
-			/** @var \ICWP_WPSF_Processor_HackProtect $oP */
+				/** @var \ICWP_WPSF_Processor_HackProtect $oP */
 			$oP = $oMod->getProcessor();
 			$bActivate = $oP->getSubProScanner()
 							->getSubProcessorPtg()
@@ -150,17 +150,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_ScanItemAction( $sAction ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oScanCon = $oMod->getScanController();
-		$oReq = Services::Request();
 
 		$bSuccess = false;
 		$bPageReload = true;
 
-		$sItemId = $oReq->post( 'rid' );
-		$aItemIds = $oReq->post( 'ids' );
-
-		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $oMod->getProcessor();
+		$sItemId = Services::Request()->post( 'rid' );
+		$aItemIds = Services::Request()->post( 'ids' );
 
 		$oDbh = $oMod->getDbHandler_ScanResults();
 
@@ -192,10 +187,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 								   ->byId( $sId );
 					if ( $oEntry instanceof Shield\Databases\Scanner\EntryVO ) {
 						$aScanSlugs[] = $oEntry->scan;
-						$bItemActionSuccess = $oP->getSubProScanner()
-												 ->getScannerFromSlug( $oEntry->scan )
-												 ->executeItemAction( $sId, $sAction );
-						if ( $bItemActionSuccess ) {
+						if ( $oMod->getScanCon( $oEntry->scan )->executeItemAction( $sItemId, $sAction ) ) {
 							$aSuccessfulItems[] = $sId;
 						}
 					}
@@ -211,6 +203,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				// We don't rescan for ignores.
 				if ( !in_array( $sAction, [ 'ignore' ] ) ) {
+					$oScanCon = $oMod->getScanController();
 					$oScanCon->startScans( $aScanSlugs );
 					$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 				}

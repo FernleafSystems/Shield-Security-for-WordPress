@@ -97,32 +97,4 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 			]
 		);
 	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getAllAbandonedPlugins() {
-		return $this->getAllAbandoned()->getUniqueSlugs();
-	}
-
-	/**
-	 * @return Apc\ResultsSet
-	 */
-	protected function getAllAbandoned() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		$aVos = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterByNotIgnored()
-					 ->query();
-		return $this->convertVosToResults( $aVos );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function countAbandonedPlugins() {
-		return $this->getAllAbandoned()->countUniqueSlugsForPluginsContext();
-	}
 }
