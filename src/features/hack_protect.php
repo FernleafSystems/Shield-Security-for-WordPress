@@ -25,14 +25,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 */
-	protected function updateHandler() {
-		parent::updateHandler();
-		$this->setPtgUpdateStoreFormat( true );
-//			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
-	}
-
-	/**
 	 * @return HackGuard\Scan\Queue\Controller
 	 */
 	public function getScanController() {
@@ -192,13 +184,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getUnrecognisedFileScannerOption() {
-		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {
@@ -234,65 +219,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function isUfcDeleteFiles() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), [
-			'enabled_delete_only',
-			'enabled_delete_report'
-		] );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isUfcEnabled() {
-		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function isUfcSendReport() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), [
-			'enabled_report_only',
-			'enabled_delete_report'
-		] );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isWcfScanAutoRepair() {
 		return $this->isOpt( 'attempt_auto_file_repair', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWcfScanEnabled() {
-		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnEnabled() {
-		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnSendEmail() {
-		return $this->isWpvulnEnabled() && $this->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnAutoupdatesEnabled() {
-		return $this->isWpvulnEnabled() && $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
 	/**
@@ -362,17 +292,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sSlug
 	 * @return bool
 	 */
-	public function isPtgReinstallLinks() {
-		return $this->isPtgEnabled() && $this->isOpt( 'ptg_reinstall_links', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isApcEnabled() {
-		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
+	protected function isScanEnabled( $sSlug ) {
+		/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->getProcessor();
+		return $oPro->getSubProScanner()
+					->getScannerFromSlug( $sSlug )
+					->isEnabled();
 	}
 
 	/**
@@ -385,7 +313,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) && $this->isPtgReinstallLinks() ) {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) && $oOpts->isPtgReinstallLinks() ) {
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
@@ -670,7 +600,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		];
 
 		{// Core files
-			if ( !$this->isWcfScanEnabled() ) {
+			if ( !$this->isScanEnabled( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
@@ -691,7 +621,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Unrecognised
-			if ( !$this->isUfcEnabled() ) {
+			if ( !$this->isScanEnabled( 'ufc' ) ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
@@ -733,7 +663,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Vulnerability Scanner
-			if ( !$this->isWpvulnEnabled() ) {
+			if ( !$this->isScanEnabled( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
@@ -754,7 +684,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Abandoned Plugins
-			if ( !$this->isApcEnabled() ) {
+			if ( !$this->isScanEnabled( 'apc' ) ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
@@ -775,7 +705,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Malware
-			if ( !$oOpts->isMalScanEnabled() ) {
+			if ( !$this->isScanEnabled( 'mal' ) ) {
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
@@ -836,7 +766,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
 			];
 
-			$bCore = $this->isWcfScanEnabled();
+			$bCore = $this->isScanEnabled( 'wcf' );
 			$aThis[ 'key_opts' ][ 'wcf' ] = [
 				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
 				'enabled' => $bCore,
@@ -890,11 +820,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 			];
-			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
+			$bWpvAutoUpdates = $oOpts->isWpvulnAutoupdatesEnabled();
+			if ( $bWpv && !$bWpvAutoUpdates ) {
 				$aThis[ 'key_opts' ][ 'wpv_repair' ] = [
 					'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
-					'enabled' => $this->isWpvulnAutoupdatesEnabled(),
-					'summary' => $this->isWpvulnAutoupdatesEnabled() ?
+					'enabled' => $bWpvAutoUpdates,
+					'summary' => $bWpvAutoUpdates ?
 						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
 						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
 					'weight'  => 1,
@@ -902,7 +833,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				];
 			}
 
-			$bPtg = $this->isPtgEnabled();
+			$bPtg = $this->isScanEnabled( 'ptg' );
 			$aThis[ 'key_opts' ][ 'ptg' ] = [
 				'title'   => $aScanNames[ 'ptg' ],
 				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
@@ -914,7 +845,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
 			];
 
-			$bMal = $oOpts->isMalScanEnabled();
+			$bMal = $this->isScanEnabled( 'mal' );
 			$aThis[ 'key_opts' ][ 'mal' ] = [
 				'title'   => $aScanNames[ 'mal' ],
 				'name'    => $aScanNames[ 'mal' ],
@@ -926,7 +857,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_mal' ),
 			];
 
-			$bApc = $this->isApcEnabled();
+			$bApc = $this->isScanEnabled( 'apc' );
 			$aThis[ 'key_opts' ][ 'apc' ] = [
 				'title'   => $aScanNames[ 'apc' ],
 				'name'    => $aScanNames[ 'apc' ],
@@ -991,7 +922,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @deprecated 8.5
 	 */
 	public function isPtgReadyToScan() {
-		return $this->isPtgEnabled();
+		return false;
 	}
 
 	/**
@@ -1067,5 +998,99 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getPtgFileExtensions() {
 		return $this->getOpt( 'ptg_extensions' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgReinstallLinks() {
+		return $this->isOpt( 'ptg_reinstall_links', 'Y' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function isUfcDeleteFiles() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isUfcDeleteFiles();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isUfcEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isUfcEnabled();
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function isUfcSendReport() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isUfcSendReport();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isApcEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isApcEnabled();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWcfScanEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWcfScanEnabled();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWpvulnEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnEnabled();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWpvulnSendEmail() {
+		return $this->isWpvulnEnabled() && $this->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWpvulnAutoupdatesEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnAutoupdatesEnabled();
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function getUnrecognisedFileScannerOption() {
+		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
 	}
 }

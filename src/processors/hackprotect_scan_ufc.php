@@ -12,9 +12,16 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isUfcEnabled();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isUfcEnabled();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isPremiumScan() {
+		return false;
 	}
 
 	/**

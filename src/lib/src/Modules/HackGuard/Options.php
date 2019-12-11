@@ -36,6 +36,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isApcEnabled() {
+		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
+	}
+
+	/**
 	 * @return int[] - keys are the unique report hash
 	 */
 	public function getMalFalsePositiveReports() {
@@ -73,13 +80,6 @@ class Options extends Base\ShieldOptions {
 			},
 			$this->getDef( 'malware_whitelist_paths' )
 		);
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getFileScanLimit() {
-		return 300; // TODO: Def
 	}
 
 	/**
@@ -200,11 +200,35 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $this->isPremium() && $this->isOpt( 'ptg_enable', 'enabled' )
-			   && $this->isOptReqsMet( 'ptg_enable' )
-			   && $oMod->canPtgWriteToDisk();
+		return $this->isOpt( 'ptg_enable', 'enabled' ) && $this->isOptReqsMet( 'ptg_enable' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPtgReinstallLinks() {
+		return $this->isPremium() && $this->isOpt( 'ptg_reinstall_links', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWcfScanEnabled() {
+		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnEnabled() {
+		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWpvulnAutoupdatesEnabled() {
+		return $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
 	/**
@@ -300,6 +324,40 @@ class Options extends Base\ShieldOptions {
 		}
 
 		return $aDirs;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getUnrecognisedFileScannerOption() {
+		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function isUfcDeleteFiles() {
+		return in_array( $this->getUnrecognisedFileScannerOption(), [
+			'enabled_delete_only',
+			'enabled_delete_report'
+		] );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isUfcEnabled() {
+		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function isUfcSendReport() {
+		return in_array( $this->getUnrecognisedFileScannerOption(), [
+			'enabled_report_only',
+			'enabled_delete_report'
+		] );
 	}
 
 	/**

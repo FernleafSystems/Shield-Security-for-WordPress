@@ -133,8 +133,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
 				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_file_areas' => __( 'Select Which Types Of File Scans To Run', 'wp-simple-firewall' ),
-				'scanselect_assets'     => __( 'Select Which Scans To Run For Plugins and Themes', 'wp-simple-firewall' ),
+				'scanselect_file_areas' => __( 'Select File Scans To Run', 'wp-simple-firewall' ),
+				'scanselect_assets'     => __( 'Select Scans For Plugins and Themes', 'wp-simple-firewall' ),
 				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
 				'select_what_to_scan'   => __( 'Select Scans To Run', 'wp-simple-firewall' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
@@ -234,10 +234,10 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$aScanNames = $oStrings->getScanNames();
 		foreach ( $aData[ 'scans' ] as $sSlug => &$aScanData ) {
 			$oScanner = $oScannerMain->getScannerFromSlug( $sSlug );
-			$aScanData[ 'flags' ][ 'is_available' ] = $oScanner->isAvailable();
-			$aScanData[ 'flags' ][ 'is_restricted' ] = $oScanner->isRestricted();
+			$aScanData[ 'flags' ][ 'is_available' ] = $oScanner->isScanningAvailable();
+			$aScanData[ 'flags' ][ 'is_restricted' ] = !$oScanner->isScanningAvailable();
 			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanner->isEnabled();
-			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanner->isAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
+			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanner->isScanningAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
 			$aScanData[ 'flags' ][ 'has_last_scan' ] = $oMod->getLastScanAt( $sSlug ) > 0;
 			$aScanData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $sSlug ];
 			$aScanData[ 'strings' ][ 'title' ] = $aScanNames[ $sSlug ];

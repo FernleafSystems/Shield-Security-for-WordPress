@@ -18,9 +18,9 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			->setMod( $this->getMod() )
 			->build();
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->isPtgReinstallLinks() ) {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isPtgReinstallLinks() ) {
 			add_filter( 'plugin_action_links', [ $this, 'addActionLinkRefresh' ], 50, 2 );
 			add_action( 'admin_footer', [ $this, 'printPluginReinstallDialogs' ] );
 		}
@@ -29,17 +29,10 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	/**
 	 * @return bool
 	 */
-	public function isAvailable() {
-		return $this->isEnabled() && !$this->isRestricted();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRestricted() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return !$oOpts->isPremium();
+	public function isScanningAvailable() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return parent::isScanningAvailable() && $oMod->canPtgWriteToDisk();
 	}
 
 	/**

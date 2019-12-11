@@ -23,9 +23,9 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 		add_action( 'upgrader_process_complete', [ $this, 'hookOnDemandScan' ], 10, 0 );
 		add_action( 'deleted_plugin', [ $this, 'hookOnDemandScan' ], 10, 0 );
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isWpvulnAutoupdatesEnabled() ) {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isWpvulnAutoupdatesEnabled() ) {
 			add_filter( 'auto_update_plugin', [ $this, 'autoupdateVulnerablePlugins' ], PHP_INT_MAX, 2 );
 		}
 	}
@@ -33,24 +33,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	/**
 	 * @return bool
 	 */
-	public function isAvailable() {
-		return !$this->isRestricted();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRestricted() {
-		return !$this->getMod()->isPremium();
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isWpvulnEnabled();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnEnabled();
 	}
 
 	/**
@@ -64,9 +50,9 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @return bool
 	 */
 	protected function isCronAutoRepair() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->isWpvulnAutoupdatesEnabled();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnAutoupdatesEnabled();
 	}
 
 	/**
@@ -74,9 +60,9 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$bSend = $oFO->isWpvulnSendEmail();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$bSend = $oOpts->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
 		if ( $bSend ) {
 			$this->emailResults( $oRes );
 		}

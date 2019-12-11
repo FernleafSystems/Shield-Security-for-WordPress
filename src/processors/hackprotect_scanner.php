@@ -19,12 +19,10 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		$this->getSubPro( 'apc' )->execute();
 		$this->getSubPro( 'ufc' )->execute();
 		$this->getSubPro( 'wcf' )->execute();
+		$this->getSubPro( 'ptg' )->execute();
 		if ( $oMod->isPremium() ) {
 			$this->getSubPro( 'mal' )->execute();
 			$this->getSubPro( 'wpv' )->execute();
-			if ( $oMod->isPtgEnabled() ) {
-				$this->getSubProcessorPtg()->execute();
-			}
 		}
 		$this->setupCron();
 		$this->handlePostScanCron();
@@ -35,9 +33,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 * @return \ICWP_WPSF_Processor_ScanBase|null
 	 */
 	public function getScannerFromSlug( $sSlug ) {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return in_array( $sSlug, $oOpts->getScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
+		return $this->getSubPro( $sSlug );
 	}
 
 	/**
@@ -115,16 +111,16 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		if ( $this->getCanScansExecute() ) {
 			$aScans = [];
 			foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
+				/** @var \ICWP_WPSF_Processor_ScanBase $oProc */
 				$oProc = $this->getSubPro( $sScanSlug );
-				if ( $oProc->isAvailable() && $oProc->isEnabled() ) {
+				if ( $oProc->isScanningAvailable() && $oProc->isEnabled() ) {
 					$aScans[] = $sScanSlug;
 				}
 			}
 
 			$oOpts->setIsScanCron( true );
-			$oMod->saveModOptions();
-
-			$oMod->getScanController()
+			$oMod->saveModOptions()
+				 ->getScanController()
 				 ->startScans( $aScans );
 		}
 		else {

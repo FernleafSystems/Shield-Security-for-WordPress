@@ -302,7 +302,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 				$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
 
-				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
+				if ( !empty( $oTablePro ) && $oTablePro->isScanningAvailable() ) {
 					$bAsync = true;
 					$aScansToStart[] = $sScanSlug;
 

@@ -11,10 +11,17 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	/**
 	 * @return bool
 	 */
+	protected function isPremiumScan() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isEnabled() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isWcfScanEnabled();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWcfScanEnabled();
 	}
 
 	/**

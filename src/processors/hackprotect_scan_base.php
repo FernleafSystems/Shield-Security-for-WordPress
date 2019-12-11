@@ -1,7 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\ShieldProcessor {
@@ -21,14 +21,16 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	/**
 	 * @return bool
 	 */
-	public function isAvailable() {
-		return true;
+	public function isScanningAvailable() {
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return !$this->isPremiumScan() || $oOpts->isPremium();
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isRestricted() {
+	protected function isPremiumScan() {
 		return true;
 	}
 
@@ -71,7 +73,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	protected function getNewActionVO() {
-		return ( new Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
+		return ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
 	}
 
 	/**
@@ -80,7 +82,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	protected function deleteResultsSet( $oToDelete ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		( new Scan\Results\Clean() )
+		( new HackGuard\Scan\Results\Clean() )
 			->setDbHandler( $oMod->getDbHandler_ScanResults() )
 			->deleteResults( $oToDelete );
 	}
@@ -101,7 +103,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @return Shield\Scans\Base\BaseResultsSet|mixed
 	 */
 	protected function convertVosToResults( $aVos ) {
-		return ( new Scan\Results\ConvertBetweenTypes() )
+		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->fromVOsToResultsSet( $aVos );
 	}
@@ -162,7 +164,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 				throw new \Exception( 'Item could not be found.' );
 			}
 
-			$oItem = ( new Scan\Results\ConvertBetweenTypes() )
+			$oItem = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 				->setScanActionVO( $this->getScanActionVO() )
 				->convertVoToResultItem( $oEntry );
 
@@ -308,7 +310,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	public function resetScan() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		( new Scan\Results\Clean() )
+		( new HackGuard\Scan\Results\Clean() )
 			->setDbHandler( $oMod->getDbHandler_ScanResults() )
 			->setScanActionVO( $this->getScanActionVO() )
 			->deleteAllForScan();
@@ -322,5 +324,21 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 */
 	public function setScannerDb( $oScanner ) {
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isRestricted() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isAvailable() {
+		return $this->isScanningAvailable();
 	}
 }
