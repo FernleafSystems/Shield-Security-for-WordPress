@@ -353,47 +353,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string[]
-	 * @deprecated 8.5
-	 */
-	public function getPtgFileExtensions() {
-		return $this->getOpt( 'ptg_extensions' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function getPtgDepth() {
-		return 0;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isPtgBuildRequired() {
-		return false;
-	}
-
-	/**
-	 * @param bool $bIsRequired
-	 * @return $this
-	 * @deprecated 8.5
-	 */
-	public function setPtgUpdateStoreFormat( $bIsRequired ) {
-		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isPtgUpdateStoreFormat() {
-		return $this->isOpt( 'ptg_update_store_format', true );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
@@ -849,7 +808,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function addInsightsConfigData( $aAllData ) {
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
-		/** @var HackGuard\Options $oStrings */
+		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$aScanNames = $oStrings->getScanNames();
 
@@ -1067,5 +1026,46 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function setPtgRebuildSelfRequired( $bIsRequired ) {
 		return $this->setOpt( 'rebuild_self', (bool)$bIsRequired );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgBuildRequired() {
+		return false;
+	}
+
+	/**
+	 * @param bool $bIsRequired
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	public function setPtgUpdateStoreFormat( $bIsRequired ) {
+		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function getPtgDepth() {
+		return 0;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgUpdateStoreFormat() {
+		return $this->isOpt( 'ptg_update_store_format', true );
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.5
+	 */
+	public function getPtgFileExtensions() {
+		return $this->getOpt( 'ptg_extensions' );
 	}
 }
