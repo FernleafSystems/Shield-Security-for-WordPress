@@ -31,13 +31,13 @@ class CompleteQueue {
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
 
 			$oScanCon = $oMod->getScanCon( $sScanSlug );
-			$oAction = $oScanCon->getScanActionVO();
 
 			$oResultsSet = ( new CollateResults() )
+				->setScanController( $oScanCon )
 				->setDbHandler( $oDbH )
 				->collate( $sScanSlug );
 
-			$this->getCon()->fireEvent( $oScanCon->getSlug().'_scan_run' );
+			$this->getCon()->fireEvent( $sScanSlug.'_scan_run' );
 
 			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
@@ -45,8 +45,8 @@ class CompleteQueue {
 					->update( $oResultsSet );
 
 				if ( $oResultsSet->countItems() > 0 ) {
-					$this->getCon()->fireEvent( $oAction->scan.'_scan_found' );
-					$aScansToNotify[] = $oAction->scan;
+					$this->getCon()->fireEvent( $sScanSlug.'_scan_found' );
+					$aScansToNotify[] = $sScanSlug;
 				}
 			}
 
