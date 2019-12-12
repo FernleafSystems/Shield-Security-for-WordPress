@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 
 /**
  * Class ScanActionFromSlug
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan
  */
 class ScanActionFromSlug {
 
@@ -14,7 +14,7 @@ class ScanActionFromSlug {
 	 * @param string $sScanSlug
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
-	public function getAction( $sScanSlug ) {
+	public static function GetAction( $sScanSlug ) {
 		$oVO = null;
 		switch ( $sScanSlug ) {
 			case 'apc':

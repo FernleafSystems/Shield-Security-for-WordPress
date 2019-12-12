@@ -130,8 +130,7 @@ abstract class Base {
 	 */
 	public function getScanActionVO() {
 		if ( !$this->oScanActionVO instanceof BaseScanActionVO ) {
-			$this->oScanActionVO = ( new HackGuard\Scan\ScanActionFromSlug() )
-				->getAction( $this->getSlug() );
+			$this->oScanActionVO = HackGuard\Scan\ScanActionFromSlug::GetAction( $this->getSlug() );
 		}
 		return $this->oScanActionVO;
 	}
