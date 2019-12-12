@@ -101,9 +101,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sHtml = '<div class="alert alert-danger m-0">SCAN SLUG NOT SUPPORTED</div>';
 		}
 		else {
-			if ( method_exists( $oTableBuilder, 'setScanActionVO' ) ) {
-				$oTableBuilder->setScanActionVO( ( new Scan\ScanActionFromSlug() )->getAction( $sScanSlug ) );
-			}
 			$sHtml = $oTableBuilder
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_ScanResults() )
