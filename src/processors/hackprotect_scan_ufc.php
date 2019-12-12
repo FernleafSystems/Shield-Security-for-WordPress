@@ -9,13 +9,6 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'ufc';
 
 	/**
-	 * @return Ufc\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
-		return new Ufc\Utilities\ItemActionHandler();
-	}
-
-	/**
 	 * @param Shield\Scans\Ufc\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */

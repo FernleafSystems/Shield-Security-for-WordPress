@@ -9,13 +9,6 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'wcf';
 
 	/**
-	 * @return Wcf\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
-		return new Wcf\Utilities\ItemActionHandler();
-	}
-
-	/**
 	 * @param Shield\Scans\Wcf\ResultsSet $oRes
 	 * @return bool
 	 */

@@ -165,6 +165,19 @@ abstract class Base {
 	}
 
 	/**
+	 * @param Scans\Base\BaseResultsSet $oRes
+	 */
+	public function runCronAutoRepair( $oRes ) {
+		if ( $this->isCronAutoRepair() ) {
+			$this->getItemActionHandler()
+				 ->getRepairer()
+				 ->setIsManualAction( false )
+				 ->setAllowDelete( false )
+				 ->repairResultsSet( $oRes );
+		}
+	}
+
+	/**
 	 * @return $this
 	 */
 	public function purge() {

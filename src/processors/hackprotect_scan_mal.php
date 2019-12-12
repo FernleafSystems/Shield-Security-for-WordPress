@@ -8,13 +8,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'mal';
 
 	/**
-	 * @return Shield\Scans\Mal\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
-		return new Shield\Scans\Mal\Utilities\ItemActionHandler();
-	}
-
-	/**
 	 * @param Shield\Scans\Mal\ResultsSet $oRes
 	 */
 	protected function runCronAutoRepair( $oRes ) {
@@ -33,10 +26,10 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @param Shield\Scans\Mal\ResultsSet $oResults
 	 */
 	protected function emailResults( $oResults ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
-		$sTo = $oFO->getPluginDefaultRecipientAddress();
+		$sTo = $oMod->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,

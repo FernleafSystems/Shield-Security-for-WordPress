@@ -27,13 +27,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Shield\Scans\Ptg\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
-		return new Shield\Scans\Ptg\Utilities\ItemActionHandler();
-	}
-
-	/**
 	 * @param array  $aLinks
 	 * @param string $sPluginFile
 	 * @return string[]
@@ -71,18 +64,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 		return $aMeta;
 	}
 
-	public function runHourlyCron() {
-		( new HackGuard\Lib\Snapshots\StoreAction\TouchAll() )
-			->setMod( $this->getMod() )
-			->run();
-	}
-
-	public function runDailyCron() {
-		( new HackGuard\Lib\Snapshots\StoreAction\CleanAll() )
-			->setMod( $this->getMod() )
-			->run();
-	}
-
 	public function printPluginReinstallDialogs() {
 		echo $this->getMod()->renderTemplate(
 			'snippets/dialog_plugins_reinstall.twig',
@@ -108,25 +89,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			],
 			true
 		);
-	}
-
-	/**
-	 * @param string $sBaseName
-	 * @return bool
-	 */
-	public function reinstall( $sBaseName ) {
-		$bSuccess = parent::reinstall( $sBaseName );
-		if ( $bSuccess ) {
-			try {
-				( new HackGuard\Lib\Snapshots\StoreAction\Build() )
-					->setMod( $this->getMod() )
-					->setAsset( $this->getAssetFromSlug( $sBaseName ) )
-					->run();
-			}
-			catch ( Exception $oE ) {
-			}
-		}
-		return $bSuccess;
 	}
 
 	/**

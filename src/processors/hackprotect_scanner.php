@@ -13,14 +13,11 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	/**
 	 */
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
 		$this->getSubPro( 'apc' )->execute();
 		$this->getSubPro( 'ufc' )->execute();
 		$this->getSubPro( 'wcf' )->execute();
 		$this->getSubPro( 'ptg' )->execute();
-		if ( $oMod->isPremium() ) {
+		if ( $this->getCon()->isPremiumActive() ) {
 			$this->getSubPro( 'mal' )->execute();
 			$this->getSubPro( 'wpv' )->execute();
 		}
@@ -105,6 +102,18 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		}
 
 		wp_die( "Something about this request wasn't right" );
+	}
+
+	public function runHourlyCron() {
+		( new HackGuard\Lib\Snapshots\StoreAction\TouchAll() )
+			->setMod( $this->getMod() )
+			->run();
+	}
+
+	public function runDailyCron() {
+		( new HackGuard\Lib\Snapshots\StoreAction\CleanAll() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**

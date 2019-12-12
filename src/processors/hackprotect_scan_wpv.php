@@ -31,13 +31,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtec
 	}
 
 	/**
-	 * @return Wpv\Utilities\ItemActionHandler
-	 */
-	protected function newItemActionHandler() {
-		return new Wpv\Utilities\ItemActionHandler();
-	}
-
-	/**
 	 * @param Wpv\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */

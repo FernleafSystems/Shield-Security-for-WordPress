@@ -10,12 +10,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	const SCAN_SLUG = 'base';
 
 	public function run() {
-		add_action( $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
-			$oMod->getScanController()
-				 ->startScans( [ static::SCAN_SLUG ] );
-		} );
+		add_action(
+			$this->getCon()->prefix( 'ondemand_scan_'.$this->getThisScanCon()->getSlug() ),
+			function () {
+				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+				$oMod = $this->getMod();
+				$oMod->getScanController()
+					 ->startScans( [ $this->getThisScanCon()->getSlug() ] );
+			}
+		);
 	}
 
 	/**
@@ -28,7 +31,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param int $nDelay
 	 */
 	public function scheduleOnDemandScan( $nDelay = 3 ) {
-		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG );
+		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getThisScanCon()->getSlug() );
 		if ( !wp_next_scheduled( $sHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
 		}
@@ -42,20 +45,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @return Shield\Scans\Base\Utilities\ItemActionHandler|mixed
-	 */
-	protected function getItemActionHandler() {
-		return $this->newItemActionHandler()
-					->setMod( $this->getMod() )
-					->setScanActionVO( $this->getScanActionVO() );
-	}
-
-	/**
-	 * @return Shield\Scans\Base\Utilities\ItemActionHandler|mixed
-	 */
-	abstract protected function newItemActionHandler();
-
-	/**
 	 * Because it's the cron and we'll maybe be notifying user, we look
 	 * only for items that have not been notified recently.
 	 */
@@ -63,24 +52,11 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		$oScanCon = $this->getThisScanCon();
 		$oRes = $oScanCon->getAllResultsForCron();
 		if ( $oRes->hasItems() ) {
-			$this->runCronAutoRepair( $oRes );
+			$this->getThisScanCon()->runCronAutoRepair( $oRes );
 
 			if ( $this->runCronUserNotify( $oRes ) ) {
 				$oScanCon->updateAllAsNotified();
 			}
-		}
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		if ( $this->getThisScanCon()->isCronAutoRepair() ) {
-			$this->getItemActionHandler()
-				 ->getRepairer()
-				 ->setIsManualAction( false )
-				 ->setAllowDelete( false )
-				 ->repairResultsSet( $oRes );
 		}
 	}
 
@@ -144,8 +120,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @deprecated 8.5
 	 */
 	protected function isCronAutoRepair() {
-		return $this->getThisScanCon()
-					->isCronAutoRepair();
+		return $this->getThisScanCon()->isCronAutoRepair();
 	}
 
 	/**
@@ -153,8 +128,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @deprecated 8.5
 	 */
 	public function isEnabled() {
-		return $this->getThisScanCon()
-					->isEnabled();
+		return $this->getThisScanCon()->isEnabled();
 	}
 
 	/**
@@ -163,6 +137,13 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @deprecated 8.5
 	 */
 	protected function getNewActionVO() {
-		return ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
+		return $this->getThisScanCon()->getScanActionVO();
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultsSet $oRes
+	 * @deprecated 8.5
+	 */
+	protected function runCronAutoRepair( $oRes ) {
 	}
 }
