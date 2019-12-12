@@ -44,8 +44,7 @@ class ConvertBetweenTypes {
 	 */
 	public function convertVoToResultItem( $oVo ) {
 		$oAction = $this->getScanActionVO();
-		$oItem = $oAction->getNewResultItem()->applyFromArray( $oVo->meta );
-		return $oItem;
+		return $oAction->getNewResultItem()->applyFromArray( $oVo->meta );
 	}
 
 	/**

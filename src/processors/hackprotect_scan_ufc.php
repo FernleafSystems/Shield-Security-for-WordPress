@@ -2,7 +2,6 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 
 class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 

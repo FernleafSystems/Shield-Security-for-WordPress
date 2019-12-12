@@ -18,19 +18,24 @@ abstract class Base {
 	private $oScanActionVO;
 
 	/**
+	 * Base constructor.
+	 * see dynamic constructors: features/hack_protect.php
+	 */
+	public function __construct() {
+	}
+
+	/**
 	 * @param int|string $sItemId
 	 * @param string     $sAction
 	 * @return bool
 	 * @throws \Exception
 	 */
 	public function executeItemAction( $sItemId, $sAction ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
 		$bSuccess = false;
+
 		if ( is_numeric( $sItemId ) ) {
 			/** @var Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $oMod->getDbHandler_ScanResults()
+			$oEntry = $this->getScanResultsDbHandler()
 						   ->getQuerySelector()
 						   ->byId( $sItemId );
 			if ( empty( $oEntry ) ) {
@@ -44,7 +49,7 @@ abstract class Base {
 			$bSuccess = $this->getItemActionHandler()
 							 ->setMod( $this->getMod() )
 							 ->setScanController( $this )
-							 ->setDbHandler( $oMod->getDbHandler_ScanResults() )
+							 ->setDbHandler( $this->getScanResultsDbHandler() )
 							 ->setScanItem( $oItem )
 							 ->process( $sAction );
 		}
@@ -59,7 +64,7 @@ abstract class Base {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		/** @var Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$oSel->filterByScan( $this->getSlug() )
 			 ->filterForCron( $oMod->getScanNotificationInterval() );
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
@@ -71,10 +76,8 @@ abstract class Base {
 	 * @return bool
 	 */
 	public function updateAllAsNotified() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
+		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
 		return $oUpd->setAllNotifiedForScan( $this->getSlug() );
 	}
 
@@ -83,10 +86,8 @@ abstract class Base {
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
 	public function getAllResults( $bIncludeIgnored = false ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$oSel->filterByScan( $this->getSlug() );
 		if ( !$bIncludeIgnored ) {
 			$oSel->filterByNotIgnored();
@@ -144,10 +145,8 @@ abstract class Base {
 	 * @return $this
 	 */
 	public function resetIgnoreStatus() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
+		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
 		$oUpd->clearIgnoredAtForScan( $this->getSlug() );
 		return $this;
 	}
@@ -156,10 +155,8 @@ abstract class Base {
 	 * @return $this
 	 */
 	public function resetNotifiedStatus() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Databases\Scanner\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
+		$oUpd = $this->getScanResultsDbHandler()->getQueryUpdater();
 		$oUpd->clearNotifiedAtForScan( $this->getSlug() );
 		return $this;
 	}
@@ -181,13 +178,19 @@ abstract class Base {
 	 * @return $this
 	 */
 	public function purge() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		( new HackGuard\Scan\Results\Clean() )
-			->setDbHandler( $oMod->getDbHandler_ScanResults() )
-			->setScanActionVO( $this->getScanActionVO() )
+		( new HackGuard\Scan\Results\ResultsDelete() )
+			->setScanController( $this )
 			->deleteAllForScan();
 		return $this;
+	}
+
+	/**
+	 * @return Databases\Scanner\Handler
+	 */
+	public function getScanResultsDbHandler() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $oMod->getDbHandler_ScanResults();
 	}
 
 	/**

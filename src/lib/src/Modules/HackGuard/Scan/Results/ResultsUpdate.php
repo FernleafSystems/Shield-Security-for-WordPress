@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -11,34 +12,31 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ResultsUpdate {
 
-	use Databases\Base\HandlerConsumer;
 	use Scans\Common\ScanActionConsumer;
+	use ScanControllerConsumer;
 
 	/**
 	 * @param Scans\Base\BaseResultsSet $oNewResults
 	 */
 	public function update( $oNewResults ) {
+		$oSCon = $this->getScanController();
 		$oAction = $this->getScanActionVO();
 		$oNewCopy = clone $oNewResults; // so we don't modify these for later use.
 
-		$oDbH = $this->getDbHandler();
-
 		$oExisting = ( new ResultsRetrieve() )
-			->setDbHandler( $oDbH )
-			->setScanActionVO( $oAction )
+			->setScanController( $oSCon )
 			->retrieve();
 
 		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
 		( new ResultsDelete() )
-			->setDbHandler( $oDbH )
+			->setScanController( $this->getScanController() )
 			->delete( $oItemsToDelete );
 
 		( new ResultsStore() )
-			->setDbHandler( $oDbH )
-			->setScanActionVO( $oAction )
+			->setScanController( $this->getScanController() )
 			->store( $oNewCopy );
 
-		$oUp = $oDbH->getQueryUpdater();
+		$oUp = $oSCon->getScanResultsDbHandler()->getQueryUpdater();
 		/** @var Databases\Scanner\EntryVO $oVo */
 		$oConverter = ( new ConvertBetweenTypes() )->setScanActionVO( $oAction );
 		foreach ( $oConverter->fromResultsToVOs( $oExisting ) as $oVo ) {

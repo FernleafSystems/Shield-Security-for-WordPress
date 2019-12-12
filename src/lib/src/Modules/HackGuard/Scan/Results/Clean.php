@@ -10,43 +10,18 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 class Clean {
 
-	use Shield\Databases\Base\HandlerConsumer;
-	use Shield\Scans\Common\ScanActionConsumer;
-
-	/**
-	 * @var Shield\Scans\Base\BaseResultsSet
-	 */
-	private $oWorkingResultsSet;
+	use Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 
 	/**
 	 * @return $this
 	 */
-	public function deleteAllForScan() {
-		$sScan = $this->getScanActionVO()->scan;
+	public function removeStaleResults() {
+		$sScan = $this->getScanController()->getSlug();
 		if ( !empty( $sScan ) ) {
 			/** @var Shield\Databases\Scanner\Delete $oDel */
 			$oDel = $this->getDbHandler()->getQueryDeleter();
 			$oDel->forScan( $sScan );
 		}
-		return $this;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oRS
-	 * @return $this
-	 */
-	public function deleteResults( $oRS ) {
-		$aHashes = array_map(
-			function ( $oItem ) {
-				/** @var Shield\Scans\Base\BaseResultItem $oItem */
-				return $oItem->hash;
-			},
-			$oRS->getAllItems()
-		);
-		/** @var Shield\Databases\Scanner\Delete $oDel */
-		$oDel = $this->getDbHandler()->getQueryDeleter();
-		$oDel->filterByHashes( $aHashes )
-			 ->query();
 		return $this;
 	}
 }

@@ -26,7 +26,6 @@ class CompleteQueue {
 		$oDbH = $this->getDbHandler();
 		$oSel = $oDbH->getQuerySelector();
 
-		$oDbHResults = $oMod->getDbHandler_ScanResults();
 		$aScansToNotify = [];
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
 
@@ -40,7 +39,7 @@ class CompleteQueue {
 
 			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
-					->setDbHandler( $oDbHResults )
+					->setScanController( $oMod->getScanCon( $oAction->scan ) )
 					->setScanActionVO( $oAction )
 					->update( $oResultsSet );
 
