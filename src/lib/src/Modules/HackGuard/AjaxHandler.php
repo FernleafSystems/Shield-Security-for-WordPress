@@ -120,6 +120,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_PluginReinstall() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
@@ -128,12 +129,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
 
 		if ( $bReinstall ) {
-				/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $oMod->getProcessor();
-			$bActivate = $oP->getSubProScanner()
-							->getSubProcessorPtg()
-							->reinstall( $sFile )
-						 && $bActivate;
+			/** @var Scan\Controller\Ptg $oPtgScan */
+			$oPtgScan = $oMod->getScanCon( 'ptg' );
+			$bActivate = $oPtgScan->actionPluginReinstall( $sFile );
 		}
 
 		if ( $bActivate ) {

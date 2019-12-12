@@ -64,11 +64,8 @@ abstract class ItemActionHandler {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Scanner\Update $oUp */
-		$oUp = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
-
+		$oUp = $this->getDbHandler()->getQueryUpdater();
 		if ( !$oUp->setIgnored( $oEntry ) ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
@@ -94,10 +91,8 @@ abstract class ItemActionHandler {
 	 * @return Scanner\EntryVO|null
 	 */
 	protected function getEntryVO() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		$oSel = $this->getDbHandler()->getQuerySelector();
 		return $oSel->filterByHash( $this->getScanItem()->hash )
 					->filterByScan( $this->getScanActionVO()->scan )
 					->first();

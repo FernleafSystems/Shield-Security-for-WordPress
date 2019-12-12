@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Ptg extends Base {
 
@@ -12,6 +13,28 @@ class Ptg extends Base {
 	 */
 	protected function getItemActionHandler() {
 		return new Scans\Ptg\Utilities\ItemActionHandler();
+	}
+
+	/**
+	 * @param string $sBaseFile
+	 * @return bool
+	 */
+	public function actionPluginReinstall( $sBaseFile ) {
+		$bSuccess = false;
+		$oWpPs = Services::WpPlugins();
+		$oPl = $oWpPs->getPluginAsVo( $sBaseFile );
+		if ( $oPl->isWpOrg() && $oWpPs->reinstall( $oPl->file ) ) {
+			try {
+				( new HackGuard\Lib\Snapshots\StoreAction\Build() )
+					->setMod( $this->getMod() )
+					->setAsset( $oPl )
+					->run();
+				$bSuccess = true;
+			}
+			catch ( \Exception $oE ) {
+			}
+		}
+		return $bSuccess;
 	}
 
 	/**

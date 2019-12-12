@@ -48,7 +48,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		foreach ( $oRes->getItemsForSlug( $oMainItem->slug ) as $oItem ) {
 			$oTmpHandler = clone $this;
 			$oTmpHandler->setScanItem( $oItem )
-						->handleAction( 'ignore' );
+						->ignore();
 		}
 
 		( new Snapshots\StoreAction\Build() )
