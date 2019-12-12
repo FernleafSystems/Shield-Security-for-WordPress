@@ -43,10 +43,10 @@ abstract class Base {
 
 			$bSuccess = $this->getItemActionHandler()
 							 ->setMod( $this->getMod() )
-							 ->setScanActionVO( $this->getScanActionVO() )
-							 ->setScanItem( $oItem )
+							 ->setScanController( $this )
 							 ->setDbHandler( $oMod->getDbHandler_ScanResults() )
-							 ->handleAction( $sAction );
+							 ->setScanItem( $oItem )
+							 ->process( $sAction );
 		}
 
 		return $bSuccess;
@@ -180,7 +180,7 @@ abstract class Base {
 	/**
 	 * @return string
 	 */
-	protected function getSlug() {
+	public function getSlug() {
 		try {
 			$sSlug = strtolower( ( new \ReflectionClass( $this ) )->getShortName() );
 		}

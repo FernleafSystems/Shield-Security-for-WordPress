@@ -21,7 +21,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 		/** @var Ufc\ResultItem $oItem */
 		$oItem = $this->getScanItem();
 		$this->getCon()->fireEvent(
-			$this->getScanActionVO()->scan.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
 			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
 		);
 	}

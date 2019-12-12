@@ -22,7 +22,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 		/** @var Wpv\ResultItem $oItem */
 		$oItem = $this->getScanItem();
 		$this->getCon()->fireEvent(
-			$this->getScanActionVO().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
 			[
 				'audit' => [
 					'name' => Services::WpPlugins()->getPluginAsVo( $oItem->slug )->Name

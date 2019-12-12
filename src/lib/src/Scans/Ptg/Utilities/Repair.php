@@ -21,13 +21,50 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	public function repairItem() {
 		/** @var Ptg\ResultItem $oItem */
 		$oItem = $this->getScanItem();
+		if ( $oItem->context == 'plugins' ) {
+			$bSuccess = $this->repairPluginFile( $oItem->path_full );
+		}
+		else {
+			$bSuccess = $this->repairThemeFile( $oItem->path_full );
+		}
+		return $bSuccess;
+	}
+
+	/**
+	 * @param string $sPath
+	 * @return bool
+	 */
+	private function repairPluginFile( $sPath ) {
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
-			if ( $oFiles->isValidFileFromPlugin( $oItem->path_full ) ) {
-				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
+			if ( $oFiles->isValidFileFromPlugin( $sPath ) ) {
+				$bSuccess = $oFiles->replaceFileFromVcs( $sPath );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = Services::WpFs()->deleteFile( $oItem->path_full );
+				$bSuccess = Services::WpFs()->deleteFile( $sPath );
+			}
+			else {
+				$bSuccess = false;
+			}
+		}
+		catch ( \InvalidArgumentException $oE ) {
+			$bSuccess = false;
+		}
+		return (bool)$bSuccess;
+	}
+
+	/**
+	 * @param string $sPath
+	 * @return bool
+	 */
+	private function repairThemeFile( $sPath ) {
+		$oFiles = new WpOrg\Theme\Files();
+		try {
+			if ( $oFiles->isValidFileFromTheme( $sPath ) ) {
+				$bSuccess = $oFiles->replaceFileFromVcs( $sPath );
+			}
+			elseif ( $this->isAllowDelete() ) {
+				$bSuccess = Services::WpFs()->deleteFile( $sPath );
 			}
 			else {
 				$bSuccess = false;
@@ -52,6 +89,7 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 		else {
 			$oAsset = Services::WpThemes()->getThemeAsVo( $oItem->slug );
 			$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
+			error_log( var_export( $bCanRepair, true ) );
 		}
 		return $bCanRepair;
 	}

@@ -14,7 +14,7 @@ abstract class ItemActionHandlerAssets extends ItemActionHandler {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function handleAction( $sAction ) {
+	public function process( $sAction ) {
 		switch ( $sAction ) {
 
 			case 'asset_deactivate':
@@ -22,7 +22,7 @@ abstract class ItemActionHandlerAssets extends ItemActionHandler {
 				break;
 
 			default:
-				$bSuccess = parent::handleAction( $sAction );
+				$bSuccess = parent::process( $sAction );
 				break;
 		}
 

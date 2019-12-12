@@ -6,13 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 
 abstract class ItemActionHandler {
 
 	use ModConsumer;
-	use ScanActionConsumer;
 	use ScanItemConsumer;
 	use HandlerConsumer;
 	use ScanControllerConsumer;
@@ -22,7 +20,7 @@ abstract class ItemActionHandler {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function handleAction( $sAction ) {
+	public function process( $sAction ) {
 		switch ( $sAction ) {
 			case 'delete':
 				$bSuccess = $this->delete();
@@ -94,7 +92,7 @@ abstract class ItemActionHandler {
 		/** @var Scanner\Select $oSel */
 		$oSel = $this->getDbHandler()->getQuerySelector();
 		return $oSel->filterByHash( $this->getScanItem()->hash )
-					->filterByScan( $this->getScanActionVO()->scan )
+					->filterByScan( $this->getScanController()->getSlug() )
 					->first();
 	}
 

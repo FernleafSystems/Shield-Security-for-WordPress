@@ -15,7 +15,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function handleAction( $sAction ) {
+	public function process( $sAction ) {
 		switch ( $sAction ) {
 
 			case 'asset_accept':
@@ -27,7 +27,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 				break;
 
 			default:
-				$bSuccess = parent::handleAction( $sAction );
+				$bSuccess = parent::process( $sAction );
 				break;
 		}
 
@@ -112,7 +112,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		/** @var Ptg\ResultItem $oItem */
 		$oItem = $this->getScanItem();
 		$this->getCon()->fireEvent(
-			$this->getScanActionVO()->scan.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
+			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
 			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
 		);
 	}

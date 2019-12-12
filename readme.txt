@@ -370,6 +370,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
+= 8.5 - Series =
+*Released: 12th December, 2019* - [Release Notes](https://shsec.io/g5)
+
+* **(v.0)**  ADDED:		Ability to auto-repair theme files.
+
 = 8.4.4 - Current Release =
 *Released: 6th December, 2019* - [Release Notes](https://shsec.io/g5)
 
