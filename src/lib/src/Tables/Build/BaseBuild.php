@@ -32,6 +32,8 @@ class BaseBuild {
 			$bReady = false;
 		}
 
+		$this->preBuildTable();
+
 		if ( $bReady && $this->countTotal() > 0 ) {
 			$oTable = $this->getTableRenderer()
 						   ->setItemEntries( $this->getEntriesFormatted() )
@@ -47,6 +49,13 @@ class BaseBuild {
 		}
 
 		return empty( $sRendered ) ? __( 'There was an error retrieving entries.', 'wp-simple-firewall' ) : $sRendered;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function preBuildTable() {
+		return $this;
 	}
 
 	/**

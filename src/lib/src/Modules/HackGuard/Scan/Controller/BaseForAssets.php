@@ -20,6 +20,6 @@ abstract class BaseForAssets extends Base {
 			$oAsset = Services::WpThemes()->getThemeAsVo( $oItem->slug );
 			$bAssetExists = empty( $oAsset ) || ( $oAsset->active || $oAsset->is_parent );
 		}
-		return $bAssetExists;
+		return !$bAssetExists;
 	}
 }

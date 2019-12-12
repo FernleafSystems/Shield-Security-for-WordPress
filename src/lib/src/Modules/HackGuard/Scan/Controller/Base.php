@@ -31,9 +31,9 @@ abstract class Base {
 		$oResults = ( new HackGuard\Scan\Results\ResultsRetrieve() )
 			->setScanController( $this )
 			->retrieve();
-		foreach ( $oResults->getAllItems() as $oItem ) {
-			if ( $this->isResultItemStale( $oItem ) ) {
-				$oResults->removeItem( $oItem );
+		foreach ( $oResults->getItems() as $oItem ) {
+			if ( !$this->isResultItemStale( $oItem ) ) {
+				$oResults->removeItem( $oItem->hash );
 			}
 		}
 		( new HackGuard\Scan\Results\ResultsDelete() )

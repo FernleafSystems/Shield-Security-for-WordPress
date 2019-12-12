@@ -13,6 +13,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
 class ScanAggregate extends ScanBase {
 
 	/**
+	 * @return $this
+	 */
+	protected function preBuildTable() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		foreach ( $this->getIncludedScanSlugs() as $sScan ) {
+			$oMod->getScanCon( $sScan )->cleanStalesResults();
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
@@ -99,9 +113,16 @@ class ScanAggregate extends ScanBase {
 			$oSelector->filterByNotIgnored();
 		}
 
-		$oSelector->filterByScans( [ 'mal', 'wcf', 'ufc', 'ptg' ] );
+		$oSelector->filterByScans( $this->getIncludedScanSlugs() );
 
 		return $this;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getIncludedScanSlugs() {
+		return [ 'mal', 'wcf', 'ufc', 'ptg' ];
 	}
 
 	/**
