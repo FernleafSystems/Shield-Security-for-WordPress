@@ -23,24 +23,25 @@ class CompleteQueue {
 	public function complete() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var Databases\ScanQueue\Handler $oDbH */
 		$oDbH = $this->getDbHandler();
 		$oSel = $oDbH->getQuerySelector();
 
 		$aScansToNotify = [];
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
 
-			$oAction = ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( $sScanSlug );
+			$oScanCon = $oMod->getScanCon( $sScanSlug );
+			$oAction = $oScanCon->getScanActionVO();
 
 			$oResultsSet = ( new CollateResults() )
 				->setDbHandler( $oDbH )
 				->collate( $sScanSlug );
 
-			$this->getCon()->fireEvent( $oAction->scan.'_scan_run' );
+			$this->getCon()->fireEvent( $oScanCon->getSlug().'_scan_run' );
 
 			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
-					->setScanController( $oMod->getScanCon( $oAction->scan ) )
-					->setScanActionVO( $oAction )
+					->setScanController( $oScanCon )
 					->update( $oResultsSet );
 
 				if ( $oResultsSet->countItems() > 0 ) {

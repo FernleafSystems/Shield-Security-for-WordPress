@@ -5,13 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
 
 /**
  * Class ScanAggregate
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
-class ScanAggregate extends BaseBuild {
+class ScanAggregate extends ScanBase {
 
 	/**
 	 * @return array[]
@@ -50,8 +49,11 @@ class ScanAggregate extends BaseBuild {
 	private function processEntriesGroup( $aEntries ) {
 		$aProcessedEntries = [];
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		/** @var Shield\Modules\HackGuard\Strings $oStrings */
-		$oStrings = $this->getMod()->getStrings();
+		$oStrings = $oMod->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 
 		$aScanRowTracker = [];
@@ -63,8 +65,8 @@ class ScanAggregate extends BaseBuild {
 					'title'      => $aScanNames[ $oEntry->scan ],
 				];
 			}
-			$aProcessedEntries[ $nKey ] = ( new ScanActionFromSlug() )
-				->getAction( $oEntry->scan )
+			$aProcessedEntries[ $nKey ] = $oMod
+				->getScanCon( $oEntry->scan )
 				->getTableEntryFormatter()
 				->setMod( $this->getMod() )
 				->setEntryVO( $oEntry )
@@ -80,10 +82,7 @@ class ScanAggregate extends BaseBuild {
 	protected function getParamDefaults() {
 		return array_merge(
 			parent::getParamDefaults(),
-			[
-				'orderby' => 'scan',
-				'limit'   => PHP_INT_MAX
-			]
+			[ 'orderby' => 'scan', ]
 		);
 	}
 
@@ -103,6 +102,14 @@ class ScanAggregate extends BaseBuild {
 		$oSelector->filterByScans( [ 'mal', 'wcf', 'ufc', 'ptg' ] );
 
 		return $this;
+	}
+
+	/**
+	 * Override to allow other parameter keys for building the table
+	 * @return array
+	 */
+	protected function getCustomParams() {
+		return [];
 	}
 
 	/**

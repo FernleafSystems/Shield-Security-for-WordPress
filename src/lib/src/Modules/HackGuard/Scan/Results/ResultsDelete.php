@@ -26,12 +26,17 @@ class ResultsDelete {
 			},
 			$oResultsToDelete->getAllItems()
 		);
-		/** @var Databases\Scanner\Delete $oDel */
-		$oDel = $this->getScanController()
-					 ->getScanResultsDbHandler()
-					 ->getQueryDeleter();
-		return $oDel->filterByHashes( $aHashes )
-					->query();
+
+		$bSuccess = true;
+		if ( !empty( $aHashes ) ) {
+			/** @var Databases\Scanner\Delete $oDel */
+			$oDel = $this->getScanController()
+						 ->getScanResultsDbHandler()
+						 ->getQueryDeleter();
+			$bSuccess = $oDel->filterByHashes( $aHashes )
+							 ->query();
+		}
+		return $bSuccess;
 	}
 
 	/**

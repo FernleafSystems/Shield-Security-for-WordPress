@@ -18,6 +18,9 @@ class ScanWpv extends ScanBase {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
 
@@ -25,12 +28,13 @@ class ScanWpv extends ScanBase {
 		$oWpPlugins->getUpdates( true );
 		$oWpThemes->getUpdates( true );
 
-		$oConverter = ( new Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() );
+		$oConverter = new Scan\Results\ConvertBetweenTypes();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			/** @var Shield\Scans\Wpv\ResultItem $oIt */
-			$oIt = $oConverter->convertVoToResultItem( $oEntry );
+			$oIt = $oConverter
+				->setScanController( $oMod->getScanCon( $oEntry->scan ) )
+				->convertVoToResultItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			if ( $oIt->context == 'plugins' ) {
 				$oAsset = $oWpPlugins->getPluginAsVo( $oIt->slug );

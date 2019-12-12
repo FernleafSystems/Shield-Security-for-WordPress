@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Ptg extends Base {
+class Ptg extends BaseForAssets {
 
 	/**
 	 * @return Scans\Ptg\Utilities\ItemActionHandler

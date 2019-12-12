@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
-class Wpv extends Base {
+class Wpv extends BaseForAssets {
 
 	/**
 	 * @return Scans\Wpv\Utilities\ItemActionHandler

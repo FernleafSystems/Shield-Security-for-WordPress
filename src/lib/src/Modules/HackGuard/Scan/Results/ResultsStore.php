@@ -18,11 +18,11 @@ class ResultsStore {
 	 * @param Scans\Base\BaseResultsSet $oToStore
 	 */
 	public function store( $oToStore ) {
-		$sSCon = $this->getScanController();
-		$oInsert = $sSCon->getScanResultsDbHandler()
+		$oSCon = $this->getScanController();
+		$oInsert = $oSCon->getScanResultsDbHandler()
 						 ->getQueryInserter();
 		$aVOs = ( new ConvertBetweenTypes() )
-			->setScanActionVO( $sSCon->getScanActionVO() )
+			->setScanController( $oSCon )
 			->fromResultsToVOs( $oToStore );
 		foreach ( $aVOs as $oVo ) {
 			$oInsert->insert( $oVo );

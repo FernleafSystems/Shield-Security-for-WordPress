@@ -4,8 +4,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Mal extends Base {
+
+	/**
+	 * @param Scans\Mal\ResultItem $oItem
+	 * @return bool
+	 */
+	protected function isResultItemStale( $oItem ) {
+		return !Services::WpFs()->exists( $oItem->path_full );
+	}
 
 	/**
 	 * @return Scans\Mal\Utilities\ItemActionHandler

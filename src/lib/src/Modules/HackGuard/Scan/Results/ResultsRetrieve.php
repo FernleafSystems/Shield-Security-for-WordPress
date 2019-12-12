@@ -22,7 +22,7 @@ class ResultsRetrieve {
 		/** @var Databases\Scanner\Select $oSelector */
 		$oSelector = $oSCon->getScanResultsDbHandler()->getQuerySelector();
 		return ( new ConvertBetweenTypes() )
-			->setScanActionVO( $oSCon->getScanActionVO() )
+			->setScanController( $oSCon )
 			->fromVOsToResultsSet( $oSelector->forScan( $oSCon->getSlug() ) );
 	}
 }

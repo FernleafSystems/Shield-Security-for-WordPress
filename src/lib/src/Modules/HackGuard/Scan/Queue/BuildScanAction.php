@@ -22,7 +22,7 @@ class BuildScanAction {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
-		$oAction = ( new ScanActionFromSlug() )->getAction( $sSlug );
+		$oAction = $oMod->getScanCon( $sSlug )->getScanActionVO();
 
 		// Build the action definition:
 

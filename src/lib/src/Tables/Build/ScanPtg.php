@@ -20,11 +20,15 @@ class ScanPtg extends ScanBase {
 	protected function postSelectEntriesFilter( $aEntries ) {
 		$aParams = $this->getParams();
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		if ( !empty( $aParams[ 'fSlug' ] ) ) {
+
 
 			/** @var Shield\Scans\Ptg\ResultsSet $oSlugResults */
 			$oSlugResults = ( new Scan\Results\ConvertBetweenTypes() )
-				->setScanActionVO( ( new Scan\ScanActionFromSlug() )->getAction( 'ptg' ) )
+				->setScanController( $oMod->getScanCon( $aParams[ 'fSlug' ] ) )
 				->fromVOsToResultsSet( $aEntries );
 			$oSlugResults = $oSlugResults->getResultsSetForSlug( $aParams[ 'fSlug' ] );
 

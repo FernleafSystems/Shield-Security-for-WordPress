@@ -12,6 +12,7 @@ abstract class BaseEntryFormatter {
 
 	use Databases\Base\EntryVoConsumer;
 	use Scans\Common\ScanActionConsumer;
+	use Scan\Controller\ScanControllerConsumer;
 	use ModConsumer;
 
 	/**
@@ -68,7 +69,7 @@ abstract class BaseEntryFormatter {
 	 */
 	protected function getResultItem() {
 		return ( new Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanController( $this->getScanController() )
 			->convertVoToResultItem( $this->getEntryVO() );
 	}
 

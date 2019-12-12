@@ -269,7 +269,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 								 ->query();
 		/** @var Shield\Scans\Ptg\ResultsSet $oFullResults */
 		$oFullResults = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( 'ptg' ) )
+			->setScanController( $oMod->getScanCon( 'ptg' ) )
 			->fromVOsToResultsSet( $aPtgResults );
 
 		// Process Plugins

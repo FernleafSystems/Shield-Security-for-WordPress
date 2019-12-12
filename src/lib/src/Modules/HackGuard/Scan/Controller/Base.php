@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 
 abstract class Base {
 
@@ -23,6 +26,26 @@ abstract class Base {
 	 */
 	public function __construct() {
 	}
+
+	public function cleanStalesResults() {
+		$oResults = ( new HackGuard\Scan\Results\ResultsRetrieve() )
+			->setScanController( $this )
+			->retrieve();
+		foreach ( $oResults->getAllItems() as $oItem ) {
+			if ( $this->isResultItemStale( $oItem ) ) {
+				$oResults->removeItem( $oItem );
+			}
+		}
+		( new HackGuard\Scan\Results\ResultsDelete() )
+			->setScanController( $this )
+			->delete( $oResults );
+	}
+
+	/**
+	 * @param BaseResultItem|mixed $oItem
+	 * @return bool
+	 */
+	abstract protected function isResultItemStale( $oItem );
 
 	/**
 	 * @param int|string $sItemId
@@ -43,7 +66,7 @@ abstract class Base {
 			}
 
 			$oItem = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-				->setScanActionVO( $this->getScanActionVO() )
+				->setScanController( $this )
 				->convertVoToResultItem( $oEntry );
 
 			$bSuccess = $this->getItemActionHandler()
@@ -68,7 +91,7 @@ abstract class Base {
 		$oSel->filterByScan( $this->getSlug() )
 			 ->filterForCron( $oMod->getScanNotificationInterval() );
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanController( $this )
 			->fromVOsToResultsSet( $oSel->query() );
 	}
 
@@ -93,7 +116,7 @@ abstract class Base {
 			$oSel->filterByNotIgnored();
 		}
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanController( $this )
 			->fromVOsToResultsSet( $oSel->query() );
 	}
 
@@ -204,5 +227,46 @@ abstract class Base {
 			$sSlug = '';
 		}
 		return $sSlug;
+	}
+
+	/**
+	 * @return BaseResultItem|mixed
+	 */
+	public function getNewResultItem() {
+		$sClass = $this->getScanNamespace().'ResultItem';
+		return new $sClass();
+	}
+
+	/**
+	 * @return BaseResultsSet|mixed
+	 */
+	public function getNewResultsSet() {
+		$sClass = $this->getScanNamespace().'ResultsSet';
+		return new $sClass();
+	}
+
+	/**
+	 * @return BaseEntryFormatter|mixed
+	 */
+	public function getTableEntryFormatter() {
+		$sClass = $this->getScanNamespace().'Table\\EntryFormatter';
+		/** @var BaseEntryFormatter $oF */
+		$oF = new $sClass();
+		return $oF->setScanController( $this )
+				  ->setMod( $this->getMod() )
+				  ->setScanActionVO( $this->getScanActionVO() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getScanNamespace() {
+		try {
+			$sName = ( new \ReflectionClass( $this->getScanActionVO() ) )->getNamespaceName();
+		}
+		catch ( \Exception $oE ) {
+			$sName = __NAMESPACE__;
+		}
+		return rtrim( $sName, '\\' ).'\\';
 	}
 }

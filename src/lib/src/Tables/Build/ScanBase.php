@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanActionFromSlug;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,22 +12,20 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class ScanBase extends BaseBuild {
 
-	use ScanActionConsumer;
-
 	/**
 	 * @return array[]
 	 */
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		$oActionGetter = new ScanActionFromSlug();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Scanner\EntryVO $oEntry */
-			$aEntries[ $nKey ] = $oActionGetter->getAction( $oEntry->scan )
-											   ->getTableEntryFormatter()
-											   ->setMod( $this->getMod() )
-											   ->setEntryVO( $oEntry )
-											   ->format();
+			$aEntries[ $nKey ] = $oMod->getScanCon( $oEntry->scan )
+									  ->getTableEntryFormatter()
+									  ->setEntryVO( $oEntry )
+									  ->format();
 		}
 
 		return $aEntries;

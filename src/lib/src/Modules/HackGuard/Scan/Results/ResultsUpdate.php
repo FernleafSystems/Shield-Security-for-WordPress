@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ResultsUpdate {
 
-	use Scans\Common\ScanActionConsumer;
 	use ScanControllerConsumer;
 
 	/**
@@ -20,7 +19,6 @@ class ResultsUpdate {
 	 */
 	public function update( $oNewResults ) {
 		$oSCon = $this->getScanController();
-		$oAction = $this->getScanActionVO();
 		$oNewCopy = clone $oNewResults; // so we don't modify these for later use.
 
 		$oExisting = ( new ResultsRetrieve() )
@@ -29,22 +27,22 @@ class ResultsUpdate {
 
 		$oItemsToDelete = ( new Scans\Base\DiffResultForStorage() )->diff( $oExisting, $oNewCopy );
 		( new ResultsDelete() )
-			->setScanController( $this->getScanController() )
+			->setScanController( $oSCon )
 			->delete( $oItemsToDelete );
 
 		( new ResultsStore() )
-			->setScanController( $this->getScanController() )
+			->setScanController( $oSCon )
 			->store( $oNewCopy );
 
 		$oUp = $oSCon->getScanResultsDbHandler()->getQueryUpdater();
 		/** @var Databases\Scanner\EntryVO $oVo */
-		$oConverter = ( new ConvertBetweenTypes() )->setScanActionVO( $oAction );
+		$oConverter = ( new ConvertBetweenTypes() )->setScanController( $oSCon );
 		foreach ( $oConverter->fromResultsToVOs( $oExisting ) as $oVo ) {
 			$oUp->reset()
 				->setUpdateData( $oVo->getRawDataAsArray() )
 				->setUpdateWheres(
 					[
-						'scan' => $oAction->scan,
+						'scan' => $oSCon->getSlug(),
 						'hash' => $oVo->hash,
 					]
 				)

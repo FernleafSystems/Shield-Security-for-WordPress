@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -11,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ConvertBetweenTypes {
 
-	use Scans\Common\ScanActionConsumer;
+	use ScanControllerConsumer;
 
 	/**
 	 * @param Scans\Base\BaseResultsSet $oResultsSet
@@ -31,7 +32,7 @@ class ConvertBetweenTypes {
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
 	public function fromVOsToResultsSet( $aVOs ) {
-		$oRes = $this->getScanActionVO()->getNewResultsSet();
+		$oRes = $this->getScanController()->getNewResultsSet();
 		foreach ( $aVOs as $oVo ) {
 			$oRes->addItem( $this->convertVoToResultItem( $oVo ) );
 		}
@@ -43,8 +44,9 @@ class ConvertBetweenTypes {
 	 * @return Scans\Base\BaseResultItem
 	 */
 	public function convertVoToResultItem( $oVo ) {
-		$oAction = $this->getScanActionVO();
-		return $oAction->getNewResultItem()->applyFromArray( $oVo->meta );
+		return $this->getScanController()
+					->getNewResultItem()
+					->applyFromArray( $oVo->meta );
 	}
 
 	/**
@@ -55,7 +57,7 @@ class ConvertBetweenTypes {
 		$oVo = new Databases\Scanner\EntryVO();
 		$oVo->hash = $oIt->hash;
 		$oVo->meta = $oIt->getData();
-		$oVo->scan = $this->getScanActionVO()->scan;
+		$oVo->scan = $this->getScanController()->getSlug();
 		return $oVo;
 	}
 }

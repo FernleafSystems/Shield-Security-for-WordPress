@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Wcf extends Base {
 
@@ -12,6 +13,14 @@ class Wcf extends Base {
 	 */
 	protected function getItemActionHandler() {
 		return new Scans\Wcf\Utilities\ItemActionHandler();
+	}
+
+	/**
+	 * @param Scans\Wcf\ResultItem $oItem
+	 * @return bool
+	 */
+	protected function isResultItemStale( $oItem ) {
+		return !Services::CoreFileHashes()->isCoreFile( $oItem->path_full );
 	}
 
 	/**
