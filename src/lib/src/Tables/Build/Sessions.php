@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Sessions extends BaseBuild {
 
 	/**
-	 * @var []
+	 * @var string[]
 	 */
 	private $aSecAdminUsers;
 

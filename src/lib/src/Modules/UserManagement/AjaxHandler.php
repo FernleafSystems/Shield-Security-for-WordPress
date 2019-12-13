@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
@@ -39,18 +41,19 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_BuildTableTraffic() {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
-		/** @var \ICWP_WPSF_Processor_UserManagement $oPro */
-		$oPro = $oMod->getProcessor();
 
-		// first clean out the expired sessions before display
-		$oPro->getProcessorSessions()->cleanExpiredSessions();
-
-		$oSecAdminMod = $this->getCon()->getModule_SecAdmin();
+		( new UserManagement\Lib\CleanExpired() )
+			->setMod( $oMod )
+			->run();
 
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
 			->setMod( $oMod )
 			->setDbHandler( $oMod->getDbHandler_Sessions() )
-			->setSecAdminUsers( $oSecAdminMod->getSecurityAdminUsers() );
+			->setSecAdminUsers(
+				$this->getCon()
+					 ->getModule_SecAdmin()
+					 ->getSecurityAdminUsers()
+			);
 
 		return [
 			'success' => true,
@@ -86,12 +89,11 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			else {
 				$bSuccess = true;
 
-				/** @var Shield\Databases\Session\Delete $oDel */
-				$oDel = $oMod->getDbHandler_Sessions()->getQueryDeleter();
+				$oTerminator = ( new Sessions\Lib\Ops\Terminate() )
+					->setMod( $this->getCon()->getModule_Sessions() );
 				foreach ( $aIds as $nId ) {
 					if ( is_numeric( $nId ) && ( $nId != $nYourId ) ) {
-						$oDel->deleteById( $nId );
-						$this->getCon()->fireEvent( 'session_terminate' );
+						$oTerminator->byRecordId( $nId );
 					}
 				}
 				$sMessage = __( 'Selected items were deleted.', 'wp-simple-firewall' );

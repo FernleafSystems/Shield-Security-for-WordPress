@@ -283,8 +283,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return array
 	 */
 	public function getBaseDisplayData() {
-		$sHelpUrl = $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/b5';
-
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getBaseDisplayData(),
 			[
@@ -296,7 +294,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'has_session' => $this->hasSession()
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $sHelpUrl
+					'aar_forget_key' => $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/b5'
 				],
 				'classes' => [
 					'top_container' => implode( ' ', array_filter( [

@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\ShieldProcessor {
@@ -178,14 +179,14 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 
 		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $oCon->isPluginAdmin() ) {
 			$bIsSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getMod();
-			$oFO->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+			$oMod = $this->getMod();
+			$oMod->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
 
 			if ( $bIsSuspend ) { // Delete any existing user sessions
-				/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete $oDel */
-				$oDel = $oFO->getDbHandler_Sessions()->getQueryDeleter();
-				$oDel->forUsername( $oEditedUser->user_login );
+				( new Sessions\Lib\Ops\Terminate() )
+					->setMod( $oCon->getModule_Sessions() )
+					->byUsername( $oEditedUser->user_login );
 			}
 		}
 	}
