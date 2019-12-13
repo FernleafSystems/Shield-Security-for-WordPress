@@ -11,7 +11,7 @@
  */
 
 /**
- * Copyright (c) 2019 Shield Security <support@shieldsecurity.io>
+ * Copyright (c) 2020 Shield Security <support@shieldsecurity.io>
  * All rights reserved.
  * "Shield" (formerly WordPress Simple Firewall) is distributed under the GNU
  * General Public License, Version 2, June 1991. Copyright (C) 1989, 1991 Free
@@ -35,7 +35,9 @@ if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
 	return;
 }
 
-require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
+if ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
+	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
+}
 
 if ( !include_once( dirname( __FILE__ ).'/filesnotfound.php' ) ) {
 	return;
