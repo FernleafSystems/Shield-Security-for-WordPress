@@ -126,6 +126,17 @@
       "description": "This will automatically expire your Security Admin Session. Does not apply until you enter the access key again. Default: 60 minutes."
     },
     {
+      "key":         "allow_email_override",
+      "section":     "section_admin_access_restriction_settings",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/41",
+      "link_blog":   "",
+      "name":        "Allow Email Override",
+      "summary":     "Allow Email Override Of Admin Access Restrictions",
+      "description": "Allow the use of verification emails to override and switch off the Security Admin restrictions."
+    },
+    {
       "key":         "admin_access_restrict_options",
       "section":     "section_admin_access_restriction_areas",
       "default":     "Y",

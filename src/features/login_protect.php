@@ -53,13 +53,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return string
-	 */
-	private function generateCanSendEmailVerifyLink() {
-		return add_query_arg( $this->getNonceActionData( 'email_send_verify' ), $this->getUrl_AdminPage() );
-	}
-
-	/**
 	 * @uses wp_redirect()
 	 */
 	private function processEmailSendVerify() {
@@ -96,7 +89,10 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		];
 
 		if ( $bSendAsLink ) {
-			$aMessage[] = sprintf( __( 'Click the verify link: %s', 'wp-simple-firewall' ), $this->generateCanSendEmailVerifyLink() );
+			$aMessage[] = sprintf(
+				__( 'Click the verify link: %s', 'wp-simple-firewall' ),
+				$this->buildAdminActionNonceUrl( 'email_send_verify' )
+			);
 		}
 		else {
 			$aMessage[] = sprintf( __( "Here's your code for the guided wizard: %s", 'wp-simple-firewall' ), $this->getCanEmailVerifyCode() );

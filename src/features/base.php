@@ -525,6 +525,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
+	 * @param string $sAction
+	 * @return string
+	 */
+	public function buildAdminActionNonceUrl( $sAction ) {
+		$aActionNonce = $this->getNonceActionData( $sAction );
+		$aActionNonce[ 'ts' ] = Services::Request()->ts();
+		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
+	}
+
+	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -1462,12 +1472,24 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return string
 	 */
 	protected function renderRestrictedPage() {
+		/** @var Shield\Modules\SecurityAdmin\Options $oSecOpts */
+		$oSecOpts = $this->getCon()
+						 ->getModule_SecAdmin()
+						 ->getOptions();
 		$aData = Services::DataManipulation()
 						 ->mergeArraysRecursive(
 							 $this->getBaseDisplayData(),
 							 [
-								 'ajax' => [
-									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
+								 'ajax'    => [
+									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
+								 ],
+								 'strings' => [
+									 'force_remove_email' => __( "If you've forgotten your key, a link can be sent to the administrator email address to remove this restriction.", 'wp-simple-firewall' ),
+									 'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
+									 'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
+								 ],
+								 'flags'   => [
+									 'allow_email_override' => $oSecOpts->isEmailOverridePermitted()
 								 ]
 							 ]
 						 );

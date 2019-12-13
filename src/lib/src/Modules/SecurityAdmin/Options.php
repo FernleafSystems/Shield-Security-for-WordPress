@@ -105,6 +105,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
+	public function isEmailOverridePermitted() {
+		return $this->isOpt( 'allow_email_override', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isSecAdminRestrictUsersEnabled() {
 		return $this->isOpt( 'admin_access_restrict_admin_users', 'Y' );
 	}

@@ -22,6 +22,16 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 					return false;
 				}
 			);
+
+			if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' ) {
+				jQuery( document ).on( "click", '#SecAdminRemoveConfirmEmail',
+					function ( event ) {
+						event.preventDefault();
+						iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_secadmin.ajax.req_email_remove );
+						return false;
+					}
+				);
+			}
 		} );
 	};
 }();

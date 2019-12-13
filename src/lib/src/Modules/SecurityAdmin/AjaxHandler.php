@@ -26,6 +26,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_SecAdminLoginBox();
 				break;
 
+			case 'req_email_remove':
+				$aResponse = $this->ajaxExec_SendEmailRemove();
+				break;
+
 			default:
 				$aResponse = parent::processAjaxAction( $sAction );
 		}
@@ -96,6 +100,19 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return [
 			'success' => 'true',
 			'html'    => $this->renderAdminAccessAjaxLoginForm()
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_SendEmailRemove() {
+		( new Shield\Modules\SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
+			->setMod( $this->getMod() )
+			->sendConfirmationEmail();
+		return [
+			'success' => 'true',
+			'message' => __( 'Email sent. Please ensure the confirmation link opens in THIS browser window.' ),
 		];
 	}
 

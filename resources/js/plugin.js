@@ -214,7 +214,7 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 
 			bCheckInPlace = false;
 
-			jQuery.post( ajaxurl, icwp_wpsf_vars_secadmin.reqajax,
+			jQuery.post( ajaxurl, icwp_wpsf_vars_secadmin.ajax.check,
 				function ( oResponse ) {
 					if ( oResponse.data.success ) {
 						var nLeft = oResponse.data.timeleft;

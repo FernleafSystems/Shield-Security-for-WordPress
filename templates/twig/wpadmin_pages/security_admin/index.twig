@@ -7,48 +7,58 @@
 	<div class="col-md-8 offset-md-2 col-xs-10 offset-xs-1 col-xl-6 offset-xl-3">
 		<div class="options-body" id="IcwpWpsfSecurityAdmin">
 
-		<h3>{{ strings.aar_title }}</h3>
-		<p>
-			{{ strings.aar_what_should_you_enter }}
-			<br />{{ strings.aar_must_supply_key_first }}
-		</p>
+			<h3>{{ strings.aar_title }}</h3>
+			<p>
+				{{ strings.aar_what_should_you_enter }}
+				<br />{{ strings.aar_must_supply_key_first }}
+			</p>
 
-		<form action="{{ form_action }}" method="post" class="form-horizontal" id="SecurityAdminForm">
+			<form action="{{ form_action }}" method="post" class="form-horizontal" id="SecurityAdminForm">
 
-			{% for input_name, input_val in ajax.sec_admin_login %}
-				<input type="hidden" name="{{ input_name }}" value="{{ input_val }}" />
-			{% endfor %}
+				{% for input_name, input_val in ajax.sec_admin_login %}
+					<input type="hidden" name="{{ input_name }}" value="{{ input_val }}" />
+				{% endfor %}
 
-			<div class="form-group row no-gutters">
+				<div class="form-group row no-gutters">
 
-				<label class="form-label col-3 col-form-label" for="sec_admin_key">
-					<span class="optname">{{ strings.aar_enter_access_key }}</span>
-				</label>
+					<label class="form-label col-3 col-form-label" for="sec_admin_key">
+						<span class="optname">{{ strings.aar_enter_access_key }}</span>
+					</label>
 
-				<div class="col-8 col-xs-offset-1 option_container">
-					<div class="option_section">
-						<label class="sec_admin_key">
-							<input type="password" name="sec_admin_key"
-								   id="sec_admin_key" value="" autocomplete="off" autofocus />
-						</label>
-						<p class="help-block">{{ strings.aar_to_manage_must_enter_key }}</p>
+					<div class="col-8 col-xs-offset-1 option_container">
+						<div class="option_section">
+							<label class="sec_admin_key">
+								<input type="password" name="sec_admin_key"
+									   id="sec_admin_key" value="" autocomplete="off" autofocus />
+							</label>
+							<p class="help-block">{{ strings.aar_to_manage_must_enter_key }}</p>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="form-group row no-gutters">
-				<div class="col-6 order-2 text-right">
-					<button type="submit" class="btn btn-primary" name="submit">
-						{{ strings.aar_submit_access_key }}</button>
+				<div class="form-group row no-gutters">
+					<div class="col-6 order-2 text-right">
+						<button type="submit" class="btn btn-primary" name="submit">
+							{{ strings.aar_submit_access_key }}</button>
+					</div>
+					<div class="col-5 order-1 text-left">
+						<a class="btn btn-link "
+						   href="{{ hrefs.aar_forget_key }}" target="_blank">
+							{{ strings.aar_forget_key }}</a>
+					</div>
 				</div>
-				<div class="col-5 order-1 text-left">
-					<a class="btn btn-link "
-					   href="{{ hrefs.aar_forget_key }}" target="_blank">
-						{{ strings.aar_forget_key }}</a>
-				</div>
-			</div>
 
-		</form>
+			</form>
+
+			<div class="alert alert-info mb-0 mt-5 text-center">
+				{% if flags.allow_email_override %}
+					{{ strings.force_remove_email }}
+					<br />
+					<a href="#" id="SecAdminRemoveConfirmEmail">{{ strings.click_email }}</a>
+				{% else %}
+					{{ strings.no_email_override }}
+				{% endif %}
+			</div>
 		</div>
 	</div>
 </div>

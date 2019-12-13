@@ -132,6 +132,13 @@ class Strings extends Base\Strings {
 								);
 				break;
 
+			case 'allow_email_override' :
+				$sName = __( 'Allow Email Override', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Email Override Of Admin Access Restrictions', 'wp-simple-firewall' );
+				$sDescription = __( 'Allow the use of verification emails to override and switch off the Security Admin restrictions.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( __( "The email address specified in %s's General settings will be used.", 'wp-simple-firewall' ), $sPlugName );
+				break;
+
 			case 'admin_access_restrict_posts' :
 				$sName = __( 'Pages', 'wp-simple-firewall' );
 				$sSummary = __( 'Restrict Access To Key WordPress Posts And Pages Actions', 'wp-simple-firewall' );
