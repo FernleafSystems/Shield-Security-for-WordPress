@@ -61,14 +61,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function handleModRequest() {
 		$oReq = Services::Request();
-		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
-			case  'scan_file_download':
-				/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-				$oPro = $this->getProcessor();
-				$oPro->getSubProScanner()->downloadItemFile( $oReq->query( 'rid' ) );
-				break;
-			default:
-				break;
+		if ( $this->getCon()->isPluginAdmin() ) {
+			switch ( $oReq->query( 'exec' ) ) {
+				case  'scan_file_download':
+					( new Shield\Modules\HackGuard\Lib\Utility\FileDownloadHandler() )
+						->setDbHandler( $this->getDbHandler_ScanResults() )
+						->downloadByItemId( (int)$oReq->query( 'rid', 0 ) );
+					break;
+				default:
+					break;
+			}
 		}
 	}
 

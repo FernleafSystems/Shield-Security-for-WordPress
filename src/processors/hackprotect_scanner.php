@@ -73,29 +73,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		} );
 	}
 
-	/**
-	 * Based on the Ajax Download File pathway (hence the cookie)
-	 * @param string $sItemId
-	 */
-	public function downloadItemFile( $sItemId ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Scanner\EntryVO $oEntry */
-		$oEntry = $oMod->getDbHandler_ScanResults()
-					   ->getQuerySelector()
-					   ->byId( (int)$sItemId );
-		if ( !empty( $oEntry ) ) {
-			$sPath = $oEntry->meta[ 'path_full' ];
-			$oFs = Services::WpFs();
-			if ( $oFs->isFile( $sPath ) ) {
-				header( 'Set-Cookie: fileDownload=true; path=/' );
-				Services::Response()->downloadStringAsFile( $oFs->getFileContent( $sPath ), basename( $sPath ) );
-			}
-		}
-
-		wp_die( "Something about this request wasn't right" );
-	}
-
 	public function runHourlyCron() {
 		( new HackGuard\Lib\Snapshots\StoreAction\TouchAll() )
 			->setMod( $this->getMod() )
