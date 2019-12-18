@@ -14,6 +14,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 */
 	protected function processAjaxAction( $sAction ) {
 
+		$oReq = Services::Request();
 		switch ( $sAction ) {
 
 			case 'scans_start':
@@ -24,12 +25,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_CheckScans();
 				break;
 
-			case 'bulk_action':
-				$aResponse = $this->ajaxExec_ScanItemAction( Services::Request()->post( 'bulk_action' ) );
+			case 'item_action':
+				$aResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'item_action' ), false );
 				break;
 
-			case 'item_action':
-				$aResponse = $this->ajaxExec_ScanItemAction( Services::Request()->post( 'item_action' ) );
+			case 'bulk_action':
+				$aResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'bulk_action' ), true );
 				break;
 
 			case 'item_asset_deactivate':
@@ -140,80 +141,77 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 	/**
 	 * @param string $sAction
+	 * @param bool   $bIsBulkAction
 	 * @return array
 	 */
-	private function ajaxExec_ScanItemAction( $sAction ) {
+	private function ajaxExec_ScanItemAction( $sAction, $bIsBulkAction = false ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
 		$bSuccess = false;
-		$bPageReload = true;
-
-		$sItemId = Services::Request()->post( 'rid' );
-		$aItemIds = Services::Request()->post( 'ids' );
-
-		$oDbh = $oMod->getDbHandler_ScanResults();
 
 		if ( $sAction == 'download' ) {
 			// A special case since this action is handled using Javascript
 			$bSuccess = true;
-			$bPageReload = false;
 			$sMessage = __( 'File download has started.', 'wp-simple-firewall' );
 		}
-		elseif ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
-			$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
-		}
 		else {
-			if ( empty( $aItemIds ) ) {
-				$aItemIds = [ $sItemId ];
+			if ( $bIsBulkAction ) {
+				$aItemIdsToProcess = (array)Services::Request()->post( 'ids', [] );
 			}
+			else {
+				$aItemIdsToProcess = [ Services::Request()->post( 'rid' ) ];
+			}
+			/** @var int[] $aItemIdsToProcess */
+			$aItemIdsToProcess = array_filter( array_map( 'intval', $aItemIdsToProcess ) );
 
-			$aItemIds = array_filter( array_map( function ( $sId ) {
-				return is_numeric( $sId ) ? (int)$sId : false;
-			}, $aItemIds ) );
-
-			try {
-				$aSuccessfulItems = [];
-
-				$aScanSlugs = [];
-				foreach ( $aItemIds as $sId ) {
-					/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-					$oEntry = $oDbh->getQuerySelector()
-								   ->byId( $sId );
-					if ( $oEntry instanceof Shield\Databases\Scanner\EntryVO ) {
-						$aScanSlugs[] = $oEntry->scan;
-						if ( $oMod->getScanCon( $oEntry->scan )->executeItemAction( $sItemId, $sAction ) ) {
-							$aSuccessfulItems[] = $sId;
+			if ( empty( $aItemIdsToProcess ) ) {
+				$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
+			}
+			else {
+				try {
+					$aScanSlugs = [];
+					$aSuccessfulItems = [];
+					foreach ( $aItemIdsToProcess as $nId ) {
+						/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+						$oEntry = $oMod->getDbHandler_ScanResults()
+									   ->getQuerySelector()
+									   ->byId( $nId );
+						if ( $oEntry instanceof Shield\Databases\Scanner\EntryVO ) {
+							$aScanSlugs[] = $oEntry->scan;
+							if ( $oMod->getScanCon( $oEntry->scan )->executeItemAction( $nId, $sAction ) ) {
+								$aSuccessfulItems[] = $nId;
+							}
 						}
 					}
-				}
 
-				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
-					$bSuccess = true;
-					$sMessage = __( 'Action successful.' );
-				}
-				else {
-					$sMessage = __( 'An error occurred.' ).' '.__( 'Some items may not have been processed.' );
-				}
+					if ( count( $aSuccessfulItems ) === count( $aItemIdsToProcess ) ) {
+						$bSuccess = true;
+						$sMessage = __( 'Action successful.' );
+					}
+					else {
+						$sMessage = __( 'An error occurred.' ).' '.__( 'Some items may not have been processed.' );
+					}
 
-				// We don't rescan for ignores.
-				if ( !in_array( $sAction, [ 'ignore' ] ) ) {
-					$oScanCon = $oMod->getScanController();
-					$oScanCon->startScans( $aScanSlugs );
-					$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
+					// We don't rescan for ignores.
+					if ( in_array( $sAction, [ 'ignore' ] ) ) {
+						$sMessage .= ' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
+					}
+					else {
+						// rescan
+						$oMod->getScanController()->startScans( $aScanSlugs );
+						$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
+					}
 				}
-				else {
-					$sMessage .= ' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
+				catch ( \Exception $oE ) {
+					$sMessage = $oE->getMessage();
 				}
-			}
-			catch ( \Exception $oE ) {
-				$sMessage = $oE->getMessage();
 			}
 		}
 
 		return [
 			'success'     => $bSuccess,
-			'page_reload' => $bPageReload,
+			'page_reload' => !in_array( $sAction, [ 'download' ] ),
 			'message'     => $sMessage,
 		];
 	}
