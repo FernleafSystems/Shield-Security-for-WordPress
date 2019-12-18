@@ -13,7 +13,7 @@ class Update extends Base\Update {
 	 */
 	public function clearIgnoredAtForScan( $sScan ) {
 		return $this->setUpdateWheres( [ 'scan' => $sScan ] )
-					->setUpdateData( [ 'ignore_at' => 0 ] )
+					->setUpdateData( [ 'ignored_at' => 0 ] )
 					->query() !== false;
 	}
 

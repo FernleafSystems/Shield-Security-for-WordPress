@@ -282,7 +282,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$aScansToStart = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
 				$oThisScanCon = $oMod->getScanCon( $sScanSlug );
-				if ( $oThisScanCon->isScanningAvailable() ) {
+				if ( !empty( $oThisScanCon ) && $oThisScanCon->isScanningAvailable() ) {
 
 					$aScansToStart[] = $sScanSlug;
 

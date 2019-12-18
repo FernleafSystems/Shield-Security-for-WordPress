@@ -50,9 +50,14 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 		if ( !isset( $this->aScanCons[ $sSlug ] ) ) {
 			$sClass = '\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\\'.ucwords( $sSlug );
-			/** @var HackGuard\Scan\Controller\Base $oObj */
-			$oObj = new $sClass();
-			$this->aScanCons[ $sSlug ] = $oObj->setMod( $this );
+			if ( @class_exists( $sClass ) ) {
+				/** @var HackGuard\Scan\Controller\Base $oObj */
+				$oObj = new $sClass();
+				$this->aScanCons[ $sSlug ] = $oObj->setMod( $this );
+			}
+			else {
+				$this->aScanCons[ $sSlug ] = false;
+			}
 		}
 		return $this->aScanCons[ $sSlug ];
 	}
