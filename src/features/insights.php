@@ -125,11 +125,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'summary_blacklist' => sprintf( __( 'IP addresses that have tripped %s defenses.', 'wp-simple-firewall' ), $nPluginName ),
 						'enter_ip_block'    => __( 'Enter IP address to block', 'wp-simple-firewall' ),
 						'enter_ip_white'    => __( 'Enter IP address to whitelist', 'wp-simple-firewall' ),
+						'enter_ip'          => __( 'Enter IP address', 'wp-simple-firewall' ),
 						'label_for_ip'      => __( 'Label for IP', 'wp-simple-firewall' ),
 						'ip_new'            => __( 'New IP', 'wp-simple-firewall' ),
+						'ip_filter'         => __( 'Filter By IP', 'wp-simple-firewall' ),
 						'ip_block'          => __( 'Block IP', 'wp-simple-firewall' ),
 					],
-					'vars'    => [],
+					'vars'    => [
+						'unique_ips_black' => ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+							->setDbHandler( $oIpMod->getDbHandler_IPs() )
+							->black(),
+						'unique_ips_white' => ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+							->setDbHandler( $oIpMod->getDbHandler_IPs() )
+							->white()
+					],
 				];
 				break;
 

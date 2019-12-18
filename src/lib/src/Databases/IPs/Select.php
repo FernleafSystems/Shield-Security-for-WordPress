@@ -8,6 +8,15 @@ class Select extends Base\Select {
 
 	use CommonFilters;
 
+	public $print = false;
+
+	/**
+	 * @return string[]
+	 */
+	public function getDistinctIps() {
+		return $this->getDistinct_FilterAndSort( 'ip' );
+	}
+
 	/**
 	 * @param string $sIp
 	 * @return bool

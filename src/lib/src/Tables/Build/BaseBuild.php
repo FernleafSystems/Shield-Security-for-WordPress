@@ -169,7 +169,7 @@ class BaseBuild {
 	 */
 	private function getFormParams() {
 		parse_str( Services::Request()->post( 'form_params', '' ), $aFormParams );
-		return array_map( 'trim', $aFormParams );
+		return Services::DataManipulation()->arrayMapRecursive( $aFormParams, 'trim' );
 	}
 
 	/**

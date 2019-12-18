@@ -17,9 +17,15 @@ class Ip extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
+		$aParams = $this->getParams();
+
 		/** @var IPs\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
-		$oSelector->filterByLists( $this->getParams()[ 'fLists' ] );
+		$oSelector->filterByLists( $aParams[ 'fLists' ] );
+		if ( Services::IP()->isValidIp( $aParams[ 'fIp' ] ) ) {
+			$oSelector->filterByIp( $aParams[ 'fIp' ] );
+		}
+
 		return $this;
 	}
 
@@ -30,6 +36,7 @@ class Ip extends BaseBuild {
 	protected function getCustomParams() {
 		return [
 			'fLists' => '',
+			'fIp'    => '',
 		];
 	}
 
