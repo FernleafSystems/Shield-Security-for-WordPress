@@ -245,8 +245,10 @@
       "event",
       "category",
       "message",
+      "count",
       "immutable",
       "meta",
+      "updated_at",
       "created_at",
       "deleted_at"
     ],

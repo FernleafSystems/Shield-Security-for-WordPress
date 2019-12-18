@@ -89,6 +89,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			$aDef = $this->getEventDef( $sEvent );
 			if ( $aDef[ 'audit' ] && empty( $aMeta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
 				$oEntry = new Shield\Databases\AuditTrail\EntryVO();
+				$oEntry->rid = $this->getCon()->getShortRequestId();
 				$oEntry->event = $sEvent;
 				$oEntry->category = $aDef[ 'cat' ];
 				$oEntry->context = $aDef[ 'context' ];

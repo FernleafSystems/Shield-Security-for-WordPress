@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Handler extends Base\Handler {
 
@@ -13,46 +12,6 @@ class Handler extends Base\Handler {
 		$oOpts = $this->getMod()->getOptions();
 		$this->cleanDb( $oOpts->getAutoCleanDays() );
 		$this->trimDb( $oOpts->getMaxEntries() );
-	}
-
-	/**
-	 * @param $aEvents - array of events: key event slug, value created_at timestamp
-	 */
-	public function commitAudits( $aEvents ) {
-		foreach ( $aEvents as $oEntry ) {
-			$this->commitAudit( $oEntry );
-		}
-	}
-
-	/**
-	 * @param EntryVO $oEntry
-	 */
-	public function commitAudit( $oEntry ) {
-		$oWp = Services::WpGeneral();
-		$oWpUsers = Services::WpUsers();
-
-		$oEntry->rid = $this->getCon()->getShortRequestId();
-		if ( empty( $oEntry->message ) ) {
-			$oEntry->message = '';
-		}
-		if ( empty( $oEntry->wp_username ) ) {
-			if ( $oWpUsers->isUserLoggedIn() ) {
-				$sUser = $oWpUsers->getCurrentWpUsername();
-			}
-			elseif ( $oWp->isCron() ) {
-				$sUser = 'WP Cron';
-			}
-			elseif ( $oWp->isWpCli() ) {
-				$sUser = 'WP CLI';
-			}
-			else {
-				$sUser = '-';
-			}
-			$oEntry->wp_username = $sUser;
-		}
-		/** @var Insert $oQI */
-		$oQI = $this->getQueryInserter();
-		$oQI->insert( $oEntry );
 	}
 
 	/**
@@ -88,9 +47,25 @@ class Handler extends Base\Handler {
 			message text COMMENT 'Audit Event Description',
 			meta text COMMENT 'Audit Event Data',
 			immutable tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'May Be Deleted',
+			count SMALLINT(5) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Repeat Count',
+			updated_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)
 		) %s;";
+	}
+
+	/**
+	 * @param EntryVO[] $aEvents - array of events: key event slug, value created_at timestamp
+	 * @deprecated 8.5
+	 */
+	public function commitAudits( $aEvents ) {
+	}
+
+	/**
+	 * @param EntryVO $oEntry
+	 * @deprecated 8.5
+	 */
+	public function commitAudit( $oEntry ) {
 	}
 }

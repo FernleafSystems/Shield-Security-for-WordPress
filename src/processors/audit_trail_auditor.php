@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Ops\Commit;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 
@@ -62,8 +63,9 @@ class ICWP_WPSF_Processor_AuditTrail_Auditor extends ShieldProcessor {
 		if ( $this->bAudit && !$this->getCon()->isPluginDeleting() ) {
 			/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
 			$oMod = $this->getMod();
-			$oDbh = $oMod->getDbHandler_AuditTrail();
-			$oDbh->commitAudits( $oMod->getRegisteredAuditLogs( true ) );
+			( new Commit() )
+				->setDbHandler( $oMod->getDbHandler_AuditTrail() )
+				->commitAudits( $oMod->getRegisteredAuditLogs( true ) );
 		}
 	}
 

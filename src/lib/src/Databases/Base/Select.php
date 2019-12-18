@@ -288,6 +288,24 @@ class Select extends BaseQuery {
 	}
 
 	/**
+	 * @return EntryVO|mixed|\stdClass|null
+	 */
+	public function selectLatestById() {
+		return $this->setOrderBy( 'id' )
+					->setLimit( 1 )
+					->first();
+	}
+
+	/**
+	 * @return EntryVO|mixed|\stdClass|null
+	 */
+	public function selectFirstById() {
+		return $this->setOrderBy( 'id', 'ASC' )
+					->setLimit( 1 )
+					->first();
+	}
+
+	/**
 	 * Verifies the given columns are valid and unique
 	 * @param string[] $aColumns
 	 * @return $this
