@@ -265,8 +265,8 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * @param bool            $bDoAutoUpdate
-	 * @param StdClass|string $mItem
+	 * @param bool             $bDoAutoUpdate
+	 * @param \stdClass|string $mItem
 	 * @return bool
 	 */
 	public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {

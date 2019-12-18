@@ -224,9 +224,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$oMod = $this->getMod();
 		/** @var Strings $oStrings */
 		$oStrings = $oMod->getStrings();
-		$oDbH = $oMod->getDbHandler_ScanQueue();
 		/** @var Shield\Databases\ScanQueue\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
+		$oSel = $oMod->getDbHandler_ScanQueue()->getQuerySelector();
 
 		$oQueCon = $oMod->getScanController();
 		$sCurrent = $oSel->getCurrentScan();
