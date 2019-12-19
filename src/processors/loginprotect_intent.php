@@ -162,7 +162,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				}
 				else {
 					$oFO->setFlashAdminNotice( __( 'One or more of your authentication codes failed or was missing', 'wp-simple-firewall' ), true );
-					$oWpResp->redirectHere();
+					// We don't protect against loops here to prevent by-passing of the login intent page.
+					Services::Response()->redirect( Services::Request()->getUri(), [], true, false );
 				}
 				return; // we've redirected anyway.
 			}
