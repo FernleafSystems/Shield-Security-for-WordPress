@@ -46,10 +46,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return string[]
 	 */
 	public function getReservedIps() {
-		return [
-			Services::Request()->getServerAddress(),
-			$this->getCon()->getModule_Plugin()->getMyServerIp()
-		];
+		$aIPs = $this->getCon()->getModule_Plugin()->getMyServerIPs();
+		$aIPs[] = Services::Request()->getServerAddress();
+		return array_unique( $aIPs );
 	}
 
 	/**
