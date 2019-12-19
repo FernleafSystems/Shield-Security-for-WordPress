@@ -373,11 +373,16 @@ You will always be able to use Shield Security and its free features in-full.
 = 8.5 - Series =
 *Released: 12th December, 2019* - [Release Notes](https://shsec.io/g5)
 
+* **(v.0)**  ADDED:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
+* **(v.0)**  ADDED:		Ability to auto-repair theme files.
+* **(v.0)**  ADDED:		Ability to filter the IP White/Black list tables for a specific IP address.
+* **(v.0)**  ADDED:		Support for repeated audit trail entries - so the logs don't get filled with repeated messages.
+* **(v.0)**  IMPROVED:	Protection against a certain type of broken plugin installation if WordPress doesn't properly copy files.
 * **(v.0)**  IMPROVED:	Redesigned Table UI for scan results.
 * **(v.0)**  IMPROVED:	Redesigned Plugin/Theme File Guard.
 * **(v.0)**  IMPROVED:	Completely re-written much of the scanners code.
-* **(v.0)**  ADDED:		Ability to auto-repair theme files.
-* **(v.0)**  ADDED:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
+* **(v.0)**  IMPROVED:	Better detection of the hosting server's IP addresses - i.e. support for IPv6 alongside IPv4.
+* **(v.0)**  FIXED:		It was possible to temporarily by-pass the 2FA screen to gain access to WP Admin after logging-in.
 * **(v.0)**  CLEANED:	Code cleaning.
 * **(v.0)**  UPDATED:	Twitter Bootstrap library.
 
