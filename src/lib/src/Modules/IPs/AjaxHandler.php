@@ -94,7 +94,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					if ( !empty( $oIp ) ) {
 						/** @var Shield\Databases\IPs\Update $oUpd */
 						$oUpd = $oMod->getDbHandler_IPs()->getQueryUpdater();
-						$oUpd->updateTransgressions( $oIp, $oOpts->getOffenseLimit() );
+						$oUpd->setBlocked( $oIp );
 					}
 					break;
 

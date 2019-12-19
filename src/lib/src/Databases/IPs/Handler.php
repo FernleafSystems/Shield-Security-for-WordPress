@@ -15,7 +15,7 @@ class Handler extends Base\Handler {
 		$oOpts = $oMod->getOptions();
 		/** @var Delete $oDel */
 		$oDel = $this->getQueryDeleter();
-		$oDel->filterByLists( [ $oMod::LIST_AUTO_BLACK, $oMod::LIST_MANUAL_BLACK ] )
+		$oDel->filterByBlacklist()
 			 ->filterByLastAccessBefore( Services::Request()->ts() - $oOpts->getAutoExpireTime() )
 			 ->query();
 	}
@@ -57,11 +57,12 @@ class Handler extends Base\Handler {
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			ip varchar(40) NOT NULL DEFAULT '',
 			label varchar(255) NOT NULL DEFAULT '',
+			transgressions smallint(1) UNSIGNED NOT NULL DEFAULT 0,
 			list varchar(4) NOT NULL DEFAULT '',
 			ip6 tinyint(1) NOT NULL DEFAULT 0,
 			is_range tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
-			transgressions tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
 			last_access_at int(15) UNSIGNED NOT NULL DEFAULT 0,
+			blocked_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY  (id)

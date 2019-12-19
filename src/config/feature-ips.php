@@ -470,6 +470,7 @@
       "is_range",
       "transgressions",
       "last_access_at",
+      "blocked_at",
       "created_at",
       "deleted_at"
     ],

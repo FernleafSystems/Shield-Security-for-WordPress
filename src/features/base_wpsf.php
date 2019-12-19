@@ -28,7 +28,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @var bool
 	 */
-	private $bVisitorIsWhitelisted;
+	private static $bVisitorIsWhitelisted;
 
 	/**
 	 * @return \ICWP_WPSF_Processor_Sessions
@@ -295,7 +295,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 					'has_session' => $this->hasSession()
 				],
 				'hrefs'   => [
-					'aar_forget_key' => $this->isWlEnabled() ? $this->getCon()->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/b5'
+					'aar_forget_key' => $this->isWlEnabled() ? $this->getCon()
+																	->getLabels()[ 'AuthorURI' ] : 'https://shsec.io/b5'
 				],
 				'classes' => [
 					'top_container' => implode( ' ', array_filter( [
@@ -332,16 +333,16 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isVisitorWhitelisted() {
-		if ( !isset( $this->bVisitorIsWhitelisted ) ) {
+		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
 			$oIpMod = $this->getCon()->getModule_IPs();
 			$oIp = ( new Shield\Modules\IPs\Components\LookupIpOnList() )
-				->setMod( $oIpMod )
+				->setDbHandler( $oIpMod->getDbHandler_IPs() )
 				->setIp( Services::IP()->getRequestIp() )
-				->setList( $oIpMod::LIST_MANUAL_WHITE )
+				->setListTypeWhite()
 				->lookup();
-			$this->bVisitorIsWhitelisted = $oIp instanceof Shield\Databases\IPs\EntryVO;
+			self::$bVisitorIsWhitelisted = $oIp instanceof Shield\Databases\IPs\EntryVO;
 		}
-		return $this->bVisitorIsWhitelisted;
+		return self::$bVisitorIsWhitelisted;
 	}
 
 	/**

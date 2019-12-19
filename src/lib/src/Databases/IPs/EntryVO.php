@@ -6,17 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
- * @property string ip
- * @property bool   is_range
- * @property string label
- * @property string list
- * @property int    last_access_at
- * @property int    transgressions
+ * @property string $ip
+ * @property int    $transgressions
+ * @property bool   $is_range
+ * @property string $label
+ * @property string $list
+ * @property int    $last_access_at
+ * @property int    $blocked_at
  */
 class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @return string
+	 * @deprecated 8.5
 	 */
 	public function getLabel() {
 		return (string)$this->label;
@@ -24,6 +26,7 @@ class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @return int
+	 * @deprecated 8.5
 	 */
 	public function getLastAccessAt() {
 		return (int)$this->last_access_at;
@@ -31,6 +34,7 @@ class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @return string
+	 * @deprecated 8.5
 	 */
 	public function getList() {
 		return (string)$this->list;
@@ -38,6 +42,7 @@ class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @return int
+	 * @deprecated 8.5
 	 */
 	public function getTransgressions() {
 		return (int)$this->transgressions;
@@ -45,15 +50,9 @@ class EntryVO extends Base\EntryVO {
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5
 	 */
 	public function hasTransgressions() {
-		return $this->getTransgressions() > 0;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIpRange() {
-		return (bool)$this->is_range;
+		return (int)$this->transgressions > 0;
 	}
 }

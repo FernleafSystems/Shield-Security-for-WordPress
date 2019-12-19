@@ -24,11 +24,19 @@ class Select extends Base\Select {
 	public function getIpOnBlackLists( $sIp ) {
 		return $this->reset()
 					->filterByIp( $sIp )
-					->filterByLists( [
-						\ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-						\ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
-					] )
+					->filterByBlacklist()
 					->first();
+	}
+
+	/**
+	 * @return EntryVO[]
+	 */
+	public function getAllBlocked() {
+		/** @var EntryVO[] $aRes */
+		return $this->reset()
+					->filterByBlocked( true )
+					->filterByBlacklist()
+					->query();
 	}
 
 	/**
@@ -37,9 +45,8 @@ class Select extends Base\Select {
 	 */
 	public function allFromList( $sList ) {
 		/** @var EntryVO[] $aRes */
-		$aRes = $this->reset()
-					 ->filterByList( $sList )
-					 ->query();
-		return $aRes;
+		return $this->reset()
+					->filterByList( $sList )
+					->query();
 	}
 }

@@ -13,6 +13,31 @@ trait CommonFilters {
 	}
 
 	/**
+	 * @param bool $bIsBlocked
+	 * @return $this
+	 */
+	public function filterByBlocked( $bIsBlocked ) {
+		return $this->addWhere( 'blocked_at', 0, $bIsBlocked ? '>' : '=' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByBlacklist() {
+		return $this->filterByLists( [
+			\ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
+			\ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
+		] );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByWhitelist() {
+		return $this->filterByList( \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+	}
+
+	/**
 	 * @param bool $bIsRange
 	 * @return $this
 	 */

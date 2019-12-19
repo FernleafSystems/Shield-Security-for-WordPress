@@ -30,11 +30,8 @@ class Delete extends Base\Delete {
 	public function deleteIpFromBlacklists( $sIp ) {
 		$this->reset();
 		if ( Services::IP()->isValidIpOrRange( $sIp ) ) {
-			$this->addWhereEquals( 'ip', $sIp )
-				 ->addWhereIn( 'list', [
-					 \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK,
-					 \ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK
-				 ] );
+			$this->filterByIp( $sIp )
+				 ->filterByBlacklist();
 		}
 		return $this->hasWheres() ? $this->query() : false;
 	}

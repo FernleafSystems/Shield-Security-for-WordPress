@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LookupIpOnList {
 
-	use ModConsumer;
+	use HandlerConsumer;
 
 	/**
 	 * @var string
@@ -18,7 +18,12 @@ class LookupIpOnList {
 	/**
 	 * @var string
 	 */
-	private $sList;
+	private $sListType;
+
+	/**
+	 * @var bool
+	 */
+	private $bIsBlocked;
 
 	/**
 	 * @param bool $bIncludeRanges
@@ -45,14 +50,21 @@ class LookupIpOnList {
 	 * @return IPs\EntryVO|null
 	 */
 	public function lookupIp() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
 		/** @var IPs\Select $oSelect */
-		$oSelect = $oMod->getDbHandler_IPs()->getQuerySelector();
+		$oSelect = $this->getDbHandler()->getQuerySelector();
+
+		if ( $this->getListType() == 'white' ) {
+			$oSelect->filterByWhitelist();
+		}
+		elseif ( $this->getListType() == 'black' ) {
+			$oSelect->filterByBlacklist();
+			if ( !is_null( $this->isIpBlocked() ) ) {
+				$oSelect->filterByBlocked( $this->isIpBlocked() );
+			}
+		}
 
 		return $oSelect->filterByIsRange( false )
 					   ->filterByIp( $this->getIp() )
-					   ->filterByList( $this->getList() )
 					   ->first();
 	}
 
@@ -60,14 +72,20 @@ class LookupIpOnList {
 	 * @return IPs\EntryVO[]
 	 */
 	public function lookupRange() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
 		/** @var IPs\Select $oSelect */
-		$oSelect = $oMod->getDbHandler_IPs()->getQuerySelector();
+		$oSelect = $this->getDbHandler()->getQuerySelector();
 
-		$aIps = $oSelect->filterByIsRange( true )
-						->filterByList( $this->getList() )
-						->query();
+		if ( $this->getListType() == 'white' ) {
+			$oSelect->filterByWhitelist();
+		}
+		elseif ( $this->getListType() == 'black' ) {
+			$oSelect->filterByBlacklist();
+			if ( !is_null( $this->isIpBlocked() ) ) {
+				$oSelect->filterByBlocked( $this->isIpBlocked() );
+			}
+		}
+
+		$aIps = $oSelect->filterByIsRange( true )->query();
 		return is_array( $aIps ) ? $aIps : [];
 	}
 
@@ -81,8 +99,24 @@ class LookupIpOnList {
 	/**
 	 * @return string
 	 */
-	public function getList() {
-		return $this->sList;
+	public function getListType() {
+		return $this->sListType;
+	}
+
+	/**
+	 * @return bool|null
+	 */
+	public function isIpBlocked() {
+		return $this->bIsBlocked;
+	}
+
+	/**
+	 * @param bool $bIsBlocked
+	 * @return $this
+	 */
+	public function setIsIpBlocked( $bIsBlocked ) {
+		$this->bIsBlocked = $bIsBlocked;
+		return $this;
 	}
 
 	/**
@@ -95,11 +129,35 @@ class LookupIpOnList {
 	}
 
 	/**
-	 * @param string $sList
 	 * @return $this
 	 */
+	public function setListTypeBlack() {
+		$this->sListType = 'black';
+		return $this;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function setListTypeWhite() {
+		$this->sListType = 'white';
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function getList() {
+		return '';
+	}
+
+	/**
+	 * @param string $sList
+	 * @return $this
+	 * @deprecated 8.5
+	 */
 	public function setList( $sList ) {
-		$this->sList = $sList;
 		return $this;
 	}
 }

@@ -839,13 +839,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'id'        => 'ip_blocked',
 				'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Now' ),
-					$oSelectIp
-						->filterByLists(
-							[
-								ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-								ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
-							]
-						)->count() ),
+					$oSelectIp->filterByBlacklist()->count()
+				),
 				'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
 			],
 		];
