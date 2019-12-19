@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UnblockIpByFlag {
@@ -22,7 +22,7 @@ class UnblockIpByFlag {
 
 				$aLines = array_map( 'trim', explode( "\n", $sContent ) );
 				foreach ( $aLines as $sIp ) {
-					$bRemoved = ( new DeleteIpFromBlackList() )
+					$bRemoved = ( new IPs\Lib\Ops\DeleteIpFromBlackList() )
 						->setDbHandler( $oMod->getDbHandler_IPs() )
 						->run( $sIp );
 					if ( $bRemoved ) {

@@ -146,7 +146,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	private function getTransgressions( $sIp ) {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		$oBlackIp = ( new IPs\Components\LookupIpOnList() )
+		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
 			->setDbHandler( $oMod->getDbHandler_IPs() )
 			->setListTypeBlack()
 			->setIp( $sIp )
@@ -157,34 +157,26 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	private function processBlacklist() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
 
-		if ( $oOpts->isEnabledAutoBlackList() && !$oMod->isVisitorWhitelisted() && $this->shouldBlockVisitor() ) {
-			try {
-				if ( $this->processAutoUnblockRequest() ) {
-					return;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
+		if ( !$oMod->isVisitorWhitelisted() ) {
 
-			$this->getCon()->fireEvent( 'conn_kill' );
-			$this->setIfLogRequest( false ); // don't log traffic from killed requests
-
-			$oIp = ( new IPs\Components\LookupIpOnList() )
-				->setDbHandler( $oMod->getDbHandler_IPs() )
+			$bIpBlocked = ( new IPs\Components\QueryIpBlock() )
+				->setMod( $oMod )
 				->setIp( Services::IP()->getRequestIp() )
-				->setIsIpBlocked( true )
-				->setListTypeBlack()
-				->lookup();
-			if ( $oIp instanceof Databases\IPs\EntryVO ) {
-				/** @var Databases\IPs\Update $oUp */
-				$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
-				$oUp->updateLastAccessAt( $oIp );
-			}
+				->run();
 
-			$this->renderKillPage();
+			if ( $bIpBlocked ) {
+				$this->setIfLogRequest( false ); // don't log traffic from killed requests
+				try {
+					if ( $this->processAutoUnblockRequest() ) {
+						return;
+					}
+				}
+				catch ( \Exception $oE ) {
+				}
+				$this->getCon()->fireEvent( 'conn_kill' );
+				$this->renderKillPage();
+			}
 		}
 	}
 
@@ -224,7 +216,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 			}
 			$oMod->updateIpRequestAutoUnblockTs( $sIp );
 
-			( new IPs\Components\DeleteIpFromBlackList() )
+			( new IPs\Lib\Ops\DeleteIpFromBlackList() )
 				->setDbHandler( $oMod->getDbHandler_IPs() )
 				->run( $sIp );
 			Services::Response()->redirectToHome();
@@ -319,7 +311,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		$oBlackIp = ( new IPs\Components\LookupIpOnList() )
+		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
 			->setDbHandler( $oMod->getDbHandler_IPs() )
 			->setIp( Services::IP()->getRequestIp() )
 			->setListTypeBlack()
@@ -390,46 +382,6 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 			$aIps[] = $oIp->ip;
 		}
 		return $aIps;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function shouldBlockVisitor() {
-		$bBlock = false;
-
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oIp = ( new IPs\Components\LookupIpOnList() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
-			->setIp( Services::IP()->getRequestIp() )
-			->setListTypeBlack()
-//			->setIsIpBlocked( true ) TODO: 8.6
-			->lookup();
-
-		if ( $oIp instanceof Databases\IPs\EntryVO ) {
-			/** @var IPs\Options $oOpts */
-			$oOpts = $oMod->getOptions();
-
-			// Clean out old IPs as we go so they don't show up in future queries.
-			if ( $oIp->list == $oMod::LIST_AUTO_BLACK
-				 && $oIp->last_access_at < Services::Request()->ts() - $oOpts->getAutoExpireTime() ) {
-
-				( new IPs\Components\DeleteIpFromBlackList() )
-					->setDbHandler( $oMod->getDbHandler_IPs() )
-					->run( Services::IP()->getRequestIp() );
-			}
-			else {
-				// TODO: 8.6: eventually lose the transgressions comparison and query for "blocked" only (see above)
-				$bBlock = $oIp->blocked_at > 0 || (int)$oIp->transgressions >= $oOpts->getOffenseLimit();
-				if ( $bBlock && $oIp->blocked_at == 0 ) {
-					/** @var Databases\IPs\Update $oUp */
-					$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
-					$oUp->setBlocked( $oIp );
-				}
-			}
-		}
-		return $bBlock;
 	}
 
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;

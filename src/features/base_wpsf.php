@@ -335,7 +335,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	public function isVisitorWhitelisted() {
 		if ( !isset( self::$bVisitorIsWhitelisted ) ) {
 			$oIpMod = $this->getCon()->getModule_IPs();
-			$oIp = ( new Shield\Modules\IPs\Components\LookupIpOnList() )
+			$oIp = ( new Shield\Modules\IPs\Lib\Ops\LookupIpOnList() )
 				->setDbHandler( $oIpMod->getDbHandler_IPs() )
 				->setIp( Services::IP()->getRequestIp() )
 				->setListTypeWhite()
