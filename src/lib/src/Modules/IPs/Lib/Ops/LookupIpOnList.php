@@ -2,13 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LookupIpOnList extends BaseIp {
+class LookupIpOnList {
 
-	use HandlerConsumer;
+	use Databases\Base\HandlerConsumer;
+	use IPs\Components\IpAddressConsumer;
 
 	/**
 	 * @var string
@@ -22,11 +23,11 @@ class LookupIpOnList extends BaseIp {
 
 	/**
 	 * @param bool $bIncludeRanges
-	 * @return IPs\EntryVO|null
+	 * @return Databases\IPs\EntryVO|null
 	 */
 	public function lookup( $bIncludeRanges = true ) {
 		$oIp = $this->lookupIp();
-		if ( $bIncludeRanges && !$oIp instanceof IPs\EntryVO ) {
+		if ( $bIncludeRanges && !$oIp instanceof Databases\IPs\EntryVO ) {
 			foreach ( $this->lookupRange() as $oMaybeIp ) {
 				try {
 					if ( Services::IP()->checkIp( $this->getIP(), $oMaybeIp->ip ) ) {
@@ -42,10 +43,10 @@ class LookupIpOnList extends BaseIp {
 	}
 
 	/**
-	 * @return IPs\EntryVO|null
+	 * @return Databases\IPs\EntryVO|null
 	 */
 	public function lookupIp() {
-		/** @var IPs\Select $oSelect */
+		/** @var Databases\IPs\Select $oSelect */
 		$oSelect = $this->getDbHandler()->getQuerySelector();
 
 		if ( $this->getListType() == 'white' ) {
@@ -64,10 +65,10 @@ class LookupIpOnList extends BaseIp {
 	}
 
 	/**
-	 * @return IPs\EntryVO[]
+	 * @return Databases\IPs\EntryVO[]
 	 */
 	public function lookupRange() {
-		/** @var IPs\Select $oSelect */
+		/** @var Databases\IPs\Select $oSelect */
 		$oSelect = $this->getDbHandler()->getQuerySelector();
 
 		if ( $this->getListType() == 'white' ) {

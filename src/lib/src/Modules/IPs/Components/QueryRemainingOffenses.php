@@ -14,21 +14,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 class QueryRemainingOffenses {
 
 	use Shield\Modules\ModConsumer;
+	use IpAddressConsumer;
 
 	/**
-	 * @param string $sIP
 	 * @return int
 	 */
-	public function run( $sIP ) {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-
+	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		$oBlackIp = ( new Ops\LookupIpOnList() )
 			->setDbHandler( $oMod->getDbHandler_IPs() )
 			->setListTypeBlack()
-			->setIP( $sIP )
+			->setIP( $this->getIP() )
 			->lookup( false );
 
 		$nOffenses = 0;
@@ -36,6 +33,8 @@ class QueryRemainingOffenses {
 			$nOffenses = (int)$oBlackIp->transgressions;
 		}
 
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		return $oOpts->getOffenseLimit() - $nOffenses - 1;
 	}
 }

@@ -38,8 +38,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		if ( $this->isReadyToRun() && $oOpts->isEnabledAutoBlackList()
-			 && !Services::WpUsers()->isUserLoggedIn() ) {
+		if ( $oOpts->isEnabledAutoBlackList() && !Services::WpUsers()->isUserLoggedIn() ) {
 
 			if ( !$oMod->isVerifiedBot() ) {
 				if ( $oOpts->isEnabledTrackXmlRpc() ) {
@@ -111,12 +110,13 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		if ( !is_array( $aMessages ) ) {
 			$aMessages = [];
 		}
-		$nRemaining = ( new IPs\Components\QueryRemainingOffenses() )
-			->setMod( $this->getMod() )
-			->run( Services::IP()->getRequestIp() );
+
 		$aMessages[] = sprintf( '<p>%s</p>', sprintf(
 			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
-			$nRemaining
+			( new IPs\Components\QueryRemainingOffenses() )
+				->setMod( $this->getMod() )
+				->setIP( Services::IP()->getRequestIp() )
+				->run()
 		) );
 
 		return $aMessages;
@@ -266,60 +266,20 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		$oOpts = $oMod->getOptions();
 
 		if ( $oOpts->isEnabledAutoBlackList() && !$this->getCon()->isPluginDeleting()
-			 && $oMod->getIfIpTransgressed() && !$oMod->isVerifiedBot() && !$oMod->isVisitorWhitelisted() ) {
-			$this->processTransgression();
+			 && $oMod->getIfIpTransgressed() && !$oMod->isVisitorWhitelisted() && !$oMod->isVerifiedBot() ) {
+
+			( new IPs\Components\ProcessOffense() )
+				->setMod( $oMod )
+				->setIp( Services::IP()->getRequestIp() )
+				->run();
 		}
 	}
 
 	/**
+	 * @deprecated 8.5
 	 */
 	private function processTransgression() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oCon = $this->getCon();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
-
-		$oBlackIp = ( new IPs\Lib\Ops\AddIp() )
-			->setMod( $oMod )
-			->setIP( Services::IP()->getRequestIp() )
-			->toAutoBlacklist();
-
-		if ( $oBlackIp instanceof Databases\IPs\EntryVO ) {
-			$nLimit = $oOpts->getOffenseLimit();
-			$nCurrentOffenses = $oBlackIp->transgressions;
-
-			$mAction = $oMod->getIpOffenceCount();
-			$bToBlock = ( $oBlackIp->blocked_at == 0 ) && ( $nCurrentOffenses < $nLimit )
-						&& ( $mAction == PHP_INT_MAX ) || ( $nLimit - $nCurrentOffenses == 1 );
-
-			$nNewOffensesTotal = $oBlackIp->transgressions +
-								 min( 1, $bToBlock ? $nLimit - $nCurrentOffenses : $mAction );
-
-			/** @var Databases\IPs\Update $oUp */
-			$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
-			$oUp->updateTransgressions( $oBlackIp, $nNewOffensesTotal );
-
-			$oCon->fireEvent( $bToBlock ? 'ip_blocked' : 'ip_offense',
-				[
-					'audit' => [
-						'from' => $nCurrentOffenses,
-						'to'   => $nNewOffensesTotal,
-					]
-				]
-			);
-
-			/**
-			 * When we block, we also want to increment offense stat, but we don't
-			 * want to also audit the offense (only audit the block),
-			 * so we fire ip_offense but suppress the audit
-			 */
-			if ( $bToBlock ) {
-				$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
-				$oUp->setBlocked( $oBlackIp );
-				$oCon->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
-			}
-		}
+		return;
 	}
 
 	/**

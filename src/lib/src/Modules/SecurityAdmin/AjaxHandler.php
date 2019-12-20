@@ -72,8 +72,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		else {
 			$nRemaining = ( new Shield\Modules\IPs\Components\QueryRemainingOffenses() )
-							  ->setMod( $this->getCon()->getModule_IPs() )
-							  ->run( Services::IP()->getRequestIp() );
+				->setMod( $this->getCon()->getModule_IPs() )
+				->setIP( Services::IP()->getRequestIp() )
+				->run();
 			$sMsg = __( 'Security access key incorrect.', 'wp-simple-firewall' ).' ';
 			if ( $nRemaining > 0 ) {
 				$sMsg .= sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $nRemaining );

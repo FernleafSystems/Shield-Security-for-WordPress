@@ -16,7 +16,7 @@ class UnblockIpByFlag {
 		$oFS = Services::WpFs();
 
 		$sPathUnblockFlag = $oFS->findFileInDir( 'unblock', $this->getCon()->getPath_Flags() );
-		if ( $oFS->exists( $sPathUnblockFlag ) ) {
+		if ( $oFS->isFile( $sPathUnblockFlag ) ) {
 			$sContent = $oFS->getFileContent( $sPathUnblockFlag );
 			if ( !empty( $sContent ) ) {
 

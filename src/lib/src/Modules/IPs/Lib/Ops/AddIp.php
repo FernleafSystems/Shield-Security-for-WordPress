@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -10,9 +10,10 @@ use FernleafSystems\Wordpress\Services\Services;
  * Class AddIp
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops
  */
-class AddIp extends BaseIp {
+class AddIp {
 
-	use ModConsumer;
+	use Modules\ModConsumer;
+	use Modules\IPs\Components\IpAddressConsumer;
 
 	/**
 	 * @return Databases\IPs\EntryVO|null

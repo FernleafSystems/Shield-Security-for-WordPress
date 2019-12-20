@@ -39,10 +39,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_AddIp() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $oMod->getProcessor();
 		$oIpServ = Services::IP();
 
 		$aFormParams = $this->getAjaxFormParams();

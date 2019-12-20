@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * NOT IMPLEMENTED
@@ -15,14 +14,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class ProcessOffense {
 
 	use Shield\Modules\ModConsumer;
+	use IpAddressConsumer;
 
 	/**
-	 * @var string
-	 */
-	private $sIP;
-
-	/**
-	 * @return bool - true if IP is blocked, false otherwise
 	 */
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
@@ -31,19 +25,10 @@ class ProcessOffense {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
-			->setIP( Services::IP()->getRequestIp() )
-			->setListTypeBlack()
-			->lookup();
-
-		if ( !$oBlackIp instanceof Databases\IPs\EntryVO ) {
-			$oBlackIp = $this->addIpToList(
-				Services::IP()->getRequestIp(),
-				$oMod::LIST_AUTO_BLACK,
-				'auto'
-			);
-		}
+		$oBlackIp = ( new IPs\Lib\Ops\AddIp() )
+			->setMod( $oMod )
+			->setIP( $this->getIP() )
+			->toAutoBlacklist();
 
 		if ( $oBlackIp instanceof Databases\IPs\EntryVO ) {
 			$nLimit = $oOpts->getOffenseLimit();
@@ -80,21 +65,5 @@ class ProcessOffense {
 				$oCon->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
 			}
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getIP() {
-		return $this->sIP;
-	}
-
-	/**
-	 * @param string $sIP
-	 * @return $this
-	 */
-	public function setIp( $sIP ) {
-		$this->sIP = $sIP;
-		return $this;
 	}
 }

@@ -3,9 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Options;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -15,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class QueryIpBlock {
 
 	use Shield\Modules\ModConsumer;
+	use IpAddressConsumer;
 
 	/**
 	 * @var string
@@ -28,13 +28,13 @@ class QueryIpBlock {
 		$bIpBlocked = false;
 
 		$oIP = $this->getBlockedIpRecord();
-		if ( $oIP instanceof IPs\EntryVO ) {
+		if ( $oIP instanceof Databases\IPs\EntryVO ) {
 
 			$bIpBlocked = true;
 
 			/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 			$oMod = $this->getMod();
-			/** @var IPs\Update $oUp */
+			/** @var Databases\IPs\Update $oUp */
 			$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
 			$oUp->updateLastAccessAt( $oIP );
 
@@ -47,29 +47,29 @@ class QueryIpBlock {
 	}
 
 	/**
-	 * @return IPs\EntryVO|null
+	 * @return Databases\IPs\EntryVO|null
 	 */
 	private function getBlockedIpRecord() {
 		$oBlockIP = null;
 
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		$oIP = ( new Ops\LookupIpOnList() )
+		$oIP = ( new IPs\Lib\Ops\LookupIpOnList() )
 			->setDbHandler( $oMod->getDbHandler_IPs() )
 			->setIP( $this->getIP() )
 			->setListTypeBlack()
 //			->setIsIpBlocked( true ) TODO: 8.6
 			->lookup();
 
-		if ( $oIP instanceof IPs\EntryVO ) {
-			/** @var Options $oOpts */
+		if ( $oIP instanceof Databases\IPs\EntryVO ) {
+			/** @var IPs\Options $oOpts */
 			$oOpts = $this->getOptions();
 
 			// Clean out old IPs as we go so they don't show up in future queries.
 			if ( $oIP->list == $oMod::LIST_AUTO_BLACK
 				 && $oIP->last_access_at < Services::Request()->ts() - $oOpts->getAutoExpireTime() ) {
 
-				( new Ops\DeleteIp() )
+				( new IPs\Lib\Ops\DeleteIp() )
 					->setDbHandler( $oMod->getDbHandler_IPs() )
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
@@ -80,21 +80,5 @@ class QueryIpBlock {
 		}
 
 		return $oBlockIP;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getIP() {
-		return $this->sIP;
-	}
-
-	/**
-	 * @param string $sIP
-	 * @return $this
-	 */
-	public function setIp( $sIP ) {
-		$this->sIP = $sIP;
-		return $this;
 	}
 }

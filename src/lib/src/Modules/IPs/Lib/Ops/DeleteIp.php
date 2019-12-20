@@ -3,20 +3,22 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
 /**
  * Class DeleteIp
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops
  */
-class DeleteIp extends BaseIp {
+class DeleteIp {
 
-	use Shield\Databases\Base\HandlerConsumer;
+	use Databases\Base\HandlerConsumer;
+	use IPs\Components\IpAddressConsumer;
 
 	/**
 	 * @var string
 	 */
-	private $sIP;
+	private $sIpAddress;
 
 	/**
 	 * @return bool
@@ -37,10 +39,10 @@ class DeleteIp extends BaseIp {
 	}
 
 	/**
-	 * @return IPs\Delete
+	 * @return Databases\IPs\Delete
 	 */
 	private function getDeleter() {
-		/** @var IPs\Delete $oDel */
+		/** @var Databases\IPs\Delete $oDel */
 		$oDel = $this->getDbHandler()->getQueryDeleter();
 		return $oDel->filterByIp( $this->getIP() )
 					->setLimit( 1 );
@@ -50,7 +52,7 @@ class DeleteIp extends BaseIp {
 	 * @return string
 	 */
 	public function getIP() {
-		return $this->sIP;
+		return $this->sIpAddress;
 	}
 
 	/**
@@ -58,7 +60,7 @@ class DeleteIp extends BaseIp {
 	 * @return $this
 	 */
 	public function setIP( $sIP ) {
-		$this->sIP = $sIP;
+		$this->sIpAddress = $sIP;
 		return $this;
 	}
 }
