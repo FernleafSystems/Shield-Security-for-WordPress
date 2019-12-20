@@ -62,7 +62,7 @@ class AddIp {
 			if ( !$oIP instanceof Databases\IPs\EntryVO ) {
 				$oIP = $this->add( $oMod::LIST_MANUAL_BLACK, $sLabel );
 			}
-			error_log( var_export( $oIP, true ) );
+
 			$aUpdateData = [
 				'last_access_at' => Services::Request()->ts()
 			];
