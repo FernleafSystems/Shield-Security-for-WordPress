@@ -19,7 +19,7 @@ class Mal extends Base {
 	/**
 	 * @return Scans\Mal\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	protected function newItemActionHandler() {
 		return new Scans\Mal\Utilities\ItemActionHandler();
 	}
 

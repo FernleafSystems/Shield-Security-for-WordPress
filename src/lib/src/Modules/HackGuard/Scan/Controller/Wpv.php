@@ -10,7 +10,7 @@ class Wpv extends BaseForAssets {
 	/**
 	 * @return Scans\Wpv\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	protected function newItemActionHandler() {
 		return new Scans\Wpv\Utilities\ItemActionHandler();
 	}
 

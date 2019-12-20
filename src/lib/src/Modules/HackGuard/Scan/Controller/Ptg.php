@@ -11,7 +11,7 @@ class Ptg extends BaseForAssets {
 	/**
 	 * @return Scans\Ptg\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	protected function newItemActionHandler() {
 		return new Scans\Ptg\Utilities\ItemActionHandler();
 	}
 

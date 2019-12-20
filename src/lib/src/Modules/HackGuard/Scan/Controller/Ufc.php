@@ -11,7 +11,7 @@ class Ufc extends Base {
 	/**
 	 * @return Scans\Ufc\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	protected function newItemActionHandler() {
 		return new Scans\Ufc\Utilities\ItemActionHandler();
 	}
 

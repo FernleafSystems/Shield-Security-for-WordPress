@@ -11,7 +11,7 @@ class Apc extends BaseForAssets {
 	/**
 	 * @return Scans\Apc\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	protected function newItemActionHandler() {
 		return new Scans\Apc\Utilities\ItemActionHandler();
 	}
 

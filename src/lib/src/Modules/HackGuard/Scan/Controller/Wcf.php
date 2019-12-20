@@ -11,7 +11,7 @@ class Wcf extends Base {
 	/**
 	 * @return Scans\Wcf\Utilities\ItemActionHandler
 	 */
-	protected function getItemActionHandler() {
+	protected function newItemActionHandler() {
 		return new Scans\Wcf\Utilities\ItemActionHandler();
 	}
 

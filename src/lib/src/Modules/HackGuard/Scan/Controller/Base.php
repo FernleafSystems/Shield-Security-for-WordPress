@@ -70,8 +70,6 @@ abstract class Base {
 				->convertVoToResultItem( $oEntry );
 
 			$bSuccess = $this->getItemActionHandler()
-							 ->setMod( $this->getMod() )
-							 ->setScanController( $this )
 							 ->setDbHandler( $this->getScanResultsDbHandler() )
 							 ->setScanItem( $oItem )
 							 ->process( $sAction );
@@ -121,9 +119,18 @@ abstract class Base {
 	}
 
 	/**
+	 * @return Scans\Base\Utilities\ItemActionHandler
+	 */
+	protected function getItemActionHandler() {
+		return $this->newItemActionHandler()
+					->setMod( $this->getMod() )
+					->setScanController( $this );
+	}
+
+	/**
 	 * @return Scans\Base\Utilities\ItemActionHandler|mixed
 	 */
-	abstract protected function getItemActionHandler();
+	abstract protected function newItemActionHandler();
 
 	/**
 	 * @return BaseScanActionVO|mixed
