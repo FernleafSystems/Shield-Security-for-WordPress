@@ -20,7 +20,9 @@ class Wcf extends Base {
 	 * @return bool
 	 */
 	protected function isResultItemStale( $oItem ) {
-		return !Services::CoreFileHashes()->isCoreFile( $oItem->path_full );
+		$oCFH = Services::CoreFileHashes();
+		return !$oCFH->isCoreFile( $oItem->path_full )
+			   || !Services::CoreFileHashes()->isCoreFileHashValid( $oItem->path_full );
 	}
 
 	/**
