@@ -111,47 +111,15 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		if ( !is_array( $aMessages ) ) {
 			$aMessages = [];
 		}
-		$aMessages[] = sprintf( '<p>%s</p>', $this->getTextOfRemainingTransgressions() );
-		return $aMessages;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getTextOfRemainingTransgressions() {
-		return sprintf(
+		$nRemaining = ( new IPs\Components\QueryRemainingOffenses() )
+			->setMod( $this->getMod() )
+			->run( Services::IP()->getRequestIp() );
+		$aMessages[] = sprintf( '<p>%s</p>', sprintf(
 			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
-			$this->getRemainingTransgressions() - 1 // we take one off because it hasn't been incremented at this stage
-		);
-	}
+			$nRemaining
+		) );
 
-	/**
-	 * @param string $sIp
-	 * @return string
-	 */
-	public function getRemainingTransgressions( $sIp = '' ) {
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( empty( $sIp ) ) {
-			$sIp = Services::IP()->getRequestIp();
-		}
-		return $oOpts->getOffenseLimit() - $this->getTransgressions( $sIp );
-	}
-
-	/**
-	 * The auto black list isn't a simple lookup, but rather has an auto expiration and a transgression count
-	 * @param string $sIp
-	 * @return int
-	 */
-	private function getTransgressions( $sIp ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
-			->setListTypeBlack()
-			->setIp( $sIp )
-			->lookup( false );
-		return ( $oBlackIp instanceof Databases\IPs\EntryVO ) ? (int)$oBlackIp->transgressions : 0;
+		return $aMessages;
 	}
 
 	private function processBlacklist() {
@@ -216,9 +184,10 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 			}
 			$oMod->updateIpRequestAutoUnblockTs( $sIp );
 
-			( new IPs\Lib\Ops\DeleteIpFromBlackList() )
+			( new IPs\Lib\Ops\DeleteIp() )
 				->setDbHandler( $oMod->getDbHandler_IPs() )
-				->run( $sIp );
+				->setIP( $sIp )
+				->fromBlacklist();
 			Services::Response()->redirectToHome();
 		}
 
@@ -311,19 +280,10 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		$oBlackIp = ( new IPs\Lib\Ops\LookupIpOnList() )
-			->setDbHandler( $oMod->getDbHandler_IPs() )
-			->setIp( Services::IP()->getRequestIp() )
-			->setListTypeBlack()
-			->lookup();
-
-		if ( !$oBlackIp instanceof Databases\IPs\EntryVO ) {
-			$oBlackIp = $this->addIpToList(
-				Services::IP()->getRequestIp(),
-				ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-				'auto'
-			);
-		}
+		$oBlackIp = ( new IPs\Lib\Ops\AddIp() )
+			->setMod( $oMod )
+			->setIP( Services::IP()->getRequestIp() )
+			->toAutoBlacklist();
 
 		if ( $oBlackIp instanceof Databases\IPs\EntryVO ) {
 			$nLimit = $oOpts->getOffenseLimit();
@@ -363,43 +323,57 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	}
 
 	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function getRemainingTransgressions() {
+		return 0;
+	}
+
+	/**
+	 * @param string $sIp
+	 * @return int
+	 * @deprecated 8.5
+	 */
+	private function getTransgressions( $sIp ) {
+		return 0;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	private function getTextOfRemainingTransgressions() {
+		return '';
+	}
+
+	/**
 	 * @return Databases\IPs\EntryVO[]
+	 * @deprecated 8.5
 	 */
 	public function getWhitelistIpsData() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var Databases\IPs\Select $oSelect */
-		$oSelect = $oMod->getDbHandler_IPs()->getQuerySelector();
-		return $oSelect->allFromList( \ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE );
+		return [];
 	}
 
 	/**
 	 * @return string[]
+	 * @deprecated 8.5
 	 */
 	public function getWhitelistIps() {
-		$aIps = [];
-		foreach ( $this->getWhitelistIpsData() as $oIp ) {
-			$aIps[] = $oIp->ip;
-		}
-		return $aIps;
+		return [];
 	}
 
 	/**
 	 * @param string $sIp
 	 * @param string $sLabel
 	 * @return Databases\IPs\EntryVO|null
+	 * @deprecated 8.5
 	 */
 	public function addIpToWhiteList( $sIp, $sLabel = '' ) {
-		return $this->addIpToManualList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_WHITE, $sLabel );
-	}
-
-	/**
-	 * @param string $sIp
-	 * @param string $sLabel
-	 * @return Databases\IPs\EntryVO|null
-	 */
-	public function addIpToBlackList( $sIp, $sLabel = '' ) {
-		return $this->addIpToManualList( $sIp, ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK, $sLabel );
+		return ( new IPs\Lib\Ops\AddIp() )
+			->setMod( $this->getMod() )
+			->setIP( $sIp )
+			->toManualWhitelist( $sLabel );
 	}
 
 	/**
@@ -407,28 +381,10 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	 * @param string $sList
 	 * @param string $sLabel
 	 * @return Databases\IPs\EntryVO|null
+	 * @deprecated 8.5
 	 */
 	private function addIpToManualList( $sIp, $sList, $sLabel = '' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		$oDbh = $oMod->getDbHandler_IPs();
-
-		/** @var Databases\IPs\Select $oSelect */
-		$oSelect = $oDbh->getQuerySelector();
-		/** @var Databases\IPs\EntryVO $oIp */
-		$oIp = $oSelect->filterByIp( $sIp )
-					   ->filterByList( $sList )
-					   ->first();
-
-		if ( empty( $oIp ) ) {
-			$oIp = $this->addIpToList( $sIp, $sList, $sLabel );
-		}
-		elseif ( $sLabel != $oIp->label ) {
-			/** @var Databases\IPs\Update $oUp */
-			$oUp = $oDbh->getQueryUpdater();
-			$oUp->updateLabel( $oIp, $sLabel );
-		}
-		return $oIp;
+		return null;
 	}
 
 	/**
@@ -437,37 +393,10 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	 * @param string $sList
 	 * @param string $sLabel
 	 * @return Databases\IPs\EntryVO|null
+	 * @deprecated 8.5
 	 */
 	private function addIpToList( $sIp, $sList, $sLabel = '' ) {
-		$oIp = null;
-
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-
-		// Never add a reserved IP to any black list
-		if ( $sList == $oMod::LIST_MANUAL_WHITE || !in_array( $sIp, $oMod->getReservedIps() ) ) {
-			$oDbh = $oMod->getDbHandler_IPs();
-
-			// delete any previous old entries as we go.
-			/** @var Databases\IPs\Delete $oDel */
-			$oDel = $oDbh->getQueryDeleter();
-			$oDel->deleteIpOnList( $sIp, $sList );
-
-			/** @var Databases\IPs\EntryVO $oTempIp */
-			$oTempIp = $oDbh->getVo();
-			$oTempIp->ip = $sIp;
-			$oTempIp->list = $sList;
-			$oTempIp->label = empty( $sLabel ) ? __( 'No Label', 'wp-simple-firewall' ) : trim( $sLabel );
-
-			if ( $oDbh->getQueryInserter()->insert( $oTempIp ) ) {
-				/** @var Databases\IPs\EntryVO $oIp */
-				$oIp = $oDbh->getQuerySelector()
-							->setWheresFromVo( $oTempIp )
-							->first();
-			}
-		}
-
-		return $oIp;
+		return null;
 	}
 
 	/**

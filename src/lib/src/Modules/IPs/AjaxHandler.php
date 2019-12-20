@@ -86,16 +86,17 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			switch ( $sList ) {
 
 				case $oMod::LIST_MANUAL_WHITE:
-					$oIp = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
+					$oIp = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						->setMod( $oMod )
+						->setIP( $sIp )
+						->toManualWhitelist( $sLabel );
 					break;
 
 				case $oMod::LIST_MANUAL_BLACK:
-					$oIp = $oProcessor->addIpToBlackList( $sIp, $sLabel );
-					if ( !empty( $oIp ) ) {
-						/** @var Shield\Databases\IPs\Update $oUpd */
-						$oUpd = $oMod->getDbHandler_IPs()->getQueryUpdater();
-						$oUpd->setBlocked( $oIp );
-					}
+					$oIp = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						->setMod( $oMod )
+						->setIP( $sIp )
+						->toManualBlacklist( $sLabel );
 					break;
 
 				default:

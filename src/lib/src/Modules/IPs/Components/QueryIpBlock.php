@@ -56,7 +56,7 @@ class QueryIpBlock {
 		$oMod = $this->getMod();
 		$oIP = ( new Ops\LookupIpOnList() )
 			->setDbHandler( $oMod->getDbHandler_IPs() )
-			->setIp( $this->getIP() )
+			->setIP( $this->getIP() )
 			->setListTypeBlack()
 //			->setIsIpBlocked( true ) TODO: 8.6
 			->lookup();
@@ -69,9 +69,10 @@ class QueryIpBlock {
 			if ( $oIP->list == $oMod::LIST_AUTO_BLACK
 				 && $oIP->last_access_at < Services::Request()->ts() - $oOpts->getAutoExpireTime() ) {
 
-				( new Ops\DeleteIpFromBlackList() )
+				( new Ops\DeleteIp() )
 					->setDbHandler( $oMod->getDbHandler_IPs() )
-					->run( Services::IP()->getRequestIp() );
+					->setIP( Services::IP()->getRequestIp() )
+					->fromBlacklist();
 			}
 			elseif ( $oIP->blocked_at > 0 || (int)$oIP->transgressions >= $oOpts->getOffenseLimit() ) {
 				$oBlockIP = $oIP;

@@ -22,9 +22,10 @@ class UnblockIpByFlag {
 
 				$aLines = array_map( 'trim', explode( "\n", $sContent ) );
 				foreach ( $aLines as $sIp ) {
-					$bRemoved = ( new IPs\Lib\Ops\DeleteIpFromBlackList() )
+					$bRemoved = ( new IPs\Lib\Ops\DeleteIp() )
 						->setDbHandler( $oMod->getDbHandler_IPs() )
-						->run( $sIp );
+						->setIP( $sIp )
+						->fromBlacklist();
 					if ( $bRemoved ) {
 						$this->getCon()->fireEvent( 'ip_unblock_flag', [ 'audit' => [ 'ip' => $sIp ] ] );
 					}

@@ -172,13 +172,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
 
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
-			/** @var \ICWP_WPSF_Processor_Ips $oPro */
-			$oPro = $this->getProcessor();
-
-			$aWhiteIps = $oPro->getWhitelistIps();
+			$aWhiteIps = ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+				->setDbHandler( $this->getDbHandler_IPs() )
+				->white();
 			foreach ( $aIps as $sIP => $sLabel ) {
 				if ( !in_array( $sIP, $aWhiteIps ) ) {
-					$oPro->addIpToWhiteList( $sIP, $sLabel );
+					( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						->setMod( $this )
+						->setIP( $sIP )
+						->toManualWhitelist( $sLabel );
 				}
 			}
 		}

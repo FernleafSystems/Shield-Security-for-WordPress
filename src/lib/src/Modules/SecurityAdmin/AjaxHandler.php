@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
@@ -70,11 +71,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			}
 		}
 		else {
-			/** @var \ICWP_WPSF_Processor_Ips $oIpPro */
-			$oIpPro = $this->getCon()
-						   ->getModule_IPs()
-						   ->getProcessor();
-			$nRemaining = $oIpPro->getRemainingTransgressions() - 1;
+			$nRemaining = ( new Shield\Modules\IPs\Components\QueryRemainingOffenses() )
+							  ->setMod( $this->getCon()->getModule_IPs() )
+							  ->run( Services::IP()->getRequestIp() );
 			$sMsg = __( 'Security access key incorrect.', 'wp-simple-firewall' ).' ';
 			if ( $nRemaining > 0 ) {
 				$sMsg .= sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $nRemaining );

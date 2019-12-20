@@ -6,14 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LookupIpOnList {
+class LookupIpOnList extends BaseIp {
 
 	use HandlerConsumer;
-
-	/**
-	 * @var string
-	 */
-	private $sIp;
 
 	/**
 	 * @var string
@@ -34,7 +29,7 @@ class LookupIpOnList {
 		if ( $bIncludeRanges && !$oIp instanceof IPs\EntryVO ) {
 			foreach ( $this->lookupRange() as $oMaybeIp ) {
 				try {
-					if ( Services::IP()->checkIp( $this->getIp(), $oMaybeIp->ip ) ) {
+					if ( Services::IP()->checkIp( $this->getIP(), $oMaybeIp->ip ) ) {
 						$oIp = $oMaybeIp;
 						break;
 					}
@@ -64,7 +59,7 @@ class LookupIpOnList {
 		}
 
 		return $oSelect->filterByIsRange( false )
-					   ->filterByIp( $this->getIp() )
+					   ->filterByIp( $this->getIP() )
 					   ->first();
 	}
 
@@ -92,13 +87,6 @@ class LookupIpOnList {
 	/**
 	 * @return string
 	 */
-	public function getIp() {
-		return $this->sIp;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getListType() {
 		return $this->sListType;
 	}
@@ -116,15 +104,6 @@ class LookupIpOnList {
 	 */
 	public function setIsIpBlocked( $bIsBlocked ) {
 		$this->bIsBlocked = $bIsBlocked;
-		return $this;
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return $this
-	 */
-	public function setIp( $sIp ) {
-		$this->sIp = $sIp;
 		return $this;
 	}
 
