@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ItemActionHandler extends Base\Utilities\ItemActionHandler {
+class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 
 	/**
 	 * @return Repair
