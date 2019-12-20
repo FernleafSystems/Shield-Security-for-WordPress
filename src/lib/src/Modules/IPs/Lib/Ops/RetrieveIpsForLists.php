@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 
 class RetrieveIpsForLists {
 
@@ -13,27 +14,14 @@ class RetrieveIpsForLists {
 	 * @return string[]
 	 */
 	public function all() {
-		/** @var IPs\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
-		return $oSel->getDistinctIps();
+		return $this->forLists( [] );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	public function white() {
-		$aResult = [];
-		/** @var IPs\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
-		$aDistinct = $oSel->addColumnToSelect( 'ip' )
-						  ->filterByLists( [ 'MW' ] )
-						  ->setIsDistinct( true )
-						  ->query();
-		if ( is_array( $aDistinct ) ) {
-			$aResult = array_filter( $aDistinct );
-			natcasesort( $aResult );
-		}
-		return $aResult;
+		return $this->forLists( [ 'MW' ] );
 	}
 
 	/**
@@ -64,14 +52,16 @@ class RetrieveIpsForLists {
 	private function forLists( $aLists ) {
 		$aResult = [];
 		/** @var IPs\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
-		$aDistinct = $oSel->addColumnToSelect( 'ip' )
-						  ->filterByLists( $aLists )
-						  ->setIsDistinct( true )
-						  ->query();
+		$oSel = $this->getDbHandler()
+					 ->getQuerySelector()
+					 ->addColumnToSelect( 'ip' )
+					 ->setIsDistinct( true );
+		if ( !empty( $aLists ) ) {
+			$oSel->filterByLists( $aLists );
+		}
+		$aDistinct = $oSel->query();
 		if ( is_array( $aDistinct ) ) {
-			$aResult = array_filter( $aDistinct );
-			natcasesort( $aResult );
+			$aResult = IpListSort::Sort( $aDistinct );
 		}
 		return $aResult;
 	}

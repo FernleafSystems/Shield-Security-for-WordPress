@@ -8,18 +8,10 @@ class Select extends Base\Select {
 
 	use CommonFilters;
 
-	public $print = false;
-
-	/**
-	 * @return string[]
-	 */
-	public function getDistinctIps() {
-		return $this->getDistinct_FilterAndSort( 'ip' );
-	}
-
 	/**
 	 * @param string $sIp
 	 * @return bool
+	 * @deprecated 8.5
 	 */
 	public function getIpOnBlackLists( $sIp ) {
 		return $this->reset()
@@ -42,11 +34,20 @@ class Select extends Base\Select {
 	/**
 	 * @param string $sList
 	 * @return EntryVO[]
+	 * @deprecated 8.5
 	 */
 	public function allFromList( $sList ) {
 		/** @var EntryVO[] $aRes */
 		return $this->reset()
 					->filterByList( $sList )
 					->query();
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.5
+	 */
+	public function getDistinctIps() {
+		return $this->getDistinct_FilterAndSort( 'ip' );
 	}
 }

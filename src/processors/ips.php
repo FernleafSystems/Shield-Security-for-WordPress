@@ -14,20 +14,25 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 			return;
 		}
 
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
+		$oMod = $this->getMod();
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAutoBlackList() ) {
 
 			( new IPs\Components\UnblockIpByFlag() )
-				->setMod( $this->getMod() )
+				->setMod( $oMod )
 				->run();
 
-			$this->processBlacklist();
-
-			$oCon = $this->getCon();
-			add_filter( $oCon->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
-			add_action( $oCon->prefix( 'pre_plugin_shutdown' ), [ $this, 'doBlackMarkCurrentVisitor' ] );
-			add_action( 'shield_security_offense', [ $this, 'processCustomShieldOffense' ], 10, 3 );
+			if ( !$oMod->isVisitorWhitelisted() ) {
+				$this->processBlacklist();
+				$oCon = $this->getCon();
+				add_filter( $oCon->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
+				add_action( $oCon->prefix( 'pre_plugin_shutdown' ), function () {
+					$this->doBlackMarkCurrentVisitor();
+				} );
+				add_action( 'shield_security_offense', [ $this, 'processCustomShieldOffense' ], 10, 3 );
+			}
 		}
 	}
 
@@ -126,25 +131,22 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 
-		if ( !$oMod->isVisitorWhitelisted() ) {
+		$bIpBlocked = ( new IPs\Components\QueryIpBlock() )
+			->setMod( $oMod )
+			->setIp( Services::IP()->getRequestIp() )
+			->run();
 
-			$bIpBlocked = ( new IPs\Components\QueryIpBlock() )
-				->setMod( $oMod )
-				->setIp( Services::IP()->getRequestIp() )
-				->run();
-
-			if ( $bIpBlocked ) {
-				$this->setIfLogRequest( false ); // don't log traffic from killed requests
-				try {
-					if ( $this->processAutoUnblockRequest() ) {
-						return;
-					}
+		if ( $bIpBlocked ) {
+			$this->setIfLogRequest( false ); // don't log traffic from killed requests
+			try {
+				if ( $this->processAutoUnblockRequest() ) {
+					return;
 				}
-				catch ( \Exception $oE ) {
-				}
-				$this->getCon()->fireEvent( 'conn_kill' );
-				$this->renderKillPage();
 			}
+			catch ( \Exception $oE ) {
+			}
+			$this->getCon()->fireEvent( 'conn_kill' );
+			$this->renderKillPage();
 		}
 	}
 
@@ -258,15 +260,14 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	}
 
 	/**
+	 * TODO 8.6: make private
 	 */
 	public function doBlackMarkCurrentVisitor() {
 		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
 
-		if ( $oOpts->isEnabledAutoBlackList() && !$this->getCon()->isPluginDeleting()
-			 && $oMod->getIfIpTransgressed() && !$oMod->isVisitorWhitelisted() && !$oMod->isVerifiedBot() ) {
+		if ( !$this->getCon()->isPluginDeleting() && $oMod->getIfIpTransgressed()
+			 && !$oMod->isVisitorWhitelisted() && !$oMod->isVerifiedBot() ) {
 
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $oMod )
