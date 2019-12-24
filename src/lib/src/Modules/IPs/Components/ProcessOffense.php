@@ -34,7 +34,8 @@ class ProcessOffense {
 			$nLimit = $oOpts->getOffenseLimit();
 			$nCurrentOffenses = $oBlackIp->transgressions;
 
-			$mAction = $oMod->getIpOffenceCount();
+			$mAction = $oMod->loadOffenseTracker()
+							->getOffenseCount();
 			$bToBlock = ( $oBlackIp->blocked_at == 0 ) && ( $nCurrentOffenses < $nLimit )
 						&& ( $mAction == PHP_INT_MAX ) || ( $nLimit - $nCurrentOffenses == 1 );
 

@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
@@ -10,9 +11,6 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	/**
 	 */
 	public function run() {
-		if ( !$this->isReadyToRun() ) {
-			return;
-		}
 
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
@@ -25,6 +23,8 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 				->run();
 
 			if ( !$oMod->isVisitorWhitelisted() ) {
+				$oMod->loadOffenseTracker()->setIfCommit( true );
+
 				$this->processBlacklist();
 				$oCon = $this->getCon();
 				add_filter( $oCon->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
@@ -263,11 +263,12 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 	 * TODO 8.6: make private
 	 */
 	public function doBlackMarkCurrentVisitor() {
-		/** @var ICWP_WPSF_FeatureHandler_Ips $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 
-		if ( !$this->getCon()->isPluginDeleting() && $oMod->getIfIpTransgressed()
-			 && !$oMod->isVisitorWhitelisted() && !$oMod->isVerifiedBot() ) {
+		if ( !$this->getCon()->isPluginDeleting()
+			 && $oMod->loadOffenseTracker()->hasVisitorOffended()
+			 && !$oMod->isVerifiedBot() ) {
 
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $oMod )

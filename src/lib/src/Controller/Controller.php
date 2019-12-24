@@ -88,22 +88,55 @@ class Controller extends Shield\Deprecated\Foundation {
 	protected $oNotices;
 
 	/**
+	 * @var Shield\Modules\Events\Lib\EventsService
+	 */
+	private $oEventsService;
+
+	/**
+	 * @param string $sEventTag
+	 * @param array  $aMetaData
+	 * @return $this
+	 */
+	public function fireEvent( $sEventTag, $aMetaData = [] ) {
+		$this->loadEventsService()->fireEvent( $sEventTag, $aMetaData );
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllEvents() {
+		return $this->loadEventsService()->getEvents();
+	}
+
+	/**
+	 * @return Shield\Modules\Events\Lib\EventsService
+	 */
+	public function loadEventsService() {
+		if ( !isset( $this->oEventsService ) ) {
+			$this->oEventsService = ( new Shield\Modules\Events\Lib\EventsService() )
+				->setCon( $this );
+		}
+		return $this->oEventsService;
+	}
+
+	/**
 	 * @param string $sRootFile
 	 * @return Controller
 	 * @throws \Exception
 	 */
 	public static function GetInstance( $sRootFile = null ) {
-		if ( !isset( self::$oInstance ) ) {
-			self::$oInstance = new self( $sRootFile );
+		if ( !isset( static::$oInstance ) ) {
+			static::$oInstance = new static( $sRootFile );
 		}
-		return self::$oInstance;
+		return static::$oInstance;
 	}
 
 	/**
 	 * @param string $sRootFile
 	 * @throws \Exception
 	 */
-	private function __construct( $sRootFile ) {
+	protected function __construct( $sRootFile ) {
 		$this->sRootFile = $sRootFile;
 		$this->loadServices();
 		$this->checkMinimumRequirements();
@@ -550,25 +583,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( isset( $submenu[ $sFullParentMenuId ] ) ) {
 			unset( $submenu[ $sFullParentMenuId ][ 0 ] );
 		}
-	}
-
-	/**
-	 * @param string $sEventTag
-	 * @param array  $aMetaData
-	 * @return $this
-	 */
-	public function fireEvent( $sEventTag, $aMetaData = [] ) {
-		if ( apply_filters( $this->prefix( 'is_event_supported' ), false, $sEventTag ) ) {
-			do_action( $this->prefix( 'event' ), $sEventTag, $aMetaData );
-		}
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getAllEvents() {
-		return apply_filters( $this->prefix( 'get_all_events' ), [] );
 	}
 
 	/**

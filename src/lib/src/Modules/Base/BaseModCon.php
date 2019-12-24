@@ -128,9 +128,6 @@ class BaseModCon extends Deprecated\Foundation {
 		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
 		// supply our supported plugin events for this module
-		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
-			return $bSupported || $this->isSupportedEvent( $sEventTag );
-		}, 10, 2 );
 		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
 			return array_merge( $aEvents, $this->getEvents() );
 		} );
@@ -226,33 +223,16 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return array|null
-	 */
-	public function getEventDef( $sKey ) {
-		return $this->isSupportedEvent( $sKey ) ? $this->getEvents()[ $sKey ] : null;
-	}
-
-	/**
 	 * @return array[]
 	 */
 	public function getEvents() {
-		$aEvts = $this->getSupportedEvents();
-
-		$aDefaults = [
-			'context'        => $this->getSlug(),
-			'cat'            => 1,
-			'stat'           => true,
-			'audit'          => true,
-			'recent'         => false, // whether to show in the recent events logs
-			'offense'        => false, // whether to mark offense against IP
-			'audit_multiple' => false, // allow multiple audit entries in the same request
-		];
-		foreach ( $aEvts as $sKey => $aEvt ) {
-			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
-			$aEvts[ $sKey ][ 'key' ] = $sKey;
-		}
-		return $aEvts;
+		return array_map(
+			function ( $aEvt ) {
+				$aEvt[ 'context' ] = $this->getSlug();
+				return $aEvt;
+			},
+			$this->getSupportedEvents()
+		);
 	}
 
 	/**
@@ -273,22 +253,6 @@ class BaseModCon extends Deprecated\Foundation {
 	protected function getSupportedEvents() {
 		$aEvts = $this->getDef( 'events' );
 		return is_array( $aEvts ) ? $aEvts : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isSupportedEvent( $sKey ) {
-		return array_key_exists( $sKey, $this->getSupportedEvents() );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isOffenseEvent( $sKey ) {
-		return $this->isSupportedEvent( $sKey ) && $this->getEvents()[ $sKey ][ 'offense' ];
 	}
 
 	/**

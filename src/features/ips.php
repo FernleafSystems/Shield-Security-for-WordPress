@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -8,6 +9,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_MANUAL_WHITE = 'MW';
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
+
+	/**
+	 * @var Lib\OffenseTracker
+	 */
+	private $oOffenseTracker;
 
 	/**
 	 * @return false|Shield\Databases\IPs\Handler
@@ -57,6 +63,16 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function getAutoUnblockIps() {
 		$aIps = $this->getOpt( 'autounblock_ips', [] );
 		return is_array( $aIps ) ? $aIps : [];
+	}
+
+	/**
+	 * @return Lib\OffenseTracker
+	 */
+	public function loadOffenseTracker() {
+		if ( !isset( $this->oOffenseTracker ) ) {
+			$this->oOffenseTracker = new Lib\OffenseTracker( $this->getCon() );
+		}
+		return $this->oOffenseTracker;
 	}
 
 	/**

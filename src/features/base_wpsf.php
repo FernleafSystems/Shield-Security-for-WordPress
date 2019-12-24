@@ -72,110 +72,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return ( $this->getSession() instanceof \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO );
 	}
 
-	protected function setupCustomHooks() {
-		$oCon = $this->getCon();
-		add_action( $oCon->prefix( 'event' ), [ $this, 'eventOffense' ], 10, 2 );
-		add_action( $oCon->prefix( 'event' ), [ $this, 'eventAudit' ], 10, 2 );
-		add_action( $oCon->prefix( 'event' ), [ $this, 'eventStat' ], 10, 2 );
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @param array  $aMeta
-	 * @return $this
-	 */
-	public function eventAudit( $sEvent = '', $aMeta = [] ) {
-		if ( $this->isSupportedEvent( $sEvent ) ) {
-			$aDef = $this->getEventDef( $sEvent );
-			if ( $aDef[ 'audit' ] && empty( $aMeta[ 'suppress_audit' ] ) ) { // only audit if it's an auditable event
-				$oEntry = new Shield\Databases\AuditTrail\EntryVO();
-				$oEntry->rid = $this->getCon()->getShortRequestId();
-				$oEntry->event = $sEvent;
-				$oEntry->category = $aDef[ 'cat' ];
-				$oEntry->context = $aDef[ 'context' ];
-				$oEntry->meta = isset( $aMeta[ 'audit' ] ) ? $aMeta[ 'audit' ] : [];
-				if ( !is_array( self::$aAuditLogs ) ) {
-					self::$aAuditLogs = [];
-				}
-
-				// cater for where certain events may happen more than once in the same request
-				if ( !empty( $aDef[ 'audit_multiple' ] ) ) {
-					self::$aAuditLogs[] = $oEntry;
-				}
-				else {
-					self::$aAuditLogs[ $sEvent ] = $oEntry;
-				}
-			}
-		}
-		return $this;
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @param array  $aMeta
-	 */
-	public function eventOffense( $sEvent, $aMeta = [] ) {
-		if ( $this->isSupportedEvent( $sEvent ) ) {
-			$aDef = $this->getEventDef( $sEvent );
-			if ( $aDef[ 'offense' ] && empty( $aMeta[ 'suppress_offense' ] ) ) {
-				self::$nIpOffenceCount = max(
-					(int)self::$nIpOffenceCount,
-					isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1
-				);
-			}
-		}
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @param array  $aMeta
-	 */
-	public function eventStat( $sEvent, $aMeta = [] ) {
-		if ( $this->isSupportedEvent( $sEvent ) ) {
-			$aDef = $this->getEventDef( $sEvent );
-			if ( $aDef[ 'stat' ] && empty( $aMeta[ 'suppress_stat' ] ) ) { // only stat if it's a statable event
-				$this->addStatEvent( $sEvent, $aMeta );
-			}
-		}
-	}
-
-	/**
-	 * @param string $sEvent
-	 * @param array  $aMeta
-	 * @return $this
-	 */
-	protected function addStatEvent( $sEvent, $aMeta = [] ) {
-		if ( !is_array( self::$aStatEvents ) ) {
-			self::$aStatEvents = [];
-		}
-		self::$aStatEvents[ $sEvent ] = isset( $aMeta[ 'ts' ] ) ? $aMeta[ 'ts' ] : Services::Request()->ts();
-		return $this;
-	}
-
-	/**
-	 * @param bool $bFlush
-	 * @return Shield\Databases\AuditTrail\EntryVO[]
-	 */
-	public function getRegisteredAuditLogs( $bFlush = false ) {
-		$aEntries = self::$aAuditLogs;
-		if ( $bFlush ) {
-			self::$aAuditLogs = [];
-		}
-		return is_array( $aEntries ) ? $aEntries : [];
-	}
-
-	/**
-	 * @param bool $bFlush
-	 * @return string[]
-	 */
-	public function getRegisteredEvents( $bFlush = false ) {
-		$aEntries = self::$aStatEvents;
-		if ( $bFlush ) {
-			self::$aStatEvents = [];
-		}
-		return is_array( $aEntries ) ? $aEntries : [];
-	}
-
 	/**
 	 * A action added to WordPress 'init' hook
 	 */
@@ -422,5 +318,59 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getIpOffenceCount() {
 		return isset( self::$nIpOffenceCount ) ? self::$nIpOffenceCount : 0;
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	public function eventAudit( $sEvent = '', $aMeta = [] ) {
+		return $this;
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 * @deprecated 8.5
+	 */
+	public function eventOffense( $sEvent, $aMeta = [] ) {
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 * @deprecated 8.5
+	 */
+	public function eventStat( $sEvent, $aMeta = [] ) {
+	}
+
+	/**
+	 * @param string $sEvent
+	 * @param array  $aMeta
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	protected function addStatEvent( $sEvent, $aMeta = [] ) {
+		return $this;
+	}
+
+	/**
+	 * @param bool $bFlush
+	 * @return Shield\Databases\AuditTrail\EntryVO[]
+	 * @deprecated 8.5
+	 */
+	public function getRegisteredAuditLogs( $bFlush = false ) {
+		return [];
+	}
+
+	/**
+	 * @param bool $bFlush
+	 * @return string[]
+	 * @deprecated 8.5
+	 */
+	public function getRegisteredEvents( $bFlush = false ) {
+		return [];
 	}
 }

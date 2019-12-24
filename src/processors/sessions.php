@@ -13,14 +13,12 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	private $oCurrent;
 
 	public function run() {
-		if ( $this->isReadyToRun() ) {
-			if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
-				add_action( 'clear_auth_cookie', function () {
-					$this->terminateCurrentSession();
-				}, 0 );
-			}
-			add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
+		if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
+			add_action( 'clear_auth_cookie', function () {
+				$this->terminateCurrentSession();
+			}, 0 );
 		}
+		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
 	}
 
 	/**
