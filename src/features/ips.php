@@ -158,7 +158,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aIps = [];
 		$oSp = $this->loadServiceProviders();
 
-		if ( function_exists( 'mwp_init' ) ) {
+		if ( @class_exists( '\MwpWorkerResponder' ) ) {
 			foreach ( array_flip( $oSp->getIps_ManageWp() ) as $sIp => $n ) {
 				$aIps[ $sIp ] = 'ManageWP';
 			}
