@@ -860,12 +860,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getRecentEvents() {
 		$oCon = $this->getCon();
 
-		$aEmptyStats = [];
-		foreach ( $oCon->getModules() as $oModule ) {
-			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
-			$aStat = $oModule->getStatEvents_Recent();
-			$aEmptyStats = array_merge( $aEmptyStats, $aStat );
-		}
+		$aTheStats = array_filter(
+			$oCon->loadEventsService()->getEvents(),
+			function ( $aEvt ) {
+				return isset( $aEvt[ 'recent' ] ) && $aEvt[ 'recent' ];
+			}
+		);
 
 		/** @var Shield\Modules\Insights\Strings $oStrs */
 		$oStrs = $this->getStrings();
@@ -876,7 +876,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					 ->getDbHandler_Events()
 					 ->getQuerySelector();
 
-		$aLatestStats = array_intersect_key(
+		$aRecentStats = array_intersect_key(
 			array_map(
 				function ( $oEntryVO ) use ( $aNames ) {
 					/** @var Shield\Databases\Events\EntryVO $oEntryVO */
@@ -887,20 +887,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				},
 				$oSel->getLatestForAllEvents()
 			),
-			$aEmptyStats
+			$aTheStats
 		);
 
 		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $aEmptyStats ) as $sStatKey ) {
-			if ( !isset( $aLatestStats[ $sStatKey ] ) ) {
-				$aLatestStats[ $sStatKey ] = [
+		foreach ( array_keys( $aTheStats ) as $sStatKey ) {
+			if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
+				$aRecentStats[ $sStatKey ] = [
 					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
 					'val'  => $sNotYetRecorded
 				];
 			}
 		}
 
-		return $aLatestStats;
+		return $aRecentStats;
 	}
 
 	/**

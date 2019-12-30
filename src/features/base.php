@@ -119,9 +119,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		add_action( $this->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
-		// supply our supported plugin events for this module
+		// supply supported events for this module
 		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
-			return array_merge( $aEvents, $this->getEvents() );
+			return array_merge(
+				is_array( $aEvents ) ? $aEvents : [],
+				array_map(
+					function ( $aEvt ) {
+						$aEvt[ 'context' ] = $this->getSlug();
+						return $aEvt;
+					},
+					is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : []
+				)
+			);
 		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
@@ -212,55 +221,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private function getAllDbClasses() {
 		$aCls = $this->getOptions()->getDef( 'db_classes' );
 		return is_array( $aCls ) ? $aCls : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return array|null
-	 */
-	public function getEventDef( $sKey ) {
-		return $this->isSupportedEvent( $sKey ) ? $this->getEvents()[ $sKey ] : null;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getEvents() {
-		return array_map(
-			function ( $aEvt ) {
-				$aEvt[ 'context' ] = $this->getSlug();
-				return $aEvt;
-			},
-			$this->getSupportedEvents()
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getStatEvents_Recent() {
-		return array_filter(
-			$this->getEvents(),
-			function ( $aEvt ) {
-				return $aEvt[ 'recent' ];
-			}
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getSupportedEvents() {
-		$aEvts = $this->getDef( 'events' );
-		return is_array( $aEvts ) ? $aEvts : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isSupportedEvent( $sKey ) {
-		return array_key_exists( $sKey, $this->getSupportedEvents() );
 	}
 
 	/**
@@ -2034,5 +1994,47 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * @return array[]
+	 * @deprecated 8.5
+	 */
+	public function getStatEvents_Recent() {
+		return [];
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return array|null
+	 * @deprecated 8.5
+	 */
+	public function getEventDef( $sKey ) {
+		return null;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isSupportedEvent( $sKey ) {
+		return false;
+	}
+
+	/**
+	 * @return array[]
+	 * @deprecated 8.5
+	 */
+	protected function getSupportedEvents() {
+		return [];
+	}
+
+	/**
+	 * @return array[]
+	 * @deprecated 8.5
+	 */
+	public function getEvents() {
+		return $this->getDef( 'events' );
 	}
 }

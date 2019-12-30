@@ -32,7 +32,7 @@ class BaseModCon extends Deprecated\Foundation {
 	private static $oEmailHandler;
 
 	/**
-	 * @var \ICWP_WPSF_Processor_Base
+	 * @var BaseProcessor
 	 */
 	private $oProcessor;
 
@@ -129,7 +129,16 @@ class BaseModCon extends Deprecated\Foundation {
 
 		// supply our supported plugin events for this module
 		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
-			return array_merge( $aEvents, $this->getEvents() );
+			return array_merge(
+				is_array( $aEvents ) ? $aEvents : [],
+				array_map(
+					function ( $aEvt ) {
+						$aEvt[ 'context' ] = $this->getSlug();
+						return $aEvt;
+					},
+					is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : []
+				)
+			);
 		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
@@ -220,39 +229,6 @@ class BaseModCon extends Deprecated\Foundation {
 	private function getAllDbClasses() {
 		$aCls = $this->getOptions()->getDef( 'db_classes' );
 		return is_array( $aCls ) ? $aCls : [];
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getEvents() {
-		return array_map(
-			function ( $aEvt ) {
-				$aEvt[ 'context' ] = $this->getSlug();
-				return $aEvt;
-			},
-			$this->getSupportedEvents()
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getStatEvents_Recent() {
-		return array_filter(
-			$this->getEvents(),
-			function ( $aEvt ) {
-				return $aEvt[ 'recent' ];
-			}
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getSupportedEvents() {
-		$aEvts = $this->getDef( 'events' );
-		return is_array( $aEvts ) ? $aEvts : [];
 	}
 
 	/**
