@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Select extends Base\Select {
 
@@ -16,13 +15,6 @@ class Select extends Base\Select {
 	public function filterForCron( $nNotifiedInterval ) {
 		return $this->filterByNotRecentlyNotified( $nNotifiedInterval )
 					->filterByNotIgnored();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getDistinctSeverity() {
-		return $this->getDistinct_FilterAndSort( 'severity' );
 	}
 
 	/**
