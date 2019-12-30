@@ -9,12 +9,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param Shield\Scans\Mal\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultsSet $oRes
 	 * @return bool
 	 */
 	protected function runCronUserNotify( $oRes ) {

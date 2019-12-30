@@ -35,9 +35,8 @@ class Update extends Base\Update {
 		return $this
 				   ->setUpdateWheres(
 					   [
-						   'scan'        => $sScan,
-						   'ignored_at'  => 0,
-						   'notified_at' => 0,
+						   'scan'       => $sScan,
+						   'ignored_at' => 0,
 					   ]
 				   )
 				   ->setUpdateData(
