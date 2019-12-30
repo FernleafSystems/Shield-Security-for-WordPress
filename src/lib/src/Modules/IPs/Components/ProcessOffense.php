@@ -34,13 +34,12 @@ class ProcessOffense {
 			$nLimit = $oOpts->getOffenseLimit();
 			$nCurrentOffenses = $oBlackIp->transgressions;
 
-			$mAction = $oMod->loadOffenseTracker()
-							->getOffenseCount();
+			$nCount = $oMod->loadOffenseTracker()
+						   ->getOffenseCount();
 			$bToBlock = ( $oBlackIp->blocked_at == 0 ) && ( $nCurrentOffenses < $nLimit )
-						&& ( $mAction == PHP_INT_MAX ) || ( $nLimit - $nCurrentOffenses == 1 );
+						&& ( $nCount == PHP_INT_MAX ) || ( $nLimit - $nCurrentOffenses == 1 );
 
-			$nNewOffensesTotal = $oBlackIp->transgressions +
-								 min( 1, $bToBlock ? $nLimit - $nCurrentOffenses : $mAction );
+			$nNewOffensesTotal = $oBlackIp->transgressions + ( $bToBlock ? 1 : $nCount );
 
 			/** @var Databases\IPs\Update $oUp */
 			$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();

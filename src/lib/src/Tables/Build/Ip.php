@@ -54,8 +54,10 @@ class Ip extends BaseBuild {
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var IPs\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();
-			$bBlocked = $oEntry->transgressions >= $nTransLimit;
-			$aE[ 'last_trans_at' ] = Services::Request()->carbon()->setTimestamp( $oEntry->last_access_at )
+			$bBlocked = $oEntry->blocked_at > 0 || $oEntry->transgressions >= $nTransLimit;
+			$aE[ 'last_trans_at' ] = Services::Request()
+											 ->carbon()
+											 ->setTimestamp( $oEntry->last_access_at )
 											 ->diffForHumans();
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
