@@ -24,11 +24,12 @@ class OffenseTracker extends EventsListener {
 		$aDef = $this->getCon()
 					 ->loadEventsService()
 					 ->getEventDef( $sEvent );
-		if ( !empty( $aDef )
-			 && $aDef[ 'offense' ] && empty( $aMeta[ 'suppress_offense' ] ) ) {
-			$this->setOffenseCount(
-				isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1
-			);
+
+		if ( !empty( $aDef ) && !empty( $aDef[ 'offense' ] ) && empty( $aMeta[ 'suppress_offense' ] ) ) {
+			$this->incrementCount( isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1 );
+			if ( isset( $aMeta[ 'block' ] ) && $aMeta[ 'block' ] ) {
+				$this->setIsBlocked( true );
+			}
 		}
 	}
 
@@ -36,7 +37,7 @@ class OffenseTracker extends EventsListener {
 	 * @return bool
 	 */
 	public function hasVisitorOffended() {
-		return $this->getOffenseCount() > 0;
+		return $this->isBlocked() || $this->getOffenseCount() > 0;
 	}
 
 	/**
@@ -60,6 +61,14 @@ class OffenseTracker extends EventsListener {
 	public function setIsBlocked( $bIsBlocked ) {
 		$this->bIsBlocked = $bIsBlocked;
 		return $this;
+	}
+
+	/**
+	 * @param int $nIncrement
+	 * @return $this
+	 */
+	public function incrementCount( $nIncrement = 1 ) {
+		return $this->setOffenseCount( $this->getOffenseCount() + (int)$nIncrement );
 	}
 
 	/**

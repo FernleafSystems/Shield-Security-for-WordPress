@@ -25,31 +25,28 @@ class ProcessOffense {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		$oBlackIp = ( new IPs\Lib\Ops\AddIp() )
+		$oIP = ( new IPs\Lib\Ops\AddIp() )
 			->setMod( $oMod )
 			->setIP( $this->getIP() )
 			->toAutoBlacklist();
 
-		if ( $oBlackIp instanceof Databases\IPs\EntryVO ) {
-			$nLimit = $oOpts->getOffenseLimit();
-			$nCurrentOffenses = $oBlackIp->transgressions;
+		if ( $oIP instanceof Databases\IPs\EntryVO ) {
+			$nCurrent = $oIP->transgressions;
 
-			$nCount = $oMod->loadOffenseTracker()
-						   ->getOffenseCount();
-			$bToBlock = ( $oBlackIp->blocked_at == 0 ) && ( $nCurrentOffenses < $nLimit )
-						&& ( $nCount == PHP_INT_MAX ) || ( $nLimit - $nCurrentOffenses == 1 );
-
-			$nNewOffensesTotal = $oBlackIp->transgressions + ( $bToBlock ? 1 : $nCount );
+			$oTracker = $oMod->loadOffenseTracker();
+			$bToBlock = $oTracker->isBlocked() ||
+						( $oIP->blocked_at == 0 && ( $oOpts->getOffenseLimit() - $nCurrent == 1 ) );
+			$nNewTotal = $oIP->transgressions + $oTracker->getOffenseCount();
 
 			/** @var Databases\IPs\Update $oUp */
 			$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
-			$oUp->updateTransgressions( $oBlackIp, $nNewOffensesTotal );
+			$oUp->updateTransgressions( $oIP, $nNewTotal );
 
 			$oCon->fireEvent( $bToBlock ? 'ip_blocked' : 'ip_offense',
 				[
 					'audit' => [
-						'from' => $nCurrentOffenses,
-						'to'   => $nNewOffensesTotal,
+						'from' => $nCurrent,
+						'to'   => $nNewTotal,
 					]
 				]
 			);
@@ -61,7 +58,7 @@ class ProcessOffense {
 			 */
 			if ( $bToBlock ) {
 				$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
-				$oUp->setBlocked( $oBlackIp );
+				$oUp->setBlocked( $oIP );
 				$oCon->fireEvent( 'ip_offense', [ 'suppress_audit' => true ] );
 			}
 		}
