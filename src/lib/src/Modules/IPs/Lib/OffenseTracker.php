@@ -27,7 +27,7 @@ class OffenseTracker extends EventsListener {
 
 		if ( !empty( $aDef ) && !empty( $aDef[ 'offense' ] ) && empty( $aMeta[ 'suppress_offense' ] ) ) {
 			$this->incrementCount( isset( $aMeta[ 'offense_count' ] ) ? $aMeta[ 'offense_count' ] : 1 );
-			if ( isset( $aMeta[ 'block' ] ) && $aMeta[ 'block' ] ) {
+			if ( !empty( $aMeta[ 'block' ] ) ) {
 				$this->setIsBlocked( true );
 			}
 		}
