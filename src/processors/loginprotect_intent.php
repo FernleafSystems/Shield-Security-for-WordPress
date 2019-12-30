@@ -236,6 +236,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
+		$oWP = Services::WpGeneral();
 		$aLoginIntentFields = apply_filters( $oCon->prefix( 'login-intent-form-fields' ), [] );
 
 		if ( empty( $aLoginIntentFields ) ) {
@@ -258,12 +259,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 			$sReferQuery = '';
 		}
 
-		$sRedirectTo = $oReq->post( 'redirect_to', '' );
+		$sRedirectTo = '';
 		if ( !empty( $sReferQuery ) ) {
 			parse_str( $sReferQuery, $aReferQueryItems );
 			if ( !empty( $aReferQueryItems[ 'redirect_to' ] ) ) {
 				$sRedirectTo = rawurlencode( $aReferQueryItems[ 'redirect_to' ] );
 			}
+		}
+		if ( empty( $sRedirectTo ) ) {
+			$sRedirectTo = rawurlencode( $oReq->post( 'redirect_to', $oReq->getUri() ) );
 		}
 
 		$sCancelHref = $oReq->post( 'cancel_href', '' );
@@ -296,10 +300,10 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				'time_remaining'    => $this->getLoginIntentExpiresAt() - $oReq->ts(),
 				'message_type'      => $sMessageType,
 				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
-				'page_locale'       => Services::WpGeneral()->getLocale( '-' )
+				'page_locale'       => $oWP->getLocale( '-' )
 			],
 			'hrefs'   => [
-				'form_action'   => trim( $oReq->getPath() ),
+				'form_action'   => parse_url( $oWP->getAdminUrl( '', true ), PHP_URL_PATH ),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
