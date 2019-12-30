@@ -299,7 +299,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				'page_locale'       => Services::WpGeneral()->getLocale( '-' )
 			],
 			'hrefs'   => [
-				'form_action'   => $oReq->getUri(),
+				'form_action'   => trim( $oReq->getPath() ),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',

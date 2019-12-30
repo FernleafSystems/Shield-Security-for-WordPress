@@ -93,8 +93,12 @@
 
 			<form action="{{ hrefs.form_action }}" method="post" class="form-horizontal">
 				<input type="hidden" name="{{ data.login_intent_flag }}" value="1" />
-				<input type="hidden" name="redirect_to" value="{{ hrefs.redirect_to }}" />
-				<input type="hidden" name="cancel_href" value="{{ hrefs.cancel_href }}" />
+				{% if not hrefs.redirect_to is empty %}
+					<input type="hidden" name="redirect_to" value="{{ hrefs.redirect_to }}" />
+				{% endif %}
+				{% if not hrefs.redirect_to is empty %}
+					<input type="hidden" name="cancel_href" value="{{ hrefs.cancel_href }}" />
+				{% endif %}
 
 				{% for key_field, aField in data.login_fields %}
 					<div class="form-row">
