@@ -4,7 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
+class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 
 	const SCAN_SLUG = 'ptg';
 
@@ -62,6 +62,20 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_HackProtec
 			$aMeta = null;
 		}
 		return $aMeta;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return Services\Core\VOs\WpPluginVo|Services\Core\VOs\WpThemeVo|null
+	 */
+	protected function getAssetFromSlug( $sSlug ) {
+		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {
+			$oAsset = Services\Services::WpPlugins()->getPluginAsVo( $sSlug );
+		}
+		elseif ( Services\Services::WpThemes()->isInstalled( $sSlug ) ) {
+			$oAsset = Services\Services::WpThemes()->getThemeAsVo( $sSlug );
+		}
+		return $oAsset;
 	}
 
 	public function printPluginReinstallDialogs() {

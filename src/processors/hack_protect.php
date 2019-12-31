@@ -100,7 +100,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$aReasonCantScan = $this->getSubProScanner()
 								->getReasonsScansCantExecute();
 
-		$oScannerMain = $this->getSubProScanner();
 		$oQueCon = $oMod->getScanController();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
@@ -162,8 +161,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'vars'    => [
 				],
 				'strings' => [
-					'title'    => __( "All Scan Results", 'wp-simple-firewall' ),
-					'subtitle' => __( "Results of all scans", 'wp-simple-firewall' )
+					'title'    => __( "File Scan Results", 'wp-simple-firewall' ),
+					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
 				],
 				'count'   => $oSelector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
 									   ->filterByNotIgnored()

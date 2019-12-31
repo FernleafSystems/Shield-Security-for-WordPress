@@ -4,7 +4,7 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_HackProtect_ScanAssetsBase {
+class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 
 	const SCAN_SLUG = 'wpv';
 

@@ -231,7 +231,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	/**
 	 * @return bool true if valid form printed, false otherwise. Should die() if true
 	 */
-	public function printLoginIntentForm() {
+	private function printLoginIntentForm() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
@@ -249,7 +249,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 		else {
 			$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 		}
-		$sMessageType = 'info';
 
 		$sReferUrl = $oReq->server( 'HTTP_REFERER', '' );
 		if ( strpos( $sReferUrl, '?' ) ) {
@@ -298,7 +297,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 			'data'    => [
 				'login_fields'      => $aLoginIntentFields,
 				'time_remaining'    => $this->getLoginIntentExpiresAt() - $oReq->ts(),
-				'message_type'      => $sMessageType,
+				'message_type'      => 'info',
 				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
 				'page_locale'       => $oWP->getLocale( '-' )
 			],

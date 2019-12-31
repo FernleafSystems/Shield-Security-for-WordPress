@@ -3,6 +3,10 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase
+ * @deprecated 8.5
+ */
 abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_Processor_ScanBase {
 
 	const CONTEXT_PLUGINS = 'plugins';
@@ -11,6 +15,7 @@ abstract class ICWP_WPSF_Processor_HackProtect_ScanAssetsBase extends ICWP_WPSF_
 	/**
 	 * @param string $sSlug
 	 * @return Services\Core\VOs\WpPluginVo|Services\Core\VOs\WpThemeVo|null
+	 * @deprecated 8.5
 	 */
 	protected function getAssetFromSlug( $sSlug ) {
 		if ( Services\Services::WpPlugins()->isInstalled( $sSlug ) ) {

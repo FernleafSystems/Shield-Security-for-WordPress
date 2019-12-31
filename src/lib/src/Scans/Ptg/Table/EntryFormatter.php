@@ -11,6 +11,32 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	/**
 	 * @return array
 	 */
+	protected function getBaseData() {
+		$aData = parent::getBaseData();
+		/** @var Ptg\ResultItem $oIt */
+		$oIt = $this->getResultItem();
+
+		if ( $oIt->context == 'plugins' ) {
+			$oAsset = Services::WpPlugins()->getPluginAsVo( $oIt->slug );
+			if ( !empty( $oAsset ) ) {
+				$aData[ 'path_details' ][] = sprintf( '%s: %s v%s',
+					__( 'Plugin', 'wp-simple-firewall' ), $oAsset->Name, $oAsset->version );
+			}
+		}
+		else {
+			$oAsset = Services::WpThemes()->getThemeAsVo( $oIt->slug );
+			if ( !empty( $oAsset ) ) {
+				$aData[ 'path_details' ][] = sprintf( '%s: %s v%s',
+					__( 'Theme', 'wp-simple-firewall' ), $oAsset->wp_theme->get( 'Name' ), $oAsset->version );
+			}
+		}
+
+		return $aData;
+	}
+
+	/**
+	 * @return array
+	 */
 	public function format() {
 		/** @var Ptg\ResultItem $oIt */
 		$oIt = $this->getResultItem();

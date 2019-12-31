@@ -11,12 +11,17 @@ class ScanBase extends Base {
 	 * @return string
 	 */
 	public function column_path( $aItem ) {
-		return sprintf( '<code>%s</code><code>[%s]</code>',
+		$sOut = sprintf( '<code><span class="font-weight-bolder text-dark" style="font-size: larger">%s</span></code><code>[%s]</code>',
 			$aItem[ 'path' ],
-			sprintf( '%s: %s', __( 'Folder', 'wp-simple-firewall' ), trailingslashit( dirname( $aItem[ 'path_relabs' ] ) ) )
+			sprintf( '%s: %s', __( 'Path', 'wp-simple-firewall' ), trailingslashit( dirname( $aItem[ 'path_relabs' ] ) ) )
 		);
+		if ( !empty( $aItem[ 'path_details' ] ) ) {
+			$sOut .= '<p class="mb-0">'.implode( '; ', $aItem[ 'path_details' ] ).'</p>';
+		}
+		return $sOut;
 	}
 
+//.implode( '; ', $aItem[ 'asset_description' ] )
 	protected function extra_tablenav( $which ) {
 		echo '';
 	}
