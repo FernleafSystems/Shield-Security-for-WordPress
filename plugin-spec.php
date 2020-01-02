@@ -42,7 +42,7 @@
     },
     "plugin_admin": {
       "css": [
-        "bootstrap4",
+        "bootstrap4.min",
         "bootstrap-select.min",
         "plugin",
         "featherlight"

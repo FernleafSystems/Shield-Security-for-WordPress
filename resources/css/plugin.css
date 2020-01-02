@@ -4,6 +4,9 @@
 body {
 	overflow-y: scroll;
 }
+body.rtl {
+	text-align: right;
+}
 #wpcontent {
 	padding: 0;
 }

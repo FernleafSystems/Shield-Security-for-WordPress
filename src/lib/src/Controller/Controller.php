@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Controller extends Shield\Deprecated\Foundation {
 
@@ -1318,6 +1318,11 @@ class Controller extends Shield\Deprecated\Foundation {
 			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
 			return Services::Includes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
 		}
+		else {
+			error_log( $sAsset );
+			error_log( $sAssetPath );
+		}
+
 		return $sUrl;
 	}
 
