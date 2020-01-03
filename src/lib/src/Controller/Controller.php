@@ -1318,11 +1318,6 @@ class Controller extends Shield\Deprecated\Foundation {
 			$sUrl = $this->getPluginUrl( $this->getPluginSpec_Path( 'assets' ).'/'.$sAsset );
 			return Services::Includes()->addIncludeModifiedParam( $sUrl, $sAssetPath );
 		}
-		else {
-			error_log( $sAsset );
-			error_log( $sAssetPath );
-		}
-
 		return $sUrl;
 	}
 
