@@ -59,6 +59,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
+	public function isAutoUpdateCoreNever() {
+		return $this->isOpt( 'autoupdate_core', 'core_never' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isAutoUpdateCoreMajor() {
 		return $this->isOpt( 'autoupdate_core', 'core_major' );
 	}
@@ -67,7 +74,7 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isAutoUpdateCoreMinor() {
-		return !$this->isOpt( 'autoupdate_core', 'core_never' );
+		return !$this->isAutoUpdateCoreNever();
 	}
 
 	/**
