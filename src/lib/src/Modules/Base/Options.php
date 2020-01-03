@@ -815,15 +815,28 @@ class Options {
 	 * @return mixed
 	 */
 	private function ensureOptValueState( $sOptKey, $mValue ) {
-		switch ( $this->getOptionType( $sOptKey ) ) {
-			case 'integer':
-				$mValue = (int)$mValue;
-				break;
+		$sType = $this->getOptionType( $sOptKey );
+		if ( !empty( $sType ) ) {
+			switch ( $sType ) {
+				case 'integer':
+					$mValue = (int)$mValue;
+					break;
 
-			case 'text':
-			case 'email':
-				$mValue = (string)$mValue;
-				break;
+				case 'text':
+				case 'email':
+					$mValue = (string)$mValue;
+					break;
+
+				case 'array':
+				case 'multiple_select':
+					if ( !is_array( $mValue ) ) {
+						$mValue = $this->getOptDefault( $sOptKey );
+					}
+					break;
+
+				default:
+					break;
+			}
 		}
 		return $mValue;
 	}

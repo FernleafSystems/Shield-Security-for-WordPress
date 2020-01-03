@@ -139,11 +139,11 @@ class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 	private function setContentSecurityPolicyHeader() {
 		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
 		$oFO = $this->getMod();
+		/** @var Modules\Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
 		if ( !$oFO->isContentSecurityPolicyEnabled() ) {
 			return null;
 		}
-
-		$sTemplate = 'default-src %s;';
 
 		$aDefaultSrcDirectives = [];
 
@@ -167,7 +167,10 @@ class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 			$aDefaultSrcDirectives[] = implode( " ", $aDomains );
 		}
-		return [ 'Content-Security-Policy' => sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) ) ];
+
+		$aRules = $oOpts->getOpt( 'xcsp_custom' );
+		array_unshift( $aRules, sprintf( 'default-src %s;', implode( " ", $aDefaultSrcDirectives ) ) );
+		return [ 'Content-Security-Policy' => implode( ' ', $aRules ) ];
 	}
 
 	/**

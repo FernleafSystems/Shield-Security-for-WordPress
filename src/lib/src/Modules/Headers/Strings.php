@@ -141,6 +141,13 @@ class Strings extends Base\Strings {
 								.'<br />- '.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You can force only HTTPS for a given domain by prefixing it with "https://".', 'wp-simple-firewall' ) );
 				break;
 
+			case 'xcsp_custom' :
+				$sName = __( 'Manual Rules', 'wp-simple-firewall' );
+				$sSummary = __( 'Manual CSP Rules', 'wp-simple-firewall' );
+				$sDescription = __( 'Manual CSP rules which are not covered by the rules above.', 'wp-simple-firewall' )
+								.'<br />- '.__( 'Take a new line per rule.', 'wp-simple-firewall' );
+				break;
+
 			default:
 				return parent::getOptionStrings( $sOptKey );
 		}

@@ -5,6 +5,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	protected function doPostConstruction() {
+		$this->setOpt( 'xcsp_custom', 'asdf' );
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -62,6 +66,26 @@ class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	protected function doExtraSubmitProcessing() {
+		$this->cleanCspHosts();
+		$this->cleanCustomRules();
+	}
+
+	private function cleanCustomRules() {
+		/** @var Shield\Modules\Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt( 'xcsp_custom', array_unique( array_filter( array_map(
+			function ( $sRule ) {
+				$sRule = trim( preg_replace( '#;|\s{2,}#', '', html_entity_decode( $sRule, ENT_QUOTES ) ) );
+				if ( !empty( $sRule ) ) {
+					$sRule .= ';';
+				}
+				return $sRule;
+			},
+			$this->getOpt( 'xcsp_custom', [] )
+		) ) ) );
+	}
+
+	private function cleanCspHosts() {
 		$aDomains = $this->getCspHosts();
 		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
 			$oDP = Services::Data();
