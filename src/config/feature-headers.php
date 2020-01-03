@@ -245,6 +245,7 @@
     {
       "key":         "xcsp_custom",
       "section":     "section_content_security_policy",
+      "premium":     true,
       "default":     [],
       "type":        "array",
       "link_info":   "https://shsec.io/g9",
