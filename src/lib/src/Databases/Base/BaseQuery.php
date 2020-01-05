@@ -34,8 +34,14 @@ abstract class BaseQuery {
 
 	/**
 	 * @var string
+	 * @deprecated 8.5
 	 */
 	protected $sOrderBy;
+
+	/**
+	 * @var array
+	 */
+	protected $aOrderBys;
 
 	/**
 	 * @var string
@@ -149,7 +155,7 @@ abstract class BaseQuery {
 		$aExtras = array_filter(
 			[
 				$this->getGroupBy(),
-				$this->getOrderBy(),
+				$this->buildOrderBy(),
 				$this->buildLimitPhrase(),
 				$this->buildOffsetPhrase(),
 			]
@@ -329,8 +335,20 @@ abstract class BaseQuery {
 	/**
 	 * @return string
 	 */
-	public function getOrderBy() {
-		return !empty( $this->sOrderBy ) ? $this->sOrderBy : 'ORDER BY `created_at` DESC';
+	protected function buildOrderBy() {
+		$sOrder = '';
+		if ( !is_array( $this->aOrderBys ) ) {
+			// Defaults to created_at if aOrderBys is untouched. Set to empty array for no order
+			$this->aOrderBys = [ 'created_at' => 'DESC' ];
+		}
+		if ( !empty( $this->aOrderBys ) ) {
+			$aOrders = [];
+			foreach ( $this->aOrderBys as $sCol => $sOrder ) {
+				$aOrders[] = sprintf( '`%s` %s', esc_sql( $sCol ), esc_sql( $sOrder ) );
+			}
+			$sOrder = sprintf( 'ORDER BY %s', implode( ', ', $aOrders ) );
+		}
+		return $sOrder;
 	}
 
 	/**
@@ -368,7 +386,7 @@ abstract class BaseQuery {
 		return $this->setLimit( 0 )
 					->setWheres( [] )
 					->setPage( 1 )
-					->setOrderBy( '' );
+					->setOrderBy( null );
 	}
 
 	/**
@@ -410,10 +428,13 @@ abstract class BaseQuery {
 	 */
 	public function setOrderBy( $sOrderByColumn, $sOrder = 'DESC' ) {
 		if ( empty( $sOrderByColumn ) ) {
-			$this->sOrderBy = '';
+			$this->aOrderBys = $sOrderByColumn;
 		}
 		else {
-			$this->sOrderBy = sprintf( 'ORDER BY `%s` %s', esc_sql( $sOrderByColumn ), esc_sql( $sOrder ) );
+			if ( !is_array( $this->aOrderBys ) ) {
+				$this->aOrderBys = [];
+			}
+			$this->aOrderBys[ $sOrderByColumn ] = $sOrder;
 		}
 		return $this;
 	}
@@ -457,5 +478,13 @@ abstract class BaseQuery {
 			strtoupper( $sOp ),
 			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' ]
 		);
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function getOrderBy() {
+		return '';
 	}
 }

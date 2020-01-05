@@ -61,7 +61,7 @@ class AuditTrail extends BaseBuild {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
 
-		$oSelector->setOrderBy( 'updated_at' );
+		$oSelector->setOrderBy( 'updated_at' )->setOrderBy( 'created_at' );
 
 		return $this;
 	}
