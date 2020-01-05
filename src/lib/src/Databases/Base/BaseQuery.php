@@ -424,14 +424,15 @@ abstract class BaseQuery {
 	/**
 	 * @param string $sOrderByColumn
 	 * @param string $sOrder
+	 * @param bool   $bReplace
 	 * @return $this
 	 */
-	public function setOrderBy( $sOrderByColumn, $sOrder = 'DESC' ) {
+	public function setOrderBy( $sOrderByColumn, $sOrder = 'DESC', $bReplace = false ) {
 		if ( empty( $sOrderByColumn ) ) {
 			$this->aOrderBys = $sOrderByColumn;
 		}
 		else {
-			if ( !is_array( $this->aOrderBys ) ) {
+			if ( !is_array( $this->aOrderBys ) || $bReplace ) {
 				$this->aOrderBys = [];
 			}
 			$this->aOrderBys[ $sOrderByColumn ] = $sOrder;
