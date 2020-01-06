@@ -1386,12 +1386,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
-		if ( $this->canDisplayOptionsForm() ) {
-			echo $this->renderModulePage();
-		}
-		else {
-			echo $this->renderRestrictedPage();
-		}
+		echo $this->renderModulePage();
 	}
 
 	/**
@@ -1406,34 +1401,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		$aData[ 'content' ][ 'options_form' ] = $this->renderOptionsForm();
 
 		return $this->renderTemplate( 'index.php', $aData );
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function renderRestrictedPage() {
-		/** @var Shield\Modules\SecurityAdmin\Options $oSecOpts */
-		$oSecOpts = $this->getCon()
-						 ->getModule_SecAdmin()
-						 ->getOptions();
-		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive(
-							 $this->getBaseDisplayData(),
-							 [
-								 'ajax'    => [
-									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
-								 ],
-								 'strings' => [
-									 'force_remove_email' => __( "If you've forgotten your key, a link can be sent to the administrator email address to remove this restriction.", 'wp-simple-firewall' ),
-									 'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
-									 'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
-								 ],
-								 'flags'   => [
-									 'allow_email_override' => $oSecOpts->isEmailOverridePermitted()
-								 ]
-							 ]
-						 );
-		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
 	}
 
 	/**

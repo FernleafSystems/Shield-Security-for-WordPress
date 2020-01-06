@@ -4,7 +4,7 @@
 {% block page_head %}{% endblock %}
 {% block page_main %}
 	<div class="row">
-	<div class="col-md-8 offset-md-2 col-xs-10 offset-xs-1 col-xl-6 offset-xl-3">
+	<div class="col-md-8 offset-md-2 col-xl-8 offset-xl-2">
 		<div class="options-body" id="IcwpWpsfSecurityAdmin">
 
 			<h3>{{ strings.aar_title }}</h3>
@@ -52,9 +52,15 @@
 
 			<div class="alert alert-info mb-0 mt-5 text-center">
 				{% if flags.allow_email_override %}
-					{{ strings.force_remove_email }}
-					<br />
-					<a href="#" id="SecAdminRemoveConfirmEmail">{{ strings.click_email }}</a>
+
+					<p>
+						{{ strings.force_remove_email }}
+					</p>
+					<p class="mb-0">
+						<a href="#" id="SecAdminRemoveConfirmEmail">{{ strings.click_email }}</a>
+						<br/>
+						({{ strings.send_to_email }})
+					</p>
 				{% else %}
 					{{ strings.no_email_override }}
 				{% endif %}
