@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 				->setMod( $oMod )
 				->run();
 
-			if ( !$oMod->isVisitorWhitelisted() ) {
+			if ( !$oMod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() ) {
 				$oMod->loadOffenseTracker()->setIfCommit( true );
 
 				$this->processBlacklist();
@@ -36,8 +36,27 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
+	private function isRequestWhitelisted() {
+		/** @var IPs\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$bWhitelisted = false;
+		$aWhitelist = $oOpts->getOpt( 'request_whitelist' );
+		if ( !empty( $aWhitelist ) ) {
+			$sPath = '/'.ltrim( Services::Request()->getPath(), '/' );
+			foreach ( $aWhitelist as $sPattern ) {
+				if ( preg_match( sprintf( '#%s#i', $sPattern ), $sPath ) ) {
+					$bWhitelisted = true;
+					break;
+				}
+			}
+		}
+		return $bWhitelisted;
+	}
+
 	public function onWpInit() {
-		parent::onWpInit();
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		/** @var IPs\Options $oOpts */
@@ -266,8 +285,9 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 
+		$oTracker = $oMod->loadOffenseTracker();
 		if ( !$this->getCon()->isPluginDeleting()
-			 && $oMod->loadOffenseTracker()->hasVisitorOffended()
+			 && $oTracker->hasVisitorOffended() && $oTracker->isCommit()
 			 && !$oMod->isVerifiedBot() ) {
 
 			( new IPs\Components\ProcessOffense() )

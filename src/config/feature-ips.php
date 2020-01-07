@@ -185,6 +185,18 @@
       "description":   "Allow visitors blocked by the plugin to automatically unblock themselves."
     },
     {
+      "key":           "request_whitelist",
+      "section":       "section_auto_black_list",
+      "premium":       true,
+      "default":       [],
+      "type":          "array",
+      "link_info":     "https://shsec.io/gd",
+      "link_blog":     "",
+      "name":          "Request Path Whitelist",
+      "summary":       "Request Path Whitelist",
+      "description":   "Request Path Whitelist."
+    },
+    {
       "key":         "text_loginfailed",
       "section":     "section_user_messages",
       "sensitive":   true,

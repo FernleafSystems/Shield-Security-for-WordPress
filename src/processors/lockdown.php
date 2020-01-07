@@ -60,14 +60,12 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
-
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 			$this->interceptCanonicalRedirects();
 
-			/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-			$oFO = $this->getMod();
-			if ( $oFO->isRestApiAnonymousAccessDisabled() ) {
+			/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
+			$oMod = $this->getMod();
+			if ( $oMod->isRestApiAnonymousAccessDisabled() ) {
 				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
 			}
 		}

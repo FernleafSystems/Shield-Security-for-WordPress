@@ -18,14 +18,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// 100 priority is important as this takes priority
-//		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'applyUserCanMfaSkip' ), 100, 2 );
+//		add_filter( $oMod->prefix( 'user_subject_to_login_intent' ), array( $this, 'applyUserCanMfaSkip' ), 100, 2 );
 
-		if ( $oFO->getIfSupport3rdParty() ) {
+		if ( $oMod->getIfSupport3rdParty() ) {
 			add_action( 'wc_social_login_before_user_login', [ $this, 'onWcSocialLogin' ] );
 		}
 	}
@@ -41,7 +41,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
 		$this->setupLoginIntent();
 	}
 

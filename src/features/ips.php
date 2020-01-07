@@ -1,7 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -11,7 +11,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_AUTO_BLACK = 'AB';
 
 	/**
-	 * @var Lib\OffenseTracker
+	 * @var IPs\Lib\OffenseTracker
 	 */
 	private $oOffenseTracker;
 
@@ -45,6 +45,28 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
 			$oOpts->resetOptToDefault( 'transgression_limit' );
 		}
+
+		$this->cleanPathWhitelist();
+	}
+
+	private function cleanPathWhitelist() {
+		/** @var IPs\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
+			function ( $sRule ) {
+				$sRule = trim( $sRule );
+				if ( !empty( $sRule ) ) {
+					$sHomePath = rtrim( parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ), '/' ).'/';
+					$sPregRule = sprintf( '#%s#', preg_quote( $sRule, '#' ) );
+					if ( @preg_match( $sPregRule, '' ) === false
+						 || preg_match( $sPregRule, '' ) || preg_match( $sPregRule, $sHomePath ) ) {
+						$sRule = false;
+					}
+				}
+				return $sRule;
+			},
+			$this->getOpt( 'request_whitelist', [] )
+		) ) ) );
 	}
 
 	/**
@@ -66,11 +88,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return Lib\OffenseTracker
+	 * @return IPs\Lib\OffenseTracker
 	 */
 	public function loadOffenseTracker() {
 		if ( !isset( $this->oOffenseTracker ) ) {
-			$this->oOffenseTracker = new Lib\OffenseTracker( $this->getCon() );
+			$this->oOffenseTracker = new IPs\Lib\OffenseTracker( $this->getCon() );
 		}
 		return $this->oOffenseTracker;
 	}
@@ -164,7 +186,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !$this->getCon()->isPluginDeleting() ) {
 			$this->addFilterIpsToWhiteList();
 		}
-		parent::onPluginShutdown(); //save
+		parent::onPluginShutdown();
 	}
 
 	/**

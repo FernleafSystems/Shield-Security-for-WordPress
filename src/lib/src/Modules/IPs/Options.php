@@ -8,6 +8,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\ShieldOptions {
 
 	/**
+	 * @return string[]
+	 */
+	public function getPathWhitelist() {
+		return $this->getOpt( 'request_whitelist' );
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getAutoExpireTime() {
