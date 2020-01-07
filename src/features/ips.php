@@ -59,10 +59,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 					$aToCheck = [
 						parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ),
 						parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ),
-						'/'
 					];
+					$sRegEx = sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $sRule ), '#' ) ) );
 					foreach ( $aToCheck as $sPath ) {
-						if ( strpos( rtrim( $sPath, '/' ).'/', $sRule ) !== false ) {
+						$sSlashPath = rtrim( $sPath, '/' ).'/';
+						if ( preg_match( $sRegEx, $sPath ) || preg_match( $sRegEx, $sSlashPath ) ) {
 							$sRule = false;
 							break;
 						}
@@ -70,7 +71,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				}
 				return $sRule;
 			},
-			$this->getOpt( 'request_whitelist', [] )
+			$this->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
 		) ) ) );
 	}
 

@@ -47,7 +47,7 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		if ( !empty( $aWhitelist ) ) {
 			$sPath = strtolower( '/'.ltrim( (string)Services::Request()->getPath(), '/' ) );
 			foreach ( $aWhitelist as $sRule ) {
-				if ( strpos( $sPath, $sRule ) !== false ) {
+				if ( preg_match( $sRule, $sPath ) ) {
 					$bWhitelisted = true;
 					break;
 				}

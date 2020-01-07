@@ -54,10 +54,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string[]
+	 * @return string[] - precise REGEX patterns to match against PATH.
 	 */
 	public function getRequestPathWhitelist() {
-		return $this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : [];
+		$aPaths = $this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : [];
+		return array_map( function ( $sRule ) {
+			return sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $sRule ), '#' ) ) );
+		}, $aPaths );
 	}
 
 	/**
