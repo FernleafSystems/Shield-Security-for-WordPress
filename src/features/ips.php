@@ -62,7 +62,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 						'/'
 					];
 					foreach ( $aToCheck as $sPath ) {
-						if ( strpos( rtrim( $sPath ).'/', $sRule ) !== false ) {
+						if ( strpos( rtrim( $sPath, '/' ).'/', $sRule ) !== false ) {
 							$sRule = false;
 							break;
 						}
