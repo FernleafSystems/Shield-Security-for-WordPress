@@ -376,6 +376,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  NEW:		Initial support for checksum scanning of premium plugins and themes.
 * **(v.0)**  NEW:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
 * **(v.0)**  NEW:		Ability to auto-repair theme files.
+* **(v.0)**  ADDED:		Ability to whitelist requests so that they are never blacklisted.
 * **(v.0)**  ADDED:		Ability to filter the IP White/Black list tables for a specific IP address.
 * **(v.0)**  ADDED:		Support for repeated audit trail entries - so the logs don't get filled with repeated messages.
 * **(v.0)**  ADDED:		[**PRO**] Option to provide complete, custom Content Security Policy headers.
