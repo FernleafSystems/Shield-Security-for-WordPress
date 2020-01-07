@@ -8,13 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\ShieldOptions {
 
 	/**
-	 * @return string[]
-	 */
-	public function getPathWhitelist() {
-		return $this->getOpt( 'request_whitelist' );
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getAutoExpireTime() {
@@ -58,6 +51,13 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getDbTable_IPs() {
 		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getRequestPathWhitelist() {
+		return $this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : [];
 	}
 
 	/**

@@ -147,7 +147,6 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'A list of request paths that will never trigger an offense.', 'wp-simple-firewall' )
 								.'<br />- '.__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' )
 								.'<br />- '.__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' )
-								.'<br />- '.__( "All paths are treated regular expressions.", 'wp-simple-firewall' )
 								.'<br />- '.__( "All characters will be treated as case-insensitive.", 'wp-simple-firewall' )
 								.'<br />- '.__( "The paths are compared against only the request path, not the query portion.", 'wp-simple-firewall' )
 								.'<br />- '.__( "If a path you add matches your website root (/), it'll be removed automatically.", 'wp-simple-firewall' );

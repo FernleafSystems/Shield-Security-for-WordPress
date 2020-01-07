@@ -43,11 +43,11 @@ class ICWP_WPSF_Processor_Ips extends ShieldProcessor {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$bWhitelisted = false;
-		$aWhitelist = $oOpts->getOpt( 'request_whitelist' );
+		$aWhitelist = $oOpts->getRequestPathWhitelist();
 		if ( !empty( $aWhitelist ) ) {
-			$sPath = '/'.ltrim( Services::Request()->getPath(), '/' );
-			foreach ( $aWhitelist as $sPattern ) {
-				if ( preg_match( sprintf( '#%s#i', $sPattern ), $sPath ) ) {
+			$sPath = strtolower( '/'.ltrim( (string)Services::Request()->getPath(), '/' ) );
+			foreach ( $aWhitelist as $sRule ) {
+				if ( strpos( $sPath, $sRule ) !== false ) {
 					$bWhitelisted = true;
 					break;
 				}

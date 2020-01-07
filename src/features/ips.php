@@ -54,13 +54,18 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$oOpts = $this->getOptions();
 		$oOpts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
 			function ( $sRule ) {
-				$sRule = trim( $sRule );
+				$sRule = strtolower( trim( $sRule ) );
 				if ( !empty( $sRule ) ) {
-					$sHomePath = rtrim( parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ), '/' ).'/';
-					$sPregRule = sprintf( '#%s#', preg_quote( $sRule, '#' ) );
-					if ( @preg_match( $sPregRule, '' ) === false
-						 || preg_match( $sPregRule, '' ) || preg_match( $sPregRule, $sHomePath ) ) {
-						$sRule = false;
+					$aToCheck = [
+						parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ),
+						parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ),
+						'/'
+					];
+					foreach ( $aToCheck as $sPath ) {
+						if ( strpos( rtrim( $sPath ).'/', $sRule ) !== false ) {
+							$sRule = false;
+							break;
+						}
 					}
 				}
 				return $sRule;
