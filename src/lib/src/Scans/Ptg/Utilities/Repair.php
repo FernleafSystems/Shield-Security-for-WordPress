@@ -89,7 +89,6 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 		else {
 			$oAsset = Services::WpThemes()->getThemeAsVo( $oItem->slug );
 			$bCanRepair = ( $oAsset instanceof VOs\WpThemeVo && $oAsset->isWpOrg() );
-			error_log( var_export( $bCanRepair, true ) );
 		}
 		return $bCanRepair;
 	}
