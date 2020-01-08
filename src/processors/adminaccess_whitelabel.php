@@ -17,8 +17,6 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\Shie
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
-
 		/** @var Modules\SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$this->getCon()->isPluginAdmin() ) {

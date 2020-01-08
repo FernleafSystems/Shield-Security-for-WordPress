@@ -19,7 +19,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
 		return parent::getIfShowModuleMenuItem() && !$this->isPremium();
@@ -111,7 +111,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 						$this->sendLicenseWarningEmail();
 						$oCon->fireEvent( 'lic_fail_email' );
 					}
-					else if ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
+					elseif ( $bForceCheck || $oCurrent->isExpired() || $this->isLastVerifiedGraceExpired() ) {
 						$oCurrent = $oLookupLicense;
 						$this->deactivate( __( 'Automatic license verification failed.', 'wp-simple-firewall' ) );
 						$this->sendLicenseDeactivatedEmail();
@@ -176,12 +176,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @return bool
 	 */
 	protected function isLicenseMaybeExpiring() {
-		$bNearly = $this->isLicenseActive() &&
-				   (
-					   abs( Services::Request()->ts() - $this->loadLicense()->getExpiresAt() )
-					   < ( DAY_IN_SECONDS/2 )
-				   );
-		return $bNearly;
+		return $this->isLicenseActive() &&
+			   (
+				   abs( Services::Request()->ts() - $this->loadLicense()->getExpiresAt() )
+				   < ( DAY_IN_SECONDS/2 )
+			   );
 	}
 
 	/**
@@ -263,6 +262,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			->setRequestParams(
 				[
 					'installation_id' => $this->getCon()->getSiteInstallationId(),
+					'version_shield'  => $this->getCon()->getVersion(),
 					'nonce'           => $sPass,
 				]
 			)
@@ -309,14 +309,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function getLicenseItemId() {
 		return $this->getDef( 'license_item_id' );
-	}
-
-	/**
-	 * Unused
-	 * @return string
-	 */
-	public function getLicenseItemIdShieldCentral() {
-		return $this->getDef( 'license_item_id_sc' );
 	}
 
 	/**
@@ -562,7 +554,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		if ( !$this->isKeyless() ) {
 			$aLicenseTableVars[ 'license_key' ] = $this->hasLicenseKey() ? $this->getLicenseKey() : 'n/a';
 		}
-		$aData = [
+		return [
 			'vars'    => [
 				'license_table'  => $aLicenseTableVars,
 				'activation_url' => $oWp->getHomeUrl()
@@ -595,7 +587,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			],
 			'strings' => $this->getStrings()->getDisplayStrings(),
 		];
-		return $aData;
 	}
 
 	/**

@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_Traffic extends Modules\BaseShield\ShieldProcessor {
 	 */
 	protected function getSubProMap() {
 		return [
-			'logger'  => 'ICWP_WPSF_Processor_TrafficLogger',
+			'logger' => 'ICWP_WPSF_Processor_TrafficLogger',
 		];
 	}
 }

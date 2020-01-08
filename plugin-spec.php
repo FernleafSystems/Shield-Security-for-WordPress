@@ -1,8 +1,8 @@
 {
   "properties":   {
-    "version":                 "8.4.4",
-    "release_timestamp":       1575630000,
-    "build":                   "201912.0601",
+    "version":                 "8.5.0",
+    "release_timestamp":       1578474000,
+    "build":                   "202001.0801",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
@@ -42,7 +42,7 @@
     },
     "plugin_admin": {
       "css": [
-        "bootstrap4",
+        "bootstrap4.min",
         "bootstrap-select.min",
         "plugin",
         "featherlight"

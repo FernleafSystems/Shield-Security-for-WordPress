@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseScan {
 
-	use Shield\Modules\ModConsumer,
-		Shield\Scans\Common\ScanActionConsumer;
+	use Shield\Modules\ModConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @return $this

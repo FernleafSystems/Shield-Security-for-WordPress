@@ -14,6 +14,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 */
 	protected function processAjaxAction( $sAction ) {
 
+		$oReq = Services::Request();
 		switch ( $sAction ) {
 
 			case 'scans_start':
@@ -24,11 +25,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_CheckScans();
 				break;
 
-			case 'bulk_action':
-				$aResponse = $this->ajaxExec_ScanItemAction( Services::Request()->post( 'bulk_action' ) );
+			case 'item_action':
+				$aResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'item_action' ), false );
 				break;
 
-			case 'item_asset_accept':
+			case 'bulk_action':
+				$aResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'bulk_action' ), true );
+				break;
+
 			case 'item_asset_deactivate':
 			case 'item_asset_reinstall':
 			case 'item_delete':
@@ -62,6 +66,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sScanSlug = Services::Request()->post( 'fScan' );
 		switch ( $sScanSlug ) {
 
+			case 'aggregate':
+				$oTableBuilder = new Shield\Tables\Build\ScanAggregate();
+				break;
+
 			case 'apc':
 				$oTableBuilder = new Shield\Tables\Build\ScanApc();
 				break;
@@ -91,13 +99,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 
 		if ( empty( $oTableBuilder ) ) {
-			$sHtml = 'SCAN SLUG NOT SPECIFIED';
+			$sHtml = '<div class="alert alert-danger m-0">SCAN SLUG NOT SUPPORTED</div>';
 		}
 		else {
 			$sHtml = $oTableBuilder
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_ScanResults() )
-				->setScanActionVO( ( new Scan\ScanActionFromSlug() )->getAction( $sScanSlug ) )
 				->buildTable();
 		}
 
@@ -111,6 +118,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_PluginReinstall() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
@@ -119,12 +127,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
 
 		if ( $bReinstall ) {
-			/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $oMod->getProcessor();
-			$bActivate = $oP->getSubProScanner()
-							->getSubProcessorPtg()
-							->reinstall( $sFile )
-						 && $bActivate;
+			/** @var Scan\Controller\Ptg $oPtgScan */
+			$oPtgScan = $oMod->getScanCon( 'ptg' );
+			$bActivate = $oPtgScan->actionPluginReinstall( $sFile );
 		}
 
 		if ( $bActivate ) {
@@ -136,70 +141,77 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 	/**
 	 * @param string $sAction
+	 * @param bool   $bIsBulkAction
 	 * @return array
 	 */
-	private function ajaxExec_ScanItemAction( $sAction ) {
+	private function ajaxExec_ScanItemAction( $sAction, $bIsBulkAction = false ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oScanCon = $oMod->getScanController();
-		$oReq = Services::Request();
 
 		$bSuccess = false;
 
-		$sItemId = $oReq->post( 'rid' );
-		$aItemIds = $oReq->post( 'ids' );
-		$sScanSlug = $oReq->post( 'fScan' );
-
-		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $oMod->getProcessor();
-		$oScanner = $oP->getSubProScanner();
-		$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
-
-		if ( empty( $oTablePro ) ) {
-			$sMessage = __( 'Unsupported scanner', 'wp-simple-firewall' );
-		}
-		else if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
-			$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
+		if ( $sAction == 'download' ) {
+			// A special case since this action is handled using Javascript
+			$bSuccess = true;
+			$sMessage = __( 'File download has started.', 'wp-simple-firewall' );
 		}
 		else {
-			if ( empty( $aItemIds ) ) {
-				$aItemIds = [ $sItemId ];
+			if ( $bIsBulkAction ) {
+				$aItemIdsToProcess = (array)Services::Request()->post( 'ids', [] );
 			}
+			else {
+				$aItemIdsToProcess = [ Services::Request()->post( 'rid' ) ];
+			}
+			/** @var int[] $aItemIdsToProcess */
+			$aItemIdsToProcess = array_filter( array_map( 'intval', $aItemIdsToProcess ) );
 
-			try {
-				$aSuccessfulItems = [];
+			if ( empty( $aItemIdsToProcess ) ) {
+				$sMessage = __( 'Unsupported item(s) selected', 'wp-simple-firewall' );
+			}
+			else {
+				try {
+					$aScanSlugs = [];
+					$aSuccessfulItems = [];
+					foreach ( $aItemIdsToProcess as $nId ) {
+						/** @var Shield\Databases\Scanner\EntryVO $oEntry */
+						$oEntry = $oMod->getDbHandler_ScanResults()
+									   ->getQuerySelector()
+									   ->byId( $nId );
+						if ( $oEntry instanceof Shield\Databases\Scanner\EntryVO ) {
+							$aScanSlugs[] = $oEntry->scan;
+							if ( $oMod->getScanCon( $oEntry->scan )->executeItemAction( $nId, $sAction ) ) {
+								$aSuccessfulItems[] = $nId;
+							}
+						}
+					}
 
-				foreach ( $aItemIds as $sId ) {
-					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
-						$aSuccessfulItems[] = $sId;
+					if ( count( $aSuccessfulItems ) === count( $aItemIdsToProcess ) ) {
+						$bSuccess = true;
+						$sMessage = __( 'Action successful.' );
+					}
+					else {
+						$sMessage = __( 'An error occurred.' ).' '.__( 'Some items may not have been processed.' );
+					}
+
+					// We don't rescan for ignores.
+					if ( in_array( $sAction, [ 'ignore' ] ) ) {
+						$sMessage .= ' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
+					}
+					else {
+						// rescan
+						$oMod->getScanController()->startScans( $aScanSlugs );
+						$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 					}
 				}
-
-				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
-					$bSuccess = true;
-					$sMessage = __( 'Action successful.' );
+				catch ( \Exception $oE ) {
+					$sMessage = $oE->getMessage();
 				}
-				else {
-					$sMessage = __( 'An error occurred.' ).' '.__( 'Some items may not have been processed.' );
-				}
-
-				// We don't rescan for ignores.
-				if ( !in_array( $sAction, [ 'ignore' ] ) ) {
-					$oScanCon->startScans( [ $sScanSlug ] );
-					$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
-				}
-				else {
-					$sMessage .= ' '.__( 'Reloading', 'wp-simple-firewall' ).' ...';
-				}
-			}
-			catch ( \Exception $oE ) {
-				$sMessage = $oE->getMessage();
 			}
 		}
 
 		return [
 			'success'     => $bSuccess,
-			'page_reload' => true,
+			'page_reload' => !in_array( $sAction, [ 'download' ] ),
 			'message'     => $sMessage,
 		];
 	}
@@ -210,13 +222,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_CheckScans() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $oMod->getProcessor();
 		/** @var Strings $oStrings */
 		$oStrings = $oMod->getStrings();
-		$oDbH = $oMod->getDbHandler_ScanQueue();
 		/** @var Shield\Databases\ScanQueue\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
+		$oSel = $oMod->getDbHandler_ScanQueue()->getQuerySelector();
 
 		$oQueCon = $oMod->getScanController();
 		$sCurrent = $oSel->getCurrentScan();
@@ -261,9 +270,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
-		/** @var \ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $oMod->getProcessor();
-		$oScanner = $oP->getSubProScanner();
 		$oScanCon = $oMod->getScanController();
 
 		if ( !empty( $aFormParams ) ) {
@@ -275,26 +281,21 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			$aScansToStart = [];
 			foreach ( $aSelectedScans as $sScanSlug ) {
+				$oThisScanCon = $oMod->getScanCon( $sScanSlug );
+				if ( !empty( $oThisScanCon ) && $oThisScanCon->isScanningAvailable() ) {
 
-				$oTablePro = $oScanner->getScannerFromSlug( $sScanSlug );
-
-				if ( !empty( $oTablePro ) && $oTablePro->isAvailable() ) {
-					$bAsync = true;
 					$aScansToStart[] = $sScanSlug;
 
 					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
-						$oTablePro->resetIgnoreStatus();
+						$oThisScanCon->resetIgnoreStatus();
 					}
 					if ( isset( $aFormParams[ 'opt_clear_notification' ] ) ) {
-						$oTablePro->resetNotifiedStatus();
+						$oThisScanCon->resetNotifiedStatus();
 					}
 
 					$bSuccess = true;
 					$bPageReload = true;
-					$sMessage = $bAsync ?
-						__( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' )
-						: __( 'Scans completed.', 'wp-simple-firewall' ).' '.__( 'Reloading page', 'wp-simple-firewall' );
-
+					$sMessage = __( 'Scans started.', 'wp-simple-firewall' ).' '.__( 'Please wait, as this will take a few moments.', 'wp-simple-firewall' );
 				}
 			}
 			$oScanCon->startScans( $aScansToStart );

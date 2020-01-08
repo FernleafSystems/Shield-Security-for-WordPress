@@ -256,13 +256,13 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 	 * @return array[]
 	 */
 	protected function getRenderData_PageWizardLanding() {
-		/** @var ICWP_WPSF_FeatureHandler_Base $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Base $oMod */
+		$oMod = $this->getMod();
 
 		$aWizards = $this->getModuleWizardsForRender();
 
 		return Services::DataManipulation()->mergeArraysRecursive(
-			$this->getRenderData_TwigPageBase(),
+			$oMod->getBaseDisplayData(),
 			[
 				'strings' => [
 					'page_title'   => 'Select Your Wizard',
@@ -273,13 +273,13 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 					'mod_wizards'       => $aWizards
 				],
 				'hrefs'   => [
-					'dashboard'   => $oFO->getUrl_AdminPage(),
+					'dashboard'   => $oMod->getUrl_AdminPage(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
-					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
-					'steps'         => $oFO->getAjaxActionData( 'wiz_render_step' ),
-					'steps_as_json' => $oFO->getAjaxActionData( 'wiz_render_step', true ),
+					'content'       => $oMod->getAjaxActionData( 'wiz_process_step' ),
+					'steps'         => $oMod->getAjaxActionData( 'wiz_render_step' ),
+					'steps_as_json' => $oMod->getAjaxActionData( 'wiz_render_step', true ),
 				]
 			]
 		);
@@ -290,35 +290,7 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 	 * @return array
 	 */
 	protected function getRenderData_TwigPageBase() {
-		$oCon = $this->getMod()->getCon();
-		return [
-			'strings' => [
-				'page_title'  => 'Twig Page',
-				'plugin_name' => $oCon->getHumanName()
-			],
-			'data'    => [],
-			'hrefs'   => [
-				'form_action'      => Services::Request()->getUri(),
-				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
-				'css_pages'        => $oCon->getPluginUrl_Css( 'pages' ),
-				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps' ),
-				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min' ),
-				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin' ),
-				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard' ),
-				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
-				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap4.bundle.min' ),
-				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min' ),
-				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin' ),
-				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min' ),
-				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard' ),
-				'plugin_banner'    => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
-				'favicon'          => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-			],
-			'ajax'    => [],
-			'flags'   => [
-				'is_premium' => $this->getMod()->isPremium(),
-			]
-		];
+		return $this->getMod()->getBaseDisplayData();
 	}
 
 	/**
@@ -326,10 +298,10 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 	 */
 	protected function getRenderData_PageWizard() {
 		$oCon = $this->getMod()->getCon();
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 		return Services::DataManipulation()->mergeArraysRecursive(
-			$this->getRenderData_TwigPageBase(),
+			$oMod->getBaseDisplayData(),
 			[
 				'strings' => [
 					'page_title'  => $this->getPageTitle(),
@@ -341,13 +313,13 @@ abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\S
 					'wizard_first_step' => json_encode( $this->getWizardFirstStep() ),
 				],
 				'hrefs'   => [
-					'dashboard'   => $oFO->getUrl_AdminPage(),
+					'dashboard'   => $oMod->getUrl_AdminPage(),
 					'goprofooter' => 'https://shsec.io/goprofooter',
 				],
 				'ajax'    => [
-					'content'       => $oFO->getAjaxActionData( 'wiz_process_step' ),
-					'steps'         => $oFO->getAjaxActionData( 'wiz_render_step' ),
-					'steps_as_json' => $oFO->getAjaxActionData( 'wiz_render_step', true ),
+					'content'       => $oMod->getAjaxActionData( 'wiz_process_step' ),
+					'steps'         => $oMod->getAjaxActionData( 'wiz_render_step' ),
+					'steps_as_json' => $oMod->getAjaxActionData( 'wiz_render_step', true ),
 				]
 			]
 		);

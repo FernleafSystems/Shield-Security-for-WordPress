@@ -10,8 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 abstract class BaseFileScanner {
 
-	use Shield\Scans\Common\ScanActionConsumer,
-		Shield\Modules\ModConsumer;
+	use Shield\Modules\ModConsumer;
+	use Shield\Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @param string $sFullPath

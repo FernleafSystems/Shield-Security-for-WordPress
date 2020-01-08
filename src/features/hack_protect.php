@@ -11,6 +11,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	private $oScanQueueController;
 
+	/**
+	 * @var HackGuard\Scan\Controller\Base[]
+	 */
+	private $aScanCons;
+
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
@@ -25,14 +30,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 */
-	protected function updateHandler() {
-		parent::updateHandler();
-		$this->setPtgUpdateStoreFormat( true );
-//			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
-	}
-
-	/**
 	 * @return HackGuard\Scan\Queue\Controller
 	 */
 	public function getScanController() {
@@ -44,17 +41,41 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sSlug
+	 * @return HackGuard\Scan\Controller\Base|mixed
+	 */
+	public function getScanCon( $sSlug ) {
+		if ( !is_array( $this->aScanCons ) ) {
+			$this->aScanCons = [];
+		}
+		if ( !isset( $this->aScanCons[ $sSlug ] ) ) {
+			$sClass = '\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\\'.ucwords( $sSlug );
+			if ( @class_exists( $sClass ) ) {
+				/** @var HackGuard\Scan\Controller\Base $oObj */
+				$oObj = new $sClass();
+				$this->aScanCons[ $sSlug ] = $oObj->setMod( $this );
+			}
+			else {
+				$this->aScanCons[ $sSlug ] = false;
+			}
+		}
+		return $this->aScanCons[ $sSlug ];
+	}
+
+	/**
 	 */
 	public function handleModRequest() {
 		$oReq = Services::Request();
-		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
-			case  'scan_file_download':
-				/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-				$oPro = $this->getProcessor();
-				$oPro->getSubProScanner()->downloadItemFile( $oReq->query( 'rid' ) );
-				break;
-			default:
-				break;
+		if ( $this->getCon()->isPluginAdmin() ) {
+			switch ( $oReq->query( 'exec' ) ) {
+				case  'scan_file_download':
+					( new Shield\Modules\HackGuard\Lib\Utility\FileDownloadHandler() )
+						->setDbHandler( $this->getDbHandler_ScanResults() )
+						->downloadByItemId( (int)$oReq->query( 'rid', 0 ) );
+					break;
+				default:
+					break;
+			}
 		}
 	}
 
@@ -75,18 +96,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->cleanFileExclusions();
 		$this->cleanPtgFileExtensions();
 
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
-			$this->setPtgLastBuildAt( 0 );
-			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
-			$oPro->getSubProScanner()
-				 ->getSubProcessorPtg()
-				 ->resetScan();
-		}
-
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 		$this->resetRtBackupFiles();
+
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->getProcessor();
+		$oPro->getSubProScanner()->deleteCron(); // very important if the scan cron schedule is changed.
 	}
 
 	/**
@@ -154,17 +169,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		/** @var HackGuard\Options $oStrings */
+		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$nFreq = $oOpts->getScanFrequency();
-		$this->loadWpCronProcessor()
-			 ->addNewSchedule(
-				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
-				 [
-					 'interval' => DAY_IN_SECONDS/$nFreq,
-					 'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $nFreq )
-				 ]
-			 );
+		Services::WpCron()
+				->addNewSchedule(
+					$this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
+					[
+						'interval' => DAY_IN_SECONDS/$nFreq,
+						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $nFreq )
+					]
+				);
 		return $this;
 	}
 
@@ -198,13 +213,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getUnrecognisedFileScannerOption() {
-		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getUfcFileExclusions() {
@@ -227,7 +235,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
 				// ignore it
 			}
-			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
+			elseif ( strpos( $sExclusion, '/' ) === false ) { // filename only
 				$sExclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $sExclusion ) );
 			}
 
@@ -237,68 +245,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		return $this->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function isUfcDeleteFiles() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), [
-			'enabled_delete_only',
-			'enabled_delete_report'
-		] );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isUfcEnabled() {
-		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function isUfcSendReport() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), [
-			'enabled_report_only',
-			'enabled_delete_report'
-		] );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWcfScanAutoRepair() {
-		return $this->isOpt( 'attempt_auto_file_repair', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWcfScanEnabled() {
-		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnEnabled() {
-		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnSendEmail() {
-		return $this->isWpvulnEnabled() && $this->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnAutoupdatesEnabled() {
-		return $this->isWpvulnEnabled() && $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
 	}
 
 	/**
@@ -349,75 +295,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanPtgFileExtensions() {
-		return $this->setOpt(
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt(
 			'ptg_extensions',
-			$this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
+			$this->cleanStringArray( $oOpts->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
 		);
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getPtgFileExtensions() {
-		return $this->getOpt( 'ptg_extensions' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getPtgDepth() {
-		return $this->getOpt( 'ptg_depth' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getPtgLastBuildAt() {
-		return $this->getOpt( 'ptg_last_build_at' );
-	}
-
-	/**
-	 * @return string|false
-	 */
-	public function getPtgSnapsBaseDir() {
-		return $this->getCon()->getPluginCachePath( 'ptguard/' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgBuildRequired() {
-		return $this->isPtgEnabled() && ( $this->getPtgLastBuildAt() == 0 );
-	}
-
-	/**
-	 * @param bool $bIsRequired
-	 * @return $this
-	 */
-	public function setPtgRebuildSelfRequired( $bIsRequired ) {
-		return $this->setOpt( 'rebuild_self', (bool)$bIsRequired );
-	}
-
-	/**
-	 * @param bool $bIsRequired
-	 * @return $this
-	 */
-	public function setPtgUpdateStoreFormat( $bIsRequired ) {
-		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgRebuildSelfRequired() {
-		return $this->isOpt( 'rebuild_self', true );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgUpdateStoreFormat() {
-		return $this->isOpt( 'ptg_update_store_format', true );
+		return $this;
 	}
 
 	/**
@@ -430,32 +314,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @param string $sSlug
 	 * @return bool
 	 */
-	public function isPtgReadyToScan() {
-		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgReinstallLinks() {
-		return $this->isPtgEnabled() && $this->isOpt( 'ptg_reinstall_links', 'Y' );
-	}
-
-	/**
-	 * @param int $nTime
-	 * @return $this
-	 */
-	public function setPtgLastBuildAt( $nTime = null ) {
-		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? Services::Request()->ts() : $nTime );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isApcEnabled() {
-		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
+	protected function isScanEnabled( $sSlug ) {
+		return $this->getScanCon( $sSlug )
+					->isEnabled();
 	}
 
 	/**
@@ -468,7 +332,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) && $this->isPtgReinstallLinks() ) {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) && $oOpts->isPtgReinstallLinks() ) {
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
@@ -563,6 +429,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		return $aWarnings;
+	}
+
+	/**
+	 * @return string|false
+	 */
+	public function getPtgSnapsBaseDir() {
+		return $this->getCon()->getPluginCachePath( 'ptguard/' );
 	}
 
 	/**
@@ -734,8 +607,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
 		$aScanNames = $oStrings->getScanNames();
@@ -746,7 +617,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		];
 
 		{// Core files
-			if ( !$this->isWcfScanEnabled() ) {
+			if ( !$this->isScanEnabled( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
@@ -755,7 +626,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'wcf' ) ) {
+			elseif ( $this->getScanHasProblem( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
@@ -767,7 +638,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Unrecognised
-			if ( !$this->isUfcEnabled() ) {
+			if ( !$this->isScanEnabled( 'ufc' ) ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
@@ -776,7 +647,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'ufc' ) ) {
+			elseif ( $this->getScanHasProblem( 'ufc' ) ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
@@ -797,7 +668,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'ptg' ) ) {
+			elseif ( $this->getScanHasProblem( 'ptg' ) ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
@@ -809,7 +680,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Vulnerability Scanner
-			if ( !$this->isWpvulnEnabled() ) {
+			if ( !$this->isScanEnabled( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
@@ -818,7 +689,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'wpv' ) ) {
+			elseif ( $this->getScanHasProblem( 'wpv' ) ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
@@ -830,7 +701,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Abandoned Plugins
-			if ( !$this->isApcEnabled() ) {
+			if ( !$this->isScanEnabled( 'apc' ) ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
@@ -839,7 +710,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'apc' ) ) {
+			elseif ( $this->getScanHasProblem( 'apc' ) ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
@@ -851,7 +722,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Malware
-			if ( !$oOpts->isMalScanEnabled() ) {
+			if ( !$this->isScanEnabled( 'mal' ) ) {
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
@@ -860,7 +731,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			else if ( $this->getScanHasProblem( 'mal' ) ) {
+			elseif ( $this->getScanHasProblem( 'mal' ) ) {
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),
@@ -884,7 +755,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function addInsightsConfigData( $aAllData ) {
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $this->getStrings();
-		/** @var HackGuard\Options $oStrings */
+		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$aScanNames = $oStrings->getScanNames();
 
@@ -912,7 +783,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
 			];
 
-			$bCore = $this->isWcfScanEnabled();
+			$bCore = $this->isScanEnabled( 'wcf' );
 			$aThis[ 'key_opts' ][ 'wcf' ] = [
 				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
 				'enabled' => $bCore,
@@ -966,11 +837,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
 			];
-			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
+			$bWpvAutoUpdates = $oOpts->isWpvulnAutoupdatesEnabled();
+			if ( $bWpv && !$bWpvAutoUpdates ) {
 				$aThis[ 'key_opts' ][ 'wpv_repair' ] = [
 					'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
-					'enabled' => $this->isWpvulnAutoupdatesEnabled(),
-					'summary' => $this->isWpvulnAutoupdatesEnabled() ?
+					'enabled' => $bWpvAutoUpdates,
+					'summary' => $bWpvAutoUpdates ?
 						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
 						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
 					'weight'  => 1,
@@ -978,7 +850,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				];
 			}
 
-			$bPtg = $this->isPtgEnabled();
+			$bPtg = $this->isScanEnabled( 'ptg' );
 			$aThis[ 'key_opts' ][ 'ptg' ] = [
 				'title'   => $aScanNames[ 'ptg' ],
 				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
@@ -990,7 +862,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
 			];
 
-			$bMal = $oOpts->isMalScanEnabled();
+			$bMal = $this->isScanEnabled( 'mal' );
 			$aThis[ 'key_opts' ][ 'mal' ] = [
 				'title'   => $aScanNames[ 'mal' ],
 				'name'    => $aScanNames[ 'mal' ],
@@ -1002,7 +874,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_mal' ),
 			];
 
-			$bApc = $this->isApcEnabled();
+			$bApc = $this->isScanEnabled( 'apc' );
 			$aThis[ 'key_opts' ][ 'apc' ] = [
 				'title'   => $aScanNames[ 'apc' ],
 				'name'    => $aScanNames[ 'apc' ],
@@ -1056,51 +928,196 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalScanEnabled() {
-		return !$this->isOpt( 'mal_scan_enable', 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalAutoRepairPlugins() {
-		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalScanAutoRepair() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isMalAutoRepair();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalAutoRepairCore() {
-		return $this->isOpt( 'mal_autorepair_core', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.4
-	 */
-	public function isMalAutoRepairSurgical() {
-		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
 		return 'HackGuard';
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgReadyToScan() {
+		return false;
+	}
+
+	/**
+	 * @param int $nTime
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	public function setPtgLastBuildAt( $nTime = null ) {
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5
+	 */
+	public function getPtgLastBuildAt() {
+		return $this->getOpt( 'ptg_last_build_at' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgRebuildSelfRequired() {
+		return $this->isOpt( 'rebuild_self', true );
+	}
+
+	/**
+	 * @param bool $bIsRequired
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	public function setPtgRebuildSelfRequired( $bIsRequired ) {
+		return $this->setOpt( 'rebuild_self', (bool)$bIsRequired );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgBuildRequired() {
+		return false;
+	}
+
+	/**
+	 * @param bool $bIsRequired
+	 * @return $this
+	 * @deprecated 8.5
+	 */
+	public function setPtgUpdateStoreFormat( $bIsRequired ) {
+		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function getPtgDepth() {
+		return 0;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgUpdateStoreFormat() {
+		return $this->isOpt( 'ptg_update_store_format', true );
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.5
+	 */
+	public function getPtgFileExtensions() {
+		return $this->getOpt( 'ptg_extensions' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isPtgReinstallLinks() {
+		return $this->isOpt( 'ptg_reinstall_links', 'Y' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function isUfcDeleteFiles() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isUfcDeleteFiles();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isUfcEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isUfcEnabled();
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function isUfcSendReport() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isUfcSendReport();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isApcEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isApcEnabled();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWcfScanEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWcfScanEnabled();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWpvulnEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnEnabled();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWpvulnSendEmail() {
+		return $this->isWpvulnEnabled() && $this->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWpvulnAutoupdatesEnabled() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnAutoupdatesEnabled();
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function getUnrecognisedFileScannerOption() {
+		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isWcfScanAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWcfScanAutoRepair();
 	}
 }

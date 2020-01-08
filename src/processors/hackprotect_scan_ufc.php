@@ -8,61 +8,11 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'ufc';
 
 	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isUfcEnabled();
-	}
-
-	/**
-	 * @return Shield\Scans\Ufc\Repair
-	 */
-	protected function getRepairer() {
-		return new Shield\Scans\Ufc\Repair();
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemDelete( $oItem ) {
-		return $this->itemRepair( $oItem );
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		$bSuccess = $this->getRepairer()->repairItem( $oItem );
-		$this->getCon()->fireEvent(
-			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
-		);
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isUfcDeleteFiles() ) {
-			$this->getRepairer()->repairResultsSet( $oRes );
-		}
-	}
-
-	/**
 	 * @param Shield\Scans\Ufc\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$bSend = $oFO->isUfcSendReport();
 		if ( $bSend ) {
@@ -103,8 +53,10 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return string[]
 	 */
 	private function buildEmailBodyFromFiles( $aFiles ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oCon = $this->getCon();
 		$sName = $oCon->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
@@ -115,14 +67,14 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() ) {
+		if ( $oOpts->isUfcDeleteFiles() || $oMod->isIncludeFileLists() ) {
 			$aContent[] = __( 'Files discovered', 'wp-simple-firewall' ).':';
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}
 			$aContent[] = '';
 
-			if ( $oFO->isUfcDeleteFiles() ) {
+			if ( $oOpts->isUfcDeleteFiles() ) {
 				$aContent[] = sprintf( __( '%s has attempted to delete these files based on your current settings.', 'wp-simple-firewall' ), $sName );
 				$aContent[] = '';
 			}

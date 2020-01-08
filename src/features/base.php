@@ -18,7 +18,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	protected $sModSlug;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bImportExportWhitelistNotify = false;
 
@@ -58,12 +58,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @throws \Exception
 	 */
 	public function __construct( $oPluginController, $aMod = [] ) {
-		if ( empty( self::$oPluginController ) ) {
-			if ( !$oPluginController instanceof Shield\Controller\Controller ) {
-				throw new \Exception( 'Plugin controller not supplied to Module' );
-			}
-			$this->setCon( $oPluginController );
+		if ( !$oPluginController instanceof Shield\Controller\Controller ) {
+			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
+		$this->setCon( $oPluginController );
 
 		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
@@ -121,12 +119,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		add_action( $this->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
-		// supply our supported plugin events for this module
-		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
-			return $bSupported || $this->isSupportedEvent( $sEventTag );
-		}, 10, 2 );
+		// supply supported events for this module
 		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
-			return array_merge( $aEvents, $this->getEvents() );
+			return array_merge(
+				is_array( $aEvents ) ? $aEvents : [],
+				array_map(
+					function ( $aEvt ) {
+						$aEvt[ 'context' ] = $this->getSlug();
+						return $aEvt;
+					},
+					is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : []
+				)
+			);
 		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
@@ -217,72 +221,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private function getAllDbClasses() {
 		$aCls = $this->getOptions()->getDef( 'db_classes' );
 		return is_array( $aCls ) ? $aCls : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return array|null
-	 */
-	public function getEventDef( $sKey ) {
-		return $this->isSupportedEvent( $sKey ) ? $this->getEvents()[ $sKey ] : null;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getEvents() {
-		$aEvts = $this->getSupportedEvents();
-
-		$aDefaults = [
-			'context'        => $this->getSlug(),
-			'cat'            => 1,
-			'stat'           => true,
-			'audit'          => true,
-			'recent'         => false, // whether to show in the recent events logs
-			'offense'        => false, // whether to mark offense against IP
-			'audit_multiple' => false, // allow multiple audit entries in the same request
-		];
-		foreach ( $aEvts as $sKey => $aEvt ) {
-			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
-			$aEvts[ $sKey ][ 'key' ] = $sKey;
-		}
-		return $aEvts;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getStatEvents_Recent() {
-		return array_filter(
-			$this->getEvents(),
-			function ( $aEvt ) {
-				return $aEvt[ 'recent' ];
-			}
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getSupportedEvents() {
-		$aEvts = $this->getDef( 'events' );
-		return is_array( $aEvts ) ? $aEvts : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isSupportedEvent( $sKey ) {
-		return array_key_exists( $sKey, $this->getSupportedEvents() );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isOffenseEvent( $sKey ) {
-		return $this->isSupportedEvent( $sKey ) && $this->getEvents()[ $sKey ][ 'offense' ];
 	}
 
 	/**
@@ -527,6 +465,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
+	 * @param string $sAction
+	 * @return string
+	 */
+	public function buildAdminActionNonceUrl( $sAction ) {
+		$aActionNonce = $this->getNonceActionData( $sAction );
+		$aActionNonce[ 'ts' ] = Services::Request()->ts();
+		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
+	}
+
+	/**
 	 * @param string $sOptKey
 	 * @return string
 	 */
@@ -588,13 +536,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			// Auto enabled modules always run regardless
 			$bEnabled = true;
 		}
-		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+		elseif ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
 			$bEnabled = false;
 		}
-		else if ( $this->getCon()->getIfForceOffActive() ) {
+		elseif ( $this->getCon()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
-		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
+		elseif ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
 		else {
@@ -800,21 +748,21 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleLink() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfUseSessions() {
 		return $this->getOptions()->getFeatureProperty( 'use_sessions' );
@@ -866,9 +814,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @param string  $sOptionKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
+	 * @param string $sOptionKey
+	 * @param mixed  $mValueToTest
+	 * @param bool   $bStrict
 	 * @return bool
 	 */
 	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
@@ -1311,13 +1259,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
-				else if ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+				elseif ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
 					$sOptionValue = 'N';
 				}
-				else if ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+				elseif ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 					$sOptionValue = [];
 				}
 			}
@@ -1329,7 +1277,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				if ( $sOptType == 'integer' ) {
 					$sOptionValue = intval( $sOptionValue );
 				}
-				else if ( $sOptType == 'password' ) {
+				elseif ( $sOptType == 'password' ) {
 					$sTempValue = trim( $sOptionValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
@@ -1342,13 +1290,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 					$sOptionValue = md5( $sTempValue );
 				}
-				else if ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
+				elseif ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
-				else if ( $sOptType == 'comma_separated_lists' ) {
+				elseif ( $sOptType == 'comma_separated_lists' ) {
 					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 				}
 			}
 
@@ -1438,12 +1386,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
-		if ( $this->canDisplayOptionsForm() ) {
-			echo $this->renderModulePage();
-		}
-		else {
-			echo $this->renderRestrictedPage();
-		}
+		echo $this->renderModulePage();
 	}
 
 	/**
@@ -1461,25 +1404,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function renderRestrictedPage() {
-		$aData = Services::DataManipulation()
-						 ->mergeArraysRecursive(
-							 $this->getBaseDisplayData(),
-							 [
-								 'ajax' => [
-									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' )
-								 ]
-							 ]
-						 );
-		return $this->renderTemplate( 'access_restricted.php', $aData );
-	}
-
-	/**
 	 * @return array
 	 */
-	protected function getBaseDisplayData() {
+	public function getBaseDisplayData() {
 		$oCon = $this->getCon();
 
 		return [
@@ -1520,12 +1447,32 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				'show_content_help'     => true,
 				'show_alt_content'      => false,
 				'has_wizard'            => $this->hasWizard(),
+
+				'is_premium' => $this->isPremium(),
 			],
 			'hrefs'         => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
 				'goprofooter'    => 'https://shsec.io/goprofooter',
 				'wizard_link'    => $this->getUrl_WizardLanding(),
-				'wizard_landing' => $this->getUrl_WizardLanding()
+				'wizard_landing' => $this->getUrl_WizardLanding(),
+
+				'form_action'      => Services::Request()->getUri(),
+				'css_bootstrap'    => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
+				'css_pages'        => $oCon->getPluginUrl_Css( 'pages' ),
+				'css_steps'        => $oCon->getPluginUrl_Css( 'jquery.steps' ),
+				'css_fancybox'     => $oCon->getPluginUrl_Css( 'jquery.fancybox.min' ),
+				'css_globalplugin' => $oCon->getPluginUrl_Css( 'global-plugin' ),
+				'css_wizard'       => $oCon->getPluginUrl_Css( 'wizard' ),
+				'js_jquery'        => Services::Includes()->getUrl_Jquery(),
+				'js_bootstrap'     => $oCon->getPluginUrl_Js( 'bootstrap4.bundle.min' ),
+				'js_fancybox'      => $oCon->getPluginUrl_Js( 'jquery.fancybox.min' ),
+				'js_globalplugin'  => $oCon->getPluginUrl_Js( 'global-plugin' ),
+				'js_steps'         => $oCon->getPluginUrl_Js( 'jquery.steps.min' ),
+				'js_wizard'        => $oCon->getPluginUrl_Js( 'wizard' ),
+			],
+			'imgs'          => [
+				'favicon'       => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'plugin_banner' => $oCon->getPluginUrl_Image( 'banner-1500x500-transparent.png' ),
 			],
 			'content'       => [
 				'options_form'   => '',
@@ -1652,7 +1599,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function getIsShowMarketing() {
 		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
@@ -2017,10 +1964,44 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return Shield\Databases\Base\Handler|mixed|false
-	 * @deprecated 8.4
+	 * @return array[]
+	 * @deprecated 8.5
 	 */
-	protected function loadDbHandler() {
+	public function getStatEvents_Recent() {
+		return [];
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return array|null
+	 * @deprecated 8.5
+	 */
+	public function getEventDef( $sKey ) {
+		return null;
+	}
+
+	/**
+	 * @param string $sKey
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isSupportedEvent( $sKey ) {
 		return false;
+	}
+
+	/**
+	 * @return array[]
+	 * @deprecated 8.5
+	 */
+	protected function getSupportedEvents() {
+		return [];
+	}
+
+	/**
+	 * @return array[]
+	 * @deprecated 8.5
+	 */
+	public function getEvents() {
+		return $this->getDef( 'events' );
 	}
 }

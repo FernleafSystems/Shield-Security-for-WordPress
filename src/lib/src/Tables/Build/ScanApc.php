@@ -18,16 +18,20 @@ class ScanApc extends ScanBase {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		$oCarbon = Services::Request()->carbon();
 
-		$oConverter = ( new Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() );
+		$oConverter = new Scan\Results\ConvertBetweenTypes();
 
 		$oWpPlugins = Services::WpPlugins();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
 			/** @var Shield\Scans\Apc\ResultItem $oIt */
-			$oIt = $oConverter->convertVoToResultItem( $oEntry );
+			$oIt = $oConverter
+				->setScanController( $oMod->getScanCon( $oEntry->scan ) )
+				->convertVoToResultItem( $oEntry );
 			$oPlugin = $oWpPlugins->getPluginAsVo( $oIt->slug );
 			$aE = $oEntry->getRawDataAsArray();
 			$aE[ 'plugin' ] = sprintf( '%s (%s)', $oPlugin->Name, $oPlugin->Version );

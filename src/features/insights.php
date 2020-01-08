@@ -125,11 +125,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'summary_blacklist' => sprintf( __( 'IP addresses that have tripped %s defenses.', 'wp-simple-firewall' ), $nPluginName ),
 						'enter_ip_block'    => __( 'Enter IP address to block', 'wp-simple-firewall' ),
 						'enter_ip_white'    => __( 'Enter IP address to whitelist', 'wp-simple-firewall' ),
+						'enter_ip'          => __( 'Enter IP address', 'wp-simple-firewall' ),
 						'label_for_ip'      => __( 'Label for IP', 'wp-simple-firewall' ),
 						'ip_new'            => __( 'New IP', 'wp-simple-firewall' ),
+						'ip_filter'         => __( 'Filter By IP', 'wp-simple-firewall' ),
 						'ip_block'          => __( 'Block IP', 'wp-simple-firewall' ),
 					],
-					'vars'    => [],
+					'vars'    => [
+						'unique_ips_black' => ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+							->setDbHandler( $oIpMod->getDbHandler_IPs() )
+							->black(),
+						'unique_ips_white' => ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+							->setDbHandler( $oIpMod->getDbHandler_IPs() )
+							->white()
+					],
 				];
 				break;
 
@@ -137,6 +146,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				$aData = [
 					'ajax'    => [
 						'render_table_adminnotes' => $oModPlugin->getAjaxActionData( 'render_table_adminnotes', true ),
+						'item_action_notes'       => $oModPlugin->getAjaxActionData( 'item_action_notes', true ),
 						'item_delete'             => $oModPlugin->getAjaxActionData( 'note_delete', true ),
 						'item_insert'             => $oModPlugin->getAjaxActionData( 'note_insert', true ),
 						'bulk_action'             => $oModPlugin->getAjaxActionData( 'bulk_action', true ),
@@ -781,11 +791,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$aStatsData = [
 			'login'          => [
-				'id'            => 'login_block',
-				'title'         => __( 'Login Blocks', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'login_block',
+				'title'     => __( 'Login Blocks', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'login_block' ) ),
-				'tooltip_p'     => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total login attempts blocked.', 'wp-simple-firewall' ),
 			],
 			//			'firewall'       => [
 			//				'id'      => 'firewall_block',
@@ -794,48 +804,43 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			//				'tooltip' => __( 'Total requests blocked by firewall rules.', 'wp-simple-firewall' )
 			//			],
 			'bot_blocks'     => [
-				'id'            => 'bot_blocks',
-				'title'         => __( 'Bot Detection', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'bot_blocks',
+				'title'     => __( 'Bot Detection', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEventsLike( 'bottrack_' ) ),
-				'tooltip_p'     => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total requests identified as bots.', 'wp-simple-firewall' ),
 			],
 			'comments'       => [
-				'id'            => 'comment_block',
-				'title'         => __( 'Comment Blocks', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'comment_block',
+				'title'     => __( 'Comment Blocks', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvents( [
 						'spam_block_bot',
 						'spam_block_human',
 						'spam_block_recaptcha'
 					] ) ),
-				'tooltip_p'     => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total SPAM comments blocked.', 'wp-simple-firewall' ),
 			],
 			'transgressions' => [
-				'id'            => 'ip_offense',
-				'title'         => __( 'Offenses', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'ip_offense',
+				'title'     => __( 'Offenses', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'ip_offense' ) ),
-				'tooltip_p'     => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total offenses against the site.', 'wp-simple-firewall' ),
 			],
 			'conn_kills'     => [
-				'id'            => 'conn_kill',
-				'title'         => __( 'Connection Killed', 'wp-simple-firewall' ),
-				'val'           => sprintf( '%s: %s', __( 'Lifetime Total' ),
+				'id'        => 'conn_kill',
+				'title'     => __( 'Connection Killed', 'wp-simple-firewall' ),
+				'val'       => sprintf( '%s: %s', __( 'Lifetime Total' ),
 					$oSelEvents->clearWheres()->sumEvent( 'conn_kill' ) ),
-				'tooltip_p'     => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
+				'tooltip_p' => __( 'Total connections blocked/killed after too many offenses.', 'wp-simple-firewall' ),
 			],
 			'ip_blocked'     => [
 				'id'        => 'ip_blocked',
 				'title'     => __( 'IP Blocked', 'wp-simple-firewall' ),
 				'val'       => sprintf( '%s: %s', __( 'Now' ),
-					$oSelectIp
-						->filterByLists(
-							[
-								ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-								ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
-							]
-						)->count() ),
+					$oSelectIp->filterByBlacklist()->count()
+				),
 				'tooltip_p' => __( 'IP address exceeds offense limit and is blocked.', 'wp-simple-firewall' ),
 			],
 		];
@@ -855,12 +860,12 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getRecentEvents() {
 		$oCon = $this->getCon();
 
-		$aEmptyStats = [];
-		foreach ( $oCon->getModules() as $oModule ) {
-			/** @var ICWP_WPSF_FeatureHandler_BaseWpsf $oModule */
-			$aStat = $oModule->getStatEvents_Recent();
-			$aEmptyStats = array_merge( $aEmptyStats, $aStat );
-		}
+		$aTheStats = array_filter(
+			$oCon->loadEventsService()->getEvents(),
+			function ( $aEvt ) {
+				return isset( $aEvt[ 'recent' ] ) && $aEvt[ 'recent' ];
+			}
+		);
 
 		/** @var Shield\Modules\Insights\Strings $oStrs */
 		$oStrs = $this->getStrings();
@@ -871,7 +876,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					 ->getDbHandler_Events()
 					 ->getQuerySelector();
 
-		$aLatestStats = array_intersect_key(
+		$aRecentStats = array_intersect_key(
 			array_map(
 				function ( $oEntryVO ) use ( $aNames ) {
 					/** @var Shield\Databases\Events\EntryVO $oEntryVO */
@@ -882,20 +887,20 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				},
 				$oSel->getLatestForAllEvents()
 			),
-			$aEmptyStats
+			$aTheStats
 		);
 
 		$sNotYetRecorded = __( 'Not yet recorded', 'wp-simple-firewall' );
-		foreach ( array_keys( $aEmptyStats ) as $sStatKey ) {
-			if ( !isset( $aLatestStats[ $sStatKey ] ) ) {
-				$aLatestStats[ $sStatKey ] = [
+		foreach ( array_keys( $aTheStats ) as $sStatKey ) {
+			if ( !isset( $aRecentStats[ $sStatKey ] ) ) {
+				$aRecentStats[ $sStatKey ] = [
 					'name' => isset( $aNames[ $sStatKey ] ) ? $aNames[ $sStatKey ] : '*** '.$sStatKey,
 					'val'  => $sNotYetRecorded
 				];
 			}
 		}
 
-		return $aLatestStats;
+		return $aRecentStats;
 	}
 
 	/**

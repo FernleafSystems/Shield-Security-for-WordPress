@@ -14,8 +14,8 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class CompleteQueue {
 
-	use ModConsumer,
-		Databases\Base\HandlerConsumer;
+	use Databases\Base\HandlerConsumer;
+	use ModConsumer;
 
 	/**
 	 * Take care here not to confuse the 2x DB Handlers
@@ -23,30 +23,30 @@ class CompleteQueue {
 	public function complete() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var Databases\ScanQueue\Handler $oDbH */
 		$oDbH = $this->getDbHandler();
 		$oSel = $oDbH->getQuerySelector();
 
-		$oDbHResults = $oMod->getDbHandler_ScanResults();
 		$aScansToNotify = [];
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
 
-			$oAction = ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( $sScanSlug );
+			$oScanCon = $oMod->getScanCon( $sScanSlug );
 
 			$oResultsSet = ( new CollateResults() )
+				->setScanController( $oScanCon )
 				->setDbHandler( $oDbH )
 				->collate( $sScanSlug );
 
-			$this->getCon()->fireEvent( $oAction->scan.'_scan_run' );
+			$this->getCon()->fireEvent( $sScanSlug.'_scan_run' );
 
 			if ( $oResultsSet instanceof Scans\Base\BaseResultsSet ) {
 				( new HackGuard\Scan\Results\ResultsUpdate() )
-					->setDbHandler( $oDbHResults )
-					->setScanActionVO( $oAction )
+					->setScanController( $oScanCon )
 					->update( $oResultsSet );
 
 				if ( $oResultsSet->countItems() > 0 ) {
-					$this->getCon()->fireEvent( $oAction->scan.'_scan_found' );
-					$aScansToNotify[] = $oAction->scan;
+					$this->getCon()->fireEvent( $sScanSlug.'_scan_found' );
+					$aScansToNotify[] = $sScanSlug;
 				}
 			}
 

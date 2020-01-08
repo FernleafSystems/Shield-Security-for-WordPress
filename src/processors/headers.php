@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
 
 class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 
@@ -128,68 +129,63 @@ class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 	 * @return array|null
 	 */
 	private function getReferrerPolicyHeader() {
-		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getMod();
-		return [ 'Referrer-Policy' => $oFO->getReferrerPolicyValue() ];
+		/** @var Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return [ 'Referrer-Policy' => $oOpts->getReferrerPolicyValue() ];
 	}
 
 	/**
 	 * @return array|null
 	 */
 	private function setContentSecurityPolicyHeader() {
-		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->isContentSecurityPolicyEnabled() ) {
-			return null;
-		}
-
-		$sTemplate = 'default-src %s;';
+		/** @var Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aDefaultSrcDirectives = [];
 
-		if ( $oFO->isOpt( 'xcsp_self', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_self', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'self'";
 		}
-		if ( $oFO->isOpt( 'xcsp_data', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_data', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "data:";
 		}
-		if ( $oFO->isOpt( 'xcsp_inline', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_inline', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'unsafe-inline'";
 		}
-		if ( $oFO->isOpt( 'xcsp_eval', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_eval', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'unsafe-eval'";
 		}
-		if ( $oFO->isOpt( 'xcsp_https', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_https', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "https:";
 		}
 
-		$aDomains = $oFO->getCspHosts();
-		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
-			$aDefaultSrcDirectives[] = implode( " ", $aDomains );
-		}
-		return [ 'Content-Security-Policy' => sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) ) ];
+		$aDefaultSrcDirectives[] = implode( " ", $oOpts->getOpt( 'xcsp_hosts', [] ) );
+
+		$aRules = $oOpts->getCspCustomRules();
+		array_unshift( $aRules, sprintf( 'default-src %s;', implode( " ", $aDefaultSrcDirectives ) ) );
+		return [ 'Content-Security-Policy' => implode( ' ', $aRules ) ];
 	}
 
 	/**
 	 * @return array
 	 */
 	private function gatherSecurityHeaders() {
-		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getMod();
+		/** @var Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isReferrerPolicyEnabled() ) {
+		if ( $oOpts->isReferrerPolicyEnabled() ) {
 			$this->addHeader( $this->getReferrerPolicyHeader() );
 		}
-		if ( $oFO->isEnabledXFrame() ) {
+		if ( $oOpts->isEnabledXFrame() ) {
 			$this->addHeader( $this->getXFrameHeader() );
 		}
-		if ( $oFO->isEnabledXssProtection() ) {
+		if ( $oOpts->isEnabledXssProtection() ) {
 			$this->addHeader( $this->getXssProtectionHeader() );
 		}
-		if ( $oFO->isEnabledContentTypeHeader() ) {
+		if ( $oOpts->isEnabledContentTypeHeader() ) {
 			$this->addHeader( $this->getContentTypeOptionHeader() );
 		}
-		if ( $oFO->isContentSecurityPolicyEnabled() ) {
+		if ( $oOpts->isEnabledContentSecurityPolicy() ) {
 			$this->addHeader( $this->setContentSecurityPolicyHeader() );
 		}
 		return $this->getHeaders();

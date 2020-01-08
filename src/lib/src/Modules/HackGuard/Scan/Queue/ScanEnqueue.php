@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ScanEnqueue {
 
-	use HandlerConsumer,
-		QueueProcessorConsumer,
-		Scans\Common\ScanActionConsumer;
+	use HandlerConsumer;
+	use QueueProcessorConsumer;
+	use Scans\Common\ScanActionConsumer;
 
 	/**
 	 * @throws \Exception
@@ -23,7 +23,7 @@ class ScanEnqueue {
 		$aAllItems = (array)$oAction->items;
 		unset( $oAction->items );
 
-		$nSliceSize = $oAction::ITEM_STORAGE_LIMIT;
+		$nSliceSize = $oAction::QUEUE_GROUP_SIZE_LIMIT;
 
 		do {
 			$oCurrent = clone $oAction;

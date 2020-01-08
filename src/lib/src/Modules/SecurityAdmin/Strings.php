@@ -11,10 +11,10 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
-			'key_success'                 => [
+			'key_success' => [
 				__( 'Successful authentication using security admin key.', 'wp-simple-firewall' ),
 			],
-			'key_fail'                 => [
+			'key_fail'    => [
 				__( 'Failed authentication using security admin key.', 'wp-simple-firewall' ),
 			],
 		];
@@ -130,6 +130,13 @@ class Strings extends Base\Strings {
 									__( 'Default', 'wp-simple-firewall' ),
 									sprintf( '%s minutes', $oOpts->getOptDefault( 'admin_access_timeout' ) )
 								);
+				break;
+
+			case 'allow_email_override' :
+				$sName = __( 'Allow Email Override', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Email Override Of Admin Access Restrictions', 'wp-simple-firewall' );
+				$sDescription = __( 'Allow the use of verification emails to override and switch off the Security Admin restrictions.', 'wp-simple-firewall' )
+								.'<br/>'.sprintf( __( "The email address specified in %s's General settings will be used.", 'wp-simple-firewall' ), $sPlugName );
 				break;
 
 			case 'admin_access_restrict_posts' :

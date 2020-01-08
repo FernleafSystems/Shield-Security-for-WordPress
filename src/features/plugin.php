@@ -22,6 +22,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function updateHandler() {
 		parent::updateHandler();
 		$this->deleteAllPluginCrons();
+		/** @var Shield\Modules\Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt( 'this_server_ip_details', [] );
 	}
 
 	private function deleteAllPluginCrons() {
@@ -59,25 +62,25 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return string
+	 * @return string[]
 	 */
-	public function getMyServerIp() {
+	public function getMyServerIPs() {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$sThisServerIp = $oOpts->getServerIpDetails()[ 'ip' ];
-		if ( empty( $sThisServerIp ) || $this->getLastCheckServerIpAtHasExpired() ) {
+		$aThisServerIps = $oOpts->getServerIpDetails()[ 'ips' ];
+		if ( empty( $aThisServerIps ) || $this->getLastCheckServerIpAtHasExpired() ) {
 
-			$sThisServerIp = Services::IP()->whatIsMyIp();
-			if ( !empty( $sThisServerIp ) ) {
+			$aThisServerIps = Services::IP()->getServerPublicIPs();
+			if ( !empty( $aThisServerIps ) ) {
 				$oOpts->updateServerIpDetails( [
-					'ip'       => $sThisServerIp,
+					'ips'      => $aThisServerIps,
 					'hash'     => $this->getServerHash(),
 					'check_ts' => Services::Request()->ts(),
 				] );
 			}
 		}
-		return $sThisServerIp;
+		return $aThisServerIps;
 	}
 
 	/**
@@ -121,9 +124,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function setVisitorIp() {
 		$oDetector = ( new Utilities\Net\VisitorIpDetection() )
-			->setPotentialHostIps(
-				[ $this->getMyServerIp(), Services::Request()->getServerAddress() ]
-			);
+			->setPotentialHostIps( Services::IP()->getServerPublicIPs() );
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
 		}
@@ -226,8 +227,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param boolean $bGloballyDisabled
-	 * @return boolean
+	 * @param bool $bGloballyDisabled
+	 * @return bool
 	 */
 	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
 		return $bGloballyDisabled || !$this->isOpt( 'global_enable_plugin_features', 'Y' );
@@ -552,7 +553,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function getImportExportSecretKey() {
 		$sId = $this->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $sId ) || $this->isImportExportSecretKeyExpired() ) {
-			$sId = sha1( $this->getPluginInstallationId().wp_rand( 0, PHP_INT_MAX ) );
+			$sId = sha1( $this->getCon()->getSiteInstallationId().wp_rand( 0, PHP_INT_MAX ) );
 			$this->setOpt( 'importexport_secretkey', $sId )
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
 		}
@@ -792,14 +793,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return int
-	 * @deprecated 8.4
-	 */
-	public function getLastCheckServerIpAt() {
-		return $this->getOpt( 'this_server_ip_last_check_at', 0 );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
@@ -811,5 +804,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5
+	 */
+	public function getMyServerIp() {
+		$aIPs = $this->getMyServerIPs();
+		return array_shift( $aIPs );
 	}
 }

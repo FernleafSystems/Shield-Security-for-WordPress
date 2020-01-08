@@ -107,20 +107,4 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 		}
 		return $this->sFormId;
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.4
-	 */
-	private function getGaspCommentsHtml() {
-		return '';
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.4
-	 */
-	public function tokenCreateStore() {
-		return '';
-	}
 }

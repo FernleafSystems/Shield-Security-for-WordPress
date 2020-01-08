@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class ScannerPlugins
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg
- * @deprecated
+ * @deprecated 8.5
  */
 class ScannerPlugins extends ScannerBase {
 

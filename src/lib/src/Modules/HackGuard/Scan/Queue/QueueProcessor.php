@@ -40,7 +40,6 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * item from the queue.
 	 *
 	 * @param ScanQueue\EntryVO $oEntry Queue item to iterate over.
-	 *
 	 * @return mixed
 	 */
 	protected function task( $oEntry ) {
@@ -115,6 +114,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 			/** @var ScanQueue\Insert $oInsert */
 			$oInsert = $this->getDbHandler()->getQueryInserter();
 			foreach ( $this->data as $nKey => $oEntry ) {
+				/** @var ScanQueue\EntryVO $oEntry */
 				if ( $oEntry instanceof ScanQueue\EntryVO ) {
 					$oInsert->insert( $oEntry );
 				}

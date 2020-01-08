@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Controller extends Shield\Deprecated\Foundation {
 
@@ -23,7 +23,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	private $sRootFile;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bRebuildOptions;
 
@@ -88,22 +88,55 @@ class Controller extends Shield\Deprecated\Foundation {
 	protected $oNotices;
 
 	/**
+	 * @var Shield\Modules\Events\Lib\EventsService
+	 */
+	private $oEventsService;
+
+	/**
+	 * @param string $sEventTag
+	 * @param array  $aMetaData
+	 * @return $this
+	 */
+	public function fireEvent( $sEventTag, $aMetaData = [] ) {
+		$this->loadEventsService()->fireEvent( $sEventTag, $aMetaData );
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllEvents() {
+		return $this->loadEventsService()->getEvents();
+	}
+
+	/**
+	 * @return Shield\Modules\Events\Lib\EventsService
+	 */
+	public function loadEventsService() {
+		if ( !isset( $this->oEventsService ) ) {
+			$this->oEventsService = ( new Shield\Modules\Events\Lib\EventsService() )
+				->setCon( $this );
+		}
+		return $this->oEventsService;
+	}
+
+	/**
 	 * @param string $sRootFile
 	 * @return Controller
 	 * @throws \Exception
 	 */
 	public static function GetInstance( $sRootFile = null ) {
-		if ( !isset( self::$oInstance ) ) {
-			self::$oInstance = new self( $sRootFile );
+		if ( !isset( static::$oInstance ) ) {
+			static::$oInstance = new static( $sRootFile );
 		}
-		return self::$oInstance;
+		return static::$oInstance;
 	}
 
 	/**
 	 * @param string $sRootFile
 	 * @throws \Exception
 	 */
-	private function __construct( $sRootFile ) {
+	protected function __construct( $sRootFile ) {
 		$this->sRootFile = $sRootFile;
 		$this->loadServices();
 		$this->checkMinimumRequirements();
@@ -359,7 +392,7 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		if ( Services::Request()->query( $this->prefix( 'runtests' ) ) && $this->isPluginAdmin() ) {
 			$this->runTests();
-		};
+		}
 
 		if ( !Services::WpGeneral()->isAjax() && function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
@@ -550,25 +583,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( isset( $submenu[ $sFullParentMenuId ] ) ) {
 			unset( $submenu[ $sFullParentMenuId ][ 0 ] );
 		}
-	}
-
-	/**
-	 * @param string $sEventTag
-	 * @param array  $aMetaData
-	 * @return $this
-	 */
-	public function fireEvent( $sEventTag, $aMetaData = [] ) {
-		if ( apply_filters( $this->prefix( 'is_event_supported' ), false, $sEventTag ) ) {
-			do_action( $this->prefix( 'event' ), $sEventTag, $aMetaData );
-		}
-		return $this;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getAllEvents() {
-		return apply_filters( $this->prefix( 'get_all_events' ), [] );
 	}
 
 	/**
@@ -819,9 +833,9 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 * This is a filter method designed to say whether WordPress plugin upgrades should be permitted,
 	 * based on the plugin settings.
-	 * @param boolean       $bDoAutoUpdate
+	 * @param bool          $bDoAutoUpdate
 	 * @param string|object $mItem
-	 * @return boolean
+	 * @return bool
 	 */
 	public function onWpAutoUpdate( $bDoAutoUpdate, $mItem ) {
 		$oWp = Services::WpGeneral();
@@ -869,8 +883,6 @@ class Controller extends Shield\Deprecated\Foundation {
 					break;
 
 				case 'pass' :
-					break;
-
 				default:
 					break;
 			}
@@ -1118,7 +1130,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( !$oWp->isMultisite() && is_admin() ) {
 			return true;
 		}
-		else if ( $oWp->isMultisite() && $this->getIsWpmsNetworkAdminOnly() && ( is_network_admin() || $oWp->isAjax() ) ) {
+		elseif ( $oWp->isMultisite() && $this->getIsWpmsNetworkAdminOnly() && ( is_network_admin() || $oWp->isAjax() ) ) {
 			return true;
 		}
 		return false;
@@ -1152,7 +1164,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getMeetsBasePermissions() {
 		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
@@ -1228,7 +1240,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			 && hash_equals( $oConOptions->hash, $sCurrentHash ) ) {
 			$this->bRebuildOptions = false;
 		}
-		else if ( isset( $oConOptions->mod_time ) && ( $sModifiedTime < $oConOptions->mod_time ) ) {
+		elseif ( isset( $oConOptions->mod_time ) && ( $sModifiedTime < $oConOptions->mod_time ) ) {
 			$this->bRebuildOptions = false;
 		}
 
@@ -1245,7 +1257,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIsResetPlugin() {
 		if ( !isset( $this->bResetPlugin ) ) {
@@ -1256,7 +1268,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIsWpmsNetworkAdminOnly() {
 		return $this->getPluginSpec_Property( 'wpms_network_admin_only' );
@@ -1554,7 +1566,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	protected function deleteCronJobs() {
-		$oWpCron = $this->loadWpCronProcessor();
+		$oWpCron = Services::WpCron();
 		$aCrons = $oWpCron->getCrons();
 
 		$sPattern = sprintf( '#^(%s|%s)#', $this->getParentSlug(), $this->getPluginSlug() );

@@ -10,12 +10,12 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * @var string
 	 */
-	static protected $sModeFile_EmailThrottled;
+	protected static $sModeFile_EmailThrottled;
 
 	/**
 	 * @var int
 	 */
-	static protected $nThrottleInterval = 1;
+	protected static $nThrottleInterval = 1;
 
 	/**
 	 * @var int
@@ -33,7 +33,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	protected $nEmailThrottleCount;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bEmailIsThrottled;
 
@@ -79,7 +79,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @param string $sAddress
 	 * @param string $sSubject
 	 * @param array  $aMessage
-	 * @return boolean
+	 * @return bool
 	 */
 	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) {
 		return $this->send(
@@ -182,7 +182,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * Will send email to the default recipient setup in the object.
 	 * @param string $sEmailSubject
 	 * @param array  $aMessage
-	 * @return boolean
+	 * @return bool
 	 */
 	public function sendEmail( $sEmailSubject, $aMessage ) {
 		return $this->sendEmailWithWrap( null, $sEmailSubject, $aMessage );
@@ -227,7 +227,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			$this->nEmailThrottleCount = 1;    //we set to 1 assuming that this was called because we're about to send, or have just sent, an email.
 			$this->setThrottledFile( false );
 		}
-		else if ( is_file( self::$sModeFile_EmailThrottled ) || ( $this->nEmailThrottleCount >= $this->getThrottleLimit() ) ) {
+		elseif ( is_file( self::$sModeFile_EmailThrottled ) || ( $this->nEmailThrottleCount >= $this->getThrottleLimit() ) ) {
 			$this->setThrottledFile( true );
 		}
 		else {
@@ -243,7 +243,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 		if ( $infOn && !is_file( self::$sModeFile_EmailThrottled ) && function_exists( 'touch' ) ) {
 			@touch( self::$sModeFile_EmailThrottled );
 		}
-		else if ( !$infOn && is_file( self::$sModeFile_EmailThrottled ) ) {
+		elseif ( !$infOn && is_file( self::$sModeFile_EmailThrottled ) ) {
 			@unlink( self::$sModeFile_EmailThrottled );
 		}
 	}

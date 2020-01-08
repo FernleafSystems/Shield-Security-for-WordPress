@@ -27,12 +27,4 @@ class ICWP_WPSF_FeatureHandler_Events extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function getNamespaceBase() {
 		return 'Events';
 	}
-
-	/**
-	 * @return Shield\Databases\Events\Handler
-	 * @deprecated 8.4
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Events\Handler();
-	}
 }

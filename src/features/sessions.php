@@ -41,12 +41,4 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getNamespaceBase() {
 		return 'Sessions';
 	}
-
-	/**
-	 * @return Shield\Databases\Session\Handler
-	 * @deprecated 8.4
-	 */
-	protected function loadDbHandler() {
-		return new Shield\Databases\Session\Handler();
-	}
 }

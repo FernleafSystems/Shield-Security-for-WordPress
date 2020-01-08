@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
@@ -14,38 +15,15 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 		add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 0 );
 	}
 
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isApcEnabled();
-	}
-
 	public function onDeletedPlugin() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oMod->getScanController()
-			 ->startScans( [ static::SCAN_SLUG ] );
+			 ->startScans( [ $this->getThisScanCon()->getSlug() ] );
 	}
 
 	/**
-	 * @return null
-	 */
-	protected function getRepairer() {
-		return null;
-	}
-
-	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		// no autorepair
-	}
-
-	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oRes
+	 * @param Apc\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
@@ -59,7 +37,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Apc\ResultsSet $oRes
+	 * @param Apc\ResultsSet $oRes
 	 */
 	protected function emailResults( $oRes ) {
 		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
@@ -76,7 +54,7 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 			'',
 		];
 
-		/** @var Shield\Scans\Apc\ResultItem $oItem */
+		/** @var Apc\ResultItem $oItem */
 		foreach ( $oRes->getItems() as $oItem ) {
 
 			if ( $oItem->context == 'plugins' ) {
@@ -111,33 +89,5 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 				]
 			]
 		);
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getAllAbandonedPlugins() {
-		return $this->getAllAbandoned()->getUniqueSlugs();
-	}
-
-	/**
-	 * @return Shield\Scans\Apc\ResultsSet
-	 */
-	protected function getAllAbandoned() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		$aVos = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterByNotIgnored()
-					 ->query();
-		return $this->convertVosToResults( $aVos );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function countAbandonedPlugins() {
-		return $this->getAllAbandoned()->countUniqueSlugsForPluginsContext();
 	}
 }

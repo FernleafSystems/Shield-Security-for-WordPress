@@ -18,14 +18,14 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// 100 priority is important as this takes priority
-//		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'applyUserCanMfaSkip' ), 100, 2 );
+//		add_filter( $oMod->prefix( 'user_subject_to_login_intent' ), array( $this, 'applyUserCanMfaSkip' ), 100, 2 );
 
-		if ( $oFO->getIfSupport3rdParty() ) {
+		if ( $oMod->getIfSupport3rdParty() ) {
 			add_action( 'wc_social_login_before_user_login', [ $this, 'onWcSocialLogin' ] );
 		}
 	}
@@ -41,7 +41,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
 		$this->setupLoginIntent();
 	}
 
@@ -77,7 +76,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				if ( $this->isUserSubjectToLoginIntent() && !$oFO->canUserMfaSkip( $oWpUsers->getCurrentWpUser() ) ) {
 					$this->processLoginIntent();
 				}
-				else if ( $this->hasLoginIntent() ) {
+				elseif ( $this->hasLoginIntent() ) {
 					// This handles the case where an admin changes a setting while a user is logged-in
 					// So to prevent this, we remove any intent for a user that isn't subject to it right now
 					$this->removeLoginIntent();
@@ -142,7 +141,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 					$sRedirectHref = $oReq->post( 'cancel_href' );
 					empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
 				}
-				else if ( $this->isLoginIntentValid() ) {
+				elseif ( $this->isLoginIntentValid() ) {
 
 					if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
 						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
@@ -162,7 +161,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				}
 				else {
 					$oFO->setFlashAdminNotice( __( 'One or more of your authentication codes failed or was missing', 'wp-simple-firewall' ), true );
-					$oWpResp->redirectHere();
+					// We don't protect against loops here to prevent by-passing of the login intent page.
+					Services::Response()->redirect( Services::Request()->getUri(), [], true, false );
 				}
 				return; // we've redirected anyway.
 			}
@@ -170,7 +170,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 				die();
 			}
 		}
-		else if ( $this->hasLoginIntent() ) { // there was an old login intent
+		elseif ( $this->hasLoginIntent() ) { // there was an old login intent
 			$oWpUsers->logoutUser(); // clears the login and login intent
 			$oWpResp->redirectHere();
 		}
@@ -230,11 +230,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	/**
 	 * @return bool true if valid form printed, false otherwise. Should die() if true
 	 */
-	public function printLoginIntentForm() {
+	private function printLoginIntentForm() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
+		$oWP = Services::WpGeneral();
 		$aLoginIntentFields = apply_filters( $oCon->prefix( 'login-intent-form-fields' ), [] );
 
 		if ( empty( $aLoginIntentFields ) ) {
@@ -247,7 +248,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 		else {
 			$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
 		}
-		$sMessageType = 'info';
 
 		$sReferUrl = $oReq->server( 'HTTP_REFERER', '' );
 		if ( strpos( $sReferUrl, '?' ) ) {
@@ -257,12 +257,15 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 			$sReferQuery = '';
 		}
 
-		$sRedirectTo = $oReq->post( 'redirect_to', '' );
+		$sRedirectTo = '';
 		if ( !empty( $sReferQuery ) ) {
 			parse_str( $sReferQuery, $aReferQueryItems );
 			if ( !empty( $aReferQueryItems[ 'redirect_to' ] ) ) {
 				$sRedirectTo = rawurlencode( $aReferQueryItems[ 'redirect_to' ] );
 			}
+		}
+		if ( empty( $sRedirectTo ) ) {
+			$sRedirectTo = rawurlencode( $oReq->post( 'redirect_to', $oReq->getUri() ) );
 		}
 
 		$sCancelHref = $oReq->post( 'cancel_href', '' );
@@ -293,12 +296,12 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 			'data'    => [
 				'login_fields'      => $aLoginIntentFields,
 				'time_remaining'    => $this->getLoginIntentExpiresAt() - $oReq->ts(),
-				'message_type'      => $sMessageType,
+				'message_type'      => 'info',
 				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
-				'page_locale'       => Services::WpGeneral()->getLocale( '-' )
+				'page_locale'       => $oWP->getLocale( '-' )
 			],
 			'hrefs'   => [
-				'form_action'   => $oReq->getUri(),
+				'form_action'   => parse_url( $oWP->getAdminUrl( '', true ), PHP_URL_PATH ),
 				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
 				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
 				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
@@ -316,7 +319,8 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 			]
 		];
 
-		echo $oMod->renderTemplate( 'page/login_intent', $aDisplayData );
+		echo $oMod->renderTemplate( '/pages/login_intent/index.twig',
+			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );
 
 		return true;
 	}

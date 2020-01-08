@@ -40,7 +40,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modul
 	}
 
 	/**
-	 * @param string  $sUsername
+	 * @param string   $sUsername
 	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
@@ -158,7 +158,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modul
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param bool    $bValidated set true for validated, false for invalidated
+	 * @param bool     $bValidated set true for validated, false for invalidated
 	 * @return $this
 	 */
 	public function setProfileValidated( $oUser, $bValidated = true ) {
@@ -170,7 +170,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modul
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string  $sNewSecret
+	 * @param string   $sNewSecret
 	 * @return $this
 	 */
 	protected function setSecret( $oUser, $sNewSecret ) {
@@ -190,7 +190,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modul
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string  $sOtpCode
+	 * @param string   $sOtpCode
 	 * @return bool
 	 */
 	abstract protected function processOtp( $oUser, $sOtpCode );
@@ -255,14 +255,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modul
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param bool    $bIsSuccess
+	 * @param bool     $bIsSuccess
 	 */
 	abstract protected function auditLogin( $oUser, $bIsSuccess );
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param bool    $bIsOtpSuccess
-	 * @param bool    $bOtpProvided - whether a OTP was actually provided
+	 * @param bool     $bIsOtpSuccess
+	 * @param bool     $bOtpProvided - whether a OTP was actually provided
 	 * @return $this
 	 */
 	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
@@ -287,7 +287,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modul
 	}
 
 	/**
-	 * @param bool    $bIsSubjectTo
+	 * @param bool     $bIsSubjectTo
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */

@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -33,34 +34,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		return $aEmails;
 	}
 
-	/**
-	 * @return int
-	 */
-	public function getIdleTimeoutInterval() {
-		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getMaxSessionTime() {
-		return $this->getOpt( 'session_timeout_interval' )*DAY_IN_SECONDS;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasSessionIdleTimeout() {
-		return $this->isModuleEnabled() && ( $this->getIdleTimeoutInterval() > 0 );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasMaxSessionTimeout() {
-		return $this->isModuleEnabled() && ( $this->getMaxSessionTime() > 0 );
-	}
-
 	protected function doExtraSubmitProcessing() {
 		$this->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
 
@@ -90,13 +63,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		catch ( \Exception $oE ) {
 			return false;
 		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isLockToIp() {
-		return $this->isOpt( 'session_lock_location', 'Y' );
 	}
 
 	/**
@@ -256,7 +222,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				]
 			);
 		}
-		else if ( !$bAdd && $bIdSuspended ) {
+		elseif ( !$bAdd && $bIdSuspended ) {
 			$oMeta->hard_suspended_at = 0;
 			unset( $aIds[ $nUserId ] );
 			$this->getCon()->fireEvent(
@@ -327,6 +293,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		$aThis = [
 			'strings'      => [
 				'title' => __( 'User Management', 'wp-simple-firewall' ),
@@ -340,7 +309,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bHasIdle = $this->hasSessionIdleTimeout();
+			$bHasIdle = $oOpts->hasSessionIdleTimeout();
 			$aThis[ 'key_opts' ][ 'idle' ] = [
 				'name'    => __( 'Idle Users', 'wp-simple-firewall' ),
 				'enabled' => $bHasIdle,
@@ -351,7 +320,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				'href'    => $this->getUrl_DirectLinkToOption( 'session_idle_timeout_interval' ),
 			];
 
-			$bLocked = $this->isLockToIp();
+			$bLocked = $oOpts->isLockToIp();
 			$aThis[ 'key_opts' ][ 'lock' ] = [
 				'name'    => __( 'Lock To IP', 'wp-simple-firewall' ),
 				'enabled' => $bLocked,
@@ -396,5 +365,53 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 */
 	protected function getNamespaceBase() {
 		return 'UserManagement';
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5
+	 */
+	public function getMaxSessionTime() {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->getMaxSessionTime();
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5
+	 */
+	public function getIdleTimeoutInterval() {
+		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function hasMaxSessionTimeout() {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->hasMaxSessionTimeout();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function hasSessionIdleTimeout() {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->hasSessionIdleTimeout();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isLockToIp() {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isLockToIp();
 	}
 }

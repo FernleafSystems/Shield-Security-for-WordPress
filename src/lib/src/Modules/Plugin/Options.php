@@ -56,14 +56,17 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getServerIpDetails() {
 		$aDetails = $this->getOpt( 'this_server_ip_details', [] );
-		if ( empty( $aDetails ) ) {
-			$aDetails = [
-				'ip'       => '',
-				'hash'     => '',
-				'check_ts' => Services::Request()->carbon()->subYear()->timestamp,
-			];
+		if ( !is_array( $aDetails ) ) {
+			$aDetails = [];
 		}
-		return $aDetails;
+		return array_merge(
+			[
+				'ips'      => [],
+				'hash'     => '',
+				'check_ts' => 0,
+			],
+			$aDetails
+		);
 	}
 
 	/**

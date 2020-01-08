@@ -23,7 +23,7 @@ class Base extends \WP_List_Table {
 	protected $nTotalRecords;
 
 	/**
-	 * @var array
+	 * @ array
 	 */
 	protected $aItemEntries;
 
@@ -104,6 +104,23 @@ class Base extends \WP_List_Table {
 		return $this->getPerPage();
 	}
 
+	public function single_row( $item ) {
+		if ( empty( $item[ 'custom_row' ] ) ) { // it's a normal row so render as always
+			parent::single_row( $item );
+		}
+		else {
+			$this->single_row_custom( $item );
+		}
+	}
+
+	/**
+	 * override this in order to display a custom row
+	 * @param $aItem
+	 */
+	public function single_row_custom( $aItem ) {
+		parent::single_row( $aItem );
+	}
+
 	/**
 	 * @return int
 	 */
@@ -153,11 +170,31 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param string|string[] $aButtons
+	 * @param array $aButtons
 	 * @return string
 	 */
 	protected function buildActions( $aButtons ) {
 		return sprintf( '<div class="actions-block">%s</div>', implode( ' | ', (array)$aButtons ) );
+	}
+
+	/**
+	 * @param array $aProps
+	 * @return string
+	 */
+	protected function buildActionButton_CustomArray( $aProps ) {
+		$sTitle = empty( $aProps[ 'title' ] ) ? $aProps[ 'text' ] : $aProps[ 'title' ];
+
+		$aClasses = $aProps[ 'classes' ];
+		if ( in_array( 'disabled', $aClasses ) ) {
+			$aClasses[] = 'text-dark';
+		}
+
+		$aDataAttrs = [];
+		foreach ( $aProps[ 'data' ] as $sKey => $sValue ) {
+			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
+		}
+		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
+			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $aProps[ 'text' ] );
 	}
 
 	/**
@@ -168,22 +205,13 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) {
-		if ( empty( $sTitle ) ) {
-			$sTitle = $sText;
-		}
-
 		$aClasses[] = 'action';
-
-		if ( in_array( 'disabled', $aClasses ) ) {
-			$aClasses[] = 'text-dark';
-		}
-
-		$aDataAttrs = [];
-		foreach ( $aData as $sKey => $sValue ) {
-			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
-		}
-		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
-			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $sText );
+		return $this->buildActionButton_CustomArray( [
+			'text'    => $sText,
+			'classes' => $aClasses,
+			'data'    => $aData,
+			'title'   => $sTitle
+		] );
 	}
 
 	/**

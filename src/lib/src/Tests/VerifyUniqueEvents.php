@@ -22,7 +22,7 @@ class VerifyUniqueEvents {
 				function ( $aEvt ) {
 					return $aEvt[ 'key' ];
 				},
-				array_values( $oMod->getEvents() )
+				array_values( $oMod->getOptions()->getDef( 'events' ) )
 			);
 			$aAllKeys = array_merge( $aAllKeys, $aKeys );
 		}

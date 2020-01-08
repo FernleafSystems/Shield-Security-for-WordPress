@@ -1,7 +1,6 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,45 +12,28 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	/**
 	 */
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
-		$this->getSubProcessorApc()->execute();
-		$this->getSubProcessorUfc()->execute();
-		$this->getSubProcessorWcf()->execute();
-		if ( $oMod->isPremium() ) {
-			$this->getSubProcessorMal()->execute();
-			$this->getSubProcessorWpv()->execute();
-			if ( $oMod->isPtgEnabled() ) {
-				$this->getSubProcessorPtg()->execute();
-			}
+		$this->getSubPro( 'apc' )->execute();
+		$this->getSubPro( 'ufc' )->execute();
+		$this->getSubPro( 'wcf' )->execute();
+		$this->getSubPro( 'ptg' )->execute();
+		if ( $this->getCon()->isPremiumActive() ) {
+			$this->getSubPro( 'mal' )->execute();
+			$this->getSubPro( 'wpv' )->execute();
 		}
 		$this->setupCron();
 		$this->handlePostScanCron();
 	}
 
 	/**
-	 * @param string $sSlug
-	 * @return \ICWP_WPSF_Processor_ScanBase|null
 	 */
-	public function getScannerFromSlug( $sSlug ) {
+	public function deactivatePlugin() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return in_array( $sSlug, $oOpts->getScanSlugs() ) ? $this->getSubPro( $sSlug ) : null;
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Apc
-	 */
-	public function getSubProcessorApc() {
-		return $this->getSubPro( 'apc' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Ufc
-	 */
-	protected function getSubProcessorIntegrity() {
-		return $this->getSubPro( 'int' );
+		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
+			$oMod->getScanCon( $sSlug )->purge();
+		}
 	}
 
 	/**
@@ -59,34 +41,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 */
 	public function getSubProcessorPtg() {
 		return $this->getSubPro( 'ptg' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Ufc
-	 */
-	public function getSubProcessorUfc() {
-		return $this->getSubPro( 'ufc' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Mal
-	 */
-	public function getSubProcessorMal() {
-		return $this->getSubPro( 'mal' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Wcf
-	 */
-	public function getSubProcessorWcf() {
-		return $this->getSubPro( 'wcf' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Wpv
-	 */
-	public function getSubProcessorWpv() {
-		return $this->getSubPro( 'wpv' );
 	}
 
 	/**
@@ -105,16 +59,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return ICWP_WPSF_Processor_ScanBase|mixed|null
-	 */
-	protected function getSubPro( $sKey ) {
-		/** @var ICWP_WPSF_Processor_ScanBase $oPro */
-		$oPro = parent::getSubPro( $sKey );
-		return $oPro->setScannerDb( $this );
-	}
-
-	/**
 	 * Responsible for sending out emails and doing any automated repairs.
 	 */
 	private function handlePostScanCron() {
@@ -128,27 +72,16 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		} );
 	}
 
-	/**
-	 * Based on the Ajax Download File pathway (hence the cookie)
-	 * @param string $sItemId
-	 */
-	public function downloadItemFile( $sItemId ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Scanner\EntryVO $oEntry */
-		$oEntry = $oMod->getDbHandler_ScanResults()
-					   ->getQuerySelector()
-					   ->byId( (int)$sItemId );
-		if ( !empty( $oEntry ) ) {
-			$sPath = $oEntry->meta[ 'path_full' ];
-			$oFs = Services::WpFs();
-			if ( $oFs->isFile( $sPath ) ) {
-				header( 'Set-Cookie: fileDownload=true; path=/' );
-				Services::Response()->downloadStringAsFile( $oFs->getFileContent( $sPath ), basename( $sPath ) );
-			}
-		}
+	public function runHourlyCron() {
+		( new HackGuard\Lib\Snapshots\StoreAction\TouchAll() )
+			->setMod( $this->getMod() )
+			->run();
+	}
 
-		wp_die( "Something about this request wasn't right" );
+	public function runDailyCron() {
+		( new HackGuard\Lib\Snapshots\StoreAction\CleanAll() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**
@@ -167,16 +100,15 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		if ( $this->getCanScansExecute() ) {
 			$aScans = [];
 			foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
-				$oProc = $this->getSubPro( $sScanSlug );
-				if ( $oProc->isAvailable() && $oProc->isEnabled() ) {
+				$oScanCon = $oMod->getScanCon( $sScanSlug );
+				if ( $oScanCon->isScanningAvailable() && $oScanCon->isEnabled() ) {
 					$aScans[] = $sScanSlug;
 				}
 			}
 
 			$oOpts->setIsScanCron( true );
-			$oMod->saveModOptions();
-
-			$oMod->getScanController()
+			$oMod->saveModOptions()
+				 ->getScanController()
 				 ->startScans( $aScans );
 		}
 		else {
@@ -214,5 +146,14 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 */
 	protected function getCronName() {
 		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return \ICWP_WPSF_Processor_ScanBase|null
+	 * @deprecated 8.5
+	 */
+	public function getScannerFromSlug( $sSlug ) {
+		return $this->getSubPro( $sSlug );
 	}
 }

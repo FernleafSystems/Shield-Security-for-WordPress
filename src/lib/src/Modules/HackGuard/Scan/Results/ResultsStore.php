@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -11,17 +12,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ResultsStore {
 
-	use Databases\Base\HandlerConsumer,
-		Scans\Common\ScanActionConsumer;
+	use ScanControllerConsumer;
 
 	/**
 	 * @param Scans\Base\BaseResultsSet $oToStore
 	 */
 	public function store( $oToStore ) {
-		/** @var Databases\Scanner\Insert $oInsert */
-		$oInsert = $this->getDbHandler()->getQueryInserter();
+		$oSCon = $this->getScanController();
+		$oInsert = $oSCon->getScanResultsDbHandler()
+						 ->getQueryInserter();
 		$aVOs = ( new ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanController( $oSCon )
 			->fromResultsToVOs( $oToStore );
 		foreach ( $aVOs as $oVo ) {
 			$oInsert->insert( $oVo );

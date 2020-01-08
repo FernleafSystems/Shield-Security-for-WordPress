@@ -67,7 +67,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 			);
 			$sError = __( "You must check that box to say you're not a bot.", 'wp-simple-firewall' );
 		}
-		else if ( !empty( $sHoney ) ) {
+		elseif ( !empty( $sHoney ) ) {
 			$this->getCon()->fireEvent(
 				'honeypot_fail',
 				[

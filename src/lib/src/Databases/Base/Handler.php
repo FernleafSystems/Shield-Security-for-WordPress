@@ -129,7 +129,7 @@ class Handler {
 	}
 
 	/**
-	 * @return Insert
+	 * @return Insert|mixed
 	 */
 	public function getQueryInserter() {
 		$sClass = $this->getNamespace().'Insert';
@@ -139,7 +139,7 @@ class Handler {
 	}
 
 	/**
-	 * @return Delete
+	 * @return Delete|mixed
 	 */
 	public function getQueryDeleter() {
 		$sClass = $this->getNamespace().'Delete';
@@ -149,7 +149,7 @@ class Handler {
 	}
 
 	/**
-	 * @return Select
+	 * @return Select|mixed
 	 */
 	public function getQuerySelector() {
 		$sClass = $this->getNamespace().'Select';
@@ -160,7 +160,7 @@ class Handler {
 	}
 
 	/**
-	 * @return Update
+	 * @return Update|mixed
 	 */
 	public function getQueryUpdater() {
 		$sClass = $this->getNamespace().'Update';
@@ -170,7 +170,7 @@ class Handler {
 	}
 
 	/**
-	 * @return EntryVO
+	 * @return EntryVO|mixed
 	 */
 	public function getVo() {
 		$sClass = $this->getNamespace().'EntryVO';

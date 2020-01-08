@@ -11,26 +11,43 @@ class Select extends Base\Select {
 	/**
 	 * @param string $sIp
 	 * @return bool
+	 * @deprecated 8.5
 	 */
 	public function getIpOnBlackLists( $sIp ) {
 		return $this->reset()
 					->filterByIp( $sIp )
-					->filterByLists( [
-						\ICWP_WPSF_FeatureHandler_Ips::LIST_AUTO_BLACK,
-						\ICWP_WPSF_FeatureHandler_Ips::LIST_MANUAL_BLACK
-					] )
+					->filterByBlacklist()
 					->first();
+	}
+
+	/**
+	 * @return EntryVO[]
+	 */
+	public function getAllBlocked() {
+		/** @var EntryVO[] $aRes */
+		return $this->reset()
+					->filterByBlocked( true )
+					->filterByBlacklist()
+					->query();
 	}
 
 	/**
 	 * @param string $sList
 	 * @return EntryVO[]
+	 * @deprecated 8.5
 	 */
 	public function allFromList( $sList ) {
 		/** @var EntryVO[] $aRes */
-		$aRes = $this->reset()
-					 ->filterByList( $sList )
-					 ->query();
-		return $aRes;
+		return $this->reset()
+					->filterByList( $sList )
+					->query();
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.5
+	 */
+	public function getDistinctIps() {
+		return $this->getDistinct_FilterAndSort( 'ip' );
 	}
 }

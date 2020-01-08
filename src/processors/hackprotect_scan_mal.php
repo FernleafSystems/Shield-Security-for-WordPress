@@ -8,95 +8,6 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'mal';
 
 	/**
-	 * @return bool
-	 */
-	public function isAvailable() {
-		return !$this->isRestricted();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRestricted() {
-		return !$this->getMod()->isPremium();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isMalScanEnabled();
-	}
-
-	/**
-	 * @return Shield\Scans\Mal\Repair
-	 */
-	protected function getRepairer() {
-		return ( new Shield\Scans\Mal\Repair() )->setMod( $this->getMod() );
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		/** @var Shield\Scans\Mal\Repair $oRepair */
-		$oRepair = $this->getRepairer()
-						->setIsManualAction( true );
-		$bSuccess = $oRepair->setAllowDelete( false )
-							->repairItem( $oItem );
-		$this->getCon()->fireEvent(
-			static::SCAN_SLUG.'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
-		);
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultItem $oItem
-	 * @return bool
-	 */
-	protected function itemDelete( $oItem ) {
-		/** @var Shield\Scans\Mal\Repair $oRepair */
-		$oRepair = $this->getRepairer()
-						->setIsManualAction( true );
-		return $oRepair->setAllowDelete( true )
-					   ->repairItem( $oItem );
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemIgnore( $oItem ) {
-		parent::itemIgnore( $oItem );
-
-		( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
-			->setMod( $this->getMod() )
-			->reportResultItem( $oItem, true );
-
-		return true;
-	}
-
-	/**
-	 * @param Shield\Scans\Mal\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isMalAutoRepair() ) {
-			$this->getRepairer()
-				 ->setIsManualAction( false )
-				 ->setAllowDelete( false )
-				 ->repairResultsSet( $oRes );
-		}
-	}
-
-	/**
 	 * @param Shield\Scans\Mal\ResultsSet $oRes
 	 * @return bool
 	 */
@@ -109,10 +20,10 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @param Shield\Scans\Mal\ResultsSet $oResults
 	 */
 	protected function emailResults( $oResults ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
-		$sTo = $oFO->getPluginDefaultRecipientAddress();
+		$sTo = $oMod->getPluginDefaultRecipientAddress();
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
@@ -136,8 +47,8 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 	 * @return array
 	 */
 	private function buildEmailBodyFromFiles( $oResults ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$sName = $this->getCon()->getHumanName();
@@ -151,7 +62,7 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oOpts->isMalAutoRepair() || $oFO->isIncludeFileLists() ) {
+		if ( $oOpts->isMalAutoRepair() || $oMod->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );
 			$aContent[] = '';
 

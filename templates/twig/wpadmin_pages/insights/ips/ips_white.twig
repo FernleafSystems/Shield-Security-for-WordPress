@@ -26,6 +26,28 @@
 						</div>
 					</form>
 
+					<form class="form-inline m-0" id="FilterIpWhite" action="#" method="post" autocomplete="off">
+						<input type="hidden" name="fLists[]" value="MW" />
+						<div class="input-group w-100">
+							<div class="input-group-prepend w-25">
+								<div class="w-100 input-group-text" style="border-radius: 0">
+									<label class="mb-0" for="_fIpWhite">{{ strings.ip_filter }}:</label>
+								</div>
+							</div>
+								<select id="_fIpWhite" name="fIp" class="form-control w-50"
+										style="max-width: none; font-size: 16px">
+									<option value="">-- {{ strings.select }} --</option>
+									{% for unique_ip in vars.unique_ips_white %}
+										<option value="{{ unique_ip }}">{{ unique_ip }}</option>
+									{% endfor %}
+								</select>
+							<div class="input-group-append w-25">
+								<input id="SubmitForm" href="#" class="btn btn-info w-100" style="border-radius: 0;"
+									   type="submit" value="{{ strings.filters_apply }}" />
+							</div>
+						</div>
+					</form>
+
 					<div id="TableIpsWhite"></div>
 
 				</div>
@@ -42,6 +64,12 @@
 				'req_params': {
 					'fLists': [ 'MW' ]
 				}
+			}
+		);
+		jQuery( document ).icwpWpsfTableWithFilter(
+			{
+				'table': $oTableIpsWhite,
+				'selector_filter_form': 'form#FilterIpWhite',
 			}
 		);
 		jQuery( '#SectionIpsWhite' ).icwpWpsfTableActions(

@@ -34,8 +34,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
-
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
 			$oMod = $this->getMod();
@@ -149,7 +147,7 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 				$bRevert = true;
 			}
 			// 2. Setting non-administrator role when previous roles included administrator
-			else if ( !$bNewRoleIsAdmin && in_array( 'administrator', $aOldRoles ) ) {
+			elseif ( !$bNewRoleIsAdmin && in_array( 'administrator', $aOldRoles ) ) {
 				$bRevert = true;
 			}
 			else {

@@ -17,9 +17,15 @@ class Ip extends BaseBuild {
 	 * @return $this
 	 */
 	protected function applyCustomQueryFilters() {
+		$aParams = $this->getParams();
+
 		/** @var IPs\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
-		$oSelector->filterByLists( $this->getParams()[ 'fLists' ] );
+		$oSelector->filterByLists( $aParams[ 'fLists' ] );
+		if ( Services::IP()->isValidIp( $aParams[ 'fIp' ] ) ) {
+			$oSelector->filterByIp( $aParams[ 'fIp' ] );
+		}
+
 		return $this;
 	}
 
@@ -30,6 +36,7 @@ class Ip extends BaseBuild {
 	protected function getCustomParams() {
 		return [
 			'fLists' => '',
+			'fIp'    => '',
 		];
 	}
 
@@ -47,8 +54,11 @@ class Ip extends BaseBuild {
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var IPs\EntryVO $oEntry */
 			$aE = $oEntry->getRawDataAsArray();
-			$bBlocked = $oEntry->transgressions >= $nTransLimit;
-			$aE[ 'last_trans_at' ] = Services::Request()->carbon()->setTimestamp( $oEntry->last_access_at )->diffForHumans();
+			$bBlocked = $oEntry->blocked_at > 0 || $oEntry->transgressions >= $nTransLimit;
+			$aE[ 'last_trans_at' ] = Services::Request()
+											 ->carbon()
+											 ->setTimestamp( $oEntry->last_access_at )
+											 ->diffForHumans();
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aE[ 'blocked' ] = $bBlocked ? __( 'Yes' ) : __( 'No' );

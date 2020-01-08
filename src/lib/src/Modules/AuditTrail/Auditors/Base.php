@@ -7,5 +7,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 class Base {
 
 	use Modules\ModConsumer;
-
 }

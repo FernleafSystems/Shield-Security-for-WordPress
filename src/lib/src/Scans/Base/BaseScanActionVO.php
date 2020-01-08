@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
 
 /**
  * Class ScanActionVO
@@ -16,10 +17,10 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property string[] $items
  * @property array[]  $results
  */
-class BaseScanActionVO {
+abstract class BaseScanActionVO {
 
 	use StdClassAdapter;
-	const ITEM_STORAGE_LIMIT = 1;
+	const QUEUE_GROUP_SIZE_LIMIT = 1;
 
 	/**
 	 * @return BaseResultItem|mixed
@@ -35,6 +36,16 @@ class BaseScanActionVO {
 	public function getNewResultsSet() {
 		$sClass = $this->getScanNamespace().'ResultsSet';
 		return new $sClass();
+	}
+
+	/**
+	 * @return BaseEntryFormatter|mixed
+	 */
+	public function getTableEntryFormatter() {
+		$sClass = $this->getScanNamespace().'Table\\EntryFormatter';
+		/** @var BaseEntryFormatter $oF */
+		$oF = new $sClass();
+		return $oF->setScanActionVO( $this );
 	}
 
 	/**

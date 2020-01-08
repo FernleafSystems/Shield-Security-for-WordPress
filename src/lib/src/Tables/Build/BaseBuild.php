@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BaseBuild {
 
-	use Shield\Modules\ModConsumer,
-		Shield\Databases\Base\HandlerConsumer;
+	use Shield\Databases\Base\HandlerConsumer;
+	use Shield\Modules\ModConsumer;
 
 	/**
 	 * @var Shield\Databases\Base\Select
@@ -32,6 +32,8 @@ class BaseBuild {
 			$bReady = false;
 		}
 
+		$this->preBuildTable();
+
 		if ( $bReady && $this->countTotal() > 0 ) {
 			$oTable = $this->getTableRenderer()
 						   ->setItemEntries( $this->getEntriesFormatted() )
@@ -47,6 +49,13 @@ class BaseBuild {
 		}
 
 		return empty( $sRendered ) ? __( 'There was an error retrieving entries.', 'wp-simple-firewall' ) : $sRendered;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function preBuildTable() {
+		return $this;
 	}
 
 	/**
@@ -77,7 +86,7 @@ class BaseBuild {
 	}
 
 	/**
-	 * @return array[]|int|string[]|Shield\Databases\Base\EntryVO[]
+	 * @return array[]|string[]|Shield\Databases\Base\EntryVO[]|array
 	 */
 	protected function getEntriesRaw() {
 		$aEntries = $this->startQueryProcess()
@@ -160,7 +169,7 @@ class BaseBuild {
 	 */
 	private function getFormParams() {
 		parse_str( Services::Request()->post( 'form_params', '' ), $aFormParams );
-		return array_map( 'trim', $aFormParams );
+		return Services::DataManipulation()->arrayMapRecursive( $aFormParams, 'trim' );
 	}
 
 	/**

@@ -1,20 +1,32 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 
 class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	/**
-	 * @var bool
+	 * @var Events\Lib\StatsWriter
 	 */
-	private $bStat = false;
+	private $oStatsWriter;
 
 	public function run() {
-		$this->bStat = true;
-		if ( $this->isReadyToRun() ) {
-			add_filter( $this->getMod()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
+		$this->loadStatsWriter()->setIfCommit( true );
+		add_filter( $this->getMod()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
+	}
+
+	/**
+	 * @return Events\Lib\StatsWriter
+	 */
+	public function loadStatsWriter() {
+		if ( !isset( $this->oStatsWriter ) ) {
+			/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
+			$oMod = $this->getMod();
+			$this->oStatsWriter = ( new Events\Lib\StatsWriter( $this->getCon() ) )
+				->setDbHandler( $oMod->getDbHandler_Events() );
 		}
+		return $this->oStatsWriter;
 	}
 
 	/**
@@ -22,7 +34,7 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 	 * @return string[]
 	 */
 	public function statsWidget( $aContent ) {
-		/** @var Events\Select $oSelEvents */
+		/** @var Databases\Events\Select $oSelEvents */
 		$oSelEvents = $this->getCon()
 						   ->getModule_Events()
 						   ->getDbHandler_Events()
@@ -95,24 +107,14 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 		return $aData;
 	}
 
-	public function onModuleShutdown() {
-		parent::onModuleShutdown();
-		if ( $this->bStat && !$this->getCon()->isPluginDeleting() ) {
-			$this->commitEvents();
-		}
-	}
-
 	/**
+	 * @deprecated 8.5
 	 */
 	private function commitEvents() {
-		/** @var \ICWP_WPSF_FeatureHandler_Events $oMod */
-		$oMod = $this->getMod();
-		$oMod->getDbHandler_Events()
-			 ->commitEvents( $oMod->getRegisteredEvents( true ) );
 	}
 
 	public function runDailyCron() {
-		( new Shield\Modules\Events\Consolidate\ConsolidateAllEvents() )
+		( new Events\Consolidate\ConsolidateAllEvents() )
 			->setMod( $this->getMod() )
 			->run();
 	}

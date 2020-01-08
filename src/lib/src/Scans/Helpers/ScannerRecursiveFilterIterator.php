@@ -13,12 +13,12 @@ class ScannerRecursiveFilterIterator extends \RecursiveFilterIterator {
 	/**
 	 * @var string[]
 	 */
-	static protected $aFileExts;
+	protected static $aFileExts;
 
 	/**
 	 * @var bool
 	 */
-	static protected $bFilterWpCoreFiles;
+	protected static $bFilterWpCoreFiles;
 
 	public function accept() {
 		/** @var \SplFileInfo $oCurr */

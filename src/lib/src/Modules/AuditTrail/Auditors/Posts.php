@@ -39,10 +39,10 @@ class Posts extends Base {
 		if ( $sNewStatus == 'trash' ) {
 			$sEvent = 'post_trashed';
 		}
-		else if ( $sOldStatus == 'trash' && $sNewStatus != 'trash' ) {
+		elseif ( $sOldStatus == 'trash' && $sNewStatus != 'trash' ) {
 			$sEvent = 'post_recovered';
 		}
-		else if ( in_array( $sNewStatus, [ 'publish', 'private' ] ) ) {
+		elseif ( in_array( $sNewStatus, [ 'publish', 'private' ] ) ) {
 
 			if ( in_array( $sOldStatus, [ 'publish', 'private' ] ) ) {
 				$sEvent = 'post_updated';
@@ -51,7 +51,7 @@ class Posts extends Base {
 				$sEvent = 'post_published';
 			}
 		}
-		else if ( in_array( $sOldStatus, [ 'publish', 'private' ] ) && $sNewStatus == 'draft' ) {
+		elseif ( in_array( $sOldStatus, [ 'publish', 'private' ] ) && $sNewStatus == 'draft' ) {
 			$sEvent = 'post_unpublished';
 		}
 		else {

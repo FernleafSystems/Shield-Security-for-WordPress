@@ -12,16 +12,10 @@ trait PluginControllerConsumer {
 	private $oPlugCon;
 
 	/**
-	 * @var Controller
-	 * @deprecated 8.4
-	 */
-	static private $oPluginController;
-
-	/**
 	 * @return Controller
 	 */
 	public function getCon() {
-		return isset( $this->oPlugCon ) ? $this->oPlugCon : self::$oPluginController;
+		return $this->oPlugCon;
 	}
 
 	/**

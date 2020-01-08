@@ -96,7 +96,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' "%s"', $sYubiId )
 			);
 		}
-		else if ( count( $this->getYubiIds( $oSavingUser ) ) == 0 || $oFO->isPremium() ) {
+		elseif ( count( $this->getYubiIds( $oSavingUser ) ) == 0 || $oFO->isPremium() ) {
 			$this->addYubiIdToProfile( $oSavingUser, $sYubiId );
 			$sMsg = sprintf(
 				__( '%s was added to your profile.', 'wp-simple-firewall' ),
@@ -139,7 +139,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string  $sOneTimePassword
+	 * @param string   $sOneTimePassword
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOneTimePassword ) {
@@ -195,7 +195,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string  $sNewKey
+	 * @param string   $sNewKey
 	 * @return $this
 	 */
 	protected function addYubiIdToProfile( $oUser, $sNewKey ) {
@@ -206,7 +206,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string  $sKey
+	 * @param string   $sKey
 	 * @return $this
 	 */
 	protected function removeYubiIdFromProfile( $oUser, $sKey ) {
@@ -216,7 +216,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param array   $aKeys
+	 * @param array    $aKeys
 	 * @return $this
 	 */
 	private function storeYubiIdInProfile( $oUser, $aKeys ) {
@@ -226,7 +226,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param bool    $bIsSuccess
+	 * @param bool     $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		$this->getCon()->fireEvent(

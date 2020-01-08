@@ -13,7 +13,7 @@ class Insert extends Base\Insert {
 	 */
 	public function insert( $oTally ) {
 		$bSuccess = false;
-		if ( preg_match( '#[a-z]{1,}\.[a-z]{1,}#i', $oTally->stat_key )
+		if ( preg_match( '#[a-z]+\.[a-z]+#i', $oTally->stat_key )
 			 && is_numeric( $oTally->tally ) && $oTally->tally > 0 ) {
 			$bSuccess = parent::insert( $oTally );
 		}

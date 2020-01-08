@@ -16,14 +16,14 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	private $aAssetsVersions = [];
 
 	/**
-	 * @param boolean $bDoForceRun
+	 * @param bool $bDoForceRun
 	 */
 	public function setForceRunAutoupdates( $bDoForceRun ) {
 		$this->bDoForceRunAutoupdates = $bDoForceRun;
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfForceRunAutoupdates() {
 		return apply_filters( $this->getMod()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
@@ -37,23 +37,29 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		/** @var Modules\Autoupdates\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$nFilterPriority = $this->getHookPriority();
-		add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $nFilterPriority );
-		add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $nFilterPriority );
+		$nPriority = $this->getHookPriority();
+		if ( Services::WpGeneral()->isClassicPress() ) {
+			add_filter( 'allow_patch_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $nPriority );
+			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_major' ], $nPriority );
+		}
+		else {
+			add_filter( 'allow_minor_auto_core_updates', [ $this, 'autoupdate_core_minor' ], $nPriority );
+			add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $nPriority );
+		}
 
-		add_filter( 'auto_update_translation', [ $this, 'autoupdate_translations' ], $nFilterPriority, 1 );
-		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $nFilterPriority, 2 );
-		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $nFilterPriority, 2 );
-		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $nFilterPriority, 2 );
+		add_filter( 'auto_update_translation', [ $this, 'autoupdate_translations' ], $nPriority, 1 );
+		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $nPriority, 2 );
+		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $nPriority, 2 );
+		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $nPriority, 2 );
 
 		if ( $oOpts->isOpt( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
-			add_filter( 'automatic_updates_is_vcs_checkout', '__return_false', $nFilterPriority );
+			add_filter( 'automatic_updates_is_vcs_checkout', '__return_false', $nPriority );
 		}
 
 		if ( !$oOpts->isDisableAllAutoUpdates() ) {
 			//more parameter options here for later
-			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $nFilterPriority, 1 );
-			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $nFilterPriority, 1 );
+			add_filter( 'auto_core_update_send_email', [ $this, 'autoupdate_send_email' ], $nPriority, 1 );
+			add_filter( 'auto_core_update_email', [ $this, 'autoupdate_email_override' ], $nPriority, 1 );
 
 			add_action( 'set_site_transient_update_core', [ $this, 'trackUpdateTimesCore' ] );
 			add_action( 'set_site_transient_update_plugins', [ $this, 'trackUpdateTimesPlugins' ] );
@@ -199,17 +205,17 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	/**
 	 * This is a filter method designed to say whether a major core WordPress upgrade should be permitted,
 	 * based on the plugin settings.
-	 * @param boolean $bUpdate
-	 * @return boolean
+	 * @param bool $bUpdate
+	 * @return bool
 	 */
 	public function autoupdate_core_major( $bUpdate ) {
 		/** @var Modules\Autoupdates\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		if ( $oOpts->isDisableAllAutoUpdates() ) {
+		if ( $oOpts->isDisableAllAutoUpdates() || $oOpts->isAutoUpdateCoreNever() ) {
 			$bUpdate = false;
 		}
-		else if ( !$oOpts->isDelayUpdates() ) { // the delay is handles elsewhere
+		elseif ( !$oOpts->isDelayUpdates() ) { // delay handled elsewhere
 			$bUpdate = $oOpts->isAutoUpdateCoreMajor();
 		}
 
@@ -219,18 +225,18 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	/**
 	 * This is a filter method designed to say whether a minor core WordPress upgrade should be permitted,
 	 * based on the plugin settings.
-	 * @param boolean $bUpdate
-	 * @return boolean
+	 * @param bool $bUpdate
+	 * @return bool
 	 */
 	public function autoupdate_core_minor( $bUpdate ) {
 		/** @var Modules\Autoupdates\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		if ( $oOpts->isDisableAllAutoUpdates() ) {
+		if ( $oOpts->isDisableAllAutoUpdates() || $oOpts->isAutoUpdateCoreNever() ) {
 			$bUpdate = false;
 		}
-		else if ( !$oOpts->isDelayUpdates() ) {//TODO delay
-			$bUpdate = $oOpts->isAutoUpdateCoreMinor();
+		elseif ( !$oOpts->isDelayUpdates() ) {
+			$bUpdate = !$oOpts->isAutoUpdateCoreNever();
 		}
 		return $bUpdate;
 	}
@@ -238,16 +244,16 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	/**
 	 * This is a filter method designed to say whether a WordPress translations upgrades should be permitted,
 	 * based on the plugin settings.
-	 * @param boolean $bUpdate
-	 * @return boolean
+	 * @param bool $bUpdate
+	 * @return bool
 	 */
 	public function autoupdate_translations( $bUpdate ) {
 		return $this->getOptions()->isOpt( 'enable_autoupdate_translations', 'Y' );
 	}
 
 	/**
-	 * @param bool     $bDoAutoUpdate
-	 * @param stdClass $oCoreUpdate
+	 * @param bool      $bDoAutoUpdate
+	 * @param \stdClass $oCoreUpdate
 	 * @return bool
 	 */
 	public function autoupdate_core( $bDoAutoUpdate, $oCoreUpdate ) {
@@ -257,7 +263,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$bDoAutoUpdate = false;
 		}
-		else if ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
+		elseif ( $this->isDelayed( $oCoreUpdate, 'core' ) ) {
 			$bDoAutoUpdate = false;
 		}
 
@@ -265,9 +271,9 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * @param bool            $bDoAutoUpdate
-	 * @param StdClass|string $mItem
-	 * @return boolean
+	 * @param bool             $bDoAutoUpdate
+	 * @param \stdClass|string $mItem
+	 * @return bool
 	 */
 	public function autoupdate_plugins( $bDoAutoUpdate, $mItem ) {
 		/** @var Modules\Autoupdates\Options $oOpts */
@@ -287,15 +293,15 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			if ( $oOpts->isAutoupdateAllPlugins() ) {
 				$bDoAutoUpdate = true;
 			}
-			else if ( $oOpts->isPluginSetToAutoupdate( $sFile ) ) {
+			elseif ( $oOpts->isPluginSetToAutoupdate( $sFile ) ) {
 				$bDoAutoUpdate = true;
 			}
-			else if ( $sFile === $this->getCon()->getPluginBaseFile() ) {
+			elseif ( $sFile === $this->getCon()->getPluginBaseFile() ) {
 				$sAuto = $oOpts->getSelfAutoUpdateOpt();
 				if ( $sAuto === 'immediate' ) {
 					$bDoAutoUpdate = true;
 				}
-				else if ( $sAuto === 'disabled' ) {
+				elseif ( $sAuto === 'disabled' ) {
 					$bDoAutoUpdate = false;
 				}
 			}
@@ -307,7 +313,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	/**
 	 * @param bool            $bDoAutoUpdate
 	 * @param stdClass|string $mItem
-	 * @return boolean
+	 * @return bool
 	 */
 	public function autoupdate_themes( $bDoAutoUpdate, $mItem ) {
 		/** @var Modules\Autoupdates\Options $oOpts */
@@ -347,8 +353,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 
 		$bDelayed = false;
 
-		/** @var \ICWP_WPSF_FeatureHandler_Autoupdates $oFO */
-		$oFO = $this->getMod();
 		if ( $oOpts->isDelayUpdates() ) {
 
 			$aTk = $oOpts->getDelayTracking();
@@ -365,7 +369,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 				$oPlugin = Services::WpPlugins()->getUpdateInfo( $sSlug );
 				$sVersion = isset( $oPlugin->new_version ) ? $oPlugin->new_version : '';
 			}
-			else if ( $sContext == 'themes' ) {
+			elseif ( $sContext == 'themes' ) {
 				$aThemeInfo = Services::WpThemes()->getUpdateInfo( $sSlug );
 				$sVersion = isset( $aThemeInfo[ 'new_version' ] ) ? $aThemeInfo[ 'new_version' ] : '';
 			}
@@ -379,9 +383,9 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * A filter on whether or not a notification email is send after core upgrades are attempted.
-	 * @param boolean $bSendEmail
-	 * @return boolean
+	 * A filter on whether or not a notification email is sent after core upgrades are attempted.
+	 * @param bool $bSendEmail
+	 * @return bool
 	 */
 	public function autoupdate_send_email( $bSendEmail ) {
 		/** @var Modules\Autoupdates\Options $oOpts */

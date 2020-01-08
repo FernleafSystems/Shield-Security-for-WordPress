@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -12,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 class CollateResults {
 
 	use Databases\Base\HandlerConsumer;
+	use ScanControllerConsumer;
 
 	/**
 	 * @param string $sScanSlug
@@ -24,6 +26,7 @@ class CollateResults {
 		$oSel = $oDbH->getQuerySelector();
 		$oSel->filterByScan( $sScanSlug )
 			 ->setResultsAsVo( true );
+		$oSCon = $this->getScanController();
 
 		$oResultsSet = null;
 		/** @var Databases\ScanQueue\EntryVO $oEntry */
@@ -33,7 +36,7 @@ class CollateResults {
 				->fromDbEntryToAction( $oEntry );
 
 			if ( empty( $oResultsSet ) ) {
-				$oResultsSet = $oAction->getNewResultsSet();
+				$oResultsSet = $oSCon->getNewResultsSet();
 			}
 
 			foreach ( $oAction->results as $aResItemData ) {

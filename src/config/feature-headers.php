@@ -236,11 +236,23 @@
         "*"
       ],
       "type":        "array",
-      "link_info":   "",
+      "link_info":   "https://shsec.io/ga",
       "link_blog":   "",
       "name":        "Permitted Hosts",
       "summary":     "Permitted Hosts and Domains",
       "description": "You can explicitly state which hosts/domain from which content may be loaded. Take great care and test your site as you may block legitimate resources. If in-doubt, leave blank or use '*' only. Note: You can force only HTTPS for a given domain by prefixing it with 'https://'."
+    },
+    {
+      "key":         "xcsp_custom",
+      "section":     "section_content_security_policy",
+      "premium":     true,
+      "default":     [],
+      "type":        "array",
+      "link_info":   "https://shsec.io/g9",
+      "link_blog":   "",
+      "name":        "Manual Rules",
+      "summary":     "Manual CSP Rules",
+      "description": "Manual CSP rules which are not covered by the rules above."
     }
   ]
 }

@@ -22,7 +22,7 @@ class BaseModCon extends Deprecated\Foundation {
 	protected $sModSlug;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bImportExportWhitelistNotify = false;
 
@@ -32,7 +32,7 @@ class BaseModCon extends Deprecated\Foundation {
 	private static $oEmailHandler;
 
 	/**
-	 * @var \ICWP_WPSF_Processor_Base
+	 * @var BaseProcessor
 	 */
 	private $oProcessor;
 
@@ -62,17 +62,15 @@ class BaseModCon extends Deprecated\Foundation {
 	private $aDbHandlers;
 
 	/**
-	 * @param Shield\Controller\Controller $oPluginController
+	 * @param Shield\Controller\Controller $oPlugCon
 	 * @param array                        $aMod
 	 * @throws \Exception
 	 */
-	public function __construct( $oPluginController, $aMod = [] ) {
-		if ( empty( self::$oPluginController ) ) {
-			if ( !$oPluginController instanceof Shield\Controller\Controller ) {
-				throw new \Exception( 'Plugin controller not supplied to Module' );
-			}
-			$this->setCon( $oPluginController );
+	public function __construct( $oPlugCon, $aMod = [] ) {
+		if ( !$oPlugCon instanceof Shield\Controller\Controller ) {
+			throw new \Exception( 'Plugin controller not supplied to Module' );
 		}
+		$this->setCon( $oPlugCon );
 
 		if ( empty( $aMod[ 'storage_key' ] ) && empty( $aMod[ 'slug' ] ) ) {
 			throw new \Exception( 'Module storage key AND slug are undefined' );
@@ -130,11 +128,17 @@ class BaseModCon extends Deprecated\Foundation {
 		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
 		// supply our supported plugin events for this module
-		add_filter( $this->prefix( 'is_event_supported' ), function ( $bSupported, $sEventTag ) {
-			return $bSupported || $this->isSupportedEvent( $sEventTag );
-		}, 10, 2 );
 		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
-			return array_merge( $aEvents, $this->getEvents() );
+			return array_merge(
+				is_array( $aEvents ) ? $aEvents : [],
+				array_map(
+					function ( $aEvt ) {
+						$aEvt[ 'context' ] = $this->getSlug();
+						return $aEvt;
+					},
+					is_array( $this->getDef( 'events' ) ) ? $this->getDef( 'events' ) : []
+				)
+			);
 		} );
 
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 100 );
@@ -225,72 +229,6 @@ class BaseModCon extends Deprecated\Foundation {
 	private function getAllDbClasses() {
 		$aCls = $this->getOptions()->getDef( 'db_classes' );
 		return is_array( $aCls ) ? $aCls : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return array|null
-	 */
-	public function getEventDef( $sKey ) {
-		return $this->isSupportedEvent( $sKey ) ? $this->getEvents()[ $sKey ] : null;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getEvents() {
-		$aEvts = $this->getSupportedEvents();
-
-		$aDefaults = [
-			'context'        => $this->getSlug(),
-			'cat'            => 1,
-			'stat'           => true,
-			'audit'          => true,
-			'recent'         => false, // whether to show in the recent events logs
-			'offense'        => false, // whether to mark offense against IP
-			'audit_multiple' => false, // allow multiple audit entries in the same request
-		];
-		foreach ( $aEvts as $sKey => $aEvt ) {
-			$aEvts[ $sKey ] = array_merge( $aDefaults, $aEvt );
-			$aEvts[ $sKey ][ 'key' ] = $sKey;
-		}
-		return $aEvts;
-	}
-
-	/**
-	 * @return array[]
-	 */
-	public function getStatEvents_Recent() {
-		return array_filter(
-			$this->getEvents(),
-			function ( $aEvt ) {
-				return $aEvt[ 'recent' ];
-			}
-		);
-	}
-
-	/**
-	 * @return array[]
-	 */
-	protected function getSupportedEvents() {
-		$aEvts = $this->getDef( 'events' );
-		return is_array( $aEvts ) ? $aEvts : [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isSupportedEvent( $sKey ) {
-		return array_key_exists( $sKey, $this->getSupportedEvents() );
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 */
-	public function isOffenseEvent( $sKey ) {
-		return $this->isSupportedEvent( $sKey ) && $this->getEvents()[ $sKey ][ 'offense' ];
 	}
 
 	/**
@@ -394,7 +332,7 @@ class BaseModCon extends Deprecated\Foundation {
 		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 			$this->getOptions()
 				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
@@ -500,7 +438,7 @@ class BaseModCon extends Deprecated\Foundation {
 				// cleanup databases randomly just in-case cron doesn't run.
 				$this->cleanupDatabases();
 			}
-			$this->savePluginOptions();
+			$this->saveModOptions();
 		}
 	}
 
@@ -591,13 +529,13 @@ class BaseModCon extends Deprecated\Foundation {
 			// Auto enabled modules always run regardless
 			$bEnabled = true;
 		}
-		else if ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+		elseif ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
 			$bEnabled = false;
 		}
-		else if ( $this->getCon()->getIfForceOffActive() ) {
+		elseif ( $this->getCon()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
-		else if ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
+		elseif ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
 		else {
@@ -786,21 +724,21 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleMenuItem() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_menu_item' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfShowModuleLink() {
 		return (bool)$this->getOptions()->getFeatureProperty( 'show_module_options' );
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfUseSessions() {
 		return $this->getOptions()->getFeatureProperty( 'use_sessions' );
@@ -852,9 +790,9 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @param string  $sOptionKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
+	 * @param string $sOptionKey
+	 * @param mixed  $mValueToTest
+	 * @param bool   $bStrict
 	 * @return bool
 	 */
 	public function isOpt( $sOptionKey, $mValueToTest, $bStrict = false ) {
@@ -997,11 +935,9 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * Saves the options to the WordPress Options store.
-	 * It will also update the stored plugin options version.
-	 * @return void
+	 * @return $this
 	 */
-	public function savePluginOptions() {
+	public function saveModOptions() {
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptions()
@@ -1011,6 +947,7 @@ class BaseModCon extends Deprecated\Foundation {
 		// we set the flag that options have been updated. (only use this flag if it's a MANUAL options update)
 		$this->bImportExportWhitelistNotify = $this->getOptions()->getNeedSave();
 		$this->store();
+		return $this;
 	}
 
 	private function store() {
@@ -1297,13 +1234,13 @@ class BaseModCon extends Deprecated\Foundation {
 				if ( in_array( $sOptType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
 					continue;
 				}
-				else if ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
+				elseif ( $sOptType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
 					$sOptionValue = 'N';
 				}
-				else if ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
+				elseif ( $sOptType == 'integer' ) { //if it was a integer, and it's null, it means '0'
 					$sOptionValue = 0;
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 					$sOptionValue = [];
 				}
 			}
@@ -1315,7 +1252,7 @@ class BaseModCon extends Deprecated\Foundation {
 				if ( $sOptType == 'integer' ) {
 					$sOptionValue = intval( $sOptionValue );
 				}
-				else if ( $sOptType == 'password' ) {
+				elseif ( $sOptType == 'password' ) {
 					$sTempValue = trim( $sOptionValue );
 					if ( empty( $sTempValue ) ) {
 						continue;
@@ -1328,13 +1265,13 @@ class BaseModCon extends Deprecated\Foundation {
 
 					$sOptionValue = md5( $sTempValue );
 				}
-				else if ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
+				elseif ( $sOptType == 'array' ) { //arrays are textareas, where each is separated by newline
 					$sOptionValue = array_filter( explode( "\n", esc_textarea( $sOptionValue ) ), 'trim' );
 				}
-				else if ( $sOptType == 'comma_separated_lists' ) {
+				elseif ( $sOptType == 'comma_separated_lists' ) {
 					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
 				}
-				else if ( $sOptType == 'multiple_select' ) {
+				elseif ( $sOptType == 'multiple_select' ) {
 				}
 			}
 
@@ -1344,7 +1281,7 @@ class BaseModCon extends Deprecated\Foundation {
 			}
 		}
 
-		$this->savePluginOptions();
+		$this->saveModOptions();
 
 		// only use this flag when the options are being updated with a MANUAL save.
 		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
@@ -1459,7 +1396,7 @@ class BaseModCon extends Deprecated\Foundation {
 								 ]
 							 ]
 						 );
-		return $this->renderTemplate( 'access_restricted.php', $aData );
+		return $this->renderTemplate( '/wpadmin_pages/security_admin/index.twig', $aData, true );
 	}
 
 	/**
@@ -1638,7 +1575,7 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	protected function getIsShowMarketing() {
 		return apply_filters( $this->prefix( 'show_marketing' ), !$this->isPremium() );
@@ -1935,13 +1872,6 @@ class BaseModCon extends Deprecated\Foundation {
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
-	}
-
-	/**
-	 * @return Shield\Databases\Base\Handler|mixed|false
-	 */
-	protected function loadDbHandler() {
-		return false;
 	}
 
 	/**

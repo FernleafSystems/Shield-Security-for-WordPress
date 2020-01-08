@@ -48,7 +48,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		if ( !$oHttpReq->isSuccess() ) {
 			$sResult = implode( '; ', $oHttpReq->lastError->get_error_messages() );
 		}
-		else if ( !empty( $oHttpReq->lastResponse->body ) ) {
+		elseif ( !empty( $oHttpReq->lastResponse->body ) ) {
 			$aResult = @json_decode( $oHttpReq->lastResponse->body, true );
 			if ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) {
 				$bSuccess = true;
@@ -87,7 +87,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sMessage = __( 'Success', 'wp-simple-firewall' ).'! '
 						.__( 'Reloading page', 'wp-simple-firewall' ).'...';
 		}
-		else if ( $sLicenseAction == 'check' ) {
+		elseif ( $sLicenseAction == 'check' ) {
 
 			$nCheckInterval = $oMod->getLicenseNotCheckedForInterval();
 			if ( $nCheckInterval < 20 ) {

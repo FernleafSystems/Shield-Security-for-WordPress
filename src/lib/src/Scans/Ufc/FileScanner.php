@@ -24,7 +24,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 			$oResult = $this->getScanActionVO()->getNewResultItem();
 			$oResult->path_full = $sFullPath;
 			$oResult->path_fragment = Services::CoreFileHashes()->getFileFragment( $sFullPath );
-		};
+		}
 
 		return $oResult;
 	}

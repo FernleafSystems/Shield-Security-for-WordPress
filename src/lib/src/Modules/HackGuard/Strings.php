@@ -290,7 +290,7 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'When enabled the Guard will automatically scan for changes to your Plugin and Theme files.', 'wp-simple-firewall' );
 				break;
 
-			case 'ptg_depth' :
+			case 'ptg_depth' : /* DELETED */
 				$sName = __( 'Guard/Scan Depth', 'wp-simple-firewall' );
 				$sSummary = __( 'How Deep Into The Plugin Directories To Scan And Guard', 'wp-simple-firewall' );
 				$sDescription = __( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.', 'wp-simple-firewall' )

@@ -19,7 +19,7 @@ class ConvertBetweenTypes {
 	 * @return Scans\Base\BaseScanActionVO|mixed
 	 */
 	public function fromDbEntryToAction( $oEntry ) {
-		$oScanAction = ( new ScanActionFromSlug() )->getAction( $oEntry->scan );
+		$oScanAction = ScanActionFromSlug::GetAction( $oEntry->scan );
 		$oScanAction->applyFromArray( $oEntry->meta );
 		$oScanAction->items = $oEntry->items;
 		$oScanAction->results = $oEntry->results;

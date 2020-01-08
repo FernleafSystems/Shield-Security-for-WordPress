@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
@@ -24,6 +25,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			case 'sec_admin_login_box':
 				$aResponse = $this->ajaxExec_SecAdminLoginBox();
+				break;
+
+			case 'req_email_remove':
+				$aResponse = $this->ajaxExec_SendEmailRemove();
 				break;
 
 			default:
@@ -66,11 +71,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			}
 		}
 		else {
-			/** @var \ICWP_WPSF_Processor_Ips $oIpPro */
-			$oIpPro = $this->getCon()
-						   ->getModule_IPs()
-						   ->getProcessor();
-			$nRemaining = $oIpPro->getRemainingTransgressions() - 1;
+			$nRemaining = ( new Shield\Modules\IPs\Components\QueryRemainingOffenses() )
+				->setMod( $this->getCon()->getModule_IPs() )
+				->setIP( Services::IP()->getRequestIp() )
+				->run();
 			$sMsg = __( 'Security access key incorrect.', 'wp-simple-firewall' ).' ';
 			if ( $nRemaining > 0 ) {
 				$sMsg .= sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $nRemaining );
@@ -96,6 +100,19 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return [
 			'success' => 'true',
 			'html'    => $this->renderAdminAccessAjaxLoginForm()
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_SendEmailRemove() {
+		( new Shield\Modules\SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
+			->setMod( $this->getMod() )
+			->sendConfirmationEmail();
+		return [
+			'success' => 'true',
+			'message' => __( 'Email sent. Please ensure the confirmation link opens in THIS browser window.' ),
 		];
 	}
 

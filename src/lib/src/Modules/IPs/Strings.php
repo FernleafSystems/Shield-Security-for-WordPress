@@ -141,6 +141,18 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'Allow visitors blocked by the plugin to automatically unblock themselves.', 'wp-simple-firewall' );
 				break;
 
+			case 'request_whitelist' :
+				$sName = __( 'Request Path Whitelist', 'wp-simple-firewall' );
+				$sSummary = __( 'Request Path Whitelist', 'wp-simple-firewall' );
+				$sDescription = __( 'A list of request paths that will never trigger an offense.', 'wp-simple-firewall' )
+								.'<br />- '.__( 'This is an advanced option and should be used with great care.', 'wp-simple-firewall' )
+								.'<br />- '.__( 'Take a new line for each whitelisted path.', 'wp-simple-firewall' )
+								.'<br />- '.__( "All characters will be treated as case-insensitive.", 'wp-simple-firewall' )
+								.'<br />- '.__( "The paths are compared against only the request path, not the query portion.", 'wp-simple-firewall' )
+								.'<br />- '.__( "If a path you add matches your website root (/), it'll be removed automatically.", 'wp-simple-firewall' );
+
+				break;
+
 			case 'text_loginfailed' :
 				$sName = __( 'Login Failed', 'wp-simple-firewall' );
 				$sSummary = __( 'Visitor Triggers The IP Offense System Through A Failed Login', 'wp-simple-firewall' );

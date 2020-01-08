@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.4.4
+Stable tag: 8.5.0
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -369,6 +369,26 @@ You'll also have access to our email technical support team.
 You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
+
+= 8.5 - Series =
+*Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
+
+* **(v.0)**  NEW:		Initial support for checksum scanning of premium plugins and themes.
+* **(v.0)**  NEW:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
+* **(v.0)**  NEW:		Ability to auto-repair theme files.
+* **(v.0)**  ADDED:		Ability to whitelist requests so that they are never blacklisted.
+* **(v.0)**  ADDED:		Ability to filter the IP White/Black list tables for a specific IP address.
+* **(v.0)**  ADDED:		Support for repeated audit trail entries - so the logs don't get filled with repeated messages.
+* **(v.0)**  ADDED:		[**PRO**] Option to provide complete, custom Content Security Policy headers.
+* **(v.0)**  IMPROVED:	Protection against a certain type of broken plugin installation if WordPress doesn't properly copy files.
+* **(v.0)**  IMPROVED:	Redesigned Table UI for scan results.
+* **(v.0)**  IMPROVED:	Redesigned Plugin/Theme File Guard.
+* **(v.0)**  IMPROVED:	Completely re-written much of the scanners code.
+* **(v.0)**  IMPROVED:	Better detection of the hosting server's IP addresses - i.e. support for IPv6 alongside IPv4.
+* **(v.0)**  FIXED:		Two-Factor Authentication (2FA) login screen redirection bug.
+* **(v.0)**  FIXED:		It was possible to temporarily by-pass the 2FA screen to gain access to WP Admin after logging-in.
+* **(v.0)**  CLEANED:	Code cleaning.
+* **(v.0)**  UPDATED:	Twitter Bootstrap library.
 
 = 8.4.4 - Current Release =
 *Released: 6th December, 2019* - [Release Notes](https://shsec.io/g5)

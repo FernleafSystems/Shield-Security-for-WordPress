@@ -4,6 +4,9 @@
 body {
 	overflow-y: scroll;
 }
+body.rtl {
+	text-align: right;
+}
 #wpcontent {
 	padding: 0;
 }
@@ -58,7 +61,7 @@ body {
 	margin-bottom: 50px;
 }
 #ColumnOptions .form-actions .btn {
-	box-shadow: -1px 2px 2px rgba(0,0,0,0.3);
+	box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.3);
 	opacity: 0.85;
 }
 #ColumnOptions .form-actions .btn:hover {
@@ -1037,24 +1040,19 @@ table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
 
-#ScanResultsPills {
-	margin-top: 25px;
+#ScanResultsTabs {
 }
-#ScanResultsPills nav > a.nav-link {
+#ScanResultsTabs ul.nav.nav-tabs a.nav-link {
 	color: #666666;
-	height: 72px;
-	margin-bottom: 15px;
+	font-size: 1.4rem;
 }
-#ScanResultsPills nav > a.nav-link.active {
-	background-color: transparent;
+#ScanResultsTabs ul.nav.nav-tabs a.nav-link.active {
 	color: #333333;
-	font-weight: bolder;
-	font-size: 14px;
 }
-#ScanResultsPills .card.card-scan_results {
+#ScanResultsTabs .card.card-scan_results {
 	margin-top: 0;
 }
-#ScanResultsPills nav > a.nav-link .badge {
+#ScanResultsTabs nav > a.nav-link .badge {
 	font-size: 12px;
 }
 
@@ -1068,10 +1066,9 @@ PTG SCAN TABLES
 	display: none;
 }
 
-
 .card.card-scan_results {
-	/*background-color: transparent;*/
-	/*border: 0 none;*/
+	background-color: transparent;
+	border: 0 none;
 }
 .card.card-scan_results .card-header {
 	background-color: transparent;
@@ -1093,7 +1090,7 @@ table.odp-table.scan-table td.column-path code {
 	/*display: none;*/
 }
 .container-scantable {
-	max-height: 300px;
+	max-height: 650px;
 	overflow: auto;
 }
 .container-scantable .tablenav.top,
@@ -1154,10 +1151,6 @@ input[type=checkbox].form-check-input {
 }
 
 /** copied from bootstrap to override WP admin styles */
-.wp-admin select.custom-select {
-	height: calc(1.5em + 0.75rem + 2px);
-	padding: 0.375rem 1.75rem 0.375rem 0.75rem;
-}
 .content-options {
 	font-size: 14px;
 	padding-top: 10px;
@@ -1223,4 +1216,15 @@ table.odp-table tr.audit-cat-2 td {
 }
 table.odp-table tr.audit-cat-3 td {
 	background-color: #fffdfd;
+}
+
+.row-sticky td {
+	background-color: #5a5a5a;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+.row-sticky td h5 {
+	margin: 0;
+	color: #ffffff;
 }

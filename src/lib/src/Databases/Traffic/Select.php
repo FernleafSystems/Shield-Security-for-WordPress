@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Select extends Base\Select {
@@ -13,14 +14,12 @@ class Select extends Base\Select {
 	 * @return string[]
 	 */
 	public function getDistinctIps() {
-		$aIps = array_filter( array_map(
-			function ( $sIp ) {
-				return inet_ntop( $sIp );
+		return IpListSort::Sort( array_map(
+			function ( $sIpBinary ) {
+				return inet_ntop( $sIpBinary );
 			},
 			$this->getDistinctForColumn( 'ip' )
 		) );
-		asort( $aIps );
-		return $aIps;
 	}
 
 	/**

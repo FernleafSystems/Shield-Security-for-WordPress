@@ -180,7 +180,7 @@
 
 								<textarea name="{{ aOption.key }}"
 										  id="Opt-{{ aOption.key }}"
-										  placeholder="{{ aOption.value }}"
+										  placeholder="{{ aOption.value|raw }}"
 										  rows="{{ aOption.rows }}"
 										  {% if aOption.disabled %}disabled="disabled"{% endif %}
 										  class="form-control">{{ aOption.value|raw }}</textarea>

@@ -19,14 +19,15 @@ abstract class Base {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		if ( $oOpts->isTrackOptImmediateBlock( static::OPT_KEY ) ) {
-			$bCount = PHP_INT_MAX;
+		$bBlock = $oOpts->isTrackOptImmediateBlock( static::OPT_KEY );
+		if ( $bBlock ) {
+			$nCount = 1;
 		}
-		else if ( $oOpts->isTrackOptTransgression( static::OPT_KEY ) ) {
-			$bCount = $oOpts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
+		elseif ( $oOpts->isTrackOptTransgression( static::OPT_KEY ) ) {
+			$nCount = $oOpts->isTrackOptDoubleTransgression( static::OPT_KEY ) ? 2 : 1;
 		}
 		else {
-			$bCount = 0;
+			$nCount = 0;
 		}
 
 		$this->getCon()
@@ -34,7 +35,8 @@ abstract class Base {
 				 'bot'.static::OPT_KEY,
 				 [
 					 'audit'         => $this->getAuditData(),
-					 'offense_count' => $bCount
+					 'offense_count' => $nCount,
+					 'block'         => $bBlock,
 				 ]
 			 );
 	}

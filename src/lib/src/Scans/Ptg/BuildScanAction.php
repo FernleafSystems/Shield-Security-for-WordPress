@@ -3,35 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 
 	protected function buildItems() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-
-		$oWpT = Services::WpThemes();
-		$oTheme = $oWpT->getCurrent();
-		$aThemes = [ $oTheme->get_stylesheet() ];
-		if ( $oWpT->isActiveThemeAChild() ) {
-			$aThemes[] = $oTheme->get_template();
-		}
-
-		$oAction->items = array_merge(
-			array_map(
-				function ( $nKey ) {
-					return 'plugins';
-				},
-				array_flip( Services::WpPlugins()->getActivePlugins() )
-			),
-			array_map(
-				function ( $nKey ) {
-					return 'themes';
-				},
-				array_flip( $aThemes )
-			)
-		);
+		$oAction->items = ( new BuildFileMap() )
+			->setScanActionVO( $oAction )
+			->build();
 	}
 
 	protected function setCustomFields() {
@@ -39,8 +19,6 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 		$oAction = $this->getScanActionVO();
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oAction->scan_depth = $oOpts->getPtgScanDepth();
 		$oAction->file_exts = $oOpts->getPtgFileExtensions();
-		$oAction->hashes_base_path = $oOpts->getPtgSnapsBaseDir();
 	}
 }

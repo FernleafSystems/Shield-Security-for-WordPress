@@ -25,12 +25,12 @@ class Options {
 	protected $aRawOptionsConfigData;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bNeedSave;
 
 	/**
-	 * @var boolean
+	 * @var bool
 	 */
 	protected $bRebuildFromFile = false;
 
@@ -181,7 +181,7 @@ class Options {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getIfLoadOptionsFromStorage() {
 		return $this->bLoadFromSaved;
@@ -190,7 +190,7 @@ class Options {
 	/**
 	 * Determines whether the given option key is a valid option
 	 * @param string
-	 * @return boolean
+	 * @return bool
 	 */
 	public function isValidOptionKey( $sOptionKey ) {
 		return in_array( $sOptionKey, $this->getOptionsKeys() );
@@ -465,9 +465,9 @@ class Options {
 	}
 
 	/**
-	 * @param string  $sKey
-	 * @param mixed   $mValueToTest
-	 * @param boolean $bStrict
+	 * @param string $sKey
+	 * @param mixed  $mValueToTest
+	 * @param bool   $bStrict
 	 * @return bool
 	 */
 	public function isOpt( $sKey, $mValueToTest, $bStrict = false ) {
@@ -605,7 +605,7 @@ class Options {
 	}
 
 	/**
-	 * @return boolean
+	 * @return bool
 	 */
 	public function getRebuildFromFile() {
 		return $this->bRebuildFromFile;
@@ -709,7 +709,7 @@ class Options {
 	}
 
 	/**
-	 * @param boolean $bLoadFromSaved
+	 * @param bool $bLoadFromSaved
 	 * @return $this
 	 */
 	public function setIfLoadOptionsFromStorage( $bLoadFromSaved ) {
@@ -718,14 +718,14 @@ class Options {
 	}
 
 	/**
-	 * @param boolean $bNeed
+	 * @param bool $bNeed
 	 */
 	public function setNeedSave( $bNeed ) {
 		$this->bNeedSave = $bNeed;
 	}
 
 	/**
-	 * @param boolean $bRebuild
+	 * @param bool $bRebuild
 	 * @return $this
 	 */
 	public function setRebuildFromFile( $bRebuild ) {
@@ -815,15 +815,28 @@ class Options {
 	 * @return mixed
 	 */
 	private function ensureOptValueState( $sOptKey, $mValue ) {
-		switch ( $this->getOptionType( $sOptKey ) ) {
-			case 'integer':
-				$mValue = (int)$mValue;
-				break;
+		$sType = $this->getOptionType( $sOptKey );
+		if ( !empty( $sType ) ) {
+			switch ( $sType ) {
+				case 'integer':
+					$mValue = (int)$mValue;
+					break;
 
-			case 'text':
-			case 'email':
-				$mValue = (string)$mValue;
-				break;
+				case 'text':
+				case 'email':
+					$mValue = (string)$mValue;
+					break;
+
+				case 'array':
+				case 'multiple_select':
+					if ( !is_array( $mValue ) ) {
+						$mValue = $this->getOptDefault( $sOptKey );
+					}
+					break;
+
+				default:
+					break;
+			}
 		}
 		return $mValue;
 	}
@@ -1020,14 +1033,5 @@ class Options {
 	public function setPathToConfig( $sPathToConfig ) {
 		$this->sPathToConfig = $sPathToConfig;
 		return $this;
-	}
-
-	/**
-	 * @param string
-	 * @return mixed|null
-	 * @deprecated 8.4
-	 */
-	public function getFeatureDefinition( $sDefinition ) {
-		return $this->getDef( $sDefinition );
 	}
 }

@@ -100,26 +100,27 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$aReasonCantScan = $this->getSubProScanner()
 								->getReasonsScansCantExecute();
 
-		$oScannerMain = $this->getSubProScanner();
 		$oQueCon = $oMod->getScanController();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
+		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		$aData = [
-			'ajax'    => [
+			'ajax'         => [
 				'scans_start'           => $oMod->getAjaxActionData( 'scans_start', true ),
 				'scans_check'           => $oMod->getAjaxActionData( 'scans_check', true ),
 				'render_table_scan'     => $oMod->getAjaxActionData( 'render_table_scan', true ),
 				'bulk_action'           => $oMod->getAjaxActionData( 'bulk_action', true ),
-				'item_asset_accept'     => $oMod->getAjaxActionData( 'item_asset_accept', true ),
 				'item_asset_deactivate' => $oMod->getAjaxActionData( 'item_asset_deactivate', true ),
 				'item_asset_reinstall'  => $oMod->getAjaxActionData( 'item_asset_reinstall', true ),
 				'item_delete'           => $oMod->getAjaxActionData( 'item_delete', true ),
 				'item_ignore'           => $oMod->getAjaxActionData( 'item_ignore', true ),
 				'item_repair'           => $oMod->getAjaxActionData( 'item_repair', true ),
+				'item_action'           => $oMod->getAjaxActionData( 'item_action', true ),
 			],
-			'flags'   => [
+			'flags'        => [
 				'is_premium' => $oMod->isPremium(),
 				'can_scan'   => count( $aReasonCantScan ) === 0,
 			],
-			'strings' => [
+			'strings'      => [
 				'never'                 => __( 'Never', 'wp-simple-firewall' ),
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
@@ -130,7 +131,11 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'subtitle_scan_now'     => __( 'Run the selected scans on your site now to get the latest results', 'wp-simple-firewall' ),
 				'more_items_longer'     => __( 'The more scans that are selected, the longer the scan may take.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
-				'scan_select'           => __( 'Select Scans To Run', 'wp-simple-firewall' ),
+				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
+				'scanselect_file_areas' => __( 'Select File Scans To Run', 'wp-simple-firewall' ),
+				'scanselect_assets'     => __( 'Select Scans For Plugins and Themes', 'wp-simple-firewall' ),
+				'select_view_results'   => __( 'View Scan Results', 'wp-simple-firewall' ),
+				'select_what_to_scan'   => __( 'Select Scans To Run', 'wp-simple-firewall' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
@@ -140,14 +145,34 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 			],
-			'vars'    => [
+			'vars'         => [
 				'initial_check'       => $oQueCon->hasRunningScans(),
 				'cannot_scan_reasons' => $aReasonCantScan
 			],
-			'scans'   => [
+			'scan_results' => [
+			],
+			'aggregate'    => [
+				'flags'   => [
+					'has_items' => true,
+				],
+				'hrefs'   => [
+					'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_options' )
+				],
+				'vars'    => [
+				],
+				'strings' => [
+					'title'    => __( "File Scan Results", 'wp-simple-firewall' ),
+					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
+				],
+				'count'   => $oSelector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
+									   ->filterByNotIgnored()
+									   ->count()
+			],
+			'scans'        => [
 				'apc' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => true,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -157,7 +182,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 				'wcf' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -167,7 +193,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 				'ufc' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -177,7 +204,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 				'mal' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => false,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -185,9 +213,11 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 						'subtitle' => __( "Detect files that may be infected with malware", 'wp-simple-firewall' )
 					],
 				],
+				'ptg' => $this->getInsightVarsScan_Ptg(),
 				'wpv' => [
 					'flags'   => [
-						'has_items' => true,
+						'has_items'  => true,
+						'show_table' => true,
 					],
 					'hrefs'   => [],
 					'vars'    => [],
@@ -195,21 +225,18 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 						'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' )
 					],
 				],
-				'ptg' => $this->getInsightVarsScan_Ptg(),
 			],
 		];
 
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		/** @var HackGuard\Strings $oStrings */
 		$oStrings = $oMod->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 		foreach ( $aData[ 'scans' ] as $sSlug => &$aScanData ) {
-			$oScanner = $oScannerMain->getScannerFromSlug( $sSlug );
-			$aScanData[ 'flags' ][ 'is_available' ] = $oScanner->isAvailable();
-			$aScanData[ 'flags' ][ 'is_restricted' ] = $oScanner->isRestricted();
-			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanner->isEnabled();
-			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanner->isAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
+			$oScanCon = $oMod->getScanCon( $sSlug );
+			$aScanData[ 'flags' ][ 'is_available' ] = $oScanCon->isScanningAvailable();
+			$aScanData[ 'flags' ][ 'is_restricted' ] = !$oScanCon->isScanningAvailable();
+			$aScanData[ 'flags' ][ 'is_enabled' ] = $oScanCon->isEnabled();
+			$aScanData[ 'flags' ][ 'is_selected' ] = $oScanCon->isScanningAvailable() && in_array( $sSlug, $aUiTrack[ 'selected_scans' ] );
 			$aScanData[ 'flags' ][ 'has_last_scan' ] = $oMod->getLastScanAt( $sSlug ) > 0;
 			$aScanData[ 'vars' ][ 'last_scan_at' ] = $aLatestScans[ $sSlug ];
 			$aScanData[ 'strings' ][ 'title' ] = $aScanNames[ $sSlug ];
@@ -241,7 +268,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 								 ->query();
 		/** @var Shield\Scans\Ptg\ResultsSet $oFullResults */
 		$oFullResults = ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( ( new HackGuard\Scan\ScanActionFromSlug() )->getAction( 'ptg' ) )
+			->setScanController( $oMod->getScanCon( 'ptg' ) )
 			->fromVOsToResultsSet( $aPtgResults );
 
 		// Process Plugins
@@ -296,7 +323,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 
 		// Process Themes
 		$aThemes = $oFullResults->getAllResultsSetsForThemesContext();
-		$oWpThemes = Services::WpThemes();;
+		$oWpThemes = Services::WpThemes();
 		foreach ( $aThemes as $sSlug => $oItemRS ) {
 			$aItems = $oItemRS->getAllItems();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Scans\Ptg\ResultItem $oIT */
@@ -341,6 +368,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'has_items'   => $oMod->isPtgEnabled() ? $oFullResults->hasItems() : false,
 				'has_plugins' => !empty( $aPlugins ),
 				'has_themes'  => !empty( $aThemes ),
+				'show_table'  => false,
 			],
 			'hrefs'   => [],
 			'vars'    => [],

@@ -20,22 +20,10 @@ class Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_DataProcessor
-	 * @deprecated 8.4.0
-	 */
-	static public function loadDP() {
-		$sKey = 'icwp-data';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_DataProcessor::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return \ICWP_WPSF_WpCron
-	 * @deprecated
+	 * @deprecated 8.5
 	 */
-	static public function loadWpCronProcessor() {
+	public static function loadWpCronProcessor() {
 		$sKey = 'icwp-wpcron';
 		if ( !self::isServiceReady( $sKey ) ) {
 			self::setService( $sKey, \ICWP_WPSF_WpCron::GetInstance() );
@@ -57,7 +45,7 @@ class Foundation {
 	/**
 	 * @return array
 	 */
-	static private function getDic() {
+	private static function getDic() {
 		if ( !is_array( self::$aDic ) ) {
 			self::$aDic = [];
 		}
@@ -68,7 +56,7 @@ class Foundation {
 	 * @param string $sService
 	 * @return mixed
 	 */
-	static private function getService( $sService ) {
+	private static function getService( $sService ) {
 		$aDic = self::getDic();
 		return $aDic[ $sService ];
 	}
@@ -77,7 +65,7 @@ class Foundation {
 	 * @param string $sService
 	 * @return bool
 	 */
-	static private function isServiceReady( $sService ) {
+	private static function isServiceReady( $sService ) {
 		$aDic = self::getDic();
 		return !empty( $aDic[ $sService ] );
 	}
@@ -86,7 +74,7 @@ class Foundation {
 	 * @param string $sServiceKey
 	 * @param mixed  $oService
 	 */
-	static private function setService( $sServiceKey, $oService ) {
+	private static function setService( $sServiceKey, $oService ) {
 		$aDic = self::getDic();
 		$aDic[ $sServiceKey ] = $oService;
 		self::$aDic = $aDic;

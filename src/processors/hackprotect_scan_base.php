@@ -1,7 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\ShieldProcessor {
@@ -9,38 +9,17 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	use Shield\Scans\Common\ScanActionConsumer;
 	const SCAN_SLUG = 'base';
 
-	/**
-	 * @var ICWP_WPSF_Processor_HackProtect_Scanner
-	 */
-	protected $oScanner;
-
 	public function run() {
-		add_action( $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG ), function () {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
-			$oMod->getScanController()
-				 ->startScans( [ static::SCAN_SLUG ] );
-		} );
+		add_action(
+			$this->getCon()->prefix( 'ondemand_scan_'.$this->getThisScanCon()->getSlug() ),
+			function () {
+				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+				$oMod = $this->getMod();
+				$oMod->getScanController()
+					 ->startScans( [ $this->getThisScanCon()->getSlug() ] );
+			}
+		);
 	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAvailable() {
-		return true;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRestricted() {
-		return true;
-	}
-
-	/**
-	 * @return bool
-	 */
-	abstract public function isEnabled();
 
 	/**
 	 */
@@ -52,260 +31,17 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * @param int $nDelay
 	 */
 	public function scheduleOnDemandScan( $nDelay = 3 ) {
-		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.static::SCAN_SLUG );
+		$sHook = $this->getCon()->prefix( 'ondemand_scan_'.$this->getThisScanCon()->getSlug() );
 		if ( !wp_next_scheduled( $sHook ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + $nDelay, $sHook );
 		}
 	}
 
 	/**
-	 * @return Shield\Scans\Base\BaseRepair|mixed|null
-	 */
-	abstract protected function getRepairer();
-
-	/**
 	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
 	 */
 	public function getScanActionVO() {
-		if ( !$this->oScanActionVO instanceof Shield\Scans\Base\BaseScanActionVO ) {
-			$oAct = $this->getNewActionVO();
-			$oAct->scan = static::SCAN_SLUG;
-			$this->oScanActionVO = $oAct;
-		}
-
-		return $this->oScanActionVO;
-	}
-
-	/**
-	 * Override this to provide the correct VO
-	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
-	 */
-	protected function getNewActionVO() {
-		return ( new Scan\ScanActionFromSlug() )->getAction( static::SCAN_SLUG );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oToDelete
-	 */
-	protected function deleteResultsSet( $oToDelete ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		( new Scan\Results\Clean() )
-			->setDbHandler( $oMod->getDbHandler_ScanResults() )
-			->deleteResults( $oToDelete );
-	}
-
-	/**
-	 * @return Shield\Scans\Base\BaseResultsSet
-	 */
-	protected function readScanResultsFromDb() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSelector */
-		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		return $this->convertVosToResults( $oSelector->forScan( static::SCAN_SLUG ) );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Base\BaseResultsSet|mixed
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Scan\Results\ConvertBetweenTypes() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->fromVOsToResultsSet( $aVos );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return Shield\Databases\Scanner\EntryVO|null
-	 */
-	protected function getVoFromResultItem( $oItem ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		return $oSel->filterByHash( $oItem->hash )
-					->filterByScan( $this->getScanActionVO()->scan )
-					->first();
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function resetIgnoreStatus() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbh = $oMod->getDbHandler_ScanResults();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oDbh->getQuerySelector();
-
-		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $oDbh->getQueryUpdater();
-		foreach ( $oSel->forScan( static::SCAN_SLUG ) as $oEntry ) {
-			$oUpd->reset()->setNotIgnored( $oEntry );
-		}
-		return $this;
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function resetNotifiedStatus() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oDbh = $oMod->getDbHandler_ScanResults();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oDbh->getQuerySelector();
-
-		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $oDbh->getQueryUpdater();
-		foreach ( $oSel->forScan( static::SCAN_SLUG ) as $oEntry ) {
-			$oUpd->reset()->setNotNotified( $oEntry );
-		}
-		return $this;
-	}
-
-	/**
-	 * @param int|string $sItemId
-	 * @param string     $sAction
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function executeItemAction( $sItemId, $sAction ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
-		$bSuccess = false;
-		if ( is_numeric( $sItemId ) ) {
-			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oEntry = $oMod->getDbHandler_ScanResults()
-						   ->getQuerySelector()
-						   ->byId( $sItemId );
-			if ( empty( $oEntry ) ) {
-				throw new \Exception( 'Item could not be found.' );
-			}
-
-			$oItem = ( new Scan\Results\ConvertBetweenTypes() )
-				->setScanActionVO( $this->getScanActionVO() )
-				->convertVoToResultItem( $oEntry );
-
-			switch ( $sAction ) {
-				case 'delete':
-					$bSuccess = $this->itemDelete( $oItem );
-					break;
-
-				case 'ignore':
-					$bSuccess = $this->itemIgnore( $oItem );
-					break;
-
-				case 'repair':
-					$bSuccess = $this->itemRepair( $oItem );
-					break;
-
-				case 'accept':
-					$bSuccess = $this->itemAccept( $oItem );
-					break;
-
-				case 'asset_accept':
-					$bSuccess = $this->assetAccept( $oItem );
-					break;
-
-				case 'asset_deactivate':
-					$bSuccess = $this->assetDeactivate( $oItem );
-					break;
-
-				case 'asset_reinstall':
-					$bSuccess = $this->assetReinstall( $oItem );
-					break;
-
-				default:
-					$bSuccess = false;
-					break;
-			}
-		}
-
-		return $bSuccess;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function assetAccept( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * Only plugins may be deactivated, of course.
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function assetDeactivate( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function assetReinstall( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemAccept( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemDelete( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemIgnore( $oItem ) {
-
-		/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-		$oEntry = $this->getVoFromResultItem( $oItem );
-		if ( empty( $oEntry ) ) {
-			throw new \Exception( 'Item could not be found to ignore.' );
-		}
-
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Update $oUp */
-		$oUp = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
-
-		if ( !$oUp->setIgnored( $oEntry ) ) {
-			throw new \Exception( 'Item could not be ignored at this time.' );
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		throw new \Exception( 'Unsupported Action' );
+		return $this->getThisScanCon()->getScanActionVO();
 	}
 
 	/**
@@ -313,30 +49,15 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 * only for items that have not been notified recently.
 	 */
 	public function cronProcessScanResults() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
-		/** @var Shield\Databases\Scanner\EntryVO[] $aRes */
-		$aRes = $oSel->filterByScan( static::SCAN_SLUG )
-					 ->filterForCron( $oMod->getScanNotificationInterval() )
-					 ->query();
-
-		if ( !empty( $aRes ) ) {
-			$oRes = $this->convertVosToResults( $aRes );
-
-			$this->runCronAutoRepair( $oRes );
+		$oScanCon = $this->getThisScanCon();
+		$oRes = $oScanCon->getAllResultsForCron();
+		if ( $oRes->hasItems() ) {
+			$this->getThisScanCon()->runCronAutoRepair( $oRes );
 
 			if ( $this->runCronUserNotify( $oRes ) ) {
-				$this->updateLastNotifiedAt( $aRes );
+				$oScanCon->updateAllAsNotified();
 			}
 		}
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
 	}
 
 	/**
@@ -345,20 +66,6 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	 */
 	protected function runCronUserNotify( $oRes ) {
 		return false;
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aRes
-	 */
-	private function updateLastNotifiedAt( $aRes ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var Shield\Databases\Scanner\Update $oUpd */
-		$oUpd = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
-		foreach ( $aRes as $oVo ) {
-			$oUpd->reset()
-				 ->setNotified( $oVo );
-		}
 	}
 
 	/**
@@ -375,37 +82,68 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
+	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
-	public function deactivatePlugin() {
-		$this->resetScan();
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function resetScan() {
+	protected function getThisScanCon() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		( new Scan\Results\Clean() )
-			->setDbHandler( $oMod->getDbHandler_ScanResults() )
-			->setScanActionVO( $this->getScanActionVO() )
-			->deleteAllForScan();
-		return $this;
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_HackProtect_Scanner
-	 */
-	public function getScannerDb() {
-		return $this->oScanner;
+		return $oMod->getScanCon( static::SCAN_SLUG );
 	}
 
 	/**
 	 * @param \ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
 	 * @return $this
+	 * @deprecated 8.5
 	 */
 	public function setScannerDb( $oScanner ) {
-		$this->oScanner = $oScanner;
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isRestricted() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isAvailable() {
+		return $this->getThisScanCon()->isScanningAvailable();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	protected function isCronAutoRepair() {
+		return $this->getThisScanCon()->isCronAutoRepair();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function isEnabled() {
+		return $this->getThisScanCon()->isEnabled();
+	}
+
+	/**
+	 * Override this to provide the correct VO
+	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
+	 * @deprecated 8.5
+	 */
+	protected function getNewActionVO() {
+		return $this->getThisScanCon()->getScanActionVO();
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultsSet $oRes
+	 * @deprecated 8.5
+	 */
+	protected function runCronAutoRepair( $oRes ) {
 	}
 }

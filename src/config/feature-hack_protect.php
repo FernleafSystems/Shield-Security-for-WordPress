@@ -535,19 +535,6 @@
       "description":   "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
-      "key":         "ptg_depth",
-      "section":     "section_scan_ptg",
-      "premium":     true,
-      "type":        "integer",
-      "default":     1,
-      "min":         0,
-      "link_info":   "https://shsec.io/bn",
-      "link_blog":   "https://shsec.io/bm",
-      "name":        "Guard/Scan Depth",
-      "summary":     "How Deep Into The Plugin Directories To Scan And Guard",
-      "description": "The Guard normally operates scan only the top level of a plugin folder. Increasing depth increases scan times."
-    },
-    {
       "key":         "ptg_extensions",
       "section":     "section_scan_ptg",
       "premium":     true,
@@ -578,13 +565,6 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key":          "ptg_last_build_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "ptg_candiskwrite",
       "section":      "section_non_ui",
       "transferable": false,
@@ -605,20 +585,6 @@
       "sensitive":    true,
       "type":         "array",
       "default":      []
-    },
-    {
-      "key":          "rebuild_self",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "boolean",
-      "default":      false
-    },
-    {
-      "key":          "ptg_update_store_format",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "boolean",
-      "default":      false
     },
     {
       "key":          "rt_file_hashes",

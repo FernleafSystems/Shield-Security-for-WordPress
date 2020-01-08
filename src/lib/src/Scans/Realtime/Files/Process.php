@@ -29,10 +29,10 @@ class Process {
 			// we haven't created a backup yet.
 			$this->createBackup();
 		}
-		else if ( !$oFs->isFile( $this->getFullBackupPath() ) ) {
+		elseif ( !$oFs->isFile( $this->getFullBackupPath() ) ) {
 			throw new \Exception( 'Backup file is missing', 1 );
 		}
-		else if ( !( new Verify() )->run( $this->original_path, $this->original_path_hash ) ) {
+		elseif ( !( new Verify() )->run( $this->original_path, $this->original_path_hash ) ) {
 			( new Revert() )->run( $this->original_path, $this->getFullBackupPath(), $this->priv_key );
 		}
 

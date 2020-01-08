@@ -45,11 +45,24 @@ class Options extends Base\ShieldOptions {
 	public function getDbColumns_IPs() {
 		return $this->getDef( 'ip_list_table_columns' );
 	}
+
 	/**
 	 * @return string
 	 */
 	public function getDbTable_IPs() {
 		return $this->getCon()->prefixOption( $this->getDef( 'ip_lists_table_name' ) );
+	}
+
+	/**
+	 * @return string[] - precise REGEX patterns to match against PATH.
+	 */
+	public function getRequestWhitelistAsRegex() {
+		return array_map(
+			function ( $sRule ) {
+				return sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $sRule ), '#' ) ) );
+			},
+			$this->isPremium() ? $this->getOpt( 'request_whitelist', [] ) : []
+		);
 	}
 
 	/**

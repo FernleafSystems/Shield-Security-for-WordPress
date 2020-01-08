@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
@@ -12,14 +13,12 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	private $oCurrent;
 
 	public function run() {
-		if ( $this->isReadyToRun() ) {
-			if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
-				add_action( 'clear_auth_cookie', function () {
-					$this->terminateCurrentSession();
-				}, 0 );
-			}
-			add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
+		if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
+			add_action( 'clear_auth_cookie', function () {
+				$this->terminateCurrentSession();
+			}, 0 );
 		}
+		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
 	}
 
 	/**
@@ -103,7 +102,7 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @return boolean
+	 * @return bool
 	 */
 	private function activateUserSession( $oUser ) {
 		if ( !$this->isLoginCaptured() && $oUser instanceof \WP_User ) {
@@ -116,34 +115,20 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @param int $nSessionId
-	 * @return bool
-	 */
-	public function terminateSession( $nSessionId ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
-		$this->getCon()->fireEvent( 'session_terminate' );
-		return $oMod->getDbHandler_Sessions()
-					->getQueryDeleter()
-					->deleteById( $nSessionId );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function terminateCurrentSession() {
 		$bSuccess = false;
 
-		$oCon = $this->getCon();
-		if ( $oCon->hasSessionId() ) {
-			$oSes = $this->getCurrentSession();
-			if ( $oSes instanceof Session\EntryVO ) {
-				$bSuccess = $this->terminateSession( $oSes->id );
-			}
+		$oSes = $this->getCurrentSession();
+		if ( $oSes instanceof Session\EntryVO ) {
+			$bSuccess = ( new Sessions\Lib\Ops\Terminate() )
+				->setMod( $this->getMod() )
+				->byRecordId( $oSes->id );
 		}
 
 		$this->oCurrent = null;
-		$oCon->clearSession();
+		$this->getCon()->clearSession();
 
 		return $bSuccess;
 	}
@@ -201,5 +186,14 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		/** @var Session\Select $oSel */
 		$oSel = $oMod->getDbHandler_Sessions()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
+	}
+
+	/**
+	 * @param int $nSessionId
+	 * @return bool
+	 * @deprecated 8.5
+	 */
+	public function terminateSession( $nSessionId ) {
+		return false;
 	}
 }

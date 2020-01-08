@@ -39,10 +39,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_AddIp() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_Processor_Ips $oProcessor */
-		$oProcessor = $oMod->getProcessor();
 		$oIpServ = Services::IP();
 
 		$aFormParams = $this->getAjaxFormParams();
@@ -63,22 +59,22 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		if ( empty( $sIp ) ) {
 			$sMessage = __( "IP address not provided", 'wp-simple-firewall' );
 		}
-		else if ( empty( $sList ) ) {
+		elseif ( empty( $sList ) ) {
 			$sMessage = __( "IP list not provided", 'wp-simple-firewall' );
 		}
-		else if ( !$bAcceptableIp ) {
+		elseif ( !$bAcceptableIp ) {
 			$sMessage = __( "IP address isn't either a valid IP or a CIDR range", 'wp-simple-firewall' );
 		}
-		else if ( $bIsBlackList && !$oMod->isPremium() ) {
+		elseif ( $bIsBlackList && !$oMod->isPremium() ) {
 			$sMessage = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
-		else if ( $bIsBlackList && $oIpServ->isValidIp4Range( $sIp ) ) { // TODO
+		elseif ( $bIsBlackList && $oIpServ->isValidIp4Range( $sIp ) ) { // TODO
 			$sMessage = __( "IP ranges aren't currently supported for blacklisting.", 'wp-simple-firewall' );
 		}
-		else if ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
+		elseif ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
 			$sMessage = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
-		else if ( $bIsBlackList && in_array( $sIp, $oMod->getReservedIps() ) ) {
+		elseif ( $bIsBlackList && in_array( $sIp, $oMod->getReservedIps() ) ) {
 			$sMessage = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {
@@ -86,16 +82,17 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			switch ( $sList ) {
 
 				case $oMod::LIST_MANUAL_WHITE:
-					$oIp = $oProcessor->addIpToWhiteList( $sIp, $sLabel );
+					$oIp = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						->setMod( $oMod )
+						->setIP( $sIp )
+						->toManualWhitelist( $sLabel );
 					break;
 
 				case $oMod::LIST_MANUAL_BLACK:
-					$oIp = $oProcessor->addIpToBlackList( $sIp, $sLabel );
-					if ( !empty( $oIp ) ) {
-						/** @var Shield\Databases\IPs\Update $oUpd */
-						$oUpd = $oMod->getDbHandler_IPs()->getQueryUpdater();
-						$oUpd->updateTransgressions( $oIp, $oOpts->getOffenseLimit() );
-					}
+					$oIp = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						->setMod( $oMod )
+						->setIP( $sIp )
+						->toManualBlacklist( $sLabel );
 					break;
 
 				default:
@@ -127,7 +124,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		if ( !is_numeric( $nId ) || $nId < 0 ) {
 			$sMessage = __( 'Invalid entry selected', 'wp-simple-firewall' );
 		}
-		else if ( $oMod->getDbHandler_IPs()->getQueryDeleter()->deleteById( $nId ) ) {
+		elseif ( $oMod->getDbHandler_IPs()->getQueryDeleter()->deleteById( $nId ) ) {
 			$sMessage = __( 'IP address deleted', 'wp-simple-firewall' );
 			$bSuccess = true;
 		}

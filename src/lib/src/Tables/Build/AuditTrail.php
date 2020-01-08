@@ -27,7 +27,7 @@ class AuditTrail extends BaseBuild {
 		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 			$oSelector->filterByIp( $aParams[ 'fIp' ] );
 		}
-		else if ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
+		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
 			$oSelector->filterByNotIp( $oIp->getRequestIp() );
 		}
 
@@ -57,9 +57,11 @@ class AuditTrail extends BaseBuild {
 		if ( !empty( $aParams[ 'fUsername' ] ) ) {
 			$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
 		}
-		else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
+
+		$oSelector->setOrderBy( 'updated_at' )->setOrderBy( 'created_at' );
 
 		return $this;
 	}
@@ -136,6 +138,11 @@ class AuditTrail extends BaseBuild {
 				$aE = $aEntries[ $oEntry->rid ];
 				$aE[ 'message' ] .= "\n".$sMsg;
 				$aE[ 'category' ] = max( $aE[ 'category' ], $oEntry->category );
+			}
+
+			if ( $oEntry->count > 1 ) {
+				$aE[ 'message' ] = $sMsg."\n"
+								   .sprintf( __( 'This event repeated %s times in succession.', 'wp-simple-firewall' ), $oEntry->count );
 			}
 
 			$aEntries[ $oEntry->rid ] = $aE;

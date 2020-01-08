@@ -33,21 +33,21 @@ class Bot {
 			$sKey = 'checkbox';
 		}
 		// honeypot check
-		else if ( !empty( $sFieldHoney ) ) {
+		elseif ( !empty( $sFieldHoney ) ) {
 			$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'honeypot', 'wp-simple-firewall' ) );
 			$sKey = 'honeypot';
 		}
-		else if ( $nCooldown > 0 || $nExpire > 0 ) {
+		elseif ( $nCooldown > 0 || $nExpire > 0 ) {
 
 			if ( $nCooldown > 0 && $oReq->ts() < ( $nCommentTs + $nCooldown ) ) {
 				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'cooldown', 'wp-simple-firewall' ) );
 				$sKey = 'cooldown';
 			}
-			else if ( $nExpire > 0 && $oReq->ts() > ( $nCommentTs + $nExpire ) ) {
+			elseif ( $nExpire > 0 && $oReq->ts() > ( $nCommentTs + $nExpire ) ) {
 				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'expired', 'wp-simple-firewall' ) );
 				$sKey = 'expired';
 			}
-			else if ( !$this->checkTokenHash( $sCommentToken, $nCommentTs, $nPostId ) ) {
+			elseif ( !$this->checkTokenHash( $sCommentToken, $nCommentTs, $nPostId ) ) {
 				$sExplanation = sprintf( __( 'Failed Bot Test (%s)', 'wp-simple-firewall' ), __( 'token', 'wp-simple-firewall' ) );
 				$sKey = 'token';
 			}

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
 /**
@@ -11,18 +12,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans;
  */
 class ResultsRetrieve {
 
-	use Databases\Base\HandlerConsumer,
-		Scans\Common\ScanActionConsumer;
+	use ScanControllerConsumer;
 
 	/**
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
 	public function retrieve() {
+		$oSCon = $this->getScanController();
 		/** @var Databases\Scanner\Select $oSelector */
-		$oSelector = $this->getDbHandler()->getQuerySelector();
-		$oScan = $this->getScanActionVO();
+		$oSelector = $oSCon->getScanResultsDbHandler()->getQuerySelector();
 		return ( new ConvertBetweenTypes() )
-			->setScanActionVO( $oScan )
-			->fromVOsToResultsSet( $oSelector->forScan( $oScan->scan ) );
+			->setScanController( $oSCon )
+			->fromVOsToResultsSet( $oSelector->forScan( $oSCon->getSlug() ) );
 	}
 }

@@ -136,11 +136,26 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			if ( $this->isRegisteredSecAdminUser() ) {
 				$nLeft = 0;
 			}
-			else if ( $nSecAdminAt > 0 ) {
+			elseif ( $nSecAdminAt > 0 ) {
 				$nLeft = $this->getSecAdminTimeout() - ( Services::Request()->ts() - $nSecAdminAt );
 			}
 		}
 		return max( 0, $nLeft );
+	}
+
+	/**
+	 */
+	public function handleModRequest() {
+		$oReq = Services::Request();
+		switch ( $oReq->query( 'exec' ) ) {
+			case  'remove_secadmin_confirm':
+				( new SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
+					->setMod( $this )
+					->remove();
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**
@@ -321,20 +336,36 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
+		$aInsertData = [];
 		if ( $this->getSecAdminTimeLeft() > 0 ) {
+			$aInsertData = [
+				'ajax'         => [
+					'check' => $this->getSecAdminCheckAjaxData(),
+				],
+				'is_sec_admin' => true, // if $nSecTimeLeft > 0
+				'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
+				'strings'      => [
+					'confirm' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
+					'nearly'  => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
+					'expired' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' )
+				]
+			];
+		}
+		else {
+			$aInsertData = [
+				'ajax'    => [
+					'req_email_remove' => $this->getAjaxActionData( 'req_email_remove' ),
+				],
+				'strings' => [
+				]
+			];
+		}
+
+		if ( !empty( $aInsertData ) ) {
 			wp_localize_script(
 				$this->prefix( 'plugin' ),
 				'icwp_wpsf_vars_secadmin',
-				[
-					'reqajax'      => $this->getSecAdminCheckAjaxData(),
-					'is_sec_admin' => true, // if $nSecTimeLeft > 0
-					'timeleft'     => $this->getSecAdminTimeLeft(), // JS uses milliseconds
-					'strings'      => [
-						'confirm' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Reload now?', 'wp-simple-firewall' ),
-						'nearly'  => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
-						'expired' => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' )
-					]
-				]
+				$aInsertData
 			);
 		}
 	}

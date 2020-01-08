@@ -12,7 +12,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
 		$oWpUsers = Services::WpUsers();
@@ -36,10 +35,8 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 					->run();
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
-			else {
-				if ( $oMod->isEnabledGaspCheck() ) {
-					$this->getSubProGasp()->execute();
-				}
+			elseif ( $oMod->isEnabledGaspCheck() ) {
+				$this->getSubProGasp()->execute();
 			}
 		}
 	}

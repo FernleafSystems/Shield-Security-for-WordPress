@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -8,6 +9,11 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	const LIST_MANUAL_WHITE = 'MW';
 	const LIST_MANUAL_BLACK = 'MB';
 	const LIST_AUTO_BLACK = 'AB';
+
+	/**
+	 * @var IPs\Lib\OffenseTracker
+	 */
+	private $oOffenseTracker;
 
 	/**
 	 * @return false|Shield\Databases\IPs\Handler
@@ -39,6 +45,34 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !is_int( $nLimit ) || $nLimit < 0 ) {
 			$oOpts->resetOptToDefault( 'transgression_limit' );
 		}
+
+		$this->cleanPathWhitelist();
+	}
+
+	private function cleanPathWhitelist() {
+		/** @var IPs\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt( 'request_whitelist', array_unique( array_filter( array_map(
+			function ( $sRule ) {
+				$sRule = strtolower( trim( $sRule ) );
+				if ( !empty( $sRule ) ) {
+					$aToCheck = [
+						parse_url( Services::WpGeneral()->getHomeUrl(), PHP_URL_PATH ),
+						parse_url( Services::WpGeneral()->getWpUrl(), PHP_URL_PATH ),
+					];
+					$sRegEx = sprintf( '#^%s$#i', str_replace( 'STAR', '.*', preg_quote( str_replace( '*', 'STAR', $sRule ), '#' ) ) );
+					foreach ( $aToCheck as $sPath ) {
+						$sSlashPath = rtrim( $sPath, '/' ).'/';
+						if ( preg_match( $sRegEx, $sPath ) || preg_match( $sRegEx, $sSlashPath ) ) {
+							$sRule = false;
+							break;
+						}
+					}
+				}
+				return $sRule;
+			},
+			$this->getOpt( 'request_whitelist', [] ) // do not use Options getter as it formats into regex
+		) ) ) );
 	}
 
 	/**
@@ -46,10 +80,9 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @return string[]
 	 */
 	public function getReservedIps() {
-		return [
-			Services::Request()->getServerAddress(),
-			$this->getCon()->getModule_Plugin()->getMyServerIp()
-		];
+		$aIPs = $this->getCon()->getModule_Plugin()->getMyServerIPs();
+		$aIPs[] = Services::Request()->getServerAddress();
+		return array_unique( $aIPs );
 	}
 
 	/**
@@ -58,6 +91,16 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	public function getAutoUnblockIps() {
 		$aIps = $this->getOpt( 'autounblock_ips', [] );
 		return is_array( $aIps ) ? $aIps : [];
+	}
+
+	/**
+	 * @return IPs\Lib\OffenseTracker
+	 */
+	public function loadOffenseTracker() {
+		if ( !isset( $this->oOffenseTracker ) ) {
+			$this->oOffenseTracker = new IPs\Lib\OffenseTracker( $this->getCon() );
+		}
+		return $this->oOffenseTracker;
 	}
 
 	/**
@@ -149,7 +192,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		if ( !$this->getCon()->isPluginDeleting() ) {
 			$this->addFilterIpsToWhiteList();
 		}
-		parent::onPluginShutdown(); //save
+		parent::onPluginShutdown();
 	}
 
 	/**
@@ -158,7 +201,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aIps = [];
 		$oSp = $this->loadServiceProviders();
 
-		if ( function_exists( 'mwp_init' ) ) {
+		if ( @class_exists( '\MwpWorkerResponder' ) ) {
 			foreach ( array_flip( $oSp->getIps_ManageWp() ) as $sIp => $n ) {
 				$aIps[ $sIp ] = 'ManageWP';
 			}
@@ -173,13 +216,15 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
 
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
-			/** @var \ICWP_WPSF_Processor_Ips $oPro */
-			$oPro = $this->getProcessor();
-
-			$aWhiteIps = $oPro->getWhitelistIps();
+			$aWhiteIps = ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+				->setDbHandler( $this->getDbHandler_IPs() )
+				->white();
 			foreach ( $aIps as $sIP => $sLabel ) {
 				if ( !in_array( $sIP, $aWhiteIps ) ) {
-					$oPro->addIpToWhiteList( $sIP, $sLabel );
+					( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+						->setMod( $this )
+						->setIP( $sIP )
+						->toManualWhitelist( $sLabel );
 				}
 			}
 		}
