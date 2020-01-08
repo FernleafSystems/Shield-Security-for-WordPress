@@ -33,12 +33,6 @@ abstract class BaseQuery {
 	protected $nPage;
 
 	/**
-	 * @var string
-	 * @deprecated 8.5
-	 */
-	protected $sOrderBy;
-
-	/**
 	 * @var array
 	 */
 	protected $aOrderBys;
@@ -479,13 +473,5 @@ abstract class BaseQuery {
 			strtoupper( $sOp ),
 			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' ]
 		);
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.5
-	 */
-	public function getOrderBy() {
-		return '';
 	}
 }

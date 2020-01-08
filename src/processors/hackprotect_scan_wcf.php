@@ -50,6 +50,8 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 	private function buildEmailBodyFromFiles( $oResults ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$sName = $this->getCon()->getHumanName();
 		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
@@ -58,11 +60,11 @@ class ICWP_WPSF_Processor_HackProtect_Wcf extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oMod->isWcfScanAutoRepair() || $oMod->isIncludeFileLists() ) {
+		if ( $oOpts->isWcfScanAutoRepair() || $oMod->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );
 			$aContent[] = '';
 
-			if ( $oMod->isWcfScanAutoRepair() ) {
+			if ( $oOpts->isWcfScanAutoRepair() ) {
 				$aContent[] = '<strong>'.sprintf( __( "%s has already attempted to repair the files.", 'wp-simple-firewall' ), $sName ).'</strong>'
 							  .' '.__( 'But, you should always check these files to ensure everything is as you expect.', 'wp-simple-firewall' );
 			}

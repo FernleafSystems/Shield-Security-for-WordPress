@@ -91,59 +91,10 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param \ICWP_WPSF_Processor_HackProtect_Scanner $oScanner
-	 * @return $this
-	 * @deprecated 8.5
-	 */
-	public function setScannerDb( $oScanner ) {
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isRestricted() {
-		return false;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isAvailable() {
-		return $this->getThisScanCon()->isScanningAvailable();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	protected function isCronAutoRepair() {
-		return $this->getThisScanCon()->isCronAutoRepair();
-	}
-
-	/**
 	 * @return bool
 	 * @deprecated 8.5
 	 */
 	public function isEnabled() {
 		return $this->getThisScanCon()->isEnabled();
-	}
-
-	/**
-	 * Override this to provide the correct VO
-	 * @return Shield\Scans\Base\BaseScanActionVO|mixed
-	 * @deprecated 8.5
-	 */
-	protected function getNewActionVO() {
-		return $this->getThisScanCon()->getScanActionVO();
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oRes
-	 * @deprecated 8.5
-	 */
-	protected function runCronAutoRepair( $oRes ) {
 	}
 }

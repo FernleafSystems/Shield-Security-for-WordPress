@@ -384,34 +384,4 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	public function getIdleTimeoutInterval() {
 		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function hasMaxSessionTimeout() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->hasMaxSessionTimeout();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function hasSessionIdleTimeout() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->hasSessionIdleTimeout();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isLockToIp() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isLockToIp();
-	}
 }

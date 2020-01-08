@@ -123,21 +123,4 @@ class LookupIpOnList {
 		$this->sListType = 'white';
 		return $this;
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.5
-	 */
-	public function getList() {
-		return '';
-	}
-
-	/**
-	 * @param string $sList
-	 * @return $this
-	 * @deprecated 8.5
-	 */
-	public function setList( $sList ) {
-		return $this;
-	}
 }

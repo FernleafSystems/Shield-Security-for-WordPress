@@ -20,18 +20,6 @@ class Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_WpCron
-	 * @deprecated 8.5
-	 */
-	public static function loadWpCronProcessor() {
-		$sKey = 'icwp-wpcron';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_WpCron::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return \ICWP_WPSF_ServiceProviders
 	 */
 	public function loadServiceProviders() {

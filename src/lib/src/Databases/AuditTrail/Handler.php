@@ -54,18 +54,4 @@ class Handler extends Base\Handler {
 			PRIMARY KEY  (id)
 		) %s;";
 	}
-
-	/**
-	 * @param EntryVO[] $aEvents - array of events: key event slug, value created_at timestamp
-	 * @deprecated 8.5
-	 */
-	public function commitAudits( $aEvents ) {
-	}
-
-	/**
-	 * @param EntryVO $oEntry
-	 * @deprecated 8.5
-	 */
-	public function commitAudit( $oEntry ) {
-	}
 }

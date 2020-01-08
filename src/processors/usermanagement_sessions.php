@@ -182,22 +182,4 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		}
 		return $oError;
 	}
-
-	/**
-	 * @deprecated 8.5
-	 */
-	public function cleanExpiredSessions() {
-	}
-
-	/**
-	 * @deprecated 8.5
-	 */
-	private function getLoginIdleExpiredBoundary() {
-	}
-
-	/**
-	 * @deprecated 8.5
-	 */
-	private function getLoginExpiredBoundary() {
-	}
 }

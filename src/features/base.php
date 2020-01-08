@@ -1962,46 +1962,4 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	public function savePluginOptions() {
 		$this->saveModOptions();
 	}
-
-	/**
-	 * @return array[]
-	 * @deprecated 8.5
-	 */
-	public function getStatEvents_Recent() {
-		return [];
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return array|null
-	 * @deprecated 8.5
-	 */
-	public function getEventDef( $sKey ) {
-		return null;
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isSupportedEvent( $sKey ) {
-		return false;
-	}
-
-	/**
-	 * @return array[]
-	 * @deprecated 8.5
-	 */
-	protected function getSupportedEvents() {
-		return [];
-	}
-
-	/**
-	 * @return array[]
-	 * @deprecated 8.5
-	 */
-	public function getEvents() {
-		return $this->getDef( 'events' );
-	}
 }
