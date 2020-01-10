@@ -2,11 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Ptg extends BaseForAssets {
+
+	/**
+	 * @param Scans\Mal\ResultItem $oItem
+	 * @return bool
+	 */
+	protected function isResultItemStale( $oItem ) {
+		$bStale = false;
+		$oAsset = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
+		if ( empty( $oAsset ) ) {
+			$oAsset = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
+			$bStale = empty( $oAsset );
+		}
+		return $bStale;
+	}
 
 	/**
 	 * @return Scans\Ptg\Utilities\ItemActionHandler
