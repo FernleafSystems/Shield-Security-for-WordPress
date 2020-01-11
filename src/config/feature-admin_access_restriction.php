@@ -130,7 +130,7 @@
       "section":     "section_admin_access_restriction_settings",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/41",
+      "link_info":   "https://shsec.io/gf",
       "link_blog":   "",
       "name":        "Allow Email Override",
       "summary":     "Allow Email Override Of Admin Access Restrictions",
