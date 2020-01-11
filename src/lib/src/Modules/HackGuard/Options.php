@@ -78,7 +78,7 @@ class Options extends Base\ShieldOptions {
 					wp_normalize_path( path_join( ABSPATH, ltrim( $sFragment, '/' ) ) )
 				);
 			},
-			$this->getDef( 'malware_whitelist_paths' )
+			apply_filters( 'icwp_shield_malware_whitelist_paths', $this->getDef( 'malware_whitelist_paths' ) )
 		);
 	}
 

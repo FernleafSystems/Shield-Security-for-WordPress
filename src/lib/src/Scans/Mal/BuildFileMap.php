@@ -59,7 +59,7 @@ class BuildFileMap {
 		if ( empty( $oAction->file_exts ) ) {
 			$oAction->file_exts = [ 'php', 'php5' ];
 		}
-		if ( empty( $oAction->paths_whitelisted ) ) {
+		if ( !is_array( $oAction->paths_whitelisted ) ) {
 			$oAction->paths_whitelisted = [];
 		}
 	}
