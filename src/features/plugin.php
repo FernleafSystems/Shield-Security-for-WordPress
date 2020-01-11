@@ -124,7 +124,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function setVisitorIp() {
 		$oDetector = ( new Utilities\Net\VisitorIpDetection() )
-			->setPotentialHostIps( Services::IP()->getServerPublicIPs() );
+			->setPotentialHostIps( $this->getMyServerIPs() );
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
 		}

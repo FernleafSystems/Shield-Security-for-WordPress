@@ -76,16 +76,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * IP addresses that should never be put on the black list.
-	 * @return string[]
-	 */
-	public function getReservedIps() {
-		$aIPs = $this->getCon()->getModule_Plugin()->getMyServerIPs();
-		$aIPs[] = Services::Request()->getServerAddress();
-		return array_unique( $aIPs );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getAutoUnblockIps() {
@@ -235,5 +225,16 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function getNamespaceBase() {
 		return 'IPs';
+	}
+
+	/**
+	 * IP addresses that should never be put on the black list.
+	 * @return string[]
+	 * @deprecated 8.5.1
+	 */
+	public function getReservedIps() {
+		$aIPs = $this->getCon()->getModule_Plugin()->getMyServerIPs();
+		$aIPs[] = Services::Request()->getServerAddress();
+		return Services::IP()->getServerPublicIPs();
 	}
 }
