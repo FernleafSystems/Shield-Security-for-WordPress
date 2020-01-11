@@ -92,9 +92,7 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		}
 
 		if ( $oOpts->isLockToIp() ) {
-			$aPossibleIps = $this->getCon()
-								 ->getModule_IPs()
-								 ->getReservedIps();
+			$aPossibleIps = Services::IP()->getServerPublicIPs();
 			$aPossibleIps[] = $oSess->ip;
 			if ( !in_array( Services::IP()->getRequestIp(), $aPossibleIps ) ) {
 				throw new \Exception( 'session_iplock' );

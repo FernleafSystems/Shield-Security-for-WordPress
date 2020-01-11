@@ -400,14 +400,6 @@
       "default":      ""
     },
     {
-      "key":          "this_server_ip_details",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "sensitive":    true,
-      "type":         "array",
-      "default":      []
-    },
-    {
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
