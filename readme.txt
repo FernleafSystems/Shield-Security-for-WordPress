@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.5.0
+Stable tag: 8.5.1
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,6 +370,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
+= 8.5.1 - Current Release =
+*Released: 11th December, 2020* - [Release Notes](https://shsec.io/gb)
+
+* **(v.1)**  FIXED:		Fix for page loading issue/slowdown in some cases.
+
 = 8.5 - Series =
 *Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 
@@ -390,15 +395,11 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  CLEANED:	Code cleaning.
 * **(v.0)**  UPDATED:	Twitter Bootstrap library.
 
-= 8.4.4 - Current Release =
-*Released: 6th December, 2019* - [Release Notes](https://shsec.io/g5)
-
-* **(v.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
-* **(v.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
-
 = 8.4 - Series =
 *Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
 
+* **(v.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
+* **(v.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
 * **(v.3)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
 * **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
 * **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
