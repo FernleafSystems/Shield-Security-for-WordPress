@@ -22,9 +22,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function updateHandler() {
 		parent::updateHandler();
 		$this->deleteAllPluginCrons();
-		/** @var Shield\Modules\Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->setOpt( 'this_server_ip_details', [] );
 	}
 
 	private function deleteAllPluginCrons() {
@@ -52,58 +49,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return bool
 	 */
-	public function getLastCheckServerIpAtHasExpired() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aDetails = $oOpts->getServerIpDetails();
-		$nAge = Services::Request()->ts() - $aDetails[ 'check_ts' ];
-		return ( $nAge > HOUR_IN_SECONDS )
-			   && ( $this->getServerHash() != $aDetails[ 'hash' ] || $nAge > WEEK_IN_SECONDS );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getMyServerIPs() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aThisServerIps = $oOpts->getServerIpDetails()[ 'ips' ];
-		if ( empty( $aThisServerIps ) || $this->getLastCheckServerIpAtHasExpired() ) {
-
-			$aThisServerIps = Services::IP()->getServerPublicIPs();
-			if ( !empty( $aThisServerIps ) ) {
-				$oOpts->updateServerIpDetails( [
-					'ips'      => $aThisServerIps,
-					'hash'     => $this->getServerHash(),
-					'check_ts' => Services::Request()->ts(),
-				] );
-			}
-		}
-		return $aThisServerIps;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getServerHash() {
-		return md5( serialize(
-			array_values( array_intersect_key(
-				$_SERVER,
-				array_flip( [
-					'SERVER_SOFTWARE',
-					'SERVER_SIGNATURE',
-					'PATH',
-					'DOCUMENT_ROOT',
-					'SERVER_ADDR',
-				] )
-			) )
-		) );
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isDisplayPluginBadge() {
 		/** @var Shield\Modules\Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
@@ -124,7 +69,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function setVisitorIp() {
 		$oDetector = ( new Utilities\Net\VisitorIpDetection() )
-			->setPotentialHostIps( $this->getMyServerIPs() );
+			->setPotentialHostIps( Services::IP()->getServerPublicIPs() );
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
 		}
@@ -804,6 +749,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.5.1
+	 */
+	public function getMyServerIPs() {
+		return Services::IP()->getServerPublicIPs();
 	}
 
 	/**

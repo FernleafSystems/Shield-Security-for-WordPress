@@ -233,8 +233,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * @deprecated 8.5.1
 	 */
 	public function getReservedIps() {
-		$aIPs = $this->getCon()->getModule_Plugin()->getMyServerIPs();
-		$aIPs[] = Services::Request()->getServerAddress();
 		return Services::IP()->getServerPublicIPs();
 	}
 }

@@ -52,32 +52,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getServerIpDetails() {
-		$aDetails = $this->getOpt( 'this_server_ip_details', [] );
-		if ( !is_array( $aDetails ) ) {
-			$aDetails = [];
-		}
-		return array_merge(
-			[
-				'ips'      => [],
-				'hash'     => '',
-				'check_ts' => 0,
-			],
-			$aDetails
-		);
-	}
-
-	/**
-	 * @param array $aDetails
-	 * @return $this
-	 */
-	public function updateServerIpDetails( $aDetails ) {
-		return $this->setOpt( 'this_server_ip_details', array_merge( $this->getServerIpDetails(), $aDetails ) );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isOnFloatingPluginBadge() {
@@ -91,5 +65,22 @@ class Options extends Base\ShieldOptions {
 	public function setPluginTrackingPermission( $bOnOrOff = true ) {
 		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
 					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+	}
+
+	/**
+	 * @return array
+	 * @deprecated 8.5.1
+	 */
+	public function getServerIpDetails() {
+		return [];
+	}
+
+	/**
+	 * @param array $aDetails
+	 * @return $this
+	 * @deprecated 8.5.1
+	 */
+	public function updateServerIpDetails( $aDetails ) {
+		return $this;
 	}
 }
