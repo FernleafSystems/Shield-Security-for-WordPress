@@ -12,8 +12,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		switch ( $sAction ) {
 			case 'bulk_action':
@@ -45,7 +45,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			case 'set_plugin_tracking':
-				if ( !$oMod->isTrackingPermissionSet() ) {
+				if ( !$oOpts->isTrackingPermissionSet() ) {
 					$aResponse = $this->ajaxExec_SetPluginTrackingPerm();
 				}
 				break;

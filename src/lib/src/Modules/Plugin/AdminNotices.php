@@ -261,8 +261,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		switch ( $oNotice->id ) {
 
@@ -280,7 +280,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				break;
 
 			case 'allow-tracking':
-				$bNeeded = !$oMod->isTrackingPermissionSet();
+				$bNeeded = !$oOpts->isTrackingPermissionSet();
 				break;
 
 			default:

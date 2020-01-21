@@ -7,10 +7,14 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
-		$nActivatedAt = $this->getCon()
-							 ->getModule_Plugin()
-							 ->getActivatedAt();
-		if ( $nActivatedAt > 0 && Services::Request()->ts() - $nActivatedAt < 5 ) {
+		$this->maybeRedirectToAdmin();
+	}
+
+	private function maybeRedirectToAdmin() {
+		$nActive = $this->getCon()
+						->getModule_Plugin()
+						->getActivatedLength();
+		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$this->isThisModulePage() && $nActive < 4 ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
 	}

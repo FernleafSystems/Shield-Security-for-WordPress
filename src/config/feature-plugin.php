@@ -349,7 +349,8 @@
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "min":          0
     },
     {
       "key":          "unique_installation_id",
