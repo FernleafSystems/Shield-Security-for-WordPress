@@ -52,10 +52,53 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getImportExportHandshakeExpiresAt() {
+		return (int)$this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getImportExportMasterImportUrl() {
+		return $this->getOpt( 'importexport_masterurl', '' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasImportExportMasterImportUrl() {
+		$sMaster = $this->getImportExportMasterImportUrl();
+		return !empty( $sMaster );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isOnFloatingPluginBadge() {
 		return $this->isOpt( 'display_plugin_badge', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTrackingEnabled() {
+		return $this->isOpt( 'enable_tracking', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTrackingPermissionSet() {
+		return !$this->isOpt( 'tracking_permission_set_at', 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isImportExportPermitted() {
+		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**

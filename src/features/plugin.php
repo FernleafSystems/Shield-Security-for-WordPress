@@ -50,7 +50,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function isDisplayPluginBadge() {
-		/** @var Shield\Modules\Plugin\Options $oOpts */
+		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $oOpts->isOnFloatingPluginBadge()
 			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
@@ -85,7 +85,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string
 	 */
 	public function getVisitorAddressSource() {
-		return $this->getOpt( 'visitor_address_source' );
+		return $this->getOptions()->getOpt( 'visitor_address_source' );
 	}
 
 	/**
@@ -93,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setVisitorAddressSource( $sSource ) {
-		return $this->setOpt( 'visitor_address_source', $sSource );
+		return $this->getOptions()->setOpt( 'visitor_address_source', $sSource );
 	}
 
 	/**
@@ -207,14 +207,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getTrackingLastSentAt() {
-		$nTime = (int)$this->getOpt( 'tracking_last_sent_at', 0 );
-		return ( $nTime < 0 ) ? 0 : $nTime;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getLinkToTrackingDataDump() {
@@ -222,34 +214,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			[ 'shield_action' => 'dump_tracking_data' ],
 			Services::WpGeneral()->getAdminUrl()
 		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTrackingEnabled() {
-		return $this->isOpt( 'enable_tracking', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTrackingPermissionSet() {
-		return !$this->isOpt( 'tracking_permission_set_at', 0 );
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function setTrackingLastSentAt() {
-		return $this->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function readyToSendTrackingData() {
-		return ( Services::Request()->ts() - $this->getTrackingLastSentAt() > WEEK_IN_SECONDS );
 	}
 
 	/**
@@ -265,11 +229,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$this->storeRealInstallDate();
 
-		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
-			$this->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		if ( $oOpts->isTrackingEnabled() && !$oOpts->isTrackingPermissionSet() ) {
+			$oOpts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -404,17 +370,24 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return int
 	 */
-	public function getActivatedAt() {
-		return (int)$this->getOpt( 'activated_at', 0 );
+	public function getActivateLength() {
+		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
 
 	/**
+	 * hidden 20200121
 	 * @return bool
 	 */
 	public function getIfShowIntroVideo() {
-		$nNow = Services::Request()->ts();
-		return ( $nNow - $this->getActivatedAt() < 8 )
-			   && ( $nNow - $this->getInstallDate() < 15 );
+		return false && ( $this->getActivateLength() < 8 )
+			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
+	}
+
+	/**
+	 * @return Plugin\Lib\TourManager
+	 */
+	public function getTourManager() {
+		return ( new Plugin\Lib\TourManager() )->setMod( $this );
 	}
 
 	/**
@@ -449,32 +422,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getImportExportMasterImportUrl() {
-		return $this->getOpt( 'importexport_masterurl', '' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasImportExportMasterImportUrl() {
-		$sMaster = $this->getImportExportMasterImportUrl();
-		return !empty( $sMaster );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function hasImportExportWhitelistSites() {
 		return ( count( $this->getImportExportWhitelist() ) > 0 );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getImportExportHandshakeExpiresAt() {
-		return $this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
 	}
 
 	/**
@@ -503,13 +454,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
 		}
 		return $sId;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isImportExportPermitted() {
-		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -589,7 +533,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	protected function cleanImportExportMasterImportUrl() {
-		$sUrl = Services::Data()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $oOpts->getImportExportMasterImportUrl() );
 		if ( $sUrl === false ) {
 			$sUrl = '';
 		}
@@ -600,7 +546,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function startImportExportHandshake() {
-		$this->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
+		$this->getOptions()->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
 		return $this->saveModOptions();
 	}
 
@@ -664,6 +610,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
 			wp_enqueue_style( 'wp-jquery-ui-dialog' );
 		}
+
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_tourmanager',
+			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
+		);
 	}
 
 	/**
