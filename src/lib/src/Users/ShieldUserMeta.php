@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property int    $last_login_at
  * @property bool   $wc_social_login_valid
  * @property bool   $hard_suspended_at
+ * @property array  $tours
  */
 class ShieldUserMeta extends \FernleafSystems\Wordpress\Services\Utilities\PluginUserMeta {
 

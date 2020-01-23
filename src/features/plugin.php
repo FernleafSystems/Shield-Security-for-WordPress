@@ -370,7 +370,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return int
 	 */
-	public function getActivatedLength() {
+	public function getActivateLength() {
 		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
 
@@ -379,8 +379,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return bool
 	 */
 	public function getIfShowIntroVideo() {
-		return false && ( $this->getActivatedLength() < 8 )
+		return false && ( $this->getActivateLength() < 8 )
 			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
+	}
+
+	/**
+	 * @return Plugin\Lib\TourManager
+	 */
+	public function getTourManager() {
+		return ( new Plugin\Lib\TourManager() )->setMod( $this );
 	}
 
 	/**
@@ -603,6 +610,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
 			wp_enqueue_style( 'wp-jquery-ui-dialog' );
 		}
+
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_tourmanager',
+			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
+		);
 	}
 
 	/**

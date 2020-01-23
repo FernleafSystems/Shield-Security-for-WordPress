@@ -52,6 +52,16 @@ let iCWP_WPSF_OptsPageRender = new function () {
 	};
 }();
 
+if ( typeof icwp_wpsf_vars_tourmanager !== 'undefined' ) {
+	var iCWP_WPSF_MarkTourFinished = new function () {
+		this.finishedTour = function ( sTourKey ) {
+			var aAjaxReqData = icwp_wpsf_vars_tourmanager.ajax;
+			aAjaxReqData[ 'tour_key' ] = sTourKey;
+			jQuery.post( ajaxurl, aAjaxReqData ).always();
+		};
+	}();
+}
+
 var iCWP_WPSF_Toaster = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {

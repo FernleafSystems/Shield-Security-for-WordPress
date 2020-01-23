@@ -17,14 +17,13 @@
 					<ul class="navbar-nav">
 						{% for navkey,navdata in hrefs.top_nav %}
 							{% if navdata.subnavs is empty %}
-								<li class="nav-item">
+								<li class="nav-item" id="NavItem-{{ navkey }}">
 									<a class="nav-link{% if navdata.active %} active{% endif %}"
-									   id="NavItem-{{ navkey }}"
 									   href="{{ navdata.href }}">{{ navdata.name }}
 										{% if navdata.active %} <span class="sr-only">(current){% endif %}</a>
 								</li>
 							{% else %}
-								<li class="nav-item dropdown">
+								<li class="nav-item dropdown" id="NavItem-{{ navkey }}">
 									<a class="nav-link dropdown-toggle{% if navdata.active %} active{% endif %}"
 									   data-toggle="dropdown" href="#" role="button"
 									   aria-haspopup="true" aria-expanded="false">{{ navdata.name }}</a>
@@ -41,6 +40,7 @@
 							{% endif %}
 						{% endfor %}
 
+						<li class="nav-item dropdown" id="NavItem-OptionSearch">
 						<select class="selectpicker" data-live-search="true"
 								title="{{ strings.jump_to_option }}"
 								data-size="10" multiple
@@ -57,7 +57,7 @@
 								</optgroup>
 							{% endfor %}
 						</select>
-						
+						</li>
 						<div class="nav-item" id="PluginHeadwayChangelog"></div>
 					</ul>
 				</div>
