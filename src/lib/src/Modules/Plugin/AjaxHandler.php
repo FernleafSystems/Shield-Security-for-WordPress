@@ -302,7 +302,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_MarkTourFinished() {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
-		$oMod->getTourManager()->setTourShown( Services::Request()->post( 'tour_key' ) );
+		$oMod->getTourManager()->setCompleted( Services::Request()->post( 'tour_key' ) );
 		return [
 			'success' => true,
 			'message' => 'Tour Finished'

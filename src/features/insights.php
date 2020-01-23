@@ -63,10 +63,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
 		$oModLicense = $oCon->getModule( 'license' );
+
 		$oModPlugin = $oCon->getModule_Plugin();
 		$oTourManager = $oModPlugin->getTourManager();
-		if ( $oModPlugin->getActivateLength() > 60 ) {
-			$oTourManager->setTourShown( 'insights_overview' );
+		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $oModPlugin->getActivateLength() > 60 ) {
+			$oTourManager->setCompleted( 'insights_overview' );
 		}
 
 		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
@@ -364,7 +365,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
 					'tours'            => [
-						'insights_overview' => !$oTourManager->isTourAlreadyShown( 'insights_overview' )
+						'insights_overview' => !$oTourManager->isCompleted( 'insights_overview' )
 					]
 				],
 				'hrefs'   => [
@@ -417,7 +418,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aDeps = $aStdDepsJs;
 
 					$aJsAssets = [ 'chartist.min', 'chartist-plugin-legend', 'charts' ];
-					if ( !$oTourManager->isTourAlreadyShown( 'insights_overview' ) ) {
+					if ( !$oTourManager->isCompleted( 'insights_overview' ) ) {
 						array_unshift( $aJsAssets, 'introjs.min.js' );
 					}
 					foreach ( $aJsAssets as $sAsset ) {
@@ -435,7 +436,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 					$aDeps = [];
 					$aCssAssets = [ 'chartist.min', 'chartist-plugin-legend' ];
-					if ( !$oTourManager->isTourAlreadyShown( 'insights_overview' ) ) {
+					if ( !$oTourManager->isCompleted( 'insights_overview' ) ) {
 						array_unshift( $aCssAssets, 'introjs.min.css' );
 					}
 					foreach ( $aCssAssets as $sAsset ) {

@@ -17,9 +17,10 @@ class TourManager {
 	 * @param string $sTourKey
 	 * @return bool
 	 */
-	public function isTourAlreadyShown( $sTourKey ) {
+	public function isCompleted( $sTourKey ) {
 		try {
 			$aTrs = $this->getTours();
+			error_log( var_export( $aTrs,true ) );
 			$bShown = isset( $aTrs[ $sTourKey ] ) && $aTrs[ $sTourKey ] > 0;
 		}
 		catch ( \Exception $oE ) {
@@ -32,7 +33,7 @@ class TourManager {
 	 * @param string $sTourKey
 	 * @return $this
 	 */
-	public function setTourShown( $sTourKey ) {
+	public function setCompleted( $sTourKey ) {
 		$sTourKey = sanitize_key( $sTourKey );
 		if ( !empty( $sTourKey ) ) {
 			try {
