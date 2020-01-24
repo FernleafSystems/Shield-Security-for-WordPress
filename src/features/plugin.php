@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
-		$this->setVisitorIp();
+		$this->setVisitorIpSource();
 	}
 
 	protected function setupCustomHooks() {
@@ -36,6 +36,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				}
 			}
 		}
+	}
+
+	/**
+	 * Hooked to the plugin's main plugin_shutdown action
+	 */
+	public function onPluginShutdown() {
+		/* TODO: uncomment on any version 8.6+
+		$sPreferredSource = Services::IP()->getIpDetector()->getLastSuccessfulSource();
+		if ( !empty( $sPreferredSource ) ) {
+		$this->setOpt( 'last_ip_detect_source', $sPreferredSource );
+		} */
+		parent::onPluginShutdown();
 	}
 
 	/**
@@ -67,18 +79,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
 	 */
-	protected function setVisitorIp() {
-		$oDetector = ( new Utilities\Net\VisitorIpDetection() )
-			->setPotentialHostIps( Services::IP()->getServerPublicIPs() );
+	private function setVisitorIpSource() {
+		$oDetector = new Utilities\Net\VisitorIpDetection();
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
 			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
 		}
-
-		$sIp = $oDetector->detect();
-		if ( !empty( $sIp ) ) {
-			Services::IP()->setRequestIpAddress( $sIp );
-			$this->setOpt( 'last_ip_detect_source', $oDetector->getLastSuccessfulSource() );
-		}
+		Services::IP()->setIpDetector( $oDetector );
 	}
 
 	/**
