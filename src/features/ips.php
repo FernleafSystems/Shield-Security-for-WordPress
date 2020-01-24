@@ -189,10 +189,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function addFilterIpsToWhiteList() {
 		$aIps = [];
-		$oSp = $this->loadServiceProviders();
+		$oSp = Services::ServiceProviders();
 
 		if ( @class_exists( '\MwpWorkerResponder' ) ) {
-			foreach ( array_flip( $oSp->getIps_ManageWp() ) as $sIp => $n ) {
+			foreach ( array_flip( $oSp->getIps_ManageWp( true ) ) as $sIp => $n ) {
 				$aIps[ $sIp ] = 'ManageWP';
 			}
 		}

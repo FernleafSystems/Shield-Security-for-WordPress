@@ -288,21 +288,21 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function isVerifiedBot() {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$oSp = $this->loadServiceProviders();
+			$oSP = Services::ServiceProviders();
 
 			$sIp = Services::IP()->getRequestIp();
 			$sAgent = Services::Request()->getUserAgent();
 			if ( empty( $sAgent ) ) {
 				$sAgent = 'Unknown';
 			}
-			self::$bIsVerifiedBot = $oSp->isIp_GoogleBot( $sIp, $sAgent )
-									|| $oSp->isIp_BingBot( $sIp, $sAgent )
-									|| $oSp->isIp_AppleBot( $sIp, $sAgent )
-									|| $oSp->isIp_YahooBot( $sIp, $sAgent )
-									|| $oSp->isIp_DuckDuckGoBot( $sIp, $sAgent )
-									|| $oSp->isIp_YandexBot( $sIp, $sAgent )
-									|| ( class_exists( 'ICWP_Plugin' ) && $oSp->isIp_iControlWP( $sIp ) )
-									|| $oSp->isIp_BaiduBot( $sIp, $sAgent );
+			self::$bIsVerifiedBot = $oSP->isIp_GoogleBot( $sIp, $sAgent )
+									|| $oSP->isIp_BingBot( $sIp, $sAgent )
+									|| $oSP->isIp_AppleBot( $sIp, $sAgent )
+									|| $oSP->isIp_YahooBot( $sIp, $sAgent )
+									|| $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
+									|| $oSP->isIp_YandexBot( $sIp, $sAgent )
+									|| ( class_exists( 'ICWP_Plugin' ) && $oSP->isIp_iControlWP( $sIp ) )
+									|| $oSP->isIp_BaiduBot( $sIp, $sAgent );
 		}
 		return self::$bIsVerifiedBot;
 	}

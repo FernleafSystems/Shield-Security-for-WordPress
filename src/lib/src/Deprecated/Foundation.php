@@ -33,6 +33,7 @@ class Foundation {
 
 	/**
 	 * @return \ICWP_WPSF_ServiceProviders
+	 * @deprecated 8.5.2
 	 */
 	public function loadServiceProviders() {
 		$sKey = 'icwp-serviceproviders';
