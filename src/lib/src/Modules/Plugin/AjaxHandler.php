@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
@@ -287,8 +288,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_TurnOffSiteGroundOptions() {
-		$bSuccess = ( new Shield\Modules\Plugin\Components\SiteGroundPluginCompatibility() )
-			->switchOffOptions();
+		$bSuccess = ( new Plugin\Components\SiteGroundPluginCompatibility() )->switchOffOptions();
 		return [
 			'success' => $bSuccess,
 			'message' => $bSuccess ? __( 'Switching-off conflicting options appears to have been successful.', 'wp-simple-firewall' )

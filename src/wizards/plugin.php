@@ -267,7 +267,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 			}
 		}
-		else if ( $sCurrentWiz == 'importexport' ) {
+		elseif ( $sCurrentWiz == 'importexport' ) {
 			switch ( $sStep ) {
 				case 'import':
 					$aAdditional = [
@@ -288,7 +288,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 					break;
 			}
 		}
-		else if ( $sCurrentWiz == 'gdpr' ) {
+		elseif ( $sCurrentWiz == 'gdpr' ) {
 			switch ( $sStep ) {
 
 				case 'results':
@@ -336,7 +336,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( empty( $sIp ) ) {
 			$sMessage = __( 'IP address was empty.', 'wp-simple-firewall' );
 		}
-		else if ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
+		elseif ( !$oIps->isValidIp_PublicRemote( $sIp ) ) {
 			$sMessage = __( "IP address wasn't a valid public IP address.", 'wp-simple-firewall' );
 		}
 //		else if ( $oIps->getIpVersion( $sIp ) != 4 ) {
@@ -438,7 +438,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( empty( $sKey ) ) {
 			$sMessage = 'Security access key was empty.';
 		}
-		else if ( $sKey != $sConfirm ) {
+		elseif ( $sKey != $sConfirm ) {
 			$sMessage = 'Keys do not match.';
 		}
 		else {
@@ -584,7 +584,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
 			}
 		}
-		else if ( $sForm == 'optin_usage' ) {
+		elseif ( $sForm == 'optin_usage' ) {
 			$sInput = $oReq->post( 'AnonymousOption' );
 
 			if ( !empty( $sInput ) ) {

@@ -370,14 +370,18 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.5.1 - Current Release =
-*Released: 11th December, 2020* - [Release Notes](https://shsec.io/gb)
+= 8.5.2 - Current Release =
+*Released: 28th January, 2020* - [Release Notes](https://shsec.io/gb)
 
-* **(v.1)**  FIXED:		Fix for page loading issue/slowdown in some cases.
+* **(v.2)**  ADDED:		Introductory tour of plugin, on activation.
+* **(v.2)**  IMPROVED:	Enhanced IP detection of service providers for exclusion from audit trail.
+* **(v.2)**  IMPROVED:	Plugin/Theme Hack Guard Snapshot building is optimised.
+* **(v.2)**  IMPROVED:	Visitor IP detection processing.
 
 = 8.5 - Series =
 *Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 
+* **(v.1)**  FIXED:		Fix for page loading issue/slowdown in some cases.
 * **(v.0)**  NEW:		Initial support for checksum scanning of premium plugins and themes.
 * **(v.0)**  NEW:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
 * **(v.0)**  NEW:		Ability to auto-repair theme files.

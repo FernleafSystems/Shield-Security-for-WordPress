@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 * @return bool
 	 */
 	protected function isServiceIp_Search() {
-		$oSP = $this->loadServiceProviders();
+		$oSP = Services::ServiceProviders();
 
 		$sIp = Services::IP()->getRequestIp();
 		$sAgent = (string)Services::Request()->getUserAgent();
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 * @return bool
 	 */
 	protected function isServiceIp_Uptime() {
-		$oSP = $this->loadServiceProviders();
+		$oSP = Services::ServiceProviders();
 
 		$sIp = Services::IP()->getRequestIp();
 		$sAgent = (string)Services::Request()->getUserAgent();
