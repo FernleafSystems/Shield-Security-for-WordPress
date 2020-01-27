@@ -66,7 +66,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 		$oModPlugin = $oCon->getModule_Plugin();
 		$oTourManager = $oModPlugin->getTourManager();
-		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $oModPlugin->getActivateLength() > 60 ) {
+		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $oModPlugin->getActivateLength() > 600 ) {
 			$oTourManager->setCompleted( 'insights_overview' );
 		}
 
@@ -365,7 +365,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
 					'tours'            => [
-						'insights_overview' => !$oTourManager->isCompleted( 'insights_overview' )
+						'insights_overview' => $oTourManager->canShow( 'insights_overview' )
 					]
 				],
 				'hrefs'   => [
@@ -418,7 +418,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					$aDeps = $aStdDepsJs;
 
 					$aJsAssets = [ 'chartist.min', 'chartist-plugin-legend', 'charts' ];
-					if ( !$oTourManager->isCompleted( 'insights_overview' ) ) {
+					if ( $oTourManager->canShow( 'insights_overview' ) ) {
 						array_unshift( $aJsAssets, 'introjs.min.js' );
 					}
 					foreach ( $aJsAssets as $sAsset ) {
@@ -436,7 +436,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 					$aDeps = [];
 					$aCssAssets = [ 'chartist.min', 'chartist-plugin-legend' ];
-					if ( !$oTourManager->isCompleted( 'insights_overview' ) ) {
+					if ( $oTourManager->canShow( 'insights_overview' ) ) {
 						array_unshift( $aCssAssets, 'introjs.min.css' );
 					}
 					foreach ( $aCssAssets as $sAsset ) {

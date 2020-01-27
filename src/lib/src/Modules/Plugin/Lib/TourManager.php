@@ -17,6 +17,14 @@ class TourManager {
 	 * @param string $sTourKey
 	 * @return bool
 	 */
+	public function canShow( $sTourKey ) {
+		return !Services::WpGeneral()->isMobile() && !$this->isCompleted( $sTourKey );
+	}
+
+	/**
+	 * @param string $sTourKey
+	 * @return bool
+	 */
 	public function isCompleted( $sTourKey ) {
 		try {
 			$aTrs = $this->getTours();
