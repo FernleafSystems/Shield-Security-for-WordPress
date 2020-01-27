@@ -196,6 +196,20 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getBaseDisplayData(),
 			[
+				'head'    => [
+					'meta' => [
+						[
+							'type'      => 'http-equiv',
+							'type_type' => 'Cache-Control',
+							'content'   => 'no-store, no-cache',
+						],
+						[
+							'type'      => 'http-equiv',
+							'type_type' => 'Expires',
+							'content'   => '0',
+						],
+					]
+				],
 				'ajax'    => [
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
 				],
