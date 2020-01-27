@@ -247,11 +247,13 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 */
 	private function doPreFirewallBlock() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
+		$oMod = $this->getMod();
+		/** @var Modules\Firewall\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
-			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
+		if ( $oOpts->isSendBlockEmail() ) {
+			$sRecipient = $oMod->getPluginDefaultRecipientAddress();
 			$this->getCon()->fireEvent(
 				$this->sendBlockEmail( $sRecipient ) ? 'fw_email_success' : 'fw_email_fail',
 				[ 'audit' => [ 'recipient' => $sRecipient ] ]

@@ -25,9 +25,6 @@ class Create {
 			$sToken,
 			$oMod->getTokenExpireInterval()
 		);
-		error_log( $nTs );
-		error_log( $nPostId );
-		error_log( $sToken );
 
 		return $sToken;
 	}
