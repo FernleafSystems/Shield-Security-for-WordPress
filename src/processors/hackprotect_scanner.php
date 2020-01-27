@@ -84,6 +84,20 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 			->run();
 	}
 
+	public function onWpLoaded() {
+		// init snapshots and build as necessary
+		( new HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll() )
+			->setMod( $this->getMod() )
+			->hookBuild();
+	}
+
+	public function onModuleShutdown() {
+		parent::onModuleShutdown();
+		( new HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll() )
+			->setMod( $this->getMod() )
+			->schedule();
+	}
+
 	/**
 	 * Cron callback
 	 */

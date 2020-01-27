@@ -6,29 +6,31 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Find
 use FernleafSystems\Wordpress\Services\Core\VOs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BuildAll extends BaseBulk {
+class ScheduleBuildAll extends BaseBulk {
+
+	public function hookBuild() {
+		add_action(
+			$this->getCronHook(),
+			function () {
+				foreach ( $this->getAssetsThatNeedBuilt() as $oAsset ) {
+					try {
+						( new Build() )
+							->setMod( $this->getMod() )
+							->setAsset( $oAsset )
+							->run();
+					}
+					catch ( \Exception $oE ) {
+					}
+				}
+			}
+		);
+	}
 
 	public function schedule() {
-	}
-
-	public function build() {
-		foreach ( $this->getAssetsThatNeedBuilt() as $oAsset ) {
-			try {
-				( new Build() )
-					->setMod( $this->getMod() )
-					->setAsset( $oAsset )
-					->run();
-			}
-			catch ( \Exception $oE ) {
-			}
+		$sHook = $this->getCronHook();
+		if ( wp_next_scheduled( $sHook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
+			wp_schedule_single_event( Services::Request()->ts() + 30, $sHook );
 		}
-	}
-
-	/**
-	 * @return int
-	 */
-	private function hasAssetsThatNeedBuilt() {
-		return count( $this->getAssetsThatNeedBuilt() ) > 0;
 	}
 
 	/**
@@ -36,7 +38,6 @@ class BuildAll extends BaseBulk {
 	 * @return VOs\WpPluginVo[]|VOs\WpThemeVo[]
 	 */
 	private function getAssetsThatNeedBuilt() {
-
 		return array_filter(
 			( new FindAssetsToSnap() )
 				->setMod( $this->getMod() )
@@ -56,5 +57,12 @@ class BuildAll extends BaseBulk {
 				return ( empty( $aMeta ) || $oAsset->version !== $aMeta[ 'version' ] );
 			}
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getCronHook() {
+		return $this->getCon()->prefix( 'ptg_build_snapshots' );
 	}
 }

@@ -20,7 +20,6 @@ class TourManager {
 	public function isCompleted( $sTourKey ) {
 		try {
 			$aTrs = $this->getTours();
-			error_log( var_export( $aTrs,true ) );
 			$bShown = isset( $aTrs[ $sTourKey ] ) && $aTrs[ $sTourKey ] > 0;
 		}
 		catch ( \Exception $oE ) {
