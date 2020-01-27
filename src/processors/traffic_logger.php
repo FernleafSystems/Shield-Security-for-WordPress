@@ -83,12 +83,12 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 */
 	protected function isServiceIp_Uptime() {
 		$oSP = Services::ServiceProviders();
-
 		$sIp = Services::IP()->getRequestIp();
 		$sAgent = (string)Services::Request()->getUserAgent();
 		return $oSP->isIp_Statuscake( $sIp, $sAgent )
 			   || $oSP->isIp_UptimeRobot( $sIp, $sAgent )
-			   || $oSP->isIp_Pingdom( $sIp, $sAgent );
+			   || $oSP->isIp_Pingdom( $sIp, $sAgent )
+			   || $oSP->isIpInCollection( $sIp, $oSP->getIps_NodePing() );
 	}
 
 	protected function logTraffic() {
