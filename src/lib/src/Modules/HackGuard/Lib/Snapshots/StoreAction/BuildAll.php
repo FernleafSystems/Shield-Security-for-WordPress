@@ -4,12 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
 use FernleafSystems\Wordpress\Services\Core\VOs;
-use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class BuildAll
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction
+ * @deprecated 8.5.2
+ */
 class BuildAll extends BaseBulk {
-
-	public function schedule() {
-	}
 
 	public function build() {
 		foreach ( $this->getAssetsThatNeedBuilt() as $oAsset ) {
@@ -25,18 +26,10 @@ class BuildAll extends BaseBulk {
 	}
 
 	/**
-	 * @return int
-	 */
-	private function hasAssetsThatNeedBuilt() {
-		return count( $this->getAssetsThatNeedBuilt() ) > 0;
-	}
-
-	/**
 	 * Only those that don't have a meta file or the versions are different
 	 * @return VOs\WpPluginVo[]|VOs\WpThemeVo[]
 	 */
 	private function getAssetsThatNeedBuilt() {
-
 		return array_filter(
 			( new FindAssetsToSnap() )
 				->setMod( $this->getMod() )

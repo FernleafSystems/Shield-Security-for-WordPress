@@ -8,22 +8,21 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScheduleBuildAll extends BaseBulk {
 
-	public function hookBuild() {
-		add_action(
-			$this->getCronHook(),
-			function () {
-				foreach ( $this->getAssetsThatNeedBuilt() as $oAsset ) {
-					try {
-						( new Build() )
-							->setMod( $this->getMod() )
-							->setAsset( $oAsset )
-							->run();
-					}
-					catch ( \Exception $oE ) {
-					}
-				}
+	public function build() {
+		foreach ( $this->getAssetsThatNeedBuilt() as $oAsset ) {
+			try {
+				( new Build() )
+					->setMod( $this->getMod() )
+					->setAsset( $oAsset )
+					->run();
 			}
-		);
+			catch ( \Exception $oE ) {
+			}
+		}
+	}
+
+	public function hookBuild() {
+		add_action( $this->getCronHook(), [ $this, 'build' ] );
 	}
 
 	public function schedule() {
