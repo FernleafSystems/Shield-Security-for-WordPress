@@ -77,14 +77,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
+	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
-		$oDetector = new Utilities\Net\VisitorIpDetection();
 		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
-			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
+			Services::IP()->setIpDetector(
+				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $this->getVisitorAddressSource() )
+			);
 		}
-		Services::IP()->setIpDetector( $oDetector );
 	}
 
 	/**
