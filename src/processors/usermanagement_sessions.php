@@ -91,12 +91,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 			throw new \Exception( 'session_idle' );
 		}
 
-		if ( $oOpts->isLockToIp() ) {
-			$aPossibleIps = Services::IP()->getServerPublicIPs();
-			$aPossibleIps[] = $oSess->ip;
-			if ( !in_array( Services::IP()->getRequestIp(), $aPossibleIps ) ) {
-				throw new \Exception( 'session_iplock' );
-			}
+		$oIP = Services::IP();
+		if ( $oOpts->isLockToIp() && !$oIP->isLoopback() && $oIP->getRequestIp() != $oSess->ip ) {
+			throw new \Exception( 'session_iplock' );
 		}
 		// TODO: 'session_browserlock';
 	}

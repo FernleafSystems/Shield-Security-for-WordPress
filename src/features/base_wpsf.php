@@ -302,21 +302,27 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function isVerifiedBot() {
 		if ( !isset( self::$bIsVerifiedBot ) ) {
-			$oSP = Services::ServiceProviders();
+			$oIP = Services::IP();
 
-			$sIp = Services::IP()->getRequestIp();
-			$sAgent = Services::Request()->getUserAgent();
-			if ( empty( $sAgent ) ) {
-				$sAgent = 'Unknown';
+			if ( $oIP->isLoopback() ) {
+				self::$bIsVerifiedBot = false;
 			}
-			self::$bIsVerifiedBot = $oSP->isIp_GoogleBot( $sIp, $sAgent )
-									|| $oSP->isIp_BingBot( $sIp, $sAgent )
-									|| $oSP->isIp_AppleBot( $sIp, $sAgent )
-									|| $oSP->isIp_YahooBot( $sIp, $sAgent )
-									|| $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
-									|| $oSP->isIp_YandexBot( $sIp, $sAgent )
-									|| ( class_exists( 'ICWP_Plugin' ) && $oSP->isIp_iControlWP( $sIp ) )
-									|| $oSP->isIp_BaiduBot( $sIp, $sAgent );
+			else {
+				$oSP = Services::ServiceProviders();
+				$sIp = $oIP->getRequestIp();
+				$sAgent = Services::Request()->getUserAgent();
+				if ( empty( $sAgent ) ) {
+					$sAgent = 'Unknown';
+				}
+				self::$bIsVerifiedBot = $oSP->isIp_GoogleBot( $sIp, $sAgent )
+										|| $oSP->isIp_BingBot( $sIp, $sAgent )
+										|| $oSP->isIp_AppleBot( $sIp, $sAgent )
+										|| $oSP->isIp_YahooBot( $sIp, $sAgent )
+										|| $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
+										|| $oSP->isIp_YandexBot( $sIp, $sAgent )
+										|| ( class_exists( 'ICWP_Plugin' ) && $oSP->isIp_iControlWP( $sIp ) )
+										|| $oSP->isIp_BaiduBot( $sIp, $sAgent );
+			}
 		}
 		return self::$bIsVerifiedBot;
 	}
