@@ -29,8 +29,11 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
-			$this->doPreFirewallBlock();
-			$this->doFirewallBlock();
+			// Hooked here to ensure "plugins_loaded" has completely finished as some mailers aren't init'd.
+			add_action( 'setup_theme', function () {
+				$this->doPreFirewallBlock();
+				$this->doFirewallBlock();
+			}, 0 );
 		}
 	}
 
@@ -247,11 +250,13 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 */
 	private function doPreFirewallBlock() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
+		$oMod = $this->getMod();
+		/** @var Modules\Firewall\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isOpt( 'block_send_email', 'Y' ) ) {
-			$sRecipient = $oFO->getPluginDefaultRecipientAddress();
+		if ( $oOpts->isSendBlockEmail() ) {
+			$sRecipient = $oMod->getPluginDefaultRecipientAddress();
 			$this->getCon()->fireEvent(
 				$this->sendBlockEmail( $sRecipient ) ? 'fw_email_success' : 'fw_email_fail',
 				[ 'audit' => [ 'recipient' => $sRecipient ] ]
@@ -277,7 +282,9 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 				Services::Response()->redirectToHome();
 				break;
 			case 'redirect_404':
-				Services::Response()->redirect( '404' );
+				header( 'Cache-Control: no-store, no-cache' );
+				Services::WpGeneral()->turnOffCache();
+				Services::Response()->sendApache404();
 				break;
 			default:
 				break;
@@ -392,7 +399,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	private function sendBlockEmail( $sRecipient ) {
-
+		$bSuccess = false;
 		if ( !empty( $this->aAuditBlockMessage ) ) {
 			$sIp = Services::IP()->getRequestIp();
 			$aMessage = array_merge(
@@ -414,10 +421,10 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 				]
 			);
 
-			return $this->getEmailProcessor()
-						->sendEmailWithWrap( $sRecipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
+			$bSuccess = $this->getEmailProcessor()
+							 ->sendEmailWithWrap( $sRecipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
 		}
-		return true;
+		return $bSuccess;
 	}
 
 	/**

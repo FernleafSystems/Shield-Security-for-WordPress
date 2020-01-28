@@ -375,8 +375,12 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(v.2)**  ADDED:		Introductory tour of plugin, on activation.
 * **(v.2)**  IMPROVED:	Enhanced IP detection of service providers for exclusion from audit trail.
-* **(v.2)**  IMPROVED:	Plugin/Theme Hack Guard Snapshot building is optimised.
+* **(v.2)**  IMPROVED:	Plugin/Theme Hack Guard Snapshot building is optimised to reduce disruption is some cases.
 * **(v.2)**  IMPROVED:	Visitor IP detection processing.
+* **(v.2)**  IMPROVED:	Improved cache-prevention of Login Two-Factor Authentication portal.
+* **(v.2)**  FIXED:		Firewall email alert was no sent using dedicated emailer plugins as it was sending too soon.
+* **(v.2)**  FIXED:		Firewall 404 setting was redirecting instead of responding with 404.
+* **(v.2)**  FIXED:		Added support for NodePing filtering in the traffic logger.
 
 = 8.5 - Series =
 *Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
