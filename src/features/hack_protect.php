@@ -248,10 +248,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return mixed
+	 * @return string
 	 */
 	public function getWpvulnPluginsHighlightOption() {
-		return $this->isWpvulnEnabled() ? $this->getOpt( 'wpvuln_scan_display' ) : 'disabled';
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnEnabled() ? $oOpts->getOpt( 'wpvuln_scan_display' ) : 'disabled';
 	}
 
 	/**
@@ -827,7 +829,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				];
 			}
 
-			$bWpv = $this->isWpvulnEnabled();
+			$bWpv = $oOpts->isWpvulnEnabled();
 			$aThis[ 'key_opts' ][ 'wpv' ] = [
 				'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
 				'enabled' => $bWpv,

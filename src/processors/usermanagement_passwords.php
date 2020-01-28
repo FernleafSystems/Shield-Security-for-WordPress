@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -35,7 +36,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	private function captureLogin( $oUser ) {
 		$sPassword = $this->getLoginPassword();
@@ -173,12 +174,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @throws \Exception
 	 */
 	protected function applyPasswordChecks( $sPassword ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$this->testPasswordMeetsMinimumLength( $sPassword );
 		$this->testPasswordMeetsMinimumStrength( $sPassword );
-		if ( $oMod->isPassPreventPwned() ) {
+		if ( $oOpts->isPassPreventPwned() ) {
 			$this->sendRequestToPwnedRange( $sPassword );
 		}
 	}
@@ -189,9 +190,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @throws \Exception
 	 */
 	protected function testPasswordMeetsMinimumStrength( $sPassword ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		$nMin = $oFO->getPassMinStrength();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$nMin = $oOpts->getPassMinStrength();
 
 		/**
 		 * TODO: Upon upgrading minimum PHP 5.6, remove the older, and install newer as-is
@@ -207,7 +210,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 
 		if ( $nMin > 0 && $nScore < $nMin ) {
 			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
-				$oFO->getPassStrengthName( $nScore ), $oFO->getPassStrengthName( $nMin ) ) );
+				$oMod->getPassStrengthName( $nScore ), $oMod->getPassStrengthName( $nMin ) ) );
 		}
 		return true;
 	}
@@ -218,9 +221,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	 * @throws \Exception
 	 */
 	protected function testPasswordMeetsMinimumLength( $sPassword ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		$nMin = $oFO->getPassMinLength();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$nMin = $oOpts->getPassMinLength();
 		$nLength = strlen( $sPassword );
 		if ( $nMin > 0 && $nLength < $nMin ) {
 			throw new \Exception( sprintf( __( 'Password length (%s) too short (min: %s characters)', 'wp-simple-firewall' ), $nLength, $nMin ) );

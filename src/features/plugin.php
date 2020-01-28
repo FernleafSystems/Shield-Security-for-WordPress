@@ -80,18 +80,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
-		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( !$oOpts->isIpSourceAutoDetect() ) {
 			Services::IP()->setIpDetector(
-				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $this->getVisitorAddressSource() )
+				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $oOpts->getIpSource() )
 			);
 		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getVisitorAddressSource() {
-		return $this->getOptions()->getOpt( 'visitor_address_source' );
 	}
 
 	/**
@@ -100,13 +95,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function setVisitorAddressSource( $sSource ) {
 		return $this->getOptions()->setOpt( 'visitor_address_source', $sSource );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function isVisitorAddressSourceAutoDetect() {
-		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
 	}
 
 	/**
@@ -700,6 +688,22 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	protected function getNamespaceBase() {
 		return 'Plugin';
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5.2
+	 */
+	public function getVisitorAddressSource() {
+		return $this->getOptions()->getOpt( 'visitor_address_source' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5.2
+	 */
+	public function isVisitorAddressSourceAutoDetect() {
+		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
 	}
 
 	/**

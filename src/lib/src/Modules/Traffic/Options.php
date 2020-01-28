@@ -14,6 +14,14 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getCustomExclusions() {
+		$aEx = $this->getOpt( 'custom_exclusions' );
+		return is_array( $aEx ) ? $aEx : [];
+	}
+
+	/**
 	 * @return string[]
 	 */
 	public function getDbColumns_TrafficLog() {

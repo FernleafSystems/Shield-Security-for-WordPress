@@ -35,18 +35,21 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	}
 
 	protected function doExtraSubmitProcessing() {
-		$this->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $this->getIdleTimeoutInterval() > $this->getMaxSessionTime() ) {
-			$this->setOpt( 'session_idle_timeout_interval', $this->getOpt( 'session_timeout_interval' )*24 );
+		$oOpts->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
+
+		if ( $oOpts->getIdleTimeoutInterval() > $oOpts->getMaxSessionTime() ) {
+			$oOpts->setOpt( 'session_idle_timeout_interval', $oOpts->getOpt( 'session_timeout_interval' )*24 );
 		}
 
-		$this->setOpt( 'auto_idle_roles',
+		$oOpts->setOpt( 'auto_idle_roles',
 			array_unique( array_filter( array_map(
 				function ( $sRole ) {
 					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
 				},
-				$this->getSuspendAutoIdleUserRoles()
+				$oOpts->getSuspendAutoIdleUserRoles()
 			) ) )
 		);
 	}
@@ -81,6 +84,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return int seconds
+	 * @deprecated 8.5.2
 	 */
 	public function getPassExpireTimeout() {
 		return $this->getPassExpireDays()*DAY_IN_SECONDS;
@@ -88,6 +92,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return int
+	 * @deprecated 8.5.2
 	 */
 	public function getPassMinLength() {
 		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_length' ) : 0;
@@ -95,6 +100,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return int
+	 * @deprecated 8.5.2
 	 */
 	public function getPassMinStrength() {
 		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
@@ -117,6 +123,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isPasswordPoliciesEnabled() {
 		return $this->isOpt( 'enable_password_policies', 'Y' )
@@ -125,6 +132,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isPassForceUpdateExisting() {
 		return $this->isOpt( 'pass_force_existing', 'Y' );
@@ -132,6 +140,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isPassExpirationEnabled() {
 		return $this->isPasswordPoliciesEnabled() && ( $this->getPassExpireTimeout() > 0 );
@@ -139,6 +148,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isPassPreventPwned() {
 		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
@@ -146,6 +156,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isSuspendEnabled() {
 		return $this->isPremium() &&
@@ -157,6 +168,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isSuspendManualEnabled() {
 		return $this->isOpt( 'manual_suspend', 'Y' );
@@ -164,6 +176,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return int
+	 * @deprecated 8.5.2
 	 */
 	public function getSuspendAutoIdleTime() {
 		return $this->getOpt( 'auto_idle_days', 0 )*DAY_IN_SECONDS;
@@ -171,6 +184,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return array
+	 * @deprecated 8.5.2
 	 */
 	public function getSuspendAutoIdleUserRoles() {
 		$aRoles = $this->getOpt( 'auto_idle_roles', [] );
@@ -179,6 +193,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isSuspendAutoIdleEnabled() {
 		return ( $this->getSuspendAutoIdleTime() > 0 )
@@ -187,6 +202,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 	/**
 	 * @return bool
+	 * @deprecated 8.5.2
 	 */
 	public function isSuspendAutoPasswordEnabled() {
 		return $this->isOpt( 'auto_password', 'Y' )

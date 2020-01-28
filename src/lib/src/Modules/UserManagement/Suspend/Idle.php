@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -13,6 +14,8 @@ class Idle extends Base {
 	 * @return \WP_Error|\WP_User
 	 */
 	protected function processUser( $oUser, $oMeta ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
 

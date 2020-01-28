@@ -130,6 +130,8 @@ class Strings extends Base\Strings {
 	public function getOptionStrings( $sOptKey ) {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		$sPlugName = $this->getCon()->getHumanName();
 
 		switch ( $sOptKey ) {
@@ -155,8 +157,8 @@ class Strings extends Base\Strings {
 								.'<br />'.__( 'If the option you select becomes unavailable, we will revert to auto detection.', 'wp-simple-firewall' )
 								.'<br />'.sprintf(
 									__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
-									'<strong>'.$oMod->getVisitorAddressSource().'</strong>',
-									$oMod->getOpt( 'last_ip_detect_source' )
+									'<strong>'.$oOpts->getIpSource().'</strong>',
+									$oOpts->getOpt( 'last_ip_detect_source' )
 								)
 								.'<br />'
 								.'<br />'.implode( '<br />', $this->buildIpAddressMap() );

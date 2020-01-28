@@ -45,6 +45,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 * @return bool
 	 */
 	protected function isCustomExcluded() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
