@@ -29,8 +29,11 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
-			$this->doPreFirewallBlock();
-			$this->doFirewallBlock();
+			// Hooked here to ensure "plugins_loaded" has completely finished as some mailers aren't init'd.
+			add_action( 'setup_theme', function () {
+				$this->doPreFirewallBlock();
+				$this->doFirewallBlock();
+			}, 0 );
 		}
 	}
 
@@ -279,6 +282,8 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 				Services::Response()->redirectToHome();
 				break;
 			case 'redirect_404':
+				header( 'Cache-Control: no-store, no-cache' );
+				Services::WpGeneral()->turnOffCache();
 				Services::Response()->sendApache404();
 				break;
 			default:
@@ -394,7 +399,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	private function sendBlockEmail( $sRecipient ) {
-
+		$bSuccess = false;
 		if ( !empty( $this->aAuditBlockMessage ) ) {
 			$sIp = Services::IP()->getRequestIp();
 			$aMessage = array_merge(
@@ -416,10 +421,10 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 				]
 			);
 
-			return $this->getEmailProcessor()
-						->sendEmailWithWrap( $sRecipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
+			$bSuccess = $this->getEmailProcessor()
+							 ->sendEmailWithWrap( $sRecipient, __( 'Firewall Block Alert', 'wp-simple-firewall' ), $aMessage );
 		}
-		return true;
+		return $bSuccess;
 	}
 
 	/**
