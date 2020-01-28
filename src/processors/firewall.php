@@ -279,7 +279,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 				Services::Response()->redirectToHome();
 				break;
 			case 'redirect_404':
-				Services::Response()->redirect( '404' );
+				Services::Response()->sendApache404();
 				break;
 			default:
 				break;
