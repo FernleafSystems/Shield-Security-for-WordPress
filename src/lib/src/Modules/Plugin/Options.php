@@ -66,11 +66,25 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getIpSource() {
+		return $this->getOpt( 'visitor_address_source' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function hasImportExportMasterImportUrl() {
 		$sMaster = $this->getImportExportMasterImportUrl();
 		return !empty( $sMaster );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function isIpSourceAutoDetect() {
+		return $this->getIpSource() == 'AUTO_DETECT_IP';
 	}
 
 	/**

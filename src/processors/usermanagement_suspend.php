@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Services\Services;
@@ -8,25 +9,25 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oMod->isSuspendManualEnabled() ) {
+		if ( $oOpts->isSuspendManualEnabled() ) {
 			$this->setupUserFilters();
 			( new Suspend\Suspended() )
 				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oMod->isSuspendAutoIdleEnabled() ) {
+		if ( $oOpts->isSuspendAutoIdleEnabled() ) {
 			( new Suspend\Idle() )
 				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oMod->isSuspendAutoPasswordEnabled() ) {
+		if ( $oOpts->isSuspendAutoPasswordEnabled() ) {
 			( new Suspend\PasswordExpiry() )
-				->setMaxPasswordAge( $oMod->getPassExpireTimeout() )
+				->setMaxPasswordAge( $oOpts->getPassExpireTimeout() )
 				->setMod( $this->getMod() )
 				->run();
 		}

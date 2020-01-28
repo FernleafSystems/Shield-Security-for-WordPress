@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProcessor {
@@ -10,6 +11,8 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		// Adds last login indicator column
 		add_filter( 'manage_users_columns', [ $this, 'addUserStatusLastLogin' ] );
@@ -24,15 +27,15 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 		/** Everything from this point on must consider XMLRPC compatibility **/
 		if ( $oMod->isUserSessionsManagementEnabled() ) {
-			$this->getProcessorSessions()->execute();
+			$this->getSubPro( 'sessions' )->execute();
 		}
 
-		if ( $oMod->isPasswordPoliciesEnabled() ) {
-			$this->getProcessorPasswords()->execute();
+		if ( $oOpts->isPasswordPoliciesEnabled() ) {
+			$this->getSubPro( 'passwords' )->execute();
 		}
 
-		if ( $oMod->isSuspendEnabled() ) {
-			$this->getProcessorSuspend()->execute();
+		if ( $oOpts->isSuspendEnabled() ) {
+			$this->getSubPro( 'suspend' )->execute();
 		}
 
 		// All newly created users have their first seen and password start date set
@@ -253,6 +256,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 	/**
 	 * @return ICWP_WPSF_Processor_UserManagement_Passwords|mixed
+	 * @deprecated 8.5.2
 	 */
 	protected function getProcessorPasswords() {
 		return $this->getSubPro( 'passwords' );
@@ -260,6 +264,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 	/**
 	 * @return ICWP_WPSF_Processor_UserManagement_Sessions|mixed
+	 * @deprecated 8.5.2
 	 */
 	public function getProcessorSessions() {
 		return $this->getSubPro( 'sessions' );
@@ -267,6 +272,7 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 
 	/**
 	 * @return ICWP_WPSF_Processor_UserManagement_Suspend|mixed
+	 * @deprecated 8.5.2
 	 */
 	protected function getProcessorSuspend() {
 		return $this->getSubPro( 'suspend' );

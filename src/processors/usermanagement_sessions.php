@@ -112,8 +112,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	 * @param \WP_User $oUser
 	 */
 	protected function enforceSessionLimits( $oUser ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
+		$nSessionLimit = $oOpts->getOpt( 'session_username_concurrent_limit', 1 );
 		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
 			$this->setLoginCaptured();
 			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
