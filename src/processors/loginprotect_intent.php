@@ -1,7 +1,8 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\ShieldProcessor {
 
@@ -45,27 +46,27 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	}
 
 	protected function setupLoginIntent() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isEnabledGoogleAuthenticator() ) {
+		if ( $oMod->isEnabledGoogleAuthenticator() ) {
 			$this->getProcessorGoogleAuthenticator()->execute();
 		}
 
-		if ( $oFO->isEmailAuthenticationActive() ) {
+		if ( $oMod->isEmailAuthenticationActive() ) {
 			$this->getProcessorEmailAuth()->execute();
 		}
 
-		if ( $oFO->isYubikeyActive() ) {
+		if ( $oMod->isYubikeyActive() ) {
 			$this->getProcessorYubikey()->execute();
 		}
 
-		if ( $oFO->isEnabledBackupCodes() ) {
+		if ( $oMod->isEnabledBackupCodes() ) {
 			$this->getProcessorBackupCodes()->execute();
 		}
 
 		if ( $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
-			if ( Services::WpGeneral()->isLoginRequest() || $oFO->getIfSupport3rdParty() ) {
+			if ( Services::WpGeneral()->isLoginRequest() || $oMod->getIfSupport3rdParty() ) {
 				/** 20180925 - now using set cookie auth instead so we can capture session */
 //				add_action( 'authenticate', array( $this, 'initLoginIntent' ), 100, 1 );
 			}
@@ -73,7 +74,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 			// process the current login intent
 			$oWpUsers = Services::WpUsers();
 			if ( $oWpUsers->isUserLoggedIn() ) {
-				if ( $this->isUserSubjectToLoginIntent() && !$oFO->canUserMfaSkip( $oWpUsers->getCurrentWpUser() ) ) {
+				if ( $this->isUserSubjectToLoginIntent() && !$oMod->canUserMfaSkip( $oWpUsers->getCurrentWpUser() ) ) {
 					$this->processLoginIntent();
 				}
 				elseif ( $this->hasLoginIntent() ) {
@@ -373,7 +374,7 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Track
+	 * @return TwoFactor\IntentTracker
 	 */
 	public function getLoginTrack() {
 		if ( !isset( $this->oLoginTrack ) ) {

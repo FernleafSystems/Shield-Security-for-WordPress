@@ -435,7 +435,8 @@
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
-      "default":      -1
+      "default":      0,
+      "min":          0
     },
     {
       "key":          "gasp_key",

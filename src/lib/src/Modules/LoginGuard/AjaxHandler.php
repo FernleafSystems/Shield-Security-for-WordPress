@@ -94,13 +94,15 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_ResendEmailVerification() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		$bSuccess = true;
 
-		if ( !$oMod->isEmailAuthenticationOptionOn() ) {
+		if ( !$oOpts->isEnabledEmailAuth() ) {
 			$sMessage = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
 			$bSuccess = false;
 		}
-		elseif ( $oMod->getIfCanSendEmailVerified() ) {
+		elseif ( $oOpts->getIfCanSendEmailVerified() ) {
 			$sMessage = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
 		else {

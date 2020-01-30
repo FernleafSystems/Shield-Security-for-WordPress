@@ -7,6 +7,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function getIfUseLoginIntentPage() {
 		return $this->isOpt( 'use_login_intent_page', true );
@@ -161,7 +162,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @param bool $bAsOptDefaults
 	 * @return array
 	 */
-	protected function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
+	public function getOptEmailTwoFactorRolesDefaults( $bAsOptDefaults = true ) {
 		$aTwoAuthRoles = [
 			'type' => 'multiple_select',
 			0      => __( 'Subscribers', 'wp-simple-firewall' ),
@@ -227,7 +228,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	public function canUserMfaSkip( $oUser ) {
@@ -294,7 +295,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return int
+	 * NOTE: DO NOT REPLACE WITH OPTIONS USE AS THIS RETURNS DAYS
+	 * @return int - days
+	 * @deprecated 8.6.0
 	 */
 	public function getMfaSkip() {
 		return (int)$this->getOpt( 'mfa_skip', 0 );
@@ -314,6 +317,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function isEmailAuthenticationOptionOn() {
 		return $this->isOpt( 'enable_email_authentication', 'Y' );
@@ -322,6 +326,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * Also considers whether email sending ability has been verified
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function isEmailAuthenticationActive() {
 		return $this->getIfCanSendEmailVerified() && $this->isEmailAuthenticationOptionOn();
@@ -329,6 +334,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function isEnabledBackupCodes() {
 		return $this->isPremium() && $this->isOpt( 'allow_backupcodes', 'Y' );
@@ -336,6 +342,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function isEnabledGoogleAuthenticator() {
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
@@ -350,6 +357,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return int
+	 * @deprecated 8.6.0
 	 */
 	public function getCanSendEmailVerifiedAt() {
 		return $this->getOpt( 'email_can_send_verified_at' );
@@ -357,6 +365,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function getIfCanSendEmailVerified() {
 		return $this->getCanSendEmailVerifiedAt() > 0;
@@ -384,6 +393,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function isChainedAuth() {
 		return $this->isOpt( 'enable_chained_authentication', 'Y' );
@@ -402,14 +412,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return $this
 	 */
 	public function setIfCanSendEmail( $bCan ) {
-		$nCurrentDateAt = $this->getCanSendEmailVerifiedAt();
-		if ( $bCan ) {
-			$nDateAt = ( $nCurrentDateAt <= 0 ) ? Services::Request()->ts() : $nCurrentDateAt;
-		}
-		else {
-			$nDateAt = 0;
-		}
-		return $this->setOpt( 'email_can_send_verified_at', $nDateAt );
+		return $this->setOpt( 'email_can_send_verified_at', $bCan ? Services::Request()->ts() : 0 );
 	}
 
 	/**
@@ -518,6 +521,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	public function isYubikeyActive() {
 		return $this->isOpt( 'enable_yubikey', 'Y' ) && $this->isYubikeyConfigReady();
@@ -525,6 +529,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 8.6.0
 	 */
 	private function isYubikeyConfigReady() {
 		$sAppId = $this->getOpt( 'yubikey_app_id' );

@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
@@ -43,8 +44,14 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 				$this->getSubProRecaptcha()->execute();
 			}
 
-			$this->getSubProIntent()->execute();
+//			$this->getSubProIntent()->execute();
 		}
+	}
+
+	public function onWpInit() {
+		( new TwoFactor\IntentController() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	public function onWpEnqueueJs() {
