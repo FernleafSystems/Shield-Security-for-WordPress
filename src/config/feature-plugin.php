@@ -349,7 +349,8 @@
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "min":          0
     },
     {
       "key":          "unique_installation_id",
@@ -398,14 +399,6 @@
       "transferable": false,
       "type":         "text",
       "default":      ""
-    },
-    {
-      "key":          "this_server_ip_details",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "sensitive":    true,
-      "type":         "array",
-      "default":      []
     },
     {
       "key":          "last_ip_detect_source",

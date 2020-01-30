@@ -9,7 +9,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
-		$this->setVisitorIp();
+		$this->setVisitorIpSource();
 	}
 
 	protected function setupCustomHooks() {
@@ -22,9 +22,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function updateHandler() {
 		parent::updateHandler();
 		$this->deleteAllPluginCrons();
-		/** @var Shield\Modules\Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->setOpt( 'this_server_ip_details', [] );
 	}
 
 	private function deleteAllPluginCrons() {
@@ -42,6 +39,18 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * Hooked to the plugin's main plugin_shutdown action
+	 */
+	public function onPluginShutdown() {
+		/* TODO: uncomment on any version 8.6+
+		$sPreferredSource = Services::IP()->getIpDetector()->getLastSuccessfulSource();
+		if ( !empty( $sPreferredSource ) ) {
+		$this->setOpt( 'last_ip_detect_source', $sPreferredSource );
+		} */
+		parent::onPluginShutdown();
+	}
+
+	/**
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
@@ -52,60 +61,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return bool
 	 */
-	public function getLastCheckServerIpAtHasExpired() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$aDetails = $oOpts->getServerIpDetails();
-		$nAge = Services::Request()->ts() - $aDetails[ 'check_ts' ];
-		return ( $nAge > HOUR_IN_SECONDS )
-			   && ( $this->getServerHash() != $aDetails[ 'hash' ] || $nAge > WEEK_IN_SECONDS );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getMyServerIPs() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aThisServerIps = $oOpts->getServerIpDetails()[ 'ips' ];
-		if ( empty( $aThisServerIps ) || $this->getLastCheckServerIpAtHasExpired() ) {
-
-			$aThisServerIps = Services::IP()->getServerPublicIPs();
-			if ( !empty( $aThisServerIps ) ) {
-				$oOpts->updateServerIpDetails( [
-					'ips'      => $aThisServerIps,
-					'hash'     => $this->getServerHash(),
-					'check_ts' => Services::Request()->ts(),
-				] );
-			}
-		}
-		return $aThisServerIps;
-	}
-
-	/**
-	 * @return string
-	 */
-	private function getServerHash() {
-		return md5( serialize(
-			array_values( array_intersect_key(
-				$_SERVER,
-				array_flip( [
-					'SERVER_SOFTWARE',
-					'SERVER_SIGNATURE',
-					'PATH',
-					'DOCUMENT_ROOT',
-					'SERVER_ADDR',
-				] )
-			) )
-		) );
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isDisplayPluginBadge() {
-		/** @var Shield\Modules\Plugin\Options $oOpts */
+		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $oOpts->isOnFloatingPluginBadge()
 			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
@@ -120,27 +77,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * Forcefully sets the Visitor IP address in the Data component for use throughout the plugin
+	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
-	protected function setVisitorIp() {
-		$oDetector = ( new Utilities\Net\VisitorIpDetection() )
-			->setPotentialHostIps( Services::IP()->getServerPublicIPs() );
-		if ( !$this->isVisitorAddressSourceAutoDetect() ) {
-			$oDetector->setPreferredSource( $this->getVisitorAddressSource() );
+	private function setVisitorIpSource() {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( !$oOpts->isIpSourceAutoDetect() ) {
+			Services::IP()->setIpDetector(
+				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $oOpts->getIpSource() )
+			);
 		}
-
-		$sIp = $oDetector->detect();
-		if ( !empty( $sIp ) ) {
-			Services::IP()->setRequestIpAddress( $sIp );
-			$this->setOpt( 'last_ip_detect_source', $oDetector->getLastSuccessfulSource() );
-		}
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getVisitorAddressSource() {
-		return $this->getOpt( 'visitor_address_source' );
 	}
 
 	/**
@@ -148,14 +94,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function setVisitorAddressSource( $sSource ) {
-		return $this->setOpt( 'visitor_address_source', $sSource );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function isVisitorAddressSourceAutoDetect() {
-		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
+		return $this->getOptions()->setOpt( 'visitor_address_source', $sSource );
 	}
 
 	/**
@@ -262,14 +201,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getTrackingLastSentAt() {
-		$nTime = (int)$this->getOpt( 'tracking_last_sent_at', 0 );
-		return ( $nTime < 0 ) ? 0 : $nTime;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getLinkToTrackingDataDump() {
@@ -277,34 +208,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			[ 'shield_action' => 'dump_tracking_data' ],
 			Services::WpGeneral()->getAdminUrl()
 		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTrackingEnabled() {
-		return $this->isOpt( 'enable_tracking', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTrackingPermissionSet() {
-		return !$this->isOpt( 'tracking_permission_set_at', 0 );
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function setTrackingLastSentAt() {
-		return $this->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function readyToSendTrackingData() {
-		return ( Services::Request()->ts() - $this->getTrackingLastSentAt() > WEEK_IN_SECONDS );
 	}
 
 	/**
@@ -320,11 +223,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$this->storeRealInstallDate();
 
-		if ( $this->isTrackingEnabled() && !$this->isTrackingPermissionSet() ) {
-			$this->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+		if ( $oOpts->isTrackingEnabled() && !$oOpts->isTrackingPermissionSet() ) {
+			$oOpts->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
 		$this->cleanRecaptchaKey( 'google_recaptcha_site_key' );
@@ -459,17 +364,24 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return int
 	 */
-	public function getActivatedAt() {
-		return (int)$this->getOpt( 'activated_at', 0 );
+	public function getActivateLength() {
+		return Services::Request()->ts() - (int)$this->getOptions()->getOpt( 'activated_at', 0 );
 	}
 
 	/**
+	 * hidden 20200121
 	 * @return bool
 	 */
 	public function getIfShowIntroVideo() {
-		$nNow = Services::Request()->ts();
-		return ( $nNow - $this->getActivatedAt() < 8 )
-			   && ( $nNow - $this->getInstallDate() < 15 );
+		return false && ( $this->getActivateLength() < 8 )
+			   && ( Services::Request()->ts() - $this->getInstallDate() < 15 );
+	}
+
+	/**
+	 * @return Plugin\Lib\TourManager
+	 */
+	public function getTourManager() {
+		return ( new Plugin\Lib\TourManager() )->setMod( $this );
 	}
 
 	/**
@@ -504,32 +416,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getImportExportMasterImportUrl() {
-		return $this->getOpt( 'importexport_masterurl', '' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function hasImportExportMasterImportUrl() {
-		$sMaster = $this->getImportExportMasterImportUrl();
-		return !empty( $sMaster );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function hasImportExportWhitelistSites() {
 		return ( count( $this->getImportExportWhitelist() ) > 0 );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getImportExportHandshakeExpiresAt() {
-		return $this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
 	}
 
 	/**
@@ -558,13 +448,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				 ->setOpt( 'importexport_secretkey_expires_at', Services::Request()->ts() + HOUR_IN_SECONDS );
 		}
 		return $sId;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isImportExportPermitted() {
-		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
 	}
 
 	/**
@@ -644,7 +527,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	protected function cleanImportExportMasterImportUrl() {
-		$sUrl = Services::Data()->validateSimpleHttpUrl( $this->getImportExportMasterImportUrl() );
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$sUrl = Services::Data()->validateSimpleHttpUrl( $oOpts->getImportExportMasterImportUrl() );
 		if ( $sUrl === false ) {
 			$sUrl = '';
 		}
@@ -655,7 +540,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return $this
 	 */
 	public function startImportExportHandshake() {
-		$this->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
+		$this->getOptions()->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
 		return $this->saveModOptions();
 	}
 
@@ -719,6 +604,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
 			wp_enqueue_style( 'wp-jquery-ui-dialog' );
 		}
+
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_tourmanager',
+			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
+		);
 	}
 
 	/**
@@ -801,9 +692,117 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * @return string
+	 * @deprecated 8.5.2
+	 */
+	public function getVisitorAddressSource() {
+		return $this->getOptions()->getOpt( 'visitor_address_source' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5.2
+	 */
+	public function isVisitorAddressSourceAutoDetect() {
+		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
+	}
+
+	/**
+	 * @return string
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5.2
+	 */
+	public function hasImportExportMasterImportUrl() {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->hasImportExportMasterImportUrl();
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5.2
+	 */
+	public function getImportExportHandshakeExpiresAt() {
+		return $this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.5.2
+	 */
+	public function getImportExportMasterImportUrl() {
+		return $this->getOpt( 'importexport_masterurl', '' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5.2
+	 */
+	public function isImportExportPermitted() {
+		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5.2
+	 */
+	public function readyToSendTrackingData() {
+		return Services::Request()
+					   ->carbon()
+					   ->subWeek()->timestamp > (int)$this->getOptions()->getOpt( 'tracking_last_sent_at', 0 );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5.2
+	 */
+	public function isTrackingEnabled() {
+		return $this->isOpt( 'enable_tracking', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 8.5.2
+	 */
+	public function isTrackingPermissionSet() {
+		return !$this->isOpt( 'tracking_permission_set_at', 0 );
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 8.5.2
+	 */
+	public function setTrackingLastSentAt() {
+		return $this->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5.2
+	 */
+	public function getTrackingLastSentAt() {
+		return (int)max( 0, $this->getOptions()->getOpt( 'tracking_last_sent_at', 0 ) );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.5.2
+	 */
+	public function getActivatedAt() {
+		return (int)$this->getOpt( 'activated_at', 0 );
+	}
+
+	/**
+	 * @return string[]
+	 * @deprecated 8.5.1
+	 */
+	public function getMyServerIPs() {
+		return Services::IP()->getServerPublicIPs();
 	}
 
 	/**

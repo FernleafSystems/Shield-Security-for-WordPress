@@ -91,14 +91,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 			throw new \Exception( 'session_idle' );
 		}
 
-		if ( $oOpts->isLockToIp() ) {
-			$aPossibleIps = $this->getCon()
-								 ->getModule_IPs()
-								 ->getReservedIps();
-			$aPossibleIps[] = $oSess->ip;
-			if ( !in_array( Services::IP()->getRequestIp(), $aPossibleIps ) ) {
-				throw new \Exception( 'session_iplock' );
-			}
+		$oIP = Services::IP();
+		if ( $oOpts->isLockToIp() && !$oIP->isLoopback() && $oIP->getRequestIp() != $oSess->ip ) {
+			throw new \Exception( 'session_iplock' );
 		}
 		// TODO: 'session_browserlock';
 	}
@@ -117,8 +112,10 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 	 * @param \WP_User $oUser
 	 */
 	protected function enforceSessionLimits( $oUser ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
+		$nSessionLimit = $oOpts->getOpt( 'session_username_concurrent_limit', 1 );
 		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
 			$this->setLoginCaptured();
 			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */

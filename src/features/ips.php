@@ -76,16 +76,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * IP addresses that should never be put on the black list.
-	 * @return string[]
-	 */
-	public function getReservedIps() {
-		$aIPs = $this->getCon()->getModule_Plugin()->getMyServerIPs();
-		$aIPs[] = Services::Request()->getServerAddress();
-		return array_unique( $aIPs );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getAutoUnblockIps() {
@@ -199,10 +189,10 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function addFilterIpsToWhiteList() {
 		$aIps = [];
-		$oSp = $this->loadServiceProviders();
+		$oSp = Services::ServiceProviders();
 
 		if ( @class_exists( '\MwpWorkerResponder' ) ) {
-			foreach ( array_flip( $oSp->getIps_ManageWp() ) as $sIp => $n ) {
+			foreach ( array_flip( $oSp->getIps_ManageWp( true ) ) as $sIp => $n ) {
 				$aIps[ $sIp ] = 'ManageWP';
 			}
 		}
@@ -235,5 +225,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function getNamespaceBase() {
 		return 'IPs';
+	}
+
+	/**
+	 * IP addresses that should never be put on the black list.
+	 * @return string[]
+	 * @deprecated 8.5.1
+	 */
+	public function getReservedIps() {
+		return Services::IP()->getServerPublicIPs();
 	}
 }

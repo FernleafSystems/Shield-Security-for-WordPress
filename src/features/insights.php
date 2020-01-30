@@ -7,10 +7,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
-		$nActivatedAt = $this->getCon()
-							 ->getModule_Plugin()
-							 ->getActivatedAt();
-		if ( $nActivatedAt > 0 && Services::Request()->ts() - $nActivatedAt < 5 ) {
+		$this->maybeRedirectToAdmin();
+	}
+
+	private function maybeRedirectToAdmin() {
+		$oCon = $this->getCon();
+		$nActiveFor = $oCon->getModule_Plugin()->getActivateLength();
+		if ( !Services::WpGeneral()->isAjax() && is_admin() && !$oCon->isModulePage() && $nActiveFor < 4 ) {
 			Services::Response()->redirect( $this->getUrl_AdminPage() );
 		}
 	}
@@ -60,7 +63,13 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$oProHp = $oCon->getModule( 'hack_protect' )->getProcessor();
 		/** @var ICWP_WPSF_FeatureHandler_License $oModLicense */
 		$oModLicense = $oCon->getModule( 'license' );
+
 		$oModPlugin = $oCon->getModule_Plugin();
+		$oTourManager = $oModPlugin->getTourManager();
+		if ( !$oTourManager->isCompleted( 'insights_overview' ) && $oModPlugin->getActivateLength() > 600 ) {
+			$oTourManager->setCompleted( 'insights_overview' );
+		}
+
 		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
 		$oProPlugin = $oModPlugin->getProcessor();
 		$oEvtsMod = $oCon->getModule_Events();
@@ -319,6 +328,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$sName = [
 				'href'    => add_query_arg( [ 'inav' => $sKey ], $this->getUrl_AdminPage() ),
 				'name'    => $sName,
+				'slug'    => $sKey,
 				'active'  => $sKey === $sNavSection,
 				'subnavs' => []
 			];
@@ -354,6 +364,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				'flags'   => [
 					'show_promo'       => !$bIsPro && ( $sNavSection != 'settings' ),
 					'show_guided_tour' => $oModPlugin->getIfShowIntroVideo(),
+					'tours'            => [
+						'insights_overview' => $oTourManager->canShow( 'insights_overview' )
+					]
 				],
 				'hrefs'   => [
 					'go_pro'     => 'https://shsec.io/shieldgoprofeature',
@@ -380,6 +393,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$oCon = $this->getCon();
 			$aStdDepsJs = [ $this->prefix( 'plugin' ) ];
 			$sNav = Services::Request()->query( 'inav', 'overview' );
+
+			$oModPlugin = $oCon->getModule_Plugin();
+			$oTourManager = $oModPlugin->getTourManager();
 			switch ( $sNav ) {
 
 				case 'importexport':
@@ -400,7 +416,11 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				case 'reports':
 
 					$aDeps = $aStdDepsJs;
+
 					$aJsAssets = [ 'chartist.min', 'chartist-plugin-legend', 'charts' ];
+					if ( $oTourManager->canShow( 'insights_overview' ) ) {
+						array_unshift( $aJsAssets, 'introjs.min.js' );
+					}
 					foreach ( $aJsAssets as $sAsset ) {
 						$sUnique = $oCon->prefix( $sAsset );
 						wp_register_script(
@@ -416,6 +436,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 
 					$aDeps = [];
 					$aCssAssets = [ 'chartist.min', 'chartist-plugin-legend' ];
+					if ( $oTourManager->canShow( 'insights_overview' ) ) {
+						array_unshift( $aCssAssets, 'introjs.min.css' );
+					}
 					foreach ( $aCssAssets as $sAsset ) {
 						$sUnique = $oCon->prefix( $sAsset );
 						wp_register_style(

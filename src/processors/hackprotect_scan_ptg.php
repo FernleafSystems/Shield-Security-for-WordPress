@@ -13,11 +13,6 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	public function run() {
 		parent::run();
 
-		// init snapshots and build as necessary
-		( new HackGuard\Lib\Snapshots\StoreAction\BuildAll() )
-			->setMod( $this->getMod() )
-			->build();
-
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isPtgReinstallLinks() ) {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
@@ -12,9 +13,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function processAjaxAction( $sAction ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-
 		switch ( $sAction ) {
 			case 'bulk_action':
 				$aResponse = $this->ajaxExec_BulkItemAction();
@@ -45,9 +43,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			case 'set_plugin_tracking':
-				if ( !$oMod->isTrackingPermissionSet() ) {
-					$aResponse = $this->ajaxExec_SetPluginTrackingPerm();
-				}
+				$aResponse = $this->ajaxExec_SetPluginTrackingPerm();
 				break;
 
 			case 'send_deactivate_survey':
@@ -56,6 +52,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			case 'sgoptimizer_turnoff':
 				$aResponse = $this->ajaxExec_TurnOffSiteGroundOptions();
+				break;
+
+			case 'mark_tour_finished':
+				$aResponse = $this->ajaxExec_MarkTourFinished();
 				break;
 
 			default:
@@ -110,7 +110,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_SetPluginTrackingPerm() {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oOpts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+		if ( !$oOpts->isTrackingPermissionSet() ) {
+			$oOpts->setPluginTrackingPermission( (bool)Services::Request()->query( 'agree', false ) );
+		}
 		return [ 'success' => true ];
 	}
 
@@ -286,12 +288,24 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_TurnOffSiteGroundOptions() {
-		$bSuccess = ( new Shield\Modules\Plugin\Components\SiteGroundPluginCompatibility() )
-			->switchOffOptions();
+		$bSuccess = ( new Plugin\Components\SiteGroundPluginCompatibility() )->switchOffOptions();
 		return [
 			'success' => $bSuccess,
 			'message' => $bSuccess ? __( 'Switching-off conflicting options appears to have been successful.', 'wp-simple-firewall' )
 				: __( 'Switching-off conflicting options appears to have failed.', 'wp-simple-firewall' )
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_MarkTourFinished() {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
+		$oMod->getTourManager()->setCompleted( Services::Request()->post( 'tour_key' ) );
+		return [
+			'success' => true,
+			'message' => 'Tour Finished'
 		];
 	}
 }

@@ -873,6 +873,7 @@ th.column-request_info {
 	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 #odp-PageHead .nav-link {
+	color: #343434;
 }
 #odp-PageHead .nav-link.active {
 	font-weight: bold;
@@ -1227,4 +1228,8 @@ table.odp-table tr.audit-cat-3 td {
 .row-sticky td h5 {
 	margin: 0;
 	color: #ffffff;
+}
+
+.introjs-helperLayer {
+	background-color: rgba(91, 228, 56, 0.34);
 }

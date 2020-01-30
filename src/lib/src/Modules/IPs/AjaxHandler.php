@@ -74,7 +74,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		elseif ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
 			$sMessage = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && in_array( $sIp, $oMod->getReservedIps() ) ) {
+		elseif ( $bIsBlackList && in_array( $sIp, Services::IP()->getServerPublicIPs() ) ) {
 			$sMessage = __( "This IP is reserved and can't be blacklisted.", 'wp-simple-firewall' );
 		}
 		else {

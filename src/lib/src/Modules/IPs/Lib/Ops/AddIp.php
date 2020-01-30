@@ -23,7 +23,7 @@ class AddIp {
 		$oMod = $this->getMod();
 
 		$oIP = null;
-		if ( !in_array( $this->getIP(), $oMod->getReservedIps() ) ) {
+		if ( !in_array( $this->getIP(), Services::IP()->getServerPublicIPs() ) ) {
 			$oIP = ( new LookupIpOnList() )
 				->setDbHandler( $oMod->getDbHandler_IPs() )
 				->setListTypeBlack()
@@ -51,7 +51,7 @@ class AddIp {
 		$oMod = $this->getMod();
 
 		$oIP = null;
-		if ( !in_array( $this->getIP(), $oMod->getReservedIps() ) ) {
+		if ( !in_array( $this->getIP(), Services::IP()->getServerPublicIPs() ) ) {
 
 			$oIP = ( new LookupIpOnList() )
 				->setDbHandler( $oMod->getDbHandler_IPs() )

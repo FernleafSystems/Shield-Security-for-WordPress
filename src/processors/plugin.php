@@ -10,8 +10,8 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	 */
 	public function run() {
 		parent::run();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$this->getSubProCronDaily()->execute();
 		$this->getSubProCronHourly()->execute();
@@ -19,18 +19,19 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		$this->removePluginConflicts();
 
 		( new Plugin\Components\PluginBadge() )
-			->setMod( $oMod )
+			->setMod( $this->getMod() )
 			->run();
 
-		if ( $oMod->isTrackingEnabled() || !$oMod->isTrackingPermissionSet() ) {
+		if ( $oOpts->isTrackingEnabled() || !$oOpts->isTrackingPermissionSet() ) {
 			$this->getSubProTracking()->execute();
 		}
 
-		if ( $oMod->isImportExportPermitted() ) {
+		if ( $oOpts->isImportExportPermitted() ) {
 			$this->getSubProImportExport()->execute();
 		}
 
-		switch ( $this->getCon()->getShieldAction() ) {
+		$oCon = $this->getCon();
+		switch ( $oCon->getShieldAction() ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
 				break;
@@ -39,7 +40,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 			case 'importexport_import':
 			case 'importexport_handshake':
 			case 'importexport_updatenotified':
-				if ( $oMod->isImportExportPermitted() ) {
+				if ( $oOpts->isImportExportPermitted() ) {
 					add_action( 'init', [ $this->getSubProImportExport(), 'runAction' ] );
 				}
 				break;
@@ -49,8 +50,8 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
 		add_action( 'admin_footer', [ $this, 'printAdminFooterItems' ], 100, 0 );
 
-		add_filter( $oMod->prefix( 'delete_on_deactivate' ), function ( $bDelete ) use ( $oMod ) {
-			return $bDelete || $oMod->isOpt( 'delete_on_deactivate', 'Y' );
+		add_filter( $oCon->prefix( 'delete_on_deactivate' ), function ( $bDelete ) use ( $oOpts ) {
+			return $bDelete || $oOpts->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
 	}
 
@@ -67,11 +68,9 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	 * @return array
 	 */
 	public function gatherPluginWidgetContent( $aContent ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
 		$oCon = $this->getCon();
 		/** @var Plugin\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $this->getOptions();
 
 		$aLabels = $oCon->getLabels();
 		$sFooter = sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
@@ -88,7 +87,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		if ( !is_array( $aContent ) ) {
 			$aContent = [];
 		}
-		$aContent[] = $oMod->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
+		$aContent[] = $this->getMod()->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
 		return $aContent;
 	}
 

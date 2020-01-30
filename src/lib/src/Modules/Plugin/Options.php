@@ -52,29 +52,39 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return array
+	 * @return int
 	 */
-	public function getServerIpDetails() {
-		$aDetails = $this->getOpt( 'this_server_ip_details', [] );
-		if ( !is_array( $aDetails ) ) {
-			$aDetails = [];
-		}
-		return array_merge(
-			[
-				'ips'      => [],
-				'hash'     => '',
-				'check_ts' => 0,
-			],
-			$aDetails
-		);
+	public function getImportExportHandshakeExpiresAt() {
+		return (int)$this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
 	}
 
 	/**
-	 * @param array $aDetails
-	 * @return $this
+	 * @return string
 	 */
-	public function updateServerIpDetails( $aDetails ) {
-		return $this->setOpt( 'this_server_ip_details', array_merge( $this->getServerIpDetails(), $aDetails ) );
+	public function getImportExportMasterImportUrl() {
+		return $this->getOpt( 'importexport_masterurl', '' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getIpSource() {
+		return $this->getOpt( 'visitor_address_source' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasImportExportMasterImportUrl() {
+		$sMaster = $this->getImportExportMasterImportUrl();
+		return !empty( $sMaster );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function isIpSourceAutoDetect() {
+		return $this->getIpSource() == 'AUTO_DETECT_IP';
 	}
 
 	/**
@@ -85,11 +95,49 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isTrackingEnabled() {
+		return $this->isOpt( 'enable_tracking', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTrackingPermissionSet() {
+		return !$this->isOpt( 'tracking_permission_set_at', 0 );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isImportExportPermitted() {
+		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
+	}
+
+	/**
 	 * @param bool $bOnOrOff
 	 * @return $this
 	 */
 	public function setPluginTrackingPermission( $bOnOrOff = true ) {
 		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
 					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
+	}
+
+	/**
+	 * @return array
+	 * @deprecated 8.5.1
+	 */
+	public function getServerIpDetails() {
+		return [];
+	}
+
+	/**
+	 * @param array $aDetails
+	 * @return $this
+	 * @deprecated 8.5.1
+	 */
+	public function updateServerIpDetails( $aDetails ) {
+		return $this;
 	}
 }

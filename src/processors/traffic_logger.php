@@ -45,6 +45,8 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 * @return bool
 	 */
 	protected function isCustomExcluded() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oMod */
 		$oMod = $this->getMod();
 		$oReq = Services::Request();
@@ -65,7 +67,7 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 * @return bool
 	 */
 	protected function isServiceIp_Search() {
-		$oSP = $this->loadServiceProviders();
+		$oSP = Services::ServiceProviders();
 
 		$sIp = Services::IP()->getRequestIp();
 		$sAgent = (string)Services::Request()->getUserAgent();
@@ -82,13 +84,13 @@ class ICWP_WPSF_Processor_TrafficLogger extends ShieldProcessor {
 	 * @return bool
 	 */
 	protected function isServiceIp_Uptime() {
-		$oSP = $this->loadServiceProviders();
-
+		$oSP = Services::ServiceProviders();
 		$sIp = Services::IP()->getRequestIp();
 		$sAgent = (string)Services::Request()->getUserAgent();
 		return $oSP->isIp_Statuscake( $sIp, $sAgent )
 			   || $oSP->isIp_UptimeRobot( $sIp, $sAgent )
-			   || $oSP->isIp_Pingdom( $sIp, $sAgent );
+			   || $oSP->isIp_Pingdom( $sIp, $sAgent )
+			   || $oSP->isIpInCollection( $sIp, $oSP->getIps_NodePing() );
 	}
 
 	protected function logTraffic() {

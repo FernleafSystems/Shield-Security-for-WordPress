@@ -1,25 +1,42 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * TODO: make a dedicated class that is not a processor.
+ * Class ICWP_WPSF_Processor_Plugin_Tracking
+ */
 class ICWP_WPSF_Processor_Plugin_Tracking extends Shield\Modules\BaseShield\ShieldProcessor {
+
+	/**
+	 * Cron callback
+	 */
+	public function runDailyCron() {
+		$this->sendTrackingData();
+	}
 
 	/**
 	 * @return bool
 	 */
 	private function sendTrackingData() {
-		$bSuccess = false;
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oMod->isTrackingEnabled() && $oMod->readyToSendTrackingData() ) {
+		$bSuccess = false;
+
+		$bCanSend = Services::Request()
+							->carbon()
+							->subWeek()->timestamp
+					> (int)$oOpts->getOpt( 'tracking_last_sent_at', 0 );
+		if ( $bCanSend && $oOpts->isTrackingEnabled() ) {
 
 			$aData = $this->collectTrackingData();
-			if ( !empty( $aData ) && is_array( $aData ) ) {
-				$oMod->setTrackingLastSentAt();
+			if ( !empty( $aData ) ) {
+				$oOpts->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
 				$bSuccess = Services::HttpRequest()->post(
-					$oMod->getDef( 'tracking_post_url' ),
+					$oOpts->getDef( 'tracking_post_url' ),
 					[
 						'timeout'     => 20,
 						'redirection' => 5,
@@ -69,16 +86,5 @@ class ICWP_WPSF_Processor_Plugin_Tracking extends Shield\Modules\BaseShield\Shie
 				]
 			]
 		];
-	}
-
-	/**
-	 * Cron callback
-	 */
-	public function runDailyCron() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->isTrackingEnabled() ) {
-			$this->sendTrackingData();
-		}
 	}
 }
