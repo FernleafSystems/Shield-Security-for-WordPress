@@ -13,7 +13,7 @@ class Sessions extends Base {
 			$aItem[ 'wp_username' ],
 			$this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
 			$aItem[ 'your_ip' ],
-			$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ], _wpsf__( 'Discard' ) ) )
+			$this->buildActions( $this->getActionButton_Delete( $aItem[ 'id' ], __( 'Discard', 'wp-simple-firewall' ) ) )
 		);
 	}
 
@@ -22,7 +22,7 @@ class Sessions extends Base {
 	 */
 	protected function get_bulk_actions() {
 		return [
-			'delete' => _wpsf__( 'Discard' ),
+			'delete' => __( 'Discard', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -30,12 +30,12 @@ class Sessions extends Base {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'cb'               => '&nbsp;',
-			'details'          => 'Details',
-			'is_secadmin'      => 'Security Admin',
-			'last_activity_at' => 'Last Activity',
-			'logged_in_at'     => 'Logged In',
-		);
+			'details'          => __( 'Details', 'wp-simple-firewall' ),
+			'is_secadmin'      => __( 'Security Admin', 'wp-simple-firewall' ),
+			'last_activity_at' => __( 'Last Activity At', 'wp-simple-firewall' ),
+			'logged_in_at'     => __( 'Logged-In', 'wp-simple-firewall' ),
+		];
 	}
 }

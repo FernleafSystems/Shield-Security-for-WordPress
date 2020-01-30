@@ -16,20 +16,20 @@ class AdminNotes extends Base {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
-			'delete' => 'Delete',
-		);
+		return [
+			'delete' => __( 'Delete', 'wp-simple-firewall' ),
+		];
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
+		return [
 			'cb'          => '&nbsp;',
-			'note'        => 'Note',
-			'wp_username' => 'Username',
-			'created_at'  => 'Date',
-		);
+			'note'        => __( 'Note', 'wp-simple-firewall' ),
+			'wp_username' => __( 'Username' ),
+			'created_at'  => __( 'Date' ),
+		];
 	}
 }

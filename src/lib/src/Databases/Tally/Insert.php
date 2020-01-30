@@ -13,7 +13,7 @@ class Insert extends Base\Insert {
 	 */
 	public function insert( $oTally ) {
 		$bSuccess = false;
-		if ( preg_match( '#[a-z]{1,}\.[a-z]{1,}#i', $oTally->stat_key )
+		if ( preg_match( '#[a-z]+\.[a-z]+#i', $oTally->stat_key )
 			 && is_numeric( $oTally->tally ) && $oTally->tally > 0 ) {
 			$bSuccess = parent::insert( $oTally );
 		}
@@ -33,13 +33,13 @@ class Insert extends Base\Insert {
 		}
 
 		$nTimeStamp = Services::Request()->ts();
-		$aData = array(
+		$aData = [
 			'stat_key'        => $sStatKey,
 			'parent_stat_key' => $sParent,
 			'tally'           => $nTally,
 			'modified_at'     => $nTimeStamp,
 			'created_at'      => $nTimeStamp,
-		);
+		];
 		return $this->setInsertData( $aData )->query() === 1;
 	}
 }

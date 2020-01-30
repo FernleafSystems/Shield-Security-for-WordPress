@@ -12,7 +12,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function startSecurityAdmin( $oSession ) {
-		return $this->updateSession( $oSession, array( 'secadmin_at' => Services::Request()->ts() ) );
+		return $this->updateSession( $oSession, [ 'secadmin_at' => Services::Request()->ts() ] );
 	}
 
 	/**
@@ -20,7 +20,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function terminateSecurityAdmin( $oSession ) {
-		return $this->updateSession( $oSession, array( 'secadmin_at' => 0 ) );
+		return $this->updateSession( $oSession, [ 'secadmin_at' => 0 ] );
 	}
 
 	/**
@@ -31,10 +31,10 @@ class Update extends Base\Update {
 		$oR = Services::Request();
 		return $this->updateSession(
 			$oSession,
-			array(
+			[
 				'last_activity_at'  => $oR->ts(),
 				'last_activity_uri' => $oR->server( 'REQUEST_URI' )
-			)
+			]
 		);
 	}
 
@@ -46,7 +46,7 @@ class Update extends Base\Update {
 	public function updateLoginIntentExpiresAt( $oSession, $nExpiresAt ) {
 		return $this->updateSession(
 			$oSession,
-			array( 'login_intent_expires_at' => (int)$nExpiresAt )
+			[ 'login_intent_expires_at' => (int)$nExpiresAt ]
 		);
 	}
 
@@ -64,7 +64,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setLoginIntentCodeEmail( $oSession, $sCode ) {
-		return $this->updateSession( $oSession, array( 'li_code_email' => (string)$sCode ) );
+		return $this->updateSession( $oSession, [ 'li_code_email' => (string)$sCode ] );
 	}
 
 	/**

@@ -1,21 +1,22 @@
 <?php
 
-class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\BaseShield\ShieldProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Services\Services;
 
-	use \FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		parent::run();
 		$this->setupSnapshots();
 
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isIcUsersEnabled() ) {
-			add_action( 'user_register', array( $this, 'snapshotUsers' ) );
-			add_action( 'profile_update', array( $this, 'snapshotUsers' ) );
-			add_action( 'after_password_reset', array( $this, 'snapshotUsers' ) );
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->isIcUsersEnabled() ) {
+			add_action( 'user_register', [ $this, 'snapshotUsers' ] );
+			add_action( 'profile_update', [ $this, 'snapshotUsers' ] );
+			add_action( 'after_password_reset', [ $this, 'snapshotUsers' ] );
 		}
 	}
 
@@ -30,7 +31,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	 * @return array
 	 */
 	public function getStandardUserFields() {
-		return array( 'user_login', 'user_email', 'user_pass' );
+		return [ 'user_login', 'user_email', 'user_pass' ];
 	}
 
 	/**
@@ -45,17 +46,16 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	}
 
 	protected function verifyUsers() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->isIcUsersEnabled() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		if ( !$oMod->isIcUsersEnabled() ) {
 			return;
 		}
 
 		$aSnapshot = $this->getSnapshotUsers();
 		$aFieldsToCheck = $this->getStandardUserFields();
 
-		$aUsers = $this->loadWpUsers()->getAllUsers();
-		foreach ( $aUsers as $oUser ) {
+		foreach ( Services::WpUsers()->getAllUsers() as $oUser ) {
 
 			if ( !array_key_exists( $oUser->ID, $aSnapshot ) ) {
 				// Unrecognised user ID exists.
@@ -82,10 +82,10 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	 * @return bool
 	 */
 	public function deleteUserById( $nId ) {
-		$oDb = $this->loadDbProcessor();
+		$oDb = Services::WpDb();
 		return $oDb->deleteRowsFromTableWhere(
 				$oDb->getTable_Users(),
-				array( 'ID' => $nId )
+				[ 'ID' => $nId ]
 			) > 0;
 	}
 
@@ -97,11 +97,11 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 		$aSnapshot = $this->getSnapshotUsers();
 		$aUser = $aSnapshot[ $nId ];
 
-		$oDb = $this->loadDbProcessor();
+		$oDb = Services::WpDb();
 		return $oDb->updateRowsFromTableWhere(
 				$oDb->getTable_Users(),
 				$aUser,
-				array( 'ID' => $nId )
+				[ 'ID' => $nId ]
 			) > 0;
 	}
 
@@ -119,7 +119,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 
 			$aUsersToStore = [];
 			$aFields = $this->getStandardUserFields();
-			foreach ( $this->loadWpUsers()->getAllUsers() as $oUser ) {
+			foreach ( Services::WpUsers()->getAllUsers() as $oUser ) {
 
 				$aUserData = [];
 				foreach ( $aFields as $sField ) {
@@ -143,17 +143,8 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ICWP_WPSF_Processor_Base
 	 * @return int
 	 */
 	protected function getCronFrequency() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getScanFrequency();
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getCronName() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getIcCronName();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->getScanFrequency();
 	}
 }

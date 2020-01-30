@@ -51,6 +51,9 @@
     }
   ],
   "definitions": {
+    "db_classes":             {
+      "session": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Session\\Handler"
+    },
     "sessions_table_name":    "sessions",
     "sessions_table_columns": [
       "id",
@@ -66,6 +69,15 @@
       "secadmin_at",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":               {
+      "session_start":             {
+        "audit":  false
+      },
+      "session_terminate":             {
+        "audit":  false,
+        "recent": true
+      }
+    }
   }
 }

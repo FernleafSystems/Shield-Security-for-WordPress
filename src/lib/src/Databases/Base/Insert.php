@@ -51,7 +51,7 @@ class Insert extends BaseQuery {
 			$aData = [];
 		}
 		$aData = array_merge(
-			array( 'created_at' => Services::Request()->ts(), ),
+			[ 'created_at' => Services::Request()->ts(), ],
 			$aData
 		);
 		if ( !isset( $aData[ 'updated_at' ] ) && $this->getDbH()->hasColumn( 'updated_at' ) ) {

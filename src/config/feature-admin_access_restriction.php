@@ -17,38 +17,41 @@
   },
   "admin_notices": {
     "certain-options-restricted": {
-      "id":          "certain-options-restricted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+      "id":               "certain-options-restricted",
+      "schedule":         "conditions",
+      "plugin_admin":     "no",
+      "per_user": true,
+      "type":             "warning"
     },
     "admin-users-restricted":     {
-      "id":          "admin-users-restricted",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "can_dismiss": false,
-      "type":        "warning"
+      "id":               "admin-users-restricted",
+      "schedule":         "conditions",
+      "plugin_admin":     "no",
+      "type":             "warning",
+      "per_user": true
     }
   },
   "sections":      [
     {
-      "slug":        "section_admin_access_restriction_settings",
-      "primary":     true,
-      "title":       "Security Admin Restriction Settings",
-      "title_short": "Security Admin Settings",
-      "summary":     [
+      "slug":          "section_admin_access_restriction_settings",
+      "primary":       true,
+      "title":         "Security Admin Restriction Settings",
+      "title_short":   "Security Admin Settings",
+      "summary":       [
         "Purpose - Restrict access using a simple Access Key.",
         "Recommendation - Use of this feature is highly recommend."
-      ]
+      ],
+      "help_video_id": "338551188"
     },
     {
-      "slug":        "section_admin_access_restriction_areas",
-      "title":       "Security Admin Restriction Zones",
-      "title_short": "Access Restriction Zones",
-      "summary":     [
+      "slug":          "section_admin_access_restriction_areas",
+      "title":         "Security Admin Restriction Zones",
+      "title_short":   "Access Restriction Zones",
+      "summary":       [
         "Purpose - Restricts access to key WordPress areas for all users not authenticated with the Security Admin Access system.",
         "Recommendation - Use of this feature is highly recommend."
-      ]
+      ],
+      "help_video_id": "339824074"
     },
     {
       "slug":        "section_whitelabel",
@@ -79,8 +82,8 @@
       "section":     "section_enable_plugin_feature_admin_access_restriction",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/40",
-      "link_blog":   "https://icwp.io/wpsf02",
+      "link_info":   "https://shsec.io/40",
+      "link_blog":   "https://shsec.io/wpsf02",
       "name":        "Enable Security Admin",
       "summary":     "Enforce Security Admin Access Restriction",
       "description": "Enable this with great care and consideration. When this Access Key option is enabled, you must specify a key below and use it to gain access to this plugin."
@@ -91,7 +94,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "password",
-      "link_info":   "https://icwp.io/42",
+      "link_info":   "https://shsec.io/42",
       "link_blog":   "",
       "name":        "Security Admin Access Key",
       "summary":     "Provide/Update Security Admin Access Key",
@@ -104,7 +107,7 @@
       "premium":     true,
       "default":     "",
       "type":        "array",
-      "link_info":   "https://icwp.io/dk",
+      "link_info":   "https://shsec.io/dk",
       "link_blog":   "",
       "name":        "Security Admins",
       "summary":     "Persistent Security Admins",
@@ -116,19 +119,30 @@
       "default":     30,
       "type":        "integer",
       "min":         1,
-      "link_info":   "https://icwp.io/41",
+      "link_info":   "https://shsec.io/41",
       "link_blog":   "",
       "name":        "Security Admin Timeout",
       "summary":     "Specify An Automatic Timeout Interval For Security Admin Access",
       "description": "This will automatically expire your Security Admin Session. Does not apply until you enter the access key again. Default: 60 minutes."
     },
     {
+      "key":         "allow_email_override",
+      "section":     "section_admin_access_restriction_settings",
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/gf",
+      "link_blog":   "",
+      "name":        "Allow Email Override",
+      "summary":     "Allow Email Override Of Admin Access Restrictions",
+      "description": "Allow the use of verification emails to override and switch off the Security Admin restrictions."
+    },
+    {
       "key":         "admin_access_restrict_options",
       "section":     "section_admin_access_restriction_areas",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a0",
-      "link_blog":   "https://icwp.io/wpsf32",
+      "link_info":   "https://shsec.io/a0",
+      "link_blog":   "https://shsec.io/wpsf32",
       "name":        "Pages",
       "summary":     "Restrict Access To Key WordPress Posts And Pages Actions",
       "description": "Careful: This will restrict access to page/post creation, editing and deletion. Note: Selecting 'Edit' will also restrict all other options."
@@ -138,7 +152,7 @@
       "section":     "section_admin_access_restriction_areas",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a0",
+      "link_info":   "https://shsec.io/a0",
       "link_blog":   "",
       "name":        "Admin Users",
       "summary":     "Restrict Access To Create/Delete/Modify Other Admin Users",
@@ -167,8 +181,8 @@
           "text":      "Delete"
         }
       ],
-      "link_info":     "https://icwp.io/a0",
-      "link_blog":     "https://icwp.io/wpsf21",
+      "link_info":     "https://shsec.io/a0",
+      "link_blog":     "https://shsec.io/wpsf21",
       "summary":       "Restrict Access To Key WordPress Plugin Actions",
       "description":   "Careful: This will restrict access to plugin installation, update, activation and deletion. Note: Selecting 'Activate' will also restrict all other options."
     },
@@ -199,8 +213,8 @@
           "text":      "Delete"
         }
       ],
-      "link_info":     "https://icwp.io/a0",
-      "link_blog":     "https://icwp.io/wpsf21",
+      "link_info":     "https://shsec.io/a0",
+      "link_blog":     "https://shsec.io/wpsf21",
       "summary":       "Restrict Access To WordPress Theme Actions",
       "description":   "Careful: This will restrict access to theme installation, update, activation and deletion."
     },
@@ -212,7 +226,7 @@
       "value_options": [
         {
           "value_key": "edit",
-          "text":      "Create / Edit"
+          "text":      "Create/Edit"
         },
         {
           "value_key": "publish",
@@ -223,8 +237,8 @@
           "text":      "Delete"
         }
       ],
-      "link_info":     "https://icwp.io/a0",
-      "link_blog":     "https://icwp.io/wpsf21",
+      "link_info":     "https://shsec.io/a0",
+      "link_blog":     "https://shsec.io/wpsf21",
       "summary":       "Restrict Access To Key WordPress Posts And Pages Actions",
       "description":   "Careful: This will restrict access to page/post creation, editing and deletion."
     },
@@ -234,8 +248,8 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/dr",
-      "link_blog":   "https://icwp.io/ds",
+      "link_info":   "https://shsec.io/dr",
+      "link_blog":   "https://shsec.io/ds",
       "name":        "Enable White Label",
       "summary":     "Activate Your White Label Settings",
       "description": "Use this option to turn on/off the whole White Label feature."
@@ -257,7 +271,7 @@
       "sensitive":   true,
       "default":     "Shield",
       "type":        "text",
-      "link_info":   "https://icwp.io/dt",
+      "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
       "name":        "Plugin Name",
       "summary":     "The Name Of The Plugin",
@@ -279,9 +293,9 @@
       "key":         "wl_companyname",
       "section":     "section_whitelabel",
       "sensitive":   true,
-      "default":     "One Dollar Plugin",
+      "default":     "Example Company Name",
       "type":        "text",
-      "link_info":   "https://icwp.io/dt",
+      "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
       "name":        "Company Name",
       "summary":     "The Name Of Your Company",
@@ -303,7 +317,7 @@
       "key":         "wl_homeurl",
       "section":     "section_whitelabel",
       "sensitive":   true,
-      "default":     "https://icwp.io/7f",
+      "default":     "https://shsec.io/7f",
       "type":        "text",
       "link_info":   "",
       "link_blog":   "",
@@ -317,7 +331,7 @@
       "sensitive":   true,
       "default":     "pluginlogo_16x16.png",
       "type":        "text",
-      "link_info":   "https://icwp.io/dt",
+      "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
       "name":        "Menu Icon",
       "summary":     "Menu Icon URL",
@@ -341,7 +355,7 @@
       "sensitive":   true,
       "default":     "pluginlogo_banner-772x250.png",
       "type":        "text",
-      "link_info":   "https://icwp.io/dt",
+      "link_info":   "https://shsec.io/dt",
       "link_blog":   "",
       "name":        "Dashboard Logo",
       "summary":     "Dashboard Logo URL",
@@ -349,8 +363,21 @@
     }
   ],
   "definitions":   {
-    "help_video_id":                    "214855538",
-    "admin_access_options_to_restrict": {
+    "restricted_pages_users": [
+      "user-edit.php",
+      "users.php"
+    ],
+    "events":                 {
+      "key_success": {
+        "recent": true
+      },
+      "key_fail":    {
+        "cat":     3,
+        "recent":  true,
+        "offense": true
+      }
+    },
+    "options_to_restrict":    {
       "wpms_options": [
         "admin_email",
         "site_name",
@@ -365,6 +392,7 @@
         "siteurl",
         "home",
         "admin_email",
+        "new_admin_email",
         "users_can_register",
         "comments_notify",
         "comment_moderation",

@@ -1,26 +1,25 @@
 <?php
 
-class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Services\Services;
+
+class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		add_filter( $this->prefix( 'is_relabelled' ), '__return_true' );
-		add_filter( $oFO->prefix( 'plugin_labels' ), array( $this, 'doRelabelPlugin' ) );
-		add_filter( 'plugin_row_meta', array( $this, 'fRemoveDetailsMetaLink' ), 200, 2 );
-		add_action( 'admin_print_footer_scripts-plugin-editor.php', array( $this, 'hideFromPluginEditor' ) );
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		$oMod = $this->getMod();
+		add_filter( $oMod->prefix( 'is_relabelled' ), '__return_true' );
+		add_filter( $oMod->prefix( 'plugin_labels' ), [ $this, 'doRelabelPlugin' ] );
+		add_filter( 'plugin_row_meta', [ $this, 'fRemoveDetailsMetaLink' ], 200, 2 );
+		add_action( 'admin_print_footer_scripts-plugin-editor.php', [ $this, 'hideFromPluginEditor' ] );
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
-
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		$oCon = $this->getCon();
-
-		if ( $oFO->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$oCon->isPluginAdmin() ) {
+		/** @var Modules\SecurityAdmin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$this->getCon()->isPluginAdmin() ) {
 			$this->hideUpdates();
 		}
 	}
@@ -30,12 +29,11 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * or we adjust the number of displayed updates counts
 	 */
 	protected function hideUpdates() {
-		$sCurrent = $this->loadWp()->getCurrentPage();
-		if ( in_array( $sCurrent, array( 'plugins.php', 'update-core.php' ) ) ) {
-			add_filter( 'site_transient_update_plugins', array( $this, 'hidePluginUpdatesFromUI' ) );
+		if ( in_array( Services::WpPost()->getCurrentPage(), [ 'plugins.php', 'update-core.php' ] ) ) {
+			add_filter( 'site_transient_update_plugins', [ $this, 'hidePluginUpdatesFromUI' ] );
 		}
 		else {
-			add_filter( 'wp_get_update_data', array( $this, 'adjustUpdateDataCount' ) );
+			add_filter( 'wp_get_update_data', [ $this, 'adjustUpdateDataCount' ] );
 		}
 	}
 
@@ -47,7 +45,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	public function adjustUpdateDataCount( $aUpdateData ) {
 
 		$sFile = $this->getCon()->getPluginBaseFile();
-		if ( $this->loadWpPlugins()->isUpdateAvailable( $sFile ) ) {
+		if ( Services::WpPlugins()->isUpdateAvailable( $sFile ) ) {
 			$aUpdateData[ 'counts' ][ 'total' ]--;
 			$aUpdateData[ 'counts' ][ 'plugins' ]--;
 		}
@@ -57,7 +55,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 
 	public function hideFromPluginEditor() {
 		$oCon = $this->getCon();
-		$sJs = $this->loadDP()->readFileContentsUsingInclude( $oCon->getPath_AssetJs( 'whitelabel.js' ) );
+		$sJs = Services::Data()->readFileContentsUsingInclude( $oCon->getPath_AssetJs( 'whitelabel.js' ) );
 		echo sprintf( '<script type="text/javascript">%s</script>', sprintf( $sJs, $oCon->getPluginBaseFile() ) );
 	}
 
@@ -66,7 +64,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * @return array
 	 */
 	public function doRelabelPlugin( $aPluginLabels ) {
-		/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
 		$oFO = $this->getMod();
 
 		$aWhiteLabels = $oFO->getWhitelabelOptions();
@@ -135,7 +133,6 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends ICWP_WPSF_Processor_Bas
 	 * @return bool
 	 */
 	private function isNeedToHideUpdates() {
-		$oWp = $this->loadWp();
-		return is_admin() && !$oWp->isCron();
+		return is_admin() && !Services::WpGeneral()->isCron();
 	}
 }

@@ -19,6 +19,11 @@ class BuildHashesFromDir {
 	protected $aFileExts = [];
 
 	/**
+	 * @var string
+	 */
+	private $sHashAlgo = 'md5';
+
+	/**
 	 * All file keys are their normalised file paths, with the ABSPATH stripped from it.
 	 * @param string $sDir
 	 * @return string[]
@@ -26,17 +31,26 @@ class BuildHashesFromDir {
 	public function build( $sDir ) {
 		$aSnaps = [];
 		try {
+			$sReplaceDir = wp_normalize_path( ABSPATH );
+			$sAlgo = $this->getHashAlgo();
 			$oDirIt = StandardDirectoryIterator::create( $sDir, $this->nDepth, $this->aFileExts );
 			foreach ( $oDirIt as $oFile ) {
 				/** @var \SplFileInfo $oFile */
 				$sFullPath = $oFile->getPathname();
-				$sKey = str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $sFullPath ) );
-				$aSnaps[ $sKey ] = md5_file( $sFullPath );
+				$sKey = str_replace( $sReplaceDir, '', wp_normalize_path( $sFullPath ) );
+				$aSnaps[ $sKey ] = hash_file( $sAlgo, $sFullPath );
 			}
 		}
 		catch ( \Exception $oE ) {
 		}
 		return $aSnaps;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getHashAlgo() {
+		return empty( $this->sHashAlgo ) ? 'md5' : $this->sHashAlgo;
 	}
 
 	/**
@@ -54,6 +68,15 @@ class BuildHashesFromDir {
 	 */
 	public function setFileExts( $aExts ) {
 		$this->aFileExts = $aExts;
+		return $this;
+	}
+
+	/**
+	 * @param string $sHashAlgo
+	 * @return static
+	 */
+	public function setHashAlgo( $sHashAlgo ) {
+		$this->sHashAlgo = $sHashAlgo;
 		return $this;
 	}
 }

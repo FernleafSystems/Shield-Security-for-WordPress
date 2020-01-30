@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\GeoIp\Lookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,11 +12,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
 class Traffic extends BaseBuild {
-
-	/**
-	 * @var string
-	 */
-	private $sGeoIpDbSource;
 
 	/**
 	 * Override this to apply table-specific query filters.
@@ -31,7 +27,7 @@ class Traffic extends BaseBuild {
 		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 			$oSelector->filterByIp( inet_pton( $aParams[ 'fIp' ] ) );
 		}
-		else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
+		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
 			$oSelector->filterByNotIp( inet_pton( $oIp->getRequestIp() ) );
 		}
 
@@ -42,12 +38,12 @@ class Traffic extends BaseBuild {
 				$oSelector->filterByUserId( $oUser->ID );
 			}
 		}
-		else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
 
-		if ( $aParams[ 'fTransgression' ] >= 0 ) {
-			$oSelector->filterByIsTransgression( $aParams[ 'fTransgression' ] );
+		if ( $aParams[ 'fOffense' ] >= 0 ) {
+			$oSelector->filterByIsTransgression( $aParams[ 'fOffense' ] );
 		}
 
 		$oSelector->filterByPathContains( $aParams[ 'fPath' ] );
@@ -61,15 +57,15 @@ class Traffic extends BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array(
-			'fIp'            => '',
-			'fUsername'      => '',
-			'fLoggedIn'      => -1,
-			'fPath'          => '',
-			'fTransgression' => -1,
-			'fResponse'      => '',
-			'fExludeYou'     => '',
-		);
+		return [
+			'fIp'         => '',
+			'fUsername'   => '',
+			'fLoggedIn'   => -1,
+			'fPath'       => '',
+			'fOffense'    => -1,
+			'fResponse'   => '',
+			'fExcludeYou' => '',
+		];
 	}
 
 	/**
@@ -78,12 +74,15 @@ class Traffic extends BaseBuild {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		$oWpUsers = Services::WpUsers();
-		$oGeo = Services::GeoIp()->setDbSource( $this->getGeoIpDbSource() );
-		$oIp = Services::IP();
-		$sYou = $oIp->getRequestIp();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 
-		$aUsers = [ 0 => _wpsf__( 'No' ) ];
+		$oWpUsers = Services::WpUsers();
+		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $oMod->getDbHandler_GeoIp() );
+		$oIpSrv = Services::IP();
+		$sYou = $oIpSrv->getRequestIp();
+
+		$aUsers = [ 0 => __( 'No', 'wp-simple-firewall' ) ];
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Databases\Traffic\EntryVO $oEntry */
 			$sIp = $oEntry->ip;
@@ -97,7 +96,7 @@ class Traffic extends BaseBuild {
 			if ( $oEntry->code >= 400 ) {
 				$sCodeType = 'danger';
 			}
-			else if ( $oEntry->code >= 300 ) {
+			elseif ( $oEntry->code >= 300 ) {
 				$sCodeType = 'warning';
 			}
 
@@ -107,7 +106,7 @@ class Traffic extends BaseBuild {
 			$aEntry[ 'trans' ] = sprintf(
 				'<span class="badge badge-%s">%s</span>',
 				$oEntry->trans ? 'danger' : 'info',
-				$oEntry->trans ? _wpsf__( 'Yes' ) : _wpsf__( 'No' )
+				$oEntry->trans ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 			);
 			$aEntry[ 'ip' ] = $sIp;
 			$aEntry[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
@@ -116,39 +115,39 @@ class Traffic extends BaseBuild {
 			if ( $oEntry->uid > 0 ) {
 				if ( !isset( $aUsers[ $oEntry->uid ] ) ) {
 					$oUser = $oWpUsers->getUserById( $oEntry->uid );
-					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? _wpsf__( 'unknown' ) :
+					$aUsers[ $oEntry->uid ] = empty( $oUser ) ? __( 'Unknown', 'wp-simple-firewall' ) :
 						sprintf( '<a href="%s" target="_blank" title="Go To Profile">%s</a>',
 							$oWpUsers->getAdminUrl_ProfileEdit( $oUser ), $oUser->user_login );
 				}
 			}
 
-			$sCountry = $oGeo->countryName( $sIp );
-			if ( empty( $sCountry ) ) {
-				$sCountry = _wpsf__( 'Unknown' );
+			$oGeoIp = $oGeoIpLookup->lookupIp( $sIp );
+			$sCountryIso = $oGeoIp->getCountryCode();
+			if ( empty( $sCountryIso ) ) {
+				$sCountry = __( 'Unknown', 'wp-simple-firewall' );
 			}
 			else {
-				$sCountryIso = $oGeo->countryIso( $sIp );
 				$sFlag = sprintf( 'https://www.countryflags.io/%s/flat/16.png', strtolower( $sCountryIso ) );
-				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $sCountry );
+				$sCountry = sprintf( '<img class="icon-flag" src="%s" alt="%s"/> %s', $sFlag, $sCountryIso, $oGeoIp->getCountryName() );
 			}
 
 			$sIpLink = sprintf( '<a href="%s" target="_blank" title="IP Whois">%s</a>%s',
-				$oIp->getIpWhoisLookup( $sIp ), $sIp,
-				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('._wpsf__( 'You' ).')</span>' : ''
+				$oIpSrv->getIpInfo( $sIp ), $sIp,
+				$aEntry[ 'is_you' ] ? ' <span style="font-size: smaller;">('.__( 'You', 'wp-simple-firewall' ).')</span>' : ''
 			);
 
-			$aDetails = array(
-				sprintf( '%s: %s', _wpsf__( 'IP' ), $sIpLink ),
-				sprintf( '%s: %s', _wpsf__( 'Logged-In' ), $aUsers[ $oEntry->uid ] ),
-				sprintf( '%s: %s', _wpsf__( 'Location' ), $sCountry ),
-				esc_html( esc_js( sprintf( '%s - %s', _wpsf__( 'User Agent' ), $oEntry->ua ) ) )
-			);
+			$aDetails = [
+				sprintf( '%s: %s', __( 'IP', 'wp-simple-firewall' ), $sIpLink ),
+				sprintf( '%s: %s', __( 'Logged-In', 'wp-simple-firewall' ), $aUsers[ $oEntry->uid ] ),
+				sprintf( '%s: %s', __( 'Location', 'wp-simple-firewall' ), $sCountry ),
+				esc_html( esc_js( sprintf( '%s - %s', __( 'User Agent', 'wp-simple-firewall' ), $oEntry->ua ) ) )
+			];
 			$aEntry[ 'visitor' ] = '<div>'.implode( '</div><div>', $aDetails ).'</div>';
 
-			$aInfo = array(
-				sprintf( '%s: %s', _wpsf__( 'Response' ), $aEntry[ 'code' ] ),
-				sprintf( '%s: %s', _wpsf__( 'Transgression' ), $aEntry[ 'trans' ] ),
-			);
+			$aInfo = [
+				sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ), $aEntry[ 'code' ] ),
+				sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ), $aEntry[ 'trans' ] ),
+			];
 			$aEntry[ 'request_info' ] = '<div>'.implode( '</div><div>', $aInfo ).'</div>';
 			$aEntries[ $nKey ] = $aEntry;
 		}
@@ -160,21 +159,5 @@ class Traffic extends BaseBuild {
 	 */
 	protected function getTableRenderer() {
 		return new Tables\Render\Traffic();
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getGeoIpDbSource() {
-		return $this->sGeoIpDbSource;
-	}
-
-	/**
-	 * @param string $sGeoIpDbSource
-	 * @return $this
-	 */
-	public function setGeoIpDbSource( $sGeoIpDbSource ) {
-		$this->sGeoIpDbSource = $sGeoIpDbSource;
-		return $this;
 	}
 }

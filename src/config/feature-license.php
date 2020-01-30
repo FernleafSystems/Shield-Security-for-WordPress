@@ -18,11 +18,6 @@
   },
   "sections":    [
     {
-      "slug":    "section_license_options",
-      "title":   "License Options",
-      "primary": true
-    },
-    {
       "slug":   "section_non_ui",
       "hidden": true
     }
@@ -120,7 +115,7 @@
   ],
   "definitions": {
     "license_store_url":            "https://onedollarplugin.com/edd-sl/",
-    "keyless_cp":                   "https://icwp.io/c5",
+    "keyless_cp":                   "https://shsec.io/c5",
     "license_item_name":            "Shield Security Pro",
     "license_item_id":              "6047",
     "license_item_name_sc":         "Shield Security Pro (via Shield Central)",
@@ -130,6 +125,18 @@
     "license_key_length":           32,
     "license_key_type":             "alphanumeric",
     "keyless":                      true,
-    "keyless_handshake_expire":     90
+    "keyless_handshake_expire":     90,
+    "events":                       {
+      "lic_check_success":         {
+        "stat": false
+      },
+      "lic_fail_email":      {
+        "stat": false
+      },
+      "lic_fail_deactivate": {
+        "cat": 2,
+        "stat": false
+      }
+    }
   }
 }

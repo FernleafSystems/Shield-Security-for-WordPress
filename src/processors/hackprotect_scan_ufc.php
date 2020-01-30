@@ -1,117 +1,20 @@
 <?php
 
-use \FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 
 	const SCAN_SLUG = 'ufc';
 
 	/**
-	 * @return bool
-	 */
-	public function isEnabled() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->isUfcEnabled();
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultsSet $oResults
-	 * @return Shield\Databases\Scanner\EntryVO[]
-	 */
-	protected function convertResultsToVos( $oResults ) {
-		return ( new Shield\Scans\Ufc\ConvertResultsToVos() )->convert( $oResults );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO[] $aVos
-	 * @return Shield\Scans\Ufc\ResultsSet
-	 */
-	protected function convertVosToResults( $aVos ) {
-		return ( new Shield\Scans\Ufc\ConvertVosToResults() )->convert( $aVos );
-	}
-
-	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oVo
-	 * @return Shield\Scans\Ufc\ResultItem
-	 */
-	protected function convertVoToResultItem( $oVo ) {
-		return ( new Shield\Scans\Ufc\ConvertVosToResults() )->convertItem( $oVo );
-	}
-
-	/**
-	 * @return Shield\Scans\Ufc\Repair
-	 */
-	protected function getRepairer() {
-		return new Shield\Scans\Ufc\Repair();
-	}
-
-	/**
-	 * @return Shield\Scans\Ufc\Scanner
-	 */
-	protected function getScanner() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-
-		$oScanner = ( new Shield\Scans\Ufc\Scanner() )
-			->setExclusions( $oFO->getUfcFileExclusions() );
-
-		if ( $oFO->isUfsScanUploads() ) {
-			$sUploadsDir = $this->loadWp()->getDirUploads();
-			if ( !empty( $sUploadsDir ) ) {
-				$oScanner->addScanDirector( $sUploadsDir )
-						 ->addDirSpecificFileTypes(
-							 $sUploadsDir,
-							 [
-								 'php',
-								 'php5',
-								 'js',
-							 ]
-						 );
-			}
-		}
-		return $oScanner;
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemDelete( $oItem ) {
-		return $this->itemRepair( $oItem );
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultItem $oItem
-	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function itemRepair( $oItem ) {
-		$this->getRepairer()->repairItem( $oItem );
-		$this->doStatIncrement( 'file.corechecksum.replaced' ); //TODO
-		return true;
-	}
-
-	/**
-	 * @param Shield\Scans\Ufc\ResultsSet $oRes
-	 */
-	protected function runCronAutoRepair( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		if ( $oFO->isUfcDeleteFiles() ) {
-			$this->getRepairer()->repairResultsSet( $oRes );
-		}
-	}
-
-	/**
 	 * @param Shield\Scans\Ufc\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$bSend = $oFO->isUfcSendReport();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$bSend = $oOpts->isUfcSendReport();
 		if ( $bSend ) {
 			$this->emailResults( $oRes );
 		}
@@ -129,12 +32,18 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 		$this->getEmailProcessor()
 			 ->sendEmailWithWrap(
 				 $sTo,
-				 sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Unrecognised WordPress Files Detected' ) ),
+				 sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Unrecognised WordPress Files Detected', 'wp-simple-firewall' ) ),
 				 $this->buildEmailBodyFromFiles( $oRes->getItemsPathsFull() )
 			 );
 
-		$this->addToAuditEntry(
-			sprintf( _wpsf__( 'Sent Unrecognised File Scan Notification email alert to: %s' ), $sTo )
+		$this->getCon()->fireEvent(
+			'ufc_alert_sent',
+			[
+				'audit' => [
+					'to'  => $sTo,
+					'via' => 'email',
+				]
+			]
 		);
 	}
 
@@ -144,37 +53,39 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return string[]
 	 */
 	private function buildEmailBodyFromFiles( $aFiles ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oCon = $this->getCon();
 		$sName = $oCon->getHumanName();
-		$sHomeUrl = $this->loadWp()->getHomeUrl();
+		$sHomeUrl = Services::WpGeneral()->getHomeUrl();
 
-		$aContent = array(
-			sprintf( _wpsf__( 'The %s Unrecognised File Scanner found files which you need to review.' ), $sName ),
+		$aContent = [
+			sprintf( __( 'The %s Unrecognised File Scanner found files which you need to review.', 'wp-simple-firewall' ), $sName ),
 			'',
-			sprintf( '%s: %s', _wpsf__( 'Site URL' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
-		);
+			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
+		];
 
-		if ( $oFO->isUfcDeleteFiles() || $oFO->isIncludeFileLists() ) {
-			$aContent[] = _wpsf__( 'Files discovered' ).':';
+		if ( $oOpts->isUfcDeleteFiles() || $oMod->isIncludeFileLists() ) {
+			$aContent[] = __( 'Files discovered', 'wp-simple-firewall' ).':';
 			foreach ( $aFiles as $sFile ) {
 				$aContent[] = ' - '.$sFile;
 			}
 			$aContent[] = '';
 
-			if ( $oFO->isUfcDeleteFiles() ) {
-				$aContent[] = sprintf( _wpsf__( '%s has attempted to delete these files based on your current settings.' ), $sName );
+			if ( $oOpts->isUfcDeleteFiles() ) {
+				$aContent[] = sprintf( __( '%s has attempted to delete these files based on your current settings.', 'wp-simple-firewall' ), $sName );
 				$aContent[] = '';
 			}
 		}
 
-		$aContent[] = _wpsf__( 'We recommend you run the scanner to review your site' ).':';
+		$aContent[] = __( 'We recommend you run the scanner to review your site', 'wp-simple-firewall' ).':';
 		$aContent[] = $this->getScannerButtonForEmail();
 		$aContent[] = '';
 
 		if ( !$oCon->isRelabelled() ) {
-			$aContent[] = sprintf( '[ <a href="https://icwp.io/moreinfoufc">%s</a> ]', _wpsf__( 'More Info On This Scanner' ) );
+			$aContent[] = sprintf( '[ <a href="https://shsec.io/moreinfoufc">%s</a> ]', __( 'More Info On This Scanner', 'wp-simple-firewall' ) );
 		}
 
 		return $aContent;

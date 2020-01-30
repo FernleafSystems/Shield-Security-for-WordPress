@@ -1,36 +1,24 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Session;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
-
-	/**
-	 * @var int
-	 */
-	const DAYS_TO_KEEP = 30;
+class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var Session\EntryVO
 	 */
 	private $oCurrent;
 
-	/**
-	 * @param ICWP_WPSF_Processor_Sessions $oModCon
-	 */
-	public function __construct( ICWP_WPSF_FeatureHandler_Sessions $oModCon ) {
-		parent::__construct( $oModCon, $oModCon->getDef( 'sessions_table_name' ) );
-	}
-
 	public function run() {
-		if ( $this->isReadyToRun() ) {
-			if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
-				add_action( 'clear_auth_cookie', function () {
-					$this->terminateCurrentSession();
-				}, 0 );
-			}
-			add_filter( 'login_message', array( $this, 'printLinkToAdmin' ) );
+		if ( !Services::WpUsers()->isProfilePage() ) { // only on logout
+			add_action( 'clear_auth_cookie', function () {
+				$this->terminateCurrentSession();
+			}, 0 );
 		}
+		add_filter( 'login_message', [ $this, 'printLinkToAdmin' ] );
 	}
 
 	/**
@@ -63,12 +51,14 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	public function onModuleShutdown() {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
+
 		if ( !Services::Rest()->isRest() ) {
-			/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-			$oFO = $this->getMod();
-			if ( $oFO->hasSession() ) {
+			$oSession = $this->getCurrentSession();
+			if ( $oSession instanceof Session\EntryVO ) {
 				/** @var Session\Update $oUpd */
-				$oUpd = $this->getDbHandler()->getQueryUpdater();
+				$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
 				$oUpd->updateLastActivity( $this->getCurrentSession() );
 			}
 		}
@@ -77,9 +67,9 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	private function autoAddSession() {
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->hasSession() && $oFO->isAutoAddSessions() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
+		if ( !$oMod->getSession() && $oMod->isAutoAddSessions() ) {
 			$this->queryCreateSession(
 				$this->getCon()->getSessionId( true ),
 				Services::WpUsers()->getCurrentWpUsername()
@@ -94,81 +84,53 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @throws \Exception
 	 */
 	public function printLinkToAdmin( $sMessage = '' ) {
-		/** @var ICWP_WPSF_FeatureHandler_Sessions $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		$oU = Services::WpUsers()->getCurrentWpUser();
 
 		if ( in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
-			 && ( $oU instanceof \WP_User ) && $oFO->hasSession() ) {
+			 && ( $oU instanceof \WP_User ) && $oMod->hasSession() ) {
 			$sMessage .= sprintf( '<p class="message">%s<br />%s</p>',
-				_wpsf__( "You're already logged-in." )
+				__( "You're already logged-in.", 'wp-simple-firewall' )
 				.sprintf( ' <span style="white-space: nowrap">(%s)</span>', $oU->user_login ),
 				( $oU->user_level >= 2 ) ? sprintf( '<a href="%s">%s</a>',
 					Services::WpGeneral()->getAdminUrl(),
-					_wpsf__( "Go To Admin" ).' &rarr;' ) : '' );
+					__( "Go To Admin", 'wp-simple-firewall' ).' &rarr;' ) : '' );
 		}
 		return $sMessage;
 	}
 
 	/**
 	 * @param \WP_User $oUser
-	 * @return boolean
+	 * @return bool
 	 */
 	private function activateUserSession( $oUser ) {
 		if ( !$this->isLoginCaptured() && $oUser instanceof \WP_User ) {
 			$this->setLoginCaptured();
 			// If they have a currently active session, terminate it (i.e. we replace it)
-			$oSession = $this->queryGetSession( $this->getSessionId(), $oUser->user_login );
-			if ( !empty( $oSession ) ) {
-				$this->queryTerminateSession( $oSession );
-				$this->clearCurrentSession();
-			}
-
-			$this->queryCreateSession( $this->getSessionId(), $oUser->user_login );
+			$this->terminateCurrentSession();
+			$this->queryCreateSession( $this->getCon()->getSessionId( true ), $oUser->user_login );
 		}
 		return true;
 	}
 
 	/**
-	 * @return string
+	 * @return bool
 	 */
-	private function getSessionId() {
-		return $this->getCon()->getSessionId();
-	}
+	public function terminateCurrentSession() {
+		$bSuccess = false;
 
-	/**
-	 * @return boolean
-	 */
-	protected function terminateCurrentSession() {
-		$mResult = false;
-		if ( Services::WpUsers()->isUserLoggedIn() ) {
-			$mResult = $this->queryTerminateSession( $this->getCurrentSession() );
-			$this->getCon()->clearSession();
-			$this->clearCurrentSession();
+		$oSes = $this->getCurrentSession();
+		if ( $oSes instanceof Session\EntryVO ) {
+			$bSuccess = ( new Sessions\Lib\Ops\Terminate() )
+				->setMod( $this->getMod() )
+				->byRecordId( $oSes->id );
 		}
-		return $mResult;
-	}
 
-	/**
-	 * @return string
-	 */
-	public function getCreateTableSql() {
-		return "CREATE TABLE %s (
-			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			session_id varchar(32) NOT NULL DEFAULT '',
-			wp_username varchar(255) NOT NULL DEFAULT '',
-			ip varchar(40) NOT NULL DEFAULT '0',
-			browser varchar(32) NOT NULL DEFAULT '',
-			logged_in_at int(15) NOT NULL DEFAULT 0,
-			last_activity_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			last_activity_uri text NOT NULL DEFAULT '',
-			li_code_email varchar(6) NOT NULL DEFAULT '',
-			login_intent_expires_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			secadmin_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			created_at int(15) UNSIGNED NOT NULL DEFAULT 0,
-			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0,
- 			PRIMARY KEY  (id)
-		) %s;";
+		$this->oCurrent = null;
+		$this->getCon()->clearSession();
+
+		return $bSuccess;
 	}
 
 	/**
@@ -182,29 +144,15 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function clearCurrentSession() {
-		$this->oCurrent = null;
-		return $this;
-	}
-
-	/**
 	 * @return Session\EntryVO|null
 	 */
 	public function loadCurrentSession() {
 		$oSession = null;
-		if ( did_action( 'init' ) ) {
-			$oSession = $this->queryGetSession( $this->getSessionId() );
+		$oCon = $this->getCon();
+		if ( did_action( 'init' ) && $oCon->hasSessionId() ) {
+			$oSession = $this->queryGetSession( $oCon->getSessionId() );
 		}
 		return $oSession;
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler
-	 */
-	protected function createDbHandler() {
-		return new \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Handler();
 	}
 
 	/**
@@ -217,13 +165,13 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 			return null;
 		}
 
+		$this->getCon()->fireEvent( 'session_start' );
+
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		/** @var Session\Insert $oInsert */
-		$oInsert = $this->getDbHandler()->getQueryInserter();
-		$bSuccess = $oInsert->create( $sSessionId, $sUsername );
-		if ( $bSuccess ) {
-			$this->doStatIncrement( 'user.session.start' );
-		}
-		return $bSuccess;
+		$oInsert = $oMod->getDbHandler_Sessions()->getQueryInserter();
+		return $oInsert->create( $sSessionId, $sUsername );
 	}
 
 	/**
@@ -233,38 +181,10 @@ class ICWP_WPSF_Processor_Sessions extends ICWP_WPSF_BaseDbProcessor {
 	 * @return Session\EntryVO|null
 	 */
 	private function queryGetSession( $sSessionId, $sUsername = '' ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		/** @var Session\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
+		$oSel = $oMod->getDbHandler_Sessions()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
-	}
-
-	/**
-	 * @param Session\EntryVO $oSession
-	 * @return bool|int
-	 */
-	public function queryTerminateSession( $oSession ) {
-		if ( empty( $oSession ) ) {
-			return true;
-		}
-		$this->doStatIncrement( 'user.session.terminate' );
-
-		return $this->getDbHandler()
-					->getQueryDeleter()
-					->deleteEntry( $oSession );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getTableColumnsByDefinition() {
-		$aDef = $this->getMod()->getDef( 'sessions_table_columns' );
-		return ( is_array( $aDef ) ? $aDef : [] );
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getAutoExpirePeriod() {
-		return DAY_IN_SECONDS*self::DAYS_TO_KEEP;
 	}
 }

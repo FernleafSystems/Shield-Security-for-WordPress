@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -23,9 +24,17 @@ class PasswordExpiry extends Base {
 	 */
 	protected function processUser( $oUser, $oMeta ) {
 		if ( $this->isPassExpired( $oMeta ) ) {
+
 			$oUser = new \WP_Error(
 				$this->getCon()->prefix( 'pass-expired' ),
-				'Sorry, this account is suspended due to expired password. Please reset your password to gain access to your account.'
+				implode( ' ', [
+					__( 'Sorry, this account is suspended because the password has expired.', 'wp-simple-firewall' ),
+					__( 'Please reset your password to regain access.', 'wp-simple-firewall' ),
+					sprintf( '<a href="%s">%s &rarr;</a>',
+						Services::WpGeneral()->getLostPasswordUrl(),
+						__( 'Reset', 'wp-simple-firewall' )
+					),
+				] )
 			);
 		}
 		return $oUser;
@@ -36,11 +45,12 @@ class PasswordExpiry extends Base {
 	 * @return bool
 	 */
 	private function isPassExpired( $oMeta ) {
-		$nPassStart = (int)$oMeta->pass_started_at;
-		if ( empty( $nPassStart ) ) {
-			$oMeta->pass_started_at = $oMeta->getLastVerifiedAt();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( empty( $oMeta->pass_started_at ) ) {
+			$oMeta->pass_started_at = $oMeta->first_seen_at;
 		}
-		return ( Services::Request()->ts() - $oMeta->pass_started_at > $this->getMaxPasswordAge() );
+		return ( Services::Request()->ts() - $oMeta->pass_started_at > $oOpts->getPassExpireTimeout() );
 	}
 
 	/**

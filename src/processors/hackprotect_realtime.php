@@ -3,13 +3,12 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Realtime extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_HackProtect_Realtime extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
 	public function run() {
-		parent::run();
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
 		if ( $oMod->isRtEnabledWpConfig() ) {
@@ -18,12 +17,11 @@ class ICWP_WPSF_Processor_HackProtect_Realtime extends ICWP_WPSF_Processor_BaseW
 	}
 
 	private function runWpConfig() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oProc = new Shield\Scans\Realtime\Files\Process();
 
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oModPlugin */
-		$oModPlugin = $this->getCon()->getModule( 'plugin' );
+		$oModPlugin = $this->getCon()->getModule_Plugin();
 		$oProc->priv_key = $oModPlugin->getOpenSslPrivateKey();
 		$oProc->original_path = Services::WpGeneral()->getPath_WpConfig();
 		$oProc->original_path_hash = $oMod->getRtFileHash( $oProc->original_path );

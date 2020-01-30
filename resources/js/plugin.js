@@ -7,26 +7,9 @@ var iCWP_WPSF_OptionsPages = new function () {
 		iCWP_WPSF_BodyOverlay.show();
 	};
 
-	var moveCarousel0 = function ( event ) {
-		moveCarousel( 0 );
-	};
-	var moveCarousel1 = function ( event ) {
-		moveCarousel( 1 );
-	};
-	var moveCarousel2 = function ( event ) {
-		moveCarousel( 2 );
-	};
-
-	var moveCarousel = function ( nSlide ) {
-		jQuery( '.icwp-carousel' ).carousel( nSlide );
-	};
-
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
 			jQuery( document ).on( "click", "a.nav-link.module", showWaiting );
-			jQuery( document ).on( "click", "a.icwp-carousel-0", moveCarousel0 );
-			jQuery( document ).on( "click", "a.icwp-carousel-1", moveCarousel1 );
-			jQuery( document ).on( "click", "a.icwp-carousel-2", moveCarousel2 );
 
 			/** Track active tab */
 			jQuery( document ).on( "click", "#ModuleOptionsNav a.nav-link", function ( e ) {
@@ -38,26 +21,62 @@ var iCWP_WPSF_OptionsPages = new function () {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
 
-			var sActiveTabHash = window.location.hash;
-			if ( sActiveTabHash ) {
-				jQuery( '#ModuleOptionsNav a[href="' + window.location.hash + '"]' ).tab( 'show' );
-			}
+			jQuery( document ).on( "odp-optsrender", focusTab );
 		} );
+	};
+
+	var focusTab = function ( evt ) {
+		var sActiveTabHash = window.location.hash;
+		if ( typeof sActiveTabHash !== 'undefined' ) {
+			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
+		}
 	};
 
 }();
 
+let iCWP_WPSF_OptsPageRender = new function () {
+	this.renderForm = function ( aAjaxReqData ) {
+		iCWP_WPSF_BodyOverlay.show();
+		jQuery.post( ajaxurl, aAjaxReqData,
+			function ( oResponse ) {
+				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html )
+														   .trigger( 'odp-optsrender' );
+			}
+		).fail(
+			function () {
+			}
+		).always( function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	};
+}();
+
+if ( typeof icwp_wpsf_vars_tourmanager !== 'undefined' ) {
+	var iCWP_WPSF_MarkTourFinished = new function () {
+		this.finishedTour = function ( sTourKey ) {
+			icwp_wpsf_vars_tourmanager.ajax[ 'tour_key' ] = sTourKey;
+			jQuery.post( ajaxurl, icwp_wpsf_vars_tourmanager.ajax ).always();
+		};
+	}();
+}
+
 var iCWP_WPSF_Toaster = new function () {
 
 	this.showMessage = function ( sMessage, bSuccess ) {
-		var $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
-		var $oToastBody = jQuery( '.toast-body', $oNewToast );
+		let $oNewToast = jQuery( '#icwpWpsfOptionsToast' );
+		let $oToastBody = jQuery( '.toast-body', $oNewToast );
 		$oToastBody.html( '' );
 
 		jQuery( '<span></span>' ).html( sMessage )
 								 .addClass( bSuccess ? 'text-dark' : 'text-danger' )
 								 .appendTo( $oToastBody );
+
+		$oNewToast.css( 'z-index', 1000 );
 		$oNewToast.toast( 'show' );
+		$oNewToast.on( 'hidden.bs.toast', function () {
+			$oNewToast.css( 'z-index', -10 )
+		} );
 	};
 
 	this.initialise = function () {
@@ -73,15 +92,20 @@ iCWP_WPSF_Toaster.initialise();
 
 var iCWP_WPSF_OptionsFormSubmit = new function () {
 
-	var bRequestCurrentlyRunning = false;
+	let bRequestCurrentlyRunning = false;
+	var aAjaxReqParams = icwp_wpsf_vars_base.ajax.mod_options;
 
 	this.submit = function ( sMessage, bSuccess ) {
-		var $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
+		let $oDiv = createDynDiv( bSuccess ? 'success' : 'failed' );
 		$oDiv.fadeIn().html( sMessage );
 		setTimeout( function () {
 			$oDiv.fadeOut( 5000 );
 			$oDiv.remove();
 		}, 4000 );
+	};
+
+	this.updateAjaxReqParams = function ( aParams ) {
+		aAjaxReqParams = aParams;
 	};
 
 	/**
@@ -117,7 +141,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			 * for patterns within them.
 			 */
 			var aReq = jQuery.extend(
-				icwp_wpsf_vars_base.ajax.mod_options,
+				aAjaxReqParams,
 				{
 					'form_params': Base64.encode( $oForm.serialize() ),
 					'enc_params': 'b64'
@@ -141,7 +165,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 				function () {
 					iCWP_WPSF_Toaster.showMessage( 'The request was blocked. Retrying an alternative...', false );
 					aReq = jQuery.extend(
-						icwp_wpsf_vars_base.ajax.mod_options,
+						aAjaxReqParams,
 						{
 							'form_params': Base64.encode( LZString.compress( $oForm.serialize() ) ),
 							'enc_params': 'lz-string'
@@ -164,8 +188,8 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 			).always( function () {
 					bRequestCurrentlyRunning = false;
 					setTimeout( function () {
-						location.reload( true );
-					}, 2000 );
+						location.reload();
+					}, 1000 );
 				}
 			);
 		}
@@ -177,7 +201,7 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 
 	this.initialise = function () {
 		jQuery( document ).ready( function () {
-			jQuery( document ).on( "submit", "form.icwpOptionsForm", submitOptionsForm );
+			jQuery( document ).on( "submit", 'form.icwpOptionsForm', submitOptionsForm );
 		} );
 	};
 }();
@@ -199,7 +223,7 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 
 			bCheckInPlace = false;
 
-			jQuery.post( ajaxurl, icwp_wpsf_vars_secadmin.reqajax,
+			jQuery.post( ajaxurl, icwp_wpsf_vars_secadmin.ajax.check,
 				function ( oResponse ) {
 					if ( oResponse.data.success ) {
 						var nLeft = oResponse.data.timeleft;
@@ -217,7 +241,7 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 						iCWP_WPSF_BodyOverlay.show();
 						setTimeout( function () {
 							if ( confirm( icwp_wpsf_vars_secadmin.strings.confirm ) ) {
-								window.location.reload( true );
+								window.location.reload();
 							}
 							else {
 								iCWP_WPSF_BodyOverlay.hide();
@@ -234,9 +258,7 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 			);
 		};
 
-		/**
-		 */
-		var scheduleSecAdminCheck = function () {
+		let scheduleSecAdminCheck = function () {
 			if ( !bCheckInPlace ) {
 				setTimeout( function () {
 					checkSecAdmin();

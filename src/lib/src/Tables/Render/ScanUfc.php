@@ -25,10 +25,10 @@ class ScanUfc extends ScanBase {
 	 * @return array
 	 */
 	protected function get_bulk_actions() {
-		return array(
-			'delete' => 'Delete',
-			'ignore' => 'Ignore',
-		);
+		return [
+			'delete' => __( 'Delete', 'wp-simple-firewall' ),
+			'ignore' => __( 'Ignore', 'wp-simple-firewall' ),
+		];
 	}
 
 	/**

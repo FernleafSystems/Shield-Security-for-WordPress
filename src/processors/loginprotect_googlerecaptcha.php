@@ -1,5 +1,7 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
+
 class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**
@@ -7,24 +9,23 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 	 */
 	public function run() {
 		parent::run();
-		add_action( 'wp_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
-		add_action( 'login_enqueue_scripts', array( $this, 'registerGoogleRecaptchaJs' ), 99 );
+		add_action( 'wp_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
+		add_action( 'login_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function performCheckWithException() {
-
 		if ( !$this->isFactorTested() ) {
-
+			$this->setFactorTested( true );
 			try {
-				$this->checkRequestRecaptcha();
-				$this->setFactorTested( true );
-				$this->doStatIncrement( 'login.recaptcha.verified' );
+				( new Shield\Utilities\ReCaptcha\TestRequest() )
+					->setMod( $this->getMod() )
+					->test();
 			}
 			catch ( \Exception $oE ) {
-				$this->setLoginAsFailed( 'login.recaptcha.fail' );
+				$this->processFailure();
 				throw $oE;
 			}
 		}

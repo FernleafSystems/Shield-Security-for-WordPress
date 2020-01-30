@@ -1,8 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 */
@@ -12,14 +13,14 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 		$oReq = Services::Request();
 
 		// performs the license check
-		add_action( $oFO->prefix( 'adhoc_cron_license_check' ), array( $oFO, 'verifyLicense' ) );
+		add_action( $oFO->prefix( 'adhoc_cron_license_check' ), [ $oFO, 'verifyLicense' ] );
 
-		switch ( $oReq->query( 'shield_action' ) ) {
+		switch ( $this->getCon()->getShieldAction() ) {
 
 			case 'keyless_handshake':
 				$sNonce = $oReq->query( 'nonce' );
 				if ( !empty( $sNonce ) && $sNonce == $oFO->getKeylessRequestHash() ) {
-					$aHandshakeData = array( 'success' => false );
+					$aHandshakeData = [ 'success' => false ];
 					if ( !$oFO->isKeylessHandshakeExpired() ) {
 						$aHandshakeData[ 'success' ] = true;
 					}
@@ -29,7 +30,7 @@ class ICWP_WPSF_Processor_License extends ICWP_WPSF_Processor_BaseWpsf {
 
 			case 'license_check':
 				if ( !wp_next_scheduled( $oFO->prefix( 'adhoc_cron_license_check' ) ) ) {
-					wp_schedule_single_event( $oReq->ts() + 20, $oFO->prefix( 'adhoc_cron_license_check' ), array( true ) );
+					wp_schedule_single_event( $oReq->ts() + 20, $oFO->prefix( 'adhoc_cron_license_check' ), [ true ] );
 				}
 				break;
 		}

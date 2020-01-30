@@ -14,7 +14,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function incrementTransgressions( $oIp, $nIncrement = 1 ) {
-		return $this->updateTransgressions( $oIp, $oIp->getTransgressions() + $nIncrement );
+		return $this->updateTransgressions( $oIp, $oIp->transgressions + $nIncrement );
 	}
 
 	/**
@@ -25,10 +25,10 @@ class Update extends Base\Update {
 	public function updateTransgressions( $oIp, $nTransCount ) {
 		return $this->updateEntry(
 			$oIp,
-			array(
+			[
 				'transgressions' => max( 0, $nTransCount ),
 				'last_access_at' => Services::Request()->ts()
-			)
+			]
 		);
 	}
 
@@ -38,7 +38,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function updateLabel( $oIp, $sLabel ) {
-		return $this->updateEntry( $oIp, array( 'label' => trim( $sLabel ) ) );
+		return $this->updateEntry( $oIp, [ 'label' => trim( $sLabel ) ] );
 	}
 
 	/**
@@ -47,6 +47,14 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function updateLastAccessAt( $oIp ) {
-		return $this->updateEntry( $oIp, array( 'last_access_at' => Services::Request()->ts() ) );
+		return $this->updateEntry( $oIp, [ 'last_access_at' => Services::Request()->ts() ] );
+	}
+
+	/**
+	 * @param EntryVO $oIp
+	 * @return bool
+	 */
+	public function setBlocked( $oIp ) {
+		return $this->updateEntry( $oIp, [ 'blocked_at' => Services::Request()->ts() ] );
 	}
 }

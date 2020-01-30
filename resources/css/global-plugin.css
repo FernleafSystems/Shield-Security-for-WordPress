@@ -59,7 +59,6 @@
 	.notice-icon {
 		display: block;
 	}
-
 	.notice-content {
 		margin-left: 62px;
 	}
@@ -74,6 +73,13 @@
 .notice-icon .dashicons {
 	display: inline-block;
 	font-size: 48px;
+}
+.flash .notice-icon {
+	height: 26px;
+}
+.flash .notice-icon .dashicons {
+	font-size: 24px;
+	height: 26px;
 }
 .notice-content p a {
 	text-shadow: none;
@@ -162,7 +168,7 @@ tr.icwp-plugin-vulnerability dd {
 	background-color: whitesmoke;
 }
 .wp-submenu-wrap a .icwp_highlighted {
-	color: yellow;
+	color: #09b740;
 }
 #icwp-wpsf-dashboard_widget {
 }
@@ -290,12 +296,15 @@ tr.icwp-plugin-vulnerability dd {
 }
 .icwp-toaster {
 	position: fixed;
-	top: 60px;
-	right: 40px;
-	z-index: 12;
+	top: 100px;
+	right: 60px;
+	z-index: -1;
 }
 .icwp-toaster .toast-body {
 	white-space: nowrap;
+}
+.icwp-toaster.toast {
+	max-width: none;
 }
 .icwpAjaxTableContainer .tablenav {
 	padding: 5px 8px 5px 3px;

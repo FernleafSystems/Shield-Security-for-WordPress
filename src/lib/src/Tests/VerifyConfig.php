@@ -48,7 +48,6 @@ class VerifyConfig {
 			if ( $bBroken ) {
 				var_dump( sprintf( '%s: opt type is %s, value is %s at "%s". Default is: %s',
 					$sKey, $sOptType, $sValType, var_export( $mVal, true ), $oOpts->getOptDefault( $sKey ) ) );
-
 //				$oOpts->resetOptToDefault( $sKey );
 			}
 		}

@@ -12,4 +12,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property int    modified_at
  */
 class EntryVO extends Base\EntryVO {
+
 }

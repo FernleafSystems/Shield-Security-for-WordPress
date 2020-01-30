@@ -2,16 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Users\ShieldUserMeta;
 
 abstract class Base {
 
-	use PluginControllerConsumer;
+	use ModConsumer;
 	const HOOK_PRIORITY = 1000; // so only authenticated user is notified of account state.
 
 	public function run() {
-		add_filter( 'authenticate', array( $this, 'checkUser' ), static::HOOK_PRIORITY, 1 );
+		add_filter( 'authenticate', [ $this, 'checkUser' ], static::HOOK_PRIORITY, 1 );
 	}
 
 	/**

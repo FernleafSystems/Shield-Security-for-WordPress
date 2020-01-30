@@ -1,19 +1,34 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
 /**
  * Class ICWP_WPSF_Processor_Traffic
  */
-class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Traffic extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		$this->getProcessorLogger()->run();
+		$this->getProcessorLogger()->execute();
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_TrafficLogger|mixed
+	 * Not fully tested- aim for 8.1 release
+	 */
+	public function onWpInit() {
+		/** @var Modules\Traffic\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( false && $oOpts->isTrafficLimitEnabled() ) {
+			( new Modules\Traffic\Limiter\Limiter() )
+				->setMod( $this->getMod() )
+				->run();
+		}
+	}
+
+	/**
+	 * @return \ICWP_WPSF_Processor_TrafficLogger|mixed
 	 */
 	public function getProcessorLogger() {
-		return $this->getSubPro( 'traffic_logger' );
+		return $this->getSubPro( 'logger' );
 	}
 
 	/**
@@ -21,7 +36,7 @@ class ICWP_WPSF_Processor_Traffic extends ICWP_WPSF_Processor_BaseWpsf {
 	 */
 	protected function getSubProMap() {
 		return [
-			'traffic_logger' => 'ICWP_WPSF_Processor_TrafficLogger',
+			'logger' => 'ICWP_WPSF_Processor_TrafficLogger',
 		];
 	}
 }

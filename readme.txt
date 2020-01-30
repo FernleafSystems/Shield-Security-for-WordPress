@@ -1,36 +1,38 @@
-=== Shield: Security, Scanning & Protection For All ===
+﻿=== Shield Security: Protection with Smarter Automation ===
 Contributors: onedollarplugin, paultgoodchild
-Donate link: https://icwp.io/bw
+Donate link: https://shsec.io/bw
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Tags: scan, firewall, two factor authentication, login protection, security
-Requires at least: 3.5.0
+Tags: scan, malware, firewall, two factor authentication, login protection
+Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
-Tested up to: 5.2
-Stable tag: 7.3.0
+Tested up to: 5.3
+Stable tag: 8.5.2
 
-All-In-One protection against hackers and bot attacks. Easy to use Scanners, 2-Factor Authentication, login protection, auto IP blocker, and so much more...
+Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
 == Description ==
 
 ### The highest rated 5* Security Plugin for WordPress
 
-Shield has the highest average 5* rating for any WordPress security plugin (2019/04). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5)..
+Shield - highest average 5* rating for any WordPress security plugin (2019/05). [See what people are saying here](https://wordpress.org/support/plugin/wp-simple-firewall/reviews/?filter=5).
 
-#### Our Mission: No Site Left Behind.
+#### It's 2020 - Don't settle for just another security plugin. Get *smarter* security.
 
-We're driven by our mission to offer protection to **every single site**. We're not here to scare you, but help you start, *right now*, protecting what's important to you and your business.
+You don't need another 100 email notifications.
 
-Getting started is easy, and we'll help you through every step. All our security options are fully documented so you can understand and stay informed as you progress.
+You **need** a security plugin that does **all** the heavy lifting for you, and only alerts you when you need to know.
 
-### Powerful Security for WordPress *doesn't* need to be *hard*
+And when you get an alert, you actually have steps to take, not just the position of "I have no clue what to do!"
 
-There's no reason for security plugins to be complicated. It just doesn't have to be that way.
+### Security for WordPress *doesn't* have to be *hard*
 
-Shield is the easiest security plugin to setup - you simply activate it. Then a beautiful, step-by-step wizard will walk you through the basic configuration.
+There's no reason for security to be so darn complicated. It doesn't have to be this way any longer.
 
-And you can dig deeper, when you're ready.
+Shield is the easiest security plugin to setup - you simply activate it.
+
+And you can gradually dig deeper, as you're ready.
 
 #### Trust: Shield Does Exactly What It Says It Will Do
 
@@ -105,9 +107,9 @@ From November 2017, Shield Security now has a Pro version for those that need to
 ### Dedicated Premium Support
 
 The Shield Security team prioritises email technical support over the WordPress.org forums.
-Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://icwp.io/ab).
+Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://shsec.io/ab).
 
-Learn more on going Pro at [our One Dollar Plugin store](https://icwp.io/ab).
+Discover all the perks turning your security Pro at [our Shield Security store](https://shsec.io/ab).
 
 = Our Mission =
 
@@ -134,19 +136,19 @@ downloading and installing Shield now
 * Exclusive membership to a private security group where you can learn more about WordPress security.
 
 = Super Admin Security Protection =
-The **only** WordPress security plugin with a WordPress-independent security key to protect itself. [more info](https://icwp.io/wpsf05)
+The **only** WordPress security plugin with a WordPress-independent security key to protect itself. [more info](https://shsec.io/wpsf05)
 
 = Audit Trail Activity Monitor =
 With the Audit Trail you can review all major actions that have taken place on your WordPress site, by all users.
 
 = Firewall Protection =
-Blocks all web requests to the site that violate the firewall security rules! [more info](https://icwp.io/wpsf06)
+Blocks all web requests to the site that violate the firewall security rules! [more info](https://shsec.io/wpsf06)
 
 = Brute Force Login Guard and Two-Factor Authentication =
-Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](https://icwp.io/wpsf07)
+Provides effective security against Brute Force Hacking and email based Two-Factor Authenticated login. [more info](https://shsec.io/wpsf07)
 
 = Comment SPAM (Full replacement and upgrade from Akismet) =
-Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](https://icwp.io/wpsf08)
+Blocks **ALL** automatic Bot-SPAM, and catches Human Comments SPAM without sending data to 3rd parties or charging subscription fees. [more info](https://shsec.io/wpsf08)
 
 = FABLE - Fully Automatic Black Listing Engine =
 No more manual IP Black lists. This plugin handles the blocking of IP addresses for hosts that are naughty.
@@ -170,9 +172,9 @@ and force users to verify themselves when they login.
 
 Three core security features provide layers to protect the WordPress Login system.
 
-1.	[Email-based 2-Factor Login Authentication](https://icwp.io/2v) based on IP address! (prevents brute force login attacks)
-1.	[Login Cooldown Interval](https://icwp.io/2t) - WordPress will only process 1 login per interval in seconds (prevents brute force login attacks)
-1.	[GASP Anti-Bot Login Form Protection](https://icwp.io/2u) - Adds 2 protection checks for all WordPress login attempts (prevents brute force login attacks using Bots)
+1.	[Email-based 2-Factor Login Authentication](https://shsec.io/2v) based on IP address! (prevents brute force login attacks)
+1.	[Login Cooldown Interval](https://shsec.io/2t) - WordPress will only process 1 login per interval in seconds (prevents brute force login attacks)
+1.	[GASP Anti-Bot Login Form Protection](https://shsec.io/2u) - Adds 2 protection checks for all WordPress login attempts (prevents brute force login attacks using Bots)
 
 These options alone will protect and secure your WordPress sites from nearly all forms of Brute Force login attacks.
 
@@ -225,7 +227,7 @@ A new menu item will appear on the left-hand side called 'Shield'.
 
 == Frequently Asked Questions ==
 
-Please see the dedicated [help centre](https://icwp.io/firewallhelp) for details on features and some FAQs.
+Please see the dedicated [help centre](https://shsec.io/firewallhelp) for details on features and some FAQs.
 
 = How does the Shield compare with other WordPress Security Plugins? =
 
@@ -316,15 +318,15 @@ When enabled the plugin will prevent more than 1 login attempt to your site ever
 of 60 seconds, only 1 login attempt will be processed every 60 seconds.  If you login incorrectly, you wont be able to attempt another
 login for a further 60 seconds.
 
-More Info: https://icwp.io/2t
+More Info: https://shsec.io/2t
 
 = How does the GASP Login Guard work? =
 
-This is best [described on the blog](https://icwp.io/2u)
+This is best [described on the blog](https://shsec.io/2u)
 
 = How does the 2-factor authentication work? =
 
-[2-Factor Authentication is best described here](https://icwp.io/2v).
+[2-Factor Authentication is best described here](https://shsec.io/2v).
 
 = I'm getting an update message although I have auto update enabled? =
 
@@ -353,6 +355,12 @@ Possible options are: network_admin, administrator, editor, author, contributor,
 
 == Screenshots ==
 
+1. A top-level dashboard that shows all the important things you need to know at-a-glance.
+2. IP Whitelist and Blacklists lets you manage access and blocks on your site with ease.
+3. A full audit log lets you see everything that happens on your site and why, and by whom.
+4. Track user sessions and monitor who is logged-into your site and what they're doing.
+5. Simple, clean options pages that let you configure Shield Security and all its options easily.
+
 == Changelog ==
 
 Shield Pro brings exclusive features to the serious webmaster to maximise site security.
@@ -360,30 +368,53 @@ You'll also have access to our email technical support team.
 
 You will always be able to use Shield Security and its free features in-full.
 
-[Go Pro for just $1/month](https://icwp.io/aa).
+[Go Pro for just $1/month](https://shsec.io/aa).
 
-= 7.3.0 - Current Release =
-*Released: 11th April, 2019* - [Release Notes](https://icwp.io/f0)
+= 8.5.2 - Current Release =
+*Released: 28th January, 2020* - [Release Notes](https://shsec.io/gb)
 
-* **(v.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://icwp.io/ez) - rules to catch and block bad bots.
-* **(v.0)**  ADDED:		Date picker for filtering Audit Log entries.
-* **(v.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
-* **(v.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
-* **(v.0)**  FIX:		Error displayed when deleting plugins in some cases.
-* **(v.0)**  UPDATED:	Translations for Chinese, Finnish, Turkish, Dutch, Italian, and German.
+* **(v.2)**  ADDED:		Introductory tour of plugin, on activation.
+* **(v.2)**  IMPROVED:	Enhanced IP detection of service providers for exclusion from traffic log.
+* **(v.2)**  IMPROVED:	Plugin/Theme Hack Guard Snapshot building is optimised to reduce disruption is some cases.
+* **(v.2)**  IMPROVED:	Visitor IP detection processing.
+* **(v.2)**  IMPROVED:	Improved cache-prevention of Login Two-Factor Authentication portal.
+* **(v.2)**  FIXED:		Firewall email alert was not sent when using certain dedicated email plugins.
+* **(v.2)**  FIXED:		Firewall 404 setting was redirecting instead of responding with 404.
+* **(v.2)**  ADDED:		Added support for NodePing filtering in the traffic logger.
 
-= 7.3 - Series =
-*Released: 11th April, 2019* - [Release Notes](https://icwp.io/f0)
+= 8.5 - Series =
+*Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 
-= 7.2 - Series =
-*Released: 7th March, 2019* - [Release Notes](https://icwp.io/ep)
+* **(v.1)**  FIXED:		Fix for page loading issue/slowdown in some cases.
+* **(v.0)**  NEW:		Initial support for checksum scanning of premium plugins and themes.
+* **(v.0)**  NEW:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
+* **(v.0)**  NEW:		Ability to auto-repair theme files.
+* **(v.0)**  ADDED:		Ability to whitelist requests so that they are never blacklisted.
+* **(v.0)**  ADDED:		Ability to filter the IP White/Black list tables for a specific IP address.
+* **(v.0)**  ADDED:		Support for repeated audit trail entries - so the logs don't get filled with repeated messages.
+* **(v.0)**  ADDED:		[**PRO**] Option to provide complete, custom Content Security Policy headers.
+* **(v.0)**  IMPROVED:	Protection against a certain type of broken plugin installation if WordPress doesn't properly copy files.
+* **(v.0)**  IMPROVED:	Redesigned Table UI for scan results.
+* **(v.0)**  IMPROVED:	Redesigned Plugin/Theme File Guard.
+* **(v.0)**  IMPROVED:	Completely re-written much of the scanners code.
+* **(v.0)**  IMPROVED:	Better detection of the hosting server's IP addresses - i.e. support for IPv6 alongside IPv4.
+* **(v.0)**  FIXED:		Two-Factor Authentication (2FA) login screen redirection bug.
+* **(v.0)**  FIXED:		It was possible to temporarily by-pass the 2FA screen to gain access to WP Admin after logging-in.
+* **(v.0)**  CLEANED:	Code cleaning.
+* **(v.0)**  UPDATED:	Twitter Bootstrap library.
 
-* **(v.2)**  SKIPPED:	with error.
-* **(v.1)**  NEW:		Provisional support for WP-CLI - no longer blocks Security Admin protected operations
-* **(v.1)**  FIX:		Fix PHP warning notice on login page.
-* **(v.1)**  FIX:		Unrecognised file scanning not operating as expected on Windows hosts.
-* **(v.0)**  NEW:		[Scanner to detect and alert](https://icwp.io/eq) to presence of abandoned plugins.
-* **(v.0)**  FIX:		Fix bug with Security Admin passwords.
-* **(v.0)**  FIX:		Fix bug with vulnerability scanner not correctly comparing versions.
+= 8.4 - Series =
+*Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
 
-#### [Full Changelog](https://icwp.io/shieldwporgfullchangelog)
+* **(v.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
+* **(v.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
+* **(v.3)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
+* **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
+* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
+* **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
+* **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
+* **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
+* **(v.0)**  IMPROVED:	Consolidate Events/Statistics database table to significantly reduce DB size.
+* **(v.0)**  CLEANED:	Significant clean-out of old, deprecated, retired code.
+
+#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)

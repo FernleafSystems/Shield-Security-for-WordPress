@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
-use Carbon\Carbon;
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables;
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -19,17 +17,17 @@ class AuditTrail extends BaseBuild {
 	 */
 	protected function applyCustomQueryFilters() {
 		$aParams = $this->getParams();
-		/** @var Databases\AuditTrail\Select $oSelector */
+		/** @var Shield\Databases\AuditTrail\Select $oSelector */
 		$oSelector = $this->getWorkingSelector();
 
-		$oSelector->filterByContext( $aParams[ 'fContext' ] );
+		$oSelector->filterByEvent( $aParams[ 'fEvent' ] );
 
 		$oIp = Services::IP();
 		// If an IP is specified, it takes priority
 		if ( $oIp->isValidIp( $aParams[ 'fIp' ] ) ) {
 			$oSelector->filterByIp( $aParams[ 'fIp' ] );
 		}
-		else if ( $aParams[ 'fExludeYou' ] == 'Y' ) {
+		elseif ( $aParams[ 'fExcludeYou' ] == 'Y' ) {
 			$oSelector->filterByNotIp( $oIp->getRequestIp() );
 		}
 
@@ -38,19 +36,19 @@ class AuditTrail extends BaseBuild {
 		 */
 		if ( !empty( $aParams[ 'fDateFrom' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateFrom' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateFrom' ] );
-			$sTs = ( new Carbon() )
-				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-				->setTime( 0, 0 )
+			$sTs = Services::Request()->carbon()
+						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						   ->setTime( 0, 0 )
 				->timestamp;
 			$oSelector->filterByCreatedAt( $sTs, '>' );
 		}
 
 		if ( !empty( $aParams[ 'fDateTo' ] ) && preg_match( '#^\d{4}-\d{2}-\d{2}$#', $aParams[ 'fDateTo' ] ) ) {
 			$aParts = explode( '-', $aParams[ 'fDateTo' ] );
-			$sTs = ( new Carbon() )
-				->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
-				->setTime( 0, 0 )
-				->addDay()
+			$sTs = Services::Request()->carbon()
+						   ->setDate( $aParts[ 0 ], $aParts[ 1 ], $aParts[ 2 ] )
+						   ->setTime( 0, 0 )
+						   ->addDay()
 				->timestamp;
 			$oSelector->filterByCreatedAt( $sTs, '<' );
 		}
@@ -59,9 +57,11 @@ class AuditTrail extends BaseBuild {
 		if ( !empty( $aParams[ 'fUsername' ] ) ) {
 			$oSelector->filterByUsername( $aParams[ 'fUsername' ] );
 		}
-		else if ( $aParams[ 'fLoggedIn' ] >= 0 ) {
+		elseif ( $aParams[ 'fLoggedIn' ] >= 0 ) {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
+
+		$oSelector->setOrderBy( 'updated_at' )->setOrderBy( 'created_at' );
 
 		return $this;
 	}
@@ -72,13 +72,13 @@ class AuditTrail extends BaseBuild {
 	 */
 	protected function getCustomParams() {
 		return [
-			'fIp'        => '',
-			'fUsername'  => '',
-			'fContext'   => '',
-			'fLoggedIn'  => -1,
-			'fExludeYou' => '',
-			'fDateFrom'  => '',
-			'fDateTo'    => '',
+			'fIp'         => '',
+			'fUsername'   => '',
+			'fEvent'      => '',
+			'fLoggedIn'   => -1,
+			'fExcludeYou' => '',
+			'fDateFrom'   => '',
+			'fDateTo'     => '',
 		];
 	}
 
@@ -89,24 +89,60 @@ class AuditTrail extends BaseBuild {
 		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();
+		$oCon = $this->getCon();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Databases\AuditTrail\EntryVO $oEntry */
+			/** @var Shield\Databases\AuditTrail\EntryVO $oEntry */
+
+			$sMsg = 'Audit message could not be retrieved';
+			if ( empty( $oEntry->message ) ) {
+				/**
+				 * To cater for the contexts that don't refer to a module, but rather a context
+				 * with the Audit Trail module
+				 */
+				$oModule = $oCon->getModule( $oEntry->context );
+				if ( empty( $oModule ) ) {
+					$oModule = $oCon->getModule_AuditTrail();
+				}
+				$oStrings = $oModule->getStrings();
+
+				if ( $oStrings instanceof Shield\Modules\Base\Strings ) {
+					$sMsg = stripslashes( sanitize_textarea_field(
+						vsprintf(
+							implode( "\n", $oStrings->getAuditMessage( $oEntry->event ) ),
+							$oEntry->meta
+						)
+					) );
+				}
+			}
+			else {
+				$sMsg = $oEntry->message;
+			}
+
 			if ( !isset( $aEntries[ $oEntry->rid ] ) ) {
 				$aE = $oEntry->getRawDataAsArray();
 				$aE[ 'meta' ] = $oEntry->meta;
 				$aE[ 'event' ] = str_replace( '_', ' ', sanitize_text_field( $oEntry->event ) );
-				$aE[ 'message' ] = stripslashes( sanitize_textarea_field( $oEntry->message ) );
+				$aE[ 'message' ] = $sMsg;
 				$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 				if ( $oEntry->ip == $sYou ) {
-					$aE[ 'your_ip' ] = '<small> ('._wpsf__( 'You' ).')</small>';
+					$aE[ 'your_ip' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
 				}
 				else {
 					$aE[ 'your_ip' ] = '';
 				}
+				if ( $oEntry->wp_username == '-' ) {
+					$aE[ 'wp_username' ] = __( 'Not logged-in', 'wp-simple-firewall' );
+				}
 			}
 			else {
 				$aE = $aEntries[ $oEntry->rid ];
-				$aE[ 'message' ] .= "\n".stripslashes( sanitize_textarea_field( $oEntry->message ) );
+				$aE[ 'message' ] .= "\n".$sMsg;
+				$aE[ 'category' ] = max( $aE[ 'category' ], $oEntry->category );
+			}
+
+			if ( $oEntry->count > 1 ) {
+				$aE[ 'message' ] = $sMsg."\n"
+								   .sprintf( __( 'This event repeated %s times in succession.', 'wp-simple-firewall' ), $oEntry->count );
 			}
 
 			$aEntries[ $oEntry->rid ] = $aE;
@@ -115,9 +151,9 @@ class AuditTrail extends BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\AuditTrail
+	 * @return Shield\Tables\Render\AuditTrail
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\AuditTrail();
+		return new Shield\Tables\Render\AuditTrail();
 	}
 }

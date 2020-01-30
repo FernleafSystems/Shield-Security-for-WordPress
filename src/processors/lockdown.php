@@ -1,14 +1,15 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isOptFileEditingDisabled() ) {
+		if ( $oMod->isOptFileEditingDisabled() ) {
 			$this->blockFileEditing();
 		}
 
@@ -16,24 +17,22 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !empty( $sWpVersionMask ) ) {
 			global $wp_version;
 			$wp_version = $sWpVersionMask;
-// 			add_filter( 'bloginfo', array( $this, 'maskWordpressVersion' ), 1, 2 );
-// 			add_filter( 'bloginfo_url', array( $this, 'maskWordpressVersion' ), 1, 2 );
 		}
 
-		if ( $oFO->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
+		if ( $oMod->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
 			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
 				define( 'FORCE_SSL_ADMIN', true );
 			}
 			force_ssl_admin( true );
 		}
 
-		if ( $oFO->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
+		if ( $oMod->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
-		if ( $oFO->isXmlrpcDisabled() ) {
-			add_filter( 'xmlrpc_enabled', array( $this, 'disableXmlrpc' ), 1000, 0 );
-			add_filter( 'xmlrpc_methods', array( $this, 'disableXmlrpc' ), 1000, 0 );
+		if ( $oMod->isXmlrpcDisabled() ) {
+			add_filter( 'xmlrpc_enabled', [ $this, 'disableXmlrpc' ], 1000, 0 );
+			add_filter( 'xmlrpc_methods', [ $this, 'disableXmlrpc' ], 1000, 0 );
 		}
 	}
 
@@ -61,15 +60,14 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	public function onWpInit() {
-		parent::onWpInit();
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 			$this->interceptCanonicalRedirects();
 
-			// hook in before rest API processing. Remember always return $bDo
-			add_filter( 'do_parse_request', function ( $bDo ) {
-				$this->interceptAnonRestApi();
-				return $bDo;
-			}, 9 );
+			/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
+			$oMod = $this->getMod();
+			if ( $oMod->isRestApiAnonymousAccessDisabled() ) {
+				add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 );
+			}
 		}
 	}
 
@@ -77,25 +75,8 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return array|false
 	 */
 	public function disableXmlrpc() {
-		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getMod();
-		$oFO->setOptInsightsAt( 'xml_block_at' )
-			->setIpTransgressed();
+		$this->getCon()->fireEvent( 'block_xml' );
 		return ( current_filter() == 'xmlrpc_enabled' ) ? false : [];
-	}
-
-	/**
-	 * TODO: instead of filtering auth errors, perhaps create a valid json response
-	 */
-	private function interceptAnonRestApi() {
-		/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-		$oFO = $this->getMod();
-		$oWpRest = Services::Rest();
-		if ( $oWpRest->isRest() && $oFO->isRestApiAnonymousAccessDisabled()
-			 && !$oFO->isPermittedAnonRestApiNamespace( $oWpRest->getNamespace() ) ) {
-			// 99 so that we jump in just before the always-on WordPress cookie auth.
-			add_filter( 'rest_authentication_errors', array( $this, 'disableAnonymousRestApi' ), 99 );
-		}
 	}
 
 	/**
@@ -107,10 +88,10 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 			$sAuthor = Services::Request()->query( 'author', '' );
 			if ( !empty( $sAuthor ) ) {
 				Services::WpGeneral()->wpDie( sprintf(
-					_wpsf__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.' )
+					__( 'The "author" query parameter has been blocked by %s to protect against user login name fishing.', 'wp-simple-firewall' )
 					.sprintf( '<br /><a href="%s" target="_blank">%s</a>',
-						'https://icwp.io/7l',
-						_wpsf__( 'Learn More.' )
+						'https://shsec.io/7l',
+						__( 'Learn More.', 'wp-simple-firewall' )
 					),
 					$this->getCon()->getHumanName()
 				) );
@@ -125,23 +106,25 @@ class ICWP_WPSF_Processor_Lockdown extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @return WP_Error
 	 */
 	public function disableAnonymousRestApi( $mStatus ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
+		$oMod = $this->getMod();
+		$oWpRest = Services::Rest();
 
-		if ( $mStatus !== true && !is_wp_error( $mStatus ) ) {
+		$sNamespace = $oWpRest->getNamespace();
+		if ( !empty( $sNamespace ) && $mStatus !== true && !is_wp_error( $mStatus )
+			 && !$oMod->isPermittedAnonRestApiNamespace( $sNamespace ) ) {
 
 			$mStatus = new \WP_Error(
 				'shield_block_anon_restapi',
-				sprintf( _wpsf__( 'Anonymous access to the WordPress Rest API has been restricted by %s.' ), $this->getCon()
-																												  ->getHumanName() ),
-				array( 'status' => rest_authorization_required_code() ) );
-			$this->addToAuditEntry(
-				sprintf( 'Blocked Anonymous API Access through "%s" namespace', Services::Rest()->getNamespace() ),
-				1,
-				'anonymous_api'
-			);
+				sprintf( __( 'Anonymous access to the WordPress Rest API has been restricted by %s.', 'wp-simple-firewall' ), $this->getCon()
+																																   ->getHumanName() ),
+				[ 'status' => rest_authorization_required_code() ] );
 
-			/** @var ICWP_WPSF_FeatureHandler_Lockdown $oFO */
-			$oFO = $this->getMod();
-			$oFO->setOptInsightsAt( 'restapi_block_at' );
+			$this->getCon()
+				 ->fireEvent(
+					 'block_anonymous_restapi',
+					 [ 'audit' => [ 'namespace' => $sNamespace ] ]
+				 );
 		}
 
 		return $mStatus;

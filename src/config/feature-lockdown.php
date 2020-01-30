@@ -2,7 +2,7 @@
   "slug":        "lockdown",
   "properties":  {
     "slug":                  "lockdown",
-    "name":                  "Lockdown",
+    "name":                  "WP Lockdown",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "lockdown",
@@ -64,7 +64,7 @@
       "section":     "section_enable_plugin_feature_wordpress_lockdown",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/4r",
+      "link_info":   "https://shsec.io/4r",
       "link_blog":   "",
       "name":        "Enable Lockdown",
       "summary":     "Enable (or Disable) The Lockdown module",
@@ -75,8 +75,8 @@
       "section":     "section_apixml",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/e6",
-      "link_blog":   "",
+      "link_info":   "https://shsec.io/e6",
+      "link_blog":   "https://shsec.io/fb",
       "name":        "Disable XML-RPC",
       "summary":     "Disable The XML-RPC System",
       "description": "Checking this option will completely turn off the whole XML-RPC system."
@@ -112,7 +112,7 @@
       "section":     "section_permission_access_options",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/4q",
+      "link_info":   "https://shsec.io/4q",
       "link_blog":   "",
       "name":        "Disable File Editing",
       "summary":     "Disable Ability To Edit Files From Within WordPress",
@@ -123,7 +123,7 @@
       "section":     "section_permission_access_options",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/4t",
+      "link_info":   "https://shsec.io/4t",
       "link_blog":   "",
       "name":        "Force SSL Admin",
       "summary":     "Forces WordPress Admin Dashboard To Be Delivered Over SSL",
@@ -134,7 +134,7 @@
       "section":     "section_wordpress_obscurity_options",
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/43",
+      "link_info":   "https://shsec.io/43",
       "link_blog":   "",
       "name":        "Mask WordPress Version",
       "summary":     "Prevents Public Display Of Your WordPress Version",
@@ -156,25 +156,11 @@
       "section":     "section_wordpress_obscurity_options",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/wpsf23",
+      "link_info":   "https://shsec.io/wpsf23",
       "link_blog":   "",
       "name":        "Block Username Fishing",
       "summary":     "Block the ability to discover WordPress usernames based on author IDs",
       "description": "When enabled, any URL requests containing 'author=' will be killed. Warning: Enabling this option may interfere with expected operations of your site."
-    },
-    {
-      "key":          "insights_xml_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_restapi_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
     }
   ],
   "definitions": {
@@ -184,6 +170,16 @@
       "tho",
       "wpstatistics",
       "woocommerce"
-    ]
+    ],
+    "events":                     {
+      "block_anonymous_restapi": {
+        "recent": true
+      },
+      "block_xml":               {
+        "audit":  false,
+        "recent": true,
+        "offense": true
+      }
+    }
   }
 }

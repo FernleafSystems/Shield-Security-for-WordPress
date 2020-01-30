@@ -8,11 +8,49 @@ use FernleafSystems\Wordpress\Services\Services;
 class Update extends Base\Update {
 
 	/**
+	 * @param string $sScan
+	 * @return bool
+	 */
+	public function clearIgnoredAtForScan( $sScan ) {
+		return $this->setUpdateWheres( [ 'scan' => $sScan ] )
+					->setUpdateData( [ 'ignored_at' => 0 ] )
+					->query() !== false;
+	}
+
+	/**
+	 * @param string $sScan
+	 * @return bool
+	 */
+	public function clearNotifiedAtForScan( $sScan ) {
+		return $this->setUpdateWheres( [ 'scan' => $sScan ] )
+					->setUpdateData( [ 'notified_at' => 0 ] )
+					->query() !== false;
+	}
+
+	/**
+	 * @param string $sScan
+	 * @return bool
+	 */
+	public function setAllNotifiedForScan( $sScan ) {
+		return $this
+				   ->setUpdateWheres(
+					   [
+						   'scan'       => $sScan,
+						   'ignored_at' => 0,
+					   ]
+				   )
+				   ->setUpdateData(
+					   [ 'notified_at' => Services::Request()->ts() ]
+				   )
+				   ->query() !== false;
+	}
+
+	/**
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
 	public function setIgnored( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'ignored_at' => Services::Request()->ts() ) );
+		return $this->updateEntry( $oEntry, [ 'ignored_at' => Services::Request()->ts() ] );
 	}
 
 	/**
@@ -20,7 +58,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setNotified( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'notified_at' => Services::Request()->ts() ) );
+		return $this->updateEntry( $oEntry, [ 'notified_at' => Services::Request()->ts() ] );
 	}
 
 	/**
@@ -28,7 +66,7 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setNotIgnored( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'ignored_at' => 0 ) );
+		return $this->updateEntry( $oEntry, [ 'ignored_at' => 0 ] );
 	}
 
 	/**
@@ -36,6 +74,6 @@ class Update extends Base\Update {
 	 * @return bool
 	 */
 	public function setNotNotified( $oEntry ) {
-		return $this->updateEntry( $oEntry, array( 'notified_at' => 0 ) );
+		return $this->updateEntry( $oEntry, [ 'notified_at' => 0 ] );
 	}
 }

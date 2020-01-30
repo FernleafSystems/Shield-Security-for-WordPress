@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -17,6 +18,9 @@ class ScanWpv extends ScanBase {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		$oWpPlugins = Services::WpPlugins();
 		$oWpThemes = Services::WpThemes();
 
@@ -24,10 +28,13 @@ class ScanWpv extends ScanBase {
 		$oWpPlugins->getUpdates( true );
 		$oWpThemes->getUpdates( true );
 
-		$nTs = Services::Request()->ts();
+		$oConverter = new Scan\Results\ConvertBetweenTypes();
 		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
 			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oIt = ( new Shield\Scans\Wpv\ConvertVosToResults() )->convertItem( $oEntry );
+			/** @var Shield\Scans\Wpv\ResultItem $oIt */
+			$oIt = $oConverter
+				->setScanController( $oMod->getScanCon( $oEntry->scan ) )
+				->convertVoToResultItem( $oEntry );
 			$aE = $oEntry->getRawDataAsArray();
 			if ( $oIt->context == 'plugins' ) {
 				$oAsset = $oWpPlugins->getPluginAsVo( $oIt->slug );
@@ -47,7 +54,7 @@ class ScanWpv extends ScanBase {
 			}
 			$aE[ 'slug' ] = $oIt->slug;
 			$aE[ 'wpvuln_vo' ] = $oIt->getWpVulnVo();
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
+			$aE[ 'ignored' ] = $this->formatIsIgnored( $oEntry );
 			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
 			$aEntries[ $nKey ] = $aE;
 		}

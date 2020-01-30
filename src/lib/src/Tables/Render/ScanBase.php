@@ -11,9 +11,17 @@ class ScanBase extends Base {
 	 * @return string
 	 */
 	public function column_path( $aItem ) {
-		return sprintf( '<code>%s</code>', $aItem[ 'path' ] );
+		$sOut = sprintf( '<code><span class="font-weight-bolder text-dark" style="font-size: larger">%s</span></code><code>[%s]</code>',
+			$aItem[ 'path' ],
+			sprintf( '%s: %s', __( 'Path', 'wp-simple-firewall' ), trailingslashit( dirname( $aItem[ 'path_relabs' ] ) ) )
+		);
+		if ( !empty( $aItem[ 'path_details' ] ) ) {
+			$sOut .= '<p class="mb-0">'.implode( '; ', $aItem[ 'path_details' ] ).'</p>';
+		}
+		return $sOut;
 	}
 
+//.implode( '; ', $aItem[ 'asset_description' ] )
 	protected function extra_tablenav( $which ) {
 		echo '';
 	}
@@ -31,7 +39,7 @@ class ScanBase extends Base {
 	 */
 	protected function getActionButton_DownloadFile( $sHref ) {
 		return $this->buildActionButton_Custom(
-			_wpsf__( 'Download' ),
+			__( 'Download', 'wp-simple-firewall' ),
 			[ 'href-download', 'text-info' ],
 			[ 'href-download' => $sHref ]
 		);
@@ -42,9 +50,9 @@ class ScanBase extends Base {
 	 */
 	public function get_columns() {
 		return [
-			'path'       => 'File',
-			'status'     => 'Status',
-			'created_at' => 'Discovered',
+			'path'       => __( 'File', 'wp-simple-firewall' ),
+			'status'     => __( 'Status', 'wp-simple-firewall' ),
+			'created_at' => __( 'Discovered', 'wp-simple-firewall' ),
 		];
 	}
 }

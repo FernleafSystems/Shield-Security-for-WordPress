@@ -10,19 +10,18 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 *                                  not successful but IP is valid. WP_Error otherwise.
 	 */
 	public function processLoginAttempt( $oUser ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
 		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
-			 && $this->hasValidatedProfile( $oUser ) && !$oFO->canUserMfaSkip( $oUser ) ) {
+			 && $this->hasValidatedProfile( $oUser ) && !$oMod->canUserMfaSkip( $oUser ) ) {
 
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
-			$oUpd->setLoginIntentCodeEmail( $oFO->getSession(), $this->getSecret( $oUser ) );
+			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+			$oUpd->setLoginIntentCodeEmail( $oMod->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
-			$this->doStatIncrement( 'login.twofactor.started' )
-				 ->sendEmailTwoFactorVerify( $oUser )
+			$this->sendEmailTwoFactorVerify( $oUser )
 				 ->setLoginCaptured();
 		}
 		return $oUser;
@@ -33,22 +32,15 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 * @param bool    $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
-		if ( $bIsSuccess ) {
-			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" verified their identity using %s method.' ),
-					$oUser->user_login, _wpsf__( 'Email Auth' )
-				), 2, 'login_protect_emailauth_verified'
-			);
-			$this->doStatIncrement( 'login.emailauth.verified' );
-		}
-		else {
-			$this->addToAuditEntry(
-				sprintf( _wpsf__( 'User "%s" failed to verify their identity using %s method.' ),
-					$oUser->user_login, _wpsf__( 'Email Auth' )
-				), 2, 'login_protect_emailauth_failed'
-			);
-			$this->doStatIncrement( 'login.emailauth.failed' );
-		}
+		$this->getCon()->fireEvent(
+			$bIsSuccess ? 'email_verified' : 'email_fail',
+			[
+				'audit' => [
+					'user_login' => $oUser->user_login,
+					'method'     => 'Email',
+				]
+			]
+		);
 	}
 
 	/**
@@ -59,11 +51,11 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function processOtp( $oUser, $sOtpCode ) {
 		$bValid = !empty( $sOtpCode ) && ( $sOtpCode == $this->getStoredSessionHashCode() );
 		if ( $bValid ) {
-			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-			$oFO = $this->getMod();
+			/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+			$oMod = $this->getMod();
 			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oFO->getSessionsProcessor()->getDbHandler()->getQueryUpdater();
-			$oUpd->clearLoginIntentCodeEmail( $oFO->getSession() );
+			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+			$oUpd->clearLoginIntentCodeEmail( $oMod->getSession() );
 		}
 		return $bValid;
 	}
@@ -74,14 +66,14 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	 */
 	public function addLoginIntentField( $aFields ) {
 		if ( $this->getCurrentUserHasValidatedProfile() ) {
-			$aFields[] = array(
+			$aFields[] = [
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'text',
 				'value'       => $this->fetchCodeFromRequest(),
-				'placeholder' => _wpsf__( 'This code was just sent to your registered Email address.' ),
-				'text'        => _wpsf__( 'Email OTP' ),
-				'help_link'   => 'https://icwp.io/3t'
-			);
+				'placeholder' => __( 'This code was just sent to your registered Email address.', 'wp-simple-firewall' ),
+				'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
+				'help_link'   => 'https://shsec.io/3t'
+			];
 		}
 		return $aFields;
 	}
@@ -108,25 +100,17 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @return string
-	 */
-	protected function genSessionHash() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		return hash_hmac(
-			'sha1',
-			$this->getCon()->getUniqueRequestId(),
-			$oFO->getTwoAuthSecretKey()
-		);
-	}
-
-	/**
 	 * We don't use user meta as it's dependent on the particular user sessions in-use
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	protected function getSecret( WP_User $oUser ) {
-		return strtoupper( substr( $this->genSessionHash(), 0, 6 ) );
+	protected function getSecret( \WP_User $oUser ) {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		return strtoupper( substr(
+			hash_hmac( 'sha1', $this->getCon()->getUniqueRequestId(), $oMod->getTwoAuthSecretKey() ),
+			0, 6
+		) );
 	}
 
 	/**
@@ -148,42 +132,43 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
-	protected function sendEmailTwoFactorVerify( WP_User $oUser ) {
-		$sIpAddress = $this->ip();
-
-		$aMessage = array(
-			_wpsf__( 'Someone attempted to login into this WordPress site using your account.' ),
-			_wpsf__( 'Login requires verification with the following code.' ),
+	private function sendEmailTwoFactorVerify( \WP_User $oUser ) {
+		$aMessage = [
+			__( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
+			__( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
 			'',
-			sprintf( _wpsf__( 'Verification Code: %s' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
+			sprintf( __( 'Verification Code: %s', 'wp-simple-firewall' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
 			'',
-			sprintf( '<strong>%s</strong>', _wpsf__( 'Login Details' ) ),
-			sprintf( '%s: %s', _wpsf__( 'URL' ), Services::WpGeneral()->getHomeUrl() ),
-			sprintf( '%s: %s', _wpsf__( 'Username' ), $oUser->user_login ),
-			sprintf( '%s: %s', _wpsf__( 'IP Address' ), $sIpAddress ),
+			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
+			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
+			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
+			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
 			'',
-		);
+		];
 
 		if ( !$this->getCon()->isRelabelled() ) {
-			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://icwp.io/96', _wpsf__( 'Why no login link?' ) );
+			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://shsec.io/96', __( 'Why no login link?', 'wp-simple-firewall' ) );
 			$aContent[] = '';
 		}
 
-		$sEmailSubject = _wpsf__( 'Two-Factor Login Verification' );
-
 		$bResult = $this->getEmailProcessor()
-						->sendEmailWithWrap( $oUser->user_email, $sEmailSubject, $aMessage );
-		if ( $bResult ) {
-			$sAuditMessage = sprintf( _wpsf__( 'User "%s" was sent an email to verify their Identity using Two-Factor Login Auth for IP address "%s".' ), $oUser->user_login, $sIpAddress );
-			$this->addToAuditEntry( $sAuditMessage, 2, 'login_protect_two_factor_email_send' );
-		}
-		else {
-			$sAuditMessage = sprintf( _wpsf__( 'Tried to send email to User "%s" to verify their identity using Two-Factor Login Auth for IP address "%s", but email sending failed.' ), $oUser->user_login, $sIpAddress );
-			$this->addToAuditEntry( $sAuditMessage, 3, 'login_protect_two_factor_email_send_fail' );
-		}
+						->sendEmailWithWrap(
+							$oUser->user_email,
+							__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+							$aMessage
+						);
+
+		$this->getCon()->fireEvent(
+			$bResult ? '2fa_email_send_success' : '2fa_email_send_fail',
+			[
+				'audit' => [
+					'user_login' => $oUser->user_login,
+				]
+			]
+		);
 		return $this;
 	}
 
@@ -195,26 +180,26 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	public function addOptionsToUserProfile( $oUser ) {
 		$oWp = Services::WpUsers();
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
-		$aData = array(
+		$aData = [
 			'user_has_email_authentication_active'   => $bValidatedProfile,
 			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
 			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
 			'i_am_valid_admin'                       => $this->getCon()->isPluginAdmin(),
 			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
-			'strings'                                => array(
-				'label_email_authentication'                => _wpsf__( 'Email Authentication' ),
-				'title'                                     => _wpsf__( 'Email Authentication' ),
-				'description_email_authentication_checkbox' => _wpsf__( 'Check the box to enable email-based login authentication.' ),
-				'provided_by'                               => sprintf( _wpsf__( 'Provided by %s' ), $this->getCon()
-																										  ->getHumanName() )
-			)
-		);
+			'strings'                                => [
+				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
+				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
+				'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
+				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $this->getCon()
+																														   ->getHumanName() )
+			]
+		];
 
-		$aData[ 'bools' ] = array(
+		$aData[ 'bools' ] = [
 			'checked'  => $bValidatedProfile || $aData[ 'user_has_email_authentication_enforced' ],
 			'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ]
 			//TODO: Make email authentication a per-user setting
-		);
+		];
 
 		echo $this->getMod()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
 	}

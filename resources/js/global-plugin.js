@@ -22,6 +22,16 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 					return false;
 				}
 			);
+
+			if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' ) {
+				jQuery( document ).on( "click", '#SecAdminRemoveConfirmEmail',
+					function ( event ) {
+						event.preventDefault();
+						iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_secadmin.ajax.req_email_remove );
+						return false;
+					}
+				);
+			}
 		} );
 	};
 }();
@@ -104,28 +114,43 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 				};
 
 				var $oReinstallDialog = jQuery( '#icwpWpsfReinstall' );
-				oShareSettings[ 'buttons' ] = {
-					"Okay, Re-Install It": function () {
-						jQuery( this ).dialog( "close" );
-						reinstall_plugin( 1 );
+				oShareSettings[ 'buttons' ] = [
+					{
+						text: icwp_wpsf_vars_hp.strings.okay_reinstall,
+						id: 'btnOkayReinstall',
+						click: function () {
+							jQuery( this ).dialog( "close" );
+							reinstall_plugin( 1 );
+						}
 					},
-					"Cancel": function () {
-						jQuery( this ).dialog( "close" );
+					{
+						text: icwp_wpsf_vars_hp.strings.cancel,
+						id: 'btnCancel',
+						click: function () {
+							jQuery( this ).dialog( "close" );
+						}
 					}
-				};
+				];
 				$oReinstallDialog.dialog( oShareSettings );
 
 				var $oActivateReinstallDialog = jQuery( '#icwpWpsfActivateReinstall' );
-				oShareSettings[ 'buttons' ] = {
-					"Re-Install First, Then Activate": function () {
-						jQuery( this ).dialog( "close" );
-						reinstall_plugin( 1 );
+				oShareSettings[ 'buttons' ] = [
+					{
+						text: icwp_wpsf_vars_hp.strings.reinstall_first,
+						id: 'btnReinstallFirst',
+						click: function () {
+							jQuery( this ).dialog( "close" );
+							reinstall_plugin( 1 );
+						}
 					},
-					"Activate Only": function () {
-						jQuery( this ).dialog( "close" );
-						reinstall_plugin( 0 );
+					{
+						text: icwp_wpsf_vars_hp.strings.activate_only,
+						id: 'btnActivateOnly',
+						click: function () {
+							reinstall_plugin( 0 );
+						}
 					}
-				};
+				];
 				$oActivateReinstallDialog.dialog( oShareSettings );
 			} );
 		};
@@ -157,7 +182,7 @@ if ( typeof icwp_wpsf_vars_hp !== 'undefined' ) {
 			jQuery.post( ajaxurl, $aData, function ( oResponse ) {
 
 			} ).always( function () {
-					location.reload( true );
+					location.reload();
 					bActivate = null;
 				}
 			);
@@ -291,12 +316,19 @@ var iCWP_WPSF_Growl = new function () {
 
 var iCWP_WPSF_BodyOverlay = new function () {
 
+	let nOverlays = 0;
+
 	this.show = function () {
+		nOverlays++;
 		jQuery( 'div#icwp-fade-wrapper' ).fadeIn( 1000 );
 	};
 
 	this.hide = function () {
-		jQuery( 'div#icwp-fade-wrapper' ).stop().fadeOut();
+		nOverlays--;
+		if ( nOverlays < 1 ) {
+			nOverlays = 0;
+			jQuery( 'div#icwp-fade-wrapper' ).stop().fadeOut();
+		}
 	};
 
 	this.initialise = function () {

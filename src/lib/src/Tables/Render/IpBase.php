@@ -17,13 +17,13 @@ class IpBase extends Base {
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
-			'ip'             => 'IP Address',
-			'label'          => 'Label',
-			'transgressions' => 'Transgressions',
-			'list'           => 'List',
-			'last_access_at' => 'Last Access',
-			'created_at'     => 'Date',
-		);
+		return [
+			'ip'             => __( 'IP Address' ),
+			'label'          => __( 'Label', 'wp-simple-firewall' ),
+			'transgressions' => __( 'Offenses', 'wp-simple-firewall' ),
+			'list'           => __( 'List', 'wp-simple-firewall' ),
+			'last_access_at' => __( 'Last Access', 'wp-simple-firewall' ),
+			'created_at'     => __( 'Date' ),
+		];
 	}
 }

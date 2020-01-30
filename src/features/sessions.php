@@ -1,18 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWpsf {
-
-	/**
-	 * Override this and adapt per feature
-	 * @return ICWP_WPSF_Processor_Base
-	 */
-	protected function loadProcessor() {
-		$oP = parent::loadProcessor();
-		self::$oSessProcessor = $oP;
-		return $oP;
-	}
 
 	/**
 	 * @return bool
@@ -28,56 +19,26 @@ class ICWP_WPSF_FeatureHandler_Sessions extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
+	 * @return false|Shield\Databases\Session\Handler
 	 */
-	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-
-		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		switch ( $sSectionSlug ) {
-
-			case 'section_enable_plugin_feature_sessions' :
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Creates and Manages User Sessions.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'User Management' ) ) )
-				);
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
-		}
-		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
-		$aOptionsParams[ 'title_short' ] = $sTitleShort;
-		return $aOptionsParams;
+	public function getDbHandler_Sessions() {
+		return $this->getDbH( 'session' );
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
+	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function loadStrings_Options( $aOptionsParams ) {
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_Sessions() instanceof Shield\Databases\Session\Handler )
+			   && $this->getDbHandler_Sessions()->isReady()
+			   && parent::isReadyToExecute();
+	}
 
-		$sKey = $aOptionsParams[ 'key' ];
-		switch ( $sKey ) {
-
-			case 'enable_sessions' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
-		}
-
-		$aOptionsParams[ 'name' ] = $sName;
-		$aOptionsParams[ 'summary' ] = $sSummary;
-		$aOptionsParams[ 'description' ] = $sDescription;
-		return $aOptionsParams;
+	/**
+	 * @return string
+	 */
+	protected function getNamespaceBase() {
+		return 'Sessions';
 	}
 }

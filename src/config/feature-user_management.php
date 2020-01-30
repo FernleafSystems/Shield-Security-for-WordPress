@@ -28,7 +28,7 @@
     {
       "slug":        "section_passwords",
       "reqs":        {
-        "wp_min":  "4.4"
+        "wp_min": "4.4"
       },
       "title":       "Password Policies",
       "title_short": "Password Policies",
@@ -39,7 +39,6 @@
     },
     {
       "slug":        "section_suspend",
-      "hidden": true,
       "title":       "Automatic And Manual User Suspension",
       "title_short": "User Suspension",
       "summary":     [
@@ -76,7 +75,7 @@
       "section":     "section_enable_plugin_feature_user_accounts_management",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/e3",
+      "link_info":   "https://shsec.io/e3",
       "link_blog":   "",
       "name":        "Enable User Management",
       "summary":     "Enable (or Disable) The User Management module",
@@ -89,7 +88,7 @@
       "sensitive":   false,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/e2",
+      "link_info":   "https://shsec.io/e2",
       "link_blog":   "",
       "name":        "User Login Notification Email",
       "summary":     "Send Email Notification To Each User Upon Successful Login",
@@ -100,7 +99,7 @@
       "section":     "section_admin_login_notification",
       "sensitive":   true,
       "default":     "",
-      "type":        "email",
+      "type":        "text",
       "link_info":   "",
       "link_blog":   "",
       "name":        "Admin Login Notification Email",
@@ -146,6 +145,7 @@
       "key":         "session_username_concurrent_limit",
       "section":     "section_user_session_management",
       "default":     0,
+      "min":         0,
       "type":        "integer",
       "link_info":   "",
       "link_blog":   "",
@@ -158,8 +158,8 @@
       "section":     "section_passwords",
       "type":        "checkbox",
       "default":     "N",
-      "link_info":   "https://icwp.io/e1",
-      "link_blog":   "https://icwp.io/c4",
+      "link_info":   "https://shsec.io/e1",
+      "link_blog":   "https://shsec.io/c4",
       "name":        "Enable Password Policies",
       "summary":     "Enable The Password Policies Below",
       "description": "Turn on/off all password policies."
@@ -169,7 +169,7 @@
       "section":     "section_passwords",
       "type":        "checkbox",
       "default":     "Y",
-      "link_info":   "https://icwp.io/by",
+      "link_info":   "https://shsec.io/by",
       "link_blog":   "",
       "name":        "Prevent Pwned Passwords",
       "summary":     "Prevent Use Of Pwned Passwords",
@@ -251,9 +251,9 @@
       "section":     "section_suspend",
       "premium":     true,
       "type":        "checkbox",
-      "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
+      "default":     "N",
+      "link_info":   "https://shsec.io/fq",
+      "link_blog":   "https://shsec.io/fr",
       "name":        "Allow Manual User Suspension",
       "summary":     "Manually Suspend User Accounts To Prevent Login",
       "description": "Users may be suspended by administrators to prevent login."
@@ -264,20 +264,36 @@
       "premium":     true,
       "type":        "checkbox",
       "default":     "Y",
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://shsec.io/fs",
+      "link_blog":   "https://shsec.io/fr",
       "name":        "Auto-Suspend Expired Passwords",
       "summary":     "Automatically Suspend Users With Expired Passwords",
       "description": "Suspend login by users and require password reset to unsuspend."
     },
     {
-      "key":         "auto_idle",
+      "key":         "auto_idle_days",
       "section":     "section_suspend",
       "premium":     true,
       "type":        "integer",
       "default":     0,
       "min":         0,
-      "link_info":   "",
+      "link_info":   "https://shsec.io/ft",
+      "link_blog":   "https://shsec.io/fr",
+      "name":        "Auto-Suspend Idle Users",
+      "summary":     "Automatically Suspend Idle User Accounts",
+      "description": "Prevent login by idle users and require password reset to unsuspend."
+    },
+    {
+      "key":         "auto_idle_roles",
+      "section":     "section_suspend",
+      "premium":     true,
+      "type":        "array",
+      "default":     [
+        "administrator",
+        "editor",
+        "author"
+      ],
+      "link_info":   "https://shsec.io/ft",
       "link_blog":   "",
       "name":        "Auto-Suspend Idle Users",
       "summary":     "Automatically Suspend Idle User Accounts",
@@ -285,20 +301,6 @@
     },
     {
       "key":          "autoadd_sessions_started_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_idle_logout_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_password_block_at",
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
@@ -314,6 +316,33 @@
   ],
   "definitions": {
     "pwned_api_url_password_single": "https://api.pwnedpasswords.com/pwnedpassword/",
-    "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/"
+    "pwned_api_url_password_range":  "https://api.pwnedpasswords.com/range/",
+    "events":                        {
+      "session_notfound":             {
+      },
+      "session_expired":              {
+      },
+      "session_idle":                 {
+      },
+      "session_iplock":               {
+      },
+      "session_browserlock":          {
+      },
+      "session_unverified":           {
+      },
+      "password_expired":             {
+      },
+      "password_policy_force_change": {
+        "recent": true
+      },
+      "password_policy_block":        {
+        "recent": true
+      },
+      "user_hard_suspended":          {
+        "recent": true
+      },
+      "user_hard_unsuspended":        {
+      }
+    }
   }
 }

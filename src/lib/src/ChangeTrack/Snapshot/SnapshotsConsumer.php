@@ -58,5 +58,4 @@ trait SnapshotsConsumer {
 		}
 		return $aStructured;
 	}
-
 }

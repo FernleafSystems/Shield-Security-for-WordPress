@@ -2,20 +2,13 @@
 
 {% block notice_body %}
 	<div class="row">
-		<div class="col-4 pt-2">
-			{{ strings.summary }}
-		</div>
-		<div class="col-8">
-			{% include '/snippets/optin_form_activecampaign.twig' %}
+		<div class="col">
+			{% include '/snippets/optin_form_drip_inline.twig' %}
 		</div>
 	</div>
-	<style>
-		#OptinForm .form-check {
-			padding-left: 0;
-			font-size: smaller;
-		}
-		#OptinConsent {
-			margin-top: 7px;
-		}
-	</style>
+	<div class="row">
+		<div class="col">
+			{{ strings.summary }}
+		</div>
+	</div>
 {% endblock %}

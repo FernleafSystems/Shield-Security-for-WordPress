@@ -9,4 +9,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property string wp_username
  */
 class EntryVO extends Base\EntryVO {
+
 }

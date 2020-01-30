@@ -47,7 +47,7 @@ class Update extends Insert {
 	 * @return $this
 	 */
 	public function setUpdateId( $nId ) {
-		$this->aUpdateWheres = array( 'id' => $nId );
+		$this->aUpdateWheres = [ 'id' => $nId ];
 		return $this;
 	}
 
@@ -60,6 +60,9 @@ class Update extends Insert {
 		$bSuccess = false;
 
 		if ( $oEntry instanceof EntryVO ) {
+			if ( empty( $aUpdateData ) ) {
+				$aUpdateData = $oEntry->getRawDataAsArray();
+			}
 			$bSuccess = $this->updateById( $oEntry->id, $aUpdateData );
 			// TODO: run through update data and determine if anything actually needs updating
 			if ( $bSuccess ) {

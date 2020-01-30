@@ -1,83 +1,86 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @var HackGuard\Scan\Queue\Controller
+	 */
+	private $oScanQueueController;
+
+	/**
+	 * @var HackGuard\Scan\Controller\Base[]
+	 */
+	private $aScanCons;
+
 	protected function doPostConstruction() {
+		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
 	}
 
 	/**
+	 * A action added to WordPress 'init' hook
 	 */
-	protected function updateHandler() {
-		$this->clearCrons()
-//			 ->setPtgRebuildSelfRequired( true ) // this is permanently required until a better solution is found
-			 ->setPtgUpdateStoreFormat( true );
+	public function onWpInit() {
+		parent::onWpInit();
+		$this->getScanController();
+	}
+
+	/**
+	 * @return HackGuard\Scan\Queue\Controller
+	 */
+	public function getScanController() {
+		if ( !isset( $this->oScanQueueController ) ) {
+			$this->oScanQueueController = ( new HackGuard\Scan\Queue\Controller() )
+				->setMod( $this );
+		}
+		return $this->oScanQueueController;
+	}
+
+	/**
+	 * @param string $sSlug
+	 * @return HackGuard\Scan\Controller\Base|mixed
+	 */
+	public function getScanCon( $sSlug ) {
+		if ( !is_array( $this->aScanCons ) ) {
+			$this->aScanCons = [];
+		}
+		if ( !isset( $this->aScanCons[ $sSlug ] ) ) {
+			$sClass = '\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\\'.ucwords( $sSlug );
+			if ( @class_exists( $sClass ) ) {
+				/** @var HackGuard\Scan\Controller\Base $oObj */
+				$oObj = new $sClass();
+				$this->aScanCons[ $sSlug ] = $oObj->setMod( $this );
+			}
+			else {
+				$this->aScanCons[ $sSlug ] = false;
+			}
+		}
+		return $this->aScanCons[ $sSlug ];
 	}
 
 	/**
 	 */
 	public function handleModRequest() {
 		$oReq = Services::Request();
-		switch ( $oReq->query( 'exec' ) && $this->getCon()->isPluginAdmin() ) {
-			case  'scan_file_download':
-				/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-				$oPro = $this->getProcessor();
-				$oPro->getSubProScanner()->downloadItemFile( $oReq->query( 'rid' ) );
-				break;
-			default:
-				break;
-		}
-	}
-
-	/**
-	 * @param array $aAjaxResponse
-	 * @return array
-	 */
-	public function handleAuthAjax( $aAjaxResponse ) {
-		$oReq = Services::Request();
-
-		if ( empty( $aAjaxResponse ) ) {
-
-			$sExecAction = $oReq->request( 'exec' );
-			switch ( $sExecAction ) {
-
-				case 'start_scans':
-					$aAjaxResponse = $this->ajaxExec_StartScans();
+		if ( $this->getCon()->isPluginAdmin() ) {
+			switch ( $oReq->query( 'exec' ) ) {
+				case  'scan_file_download':
+					( new Shield\Modules\HackGuard\Lib\Utility\FileDownloadHandler() )
+						->setDbHandler( $this->getDbHandler_ScanResults() )
+						->downloadByItemId( (int)$oReq->query( 'rid', 0 ) );
 					break;
-
-				case 'bulk_action':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( $oReq->post( 'bulk_action' ) );
-					break;
-
-				case 'item_asset_accept':
-				case 'item_asset_deactivate':
-				case 'item_asset_reinstall':
-				case 'item_delete':
-				case 'item_ignore':
-				case 'item_repair':
-					$aAjaxResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sExecAction ) );
-					break;
-
-				case 'render_table_scan':
-					$aAjaxResponse = $this->ajaxExec_BuildTableScan();
-					break;
-
-				case 'plugin_reinstall':
-					$aAjaxResponse = $this->ajaxExec_PluginReinstall();
-					break;
-
 				default:
 					break;
 			}
 		}
-		return parent::handleAuthAjax( $aAjaxResponse );
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\EntryVO $oEntryVo
+	 * @param Shield\Databases\Scanner\EntryVO $oEntryVo
 	 * @return string
 	 */
 	public function createFileDownloadLink( $oEntryVo ) {
@@ -87,63 +90,39 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return array
-	 */
-	public function ajaxExec_PluginReinstall() {
-		$oReq = Services::Request();
-		$bReinstall = (bool)$oReq->post( 'reinstall' );
-		$bActivate = (bool)$oReq->post( 'activate' );
-		$sFile = sanitize_text_field( wp_unslash( $oReq->post( 'file' ) ) );
-
-		if ( $bReinstall ) {
-			/** @var ICWP_WPSF_Processor_HackProtect $oP */
-			$oP = $this->getProcessor();
-			$bActivate = $oP->getSubProScanner()
-							->getSubProcessorPtg()
-							->reinstall( $sFile )
-						 && $bActivate;
-		}
-
-		if ( $bActivate ) {
-			Services::WpPlugins()->activate( $sFile );
-		}
-
-		return [ 'success' => true ];
-	}
-
-	/**
 	 */
 	protected function doExtraSubmitProcessing() {
 		$this->clearIcSnapshots();
-		$this->clearCrons();
 		$this->cleanFileExclusions();
 		$this->cleanPtgFileExtensions();
 
-		$oOpts = $this->getOptionsVo();
-		if ( $oOpts->isOptChanged( 'ptg_enable' ) || $oOpts->isOptChanged( 'ptg_depth' ) || $oOpts->isOptChanged( 'ptg_extensions' ) ) {
-			$this->setPtgLastBuildAt( 0 );
-		}
-
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 		$this->resetRtBackupFiles();
+
+		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
+		$oPro = $this->getProcessor();
+		$oPro->getSubProScanner()->deleteCron(); // very important if the scan cron schedule is changed.
 	}
 
 	/**
-	 * @return $this
+	 * @return int[] - key is scan slug
 	 */
-	protected function clearCrons() {
-		$aCrons = array(
-			$this->getIcCronName(),
-			$this->getUfcCronName(),
-			$this->getWcfCronName(),
-			$this->getWpvCronName(),
-			$this->getPtgCronName()
-		);
-		$oCron = $this->loadWpCronProcessor();
-		foreach ( $aCrons as $sCron ) {
-			$oCron->deleteCronJob( $sCron );
+	public function getLastScansAt() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		/** @var Shield\Databases\Events\Select $oSel */
+		$oSel = $this->getCon()
+					 ->getModule_Events()
+					 ->getDbHandler_Events()
+					 ->getQuerySelector();
+		$aEvents = $oSel->getLatestForAllEvents();
+
+		$aLatest = [];
+		foreach ( $oOpts->getScanSlugs() as $sScan ) {
+			$sEvt = $sScan.'_scan_run';
+			$aLatest[ $sScan ] = isset( $aEvents[ $sEvt ] ) ? $aEvents[ $sEvt ]->created_at : 0;
 		}
-		return $this;
+		return $aLatest;
 	}
 
 	/**
@@ -151,15 +130,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return int
 	 */
 	public function getLastScanAt( $sScan ) {
-		return (int)$this->getOpt( sprintf( 'insights_last_scan_%s_at', $sScan ), 0 );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return int
-	 */
-	public function getNextScanAt( $sScan ) {
-		return (int)$this->getOpt( sprintf( 'next_scan_%s_at', $sScan ), 0 );
+		/** @var Shield\Databases\Events\Select $oSel */
+		$oSel = $this->getCon()
+					 ->getModule_Events()
+					 ->getDbHandler_Events()
+					 ->getQuerySelector();
+		$oEntry = $oSel->getLatestForEvent( $sScan.'_scan_run' );
+		return ( $oEntry instanceof Shield\Databases\Events\EntryVO ) ? $oEntry->created_at : 0;
 	}
 
 	/**
@@ -167,12 +144,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function getScanHasProblem( $sScan ) {
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->getProcessor();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSel */
-		$oSel = $oPro->getSubProScanner()
-					 ->getDbHandler()
-					 ->getQuerySelector();
+		/** @var Shield\Databases\Scanner\Select $oSel */
+		$oSel = $this->getDbHandler_ScanResults()->getQuerySelector();
 		return $oSel->filterByNotIgnored()
 					->filterByScan( $sScan )
 					->count() > 0;
@@ -193,42 +166,20 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return $this
-	 */
-	public function setLastScanAt( $sScan ) {
-		return $this->setOptInsightsAt( sprintf( 'last_scan_%s_at', $sScan ) );
-	}
-
-	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @param int    $nAt
-	 * @return $this
-	 */
-	public function setNextScanAt( $sScan, $nAt ) {
-		return $this->setOptAt( sprintf( 'next_scan_%s_at', $sScan ), $nAt );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getScanFrequency() {
-		return (int)$this->getOpt( 'scan_frequency', 1 );
-	}
-
-	/**
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
-		$nFreq = $this->getScanFrequency();
-		$this->loadWpCronProcessor()
-			 ->addNewSchedule(
-				 $this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
-				 array(
-					 'interval' => DAY_IN_SECONDS/$nFreq,
-					 'display'  => sprintf( _wpsf__( '%s per day' ), $nFreq )
-				 )
-			 );
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$nFreq = $oOpts->getScanFrequency();
+		Services::WpCron()
+				->addNewSchedule(
+					$this->prefix( sprintf( 'per-day-%s', $nFreq ) ),
+					[
+						'interval' => DAY_IN_SECONDS/$nFreq,
+						'display'  => sprintf( __( '%s per day', 'wp-simple-firewall' ), $nFreq )
+					]
+				);
 		return $this;
 	}
 
@@ -254,32 +205,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getIcCronName() {
-		return $this->prefix( $this->getDef( 'cron_name_integrity_check' ) );
-	}
-
-	/**
 	 * @param array[] $aUsers
 	 * @return $this
 	 */
 	public function setIcSnapshotUsers( $aUsers ) {
 		return $this->setOpt( 'snapshot_users', $aUsers );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUnrecognisedFileScannerOption() {
-		return $this->getOpt( 'enable_unrecognised_file_cleaner_scan', 'disabled' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getUfcCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_ufc' ) );
 	}
 
 	/**
@@ -294,39 +224,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sOption
-	 * @return $this
-	 */
-	public function setUfcOption( $sOption ) {
-		return $this->setOpt( 'enable_unrecognised_file_cleaner_scan', $sOption );
-	}
-
-	/**
-	 * @param array $aExclusions
-	 * @return $this
-	 */
-	public function setUfcFileExclusions( $aExclusions ) {
-		if ( !is_array( $aExclusions ) ) {
-			$aExclusions = [];
-		}
-		return $this->setOpt( 'ufc_exclusions', array_filter( array_map( 'trim', $aExclusions ) ) );
-	}
-
-	/**
 	 * @return $this
 	 */
 	protected function cleanFileExclusions() {
 		$aExclusions = [];
 
-		$oFS = $this->loadFS();
 		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
-			$sExclusion = $oFS->normalizeFilePathDS( trim( $sExclusion ) );
+			$sExclusion = wp_normalize_path( trim( $sExclusion ) );
 
 			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
 				// ignore it
 			}
-			else if ( strpos( $sExclusion, '/' ) === false ) { // filename only
-				$sExclusion = trim( preg_replace( '#[^\.0-9a-z_-]#i', '', $sExclusion ) );
+			elseif ( strpos( $sExclusion, '/' ) === false ) { // filename only
+				$sExclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $sExclusion ) );
 			}
 
 			if ( !empty( $sExclusion ) ) {
@@ -340,107 +250,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return string
 	 */
-	public function isUfcDeleteFiles() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array(
-			'enabled_delete_only',
-			'enabled_delete_report'
-		) );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isUfcEnabled() {
-		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isUfsScanUploads() {
-		return $this->isOpt( 'ufc_scan_uploads', 'Y' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function isUfcSendReport() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), array(
-			'enabled_report_only',
-			'enabled_delete_report'
-		) );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getWcfCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_wcf' ) );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWcfScanAutoRepair() {
-		return $this->isOpt( 'attempt_auto_file_repair', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWcfScanEnabled() {
-		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
-	}
-
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setWcfScanEnabled( $bEnabled ) {
-		return $this->setOpt( 'enable_core_file_integrity_scan', $bEnabled ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @param bool $bEnabled
-	 * @return $this
-	 */
-	public function setWcfScanAutoRepair( $bEnabled ) {
-		return $this->setOpt( 'attempt_auto_file_repair', $bEnabled ? 'Y' : 'N' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnEnabled() {
-		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getWpvCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_wpv' ) );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnSendEmail() {
-		return $this->isWpvulnEnabled() && $this->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWpvulnAutoupdatesEnabled() {
-		return $this->isWpvulnEnabled() && $this->isOpt( 'wpvuln_scan_autoupdate', 'Y' );
-	}
-
-	/**
-	 * @return mixed
-	 */
 	public function getWpvulnPluginsHighlightOption() {
-		return $this->isWpvulnEnabled() ? $this->getOpt( 'wpvuln_scan_display' ) : 'disabled';
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isWpvulnEnabled() ? $oOpts->getOpt( 'wpvuln_scan_display' ) : 'disabled';
 	}
 
 	/**
@@ -459,7 +272,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$nNow = Services::Request()->ts();
 		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
 
-		$bCanWrite = (bool)$this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
+		$bCanWrite = $this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
 		if ( !$bCanWrite ) {
 			$oFS = Services::WpFs();
 			$sDir = $this->getPtgSnapsBaseDir();
@@ -470,7 +283,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
 				if ( $sContents === 'test-'.$nNow ) {
 					$oFS->deleteFile( $sTestFile );
-					$this->setOpt( 'ptg_candiskwrite', !$oFS->exists( $sTestFile ) );
+					$bCanWrite = !$oFS->exists( $sTestFile );
+					$this->setOpt( 'ptg_candiskwrite', $bCanWrite );
 				}
 				$this->setOpt( 'ptg_candiskwrite_at', $nNow );
 			}
@@ -483,95 +297,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return $this
 	 */
 	protected function cleanPtgFileExtensions() {
-		return $this->setOpt(
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt(
 			'ptg_extensions',
-			$this->cleanStringArray( $this->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
+			$this->cleanStringArray( $oOpts->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
 		);
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getPtgCronName() {
-		return $this->prefix( $this->getDef( 'cron_scan_ptg' ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getPtgFileExtensions() {
-		return $this->getOpt( 'ptg_extensions' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getPtgDepth() {
-		return $this->getOpt( 'ptg_depth' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getPtgEnabledOption() {
-		return $this->getOpt( 'ptg_enable' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getPtgLastBuildAt() {
-		return $this->getOpt( 'ptg_last_build_at' );
-	}
-
-	/**
-	 * @return string|false
-	 */
-	public function getPtgSnapsBaseDir() {
-		try {
-			$sPath = $this->getCon()->getPluginCachePath( 'ptguard/' );
-		}
-		catch ( \Exception $oE ) {
-			$sPath = false;
-		}
-		return $sPath;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgBuildRequired() {
-		return $this->isPtgEnabled() && ( $this->getPtgLastBuildAt() == 0 );
-	}
-
-	/**
-	 * @param bool $bIsRequired
-	 * @return $this
-	 */
-	public function setPtgRebuildSelfRequired( $bIsRequired ) {
-		return $this->setOpt( 'rebuild_self', (bool)$bIsRequired );
-	}
-
-	/**
-	 * @param bool $bIsRequired
-	 * @return $this
-	 */
-	public function setPtgUpdateStoreFormat( $bIsRequired ) {
-		return $this->setOpt( 'ptg_update_store_format', (bool)$bIsRequired );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgRebuildSelfRequired() {
-		return $this->isOpt( 'rebuild_self', true );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgUpdateStoreFormat() {
-		return $this->isOpt( 'ptg_update_store_format', true );
+		return $this;
 	}
 
 	/**
@@ -579,45 +311,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isPtgEnabled() {
 		return $this->isPremium() && $this->isOpt( 'ptg_enable', 'enabled' )
-			   && $this->getOptionsVo()->isOptReqsMet( 'ptg_enable' )
+			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
 			   && $this->canPtgWriteToDisk();
 	}
 
 	/**
+	 * @param string $sSlug
 	 * @return bool
 	 */
-	public function isPtgReadyToScan() {
-		return $this->isPtgEnabled() && !$this->isPtgBuildRequired();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isPtgReinstallLinks() {
-		return $this->isPtgEnabled() && $this->isOpt( 'ptg_reinstall_links', 'Y' );
-	}
-
-	/**
-	 * @param int $nTime
-	 * @return $this
-	 */
-	public function setPtgLastBuildAt( $nTime = null ) {
-		return $this->setOpt( 'ptg_last_build_at', is_null( $nTime ) ? Services::Request()->ts() : $nTime );
-	}
-
-	/**
-	 * @param string $sValue
-	 * @return $this
-	 */
-	public function setPtgEnabledOption( $sValue ) {
-		return $this->setOpt( 'ptg_enable', $sValue );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isApcEnabled() {
-		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
+	protected function isScanEnabled( $sSlug ) {
+		return $this->getScanCon( $sSlug )
+					->isEnabled();
 	}
 
 	/**
@@ -630,14 +334,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) && $this->isPtgReinstallLinks() ) {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) && $oOpts->isPtgReinstallLinks() ) {
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
-				array(
+				[
 					'ajax_plugin_reinstall' => $this->getAjaxActionData( 'plugin_reinstall' ),
-					'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles()
-				)
+					'reinstallable'         => Services::WpPlugins()->getInstalledWpOrgPluginFiles(),
+					'strings'               => [
+						'reinstall_first' => __( 'Re-install First', 'wp-simple-firewall' )
+											 .'. '.__( 'Then Activate', 'wp-simple-firewall' ),
+						'okay_reinstall'  => sprintf( '%s, %s',
+							__( 'Yes', 'wp-simple-firewall' ), __( 'Re-Install It', 'wp-simple-firewall' ) ),
+						'activate_only'   => __( 'Activate Only', 'wp-simple-firewall' ),
+						'cancel'          => __( 'Cancel', 'wp-simple-firewall' ),
+					]
+				]
 			);
 			wp_enqueue_script( 'jquery-ui-dialog' ); // jquery and jquery-ui should be dependencies, didn't check though...
 			wp_enqueue_style( 'wp-jquery-ui-dialog' );
@@ -652,20 +366,24 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aNotices = [];
 		switch ( $sSectionSlug ) {
 
-			case 'section_core_file_integrity_scan':
+			case 'section_scan_wcf':
 				$nTime = $this->getLastScanAt( 'wcf' );
 				break;
 
-			case 'section_unrecognised_file_scan':
+			case 'section_scan_ufc':
 				$nTime = $this->getLastScanAt( 'ufc' );
 				break;
 
-			case 'section_pluginthemes_guard':
+			case 'section_scan_ptg':
 				$nTime = $this->getLastScanAt( 'ptg' );
 				break;
 
-			case 'section_wpvuln_scan':
+			case 'section_scan_wpv':
 				$nTime = $this->getLastScanAt( 'wpv' );
+				break;
+
+			case 'section_scan_mal':
+				$nTime = $this->getLastScanAt( 'mal' );
 				break;
 
 			default:
@@ -674,184 +392,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		if ( !is_null( $nTime ) ) {
-			$nTime = ( $nTime > 0 ) ? Services::WpGeneral()->getTimeStampForDisplay( $nTime ) : _wpsf__( 'Never' );
-			$aNotices[] = sprintf( _wpsf__( 'Last Scan Time: %s' ), $nTime );
+			$nTime = ( $nTime > 0 ) ? Services::WpGeneral()
+											  ->getTimeStampForDisplay( $nTime ) : __( 'Never', 'wp-simple-firewall' );
+			$aNotices[] = sprintf( __( 'Last Scan Time: %s', 'wp-simple-firewall' ), $nTime );
 		}
 		return $aNotices;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function ajaxExec_BuildTableScan() {
-
-		switch ( Services::Request()->post( 'fScan' ) ) {
-
-			case 'apc':
-				$oTableBuilder = new Shield\Tables\Build\ScanApc();
-				break;
-
-			case 'wcf':
-				$oTableBuilder = new Shield\Tables\Build\ScanWcf();
-				break;
-
-			case 'ptg':
-				$oTableBuilder = new Shield\Tables\Build\ScanPtg();
-				break;
-
-			case 'ufc':
-				$oTableBuilder = new Shield\Tables\Build\ScanUfc();
-				break;
-
-			case 'wpv':
-				$oTableBuilder = new Shield\Tables\Build\ScanWpv();
-				break;
-
-			default:
-				break;
-		}
-
-		if ( empty( $oTableBuilder ) ) {
-			$sHtml = 'SCAN SLUG NOT SPECIFIED';
-		}
-		else {
-			/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-			$oPro = $this->getProcessor();
-			$sHtml = $oTableBuilder
-				->setMod( $this )
-				->setDbHandler( $oPro->getSubProScanner()->getDbHandler() )
-				->buildTable();
-		}
-
-		return array(
-			'success' => !empty( $oTableBuilder ),
-			'html'    => $sHtml
-		);
-	}
-
-	private function ajaxExec_StartScans() {
-		$bSuccess = false;
-		$bPageReload = false;
-		$sMessage = _wpsf__( 'No scans were selected' );
-		$aFormParams = $this->getAjaxFormParams();
-
-		if ( !empty( $aFormParams ) ) {
-			foreach ( array_keys( $aFormParams ) as $sScan ) {
-
-				$oTablePro = $this->getScannerFromSlug( $sScan );
-
-				if ( !empty( $oTablePro ) && $oTablePro->isEnabled() ) {
-					$oTablePro->doScan();
-
-					if ( isset( $aFormParams[ 'opt_clear_ignore' ] ) ) {
-						$oTablePro->resetIgnoreStatus();
-					}
-					if ( isset( $aFormParams[ 'opt_clear_notification' ] ) ) {
-						$oTablePro->resetNotifiedStatus();
-					}
-
-					$bSuccess = true;
-					$bPageReload = true;
-					$sMessage = _wpsf__( 'Scans completed.' ).' '._wpsf__( 'Reloading page' ).'...';
-				}
-			}
-		}
-
-		return [
-			'success'     => $bSuccess,
-			'page_reload' => $bPageReload,
-			'message'     => $sMessage,
-		];
-	}
-
-	/**
-	 * @param string $sAction
-	 * @return array
-	 */
-	private function ajaxExec_ScanItemAction( $sAction ) {
-		$oReq = Services::Request();
-
-		$bSuccess = false;
-
-		$sItemId = $oReq->post( 'rid' );
-		$aItemIds = $oReq->post( 'ids' );
-		$sScannerSlug = $oReq->post( 'fScan' );
-
-		$oTablePro = $this->getScannerFromSlug( $sScannerSlug );
-
-		if ( empty( $oTablePro ) ) {
-			$sMessage = _wpsf__( 'Unsupported scanner' );
-		}
-		else if ( empty( $sItemId ) && ( empty( $aItemIds ) || !is_array( $aItemIds ) ) ) {
-			$sMessage = _wpsf__( 'Unsupported item(s) selected' );
-		}
-		else {
-			if ( empty( $aItemIds ) ) {
-				$aItemIds = array( $sItemId );
-			}
-
-			try {
-				$aSuccessfulItems = [];
-
-				foreach ( $aItemIds as $sId ) {
-					if ( $oTablePro->executeItemAction( $sId, $sAction ) ) {
-						$aSuccessfulItems[] = $sId;
-					}
-				}
-
-				$bSuccess = true;
-
-				if ( count( $aSuccessfulItems ) === count( $aItemIds ) ) {
-					$bSuccess = true;
-					$sMessage = 'Successfully completed. Re-scanning and reloading ...';
-				}
-				else {
-					$sMessage = 'An error occurred - not all items may have been processed. Re-scanning and reloading ...';
-				}
-				$oTablePro->doScan();
-			}
-			catch ( \Exception $oE ) {
-				$sMessage = $oE->getMessage();
-			}
-		}
-
-		return array(
-			'success'     => $bSuccess,
-			'page_reload' => in_array( $sScannerSlug, [ 'apc', 'ptg' ] ),
-			'message'     => $sMessage,
-		);
-	}
-
-	/**
-	 * @param string $sSlug
-	 * @return ICWP_WPSF_Processor_ScanBase|null
-	 */
-	private function getScannerFromSlug( $sSlug ) {
-		/** @var ICWP_WPSF_Processor_HackProtect $oP */
-		$oP = $this->getProcessor();
-		$oScanPro = $oP->getSubProScanner();
-		switch ( $sSlug ) {
-			case 'apc':
-				$oScannerPro = $oScanPro->getSubProcessorApc();
-				break;
-			case 'ptg':
-				$oScannerPro = $oScanPro->getSubProcessorPtg();
-				break;
-			case 'ufc':
-				$oScannerPro = $oScanPro->getSubProcessorUfc();
-				break;
-			case 'wcf':
-				$oScannerPro = $oScanPro->getSubProcessorWcf();
-				break;
-			case 'wpv':
-				$oScannerPro = $oScanPro->getSubProcessorWpv();
-				break;
-			default:
-				$oScannerPro = null;
-				break;
-		}
-
-		return $oScannerPro;
 	}
 
 	/**
@@ -863,29 +408,36 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		switch ( $sSection ) {
 
-			case 'section_pluginthemes_guard':
+			case 'section_scan_ptg':
 				if ( !$this->canPtgWriteToDisk() ) {
-					$aWarnings[] = sprintf( _wpsf__( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"' ), $this->getPtgSnapsBaseDir() );
+					$aWarnings[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"', 'wp-simple-firewall' ), $this->getPtgSnapsBaseDir() );
 				}
 				break;
 
 			case 'section_realtime':
 				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-					$aWarnings[] = sprintf( _wpsf__( 'Not available because the %s extension is not available.' ), 'OpenSSL' );
+					$aWarnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
 				}
 				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
-					$aWarnings[] = sprintf( _wpsf__( "Not available because PHP/WordPress doesn't have direct filesystem access." ), 'OpenSSL' );
+					$aWarnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
 				}
 				else {
 					$sPath = $this->getRtMapFileKeyToFilePath( 'wpconfig' );
 					if ( !$this->getRtCanWriteFile( $sPath ) ) {
-						$aWarnings[] = sprintf( _wpsf__( "The %s file isn't writable and so can't be further protected." ), 'wp-config.php' );
+						$aWarnings[] = sprintf( __( "The %s file isn't writable and so can't be further protected.", 'wp-simple-firewall' ), 'wp-config.php' );
 					}
 				}
 				break;
 		}
 
 		return $aWarnings;
+	}
+
+	/**
+	 * @return string|false
+	 */
+	public function getPtgSnapsBaseDir() {
+		return $this->getCon()->getPluginCachePath( 'ptguard/' );
 	}
 
 	/**
@@ -902,7 +454,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	private function resetRtBackupFiles() {
 		$oCon = $this->getCon();
 		$oFs = Services::WpFs();
-		$oOpts = $this->getOptionsVo();
+		$oOpts = $this->getOptions();
 		foreach ( [ 'htaccess', 'wpconfig' ] as $sFileKey ) {
 			if ( $oOpts->isOptChanged( 'rt_file_'.$sFileKey ) ) {
 				$sPath = $this->getRtMapFileKeyToFilePath( $sFileKey );
@@ -1045,117 +597,150 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getTempDir() {
+		$sDir = $this->getCon()->getPluginCachePath( 'scans' );
+		return Services::WpFs()->mkdir( $sDir ) ? $sDir : false;
+	}
+
+	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
-		$aNotices = array(
-			'title'    => _wpsf__( 'Scans' ),
+		/** @var HackGuard\Strings $oStrings */
+		$oStrings = $this->getStrings();
+		$aScanNames = $oStrings->getScanNames();
+
+		$aNotices = [
+			'title'    => __( 'Scans', 'wp-simple-firewall' ),
 			'messages' => []
-		);
+		];
 
 		{// Core files
-			if ( !$this->isWcfScanEnabled() ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = array(
-					'title'   => 'WP Core Files',
-					'message' => _wpsf__( 'Core File scanner is not enabled.' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic WordPress Core File scanner should be turned-on.' )
-				);
+			if ( !$this->isScanEnabled( 'wcf' ) ) {
+				$aNotices[ 'messages' ][ 'wcf' ] = [
+					'title'   => $aScanNames[ 'wcf' ],
+					'message' => __( 'Core File scanner is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wcf' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
+				];
 			}
-			else if ( $this->getScanHasProblem( 'wcf' ) ) {
-				$aNotices[ 'messages' ][ 'wcf' ] = array(
-					'title'   => 'WP Core Files',
-					'message' => _wpsf__( 'Modified WordPress core files found.' ),
+			elseif ( $this->getScanHasProblem( 'wcf' ) ) {
+				$aNotices[ 'messages' ][ 'wcf' ] = [
+					'title'   => $aScanNames[ 'wcf' ],
+					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Scan WP core files and repair any files that are flagged as modified.' )
-				);
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
+				];
 			}
 		}
 
 		{// Unrecognised
-			if ( !$this->isUfcEnabled() ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = array(
-					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised File scanner is not enabled.' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic scanning for non-WordPress core files is recommended.' )
-				);
+			if ( !$this->isScanEnabled( 'ufc' ) ) {
+				$aNotices[ 'messages' ][ 'ufc' ] = [
+					'title'   => $aScanNames[ 'ufc' ],
+					'message' => __( 'Unrecognised File scanner is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
+				];
 			}
-			else if ( $this->getScanHasProblem( 'ufc' ) ) {
-				$aNotices[ 'messages' ][ 'ufc' ] = array(
-					'title'   => 'Unrecognised Files',
-					'message' => _wpsf__( 'Unrecognised files found in WordPress Core directory.' ),
+			elseif ( $this->getScanHasProblem( 'ufc' ) ) {
+				$aNotices[ 'messages' ][ 'ufc' ] = [
+					'title'   => $aScanNames[ 'ufc' ],
+					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Scan and remove any files that are not meant to be in the WP core directories.' )
-				);
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' )
+				];
 			}
 		}
 
 		{// Plugin/Theme Guard
 			if ( !$this->isPtgEnabled() ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = array(
-					'title'   => 'Plugin/Theme Guard',
-					'message' => _wpsf__( 'Automatic Plugin/Themes Guard is not enabled.' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of plugin/theme modifications is recommended.' )
-				);
+				$aNotices[ 'messages' ][ 'ptg' ] = [
+					'title'   => $aScanNames[ 'ptg' ],
+					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
+				];
 			}
-			else if ( $this->getScanHasProblem( 'ptg' ) ) {
-				$aNotices[ 'messages' ][ 'ptg' ] = array(
-					'title'   => 'Plugin/Theme Guard',
-					'message' => _wpsf__( 'A plugin/theme was found to have been modified.' ),
+			elseif ( $this->getScanHasProblem( 'ptg' ) ) {
+				$aNotices[ 'messages' ][ 'ptg' ] = [
+					'title'   => $aScanNames[ 'ptg' ],
+					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Reviewing modifications to your plugins/themes is recommended.' )
-				);
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' )
+				];
 			}
 		}
 
 		{// Vulnerability Scanner
-			if ( !$this->isWpvulnEnabled() ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = array(
-					'title'   => 'Vulnerability Scanner',
-					'message' => _wpsf__( 'Vulnerability Scanner is not enabled.' ),
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of vulnerabilities is recommended.' )
-				);
+			if ( !$this->isScanEnabled( 'wpv' ) ) {
+				$aNotices[ 'messages' ][ 'wpv' ] = [
+					'title'   => $aScanNames[ 'wpv' ],
+					'message' => __( 'Vulnerability Scanner is not enabled.', 'wp-simple-firewall' ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
+				];
 			}
-			else if ( $this->getScanHasProblem( 'wpv' ) ) {
-				$aNotices[ 'messages' ][ 'wpv' ] = array(
-					'title'   => 'Vulnerable Items',
-					'message' => _wpsf__( 'At least 1 item has known vulnerabilities.' ),
+			elseif ( $this->getScanHasProblem( 'wpv' ) ) {
+				$aNotices[ 'messages' ][ 'wpv' ] = [
+					'title'   => $aScanNames[ 'wpv' ],
+					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Items with known vulnerabilities should be updated, removed, or replaced.' )
-				);
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Items with known vulnerabilities should be updated, removed, or replaced.', 'wp-simple-firewall' )
+				];
 			}
 		}
 
 		{// Abandoned Plugins
-			if ( !$this->isApcEnabled() ) {
-				$aNotices[ 'messages' ][ 'apc' ] = array(
-					'title'   => 'Abandoned Plugins Scanner',
-					'message' => _wpsf__( 'Abandoned Plugins Scanner is not enabled.' ),
+			if ( !$this->isScanEnabled( 'apc' ) ) {
+				$aNotices[ 'messages' ][ 'apc' ] = [
+					'title'   => $aScanNames[ 'apc' ],
+					'message' => __( 'Abandoned Plugins Scanner is not enabled.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
-					'action'  => sprintf( 'Go To %s', _wpsf__( 'Options' ) ),
-					'rec'     => _wpsf__( 'Automatic detection of abandoned plugins is recommended.' )
-				);
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
+				];
 			}
-			else if ( $this->getScanHasProblem( 'apc' ) ) {
-				$aNotices[ 'messages' ][ 'apc' ] = array(
-					'title'   => 'Abandoned Plugins',
-					'message' => _wpsf__( 'At least 1 plugin on your site is abandoned.' ),
+			elseif ( $this->getScanHasProblem( 'apc' ) ) {
+				$aNotices[ 'messages' ][ 'apc' ] = [
+					'title'   => $aScanNames[ 'apc' ],
+					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
 					'href'    => $this->getUrlManualScan(),
-					'action'  => _wpsf__( 'Run Scan' ),
-					'rec'     => _wpsf__( 'Plugins that have been abandoned represent a potential risk to your site.' )
-				);
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Plugins that have been abandoned represent a potential risk to your site.', 'wp-simple-firewall' )
+				];
+			}
+		}
+
+		{// Malware
+			if ( !$this->isScanEnabled( 'mal' ) ) {
+				$aNotices[ 'messages' ][ 'mal' ] = [
+					'title'   => $aScanNames[ 'mal' ],
+					'message' => sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+					'action'  => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Options', 'wp-simple-firewall' ) ),
+					'rec'     => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
+				];
+			}
+			elseif ( $this->getScanHasProblem( 'mal' ) ) {
+				$aNotices[ 'messages' ][ 'mal' ] = [
+					'title'   => $aScanNames[ 'mal' ],
+					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),
+					'href'    => $this->getUrlManualScan(),
+					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
+					'rec'     => __( 'Files identified as potential malware should be examined as soon as possible.', 'wp-simple-firewall' )
+				];
 			}
 		}
 
@@ -1170,106 +755,138 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
-		$aThis = array(
-			'strings'      => array(
-				'title' => _wpsf__( 'Hack Guard' ),
-				'sub'   => _wpsf__( 'Threats/Intrusions Detection & Repair' ),
-			),
+		/** @var HackGuard\Strings $oStrings */
+		$oStrings = $this->getStrings();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$aScanNames = $oStrings->getScanNames();
+
+		$aThis = [
+			'strings'      => [
+				'title' => __( 'Hack Guard', 'wp-simple-firewall' ),
+				'sub'   => __( 'Threats/Intrusions Detection & Repair', 'wp-simple-firewall' ),
+			],
 			'key_opts'     => [],
 			'href_options' => $this->getUrl_AdminPage()
-		);
+		];
 
 		if ( !$this->isModOptEnabled() ) {
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bGoodFrequency = $this->getScanFrequency() > 1;
-			$aThis[ 'key_opts' ][ 'frequency' ] = array(
-				'name'    => _wpsf__( 'Scan Frequency' ),
+			$bGoodFrequency = $oOpts->getScanFrequency() > 1;
+			$aThis[ 'key_opts' ][ 'frequency' ] = [
+				'name'    => __( 'Scan Frequency', 'wp-simple-firewall' ),
 				'enabled' => $bGoodFrequency,
 				'summary' => $bGoodFrequency ?
-					_wpsf__( 'Automatic scanners run more than once per day' )
-					: _wpsf__( "Automatic scanners only run once per day" ),
+					__( 'Automatic scanners run more than once per day', 'wp-simple-firewall' )
+					: __( "Automatic scanners only run once per day", 'wp-simple-firewall' ),
 				'weight'  => 1,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_options' ),
-			);
+			];
 
-			$bCore = $this->isWcfScanEnabled();
-			$aThis[ 'key_opts' ][ 'wcf' ] = array(
-				'name'    => _wpsf__( 'WP Core File Scan' ),
+			$bCore = $this->isScanEnabled( 'wcf' );
+			$aThis[ 'key_opts' ][ 'wcf' ] = [
+				'name'    => __( 'WP Core File Scan', 'wp-simple-firewall' ),
 				'enabled' => $bCore,
 				'summary' => $bCore ?
-					_wpsf__( 'Core files scanned regularly for hacks' )
-					: _wpsf__( "Core files are never scanned for hacks!" ),
+					__( 'Core files scanned regularly for hacks', 'wp-simple-firewall' )
+					: __( "Core files are never scanned for hacks!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
-			);
-			if ( $bCore && !$this->isWcfScanAutoRepair() ) {
-				$aThis[ 'key_opts' ][ 'wcf_repair' ] = array(
-					'name'    => _wpsf__( 'WP Core File Repair' ),
-					'enabled' => $this->isWcfScanAutoRepair(),
-					'summary' => $this->isWcfScanAutoRepair() ?
-						_wpsf__( 'Core files are automatically repaired' )
-						: _wpsf__( "Core files aren't automatically repaired!" ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wcf' ),
+			];
+			if ( $bCore && !$oOpts->isWcfScanAutoRepair() ) {
+				$aThis[ 'key_opts' ][ 'wcf_repair' ] = [
+					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
+					'enabled' => $oOpts->isWcfScanAutoRepair(),
+					'summary' => $oOpts->isWcfScanAutoRepair() ?
+						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
+						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
 					'weight'  => 1,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_core_file_integrity_scan' ),
-				);
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wcf' ),
+				];
 			}
 
-			$bUcf = $this->isUfcEnabled();
-			$aThis[ 'key_opts' ][ 'ufc' ] = array(
-				'name'    => _wpsf__( 'Unrecognised Files' ),
+			$bUcf = $oOpts->isUfcEnabled();
+			$aThis[ 'key_opts' ][ 'ufc' ] = [
+				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
 				'enabled' => $bUcf,
 				'summary' => $bUcf ?
-					_wpsf__( 'Core directories scanned regularly for unrecognised files' )
-					: _wpsf__( "WP Core is never scanned for unrecognised files!" ),
+					__( 'Core directories scanned regularly for unrecognised files', 'wp-simple-firewall' )
+					: __( "WP Core is never scanned for unrecognised files!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
-			);
-			if ( $bUcf && !$this->isUfcDeleteFiles() ) {
-				$aThis[ 'key_opts' ][ 'ufc_repair' ] = array(
-					'name'    => _wpsf__( 'Unrecognised Files Removal' ),
-					'enabled' => $this->isUfcDeleteFiles(),
-					'summary' => $this->isUfcDeleteFiles() ?
-						_wpsf__( 'Unrecognised files are automatically removed' )
-						: _wpsf__( "Unrecognised files aren't automatically removed!" ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+			];
+			if ( $bUcf && !$oOpts->isUfcDeleteFiles() ) {
+				$aThis[ 'key_opts' ][ 'ufc_repair' ] = [
+					'name'    => __( 'Unrecognised Files Removal', 'wp-simple-firewall' ),
+					'enabled' => $oOpts->isUfcDeleteFiles(),
+					'summary' => $oOpts->isUfcDeleteFiles() ?
+						__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
+						: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
 					'weight'  => 1,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_unrecognised_file_scan' ),
-				);
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
+				];
 			}
 
-			$bWpv = $this->isWpvulnEnabled();
-			$aThis[ 'key_opts' ][ 'wpv' ] = array(
-				'name'    => _wpsf__( 'Vulnerability Scan' ),
+			$bWpv = $oOpts->isWpvulnEnabled();
+			$aThis[ 'key_opts' ][ 'wpv' ] = [
+				'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
 				'enabled' => $bWpv,
 				'summary' => $bWpv ?
-					_wpsf__( 'Regularly scanning for known vulnerabilities' )
-					: _wpsf__( "Plugins/Themes never scanned for vulnerabilities!" ),
+					__( 'Regularly scanning for known vulnerabilities', 'wp-simple-firewall' )
+					: __( "Plugins/Themes never scanned for vulnerabilities!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
-			);
-			if ( $bWpv && !$this->isWpvulnAutoupdatesEnabled() ) {
-				$aThis[ 'key_opts' ][ 'wpv_repair' ] = array(
-					'name'    => _wpsf__( 'Auto Update' ),
-					'enabled' => $this->isWpvulnAutoupdatesEnabled(),
-					'summary' => $this->isWpvulnAutoupdatesEnabled() ?
-						_wpsf__( 'Vulnerable items are automatically updated' )
-						: _wpsf__( "Vulnerable items aren't automatically updated!" ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
+			];
+			$bWpvAutoUpdates = $oOpts->isWpvulnAutoupdatesEnabled();
+			if ( $bWpv && !$bWpvAutoUpdates ) {
+				$aThis[ 'key_opts' ][ 'wpv_repair' ] = [
+					'name'    => __( 'Auto Update', 'wp-simple-firewall' ),
+					'enabled' => $bWpvAutoUpdates,
+					'summary' => $bWpvAutoUpdates ?
+						__( 'Vulnerable items are automatically updated', 'wp-simple-firewall' )
+						: __( "Vulnerable items aren't automatically updated!", 'wp-simple-firewall' ),
 					'weight'  => 1,
-					'href'    => $this->getUrl_DirectLinkToSection( 'section_wpvuln_scan' ),
-				);
+					'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_wpv' ),
+				];
 			}
 
-			$bPtg = $this->isPtgEnabled();
-			$aThis[ 'key_opts' ][ 'ptg' ] = array(
-				'name'    => _wpsf__( 'Plugin/Theme Guard' ),
+			$bPtg = $this->isScanEnabled( 'ptg' );
+			$aThis[ 'key_opts' ][ 'ptg' ] = [
+				'title'   => $aScanNames[ 'ptg' ],
+				'name'    => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
 				'enabled' => $bPtg,
 				'summary' => $bPtg ?
-					_wpsf__( 'Plugins and Themes are guarded against tampering' )
-					: _wpsf__( "Plugins and Themes are never scanned for tampering!" ),
+					__( 'Plugins and Themes are guarded against tampering', 'wp-simple-firewall' )
+					: __( "Plugins and Themes are never scanned for tampering!", 'wp-simple-firewall' ),
 				'weight'  => 2,
-				'href'    => $this->getUrl_DirectLinkToSection( 'section_pluginthemes_guard' ),
-			);
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ptg' ),
+			];
+
+			$bMal = $this->isScanEnabled( 'mal' );
+			$aThis[ 'key_opts' ][ 'mal' ] = [
+				'title'   => $aScanNames[ 'mal' ],
+				'name'    => $aScanNames[ 'mal' ],
+				'enabled' => $bMal,
+				'summary' => $bMal ?
+					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'mal' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'mal' ] ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_mal' ),
+			];
+
+			$bApc = $this->isScanEnabled( 'apc' );
+			$aThis[ 'key_opts' ][ 'apc' ] = [
+				'title'   => $aScanNames[ 'apc' ],
+				'name'    => $aScanNames[ 'apc' ],
+				'enabled' => $bApc,
+				'summary' => $bApc ?
+					sprintf( __( '%s Scanner is enabled.' ), $aScanNames[ 'apc' ] )
+					: sprintf( __( '%s Scanner is not enabled.' ), $aScanNames[ 'apc' ] ),
+				'weight'  => 2,
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_apc' ),
+			];
 		}
 
 		$aAllData[ $this->getSlug() ] = $aThis;
@@ -1282,282 +899,40 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function getUrlManualScan() {
 		return add_query_arg(
 			[ 'inav' => 'scans' ],
-			$this->getCon()->getModule( 'insights' )->getUrl_AdminPage()
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
 		);
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
-	 * @throws \Exception
+	 * @return false|Shield\Databases\ScanQueue\Handler
 	 */
-	protected function loadStrings_SectionTitles( $aOptionsParams ) {
-
-		$sSectionSlug = $aOptionsParams[ 'slug' ];
-		switch ( $sSectionSlug ) {
-
-			case 'section_scan_options' :
-				$sTitle = _wpsf__( 'Scan Options' );
-				$sTitleShort = _wpsf__( 'Scan Options' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Set how frequently the Hack Guard scans will run.' ) )
-				);
-				break;
-
-			case 'section_realtime' :
-				$sTitle = _wpsf__( 'Realtime Site Protection' );
-				$sTitleShort = _wpsf__( 'Realtime Protection' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Provides realtime protection for certain key files.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep realtime protection turned on to protect key files.' ) ),
-				);
-				break;
-
-			case 'section_enable_plugin_feature_hack_protection_tools' :
-				$sTitle = sprintf( _wpsf__( 'Enable Module: %s' ), $this->getMainFeatureName() );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Hack Guard is a set of tools to warn you and protect you against hacks on your site.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Hack Guard' ) ) )
-				);
-				$sTitleShort = sprintf( _wpsf__( '%s/%s Module' ), _wpsf__( 'Enable' ), _wpsf__( 'Disable' ) );
-				break;
-
-			case 'section_wpvuln_scan' :
-				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress plugins and themes for known security vulnerabilities.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) ),
-					_wpsf__( 'Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities.' )
-				);
-				$sTitleShort = _wpsf__( 'Vulnerabilities Scanner' );
-				break;
-
-			case 'section_plugin_vulnerabilities_scan' :
-				$sTitle = _wpsf__( 'Vulnerabilities Scanner' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your plugins against a database of known vulnerabilities.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), _wpsf__( 'Vulnerabilities Scanner' ) ) )
-				);
-				$sTitleShort = _wpsf__( 'Vulnerabilities' );
-				break;
-
-			case 'section_core_file_integrity_scan' :
-				$sTitle = _wpsf__( 'WordPress Core File Scanner' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Regularly scan your WordPress core files for changes compared to official WordPress files.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
-				);
-				$sTitleShort = _wpsf__( 'WP Core File Scanner' );
-				break;
-
-			case 'section_unrecognised_file_scan' :
-				$sTitle = _wpsf__( 'Unrecognised Files Scanner' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( "Regularly scan your WordPress core folders for files that don't belong." ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), sprintf( _wpsf__( 'Keep the %s feature turned on.' ), $sTitle ) )
-				);
-				$sTitleShort = _wpsf__( 'Unrecognised Files Scanner' );
-				break;
-
-			case 'section_scan_apc' :
-				$sTitle = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
-				$sTitleShort = _wpsf__( 'Abandoned Plugin Scanner' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ),
-						_wpsf__( 'Monitor your site for plugins that have been abandoned by their authors and are no longer maintained.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable this to alert you to your site running unmaintained code.' ) )
-				);
-				break;
-
-			case 'section_pluginthemes_guard' :
-				$sTitle = _wpsf__( 'Plugins and Themes Guard' );
-				$sTitleShort = _wpsf__( 'Plugins/Themes Guard' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Detect malicious changes to your themes and plugins.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Keep the Plugins/Theme Guard feature turned on.' ) ),
-				);
-				break;
-
-			case 'section_integrity_checking' :
-				$sTitle = _wpsf__( 'Integrity Checks' );
-				$sTitleShort = _wpsf__( 'Integrity Checks' );
-				$aSummary = array(
-					sprintf( '%s - %s', _wpsf__( 'Purpose' ), _wpsf__( 'Monitor for unrecognised changes to your system.' ) ),
-					sprintf( '%s - %s', _wpsf__( 'Recommendation' ), _wpsf__( 'Enable these to prevent unauthorized changes to your WordPress site.' ) )
-				);
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
-		}
-		$aOptionsParams[ 'title' ] = $sTitle;
-		$aOptionsParams[ 'summary' ] = ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [];
-		$aOptionsParams[ 'title_short' ] = $sTitleShort;
-		return $aOptionsParams;
+	public function getDbHandler_ScanQueue() {
+		return $this->getDbH( 'scanq' );
 	}
 
 	/**
-	 * @param array $aOptionsParams
-	 * @return array
+	 * @return false|Shield\Databases\Scanner\Handler
+	 */
+	public function getDbHandler_ScanResults() {
+		return $this->getDbH( 'scanresults' );
+	}
+
+	/**
+	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function loadStrings_Options( $aOptionsParams ) {
-		$sKey = $aOptionsParams[ 'key' ];
-		switch ( $sKey ) {
+	protected function isReadyToExecute() {
+		return ( $this->getDbHandler_ScanQueue() instanceof Shield\Databases\ScanQueue\Handler )
+			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && ( $this->getDbHandler_ScanResults() instanceof Shield\Databases\Scanner\Handler )
+			   && $this->getDbHandler_ScanQueue()->isReady()
+			   && parent::isReadyToExecute();
+	}
 
-			case 'enable_hack_protect' :
-				$sName = sprintf( _wpsf__( 'Enable %s Module' ), $this->getMainFeatureName() );
-				$sSummary = sprintf( _wpsf__( 'Enable (or Disable) The %s Module' ), $this->getMainFeatureName() );
-				$sDescription = sprintf( _wpsf__( 'Un-Checking this option will completely disable the %s module.' ), $this->getMainFeatureName() );
-				break;
-
-			case 'scan_frequency' :
-				$sName = _wpsf__( 'Daily Scan Frequency' );
-				$sSummary = _wpsf__( 'Number Of Times To Automatically Run File Scan In 24hrs' );
-				$sDescription = sprintf( '%s: %s', _wpsf__( 'Default' ), _wpsf__( 'Once every 24hrs.' ) )
-								.'<br/>'._wpsf__( 'To improve security, increase the number of scans per day.' );
-				break;
-
-			case 'notification_interval' :
-				$sName = _wpsf__( 'Repeat Notifications' );
-				$sSummary = _wpsf__( 'Item Repeat Notifications Suppression Interval' );
-				$sDescription = _wpsf__( 'How long the automated scans should wait before repeating a notification about an item.' )
-								.'<br/>'._wpsf__( 'Specify the number of days to suppress repeat notifications.' )
-								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Note' ), _wpsf__( 'This is per discovered item or file, not per scan.' ) );
-				break;
-
-			case 'email_files_list' :
-				$sName = _wpsf__( 'Email Files List' );
-				$sSummary = _wpsf__( 'Scan Notification Emails Should Include Full Listing Of Files' );
-				$sDescription = _wpsf__( 'Scanner notification emails will include a summary list of all affected files.' );
-				break;
-
-			case 'enable_plugin_vulnerabilities_scan' :
-				$sName = _wpsf__( 'Vulnerabilities Scanner' );
-				$sSummary = sprintf( _wpsf__( 'Daily Cron - %s' ), _wpsf__( 'Scans Plugins For Known Vulnerabilities' ) );
-				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress plugin vulnerabilities.' );
-				break;
-
-			case 'enable_wpvuln_scan' :
-				$sName = _wpsf__( 'Vulnerability Scanner' );
-				$sSummary = _wpsf__( 'Enable The Vulnerability Scanner' );
-				$sDescription = _wpsf__( 'Runs a scan of all your plugins against a database of known WordPress vulnerabilities.' );
-				break;
-
-			case 'wpvuln_scan_autoupdate' :
-				$sName = _wpsf__( 'Automatic Updates' );
-				$sSummary = _wpsf__( 'Apply Updates Automatically To Vulnerable Plugins' );
-				$sDescription = _wpsf__( 'When an update becomes available, automatically apply updates to items with known vulnerabilities.' );
-				break;
-
-			case 'wpvuln_scan_display' :
-				$sName = _wpsf__( 'Highlight Plugins' );
-				$sSummary = _wpsf__( 'Highlight Vulnerable Plugins Upon Display' );
-				$sDescription = _wpsf__( 'Vulnerable plugins will be highlighted on the main plugins page.' );
-				break;
-
-			case 'enable_core_file_integrity_scan' :
-				$sName = _wpsf__( 'WP Core File Scanner' );
-				$sSummary = _wpsf__( 'Automatically Scans WordPress Core Files For Changes' );
-				$sDescription = _wpsf__( 'Compares all WordPress core files on your site against the official WordPress files.' )
-								.'<br />'._wpsf__( 'WordPress Core files should never be altered for any reason.' );
-				break;
-
-			case 'attempt_auto_file_repair' :
-				$sName = _wpsf__( 'Auto Repair' );
-				$sSummary = _wpsf__( 'Automatically Repair WordPress Core Files That Have Been Altered' );
-				$sDescription = _wpsf__( 'Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing.' );
-				break;
-
-			case 'enable_unrecognised_file_cleaner_scan' :
-				$sName = _wpsf__( 'Unrecognised Files Scanner' );
-				$sSummary = _wpsf__( 'Automatically Scans For Unrecognised Files In Core Directories' );
-				$sDescription = _wpsf__( 'Scans for, and automatically deletes, any files in your core WordPress folders that are not part of your WordPress installation.' );
-				break;
-
-			case 'ufc_scan_uploads' :
-				$sName = _wpsf__( 'Scan Uploads' );
-				$sSummary = _wpsf__( 'Scan Uploads Folder For PHP and Javascript' );
-				$sDescription = sprintf( '%s - %s', _wpsf__( 'Warning' ), _wpsf__( 'Take care when turning on this option - if you are unsure, leave it disabled.' ) )
-								.'<br />'._wpsf__( 'The Uploads folder is primarily for media, but could be used to store nefarious files.' );
-				break;
-
-			case 'ufc_exclusions' :
-				$sName = _wpsf__( 'File Exclusions' );
-				$sSummary = _wpsf__( 'Provide A List Of Files To Be Excluded From The Scan' );
-				$sDefaults = implode( ', ', $this->getOptionsVo()->getOptDefault( 'ufc_exclusions' ) );
-				$sDescription = _wpsf__( 'Take a new line for each file you wish to exclude from the scan.' )
-								.'<br/><strong>'._wpsf__( 'No commas are necessary.' ).'</strong>'
-								.'<br/>'.sprintf( '%s: %s', _wpsf__( 'Default' ), $sDefaults );
-				break;
-
-			case 'ic_enabled' :
-				$sName = _wpsf__( 'Enable Integrity Scan' );
-				$sSummary = _wpsf__( 'Scans For Critical Changes Made To Your WordPress Site' );
-				$sDescription = _wpsf__( 'Detects changes made to your WordPress site outside of WordPress.' );
-				break;
-
-			case 'ic_users' :
-				$sName = _wpsf__( 'Monitor User Accounts' );
-				$sSummary = _wpsf__( 'Scans For Critical Changes Made To User Accounts' );
-				$sDescription = sprintf( _wpsf__( 'Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system.' ), 'author=' )
-								.'<br />'._wpsf__( 'An example of this might be some form of SQL Injection attack.' )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'Enabling this option for every page low may slow down your site with large numbers of users.' ) )
-								.'<br />'.sprintf( '%s: %s', _wpsf__( 'Warning' ), _wpsf__( 'This option may cause critical problem with 3rd party plugins that manage user accounts.' ) );
-				break;
-
-			case 'ptg_enable' :
-				$sName = sprintf( _wpsf__( 'Enable %s' ), _wpsf__( 'Guard' ) );
-				$sSummary = _wpsf__( 'Enable The Guard For Plugin And Theme Files' );
-				$sDescription = _wpsf__( 'When enabled the Guard will automatically scan for changes to your Plugin and Theme files.' );
-				break;
-
-			case 'ptg_depth' :
-				$sName = _wpsf__( 'Guard/Scan Depth' );
-				$sSummary = _wpsf__( 'How Deep Into The Plugin Directories To Scan And Guard' );
-				$sDescription = _wpsf__( 'The Guard normally scans only the top level of a folder. Increasing depth will increase scan times.' )
-								.'<br/>'.sprintf( _wpsf__( 'Setting it to %s will remove this limit and all sub-folders will be scanned - not recommended' ), 0 );
-				break;
-
-			case 'ptg_extensions' :
-				$sName = _wpsf__( 'Included File Types' );
-				$sSummary = _wpsf__( 'The File Types (by File Extension) Included In The Scan' );
-				$sDescription = _wpsf__( 'Take a new line for each file extension.' )
-								.'<br/>'._wpsf__( 'No commas(,) or periods(.) necessary.' )
-								.'<br/>'._wpsf__( 'Remove all extensions to scan all file type (not recommended).' );
-				break;
-
-			case 'ptg_reinstall_links' :
-				$sName = _wpsf__( 'Show Re-Install Links' );
-				$sSummary = _wpsf__( 'Show Re-Install Links For Plugins' );
-				$sDescription = _wpsf__( "Show links to re-install plugins and offer re-install when activating plugins." );
-				break;
-
-			case 'enabled_scan_apc' :
-				$sName = _wpsf__( 'Abandoned Plugin Scanner' );
-				$sSummary = _wpsf__( 'Enable The Abandoned Plugin Scanner' );
-				$sDescription = _wpsf__( "Scan your WordPress.org assets for whether they've been abandoned." );
-				break;
-
-			case 'display_apc' :
-				$sName = _wpsf__( 'Highlight Plugins' );
-				$sSummary = _wpsf__( 'Highlight Abandoned Plugins' );
-				$sDescription = _wpsf__( "Abandoned plugins will be highlighted on the main plugins page." );
-				break;
-
-			case 'rt_file_wpconfig' :
-				$sName = _wpsf__( 'WP Config' );
-				$sSummary = _wpsf__( 'Realtime Protection For WP Config File' );
-				$sDescription = _wpsf__( "Realtime protection for the wp-config.php file." );
-				break;
-
-			default:
-				throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sKey ) );
-		}
-
-		$aOptionsParams[ 'name' ] = $sName;
-		$aOptionsParams[ 'summary' ] = $sSummary;
-		$aOptionsParams[ 'description' ] = $sDescription;
-		return $aOptionsParams;
+	/**
+	 * @return string
+	 */
+	protected function getNamespaceBase() {
+		return 'HackGuard';
 	}
 }

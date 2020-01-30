@@ -1,7 +1,7 @@
 {
   "properties":    {
     "slug":                  "plugin",
-    "name":                  "General",
+    "name":                  "General Settings",
     "menu_title":            "Settings",
     "show_module_menu_item": true,
     "show_module_options":   true,
@@ -11,7 +11,6 @@
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "has_custom_actions":    false,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true,
@@ -26,63 +25,66 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "plugin-update-available":    {
-      "id":          "plugin-update-available",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+    "compat-sgoptimize":          {
+      "id":               "compat-sgoptimize",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_admin":     "ignore",
+      "plugin_page_only": false,
+      "can_dismiss":      false,
+      "type":             "warning"
     },
     "wizard_welcome":             {
-      "id":          "wizard_welcome",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  0,
-      "type":        "promo"
-    },
-    "allow-tracking":             {
-      "id":          "allow-tracking",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "delay_days":  1,
-      "type":        "promo"
+      "id":       "wizard_welcome",
+      "per_user": false,
+      "type":     "info"
     },
     "plugin-mailing-list-signup": {
-      "id":          "plugin-mailing-list-signup",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  15,
-      "type":        "promo",
-      "twig":        true
+      "id":               "plugin-mailing-list-signup",
+      "min_install_days": 5,
+      "type":             "promo",
+      "drip_form_id":     "250437573"
+    },
+    "plugin-update-available":    {
+      "id":   "plugin-update-available",
+      "type": "warning"
+    },
+    "allow-tracking":             {
+      "id":               "allow-tracking",
+      "plugin_admin":     true,
+      "min_install_days": 3,
+      "type":             "promo"
     },
     "rate-plugin":                {
-      "id":          "rate-plugin",
-      "schedule":    "once",
-      "valid_admin": true,
-      "delay_days":  30,
-      "type":        "promo"
+      "id":               "rate-plugin",
+      "min_install_days": 30,
+      "type":             "promo"
     }
   },
   "sections":      [
     {
-      "slug":        "section_defaults",
-      "primary":     true,
-      "title":       "Plugin Defaults",
-      "title_short": "Plugin Defaults"
+      "slug":          "section_defaults",
+      "primary":       true,
+      "title":         "Plugin Defaults",
+      "title_short":   "Plugin Defaults",
+      "help_video_id": "338533495"
     },
     {
-      "slug":        "section_general_plugin_options",
-      "title":       "General Plugin Options",
-      "title_short": "General Options"
+      "slug":          "section_general_plugin_options",
+      "title":         "General Plugin Options",
+      "title_short":   "General Options",
+      "help_video_id": "338540386"
+    },
+    {
+      "slug":          "section_third_party_google",
+      "title":         "Google reCAPTCHA",
+      "title_short":   "Google reCAPTCHA",
+      "help_video_id": "338546796"
     },
     {
       "slug":        "section_importexport",
       "title":       "Import / Export",
       "title_short": "Import / Export"
-    },
-    {
-      "slug":        "section_third_party_google",
-      "title":       "Google",
-      "title_short": "Google"
     },
     {
       "slug":        "section_global_security_options",
@@ -111,7 +113,7 @@
       "section":     "section_general_plugin_options",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/7i",
+      "link_info":   "https://shsec.io/7i",
       "link_blog":   "",
       "name":        "Enable Information Gathering",
       "summary":     "Permit Anonymous Usage Information Gathering",
@@ -169,7 +171,7 @@
           "text":      "HTTP_CLIENT_IP"
         }
       ],
-      "link_info":     "https://icwp.io/dn",
+      "link_info":     "https://shsec.io/dn",
       "link_blog":     "",
       "name":          "Visitor IP Address",
       "summary":       "Which Address Is Yours",
@@ -203,8 +205,8 @@
       "section":     "section_general_plugin_options",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/5v",
-      "link_blog":   "https://icwp.io/wpsf20",
+      "link_info":   "https://shsec.io/5v",
+      "link_blog":   "https://shsec.io/wpsf20",
       "name":        "Show Plugin Badge",
       "summary":     "Display Plugin Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
@@ -226,8 +228,8 @@
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/do",
-      "link_blog":   "https://icwp.io/dp",
+      "link_info":   "https://shsec.io/do",
+      "link_blog":   "https://shsec.io/dp",
       "name":        "Allow Import/Export",
       "summary":     "Allow Import Of Options To, And Export Of Options From, This Site",
       "description": "Uncheck this box to completely disable import and export of options."
@@ -247,6 +249,7 @@
       "key":          "importexport_whitelist",
       "section":      "section_importexport",
       "transferable": false,
+      "sensitive":    true,
       "default":      [],
       "type":         "array",
       "link_info":    "",
@@ -258,6 +261,7 @@
     {
       "key":         "importexport_whitelist_notify",
       "section":     "section_importexport",
+      "sensitive":   true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -307,10 +311,10 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
-      "link_info":     "https://icwp.io/dq",
+      "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
       "name":          "reCAPTCHA Style",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
@@ -322,7 +326,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/shld5",
+      "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
       "name":        "reCAPTCHA Site Key",
       "summary":     "Google reCAPTCHA Site Key - Only v2 or Invisible. v3 NOT supported.",
@@ -334,7 +338,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/shld5",
+      "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
       "name":        "reCAPTCHA Secret",
       "summary":     "Google reCAPTCHA Secret Key - Only v2 or Invisible. v3 NOT supported.",
@@ -345,7 +349,8 @@
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
-      "default":      0
+      "default":      0,
+      "min":          0
     },
     {
       "key":          "unique_installation_id",
@@ -396,28 +401,6 @@
       "default":      ""
     },
     {
-      "key":          "this_server_ip",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "sensitive":    true,
-      "type":         "text",
-      "default":      ""
-    },
-    {
-      "key":          "this_server_ip_last_check_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_test_cron_last_run_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "default":      0
-    },
-    {
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
@@ -438,7 +421,13 @@
     "tracking_cron_handle":   "plugin_tracking_cron",
     "tracking_post_url":      "https://tracking.icontrolwp.com/track/plugin/shield",
     "importexport_cron_name": "autoimport",
-    "href_privacy_policy":    "https://icwp.io/wpshieldprivacypolicy",
+    "href_privacy_policy":    "https://shsec.io/wpshieldprivacypolicy",
+    "db_classes":             {
+      "geoip": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\GeoIp\\Handler",
+      "notes": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AdminNotes\\Handler"
+    },
+    "db_autoexpire_notes":    0,
+    "db_autoexpire_geoip":    30,
     "db_notes_name":          "notes",
     "db_notes_table_columns": [
       "id",
@@ -447,10 +436,19 @@
       "created_at",
       "deleted_at"
     ],
+    "geoip_table_name":       "geoip",
+    "geoip_table_columns":    [
+      "id",
+      "ip",
+      "meta",
+      "created_at",
+      "deleted_at"
+    ],
     "active_plugin_features": [
       {
         "slug":          "insights",
         "storage_key":   "insights",
+        "load_priority": 1,
         "menu_priority": 5
       },
       {
@@ -461,7 +459,7 @@
       {
         "slug":          "ips",
         "storage_key":   "ips",
-        "load_priority": 12
+        "load_priority": 15
       },
       {
         "slug":        "hack_protect",
@@ -474,7 +472,7 @@
       {
         "slug":          "firewall",
         "storage_key":   "firewall",
-        "load_priority": 13
+        "load_priority": 1000
       },
       {
         "slug":        "user_management",
@@ -497,11 +495,9 @@
         "storage_key": "lockdown"
       },
       {
-        "slug":          "statistics",
-        "storage_key":   "statistics",
-        "load_priority": 11,
-        "hidden":        false,
-        "min_php":       "5.4"
+        "slug":          "events",
+        "storage_key":   "events",
+        "load_priority": 11
       },
       {
         "slug":          "sessions",
@@ -530,6 +526,41 @@
         "storage_key": "email"
       }
     ],
+    "events":                 {
+      "test_cron_run":          {
+        "audit":  false,
+        "recent": true
+      },
+      "import_notify_sent":     {
+        "stat": false
+      },
+      "import_notify_received": {
+        "stat": false
+      },
+      "options_exported":       {
+        "stat":   true,
+        "recent": true
+      },
+      "options_imported":       {
+        "stat":   true,
+        "recent": true
+      },
+      "whitelist_site_added":   {
+        "stat": false
+      },
+      "whitelist_site_removed": {
+        "stat": false
+      },
+      "master_url_set":         {
+        "stat": false
+      },
+      "recaptcha_success":      {
+        "audit": false
+      },
+      "recaptcha_fail":         {
+        "audit": true
+      }
+    },
     "wizards":                {
       "welcome": {
         "title":                "Getting Started Setup Wizard",
@@ -567,28 +598,6 @@
           "thankyou":                 {
             "security_admin": false,
             "title":          "Thank You!"
-          }
-        }
-      },
-      "gdpr":    {
-        "title":                "GDPR Data Wizard",
-        "desc":                 "Walks you through the searching and removal of personally identifiable data.",
-        "min_user_permissions": "manage_options",
-        "has_premium":          true,
-        "steps":                {
-          "start":    {
-            "security_admin": false,
-            "title":          "Start: GDPR Compliance"
-          },
-          "search":   {
-            "title": "Input Search"
-          },
-          "results":  {
-            "title": "Search Results"
-          },
-          "finished": {
-            "security_admin": false,
-            "title":          "Finished: GDPR Compliance"
           }
         }
       }

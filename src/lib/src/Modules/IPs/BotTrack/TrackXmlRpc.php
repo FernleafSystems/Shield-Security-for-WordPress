@@ -9,16 +9,9 @@ class TrackXmlRpc extends Base {
 	const OPT_KEY = 'track_xmlrpc';
 
 	protected function process() {
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST
+		if ( Services::WpGeneral()->isXmlrpc()
 			 || preg_match( '#/xmlrpc\.php#', Services::Request()->getPath() ) ) {
 			$this->doTransgression();
 		}
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function getAuditMsg() {
-		return sprintf( _wpsf__( 'Access to XML-RPC detected at "%s".' ), Services::Request()->getPath() );
 	}
 }

@@ -10,17 +10,17 @@
     "show_central":          true,
     "access_restricted":     true,
     "premium":               false,
-    "run_if_whitelisted":    false,
+    "run_if_whitelisted":    true,
     "run_if_verified_bot":   false,
     "run_if_wpcli":          false,
     "order":                 40
   },
   "admin_notices": {
     "email-verification-sent": {
-      "once":        false,
-      "valid_admin": true,
-      "twig":        true,
-      "type":        "warning"
+      "id":               "email-verification-sent",
+      "once":             false,
+      "type":             "warning",
+      "plugin_admin":     "yes"
     }
   },
   "sections":      [
@@ -122,8 +122,8 @@
       "section":     "section_enable_plugin_feature_login_protection",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/51",
-      "link_blog":   "https://icwp.io/wpsf03",
+      "link_info":   "https://shsec.io/51",
+      "link_blog":   "https://shsec.io/wpsf03",
       "name":        "Enable Login Guard",
       "summary":     "Enable (or Disable) The Login Guard Module",
       "description": "Un-Checking this option will completely disable the Login Guard module"
@@ -134,8 +134,8 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/5q",
-      "link_blog":   "https://icwp.io/5r",
+      "link_info":   "https://shsec.io/5q",
+      "link_blog":   "https://shsec.io/5r",
       "name":        "Hide Login Page",
       "summary":     "Rename The WordPress Login Page",
       "description": "Creating a path here will disable your 'wp-login.php'. Only letters and numbers are permitted: abc123"
@@ -145,8 +145,8 @@
       "section":     "section_multifactor_authentication",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/9r",
-      "link_blog":   "https://icwp.io/84",
+      "link_info":   "https://shsec.io/9r",
+      "link_blog":   "https://shsec.io/84",
       "name":        "Multi-Factor Authentication",
       "summary":     "Require All Active Authentication Factors",
       "description": "When enabled, all multi-factor authentication methods will be applied to a user login. Disable to only require one to pass."
@@ -158,7 +158,7 @@
       "default":     0,
       "min":         0,
       "type":        "integer",
-      "link_info":   "https://icwp.io/b1",
+      "link_info":   "https://shsec.io/b1",
       "link_blog":   "",
       "name":        "Multi-Factor By-Pass",
       "summary":     "A User Can By-Pass Multi-Factor Authentication (MFA) For The Set Number Of Days",
@@ -170,8 +170,8 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/dx",
-      "link_blog":   "https://icwp.io/dy",
+      "link_info":   "https://shsec.io/dx",
+      "link_blog":   "https://shsec.io/dy",
       "name":        "Allow Backup Codes",
       "summary":     "Allow Users To Generate A Backup Code",
       "description": "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
@@ -181,8 +181,8 @@
       "section":     "section_2fa_ga",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/shld7",
-      "link_blog":   "https://icwp.io/shld6",
+      "link_info":   "https://shsec.io/shld7",
+      "link_blog":   "https://shsec.io/shld6",
       "name":        "Enable Google Authenticator",
       "summary":     "Allow Users To Use Google Authenticator",
       "description": "When enabled, users will have the option to add Google Authenticator to their WordPress user profile."
@@ -192,8 +192,8 @@
       "section":     "section_2fa_email",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/3t",
-      "link_blog":   "https://icwp.io/9q",
+      "link_info":   "https://shsec.io/3t",
+      "link_blog":   "https://shsec.io/9q",
       "name":        "Enable Email Authentication",
       "summary":     "Two-Factor Login Authentication By Email",
       "description": "All users will be required to verify their login by email-based two-factor authentication."
@@ -250,7 +250,7 @@
           "text":      "[EDD] Customer"
         }
       ],
-      "link_info":     "https://icwp.io/4v",
+      "link_info":     "https://shsec.io/4v",
       "link_blog":     "",
       "name":          "Enforce - Email Authentication",
       "summary":       "All User Roles Subject To Email Authentication",
@@ -281,7 +281,7 @@
           "text":      "Checkout (WooCommerce)"
         }
       ],
-      "link_info":     "https://icwp.io/dv",
+      "link_info":     "https://shsec.io/dv",
       "link_blog":     "",
       "name":          "Protection Locations",
       "summary":       "How Google reCAPTCHA Will Be Displayed",
@@ -293,8 +293,8 @@
       "default":     "10",
       "min":         0,
       "type":        "integer",
-      "link_info":   "https://icwp.io/3q",
-      "link_blog":   "https://icwp.io/9o",
+      "link_info":   "https://shsec.io/3q",
+      "link_blog":   "https://shsec.io/9o",
       "name":        "Login Cooldown Interval",
       "summary":     "Limit login attempts to every X seconds",
       "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
@@ -304,8 +304,8 @@
       "section":     "section_brute_force_login_protection",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/3r",
-      "link_blog":   "https://icwp.io/9n",
+      "link_info":   "https://shsec.io/3r",
+      "link_blog":   "https://shsec.io/9n",
       "name":        "Bot Protection",
       "summary":     "Protect WP Login From Automated Login Attempts By Bots",
       "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
@@ -334,11 +334,11 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
-      "link_info":     "https://icwp.io/9m",
-      "link_blog":     "https://icwp.io/shld5",
+      "link_info":     "https://shsec.io/9m",
+      "link_blog":     "https://shsec.io/shld5",
       "name":          "Google reCAPTCHA",
       "summary":       "Enable Google reCAPTCHA",
       "description":   "Use Google reCAPTCHA on the login screen."
@@ -349,7 +349,7 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/dw",
+      "link_info":   "https://shsec.io/dw",
       "link_blog":   "",
       "name":        "AntiBot JS",
       "summary":     "Load Anti-Bot JS For 3rd Party Login Forms",
@@ -374,8 +374,8 @@
       "section":     "section_yubikey_authentication",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/4f",
-      "link_blog":   "https://icwp.io/9t",
+      "link_info":   "https://shsec.io/4f",
+      "link_blog":   "https://shsec.io/9t",
       "name":        "Enable Yubikey Authentication",
       "summary":     "Turn On / Off Yubikey Authentication On This Site",
       "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
@@ -386,7 +386,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/4g",
+      "link_info":   "https://shsec.io/4g",
       "link_blog":   "",
       "name":        "Yubikey App ID",
       "summary":     "Your Unique Yubikey App ID",
@@ -398,7 +398,7 @@
       "sensitive":   true,
       "default":     "",
       "type":        "text",
-      "link_info":   "https://icwp.io/4g",
+      "link_info":   "https://shsec.io/4g",
       "link_blog":   "",
       "name":        "Yubikey API Key",
       "summary":     "Your Unique Yubikey App API Key",
@@ -411,7 +411,7 @@
       "premium":     true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "https://icwp.io/dz",
+      "link_info":   "https://shsec.io/dz",
       "link_blog":   "",
       "name":        "GASP Checkbox Text",
       "summary":     "The Message Displayed Next To The GASP Checkbox",
@@ -424,7 +424,7 @@
       "premium":     true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "https://icwp.io/dz",
+      "link_info":   "https://shsec.io/dz",
       "link_blog":   "",
       "name":        "GASP Alert Text",
       "summary":     "The Message Displayed If The User Doesn't Check The Box",
@@ -459,62 +459,52 @@
       "transferable": false,
       "type":         "boolean",
       "value":        true
-    },
-    {
-      "key":          "insights_last_2fa_login_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_login_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_register_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
-    },
-    {
-      "key":          "insights_last_reset-password_block_at",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "default":      0
     }
   ],
   "definitions":   {
     "login_intent_timeout": 5,
-    "wizards":              {
-      "mfa": {
-        "title":                "Configure Multi-Factor Login Authentication",
-        "desc":                 "Easily setup multi-factor login authentication, using Email and Google Authenticator.",
-        "min_user_permissions": "manage_options",
-        "steps":                {
-          "start":       {
-            "security_admin": false,
-            "title":          "Start: Multi-Factor Authentication"
-          },
-          "authemail":   {
-            "title": "Email Authentication"
-          },
-          "authga":      {
-            "title": "Google Authenticator"
-          },
-          "multiselect": {
-            "title": "Select Multifactor Auth"
-          },
-          "finished":    {
-            "security_admin": false,
-            "title":          "Finished: Multi-Factor Authentication"
-          }
-        }
+    "events":               {
+      "2fa_backupcode_verified": {
+      },
+      "2fa_backupcode_fail":     {
+        "offense": true
+      },
+      "2fa_email_verified":      {
+      },
+      "2fa_email_verify_fail":          {
+        "offense": true
+      },
+      "2fa_googleauth_verified": {
+      },
+      "2fa_google_fail":         {
+        "offense": true
+      },
+      "2fa_yubikey_verified":    {
+      },
+      "2fa_yubikey_fail":        {
+        "offense": true
+      },
+      "2fa_email_send_success":  {
+      },
+      "2fa_email_send_fail":     {
+      },
+      "cooldown_fail":           {
+      },
+      "honeypot_fail":           {
+      },
+      "botbox_fail":             {
+      },
+      "login_block":             {
+        "audit":   false,
+        "recent":  true,
+        "offense": true
+      },
+      "hide_login_url":          {
+        "audit": false
+      },
+      "2fa_success":             {
+        "audit":  false,
+        "recent": true
       }
     }
   }

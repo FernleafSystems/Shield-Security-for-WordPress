@@ -2,7 +2,7 @@
   "slug":        "audit_trail",
   "properties":  {
     "slug":                  "audit_trail",
-    "name":                  "Auditing",
+    "name":                  "Audit Trail",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "audit_trail",
@@ -17,17 +17,8 @@
   },
   "sections":    [
     {
-      "slug":        "section_audit_trail_options",
-      "primary":     true,
-      "title":       "Audit Trail Options",
-      "title_short": "Options",
-      "summary":     [
-        "Purpose - Provides finer control over the audit trail itself.",
-        "Recommendation - These settings are dependent on your requirements."
-      ]
-    },
-    {
       "slug":        "section_enable_audit_contexts",
+      "primary":     true,
       "title":       "Enable Audit Contexts",
       "title_short": "Audit Contexts",
       "summary":     [
@@ -36,8 +27,17 @@
       ]
     },
     {
+      "slug":        "section_audit_trail_options",
+      "title":       "Audit Trail Options",
+      "title_short": "Options",
+      "summary":     [
+        "Purpose - Provides finer control over the audit trail itself.",
+        "Recommendation - These settings are dependent on your requirements."
+      ]
+    },
+    {
       "slug":        "section_change_tracking",
-      "hidden": true,
+      "hidden":      true,
       "title":       "Change Tracking",
       "title_short": "Change Tracking",
       "summary":     [
@@ -65,8 +65,8 @@
       "section":     "section_enable_plugin_feature_audit_trail",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/5p",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/5p",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Enable Audit Trail",
       "summary":     "Enable (or Disable) The Audit Trail module",
       "description": "Un-Checking this option will completely disable the Audit Trail module"
@@ -77,8 +77,8 @@
       "default":     14,
       "min":         1,
       "type":        "integer",
-      "link_info":   "https://icwp.io/a2",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a2",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Auto Clean",
       "summary":     "Enable Audit Auto Cleaning",
       "description": "Events older than the number of days specified will be automatically cleaned from the database"
@@ -101,8 +101,8 @@
       "section":     "section_enable_audit_contexts",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a3",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a3",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Users And Logins",
       "summary":     "Enable Audit Context - Users And Logins",
       "description": "When this context is enabled, the audit trail will track activity relating to: Users And Logins"
@@ -112,8 +112,8 @@
       "section":     "section_enable_audit_contexts",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a3",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a3",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Plugins",
       "summary":     "Enable Audit Context - Plugins",
       "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Plugins"
@@ -123,8 +123,8 @@
       "section":     "section_enable_audit_contexts",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a3",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a3",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Themes",
       "summary":     "Enable Audit Context - Themes",
       "description": "When this context is enabled, the audit trail will track activity relating to: WordPress Themes"
@@ -134,8 +134,8 @@
       "section":     "section_enable_audit_contexts",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a3",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a3",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Posts And Pages",
       "summary":     "Enable Audit Context - Posts And Pages",
       "description": "When this context is enabled, the audit trail will track activity relating to: Editing and publishing of posts and pages"
@@ -145,8 +145,8 @@
       "section":     "section_enable_audit_contexts",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a3",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a3",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "WordPress And Settings",
       "summary":     "Enable Audit Context - WordPress And Settings",
       "description": "When this context is enabled, the audit trail will track activity relating to: WordPress upgrades and changes to particular WordPress settings"
@@ -156,8 +156,8 @@
       "section":     "section_enable_audit_contexts",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a3",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a3",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Emails",
       "summary":     "Enable Audit Context - Emails",
       "description": "When this context is enabled, the audit trail will track activity relating to: Email Sending"
@@ -167,8 +167,8 @@
       "section":     "section_enable_audit_contexts",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/a4",
-      "link_blog":   "https://icwp.io/a1",
+      "link_info":   "https://shsec.io/a4",
+      "link_blog":   "https://shsec.io/a1",
       "name":        "Shield",
       "summary":     "Enable Audit Context - Shield",
       "description": "When this context is enabled, the audit trail will track activity relating to: Shield"
@@ -199,28 +199,28 @@
       "description":   "Tracking major changes to your site will help you monitor and catch malicious damage."
     },
     {
-      "key":           "ct_snapshots_per_week",
-      "section":       "section_change_tracking",
-      "type":          "integer",
-      "default":       7,
-      "min":           1,
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Snapshot Per Week",
-      "summary":       "Number Of Snapshots To Take Per Week",
-      "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
+      "key":         "ct_snapshots_per_week",
+      "section":     "section_change_tracking",
+      "type":        "integer",
+      "default":     7,
+      "min":         1,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Snapshot Per Week",
+      "summary":     "Number Of Snapshots To Take Per Week",
+      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
     },
     {
-      "key":           "ct_max_snapshots",
-      "section":       "section_change_tracking",
-      "type":          "integer",
-      "default":       28,
-      "min":           1,
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Snapshot Per Week",
-      "summary":       "Number Of Snapshots To Take Per Week",
-      "description":   "The number of snapshots to take per week. For daily snapshots, select 7."
+      "key":         "ct_max_snapshots",
+      "section":     "section_change_tracking",
+      "type":        "integer",
+      "default":     28,
+      "min":         1,
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Snapshot Per Week",
+      "summary":     "Number Of Snapshots To Take Per Week",
+      "description": "The number of snapshots to take per week. For daily snapshots, select 7."
     },
     {
       "key":          "ct_last_snapshot_at",
@@ -231,7 +231,10 @@
     }
   ],
   "definitions": {
-    "audit_trail_default_max_entries": 50,
+    "db_classes":                      {
+      "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
+    },
+    "audit_trail_default_max_entries": 100,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [
       "id",
@@ -242,18 +245,90 @@
       "event",
       "category",
       "message",
+      "count",
       "immutable",
       "meta",
+      "updated_at",
       "created_at",
       "deleted_at"
     ],
-    "table_name_changetracking":          "changetracking",
-    "table_columns_changetracking":       [
+    "table_name_changetracking":       "changetracking",
+    "table_columns_changetracking":    [
       "id",
       "data",
       "meta",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                          {
+      "plugin_activated":        {
+        "context":        "plugins",
+        "audit_multiple": true
+      },
+      "plugin_deactivated":      {
+        "context":        "plugins",
+        "audit_multiple": true
+      },
+      "plugin_file_edited":      {
+        "context": "plugins"
+      },
+      "theme_activated":         {
+        "context": "themes"
+      },
+      "theme_file_edited":       {
+        "context": "themes"
+      },
+      "core_updated":            {
+        "context": "wordpress"
+      },
+      "permalinks_structure":    {
+        "context": "wordpress"
+      },
+      "post_deleted":            {
+        "context":        "posts",
+        "audit_multiple": true
+      },
+      "post_trashed":            {
+        "context":        "posts",
+        "audit_multiple": true
+      },
+      "post_recovered":          {
+        "context":        "posts",
+        "audit_multiple": true
+      },
+      "post_updated":            {
+        "context":        "posts",
+        "audit_multiple": true
+      },
+      "post_published":          {
+        "context":        "posts",
+        "audit_multiple": true
+      },
+      "post_unpublished":        {
+        "context":        "posts",
+        "audit_multiple": true
+      },
+      "user_login":              {
+        "context": "users"
+      },
+      "user_registered":         {
+        "context": "users"
+      },
+      "user_deleted":            {
+        "context":        "users",
+        "audit_multiple": true
+      },
+      "user_deleted_reassigned": {
+        "context": "users"
+      },
+      "email_attempt_send":      {
+        "context":        "emails",
+        "audit_multiple": true
+      },
+      "email_send_invalid":      {
+        "context":        "emails",
+        "audit_multiple": true
+      }
+    }
   }
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -9,6 +10,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Databases\Base
  */
 class Handler {
+
+	use ModConsumer;
 
 	/**
 	 * The defined table columns.
@@ -28,11 +31,6 @@ class Handler {
 	protected $sTable;
 
 	/**
-	 * @var string
-	 */
-	protected $sNamespace;
-
-	/**
 	 * @var bool
 	 */
 	private $bTableExist;
@@ -45,14 +43,51 @@ class Handler {
 	public function __construct() {
 	}
 
+	public function autoCleanDb() {
+	}
+
+	/**
+	 * @param int $nAutoExpireDays
+	 * @return $this;
+	 */
+	public function cleanDb( $nAutoExpireDays ) {
+		$nAutoExpire = $nAutoExpireDays*DAY_IN_SECONDS;
+		if ( $nAutoExpire > 0 ) {
+			$this->deleteRowsOlderThan( Services::Request()->ts() - $nAutoExpire );
+		}
+		return $this;
+	}
+
+	/**
+	 * @param int $nRowsLimit
+	 * @return $this;
+	 */
+	public function trimDb( $nRowsLimit ) {
+		try {
+			$this->getQueryDeleter()
+				 ->deleteExcess( $nRowsLimit );
+		}
+		catch ( \Exception $oE ) {
+		}
+		return $this;
+	}
+
 	/**
 	 * @param int $nTimeStamp
 	 * @return bool
 	 */
 	public function deleteRowsOlderThan( $nTimeStamp ) {
-		return $this->getQueryDeleter()
-					->addWhereOlderThan( $nTimeStamp )
-					->query();
+		$bSuccess = false;
+		try {
+			if ( $this->isReady() ) {
+				$bSuccess = $this->getQueryDeleter()
+								 ->addWhereOlderThan( $nTimeStamp )
+								 ->query();
+			}
+		}
+		catch ( \Exception $oE ) {
+		}
+		return $bSuccess;
 	}
 
 	/**
@@ -76,41 +111,48 @@ class Handler {
 	 * @return string[]
 	 */
 	public function getColumnsDefinition() {
-		return is_array( $this->aColDef ) ? $this->aColDef : [];
+		return is_array( $this->aColDef ) ? $this->aColDef : $this->getDefaultColumnsDefinition();
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getTable() {
-		return $this->sTable;
+		return Services::WpDb()->getPrefix().esc_sql( $this->getTableSlug() );
 	}
 
 	/**
-	 * @return Insert
+	 * @return string
+	 */
+	protected function getTableSlug() {
+		return empty( $this->sTable ) ? $this->getDefaultTableName() : $this->sTable;
+	}
+
+	/**
+	 * @return Insert|mixed
 	 */
 	public function getQueryInserter() {
-		$sClass = $this->getNamespace().'\\Insert';
+		$sClass = $this->getNamespace().'Insert';
 		/** @var Insert $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
 	}
 
 	/**
-	 * @return Delete
+	 * @return Delete|mixed
 	 */
 	public function getQueryDeleter() {
-		$sClass = $this->getNamespace().'\\Delete';
+		$sClass = $this->getNamespace().'Delete';
 		/** @var Delete $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
 	}
 
 	/**
-	 * @return Select
+	 * @return Select|mixed
 	 */
 	public function getQuerySelector() {
-		$sClass = $this->getNamespace().'\\Select';
+		$sClass = $this->getNamespace().'Select';
 		/** @var Select $o */
 		$o = new $sClass();
 		return $o->setDbH( $this )
@@ -118,20 +160,20 @@ class Handler {
 	}
 
 	/**
-	 * @return Update
+	 * @return Update|mixed
 	 */
 	public function getQueryUpdater() {
-		$sClass = $this->getNamespace().'\\Update';
+		$sClass = $this->getNamespace().'Update';
 		/** @var Update $o */
 		$o = new $sClass();
 		return $o->setDbH( $this );
 	}
 
 	/**
-	 * @return EntryVO
+	 * @return EntryVO|mixed
 	 */
 	public function getVo() {
-		$sClass = $this->getNamespace().'\\EntryVO';
+		$sClass = $this->getNamespace().'EntryVO';
 		return new $sClass();
 	}
 
@@ -139,7 +181,7 @@ class Handler {
 	 * @return string
 	 */
 	public function getSqlCreate() {
-		return $this->sSqlCreate;
+		return empty( $this->sSqlCreate ) ? $this->getDefaultCreateTableSql() : $this->sSqlCreate;
 	}
 
 	/**
@@ -151,14 +193,11 @@ class Handler {
 	}
 
 	/**
-	 * @return bool
+	 * @return $this
 	 * @throws \Exception
 	 */
 	public function tableInit() {
-
-		$bSuccess = $this->isReady();
-
-		if ( !$bSuccess ) {
+		if ( !$this->isReady() ) {
 
 			// apply DB Delta
 			if ( $this->isTable() ) {
@@ -169,10 +208,8 @@ class Handler {
 				$this->deleteTable();
 				$this->tableCreate();
 			}
-
-			$bSuccess = $this->isReady( true );
 		}
-		return $bSuccess;
+		return $this;
 	}
 
 	/**
@@ -199,6 +236,12 @@ class Handler {
 			unset( $this->bTableExist );
 			unset( $this->aColActual );
 		}
+
+		$sTableSlug = $this->getTableSlug();
+		if ( empty( $sTableSlug ) ) {
+			throw new \Exception( 'Table name not provided for '.( new \ReflectionClass( $this ) )->getNamespaceName() );
+		}
+
 		return $this->isTable() && $this->verifyTableStructure();
 	}
 
@@ -235,8 +278,29 @@ class Handler {
 	 * @return $this
 	 */
 	public function setTable( $sTable ) {
-		$this->sTable = Services::WpDb()->getPrefix().esc_sql( $sTable );
+		$this->sTable = $sTable;
 		return $this;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getDefaultColumnsDefinition() {
+		return [];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultCreateTableSql() {
+		return '';
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getDefaultTableName() {
+		return '';
 	}
 
 	/**
@@ -259,11 +323,11 @@ class Handler {
 	 */
 	private function getNamespace() {
 		try {
-			$sName = ( new \ReflectionClass( $this ) )->getNamespaceName();
+			$sNS = ( new \ReflectionClass( $this ) )->getNamespaceName();
 		}
 		catch ( \Exception $oE ) {
-			$sName = __NAMESPACE__;
+			$sNS = __NAMESPACE__;
 		}
-		return $sName;
+		return rtrim( $sNS, '\\' ).'\\';
 	}
 }

@@ -8,7 +8,6 @@ if ( $flags[ 'wrap_page_content' ] ) : ?>
 <?php endif; ?>
 
 <?php if ( $flags[ 'access_restricted' ] ) : ?>
-	<?php include( $sBaseDirName.'access_restricted.php' ); ?>
 <?php else : ?>
 	<?php include( $sBaseDirName.'index_body.php' ); ?>
 <?php endif; ?>
@@ -19,12 +18,6 @@ if ( $flags[ 'wrap_page_content' ] ) : ?>
 <?php endif; ?>
 
 <?php include_once( $sBaseDirName.'index_footer.php' ); ?>
-
-<?php
-if ( $help_video[ 'show' ] ) {
-	include_once( $sBaseDirName.'snippets/help_video_player.php' );
-}
-?>
 
 <?php if ( !empty( $aPluginLabels[ 'icon_url_128x128' ] ) ) : ?>
 	<style>

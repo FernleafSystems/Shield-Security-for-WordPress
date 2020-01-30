@@ -2,26 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+
 trait PluginControllerConsumer {
 
 	/**
-	 * @var \ICWP_WPSF_Plugin_Controller
+	 * @var Controller
 	 */
-	static private $oPluginController;
+	private $oPlugCon;
 
 	/**
-	 * @return \ICWP_WPSF_Plugin_Controller
+	 * @return Controller
 	 */
 	public function getCon() {
-		return self::$oPluginController;
+		return $this->oPlugCon;
 	}
 
 	/**
-	 * @param \ICWP_WPSF_Plugin_Controller $oMod
+	 * @param Controller $oCon
 	 * @return $this
 	 */
-	public function setCon( $oMod ) {
-		self::$oPluginController = $oMod;
+	public function setCon( $oCon ) {
+		$this->oPlugCon = $oCon;
 		return $this;
 	}
 }

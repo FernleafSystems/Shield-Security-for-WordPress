@@ -9,23 +9,21 @@ class IpBlack extends IpBase {
 	 * @return string
 	 */
 	public function column_details( $aItem ) {
-		$aDetails = array(
-			sprintf( '%s: %s', _wpsf__( 'Blocked' ), $aItem[ 'blocked' ] ),
-			sprintf( '%s: %s', _wpsf__( 'Transgressions' ), $aItem[ 'transgressions' ] ),
-			sprintf( '%s: %s', _wpsf__( 'Last Transgression' ), $aItem[ 'last_trans_at' ] ),
-			sprintf( '%s: %s', _wpsf__( 'IP' ), $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ) ),
-			$this->buildActions( [ $this->getActionButton_Delete( $aItem[ 'id' ] ) ] )
-		);
-		return implode( '<br/>', $aDetails );
+		return implode( '<br/>', [
+			sprintf( '%s: %s', __( 'Blocked', 'wp-simple-firewall' ), $aItem[ 'blocked' ] ),
+			sprintf( '%s: %s', __( 'Offenses', 'wp-simple-firewall' ), $aItem[ 'transgressions' ] ),
+			sprintf( '%s: %s', __( 'Last Offense', 'wp-simple-firewall' ), $aItem[ 'last_trans_at' ] ),
+		] );
 	}
 
 	/**
 	 * @return array
 	 */
 	public function get_columns() {
-		return array(
-			'details'    => 'Details',
-			'expires_at' => 'Auto Expires',
-		);
+		return [
+			'ip'         => __( 'IP Address', 'wp-simple-firewall' ),
+			'details'    => __( 'Details' ),
+			'expires_at' => __( 'Auto Expires' ),
+		];
 	}
 }

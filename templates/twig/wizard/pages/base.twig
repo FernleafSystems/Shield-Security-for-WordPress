@@ -1,4 +1,12 @@
-{% extends 'pages/base.twig' %}
+{% extends '/pages/base.twig' %}
+
+{% block body_content_header %}
+	<div class="row">
+		<div class="col-4 offset-4 col-xl-3 text-center">
+			<img id="ShieldLogo" class="img-fluid" src="{{ imgs.plugin_banner }}" alt="" />
+		</div>
+	</div>
+{% endblock %}
 
 {% block body_footer %}
 	{% if not flags.is_premium %}

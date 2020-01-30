@@ -9,7 +9,7 @@
     "tagline":               "Watch All Requests To Your Site",
     "show_central":          true,
     "access_restricted":     true,
-    "premium":               true,
+    "premium":               false,
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
@@ -28,6 +28,15 @@
       "title_short": "Options",
       "summary":     [
         "Purpose - Provides finer control over the live traffic system.",
+        "Recommendation - These settings are dependent on your requirements."
+      ]
+    },
+    {
+      "slug":        "section_traffic_limiter",
+      "title":       "Traffic Limiter",
+      "title_short": "Options",
+      "summary":     [
+        "Purpose - Provides ability to restrict excessive requests from a single visitor.",
         "Recommendation - These settings are dependent on your requirements."
       ]
     },
@@ -51,8 +60,8 @@
       "section":     "section_enable_plugin_feature_traffic",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/ed",
-      "link_blog":   "https://icwp.io/ee",
+      "link_info":   "https://shsec.io/ed",
+      "link_blog":   "https://shsec.io/ee",
       "name":        "Enable Traffic Watch",
       "summary":     "Enable (or Disable) The Traffic Watch Module",
       "description": "Un-Checking this option will completely disable the Traffic Watch module."
@@ -90,14 +99,14 @@
         },
         {
           "value_key": "search",
-          "text":      "Search Bots (i.e. Google, Bing, DuckDuckGo, Yandex, Baidu, Apple)"
+          "text":      "Search Engines"
         },
         {
           "value_key": "uptime",
-          "text":      "Uptime Monitoring Services (i.e. StatusCake, Pingdom, UptimeRobot)"
+          "text":      "Uptime Monitoring Services"
         }
       ],
-      "link_info":     "https://icwp.io/eb",
+      "link_info":     "https://shsec.io/eb",
       "link_blog":     "",
       "name":          "Traffic Log Exclusions",
       "summary":       "Select Which Types Of Requests To Exclude",
@@ -108,7 +117,7 @@
       "section":     "section_traffic_options",
       "default":     [],
       "type":        "array",
-      "link_info":   "https://icwp.io/ec",
+      "link_info":   "https://shsec.io/ec",
       "link_blog":   "",
       "name":        "Custom Exclusions",
       "summary":     "Provide Custom Traffic Exclusions",
@@ -150,6 +159,30 @@
       "description": "Turn on to prevent unnecessary long-term traffic logging. Timer resets each time you save."
     },
     {
+      "key":         "limit_requests",
+      "section":     "section_non_ui",
+      "default":     "20",
+      "min":         0,
+      "type":        "integer",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Max Request Limit",
+      "summary":     "Maximum Number Of Requests Allowed In Time Limit",
+      "description": "The maximum number of requests that are allowed in the given time limit."
+    },
+    {
+      "key":         "limit_time_span",
+      "section":     "section_non_ui",
+      "default":     "20",
+      "min":         0,
+      "type":        "integer",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Request Limit Time Interval",
+      "summary":     "The Time Interval To Test For Excessive Requests",
+      "description": "The time limit within which to monitor for excessive requests that exceed the limit."
+    },
+    {
       "key":          "autodisable_at",
       "section":      "section_non_ui",
       "type":         "integer",
@@ -158,6 +191,9 @@
     }
   ],
   "definitions":  {
+    "db_classes":             {
+      "traffic": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Traffic\\Handler"
+    },
     "traffic_table_name":    "traffic",
     "traffic_table_columns": [
       "id",
@@ -171,6 +207,12 @@
       "trans",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                {
+      "request_limit_exceeded": {
+        "cat":     3,
+        "offense": true
+      }
+    }
   }
 }

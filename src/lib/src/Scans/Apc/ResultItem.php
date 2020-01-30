@@ -12,5 +12,5 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc
  */
 class ResultItem extends Base\BaseResultItem {
-	const SCAN_RESULT_TYPE = 'apc';
+
 }

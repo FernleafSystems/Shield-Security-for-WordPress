@@ -1,33 +1,69 @@
 <?php
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Suspend;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
+use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isSuspendManualEnabled() ) {
+		if ( $oOpts->isSuspendManualEnabled() ) {
 			$this->setupUserFilters();
 			( new Suspend\Suspended() )
-				->setCon( $this->getCon() )
+				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oFO->isSuspendAutoIdleEnabled() ) {
+		if ( $oOpts->isSuspendAutoIdleEnabled() ) {
 			( new Suspend\Idle() )
-				->setVerifiedExpires( $oFO->getSuspendAutoIdleTime() )
-				->setCon( $this->getCon() )
+				->setMod( $this->getMod() )
 				->run();
 		}
 
-		if ( $oFO->isSuspendAutoPasswordEnabled() ) {
+		if ( $oOpts->isSuspendAutoPasswordEnabled() ) {
 			( new Suspend\PasswordExpiry() )
-				->setMaxPasswordAge( $oFO->getPassExpireTimeout() )
-				->setCon( $this->getCon() )
+				->setMaxPasswordAge( $oOpts->getPassExpireTimeout() )
+				->setMod( $this->getMod() )
 				->run();
+		}
+	}
+
+	public function runHourlyCron() {
+		$this->updateUserMetaVersion();
+	}
+
+	/**
+	 * Run from CRON
+	 * Updates all user meta versions. Limits to 25 users at a time via the cron
+	 */
+	private function updateUserMetaVersion() {
+		$oCon = $this->getCon();
+		$nVersion = $oCon->getVersionNumeric();
+		$sMetaKey = $oCon->prefix( 'meta-version' );
+
+		$nCount = 0;
+
+		$oUserIt = new \FernleafSystems\Wordpress\Services\Utilities\Iterators\WpUserIterator();
+		$oUserIt->filterByMeta( $sMetaKey, $nVersion, 'NOT EXISTS' );
+		foreach ( $oUserIt as $oUser ) {
+			$oCon->getUserMeta( $oUser );
+			if ( $nCount++ > 25 ) {
+				break;
+			}
+		}
+
+		$oUserIt = new \FernleafSystems\Wordpress\Services\Utilities\Iterators\WpUserIterator();
+		$oUserIt->filterByMeta( $sMetaKey, $nVersion, '<' );
+		foreach ( $oUserIt as $oUser ) {
+			$oCon->getUserMeta( $oUser );
+			if ( $nCount++ > 25 ) {
+				break;
+			}
 		}
 	}
 
@@ -35,25 +71,24 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	 * Sets-up all the UI filters necessary to provide manual user suspension and filter the User Tables
 	 */
 	private function setupUserFilters() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 
 		// User profile UI
-		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ] );
-		add_filter( 'edit_user_profile_update', [ $this, 'handleUserBlockOptionSubmit' ] );
+		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
+		add_action( 'edit_user_profile_update', [ $this, 'handleUserSuspendOptionSubmit' ] );
 
 		// Display suspended on the user list table
 		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
 
 		// Provide Suspended user filter above table
-		$aUserIds = array_keys( $oFO->getSuspendHardUserIds() );
+		$aUserIds = array_keys( $oMod->getSuspendHardUserIds() );
 		if ( !empty( $aUserIds ) ) {
 			// Provide the link above the table.
 			add_filter( 'views_users', function ( $aViews ) use ( $aUserIds ) {
-				$nTotal = count( $aUserIds );
 				$aViews[ 'shield_suspended_users' ] = sprintf( '<a href="%s">%s</a>',
 					add_query_arg( [ 'suspended' => 1 ], Services::WpGeneral()->getUrl_CurrentAdminPage() ),
-					sprintf( '%s (%s)', _wpsf__( 'Suspended' ), $nTotal ) );
+					sprintf( '%s (%s)', __( 'Suspended', 'wp-simple-firewall' ), count( $aUserIds ) ) );
 				return $aViews;
 			} );
 
@@ -68,15 +103,14 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	}
 
 	/**
-	 * Adds the column to the users listing table to indicate whether WordPress will automatically update the plugins
 	 * @param array $aColumns
 	 * @return array
 	 */
 	public function addUserListSuspendedFlag( $aColumns ) {
 
-		$sCustomColumnName = $this->prefix( 'col_user_status' );
+		$sCustomColumnName = $this->getCon()->prefix( 'col_user_status' );
 		if ( !isset( $aColumns[ $sCustomColumnName ] ) ) {
-			$aColumns[ $sCustomColumnName ] = _wpsf__( 'User Status' );
+			$aColumns[ $sCustomColumnName ] = __( 'User Status', 'wp-simple-firewall' );
 		}
 
 		add_filter( 'manage_users_custom_column',
@@ -88,8 +122,11 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 						$oMeta = $this->getCon()->getUserMeta( $oUser );
 						if ( $oMeta->hard_suspended_at > 0 ) {
 							$sNewContent = sprintf( '%s: %s',
-								_wpsf__( 'Suspended' ),
-								( new \Carbon\Carbon() )->setTimestamp( $oMeta->hard_suspended_at )->diffForHumans()
+								__( 'Suspended', 'wp-simple-firewall' ),
+								Services::Request()
+										->carbon()
+										->setTimestamp( $oMeta->hard_suspended_at )
+										->diffForHumans()
 							);
 							$sContent = empty( $sContent ) ? $sNewContent : $sContent.'<br/>'.$sNewContent;
 						}
@@ -110,38 +147,47 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends ICWP_WPSF_Processor_Bas
 	public function addUserBlockOption( $oUser ) {
 		$oCon = $this->getCon();
 		$oMeta = $oCon->getUserMeta( $oUser );
+		$oWpUsers = Services::WpUsers();
 
-		if ( $oCon->isPluginAdmin() ) {
-			$aData = [
-				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $oUser ),
-				'strings'               => array(
-					'title'       => _wpsf__( 'Suspend Account' ),
-					'label'       => _wpsf__( 'Check to suspend user account' ),
-					'description' => _wpsf__( 'The user will never be able to login while their account is suspended.' ),
-				),
-				'vars'                  => [
-					'form_field'   => 'shield_suspend_user',
-					'is_suspended' => $oMeta->hard_suspended_at > 0
-				]
-			];
-			echo $this->getMod()->renderTemplate( '/snippets/user/profile/suspend.twig', $aData, true );
-		}
+		$aData = [
+			'strings' => [
+				'title'       => __( 'Suspend Account', 'wp-simple-firewall' ),
+				'label'       => __( 'Check to un/suspend user account', 'wp-simple-firewall' ),
+				'description' => __( 'The user can never login while their account is suspended.', 'wp-simple-firewall' ),
+				'cant_manage' => __( 'Sorry, suspension for this account may only be managed by a security administrator.', 'wp-simple-firewall' ),
+				'since'       => sprintf( '%s: %s', __( 'Suspended', 'wp-simple-firewall' ), Services::WpGeneral()
+																									 ->getTimeStringForDisplay( $oMeta->hard_suspended_at ) ),
+			],
+			'flags'   => [
+				'can_manage_suspension' => !$oWpUsers->isUserAdmin( $oUser ) || $oCon->isPluginAdmin(),
+				'is_suspended'          => $oMeta->hard_suspended_at > 0
+			],
+			'vars'    => [
+				'form_field' => 'shield_suspend_user',
+			]
+		];
+		echo $this->getMod()->renderTemplate( '/snippets/user/profile/suspend.twig', $aData, true );
 	}
 
 	/**
 	 * @param int $nUserId
 	 */
-	public function handleUserBlockOptionSubmit( $nUserId ) {
+	public function handleUserSuspendOptionSubmit( $nUserId ) {
 		$oCon = $this->getCon();
-		if ( $oCon->isPluginAdmin() ) {
-			$oReq = Services::Request();
-			$oMeta = $oCon->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
-			$bIsToSuspend = $oReq->post( 'shield_suspend_user' ) === 'Y';
-			if ( ( $oMeta->hard_suspended_at > 0 ) !== $bIsToSuspend ) {
-				$oMeta->hard_suspended_at = $bIsToSuspend ? $oReq->ts() : 0;
-				/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-				$oFO = $this->getMod();
-				$oFO->addRemoveHardSuspendUserId( $nUserId, $bIsToSuspend );
+		$oWpUsers = Services::WpUsers();
+
+		$oEditedUser = $oWpUsers->getUserById( $nUserId );
+
+		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $oCon->isPluginAdmin() ) {
+			$bIsSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
+			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+			$oMod = $this->getMod();
+			$oMod->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
+
+			if ( $bIsSuspend ) { // Delete any existing user sessions
+				( new Sessions\Lib\Ops\Terminate() )
+					->setMod( $oCon->getModule_Sessions() )
+					->byUsername( $oEditedUser->user_login );
 			}
 		}
 	}

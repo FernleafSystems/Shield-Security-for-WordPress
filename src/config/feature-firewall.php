@@ -74,8 +74,8 @@
       "section":     "section_enable_plugin_feature_wordpress_firewall",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/43",
-      "link_blog":   "https://icwp.io/wpsf01",
+      "link_info":   "https://shsec.io/43",
+      "link_blog":   "https://shsec.io/wpsf01",
       "name":        "Enable Firewall",
       "summary":     "Enable (or Disable) The Firewall module",
       "description": "Un-Checking this option will completely disable the Firewall module"
@@ -224,7 +224,7 @@
       "section":     "section_whitelist",
       "default":     "",
       "type":        "comma_separated_lists",
-      "link_info":   "https://icwp.io/2a",
+      "link_info":   "https://shsec.io/2a",
       "link_blog":   "",
       "name":        "Whitelist Parameters",
       "summary":     "Detail pages and parameters that are whitelisted (ignored by the firewall)",
@@ -253,13 +253,6 @@
       "name":        "Firewall Block Message",
       "summary":     "Message Displayed To Visitor When A Firewall Block Is Triggered",
       "description": "When you select the option to display a message to the visitor, this is the message that is displayed."
-    },
-    {
-      "key":          "insights_last_firewall_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
     }
   ],
   "definitions": {
@@ -268,6 +261,9 @@
       "/wp-admin/options.php":         [
         "home",
         "siteurl"
+      ],
+      "/wp-admin/plugins.php":         [
+        "plugin"
       ],
       "/wp-admin/post-new.php":        [],
       "/wp-admin/page-new.php":        [],
@@ -289,6 +285,7 @@
         "comment"
       ],
       "*":                             [
+        "affwp_action",
         "ajaxurl",
         "g-recaptcha-response",
         "verify_sign",
@@ -296,6 +293,7 @@
         "wp_http_referer",
         "_wp_http_referer",
         "_wp_original_http_referer",
+        "JCS_INENREF",
         "pass1",
         "pass1-text",
         "pwd",
@@ -387,6 +385,48 @@
           "drop\\s+table\\s+(`|'?)[a-z0-9]+\\1",
           "'\\s+OR\\s+'([a-z0-9]+)'\\s*=\\s*'\\1'\\s+(--|\\(\\{|\\/\\*)\\s+"
         ]
+      }
+    },
+    "events":            {
+      "check_skip":                 {
+        "cat":  2,
+        "stat": false
+      },
+      "firewall_block":    {
+        "audit": false,
+        "recent": true,
+        "offense": true
+      },
+      "blockparam_dirtraversal":    {
+        "cat": 3
+      },
+      "blockparam_wpterms":         {
+        "cat": 3
+      },
+      "blockparam_fieldtruncation": {
+        "cat": 3
+      },
+      "blockparam_sqlqueries":      {
+        "cat": 3
+      },
+      "blockparam_schema":          {
+        "cat": 3
+      },
+      "blockparam_aggressive":      {
+        "cat": 3
+      },
+      "blockparam_phpcode":         {
+        "cat": 3
+      },
+      "block_exefile":              {
+        "cat": 3
+      },
+      "fw_email_fail":            {
+        "cat":  2,
+        "stat": false
+      },
+      "fw_email_success":         {
+        "stat": false
       }
     }
   }

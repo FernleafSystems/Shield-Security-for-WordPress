@@ -1,0 +1,42 @@
+<ul class="nav nav-tabs" id="ScanResultsTabsNav" role="tablist">
+
+	<li class="nav-item">
+		<a class="nav-link active ml-3 mr-2" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-aggregate"
+		   role="tab" aria-controls="h-tabs-aggregate" aria-selected="true">
+			<span class="badge badge-{% if aggregate.count > 0 %}danger{% else %}success{% endif %}"
+			>{{ aggregate.count }}</span>
+			{{ aggregate.strings.title }}
+		</a>
+	</li>
+
+	{% for scankey,scanvars in scans %}
+		{% if scanvars.flags.show_table %}
+			<li class="nav-item">
+				<a class="nav-link mr-2" id="h-tabs-home-tab" data-toggle="tab" href="#h-tabs-{{ scankey }}"
+				   role="tab" aria-controls="h-tabs-{{ scankey }}">
+					<span class="badge badge-{% if scanvars.count > 0 %}danger{% else %}success{% endif %}"
+					>{{ scanvars.count }}</span>
+						{{ scanvars.strings.title }}
+				</a>
+			</li>
+		{% endif %}
+	{% endfor %}
+</ul>
+<div class="tab-content" id="ScanResultsTabsContent">
+	<div class="tab-pane show active" id="h-tabs-aggregate" role="tabpanel"
+		 aria-labelledby="h-tabs-aggregate-tab">
+		{% set scan = aggregate %}
+		{% include '/wpadmin_pages/insights/scans/results/aggregate.twig' %}
+	</div>
+	{% for scankey,scanvars in scans %}
+		{% if scanvars.flags.show_table %}
+			<div class="tab-pane" id="h-tabs-{{ scankey }}" role="tabpanel"
+				 aria-labelledby="h-tabs-{{ scankey }}-tab">
+				{% set scan = attribute(scans, scankey) %}
+				{% include '/wpadmin_pages/insights/scans/results/'~scankey~'.twig' %}
+			</div>
+		{% endif %}
+	{% endfor %}
+	{#<div class="tab-pane fade show active" id="h-tabs-home" role="tabpanel" aria-labelledby="h-tabs-home-tab">...</div>#}
+	{#<div class="tab-pane fade" id="h-tabs-profile" role="tabpanel" aria-labelledby="h-tabs-profile-tab">...</div>#}
+</div>

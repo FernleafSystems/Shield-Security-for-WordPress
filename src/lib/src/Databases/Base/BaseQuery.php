@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseQuery {
@@ -32,9 +33,14 @@ abstract class BaseQuery {
 	protected $nPage;
 
 	/**
+	 * @var array
+	 */
+	protected $aOrderBys;
+
+	/**
 	 * @var string
 	 */
-	protected $sOrderBy;
+	protected $sGroupBy;
 
 	public function __construct() {
 		$this->customInit();
@@ -99,6 +105,17 @@ abstract class BaseQuery {
 	}
 
 	/**
+	 * @param string $sColumn
+	 * @param string $sLike
+	 * @param string $sLeft
+	 * @param string $sRight
+	 * @return $this
+	 */
+	public function addWhereLike( $sColumn, $sLike, $sLeft = '%', $sRight = '%' ) {
+		return $this->addWhere( $sColumn, $sLeft.$sLike.$sRight, 'LIKE' );
+	}
+
+	/**
 	 * @param int    $nNewerThanTimeStamp
 	 * @param string $sColumn
 	 * @return $this
@@ -130,11 +147,12 @@ abstract class BaseQuery {
 	 */
 	public function buildExtras() {
 		$aExtras = array_filter(
-			array(
-				$this->getOrderBy(),
+			[
+				$this->getGroupBy(),
+				$this->buildOrderBy(),
 				$this->buildLimitPhrase(),
 				$this->buildOffsetPhrase(),
-			)
+			]
 		);
 		return implode( "\n", $aExtras );
 	}
@@ -151,6 +169,13 @@ abstract class BaseQuery {
 	 */
 	protected function buildOffsetPhrase() {
 		return $this->hasLimit() ? sprintf( 'OFFSET %s', $this->getOffset() ) : '';
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function clearWheres() {
+		return $this->setWheres( [] );
 	}
 
 	/**
@@ -194,6 +219,56 @@ abstract class BaseQuery {
 			$this->addWhere( 'created_at', (int)$nTs, $sComparison );
 		}
 		return $this;
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Day( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->endOfDay()->timestamp, '<=' )
+					->filterByCreatedAt( $oCbn->startOfDay()->timestamp, '>=' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Hour( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->endOfHour()->timestamp, '<=' )
+					->filterByCreatedAt( $oCbn->startOfHour()->timestamp, '>=' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Month( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfMonth()->timestamp, '>=' )
+					->filterByCreatedAt( $oCbn->endOfMonth()->timestamp, '<=' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Week( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->endOfWeek()->timestamp, '<=' )
+					->filterByCreatedAt( $oCbn->startOfWeek()->timestamp, '>=' );
+	}
+
+	/**
+	 * @param int $nTs
+	 * @return $this
+	 */
+	public function filterByBoundary_Year( $nTs ) {
+		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
+		return $this->filterByCreatedAt( $oCbn->startOfYear()->timestamp, '>=' )
+					->filterByCreatedAt( $oCbn->endOfYear()->timestamp, '<=' );
 	}
 
 	/**
@@ -247,8 +322,27 @@ abstract class BaseQuery {
 	/**
 	 * @return string
 	 */
-	public function getOrderBy() {
-		return !empty( $this->sOrderBy ) ? $this->sOrderBy : 'ORDER BY `created_at` DESC';
+	public function getGroupBy() {
+		return empty( $this->sGroupBy ) ? '' : sprintf( 'GROUP BY `%s`', $this->sGroupBy );
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function buildOrderBy() {
+		$sOrder = '';
+		if ( !is_array( $this->aOrderBys ) ) {
+			// Defaults to created_at if aOrderBys is untouched. Set to empty array for no order
+			$this->aOrderBys = [ 'created_at' => 'DESC' ];
+		}
+		if ( !empty( $this->aOrderBys ) ) {
+			$aOrders = [];
+			foreach ( $this->aOrderBys as $sCol => $sOrder ) {
+				$aOrders[] = sprintf( '`%s` %s', esc_sql( $sCol ), esc_sql( $sOrder ) );
+			}
+			$sOrder = sprintf( 'ORDER BY %s', implode( ', ', $aOrders ) );
+		}
+		return $sOrder;
 	}
 
 	/**
@@ -286,7 +380,7 @@ abstract class BaseQuery {
 		return $this->setLimit( 0 )
 					->setWheres( [] )
 					->setPage( 1 )
-					->setOrderBy( '' );
+					->setOrderBy( null );
 	}
 
 	/**
@@ -308,16 +402,34 @@ abstract class BaseQuery {
 	}
 
 	/**
-	 * @param string $sOrderByColumn
-	 * @param string $sOrder
+	 * @param string $sGroupByColumn
 	 * @return $this
 	 */
-	public function setOrderBy( $sOrderByColumn, $sOrder = 'DESC' ) {
+	public function setGroupBy( $sGroupByColumn ) {
+		if ( empty( $sGroupByColumn ) ) {
+			$this->sGroupBy = '';
+		}
+		elseif ( $this->getDbH()->hasColumn( $sGroupByColumn ) ) {
+			$this->sGroupBy = $sGroupByColumn;
+		}
+		return $this;
+	}
+
+	/**
+	 * @param string $sOrderByColumn
+	 * @param string $sOrder
+	 * @param bool   $bReplace
+	 * @return $this
+	 */
+	public function setOrderBy( $sOrderByColumn, $sOrder = 'DESC', $bReplace = false ) {
 		if ( empty( $sOrderByColumn ) ) {
-			$this->sOrderBy = '';
+			$this->aOrderBys = $sOrderByColumn;
 		}
 		else {
-			$this->sOrderBy = sprintf( 'ORDER BY `%s` %s', esc_sql( $sOrderByColumn ), esc_sql( $sOrder ) );
+			if ( !is_array( $this->aOrderBys ) || $bReplace ) {
+				$this->aOrderBys = [];
+			}
+			$this->aOrderBys[ $sOrderByColumn ] = $sOrder;
 		}
 		return $this;
 	}
@@ -359,7 +471,7 @@ abstract class BaseQuery {
 	protected function isValidComparisonOperator( $sOp ) {
 		return in_array(
 			strtoupper( $sOp ),
-			array( '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' )
+			[ '=', '<', '>', '!=', '<>', '<=', '>=', '<=>', 'IN', 'LIKE', 'NOT LIKE' ]
 		);
 	}
 }

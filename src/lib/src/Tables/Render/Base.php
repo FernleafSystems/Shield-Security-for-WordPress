@@ -23,7 +23,7 @@ class Base extends \WP_List_Table {
 	protected $nTotalRecords;
 
 	/**
-	 * @var array
+	 * @ array
 	 */
 	protected $aItemEntries;
 
@@ -38,7 +38,7 @@ class Base extends \WP_List_Table {
 	}
 
 	protected function extra_tablenav( $which ) {
-		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn btn-sm tableActionRefresh">%s</a>', _wpsf__( 'Refresh' ) );
+		echo sprintf( '<a href="#" data-tableaction="refresh" class="btn btn-sm tableActionRefresh">%s</a>', __( 'Refresh', 'wp-simple-firewall' ) );
 	}
 
 	/**
@@ -83,14 +83,14 @@ class Base extends \WP_List_Table {
 	public function prepare_items() {
 		$aCols = $this->get_columns();
 		$aHidden = [];
-		$this->_column_headers = array( $aCols, $aHidden, $this->get_sortable_columns() );
+		$this->_column_headers = [ $aCols, $aHidden, $this->get_sortable_columns() ];
 		$this->items = $this->getItemEntries();
 
 		$this->set_pagination_args(
-			array(
+			[
 				'total_items' => $this->getTotalRecords(),
 				'per_page'    => $this->getPerPage()
-			)
+			]
 		);
 		return $this;
 	}
@@ -102,6 +102,23 @@ class Base extends \WP_List_Table {
 	 */
 	protected function get_items_per_page( $option, $default = 20 ) {
 		return $this->getPerPage();
+	}
+
+	public function single_row( $item ) {
+		if ( empty( $item[ 'custom_row' ] ) ) { // it's a normal row so render as always
+			parent::single_row( $item );
+		}
+		else {
+			$this->single_row_custom( $item );
+		}
+	}
+
+	/**
+	 * override this in order to display a custom row
+	 * @param $aItem
+	 */
+	public function single_row_custom( $aItem ) {
+		parent::single_row( $aItem );
 	}
 
 	/**
@@ -153,11 +170,31 @@ class Base extends \WP_List_Table {
 	}
 
 	/**
-	 * @param string|string[] $aButtons
+	 * @param array $aButtons
 	 * @return string
 	 */
 	protected function buildActions( $aButtons ) {
 		return sprintf( '<div class="actions-block">%s</div>', implode( ' | ', (array)$aButtons ) );
+	}
+
+	/**
+	 * @param array $aProps
+	 * @return string
+	 */
+	protected function buildActionButton_CustomArray( $aProps ) {
+		$sTitle = empty( $aProps[ 'title' ] ) ? $aProps[ 'text' ] : $aProps[ 'title' ];
+
+		$aClasses = $aProps[ 'classes' ];
+		if ( in_array( 'disabled', $aClasses ) ) {
+			$aClasses[] = 'text-dark';
+		}
+
+		$aDataAttrs = [];
+		foreach ( $aProps[ 'data' ] as $sKey => $sValue ) {
+			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
+		}
+		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
+			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $aProps[ 'text' ] );
 	}
 
 	/**
@@ -168,22 +205,13 @@ class Base extends \WP_List_Table {
 	 * @return string
 	 */
 	protected function buildActionButton_Custom( $sText, $aClasses, $aData, $sTitle = '' ) {
-		if ( empty( $sTitle ) ) {
-			$sTitle = $sText;
-		}
-
 		$aClasses[] = 'action';
-
-		if ( in_array( 'disabled', $aClasses ) ) {
-			$aClasses[] = 'text-dark';
-		}
-
-		$aDataAttrs = [];
-		foreach ( $aData as $sKey => $sValue ) {
-			$aDataAttrs[] = sprintf( 'data-%s="%s"', $sKey, $sValue );
-		}
-		return sprintf( '<button title="%s" class="btn btn-sm btn-link %s" %s>%s</button>',
-			$sTitle, implode( ' ', array_unique( $aClasses ) ), implode( ' ', $aDataAttrs ), $sText );
+		return $this->buildActionButton_CustomArray( [
+			'text'    => $sText,
+			'classes' => $aClasses,
+			'data'    => $aData,
+			'title'   => $sTitle
+		] );
 	}
 
 	/**
@@ -200,7 +228,7 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getActionButton_Delete( $nId, $sText = null ) {
 		return $this->buildActionButton_Custom(
-			empty( $sText ) ? _wpsf__( 'Delete' ) : $sText,
+			empty( $sText ) ? __( 'Delete', 'wp-simple-firewall' ) : $sText,
 			[ 'delete', 'text-danger' ],
 			[ 'rid' => $nId, ]
 		);
@@ -212,7 +240,7 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getActionButton_Repair( $nId ) {
 		return $this->buildActionButton_Custom(
-			_wpsf__( 'Repair' ),
+			__( 'Repair', 'wp-simple-firewall' ),
 			[ 'repair', 'text-success' ],
 			[ 'rid' => $nId, ]
 		);
@@ -224,20 +252,21 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getActionButton_Ignore( $nId ) {
 		return $this->buildActionButton_Custom(
-			_wpsf__( 'Ignore' ),
+			__( 'Ignore', 'wp-simple-firewall' ),
 			[ 'ignore' ],
 			[ 'rid' => $nId, ]
 		);
 	}
 
 	/**
-	 * TODO Put this into SErvice IPs and grab it from there
+	 * TODO Put this into Service IPs and grab it from there
 	 * @param string $sIp
 	 * @return string
 	 */
 	protected function getIpWhoisLookupLink( $sIp ) {
+		$oIp = Services::IP();
 		return sprintf( '<a href="%s" target="_blank" class="ip-whois">%s</a>',
-			Services::IP()->getIpWhoisLookup( $sIp ),
+			$oIp->isValidIpRange( $sIp ) ? $oIp->getIpWhoisLookup( $sIp ) : $oIp->getIpInfo( $sIp ),
 			$sIp
 		);
 	}

@@ -28,6 +28,6 @@ class Insert extends Base\Insert {
 	 * @return bool
 	 */
 	public function create( $sNote ) {
-		return $this->setInsertData( array( 'note' => esc_sql( $sNote ) ) )->query() === 1;
+		return $this->setInsertData( [ 'note' => esc_sql( $sNote ) ] )->query() === 1;
 	}
 }

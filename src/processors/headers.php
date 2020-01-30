@@ -1,24 +1,29 @@
 <?php
 
-class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Headers;
+
+class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var bool
 	 */
-	protected $bHeadersPushed;
+	private $bHeadersPushed;
+
 	/**
 	 * @var array
 	 */
-	protected $aHeaders;
+	private $aHeaders;
 
 	/**
 	 */
 	public function run() {
 		if ( $this->getPushHeadersEarly() ) {
-			$this->pushHeaders();
+			$this->sendHeaders();
 		}
 		else {
-			add_filter( 'wp_headers', array( $this, 'addToHeaders' ) );
+			add_filter( 'wp_headers', [ $this, 'addToHeaders' ], PHP_INT_MAX );
+			add_action( 'send_headers', [ $this, 'sendHeaders' ], PHP_INT_MAX, 0 );
 		}
 	}
 
@@ -30,33 +35,68 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	}
 
 	/**
-	 */
-	protected function pushHeaders() {
-		if ( !$this->isHeadersPushed() ) {
-			$aHeaders = $this->gatherSecurityHeaders();
-			foreach ( $aHeaders as $sHeader => $sValue ) {
-				header( sprintf( '%s: %s', $sHeader, $sValue ) );
-			}
-			$this->setHeadersPushed( true );
-		}
-	}
-
-	/**
+	 * Tries to ensure duplicate headers are not sent. Previously sent/supplied headers take priority.
 	 * @param array $aCurrentWpHeaders
 	 * @return array
 	 */
 	public function addToHeaders( $aCurrentWpHeaders ) {
 		if ( !$this->isHeadersPushed() ) {
-			$aCurrentWpHeaders = array_merge( $aCurrentWpHeaders, $this->gatherSecurityHeaders() );
+			$aAlreadySentHeaders = array_map(
+				function ( $sHeader ) {
+					return strtolower( trim( $sHeader ) );
+				},
+				( is_array( $aCurrentWpHeaders ) ? array_keys( $aCurrentWpHeaders ) : [] )
+			);
+			foreach ( $this->gatherSecurityHeaders() as $sHeader => $sValue ) {
+				if ( !in_array( strtolower( $sHeader ), $aAlreadySentHeaders ) ) {
+					$aCurrentWpHeaders[ $sHeader ] = $sValue;
+				}
+			}
 			$this->setHeadersPushed( true );
 		}
 		return $aCurrentWpHeaders;
 	}
 
 	/**
+	 * Tries to ensure duplicate headers are not sent.
+	 */
+	public function sendHeaders() {
+		if ( !$this->isHeadersPushed() ) {
+			$aAlreadySent = array_map( 'strtolower', array_keys( $this->getAlreadySentHeaders() ) );
+			foreach ( $this->gatherSecurityHeaders() as $sName => $sValue ) {
+				if ( !in_array( strtolower( $sName ), $aAlreadySent ) ) {
+					@header( sprintf( '%s: %s', $sName, $sValue ) );
+				}
+			}
+			$this->setHeadersPushed( true );
+		}
+	}
+
+	/**
+	 * @return string[] - array of all previously sent headers. Keys are header names, values are header values.
+	 */
+	private function getAlreadySentHeaders() {
+		$aHeaders = [];
+
+		if ( function_exists( 'headers_list' ) ) {
+			$aSent = headers_list();
+			if ( is_array( $aSent ) ) {
+				foreach ( $aSent as $sHeader ) {
+					if ( strpos( $sHeader, ':' ) ) {
+						list( $sKey, $sValue ) = array_map( 'trim', explode( ':', $sHeader, 2 ) );
+						$aHeaders[ $sKey ] = $sValue;
+					}
+				}
+			}
+		}
+
+		return $aHeaders;
+	}
+
+	/**
 	 * @return array|null
 	 */
-	protected function getXFrameHeader() {
+	private function getXFrameHeader() {
 		switch ( $this->getOption( 'x_frame' ) ) {
 			case 'on_sameorigin':
 				$sXFrameOption = 'SAMEORIGIN';
@@ -68,89 +108,84 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 				$sXFrameOption = '';
 				break;
 		}
-		return !empty( $sXFrameOption ) ? array( 'x-frame-options' => $sXFrameOption ) : null;
+		return !empty( $sXFrameOption ) ? [ 'x-frame-options' => $sXFrameOption ] : null;
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getXssProtectionHeader() {
-		return array( 'X-XSS-Protection' => '1; mode=block' );
+	private function getXssProtectionHeader() {
+		return [ 'X-XSS-Protection' => '1; mode=block' ];
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function getContentTypeOptionHeader() {
-		return array( 'X-Content-Type-Options' => 'nosniff' );
+	private function getContentTypeOptionHeader() {
+		return [ 'X-Content-Type-Options' => 'nosniff' ];
 	}
 
 	/**
 	 * @return array|null
 	 */
-	protected function getReferrerPolicyHeader() {
-		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getMod();
-		return array( 'Referrer-Policy' => $oFO->getReferrerPolicyValue() );
+	private function getReferrerPolicyHeader() {
+		/** @var Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return [ 'Referrer-Policy' => $oOpts->getReferrerPolicyValue() ];
 	}
 
 	/**
 	 * @return array|null
 	 */
-	protected function setContentSecurityPolicyHeader() {
-		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getMod();
-		if ( !$oFO->isContentSecurityPolicyEnabled() ) {
-			return null;
-		}
-
-		$sTemplate = 'default-src %s;';
+	private function setContentSecurityPolicyHeader() {
+		/** @var Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aDefaultSrcDirectives = [];
 
-		if ( $oFO->isOpt( 'xcsp_self', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_self', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'self'";
 		}
-		if ( $oFO->isOpt( 'xcsp_data', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_data', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "data:";
 		}
-		if ( $oFO->isOpt( 'xcsp_inline', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_inline', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'unsafe-inline'";
 		}
-		if ( $oFO->isOpt( 'xcsp_eval', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_eval', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "'unsafe-eval'";
 		}
-		if ( $oFO->isOpt( 'xcsp_https', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'xcsp_https', 'Y' ) ) {
 			$aDefaultSrcDirectives[] = "https:";
 		}
 
-		$aDomains = $oFO->getCspHosts();
-		if ( !empty( $aDomains ) && is_array( $aDomains ) ) {
-			$aDefaultSrcDirectives[] = implode( " ", $aDomains );
-		}
-		return array( 'Content-Security-Policy' => sprintf( $sTemplate, implode( " ", $aDefaultSrcDirectives ) ) );
+		$aDefaultSrcDirectives[] = implode( " ", $oOpts->getOpt( 'xcsp_hosts', [] ) );
+
+		$aRules = $oOpts->getCspCustomRules();
+		array_unshift( $aRules, sprintf( 'default-src %s;', implode( " ", $aDefaultSrcDirectives ) ) );
+		return [ 'Content-Security-Policy' => implode( ' ', $aRules ) ];
 	}
 
 	/**
 	 * @return array
 	 */
-	protected function gatherSecurityHeaders() {
-		/** @var ICWP_WPSF_FeatureHandler_Headers $oFO */
-		$oFO = $this->getMod();
+	private function gatherSecurityHeaders() {
+		/** @var Headers\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( $oFO->isReferrerPolicyEnabled() ) {
+		if ( $oOpts->isReferrerPolicyEnabled() ) {
 			$this->addHeader( $this->getReferrerPolicyHeader() );
 		}
-		if ( $oFO->isEnabledXFrame() ) {
+		if ( $oOpts->isEnabledXFrame() ) {
 			$this->addHeader( $this->getXFrameHeader() );
 		}
-		if ( $oFO->isEnabledXssProtection() ) {
+		if ( $oOpts->isEnabledXssProtection() ) {
 			$this->addHeader( $this->getXssProtectionHeader() );
 		}
-		if ( $oFO->isEnabledContentTypeHeader() ) {
+		if ( $oOpts->isEnabledContentTypeHeader() ) {
 			$this->addHeader( $this->getContentTypeOptionHeader() );
 		}
-		if ( $oFO->isContentSecurityPolicyEnabled() ) {
+		if ( $oOpts->isEnabledContentSecurityPolicy() ) {
 			$this->addHeader( $this->setContentSecurityPolicyHeader() );
 		}
 		return $this->getHeaders();
@@ -163,7 +198,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 		if ( !isset( $this->aHeaders ) || !is_array( $this->aHeaders ) ) {
 			$this->aHeaders = [];
 		}
-		return $this->aHeaders;
+		return array_unique( $this->aHeaders );
 	}
 
 	/**
@@ -178,7 +213,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	/**
 	 * @return bool
 	 */
-	protected function isHeadersPushed() {
+	private function isHeadersPushed() {
 		return (bool)$this->bHeadersPushed;
 	}
 
@@ -186,7 +221,7 @@ class ICWP_WPSF_Processor_Headers extends ICWP_WPSF_Processor_BaseWpsf {
 	 * @param bool $bHeadersPushed
 	 * @return $this
 	 */
-	protected function setHeadersPushed( $bHeadersPushed ) {
+	private function setHeadersPushed( $bHeadersPushed ) {
 		$this->bHeadersPushed = $bHeadersPushed;
 		return $this;
 	}

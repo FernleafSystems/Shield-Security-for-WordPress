@@ -1,0 +1,10 @@
+{% extends "/notices/base-info.twig" %}
+
+{% block notice_body %}
+	<div class="row">
+		<div class="col">
+			<p>{{ strings.notice_message }}</p>
+			<p>{{ hrefs.setting_page|raw }}</p>
+		</div>
+	</div>
+{% endblock %}

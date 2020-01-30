@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\AuditTrail;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\IpListSort;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Select extends Base\Select {
@@ -10,8 +11,15 @@ class Select extends Base\Select {
 	/**
 	 * @return string[]
 	 */
+	public function getDistinctEvents() {
+		return $this->getDistinct_FilterAndSort( 'event' );
+	}
+
+	/**
+	 * @return string[]
+	 */
 	public function getDistinctIps() {
-		return $this->getDistinct_FilterAndSort( 'ip' );
+		return IpListSort::Sort( $this->getDistinctForColumn( 'ip' ) );
 	}
 
 	/**
@@ -22,12 +30,12 @@ class Select extends Base\Select {
 	}
 
 	/**
-	 * @param string $sContext
+	 * @param string $sEvent
 	 * @return $this
 	 */
-	public function filterByContext( $sContext ) {
-		if ( !empty( $sContext ) && strtolower( $sContext ) != 'all' ) {
-			$this->addWhereEquals( 'context', $sContext );
+	public function filterByEvent( $sEvent ) {
+		if ( !empty( $sEvent ) && strtolower( $sEvent ) != 'all' ) {
+			$this->addWhereEquals( 'event', $sEvent );
 		}
 		return $this;
 	}
@@ -75,15 +83,5 @@ class Select extends Base\Select {
 	 */
 	public function filterByUsername( $sUsername ) {
 		return $this->addWhereEquals( 'wp_username', trim( $sUsername ) );
-	}
-
-	/**
-	 * @param string $sContext
-	 * @return EntryVO[]
-	 */
-	public function forContext( $sContext ) {
-		return $this->reset()
-					->filterByContext( $sContext )
-					->query();
 	}
 }

@@ -52,7 +52,7 @@
       "section":     "section_enable_plugin_feature_automatic_updates_control",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/3w",
+      "link_info":   "https://shsec.io/3w",
       "link_blog":   "",
       "name":        "Enable Automatic Updates",
       "summary":     "Enable (or Disable) The Automatic Updates module",
@@ -63,7 +63,7 @@
       "section":     "section_automatic_updates_for_wordpress_components",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/3v",
+      "link_info":   "https://shsec.io/3v",
       "link_blog":   "",
       "name":        "Disable All",
       "summary":     "Completely Disable WordPress Automatic Updates",
@@ -88,7 +88,7 @@
           "text":      "Major and Minor Versions"
         }
       ],
-      "link_info":     "https://icwp.io/3x",
+      "link_info":     "https://shsec.io/3x",
       "link_blog":     "",
       "name":          "WordPress Core Updates",
       "summary":       "Decide how the WordPress Core will automatically update, if at all",
@@ -156,7 +156,7 @@
       "premium":     true,
       "default":     "0",
       "type":        "integer",
-      "link_info":   "https://icwp.io/e5",
+      "link_info":   "https://shsec.io/e5",
       "link_blog":   "",
       "name":        "Update Delay",
       "summary":     "Delay Automatic Updates For Period Of Stability",
@@ -170,7 +170,7 @@
       "value_options": [
         {
           "value_key": "auto",
-          "text":      "Let Shield Decide"
+          "text":      "Let The Plugin Decide"
         },
         {
           "value_key": "disabled",
@@ -181,7 +181,7 @@
           "text":      "As Soon As Possible"
         }
       ],
-      "link_info":     "https://icwp.io/3x",
+      "link_info":     "https://shsec.io/3x",
       "link_blog":     "",
       "name":          "WordPress Core Updates",
       "summary":       "Decide how the WordPress Core will automatically update, if at all",
@@ -190,7 +190,7 @@
     {
       "key":         "enable_upgrade_notification_email",
       "section":     "section_options",
-      "default":     "",
+      "default":     "Y",
       "type":        "checkbox",
       "link_info":   "",
       "link_blog":   "",

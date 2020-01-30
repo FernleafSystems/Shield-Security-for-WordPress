@@ -5,4 +5,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Comments;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 class Delete extends Base\Delete {
+
 }

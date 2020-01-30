@@ -7,8 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class BaseBuild {
 
-	use Shield\Modules\ModConsumer,
-		Shield\Databases\Base\HandlerConsumer;
+	use Shield\Databases\Base\HandlerConsumer;
+	use Shield\Modules\ModConsumer;
 
 	/**
 	 * @var Shield\Databases\Base\Select
@@ -25,7 +25,16 @@ class BaseBuild {
 	 */
 	public function buildTable() {
 
-		if ( $this->countTotal() > 0 ) {
+		try {
+			$bReady = $this->getDbHandler()->isReady();
+		}
+		catch ( \Exception $oE ) {
+			$bReady = false;
+		}
+
+		$this->preBuildTable();
+
+		if ( $bReady && $this->countTotal() > 0 ) {
 			$oTable = $this->getTableRenderer()
 						   ->setItemEntries( $this->getEntriesFormatted() )
 						   ->setPerPage( $this->getParams()[ 'limit' ] )
@@ -39,14 +48,21 @@ class BaseBuild {
 			$sRendered = $this->buildEmpty();
 		}
 
-		return empty( $sRendered ) ? 'There was an error retrieving entries.' : $sRendered;
+		return empty( $sRendered ) ? __( 'There was an error retrieving entries.', 'wp-simple-firewall' ) : $sRendered;
+	}
+
+	/**
+	 * @return $this
+	 */
+	protected function preBuildTable() {
+		return $this;
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function buildEmpty() {
-		return sprintf( '<div class="alert alert-info m-0">%s</div>', _wpsf__( 'No entries to display.' ) );
+		return sprintf( '<div class="alert alert-info m-0">%s</div>', __( 'No entries to display.', 'wp-simple-firewall' ) );
 	}
 
 	/**
@@ -61,13 +77,16 @@ class BaseBuild {
 	 * @return string
 	 */
 	protected function formatTimestampField( $nTimestamp ) {
-		return ( new \Carbon\Carbon() )->setTimestamp( $nTimestamp )->diffForHumans()
+		return Services::Request()
+					   ->carbon()
+					   ->setTimestamp( $nTimestamp )
+					   ->diffForHumans()
 			   .'<br/><span class="timestamp-small">'
 			   .Services::WpGeneral()->getTimeStringForDisplay( $nTimestamp ).'</span>';
 	}
 
 	/**
-	 * @return array[]|int|string[]|Shield\Databases\Base\EntryVO[]
+	 * @return array[]|string[]|Shield\Databases\Base\EntryVO[]|array
 	 */
 	protected function getEntriesRaw() {
 		$aEntries = $this->startQueryProcess()
@@ -150,7 +169,7 @@ class BaseBuild {
 	 */
 	private function getFormParams() {
 		parse_str( Services::Request()->post( 'form_params', '' ), $aFormParams );
-		return array_map( 'trim', $aFormParams );
+		return Services::DataManipulation()->arrayMapRecursive( $aFormParams, 'trim' );
 	}
 
 	/**

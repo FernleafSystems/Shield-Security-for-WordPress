@@ -11,7 +11,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string
 	 */
 	protected function getPageTitle() {
-		return sprintf( _wpsf__( '%s Multi-Factor Authentication Wizard' ), $this->getPluginCon()->getHumanName() );
+		return sprintf( __( '%s Multi-Factor Authentication Wizard', 'wp-simple-firewall' ), $this->getCon()
+																								  ->getHumanName() );
 	}
 
 	/**
@@ -43,8 +44,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processAuthEmail() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -54,30 +55,30 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		$sCode = $oReq->post( 'code' );
 		$bFa = $oReq->post( 'Email2FAOption' ) === 'Y';
 
-		if ( !$this->loadDP()->validEmail( $sEmail ) ) {
-			$sMessage = _wpsf__( 'Invalid email address' );
+		if ( !Services::Data()->validEmail( $sEmail ) ) {
+			$sMessage = __( 'Invalid email address', 'wp-simple-firewall' );
 		}
 		else {
 			if ( empty( $sCode ) ) {
-				if ( $oFO->sendEmailVerifyCanSend( $sEmail, false ) ) {
-					$oFO->setIfCanSendEmail( false );
+				if ( $oMod->sendEmailVerifyCanSend( $sEmail, false ) ) {
+					$oMod->setIfCanSendEmail( false );
 					$oResponse->setSuccessful( true );
-					$sMessage = _wpsf__( 'Verification email sent (please check your email including your SPAM).' )
-								.' '._wpsf__( 'Enter the code from the email into the form above and click the button to verify.' );
+					$sMessage = __( 'Verification email sent (please check your email including your SPAM).', 'wp-simple-firewall' )
+								.' '.__( 'Enter the code from the email into the form above and click the button to verify.', 'wp-simple-firewall' );
 				}
 				else {
 					$sMessage = 'Failed to send verification email';
 				}
 			}
 			else {
-				if ( $sCode == $oFO->getCanEmailVerifyCode() ) {
+				if ( $sCode == $oMod->getCanEmailVerifyCode() ) {
 					$oResponse->setSuccessful( true );
 					$sMessage = 'Email sending has been verified successfully.';
 
-					$oFO->setIfCanSendEmail( true );
+					$oMod->setIfCanSendEmail( true );
 
 					if ( $bFa ) {
-						$oFO->setEnabled2FaEmail( true );
+						$oMod->setEnabled2FaEmail( true );
 						$sMessage .= ' '.'Email-based two factor authentication is now enabled.';
 					}
 					else {
@@ -99,7 +100,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function processAuthGa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -112,10 +113,10 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( $sCode != 'ignore' ) {
 
 			if ( empty( $sCode ) ) {
-				$sMessage = _wpsf__( 'Code was empty.' );
+				$sMessage = __( 'Code was empty.', 'wp-simple-firewall' );
 			}
 			else {
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				$oUser = Services::WpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
 				$oProcGa = $oProc->getSubProIntent()
@@ -139,7 +140,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		if ( $bEnableGa ) {
 			$oFO->setEnabled2FaGoogleAuthenticator( true );
-			$sMessage .= ' '._wpsf__( 'Google Authenticator was enabled for the site.' );
+			$sMessage .= ' '.__( 'Google Authenticator was enabled for the site.', 'wp-simple-firewall' );
 		}
 
 		return $oResponse->setMessageText( $sMessage );
@@ -149,13 +150,13 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processMultiSelect() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
+		$oFO = $this->getMod();
 
-		$bEnabledMulti = $this->loadRequest()->post( 'multiselect' ) === 'Y';
+		$bEnabledMulti = Services::Request()->post( 'multiselect' ) === 'Y';
 		$oFO->setIsChainedAuth( $bEnabledMulti );
-		$sMessage = sprintf( _wpsf__( 'Multi-Factor Authentication was %s for the site.' ),
-			$bEnabledMulti ? _wpsf__( 'enabled' ) : _wpsf__( 'disabled' )
+		$sMessage = sprintf( __( 'Multi-Factor Authentication was %s for the site.', 'wp-simple-firewall' ),
+			$bEnabledMulti ? __( 'enabled', 'wp-simple-firewall' ) : __( 'disabled', 'wp-simple-firewall' )
 		);
 
 		return ( new \FernleafSystems\Utilities\Response() )
@@ -185,7 +186,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	private function determineWizardSteps_Mfa() {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 
 		$aStepsSlugs = array( 'start' );
 
@@ -208,14 +209,14 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getModCon();
+		$oFO = $this->getMod();
 
 		$aAdditional = array();
 
 		switch ( $sStep ) {
 
 			case 'authemail':
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				$oUser = Services::WpUsers()->getCurrentWpUser();
 				$aAdditional = array(
 					'data' => array(
 						'name'       => $oUser->first_name,
@@ -225,7 +226,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				break;
 
 			case 'authga':
-				$oUser = $this->loadWpUsers()->getCurrentWpUser();
+				$oUser = Services::WpUsers()->getCurrentWpUser();
 				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
 				$oProc = $oFO->getProcessor();
 				$oProcGa = $oProc->getSubProIntent()

@@ -1,39 +1,31 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_BaseWpsf {
+class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		if ( $this->isReadyToRun() ) {
-			parent::run();
-			add_filter( 'wp_login_errors', array( $this, 'addLoginMessage' ) );
-			add_filter( 'auth_cookie_expiration', array( $this, 'setMaxAuthCookieExpiration' ), 100, 1 );
-		}
+		add_filter( 'wp_login_errors', [ $this, 'addLoginMessage' ] );
+		add_filter( 'auth_cookie_expiration', [ $this, 'setMaxAuthCookieExpiration' ], 100, 1 );
 	}
 
 	/**
 	 * Cron callback
 	 */
 	public function runDailyCron() {
-		$this->cleanExpiredSessions();
+		( new UserManagement\Lib\CleanExpired() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isReadyToRun() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		return ( parent::isReadyToRun() && $oFO->getSessionsProcessor()->isReadyToRun() );
-	}
-
-	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
+	 * @param string   $sUsername
+	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
-		if ( !$oUser instanceof WP_User ) {
+		if ( !$oUser instanceof \WP_User ) {
 			$oUser = Services::WpUsers()->getUserByUsername( $sUsername );
 		}
 		$this->enforceSessionLimits( $oUser );
@@ -52,224 +44,58 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	/**
 	 */
 	public function onWpLoaded() {
-		if ( $this->isReadyToRun() && Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
+		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->checkCurrentSession();
 		}
 	}
 
-	/**
-	 */
 	private function checkCurrentSession() {
-		$oWp = Services::WpGeneral();
-		$oWpUsers = Services::WpUsers();
-
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
 		try {
-			$bSessionInvalid = !$this->assessCurrentSession();
-			$nCode = 0;
-			$sMessage = '';
+			$this->assessSession();
 		}
 		catch ( \Exception $oE ) {
-			$bSessionInvalid = true;
-			$nCode = $oE->getCode();
-			$sMessage = $oE->getMessage();
-		}
-
-		if ( $bSessionInvalid ) { // it's not admin, but the user looks logged into WordPress and not to Shield
-
-			if ( is_admin() ) { // prevent any admin access on invalid Shield sessions.
-
-				switch ( $nCode ) {
-
-					case 1:
-						$this->addToAuditEntry(
-							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_expired_timeout'
-						);
-						$oWpUsers->logoutUser( true );
-						break;
-
-					case 2:
-						$this->addToAuditEntry(
-							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_idle_timeout'
-						);
-						$oWpUsers->logoutUser( true );
-						break;
-
-					case 3:
-						$this->addToAuditEntry(
-							sprintf( 'Access to an established user session from a new IP address "%s". Redirecting request.', $this->ip() ),
-							2,
-							'um_session_ip_lock_redirect'
-						);
-						$oWp->redirectToHome();
-						break;
-
-					case 4:
-						$this->addToAuditEntry(
-							$sMessage.' '._wpsf__( 'Logging out.' ), 2, 'um_session_no_valid_found'
-						);
-						$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
-						break;
-
-					case 7:
-						$oWpUsers->logoutUser( true );
-						$this->addToAuditEntry(
-							sprintf( 'Browser signature has changed for this user "%s" session. Redirecting request.', $oWpUsers->getCurrentWpUser()->user_login ),
-							2,
-							'um_session_browser_lock_redirect'
-						);
-						$oWp->redirectToLogin();
-						break;
-
-					default:
-						$this->addToAuditEntry(
-							'Unable to verify the current User Session. Forcefully logging out session and redirecting to login.',
-							2,
-							'um_session_not_found_redirect'
-						);
-						$oWpUsers->forceUserRelogin( array( 'wpsf-forcelogout' => $nCode ) );
-						break;
-				}
-			}
-			else {
-				$this->addToAuditEntry(
-					'Unable to verify the current User Session. Forcefully logging out session.',
-					2,
-					'um_session_not_found'
-				);
-				$oWpUsers->logoutUser();
-			}
-		}
-	}
-
-	public function cleanExpiredSessions() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Delete $oTerminator */
-		$oTerminator = $oFO->getSessionsProcessor()
-						   ->getDbHandler()
-						   ->getQueryDeleter();
-
-		// We use 14 as an outside case. If it's 2 days, WP cookie will expire anyway.
-		// And if User Management is active, then it'll draw in that value.
-		$oTerminator->forExpiredLoginAt( $this->getLoginExpiredBoundary() );
-
-		// Default is ZERO, so we don't want to terminate all sessions if it's never set.
-		if ( $oFO->hasSessionIdleTimeout() ) {
-			$oTerminator->forExpiredLoginIdle( $this->getLoginIdleExpiredBoundary() );
+			$sEvent = $oE->getMessage();
+			$this->getCon()
+				 ->fireEvent( $sEvent );
+			$oMod->getSessionsProcessor()
+				 ->terminateCurrentSession();
+			$oU = Services::WpUsers();
+			is_admin() ? $oU->forceUserRelogin( [ 'shield-forcelogout' => $sEvent ] ) : $oU->logoutUser( true );
 		}
 	}
 
 	/**
-	 * @return int
-	 */
-	public function countActiveSessions() {
-		return $this->getActiveSessionsQuerySelector()->count();
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\EntryVO[]|mixed
-	 */
-	public function getActiveSessions() {
-		return $this->getActiveSessionsQuerySelector()->query();
-	}
-
-	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select
-	 */
-	private function getActiveSessionsQuerySelector() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Select $oSel */
-		$oSel = $oFO->getSessionsProcessor()->getDbHandler()->getQuerySelector();
-
-		if ( $oFO->hasMaxSessionTimeout() ) {
-			$oSel->filterByLoginNotExpired( $this->getLoginExpiredBoundary() );
-		}
-		if ( $oFO->hasSessionIdleTimeout() ) {
-			$oSel->filterByLoginNotIdleExpired( $this->getLoginIdleExpiredBoundary() );
-		}
-		return $oSel;
-	}
-
-	/**
-	 * @return int
-	 */
-	private function getLoginExpiredBoundary() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		return $this->time() - $oFO->getMaxSessionTime();
-	}
-
-	/**
-	 * @return int
-	 */
-	private function getLoginIdleExpiredBoundary() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		return $this->time() - $oFO->getIdleTimeoutInterval();
-	}
-
-	/**
-	 * @return true
 	 * @throws \Exception
 	 */
-	protected function assessCurrentSession() {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+	private function assessSession() {
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+		$oMod = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		if ( !$oFO->hasSession() ) {
-			throw new \Exception( _wpsf__( 'Valid user session could not be found' ), 4 );
-		}
-		else {
-			$oSess = $oFO->getSession();
-			$nTime = $this->time();
-
-			// timeout interval
-			if ( $oFO->hasMaxSessionTimeout() && ( $nTime - $oSess->logged_in_at > $oFO->getMaxSessionTime() ) ) {
-				$nDays = (int)( $oFO->getMaxSessionTime()/DAY_IN_SECONDS );
-				throw new \Exception(
-					sprintf(
-						_wpsf__( 'User session has expired after %s' ),
-						sprintf( _n( '%s day', '%s days', $nDays, 'wp-simple-firewall' ), $nDays )
-					),
-					1
-				);
-			}
-
-			// idle timeout interval
-			if ( $oFO->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oFO->getIdleTimeoutInterval() ) ) {
-				$oFO->setOptInsightsAt( 'last_idle_logout_at' );
-				$nHours = (int)( $oFO->getIdleTimeoutInterval()/HOUR_IN_SECONDS );
-				throw new \Exception(
-					sprintf(
-						_wpsf__( 'User session has expired after %s' ),
-						sprintf( _n( '%s day', '%s days', $nHours, 'wp-simple-firewall' ), $nHours )
-					),
-					2
-				);
-			}
-
-			/**
-			 * We allow the original session IP, the SERVER_ADDR, and the "what is my IP"
-			 */
-			if ( $oFO->isLockToIp() ) {
-				/** @var ICWP_WPSF_FeatureHandler_Plugin $oPluginMod */
-				$oPluginMod = $this->getCon()->getModule( 'plugin' );
-				$aPossibleIps = [
-					$oSess->ip,
-					Services::Request()->getServerAddress(),
-					$oPluginMod->getMyServerIp()
-				];
-				if ( !in_array( $this->ip(), $aPossibleIps ) ) {
-					throw new \Exception(
-						sprintf( 'Access to an established user session from a new IP address "%s".', $this->ip() ),
-						3
-					);
-				}
-			}
+		$oSess = $oMod->getSession();
+		if ( empty( $oSess ) ) {
+			throw new \Exception( 'session_notfound' );
 		}
 
-		return true;
+		$nTime = Services::Request()->ts();
+
+		// timeout interval
+		if ( $oOpts->hasMaxSessionTimeout() && ( $nTime - $oSess->logged_in_at > $oOpts->getMaxSessionTime() ) ) {
+			throw new \Exception( 'session_expired' );
+		}
+
+		if ( $oOpts->hasSessionIdleTimeout() && ( $nTime - $oSess->last_activity_at > $oOpts->getIdleTimeoutInterval() ) ) {
+			throw new \Exception( 'session_idle' );
+		}
+
+		$oIP = Services::IP();
+		if ( $oOpts->isLockToIp() && !$oIP->isLoopback() && $oIP->getRequestIp() != $oSess->ip ) {
+			throw new \Exception( 'session_iplock' );
+		}
+		// TODO: 'session_browserlock';
 	}
 
 	/**
@@ -277,27 +103,28 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	 * @return int
 	 */
 	public function setMaxAuthCookieExpiration( $nTimeout ) {
-		/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
-		return $oFO->hasMaxSessionTimeout() ? min( $nTimeout, $oFO->getMaxSessionTime() ) : $nTimeout;
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->hasMaxSessionTimeout() ? min( $nTimeout, $oOpts->getMaxSessionTime() ) : $nTimeout;
 	}
 
 	/**
 	 * @param \WP_User $oUser
 	 */
 	protected function enforceSessionLimits( $oUser ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		$nSessionLimit = $this->getOption( 'session_username_concurrent_limit', 1 );
+		$nSessionLimit = $oOpts->getOpt( 'session_username_concurrent_limit', 1 );
 		if ( !$this->isLoginCaptured() && $nSessionLimit > 0 && $oUser instanceof WP_User ) {
 			$this->setLoginCaptured();
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-			$oFO = $this->getMod();
+			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+			$oMod = $this->getMod();
 			try {
-				$oFO->getSessionsProcessor()
-					->getDbHandler()
-					->getQueryDeleter()
-					->addWhere( 'wp_username', $oUser->user_login )
-					->deleteExcess( $nSessionLimit, 'last_activity_at', true );
+				$oMod->getDbHandler_Sessions()
+					 ->getQueryDeleter()
+					 ->addWhere( 'wp_username', $oUser->user_login )
+					 ->deleteExcess( $nSessionLimit, 'last_activity_at', true );
 			}
 			catch ( \Exception $oE ) {
 			}
@@ -305,51 +132,50 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends ICWP_WPSF_Processor_Ba
 	}
 
 	/**
-	 * @param WP_Error $oError
-	 * @return WP_Error
+	 * @param \WP_Error $oError
+	 * @return \WP_Error
 	 */
 	public function addLoginMessage( $oError ) {
 
-		if ( !$oError instanceof WP_Error ) {
-			$oError = new WP_Error();
+		if ( !$oError instanceof \WP_Error ) {
+			$oError = new \WP_Error();
 		}
 
-		$sForceLogout = Services::Request()->query( 'wpsf-forcelogout' );
+		$sForceLogout = Services::Request()->query( 'shield-forcelogout' );
 		if ( $sForceLogout ) {
 
 			switch ( $sForceLogout ) {
-				case 1:
-					$sMessage = _wpsf__( 'Your session has expired.' );
+				case 'session_expired':
+					$sMessage = __( 'Your session has expired.', 'wp-simple-firewall' );
 					break;
 
-				case 2:
-					$sMessage = _wpsf__( 'Your session was idle for too long.' );
+				case 'session_idle':
+					$sMessage = __( 'Your session was idle for too long.', 'wp-simple-firewall' );
 					break;
 
-				case 3:
-					$sMessage = _wpsf__( 'Your session was locked to another IP Address.' );
+				case 'session_iplock':
+					$sMessage = __( 'Your session was locked to another IP Address.', 'wp-simple-firewall' );
 					break;
 
-				case 4:
-					$sMessage = sprintf( _wpsf__( 'You do not currently have a %s user session.' ), $this->getCon()
-																										 ->getHumanName() );
+				case 'session_notfound':
+					$sMessage = sprintf(
+						__( 'You do not currently have a %s user session.', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName()
+					);
 					break;
 
-				case 5:
-					$sMessage = _wpsf__( 'An administrator has terminated this session.' );
+				case 'session_browserlock':
+					$sMessage = __( 'Your browser appears to have changed for this session.', 'wp-simple-firewall' );
 					break;
 
-				case 6:
-					$sMessage = _wpsf__( 'Not a user.' );
-					break;
-
+				case 'session_unverified':
 				default:
-					$sMessage = _wpsf__( 'Your session was terminated.' );
+					$sMessage = __( 'Your session was terminated.', 'wp-simple-firewall' );
 					break;
 			}
 
-			$sMessage .= '<br />'._wpsf__( 'Please login again.' );
-			$oError->add( 'wpsf-forcelogout', $sMessage );
+			$sMessage .= '<br />'.__( 'Please login again.', 'wp-simple-firewall' );
+			$oError->add( 'shield-forcelogout', $sMessage );
 		}
 		return $oError;
 	}

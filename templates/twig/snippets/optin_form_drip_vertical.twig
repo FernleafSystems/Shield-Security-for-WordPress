@@ -1,0 +1,26 @@
+<form class="form-horizontal" id="drip-embedded-subscribe-form" target="_blank"
+	  action="https://www.getdrip.com/forms/250437573/submissions"
+	  method="post" data-drip-embedded-form="250437573">
+
+	{{ icwp_macros.formInput_Text( 'fields[first_name]', vars.name, 'Your Name', vars.name ) }}
+	{{ icwp_macros.formInput_Email( 'fields[email]', vars.user_email, 'Your Email',
+		vars.user_email, strings.privacy_never_spam ) }}
+	{{ icwp_macros.formInput_Checkbox(
+		'OptinConsent', 'Y', strings.privacy_policy_agree,
+		strings.privacy_policy_confirm,
+		'<a href="'~hrefs.privacy_policy~'" target="_blank">'~ strings.privacy_policy_gdpr ~ '</a>',
+		'OptinConsent'
+	) }}
+	{{ icwp_macros.formInput_Submit( 'Sign-Up', 'subscribe' ) }}
+</form>
+
+<script type="text/javascript">
+	jQuery( document ).ready( function ( $ ) {
+		var $oSubButton = $( 'form#drip-embedded-subscribe-form button' );
+		var $oCheck = $( '#OptinConsent' );
+		$oSubButton.attr( "disabled", "disabled" );
+		$( document ).on( 'change', $oCheck, function () {
+			$oSubButton.prop( "disabled", !$oCheck.is( ":checked" ) );
+		} );
+	} );
+</script>

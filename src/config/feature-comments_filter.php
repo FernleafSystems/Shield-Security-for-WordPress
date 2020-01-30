@@ -18,18 +18,18 @@
   },
   "admin_notices": {
     "akismet-running": {
-      "id":          "akismet-running",
-      "schedule":    "conditions",
-      "valid_admin": true,
-      "type":        "warning"
+      "id":               "akismet-running",
+      "plugin_admin":     "yes",
+      "plugin_page_only": true,
+      "type":             "warning"
     }
   },
   "sections":      [
     {
       "slug":        "section_bot_comment_spam_protection_filter",
-      "primary":     true,
       "title":       "Automatic Bot Comment SPAM Protection Filter",
       "title_short": "Bot SPAM",
+      "primary":     true,
       "summary":     [
         "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
         "Recommendation - Use of this feature is highly recommend."
@@ -52,6 +52,14 @@
       "summary":     [
         "Purpose - Uses a 3rd party SPAM dictionary to detect human-based comment SPAM.",
         "Recommendation - Use of this feature is highly recommend.This tool, unlike other SPAM tools such as Akismet, will not send your comment data to 3rd party services for analysis."
+      ]
+    },
+    {
+      "slug":        "section_bot_comment_spam_common",
+      "title":       "Common Settings For All SPAM Scanning",
+      "title_short": "Common Settings",
+      "summary":     [
+        "Purpose - Settings that apply to all comment SPAM scanning."
       ]
     },
     {
@@ -84,19 +92,49 @@
       "section":     "section_enable_plugin_feature_spam_comments_protection_filter",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/3z",
-      "link_blog":   "https://icwp.io/wpsf04",
+      "link_info":   "https://shsec.io/3z",
+      "link_blog":   "https://shsec.io/wpsf04",
       "name":        "Enable SPAM Protection",
       "summary":     "Enable (or Disable) The Comments SPAM Protection module",
       "description": "Un-Checking this option will completely disable the Comments SPAM Protection module"
+    },
+    {
+      "key":         "trusted_commenter_minimum",
+      "section":     "section_bot_comment_spam_common",
+      "default":     1,
+      "min":         1,
+      "type":        "integer",
+      "link_info":   "https://shsec.io/fu",
+      "link_blog":   "",
+      "name":        "Trusted Commenter Minimum",
+      "summary":     "Minimum Number Of Approved Comments Before Commenter Is Trusted",
+      "description": "Specify how many approved comments must exist before a commenter is trusted and their comments are no longer scanned."
+    },
+    {
+      "key":         "trusted_user_roles",
+      "section":     "section_bot_comment_spam_common",
+      "premium":     true,
+      "default":     [
+        "administrator",
+        "editor",
+        "author",
+        "contributor",
+        "subscriber"
+      ],
+      "type":        "array",
+      "link_info":   "https://shsec.io/fu",
+      "link_blog":   "",
+      "name":        "Trusted Users",
+      "summary":     "Don't Scan Comments For Users With The Following Roles",
+      "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
     },
     {
       "key":         "enable_comments_gasp_protection",
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/3n",
-      "link_blog":   "https://icwp.io/2n",
+      "link_info":   "https://shsec.io/3n",
+      "link_blog":   "https://shsec.io/2n",
       "name":        "GASP Protection",
       "summary":     "Block Bot Comment SPAM",
       "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
@@ -107,7 +145,7 @@
       "default":     10,
       "min":         0,
       "type":        "integer",
-      "link_info":   "https://icwp.io/3o",
+      "link_info":   "https://shsec.io/3o",
       "link_blog":   "",
       "name":        "Comments Cooldown",
       "summary":     "Limit posting comments to X seconds after the page has loaded",
@@ -116,16 +154,16 @@
     {
       "key":           "comments_default_action_spam_bot",
       "section":       "section_bot_comment_spam_protection_filter",
-      "default":       "trash",
+      "default":       "spam",
       "type":          "select",
       "value_options": [
         {
           "value_key": 0,
-          "text":      "Mark As Pending Moderation"
+          "text":      "Move To Pending Moderation"
         },
         {
           "value_key": "spam",
-          "text":      "Mark As SPAM"
+          "text":      "Move To SPAM"
         },
         {
           "value_key": "trash",
@@ -133,10 +171,10 @@
         },
         {
           "value_key": "reject",
-          "text":      "Reject And Redirect"
+          "text":      "Block And Redirect"
         }
       ],
-      "link_info":     "https://icwp.io/6j",
+      "link_info":     "https://shsec.io/6j",
       "link_blog":     "",
       "name":          "Default SPAM Action",
       "summary":       "How To Categorise Comments When Identified To Be SPAM",
@@ -147,8 +185,8 @@
       "section":     "section_human_spam_filter",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/57",
-      "link_blog":   "https://icwp.io/9w",
+      "link_info":   "https://shsec.io/57",
+      "link_blog":   "https://shsec.io/9w",
       "name":        "Human SPAM Filter",
       "summary":     "Enable (or Disable) The Human SPAM Filter module",
       "description": "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
@@ -191,7 +229,7 @@
           "text":      "Browser User Agent"
         }
       ],
-      "link_info":     "https://icwp.io/58",
+      "link_info":     "https://shsec.io/58",
       "link_blog":     "",
       "name":          "Comment Filter Items",
       "summary":       "Select The Items To Scan For SPAM",
@@ -205,11 +243,11 @@
       "value_options": [
         {
           "value_key": 0,
-          "text":      "Mark As Pending Moderation"
+          "text":      "Move To Pending Moderation"
         },
         {
           "value_key": "spam",
-          "text":      "Mark As SPAM"
+          "text":      "Move To SPAM"
         },
         {
           "value_key": "trash",
@@ -217,7 +255,7 @@
         },
         {
           "value_key": "reject",
-          "text":      "Reject And Redirect"
+          "text":      "Block And Redirect"
         }
       ],
       "name":          "Default SPAM Action",
@@ -229,7 +267,7 @@
       "section":     "section_recaptcha",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://icwp.io/shld5",
+      "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
       "name":        "Google reCAPTCHA",
       "summary":     "Enable Google reCAPTCHA For Comments",
@@ -244,11 +282,7 @@
       "value_options": [
         {
           "value_key": "default",
-          "text":      "Default"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
+          "text":      "Default Style"
         },
         {
           "value_key": "light",
@@ -260,10 +294,10 @@
         },
         {
           "value_key": "invisible",
-          "text":      "Invisible reCAPTCHA"
+          "text":      "Invisible"
         }
       ],
-      "link_info":     "https://icwp.io/e4",
+      "link_info":     "https://shsec.io/e4",
       "link_blog":     "",
       "name":          "reCAPTCHA Style",
       "summary":       "How Google reCAPTCHA Will Be Displayed",
@@ -275,8 +309,8 @@
       "default":     600,
       "min":         0,
       "type":        "integer",
-      "link_info":   "https://icwp.io/3o",
-      "link_blog":   "https://icwp.io/9v",
+      "link_info":   "https://shsec.io/3o",
+      "link_blog":   "https://shsec.io/9v",
       "name":        "Comment Token Expire",
       "summary":     "A visitor has X seconds within which to post a comment",
       "description": "Default: 600 seconds (10 minutes). Each visitor is given a unique 'Token' so they can comment. This restricts spambots, but we need to force these tokens to expire and at the same time not bother the visitors."
@@ -287,7 +321,7 @@
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "https://icwp.io/3p",
+      "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
       "name":        "Custom Checkbox Message",
       "summary":     "If you want a custom checkbox message, please provide this here",
@@ -299,7 +333,7 @@
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "https://icwp.io/3p",
+      "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
       "name":        "Custom Alert Message",
       "summary":     "If you want a custom alert message, please provide this here",
@@ -311,7 +345,7 @@
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "https://icwp.io/3p",
+      "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
       "name":        "Custom Wait Message",
       "summary":     "If you want a custom submit-button wait message, please provide this here.",
@@ -323,21 +357,15 @@
       "sensitive":   true,
       "default":     "default",
       "type":        "text",
-      "link_info":   "https://icwp.io/3p",
+      "link_info":   "https://shsec.io/3p",
       "link_blog":   "",
       "name":        "Custom Reload Message",
       "summary":     "If you want a custom message when the comment token has expired, please provide this here.",
       "description": "This message is displayed on the submit-button when the comment token is expired."
-    },
-    {
-      "key":          "insights_last_comment_block_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      0
     }
   ],
   "definitions":   {
+    "url_spam_blacklist_terms":              "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "spambot_comments_filter_table_name":    "spambot_comments_filter",
     "spambot_comments_filter_table_columns": [
       "id",
@@ -346,6 +374,20 @@
       "ip",
       "created_at",
       "deleted_at"
-    ]
+    ],
+    "events":                                {
+      "spam_block_bot":       {
+        "recent":  true,
+        "offense": true
+      },
+      "spam_block_recaptcha": {
+        "recent":  true,
+        "offense": true
+      },
+      "spam_block_human":     {
+        "recent":  true,
+        "offense": true
+      }
+    }
   }
 }

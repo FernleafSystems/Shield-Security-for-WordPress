@@ -81,8 +81,10 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 					'button.action.delete',
 					function ( evt ) {
 						evt.preventDefault();
-						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
-						plugin.deleteEntry.call( plugin );
+						if ( confirm( icwp_wpsf_vars_insights.strings.are_you_sure ) ) {
+							plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
+							plugin.deleteEntry.call( plugin );
+						}
 					}
 				);
 
@@ -118,13 +120,24 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 
 				plugin.$element.on(
 					'click' + '.' + plugin._name,
+					'button.action.item_action',
+					function ( evt ) {
+						evt.preventDefault();
+						plugin.options[ 'working_rid' ] = $( this ).data( 'rid' );
+						plugin.options[ 'working_item_action' ] = $( this ).data( 'item_action' );
+						plugin.itemAction.call( plugin );
+					}
+				);
+
+				plugin.$element.on(
+					'click' + '.' + plugin._name,
 					'.tablenav.top input[type=submit].button.action',
 					function ( evt ) {
 						evt.preventDefault();
 						var sAction = $( '#bulk-action-selector-top', plugin.$element ).find( ":selected" ).val();
 
 						if ( sAction === "-1" ) {
-							alert( 'Please first select an action to perform' );
+							alert( icwp_wpsf_vars_insights.strings.select_action );
 						}
 						else {
 							var aCheckedIds = $( "input:checkbox[name=ids]:checked", plugin.$element ).map(
@@ -157,7 +170,7 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 							plugin.options[ 'working_custom_action' ][ 'rid' ] = $oButt.data( 'rid' );
 							plugin.customAction.call( plugin );
 						}
-						else{
+						else {
 							/** This should never be reached live: **/
 							alert( 'custom action not supported: ' + sCustomAction );
 						}
@@ -188,43 +201,49 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 			},
 
 			bulkAction: function () {
-				var aRequestData = this.options[ 'ajax_bulk_action' ];
+				let aRequestData = this.options[ 'ajax_bulk_action' ];
 				this.sendReq( aRequestData );
 			},
 
 			deleteEntry: function () {
-				var aRequestData = this.options[ 'ajax_item_delete' ];
+				let aRequestData = this.options[ 'ajax_item_delete' ];
 				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
 				this.sendReq( aRequestData );
 			},
 
 			insertEntry: function () {
-				var requestData = this.options[ 'ajax_item_insert' ];
+				let requestData = this.options[ 'ajax_item_insert' ];
 				requestData[ 'form_params' ] = this.$oFormInsert.serialize();
 				this.sendReq( requestData );
 			},
 
 			ignoreEntry: function () {
-				var aRequestData = this.options[ 'ajax_item_ignore' ];
+				let aRequestData = this.options[ 'ajax_item_ignore' ];
 				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
 				this.sendReq( aRequestData );
 			},
 
 			repairEntry: function () {
-				var aRequestData = this.options[ 'ajax_item_repair' ];
+				let aRequestData = this.options[ 'ajax_item_repair' ];
 				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
 				this.sendReq( aRequestData );
 			},
 
-			customAction: function () {
-				var aRequestData = this.options[ 'working_custom_action' ];
+			itemAction: function () {
+				let aRequestData = this.options[ 'ajax_item_action' ];
+				aRequestData[ 'rid' ] = this.options[ 'working_rid' ];
+				aRequestData[ 'item_action' ] = this.options[ 'working_item_action' ];
 				this.sendReq( aRequestData );
+			},
+
+			customAction: function () {
+				this.sendReq( this.options[ 'working_custom_action' ] );
 			},
 
 			hrefDownload: function () {
 				$.fileDownload( this.options[ 'working_href_download' ], {
-					preparingMessageHtml: "Downloading file, please wait...",
-					failMessageHtml: "There was a problem downloading the file."
+					preparingMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file,
+					failMessageHtml: icwp_wpsf_vars_insights.strings.downloading_file_problem
 				} );
 				return false;
 			},
@@ -240,15 +259,16 @@ jQuery.fn.icwpWpsfTableWithFilter = function ( aOptions ) {
 						if ( oResponse.success ) {
 							iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
 							if ( oResponse.data.page_reload ) {
-								location.reload( true );
+								location.reload();
 							}
 							else {
 								plugin.options[ 'table' ].reloadTable();
 								iCWP_WPSF_Toaster.showMessage( oResponse.data.message, oResponse.success );
+								iCWP_WPSF_BodyOverlay.hide();
 							}
 						}
 						else {
-							var sMessage = 'Communications error with site.';
+							let sMessage = 'Communications error with site.';
 							if ( oResponse.data.message !== undefined ) {
 								sMessage = oResponse.data.message;
 							}

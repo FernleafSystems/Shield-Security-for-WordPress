@@ -3,38 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
 /**
  * Class ScanPtg
  * @package FernleafSystems\Wordpress\Plugin\Shield\Tables\Build
  */
 class ScanPtg extends ScanBase {
-
-	/**
-	 * @return array[]
-	 */
-	protected function getEntriesFormatted() {
-		$aEntries = [];
-
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
-		$nTs = Services::Request()->ts();
-		foreach ( $this->getEntriesRaw() as $nKey => $oEntry ) {
-			/** @var Shield\Databases\Scanner\EntryVO $oEntry */
-			$oIt = ( new Shield\Scans\Ptg\ConvertVosToResults() )->convertItem( $oEntry );
-			$aE = $oEntry->getRawDataAsArray();
-			$aE[ 'path' ] = $oIt->path_fragment;
-			$aE[ 'status' ] = $oIt->is_different ? 'Modified' : ( $oIt->is_missing ? 'Missing' : 'Unrecognised' );
-			$aE[ 'ignored' ] = ( $oEntry->ignored_at > 0 && $nTs > $oEntry->ignored_at ) ? 'Yes' : 'No';
-			$aE[ 'created_at' ] = $this->formatTimestampField( $oEntry->created_at );
-			$aE[ 'href_download' ] = $oIt->is_missing ? false : $oMod->createFileDownloadLink( $oEntry );
-			$aEntries[ $nKey ] = $aE;
-		}
-
-		return $aEntries;
-	}
 
 	/**
 	 * Since we can't select items by slug directly from the scan results DB
@@ -45,10 +20,17 @@ class ScanPtg extends ScanBase {
 	protected function postSelectEntriesFilter( $aEntries ) {
 		$aParams = $this->getParams();
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
 		if ( !empty( $aParams[ 'fSlug' ] ) ) {
-			$oSlugResults = ( new Shield\Scans\Ptg\ConvertVosToResults() )
-				->convert( $aEntries )
-				->getResultsSetForSlug( $aParams[ 'fSlug' ] );
+
+
+			/** @var Shield\Scans\Ptg\ResultsSet $oSlugResults */
+			$oSlugResults = ( new Scan\Results\ConvertBetweenTypes() )
+				->setScanController( $oMod->getScanCon( $aParams[ 'fSlug' ] ) )
+				->fromVOsToResultsSet( $aEntries );
+			$oSlugResults = $oSlugResults->getResultsSetForSlug( $aParams[ 'fSlug' ] );
 
 			foreach ( $aEntries as $key => $oVo ) {
 				if ( !$oSlugResults->getItemExists( $oVo->hash ) ) {

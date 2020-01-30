@@ -13,7 +13,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Sessions extends BaseBuild {
 
 	/**
-	 * @var []
+	 * @var string[]
 	 */
 	private $aSecAdminUsers;
 
@@ -49,10 +49,10 @@ class Sessions extends BaseBuild {
 	 * @return array
 	 */
 	protected function getCustomParams() {
-		return array(
+		return [
 			'fIp'       => '',
 			'fUsername' => '',
-		);
+		];
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Sessions extends BaseBuild {
 			$aE[ 'last_activity_at' ] = $this->formatTimestampField( $oEntry->last_activity_at );
 			$aE[ 'logged_in_at' ] = $this->formatTimestampField( $oEntry->logged_in_at );
 			if ( $oEntry->ip == $sYou ) {
-				$aE[ 'your_ip' ] = '<small> ('._wpsf__( 'You' ).')</small>';
+				$aE[ 'your_ip' ] = '<small> ('.__( 'You', 'wp-simple-firewall' ).')</small>';
 			}
 			else {
 				$aE[ 'your_ip' ] = '';

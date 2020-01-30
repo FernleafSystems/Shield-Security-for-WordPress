@@ -1,8 +1,9 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_WPSF_Processor_BaseWpsf {
+abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var ICWP_WPSF_Processor_LoginProtect_Track
@@ -12,35 +13,35 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
 		$this->getLoginTrack()->addFactorToTrack( $this->getStub() );
 
-		if ( $oFO->getIfUseLoginIntentPage() ) {
-			add_filter( $oFO->prefix( 'login-intent-form-fields' ), array( $this, 'addLoginIntentField' ) );
-			add_action( $oFO->prefix( 'login-intent-validation' ), array( $this, 'validateLoginIntent' ) );
+		if ( $oMod->getIfUseLoginIntentPage() ) {
+			add_filter( $oMod->prefix( 'login-intent-form-fields' ), [ $this, 'addLoginIntentField' ] );
+			add_action( $oMod->prefix( 'login-intent-validation' ), [ $this, 'validateLoginIntent' ] );
 		}
 
-		if ( $this->loadWp()->isRequestUserLogin() || $oFO->getIfSupport3rdParty() ) {
+		if ( Services::WpGeneral()->isLoginRequest() || $oMod->getIfSupport3rdParty() ) {
 //			add_filter( 'authenticate', array( $this, 'processLoginAttempt_Filter' ), 30, 2 );
 		}
 
 		// Necessary so we don't show user intent to people without it
-		add_filter( $oFO->prefix( 'user_subject_to_login_intent' ), array( $this, 'filterUserSubjectToIntent' ), 10, 2 );
+		add_filter( $oMod->prefix( 'user_subject_to_login_intent' ), [ $this, 'filterUserSubjectToIntent' ], 10, 2 );
 
-		add_action( 'show_user_profile', array( $this, 'addOptionsToUserProfile' ) );
-		add_action( 'personal_options_update', array( $this, 'handleUserProfileSubmit' ) );
+		add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
+		add_action( 'personal_options_update', [ $this, 'handleUserProfileSubmit' ] );
 
 		if ( $this->getCon()->isPluginAdmin() ) {
-			add_action( 'edit_user_profile', array( $this, 'addOptionsToUserEditProfile' ) );
-			add_action( 'edit_user_profile_update', array( $this, 'handleEditOtherUserProfileSubmit' ) );
+			add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
+			add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
 		}
 	}
 
 	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
+	 * @param string   $sUsername
+	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
 		$this->processLoginAttempt( $oUser );
@@ -57,7 +58,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	public function validateLoginIntent( $oUser ) {
 		$oLoginTrack = $this->getLoginTrack();
@@ -88,22 +89,22 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @since 6.9.0 removed fallback to old user meta
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
+	 * @since 6.9.0 removed fallback to old user meta
 	 */
 	protected function hasValidatedProfile( $oUser ) {
 		$sKey = $this->getStub().'_validated';
-		return ( $oUser instanceof WP_User )
+		return ( $oUser instanceof \WP_User )
 			   && $this->hasValidSecret( $oUser )
 			   && $this->getCon()->getUserMeta( $oUser )->{$sKey} === true;
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	protected function getSecret( WP_User $oUser ) {
+	protected function getSecret( \WP_User $oUser ) {
 		$sKey = $this->getStub().'_secret';
 		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		$sSecret = $oMeta->{$sKey};
@@ -111,18 +112,18 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function isProfileReady( WP_User $oUser ) {
+	protected function isProfileReady( \WP_User $oUser ) {
 		return $this->hasValidatedProfile( $oUser ) && $this->hasValidSecret( $oUser );
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function hasValidSecret( WP_User $oUser ) {
+	protected function hasValidSecret( \WP_User $oUser ) {
 		return $this->isSecretValid( $this->getSecret( $oUser ) );
 	}
 
@@ -135,7 +136,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return $this
 	 */
 	public function deleteSecret( $oUser ) {
@@ -146,18 +147,18 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	public function resetSecret( WP_User $oUser ) {
-		$sNewSecret = $this->genNewSecret();
+	public function resetSecret( \WP_User $oUser ) {
+		$sNewSecret = $this->genNewSecret( $oUser );
 		$this->setSecret( $oUser, $sNewSecret );
 		return $sNewSecret;
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @param bool    $bValidated set true for validated, false for invalidated
+	 * @param \WP_User $oUser
+	 * @param bool     $bValidated set true for validated, false for invalidated
 	 * @return $this
 	 */
 	public function setProfileValidated( $oUser, $bValidated = true ) {
@@ -168,8 +169,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @param string  $sNewSecret
+	 * @param \WP_User $oUser
+	 * @param string   $sNewSecret
 	 * @return $this
 	 */
 	protected function setSecret( $oUser, $sNewSecret ) {
@@ -180,15 +181,16 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
+	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	protected function genNewSecret() {
+	protected function genNewSecret( \WP_User $oUser ) {
 		return '';
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @param string  $sOtpCode
+	 * @param \WP_User $oUser
+	 * @param string   $sOtpCode
 	 * @return bool
 	 */
 	abstract protected function processOtp( $oUser, $sOtpCode );
@@ -202,14 +204,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 	}
 
 	/**
 	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	public function addOptionsToUserEditProfile( $oUser ) {
 		$this->addOptionsToUserProfile( $oUser );
@@ -224,7 +226,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	protected function processRemovalFromAccount( $oUser ) {
 	}
@@ -252,15 +254,15 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	abstract public function addLoginIntentField( $aFields );
 
 	/**
-	 * @param WP_User $oUser
-	 * @param bool    $bIsSuccess
+	 * @param \WP_User $oUser
+	 * @param bool     $bIsSuccess
 	 */
 	abstract protected function auditLogin( $oUser, $bIsSuccess );
 
 	/**
-	 * @param WP_User $oUser
-	 * @param bool    $bIsOtpSuccess
-	 * @param bool    $bOtpProvided - whether a OTP was actually provided
+	 * @param \WP_User $oUser
+	 * @param bool     $bIsOtpSuccess
+	 * @param bool     $bOtpProvided - whether a OTP was actually provided
 	 * @return $this
 	 */
 	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
@@ -274,7 +276,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	 * @return string
 	 */
 	protected function getLoginFormParameter() {
-		return $this->getMod()->prefixOptionKey( $this->getStub().'_otp' );
+		return $this->getCon()->prefixOption( $this->getStub().'_otp' );
 	}
 
 	/**
@@ -285,8 +287,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends ICWP_
 	}
 
 	/**
-	 * @param bool    $bIsSubjectTo
-	 * @param WP_User $oUser
+	 * @param bool     $bIsSubjectTo
+	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	public function filterUserSubjectToIntent( $bIsSubjectTo, $oUser ) {
