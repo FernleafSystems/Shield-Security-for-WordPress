@@ -11,11 +11,6 @@ abstract class BaseProvider {
 	const SLUG = '';
 
 	/**
-	 * @var bool
-	 */
-	protected $bLoginAttemptCaptured;
-
-	/**
 	 */
 	public function run() {
 		add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
@@ -53,7 +48,7 @@ abstract class BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function hasValidatedProfile( $oUser ) {
+	public function hasValidatedProfile( $oUser ) {
 		return $this->getCon()->getUserMeta( $oUser )->{static::SLUG.'_validated'} === true;
 	}
 

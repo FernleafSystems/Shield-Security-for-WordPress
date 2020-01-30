@@ -14,10 +14,10 @@ class LoginIntentPage {
 
 	/**
 	 *
-	 * @param IntentController $oIC
+	 * @param MfaLoginController $oIC
 	 * @return bool - true if valid form printed, false otherwise. Should die() if true
 	 */
-	public function run( IntentController $oIC ) {
+	public function run( MfaLoginController $oIC ) {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		/** @var LoginGuard\Options $oOpts */

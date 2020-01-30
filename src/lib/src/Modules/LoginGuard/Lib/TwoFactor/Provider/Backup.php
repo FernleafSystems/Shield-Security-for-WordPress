@@ -80,7 +80,7 @@ class Backup extends BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function hasValidatedProfile( $oUser ) {
+	public function hasValidatedProfile( $oUser ) {
 		return $this->hasValidSecret( $oUser );
 	}
 

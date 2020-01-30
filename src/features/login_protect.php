@@ -1,9 +1,15 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
+
+	/**
+	 * @var LoginGuard\Lib\TwoFactor\MfaLoginController
+	 */
+	private $oLoginIntentController;
 
 	/**
 	 * @return bool
@@ -389,6 +395,17 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function getBotProtectionLocations() {
 		$aLocs = $this->getOpt( 'bot_protection_locations' );
 		return is_array( $aLocs ) ? $aLocs : (array)$this->getOptions()->getOptDefault( 'bot_protection_locations' );
+	}
+
+	/**
+	 * @return LoginGuard\Lib\TwoFactor\MfaLoginController
+	 */
+	public function getLoginIntentController() {
+		if ( !isset( $this->oLoginIntentController ) ) {
+			$this->oLoginIntentController = ( new LoginGuard\Lib\TwoFactor\MfaLoginController() )
+				->setMod( $this );
+		}
+		return $this->oLoginIntentController;
 	}
 
 	/**

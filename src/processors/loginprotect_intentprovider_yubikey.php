@@ -2,6 +2,9 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 8.6.0
+ */
 class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	const OTP_LENGTH = 12;

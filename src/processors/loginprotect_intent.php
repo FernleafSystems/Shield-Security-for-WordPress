@@ -4,6 +4,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 8.6.0
+ */
 class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\ShieldProcessor {
 
 	/**

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
@@ -41,11 +42,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	protected function ajaxExec_GenBackupCodes() {
-		/** @var \ICWP_WPSF_Processor_LoginProtect $oPro */
-		$oPro = $this->getMod()->getProcessor();
-		$sPass = $oPro->getSubProIntent()
-					  ->getProcessorBackupCodes()
-					  ->resetSecret( Services::WpUsers()->getCurrentWpUser() );
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var TwoFactor\Provider\Backup $oBU */
+		$oBU = $oMod->getLoginIntentController()
+					->getProviders()[ TwoFactor\Provider\Backup::SLUG ];
+		$sPass = $oBU->resetSecret( Services::WpUsers()->getCurrentWpUser() );
 
 		foreach ( [ 20, 15, 10, 5 ] as $nPos ) {
 			$sPass = substr_replace( $sPass, '-', $nPos, 0 );
@@ -63,11 +65,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_DeleteBackupCodes() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var \ICWP_WPSF_Processor_LoginProtect $oPro */
-		$oPro = $oMod->getProcessor();
-		$oPro->getSubProIntent()
-			 ->getProcessorBackupCodes()
-			 ->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
+		/** @var TwoFactor\Provider\Backup $oBU */
+		$oBU = $oMod->getLoginIntentController()
+					->getProviders()[ TwoFactor\Provider\Backup::SLUG ];
+		$oBU->deleteSecret( Services::WpUsers()->getCurrentWpUser() );
 		$oMod->setFlashAdminNotice( __( 'Multi-factor login backup code has been removed from your profile', 'wp-simple-firewall' ) );
 		return [
 			'success' => true

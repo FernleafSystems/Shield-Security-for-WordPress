@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -99,8 +100,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function processAuthGa() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
 		$oResponse = new \FernleafSystems\Utilities\Response();
@@ -116,15 +117,14 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 				$sMessage = __( 'Code was empty.', 'wp-simple-firewall' );
 			}
 			else {
+				/** @var TwoFactor\Provider\GoogleAuth $oGA */
+				$oGA = $oMod->getLoginIntentController()
+							->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
 				$oUser = Services::WpUsers()->getCurrentWpUser();
-				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
-				$oProc = $oFO->getProcessor();
-				$oProcGa = $oProc->getSubProIntent()
-								 ->getProcessorGoogleAuthenticator();
-				$bValidated = $oProcGa->validateGaCode( $oUser, $sCode );
+				$bValidated = $oGA->validateGaCode( $oUser, $sCode );
 
 				if ( $bValidated ) {
-					$oProcGa->setProfileValidated( $oUser, true );
+					$oGA->setProfileValidated( $oUser, true );
 					$sMessage = 'Google Authenticator was validated.';
 					$oResponse->setSuccessful( true );
 				}
@@ -139,7 +139,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		}
 
 		if ( $bEnableGa ) {
-			$oFO->setEnabled2FaGoogleAuthenticator( true );
+			$oMod->setEnabled2FaGoogleAuthenticator( true );
 			$sMessage .= ' '.__( 'Google Authenticator was enabled for the site.', 'wp-simple-firewall' );
 		}
 
@@ -188,7 +188,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
 		$oFO = $this->getMod();
 
-		$aStepsSlugs = array( 'start' );
+		$aStepsSlugs = [ 'start' ];
 
 		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->isEmailAuthenticationActive() ) {
 			$aStepsSlugs[] = 'authemail';
@@ -208,50 +208,49 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return array
 	 */
 	protected function getRenderData_SlideExtra( $sStep ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
 
-		$aAdditional = array();
+		$aAdditional = [];
 
 		switch ( $sStep ) {
 
 			case 'authemail':
 				$oUser = Services::WpUsers()->getCurrentWpUser();
-				$aAdditional = array(
-					'data' => array(
+				$aAdditional = [
+					'data' => [
 						'name'       => $oUser->first_name,
 						'user_email' => $oUser->user_email
-					)
-				);
+					]
+				];
 				break;
 
 			case 'authga':
 				$oUser = Services::WpUsers()->getCurrentWpUser();
-				/** @var ICWP_WPSF_Processor_LoginProtect $oProc */
-				$oProc = $oFO->getProcessor();
-				$oProcGa = $oProc->getSubProIntent()
-								 ->getProcessorGoogleAuthenticator();
-				$sGaUrl = $oProcGa->getGaRegisterChartUrl( $oUser );
-				$aAdditional = array(
-					'data'  => array(
+				/** @var TwoFactor\Provider\GoogleAuth $oGA */
+				$oGA = $oMod->getLoginIntentController()
+							->getProviders()[ TwoFactor\Provider\GoogleAuth::SLUG ];
+				$sGaUrl = $oGA->getGaRegisterChartUrl( $oUser );
+				$aAdditional = [
+					'data'  => [
 						'name'       => $oUser->first_name,
 						'user_email' => $oUser->user_email
-					),
-					'hrefs' => array(
+					],
+					'hrefs' => [
 						'ga_chart' => $sGaUrl,
-					),
-					'flags' => array(
-						'has_ga' => $oProcGa->getCurrentUserHasValidatedProfile(),
-					)
-				);
+					],
+					'flags' => [
+						'has_ga' => $oGA->hasValidatedProfile( $oUser ),
+					]
+				];
 				break;
 
 			case 'multiselect':
-				$aAdditional = array(
-					'flags' => array(
-						'has_multiselect' => $oFO->isChainedAuth(),
-					)
-				);
+				$aAdditional = [
+					'flags' => [
+						'has_multiselect' => $oMod->isChainedAuth(),
+					]
+				];
 				break;
 
 			default:

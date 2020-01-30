@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
 
-class IntentController {
+class MfaLoginController {
 
 	use Shield\Modules\ModConsumer;
 
@@ -17,11 +17,20 @@ class IntentController {
 	 */
 	private $aProviders;
 
+	/**
+	 * @var bool
+	 */
+	protected $bLoginAttemptCaptured;
+
 	public function run() {
+		add_action( 'init', [ $this, 'onWpInit' ], 10, 2 );
 		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
 		if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
 			add_action( 'set_logged_in_cookie', [ $this, 'onWpSetLoggedInCookie' ], 5, 4 );
 		}
+	}
+
+	public function onWpInit() {
 		$this->assessLoginIntent();
 	}
 
@@ -47,7 +56,9 @@ class IntentController {
 	 * @param \WP_User $oUser
 	 */
 	private function captureLoginIntent( $oUser ) {
-		if ( $oUser instanceof \WP_User ) {
+		if ( empty( $this->bLoginAttemptCaptured ) && $oUser instanceof \WP_User ) {
+			$this->bLoginAttemptCaptured = true;
+
 			$aProviders = $this->getProvidersForUser( $oUser );
 			if ( !empty( $aProviders ) ) {
 

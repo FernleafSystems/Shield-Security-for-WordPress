@@ -3,6 +3,9 @@
 use FernleafSystems\Wordpress\Services\Services;
 use Dolondro\GoogleAuthenticator;
 
+/**
+ * @deprecated 8.6.0
+ */
 class ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	/**

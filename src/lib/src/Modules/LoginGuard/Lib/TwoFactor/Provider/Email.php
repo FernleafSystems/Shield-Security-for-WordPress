@@ -16,15 +16,12 @@ class Email extends BaseProvider {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 
-		if ( empty( $this->bLoginAttemptCaptured ) ) {
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->setLoginIntentCodeEmail( $oMod->getSession(), $this->getSecret( $oUser ) );
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
+		$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+		$oUpd->setLoginIntentCodeEmail( $oMod->getSession(), $this->getSecret( $oUser ) );
 
-			// Now send email with authentication link for user.
-			$this->sendEmailTwoFactorVerify( $oUser );
-			$this->bLoginAttemptCaptured = true;
-		}
+		// Now send email with authentication link for user.
+		$this->sendEmailTwoFactorVerify( $oUser );
 	}
 
 	/**
@@ -102,7 +99,7 @@ class Email extends BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function hasValidatedProfile( $oUser ) {
+	public function hasValidatedProfile( $oUser ) {
 		return $this->isSubjectToEmailAuthentication( $oUser );
 	}
 
