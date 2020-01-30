@@ -2,12 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Yubikey extends BaseProvider {
 
 	const SLUG = 'yubi';
-
 	const OTP_LENGTH = 12;
 	/**
 	 * @const string
@@ -65,7 +65,7 @@ class Yubikey extends BaseProvider {
 	public function handleUserProfileSubmit( $nSavingUserId ) {
 
 		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
-		$sOtp = $this->fetchCodeFromRequest();
+		$sOtp = trim( (string)$this->fetchCodeFromRequest() );
 
 		// At this stage, if the OTP was empty, then we have no further processing to do.
 		if ( empty( $sOtp ) ) {
@@ -76,7 +76,7 @@ class Yubikey extends BaseProvider {
 		$oMod = $this->getMod();
 
 		if ( !$this->sendYubiOtpRequest( $sOtp ) ) {
-			$oMod->setFlashAdminNotice(
+			$this->getMod()->setFlashAdminNotice(
 				__( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' ).' '.__( 'Please try again.', 'wp-simple-firewall' ),
 				true
 			);
@@ -90,17 +90,17 @@ class Yubikey extends BaseProvider {
 		 */
 
 		$oSavingUser = Services::WpUsers()->getUserById( $nSavingUserId );
-		$sYubiId = $this->getYubiIdFromOtp( $sOtp );
+		$sYubiId = substr( $sOtp, 0, self::OTP_LENGTH );
 
 		$bError = false;
-		if ( $this->hasYubiIdInProfile( $oSavingUser, $sYubiId ) ) {
+		if ( in_array( $sYubiId, $this->getYubiIds( $oSavingUser ) ) ) {
 			$this->removeYubiIdFromProfile( $oSavingUser, $sYubiId );
 			$sMsg = sprintf(
 				__( '%s was removed from your profile.', 'wp-simple-firewall' ),
 				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' "%s"', $sYubiId )
 			);
 		}
-		elseif ( count( $this->getYubiIds( $oSavingUser ) ) == 0 || $oMod->isPremium() ) {
+		elseif ( count( $this->getYubiIds( $oSavingUser ) ) == 0 || $this->getCon()->isPremiumActive() ) {
 			$this->addYubiIdToProfile( $oSavingUser, $sYubiId );
 			$sMsg = sprintf(
 				__( '%s was added to your profile.', 'wp-simple-firewall' ),
@@ -121,24 +121,7 @@ class Yubikey extends BaseProvider {
 	 * @return array
 	 */
 	protected function getYubiIds( \WP_User $oUser ) {
-		return explode( ',', parent::getSecret( $oUser ) );
-	}
-
-	/**
-	 * @param string $sOTP
-	 * @return string
-	 */
-	protected function getYubiIdFromOtp( $sOTP ) {
-		return substr( $sOTP, 0, $this->getYubiOtpLength() );
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @param string  $sKey
-	 * @return bool
-	 */
-	protected function hasYubiIdInProfile( \WP_User $oUser, $sKey ) {
-		return in_array( $sKey, $this->getYubiIds( $oUser ) );
+		return explode( ',', $this->getSecret( $oUser ) );
 	}
 
 	/**
@@ -149,17 +132,13 @@ class Yubikey extends BaseProvider {
 	protected function processOtp( $oUser, $sOneTimePassword ) {
 		$bSuccess = false;
 
-		$aYubiKeys = $this->getYubiIds( $oUser );
-
-		// Only process the 1st secret if premium
-		if ( !$this->getCon()->isPremiumActive() ) {
-			$aYubiKeys = array_slice( $aYubiKeys, 0, 1 );
-		}
-
-		foreach ( $aYubiKeys as $sKey ) {
-			$bSuccess = strpos( $sOneTimePassword, $sKey ) === 0
-						&& $this->sendYubiOtpRequest( $sOneTimePassword );
-			if ( $bSuccess ) {
+		foreach ( $this->getYubiIds( $oUser ) as $sKey ) {
+			if ( strpos( $sOneTimePassword, $sKey ) === 0
+				 && $this->sendYubiOtpRequest( $sOneTimePassword ) ) {
+				$bSuccess = true;
+				break;
+			}
+			if ( !$this->getCon()->isPremiumActive() ) { // Test 1 key if not Pro
 				break;
 			}
 		}
@@ -172,25 +151,31 @@ class Yubikey extends BaseProvider {
 	 * @return bool
 	 */
 	private function sendYubiOtpRequest( $sOTP ) {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$sOTP = trim( $sOTP );
 		$bSuccess = false;
 
 		if ( preg_match( '#^[a-z]{44}$#', $sOTP ) ) {
 			$aParts = [
 				'otp'   => $sOTP,
-				'nonce' => md5( uniqid( rand() ) ),
-				'id'    => $this->getOption( 'yubikey_app_id' )
+				'nonce' => md5( uniqid( $this->getCon()->getUniqueRequestId() ) ),
+				'id'    => $oOpts->getYubikeyAppId()
 			];
 
-			$sReqUrl = add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY );
-			$sYubiResponse = Services::HttpRequest()->getContent( $sReqUrl );
+			$sResp = Services::HttpRequest()->getContent(
+				add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY )
+			);
 
 			unset( $aParts[ 'id' ] );
 			$aParts[ 'status' ] = 'OK';
 
 			$bSuccess = true;
 			foreach ( $aParts as $sKey => $mVal ) {
-				$bSuccess = $bSuccess && preg_match( sprintf( '#%s=%s#', $sKey, $mVal ), $sYubiResponse );
+				if ( !preg_match( sprintf( '#%s=%s#', $sKey, $mVal ), $sResp ) ) {
+					$bSuccess = false;
+					break;
+				}
 			}
 		}
 
@@ -214,7 +199,8 @@ class Yubikey extends BaseProvider {
 	 * @return $this
 	 */
 	protected function removeYubiIdFromProfile( $oUser, $sKey ) {
-		$aKeys = Services::DataManipulation()->removeFromArrayByValue( $this->getYubiIds( $oUser ), $sKey );
+		$aKeys = Services::DataManipulation()
+						 ->removeFromArrayByValue( $this->getYubiIds( $oUser ), $sKey );
 		return $this->storeYubiIdInProfile( $oUser, $aKeys );
 	}
 
@@ -266,16 +252,10 @@ class Yubikey extends BaseProvider {
 		$bValid = parent::isSecretValid( $sSecret );
 		if ( $bValid ) {
 			foreach ( explode( ',', $sSecret ) as $sId ) {
-				$bValid = $bValid && preg_match( sprintf( '#^[a-z]{%s}$#', $this->getYubiOtpLength() ), $sId );
+				$bValid = $bValid &&
+						  preg_match( sprintf( '#^[a-z]{%s}$#', self::OTP_LENGTH ), $sId );
 			}
 		}
 		return $bValid;
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getYubiOtpLength() {
-		return self::OTP_LENGTH;
 	}
 }

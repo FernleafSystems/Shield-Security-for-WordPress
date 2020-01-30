@@ -120,9 +120,6 @@ class GoogleAuth extends BaseProvider {
 				$this->getMod()->setFlashAdminNotice( $sMsg, $bPermissionToRemoveGa );
 			}
 		}
-		else {
-			// DO NOTHING EVER
-		}
 	}
 
 	/**
@@ -232,7 +229,8 @@ class GoogleAuth extends BaseProvider {
 		$sRecipient = $oUser->get( 'user_email' );
 		if ( Services::Data()->validEmail( $sRecipient ) ) {
 			$sEmailSubject = __( 'Google Authenticator Removal Confirmation', 'wp-simple-firewall' );
-			$bSendSuccess = $this->getEmailProcessor()
+			$bSendSuccess = $this->getMod()
+								 ->getEmailProcessor()
 								 ->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aEmailContent );
 		}
 		return $bSendSuccess;

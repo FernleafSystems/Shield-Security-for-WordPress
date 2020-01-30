@@ -49,6 +49,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getYubikeyAppId() {
+		return (string)$this->getOpt( 'yubikey_app_id', '' );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isMfaSkip() {
