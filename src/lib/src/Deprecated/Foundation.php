@@ -20,18 +20,6 @@ class Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_ServiceProviders
-	 * @deprecated 8.5.2
-	 */
-	public function loadServiceProviders() {
-		$sKey = 'icwp-serviceproviders';
-		if ( !self::isServiceReady( $sKey ) ) {
-			self::setService( $sKey, \ICWP_WPSF_ServiceProviders::GetInstance() );
-		}
-		return self::getService( $sKey );
-	}
-
-	/**
 	 * @return array
 	 */
 	private static function getDic() {

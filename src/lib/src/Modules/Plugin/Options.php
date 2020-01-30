@@ -123,21 +123,4 @@ class Options extends Base\ShieldOptions {
 		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
 					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
-
-	/**
-	 * @return array
-	 * @deprecated 8.5.1
-	 */
-	public function getServerIpDetails() {
-		return [];
-	}
-
-	/**
-	 * @param array $aDetails
-	 * @return $this
-	 * @deprecated 8.5.1
-	 */
-	public function updateServerIpDetails( $aDetails ) {
-		return $this;
-	}
 }

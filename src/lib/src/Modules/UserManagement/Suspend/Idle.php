@@ -16,10 +16,8 @@ class Idle extends Base {
 	protected function processUser( $oUser, $oMeta ) {
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
 
-		$aRoles = array_intersect( $oMod->getSuspendAutoIdleUserRoles(), array_map( 'strtolower', $oUser->roles ) );
+		$aRoles = array_intersect( $oOpts->getSuspendAutoIdleUserRoles(), array_map( 'strtolower', $oUser->roles ) );
 
 		if ( count( $aRoles ) > 0 && $this->isLastVerifiedAtExpired( $oMeta ) ) {
 			$oUser = new \WP_Error(
@@ -42,8 +40,8 @@ class Idle extends Base {
 	 * @return bool
 	 */
 	protected function isLastVerifiedAtExpired( $oMeta ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
-		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $oMod->getSuspendAutoIdleTime() );
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return ( Services::Request()->ts() - $oMeta->getLastVerifiedAt() > $oOpts->getSuspendAutoIdleTime() );
 	}
 }

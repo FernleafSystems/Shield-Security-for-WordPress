@@ -255,30 +255,6 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Passwords|mixed
-	 * @deprecated 8.5.2
-	 */
-	protected function getProcessorPasswords() {
-		return $this->getSubPro( 'passwords' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Sessions|mixed
-	 * @deprecated 8.5.2
-	 */
-	public function getProcessorSessions() {
-		return $this->getSubPro( 'sessions' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Suspend|mixed
-	 * @deprecated 8.5.2
-	 */
-	protected function getProcessorSuspend() {
-		return $this->getSubPro( 'suspend' );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {

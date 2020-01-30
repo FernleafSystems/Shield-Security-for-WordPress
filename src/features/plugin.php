@@ -692,22 +692,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * @return string
-	 * @deprecated 8.5.2
-	 */
-	public function getVisitorAddressSource() {
-		return $this->getOptions()->getOpt( 'visitor_address_source' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.5.2
-	 */
-	public function isVisitorAddressSourceAutoDetect() {
-		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
-	}
-
-	/**
-	 * @return string
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );

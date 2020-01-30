@@ -935,14 +935,4 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function getNamespaceBase() {
 		return 'HackGuard';
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function isWpvulnEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isWpvulnEnabled();
-	}
 }

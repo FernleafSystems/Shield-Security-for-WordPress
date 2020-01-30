@@ -226,13 +226,4 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getNamespaceBase() {
 		return 'IPs';
 	}
-
-	/**
-	 * IP addresses that should never be put on the black list.
-	 * @return string[]
-	 * @deprecated 8.5.1
-	 */
-	public function getReservedIps() {
-		return Services::IP()->getServerPublicIPs();
-	}
 }

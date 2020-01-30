@@ -76,37 +76,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	}
 
 	/**
-	 * @return int days
-	 */
-	public function getPassExpireDays() {
-		return ( $this->isPasswordPoliciesEnabled() && $this->isPremium() ) ? (int)$this->getOpt( 'pass_expire' ) : 0;
-	}
-
-	/**
-	 * @return int seconds
-	 * @deprecated 8.5.2
-	 */
-	public function getPassExpireTimeout() {
-		return $this->getPassExpireDays()*DAY_IN_SECONDS;
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5.2
-	 */
-	public function getPassMinLength() {
-		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_length' ) : 0;
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5.2
-	 */
-	public function getPassMinStrength() {
-		return $this->isPremium() ? (int)$this->getOpt( 'pass_min_strength' ) : 0;
-	}
-
-	/**
 	 * @param int $nStrength
 	 * @return int
 	 */
@@ -119,94 +88,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 			__( 'Very Strong', 'wp-simple-firewall' ),
 		];
 		return $aMap[ max( 0, min( 4, $nStrength ) ) ];
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isPasswordPoliciesEnabled() {
-		return $this->isOpt( 'enable_password_policies', 'Y' )
-			   && $this->getOptions()->isOptReqsMet( 'enable_password_policies' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isPassForceUpdateExisting() {
-		return $this->isOpt( 'pass_force_existing', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isPassExpirationEnabled() {
-		return $this->isPasswordPoliciesEnabled() && ( $this->getPassExpireTimeout() > 0 );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isPassPreventPwned() {
-		return $this->isOpt( 'pass_prevent_pwned', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isSuspendEnabled() {
-		return $this->isPremium() &&
-			   ( $this->isSuspendManualEnabled()
-				 || $this->isSuspendAutoIdleEnabled()
-				 || $this->isSuspendAutoPasswordEnabled()
-			   );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isSuspendManualEnabled() {
-		return $this->isOpt( 'manual_suspend', 'Y' );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5.2
-	 */
-	public function getSuspendAutoIdleTime() {
-		return $this->getOpt( 'auto_idle_days', 0 )*DAY_IN_SECONDS;
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 8.5.2
-	 */
-	public function getSuspendAutoIdleUserRoles() {
-		$aRoles = $this->getOpt( 'auto_idle_roles', [] );
-		return is_array( $aRoles ) ? $aRoles : [];
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isSuspendAutoIdleEnabled() {
-		return ( $this->getSuspendAutoIdleTime() > 0 )
-			   && ( count( $this->getSuspendAutoIdleUserRoles() ) > 0 );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isSuspendAutoPasswordEnabled() {
-		return $this->isOpt( 'auto_password', 'Y' )
-			   && $this->isPasswordPoliciesEnabled() && $this->getPassExpireTimeout();
 	}
 
 	/**
@@ -268,6 +149,8 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 * @return array
 	 */
 	public function addInsightsNoticeData( $aAllNotices ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aNotices = [
 			'title'    => __( 'Users', 'wp-simple-firewall' ),
@@ -287,7 +170,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		}
 
 		{//password policies
-			if ( !$this->isPasswordPoliciesEnabled() ) {
+			if ( !$oOpts->isPasswordPoliciesEnabled() ) {
 				$aNotices[ 'messages' ][ 'password' ] = [
 					'title'   => __( 'Password Policies', 'wp-simple-firewall' ),
 					'message' => __( "Strong password policies are not enforced.", 'wp-simple-firewall' ),
@@ -347,9 +230,9 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				'href'    => $this->getUrl_DirectLinkToOption( 'session_lock_location' ),
 			];
 
-			$bPolicies = $this->isPasswordPoliciesEnabled();
+			$bPolicies = $oOpts->isPasswordPoliciesEnabled();
 
-			$bPwned = $bPolicies && $this->isPassPreventPwned();
+			$bPwned = $bPolicies && $oOpts->isPassPreventPwned();
 			$aThis[ 'key_opts' ][ 'pwned' ] = [
 				'name'    => __( 'Pwned Passwords', 'wp-simple-firewall' ),
 				'enabled' => $bPwned,
@@ -381,23 +264,5 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 */
 	protected function getNamespaceBase() {
 		return 'UserManagement';
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5
-	 */
-	public function getMaxSessionTime() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->getMaxSessionTime();
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5
-	 */
-	public function getIdleTimeoutInterval() {
-		return $this->getOpt( 'session_idle_timeout_interval' )*HOUR_IN_SECONDS;
 	}
 }

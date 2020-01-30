@@ -75,15 +75,15 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processExpiredPassword() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->isPassExpirationEnabled() ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isPassExpirationEnabled() ) {
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
-				if ( Services::Request()->ts() - $nPassStartedAt > $oMod->getPassExpireTimeout() ) {
+				if ( Services::Request()->ts() - $nPassStartedAt > $oOpts->getPassExpireTimeout() ) {
 					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oMod->getPassExpireDays() )
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oOpts->getPassExpireDays() )
 					);
 				}
 			}
@@ -91,11 +91,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processFailedCheckPassword() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 
-		$bPassCheckFailed = $oFO->isPassForceUpdateExisting()
+		$bPassCheckFailed = $oOpts->isPassForceUpdateExisting()
 							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
 		if ( $bPassCheckFailed ) {
