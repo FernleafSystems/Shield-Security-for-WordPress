@@ -1,0 +1,60 @@
+{% if has_validated_profile %}
+
+	{% if (is_my_user_profile or i_am_valid_admin) %}
+
+		<tr>
+			<th><label for="yubi_code">{{ strings.label_enter_code }}</label></th>
+			<td>
+				<input type="checkbox" name="yubi_code" id="yubi_code"
+					   value="{{ data.secret }}" />
+				<p class="description">
+					{{ strings.description_otp_code }}
+					<br />{{ strings.description_otp_code_ext }}
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<th><label for="{{ data.otp_field_name }}">{{ strings.label_enter_otp }}</label></th>
+			<td>
+				<input class="regular-text"
+					   type="text"
+					   id="{{ data.otp_field_name }}"
+					   name="{{ data.otp_field_name }}"
+					   value="" autocomplete="off" />
+				<p class="description">
+					{{ strings.description_otp }}
+					<br />{{ strings.description_otp_code_ext }}
+					<br />{{ strings.description_otp_ext_2 }}
+				</p>
+			</td>
+		</tr>
+	{% else %}
+		<td>
+			<p class="description">{{ strings.cant_remove_admins }}</p>
+		</td>
+	{% endif %}
+
+{% else %}
+
+	{% if is_my_user_profile %}
+		<tr>
+			<th><label for="{{ data.otp_field_name }}">{{ strings.label_enter_otp }}</label></th>
+			<td>
+				<input class="regular-text"
+					   type="text"
+					   id="{{ data.otp_field_name }}"
+					   name="{{ data.otp_field_name }}"
+					   value="" autocomplete="off" />
+				<p class="description">
+					{{ strings.description_otp_code }}
+					<br />{{ strings.description_otp_code_ext }}
+				</p>
+			</td>
+		</tr>
+	{% else %}
+		<td>
+			<p class="description">{{ strings.cant_add_other_user }}</p>
+		</td>
+	{% endif %}
+
+{% endif %}

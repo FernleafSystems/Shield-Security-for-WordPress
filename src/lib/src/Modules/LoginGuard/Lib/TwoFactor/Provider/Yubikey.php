@@ -17,7 +17,7 @@ class Yubikey extends BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $oUser
+	 * @inheritDoc
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 		$oCon = $this->getCon();
@@ -54,7 +54,12 @@ class Yubikey extends BaseProvider {
 			]
 		];
 
-		echo $this->getMod()->renderTemplate( 'snippets/user_profile_yubikey.php', $aData );
+		return $this->getMod()
+					->renderTemplate(
+						'/snippets/user/profile/mfa/mfa_yubikey.twig',
+						$aData,
+						true
+					);
 	}
 
 	/**

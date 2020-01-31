@@ -1,14 +1,3 @@
-<style type="text/css">
-	#shield_ga_secret {
-		letter-spacing: 5px;
-		font-family: monospace;
-		font-size: 24px;
-		text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
-		border: 1px solid rgba(0, 0, 0, 0.1);
-		padding: 0 7px;
-		background-color: whitesmoke;
-	}
-</style>
 <div id="shield-options-google-authenticator" class="shield-user-options-block">
 	<h3><?php echo $strings[ 'title' ]; ?>
 		<small>(<?php echo $strings[ 'provided_by' ]; ?>)</small>
