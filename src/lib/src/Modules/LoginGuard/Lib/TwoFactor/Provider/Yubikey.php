@@ -36,7 +36,7 @@ class Yubikey extends BaseProvider {
 			],
 			'strings'               => [
 				'current_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
-				'no_active_yubi_ids' => __( 'There are no registered Yubikey Devices on this profile.', 'wp-simple-firewall' ),
+				'no_active_yubi_ids' => __( 'There are no registered Yubikey devices on this profile.', 'wp-simple-firewall' ),
 				'enter_otp'          => __( 'To register a new Yubikey device, enter a One Time Password from the Yubikey.', 'wp-simple-firewall' ),
 				'to_remove_device'   => __( 'To remove a Yubikey device, enter the registered device ID and save.', 'wp-simple-firewall' ),
 				'multiple_for_pro'   => sprintf( '[%s] %s', __( 'Pro Only', 'wp-simple-firewall' ),
@@ -80,54 +80,61 @@ class Yubikey extends BaseProvider {
 	public function handleUserProfileSubmit( \WP_User $oUser ) {
 
 		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
-		$sOtp = trim( (string)$this->fetchCodeFromRequest() );
-
-		// At this stage, if the OTP was empty, then we have no further processing to do.
-		if ( empty( $sOtp ) ) {
+		$sOtpOrDeviceId = trim( (string)$this->fetchCodeFromRequest() );
+		if ( empty( $sOtpOrDeviceId ) ) {
 			return;
 		}
 
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		$bError = true;
 
-		if ( !$this->sendYubiOtpRequest( $sOtp ) ) {
-			$this->getMod()->setFlashAdminNotice(
-				__( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' ).' '.__( 'Please try again.', 'wp-simple-firewall' ),
-				true
-			);
-			return;
-		}
-
-		/*
-		 * How we proceed depends on :
-		 * 1) Is the OTP for a registered ID - if so, remove it; If not, add it;
-		 * 2) Is this a premium Shield installation - if so, multiple yubikeys are permitted
-		 */
-
-		$sYubiId = substr( $sOtp, 0, self::OTP_LENGTH );
-
-		$bError = false;
-		if ( in_array( $sYubiId, $this->getYubiIds( $oUser ) ) ) {
-			$this->removeYubiIdFromProfile( $oUser, $sYubiId );
-			$sMsg = sprintf(
-				__( '%s was removed from your profile.', 'wp-simple-firewall' ),
-				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' "%s"', $sYubiId )
-			);
-		}
-		elseif ( count( $this->getYubiIds( $oUser ) ) == 0 || $this->getCon()->isPremiumActive() ) {
-			$this->addYubiIdToProfile( $oUser, $sYubiId );
-			$sMsg = sprintf(
-				__( '%s was added to your profile.', 'wp-simple-firewall' ),
-				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sYubiId )
-			);
+		if ( strlen( $sOtpOrDeviceId ) < self::OTP_LENGTH ) {
+			$sMsg = __( 'The Yubikey device ID was not valid.', 'wp-simple-firewall' )
+					.' '.__( 'Please try again.', 'wp-simple-firewall' );
 		}
 		else {
-			$bError = true;
-			$sMsg = __( 'No changes were made to your Yubikey configuration', 'wp-simple-firewall' );
+			$sDeviceId = substr( $sOtpOrDeviceId, 0, self::OTP_LENGTH );
+			$bDevicePresent = in_array( $sDeviceId, $this->getYubiIds( $oUser ) );
+
+			if ( $bDevicePresent || strlen( $sOtpOrDeviceId ) == self::OTP_LENGTH ) { // attempt to remove device
+
+				if ( $bDevicePresent ) {
+					$this->removeYubiIdFromProfile( $oUser, $sDeviceId );
+					$sMsg = sprintf(
+						__( '%s was removed from your profile.', 'wp-simple-firewall' ),
+						__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sDeviceId )
+					);
+					$bError = false;
+				}
+				else {
+					$sMsg = __( "That Yubikey device ID wasn't found on your profile", 'wp-simple-firewall' );
+				}
+			}
+			else { // A full OTP was provided so we're adding a new one
+
+				$bValidOtp = $this->sendYubiOtpRequest( $sOtpOrDeviceId );
+
+				if ( $bValidOtp ) {
+					if ( count( $this->getYubiIds( $oUser ) ) == 0 || $this->getCon()->isPremiumActive() ) {
+						$this->addYubiIdToProfile( $oUser, $sDeviceId );
+						$sMsg = sprintf(
+							__( '%s was added to your profile.', 'wp-simple-firewall' ),
+							__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sDeviceId )
+						);
+						$bError = false;
+					}
+					else {
+						$sMsg = __( 'No further Yubikey devices may be added to your account at this time.', 'wp-simple-firewall' );
+					}
+				}
+				else {
+					$sMsg = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
+							.' '.__( 'Please try again.', 'wp-simple-firewall' );
+				}
+			}
 		}
 
 		$this->setProfileValidated( $oUser, $this->hasValidSecret( $oUser ) );
-		$oMod->setFlashAdminNotice( $sMsg, $bError );
+		$this->getMod()->setFlashAdminNotice( $sMsg, $bError );
 	}
 
 	/**
@@ -212,7 +219,7 @@ class Yubikey extends BaseProvider {
 	 * @param string   $sKey
 	 * @return $this
 	 */
-	protected function removeYubiIdFromProfile( $oUser, $sKey ) {
+	private function removeYubiIdFromProfile( $oUser, $sKey ) {
 		$aKeys = Services::DataManipulation()
 						 ->removeFromArrayByValue( $this->getYubiIds( $oUser ), $sKey );
 		return $this->storeYubiIdInProfile( $oUser, $aKeys );

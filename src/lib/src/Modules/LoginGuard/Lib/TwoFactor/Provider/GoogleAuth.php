@@ -153,14 +153,8 @@ class GoogleAuth extends BaseProvider {
 	 * @inheritDoc
 	 */
 	public function handleUserProfileSubmit( \WP_User $oUser ) {
-		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
-		$sOtp = $this->fetchCodeFromRequest();
-		$bValidOtp = $this->processOtp( $oUser, $sOtp );
-
-		$sMessageOtpInvalid = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' ).' '.__( 'Please try again.', 'wp-simple-firewall' );
 
 		if ( Services::Request()->post( 'shield_turn_off_ga' ) === 'Y' ) {
-
 			$sFlash = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
 			$this->processRemovalFromAccount( $oUser );
 			$this->getMod()->setFlashAdminNotice( $sFlash );
@@ -171,14 +165,10 @@ class GoogleAuth extends BaseProvider {
 			return;
 		}
 
-		// At this stage, if the OTP was empty, then we have no further processing to do.
-		if ( empty( $sOtp ) ) {
-			return;
-		}
-
-		// We're trying to validate our OTP to activate our GA
-		if ( !$this->hasValidatedProfile( $oUser ) ) {
-
+		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
+		$sOtp = $this->fetchCodeFromRequest();
+		if ( !empty( $sOtp ) && !$this->hasValidatedProfile( $oUser ) ) { // If the OTP was empty, then we have no further processing to do.
+			$bValidOtp = $this->processOtp( $oUser, $sOtp );
 			if ( $bValidOtp ) {
 				$this->setProfileValidated( $oUser );
 				$sFlash = sprintf(
@@ -188,7 +178,8 @@ class GoogleAuth extends BaseProvider {
 			}
 			else {
 				$this->resetSecret( $oUser );
-				$sFlash = $sMessageOtpInvalid;
+				$sFlash = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
+						  .' '.__( 'Please try again.', 'wp-simple-firewall' );;
 			}
 			$this->getMod()->setFlashAdminNotice( $sFlash, !$bValidOtp );
 		}
