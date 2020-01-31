@@ -9,21 +9,22 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ValidateLoginIntentRequest {
 
-	use Shield\Modules\ModConsumer;
+	use MfaControllerConsumer;
 
 	/**
-	 * @param Provider\BaseProvider[] $aProviders
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function run( $aProviders ) {
+	public function run() {
+		$oMfaCon = $this->getMfaCon();
 		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		$oOpts = $oMfaCon->getOptions();
 
 		$oUser = Services::WpUsers()->getCurrentWpUser();
 		if ( !$oUser instanceof \WP_User ) {
 			throw new \Exception( 'No user logged-in.' );
 		}
+		$aProviders = $oMfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser() );
 		if ( empty( $aProviders ) ) {
 			throw new \Exception( 'No valid providers' );
 		}

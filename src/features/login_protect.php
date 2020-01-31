@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @var LoginGuard\Lib\TwoFactor\MfaLoginController
+	 * @var LoginGuard\Lib\TwoFactor\MfaController
 	 */
 	private $oLoginIntentController;
 
@@ -398,11 +398,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return LoginGuard\Lib\TwoFactor\MfaLoginController
+	 * @return LoginGuard\Lib\TwoFactor\MfaController
 	 */
 	public function getLoginIntentController() {
 		if ( !isset( $this->oLoginIntentController ) ) {
-			$this->oLoginIntentController = ( new LoginGuard\Lib\TwoFactor\MfaLoginController() )
+			$this->oLoginIntentController = ( new LoginGuard\Lib\TwoFactor\MfaController() )
 				->setMod( $this );
 		}
 		return $this->oLoginIntentController;

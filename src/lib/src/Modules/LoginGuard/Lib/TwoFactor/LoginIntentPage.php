@@ -10,19 +10,19 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class LoginIntentPage {
 
-	use Shield\Modules\ModConsumer;
+	use MfaControllerConsumer;
 
 	/**
 	 *
-	 * @param MfaLoginController $oIC
 	 * @return bool - true if valid form printed, false otherwise. Should die() if true
 	 */
-	public function run( MfaLoginController $oIC ) {
+	public function run() {
+		$oIC = $this->getMfaCon();
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
+		$oMod = $oIC->getMod();
 		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oCon = $this->getCon();
+		$oOpts = $oIC->getOptions();
+		$oCon = $oIC->getCon();
 		$oReq = Services::Request();
 		$oWP = Services::WpGeneral();
 

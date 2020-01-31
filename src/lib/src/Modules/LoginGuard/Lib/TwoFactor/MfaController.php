@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 use FernleafSystems\Wordpress\Services\Services;
 
-class MfaLoginController {
+class MfaController {
 
 	use Shield\Modules\ModConsumer;
 
@@ -28,6 +28,7 @@ class MfaLoginController {
 		if ( !Services::WpUsers()->isProfilePage() ) { // This can be fired during profile update.
 			add_action( 'set_logged_in_cookie', [ $this, 'onWpSetLoggedInCookie' ], 5, 4 );
 		}
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 10, 2 );
 	}
 
 	public function onWpInit() {
@@ -40,6 +41,12 @@ class MfaLoginController {
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
 		$this->captureLoginIntent( $oUser );
+	}
+
+	public function onWpLoaded() {
+		( new UserProfile() )
+			->setMfaController( $this )
+			->run();
 	}
 
 	/**
@@ -198,8 +205,8 @@ class MfaLoginController {
 
 			if ( $oOpts->isUseLoginIntentPage() ) {
 				( new LoginIntentPage() )
-					->setMod( $this->getMod() )
-					->run( $this );
+					->setMfaController( $this )
+					->run();
 				die();
 			}
 		}
@@ -221,8 +228,8 @@ class MfaLoginController {
 	private function validateLoginIntentRequest() {
 		try {
 			$bValid = ( new ValidateLoginIntentRequest() )
-				->setMod( $this->getMod() )
-				->run( $this->getProvidersForUser( Services::WpUsers()->getCurrentWpUser() ) );
+				->setMfaController( $this )
+				->run();
 		}
 		catch ( \Exception $oE ) {
 			$bValid = true;

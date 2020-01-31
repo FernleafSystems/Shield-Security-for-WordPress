@@ -1,0 +1,12 @@
+<tr>
+	<th><label for="shield_email_authentication">{{ strings.label_email_authentication }}</label></th>
+	<td>
+		<input type="checkbox"
+			   name="shield_email_authentication" id="shield_email_authentication"
+			   value="Y"
+			   {% if bools.checked %}checked="checked"{% endif %}
+			   {% if bools.disabled %}disabled="disabled"{% endif %}
+		/>
+		<p class="description">{{ strings.description_email_authentication_checkbox }}</p>
+	</td>
+</tr>

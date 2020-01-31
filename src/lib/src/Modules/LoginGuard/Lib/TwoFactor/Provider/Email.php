@@ -164,9 +164,7 @@ class Email extends BaseProvider {
 	}
 
 	/**
-	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
-	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $oUser
+	 * @inheritDoc
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 		$oWp = Services::WpUsers();
@@ -191,7 +189,11 @@ class Email extends BaseProvider {
 			'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ]
 			//TODO: Make email authentication a per-user setting
 		];
-
-		echo $this->getMod()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
+		return $this->getMod()
+					->renderTemplate(
+						'snippets/user/profile/mfa/mfa_email.twig',
+						$aData,
+						true
+					);
 	}
 }

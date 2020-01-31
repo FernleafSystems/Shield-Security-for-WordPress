@@ -13,12 +13,12 @@ abstract class BaseProvider {
 	/**
 	 */
 	public function run() {
-		add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
-		add_action( 'personal_options_update', [ $this, 'handleUserProfileSubmit' ] );
-		if ( $this->getCon()->isPluginAdmin() ) {
-			add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
-			add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
-		}
+//		add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
+//		add_action( 'personal_options_update', [ $this, 'handleUserProfileSubmit' ] );
+//		if ( $this->getCon()->isPluginAdmin() ) {
+//			add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
+//			add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
+//		}
 	}
 
 	/**
@@ -137,6 +137,7 @@ abstract class BaseProvider {
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
 	 * @param \WP_User $oUser
+	 * @return string
 	 */
 	public function addOptionsToUserProfile( $oUser ) {
 	}
