@@ -1,6 +1,6 @@
 {% if (is_my_user_profile or i_am_valid_admin) %}
 	<tr>
-		<th><label for="{{ data.otp_field_name }}">{{ strings.title }}</label></th>
+		<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
 		<td>
 			{% if flags.is_profile_active %}
 				<p>{{ strings.current_yubi_ids }}</p>
@@ -16,8 +16,8 @@
 			<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>
 			<input class="regular-text"
 				   type="text"
-				   id="{{ data.otp_field_name }}"
-				   name="{{ data.otp_field_name }}"
+				   id="{{ vars.otp_field_name }}"
+				   name="{{ vars.otp_field_name }}"
 				   value="" autocomplete="off" />
 			{% if flags.is_profile_active %}
 				<p class="description">

@@ -9,9 +9,6 @@ class Yubikey extends BaseProvider {
 
 	const SLUG = 'yubi';
 	const OTP_LENGTH = 12;
-	/**
-	 * @const string
-	 */
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	/**
@@ -32,7 +29,8 @@ class Yubikey extends BaseProvider {
 				'is_profile_active' => $bProfileActive
 			],
 			'vars'                  => [
-				'yubi_ids' => $this->getYubiIds( $oUser )
+				'yubi_ids'       => $this->getYubiIds( $oUser ),
+				'otp_field_name' => $this->getLoginFormParameter(),
 			],
 			'strings'               => [
 				'current_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
@@ -60,10 +58,6 @@ class Yubikey extends BaseProvider {
 				'provided_by'              => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 				'remove_more_info'         => sprintf( __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ) )
 			],
-			'data'                  => [
-				'otp_field_name' => $this->getLoginFormParameter(),
-				'secret'         => str_replace( ',', ', ', $this->getSecret( $oUser ) ),
-			]
 		];
 
 		return $this->getMod()

@@ -257,6 +257,18 @@
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
+      "key":         "email_any_user_enable",
+      "section":     "section_2fa_email",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Allow Any User",
+      "summary":     "Allow Any User To Turn-On Two-Factor Authentication By Email",
+      "description": "Allow Any User To Turn-On Two-Factor Authentication By Email."
+    },
+    {
       "key":           "bot_protection_locations",
       "section":       "section_brute_force_login_protection",
       "type":          "multiple_select",
