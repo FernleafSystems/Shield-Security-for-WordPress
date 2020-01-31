@@ -95,30 +95,52 @@ class Email extends BaseProvider {
 	}
 
 	/**
-	 * TODO: Allow users to enable on their profile also
-	 * @param \WP_User $oUser
-	 * @return bool
+	 * @inheritDoc
 	 */
-	public function hasValidatedProfile( $oUser ) {
-		return $this->isSubjectToEmailAuthentication( $oUser );
+	public function handleUserProfileSubmit( \WP_User $oUser ) {
+
+		$bWasEnabled = $this->isProfileActive( $oUser );
+		$bToEnable = Services::Request()->post( 'shield_enable_mfaemail' ) === 'Y';
+
+		$sMsg = null;
+		$bError = false;
+		if ( $bToEnable ) {
+			$this->setProfileValidated( $oUser );
+			if ( !$bWasEnabled ) {
+				$sMsg = __( 'Email Two-Factor Authentication has been enabled.', 'wp-simple-firewall' );
+			}
+		}
+		elseif ( $this->isEnforced( $oUser ) ) {
+			$sMsg = __( "Email Two-Factor Authentication couldn't be disabled because it is enforced based on your user roles.", 'wp-simple-firewall' );
+			$bError = true;
+		}
+		else {
+			$this->setProfileValidated( $oUser, false );
+			$sMsg = __( 'Email Two-Factor Authentication was has been disabled.', 'wp-simple-firewall' );
+		}
+
+		if ( !empty( $sMsg ) ) {
+			$this->getMod()->setFlashAdminNotice( $sMsg, $bError );
+		}
 	}
 
 	/**
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	private function isSubjectToEmailAuthentication( $oUser ) {
+	public function isProfileActive( \WP_User $oUser ) {
+		return parent::isProfileActive( $oUser ) &&
+			   ( $this->isEnforced( $oUser ) || $this->hasValidatedProfile( $oUser ) );
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	protected function isEnforced( $oUser ) {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return count( array_intersect( $oOpts->getEmail2FaRoles(), $oUser->roles ) ) > 0;
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	protected function hasValidSecret( \WP_User $oUser ) {
-		return true;
 	}
 
 	/**
@@ -167,15 +189,8 @@ class Email extends BaseProvider {
 	 * @inheritDoc
 	 */
 	public function renderUserProfileOptions( \WP_User $oUser ) {
-		$oWp = Services::WpUsers();
-		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = [
-			'user_has_email_authentication_active'   => $bValidatedProfile,
-			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
-			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
-			'i_am_valid_admin'                       => $this->getCon()->isPluginAdmin(),
-			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
-			'strings'                                => [
+			'strings' => [
 				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
 				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
 				'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
@@ -184,15 +199,10 @@ class Email extends BaseProvider {
 			]
 		];
 
-		$aData[ 'bools' ] = [
-			'checked'  => $bValidatedProfile || $aData[ 'user_has_email_authentication_enforced' ],
-			'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ]
-			//TODO: Make email authentication a per-user setting
-		];
 		return $this->getMod()
 					->renderTemplate(
 						'/snippets/user/profile/mfa/mfa_email.twig',
-						$aData,
+						Services::DataManipulation()->mergeArraysRecursive( $this->getCommonData( $oUser ), $aData ),
 						true
 					);
 	}

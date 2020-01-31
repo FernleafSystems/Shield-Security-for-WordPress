@@ -1,12 +1,13 @@
 <tr>
-	<th><label for="shield_email_authentication">{{ strings.label_email_authentication }}</label></th>
+	<th><label for="shield_enable_mfaemail">{{ strings.label_email_authentication }}</label></th>
 	<td>
-		<input type="checkbox"
-			   name="shield_email_authentication" id="shield_email_authentication"
-			   value="Y"
-			   {% if bools.checked %}checked="checked"{% endif %}
-			   {% if bools.disabled %}disabled="disabled"{% endif %}
+		<input type="checkbox" name="shield_enable_mfaemail" id="shield_enable_mfaemail" value="Y"
+			   {% if flags.is_profile_active %}checked="checked"{% endif %}
+				{% if flags.is_enforced %}disabled="disabled"{% endif %}
 		/>
 		<p class="description">{{ strings.description_email_authentication_checkbox }}</p>
+		{% if flags.is_enforced %}
+			<p class="description">{{ strings.is_enforced }}</p>
+		{% endif %}
 	</td>
 </tr>

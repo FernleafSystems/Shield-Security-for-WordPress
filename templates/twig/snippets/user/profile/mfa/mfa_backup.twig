@@ -3,14 +3,14 @@
 	<td>
 		<a href="#" id="IcwpWpsfGenBackupLoginCode"
 		   class="button button-primary">{{ strings.button_gen_code }}</a>
-		{% if has_validated_profile %}
+		{% if flags.has_validated_profile %}
 			<a href="#" id="IcwpWpsfDelBackupLoginCode"
 			   class="button">{{ strings.button_del_code }}</a>
 		{% endif %}
 		<p class="description">
 			{{ strings.description_code }}
 			<br /><strong>{{ strings.description_code_ext1 }}</strong>
-			{% if has_validated_profile %}
+			{% if flags.has_validated_profile %}
 				<br />{{ strings.description_code_ext2 }}
 			{% endif %}
 		</p>

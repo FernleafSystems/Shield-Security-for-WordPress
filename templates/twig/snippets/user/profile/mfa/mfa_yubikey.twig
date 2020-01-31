@@ -1,4 +1,4 @@
-{% if (is_my_user_profile or i_am_valid_admin) %}
+{% if (flags.is_my_user_profile or flags.i_am_valid_admin) %}
 	<tr>
 		<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
 		<td>

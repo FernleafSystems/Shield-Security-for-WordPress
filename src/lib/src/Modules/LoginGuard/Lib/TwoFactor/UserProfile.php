@@ -40,11 +40,9 @@ class UserProfile {
 				'i_am_valid_admin'      => $oMC->getCon()->isPluginAdmin(),
 				'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
 				'strings'               => [
-					'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
-					'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
-					'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
-					'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oMC->getCon()
-																															  ->getHumanName() )
+					'title'       => __( 'Multi-Factor Authentication', 'wp-simple-firewall' ),
+					'provided_by' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oMC->getCon()
+																								->getHumanName() )
 				],
 				'mfa_rows'              => $aRows
 			];

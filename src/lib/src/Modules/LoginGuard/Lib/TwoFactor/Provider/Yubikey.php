@@ -12,25 +12,23 @@ class Yubikey extends BaseProvider {
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isProfileActive( \WP_User $oUser ) {
+		return $this->hasValidSecret( $oUser );
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function renderUserProfileOptions( \WP_User $oUser ) {
 		$oCon = $this->getCon();
-		$oWpUsers = Services::WpUsers();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
-		$bProfileActive = $this->isProfileActive( $oUser );
 		$aData = [
-			'has_validated_profile' => $bValidatedProfile,
-			'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
-			'i_am_valid_admin'      => $oCon->isPluginAdmin(),
-			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
-			'flags'                 => [
-				'is_profile_active' => $bProfileActive
-			],
 			'vars'                  => [
 				'yubi_ids'       => $this->getYubiIds( $oUser ),
-				'otp_field_name' => $this->getLoginFormParameter(),
 			],
 			'strings'               => [
 				'current_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
@@ -63,7 +61,7 @@ class Yubikey extends BaseProvider {
 		return $this->getMod()
 					->renderTemplate(
 						'/snippets/user/profile/mfa/mfa_yubikey.twig',
-						$aData,
+						Services::DataManipulation()->mergeArraysRecursive( $this->getCommonData( $oUser ), $aData ),
 						true
 					);
 	}

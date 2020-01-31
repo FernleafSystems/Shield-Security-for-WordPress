@@ -12,7 +12,7 @@
 
 {% if flags.is_profile_active %}
 
-	{% if (is_my_user_profile or i_am_valid_admin) %}
+	{% if (flags.is_my_user_profile or flags.i_am_valid_admin) %}
 		<tr>
 			<th><label for="shield_turn_off_ga">{{ strings.label_check_to_remove }}</label></th>
 			<td>
@@ -24,9 +24,9 @@
 
 {% else %}
 
-	{% if is_my_user_profile %}
+	{% if flags.is_my_user_profile %}
 		<tr>
-			<th><label for="{{ data.otp_field_name }}">{{ strings.title }}</label></th>
+			<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
 			<td>
 				<div style="width: 350px; margin-bottom: 15px">
 					<img src="{{ chart_url }}" alt="{{ strings.description_chart_url }}"
@@ -38,8 +38,8 @@
 
 				<input class="regular-text"
 					   type="text"
-					   id="{{ data.otp_field_name }}"
-					   name="{{ data.otp_field_name }}"
+					   id="{{ vars.otp_field_name }}"
+					   name="{{ vars.otp_field_name }}"
 					   placeholder="{{ strings.enter_auth_app_code }}"
 					   value="" autocomplete="off" />
 				<p class="description">

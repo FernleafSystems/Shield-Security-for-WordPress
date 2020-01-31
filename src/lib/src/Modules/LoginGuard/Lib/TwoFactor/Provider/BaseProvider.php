@@ -16,7 +16,7 @@ abstract class BaseProvider {
 	 */
 	public function validateLoginIntent( \WP_User $oUser ) {
 		$bOtpSuccess = false;
-		if ( $this->isProviderReady( $oUser ) ) {
+		if ( $this->isProfileActive( $oUser ) ) {
 			$sReqOtpCode = $this->fetchCodeFromRequest();
 			$bOtpSuccess = $this->processOtp( $oUser, $sReqOtpCode );
 			$this->postOtpProcessAction( $oUser, $bOtpSuccess, !empty( $sReqOtpCode ) );
@@ -37,14 +37,6 @@ abstract class BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	public function isProfileActive( \WP_User $oUser ) {
-		return $this->hasValidSecret( $oUser );
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
 	public function hasValidatedProfile( $oUser ) {
 		return $this->getCon()->getUserMeta( $oUser )->{static::SLUG.'_validated'} === true;
 	}
@@ -55,6 +47,22 @@ abstract class BaseProvider {
 	 */
 	protected function hasValidSecret( \WP_User $oUser ) {
 		return $this->isSecretValid( $this->getSecret( $oUser ) );
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	protected function isEnforced( $oUser ) {
+		return false;
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isProfileActive( \WP_User $oUser ) {
+		return $this->hasValidSecret( $oUser );
 	}
 
 	/**
@@ -219,5 +227,28 @@ abstract class BaseProvider {
 	 */
 	protected function fetchCodeFromRequest() {
 		return esc_attr( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return array
+	 */
+	protected function getCommonData( \WP_User $oUser ) {
+		return [
+			'flags'   => [
+				'has_validated_profile' => $this->hasValidatedProfile( $oUser ),
+				'is_enforced'           => $this->isEnforced( $oUser ),
+				'is_profile_active'     => $this->isProfileActive( $oUser ),
+				'is_my_user_profile'    => $oUser->ID == Services::WpUsers()->getCurrentWpUserId(),
+				'i_am_valid_admin'      => $this->getCon()->isPluginAdmin(),
+				'user_to_edit_is_admin' => Services::WpUsers()->isUserAdmin( $oUser ),
+			],
+			'vars'    => [
+				'otp_field_name' => $this->getLoginFormParameter(),
+			],
+			'strings' => [
+				'is_enforced' => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
+			],
+		];
 	}
 }
