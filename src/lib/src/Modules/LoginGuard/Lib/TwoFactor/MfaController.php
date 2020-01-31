@@ -117,7 +117,7 @@ class MfaController {
 			if ( $oOpts->isEmailAuthenticationActive() ) {
 				$this->aProviders[ Provider\Email::SLUG ] = new Provider\Email();
 			}
-			if ( $oOpts->isYubikeyActive() ) {
+			if ( $oOpts->isEnabledYubikey() ) {
 				$this->aProviders[ Provider\Yubikey::SLUG ] = new Provider\Yubikey();
 			}
 			// Backup codes may not be enabled on its own.
@@ -141,7 +141,7 @@ class MfaController {
 		$aProviders = array_filter( $this->getProviders(),
 			function ( $oProvider ) use ( $oUser ) {
 				/** @var Provider\BaseProvider $oProvider */
-				return $oProvider->isProviderReady( $oUser );
+				return $oProvider->isProviderAvailable( $oUser );
 			}
 		);
 		if ( count( $aProviders ) === 1 && isset( $aProviders[ Provider\Backup::SLUG ] ) ) {

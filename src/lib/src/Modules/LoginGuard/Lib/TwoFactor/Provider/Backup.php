@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Backup extends BaseProvider {
@@ -176,5 +177,15 @@ class Backup extends BaseProvider {
 	protected function setSecret( $oUser, $sNewSecret ) {
 		parent::setSecret( $oUser, wp_hash_password( $sNewSecret ) );
 		return $this;
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isProviderAvailable( \WP_User $oUser ) {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledYubikey();
 	}
 }

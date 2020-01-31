@@ -12,7 +12,7 @@
 
 {% if has_validated_profile %}
 
-	{% if is_my_user_profile OR i_am_valid_admin %}
+	{% if (is_my_user_profile or i_am_valid_admin) %}
 
 		<tr>
 			<th><label for="shield_turn_off_google_authenticator">{{ strings.label_check_to_remove }}</label></th>
@@ -45,19 +45,19 @@
 		<tr>
 			<th>{{ strings.label_scan_qr_code }}</th>
 			<td>
-				<img src="<?php echo $chart_url; ?>" />
+				<img src="{{ chart_url }}" />
 				<p class="description">{{ strings.description_chart_url }}</p>
 			</td>
 		</tr>
-		<tr>{{ strings.label_ga_secret }}
+		<tr>
 			<th><label for="shield_ga_secret">{{ strings.label_ga_secret }}</label></th>
-			<td>{{ strings.description_ga_secret }}
+			<td>
 				<span id="shield_ga_secret">{{ user_google_authenticator_secret }}</span>
 				<p class="description">{{ strings.description_ga_secret }}</p>
 			</td>
 		</tr>
 		<tr>
-			<th><label for="<?php echo $data['otp_field_name']; ?>"><?php echo $strings['label_enter_code']; ?></label></th>
+			<th><label for="{{ data.otp_field_name }}">{{ strings.label_enter_code }}</label></th>
 			<td>
 				<input class="regular-text"
 					   type="text"

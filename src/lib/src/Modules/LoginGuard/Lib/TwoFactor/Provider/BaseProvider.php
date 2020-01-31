@@ -64,6 +64,14 @@ abstract class BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
+	public function isProviderAvailable( \WP_User $oUser ) {
+		return false;
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
 	public function isProviderReady( \WP_User $oUser ) {
 		return $this->hasValidatedProfile( $oUser ) && $this->hasValidSecret( $oUser );
 	}

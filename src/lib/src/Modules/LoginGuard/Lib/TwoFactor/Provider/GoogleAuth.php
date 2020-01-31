@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
-use FernleafSystems\Wordpress\Services\Services;
 use Dolondro\GoogleAuthenticator;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+use FernleafSystems\Wordpress\Services\Services;
 
 class GoogleAuth extends BaseProvider {
 
@@ -262,7 +263,7 @@ class GoogleAuth extends BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string  $sOtpCode
+	 * @param string   $sOtpCode
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOtpCode ) {
@@ -271,7 +272,7 @@ class GoogleAuth extends BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string  $sOtpCode
+	 * @param string   $sOtpCode
 	 * @return bool
 	 */
 	public function validateGaCode( $oUser, $sOtpCode ) {
@@ -291,7 +292,7 @@ class GoogleAuth extends BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param bool    $bIsSuccess
+	 * @param bool     $bIsSuccess
 	 */
 	protected function auditLogin( $oUser, $bIsSuccess ) {
 		$this->getCon()->fireEvent(
@@ -360,5 +361,15 @@ class GoogleAuth extends BaseProvider {
 	 */
 	protected function isSecretValid( $sSecret ) {
 		return parent::isSecretValid( $sSecret ) && ( strlen( $sSecret ) == 16 );
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isProviderAvailable( \WP_User $oUser ) {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledGoogleAuthenticator();
 	}
 }

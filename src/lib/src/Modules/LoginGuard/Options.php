@@ -86,7 +86,6 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return bool
-	 * @deprecated 8.6.0
 	 */
 	public function isEnabledEmailAuth() {
 		return $this->isOpt( 'enable_email_authentication', 'Y' );
@@ -94,7 +93,6 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return bool
-	 * @deprecated 8.6.0
 	 */
 	public function isEnabledBackupCodes() {
 		return $this->isPremium() && $this->isOpt( 'allow_backupcodes', 'Y' );
@@ -102,7 +100,6 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return bool
-	 * @deprecated 8.6.0
 	 */
 	public function isEnabledGoogleAuthenticator() {
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
@@ -118,13 +115,12 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
-	public function isYubikeyActive() {
+	public function isEnabledYubikey() {
 		return $this->isOpt( 'enable_yubikey', 'Y' ) && $this->isYubikeyConfigReady();
 	}
 
 	/**
 	 * @return bool
-	 * @deprecated 8.6.0
 	 */
 	private function isYubikeyConfigReady() {
 		$sAppId = $this->getOpt( 'yubikey_app_id' );

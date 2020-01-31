@@ -258,4 +258,14 @@ class Yubikey extends BaseProvider {
 		}
 		return $bValid;
 	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isProviderAvailable( \WP_User $oUser ) {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledYubikey();
+	}
 }

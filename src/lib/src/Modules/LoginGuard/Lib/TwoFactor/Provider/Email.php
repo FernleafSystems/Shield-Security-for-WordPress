@@ -196,4 +196,14 @@ class Email extends BaseProvider {
 						true
 					);
 	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isProviderAvailable( \WP_User $oUser ) {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return count( array_intersect( $oOpts->getEmail2FaRoles(), $oUser->roles ) ) > 0;
+	}
 }
