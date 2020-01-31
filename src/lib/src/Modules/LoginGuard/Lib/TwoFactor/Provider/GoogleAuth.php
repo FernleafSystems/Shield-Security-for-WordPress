@@ -27,7 +27,7 @@ class GoogleAuth extends BaseProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function addOptionsToUserProfile( $oUser ) {
+	public function renderUserProfileOptions( \WP_User $oUser ) {
 		$oCon = $this->getCon();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
@@ -97,7 +97,7 @@ class GoogleAuth extends BaseProvider {
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
 	 * @inheritDoc
 	 */
-	public function handleEditOtherUserProfileSubmit( $oUser ) {
+	public function handleEditOtherUserProfileSubmit( \WP_User $oUser ) {
 
 		// Can only edit other users if you're admin/security-admin
 		if ( $this->getCon()->isPluginAdmin() ) {
@@ -136,9 +136,7 @@ class GoogleAuth extends BaseProvider {
 	}
 
 	/**
-	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
-	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $oUser
+	 * @inheritDoc
 	 */
 	public function handleUserProfileSubmit( \WP_User $oUser ) {
 		// If it's your own account, you CANT do anything without your OTP (except turn off via email).

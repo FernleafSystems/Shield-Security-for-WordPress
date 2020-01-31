@@ -32,7 +32,7 @@ class UserProfile {
 		if ( count( $aProviders ) > 0 ) {
 			$aRows = [];
 			foreach ( $aProviders as $oProvider ) {
-				$aRows[ $oProvider::SLUG ] = $oProvider->addOptionsToUserProfile( $oUser );
+				$aRows[ $oProvider::SLUG ] = $oProvider->renderUserProfileOptions( $oUser );
 			}
 
 			$aData = [

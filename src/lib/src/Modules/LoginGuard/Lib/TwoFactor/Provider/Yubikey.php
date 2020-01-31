@@ -15,11 +15,9 @@ class Yubikey extends BaseProvider {
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
 	/**
-	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
-	 * functions.  Otherwise we need to be careful of mixing up users.
 	 * @inheritDoc
 	 */
-	public function addOptionsToUserProfile( $oUser ) {
+	public function renderUserProfileOptions( \WP_User $oUser ) {
 		$oCon = $this->getCon();
 		$oWpUsers = Services::WpUsers();
 
@@ -63,8 +61,6 @@ class Yubikey extends BaseProvider {
 	}
 
 	/**
-	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
-	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
 	 * @inheritDoc
 	 */
 	public function handleUserProfileSubmit( \WP_User $oUser ) {

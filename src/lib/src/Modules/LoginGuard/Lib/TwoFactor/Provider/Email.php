@@ -166,7 +166,7 @@ class Email extends BaseProvider {
 	/**
 	 * @inheritDoc
 	 */
-	public function addOptionsToUserProfile( $oUser ) {
+	public function renderUserProfileOptions( \WP_User $oUser ) {
 		$oWp = Services::WpUsers();
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = [

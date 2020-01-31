@@ -147,20 +147,20 @@ abstract class BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return string
 	 */
-	public function addOptionsToUserProfile( $oUser ) {
+	public function renderUserProfileOptions( \WP_User $oUser ) {
+		return '';
 	}
 
 	/**
 	 * ONLY TO BE HOOKED TO USER PROFILE EDIT
 	 * @param \WP_User $oUser
+	 * @return string
 	 */
-	public function addOptionsToUserEditProfile( $oUser ) {
-		$this->addOptionsToUserProfile( $oUser );
+	public function renderUserEditProfileOptions( \WP_User $oUser ) {
+		return $this->renderUserProfileOptions( $oUser );
 	}
 
 	/**
-	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
-	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
 	 * @param \WP_User $oUser
 	 */
 	public function handleEditOtherUserProfileSubmit( \WP_User $oUser ) {

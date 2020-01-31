@@ -10,11 +10,9 @@ class Backup extends BaseProvider {
 	const SLUG = 'backupcode';
 
 	/**
-	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
-	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param \WP_User $oUser
+	 * @inheritDoc
 	 */
-	public function addOptionsToUserProfile( $oUser ) {
+	public function renderUserProfileOptions( \WP_User $oUser ) {
 		$oCon = $this->getCon();
 
 		$aData = [
@@ -60,9 +58,9 @@ class Backup extends BaseProvider {
 	}
 
 	/**
-	 * @param \WP_User $oUser
+	 * @inheritDoc
 	 */
-	public function addOptionsToUserEditProfile( $oUser ) {
+	public function renderUserEditProfileOptions( \WP_User $oUser ) {
 		// Allow no actions to be taken on other user profiles
 	}
 
