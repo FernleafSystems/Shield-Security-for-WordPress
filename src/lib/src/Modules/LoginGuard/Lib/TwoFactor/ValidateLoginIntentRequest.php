@@ -24,7 +24,7 @@ class ValidateLoginIntentRequest {
 		if ( !$oUser instanceof \WP_User ) {
 			throw new \Exception( 'No user logged-in.' );
 		}
-		$aProviders = $oMfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser() );
+		$aProviders = $oMfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true );
 		if ( empty( $aProviders ) ) {
 			throw new \Exception( 'No valid providers' );
 		}

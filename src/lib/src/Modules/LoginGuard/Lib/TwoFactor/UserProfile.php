@@ -63,9 +63,7 @@ class UserProfile {
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
 		$oUser = Services::WpUsers()->getUserById( $nSavingUserId );
-		$aProviders = $this->getMfaCon()
-						   ->getProvidersForUser( $oUser );
-		foreach ( $aProviders as $oProvider ) {
+		foreach ( $this->getMfaCon()->getProvidersForUser( $oUser ) as $oProvider ) {
 			$oProvider->handleUserProfileSubmit( $oUser );
 		}
 	}
@@ -85,9 +83,7 @@ class UserProfile {
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
 		$oUser = Services::WpUsers()->getUserById( $nSavingUserId );
-		$aProviders = $this->getMfaCon()
-						   ->getProvidersForUser( $oUser );
-		foreach ( $aProviders as $oProvider ) {
+		foreach ( $this->getMfaCon()->getProvidersForUser( $oUser ) as $oProvider ) {
 			$oProvider->handleEditOtherUserProfileSubmit( $oUser );
 		}
 	}

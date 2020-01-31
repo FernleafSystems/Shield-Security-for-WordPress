@@ -66,16 +66,16 @@ class MfaController {
 		if ( empty( $this->bLoginAttemptCaptured ) && $oUser instanceof \WP_User ) {
 			$this->bLoginAttemptCaptured = true;
 
-			$aProviders = $this->getProvidersForUser( $oUser );
-			if ( !empty( $aProviders ) ) {
+			/** @var LoginGuard\Options $oOpts */
+			$oOpts = $this->getOptions();
+			if ( !$this->canUserMfaSkip( $oUser ) ) {
 
-				foreach ( $aProviders as $oProvider ) {
-					$oProvider->captureLoginAttempt( $oUser );
-				}
+				$aProviders = $this->getProvidersForUser( $oUser );
+				if ( !empty( $aProviders ) ) {
+					foreach ( $aProviders as $oProvider ) {
+						$oProvider->captureLoginAttempt( $oUser );
+					}
 
-				/** @var LoginGuard\Options $oOpts */
-				$oOpts = $this->getOptions();
-				if ( !$this->canUserMfaSkip( $oUser ) ) {
 					$nTimeout = (int)apply_filters(
 						$this->getCon()->prefix( 'login_intent_timeout' ),
 						$oOpts->getDef( 'login_intent_timeout' )
@@ -90,11 +90,16 @@ class MfaController {
 
 	private function assessLoginIntent() {
 		$oUser = Services::WpUsers()->getCurrentWpUser();
-		if ( $oUser instanceof \WP_User ) {
-			if ( $this->isSubjectToLoginIntent( $oUser ) && !$this->canUserMfaSkip( $oUser ) ) {
-				$this->processLoginIntent();
+		if ( $oUser instanceof \WP_User && $this->hasLoginIntent() ) {
+
+			if ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() ) {
+				$this->processActiveLoginIntent();
 			}
-			elseif ( $this->hasLoginIntent() ) {
+			elseif ( $this->isSubjectToLoginIntent( $oUser ) ) {
+				Services::WpUsers()->logoutUser(); // clears the login and login intent
+				Services::Response()->redirectHere();
+			}
+			else {
 				// This handles the case where an admin changes a setting while a user is logged-in
 				// So to prevent this, we remove any intent for a user that isn't subject to it right now
 				$this->removeLoginIntent();
@@ -127,13 +132,15 @@ class MfaController {
 	/**
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
 	 * @param \WP_User $oUser
+	 * @param bool     $bOnlyActiveProfiles
 	 * @return Provider\BaseProvider[]
 	 */
-	public function getProvidersForUser( $oUser ) {
+	public function getProvidersForUser( $oUser, $bOnlyActiveProfiles = false ) {
 		$aProviders = array_filter( $this->getProviders(),
-			function ( $oProvider ) use ( $oUser ) {
+			function ( $oProvider ) use ( $oUser, $bOnlyActiveProfiles ) {
 				/** @var Provider\BaseProvider $oProvider */
-				return $oProvider->isProviderAvailableToUser( $oUser );
+				return $oProvider->isProviderAvailableToUser( $oUser )
+					   && ( !$bOnlyActiveProfiles || $oProvider->isProfileActive( $oUser ) );
 			}
 		);
 		// Backups should NEVER be the only 1 available.
@@ -146,7 +153,7 @@ class MfaController {
 	/**
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
-	private function processLoginIntent() {
+	private function processActiveLoginIntent() {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		$oCon = $this->getCon();
@@ -154,64 +161,49 @@ class MfaController {
 		$oWpResp = Services::Response();
 		$oUser = Services::WpUsers()->getCurrentWpUser();
 
-		// ie. current login intent present
-		if ( $this->getLoginIntentExpiresAt() > $oReq->ts() ) {
+		// Is 2FA/login-intent submit
+		if ( $oReq->request( $this->getLoginIntentRequestFlag() ) == 1 ) {
 
-			// Is 2FA/login-intent submit
-			if ( $oReq->request( $this->getLoginIntentRequestFlag() ) == 1 ) {
-
-				if ( $oReq->post( 'cancel' ) == 1 ) {
-					Services::WpUsers()->logoutUser(); // clears the login and login intent
-					$sRedirectHref = $oReq->post( 'cancel_href' );
-					empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
-				}
-				elseif ( $this->validateLoginIntentRequest() ) {
-
-					if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
-						$oCon->getUserMeta( $oUser )
-							 ->addMfaSkipAgent( $oReq->getUserAgent(), $oOpts->getMfaSkip() );
-					}
-					$oCon->fireEvent( '2fa_success' );
-
-					$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
-					if ( $oOpts->isEnabledBackupCodes() ) {
-						$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
-					}
-					$this->getMod()->setFlashAdminNotice( $sFlash );
-
-					$this->removeLoginIntent();
-
-					$sRedirectHref = $oReq->post( 'redirect_to' );
-					empty( $sRedirectHref ) ? $oWpResp->redirectHere() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
-				}
-				else {
-					$oCon->getAdminNotices()
-						 ->addFlash(
-							 __( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),
-							 true
-						 );
-					// We don't protect against loops here to prevent by-passing of the login intent page.
-					Services::Response()->redirect( Services::Request()->getUri(), [], true, false );
-				}
-				return; // we've redirected anyway.
+			if ( $oReq->post( 'cancel' ) == 1 ) {
+				Services::WpUsers()->logoutUser(); // clears the login and login intent
+				$sRedirectHref = $oReq->post( 'cancel_href' );
+				empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
 			}
+			elseif ( $this->validateLoginIntentRequest() ) {
 
-			if ( $oOpts->isUseLoginIntentPage() ) {
-				( new LoginIntentPage() )
-					->setMfaController( $this )
-					->run();
-				die();
+				if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
+					$oCon->getUserMeta( $oUser )
+						 ->addMfaSkipAgent( $oReq->getUserAgent(), $oOpts->getMfaSkip() );
+				}
+				$oCon->fireEvent( '2fa_success' );
+
+				$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
+				if ( $oOpts->isEnabledBackupCodes() ) {
+					$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
+				}
+				$this->getMod()->setFlashAdminNotice( $sFlash );
+
+				$this->removeLoginIntent();
+
+				$sRedirectHref = $oReq->post( 'redirect_to' );
+				empty( $sRedirectHref ) ? $oWpResp->redirectHere() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
+			}
+			else {
+				$oCon->getAdminNotices()
+					 ->addFlash(
+						 __( 'One or more of your authentication codes failed or was missing.', 'wp-simple-firewall' ),
+						 true
+					 );
+				// We don't protect against loops here to prevent by-passing of the login intent page.
+				Services::Response()->redirect( Services::Request()->getUri(), [], true, false );
 			}
 		}
-		elseif ( $this->hasLoginIntent() ) { // there was an old login intent
-			Services::WpUsers()->logoutUser(); // clears the login and login intent
-			$oWpResp->redirectHere();
+		elseif ( $oOpts->isUseLoginIntentPage() ) {
+			( new LoginIntentPage() )
+				->setMfaController( $this )
+				->run();
 		}
-		else {
-			// no login intent present -
-			// the login has already been fully validated and the login intent was deleted.
-			// also means new installation don't get booted out
-		}
+		die();
 	}
 
 	/**
@@ -270,9 +262,8 @@ class MfaController {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	protected function isSubjectToLoginIntent( $oUser ) {
-		return $oUser instanceof \WP_User
-			   && count( $this->getProvidersForUser( $oUser ) ) > 0;
+	private function isSubjectToLoginIntent( $oUser ) {
+		return count( $this->getProvidersForUser( $oUser, true ) ) > 0;
 	}
 
 	/**

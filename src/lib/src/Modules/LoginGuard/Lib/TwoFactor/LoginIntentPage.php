@@ -31,7 +31,7 @@ class LoginIntentPage {
 				/** @var TwoFactor\Provider\BaseProvider $oProvider */
 				return $oProvider->getFormField();
 			},
-			$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser() )
+			$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
 		);
 
 		$oNotice = $oCon->getAdminNotices()->getFlashNotice();
