@@ -32,7 +32,7 @@ class UserProfile {
 		if ( count( $aProviders ) > 0 ) {
 			$aRows = [];
 			foreach ( $oMC->getProvidersForUser( $oUser ) as $oProvider ) {
-				$aRows[] = $oProvider->addOptionsToUserProfile( $oUser );
+				$aRows[ $oProvider::SLUG ] = $oProvider->addOptionsToUserProfile( $oUser );
 			}
 
 			$aData = [
@@ -51,7 +51,7 @@ class UserProfile {
 
 			echo $oMC->getMod()
 					 ->renderTemplate(
-						 'snippets/user/profile/mfa/mfa_container.twig',
+						 '/snippets/user/profile/mfa/mfa_container.twig',
 						 $aData,
 						 true
 					 );

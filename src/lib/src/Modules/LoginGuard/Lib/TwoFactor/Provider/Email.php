@@ -191,7 +191,7 @@ class Email extends BaseProvider {
 		];
 		return $this->getMod()
 					->renderTemplate(
-						'snippets/user/profile/mfa/mfa_email.twig',
+						'/snippets/user/profile/mfa/mfa_email.twig',
 						$aData,
 						true
 					);
