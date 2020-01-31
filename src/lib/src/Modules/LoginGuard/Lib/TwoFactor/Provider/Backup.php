@@ -17,10 +17,8 @@ class Backup extends BaseProvider {
 	public function addOptionsToUserProfile( $oUser ) {
 		$oCon = $this->getCon();
 
-		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = [
-			'has_mfa'                          => $this->isUserSubjectToLoginIntent( $oUser ),
-			'has_validated_profile'            => $bValidatedProfile,
+			'has_validated_profile'            => $this->hasValidatedProfile( $oUser ),
 			'user_google_authenticator_secret' => $this->getSecret( $oUser ),
 			'is_my_user_profile'               => ( $oUser->ID == Services::WpUsers()->getCurrentWpUserId() ),
 			'i_am_valid_admin'                 => $oCon->isPluginAdmin(),
@@ -53,7 +51,12 @@ class Backup extends BaseProvider {
 			]
 		];
 
-		echo $this->getMod()->renderTemplate( 'snippets/user_profile_backupcode.php', $aData );
+		return $this->getMod()
+					->renderTemplate(
+						'/snippets/user/profile/mfa/mfa_backup.twig',
+						$aData,
+						true
+					);
 	}
 
 	/**
@@ -157,7 +160,8 @@ class Backup extends BaseProvider {
 		];
 
 		$sTitle = sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Backup Login Code Just Used", 'wp-simple-firewall' ) );
-		$this->getEmailProcessor()
+		$this->getMod()
+			 ->getEmailProcessor()
 			 ->sendEmailWithWrap( $oUser->user_email, $sTitle, $aEmailContent );
 	}
 
@@ -186,6 +190,6 @@ class Backup extends BaseProvider {
 	public function isProviderAvailable( \WP_User $oUser ) {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledYubikey();
+		return $oOpts->isEnabledBackupCodes();
 	}
 }
