@@ -86,6 +86,7 @@ class Yubikey extends BaseProvider {
 		}
 
 		$bError = true;
+		$aRegisteredDevices = $this->getYubiIds( $oUser );
 
 		if ( strlen( $sOtpOrDeviceId ) < self::OTP_LENGTH ) {
 			$sMsg = __( 'The Yubikey device ID was not valid.', 'wp-simple-firewall' )
@@ -93,12 +94,12 @@ class Yubikey extends BaseProvider {
 		}
 		else {
 			$sDeviceId = substr( $sOtpOrDeviceId, 0, self::OTP_LENGTH );
-			$bDevicePresent = in_array( $sDeviceId, $this->getYubiIds( $oUser ) );
+			$bDeviceRegistered = in_array( $sDeviceId, $aRegisteredDevices );
 
-			if ( $bDevicePresent || strlen( $sOtpOrDeviceId ) == self::OTP_LENGTH ) { // attempt to remove device
+			if ( $bDeviceRegistered || strlen( $sOtpOrDeviceId ) == self::OTP_LENGTH ) { // attempt to remove device
 
-				if ( $bDevicePresent ) {
-					$this->removeYubiIdFromProfile( $oUser, $sDeviceId );
+				if ( $bDeviceRegistered ) {
+					$this->addRemoveRegisteredYubiId( $oUser, $sDeviceId, false );
 					$sMsg = sprintf(
 						__( '%s was removed from your profile.', 'wp-simple-firewall' ),
 						__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sDeviceId )
@@ -109,27 +110,22 @@ class Yubikey extends BaseProvider {
 					$sMsg = __( "That Yubikey device ID wasn't found on your profile", 'wp-simple-firewall' );
 				}
 			}
-			else { // A full OTP was provided so we're adding a new one
-
-				$bValidOtp = $this->sendYubiOtpRequest( $sOtpOrDeviceId );
-
-				if ( $bValidOtp ) {
-					if ( count( $this->getYubiIds( $oUser ) ) == 0 || $this->getCon()->isPremiumActive() ) {
-						$this->addYubiIdToProfile( $oUser, $sDeviceId );
-						$sMsg = sprintf(
-							__( '%s was added to your profile.', 'wp-simple-firewall' ),
-							__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sDeviceId )
-						);
-						$bError = false;
-					}
-					else {
-						$sMsg = __( 'No further Yubikey devices may be added to your account at this time.', 'wp-simple-firewall' );
-					}
+			elseif ( $this->sendYubiOtpRequest( $sOtpOrDeviceId ) ) { // A full OTP was provided so we're adding a new one
+				if ( count( $aRegisteredDevices ) == 0 || $this->getCon()->isPremiumActive() ) {
+					$this->addRemoveRegisteredYubiId( $oUser, $sDeviceId, true );
+					$sMsg = sprintf(
+						__( '%s was added to your profile.', 'wp-simple-firewall' ),
+						__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sDeviceId )
+					);
+					$bError = false;
 				}
 				else {
-					$sMsg = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
-							.' '.__( 'Please try again.', 'wp-simple-firewall' );
+					$sMsg = __( 'No further Yubikey devices may be added to your account at this time.', 'wp-simple-firewall' );
 				}
+			}
+			else {
+				$sMsg = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
+						.' '.__( 'Please try again.', 'wp-simple-firewall' );
 			}
 		}
 
@@ -141,7 +137,7 @@ class Yubikey extends BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return array
 	 */
-	protected function getYubiIds( \WP_User $oUser ) {
+	private function getYubiIds( \WP_User $oUser ) {
 		return explode( ',', $this->getSecret( $oUser ) );
 	}
 
@@ -205,34 +201,19 @@ class Yubikey extends BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param string   $sNewKey
-	 * @return $this
-	 */
-	protected function addYubiIdToProfile( $oUser, $sNewKey ) {
-		$aKeys = $this->getYubiIds( $oUser );
-		$aKeys[] = $sNewKey;
-		return $this->storeYubiIdInProfile( $oUser, $aKeys );
-	}
-
-	/**
-	 * @param \WP_User $oUser
 	 * @param string   $sKey
+	 * @param bool     $bAdd - true to add; false to remove
 	 * @return $this
 	 */
-	private function removeYubiIdFromProfile( $oUser, $sKey ) {
-		$aKeys = Services::DataManipulation()
-						 ->removeFromArrayByValue( $this->getYubiIds( $oUser ), $sKey );
-		return $this->storeYubiIdInProfile( $oUser, $aKeys );
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @param array    $aKeys
-	 * @return $this
-	 */
-	private function storeYubiIdInProfile( $oUser, $aKeys ) {
-		parent::setSecret( $oUser, implode( ',', array_unique( array_filter( $aKeys ) ) ) );
-		return $this;
+	private function addRemoveRegisteredYubiId( \WP_User $oUser, $sKey, $bAdd = true ) {
+		$aIDs = $this->getYubiIds( $oUser );
+		if ( $bAdd ) {
+			$aIDs[] = $sKey;
+		}
+		else {
+			$aIDs = Services::DataManipulation()->removeFromArrayByValue( $aIDs, $sKey );
+		}
+		return $this->setSecret( $oUser, implode( ',', array_unique( array_filter( $aIDs ) ) ) );
 	}
 
 	/**
