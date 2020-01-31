@@ -257,7 +257,7 @@
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
-      "key":         "email_any_user_enable",
+      "key":         "email_any_user_set",
       "section":     "section_2fa_email",
       "premium":     true,
       "default":     "N",

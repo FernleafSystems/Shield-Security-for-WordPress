@@ -129,8 +129,11 @@ class Email extends BaseProvider {
 	 * @return bool
 	 */
 	public function isProfileActive( \WP_User $oUser ) {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		return parent::isProfileActive( $oUser ) &&
-			   ( $this->isEnforced( $oUser ) || $this->hasValidatedProfile( $oUser ) );
+			   ( $this->isEnforced( $oUser ) ||
+				 ( $this->hasValidatedProfile( $oUser ) && $oOpts->isEnabledEmailAuthAnyUserSet() ) );
 	}
 
 	/**
@@ -208,12 +211,22 @@ class Email extends BaseProvider {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isProviderEnabled() {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledEmailAuth();
+	}
+
+	/**
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
-	public function isProviderAvailable( \WP_User $oUser ) {
+	public function isProviderAvailableToUser( \WP_User $oUser ) {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return count( array_intersect( $oOpts->getEmail2FaRoles(), $oUser->roles ) ) > 0;
+		return parent::isProviderAvailableToUser( $oUser )
+			   && ( $this->isEnforced( $oUser ) || $oOpts->isEnabledEmailAuthAnyUserSet() );
 	}
 }

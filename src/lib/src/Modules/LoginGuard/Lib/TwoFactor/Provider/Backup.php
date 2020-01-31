@@ -128,6 +128,33 @@ class Backup extends BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
+	 * @return string
+	 */
+	protected function genNewSecret( \WP_User $oUser ) {
+		return wp_generate_password( 25, false );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProviderEnabled() {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledBackupCodes();
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @param string   $sNewSecret
+	 * @return $this
+	 */
+	protected function setSecret( $oUser, $sNewSecret ) {
+		parent::setSecret( $oUser, wp_hash_password( $sNewSecret ) );
+		return $this;
+	}
+
+	/**
+	 * @param \WP_User $oUser
 	 */
 	private function sendBackupCodeUsedEmail( $oUser ) {
 		$aEmailContent = [
@@ -147,33 +174,5 @@ class Backup extends BaseProvider {
 		$this->getMod()
 			 ->getEmailProcessor()
 			 ->sendEmailWithWrap( $oUser->user_email, $sTitle, $aEmailContent );
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return string
-	 */
-	protected function genNewSecret( \WP_User $oUser ) {
-		return wp_generate_password( 25, false );
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @param string   $sNewSecret
-	 * @return $this
-	 */
-	protected function setSecret( $oUser, $sNewSecret ) {
-		parent::setSecret( $oUser, wp_hash_password( $sNewSecret ) );
-		return $this;
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	public function isProviderAvailable( \WP_User $oUser ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledBackupCodes();
 	}
 }

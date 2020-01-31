@@ -107,27 +107,19 @@ class MfaController {
 	 */
 	public function getProviders() {
 		if ( !is_array( $this->aProviders ) ) {
-			/** @var LoginGuard\Options $oOpts */
-			$oOpts = $this->getOptions();
 			$this->aProviders = [];
 
-			if ( $oOpts->isEmailAuthenticationActive() ) {
-				$this->aProviders[ Provider\Email::SLUG ] = new Provider\Email();
-			}
-			if ( $oOpts->isEnabledGoogleAuthenticator() ) {
-				$this->aProviders[ Provider\GoogleAuth::SLUG ] = new Provider\GoogleAuth();
-			}
-			if ( $oOpts->isEnabledYubikey() ) {
-				$this->aProviders[ Provider\Yubikey::SLUG ] = new Provider\Yubikey();
-			}
-			// Backup codes may not be enabled on its own.
-			if ( $oOpts->isEnabledBackupCodes() && !empty( $this->aProviders ) ) {
-				$this->aProviders[ Provider\Backup::SLUG ] = new Provider\Backup();
-			}
+			$oProv = ( new Provider\Email() )->setMod( $this->getMod() );
+			$this->aProviders[ $oProv::SLUG ] = $oProv;
 
-			foreach ( $this->aProviders as $oP ) {
-				$oP->setMod( $this->getMod() );
-			}
+			$oProv = ( new Provider\GoogleAuth() )->setMod( $this->getMod() );
+			$this->aProviders[ $oProv::SLUG ] = $oProv;
+
+			$oProv = ( new Provider\Yubikey() )->setMod( $this->getMod() );
+			$this->aProviders[ $oProv::SLUG ] = $oProv;
+
+			$oProv = ( new Provider\Backup() )->setMod( $this->getMod() );
+			$this->aProviders[ $oProv::SLUG ] = $oProv;
 		}
 		return $this->aProviders;
 	}
@@ -141,9 +133,10 @@ class MfaController {
 		$aProviders = array_filter( $this->getProviders(),
 			function ( $oProvider ) use ( $oUser ) {
 				/** @var Provider\BaseProvider $oProvider */
-				return $oProvider->isProviderAvailable( $oUser );
+				return $oProvider->isProviderAvailableToUser( $oUser );
 			}
 		);
+		// Backups should NEVER be the only 1 available.
 		if ( count( $aProviders ) === 1 && isset( $aProviders[ Provider\Backup::SLUG ] ) ) {
 			unset( $aProviders[ Provider\Backup::SLUG ] );
 		}

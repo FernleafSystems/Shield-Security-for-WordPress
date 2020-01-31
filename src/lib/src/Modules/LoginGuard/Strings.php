@@ -206,7 +206,7 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'All users will be required to verify their login by email-based two-factor authentication.', 'wp-simple-firewall' );
 				break;
 
-			case 'email_any_user_enable' :
+			case 'email_any_user_set' :
 				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
 				$sSummary = __( 'Allow Any User To Turn-On Two-Factor Authentication By Email.', 'wp-simple-firewall' );
 				$sDescription = __( 'When enabled, any user can turn on two-factor authentication by email from their profile.', 'wp-simple-firewall' );
