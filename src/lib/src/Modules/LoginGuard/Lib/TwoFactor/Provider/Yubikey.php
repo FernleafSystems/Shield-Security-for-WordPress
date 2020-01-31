@@ -25,36 +25,26 @@ class Yubikey extends BaseProvider {
 	public function renderUserProfileOptions( \WP_User $oUser ) {
 		$oCon = $this->getCon();
 
-		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 		$aData = [
-			'vars'                  => [
-				'yubi_ids'       => $this->getYubiIds( $oUser ),
+			'vars'    => [
+				'yubi_ids' => $this->getYubiIds( $oUser ),
 			],
-			'strings'               => [
-				'current_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
-				'no_active_yubi_ids' => __( 'There are no registered Yubikey devices on this profile.', 'wp-simple-firewall' ),
-				'enter_otp'          => __( 'To register a new Yubikey device, enter a One Time Password from the Yubikey.', 'wp-simple-firewall' ),
-				'to_remove_device'   => __( 'To remove a Yubikey device, enter the registered device ID and save.', 'wp-simple-firewall' ),
-				'multiple_for_pro'   => sprintf( '[%s] %s', __( 'Pro Only', 'wp-simple-firewall' ),
+			'strings' => [
+				'current_yubi_ids'     => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
+				'no_active_yubi_ids'   => __( 'There are no registered Yubikey devices on this profile.', 'wp-simple-firewall' ),
+				'enter_otp'            => __( 'To register a new Yubikey device, enter a One Time Password from the Yubikey.', 'wp-simple-firewall' ),
+				'to_remove_device'     => __( 'To remove a Yubikey device, enter the registered device ID and save.', 'wp-simple-firewall' ),
+				'multiple_for_pro'     => sprintf( '[%s] %s', __( 'Pro Only', 'wp-simple-firewall' ),
 					__( 'You may add as many Yubikey devices to your profile as you need to.', 'wp-simple-firewall' ) ),
-
-				'description_otp_code'     => __( 'This is your unique Yubikey Device ID.', 'wp-simple-firewall' ),
-				'description_otp_code_ext' => '['.__( 'Pro Only', 'wp-simple-firewall' ).'] '
-											  .__( 'Multiple Yubikey Device IDs are separated by a comma.', 'wp-simple-firewall' ),
-				'description_otp'          => __( 'Provide a One Time Password from your Yubikey.', 'wp-simple-firewall' ),
-				'description_otp_ext'      => $bValidatedProfile ?
-					__( 'This will remove the Yubikey Device ID from your profile.', 'wp-simple-firewall' )
-					: __( 'This will add the Yubikey Device ID to your profile.', 'wp-simple-firewall' ),
-				'description_otp_ext_2'    => $bValidatedProfile ?
-					'['.__( 'Pro Only', 'wp-simple-firewall' ).'] '.__( 'If you provide a OTP from an alternative Yubikey device, it will also be added to your profile.', 'wp-simple-firewall' )
-					: '',
-				'label_enter_code'         => __( 'Yubikey ID', 'wp-simple-firewall' ),
-				'label_enter_otp'          => __( 'Yubikey OTP', 'wp-simple-firewall' ),
-				'title'                    => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
-				'cant_add_other_user'      => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
-				'cant_remove_admins'       => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
-				'provided_by'              => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-				'remove_more_info'         => sprintf( __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ) )
+				'description_otp_code' => __( 'This is your unique Yubikey Device ID.', 'wp-simple-firewall' ),
+				'description_otp'      => __( 'Provide a One Time Password from your Yubikey.', 'wp-simple-firewall' ),
+				'label_enter_code'     => __( 'Yubikey ID', 'wp-simple-firewall' ),
+				'label_enter_otp'      => __( 'Yubikey OTP', 'wp-simple-firewall' ),
+				'title'                => __( 'Yubikey Authentication', 'wp-simple-firewall' ),
+				'cant_add_other_user'  => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Yubikey' ),
+				'cant_remove_admins'   => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Yubikey', 'wp-simple-firewall' ) ),
+				'provided_by'          => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+				'remove_more_info'     => sprintf( __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ) )
 			],
 		];
 
@@ -239,6 +229,15 @@ class Yubikey extends BaseProvider {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isProviderEnabled() {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledYubikey();
+	}
+
+	/**
 	 * @param string $sSecret
 	 * @return bool
 	 */
@@ -251,14 +250,5 @@ class Yubikey extends BaseProvider {
 			}
 		}
 		return $bValid;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isProviderEnabled() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledYubikey();
 	}
 }

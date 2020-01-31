@@ -112,19 +112,12 @@ class MfaController {
 	 */
 	public function getProviders() {
 		if ( !is_array( $this->aProviders ) ) {
-			$this->aProviders = [];
-
-			$oProv = ( new Provider\Email() )->setMod( $this->getMod() );
-			$this->aProviders[ $oProv::SLUG ] = $oProv;
-
-			$oProv = ( new Provider\GoogleAuth() )->setMod( $this->getMod() );
-			$this->aProviders[ $oProv::SLUG ] = $oProv;
-
-			$oProv = ( new Provider\Yubikey() )->setMod( $this->getMod() );
-			$this->aProviders[ $oProv::SLUG ] = $oProv;
-
-			$oProv = ( new Provider\Backup() )->setMod( $this->getMod() );
-			$this->aProviders[ $oProv::SLUG ] = $oProv;
+			$this->aProviders = [
+				Provider\Email::SLUG      => ( new Provider\Email() )->setMod( $this->getMod() ),
+				Provider\GoogleAuth::SLUG => ( new Provider\GoogleAuth() )->setMod( $this->getMod() ),
+				Provider\Yubikey::SLUG    => ( new Provider\Yubikey() )->setMod( $this->getMod() ),
+				Provider\Backup::SLUG     => ( new Provider\Backup() )->setMod( $this->getMod() ),
+			];
 		}
 		return $this->aProviders;
 	}

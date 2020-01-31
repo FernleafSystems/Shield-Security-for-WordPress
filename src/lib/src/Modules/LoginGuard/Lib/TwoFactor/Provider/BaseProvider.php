@@ -11,16 +11,14 @@ abstract class BaseProvider {
 	const SLUG = '';
 
 	/**
+	 * Assumes this is only called on active profiles
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
 	public function validateLoginIntent( \WP_User $oUser ) {
-		$bOtpSuccess = false;
-		if ( $this->isProfileActive( $oUser ) ) {
-			$sReqOtpCode = $this->fetchCodeFromRequest();
-			$bOtpSuccess = $this->processOtp( $oUser, $sReqOtpCode );
-			$this->postOtpProcessAction( $oUser, $bOtpSuccess, !empty( $sReqOtpCode ) );
-		}
+		$sReqOtpCode = $this->fetchCodeFromRequest();
+		$bOtpSuccess = $this->processOtp( $oUser, $sReqOtpCode );
+		$this->postOtpProcessAction( $oUser, $bOtpSuccess, !empty( $sReqOtpCode ) );
 		return $bOtpSuccess;
 	}
 

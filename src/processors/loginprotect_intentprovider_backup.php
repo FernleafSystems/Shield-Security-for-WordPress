@@ -93,43 +93,6 @@ class ICWP_WPSF_Processor_LoginProtect_BackupCodes extends ICWP_WPSF_Processor_L
 
 	/**
 	 * @param \WP_User $oUser
-	 * @param bool     $bIsOtpSuccess
-	 * @param bool     $bOtpProvided - whether a OTP was actually provided
-	 * @return $this
-	 */
-	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
-		parent::postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided );
-
-		if ( $bOtpProvided && $bIsOtpSuccess ) {
-			$this->sendBackupCodeUsedEmail( $oUser );
-		}
-		return $this;
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 */
-	private function sendBackupCodeUsedEmail( $oUser ) {
-		$aEmailContent = [
-			__( 'This is a quick notice to inform you that your Backup Login code was just used.', 'wp-simple-firewall' ),
-			__( "Your WordPress account had only 1 backup login code.", 'wp-simple-firewall' )
-			.' '.__( "You must go to your profile and regenerate a new code if you want to use this method again.", 'wp-simple-firewall' ),
-			'',
-			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
-			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
-			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
-			'',
-			__( 'Thank You.', 'wp-simple-firewall' ),
-		];
-
-		$sTitle = sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Backup Login Code Just Used", 'wp-simple-firewall' ) );
-		$this->getEmailProcessor()
-			 ->sendEmailWithWrap( $oUser->user_email, $sTitle, $aEmailContent );
-	}
-
-	/**
-	 * @param \WP_User $oUser
 	 * @return string
 	 */
 	protected function genNewSecret( \WP_User $oUser ) {

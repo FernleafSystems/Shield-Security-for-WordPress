@@ -29,11 +29,11 @@
 			<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
 			<td>
 				<div style="width: 350px; margin-bottom: 15px">
-					<img src="{{ chart_url }}" alt="{{ strings.description_chart_url }}"
+					<img src="{{ hrefs.src_chart_url }}" alt="{{ strings.description_chart_url }}"
 						 title="{{ strings.description_chart_url }}"
 						 style="display:block;margin:0 auto 10px" />
 					<div style="margin: auto;width: fit-content;text-align: center;"
-						 id="shield_ga_secret">{{ user_google_authenticator_secret }}</div>
+						 id="shield_ga_secret">{{ vars.ga_secret }}</div>
 				</div>
 
 				<input class="regular-text"
