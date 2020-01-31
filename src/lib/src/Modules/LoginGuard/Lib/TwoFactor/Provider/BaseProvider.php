@@ -48,6 +48,14 @@ abstract class BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
+	public function isProfileActive( \WP_User $oUser ) {
+		return $this->hasValidSecret( $oUser );
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
 	public function hasValidatedProfile( $oUser ) {
 		return $this->getCon()->getUserMeta( $oUser )->{static::SLUG.'_validated'} === true;
 	}

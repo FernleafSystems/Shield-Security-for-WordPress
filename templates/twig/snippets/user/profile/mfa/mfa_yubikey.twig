@@ -1,60 +1,36 @@
-{% if has_validated_profile %}
-
-	{% if (is_my_user_profile or i_am_valid_admin) %}
-
-		<tr>
-			<th><label for="yubi_code">{{ strings.label_enter_code }}</label></th>
-			<td>
-				<input type="text" name="yubi_code" id="yubi_code"
-					   value="{{ data.secret }}" readonly />
-				<p class="description">
-					{{ strings.description_otp_code }}
-					<br />{{ strings.description_otp_code_ext }}
-				</p>
-			</td>
-		</tr>
-		<tr>
-			<th><label for="{{ data.otp_field_name }}">{{ strings.label_enter_otp }}</label></th>
-			<td>
-				<input class="regular-text"
-					   type="text"
-					   id="{{ data.otp_field_name }}"
-					   name="{{ data.otp_field_name }}"
-					   value="" autocomplete="off" />
-				<p class="description">
-					{{ strings.description_otp }}
-					<br />{{ strings.description_otp_code_ext }}
-					<br />{{ strings.description_otp_ext_2 }}
-				</p>
-			</td>
-		</tr>
-	{% else %}
+{% if (is_my_user_profile or i_am_valid_admin) %}
+	<tr>
+		<th><label for="{{ data.otp_field_name }}">{{ strings.title }}</label></th>
 		<td>
-			<p class="description">{{ strings.cant_remove_admins }}</p>
-		</td>
-	{% endif %}
+			{% if flags.is_profile_active %}
+				<p>{{ strings.current_yubi_ids }}</p>
+				<ul style=" list-style: circle inside; ">
+					{% for yubi_id in vars.yubi_ids %}
+						<li><code>{{ yubi_id }}</code></li>
+					{% endfor %}
+				</ul>
+			{% else %}
+				<p>{{ strings.no_active_yubi_ids }}</p>
+			{% endif %}
 
+			<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>
+			<input class="regular-text"
+				   type="text"
+				   id="{{ data.otp_field_name }}"
+				   name="{{ data.otp_field_name }}"
+				   value="" autocomplete="off" />
+			{% if flags.is_profile_active %}
+				<p class="description">
+						{{ strings.to_remove_device }}
+				</p>
+			{% endif %}
+			<p class="description">
+				{{ strings.multiple_for_pro }}
+			</p>
+		</td>
+	</tr>
 {% else %}
-
-	{% if is_my_user_profile %}
-		<tr>
-			<th><label for="{{ data.otp_field_name }}">{{ strings.label_enter_otp }}</label></th>
-			<td>
-				<input class="regular-text"
-					   type="text"
-					   id="{{ data.otp_field_name }}"
-					   name="{{ data.otp_field_name }}"
-					   value="" autocomplete="off" />
-				<p class="description">
-					{{ strings.description_otp_code }}
-					<br />{{ strings.description_otp_code_ext }}
-				</p>
-			</td>
-		</tr>
-	{% else %}
-		<td>
-			<p class="description">{{ strings.cant_add_other_user }}</p>
-		</td>
-	{% endif %}
-
+	<td>
+		<p class="description">{{ strings.cant_remove_admins }}</p>
+	</td>
 {% endif %}

@@ -22,12 +22,26 @@ class Yubikey extends BaseProvider {
 		$oWpUsers = Services::WpUsers();
 
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
+		$bProfileActive = $this->isProfileActive( $oUser );
 		$aData = [
 			'has_validated_profile' => $bValidatedProfile,
 			'is_my_user_profile'    => ( $oUser->ID == $oWpUsers->getCurrentWpUserId() ),
 			'i_am_valid_admin'      => $oCon->isPluginAdmin(),
 			'user_to_edit_is_admin' => $oWpUsers->isUserAdmin( $oUser ),
+			'flags'                 => [
+				'is_profile_active' => $bProfileActive
+			],
+			'vars'                  => [
+				'yubi_ids' => $this->getYubiIds( $oUser )
+			],
 			'strings'               => [
+				'current_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
+				'no_active_yubi_ids' => __( 'There are no registered Yubikey Devices on this profile.', 'wp-simple-firewall' ),
+				'enter_otp'          => __( 'To register a new Yubikey device, enter a One Time Password from the Yubikey.', 'wp-simple-firewall' ),
+				'to_remove_device'   => __( 'To remove a Yubikey device, enter the registered device ID and save.', 'wp-simple-firewall' ),
+				'multiple_for_pro'   => sprintf( '[%s] %s', __( 'Pro Only', 'wp-simple-firewall' ),
+					__( 'You may add as many Yubikey devices to your profile as you need to.', 'wp-simple-firewall' ) ),
+
 				'description_otp_code'     => __( 'This is your unique Yubikey Device ID.', 'wp-simple-firewall' ),
 				'description_otp_code_ext' => '['.__( 'Pro Only', 'wp-simple-firewall' ).'] '
 											  .__( 'Multiple Yubikey Device IDs are separated by a comma.', 'wp-simple-firewall' ),

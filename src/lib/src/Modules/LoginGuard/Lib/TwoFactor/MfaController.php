@@ -111,11 +111,11 @@ class MfaController {
 			$oOpts = $this->getOptions();
 			$this->aProviders = [];
 
-			if ( $oOpts->isEnabledGoogleAuthenticator() ) {
-				$this->aProviders[ Provider\GoogleAuth::SLUG ] = new Provider\GoogleAuth();
-			}
 			if ( $oOpts->isEmailAuthenticationActive() ) {
 				$this->aProviders[ Provider\Email::SLUG ] = new Provider\Email();
+			}
+			if ( $oOpts->isEnabledGoogleAuthenticator() ) {
+				$this->aProviders[ Provider\GoogleAuth::SLUG ] = new Provider\GoogleAuth();
 			}
 			if ( $oOpts->isEnabledYubikey() ) {
 				$this->aProviders[ Provider\Yubikey::SLUG ] = new Provider\Yubikey();
