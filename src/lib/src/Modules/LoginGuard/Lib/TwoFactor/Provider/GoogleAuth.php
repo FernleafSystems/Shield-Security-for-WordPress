@@ -16,15 +16,6 @@ class GoogleAuth extends BaseProvider {
 	private $oWorkingSecret;
 
 	/**
-	 */
-	public function run() {
-		parent::run();
-		if ( $this->getCon()->getShieldAction() == 'garemovalconfirm' ) {
-			add_action( 'wp_loaded', [ $this, 'validateUserGaRemovalLink' ], 10 );
-		}
-	}
-
-	/**
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
@@ -94,14 +85,16 @@ class GoogleAuth extends BaseProvider {
 	 * @return string
 	 */
 	public function getGaRegisterChartUrl( $oUser ) {
-		if ( empty( $oUser ) ) {
-			$sUrl = '';
-		}
-		else {
-			$sUrl = ( new GoogleAuthenticator\QrImageGenerator\GoogleQrImageGenerator () )
-				->generateUri(
-					$this->getGaSecret( $oUser )
-				);
+		$sUrl = '';
+		if ( !empty( $oUser ) ) {
+			try {
+				$sUrl = ( new GoogleAuthenticator\QrImageGenerator\GoogleQrImageGenerator () )
+					->generateUri(
+						$this->getGaSecret( $oUser )
+					);
+			}
+			catch ( \InvalidArgumentException $e ) {
+			}
 		}
 		return $sUrl;
 	}
@@ -114,28 +107,10 @@ class GoogleAuth extends BaseProvider {
 	public function handleEditOtherUserProfileSubmit( \WP_User $oUser ) {
 
 		// Can only edit other users if you're admin/security-admin
-		if ( $this->getCon()->isPluginAdmin() ) {
-			$oWpUsers = Services::WpUsers();
-
-			$sShieldTurnOff = Services::Request()->post( 'shield_turn_off_google_authenticator' );
-			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
-
-				$bPermissionToRemoveGa = true;
-				// if the current user has Google Authenticator on THEIR account, process their OTP.
-				$oCurrentUser = $oWpUsers->getCurrentWpUser();
-				if ( $this->hasValidatedProfile( $oCurrentUser ) ) {
-					$bPermissionToRemoveGa = $this->processOtp( $oCurrentUser, $this->fetchCodeFromRequest() );
-				}
-
-				if ( $bPermissionToRemoveGa ) {
-					$this->processRemovalFromAccount( $oUser );
-					$sMsg = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
-				}
-				else {
-					$sMsg = __( 'Google Authenticator could not be removed from the account - ensure your code is correct.', 'wp-simple-firewall' );
-				}
-				$this->getMod()->setFlashAdminNotice( $sMsg, $bPermissionToRemoveGa );
-			}
+		if ( $this->getCon()->isPluginAdmin() && Services::Request()->post( 'shield_turn_off_ga' ) === 'Y' ) {
+			$this->processRemovalFromAccount( $oUser );
+			$sMsg = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
+			$this->getMod()->setFlashAdminNotice( $sMsg );
 		}
 	}
 
@@ -179,7 +154,7 @@ class GoogleAuth extends BaseProvider {
 			else {
 				$this->resetSecret( $oUser );
 				$sFlash = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' )
-						  .' '.__( 'Please try again.', 'wp-simple-firewall' );;
+						  .' '.__( 'Please try again.', 'wp-simple-firewall' );
 			}
 			$this->getMod()->setFlashAdminNotice( $sFlash, !$bValidOtp );
 		}
@@ -200,49 +175,6 @@ class GoogleAuth extends BaseProvider {
 				'onkeyup' => "this.value=this.value.replace(/[^\d]/g,'')"
 			]
 		];
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	protected function sendEmailConfirmationGaRemoval( $oUser ) {
-		$bSendSuccess = false;
-
-		$aEmailContent = [];
-		$aEmailContent[] = __( 'You have requested the removal of Google Authenticator from your WordPress account.', 'wp-simple-firewall' )
-						   .__( 'Please click the link below to confirm.', 'wp-simple-firewall' );
-		$aEmailContent[] = $this->generateGaRemovalConfirmationLink();
-
-		$sRecipient = $oUser->get( 'user_email' );
-		if ( Services::Data()->validEmail( $sRecipient ) ) {
-			$sEmailSubject = __( 'Google Authenticator Removal Confirmation', 'wp-simple-firewall' );
-			$bSendSuccess = $this->getMod()
-								 ->getEmailProcessor()
-								 ->sendEmailWithWrap( $sRecipient, $sEmailSubject, $aEmailContent );
-		}
-		return $bSendSuccess;
-	}
-
-	/**
-	 */
-	public function validateUserGaRemovalLink() {
-		// Must be already logged in for this link to work.
-		$oWpCurrentUser = Services::WpUsers()->getCurrentWpUser();
-		if ( empty( $oWpCurrentUser ) ) {
-			return;
-		}
-
-		// Session IDs must be the same
-		$sSessionId = Services::Request()->query( 'sessionid' );
-		if ( empty( $sSessionId ) || ( $sSessionId !== $this->getCon()->getSessionId() ) ) {
-			return;
-		}
-
-		$this->processRemovalFromAccount( $oWpCurrentUser );
-		$this->getMod()
-			 ->setFlashAdminNotice( __( 'Google Authenticator was successfully removed from this account.', 'wp-simple-firewall' ) );
-		Services::Response()->redirectToAdmin();
 	}
 
 	/**
@@ -288,17 +220,6 @@ class GoogleAuth extends BaseProvider {
 				]
 			]
 		);
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function generateGaRemovalConfirmationLink() {
-		$aQueryArgs = [
-			'shield_action' => 'garemovalconfirm',
-			'sessionid'     => $this->getCon()->getSessionId()
-		];
-		return add_query_arg( $aQueryArgs, Services::WpGeneral()->getAdminUrl() );
 	}
 
 	/**

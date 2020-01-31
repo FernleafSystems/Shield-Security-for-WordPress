@@ -94,7 +94,7 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
-	public function isEnabledEmailAuthAnyUserEnable() {
+	public function isEmailAuthAnyUserEnable() {
 		return $this->isEmailAuthenticationActive() && $this->isOpt( 'email_any_user_enable', 'Y' ) && $this->isPremium();
 	}
 

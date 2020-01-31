@@ -11,17 +11,6 @@ abstract class BaseProvider {
 	const SLUG = '';
 
 	/**
-	 */
-	public function run() {
-//		add_action( 'show_user_profile', [ $this, 'addOptionsToUserProfile' ] );
-//		add_action( 'personal_options_update', [ $this, 'handleUserProfileSubmit' ] );
-//		if ( $this->getCon()->isPluginAdmin() ) {
-//			add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
-//			add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
-//		}
-	}
-
-	/**
 	 * @param \WP_User $oUser
 	 * @return bool
 	 */
