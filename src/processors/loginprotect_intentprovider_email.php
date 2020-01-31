@@ -176,38 +176,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	}
 
 	/**
-	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
-	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param WP_User $oUser
-	 */
-	public function addOptionsToUserProfile( $oUser ) {
-		$oWp = Services::WpUsers();
-		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
-		$aData = [
-			'user_has_email_authentication_active'   => $bValidatedProfile,
-			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
-			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
-			'i_am_valid_admin'                       => $this->getCon()->isPluginAdmin(),
-			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
-			'strings'                                => [
-				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
-				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $this->getCon()
-																														   ->getHumanName() )
-			]
-		];
-
-		$aData[ 'bools' ] = [
-			'checked'  => $bValidatedProfile || $aData[ 'user_has_email_authentication_enforced' ],
-			'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ]
-			//TODO: Make email authentication a per-user setting
-		];
-
-		echo $this->getMod()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getStub() {

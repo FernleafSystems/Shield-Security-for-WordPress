@@ -65,9 +65,9 @@ class Yubikey extends BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
 	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 * @param int $nSavingUserId
+	 * @inheritDoc
 	 */
-	public function handleUserProfileSubmit( $nSavingUserId ) {
+	public function handleUserProfileSubmit( \WP_User $oUser ) {
 
 		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
 		$sOtp = trim( (string)$this->fetchCodeFromRequest() );
@@ -94,19 +94,18 @@ class Yubikey extends BaseProvider {
 		 * 2) Is this a premium Shield installation - if so, multiple yubikeys are permitted
 		 */
 
-		$oSavingUser = Services::WpUsers()->getUserById( $nSavingUserId );
 		$sYubiId = substr( $sOtp, 0, self::OTP_LENGTH );
 
 		$bError = false;
-		if ( in_array( $sYubiId, $this->getYubiIds( $oSavingUser ) ) ) {
-			$this->removeYubiIdFromProfile( $oSavingUser, $sYubiId );
+		if ( in_array( $sYubiId, $this->getYubiIds( $oUser ) ) ) {
+			$this->removeYubiIdFromProfile( $oUser, $sYubiId );
 			$sMsg = sprintf(
 				__( '%s was removed from your profile.', 'wp-simple-firewall' ),
 				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' "%s"', $sYubiId )
 			);
 		}
-		elseif ( count( $this->getYubiIds( $oSavingUser ) ) == 0 || $this->getCon()->isPremiumActive() ) {
-			$this->addYubiIdToProfile( $oSavingUser, $sYubiId );
+		elseif ( count( $this->getYubiIds( $oUser ) ) == 0 || $this->getCon()->isPremiumActive() ) {
+			$this->addYubiIdToProfile( $oUser, $sYubiId );
 			$sMsg = sprintf(
 				__( '%s was added to your profile.', 'wp-simple-firewall' ),
 				__( 'Yubikey Device', 'wp-simple-firewall' ).sprintf( ' (%s)', $sYubiId )
@@ -117,7 +116,7 @@ class Yubikey extends BaseProvider {
 			$sMsg = __( 'No changes were made to your Yubikey configuration', 'wp-simple-firewall' );
 		}
 
-		$this->setProfileValidated( $oSavingUser, $this->hasValidSecret( $oSavingUser ) );
+		$this->setProfileValidated( $oUser, $this->hasValidSecret( $oUser ) );
 		$oMod->setFlashAdminNotice( $sMsg, $bError );
 	}
 

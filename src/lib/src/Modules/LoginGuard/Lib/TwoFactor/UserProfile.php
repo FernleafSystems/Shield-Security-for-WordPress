@@ -31,7 +31,7 @@ class UserProfile {
 		$aProviders = $oMC->getProvidersForUser( $oUser );
 		if ( count( $aProviders ) > 0 ) {
 			$aRows = [];
-			foreach ( $oMC->getProvidersForUser( $oUser ) as $oProvider ) {
+			foreach ( $aProviders as $oProvider ) {
 				$aRows[ $oProvider::SLUG ] = $oProvider->addOptionsToUserProfile( $oUser );
 			}
 
@@ -64,6 +64,12 @@ class UserProfile {
 	 * @param int $nSavingUserId
 	 */
 	public function handleUserProfileSubmit( $nSavingUserId ) {
+		$oUser = Services::WpUsers()->getUserById( $nSavingUserId );
+		$aProviders = $this->getMfaCon()
+						   ->getProvidersForUser( $oUser );
+		foreach ( $aProviders as $oProvider ) {
+			$oProvider->handleUserProfileSubmit( $oUser );
+		}
 	}
 
 	/**
@@ -80,5 +86,11 @@ class UserProfile {
 	 * @param int $nSavingUserId
 	 */
 	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
+		$oUser = Services::WpUsers()->getUserById( $nSavingUserId );
+		$aProviders = $this->getMfaCon()
+						   ->getProvidersForUser( $oUser );
+		foreach ( $aProviders as $oProvider ) {
+			$oProvider->handleEditOtherUserProfileSubmit( $oUser );
+		}
 	}
 }

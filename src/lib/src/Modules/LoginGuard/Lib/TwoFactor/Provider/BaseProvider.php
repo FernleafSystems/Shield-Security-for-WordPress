@@ -161,9 +161,9 @@ abstract class BaseProvider {
 	/**
 	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
-	 * @param int $nSavingUserId
+	 * @param \WP_User $oUser
 	 */
-	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
+	public function handleEditOtherUserProfileSubmit( \WP_User $oUser ) {
 	}
 
 	/**
@@ -175,9 +175,9 @@ abstract class BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
 	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 * @param int $nSavingUserId
+	 * @param \WP_User $oUser
 	 */
-	public function handleUserProfileSubmit( $nSavingUserId ) {
+	public function handleUserProfileSubmit( \WP_User $oUser ) {
 	}
 
 	/**

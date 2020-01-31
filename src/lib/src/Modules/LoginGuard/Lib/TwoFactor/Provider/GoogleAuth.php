@@ -95,14 +95,13 @@ class GoogleAuth extends BaseProvider {
 	/**
 	 * The only thing we can do is REMOVE Google Authenticator from an account that is not our own
 	 * But, only admins can do this.  If Security Admin feature is enabled, then only they can do it.
-	 * @param int $nSavingUserId
+	 * @inheritDoc
 	 */
-	public function handleEditOtherUserProfileSubmit( $nSavingUserId ) {
+	public function handleEditOtherUserProfileSubmit( $oUser ) {
 
 		// Can only edit other users if you're admin/security-admin
 		if ( $this->getCon()->isPluginAdmin() ) {
 			$oWpUsers = Services::WpUsers();
-			$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
 
 			$sShieldTurnOff = Services::Request()->post( 'shield_turn_off_google_authenticator' );
 			if ( !empty( $sShieldTurnOff ) && $sShieldTurnOff == 'Y' ) {
@@ -115,7 +114,7 @@ class GoogleAuth extends BaseProvider {
 				}
 
 				if ( $bPermissionToRemoveGa ) {
-					$this->processRemovalFromAccount( $oSavingUser );
+					$this->processRemovalFromAccount( $oUser );
 					$sMsg = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
 				}
 				else {
@@ -139,16 +138,12 @@ class GoogleAuth extends BaseProvider {
 	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile,
 	 * so we can use "current user" functions.  Otherwise we need to be careful of mixing up users.
-	 * @param int $nSavingUserId
+	 * @param \WP_User $oUser
 	 */
-	public function handleUserProfileSubmit( $nSavingUserId ) {
-		$oWpUsers = Services::WpUsers();
-
-		$oSavingUser = $oWpUsers->getUserById( $nSavingUserId );
-
+	public function handleUserProfileSubmit( \WP_User $oUser ) {
 		// If it's your own account, you CANT do anything without your OTP (except turn off via email).
 		$sOtp = $this->fetchCodeFromRequest();
-		$bValidOtp = $this->processOtp( $oSavingUser, $sOtp );
+		$bValidOtp = $this->processOtp( $oUser, $sOtp );
 
 		$sMessageOtpInvalid = __( 'One Time Password (OTP) was not valid.', 'wp-simple-firewall' ).' '.__( 'Please try again.', 'wp-simple-firewall' );
 
@@ -157,12 +152,12 @@ class GoogleAuth extends BaseProvider {
 
 			$bError = false;
 			if ( $bValidOtp ) {
-				$this->processRemovalFromAccount( $oSavingUser );
+				$this->processRemovalFromAccount( $oUser );
 				$sFlash = __( 'Google Authenticator was successfully removed from the account.', 'wp-simple-firewall' );
 			}
 			elseif ( empty( $sOtp ) ) {
 
-				if ( $this->sendEmailConfirmationGaRemoval( $oSavingUser ) ) {
+				if ( $this->sendEmailConfirmationGaRemoval( $oUser ) ) {
 					$sFlash = __( 'An email has been sent to you in order to confirm Google Authenticator removal', 'wp-simple-firewall' );
 				}
 				else {
@@ -184,17 +179,17 @@ class GoogleAuth extends BaseProvider {
 		}
 
 		// We're trying to validate our OTP to activate our GA
-		if ( !$this->hasValidatedProfile( $oSavingUser ) ) {
+		if ( !$this->hasValidatedProfile( $oUser ) ) {
 
 			if ( $bValidOtp ) {
-				$this->setProfileValidated( $oSavingUser );
+				$this->setProfileValidated( $oUser );
 				$sFlash = sprintf(
 					__( '%s was successfully added to your account.', 'wp-simple-firewall' ),
 					__( 'Google Authenticator', 'wp-simple-firewall' )
 				);
 			}
 			else {
-				$this->resetSecret( $oSavingUser );
+				$this->resetSecret( $oUser );
 				$sFlash = $sMessageOtpInvalid;
 			}
 			$this->getMod()->setFlashAdminNotice( $sFlash, !$bValidOtp );

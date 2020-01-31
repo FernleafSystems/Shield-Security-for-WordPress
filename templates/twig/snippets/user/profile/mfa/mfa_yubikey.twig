@@ -5,8 +5,8 @@
 		<tr>
 			<th><label for="yubi_code">{{ strings.label_enter_code }}</label></th>
 			<td>
-				<input type="checkbox" name="yubi_code" id="yubi_code"
-					   value="{{ data.secret }}" />
+				<input type="text" name="yubi_code" id="yubi_code"
+					   value="{{ data.secret }}" readonly />
 				<p class="description">
 					{{ strings.description_otp_code }}
 					<br />{{ strings.description_otp_code_ext }}
