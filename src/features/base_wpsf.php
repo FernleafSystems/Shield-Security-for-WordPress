@@ -7,16 +7,6 @@ use FernleafSystems\Wordpress\Services\Utilities;
 class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
-	 * @var string[]
-	 */
-	private static $aStatEvents;
-
-	/**
-	 * @var Shield\Databases\AuditTrail\EntryVO[]
-	 */
-	private static $aAuditLogs;
-
-	/**
 	 * @var bool
 	 */
 	protected static $bIsVerifiedBot;
