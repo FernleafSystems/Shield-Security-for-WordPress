@@ -159,6 +159,12 @@ class Strings extends Base\Strings {
 						 .'<br />'.__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' );
 				break;
 
+			case 'enable_email_validate' :
+				$sName = __( 'Validate Email Addresses', 'wp-simple-firewall' );
+				$sSummary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
+				$sDesc = __( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' );
+				break;
+
 			case 'enable_password_policies' :
 				$sName = __( 'Enable Password Policies', 'wp-simple-firewall' );
 				$sSummary = __( 'Enable The Password Policies Detailed Below', 'wp-simple-firewall' );

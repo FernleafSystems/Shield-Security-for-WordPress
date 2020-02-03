@@ -26,6 +26,15 @@
       ]
     },
     {
+      "slug":        "section_user_reg",
+      "title":       "User Registration",
+      "title_short": "User Registration",
+      "summary":     [
+        "Purpose - Control user registration and prevent SPAM.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
       "slug":        "section_passwords",
       "reqs":        {
         "wp_min": "4.4"
@@ -152,6 +161,31 @@
       "name":        "Max Simultaneous Sessions",
       "summary":     "Limit Simultaneous Sessions For The Same Username",
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
+    },
+    {
+      "key":           "enable_email_validate",
+      "section":       "section_user_reg",
+      "type":          "select",
+      "default":       "disabled",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Log Only"
+        },
+        {
+          "value_key": "kill",
+          "text":      "Kill Connection"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Validate Email Addresses",
+      "summary":       "Validate Email Addresses When User Attempts To Register",
+      "description":   "Validate Email Addresses When User Attempts To Register."
     },
     {
       "key":         "enable_password_policies",
