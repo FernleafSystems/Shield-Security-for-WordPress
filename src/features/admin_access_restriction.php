@@ -357,6 +357,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					'req_email_remove' => $this->getAjaxActionData( 'req_email_remove' ),
 				],
 				'strings' => [
+					'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
 				]
 			];
 		}
