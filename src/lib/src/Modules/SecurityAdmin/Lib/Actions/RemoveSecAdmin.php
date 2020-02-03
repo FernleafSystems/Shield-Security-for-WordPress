@@ -15,9 +15,11 @@ class RemoveSecAdmin {
 	public function remove() {
 		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oOpts->clearSecurityAdminKey();
-		$this->getMod()->saveModOptions();
-		$this->sendNotificationEmail();
+		if ( $oOpts->hasAccessKey() ) {
+			$oOpts->clearSecurityAdminKey();
+			$this->getMod()->saveModOptions();
+			$this->sendNotificationEmail();
+		}
 	}
 
 	public function sendConfirmationEmail() {
