@@ -374,6 +374,7 @@ You will always be able to use Shield Security and its free features in-full.
 *Released: 3rd February, 2020* - [Release Notes](https://shsec.io/gb)
 
 * **(v.3)**  FIXED:		Prevent MySQL error when Shield is running on private network or local machine.
+* **(v.3)**  FIXED:		Prevent duplicate emails being sent when removing Security Admin key.
 * **(v.2)**  ADDED:		Introductory tour of plugin, on activation.
 * **(v.2)**  IMPROVED:	Enhanced IP detection of service providers for exclusion from traffic log.
 * **(v.2)**  IMPROVED:	Plugin/Theme Hack Guard Snapshot building is optimised to reduce disruption is some cases.
