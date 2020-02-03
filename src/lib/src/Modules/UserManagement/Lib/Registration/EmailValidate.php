@@ -3,13 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Registration;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Verify\Email;
 
 class EmailValidate {
 
 	use ModConsumer;
 
 	public function run() {
-		add_filter( 'wp_pre_insert_user_data', [ $this, 'validateNewUserEmail' ] );
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->getValidateEmailOnRegistration() != 'disabled' ) {
+			add_filter( 'wp_pre_insert_user_data', [ $this, 'validateNewUserEmail' ] );
+		}
 	}
 
 	/**
@@ -18,7 +24,33 @@ class EmailValidate {
 	 */
 	private function validateNewUserEmail( $aUserData ) {
 		$sEmail = $aUserData[ 'user_email' ];
-		// validate email, return null, log, die? email?
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		if ( is_email( $sEmail ) ) {
+			$sInvalidBecause = null;
+			$aValidations = ( new Email() )->getEmailVerification( $sEmail );
+			foreach ( $aValidations as $sValidation => $bIsValid ) {
+				if ( !$bIsValid ) {
+					$sInvalidBecause = $sValidation;
+				}
+			}
+
+			if ( !empty( $sInvalidBecause ) ) {
+				$this->getCon()->fireEvent(
+					'reg_email_invalid',
+					[
+						'audit' => [
+							'email' => sanitize_email( $sEmail ),
+						]
+					]
+				);
+				if ( $oOpts->getValidateEmailOnRegistration() == 'kill' ) {
+					wp_die( 'Attempted user registration with invalid email addressed has been blocked.' );
+				}
+			}
+		}
+
 		return $aUserData;
 	}
 }

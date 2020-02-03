@@ -148,9 +148,9 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return bool
+	 * @return string
 	 */
-	public function isValidateEmailOnRegistration() {
-		return !$this->isOpt( 'enable_email_validate', 'disabled' );
+	public function getValidateEmailOnRegistration() {
+		return $this->getOpt( 'enable_email_validate', 'disabled' );
 	}
 }

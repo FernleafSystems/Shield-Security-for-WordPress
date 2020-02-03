@@ -165,6 +165,7 @@
     {
       "key":           "enable_email_validate",
       "section":       "section_user_reg",
+      "premium":       true,
       "type":          "select",
       "default":       "disabled",
       "value_options": [
@@ -376,6 +377,9 @@
         "recent": true
       },
       "user_hard_unsuspended":        {
+      },
+      "reg_email_invalid":            {
+        "offense": true
       }
     }
   }
