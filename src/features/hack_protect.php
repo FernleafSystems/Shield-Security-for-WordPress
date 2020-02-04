@@ -310,7 +310,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isPtgEnabled() {
-		return $this->isPremium() && $this->isOpt( 'ptg_enable', 'enabled' )
+		return $this->isModuleEnabled() && $this->isPremium()
+			   && $this->isOpt( 'ptg_enable', 'enabled' )
 			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
 			   && $this->canPtgWriteToDisk();
 	}
@@ -336,7 +337,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) && $oOpts->isPtgReinstallLinks() ) {
+		if ( $this->isPtgEnabled()
+			 && Services::WpPost()->isCurrentPage( 'plugins.php' ) && $oOpts->isPtgReinstallLinks() ) {
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
