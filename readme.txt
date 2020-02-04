@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.5.3
+Stable tag: 8.5.5
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,8 +370,15 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.5.3 - Current Release =
-*Released: 3rd February, 2020* - [Release Notes](https://shsec.io/gb)
+= 8.5.5 - Current Release =
+*Released: 4th February, 2020* - [Release Notes](https://shsec.io/gb)
+
+* **(v.5)**  FIXED:		Further protection against errors if IP address is of a private network.
+* **(v.5)**  FIXED:		Can't activate plugins in a particular scenario.
+* **(v.5)**  FIXED:		Traffic Logger wasn't capturing traffic in some cases.
+
+= 8.5 - Series =
+*Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 
 * **(v.3)**  FIXED:		Prevent MySQL error when Shield is running on private network or local machine.
 * **(v.3)**  FIXED:		Prevent duplicate emails being sent when removing Security Admin key.
@@ -383,10 +390,6 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.2)**  FIXED:		Firewall email alert was not sent when using certain dedicated email plugins.
 * **(v.2)**  FIXED:		Firewall 404 setting was redirecting instead of responding with 404.
 * **(v.2)**  ADDED:		Added support for NodePing filtering in the traffic logger.
-
-= 8.5 - Series =
-*Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
-
 * **(v.1)**  FIXED:		Fix for page loading issue/slowdown in some cases.
 * **(v.0)**  NEW:		Initial support for checksum scanning of premium plugins and themes.
 * **(v.0)**  NEW:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.

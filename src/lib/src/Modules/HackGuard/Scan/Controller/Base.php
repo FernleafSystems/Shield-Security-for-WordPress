@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
@@ -39,6 +39,19 @@ abstract class Base {
 		( new HackGuard\Scan\Results\ResultsDelete() )
 			->setScanController( $this )
 			->delete( $oResults );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function getScanHasProblem() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Databases\Scanner\Select $oSel */
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+		return $oSel->filterByNotIgnored()
+					->filterByScan( $this->getSlug() )
+					->count() > 0;
 	}
 
 	/**
@@ -164,10 +177,19 @@ abstract class Base {
 	/**
 	 * @return bool
 	 */
+	public function isReady() {
+		return $this->isEnabled() && $this->isScanningAvailable();
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isScanningAvailable() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return !$this->isPremiumOnly() || $oOpts->isPremium();
+		return $oMod->isModuleEnabled() && ( !$this->isPremiumOnly() || $oOpts->isPremium() );
 	}
 
 	/**

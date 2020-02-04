@@ -22,7 +22,7 @@ class Insert extends Base\Insert {
 		if ( isset( $aData[ 'data' ] ) && !is_string( $aData[ 'data' ] ) ) {
 			$aData[ 'data' ] = '';
 		}
-		if ( !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
+		if ( empty( $aData[ 'ip' ] ) || !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
 			$aData[ 'ip' ] = '';
 		}
 

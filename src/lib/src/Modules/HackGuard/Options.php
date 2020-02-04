@@ -207,7 +207,7 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isPtgReinstallLinks() {
-		return $this->isPremium() && $this->isOpt( 'ptg_reinstall_links', 'Y' );
+		return $this->isPtgEnabled() && $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->isPremium();
 	}
 
 	/**
