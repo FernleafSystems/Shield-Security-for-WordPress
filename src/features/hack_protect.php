@@ -142,13 +142,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @param string $sScan ptg, wcf, ufc, wpv
 	 * @return bool
+	 * @deprecated 8.5.5
 	 */
 	public function getScanHasProblem( $sScan ) {
-		/** @var Shield\Databases\Scanner\Select $oSel */
-		$oSel = $this->getDbHandler_ScanResults()->getQuerySelector();
-		return $oSel->filterByNotIgnored()
-					->filterByScan( $sScan )
-					->count() > 0;
+		return $this->getScanCon( $sScan )->getScanHasProblem();
 	}
 
 	/**
@@ -337,8 +334,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( $this->isPtgEnabled()
-			 && Services::WpPost()->isCurrentPage( 'plugins.php' ) && $oOpts->isPtgReinstallLinks() ) {
+		if ( Services::WpPost()->isCurrentPage( 'plugins.php' )
+			 && $oOpts->isPtgReinstallLinks() && $this->getScanCon( 'ptg' )->isReady() ) {
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_hp',
@@ -663,7 +660,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		{// Plugin/Theme Guard
-			if ( !$this->isPtgEnabled() ) {
+			$oPTG = $this->getScanCon( 'ptg' );
+			if ( !$oPTG->isEnabled() ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'Automatic Plugin/Themes Guard is not enabled.', 'wp-simple-firewall' ),
@@ -672,7 +670,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of plugin/theme modifications is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			elseif ( $this->getScanHasProblem( 'ptg' ) ) {
+			elseif ( $oPTG->getScanHasProblem() ) {
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
