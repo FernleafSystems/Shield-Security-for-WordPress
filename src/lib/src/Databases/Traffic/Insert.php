@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Insert extends Base\Insert {
 
@@ -15,7 +14,7 @@ class Insert extends Base\Insert {
 		parent::verifyInsertData();
 		$aData = $this->getInsertData();
 
-		if ( empty( $aData[ 'ip' ] ) || !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
+		if ( empty( $aData[ 'ip' ] ) ) {
 			throw new \Exception( 'IP address provided is not valid' );
 		}
 
