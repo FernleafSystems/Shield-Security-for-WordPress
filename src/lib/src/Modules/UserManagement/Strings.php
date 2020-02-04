@@ -262,7 +262,8 @@ class Strings extends Base\Strings {
 	protected function getAuditMessages() {
 		return [
 			'reg_email_invalid'            => [
-				__( 'Detected user registration with invalid email address (%s)', 'wp-simple-firewall' ),
+				__( 'Detected user registration with invalid email address (%s).', 'wp-simple-firewall' ),
+				sprintf( __( 'Failure reason: %s' ) )
 			],
 			'pass_expired'                 => [
 				__( 'Forcing user to update expired password.', 'wp-simple-firewall' ),

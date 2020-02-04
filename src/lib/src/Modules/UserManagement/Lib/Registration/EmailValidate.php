@@ -46,7 +46,8 @@ class EmailValidate {
 				'reg_email_invalid',
 				[
 					'audit' => [
-						'email' => sanitize_email( $sEmail ),
+						'email'  => sanitize_email( $sEmail ),
+						'reason' => sanitize_key( $sInvalidBecause ),
 					]
 				]
 			);
