@@ -34,17 +34,17 @@ class Insert extends Base\Insert {
 		if ( empty( $aData[ 'wp_username' ] ) ) {
 			throw new \Exception( 'WP Username not provided' );
 		}
+		if ( empty( $aData[ 'ip' ] ) || !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
+			$aData[ 'ip' ] = '';
+		}
 
 		$oReq = Services::Request();
-		$nTimeStamp = $oReq->ts();
-
 		$aData = array_merge(
 			[
 				'browser'                 => md5( $oReq->getUserAgent() ),
-				'ip'                      => Services::IP()->getRequestIp(), // TODO: SHA1
-				'logged_in_at'            => $nTimeStamp,
-				'last_activity_at'        => $nTimeStamp,
-				'last_activity_uri'       => $oReq->server( 'REQUEST_URI' ),
+				'logged_in_at'            => $oReq->ts(),
+				'last_activity_at'        => $oReq->ts(),
+				'last_activity_uri'       => $oReq->getRequestUri(),
 				'login_intent_expires_at' => 0,
 				'secadmin_at'             => 0,
 			],

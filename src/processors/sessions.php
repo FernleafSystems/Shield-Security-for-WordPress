@@ -161,14 +161,14 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	protected function queryCreateSession( $sSessionId, $sUsername ) {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
 		if ( empty( $sSessionId ) || empty( $sUsername ) ) {
 			return null;
 		}
 
 		$this->getCon()->fireEvent( 'session_start' );
 
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
 		/** @var Session\Insert $oInsert */
 		$oInsert = $oMod->getDbHandler_Sessions()->getQueryInserter();
 		return $oInsert->create( $sSessionId, $sUsername );

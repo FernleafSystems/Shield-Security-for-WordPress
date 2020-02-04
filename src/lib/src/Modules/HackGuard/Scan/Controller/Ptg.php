@@ -67,7 +67,9 @@ class Ptg extends BaseForAssets {
 	public function isScanningAvailable() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		return parent::isScanningAvailable() && $oMod->canPtgWriteToDisk();
+		return parent::isScanningAvailable()
+			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
+			   && $oMod->canPtgWriteToDisk();
 	}
 
 	/**
