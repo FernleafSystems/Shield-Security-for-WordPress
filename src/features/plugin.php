@@ -14,9 +14,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	protected function setupCustomHooks() {
 		parent::setupCustomHooks();
-		add_filter( $this->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
-		add_filter( $this->prefix( 'globally_disabled' ), [ $this, 'filter_IsPluginGloballyDisabled' ] );
-		add_filter( $this->prefix( 'google_recaptcha_config' ), [ $this, 'getGoogleRecaptchaConfig' ], 10, 0 );
+		$oCon = $this->getCon();
+		add_filter( $oCon->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
+		add_filter( $oCon->prefix( 'globally_disabled' ), [ $this, 'filter_IsPluginGloballyDisabled' ] );
+		add_filter( $oCon->prefix( 'google_recaptcha_config' ), [ $this, 'getGoogleRecaptchaConfig' ], 10, 0 );
+		/** Enfold Theme Cookies helps prevent deleting Shield's cookies */
+		add_filter( $oCon->prefix( 'avf_admin_keep_cookies' ), function ( $aCookiesToKeep ) use ( $oCon ) {
+			$aCookiesToKeep[] = $oCon->getPluginPrefix().'*';
+			$aCookiesToKeep[] = $oCon->getOptionStoragePrefix().'*';
+			return $aCookiesToKeep;
+		}, 10, 0 );
 	}
 
 	protected function updateHandler() {
