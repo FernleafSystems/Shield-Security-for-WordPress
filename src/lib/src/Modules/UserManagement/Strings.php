@@ -165,6 +165,12 @@ class Strings extends Base\Strings {
 				$sDesc = __( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' );
 				break;
 
+			case 'email_checks' :
+				$sName = __( 'Email Validation Checks', 'wp-simple-firewall' );
+				$sSummary = __( 'The Email Address Properties That Will Be Tested', 'wp-simple-firewall' );
+				$sDesc = __( 'Select the properties that should be tested during email address validation.', 'wp-simple-firewall' );
+				break;
+
 			case 'enable_password_policies' :
 				$sName = __( 'Enable Password Policies', 'wp-simple-firewall' );
 				$sSummary = __( 'Enable The Password Policies Detailed Below', 'wp-simple-firewall' );

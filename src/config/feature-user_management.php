@@ -189,6 +189,35 @@
       "description":   "Validate Email Addresses When User Attempts To Register."
     },
     {
+      "key":           "email_checks",
+      "section":       "section_user_reg",
+      "type":          "multiple_select",
+      "default":       [ "syntax", "domain" ],
+      "value_options": [
+        {
+          "value_key": "syntax",
+          "text":      "Email Address Syntax"
+        },
+        {
+          "value_key": "domain",
+          "text":      "Domain Name Resolves"
+        },
+        {
+          "value_key": "mx",
+          "text":      "Domain MX"
+        },
+        {
+          "value_key": "nondisposable",
+          "text":      "Disposable Email Service"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Email Checks",
+      "summary":       "The Email Address Properties That Will Be Tested",
+      "description":   "Select which ."
+    },
+    {
       "key":         "enable_password_policies",
       "section":     "section_passwords",
       "type":        "checkbox",

@@ -27,27 +27,31 @@ class EmailValidate {
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		if ( is_email( $sEmail ) ) {
-			$sInvalidBecause = null;
-			$aValidations = ( new Email() )->getEmailVerification( $sEmail );
-			foreach ( $aValidations as $sValidation => $bIsValid ) {
-				if ( !$bIsValid ) {
+		$sInvalidBecause = null;
+		if ( !is_email( $sEmail ) ) {
+			$sInvalidBecause = 'syntax';
+		}
+		else {
+			$aChecks = $oOpts->getEmailValidationChecks();
+			foreach ( ( new Email() )->getEmailVerification( $sEmail ) as $sValidation => $bIsValid ) {
+				if ( !$bIsValid && in_array( $sValidation, $aChecks ) ) {
 					$sInvalidBecause = $sValidation;
+					break;
 				}
 			}
+		}
 
-			if ( !empty( $sInvalidBecause ) ) {
-				$this->getCon()->fireEvent(
-					'reg_email_invalid',
-					[
-						'audit' => [
-							'email' => sanitize_email( $sEmail ),
-						]
+		if ( !empty( $sInvalidBecause ) ) {
+			$this->getCon()->fireEvent(
+				'reg_email_invalid',
+				[
+					'audit' => [
+						'email' => sanitize_email( $sEmail ),
 					]
-				);
-				if ( $oOpts->getValidateEmailOnRegistration() == 'kill' ) {
-					wp_die( 'Attempted user registration with invalid email addressed has been blocked.' );
-				}
+				]
+			);
+			if ( $oOpts->getValidateEmailOnRegistration() == 'kill' ) {
+				wp_die( 'Attempted user registration with invalid email addressed has been blocked.' );
 			}
 		}
 

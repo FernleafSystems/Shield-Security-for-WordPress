@@ -52,6 +52,21 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				$oOpts->getSuspendAutoIdleUserRoles()
 			) ) )
 		);
+
+		{
+			$aChecks = $oOpts->getEmailValidationChecks();
+			if ( !in_array( 'syntax', $aChecks ) ) {
+				$aChecks[] = 'syntax';
+			}
+			// fill in dependencies
+			if ( in_array( 'nondisposable', $aChecks ) && !in_array( 'mx', $aChecks ) ) {
+				$aChecks[] = 'mx';
+			}
+			if ( in_array( 'mx', $aChecks ) && !in_array( 'domain', $aChecks ) ) {
+				$aChecks[] = 'domain';
+			}
+			$oOpts->setOpt( 'email_checks', $aChecks );
+		}
 	}
 
 	/**

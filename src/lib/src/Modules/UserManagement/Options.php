@@ -153,4 +153,11 @@ class Options extends Base\ShieldOptions {
 	public function getValidateEmailOnRegistration() {
 		return $this->getOpt( 'enable_email_validate', 'disabled' );
 	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getEmailValidationChecks() {
+		return $this->getOpt( 'email_checks', [] );
+	}
 }
