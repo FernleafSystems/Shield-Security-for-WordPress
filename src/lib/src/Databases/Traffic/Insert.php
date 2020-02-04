@@ -15,7 +15,7 @@ class Insert extends Base\Insert {
 		parent::verifyInsertData();
 		$aData = $this->getInsertData();
 
-		if ( !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
+		if ( empty( $aData[ 'ip' ] ) || !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
 			throw new \Exception( 'IP address provided is not valid' );
 		}
 

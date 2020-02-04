@@ -53,7 +53,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
 		try {
-			$this->assessSession();
+			if ( $oMod->hasValidRequestIP() ) {
+				$this->assessSession();
+			}
 		}
 		catch ( \Exception $oE ) {
 			$sEvent = $oE->getMessage();
