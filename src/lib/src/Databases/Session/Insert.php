@@ -16,6 +16,7 @@ class Insert extends Base\Insert {
 		$aData = [
 			'session_id'  => $sSessionId,
 			'wp_username' => $sUsername,
+			'ip'          => Services::IP()->getRequestIp()
 		];
 		return $this->setInsertData( $aData )->query() === 1;
 	}
@@ -34,8 +35,11 @@ class Insert extends Base\Insert {
 		if ( empty( $aData[ 'wp_username' ] ) ) {
 			throw new \Exception( 'WP Username not provided' );
 		}
-		if ( empty( $aData[ 'ip' ] ) || !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
-			$aData[ 'ip' ] = '';
+
+		$oIP = Services::IP();
+		if ( empty( $aData[ 'ip' ] ) || !$oIP->isValidIp( $aData[ 'ip' ] ) ) {
+			$sReqIP = $oIP->getRequestIp();
+			$aData[ 'ip' ] = $oIP->isValidIp( $sReqIP ) ? $sReqIP : '';
 		}
 
 		$oReq = Services::Request();
