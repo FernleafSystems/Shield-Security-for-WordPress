@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.5.5
+Stable tag: 8.5.6
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,16 +370,17 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.5.5 - Current Release =
-*Released: 4th February, 2020* - [Release Notes](https://shsec.io/gb)
+= 8.5.6 - Current Release =
+*Released: 5th February, 2020* - [Release Notes](https://shsec.io/gb)
 
-* **(v.5)**  FIXED:		Further protection against errors if IP address is of a private network.
-* **(v.5)**  FIXED:		Can't activate plugins in a particular scenario.
-* **(v.5)**  FIXED:		Traffic Logger wasn't capturing traffic in some cases.
+* **(v.6)**  FIXED:		Locking session to IP address was not handling all IP addresses correctly.
 
 = 8.5 - Series =
 *Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 
+* **(v.5)**  FIXED:		Further protection against errors if IP address is of a private network.
+* **(v.5)**  FIXED:		Can't activate plugins in a particular scenario.
+* **(v.5)**  FIXED:		Traffic Logger wasn't capturing traffic in some cases.
 * **(v.3)**  FIXED:		Prevent MySQL error when Shield is running on private network or local machine.
 * **(v.3)**  FIXED:		Prevent duplicate emails being sent when removing Security Admin key.
 * **(v.2)**  ADDED:		Introductory tour of plugin, on activation.
