@@ -35,16 +35,17 @@ if ( version_compare( PHP_VERSION, '5.4.0', '<' ) ) {
 	return;
 }
 
-if ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
-	require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
-}
-
-if ( !include_once( dirname( __FILE__ ).'/filesnotfound.php' ) ) {
-	return;
-}
-
 add_action( 'plugins_loaded', 'icwp_wpsf_init', 1 ); // use 0 for extensions to ensure hooks have been added.
 function icwp_wpsf_init() {
+
+	if ( @is_file( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' ) ) {
+		require_once( dirname( __FILE__ ).'/src/lib/vendor/autoload.php' );
+	}
+
+	if ( !include_once( dirname( __FILE__ ).'/filesnotfound.php' ) ) {
+		return;
+	}
+
 	$sRootFile = __FILE__;
 	require_once( dirname( __FILE__ ).'/init.php' );
 }
