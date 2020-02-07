@@ -122,7 +122,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 					__( 'The plugin is currently switched-off completely.', 'wp-simple-firewall' ),
 					__( 'All features and any security protection they provide are disabled.', 'wp-simple-firewall' ),
 				] ),
-				'jump_to_enable' => __( 'Click here to turn the plugin back on', 'wp-simple-firewall' )
+				'jump_to_enable' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
 			],
 			'hrefs'             => [
 				'jump_to_enable' => $this->getMod()->getUrl_DirectLinkToOption( 'global_enable_plugin_features' )
