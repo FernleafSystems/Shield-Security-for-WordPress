@@ -25,7 +25,7 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "plugin-disabled":          {
+    "plugin-disabled":            {
       "id":               "plugin-disabled",
       "schedule":         "conditions",
       "valid_admin":      true,
@@ -421,6 +421,13 @@
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
+    },
+    {
+      "key":          "wphashes_api_token",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {
