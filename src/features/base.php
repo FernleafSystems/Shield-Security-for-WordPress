@@ -478,7 +478,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param string $sOptKey
 	 * @return string
 	 */
-	protected function getUrl_DirectLinkToOption( $sOptKey ) {
+	public function getUrl_DirectLinkToOption( $sOptKey ) {
 		$sUrl = $this->getUrl_AdminPage();
 		$aDef = $this->getOptions()->getOptDefinition( $sOptKey );
 		if ( !empty( $aDef[ 'section' ] ) ) {
@@ -531,12 +531,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function isModuleEnabled() {
 		$oOpts = $this->getOptions();
+		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
+		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
 		if ( $this->getOptions()->getFeatureProperty( 'auto_enabled' ) === true ) {
 			// Auto enabled modules always run regardless
 			$bEnabled = true;
 		}
-		elseif ( apply_filters( $this->prefix( 'globally_disabled' ), false ) ) {
+		elseif ( $oPluginOpts->isPluginGloballyDisabled() ) {
 			$bEnabled = false;
 		}
 		elseif ( $this->getCon()->getIfForceOffActive() ) {

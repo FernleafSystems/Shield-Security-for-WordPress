@@ -25,6 +25,14 @@
       "can_dismiss":      false,
       "type":             "error"
     },
+    "plugin-disabled":          {
+      "id":               "plugin-disabled",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
     "compat-sgoptimize":          {
       "id":               "compat-sgoptimize",
       "schedule":         "conditions",
