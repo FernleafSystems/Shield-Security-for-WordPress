@@ -18,8 +18,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
+	 * @param string   $sUsername
+	 * @param \WP_User $oUser
 	 */
 	public function onWpLogin( $sUsername, $oUser ) {
 		$this->captureLogin( $oUser );
@@ -41,8 +41,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	private function captureLogin( $oUser ) {
 		$sPassword = $this->getLoginPassword();
 
-		if ( Services::Request()->isPost() && !$this->isLoginCaptured()
-			 && $oUser instanceof WP_User && !empty( $sPassword ) ) {
+		if ( $oUser instanceof \WP_User
+			 && Services::Request()->isPost() && !$this->isLoginCaptured() && !empty( $sPassword ) ) {
 			$this->setLoginCaptured();
 			try {
 				$this->applyPasswordChecks( $sPassword );
@@ -64,10 +64,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param WP_User $oUser
+	 * @param \WP_User $oUser
 	 */
 	public function onPasswordReset( $oUser ) {
-		if ( $oUser instanceof WP_User && $oUser->ID > 0 ) {
+		if ( $oUser instanceof \WP_User && $oUser->ID > 0 ) {
 			$oMeta = $this->getCon()->getUserMeta( $oUser );
 			unset( $oMeta->pass_hash );
 			$oMeta->pass_started_at = 0;
@@ -75,15 +75,15 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processExpiredPassword() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->isPassExpirationEnabled() ) {
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isPassExpirationEnabled() ) {
 			$nPassStartedAt = (int)$this->getCon()->getCurrentUserMeta()->pass_started_at;
 			if ( $nPassStartedAt > 0 ) {
-				if ( Services::Request()->ts() - $nPassStartedAt > $oMod->getPassExpireTimeout() ) {
+				if ( Services::Request()->ts() - $nPassStartedAt > $oOpts->getPassExpireTimeout() ) {
 					$this->getCon()->fireEvent( 'pass_expired' );
 					$this->redirectToResetPassword(
-						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oMod->getPassExpireDays() )
+						sprintf( __( 'Your password has expired (after %s days).', 'wp-simple-firewall' ), $oOpts->getPassExpireDays() )
 					);
 				}
 			}
@@ -91,11 +91,11 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	private function processFailedCheckPassword() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oFO */
-		$oFO = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oMeta = $this->getCon()->getCurrentUserMeta();
 
-		$bPassCheckFailed = $oFO->isPassForceUpdateExisting()
+		$bPassCheckFailed = $oOpts->isPassForceUpdateExisting()
 							&& isset( $oMeta->pass_check_failed_at ) && $oMeta->pass_check_failed_at > 0;
 
 		if ( $bPassCheckFailed ) {
@@ -144,12 +144,14 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		if ( empty( $aExistingCodes ) ) {
 			$sPassword = $this->getLoginPassword();
 			if ( !empty( $sPassword ) ) {
+				$aFailureMsg = '';
 				try {
 					$this->applyPasswordChecks( $sPassword );
 					$bChecksPassed = true;
 				}
 				catch ( \Exception $oE ) {
 					$bChecksPassed = ( $oE->getCode() === 999 );
+					$aFailureMsg = $oE->getMessage();
 				}
 
 				if ( $bChecksPassed ) {
@@ -158,8 +160,10 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 					}
 				}
 				else {
-					$sMessage = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' )
-								.'<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$oE->getMessage() );
+					$sMessage = __( 'Your security administrator has imposed requirements for password quality.', 'wp-simple-firewall' );
+					if ( !empty( $aFailureMsg ) ) {
+						$sMessage .= '<br/>'.sprintf( __( 'Reason', 'wp-simple-firewall' ).': '.$aFailureMsg );
+					}
 					$oErrors->add( 'shield_password_policy', $sMessage );
 					$this->getCon()->fireEvent( 'password_policy_block' );
 				}
@@ -177,8 +181,12 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$this->testPasswordMeetsMinimumLength( $sPassword );
-		$this->testPasswordMeetsMinimumStrength( $sPassword );
+		if ( $oOpts->getPassMinLength() > 0 ) {
+			$this->testPasswordMeetsMinimumLength( $sPassword, $oOpts->getPassMinLength() );
+		}
+		if ( $oOpts->getPassMinStrength() > 0 ) {
+			$this->testPasswordMeetsMinimumStrength( $sPassword, $oOpts->getPassMinStrength() );
+		}
 		if ( $oOpts->isPassPreventPwned() ) {
 			$this->sendRequestToPwnedRange( $sPassword );
 		}
@@ -186,16 +194,25 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 
 	/**
 	 * @param string $sPassword
+	 * @param int    $nMin
 	 * @return bool
 	 * @throws \Exception
 	 */
-	protected function testPasswordMeetsMinimumStrength( $sPassword ) {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$nMin = $oOpts->getPassMinStrength();
+	private function testPasswordMeetsMinimumLength( $sPassword, $nMin ) {
+		$nLength = strlen( $sPassword );
+		if ( $nLength < $nMin ) {
+			throw new \Exception( sprintf( __( 'Password length (%s) too short (min: %s characters)', 'wp-simple-firewall' ), $nLength, $nMin ) );
+		}
+		return true;
+	}
 
+	/**
+	 * @param string $sPassword
+	 * @param int    $nMin
+	 * @return bool
+	 * @throws \Exception
+	 */
+	private function testPasswordMeetsMinimumStrength( $sPassword, $nMin ) {
 		/**
 		 * TODO: Upon upgrading minimum PHP 5.6, remove the older, and install newer as-is
 		 */
@@ -208,7 +225,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 
 		$nScore = $aResults[ 'score' ];
 
-		if ( $nMin > 0 && $nScore < $nMin ) {
+		if ( $nScore < $nMin ) {
+			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+			$oMod = $this->getMod();
 			throw new \Exception( sprintf( "Password strength (%s) doesn't meet the minimum required strength (%s).",
 				$oMod->getPassStrengthName( $nScore ), $oMod->getPassStrengthName( $nMin ) ) );
 		}
@@ -216,25 +235,9 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param string $sPassword
+	 * Unused
 	 * @return bool
-	 * @throws \Exception
-	 */
-	protected function testPasswordMeetsMinimumLength( $sPassword ) {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$nMin = $oOpts->getPassMinLength();
-		$nLength = strlen( $sPassword );
-		if ( $nMin > 0 && $nLength < $nMin ) {
-			throw new \Exception( sprintf( __( 'Password length (%s) too short (min: %s characters)', 'wp-simple-firewall' ), $nLength, $nMin ) );
-		}
-		return true;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function verifyApiAccess() {
+	private function verifyApiAccess() {
 		try {
 			$this->sendRequestToPwnedRange( 'P@ssw0rd' );
 		}
@@ -243,6 +246,7 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 		}
 		return true;
 	}
+	 */
 
 	/**
 	 * @param string $sPass
@@ -328,8 +332,8 @@ class ICWP_WPSF_Processor_UserManagement_Passwords extends Modules\BaseShield\Sh
 	}
 
 	/**
-	 * @param WP_User $oUser
-	 * @param bool    $bFailed
+	 * @param \WP_User $oUser
+	 * @param bool     $bFailed
 	 * @return $this
 	 */
 	private function setPasswordFailedFlag( $oUser, $bFailed = false ) {
