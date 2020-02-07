@@ -30,11 +30,11 @@ class WpHashesTokenManager {
 				catch ( \Exception $oE ) {
 				}
 				$aT[ 'attempt_at' ] = Services::Request()->ts();
-				$this->saveToken( $aT );
+				$this->storeToken( $aT );
 			}
 		}
 		else {
-			$this->saveToken( [] );
+			$this->storeToken( [] );
 		}
 
 		return empty( $aT[ 'token' ] ) ? '' : $aT[ 'token' ];
@@ -66,6 +66,13 @@ class WpHashesTokenManager {
 	/**
 	 * @return bool
 	 */
+	public function getCanRequestOverride() {
+		return (bool)$this->bCanRequestOverride;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isExpired() {
 		return Services::Request()->ts() > $this->loadToken()[ 'expires_at' ];
 	}
@@ -74,16 +81,9 @@ class WpHashesTokenManager {
 	 * @param array $aToken
 	 * @return $this
 	 */
-	private function saveToken( array $aToken = [] ) {
+	private function storeToken( array $aToken = [] ) {
 		$this->getOptions()->setOpt( 'wphashes_api_token', $aToken );
 		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getCanRequestOverride() {
-		return (bool)$this->bCanRequestOverride;
 	}
 
 	/**
@@ -100,13 +100,13 @@ class WpHashesTokenManager {
 	 * @throws \Exception
 	 */
 	private function solicitApiToken() {
-		$aResponse = ( new Token\Solicit() )->retrieve(
+		$aResp = ( new Token\Solicit() )->retrieve(
 			Services::WpGeneral()->getHomeUrl(),
 			$this->getCon()->getSiteInstallationId()
 		);
-		if ( empty( $aResponse ) || !is_array( $aResponse ) ) {
+		if ( !is_array( $aResp ) || empty( $aResp[ 'token' ] ) || strlen( $aResp[ 'token' ] ) != 40 ) {
 			throw new \Exception( 'Could not retrieve token' );
 		}
-		return $aResponse;
+		return $aResp;
 	}
 }
