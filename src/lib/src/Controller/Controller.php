@@ -2,10 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
+use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class Controller
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
+ * @property bool                                    $is_activating
+ * @property bool                                    $modules_loaded
+ * @property bool                                    $rebuild_options
+ * @property bool                                    $plugin_deleting
+ * @property bool                                    $plugin_reset
+ * @property string                                  $file_forceoff
+ * @property string                                  $base_file
+ * @property string                                  $root_file
+ * @property bool                                    $user_can_base_permissions
+ * @property Shield\Modules\Events\Lib\EventsService $service_events
+ * @property \ICWP_WPSF_FeatureHandler_Base[]        $modules
+ */
 class Controller extends Shield\Deprecated\Foundation {
+
+	use StdClassAdapter;
 
 	/**
 	 * @var \stdClass
@@ -116,6 +134,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( !isset( $this->oEventsService ) ) {
 			$this->oEventsService = ( new Shield\Modules\Events\Lib\EventsService() )
 				->setCon( $this );
+			$this->service_events = $this->oEventsService;
 		}
 		return $this->oEventsService;
 	}
@@ -138,6 +157,8 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	protected function __construct( $sRootFile ) {
 		$this->sRootFile = $sRootFile;
+		$this->root_file = $sRootFile;
+		$this->base_file = $this->getRootFile();
 		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
@@ -270,6 +291,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			do_action( $this->prefix( 'deactivate_plugin' ) );
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 				$this->bPluginDeleting = true;
+				$this->plugin_deleting = $this->bPluginDeleting;
 				do_action( $this->prefix( 'delete_plugin' ) );
 				$this->deletePluginControllerOptions();
 			}
@@ -278,7 +300,11 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	public function onWpActivatePlugin() {
-		$this->getModule_Plugin()->setActivatedAt();
+		$this->is_activating = true;
+		$oModPlugin = $this->getModule_Plugin();
+		if ( $oModPlugin instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			$oModPlugin->setActivatedAt();
+		}
 	}
 
 	/**
@@ -394,7 +420,8 @@ class Controller extends Shield\Deprecated\Foundation {
 			$this->runTests();
 		}
 
-		if ( !Services::WpGeneral()->isAjax() && function_exists( 'wp_add_privacy_policy_content' ) ) {
+		if ( !empty( $this->modules_loaded ) && !Services::WpGeneral()->isAjax()
+			 && function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
 		}
 	}
@@ -1169,6 +1196,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function getMeetsBasePermissions() {
 		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
 			$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
+			$this->user_can_base_permissions = $this->bMeetsBasePermissions;
 		}
 		return isset( $this->bMeetsBasePermissions ) ? $this->bMeetsBasePermissions : false;
 	}
@@ -1246,6 +1274,7 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		$oConOptions->hash = $sCurrentHash;
 		$oConOptions->mod_time = $sModifiedTime;
+		$this->rebuild_options = $this->bRebuildOptions;
 		return $this->bRebuildOptions;
 	}
 
@@ -1263,6 +1292,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( !isset( $this->bResetPlugin ) ) {
 			$bExists = Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
 			$this->bResetPlugin = (bool)$bExists;
+			$this->plugin_reset = $this->bResetPlugin;
 		}
 		return $this->bResetPlugin;
 	}
@@ -1490,8 +1520,15 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 */
 	public function getRootFile() {
-		if ( !isset( $this->sRootFile ) ) {
-			$this->sRootFile = __FILE__;
+		if ( empty( $this->sRootFile ) ) {
+			$oVO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
+				->findPluginFromFile( __FILE__ );
+			if ( $oVO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo ) {
+				$this->sRootFile = path_join( WP_PLUGIN_DIR, $oVO->file );
+			}
+			else {
+				$this->sRootFile = __FILE__;
+			}
 		}
 		return $this->sRootFile;
 	}
@@ -1667,6 +1704,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( $this->getIfForceOffActive() ) {
 			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
 			$this->sForceOffFile = null;
+			unset( $this->file_forceoff );
 			clearstatcache();
 		}
 		return $this;
@@ -1687,6 +1725,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			$oFs = Services::WpFs();
 			$sFile = $oFs->findFileInDir( 'forceOff', $this->getRootDir(), false, false );
 			$this->sForceOffFile = ( !empty( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
+			$this->file_forceoff = $this->sForceOffFile;
 		}
 		return $this->sForceOffFile;
 	}
@@ -1790,6 +1829,8 @@ class Controller extends Shield\Deprecated\Foundation {
 			}
 		}
 
+		$this->modules_loaded = true;
+
 		do_action( $this->prefix( 'run_processors' ) );
 
 		return $bSuccess;
@@ -1802,6 +1843,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function getModule( $sSlug ) {
 		if ( !is_array( $this->aModules ) ) {
 			$this->aModules = [];
+			$this->modules = $this->aModules;
 		}
 		$oModule = isset( $this->aModules[ $sSlug ] ) ? $this->aModules[ $sSlug ] : null;
 		if ( !is_null( $oModule ) && !( $oModule instanceof \ICWP_WPSF_FeatureHandler_Base ) ) {
@@ -1832,6 +1874,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_HackProtect
+	 */
+	public function getModule_HackGuard() {
+		return $this->getModule( 'hack_protect' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_Insights
 	 */
 	public function getModule_Insights() {
@@ -1843,6 +1892,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getModule_IPs() {
 		return $this->getModule( 'ips' );
+	}
+
+	/**
+	 * @return \ICWP_WPSF_FeatureHandler_License
+	 */
+	public function getModule_License() {
+		return $this->getModule( 'license' );
 	}
 
 	/**
@@ -1929,6 +1985,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		}
 
 		$this->aModules[ $sModSlug ] = $this->{$sOptionsVarName};
+		$this->modules = $this->aModules;
 		return $this->{$sOptionsVarName};
 	}
 
