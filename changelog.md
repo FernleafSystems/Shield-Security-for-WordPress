@@ -1,3 +1,55 @@
+= 8.5 - Series =
+*Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
+
+* **(v.7)**  ADDED:		New admin notice to indicate that the plugin is currently disabled.
+* **(v.7)**  IMPROVED:	Optimised loading of libraries that run for certain options, if they aren't enabled.
+* **(v.7)**  IMPROVED:	Prevent a rare fatal error on activation.
+* **(v.6)**  FIXED:		Locking session to IP address was not handling all IP addresses correctly.
+* **(v.5)**  FIXED:		Further protection against errors if IP address is of a private network.
+* **(v.5)**  FIXED:		Can't activate plugins in a particular scenario.
+* **(v.5)**  FIXED:		Traffic Logger wasn't capturing traffic in some cases.
+* **(v.3)**  FIXED:		Prevent MySQL error when Shield is running on private network or local machine.
+* **(v.3)**  FIXED:		Prevent duplicate emails being sent when removing Security Admin key.
+* **(v.2)**  ADDED:		Introductory tour of plugin, on activation.
+* **(v.2)**  IMPROVED:	Enhanced IP detection of service providers for exclusion from traffic log.
+* **(v.2)**  IMPROVED:	Plugin/Theme Hack Guard Snapshot building is optimised to reduce disruption is some cases.
+* **(v.2)**  IMPROVED:	Visitor IP detection processing.
+* **(v.2)**  IMPROVED:	Improved cache-prevention of Login Two-Factor Authentication portal.
+* **(v.2)**  FIXED:		Firewall email alert was not sent when using certain dedicated email plugins.
+* **(v.2)**  FIXED:		Firewall 404 setting was redirecting instead of responding with 404.
+* **(v.2)**  ADDED:		Added support for NodePing filtering in the traffic logger.
+* **(v.1)**  FIXED:		Fix for page loading issue/slowdown in some cases.
+* **(v.0)**  NEW:		Initial support for checksum scanning of premium plugins and themes.
+* **(v.0)**  NEW:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
+* **(v.0)**  NEW:		Ability to auto-repair theme files.
+* **(v.0)**  ADDED:		Ability to whitelist requests so that they are never blacklisted.
+* **(v.0)**  ADDED:		Ability to filter the IP White/Black list tables for a specific IP address.
+* **(v.0)**  ADDED:		Support for repeated audit trail entries - so the logs don't get filled with repeated messages.
+* **(v.0)**  ADDED:		[**PRO**] Option to provide complete, custom Content Security Policy headers.
+* **(v.0)**  IMPROVED:	Protection against a certain type of broken plugin installation if WordPress doesn't properly copy files.
+* **(v.0)**  IMPROVED:	Redesigned Table UI for scan results.
+* **(v.0)**  IMPROVED:	Redesigned Plugin/Theme File Guard.
+* **(v.0)**  IMPROVED:	Completely re-written much of the scanners code.
+* **(v.0)**  IMPROVED:	Better detection of the hosting server's IP addresses - i.e. support for IPv6 alongside IPv4.
+* **(v.0)**  FIXED:		Two-Factor Authentication (2FA) login screen redirection bug.
+* **(v.0)**  FIXED:		It was possible to temporarily by-pass the 2FA screen to gain access to WP Admin after logging-in.
+* **(v.0)**  CLEANED:	Code cleaning.
+* **(v.0)**  UPDATED:	Twitter Bootstrap library.
+
+= 8.4 - Series =
+*Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
+
+* **(v.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
+* **(v.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
+* **(v.3)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
+* **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
+* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
+* **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
+* **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
+* **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
+* **(v.0)**  IMPROVED:	Consolidate Events/Statistics database table to significantly reduce DB size.
+* **(v.0)**  CLEANED:	Significant clean-out of old, deprecated, retired code.
+
 = 8.3 - Series =
 *Released: 18th November, 2019* - [Release Notes](https://shsec.io/g3)
 
