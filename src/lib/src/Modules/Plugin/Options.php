@@ -97,6 +97,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
+	public function isPluginGloballyDisabled() {
+		return !$this->isOpt( 'global_enable_plugin_features', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isTrackingEnabled() {
 		return $this->isOpt( 'enable_tracking', 'Y' );
 	}

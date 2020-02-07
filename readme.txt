@@ -370,14 +370,17 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.5.6 - Current Release =
-*Released: 5th February, 2020* - [Release Notes](https://shsec.io/gb)
+= 8.5.7 - Current Release =
+*Released: 10th February, 2020* - [Release Notes](https://shsec.io/gb)
 
-* **(v.6)**  FIXED:		Locking session to IP address was not handling all IP addresses correctly.
+* **(v.7)**  ADDED:		New admin notice to indicate that the plugin is currently disabled.
+* **(v.7)**  IMPROVED:	Optimised loading of libraries that run for certain options, if they aren't enabled.
+* **(v.7)**  IMPROVED:	Prevent a rare fatal error on activation.
 
 = 8.5 - Series =
 *Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 
+* **(v.6)**  FIXED:		Locking session to IP address was not handling all IP addresses correctly.
 * **(v.5)**  FIXED:		Further protection against errors if IP address is of a private network.
 * **(v.5)**  FIXED:		Can't activate plugins in a particular scenario.
 * **(v.5)**  FIXED:		Traffic Logger wasn't capturing traffic in some cases.
