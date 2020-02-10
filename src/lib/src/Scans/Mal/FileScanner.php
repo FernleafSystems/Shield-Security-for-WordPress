@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -147,8 +149,24 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function isPluginFileValid( $sFullPath ) {
+		$bIsValidFile = false;
 		try {
-			$bIsValidFile = ( new Utilities\WpOrg\Plugin\Files() )->verifyFileContents( $sFullPath );
+			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
+			$oPlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
+			if ( $oPlugin instanceof WpPluginVo ) {
+				if ( $oPlugin->isWpOrg() ) {
+					$bIsValidFile = ( new Utilities\WpOrg\Plugin\Files() )->verifyFileContents( $sFullPath );
+				}
+				else {
+					$aHashes = ( new Lib\Snapshots\Build\BuildHashesFromApi() )
+						->build( $oPlugin );
+					$sFragment = str_replace( $oPlugin->getInstallDir(), '', $sFullPath );
+					if ( !empty( $aHashes ) && !empty( $aHashes[ $sFragment ] ) ) {
+						$bIsValidFile = ( new Utilities\File\Compare\CompareHash() )
+							->isEqualFileMd5( $sFullPath, $aHashes[ $sFragment ] );
+					}
+				}
+			}
 		}
 		catch ( \Exception $oE ) {
 			$bIsValidFile = false;
