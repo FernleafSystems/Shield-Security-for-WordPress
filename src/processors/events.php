@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 
 	public function run() {
 		$this->loadStatsWriter()->setIfCommit( true );
-		add_filter( $this->getMod()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
+		add_action( $this->getCon()->prefix( 'dashboard_widget_content' ), [ $this, 'statsWidget' ], 10 );
 	}
 
 	/**
@@ -30,10 +30,8 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 	}
 
 	/**
-	 * @param string[] $aContent
-	 * @return string[]
 	 */
-	public function statsWidget( $aContent ) {
+	public function statsWidget() {
 		/** @var Databases\Events\Select $oSelEvents */
 		$oSelEvents = $this->getCon()
 						   ->getModule_Events()
@@ -80,15 +78,10 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 			'aKeyStats' => $aKeyStats,
 		];
 
-		if ( !is_array( $aContent ) ) {
-			$aContent = [];
-		}
-		$aContent[] = $this->getMod()
-						   ->renderTemplate(
-							   'snippets/widget_dashboard_statistics.php',
-							   $aDisplayData
-						   );
-		return $aContent;
+		echo $this->getMod()->renderTemplate(
+			'snippets/widget_dashboard_statistics.php',
+			$aDisplayData
+		);
 	}
 
 	/**

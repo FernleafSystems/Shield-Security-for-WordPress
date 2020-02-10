@@ -374,7 +374,7 @@ You will always be able to use Shield Security and its free features in-full.
 *Released: 10th February, 2020* - [Release Notes](https://shsec.io/gb)
 
 * **(v.7)**  ADDED:		New admin notice to indicate that the plugin is currently disabled.
-* **(v.7)**  IMPROVED:	Optimised loading of libraries that run for certain options, if they aren't enabled.
+* **(v.7)**  IMPROVED:	Optimised loading of libraries that run for certain features, if they aren't enabled.
 * **(v.7)**  IMPROVED:	Prevent a rare fatal error on activation.
 
 = 8.5 - Series =
