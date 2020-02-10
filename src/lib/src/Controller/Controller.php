@@ -487,14 +487,17 @@ class Controller extends Shield\Deprecated\Foundation {
 			wp_add_dashboard_widget(
 				$this->prefix( 'dashboard_widget' ),
 				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
-				[ $this, 'displayDashboardWidget' ]
+				function () {
+					do_action( $this->prefix( 'dashboard_widget_content' ) );
+				}
 			);
 		}
 	}
 
+	/**
+	 * @deprecated 8.5.7
+	 */
 	public function displayDashboardWidget() {
-		$aContent = apply_filters( $this->prefix( 'dashboard_widget_content' ), [] );
-		echo implode( '', $aContent );
 	}
 
 	/**

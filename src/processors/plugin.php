@@ -13,8 +13,8 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$this->getSubProCronDaily()->execute();
-		$this->getSubProCronHourly()->execute();
+		$this->getSubPro( 'crondaily' )->execute();
+		$this->getSubPro( 'cronhourly' )->execute();
 
 		$this->removePluginConflicts();
 
@@ -53,56 +53,38 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		add_filter( $oCon->prefix( 'delete_on_deactivate' ), function ( $bDelete ) use ( $oOpts ) {
 			return $bDelete || $oOpts->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
-	}
 
-	public function onWpLoaded() {
-		$oCon = $this->getCon();
-		if ( $oCon->isValidAdminArea() ) {
-			$this->maintainPluginLoadPosition();
-		}
-		add_filter( $oCon->prefix( 'dashboard_widget_content' ), [ $this, 'gatherPluginWidgetContent' ], 100 );
+		add_action( $oCon->prefix( 'dashboard_widget_content' ),
+			[ $this, 'printDashboardWidget' ],
+			100
+		);
 	}
 
 	/**
-	 * @param array $aContent
-	 * @return array
 	 */
-	public function gatherPluginWidgetContent( $aContent ) {
+	public function printDashboardWidget() {
 		$oCon = $this->getCon();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
-
 		$aLabels = $oCon->getLabels();
-		$sFooter = sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
-			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
+
+		echo $this->getMod()->renderTemplate(
+			'snippets/widget_dashboard_plugin.php',
+			[
+				'install_days' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $oOpts->getInstallationDays() ),
+				'footer'       => sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
+					sprintf( '<a href="%s" target="_blank">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
+				),
+				'ip_address'   => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), Services::IP()
+																										 ->getRequestIp() )
+			]
 		);
-
-		$aDisplayData = [
-			'sInstallationDays' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $oOpts->getInstallationDays() ),
-			'sFooter'           => $sFooter,
-			'sIpAddress'        => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), Services::IP()
-																										  ->getRequestIp() )
-		];
-
-		if ( !is_array( $aContent ) ) {
-			$aContent = [];
-		}
-		$aContent[] = $this->getMod()->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
-		return $aContent;
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_Plugin_CronDaily
+	 * @deprecated 8.5.7
 	 */
-	protected function getSubProCronDaily() {
-		return $this->getSubPro( 'crondaily' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_Plugin_CronHourly
-	 */
-	protected function getSubProCronHourly() {
-		return $this->getSubPro( 'cronhourly' );
+	public function gatherPluginWidgetContent() {
 	}
 
 	/**
@@ -147,8 +129,9 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 				],
 				'js_snippets' => []
 			];
-			echo $this->getMod()
-					  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
+			echo $this->getMod()->renderTemplate(
+				'snippets/toaster.twig', $aRenderData, true
+			);
 		}
 	}
 
@@ -174,8 +157,9 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 				],
 				'js_snippets' => []
 			];
-			echo $this->getMod()
-					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aData );
+			echo $this->getMod()->renderTemplate(
+				'snippets/plugin-deactivate-survey.php', $aData
+			);
 		}
 	}
 
@@ -183,8 +167,8 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	 */
 	public function dumpTrackingData() {
 		if ( $this->getCon()->isPluginAdmin() ) {
-			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getSubProTracking()
-																	  ->collectTrackingData(), true ) );
+			echo sprintf( '<pre><code>%s</code></pre>',
+				print_r( $this->getSubProTracking()->collectTrackingData(), true ) );
 			die();
 		}
 	}
@@ -194,7 +178,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * Sets this plugin to be the first loaded of all the plugins.
+	 * @deprecated 8.5.7
 	 */
 	protected function maintainPluginLoadPosition() {
 		$oWpPlugins = Services::WpPlugins();
