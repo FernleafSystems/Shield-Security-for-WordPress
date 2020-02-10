@@ -16,7 +16,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		parent::setupCustomHooks();
 		$oCon = $this->getCon();
 		add_filter( $oCon->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
-		add_filter( $oCon->prefix( 'globally_disabled' ), [ $this, 'filter_IsPluginGloballyDisabled' ] );
 		add_filter( $oCon->prefix( 'google_recaptcha_config' ), [ $this, 'getGoogleRecaptchaConfig' ], 10, 0 );
 		/* Enfold theme deletes all cookies except particular ones.
 		add_filter( 'avf_admin_keep_cookies', function ( $aCookiesToKeep ) use ( $oCon ) {
@@ -74,6 +73,12 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$oOpts = $this->getOptions();
 		return $oOpts->isOnFloatingPluginBadge()
 			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
+	}
+
+	public function runHourlyCron() {
+		( new Plugin\Lib\WpHashesTokenManager() )
+			->setMod( $this )
+			->getToken();
 	}
 
 	/**
@@ -176,6 +181,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @param bool $bGloballyDisabled
 	 * @return bool
+	 * @deprecated 8.5.7
 	 */
 	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
 		return $bGloballyDisabled || !$this->isOpt( 'global_enable_plugin_features', 'Y' );

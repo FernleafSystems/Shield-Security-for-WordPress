@@ -9,20 +9,6 @@ class ICWP_WPSF_Processor_HackProtect_Apc extends ICWP_WPSF_Processor_ScanBase {
 	const SCAN_SLUG = 'apc';
 
 	/**
-	 */
-	public function run() {
-		parent::run();
-		add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 0 );
-	}
-
-	public function onDeletedPlugin() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->getScanController()
-			 ->startScans( [ $this->getThisScanCon()->getSlug() ] );
-	}
-
-	/**
 	 * @param Apc\ResultsSet $oRes
 	 * @return bool - true if user notified
 	 */

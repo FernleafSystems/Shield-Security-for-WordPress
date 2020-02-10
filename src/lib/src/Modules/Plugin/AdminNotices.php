@@ -20,6 +20,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_OverrideForceoff( $oNotice );
 				break;
 
+			case 'plugin-disabled':
+				$this->buildNotice_PluginDisabled( $oNotice );
+				break;
+
 			case 'compat-sgoptimize':
 				$this->buildNotice_CompatSgOptimize( $oNotice );
 				break;
@@ -100,6 +104,28 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'ajax'              => [
 				'delete_forceoff' => $this->getMod()->getAjaxActionData( 'delete_forceoff', true )
+			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function buildNotice_PluginDisabled( $oNotice ) {
+		$sName = $this->getCon()->getHumanName();
+
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'          => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not protecting your site', 'wp-simple-firewall' ), $sName ) ),
+				'message'        => implode( ' ', [
+					__( 'The plugin is currently switched-off completely.', 'wp-simple-firewall' ),
+					__( 'All features and any security protection they provide are disabled.', 'wp-simple-firewall' ),
+				] ),
+				'jump_to_enable' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
+			],
+			'hrefs'             => [
+				'jump_to_enable' => $this->getMod()->getUrl_DirectLinkToOption( 'global_enable_plugin_features' )
 			]
 		];
 	}
@@ -268,6 +294,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
 			case 'override-forceoff':
 				$bNeeded = $this->getCon()->getIfForceOffActive();
+				break;
+
+			case 'plugin-disabled':
+				$bNeeded = $oOpts->isPluginGloballyDisabled();
 				break;
 
 			case 'compat-sgoptimize':

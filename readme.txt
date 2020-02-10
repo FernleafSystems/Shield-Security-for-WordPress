@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.5.6
+Stable tag: 8.5.7
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,14 +370,18 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.5.6 - Current Release =
-*Released: 5th February, 2020* - [Release Notes](https://shsec.io/gb)
+= 8.5.7 - Current Release =
+*Released: 10th February, 2020* - [Release Notes](https://shsec.io/gb)
 
-* **(v.6)**  FIXED:		Locking session to IP address was not handling all IP addresses correctly.
+* **(v.7)**  ADDED:		New admin notice to indicate that the plugin is currently disabled.
+* **(v.7)**  IMPROVED:	Malware scanning for premium assets always uses hashes where possible to verify contents.
+* **(v.7)**  IMPROVED:	Optimised loading of libraries that run for certain features, if they aren't enabled.
+* **(v.7)**  IMPROVED:	Prevent a rare fatal error on activation.
 
 = 8.5 - Series =
 *Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 
+* **(v.6)**  FIXED:		Locking session to IP address was not handling all IP addresses correctly.
 * **(v.5)**  FIXED:		Further protection against errors if IP address is of a private network.
 * **(v.5)**  FIXED:		Can't activate plugins in a particular scenario.
 * **(v.5)**  FIXED:		Traffic Logger wasn't capturing traffic in some cases.
@@ -408,19 +412,5 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  FIXED:		It was possible to temporarily by-pass the 2FA screen to gain access to WP Admin after logging-in.
 * **(v.0)**  CLEANED:	Code cleaning.
 * **(v.0)**  UPDATED:	Twitter Bootstrap library.
-
-= 8.4 - Series =
-*Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
-
-* **(v.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
-* **(v.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
-* **(v.3)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
-* **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
-* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
-* **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
-* **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
-* **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
-* **(v.0)**  IMPROVED:	Consolidate Events/Statistics database table to significantly reduce DB size.
-* **(v.0)**  CLEANED:	Significant clean-out of old, deprecated, retired code.
 
 #### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
