@@ -495,12 +495,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @deprecated 8.5.7
-	 */
-	public function displayDashboardWidget() {
-	}
-
-	/**
 	 * @return Shield\Utilities\AdminNotices\Controller
 	 */
 	public function getAdminNotices() {
