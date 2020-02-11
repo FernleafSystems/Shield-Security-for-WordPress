@@ -68,7 +68,7 @@ class MfaController {
 
 			/** @var LoginGuard\Options $oOpts */
 			$oOpts = $this->getOptions();
-			if ( !$this->canUserMfaSkip( $oUser ) ) {
+			if ( $this->isSubjectToLoginIntent( $oUser ) && !$this->canUserMfaSkip( $oUser ) ) {
 
 				$aProviders = $this->getProvidersForUser( $oUser );
 				if ( !empty( $aProviders ) ) {
