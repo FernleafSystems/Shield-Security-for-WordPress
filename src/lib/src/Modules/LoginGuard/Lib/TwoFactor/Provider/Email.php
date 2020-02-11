@@ -221,7 +221,7 @@ class Email extends BaseProvider {
 	public function isProviderEnabled() {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledEmailAuth();
+		return $oOpts->isEmailAuthenticationActive();
 	}
 
 	/**

@@ -18,9 +18,12 @@
   "admin_notices": {
     "email-verification-sent": {
       "id":               "email-verification-sent",
-      "once":             false,
+      "schedule":         "conditions",
+      "plugin_page_only": true,
+      "can_dismiss":      false,
       "type":             "warning",
-      "plugin_admin":     "yes"
+      "plugin_admin":     "yes",
+      "valid_admin":      true
     }
   },
   "sections":      [
