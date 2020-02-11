@@ -32,7 +32,7 @@ class GoogleAuth extends BaseProvider {
 		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
 
 		$aData = [
-			'href'    => [
+			'hrefs'   => [
 				'src_chart_url' => $bValidatedProfile ? '' : $this->getGaRegisterChartUrl( $oUser ),
 			],
 			'vars'    => [
