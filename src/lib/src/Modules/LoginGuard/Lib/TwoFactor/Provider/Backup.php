@@ -73,17 +73,23 @@ class Backup extends BaseProvider {
 	}
 
 	/**
+	 * @param \WP_User $oUser
+	 * @return $this
+	 */
+	public function postSuccessActions( \WP_User $oUser ) {
+		$this->deleteSecret( $oUser );
+		$this->sendBackupCodeUsedEmail( $oUser );
+		return $this;
+	}
+
+	/**
 	 * Backup Code are 1-time only and if you have MFA, then we need to remove all the other tracking factors
 	 * @param \WP_User $oUser
 	 * @param string   $sOtpCode
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOtpCode ) {
-		$bValid = $this->validateBackupCode( $oUser, $sOtpCode );
-		if ( $bValid ) {
-			$this->deleteSecret( $oUser );
-		}
-		return $bValid;
+		return $this->validateBackupCode( $oUser, $sOtpCode );
 	}
 
 	/**
@@ -109,21 +115,6 @@ class Backup extends BaseProvider {
 				]
 			]
 		);
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @param bool     $bIsOtpSuccess
-	 * @param bool     $bOtpProvided - whether a OTP was actually provided
-	 * @return $this
-	 */
-	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
-		parent::postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided );
-
-		if ( $bOtpProvided && $bIsOtpSuccess ) {
-			$this->sendBackupCodeUsedEmail( $oUser );
-		}
-		return $this;
 	}
 
 	/**

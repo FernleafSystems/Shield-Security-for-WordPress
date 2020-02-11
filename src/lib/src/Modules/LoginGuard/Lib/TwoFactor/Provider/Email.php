@@ -42,19 +42,24 @@ class Email extends BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
+	 * @return $this
+	 */
+	public function postSuccessActions( \WP_User $oUser ) {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
+		$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
+		$oUpd->clearLoginIntentCodeEmail( $oMod->getSession() );
+		return $this;
+	}
+
+	/**
+	 * @param \WP_User $oUser
 	 * @param string   $sOtpCode
 	 * @return bool
 	 */
 	protected function processOtp( $oUser, $sOtpCode ) {
-		$bValid = !empty( $sOtpCode ) && ( $sOtpCode == $this->getStoredSessionHashCode() );
-		if ( $bValid ) {
-			/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-			$oMod = $this->getMod();
-			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->clearLoginIntentCodeEmail( $oMod->getSession() );
-		}
-		return $bValid;
+		return $sOtpCode == $this->getStoredSessionHashCode();
 	}
 
 	/**

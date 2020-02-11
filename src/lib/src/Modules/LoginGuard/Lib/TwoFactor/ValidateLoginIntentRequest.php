@@ -24,7 +24,7 @@ class ValidateLoginIntentRequest {
 		if ( !$oUser instanceof \WP_User ) {
 			throw new \Exception( 'No user logged-in.' );
 		}
-		$aProviders = $oMfaCon->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true );
+		$aProviders = $oMfaCon->getProvidersForUser( $oUser, true );
 		if ( empty( $aProviders ) ) {
 			throw new \Exception( 'No valid providers' );
 		}
@@ -46,6 +46,12 @@ class ValidateLoginIntentRequest {
 
 			$nSuccessful = count( array_filter( $aStates ) );
 			$bValid = $oOpts->isChainedAuth() ? $nSuccessful == count( $aProviders ) : $nSuccessful > 0;
+			if ( $bValid ) {
+				// Some cleanup can only run if complete login is tested
+				foreach ( $aProviders as $oProvider ) {
+					$oProvider->postSuccessActions( $oUser );
+				}
+			}
 		}
 
 		return $bValid;

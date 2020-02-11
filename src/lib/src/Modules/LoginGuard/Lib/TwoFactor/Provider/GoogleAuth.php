@@ -174,7 +174,7 @@ class GoogleAuth extends BaseProvider {
 	 */
 	public function validateGaCode( $oUser, $sOtpCode ) {
 		$bValidOtp = false;
-		if ( !empty( $sOtpCode ) && preg_match( '#^[0-9]{6}$#', $sOtpCode ) ) {
+		if ( preg_match( '#^[0-9]{6}$#', $sOtpCode ) ) {
 			try {
 				$bValidOtp = ( new GoogleAuthenticator\GoogleAuthenticator() )
 					->authenticate( $this->getSecret( $oUser ), $sOtpCode );

@@ -16,9 +16,12 @@ abstract class BaseProvider {
 	 * @return bool
 	 */
 	public function validateLoginIntent( \WP_User $oUser ) {
+		$bOtpSuccess = false;
 		$sReqOtpCode = $this->fetchCodeFromRequest();
-		$bOtpSuccess = $this->processOtp( $oUser, $sReqOtpCode );
-		$this->postOtpProcessAction( $oUser, $bOtpSuccess, !empty( $sReqOtpCode ) );
+		if ( !empty( $sReqOtpCode ) ) {
+			$bOtpSuccess = $this->processOtp( $oUser, $sReqOtpCode );
+			$this->postOtpProcessAction( $oUser, $bOtpSuccess );
+		}
 		return $bOtpSuccess;
 	}
 
@@ -142,6 +145,15 @@ abstract class BaseProvider {
 	abstract protected function processOtp( $oUser, $sOtpCode );
 
 	/**
+	 * Only to be fired if and when Login has been completely verified.
+	 * @param \WP_User $oUser
+	 * @return $this
+	 */
+	public function postSuccessActions( \WP_User $oUser ) {
+		return $this;
+	}
+
+	/**
 	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
 	 * functions.  Otherwise we need to be careful of mixing up users.
 	 * @param \WP_User $oUser
@@ -200,13 +212,10 @@ abstract class BaseProvider {
 	/**
 	 * @param \WP_User $oUser
 	 * @param bool     $bIsOtpSuccess
-	 * @param bool     $bOtpProvided - whether a OTP was actually provided
 	 * @return $this
 	 */
-	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess, $bOtpProvided ) {
-		if ( $bOtpProvided ) {
-			$this->auditLogin( $oUser, $bIsOtpSuccess );
-		}
+	protected function postOtpProcessAction( $oUser, $bIsOtpSuccess ) {
+		$this->auditLogin( $oUser, $bIsOtpSuccess );
 		return $this;
 	}
 
