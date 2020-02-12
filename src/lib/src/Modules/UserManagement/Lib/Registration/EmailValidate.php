@@ -22,7 +22,7 @@ class EmailValidate {
 	 * @param array $aUserData
 	 * @return array
 	 */
-	private function validateNewUserEmail( $aUserData ) {
+	public function validateNewUserEmail( $aUserData ) {
 		$sEmail = $aUserData[ 'user_email' ];
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();

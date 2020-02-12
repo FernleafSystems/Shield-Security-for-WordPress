@@ -167,7 +167,7 @@
       "section":       "section_user_reg",
       "premium":       true,
       "type":          "select",
-      "default":       "disabled",
+      "default":       "log",
       "value_options": [
         {
           "value_key": "disabled",
