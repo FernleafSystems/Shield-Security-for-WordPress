@@ -459,7 +459,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		$sId = (string)Services::WpGeneral()->getOption( $sOptKey );
 
 		$sUrl = base64_encode( Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ) );
-		if ( empty( $sId ) || strpos( $sId, ':' ) == false || strpos( $sId, $sUrl ) !== 0 ) {
+		if ( empty( $sId ) || strpos( $sId, ':' ) === false || strpos( $sId, $sUrl ) !== 0 ) {
 			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
 			Services::WpGeneral()->updateOption( $sOptKey, $sId );
 		}
