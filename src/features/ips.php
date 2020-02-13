@@ -211,10 +211,14 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 				->white();
 			foreach ( $aIps as $sIP => $sLabel ) {
 				if ( !in_array( $sIP, $aWhiteIps ) ) {
-					( new Shield\Modules\IPs\Lib\Ops\AddIp() )
-						->setMod( $this )
-						->setIP( $sIP )
-						->toManualWhitelist( $sLabel );
+					try {
+						( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+							->setMod( $this )
+							->setIP( $sIP )
+							->toManualWhitelist( $sLabel );
+					}
+					catch ( Exception $oE ) {
+					}
 				}
 			}
 		}

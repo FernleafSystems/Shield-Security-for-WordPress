@@ -25,10 +25,15 @@ class ProcessOffense {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		$oIP = ( new IPs\Lib\Ops\AddIp() )
-			->setMod( $oMod )
-			->setIP( $this->getIP() )
-			->toAutoBlacklist();
+		try {
+			$oIP = ( new IPs\Lib\Ops\AddIp() )
+				->setMod( $oMod )
+				->setIP( $this->getIP() )
+				->toAutoBlacklist();
+		}
+		catch ( \Exception $oE ) {
+			$oIP = null;
+		}
 
 		if ( $oIP instanceof Databases\IPs\EntryVO ) {
 			$nCurrent = $oIP->transgressions;
