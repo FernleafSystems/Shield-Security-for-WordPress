@@ -37,11 +37,6 @@ class QueryIpBlock {
 			/** @var Databases\IPs\Update $oUp */
 			$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();
 			$oUp->updateLastAccessAt( $oIP );
-
-			// TODO: 8.6: remove eventually and lose transgressions comparison and query for "blocked" only (see below)
-			if ( $oIP->blocked_at == 0 ) {
-				$oUp->reset()->setBlocked( $oIP );
-			}
 		}
 		return $bIpBlocked;
 	}
@@ -58,7 +53,7 @@ class QueryIpBlock {
 			->setDbHandler( $oMod->getDbHandler_IPs() )
 			->setIP( $this->getIP() )
 			->setListTypeBlack()
-//			->setIsIpBlocked( true ) TODO: 8.6
+			->setIsIpBlocked( true )
 			->lookup();
 
 		if ( $oIP instanceof Databases\IPs\EntryVO ) {
@@ -74,7 +69,7 @@ class QueryIpBlock {
 					->setIP( Services::IP()->getRequestIp() )
 					->fromBlacklist();
 			}
-			elseif ( $oIP->blocked_at > 0 || (int)$oIP->transgressions >= $oOpts->getOffenseLimit() ) {
+			else {
 				$oBlockIP = $oIP;
 			}
 		}
