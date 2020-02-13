@@ -1,7 +1,6 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -22,168 +21,26 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
-
-		// 100 priority is important as this takes priority
-//		add_filter( $oMod->prefix( 'user_subject_to_login_intent' ), array( $this, 'applyUserCanMfaSkip' ), 100, 2 );
-
-		if ( $oMod->getIfSupport3rdParty() ) {
-			add_action( 'wc_social_login_before_user_login', [ $this, 'onWcSocialLogin' ] );
-		}
 	}
 
 	/**
 	 * @param int $nUserId
 	 */
 	public function onWcSocialLogin( $nUserId ) {
-		$oUser = Services::WpUsers()->getUserById( $nUserId );
-		if ( $oUser instanceof WP_User ) {
-			$this->getCon()->getUserMeta( $oUser )->wc_social_login_valid = true;
-		}
-	}
-
-	public function onWpInit() {
-		$this->setupLoginIntent();
 	}
 
 	protected function setupLoginIntent() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-
-		if ( $oMod->isEnabledGoogleAuthenticator() ) {
-			$this->getProcessorGoogleAuthenticator()->execute();
-		}
-
-		if ( $oMod->isEmailAuthenticationActive() ) {
-			$this->getProcessorEmailAuth()->execute();
-		}
-
-		if ( $oMod->isYubikeyActive() ) {
-			$this->getProcessorYubikey()->execute();
-		}
-
-		if ( $oMod->isEnabledBackupCodes() ) {
-			$this->getProcessorBackupCodes()->execute();
-		}
-
-		if ( $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
-			if ( Services::WpGeneral()->isLoginRequest() || $oMod->getIfSupport3rdParty() ) {
-				/** 20180925 - now using set cookie auth instead so we can capture session */
-//				add_action( 'authenticate', array( $this, 'initLoginIntent' ), 100, 1 );
-			}
-
-			// process the current login intent
-			$oWpUsers = Services::WpUsers();
-			if ( $oWpUsers->isUserLoggedIn() ) {
-				if ( $this->isUserSubjectToLoginIntent() && !$oMod->canUserMfaSkip( $oWpUsers->getCurrentWpUser() ) ) {
-					$this->processLoginIntent();
-				}
-				elseif ( $this->hasLoginIntent() ) {
-					// This handles the case where an admin changes a setting while a user is logged-in
-					// So to prevent this, we remove any intent for a user that isn't subject to it right now
-					$this->removeLoginIntent();
-				}
-			}
-		}
-	}
-
-	/**
-	 * @param string  $sUsername
-	 * @param WP_User $oUser
-	 */
-	public function onWpLogin( $sUsername, $oUser ) {
-		$this->initLoginIntent( $oUser );
-	}
-
-	/**
-	 * @param string $sCookie
-	 * @param int    $nExpire
-	 * @param int    $nExpiration
-	 * @param int    $nUserId
-	 */
-	public function onWpSetLoggedInCookie( $sCookie, $nExpire, $nExpiration, $nUserId ) {
-		$this->initLoginIntent( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
 	/**
 	 * @param WP_User|WP_Error $oUser
 	 */
-	protected function initLoginIntent( $oUser ) {
-
-		if ( !$this->isLoginCaptured() && $oUser instanceof WP_User
-			 && $this->getLoginTrack()->hasFactorsRemainingToTrack() ) {
-
-			/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oF */
-			$oF = $this->getMod();
-			if ( !$oF->canUserMfaSkip( $oUser ) ) {
-				$nTimeout = (int)apply_filters( $oF->prefix( 'login_intent_timeout' ), $oF->getDef( 'login_intent_timeout' ) );
-				$this->setLoginIntentExpiresAt( Services::Request()->ts() + MINUTE_IN_SECONDS*$nTimeout );
-			}
-		}
-	}
+	protected function initLoginIntent( $oUser ) {}
 
 	/**
 	 * hooked to 'init' and only run if a user is logged-in (not on the login request)
 	 */
-	private function processLoginIntent() {
-		$oWpResp = Services::Response();
-		$oWpUsers = Services::WpUsers();
-
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-
-		if ( $this->hasValidLoginIntent() ) { // ie. valid login intent present
-			$oReq = Services::Request();
-
-			// Is 2FA/login-intent submit
-			if ( $oReq->request( $oFO->getLoginIntentRequestFlag() ) == 1 ) {
-
-				if ( $oReq->post( 'cancel' ) == 1 ) {
-					$oWpUsers->logoutUser(); // clears the login and login intent
-					$sRedirectHref = $oReq->post( 'cancel_href' );
-					empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
-				}
-				elseif ( $this->isLoginIntentValid() ) {
-
-					if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
-						$oFO->addMfaLoginHash( $oWpUsers->getCurrentWpUser() );
-					}
-
-					$this->removeLoginIntent();
-					$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
-					if ( $oFO->isEnabledBackupCodes() ) {
-						$sFlash .= ' '.__( 'If you used your Backup Code, you will need to reset it.', 'wp-simple-firewall' ); //TODO::
-					}
-
-					$this->getCon()->fireEvent( '2fa_success' );
-					$oFO->setFlashAdminNotice( $sFlash );
-
-					$sRedirectHref = $oReq->post( 'redirect_to' );
-					empty( $sRedirectHref ) ? $oWpResp->redirectHere() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
-				}
-				else {
-					$oFO->setFlashAdminNotice( __( 'One or more of your authentication codes failed or was missing', 'wp-simple-firewall' ), true );
-					// We don't protect against loops here to prevent by-passing of the login intent page.
-					Services::Response()->redirect( Services::Request()->getUri(), [], true, false );
-				}
-				return; // we've redirected anyway.
-			}
-			if ( $this->printLoginIntentForm() ) {
-				die();
-			}
-		}
-		elseif ( $this->hasLoginIntent() ) { // there was an old login intent
-			$oWpUsers->logoutUser(); // clears the login and login intent
-			$oWpResp->redirectHere();
-		}
-		else {
-			// no login intent present -
-			// the login has already been fully validated and the login intent was deleted.
-			// also means new installation don't get booted out
-		}
-	}
+	private function processLoginIntent() {}
 
 	/**
 	 * Use this ONLY when the login intent has been successfully verified.
@@ -198,13 +55,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	 * @return $this
 	 */
 	protected function setLoginIntentExpiresAt( $nExpirationTime ) {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->hasSession() ) {
-			/** @var Shield\Databases\Session\Update $oUpd */
-			$oUpd = $oMod->getDbHandler_Sessions()->getQueryUpdater();
-			$oUpd->updateLoginIntentExpiresAt( $oMod->getSession(), $nExpirationTime );
-		}
 		return $this;
 	}
 
@@ -232,157 +82,17 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	}
 
 	/**
-	 * @return bool true if valid form printed, false otherwise. Should die() if true
 	 */
-	private function printLoginIntentForm() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$oCon = $this->getCon();
-		$oReq = Services::Request();
-		$oWP = Services::WpGeneral();
-		$aLoginIntentFields = apply_filters( $oCon->prefix( 'login-intent-form-fields' ), [] );
-
-		if ( empty( $aLoginIntentFields ) ) {
-			return false; // a final guard against displaying an empty form.
-		}
-
-		if ( $oMod->isChainedAuth() ) {
-			$sMessage = __( 'Please supply all authentication codes', 'wp-simple-firewall' );
-		}
-		else {
-			$sMessage = __( 'Please supply at least 1 authentication code', 'wp-simple-firewall' );
-		}
-
-		$sReferUrl = $oReq->server( 'HTTP_REFERER', '' );
-		if ( strpos( $sReferUrl, '?' ) ) {
-			list( $sReferUrl, $sReferQuery ) = explode( '?', $sReferUrl, 2 );
-		}
-		else {
-			$sReferQuery = '';
-		}
-
-		$sRedirectTo = '';
-		if ( !empty( $sReferQuery ) ) {
-			parse_str( $sReferQuery, $aReferQueryItems );
-			if ( !empty( $aReferQueryItems[ 'redirect_to' ] ) ) {
-				$sRedirectTo = rawurlencode( $aReferQueryItems[ 'redirect_to' ] );
-			}
-		}
-		if ( empty( $sRedirectTo ) ) {
-			$sRedirectTo = rawurlencode( $oReq->post( 'redirect_to', $oReq->getUri() ) );
-		}
-
-		$sCancelHref = $oReq->post( 'cancel_href', '' );
-		if ( empty( $sCancelHref ) && Services::Data()->isValidWebUrl( $sReferUrl ) ) {
-			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
-		}
-
-		$aLabels = $oCon->getLabels();
-		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
-		$nMfaSkip = $oMod->getMfaSkip();
-		$aDisplayData = [
-			'strings' => [
-				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
-				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
-				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
-				'seconds'         => strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
-				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
-				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
-				'more_info'       => __( 'More Info', 'wp-simple-firewall' ),
-				'what_is_this'    => __( 'What is this?', 'wp-simple-firewall' ),
-				'message'         => $sMessage,
-				'page_title'      => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-				'skip_mfa'        => sprintf(
-					__( "Don't ask again on this browser for %s.", 'wp-simple-firewall' ),
-					sprintf( _n( '%s day', '%s days', $nMfaSkip, 'wp-simple-firewall' ), $nMfaSkip )
-				)
-			],
-			'data'    => [
-				'login_fields'      => $aLoginIntentFields,
-				'time_remaining'    => $this->getLoginIntentExpiresAt() - $oReq->ts(),
-				'message_type'      => 'info',
-				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
-				'page_locale'       => $oWP->getLocale( '-' )
-			],
-			'hrefs'   => [
-				'form_action'   => parse_url( $oWP->getAdminUrl( '', true ), PHP_URL_PATH ),
-				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
-				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
-				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
-				'redirect_to'   => $sRedirectTo,
-				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
-				'cancel_href'   => $sCancelHref
-			],
-			'imgs'    => [
-				'banner'  => $sBannerUrl,
-				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
-			],
-			'flags'   => [
-				'can_skip_mfa'       => $oMod->getMfaSkipEnabled(),
-				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
-			]
-		];
-
-		echo $oMod->renderTemplate( '/pages/login_intent/index.twig',
-			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );
-
-		return true;
-	}
-
+	private function printLoginIntentForm() {}
 	/**
 	 */
 	public function onWpLogout() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-
-		$this->removeLoginIntent();
-
-		// support for WooCommerce Social Login
-		$oMeta = $this->getCon()->getCurrentUserMeta();
-		if ( $oFO->getIfSupport3rdParty() && $oMeta instanceof Shield\Users\ShieldUserMeta ) {
-			$oMeta->wc_social_login_valid = false;
-		}
 	}
 
 	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth
-	 */
-	protected function getProcessorEmailAuth() {
-		return ( new ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth( $this->getMod() ) )
-			->setLoginTrack( $this->getLoginTrack() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_Yubikey
-	 */
-	protected function getProcessorYubikey() {
-		return ( new ICWP_WPSF_Processor_LoginProtect_Yubikey( $this->getMod() ) )
-			->setLoginTrack( $this->getLoginTrack() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_BackupCodes
-	 */
-	public function getProcessorBackupCodes() {
-		return ( new ICWP_WPSF_Processor_LoginProtect_BackupCodes( $this->getMod() ) )
-			->setLoginTrack( $this->getLoginTrack() );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator
-	 */
-	public function getProcessorGoogleAuthenticator() {
-		return ( new ICWP_WPSF_Processor_LoginProtect_GoogleAuthenticator( $this->getMod() ) )
-			->setLoginTrack( $this->getLoginTrack() );
-	}
-
-	/**
-	 * @return TwoFactor\IntentTracker
+	 * @return ICWP_WPSF_Processor_LoginProtect_Track
 	 */
 	public function getLoginTrack() {
-		if ( !isset( $this->oLoginTrack ) ) {
-			$this->oLoginTrack = new ICWP_WPSF_Processor_LoginProtect_Track();
-		}
 		return $this->oLoginTrack;
 	}
 
@@ -391,43 +101,20 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	 * @return bool
 	 */
 	private function isLoginIntentValid() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		if ( !$this->isLoginIntentProcessed() ) {
-			// This action sets up the necessary login tracker info
-			do_action( $oFO->prefix( 'login-intent-validation' ), Services::WpUsers()->getCurrentWpUser() );
-			$this->setLoginIntentProcessed();
-		}
-		$oTrk = $this->getLoginTrack();
-
-		// 1st: if backup code was used, then chained auth is irrelevant
-		$sBackupStub = ICWP_WPSF_Processor_LoginProtect_Track::Factor_BackupCode;
-
-		// if backup code used, that's successful; or
-		// It's not chained and you have any 1 successful; or
-		// It's chained (and then you must exclude the backup code.
-		$bSuccess = in_array( $sBackupStub, $oTrk->getFactorsSuccessful() )
-					|| ( !$oFO->isChainedAuth() && $oTrk->hasSuccessfulFactor() );
-		if ( !$bSuccess && $oFO->isChainedAuth() ) {
-			$bSuccess = !$oTrk->hasUnSuccessfulFactor()
-						|| ( $oTrk->getCountFactorsUnsuccessful() == 1 && in_array( $sBackupStub, $oTrk->getFactorsUnsuccessful() ) );
-		}
-
-		return $bSuccess;
+		return false;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isLoginIntentProcessed() {
-		return (bool)$this->bLoginIntentProcessed;
+		return true;
 	}
 
 	/**
 	 * @return $this
 	 */
 	public function setLoginIntentProcessed() {
-		$this->bLoginIntentProcessed = true;
 		return $this;
 	}
 
@@ -436,7 +123,6 @@ class ICWP_WPSF_Processor_LoginProtect_Intent extends Shield\Modules\BaseShield\
 	 * @return $this
 	 */
 	public function setLoginTrack( $oLoginTrack ) {
-		$this->oLoginTrack = $oLoginTrack;
 		return $this;
 	}
 }
