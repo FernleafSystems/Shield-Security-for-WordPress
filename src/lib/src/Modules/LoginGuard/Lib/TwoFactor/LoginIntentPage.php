@@ -13,10 +13,15 @@ class LoginIntentPage {
 	use MfaControllerConsumer;
 
 	/**
-	 *
-	 * @return bool - true if valid form printed, false otherwise. Should die() if true
 	 */
-	public function run() {
+	public function loadPage() {
+		echo $this->renderPage();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function renderForm() {
 		$oIC = $this->getMfaCon();
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $oIC->getMod();
@@ -68,8 +73,6 @@ class LoginIntentPage {
 			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
 		}
 
-		$aLabels = $oCon->getLabels();
-		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
 		$nMfaSkip = $oOpts->getMfaSkip();
 		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
 		$aDisplayData = [
@@ -80,10 +83,7 @@ class LoginIntentPage {
 				'seconds'         => strtolower( __( 'Seconds', 'wp-simple-firewall' ) ),
 				'login_expired'   => __( 'Login Expired', 'wp-simple-firewall' ),
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
-				'more_info'       => __( 'More Info', 'wp-simple-firewall' ),
-				'what_is_this'    => __( 'What is this?', 'wp-simple-firewall' ),
 				'message'         => $sMessage,
-				'page_title'      => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 				'skip_mfa'        => sprintf(
 					__( "Don't ask again on this browser for %s.", 'wp-simple-firewall' ),
 					sprintf( _n( '%s day', '%s days', $nMfaSkip, 'wp-simple-firewall' ), $nMfaSkip )
@@ -94,20 +94,11 @@ class LoginIntentPage {
 				'time_remaining'    => $nTimeRemaining,
 				'message_type'      => 'info',
 				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
-				'page_locale'       => $oWP->getLocale( '-' )
 			],
 			'hrefs'   => [
-				'form_action'   => parse_url( $oWP->getAdminUrl( '', true ), PHP_URL_PATH ),
-				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
-				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
-				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
-				'redirect_to'   => $sRedirectTo,
-				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
-				'cancel_href'   => $sCancelHref
-			],
-			'imgs'    => [
-				'banner'  => $sBannerUrl,
-				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+				'form_action' => parse_url( $oWP->getAdminUrl( '', true ), PHP_URL_PATH ),
+				'redirect_to' => $sRedirectTo,
+				'cancel_href' => $sCancelHref
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $oMod->getMfaSkipEnabled(),
@@ -115,9 +106,50 @@ class LoginIntentPage {
 			]
 		];
 
-		echo $oMod->renderTemplate( '/pages/login_intent/index.twig',
+		return $oMod->renderTemplate( '/snippets/login_intent/form.twig',
 			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );
+	}
 
-		return true;
+	/**
+	 * @return string
+	 */
+	private function renderPage() {
+		$oIC = $this->getMfaCon();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $oIC->getMod();
+		$oCon = $oIC->getCon();
+		$oReq = Services::Request();
+
+		$aLabels = $oCon->getLabels();
+		$sBannerUrl = empty( $aLabels[ 'url_login2fa_logourl' ] ) ? $oCon->getPluginUrl_Image( 'pluginlogo_banner-772x250.png' ) : $aLabels[ 'url_login2fa_logourl' ];
+		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
+		$aDisplayData = [
+			'strings' => [
+				'what_is_this'   => __( 'What is this?', 'wp-simple-firewall' ),
+				'page_title'     => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+			],
+			'data'    => [
+				'time_remaining' => $nTimeRemaining,
+			],
+			'hrefs'   => [
+				'css_bootstrap' => $oCon->getPluginUrl_Css( 'bootstrap4.min' ),
+				'js_bootstrap'  => $oCon->getPluginUrl_Js( 'bootstrap4.min' ),
+				'shield_logo'   => 'https://ps.w.org/wp-simple-firewall/assets/banner-772x250.png',
+				'what_is_this'  => 'https://icontrolwp.freshdesk.com/support/solutions/articles/3000064840',
+			],
+			'imgs'    => [
+				'banner'  => $sBannerUrl,
+				'favicon' => $oCon->getPluginUrl_Image( 'pluginlogo_24x24.png' ),
+			],
+			'flags'   => [
+				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
+			],
+			'content' => [
+				'form' => $this->renderForm(),
+			]
+		];
+
+		return $oMod->renderTemplate( '/pages/login_intent/index.twig',
+			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );
 	}
 }

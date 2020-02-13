@@ -22,6 +22,11 @@ class MfaController {
 	 */
 	protected $bLoginAttemptCaptured;
 
+	/**
+	 * @var LoginIntentPage
+	 */
+	private $oLoginIntentPageHandler;
+
 	public function run() {
 		add_action( 'init', [ $this, 'onWpInit' ], 10, 2 );
 		add_action( 'wp_login', [ $this, 'onWpLogin' ], 10, 2 );
@@ -47,6 +52,10 @@ class MfaController {
 		( new UserProfile() )
 			->setMfaController( $this )
 			->run();
+
+		add_shortcode( 'SHIELD_2FA_LOGIN', function () {
+			return $this->getLoginIntentPageHandler()->renderForm();
+		} );
 	}
 
 	/**
@@ -105,6 +114,16 @@ class MfaController {
 				$this->removeLoginIntent();
 			}
 		}
+	}
+
+	/**
+	 * @return LoginIntentPage
+	 */
+	private function getLoginIntentPageHandler() {
+		if ( !isset( $this->oLoginIntentPageHandler ) ) {
+			$this->oLoginIntentPageHandler =( new LoginIntentPage() )->setMfaController( $this );
+		}
+		return $this->oLoginIntentPageHandler;
 	}
 
 	/**
@@ -192,9 +211,7 @@ class MfaController {
 			}
 		}
 		elseif ( $oOpts->isUseLoginIntentPage() ) {
-			( new LoginIntentPage() )
-				->setMfaController( $this )
-				->run();
+			$this->getLoginIntentPageHandler()->loadPage();
 		}
 		die();
 	}
