@@ -36,7 +36,6 @@
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\": "src"
     },
     "classmap": [
-      "../common/",
       "../features/",
       "../processors/",
       "../wizards/",
