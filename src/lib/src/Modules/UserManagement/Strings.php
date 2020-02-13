@@ -159,7 +159,7 @@ class Strings extends Base\Strings {
 						 .'<br />'.__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' );
 				break;
 
-			case 'enable_email_validate' :
+			case 'reg_email_validate' :
 				$sName = __( 'Validate Email Addresses', 'wp-simple-firewall' );
 				$sSummary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
 				$sDesc = __( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' );
@@ -263,7 +263,7 @@ class Strings extends Base\Strings {
 		return [
 			'reg_email_invalid'            => [
 				__( 'Detected user registration with invalid email address (%s).', 'wp-simple-firewall' ),
-				sprintf( __( 'Failure reason: %s' ) )
+				__( 'Email verification test that failed: %s' )
 			],
 			'pass_expired'                 => [
 				__( 'Forcing user to update expired password.', 'wp-simple-firewall' ),

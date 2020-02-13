@@ -163,7 +163,7 @@
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
     },
     {
-      "key":           "enable_email_validate",
+      "key":           "reg_email_validate",
       "section":       "section_user_reg",
       "premium":       true,
       "type":          "select",
@@ -178,8 +178,12 @@
           "text":      "Log Only"
         },
         {
-          "value_key": "kill",
-          "text":      "Kill Connection"
+          "value_key": "offense",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block and Kill"
         }
       ],
       "link_info":     "",

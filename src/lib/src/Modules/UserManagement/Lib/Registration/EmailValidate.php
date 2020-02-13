@@ -10,6 +10,8 @@ class EmailValidate {
 
 	use ModConsumer;
 
+	private $aTrack;
+
 	public function run() {
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
@@ -25,34 +27,47 @@ class EmailValidate {
 	public function validateNewUserEmail( $aUserData ) {
 		$sEmail = $aUserData[ 'user_email' ];
 		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
 
-		$sInvalidBecause = null;
-		if ( !is_email( $sEmail ) ) {
-			$sInvalidBecause = 'syntax';
+		if ( !is_array( $this->aTrack ) ) {
+			$this->aTrack = [];
 		}
-		else {
-			$aChecks = $oOpts->getEmailValidationChecks();
-			foreach ( ( new Email() )->getEmailVerification( $sEmail ) as $sValidation => $bIsValid ) {
-				if ( !$bIsValid && in_array( $sValidation, $aChecks ) ) {
-					$sInvalidBecause = $sValidation;
-					break;
+
+		// This hook seems to be called twice on any given registration.
+		if ( !in_array( $sEmail, $this->aTrack ) ) {
+			$this->aTrack[] = $sEmail;
+
+			$oOpts = $this->getOptions();
+			$sInvalidBecause = null;
+			if ( !is_email( $sEmail ) ) {
+				$sInvalidBecause = 'syntax';
+			}
+			else {
+				$aChecks = $oOpts->getEmailValidationChecks();
+				foreach ( ( new Email() )->getEmailVerification( $sEmail ) as $sValidation => $bIsValid ) {
+					if ( !$bIsValid && in_array( $sValidation, $aChecks ) ) {
+						$sInvalidBecause = $sValidation;
+						break;
+					}
 				}
 			}
-		}
 
-		if ( !empty( $sInvalidBecause ) ) {
-			$this->getCon()->fireEvent(
-				'reg_email_invalid',
-				[
-					'audit' => [
-						'email'  => sanitize_email( $sEmail ),
-						'reason' => sanitize_key( $sInvalidBecause ),
+			if ( !empty( $sInvalidBecause ) ) {
+				$sOpt = $oOpts->getValidateEmailOnRegistration();
+				$this->getCon()->fireEvent(
+					'reg_email_invalid',
+					[
+						'audit'         => [
+							'email'  => sanitize_email( $sEmail ),
+							'reason' => sanitize_key( $sInvalidBecause ),
+						],
+						'offense_count' => $sOpt == 'log' ? 0 : 1,
+						'block'         => $sOpt == 'block',
 					]
-				]
-			);
-			if ( $oOpts->getValidateEmailOnRegistration() == 'kill' ) {
-				wp_die( 'Attempted user registration with invalid email addressed has been blocked.' );
+				);
+
+				if ( $sOpt == 'block' ) {
+					wp_die( 'Attempted user registration with invalid email addressed has been blocked.' );
+				}
 			}
 		}
 
