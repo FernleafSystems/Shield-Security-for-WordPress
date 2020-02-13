@@ -186,7 +186,7 @@
           "text":      "Immediate Block and Kill"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://shsec.io/gk",
       "link_blog":     "",
       "name":          "Validate Email Addresses",
       "summary":       "Validate Email Addresses When User Attempts To Register",

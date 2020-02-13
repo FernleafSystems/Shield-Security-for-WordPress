@@ -265,7 +265,7 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://shsec.io/gj",
       "link_blog":   "",
       "name":        "Allow Any User",
       "summary":     "Allow Any User To Turn-On Two-Factor Authentication By Email",

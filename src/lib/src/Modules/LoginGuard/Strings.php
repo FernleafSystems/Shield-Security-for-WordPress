@@ -207,9 +207,9 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'email_any_user_set' :
-				$sName = sprintf( __( 'Enable %s', 'wp-simple-firewall' ), __( 'Email Authentication', 'wp-simple-firewall' ) );
+				$sName = __( 'Allow Any User.', 'wp-simple-firewall' );
 				$sSummary = __( 'Allow Any User To Turn-On Two-Factor Authentication By Email.', 'wp-simple-firewall' );
-				$sDescription = __( 'When enabled, any user can turn on two-factor authentication by email from their profile.', 'wp-simple-firewall' );
+				$sDescription = __( 'Any user can turn on two-factor authentication by email from their profile.', 'wp-simple-firewall' );
 				break;
 
 			case 'two_factor_auth_user_roles' :
