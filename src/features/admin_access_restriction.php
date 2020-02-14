@@ -86,7 +86,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private function verifySecAdminUsers( $aSecUsers ) {
 		$oDP = Services::Data();
 		$oWpUsers = Services::WpUsers();
-		/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
+		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$aFiltered = [];
@@ -169,7 +169,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isEnabledSecurityAdmin() {
-		/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
+		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $this->isModOptEnabled() &&
 			   ( $this->hasSecAdminUsers() ||
@@ -204,7 +204,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$bValid = false;
 			$sReqKey = Services::Request()->post( 'sec_admin_key' );
 			if ( !empty( $sReqKey ) ) {
-				/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
+				/** @var SecurityAdmin\Options $oOpts */
 				$oOpts = $this->getOptions();
 				$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sReqKey ) );
 				if ( !$bValid ) {
@@ -326,17 +326,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->saveModOptions();
 	}
 
-	/**
-	 * @return $this
-	 */
-	protected function clearAdminAccessKey() {
-		return $this->setOpt( 'admin_access_key', '' );
-	}
-
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		$aInsertData = [];
 		if ( $this->getSecAdminTimeLeft() > 0 ) {
 			$aInsertData = [
 				'ajax'         => [

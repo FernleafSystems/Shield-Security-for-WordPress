@@ -6,20 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return int
-	 */
-	public function getTokenCooldown() {
-		return (int)$this->getOpt( 'comments_cooldown_interval' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getTokenExpireInterval() {
-		return (int)$this->getOpt( 'comments_token_expire_interval' );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getGoogleRecaptchaStyle() {
@@ -76,7 +62,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function doExtraSubmitProcessing() {
-		if ( $this->getTokenExpireInterval() != 0 && $this->getTokenCooldown() > $this->getTokenExpireInterval() ) {
+		/** @var Shield\Modules\CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->getTokenExpireInterval() != 0 && $oOpts->getTokenCooldown() > $oOpts->getTokenExpireInterval() ) {
 			$this->getOptions()->resetOptToDefault( 'comments_cooldown_interval' );
 			$this->getOptions()->resetOptToDefault( 'comments_token_expire_interval' );
 		}
@@ -218,5 +206,13 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function getSpamBlacklistFile() {
 		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 8.6.0
+	 */
+	public function getTokenCooldown() {
+		return (int)$this->getOpt( 'comments_cooldown_interval' );
 	}
 }

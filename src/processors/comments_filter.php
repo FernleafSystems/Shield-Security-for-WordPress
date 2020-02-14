@@ -26,7 +26,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 		if ( $bLoadComProc ) {
 
 			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-				$this->getSubProRecaptcha()->execute();
+				$this->getSubPro( 'recaptcha' )->execute();
 			}
 
 			if ( Services::Request()->isPost() ) {
@@ -36,7 +36,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 				add_filter( 'comment_notification_recipients', [ $this, 'clearCommentNotificationEmail' ], 100, 1 );
 			}
 			elseif ( $oMod->isEnabledGaspCheck() ) {
-				$this->getSubProGasp()->execute();
+				$this->getSubPro( 'bot' )->execute();
 			}
 		}
 	}
@@ -57,20 +57,6 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 			'bot'       => 'ICWP_WPSF_Processor_CommentsFilter_BotSpam',
 			'recaptcha' => 'ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha',
 		];
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_CommentsFilter_BotSpam
-	 */
-	private function getSubProGasp() {
-		return $this->getSubPro( 'bot' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha
-	 */
-	private function getSubProRecaptcha() {
-		return $this->getSubPro( 'recaptcha' );
 	}
 
 	/**
