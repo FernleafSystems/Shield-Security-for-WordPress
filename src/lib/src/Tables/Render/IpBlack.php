@@ -18,9 +18,7 @@ class IpBlack extends IpBase {
 			),
 			sprintf( '%s - %s',
 				sprintf( _n( '%s Offense', '%s Offenses', $aItem[ 'transgressions' ], 'wp-simple-firewall' ), $aItem[ 'transgressions' ] ),
-				$bAutoBlock ?
-					sprintf( '%s: %s', __( 'Last Offense', 'wp-simple-firewall' ), $aItem[ 'last_trans_at' ] ) :
-					sprintf( '%s: %s', __( 'Last Access', 'wp-simple-firewall' ), $aItem[ 'last_trans_at' ] )
+				sprintf( '%s: %s', __( 'Last Access', 'wp-simple-firewall' ), $aItem[ 'last_trans_at' ] )
 			),
 		] );
 	}

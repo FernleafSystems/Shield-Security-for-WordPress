@@ -443,5 +443,6 @@ class Strings extends Base\Strings {
 		__( 'Medium', 'wp-simple-firewall' );
 		__( 'High', 'wp-simple-firewall' );
 		__( 'Full', 'wp-simple-firewall' );
+		__( 'Last Offense', 'wp-simple-firewall' );
 	}
 }
