@@ -377,5 +377,6 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.0)**  ADDED:		[**PRO**] New option allows users to turn on email-based two-factor authentication from their profile.
 * **(v.0)**  ADDED:		Support for manually blocking IP Ranges (not just single IPs).
 * **(v.0)**  IMPROVED:	Two-Factor Authentication system has been rewritten and improved.
+* **(v.0)**  IMPROVED:	Table ordering and descriptions for the IP Black List.
 
 #### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
