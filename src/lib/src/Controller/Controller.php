@@ -410,9 +410,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpAdminInit() {
-		if ( $this->getPluginSpec_Property( 'show_dashboard_widget' ) === true ) {
-			add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
-		}
+		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminCss' ], 100 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
 
@@ -483,7 +481,10 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpDashboardSetup() {
-		if ( $this->isValidAdminArea() ) {
+		$bShow = apply_filters( $this->prefix( 'show_dashboard_widget' ),
+			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_dashboard_widget' )
+		);
+		if ( $bShow ) {
 			wp_add_dashboard_widget(
 				$this->prefix( 'dashboard_widget' ),
 				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
