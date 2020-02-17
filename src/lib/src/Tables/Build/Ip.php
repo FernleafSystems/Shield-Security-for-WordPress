@@ -26,6 +26,8 @@ class Ip extends BaseBuild {
 			$oSelector->filterByIp( $aParams[ 'fIp' ] );
 		}
 
+		$oSelector->setOrderBy( 'last_access_at', 'DESC', true );
+
 		return $this;
 	}
 

@@ -68,10 +68,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		elseif ( $bIsBlackList && !$oMod->isPremium() ) {
 			$sMessage = __( "Please upgrade to Pro if you'd like to add IPs to the black list manually.", 'wp-simple-firewall' );
 		}
-		elseif ( $bIsBlackList && $oIpServ->isValidIp4Range( $sIp ) ) { // TODO
-			$sMessage = __( "IP ranges aren't currently supported for blacklisting.", 'wp-simple-firewall' );
-		}
-		elseif ( $bIsBlackList && $oIpServ->checkIp( $sIp, $oIpServ->getRequestIp() ) ) {
+		elseif ( $bIsBlackList && $oIpServ->checkIp( $oIpServ->getRequestIp(), $sIp ) ) {
 			$sMessage = __( "Manually black listing your current IP address is not supported.", 'wp-simple-firewall' );
 		}
 		elseif ( $bIsBlackList && in_array( $sIp, Services::IP()->getServerPublicIPs() ) ) {
@@ -79,28 +76,35 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		}
 		else {
 			$sLabel = isset( $aFormParams[ 'label' ] ) ? $aFormParams[ 'label' ] : '';
+			$oIP = null;
 			switch ( $sList ) {
-
 				case $oMod::LIST_MANUAL_WHITE:
-					$oIp = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
-						->setMod( $oMod )
-						->setIP( $sIp )
-						->toManualWhitelist( $sLabel );
+					try {
+						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+							->setMod( $oMod )
+							->setIP( $sIp )
+							->toManualWhitelist( $sLabel );
+					}
+					catch ( \Exception $oE ) {
+					}
 					break;
 
 				case $oMod::LIST_MANUAL_BLACK:
-					$oIp = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
-						->setMod( $oMod )
-						->setIP( $sIp )
-						->toManualBlacklist( $sLabel );
+					try {
+						$oIP = ( new Shield\Modules\IPs\Lib\Ops\AddIp() )
+							->setMod( $oMod )
+							->setIP( $sIp )
+							->toManualBlacklist( $sLabel );
+					}
+					catch ( \Exception $oE ) {
+					}
 					break;
 
 				default:
-					$oIp = null;
 					break;
 			}
 
-			if ( !empty( $oIp ) ) {
+			if ( !empty( $oIP ) ) {
 				$sMessage = __( 'IP address added successfully', 'wp-simple-firewall' );
 				$bSuccess = true;
 			}

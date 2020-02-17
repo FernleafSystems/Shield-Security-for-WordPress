@@ -446,20 +446,4 @@ class Options extends Base\ShieldOptions {
 			}
 		) );
 	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5
-	 */
-	public function getPtgLastBuildAt() {
-		return $this->getOpt( 'ptg_last_build_at' );
-	}
-
-	/**
-	 * @return string|false
-	 * @deprecated 8.5
-	 */
-	public function getPtgSnapsBaseDir() {
-		return $this->getCon()->getPluginCachePath( 'ptguard/' );
-	}
 }

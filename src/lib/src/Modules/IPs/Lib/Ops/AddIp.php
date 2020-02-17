@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -17,17 +17,24 @@ class AddIp {
 
 	/**
 	 * @return Databases\IPs\EntryVO|null
+	 * @throws \Exception
 	 */
 	public function toAutoBlacklist() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
+		$oIpServ = Services::IP();
+
+		$sIP = $this->getIP();
+		if ( !$oIpServ->isValidIp( $sIP ) ) {
+			throw new \Exception( 'IP address is not valid' );
+		}
 
 		$oIP = null;
-		if ( !in_array( $this->getIP(), Services::IP()->getServerPublicIPs() ) ) {
+		if ( !in_array( $sIP, Services::IP()->getServerPublicIPs() ) ) {
 			$oIP = ( new LookupIpOnList() )
 				->setDbHandler( $oMod->getDbHandler_IPs() )
 				->setListTypeBlack()
-				->setIP( $this->getIP() )
+				->setIP( $sIP )
 				->lookup( false );
 			if ( !$oIP instanceof Databases\IPs\EntryVO ) {
 				$oIP = $this->add( $oMod::LIST_AUTO_BLACK, 'auto' );
@@ -45,18 +52,32 @@ class AddIp {
 	/**
 	 * @param string $sLabel
 	 * @return Databases\IPs\EntryVO|null
+	 * @throws \Exception
 	 */
 	public function toManualBlacklist( $sLabel = '' ) {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
+		$oIpServ = Services::IP();
+
+		$sIP = $this->getIP();
+		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
+			throw new \Exception( 'IP address is not valid' );
+		}
 
 		$oIP = null;
-		if ( !in_array( $this->getIP(), Services::IP()->getServerPublicIPs() ) ) {
+		if ( !in_array( $sIP, $oIpServ->getServerPublicIPs() ) ) {
+
+			if ( $oIpServ->isValidIpRange( $sIP ) ) {
+				( new DeleteIp() )
+					->setDbHandler( $oMod->getDbHandler_IPs() )
+					->setIP( $sIP )
+					->fromBlacklist();
+			}
 
 			$oIP = ( new LookupIpOnList() )
 				->setDbHandler( $oMod->getDbHandler_IPs() )
 				->setListTypeBlack()
-				->setIP( $this->getIP() )
+				->setIP( $sIP )
 				->lookup( false );
 
 			if ( !$oIP instanceof Databases\IPs\EntryVO ) {
@@ -88,10 +109,25 @@ class AddIp {
 	/**
 	 * @param string $sLabel
 	 * @return Databases\IPs\EntryVO|null
+	 * @throws \Exception
 	 */
 	public function toManualWhitelist( $sLabel = '' ) {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
+		$oIpServ = Services::IP();
+
+		$sIP = $this->getIP();
+		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
+			throw new \Exception( 'IP address is not valid' );
+		}
+
+		if ( $oIpServ->isValidIpRange( $sIP ) ) {
+			( new DeleteIp() )
+				->setDbHandler( $oMod->getDbHandler_IPs() )
+				->setIP( $sIP )
+				->fromWhiteList();
+		}
+
 		$oIP = ( new LookupIpOnList() )
 			->setDbHandler( $oMod->getDbHandler_IPs() )
 			->setIP( $this->getIP() )

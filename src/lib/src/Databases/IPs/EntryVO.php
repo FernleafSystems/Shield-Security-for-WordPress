@@ -16,43 +16,4 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  */
 class EntryVO extends Base\EntryVO {
 
-	/**
-	 * @return string
-	 * @deprecated 8.5
-	 */
-	public function getLabel() {
-		return (string)$this->label;
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5
-	 */
-	public function getLastAccessAt() {
-		return (int)$this->last_access_at;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.5
-	 */
-	public function getList() {
-		return (string)$this->list;
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5
-	 */
-	public function getTransgressions() {
-		return (int)$this->transgressions;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function hasTransgressions() {
-		return (int)$this->transgressions > 0;
-	}
 }

@@ -3,6 +3,9 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 8.6.0
+ */
 abstract class ICWP_WPSF_Processor_LoginProtect_IntentProviderBase extends Modules\BaseShield\ShieldProcessor {
 
 	/**

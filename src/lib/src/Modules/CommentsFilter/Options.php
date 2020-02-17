@@ -23,6 +23,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return int
 	 */
+	public function getTokenCooldown() {
+		return (int)$this->getOpt( 'comments_cooldown_interval' );
+	}
+
+	/**
+	 * @return int
+	 */
 	public function getTokenExpireInterval() {
 		return (int)$this->getOpt( 'comments_token_expire_interval' );
 	}

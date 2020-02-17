@@ -2,6 +2,9 @@
 
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @deprecated 8.6.0
+ */
 class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor_LoginProtect_IntentProviderBase {
 
 	/**
@@ -21,8 +24,7 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 			$oUpd->setLoginIntentCodeEmail( $oMod->getSession(), $this->getSecret( $oUser ) );
 
 			// Now send email with authentication link for user.
-			$this->sendEmailTwoFactorVerify( $oUser )
-				 ->setLoginCaptured();
+			$this->setLoginCaptured();
 		}
 		return $oUser;
 	}
@@ -129,79 +131,6 @@ class ICWP_WPSF_Processor_LoginProtect_TwoFactorAuth extends ICWP_WPSF_Processor
 	protected function isSecretValid( $sSecret ) {
 		$sHash = $this->getStoredSessionHashCode();
 		return !empty( $sHash );
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return $this
-	 */
-	private function sendEmailTwoFactorVerify( \WP_User $oUser ) {
-		$aMessage = [
-			__( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
-			__( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
-			'',
-			sprintf( __( 'Verification Code: %s', 'wp-simple-firewall' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
-			'',
-			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
-			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
-			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
-			'',
-		];
-
-		if ( !$this->getCon()->isRelabelled() ) {
-			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://shsec.io/96', __( 'Why no login link?', 'wp-simple-firewall' ) );
-			$aContent[] = '';
-		}
-
-		$bResult = $this->getEmailProcessor()
-						->sendEmailWithWrap(
-							$oUser->user_email,
-							__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-							$aMessage
-						);
-
-		$this->getCon()->fireEvent(
-			$bResult ? '2fa_email_send_success' : '2fa_email_send_fail',
-			[
-				'audit' => [
-					'user_login' => $oUser->user_login,
-				]
-			]
-		);
-		return $this;
-	}
-
-	/**
-	 * This MUST only ever be hooked into when the User is looking at their OWN profile, so we can use "current user"
-	 * functions.  Otherwise we need to be careful of mixing up users.
-	 * @param WP_User $oUser
-	 */
-	public function addOptionsToUserProfile( $oUser ) {
-		$oWp = Services::WpUsers();
-		$bValidatedProfile = $this->hasValidatedProfile( $oUser );
-		$aData = [
-			'user_has_email_authentication_active'   => $bValidatedProfile,
-			'user_has_email_authentication_enforced' => $this->isSubjectToEmailAuthentication( $oUser ),
-			'is_my_user_profile'                     => ( $oUser->ID == $oWp->getCurrentWpUserId() ),
-			'i_am_valid_admin'                       => $this->getCon()->isPluginAdmin(),
-			'user_to_edit_is_admin'                  => $oWp->isUserAdmin( $oUser ),
-			'strings'                                => [
-				'label_email_authentication'                => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'title'                                     => __( 'Email Authentication', 'wp-simple-firewall' ),
-				'description_email_authentication_checkbox' => __( 'Check the box to enable email-based login authentication.', 'wp-simple-firewall' ),
-				'provided_by'                               => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $this->getCon()
-																														   ->getHumanName() )
-			]
-		];
-
-		$aData[ 'bools' ] = [
-			'checked'  => $bValidatedProfile || $aData[ 'user_has_email_authentication_enforced' ],
-			'disabled' => true || $aData[ 'user_has_email_authentication_enforced' ]
-			//TODO: Make email authentication a per-user setting
-		];
-
-		echo $this->getMod()->renderTemplate( 'snippets/user_profile_emailauthentication.php', $aData );
 	}
 
 	/**

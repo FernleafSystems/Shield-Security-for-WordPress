@@ -159,6 +159,18 @@ class Strings extends Base\Strings {
 						 .'<br />'.__( "Zero (0) will allow unlimited simultaneous sessions.", 'wp-simple-firewall' );
 				break;
 
+			case 'reg_email_validate' :
+				$sName = __( 'Validate Email Addresses', 'wp-simple-firewall' );
+				$sSummary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
+				$sDesc = __( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' );
+				break;
+
+			case 'email_checks' :
+				$sName = __( 'Email Validation Checks', 'wp-simple-firewall' );
+				$sSummary = __( 'The Email Address Properties That Will Be Tested', 'wp-simple-firewall' );
+				$sDesc = __( 'Select the properties that should be tested during email address validation.', 'wp-simple-firewall' );
+				break;
+
 			case 'enable_password_policies' :
 				$sName = __( 'Enable Password Policies', 'wp-simple-firewall' );
 				$sSummary = __( 'Enable The Password Policies Detailed Below', 'wp-simple-firewall' );
@@ -249,6 +261,10 @@ class Strings extends Base\Strings {
 	 */
 	protected function getAuditMessages() {
 		return [
+			'reg_email_invalid'            => [
+				__( 'Detected user registration with invalid email address (%s).', 'wp-simple-firewall' ),
+				__( 'Email verification test that failed: %s' )
+			],
 			'pass_expired'                 => [
 				__( 'Forcing user to update expired password.', 'wp-simple-firewall' ),
 			],

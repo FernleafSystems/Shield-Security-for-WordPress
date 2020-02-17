@@ -18,9 +18,12 @@
   "admin_notices": {
     "email-verification-sent": {
       "id":               "email-verification-sent",
-      "once":             false,
+      "schedule":         "conditions",
+      "plugin_page_only": true,
+      "can_dismiss":      false,
       "type":             "warning",
-      "plugin_admin":     "yes"
+      "plugin_admin":     "yes",
+      "valid_admin":      true
     }
   },
   "sections":      [
@@ -257,6 +260,18 @@
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
     },
     {
+      "key":         "email_any_user_set",
+      "section":     "section_2fa_email",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/gj",
+      "link_blog":   "",
+      "name":        "Allow Any User",
+      "summary":     "Allow Any User To Turn-On Two-Factor Authentication By Email",
+      "description": "Allow Any User To Turn-On Two-Factor Authentication By Email."
+    },
+    {
       "key":           "bot_protection_locations",
       "section":       "section_brute_force_login_protection",
       "type":          "multiple_select",
@@ -435,7 +450,8 @@
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
-      "default":      -1
+      "default":      0,
+      "min":          0
     },
     {
       "key":          "gasp_key",

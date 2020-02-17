@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
@@ -20,30 +21,25 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 
 		// So we can allow access to the login pages if IP is whitelisted
 		if ( $oMod->isCustomLoginPathEnabled() ) {
-			$this->getSubProRename()->execute();
+			$this->getSubPro( 'rename' )->execute();
 		}
 
 		if ( !$oMod->isVisitorWhitelisted() ) {
 			if ( $oMod->isEnabledGaspCheck() ) {
-				$this->getSubProGasp()->execute();
+				$this->getSubPro( 'gasp' )->execute();
 			}
 
 			if ( $oOpts->isCooldownEnabled() ) {
 				if ( Services::Request()->isPost() ) {
-					$this->getSubProCooldown()->execute();
+					$this->getSubPro( 'cooldown' )->execute();
 				}
-				/*
-				( new Modules\LoginGuard\Lib\CooldownRedirect() )
-					->setMod( $oMod )
-					->run();
-				*/
 			}
 
 			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-				$this->getSubProRecaptcha()->execute();
+				$this->getSubPro( 'recaptcha' )->execute();
 			}
 
-			$this->getSubProIntent()->execute();
+			$oMod->getLoginIntentController()->run();
 		}
 	}
 
@@ -117,6 +113,7 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 
 	/**
 	 * @return \ICWP_WPSF_Processor_LoginProtect_Cooldown
+	 * @deprecated 8.6.0
 	 */
 	private function getSubProCooldown() {
 		return $this->getSubPro( 'cooldown' );
@@ -124,20 +121,15 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 
 	/**
 	 * @return \ICWP_WPSF_Processor_LoginProtect_Gasp
+	 * @deprecated 8.6.0
 	 */
 	private function getSubProGasp() {
 		return $this->getSubPro( 'gasp' );
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_LoginProtect_Intent
-	 */
-	public function getSubProIntent() {
-		return $this->getSubPro( 'intent' );
-	}
-
-	/**
 	 * @return \ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
+	 * @deprecated 8.6.0
 	 */
 	private function getSubProRecaptcha() {
 		return $this->getSubPro( 'recaptcha' );
@@ -145,8 +137,17 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 
 	/**
 	 * @return \ICWP_WPSF_Processor_LoginProtect_WpLogin
+	 * @deprecated 8.6.0
 	 */
 	private function getSubProRename() {
 		return $this->getSubPro( 'rename' );
+	}
+
+	/**
+	 * @return \ICWP_WPSF_Processor_LoginProtect_Intent
+	 * @deprecated 8.6.0
+	 */
+	public function getSubProIntent() {
+		return $this->getSubPro( 'intent' );
 	}
 }

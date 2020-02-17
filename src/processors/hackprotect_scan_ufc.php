@@ -12,9 +12,9 @@ class ICWP_WPSF_Processor_HackProtect_Ufc extends ICWP_WPSF_Processor_ScanBase {
 	 * @return bool - true if user notified
 	 */
 	protected function runCronUserNotify( $oRes ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		$bSend = $oFO->isUfcSendReport();
+		/** @var Shield\Modules\HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$bSend = $oOpts->isUfcSendReport();
 		if ( $bSend ) {
 			$this->emailResults( $oRes );
 		}

@@ -410,9 +410,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpAdminInit() {
-		if ( $this->getPluginSpec_Property( 'show_dashboard_widget' ) === true ) {
-			add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
-		}
+		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminCss' ], 100 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
 
@@ -459,7 +457,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		$sId = (string)Services::WpGeneral()->getOption( $sOptKey );
 
 		$sUrl = base64_encode( Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ) );
-		if ( empty( $sId ) || strpos( $sId, ':' ) == false || strpos( $sId, $sUrl ) !== 0 ) {
+		if ( empty( $sId ) || strpos( $sId, ':' ) === false || strpos( $sId, $sUrl ) !== 0 ) {
 			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
 			Services::WpGeneral()->updateOption( $sOptKey, $sId );
 		}
@@ -483,7 +481,10 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpDashboardSetup() {
-		if ( $this->isValidAdminArea() ) {
+		$bShow = apply_filters( $this->prefix( 'show_dashboard_widget' ),
+			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_dashboard_widget' )
+		);
+		if ( $bShow ) {
 			wp_add_dashboard_widget(
 				$this->prefix( 'dashboard_widget' ),
 				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
@@ -492,12 +493,6 @@ class Controller extends Shield\Deprecated\Foundation {
 				}
 			);
 		}
-	}
-
-	/**
-	 * @deprecated 8.5.7
-	 */
-	public function displayDashboardWidget() {
 	}
 
 	/**

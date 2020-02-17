@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ICWP_WPSF_Processor_LoginProtect_Track
+ * @deprecated 8.6.0
+ */
 class ICWP_WPSF_Processor_LoginProtect_Track {
 
 	const Factor_Google_Authenticator = 'ga';

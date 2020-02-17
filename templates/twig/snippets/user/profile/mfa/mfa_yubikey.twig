@@ -1,0 +1,36 @@
+{% if (flags.is_my_user_profile or flags.i_am_valid_admin) %}
+	<tr>
+		<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
+		<td>
+			{% if flags.is_profile_active %}
+				<p>{{ strings.current_yubi_ids }}</p>
+				<ul style=" list-style: circle inside; ">
+					{% for yubi_id in vars.yubi_ids %}
+						<li><code>{{ yubi_id }}</code></li>
+					{% endfor %}
+				</ul>
+			{% else %}
+				<p>{{ strings.no_active_yubi_ids }}</p>
+			{% endif %}
+
+			<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>
+			<input class="regular-text"
+				   type="text"
+				   id="{{ vars.otp_field_name }}"
+				   name="{{ vars.otp_field_name }}"
+				   value="" autocomplete="off" />
+			{% if flags.is_profile_active %}
+				<p class="description">
+						{{ strings.to_remove_device }}
+				</p>
+			{% endif %}
+			<p class="description">
+				{{ strings.multiple_for_pro }}
+			</p>
+		</td>
+	</tr>
+{% else %}
+	<td>
+		<p class="description">{{ strings.cant_remove_admins }}</p>
+	</td>
+{% endif %}

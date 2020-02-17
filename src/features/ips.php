@@ -35,7 +35,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	protected function doExtraSubmitProcessing() {
-		/** @var Shield\Modules\IPs\Options $oOpts */
+		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( !defined( strtoupper( $oOpts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$oOpts->resetOptToDefault( 'auto_expire' );
@@ -118,7 +118,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	protected function getSectionWarnings( $sSection ) {
 		$aWarnings = [];
 
-		/** @var Shield\Modules\IPs\Options $oOpts */
+		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		switch ( $sSection ) {
@@ -206,15 +206,19 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
 
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
-			$aWhiteIps = ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+			$aWhiteIps = ( new IPs\Lib\Ops\RetrieveIpsForLists() )
 				->setDbHandler( $this->getDbHandler_IPs() )
 				->white();
 			foreach ( $aIps as $sIP => $sLabel ) {
 				if ( !in_array( $sIP, $aWhiteIps ) ) {
-					( new Shield\Modules\IPs\Lib\Ops\AddIp() )
-						->setMod( $this )
-						->setIP( $sIP )
-						->toManualWhitelist( $sLabel );
+					try {
+						( new IPs\Lib\Ops\AddIp() )
+							->setMod( $this )
+							->setIP( $sIP )
+							->toManualWhitelist( $sLabel );
+					}
+					catch ( Exception $oE ) {
+					}
 				}
 			}
 		}
@@ -225,14 +229,5 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 */
 	protected function getNamespaceBase() {
 		return 'IPs';
-	}
-
-	/**
-	 * IP addresses that should never be put on the black list.
-	 * @return string[]
-	 * @deprecated 8.5.1
-	 */
-	public function getReservedIps() {
-		return Services::IP()->getServerPublicIPs();
 	}
 }

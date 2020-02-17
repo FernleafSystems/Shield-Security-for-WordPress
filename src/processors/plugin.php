@@ -82,12 +82,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @deprecated 8.5.7
-	 */
-	public function gatherPluginWidgetContent() {
-	}
-
-	/**
 	 * @return \ICWP_WPSF_Processor_Plugin_Tracking
 	 */
 	protected function getSubProTracking() {

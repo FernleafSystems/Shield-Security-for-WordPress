@@ -187,13 +187,4 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		$oSel = $oMod->getDbHandler_Sessions()->getQuerySelector();
 		return $oSel->retrieveUserSession( $sSessionId, $sUsername );
 	}
-
-	/**
-	 * @param int $nSessionId
-	 * @return bool
-	 * @deprecated 8.5
-	 */
-	public function terminateSession( $nSessionId ) {
-		return false;
-	}
 }

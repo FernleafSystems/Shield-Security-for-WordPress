@@ -179,15 +179,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param bool $bGloballyDisabled
-	 * @return bool
-	 * @deprecated 8.5.7
-	 */
-	public function filter_IsPluginGloballyDisabled( $bGloballyDisabled ) {
-		return $bGloballyDisabled || !$this->isOpt( 'global_enable_plugin_features', 'Y' );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getCanSiteCallToItself() {
@@ -706,125 +697,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 	/**
 	 * @return string
-	 * @deprecated 8.5.2
-	 */
-	public function getVisitorAddressSource() {
-		return $this->getOptions()->getOpt( 'visitor_address_source' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.5.2
-	 */
-	public function isVisitorAddressSourceAutoDetect() {
-		return $this->getVisitorAddressSource() == 'AUTO_DETECT_IP';
-	}
-
-	/**
-	 * @return string
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function hasImportExportMasterImportUrl() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->hasImportExportMasterImportUrl();
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5.2
-	 */
-	public function getImportExportHandshakeExpiresAt() {
-		return $this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.5.2
-	 */
-	public function getImportExportMasterImportUrl() {
-		return $this->getOpt( 'importexport_masterurl', '' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isImportExportPermitted() {
-		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function readyToSendTrackingData() {
-		return Services::Request()
-					   ->carbon()
-					   ->subWeek()->timestamp > (int)$this->getOptions()->getOpt( 'tracking_last_sent_at', 0 );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isTrackingEnabled() {
-		return $this->isOpt( 'enable_tracking', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.5.2
-	 */
-	public function isTrackingPermissionSet() {
-		return !$this->isOpt( 'tracking_permission_set_at', 0 );
-	}
-
-	/**
-	 * @return $this
-	 * @deprecated 8.5.2
-	 */
-	public function setTrackingLastSentAt() {
-		return $this->setOpt( 'tracking_last_sent_at', Services::Request()->ts() );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5.2
-	 */
-	public function getTrackingLastSentAt() {
-		return (int)max( 0, $this->getOptions()->getOpt( 'tracking_last_sent_at', 0 ) );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.5.2
-	 */
-	public function getActivatedAt() {
-		return (int)$this->getOpt( 'activated_at', 0 );
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 8.5.1
-	 */
-	public function getMyServerIPs() {
-		return Services::IP()->getServerPublicIPs();
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 8.5
-	 */
-	public function getMyServerIp() {
-		$aIPs = $this->getMyServerIPs();
-		return array_shift( $aIPs );
 	}
 }

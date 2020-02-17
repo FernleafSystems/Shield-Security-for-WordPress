@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Token;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,15 +16,15 @@ class Create {
 	 * @return string
 	 */
 	public function run( $nTs, $nPostId ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$sToken = $this->generateNewToken( $nTs, $nPostId );
 
 		Services::WpGeneral()->setTransient(
-			$oMod->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) ) ),
+			$this->getCon()->prefix( 'comtok-'.md5( sprintf( '%s-%s-%s', $nPostId, $nTs, Services::IP()->getRequestIp() ) ) ),
 			$sToken,
-			$oMod->getTokenExpireInterval()
+			$oOpts->getTokenExpireInterval()
 		);
 
 		return $sToken;

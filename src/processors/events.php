@@ -100,12 +100,6 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 		return $aData;
 	}
 
-	/**
-	 * @deprecated 8.5
-	 */
-	private function commitEvents() {
-	}
-
 	public function runDailyCron() {
 		( new Events\Consolidate\ConsolidateAllEvents() )
 			->setMod( $this->getMod() )

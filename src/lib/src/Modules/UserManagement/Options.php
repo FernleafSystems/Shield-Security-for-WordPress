@@ -146,4 +146,20 @@ class Options extends Base\ShieldOptions {
 	public function isSuspendManualEnabled() {
 		return $this->isOpt( 'manual_suspend', 'Y' );
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getValidateEmailOnRegistration() {
+		return $this->isPremium() ?
+			$this->getOpt( 'reg_email_validate', 'disabled' )
+			: 'disabled';
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getEmailValidationChecks() {
+		return $this->getOpt( 'email_checks', [] );
+	}
 }

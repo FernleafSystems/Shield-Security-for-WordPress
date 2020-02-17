@@ -42,6 +42,10 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 		add_action( 'user_register', function ( $nUserId ) {
 			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
 		} );
+
+		( new UserManagement\Lib\Registration\EmailValidate() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**
@@ -252,30 +256,6 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 				sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), __( 'A login to your WordPress account just occurred', 'wp-simple-firewall' ) ),
 				$aMessage
 			);
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Passwords|mixed
-	 * @deprecated 8.5.2
-	 */
-	protected function getProcessorPasswords() {
-		return $this->getSubPro( 'passwords' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Sessions|mixed
-	 * @deprecated 8.5.2
-	 */
-	public function getProcessorSessions() {
-		return $this->getSubPro( 'sessions' );
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_UserManagement_Suspend|mixed
-	 * @deprecated 8.5.2
-	 */
-	protected function getProcessorSuspend() {
-		return $this->getSubPro( 'suspend' );
 	}
 
 	/**

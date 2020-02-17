@@ -26,6 +26,15 @@
       ]
     },
     {
+      "slug":        "section_user_reg",
+      "title":       "User Registration",
+      "title_short": "User Registration",
+      "summary":     [
+        "Purpose - Control user registration and prevent SPAM.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
       "slug":        "section_passwords",
       "reqs":        {
         "wp_min": "4.4"
@@ -152,6 +161,65 @@
       "name":        "Max Simultaneous Sessions",
       "summary":     "Limit Simultaneous Sessions For The Same Username",
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
+    },
+    {
+      "key":           "reg_email_validate",
+      "section":       "section_user_reg",
+      "premium":       true,
+      "type":          "select",
+      "default":       "log",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Log Only"
+        },
+        {
+          "value_key": "offense",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block and Kill"
+        }
+      ],
+      "link_info":     "https://shsec.io/gk",
+      "link_blog":     "",
+      "name":          "Validate Email Addresses",
+      "summary":       "Validate Email Addresses When User Attempts To Register",
+      "description":   "Validate Email Addresses When User Attempts To Register."
+    },
+    {
+      "key":           "email_checks",
+      "section":       "section_user_reg",
+      "type":          "multiple_select",
+      "default":       [ "syntax", "domain" ],
+      "value_options": [
+        {
+          "value_key": "syntax",
+          "text":      "Email Address Syntax"
+        },
+        {
+          "value_key": "domain",
+          "text":      "Domain Name Resolves"
+        },
+        {
+          "value_key": "mx",
+          "text":      "Domain MX"
+        },
+        {
+          "value_key": "nondisposable",
+          "text":      "Disposable Email Service"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Email Checks",
+      "summary":       "The Email Address Properties That Will Be Tested",
+      "description":   "Select which ."
     },
     {
       "key":         "enable_password_policies",
@@ -342,6 +410,9 @@
         "recent": true
       },
       "user_hard_unsuspended":        {
+      },
+      "reg_email_invalid":            {
+        "offense": true
       }
     }
   }
