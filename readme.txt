@@ -371,7 +371,7 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://shsec.io/aa).
 
 = 8.6.0 - Current Release =
-*Released: 17th February, 2020* - [Release Notes](https://shsec.io/gb)
+*Released: 18th February, 2020* - [Release Notes](https://shsec.io/gb)
 
 * **(v.0)**  NEW:		[**PRO**] Deep scanning for valid email addresses when user registers with site.
 * **(v.0)**  ADDED:		[**PRO**] New option allows users to turn on email-based two-factor authentication from their profile.
