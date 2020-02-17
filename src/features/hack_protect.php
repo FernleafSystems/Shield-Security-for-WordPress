@@ -140,15 +140,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param string $sScan ptg, wcf, ufc, wpv
-	 * @return bool
-	 * @deprecated 8.5.5
-	 */
-	public function getScanHasProblem( $sScan ) {
-		return $this->getScanCon( $sScan )->getScanHasProblem();
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getScanNotificationInterval() {
@@ -627,7 +618,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic WordPress Core File scanner should be turned-on.', 'wp-simple-firewall' )
 				];
 			}
-			elseif ( $this->getScanHasProblem( 'wcf' ) ) {
+			elseif ( $this->getScanCon( 'wcf' )->getScanHasProblem() ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
@@ -648,7 +639,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic scanning for non-WordPress core files is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			elseif ( $this->getScanHasProblem( 'ufc' ) ) {
+			elseif ( $this->getScanCon( 'ufc' )->getScanHasProblem() ) {
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
@@ -691,7 +682,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of vulnerabilities is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			elseif ( $this->getScanHasProblem( 'wpv' ) ) {
+			elseif ( $this->getScanCon( 'wpv' )->getScanHasProblem() ) {
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
@@ -712,7 +703,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of abandoned plugins is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			elseif ( $this->getScanHasProblem( 'apc' ) ) {
+			elseif ( $this->getScanCon( 'apc' )->getScanHasProblem() ) {
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
@@ -733,7 +724,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					'rec'     => __( 'Automatic detection of Malware is recommended.', 'wp-simple-firewall' )
 				];
 			}
-			elseif ( $this->getScanHasProblem( 'mal' ) ) {
+			elseif ( $this->getScanCon( 'mal' )->getScanHasProblem() ) {
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),

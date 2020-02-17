@@ -101,7 +101,7 @@ class LoginIntentPage {
 				'cancel_href' => $sCancelHref
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $oMod->getMfaSkipEnabled(),
+				'can_skip_mfa'       => $oOpts->isMfaSkip(),
 				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
 			]
 		];

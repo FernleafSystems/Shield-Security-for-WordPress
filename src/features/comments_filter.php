@@ -207,12 +207,4 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	public function getSpamBlacklistFile() {
 		return $this->getCon()->getPluginCachePath( 'spamblacklist.txt' );
 	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.6.0
-	 */
-	public function getTokenCooldown() {
-		return (int)$this->getOpt( 'comments_cooldown_interval' );
-	}
 }
