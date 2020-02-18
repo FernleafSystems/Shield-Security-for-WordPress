@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.6.0
+Stable tag: 8.6.1
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,13 +370,13 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.6.0 - Current Release =
-*Released: 18th February, 2020* - [Release Notes](https://shsec.io/gb)
+= 8.6.1 - Current Release =
+*Released: 19th February, 2020* - [Release Notes](https://shsec.io/gb)
 
-* **(v.0)**  NEW:		[**PRO**] Deep scanning for valid email addresses when user registers with site.
-* **(v.0)**  ADDED:		[**PRO**] New option allows users to turn on email-based two-factor authentication from their profile.
-* **(v.0)**  ADDED:		Support for manually blocking IP Ranges (not just single IPs).
-* **(v.0)**  IMPROVED:	Two-Factor Authentication system has been rewritten and improved.
-* **(v.0)**  IMPROVED:	Table ordering and descriptions for the IP Black List.
+* **(v.1)**  NEW:		[**PRO**] Deep scanning for valid email addresses when user registers with site.
+* **(v.1)**  ADDED:		[**PRO**] New option allows users to turn on email-based two-factor authentication from their profile.
+* **(v.1)**  ADDED:		Support for manually blocking IP Ranges (not just single IPs).
+* **(v.1)**  IMPROVED:	Two-Factor Authentication system has been rewritten and improved.
+* **(v.1)**  IMPROVED:	Table ordering and descriptions for the IP Black List.
 
 #### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
