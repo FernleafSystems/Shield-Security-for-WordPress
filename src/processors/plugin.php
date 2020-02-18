@@ -22,7 +22,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		( new Shield\Crons\DailyCron() )
 			->setMod( $this->getMod() )
 			->run();
-
 		( new Plugin\Components\PluginBadge() )
 			->setMod( $this->getMod() )
 			->run();
@@ -107,8 +106,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		return [
 			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
-			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
-			'cronhourly'   => 'ICWP_WPSF_Processor_Plugin_CronHourly',
 		];
 	}
 

@@ -8,20 +8,20 @@ class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 */
 	public function run() {
-		/** @var ICWP_WPSF_FeatureHandler_License $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_License $oMod */
+		$oMod = $this->getMod();
 		$oReq = Services::Request();
 
 		// performs the license check
-		add_action( $oFO->prefix( 'adhoc_cron_license_check' ), [ $oFO, 'verifyLicense' ] );
+		add_action( $oMod->prefix( 'adhoc_cron_license_check' ), [ $oMod, 'verifyLicense' ] );
 
 		switch ( $this->getCon()->getShieldAction() ) {
 
 			case 'keyless_handshake':
 				$sNonce = $oReq->query( 'nonce' );
-				if ( !empty( $sNonce ) && $sNonce == $oFO->getKeylessRequestHash() ) {
+				if ( !empty( $sNonce ) && $sNonce == $oMod->getKeylessRequestHash() ) {
 					$aHandshakeData = [ 'success' => false ];
-					if ( !$oFO->isKeylessHandshakeExpired() ) {
+					if ( !$oMod->isKeylessHandshakeExpired() ) {
 						$aHandshakeData[ 'success' ] = true;
 					}
 					die( json_encode( $aHandshakeData ) );
@@ -29,8 +29,8 @@ class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 				break;
 
 			case 'license_check':
-				if ( !wp_next_scheduled( $oFO->prefix( 'adhoc_cron_license_check' ) ) ) {
-					wp_schedule_single_event( $oReq->ts() + 20, $oFO->prefix( 'adhoc_cron_license_check' ), [ true ] );
+				if ( !wp_next_scheduled( $oMod->prefix( 'adhoc_cron_license_check' ) ) ) {
+					wp_schedule_single_event( $oReq->ts() + 20, $oMod->prefix( 'adhoc_cron_license_check' ), [ true ] );
 				}
 				break;
 		}
