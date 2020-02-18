@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,11 +14,14 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$this->getSubPro( 'crondaily' )->execute();
-		$this->getSubPro( 'cronhourly' )->execute();
-
 		$this->removePluginConflicts();
 
+		( new Shield\Crons\HourlyCron() )
+			->setMod( $this->getMod() )
+			->run();
+		( new Shield\Crons\DailyCron() )
+			->setMod( $this->getMod() )
+			->run();
 		( new Plugin\Components\PluginBadge() )
 			->setMod( $this->getMod() )
 			->run();
@@ -102,8 +106,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		return [
 			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
-			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
-			'cronhourly'   => 'ICWP_WPSF_Processor_Plugin_CronHourly',
 		];
 	}
 

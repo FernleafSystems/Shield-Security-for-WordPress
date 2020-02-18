@@ -450,14 +450,18 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
+	 * Certain plugins can modify the ID at different points in the load.
+	 * @param bool $bRebuildIfRequired
 	 * @return string - the unique, never-changing site install ID.
 	 */
-	public function getSiteInstallationId() {
+	public function getSiteInstallationId( $bRebuildIfRequired = false ) {
 		$sOptKey = $this->prefixOption( 'install_id' );
 		$sId = (string)Services::WpGeneral()->getOption( $sOptKey );
 
 		$sUrl = base64_encode( Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ) );
-		if ( empty( $sId ) || strpos( $sId, ':' ) === false || strpos( $sId, $sUrl ) !== 0 ) {
+		if ( $bRebuildIfRequired &&
+			 ( empty( $sId ) || strpos( $sId, ':' ) === false || strpos( $sId, $sUrl ) !== 0 ) ) {
 			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
 			Services::WpGeneral()->updateOption( $sOptKey, $sId );
 		}
@@ -958,7 +962,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
-		$this->getSiteInstallationId();
+		$this->getSiteInstallationId( true );
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
