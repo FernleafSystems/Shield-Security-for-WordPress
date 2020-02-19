@@ -465,7 +465,8 @@ class Controller extends Shield\Deprecated\Foundation {
 			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
 			Services::WpGeneral()->updateOption( $sOptKey, $sId );
 		}
-		return str_replace( $sUrl.':', '', $sId );
+
+		return strpos( $sId, ':' ) ? explode( ':', $sId, 2 )[ 1 ] : '';
 	}
 
 	/**
