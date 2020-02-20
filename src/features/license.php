@@ -13,11 +13,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		);
 	}
 
-	protected function setupCustomHooks() {
-		parent::setupCustomHooks();
-		add_filter( $this->getCon()->getPremiumLicenseFilterName(), [ $this, 'hasValidWorkingLicense' ], PHP_INT_MAX );
-	}
-
 	/**
 	 * @return bool
 	 */
