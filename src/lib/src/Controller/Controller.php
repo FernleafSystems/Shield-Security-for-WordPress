@@ -526,12 +526,11 @@ class Controller extends Shield\Deprecated\Foundation {
 		$sNonceAction = Services::Request()->request( 'exec' );
 		check_ajax_referer( $sNonceAction, 'exec_nonce' );
 
-		$sAction = Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction';
 		ob_start();
-		$aResponseData = apply_filters( $this->prefix( $sAction ), [] );
-		if ( empty( $aResponseData ) ) {
-			$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
-		}
+		$aResponseData = apply_filters(
+			$this->prefix( Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction' ),
+			[], $sNonceAction
+		);
 		$sNoise = ob_get_clean();
 
 		if ( is_array( $aResponseData ) && isset( $aResponseData[ 'success' ] ) ) {

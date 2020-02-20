@@ -18,18 +18,29 @@ class AjaxHandlerBase {
 	public function init() {
 		$oMod = $this->getMod();
 		if ( $oMod->isModuleRequest() ) {
-			add_filter( $oMod->prefix( 'ajaxAction' ), [ $this, 'handleAjax' ] );
-			add_filter( $oMod->prefix( 'ajaxAuthAction' ), [ $this, 'handleAjax' ] );
-			add_filter( $oMod->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjax' ] );
+			add_filter( $oMod->prefix( 'ajaxAuthAction' ), [ $this, 'handleAjaxAuth' ], 10, 2 );
+			add_filter( $oMod->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );
 		}
 	}
 
 	/**
-	 * @param array $aAjaxResponse
+	 * @param array  $aAjaxResponse
+	 * @param string $sAjaxAction
 	 * @return array
 	 */
-	public function handleAjax( $aAjaxResponse ) {
-		$sAjaxAction = Services::Request()->request( 'exec' );
+	public function handleAjaxAuth( $aAjaxResponse, $sAjaxAction ) {
+		if ( !empty( $sAjaxAction ) && ( empty( $aAjaxResponse ) || !is_array( $aAjaxResponse ) ) ) {
+			$aAjaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $sAjaxAction ) );
+		}
+		return $aAjaxResponse;
+	}
+
+	/**
+	 * @param array  $aAjaxResponse
+	 * @param string $sAjaxAction
+	 * @return array
+	 */
+	public function handleAjaxNonAuth( $aAjaxResponse, $sAjaxAction ) {
 		if ( !empty( $sAjaxAction ) && ( empty( $aAjaxResponse ) || !is_array( $aAjaxResponse ) ) ) {
 			$aAjaxResponse = $this->normaliseAjaxResponse( $this->processAjaxAction( $sAjaxAction ) );
 		}
@@ -40,7 +51,7 @@ class AjaxHandlerBase {
 	 * @param string $sEncoding
 	 * @return array
 	 */
-	public function getAjaxFormParams( $sEncoding = 'none' ) {
+	protected function getAjaxFormParams( $sEncoding = 'none' ) {
 		$oReq = Services::Request();
 		$aFormParams = [];
 		$sRaw = $oReq->post( 'form_params', '' );
