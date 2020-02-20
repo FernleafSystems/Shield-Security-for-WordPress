@@ -83,25 +83,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param array $aModProps
 	 */
 	protected function setupHooks( $aModProps ) {
-		$oReq = Services::Request();
-
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 		add_action( $this->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
-
-		if ( $this->isModuleRequest() ) {
-
-			if ( Services::WpGeneral()->isAjax() ) {
-				$this->loadAjaxHandler();
-			}
-
-			if ( $oReq->request( 'action' ) == $this->prefix()
-				 && check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' )
-			) {
-				add_action( $this->prefix( 'mod_request' ), [ $this, 'handleModRequest' ] );
-			}
-		}
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $this->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
@@ -348,7 +333,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {
-		do_action( $this->prefix( 'mod_request' ) );
+		$oReq = Services::Request();
+		if ( $this->isModuleRequest() ) {
+
+			if ( Services::WpGeneral()->isAjax() ) {
+				$this->loadAjaxHandler();
+			}
+
+			if ( $oReq->request( 'action' ) == $this->prefix()
+				 && check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' )
+				 && $this->getCon()->isPluginAdmin() ) {
+				$this->handleModRequest();
+			}
+		}
 
 		$this->runWizards();
 
@@ -895,7 +892,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @param string $sAction
 	 * @param bool   $bAsJsonEncodedObject
-	 * @return array
+	 * @return array|string
 	 */
 	public function getAjaxActionData( $sAction = '', $bAsJsonEncodedObject = false ) {
 		$aData = $this->getNonceActionData( $sAction );
@@ -1182,9 +1179,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		return $aOpts;
 	}
 
-	/**
-	 */
-	public function handleModRequest() {
+	protected function handleModRequest() {
 	}
 
 	/**

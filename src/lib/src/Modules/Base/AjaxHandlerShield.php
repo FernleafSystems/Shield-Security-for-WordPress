@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class AjaxHandlerShield extends AjaxHandlerBase {
 
 	/**

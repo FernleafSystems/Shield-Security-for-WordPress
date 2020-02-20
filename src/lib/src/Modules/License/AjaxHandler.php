@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Licenses\Keyless;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
@@ -32,39 +33,26 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ConnectionDebug() {
-		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
-		$oMod = $this->getMod();
-		$bSuccess = false;
+		$oIP = Services::IP();
 
-		$oHttpReq = Services::HttpRequest()
-							->request(
-								add_query_arg( [ 'license_ping' => 'Y' ], $oMod->getLicenseStoreUrl() ),
-								[
-									'body' => [ 'ping' => 'pong' ]
-								],
-								'POST'
-							);
+		$oPing = new Keyless\Ping();
+		$oPing->lookup_url_stub = $this->getOptions()->getDef( 'license_store_url_api' );
+		$bSuccess = $oPing->ping();
 
-		if ( !$oHttpReq->isSuccess() ) {
-			$sResult = implode( '; ', $oHttpReq->lastError->get_error_messages() );
+		$sHost = wp_parse_url( $oPing->lookup_url_stub, PHP_URL_HOST );
+
+		if ( $bSuccess ) {
+			$sMessage = 'Successfully connected to license server.';
 		}
-		elseif ( !empty( $oHttpReq->lastResponse->body ) ) {
-			$aResult = @json_decode( $oHttpReq->lastResponse->body, true );
-			if ( isset( $aResult[ 'success' ] ) && $aResult[ 'success' ] ) {
-				$bSuccess = true;
-				$sResult = 'Successful - no problems detected communicating with license server.';
-			}
-			else {
-				$sResult = 'Unknown failure due to unexpected response: '.$oHttpReq->lastResponse->body;
-			}
+		elseif ( !$oIP->isValidIp( gethostbyname( $sHost ) ) ) {
+			$sMessage = sprintf( 'Could not resolve host IP address: %s', $sHost );
 		}
 		else {
-			$sResult = 'Unknown error as we could not get a response back from the server.';
+			$sMessage = 'Failed to connect to license server.';
 		}
-
 		return [
 			'success' => $bSuccess,
-			'message' => $sResult
+			'message' => $sMessage
 		];
 	}
 

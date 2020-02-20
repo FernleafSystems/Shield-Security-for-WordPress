@@ -117,9 +117,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->prefix( 'badgeState' );
 	}
 
-	/**
-	 */
-	public function handleModRequest() {
+	protected function handleModRequest() {
 		switch ( Services::Request()->request( 'exec' ) ) {
 
 			case 'export_file_download':

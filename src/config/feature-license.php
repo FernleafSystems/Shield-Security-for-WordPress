@@ -115,6 +115,7 @@
   ],
   "definitions": {
     "license_store_url":            "https://onedollarplugin.com/edd-sl/",
+    "license_store_url_api":        "https://onedollarplugin.com/wp-json/odp-eddkeyless/v1",
     "keyless_cp":                   "https://shsec.io/c5",
     "license_item_name":            "Shield Security Pro",
     "license_item_id":              "6047",
