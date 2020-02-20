@@ -16,11 +16,8 @@ class AjaxHandlerBase {
 	/**
 	 */
 	public function init() {
-		$oMod = $this->getMod();
-		if ( $oMod->isModuleRequest() ) {
-			add_filter( $oMod->prefix( 'ajaxAuthAction' ), [ $this, 'handleAjaxAuth' ], 10, 2 );
-			add_filter( $oMod->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );
-		}
+		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAjaxAuth' ], 10, 2 );
+		add_filter( $this->getCon()->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );
 	}
 
 	/**
