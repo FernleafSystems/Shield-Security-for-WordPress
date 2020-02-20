@@ -252,22 +252,27 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	private function lookupOfficialLicense() {
 		$oCon = $this->getCon();
+		$oOpts = $this->getOptions();
 
 		$sPass = wp_generate_password( 16, false );
+		$sUrl = Services::WpGeneral()->getHomeUrl( '', true );
 
 		$this->setKeylessRequestAt()
-			 ->setKeylessRequestHash( sha1( $sPass.Services::WpGeneral()->getHomeUrl( '', true ) ) );
+			 ->setKeylessRequestHash( sha1( $sPass.$sUrl ) );
 		$this->saveModOptions();
 
 		{
-			$oLook = new Utilities\Licenses\LookupKeyless();
+			$oLook = new Utilities\Licenses\Keyless\Lookup();
+			$oLook->lookup_url_stub = $oOpts->getDef( 'license_store_url_api' );
+			$oLook->item_id = $oOpts->getDef( 'license_item_id' );
 			$oLook->install_id = $oCon->getSiteInstallationId();
+			$oLook->check_url = $sUrl;
 			$oLook->nonce = $sPass;
 			$oLook->meta = [
 				'version_shield' => $oCon->getVersion(),
 				'version_php'    => Services::Data()->getPhpVersionCleaned()
 			];
-			$oLicense = $oLook->lookupByItem( $this->getDef( 'license_item_id' ) );
+			$oLicense = $oLook->lookup();
 		}
 
 		// clear the handshake data after the request has gone through
@@ -313,13 +318,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return $this->loadLicense()->is_central ?
 			$this->getDef( 'license_item_name_sc' ) :
 			$this->getDef( 'license_item_name' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLicenseStoreUrl() {
-		return $this->getDef( 'license_store_url' );
 	}
 
 	/**
