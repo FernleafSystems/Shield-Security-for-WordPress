@@ -11,10 +11,6 @@ class BlockRequest {
 	use ModConsumer;
 
 	public function run() {
-		$this->assessVisitorBlacklistStatus();
-	}
-
-	private function assessVisitorBlacklistStatus() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 
