@@ -18,421 +18,421 @@
 .bootstrap-wpadmin hgroup,
 .bootstrap-wpadmin nav,
 .bootstrap-wpadmin section {
-    display: block;
+  display: block;
 }
 
 .bootstrap-wpadmin audio,
 .bootstrap-wpadmin canvas,
 .bootstrap-wpadmin video {
-    display: inline-block;
-    *display: inline;
-    *zoom: 1;
+  display: inline-block;
+  *display: inline;
+  *zoom: 1;
 }
 
 .bootstrap-wpadmin audio:not([controls]) {
-    display: none;
+  display: none;
 }
 
 .bootstrap-wpadmin html {
-    font-size: 100%;
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
 }
 
 .bootstrap-wpadmin a:focus {
-    outline: thin dotted #333;
-    outline: 5px auto -webkit-focus-ring-color;
-    outline-offset: -2px;
+  outline: thin dotted #333;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
 }
 
 .bootstrap-wpadmin a:hover,
 .bootstrap-wpadmin a:active {
-    outline: 0;
+  outline: 0;
 }
 
 .bootstrap-wpadmin sub,
 .bootstrap-wpadmin sup {
-    position: relative;
-    font-size: 75%;
-    line-height: 0;
-    vertical-align: baseline;
+  position: relative;
+  font-size: 75%;
+  line-height: 0;
+  vertical-align: baseline;
 }
 
 .bootstrap-wpadmin sup {
-    top: -0.5em;
+  top: -0.5em;
 }
 
 .bootstrap-wpadmin sub {
-    bottom: -0.25em;
+  bottom: -0.25em;
 }
 
 .bootstrap-wpadmin img {
-    max-width: 100%;
-    vertical-align: middle;
-    border: 0;
-    -ms-interpolation-mode: bicubic;
+  max-width: 100%;
+  vertical-align: middle;
+  border: 0;
+  -ms-interpolation-mode: bicubic;
 }
 
 .bootstrap-wpadmin button,
 .bootstrap-wpadmin input,
 .bootstrap-wpadmin select,
 .bootstrap-wpadmin textarea {
-    margin: 0;
-    font-size: 100%;
-    vertical-align: middle;
+  margin: 0;
+  font-size: 100%;
+  vertical-align: middle;
 }
 
 .bootstrap-wpadmin button,
 .bootstrap-wpadmin input {
-    *overflow: visible;
-    line-height: normal;
+  *overflow: visible;
+  line-height: normal;
 }
 
 .bootstrap-wpadmin button::-moz-focus-inner,
 .bootstrap-wpadmin input::-moz-focus-inner {
-    padding: 0;
-    border: 0;
+  padding: 0;
+  border: 0;
 }
 
 .bootstrap-wpadmin button,
 .bootstrap-wpadmin input[type="button"],
 .bootstrap-wpadmin input[type="reset"],
 .bootstrap-wpadmin input[type="submit"] {
-    cursor: pointer;
-    -webkit-appearance: button;
+  cursor: pointer;
+  -webkit-appearance: button;
 }
 
 .bootstrap-wpadmin input[type="search"] {
-    -webkit-box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    box-sizing: content-box;
-    -webkit-appearance: textfield;
+  -webkit-box-sizing: content-box;
+     -moz-box-sizing: content-box;
+          box-sizing: content-box;
+  -webkit-appearance: textfield;
 }
 
 .bootstrap-wpadmin input[type="search"]::-webkit-search-decoration,
 .bootstrap-wpadmin input[type="search"]::-webkit-search-cancel-button {
-    -webkit-appearance: none;
+  -webkit-appearance: none;
 }
 
 .bootstrap-wpadmin textarea {
-    overflow: auto;
-    vertical-align: top;
+  overflow: auto;
+  vertical-align: top;
 }
 
 .bootstrap-wpadmin .clearfix {
-    *zoom: 1;
+  *zoom: 1;
 }
 
 .bootstrap-wpadmin .clearfix:before,
 .bootstrap-wpadmin .clearfix:after {
-    display: table;
-    content: "";
+  display: table;
+  content: "";
 }
 
 .bootstrap-wpadmin .clearfix:after {
-    clear: both;
+  clear: both;
 }
 
 .bootstrap-wpadmin .hide-text {
-    font: 0/0 a;
-    color: transparent;
-    text-shadow: none;
-    background-color: transparent;
-    border: 0;
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
 }
 
 .bootstrap-wpadmin .input-block-level {
-    display: block;
-    width: 100%;
-    min-height: 28px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-    box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .bootstrap-wpadmin body {
-    margin: 0;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 13px;
-    line-height: 18px;
-    color: #333333;
-    background-color: #ffffff;
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 18px;
+  color: #333333;
+  background-color: #ffffff;
 }
 
 .bootstrap-wpadmin a {
-    color: #0088cc;
-    text-decoration: none;
+  color: #0088cc;
+  text-decoration: none;
 }
 
 .bootstrap-wpadmin a:hover {
-    color: #005580;
-    text-decoration: underline;
+  color: #005580;
+  text-decoration: underline;
 }
 
 .bootstrap-wpadmin .row {
-    margin-left: -20px;
-    *zoom: 1;
+  margin-left: -20px;
+  *zoom: 1;
 }
 
 .bootstrap-wpadmin .row:before,
 .bootstrap-wpadmin .row:after {
-    display: table;
-    content: "";
+  display: table;
+  content: "";
 }
 
 .bootstrap-wpadmin .row:after {
-    clear: both;
+  clear: both;
 }
 
 .bootstrap-wpadmin [class*="span"] {
-    float: left;
-    margin-left: 20px;
+  float: left;
+  margin-left: 20px;
 }
 
 .bootstrap-wpadmin .container,
 .bootstrap-wpadmin .navbar-fixed-top .container,
 .bootstrap-wpadmin .navbar-fixed-bottom .container {
-    width: 940px;
+  width: 940px;
 }
 
 .bootstrap-wpadmin .span12 {
-    width: 940px;
+  width: 940px;
 }
 
 .bootstrap-wpadmin .span11 {
-    width: 860px;
+  width: 860px;
 }
 
 .bootstrap-wpadmin .span10 {
-    width: 780px;
+  width: 780px;
 }
 
 .bootstrap-wpadmin .span9 {
-    width: 700px;
+  width: 700px;
 }
 
 .bootstrap-wpadmin .span8 {
-    width: 620px;
+  width: 620px;
 }
 
 .bootstrap-wpadmin .span7 {
-    width: 540px;
+  width: 540px;
 }
 
 .bootstrap-wpadmin .span6 {
-    width: 460px;
+  width: 460px;
 }
 
 .bootstrap-wpadmin .span5 {
-    width: 380px;
+  width: 380px;
 }
 
 .bootstrap-wpadmin .span4 {
-    width: 300px;
+  width: 300px;
 }
 
 .bootstrap-wpadmin .span3 {
-    width: 220px;
+  width: 220px;
 }
 
 .bootstrap-wpadmin .span2 {
-    width: 140px;
+  width: 140px;
 }
 
 .bootstrap-wpadmin .span1 {
-    width: 60px;
+  width: 60px;
 }
 
 .bootstrap-wpadmin .offset12 {
-    margin-left: 980px;
+  margin-left: 980px;
 }
 
 .bootstrap-wpadmin .offset11 {
-    margin-left: 900px;
+  margin-left: 900px;
 }
 
 .bootstrap-wpadmin .offset10 {
-    margin-left: 820px;
+  margin-left: 820px;
 }
 
 .bootstrap-wpadmin .offset9 {
-    margin-left: 740px;
+  margin-left: 740px;
 }
 
 .bootstrap-wpadmin .offset8 {
-    margin-left: 660px;
+  margin-left: 660px;
 }
 
 .bootstrap-wpadmin .offset7 {
-    margin-left: 580px;
+  margin-left: 580px;
 }
 
 .bootstrap-wpadmin .offset6 {
-    margin-left: 500px;
+  margin-left: 500px;
 }
 
 .bootstrap-wpadmin .offset5 {
-    margin-left: 420px;
+  margin-left: 420px;
 }
 
 .bootstrap-wpadmin .offset4 {
-    margin-left: 340px;
+  margin-left: 340px;
 }
 
 .bootstrap-wpadmin .offset3 {
-    margin-left: 260px;
+  margin-left: 260px;
 }
 
 .bootstrap-wpadmin .offset2 {
-    margin-left: 180px;
+  margin-left: 180px;
 }
 
 .bootstrap-wpadmin .offset1 {
-    margin-left: 100px;
+  margin-left: 100px;
 }
 
 .bootstrap-wpadmin .row-fluid {
-    width: 100%;
-    *zoom: 1;
+  width: 100%;
+  *zoom: 1;
 }
 
 .bootstrap-wpadmin .row-fluid:before,
 .bootstrap-wpadmin .row-fluid:after {
-    display: table;
-    content: "";
+  display: table;
+  content: "";
 }
 
 .bootstrap-wpadmin .row-fluid:after {
-    clear: both;
+  clear: both;
 }
 
 .bootstrap-wpadmin .row-fluid [class*="span"] {
-    display: block;
-    float: left;
-    width: 100%;
-    min-height: 28px;
-    margin-left: 2.127659574%;
-    *margin-left: 2.0744680846382977%;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -ms-box-sizing: border-box;
-    box-sizing: border-box;
+  display: block;
+  float: left;
+  width: 100%;
+  min-height: 28px;
+  margin-left: 2.127659574%;
+  *margin-left: 2.0744680846382977%;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+      -ms-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .bootstrap-wpadmin .row-fluid [class*="span"]:first-child {
-    margin-left: 0;
+  margin-left: 0;
 }
 
 .bootstrap-wpadmin .row-fluid .span12 {
-    width: 99.99999998999999%;
-    *width: 99.94680850063828%;
+  width: 99.99999998999999%;
+  *width: 99.94680850063828%;
 }
 
 .bootstrap-wpadmin .row-fluid .span11 {
-    width: 91.489361693%;
-    *width: 91.4361702036383%;
+  width: 91.489361693%;
+  *width: 91.4361702036383%;
 }
 
 .bootstrap-wpadmin .row-fluid .span10 {
-    width: 82.97872339599999%;
-    *width: 82.92553190663828%;
+  width: 82.97872339599999%;
+  *width: 82.92553190663828%;
 }
 
 .bootstrap-wpadmin .row-fluid .span9 {
-    width: 74.468085099%;
-    *width: 74.4148936096383%;
+  width: 74.468085099%;
+  *width: 74.4148936096383%;
 }
 
 .bootstrap-wpadmin .row-fluid .span8 {
-    width: 65.95744680199999%;
-    *width: 65.90425531263828%;
+  width: 65.95744680199999%;
+  *width: 65.90425531263828%;
 }
 
 .bootstrap-wpadmin .row-fluid .span7 {
-    width: 57.446808505%;
-    *width: 57.3936170156383%;
+  width: 57.446808505%;
+  *width: 57.3936170156383%;
 }
 
 .bootstrap-wpadmin .row-fluid .span6 {
-    width: 48.93617020799999%;
-    *width: 48.88297871863829%;
+  width: 48.93617020799999%;
+  *width: 48.88297871863829%;
 }
 
 .bootstrap-wpadmin .row-fluid .span5 {
-    width: 40.425531911%;
-    *width: 40.3723404216383%;
+  width: 40.425531911%;
+  *width: 40.3723404216383%;
 }
 
 .bootstrap-wpadmin .row-fluid .span4 {
-    width: 31.914893614%;
-    *width: 31.8617021246383%;
+  width: 31.914893614%;
+  *width: 31.8617021246383%;
 }
 
 .bootstrap-wpadmin .row-fluid .span3 {
-    width: 23.404255317%;
-    *width: 23.3510638276383%;
+  width: 23.404255317%;
+  *width: 23.3510638276383%;
 }
 
 .bootstrap-wpadmin .row-fluid .span2 {
-    width: 14.89361702%;
-    *width: 14.8404255306383%;
+  width: 14.89361702%;
+  *width: 14.8404255306383%;
 }
 
 .bootstrap-wpadmin .row-fluid .span1 {
-    width: 6.382978723%;
-    *width: 6.329787233638298%;
+  width: 6.382978723%;
+  *width: 6.329787233638298%;
 }
 
 .bootstrap-wpadmin .container {
-    margin-right: auto;
-    margin-left: auto;
-    *zoom: 1;
+  margin-right: auto;
+  margin-left: auto;
+  *zoom: 1;
 }
 
 .bootstrap-wpadmin .container:before,
 .bootstrap-wpadmin .container:after {
-    display: table;
-    content: "";
+  display: table;
+  content: "";
 }
 
 .bootstrap-wpadmin .container:after {
-    clear: both;
+  clear: both;
 }
 
 .bootstrap-wpadmin .container-fluid {
-    padding-right: 20px;
-    padding-left: 20px;
-    *zoom: 1;
+  padding-right: 20px;
+  padding-left: 20px;
+  *zoom: 1;
 }
 
 .bootstrap-wpadmin .container-fluid:before,
 .bootstrap-wpadmin .container-fluid:after {
-    display: table;
-    content: "";
+  display: table;
+  content: "";
 }
 
 .bootstrap-wpadmin .container-fluid:after {
-    clear: both;
+  clear: both;
 }
 
 .bootstrap-wpadmin p {
-    margin: 0 0 9px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 13px;
-    line-height: 18px;
+  margin: 0 0 9px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 18px;
 }
 
 .bootstrap-wpadmin p small {
-    font-size: 11px;
-    color: #999999;
+  font-size: 11px;
+  color: #999999;
 }
 
 .bootstrap-wpadmin .lead {
-    margin-bottom: 18px;
-    font-size: 20px;
-    font-weight: 200;
-    line-height: 27px;
+  margin-bottom: 18px;
+  font-size: 20px;
+  font-weight: 200;
+  line-height: 27px;
 }
 
 .bootstrap-wpadmin h1,
@@ -441,11 +441,11 @@
 .bootstrap-wpadmin h4,
 .bootstrap-wpadmin h5,
 .bootstrap-wpadmin h6 {
-    margin: 0;
-    font-family: inherit;
-    font-weight: bold;
-    color: inherit;
-    text-rendering: optimizelegibility;
+  margin: 0;
+  font-family: inherit;
+  font-weight: bold;
+  color: inherit;
+  text-rendering: optimizelegibility;
 }
 
 .bootstrap-wpadmin h1 small,
@@ -454,192 +454,192 @@
 .bootstrap-wpadmin h4 small,
 .bootstrap-wpadmin h5 small,
 .bootstrap-wpadmin h6 small {
-    font-weight: normal;
-    color: #999999;
+  font-weight: normal;
+  color: #999999;
 }
 
 .bootstrap-wpadmin h1 {
-    font-size: 30px;
-    line-height: 36px;
+  font-size: 30px;
+  line-height: 36px;
 }
 
 .bootstrap-wpadmin h1 small {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .bootstrap-wpadmin h2 {
-    font-size: 24px;
-    line-height: 36px;
+  font-size: 24px;
+  line-height: 36px;
 }
 
 .bootstrap-wpadmin h2 small {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 .bootstrap-wpadmin h3 {
-    font-size: 18px;
-    line-height: 27px;
+  font-size: 18px;
+  line-height: 27px;
 }
 
 .bootstrap-wpadmin h3 small {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .bootstrap-wpadmin h4,
 .bootstrap-wpadmin h5,
 .bootstrap-wpadmin h6 {
-    line-height: 18px;
+  line-height: 18px;
 }
 
 .bootstrap-wpadmin h4 {
-    font-size: 14px;
+  font-size: 14px;
 }
 
 .bootstrap-wpadmin h4 small {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 .bootstrap-wpadmin h5 {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 .bootstrap-wpadmin h6 {
-    font-size: 11px;
-    color: #999999;
-    text-transform: uppercase;
+  font-size: 11px;
+  color: #999999;
+  text-transform: uppercase;
 }
 
 .bootstrap-wpadmin .page-header {
-    padding-bottom: 17px;
-    margin: 18px 0;
-    border-bottom: 1px solid #eeeeee;
+  padding-bottom: 17px;
+  margin: 18px 0;
+  border-bottom: 1px solid #eeeeee;
 }
 
 .bootstrap-wpadmin .page-header h1 {
-    line-height: 1;
+  line-height: 1;
 }
 
 .bootstrap-wpadmin ul,
 .bootstrap-wpadmin ol {
-    padding: 0;
-    margin: 0 0 9px 25px;
+  padding: 0;
+  margin: 0 0 9px 25px;
 }
 
 .bootstrap-wpadmin ul ul,
 .bootstrap-wpadmin ul ol,
 .bootstrap-wpadmin ol ol,
 .bootstrap-wpadmin ol ul {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .bootstrap-wpadmin ul {
-    list-style: disc;
+  list-style: disc;
 }
 
 .bootstrap-wpadmin ol {
-    list-style: decimal;
+  list-style: decimal;
 }
 
 .bootstrap-wpadmin li {
-    line-height: 18px;
+  line-height: 18px;
 }
 
 .bootstrap-wpadmin ul.unstyled,
 .bootstrap-wpadmin ol.unstyled {
-    margin-left: 0;
-    list-style: none;
+  margin-left: 0;
+  list-style: none;
 }
 
 .bootstrap-wpadmin dl {
-    margin-bottom: 18px;
+  margin-bottom: 18px;
 }
 
 .bootstrap-wpadmin dt,
 .bootstrap-wpadmin dd {
-    line-height: 18px;
+  line-height: 18px;
 }
 
 .bootstrap-wpadmin dt {
-    font-weight: bold;
-    line-height: 17px;
+  font-weight: bold;
+  line-height: 17px;
 }
 
 .bootstrap-wpadmin dd {
-    margin-left: 9px;
+  margin-left: 9px;
 }
 
 .bootstrap-wpadmin .dl-horizontal dt {
-    float: left;
-    width: 120px;
-    overflow: hidden;
-    clear: left;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  float: left;
+  width: 120px;
+  overflow: hidden;
+  clear: left;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bootstrap-wpadmin .dl-horizontal dd {
-    margin-left: 130px;
+  margin-left: 130px;
 }
 
 .bootstrap-wpadmin hr {
-    margin: 18px 0;
-    border: 0;
-    border-top: 1px solid #eeeeee;
-    border-bottom: 1px solid #ffffff;
+  margin: 18px 0;
+  border: 0;
+  border-top: 1px solid #eeeeee;
+  border-bottom: 1px solid #ffffff;
 }
 
 .bootstrap-wpadmin strong {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .bootstrap-wpadmin em {
-    font-style: italic;
+  font-style: italic;
 }
 
 .bootstrap-wpadmin .muted {
-    color: #999999;
+  color: #999999;
 }
 
 .bootstrap-wpadmin abbr[title] {
-    cursor: help;
-    border-bottom: 1px dotted #ddd;
+  cursor: help;
+  border-bottom: 1px dotted #ddd;
 }
 
 .bootstrap-wpadmin abbr.initialism {
-    font-size: 90%;
-    text-transform: uppercase;
+  font-size: 90%;
+  text-transform: uppercase;
 }
 
 .bootstrap-wpadmin blockquote {
-    padding: 0 0 0 15px;
-    margin: 0 0 18px;
-    border-left: 5px solid #eeeeee;
+  padding: 0 0 0 15px;
+  margin: 0 0 18px;
+  border-left: 5px solid #eeeeee;
 }
 
 .bootstrap-wpadmin blockquote p {
-    margin-bottom: 0;
-    font-size: 16px;
-    font-weight: 300;
-    line-height: 22.5px;
+  margin-bottom: 0;
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 22.5px;
 }
 
 .bootstrap-wpadmin blockquote small {
-    display: block;
-    line-height: 18px;
-    color: #999999;
+  display: block;
+  line-height: 18px;
+  color: #999999;
 }
 
 .bootstrap-wpadmin blockquote small:before {
-    content: '\2014 \00A0';
+  content: '\2014 \00A0';
 }
 
 .bootstrap-wpadmin blockquote.pull-right {
-    float: right;
-    padding-right: 15px;
-    padding-left: 0;
-    border-right: 5px solid #eeeeee;
-    border-left: 0;
+  float: right;
+  padding-right: 15px;
+  padding-left: 0;
+  border-right: 5px solid #eeeeee;
+  border-left: 0;
 }
 
 .bootstrap-wpadmin blockquote.pull-right p,
@@ -651,14 +651,14 @@
 .bootstrap-wpadmin q:after,
 .bootstrap-wpadmin blockquote:before,
 .bootstrap-wpadmin blockquote:after {
-    content: "";
+  content: "";
 }
 
 .bootstrap-wpadmin address {
-    display: block;
-    margin-bottom: 18px;
-    font-style: normal;
-    line-height: 18px;
+  display: block;
+  margin-bottom: 18px;
+  font-style: normal;
+  line-height: 18px;
 }
 
 .bootstrap-wpadmin small {
@@ -1772,7 +1772,7 @@
 }
 
 .bootstrap-wpadmin .icon-glass {
-    background-position: 0 0;
+    background-position: 0      0;
 }
 
 .bootstrap-wpadmin .icon-music {
@@ -4562,60 +4562,50 @@
     background-color: #1a1a1a;
 }
 
-.bootstrap-wpadmin
+.bootstrap-wpadmin @-webkit-keyframes progress-bar-stripes {
+                       from {
+                           background-position: 40px 0;
+                       }
+                       to {
+                           background-position: 0 0;
+                       }
+                   }
 
-@-webkit-keyframes progress-bar-stripes {
-    from {
-        background-position: 40px 0;
-    }
-    to {
-        background-position: 0 0;
-    }
-}
+.bootstrap-wpadmin @-moz-keyframes progress-bar-stripes {
+                       from {
+                           background-position: 40px 0;
+                       }
+                       to {
+                           background-position: 0 0;
+                       }
+                   }
 
-.bootstrap-wpadmin
+.bootstrap-wpadmin @-ms-keyframes progress-bar-stripes {
+                       from {
+                           background-position: 40px 0;
+                       }
+                       to {
+                           background-position: 0 0;
+                       }
+                   }
 
-@-moz-keyframes progress-bar-stripes {
-    from {
-        background-position: 40px 0;
-    }
-    to {
-        background-position: 0 0;
-    }
-}
+.bootstrap-wpadmin @-o-keyframes progress-bar-stripes {
+                       from {
+                           background-position: 0 0;
+                       }
+                       to {
+                           background-position: 40px 0;
+                       }
+                   }
 
-.bootstrap-wpadmin
-
-@-ms-keyframes progress-bar-stripes {
-    from {
-        background-position: 40px 0;
-    }
-    to {
-        background-position: 0 0;
-    }
-}
-
-.bootstrap-wpadmin
-
-@-o-keyframes progress-bar-stripes {
-    from {
-        background-position: 0 0;
-    }
-    to {
-        background-position: 40px 0;
-    }
-}
-
-.bootstrap-wpadmin
-
-@keyframes progress-bar-stripes {
-    from {
-        background-position: 40px 0;
-    }
-    to {
-        background-position: 0 0;
-    }
-}
+.bootstrap-wpadmin @keyframes progress-bar-stripes {
+                       from {
+                           background-position: 40px 0;
+                       }
+                       to {
+                           background-position: 0 0;
+                       }
+                   }
 
 .bootstrap-wpadmin .progress {
     height: 18px;
