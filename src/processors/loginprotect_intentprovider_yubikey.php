@@ -135,7 +135,7 @@ class ICWP_WPSF_Processor_LoginProtect_Yubikey extends ICWP_WPSF_Processor_Login
 			$aParts = [
 				'otp'   => $sOTP,
 				'nonce' => md5( uniqid( rand() ) ),
-				'id'    => $this->getOption( 'yubikey_app_id' )
+				'id'    => $this->getOptions()->getOpt( 'yubikey_app_id' )
 			];
 
 			$sReqUrl = add_query_arg( $aParts, self::URL_YUBIKEY_VERIFY );
