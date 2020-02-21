@@ -29,31 +29,39 @@ class ValidateLoginIntentRequest {
 			throw new \Exception( 'No valid providers' );
 		}
 
-		$bValid = false;
-		if ( isset( $aProviders[ Provider\Backup::SLUG ] ) ) { // special case.
-			$bValid = $aProviders[ Provider\Backup::SLUG ]->validateLoginIntent( $oUser );
-			unset( $aProviders[ Provider\Backup::SLUG ] );
+		$aSuccessfulProviders = [];
+
+		$bValidated = false;
+		{ // Backup code is special case
+			if ( isset( $aProviders[ Provider\Backup::SLUG ] ) ) {
+				if ( $aProviders[ Provider\Backup::SLUG ]->validateLoginIntent( $oUser ) ) {
+					$bValidated = true;
+					$aSuccessfulProviders[] = $aProviders[ Provider\Backup::SLUG ];
+				}
+				unset( $aProviders[ Provider\Backup::SLUG ] );
+			}
 		}
 
-		if ( !$bValid ) {
+		if ( !$bValidated ) {
 			$aStates = [];
 			foreach ( $aProviders as $sSlug => $oProvider ) {
 				$aStates[ $sSlug ] = $oProvider->validateLoginIntent( $oUser );
-				if ( $aStates[ $sSlug ] && !$oOpts->isChainedAuth() ) {
-					break;
+				if ( $aStates[ $sSlug ] ) {
+					$aSuccessfulProviders[] = $oProvider;
 				}
 			}
 
 			$nSuccessful = count( array_filter( $aStates ) );
-			$bValid = $oOpts->isChainedAuth() ? $nSuccessful == count( $aProviders ) : $nSuccessful > 0;
-			if ( $bValid ) {
-				// Some cleanup can only run if complete login is tested
-				foreach ( $aProviders as $oProvider ) {
-					$oProvider->postSuccessActions( $oUser );
-				}
+			$bValidated = $oOpts->isChainedAuth() ? $nSuccessful == count( $aProviders ) : $nSuccessful > 0;
+		}
+
+		if ( $bValidated ) {
+			// Some cleanup can only run if login is completely tested and completely valid.
+			foreach ( $aSuccessfulProviders as $oProvider ) {
+				$oProvider->postSuccessActions( $oUser );
 			}
 		}
 
-		return $bValid;
+		return $bValidated;
 	}
 }
