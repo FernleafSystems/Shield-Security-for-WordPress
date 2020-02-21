@@ -17,28 +17,24 @@ class BlacklistHandler {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAutoBlackList() ) {
 
-			add_action( 'init', [ $this, 'onWpInit' ] ); // hook in the bot detection
-
 			( new IPs\Components\UnblockIpByFlag() )
 				->setMod( $oMod )
 				->run();
 
-			if ( !$oMod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() ) {
-				$oMod->loadOffenseTracker()->setIfCommit( true );
+			add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
 
-				$this->assessVisitorBlacklistStatus();
-
-				$oCon = $this->getCon();
-				add_filter( $oCon->prefix( 'firewall_die_message' ), [ $this, 'fAugmentFirewallDieMessage' ] );
-				add_action( $oCon->prefix( 'pre_plugin_shutdown' ), function () {
-					$this->doBlackMarkCurrentVisitor();
-				} );
-				add_action( 'shield_security_offense', [ $this, 'processCustomShieldOffense' ], 10, 3 );
+			if ( !$oMod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() && !$oMod->isVerifiedBot() ) {
+				( new BlockRequest() )
+					->setMod( $oMod )
+					->run();
+				( new BlackmarkRequest() )
+					->setMod( $oMod )
+					->run();
 			}
 		}
 	}
 
-	public function onWpInit() {
+	public function loadBotDetectors() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		/** @var IPs\Options $oOpts */
@@ -84,26 +80,6 @@ class BlacklistHandler {
 	}
 
 	/**
-	 * @param array $aMessages
-	 * @return array
-	 */
-	public function fAugmentFirewallDieMessage( $aMessages ) {
-		if ( !is_array( $aMessages ) ) {
-			$aMessages = [];
-		}
-
-		$aMessages[] = sprintf( '<p>%s</p>', sprintf(
-			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
-			( new IPs\Components\QueryRemainingOffenses() )
-				->setMod( $this->getMod() )
-				->setIP( Services::IP()->getRequestIp() )
-				->run()
-		) );
-
-		return $aMessages;
-	}
-
-	/**
 	 * @return bool
 	 */
 	private function isRequestWhitelisted() {
@@ -121,178 +97,5 @@ class BlacklistHandler {
 			}
 		}
 		return $bWhitelisted;
-	}
-
-	private function assessVisitorBlacklistStatus() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-
-		$bIpBlocked = ( new IPs\Components\QueryIpBlock() )
-			->setMod( $oMod )
-			->setIp( Services::IP()->getRequestIp() )
-			->run();
-
-		if ( $bIpBlocked ) {
-//			$this->setIfLogRequest( false ); // TODO don't log traffic from killed requests
-			try {
-				if ( $this->processAutoUnblockRequest() ) {
-					return;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
-			$this->getCon()->fireEvent( 'conn_kill' );
-			$this->renderKillPage();
-		}
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function processAutoUnblockRequest() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		$oReq = Services::Request();
-
-		if ( $oOpts->isEnabledAutoUserRecover() && $oReq->isPost()
-			 && $oReq->request( 'action' ) == $oMod->prefix() && $oReq->request( 'exec' ) == 'uau' ) {
-
-			if ( check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
-			}
-			if ( strlen( $oReq->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
-				throw new \Exception( 'Email should not be provided in honeypot' );
-			}
-
-			$sIp = Services::IP()->getRequestIp();
-			if ( $oReq->post( 'ip' ) != $sIp ) {
-				throw new \Exception( 'IP does not match' );
-			}
-
-			$oLoginMod = $this->getCon()->getModule_LoginGuard();
-			$sGasp = $oReq->post( $oLoginMod->getGaspKey() );
-			if ( empty( $sGasp ) ) {
-				throw new \Exception( 'GASP failed' );
-			}
-
-			if ( !$oOpts->getCanIpRequestAutoUnblock( $sIp ) ) {
-				throw new \Exception( 'IP already processed in the last 24hrs' );
-			}
-			$oMod->updateIpRequestAutoUnblockTs( $sIp );
-
-			( new IPs\Lib\Ops\DeleteIp() )
-				->setDbHandler( $oMod->getDbHandler_IPs() )
-				->setIP( $sIp )
-				->fromBlacklist();
-			Services::Response()->redirectToHome();
-		}
-
-		return false;
-	}
-
-	/**
-	 * Allows 3rd parties to trigger Shield offenses
-	 * @param string $sMessage
-	 * @param int    $nOffenseCount
-	 * @param bool   $bIncludeLoggedIn
-	 */
-	public function processCustomShieldOffense( $sMessage, $nOffenseCount = 1, $bIncludeLoggedIn = true ) {
-		if ( $this->getCon()->isPremiumActive() ) {
-			if ( empty( $sMessage ) ) {
-				$sMessage = __( 'No custom message provided.', 'wp-simple-firewall' );
-			}
-
-			if ( $bIncludeLoggedIn || !did_action( 'init' ) || !Services::WpUsers()->isUserLoggedIn() ) {
-				$this->getCon()
-					 ->fireEvent(
-						 'custom_offense',
-						 [
-							 'audit'         => [ 'message' => $sMessage ],
-							 'offense_count' => $nOffenseCount
-						 ]
-					 );
-			}
-		}
-	}
-
-	private function renderKillPage() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		$oCon = $this->getCon();
-		$oLoginMod = $oCon->getModule_LoginGuard();
-
-		$sUniqId = 'uau'.uniqid();
-
-		$sIp = Services::IP()->getRequestIp();
-		$nTimeRemaining = max( floor( $oOpts->getAutoExpireTime()/60 ), 0 );
-		$aData = [
-			'strings' => [
-				'title'   => sprintf( __( "You've been blocked by the %s plugin", 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$oCon->getPluginSpec()[ 'meta' ][ 'url_repo_home' ],
-						$oCon->getHumanName()
-					)
-				),
-				'lines'   => [
-					sprintf( __( 'Time remaining on black list: %s', 'wp-simple-firewall' ),
-						sprintf( _n( '%s minute', '%s minutes', $nTimeRemaining, 'wp-simple-firewall' ), $nTimeRemaining )
-					),
-					sprintf( __( 'You tripped the security plugin defenses a total of %s times making you a suspect.', 'wp-simple-firewall' ), $oOpts->getOffenseLimit() ),
-					sprintf( __( 'If you believe this to be in error, please contact the site owner and quote your IP address below.', 'wp-simple-firewall' ) ),
-				],
-				'your_ip' => 'Your IP address',
-				'unblock' => [
-					'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
-					'you_can' => __( 'You can automatically unblock your IP address by clicking the button below.', 'wp-simple-firewall' ),
-					'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
-				],
-			],
-			'vars'    => [
-				'nonce'        => $oMod->getNonceActionData( 'uau' ),
-				'ip'           => $sIp,
-				'gasp_element' => $oMod->renderTemplate(
-					'snippets/gasp_js.php',
-					[
-						'sCbName'   => $oLoginMod->getGaspKey(),
-						'sLabel'    => $oLoginMod->getTextImAHuman(),
-						'sAlert'    => $oLoginMod->getTextPleaseCheckBox(),
-						'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
-						'sUniqId'   => $sUniqId,
-						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
-						'strings'   => [
-							'loading' => __( 'Loading', 'wp-simple-firewall' )
-						]
-					]
-				),
-			],
-			'flags'   => [
-				'is_autorecover'   => $oOpts->isEnabledAutoUserRecover(),
-				'is_uau_permitted' => $oOpts->getCanIpRequestAutoUnblock( $sIp ),
-			],
-		];
-		Services::WpGeneral()
-				->wpDie(
-					$oMod->renderTemplate( '/snippets/blacklist_die.twig', $aData, true )
-				);
-	}
-
-	private function doBlackMarkCurrentVisitor() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-
-		$oTracker = $oMod->loadOffenseTracker();
-		if ( !$this->getCon()->isPluginDeleting()
-			 && $oTracker->hasVisitorOffended() && $oTracker->isCommit()
-			 && !$oMod->isVerifiedBot() ) {
-
-			( new IPs\Components\ProcessOffense() )
-				->setMod( $oMod )
-				->setIp( Services::IP()->getRequestIp() )
-				->run();
-		}
 	}
 }
