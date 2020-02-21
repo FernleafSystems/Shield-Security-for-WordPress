@@ -1,5 +1,4 @@
 @CHARSET "ISO-8859-1";
-
 /* GENERAL STYLES */
 body {
 	overflow-y: scroll;
@@ -22,7 +21,6 @@ body.rtl {
 #wpbody-content .odp-admin-notice.notice {
 	margin: 5px 15px;
 }
-
 .pluginlogo_16 {
 	background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
@@ -59,6 +57,10 @@ body.rtl {
 }
 #ColumnOptions form {
 	margin-bottom: 50px;
+}
+#ColumnOptions form .form-group.row .form-check-null {
+	display: flex;
+	align-items: center;
 }
 #ColumnOptions .form-actions .btn {
 	box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.3);
@@ -124,9 +126,8 @@ p.code-description {
 	padding: 5px 30px 30px;
 }
 .row.option_section_row.non_primary_section > div {
-	margin-left: 0px;
+	margin-left: 0;
 }*/
-
 .well.admin_access_restriction_form {
 	background-color: #fbfbfb;
 	border: 1px solid #cccccc;
@@ -143,7 +144,6 @@ p.code-description {
 	opacity: 0.5;
 }
 /* BOOSTRAP SETTINGS PAGE STYLES */
-
 .bootstrap-wpadmin .form-horizontal .form-actions {
 	padding-left: 200px;
 }
@@ -154,11 +154,10 @@ a.section-help-video {
 }
 a.section-help-video > span {
 	font-size: 28px;
-	margin-left: 6px;
-	color: rgba(69, 119, 0, 1);
+	color: #008000;
+	margin-top: -2px;
 }
 /** End-Section summaries **/
-
 .wrap .icon32 {
 	width: 32px;
 }
@@ -533,7 +532,6 @@ input[type="email"] {
 .content-help {
 	background-color: #f1f1f1; /** == #ColumnOptions */
 	padding: 20px;
-
 }
 .content-help h2 {
 	margin-bottom: 8px;
@@ -620,7 +618,6 @@ input:checked + .icwp-slider:before {
 	border-radius: 10%;
 }
 /** NEW FORMS **/
-
 #wpwrap {
 	background-color: #f1f1f1;
 }
@@ -643,7 +640,6 @@ input:checked + .icwp-slider:before {
 	height: 76px;
 	width: 76px;
 	background-size: 76px 76px;
-
 	margin-bottom: 7px;
 	position: relative;
 	left: 1px;
@@ -733,7 +729,6 @@ input:checked + .icwp-slider:before {
 .option_container {
 }
 .carousel-item {
-
 	transition: -webkit-transform 0.3s ease;
 	transition: transform 0.2s ease;
 	transition: transform 0.2s ease, -webkit-transform 0.2s ease;
@@ -782,6 +777,12 @@ input:checked + .icwp-slider:before {
 	width: 100%;
 	z-index: 5;
 }
+#FooterWizardBanner .text-left {
+	margin-bottom: 0;
+}
+#FooterWizardBanner .offset-1 {
+	margin-left: 12%;
+}
 #WizardTop {
 	height: 40px;
 	background-color: #fafafa;
@@ -791,7 +792,7 @@ input:checked + .icwp-slider:before {
 	height: 66px;
 	background-color: #eaffea;
 	border-top: 1px solid #bbbbbb;
-	padding-top: 10px;
+	padding-top: 15px;
 	text-align: center;
 	word-break: keep-all;
 	white-space: nowrap;
@@ -812,12 +813,10 @@ td.column-message textarea {
 	box-shadow: none;
 	border-color: rgba(0, 0, 0, 0.05);
 }
-
 .table-side-filter {
 	position: sticky;
 	top: 120px;
 }
-
 #SectionNotices tr.title_row th {
 	padding: 0.25rem 1.0rem;
 	border-bottom: 0 none;
@@ -826,7 +825,6 @@ td.column-message textarea {
 #SectionNotices tr.title_row th h6 {
 	font-size: 0.85rem;
 }
-
 /** TABLE: TRAFFIC **/
 th.column-visitor {
 }
@@ -849,12 +847,9 @@ th.column-request_info {
 	width: 100px;
 }
 /** INSIGHTS **/
-
 /* TABLES */
 .tablenav-pages-navspan {
 	box-sizing: content-box;
-}
-#odp-PageContainer {
 }
 #odp-PageContainer .card {
 	box-shadow: none;
@@ -879,8 +874,7 @@ th.column-request_info {
 	font-weight: bold;
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 3px;
-	background-color: rgba(0, 0, 0, 0.04);
-	color: green;
+	color: #008000;
 }
 .nav-link.module.notenabled .module-icon:before {
 	color: rgba(0, 0, 0, 0.4);
@@ -932,11 +926,9 @@ td.cell_delete_note {
 .icon-sign {
 	font-size: 14px;
 }
-
 #collapseConfigSummaryTitle:hover {
 	cursor: pointer;
 }
-
 #SectionStats {
 	overflow: auto;
 }
@@ -975,7 +967,6 @@ th.column-last_activity_at {
 td .timestamp-small {
 	font-size: smaller;
 }
-
 .odp-table td.check-column input[type=checkbox],
 .odp-table th.check-column input[type=checkbox] {
 	margin: 0 4px;
@@ -984,7 +975,6 @@ a.ip-whois {
 	color: #739e31;
 }
 /** END TABLES **/
-
 /** Sessions Table **/
 th.column-is_secadmin {
 	width: 120px;
@@ -996,7 +986,7 @@ form.add-ip button.add {
 	vertical-align: text-bottom;
 }
 form.add-ip button.add .dashicons {
-	vertical-align: inherit;
+	vertical-align: middle;
 }
 .odp-table .actions-block {
 	font-size: 0.75rem;
@@ -1026,8 +1016,6 @@ td.column-actions button > span {
 	font-size: 20px;
 } */
 /** END IPS Insights **/
-
-
 .scan-select .form-text {
 	white-space: normal;
 }
@@ -1040,7 +1028,6 @@ td.column-actions button > span {
 table.scan-table.wp-list-table button.toggle-row {
 	display: none;
 }
-
 #ScanResultsTabs {
 }
 #ScanResultsTabs ul.nav.nav-tabs a.nav-link {
@@ -1056,7 +1043,6 @@ table.scan-table.wp-list-table button.toggle-row {
 #ScanResultsTabs nav > a.nav-link .badge {
 	font-size: 12px;
 }
-
 /**
 PTG SCAN TABLES
  */
@@ -1066,7 +1052,6 @@ PTG SCAN TABLES
 .scan-table-for-slug .tablenav.top {
 	display: none;
 }
-
 .card.card-scan_results {
 	background-color: transparent;
 	border: 0 none;
@@ -1098,7 +1083,6 @@ table.odp-table.scan-table td.column-path code {
 .container-scantable .tablenav.top {
 	/*display: none;*/
 }
-
 #TableAdminNotes .tablenav.bottom,
 #TableSessions .tablenav.bottom,
 .container-scantable .tablenav.bottom {
@@ -1115,7 +1099,6 @@ table.odp-table.scan-table td.column-path code {
 	border-radius: 0;
 	border-width: 2px 0;
 }
-
 #navbar-bannerlogo {
 	min-width: 170px;
 	width: 170px;
@@ -1150,7 +1133,6 @@ input[type=checkbox].form-check-input {
 	margin: 0;
 	border-width: 10px 20px;
 }
-
 /** copied from bootstrap to override WP admin styles */
 .content-options {
 	font-size: 14px;
@@ -1162,20 +1144,26 @@ input[type=checkbox].form-check-input {
 }
 #ModuleOptionsNav.nav-tabs a.nav-link {
 	padding: 0.5rem 0.7rem;
-	background-color: rgba(0, 0, 0, 0.06);
-	border: 1px solid rgba(0, 0, 0, 0.06);
-	border-bottom: 0 none;
+	border: 1px solid rgba(0, 0, 0, 0.3);
+	border-bottom-right-radius: .25rem;
+	border-bottom-left-radius: .25rem;
 	margin-left: 6px;
-	font-size: 14px;
+	font-size: 16px;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link.active,
 #ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
-	background-color: transparent;
-	border-color: rgba(0, 0, 0, 0.1);
+	background-color: rgba(255, 255, 255, 0.6);
+	border-color: rgba(0, 0, 0, 0.3);
+	font-weight: bold;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link:hover {
 	background-color: #dddddd;
 	border-color: #999999;
+}
+.options-summary {
+	margin-top: 10px;
+	font-style: italic;
+	font-size: 12px;
 }
 .content-options .tab-content {
 	border-top: 0 none;
@@ -1190,7 +1178,6 @@ input[type=checkbox].form-check-input {
 .content-options .option-description {
 	font-size: 12px;
 	border: 1px solid rgba(0, 0, 0, 0.06);
-	margin-top: 4px;
 	padding: 5px 9px;
 	background-color: rgba(255, 255, 255, 0.4);
 }
@@ -1202,13 +1189,17 @@ input[type=checkbox].form-check-input {
 	font-size: 12px;
 }
 .content-options .option-links a {
-	color: rgba(69, 119, 0, 1);
+	color: #008000;
+	text-decoration: underline;
+	font-size: 14px;
+	font-weight: bold;
 }
-
+.content-options .option-links ul {
+	margin-top: 10px;
+}
 .tooltip .arrow {
 	display: none !important;
 }
-
 table.odp-table tr.audit-cat-1 td {
 	background-color: #f8fbff;
 }
@@ -1218,7 +1209,6 @@ table.odp-table tr.audit-cat-2 td {
 table.odp-table tr.audit-cat-3 td {
 	background-color: #fffdfd;
 }
-
 .row-sticky td {
 	background-color: #5a5a5a;
 	position: sticky;
@@ -1229,7 +1219,104 @@ table.odp-table tr.audit-cat-3 td {
 	margin: 0;
 	color: #ffffff;
 }
-
 .introjs-helperLayer {
 	background-color: rgba(91, 228, 56, 0.34);
+}
+/* New css changes */
+.btn-primary {
+	background-color: #008000;
+	border-color: #008000;
+}
+.btn-primary:hover {
+	color: #008000;
+	background-color: #ffffff;
+	border-color: #008000;
+}
+input:checked + .icwp-slider {
+	background-color: #008000;
+}
+dd, li {
+	margin-bottom: 0;
+}
+a {
+	color: #008000;
+}
+a:hover {
+	color: #008000;
+}
+a:focus .gravatar, a:focus, a:focus .media-icon img {
+	box-shadow: none !important;
+}
+.wp-core-ui select {
+	min-height: 38px;
+}
+.alert-secondary {
+	background-color: transparent;
+}
+.col-form-label {
+	font-weight: bold;
+	padding-top: 0;
+}
+.alert-info {
+	background-color: rgba(0, 128, 0, 0.30);
+	border-color: rgba(0, 128, 0, 0.30);
+}
+#SectionScanResultsAggregate .card-footer a:hover {
+	color: #ffffff;
+	background-color: #008000;
+	border-color: #008000;
+}
+#ScanPageTabsNav > li a {
+	color: #ffffff !important;
+	background-color: #008000;
+	border-color: #008000 !important;
+}
+#SessionsFilter .btn-info {
+	color: #ffffff;
+	background-color: #008000;
+	border-color: #008000;
+}
+#SessionsFilter .btn-link {
+	color: #008000;
+}
+#FilterIpBlack #SubmitForm {
+	color: #ffffff;
+	background-color: #008000;
+	border-color: #008000;
+}
+#SectionIpsWhite #SubmitForm {
+	color: #ffffff;
+	background-color: #008000;
+	border-color: #008000;
+}
+#NewWhiteIp button {
+	color: #ffffff;
+	background-color: #008000;
+	border-color: #008000;
+}
+.btn-outline-dark:hover {
+	color: #ffffff;
+	background-color: #008000;
+	border-color: #008000;
+}
+.table-success, .table-success > td, .table-success > th {
+	background-color: rgba(0, 128, 0, 0.20);
+}
+#SectionIpsBlack .alert-info {
+	border-radius: 0;
+}
+#SectionIpsWhite .alert-info {
+	border-radius: 0;
+}
+#SectionIpsBlack .form-inline {
+	margin: 10px 0 !important;
+}
+#SectionIpsWhite .form-inline {
+	margin: 10px 0 !important;
+}
+#SectionIpsBlack .input-group-text {
+	background-color: transparent !important;
+}
+#SectionIpsWhite .form-inline {
+	background-color: transparent !important;
 }

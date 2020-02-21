@@ -86,7 +86,7 @@
 	font-weight: bold;
 }
 ul.nav-tabs li a {
-	color: rgba(69, 119, 0, 1);
+	color: #008000;
 }
 ul.nav-tabs li.active a {
 	color: #000000;
@@ -168,7 +168,7 @@ tr.icwp-plugin-vulnerability dd {
 	background-color: whitesmoke;
 }
 .wp-submenu-wrap a .icwp_highlighted {
-	color: #09b740;
+	color: #008000;
 }
 #icwp-wpsf-dashboard_widget {
 }
@@ -232,9 +232,7 @@ tr.icwp-plugin-vulnerability dd {
 	transition: width 1.5s;
 	transition-timing-function: ease;
 	-webkit-transition-timing-function: ease;
-
 	visibility: hidden;
-
 	width: 0;
 	font-size: 18px;
 	color: #ffffff;
@@ -340,8 +338,6 @@ tr.icwp-plugin-vulnerability dd {
 }
 .icwpAjaxTableContainer table th.column-ip {
 	white-space: pre;
-}
-.icwpAjaxTableContainer table th.column-wp_username {
 }
 .icwpAjaxTableContainer table th.column-event {
 	width: 110px;
