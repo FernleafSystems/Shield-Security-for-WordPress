@@ -1623,3 +1623,27 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 .table-success, .table-success>td, .table-success>th {
     background-color: rgba(0, 128, 0, 0.20);
 }
+
+#SectionIpsBlack .alert-info {
+    border-radius: 0;
+}
+
+#SectionIpsWhite .alert-info {
+    border-radius: 0;
+}
+
+#SectionIpsBlack .form-inline {
+    margin: 10px 0 !important;
+}
+
+#SectionIpsWhite .form-inline {
+    margin: 10px 0 !important;
+}
+
+#SectionIpsBlack .input-group-text {
+    background-color: transparent !important;
+}
+
+#SectionIpsWhite .form-inline {
+    background-color: transparent !important;
+}
