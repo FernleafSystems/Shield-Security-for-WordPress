@@ -6,6 +6,21 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @var Shield\Modules\License\Lib\LicenseHandler
+	 */
+	private $oLicHandler;
+
+	/**
+	 * @return Shield\Modules\License\Lib\LicenseHandler
+	 */
+	public function getLicenseHandler() {
+		if ( !isset( $this->oLicHandler ) ) {
+			$this->oLicHandler = ( new Shield\Modules\License\Lib\LicenseHandler() )->setMod( $this );
+		}
+		return $this->oLicHandler;
+	}
+
 	protected function redirectToInsightsSubPage() {
 		Services::Response()->redirect(
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
@@ -91,7 +106,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				 ->setLicenseLastCheckedAt();
 			$this->saveModOptions();
 
-			$oLookupLicense = $this->lookupOfficialLicense();
+			$oLookupLicense = $this->getLicenseHandler()->lookup();
 			if ( $oLookupLicense->isValid() ) {
 				$oCurrent = $oLookupLicense;
 				$oCurrent->updateLastVerifiedAt( true );
@@ -243,42 +258,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return Utilities\Licenses\EddLicenseVO
-	 */
-	private function lookupOfficialLicense() {
-		$oCon = $this->getCon();
-		$oOpts = $this->getOptions();
-
-		$sPass = wp_generate_password( 16, false );
-		$sUrl = Services::WpGeneral()->getHomeUrl( '', true );
-
-		$this->setKeylessRequestAt()
-			 ->setKeylessRequestHash( sha1( $sPass.$sUrl ) );
-		$this->saveModOptions();
-
-		{
-			$oLook = new Utilities\Licenses\Keyless\Lookup();
-			$oLook->lookup_url_stub = $oOpts->getDef( 'license_store_url_api' );
-			$oLook->item_id = $oOpts->getDef( 'license_item_id' );
-			$oLook->install_id = $oCon->getSiteInstallationId();
-			$oLook->check_url = $sUrl;
-			$oLook->nonce = $sPass;
-			$oLook->meta = [
-				'version_shield' => $oCon->getVersion(),
-				'version_php'    => Services::Data()->getPhpVersionCleaned()
-			];
-			$oLicense = $oLook->lookup();
-		}
-
-		// clear the handshake data after the request has gone through
-		$this->setKeylessRequestAt( 0 )
-			 ->setKeylessRequestHash( '' );
-		$this->saveModOptions();
-
-		return $oLicense;
-	}
-
-	/**
 	 * @return int
 	 */
 	protected function getLicenseActivatedAt() {
@@ -290,20 +269,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getLicenseDeactivatedAt() {
 		return $this->getOpt( 'license_deactivated_at' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLicenseKey() {
-		return $this->getOpt( 'license_key' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function hasLicenseKey() {
-		return $this->isLicenseKeyValidFormat();
 	}
 
 	/**
@@ -346,13 +311,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isLicenseKeyValidFormat() {
-		return !is_null( $this->verifyLicenseKeyFormat( $this->getLicenseKey() ) );
-	}
-
-	/**
 	 * IMPORTANT: Method used by Shield Central. Modify with care.
 	 * We test various data points:
 	 * 1) the key is valid format
@@ -364,15 +322,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function hasValidWorkingLicense() {
 		$oLic = $this->loadLicense();
-		return ( $this->isKeyless() || $this->isLicenseKeyValidFormat() )
-			   && $oLic->isValid() && $this->isLicenseActive();
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isKeyless() {
-		return (bool)$this->getDef( 'keyless' );
+		return $oLic->isValid() && $this->isLicenseActive();
 	}
 
 	/**
@@ -410,94 +360,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @param string $sKey
-	 * @return string|null
-	 */
-	public function verifyLicenseKeyFormat( $sKey ) {
-		$sCleanKey = null;
-
-		$sKey = $this->cleanLicenseKey( $sKey );
-		$bValid = !empty( $sKey ) && is_string( $sKey )
-				  && ( strlen( $sKey ) == $this->getDef( 'license_key_length' ) );
-
-		if ( $bValid ) {
-			switch ( $this->getDef( 'license_key_type' ) ) {
-				case 'alphanumeric':
-				default:
-					if ( preg_match( '#[^a-z0-9]#i', $sKey ) === 0 ) {
-						$sCleanKey = $sKey;
-					}
-					break;
-			}
-		}
-
-		return $sCleanKey;
-	}
-
-	protected function cleanLicenseKey( $sKey ) {
-
-		switch ( $this->getDef( 'license_key_type' ) ) {
-			case 'alphanumeric':
-			default:
-				$sKey = preg_replace( '#[^a-z0-9]#i', '', $sKey );
-				break;
-		}
-
-		return $sKey;
-	}
-
-	/**
-	 */
-	protected function doPrePluginOptionsSave() {
-		// clean the key.
-		$sLicKey = $this->getLicenseKey();
-		if ( strlen( $sLicKey ) > 0 ) {
-			switch ( $this->getDef( 'license_key_type' ) ) {
-				case 'alphanumeric':
-				default:
-					$this->setOpt( 'license_key', preg_replace( '#[^a-z0-9]#i', '', $sLicKey ) );
-					break;
-			}
-		}
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getKeylessRequestAt() {
-		return (int)$this->getOpt( 'keyless_request_at', 0 );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getKeylessRequestHash() {
-		return (string)$this->getOpt( 'keyless_request_hash', '' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isKeylessHandshakeExpired() {
-		return ( Services::Request()->ts() - $this->getKeylessRequestAt() )
-			   > $this->getDef( 'keyless_handshake_expire' );
-	}
-
-	/**
-	 * @param string $sHash
+	 * @param string $sNonce - empty string to clear the nonce
 	 * @return $this
 	 */
-	public function setKeylessRequestHash( $sHash ) {
-		return $this->setOpt( 'keyless_request_hash', $sHash );
-	}
-
-	/**
-	 * @param int|null $nTime
-	 * @return $this
-	 */
-	public function setKeylessRequestAt( $nTime = null ) {
-		$nTime = is_numeric( $nTime ) ? $nTime : Services::Request()->ts();
-		return $this->setOpt( 'keyless_request_at', $nTime );
+	public function setKeylessHandshakeNonce( $sNonce = '' ) {
+		$this->getOptions()
+			 ->setOpt( 'keyless_handshake_hash', $sNonce )
+			 ->setOpt( 'keyless_handshake_until',
+				 empty( $sNonce ) ? 0 : Services::Request()->ts() + $this->getDef( 'keyless_handshake_expire' )
+			 );
+		return $this->saveModOptions();
 	}
 
 	/**
@@ -539,9 +411,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'last_checked'    => $sChecked,
 			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		];
-		if ( !$this->isKeyless() ) {
-			$aLicenseTableVars[ 'license_key' ] = $this->hasLicenseKey() ? $this->getLicenseKey() : 'n/a';
-		}
 		return [
 			'vars'    => [
 				'license_table'  => $aLicenseTableVars,
@@ -564,11 +433,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'keyless_cp'               => $this->getDef( 'keyless_cp' ),
 			],
 			'flags'   => [
-				'show_key'              => !$this->isKeyless(),
-				'has_license_key'       => $this->isLicenseKeyValidFormat(),
 				'show_ads'              => false,
 				'button_enabled_check'  => true,
-				'button_enabled_remove' => $this->isLicenseKeyValidFormat(),
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
 				'is_pro'                => $this->isPremium()

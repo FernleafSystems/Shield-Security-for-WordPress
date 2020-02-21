@@ -10,6 +10,8 @@ class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 	public function run() {
 		/** @var ICWP_WPSF_FeatureHandler_License $oMod */
 		$oMod = $this->getMod();
+		/** @var Modules\License\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oReq = Services::Request();
 
 		// performs the license check
@@ -19,12 +21,10 @@ class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 
 			case 'keyless_handshake':
 				$sNonce = $oReq->query( 'nonce' );
-				if ( !empty( $sNonce ) && $sNonce == $oMod->getKeylessRequestHash() ) {
-					$aHandshakeData = [ 'success' => false ];
-					if ( !$oMod->isKeylessHandshakeExpired() ) {
-						$aHandshakeData[ 'success' ] = true;
-					}
-					die( json_encode( $aHandshakeData ) );
+				if ( !empty( $sNonce ) && $sNonce === $oOpts->getOpt( 'keyless_handshake_hash' ) ) {
+					die( json_encode( [
+						'success' => $oOpts->getOpt( 'keyless_handshake_until', 0 ) >= $oReq->ts()
+					] ) );
 				}
 				break;
 
