@@ -17,7 +17,7 @@ class BlacklistHandler {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAutoBlackList() ) {
 
-			add_action( 'init', 'onWpInit' ); // hook in the bot detection
+			add_action( 'init', [ $this, 'onWpInit' ] ); // hook in the bot detection
 
 			( new IPs\Components\UnblockIpByFlag() )
 				->setMod( $oMod )
