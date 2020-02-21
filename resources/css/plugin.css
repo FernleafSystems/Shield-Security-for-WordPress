@@ -73,6 +73,11 @@ body.rtl {
     margin-bottom: 50px;
 }
 
+#ColumnOptions form .form-group.row .form-check-null {
+    display: flex;
+    align-items: center;
+}
+
 #ColumnOptions .form-actions .btn {
     box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.3);
     opacity: 0.85;
@@ -963,6 +968,14 @@ input:checked + .icwp-slider:before {
     z-index: 5;
 }
 
+#FooterWizardBanner .text-left {
+    margin-bottom: 0;
+}
+
+#FooterWizardBanner .offset-1 {
+    margin-left: 12%;
+}
+
 #WizardTop {
     height: 40px;
     background-color: #fafafa;
@@ -1219,7 +1232,7 @@ form.add-ip button.add {
 }
 
 form.add-ip button.add .dashicons {
-    vertical-align: inherit;
+    vertical-align: middle;
 }
 
 .odp-table .actions-block {
@@ -1414,23 +1427,29 @@ input[type=checkbox].form-check-input {
 
 #ModuleOptionsNav.nav-tabs a.nav-link {
     padding: 0.5rem 0.7rem;
-    background-color: rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-bottom: 0 none;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-bottom-right-radius: .25rem;
+    border-bottom-left-radius: .25rem;
     margin-left: 6px;
     font-size: 16px;
 }
 
 #ModuleOptionsNav.nav-tabs a.nav-link.active,
 #ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
-    background-color: transparent;
-    border-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.3);
     font-weight: bold;
 }
 
 #ModuleOptionsNav.nav-tabs a.nav-link:hover {
     background-color: #dddddd;
     border-color: #999999;
+}
+
+.options-summary {
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 12px;
 }
 
 .content-options .tab-content {
@@ -1448,7 +1467,6 @@ input[type=checkbox].form-check-input {
 .content-options .option-description {
     font-size: 12px;
     border: 1px solid rgba(0, 0, 0, 0.06);
-    margin-top: 4px;
     padding: 5px 9px;
     background-color: rgba(255, 255, 255, 0.4);
 }
@@ -1464,6 +1482,13 @@ input[type=checkbox].form-check-input {
 
 .content-options .option-links a {
     color: #008000;
+    text-decoration: underline;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.content-options .option-links ul {
+    margin-top: 10px;
 }
 
 .tooltip .arrow {
@@ -1527,6 +1552,10 @@ a:hover {
     color: #008000;
 }
 
+a:focus .gravatar, a:focus, a:focus .media-icon img {
+    box-shadow: none !important;
+}
+
 .wp-core-ui select {
     min-height: 38px;
 }
@@ -1535,3 +1564,62 @@ a:hover {
     background-color: transparent;
 }
 
+.col-form-label {
+    font-weight: bold;
+    padding-top: 0;
+}
+
+.alert-info {
+    background-color: rgba(0, 128, 0, 0.30);
+    border-color: rgba(0, 128, 0, 0.30);
+}
+
+#SectionScanResultsAggregate .card-footer a:hover {
+    color: #fff;
+    background-color: #008000;
+    border-color: #008000;
+}
+
+#ScanPageTabsNav > li a {
+    color: #fff !important;
+    background-color: #008000;
+    border-color: #008000 !important;
+}
+
+#SessionsFilter .btn-info {
+    color: #fff;
+    background-color: #008000;
+    border-color: #008000;
+}
+
+#SessionsFilter .btn-link {
+    color: #008000;
+}
+
+#FilterIpBlack #SubmitForm {
+    color: #fff;
+    background-color: #008000;
+    border-color: #008000;
+}
+
+#SectionIpsWhite #SubmitForm {
+    color: #fff;
+    background-color: #008000;
+    border-color: #008000;
+}
+
+#NewWhiteIp button {
+    color: #fff;
+    background-color: #008000;
+    border-color: #008000;
+}
+
+.btn-outline-dark:hover {
+    color: #fff;
+    background-color: #008000;
+    border-color: #008000;
+}
+
+.table-success, .table-success>td, .table-success>th {
+    background-color: rgba(0, 128, 0, 0.20);
+}

@@ -216,23 +216,21 @@
 
 							{% if aOption.type is not sameas('checkbox') %}
 								{# checkboxes display slightly differently #}
-								<div>{{ aOption.summary }}</div>
+								<div class="options-summary">{{ aOption.summary }}</div>
 							{% endif %}
-							<div class="collapse option-description"
-								 id="Description{{ aOption.key }}">{{ aOption.description|raw }}</div>
 						</div>
 
-						<div class="col-1">
+						<div class="col-3">
 							<div class="option-links">
+								<div class="collapse option-description show"
+									 id="Description{{ aOption.key }}">{{ aOption.description|raw }}</div>
 								<ul>
-									<li><a data-toggle="collapse" href="#Description{{ aOption.key }}" role="button"
-										   class="option-link">{{ strings.description }}</a></li>
 									{% if aOption.link_info %}
 										<li><a href="{{ aOption.link_info }}" target="_blank" class="option-link">
-										{{ strings.more_info }}</a></li>
+										{{ strings.more_info }} ></a></li>
 										{% if aOption.link_blog %}
 										<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
-											{{ strings.blog }}</a></li>
+											{{ strings.blog }} ></a></li>
 									{% endif %}
 									{% endif %}
 								</ul>
