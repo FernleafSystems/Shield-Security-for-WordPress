@@ -117,8 +117,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $this->prefix( 'badgeState' );
 	}
 
-	protected function handleModRequest() {
-		switch ( Services::Request()->request( 'exec' ) ) {
+	/**
+	 * @inheritDoc
+	 */
+	protected function handleModAction( $sAction ) {
+		switch ( $sAction ) {
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );

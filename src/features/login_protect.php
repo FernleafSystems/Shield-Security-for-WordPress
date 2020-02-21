@@ -47,8 +47,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$this->cleanLoginUrlPath();
 	}
 
-	protected function handleModRequest() {
-		switch ( Services::Request()->query( 'exec' ) ) {
+	/**
+	 * @inheritDoc
+	 */
+	protected function handleModAction( $sAction ) {
+		switch ( $sAction ) {
 			case 'email_send_verify':
 				$this->processEmailSendVerify();
 				break;

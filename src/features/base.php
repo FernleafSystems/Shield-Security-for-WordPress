@@ -342,8 +342,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 			if ( $oReq->request( 'action' ) == $this->prefix()
 				 && check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' )
-				 && $this->getCon()->isPluginAdmin() ) {
-				$this->handleModRequest();
+				 && $this->getCon()->getMeetsBasePermissions() ) {
+				$this->handleModAction( $oReq->request( 'exec' ) );
 			}
 		}
 
@@ -1179,6 +1179,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		return $aOpts;
 	}
 
+	/**
+	 * @param string $sAction
+	 */
+	protected function handleModAction( $sAction ) {
+	}
+
+	/**
+	 * @deprecated 8.6.2
+	 */
 	protected function handleModRequest() {
 	}
 
