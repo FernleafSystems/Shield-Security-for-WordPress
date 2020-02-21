@@ -371,7 +371,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		/** @var \ICWP_WPSF_FeatureHandler_License $oModule */
 		$oModule = $this->getCon()->getModule( 'license' );
 		try {
-			$bSuccess = $oModule->verifyLicense( true )
+			$bSuccess = $oModule->getLicenseHandler()
+								->verify( true )
 								->hasValidWorkingLicense();
 			if ( $bSuccess ) {
 				$sMessage = __( 'License was found and successfully installed.', 'wp-simple-firewall' );
