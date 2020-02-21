@@ -29,8 +29,6 @@ class ICWP_WPSF_Processor_Events extends Shield\Modules\BaseShield\ShieldProcess
 		return $this->oStatsWriter;
 	}
 
-	/**
-	 */
 	public function statsWidget() {
 		/** @var Databases\Events\Select $oSelEvents */
 		$oSelEvents = $this->getCon()

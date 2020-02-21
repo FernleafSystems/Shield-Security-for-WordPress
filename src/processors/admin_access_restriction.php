@@ -18,7 +18,9 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 		add_filter( $this->getCon()->prefix( 'is_plugin_admin' ), [ $this, 'adjustUserAdminPermissions' ] );
 
 		if ( $oOpts->isEnabledWhitelabel() ) {
-			$this->getSubProWhitelabel()->execute();
+			( new SecurityAdmin\Lib\WhiteLabel\ApplyLabels() )
+				->setMod( $this->getMod() )
+				->run();
 		}
 	}
 
@@ -72,22 +74,6 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 				add_action( 'admin_footer', [ $this, 'printAdminAccessAjaxForm' ] );
 			}
 		}
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_AdminAccess_Whitelabel|mixed
-	 */
-	protected function getSubProWhitelabel() {
-		return $this->getSubPro( 'wl' );
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getSubProMap() {
-		return [
-			'wl' => 'ICWP_WPSF_Processor_AdminAccess_Whitelabel',
-		];
 	}
 
 	/**

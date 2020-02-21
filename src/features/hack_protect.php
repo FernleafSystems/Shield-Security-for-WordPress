@@ -62,13 +62,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this->aScanCons[ $sSlug ];
 	}
 
-	protected function handleModRequest() {
-		$oReq = Services::Request();
-		switch ( $oReq->query( 'exec' ) ) {
+	/**
+	 * @inheritDoc
+	 */
+	protected function handleModAction( $sAction ) {
+		switch ( $sAction ) {
 			case  'scan_file_download':
 				( new HackGuard\Lib\Utility\FileDownloadHandler() )
 					->setDbHandler( $this->getDbHandler_ScanResults() )
-					->downloadByItemId( (int)$oReq->query( 'rid', 0 ) );
+					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
 				break;
 			default:
 				break;

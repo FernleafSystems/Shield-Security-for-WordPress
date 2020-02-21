@@ -24,7 +24,8 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 	 * @return array[] - associative arrays where keys are $this->getStandardUserFields()
 	 */
 	public function getSnapshotUsers() {
-		return is_array( $this->getOption( 'snapshot_users' ) ) ? $this->getOption( 'snapshot_users' ) : [];
+		$aUs = $this->getOptions()->getOpt( 'snapshot_users' );
+		return is_array( $aUs ) ? $aUs : [];
 	}
 
 	/**
