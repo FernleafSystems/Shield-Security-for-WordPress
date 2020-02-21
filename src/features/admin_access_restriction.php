@@ -146,7 +146,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	/**
 	 * @inheritDoc
 	 */
-	protected function handleModAction($sAction) {
+	protected function handleModAction( $sAction ) {
 		switch ( $sAction ) {
 			case  'remove_secadmin_confirm':
 				( new SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
