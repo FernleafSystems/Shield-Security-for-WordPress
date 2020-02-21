@@ -97,7 +97,7 @@ class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 	 * @return array|null
 	 */
 	private function getXFrameHeader() {
-		switch ( $this->getOption( 'x_frame' ) ) {
+		switch ( $this->getOptions()->getOpt( 'x_frame' ) ) {
 			case 'on_sameorigin':
 				$sXFrameOption = 'SAMEORIGIN';
 				break;

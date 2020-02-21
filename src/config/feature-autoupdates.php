@@ -129,28 +129,6 @@
       "description": "Note: Automatic updates for themes are disabled on WordPress by default."
     },
     {
-      "key":         "enable_autoupdate_translations",
-      "section":     "section_automatic_updates_for_wordpress_components",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Translations",
-      "summary":     "Automatically Update Translations",
-      "description": "Note: Automatic updates for translations are enabled on WordPress by default."
-    },
-    {
-      "key":         "enable_autoupdate_ignore_vcs",
-      "section":     "section_automatic_updates_for_wordpress_components",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Ignore Version Control",
-      "summary":     "Ignore Version Control Systems Such As GIT and SVN",
-      "description": "If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates."
-    },
-    {
       "key":         "update_delay",
       "section":     "section_options",
       "premium":     true,

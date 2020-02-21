@@ -113,7 +113,7 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'At least automatically upgrading minor versions is recommended (and is the WordPress default).', 'wp-simple-firewall' );
 				break;
 
-			case 'enable_autoupdate_translations' :
+			case 'enable_autoupdate_translations' : // REMOVED 8.6.2
 				$sName = __( 'Translations', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Update Translations', 'wp-simple-firewall' );
 				$sDescription = __( 'Note: Automatic updates for translations are enabled on WordPress by default.', 'wp-simple-firewall' );
@@ -137,7 +137,7 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'Note: Automatic updates for themes are disabled on WordPress by default.', 'wp-simple-firewall' );
 				break;
 
-			case 'enable_autoupdate_ignore_vcs' :
+			case 'enable_autoupdate_ignore_vcs' : // REMOVED 8.6.2
 				$sName = __( 'Ignore Version Control', 'wp-simple-firewall' );
 				$sSummary = __( 'Ignore Version Control Systems Such As GIT and SVN', 'wp-simple-firewall' );
 				$sDescription = __( 'If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates.', 'wp-simple-firewall' );

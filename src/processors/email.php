@@ -9,41 +9,39 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 
 	/**
 	 * @var string
+	 * @deprecated 8.6.2
 	 */
 	protected static $sModeFile_EmailThrottled;
 
 	/**
 	 * @var int
+	 * @deprecated 8.6.2
 	 */
 	protected static $nThrottleInterval = 1;
 
 	/**
 	 * @var int
+	 * @deprecated 8.6.2
 	 */
 	protected $nEmailThrottleLimit;
 
 	/**
 	 * @var int
+	 * @deprecated 8.6.2
 	 */
 	protected $nEmailThrottleTime;
 
 	/**
 	 * @var int
+	 * @deprecated 8.6.2
 	 */
 	protected $nEmailThrottleCount;
 
 	/**
 	 * @var bool
+	 * @deprecated 8.6.2
 	 */
 	protected $bEmailIsThrottled;
-
-	public function init() {
-		parent::init();
-		self::$sModeFile_EmailThrottled = path_join( __DIR__, '/../mode.email_throttled' );
-	}
-
-	public function run() {
-	}
 
 	/**
 	 * @return array
@@ -97,10 +95,6 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @uses wp_mail
 	 */
 	public function send( $sAddress = '', $sSubject = '', $sMessageBody = '' ) {
-		$this->updateEmailThrottle();
-		if ( $this->bEmailIsThrottled ) {
-			return true;
-		}
 
 		$this->emailFilters( true );
 		$bSuccess = wp_mail(
@@ -193,59 +187,17 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * system object telling us we're throttled.
 	 * The file system object takes precedence.
 	 * @return bool
+	 * @deprecated 8.6.2
 	 */
 	protected function updateEmailThrottle() {
-		$nNow = Services::Request()->ts();
-
-		// Throttling Is Effectively Off
-		if ( $this->getThrottleLimit() <= 0 ) {
-			$this->setThrottledFile( false );
-			return $this->bEmailIsThrottled;
-		}
-
-		// Check that there is an email throttle file. If it exists and its modified time is greater than the 
-		// current $this->m_nEmailThrottleTime it suggests another process has touched the file and updated it
-		// concurrently. So, we update our $this->m_nEmailThrottleTime accordingly.
-		if ( is_file( self::$sModeFile_EmailThrottled ) ) {
-			$nModifiedTime = filemtime( self::$sModeFile_EmailThrottled );
-			if ( $nModifiedTime > $this->nEmailThrottleTime ) {
-				$this->nEmailThrottleTime = $nModifiedTime;
-			}
-		}
-
-		if ( !isset( $this->nEmailThrottleTime ) || $this->nEmailThrottleTime > $nNow ) {
-			$this->nEmailThrottleTime = $nNow;
-		}
-		if ( !isset( $this->nEmailThrottleCount ) ) {
-			$this->nEmailThrottleCount = 0;
-		}
-
-		// If $nNow is greater than throttle interval (1s) we turn off the file throttle and reset the count
-		$nDiff = $nNow - $this->nEmailThrottleTime;
-		if ( $nDiff > self::$nThrottleInterval ) {
-			$this->nEmailThrottleTime = $nNow;
-			$this->nEmailThrottleCount = 1;    //we set to 1 assuming that this was called because we're about to send, or have just sent, an email.
-			$this->setThrottledFile( false );
-		}
-		elseif ( is_file( self::$sModeFile_EmailThrottled ) || ( $this->nEmailThrottleCount >= $this->getThrottleLimit() ) ) {
-			$this->setThrottledFile( true );
-		}
-		else {
-			$this->nEmailThrottleCount++;
-		}
 		return true;
 	}
 
+	/**
+	 * @param bool $infOn
+	 * @deprecated 8.6.2
+	 */
 	public function setThrottledFile( $infOn = false ) {
-
-		$this->bEmailIsThrottled = $infOn;
-
-		if ( $infOn && !is_file( self::$sModeFile_EmailThrottled ) && function_exists( 'touch' ) ) {
-			@touch( self::$sModeFile_EmailThrottled );
-		}
-		elseif ( !$infOn && is_file( self::$sModeFile_EmailThrottled ) ) {
-			@unlink( self::$sModeFile_EmailThrottled );
-		}
 	}
 
 	/**
@@ -256,10 +208,11 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 		return Services::Data()->validEmail( $sEmail ) ? $sEmail : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
+
+	/**
+	 * @deprecated 8.6.2
+	 */
 	public function getThrottleLimit() {
-		if ( empty( $this->nEmailThrottleLimit ) ) {
-			$this->nEmailThrottleLimit = $this->getOption( 'send_email_throttle_limit' );
-		}
-		return $this->nEmailThrottleLimit;
+		return 0;
 	}
 }

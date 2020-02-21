@@ -6,28 +6,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor {
 
 	/**
-	 * @var bool
-	 */
-	protected $bDoForceRunAutoupdates = false;
-
-	/**
 	 * @var array
 	 */
 	private $aAssetsVersions = [];
-
-	/**
-	 * @param bool $bDoForceRun
-	 */
-	public function setForceRunAutoupdates( $bDoForceRun ) {
-		$this->bDoForceRunAutoupdates = $bDoForceRun;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIfForceRunAutoupdates() {
-		return apply_filters( $this->getMod()->prefix( 'force_autoupdate' ), $this->bDoForceRunAutoupdates );
-	}
 
 	/**
 	 * The allow_* core filters are run first in a "should_update" query. Then comes the "auto_update_core"
@@ -47,14 +28,9 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			add_filter( 'allow_major_auto_core_updates', [ $this, 'autoupdate_core_major' ], $nPriority );
 		}
 
-		add_filter( 'auto_update_translation', [ $this, 'autoupdate_translations' ], $nPriority, 1 );
 		add_filter( 'auto_update_plugin', [ $this, 'autoupdate_plugins' ], $nPriority, 2 );
 		add_filter( 'auto_update_theme', [ $this, 'autoupdate_themes' ], $nPriority, 2 );
 		add_filter( 'auto_update_core', [ $this, 'autoupdate_core' ], $nPriority, 2 );
-
-		if ( $oOpts->isOpt( 'enable_autoupdate_ignore_vcs', 'Y' ) ) {
-			add_filter( 'automatic_updates_is_vcs_checkout', '__return_false', $nPriority );
-		}
 
 		if ( !$oOpts->isDisableAllAutoUpdates() ) {
 			//more parameter options here for later
@@ -82,9 +58,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isDisableAllAutoUpdates() ) {
 			$this->disableAllAutoUpdates();
-		}
-		else {
-			$this->forceRunAutoUpdates();
 		}
 	}
 
@@ -194,15 +167,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * Will force-run the WordPress automatic updates process and then redirect to the updates screen.
-	 */
-	private function forceRunAutoUpdates() {
-		if ( $this->getIfForceRunAutoupdates() ) {
-			Services::WpGeneral()->doForceRunAutomaticUpdates();
-		}
-	}
-
-	/**
 	 * This is a filter method designed to say whether a major core WordPress upgrade should be permitted,
 	 * based on the plugin settings.
 	 * @param bool $bUpdate
@@ -239,16 +203,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			$bUpdate = !$oOpts->isAutoUpdateCoreNever();
 		}
 		return $bUpdate;
-	}
-
-	/**
-	 * This is a filter method designed to say whether a WordPress translations upgrades should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $bUpdate
-	 * @return bool
-	 */
-	public function autoupdate_translations( $bUpdate ) {
-		return $this->getOptions()->isOpt( 'enable_autoupdate_translations', 'Y' );
 	}
 
 	/**
@@ -399,7 +353,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 * @return array
 	 */
 	public function autoupdate_email_override( $aEmailParams ) {
-		$sOverride = $this->getOption( 'override_email_address', '' );
+		$sOverride = $this->getOptions()->getOpt( 'override_email_address', '' );
 		if ( Services::Data()->validEmail( $sOverride ) ) {
 			$aEmailParams[ 'to' ] = $sOverride;
 		}
@@ -470,7 +424,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 		// Are there really updates?
 		$bReallyUpdates = false;
 
-		$aEmailContent = [
+		$aBody = [
 			sprintf(
 				__( 'This is a quick notification from the %s that WordPress Automatic Updates just completed on your site with the following results.', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName()
@@ -501,7 +455,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 
 			if ( $bHasPluginUpdates ) {
 				$bReallyUpdates = true;
-				$aEmailContent = array_merge( $aEmailContent, $aTempContent );
+				$aBody = array_merge( $aBody, $aTempContent );
 			}
 		}
 
@@ -526,7 +480,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 
 			if ( $bHasThemesUpdates ) {
 				$bReallyUpdates = true;
-				$aEmailContent = array_merge( $aEmailContent, $aTempContent );
+				$aBody = array_merge( $aBody, $aTempContent );
 			}
 		}
 
@@ -543,7 +497,7 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 
 			if ( $bHasCoreUpdates ) {
 				$bReallyUpdates = true;
-				$aEmailContent = array_merge( $aEmailContent, $aTempContent );
+				$aBody = array_merge( $aBody, $aTempContent );
 			}
 		}
 
@@ -551,11 +505,11 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			return;
 		}
 
-		$aEmailContent[] = __( 'Thank you.', 'wp-simple-firewall' );
+		$aBody[] = __( 'Thank you.', 'wp-simple-firewall' );
 
 		$sTitle = sprintf( __( "Notice: %s", 'wp-simple-firewall' ), __( "Automatic Updates Completed", 'wp-simple-firewall' ) );
 		$this->getEmailProcessor()
-			 ->sendEmailWithWrap( $this->getOption( 'override_email_address' ), $sTitle, $aEmailContent );
+			 ->sendEmailWithWrap( $this->getOptions()->getOpt( 'override_email_address' ), $sTitle, $aBody );
 		die();
 	}
 
@@ -603,5 +557,22 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	 */
 	protected function getHookPriority() {
 		return $this->getOptions()->getDef( 'action_hook_priority' );
+	}
+
+	/**
+	 * This is a filter method designed to say whether a WordPress translations upgrades should be permitted,
+	 * based on the plugin settings.
+	 * @param bool $bUpdate
+	 * @return bool
+	 * @deprecated 8.6.2
+	 */
+	public function autoupdate_translations( $bUpdate ) {
+		return $bUpdate;
+	}
+
+	/**
+	 * @deprecated 8.6.2
+	 */
+	private function forceRunAutoUpdates() {
 	}
 }

@@ -1,26 +1,28 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\WhiteLabel;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * Class ICWP_WPSF_Processor_AdminAccess_Whitelabel
- * @deprecated 8.6.2
- */
-class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\ShieldProcessor {
+class ApplyLabels {
+
+	use ModConsumer;
 
 	/**
 	 */
 	public function run() {
 		$oCon = $this->getCon();
+		add_action( 'init', [ $this, 'onWpInit' ] );
 		add_filter( $oCon->prefix( 'is_relabelled' ), '__return_true' );
-		add_filter( $oCon->prefix( 'plugin_labels' ), [ $this, 'doRelabelPlugin' ] );
-		add_filter( 'plugin_row_meta', [ $this, 'fRemoveDetailsMetaLink' ], 200, 2 );
+		add_filter( $oCon->prefix( 'plugin_labels' ), [ $this, 'applyPluginLabels' ] );
+		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 		add_action( 'admin_print_footer_scripts-plugin-editor.php', [ $this, 'hideFromPluginEditor' ] );
 	}
 
 	public function onWpInit() {
-		/** @var Modules\SecurityAdmin\Options $oOpts */
+		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isWlHideUpdates() && $this->isNeedToHideUpdates() && !$this->getCon()->isPluginAdmin() ) {
 			$this->hideUpdates();
@@ -66,11 +68,11 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\Shie
 	 * @param array $aPluginLabels
 	 * @return array
 	 */
-	public function doRelabelPlugin( $aPluginLabels ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
+	public function applyPluginLabels( $aPluginLabels ) {
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		$oMod = $this->getMod();
 
-		$aWhiteLabels = $oFO->getWhitelabelOptions();
+		$aWhiteLabels = $oMod->getWhitelabelOptions();
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
 		$sServiceName = $aWhiteLabels[ 'name_main' ];
@@ -111,7 +113,7 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\Shie
 	 * @param string $sPluginBaseFileName
 	 * @return array
 	 */
-	public function fRemoveDetailsMetaLink( $aPluginMeta, $sPluginBaseFileName ) {
+	public function removePluginMetaLinks( $aPluginMeta, $sPluginBaseFileName ) {
 		if ( $sPluginBaseFileName == $this->getCon()->getPluginBaseFile() ) {
 			unset( $aPluginMeta[ 2 ] ); // View details
 			unset( $aPluginMeta[ 3 ] ); // Rate 5*
@@ -121,8 +123,8 @@ class ICWP_WPSF_Processor_AdminAccess_Whitelabel extends Modules\BaseShield\Shie
 
 	/**
 	 * Hides the update if the page loaded is the plugins page or the updates page.
-	 * @param stdClass $oPlugins
-	 * @return stdClass
+	 * @param \stdClass $oPlugins
+	 * @return \stdClass
 	 */
 	public function hidePluginUpdatesFromUI( $oPlugins ) {
 		$sFile = $this->getCon()->getPluginBaseFile();

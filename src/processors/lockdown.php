@@ -13,7 +13,7 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 			$this->blockFileEditing();
 		}
 
-		$sWpVersionMask = $this->getOption( 'mask_wordpress_version' );
+		$sWpVersionMask = $this->getOptions()->getOpt( 'mask_wordpress_version' );
 		if ( !empty( $sWpVersionMask ) ) {
 			global $wp_version;
 			$wp_version = $sWpVersionMask;

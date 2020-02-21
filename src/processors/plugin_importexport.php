@@ -84,24 +84,24 @@ class ICWP_WPSF_Processor_Plugin_ImportExport extends Shield\Modules\BaseShield\
 	 * @return string
 	 */
 	private function createExportFileDownloadLink() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		$aActionNonce = $oFO->getNonceActionData( 'export_file_download' );
-		return add_query_arg( $aActionNonce, $oFO->getUrl_AdminPage() );
+		return add_query_arg(
+			$this->getMod()->getNonceActionData( 'export_file_download' ),
+			$this->getMod()->getUrl_AdminPage()
+		);
 	}
 
 	public function runWhitelistNotify() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 		$oHttpReq = Services::HttpRequest();
 
-		if ( $oFO->hasImportExportWhitelistSites() ) {
+		if ( $oMod->hasImportExportWhitelistSites() ) {
 
 			$aQuery = [
 				'blocking' => false,
 				'body'     => [ 'shield_action' => 'importexport_updatenotified' ]
 			];
-			foreach ( $oFO->getImportExportWhitelist() as $sUrl ) {
+			foreach ( $oMod->getImportExportWhitelist() as $sUrl ) {
 				$oHttpReq->get( $sUrl, $aQuery );
 			}
 
