@@ -1631,7 +1631,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return bool
 	 */
 	public function isPremiumActive() {
-		return $this->getModule_License()->hasValidWorkingLicense();
+		return $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
 	/**

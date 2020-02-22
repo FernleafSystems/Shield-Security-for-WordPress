@@ -9,5 +9,4 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\License;
  */
 class EddLicenseVO extends \FernleafSystems\Wordpress\Services\Utilities\Licenses\EddLicenseVO {
 
-	use \FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 }
