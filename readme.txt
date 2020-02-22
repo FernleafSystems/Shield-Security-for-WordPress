@@ -377,6 +377,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(v.2)**  IMPROVED:	The Traffic Log Viewer can now be displayed even if it's disabled.
 * **(v.2)**  REMOVED:	2 options from the Automatic Updates module have been removed, that influenced translations and version control.
 * **(v.2)**  IMPROVED:	Some minor improvements and optimisations.
+* **(v.2)**  IMPROVED:	Adjusted how Shield stores temporary WP options to prevent duplicates.
 * **(v.2)**  FIXED:		Login backup-code wasn't always reset after it was used.
 * **(v.2)**  FIXED:		IP address wasn't blocked even after committing an offense in 1 particular scenario.
 

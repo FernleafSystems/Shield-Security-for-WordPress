@@ -1015,7 +1015,9 @@ class Options {
 	 * @return string
 	 */
 	private function getConfigStorageKey() {
-		return 'shield_mod_config_'.md5( $this->getPathToConfig() );
+		return 'shield_mod_config_'.md5(
+				str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $this->getPathToConfig() ) )
+			);
 	}
 
 	/**
