@@ -56,16 +56,10 @@ class LicenseHandler {
 	}
 
 	/**
-	 * @param string $sDeactivatedReason
 	 */
-	public function deactivate( $sDeactivatedReason = '' ) {
-		$oOpts = $this->getOptions();
+	public function deactivate() {
 		if ( $this->isLicenseActive() ) {
-			$oOpts->setOptAt( 'license_deactivated_at' );
-		}
-
-		if ( !empty( $sDeactivatedReason ) ) {
-			$oOpts->setOpt( 'license_deactivated_reason', $sDeactivatedReason );
+			$this->getOptions()->setOptAt( 'license_deactivated_at' );
 		}
 		// force all options to resave i.e. reset premium to defaults.
 		add_filter( $this->getCon()->prefix( 'force_options_resave' ), '__return_true' );

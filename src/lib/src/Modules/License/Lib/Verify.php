@@ -47,7 +47,8 @@ class Verify {
 				$oMod->clearLastErrors();
 				$oCon->fireEvent( 'lic_check_success' );
 			}
-			elseif ( $oCurrent->isValid() ) { // we have something valid previously stored
+			elseif ( $oCurrent->isValid() ) {
+				// we have something valid previously stored
 
 				if ( !$this->isForceCheck() && $oHandler->isWithinVerifiedGraceExpired() ) {
 					$oHandler->sendLicenseWarningEmail();
@@ -55,7 +56,7 @@ class Verify {
 				}
 				elseif ( $this->isForceCheck() || $oCurrent->isExpired() || $oHandler->isLastVerifiedGraceExpired() ) {
 					$oCurrent = $oLookupLicense;
-					$oHandler->deactivate( __( 'Automatic license verification failed.', 'wp-simple-firewall' ) );
+					$oHandler->deactivate();
 					$oHandler->sendLicenseDeactivatedEmail();
 					$oCon->fireEvent( 'lic_fail_deactivate' );
 				}
