@@ -53,7 +53,9 @@ class Verify {
 				 *
 				 * We don't remove the license yet, but we warn the user
 				 */
-				$oHandler->sendLicenseWarningEmail();
+				( new LicenseEmails() )
+					->setMod( $oMod )
+					->sendLicenseWarningEmail();
 			}
 		}
 
