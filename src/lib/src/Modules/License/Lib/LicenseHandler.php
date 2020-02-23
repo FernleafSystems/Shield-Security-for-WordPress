@@ -59,7 +59,10 @@ class LicenseHandler {
 	 */
 	public function deactivate() {
 		if ( $this->isLicenseActive() ) {
+			$this->clearLicense();
 			$this->getOptions()->setOptAt( 'license_deactivated_at' );
+			$this->sendLicenseDeactivatedEmail();
+			$this->getCon()->fireEvent( 'lic_fail_deactivate' );
 		}
 		// force all options to resave i.e. reset premium to defaults.
 		add_filter( $this->getCon()->prefix( 'force_options_resave' ), '__return_true' );
@@ -106,6 +109,28 @@ class LicenseHandler {
 		return $this->isLastVerifiedExpired() && !$this->isLastVerifiedGraceExpired();
 	}
 
+	/**
+	 * Use the grace period (currently 3 days) to adjust when the license registration
+	 * expires on this site. We consider a registration as expired if the last verified
+	 * date is past, or the actual license is expired - whichever happens earlier -
+	 * plus the grace period.
+	 * @return int
+	 */
+	public function getRegistrationExpiresAt() {
+		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
+		$oMod = $this->getMod();
+		$oOpts = $this->getOptions();
+
+		$nVerifiedExpiredDays = $oOpts->getDef( 'lic_verify_expire_days' )
+								+ $oOpts->getDef( 'lic_verify_expire_grace_days' );
+
+		$oLic = $oMod->getLicenseHandler()->getLicense();
+		return (int)min(
+			$oLic->getExpiresAt() + $oOpts->getDef( 'lic_verify_expire_grace_days' )*DAY_IN_SECONDS,
+			$oLic->last_verified_at + $nVerifiedExpiredDays*DAY_IN_SECONDS
+		);
+	}
+
 	public function sendLicenseWarningEmail() {
 		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
 		$oMod = $this->getMod();
@@ -130,6 +155,7 @@ class LicenseHandler {
 					 'Pro License Check Has Failed',
 					 $aMessage
 				 );
+			$this->getCon()->fireEvent( 'lic_fail_email' );
 		}
 	}
 
@@ -167,10 +193,61 @@ class LicenseHandler {
 	 * @return $this
 	 */
 	public function verify( $bForceCheck = true ) {
-		( new Verify() )
-			->setMod( $this->getMod() )
-			->setForceCheck( $bForceCheck )
-			->run();
+		$bCheckRequired = $this->isLicenseCheckRequired() && $this->canLicenseCheck();
+		if ( $bForceCheck || $bCheckRequired ) {
+			( new Verify() )
+				->setMod( $this->getMod() )
+				->run();
+		}
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function canLicenseCheck() {
+		return !in_array( $this->getCon()->getShieldAction(), [ 'keyless_handshake', 'license_check' ] )
+			   && $this->getIsLicenseNotCheckedFor( 20 )
+			   && $this->canLicenseCheck_FileFlag();
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isLicenseCheckRequired() {
+		return ( $this->isLicenseMaybeExpiring() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) )
+			   || ( $this->isLicenseActive()
+					&& !$this->getLicense()->isReady() && $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS ) )
+			   || ( $this->hasValidWorkingLicense() && $this->isLastVerifiedExpired()
+					&& $this->getIsLicenseNotCheckedFor( HOUR_IN_SECONDS*4 ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isLicenseMaybeExpiring() {
+		return $this->isLicenseActive() &&
+			   (
+				   abs( Services::Request()->ts() - $this->getLicense()->getExpiresAt() )
+				   < ( DAY_IN_SECONDS/2 )
+			   );
+	}
+
+	/**
+	 * @param int $nTimePeriod
+	 * @return bool
+	 */
+	private function getIsLicenseNotCheckedFor( $nTimePeriod ) {
+		return $this->getLicenseNotCheckedForInterval() > $nTimePeriod;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function canLicenseCheck_FileFlag() {
+		$oFs = Services::WpFs();
+		$sFileFlag = $this->getCon()->getPath_Flags( 'license_check' );
+		$nMtime = $oFs->exists( $sFileFlag ) ? $oFs->getModifiedTime( $sFileFlag ) : 0;
+		return ( Services::Request()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
 	}
 }
