@@ -84,7 +84,6 @@ class LicenseHandler {
 	}
 
 	/**
-	 * Expires in 3 days.
 	 * @return bool
 	 */
 	public function isLastVerifiedExpired() {
