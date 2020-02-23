@@ -71,7 +71,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		if ( $sLicenseAction == 'clear' ) {
 			$bSuccess = true;
-			$sHandler->deactivate( 'cleared' );
+			$sHandler->deactivate();
 			$sHandler->clearLicense();
 			$sMessage = __( 'Success', 'wp-simple-firewall' ).'! '
 						.__( 'Reloading page', 'wp-simple-firewall' ).'...';

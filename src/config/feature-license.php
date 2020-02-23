@@ -53,13 +53,6 @@
       "default":      0
     },
     {
-      "key":          "license_deactivated_reason",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "last_warning_email_sent_at",
       "section":      "section_non_ui",
       "transferable": false,
