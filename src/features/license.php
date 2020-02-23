@@ -61,12 +61,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'license_expires' => $sExpiresAt,
 			'license_email'   => $oCurrent->customer_email,
 			'last_checked'    => $sChecked,
+			'installation_id' => $oCon->getSiteInstallationId(),
 			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		];
 		return [
 			'vars'    => [
 				'license_table'  => $aLicenseTableVars,
-				'activation_url' => $oWp->getHomeUrl()
+				'activation_url' => $oWp->getHomeUrl(),
 			],
 			'inputs'  => [
 				'license_key' => [
