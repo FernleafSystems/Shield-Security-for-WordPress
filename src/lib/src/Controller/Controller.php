@@ -1635,14 +1635,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return string
-	 * @deprecated 8.6.2
-	 */
-	public function getPremiumLicenseFilterName() {
-		return $this->prefix( 'license_is_valid'.$this->getUniqueRequestId( false ) );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isRelabelled() {

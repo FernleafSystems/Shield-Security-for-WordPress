@@ -1186,12 +1186,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @deprecated 8.6.2
-	 */
-	protected function handleModRequest() {
-	}
-
-	/**
 	 * @throws \Exception
 	 */
 	public function saveOptionsSubmit() {

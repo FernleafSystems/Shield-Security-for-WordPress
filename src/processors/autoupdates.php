@@ -558,21 +558,4 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	protected function getHookPriority() {
 		return $this->getOptions()->getDef( 'action_hook_priority' );
 	}
-
-	/**
-	 * This is a filter method designed to say whether a WordPress translations upgrades should be permitted,
-	 * based on the plugin settings.
-	 * @param bool $bUpdate
-	 * @return bool
-	 * @deprecated 8.6.2
-	 */
-	public function autoupdate_translations( $bUpdate ) {
-		return $bUpdate;
-	}
-
-	/**
-	 * @deprecated 8.6.2
-	 */
-	private function forceRunAutoUpdates() {
-	}
 }
