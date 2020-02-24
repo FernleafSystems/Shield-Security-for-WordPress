@@ -28,14 +28,17 @@ class LicenseHandler {
 	}
 
 	/**
+	 * @param bool $bSendEmail
 	 */
-	public function deactivate() {
+	public function deactivate( $bSendEmail = true ) {
 		if ( $this->isActive() ) {
 			$this->clearLicense();
 			$this->getOptions()->setOptAt( 'license_deactivated_at' );
-			( new LicenseEmails() )
-				->setMod( $this->getMod() )
-				->sendLicenseDeactivatedEmail();
+			if ( $bSendEmail ) {
+				( new LicenseEmails() )
+					->setMod( $this->getMod() )
+					->sendLicenseDeactivatedEmail();
+			}
 			$this->getCon()->fireEvent( 'lic_fail_deactivate' );
 		}
 		// force all options to resave i.e. reset premium to defaults.

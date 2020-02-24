@@ -285,7 +285,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @deprecated 8.6.2
 	 */
 	public function isLicenseActive() {
-		return false;
+		return $this->getLicenseHandler()->isActive();
 	}
 
 	/**
@@ -304,7 +304,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * Expires in 3 days.
 	 * @return bool
 	 * @deprecated 8.6.2
 	 */

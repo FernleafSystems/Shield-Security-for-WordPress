@@ -29,7 +29,7 @@ class Verify {
 		if ( $oLookupLicense->isValid() ) {
 			$oExisting = $oLookupLicense;
 			$oExisting->updateLastVerifiedAt( true );
-			if ( !$oHandler->isLicenseActive() ) {
+			if ( !$oHandler->isActive() ) {
 				$oOpts->setOptAt( 'license_activated_at' );
 			}
 			$oMod->clearLastErrors();
@@ -40,7 +40,7 @@ class Verify {
 			$oHandler->deactivate();
 			$oExisting = $oHandler->getLicense();
 		}
-		elseif ( $oExisting->isReady() ) { // Has a stored license.
+		elseif ( $oExisting->isReady() ) { // Has a stored license but license HTTP request failed
 
 			if ( Services::Request()->ts() > $oHandler->getRegistrationExpiresAt() ) {
 				$oHandler->deactivate();
@@ -57,6 +57,10 @@ class Verify {
 					->setMod( $oMod )
 					->sendLicenseWarningEmail();
 			}
+		}
+		else { // all else fails, clear any license details entirely
+			$oHandler->clearLicense();
+			$oExisting = $oHandler->getLicense();
 		}
 
 		$oExisting->last_request_at = Services::Request()->ts();
