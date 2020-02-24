@@ -24,6 +24,10 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 				$this->buildNotice_PluginDisabled( $oNotice );
 				break;
 
+			case 'wphashes-token-fail':
+				$this->buildNotice_WpHashesTokenFailure( $oNotice );
+				break;
+
 			case 'compat-sgoptimize':
 				$this->buildNotice_CompatSgOptimize( $oNotice );
 				break;
@@ -126,6 +130,31 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 			],
 			'hrefs'             => [
 				'jump_to_enable' => $this->getMod()->getUrl_DirectLinkToOption( 'global_enable_plugin_features' )
+			]
+		];
+	}
+
+	/**
+	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
+	 */
+	private function buildNotice_WpHashesTokenFailure( $oNotice ) {
+		$oNotice->render_data = [
+			'notice_attributes' => [],
+			'strings'           => [
+				'title'          => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+					sprintf( __( '%s API Token Missing', 'wp-simple-firewall' ), 'WPHashes.com' ) ),
+				'messages'        => [
+					__( "This site appears to be activated for PRO, but there's been a problem obtaining an API token for WPHashes.com.", 'wp-simple-firewall' ),
+					implode( ' ', [
+						__( 'The WPHashes API is used for many premium features including Malware scanning.', 'wp-simple-firewall' ),
+						__( 'Without a valid API Token, certain Premium features wont work as expected.', 'wp-simple-firewall' ),
+					] ),
+					__( "Please contact us in our support channel if this doesn't sound right, or upgrade to PRO.", 'wp-simple-firewall' ),
+				],
+				'jump_to_support' => __( 'Click to jump to the relevant option', 'wp-simple-firewall' )
+			],
+			'hrefs'             => [
+				'jump_to_support' => $this->getMod()->getUrl_DirectLinkToSection( 'global_enable_plugin_features' )
 			]
 		];
 	}
@@ -287,17 +316,24 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
+		$oCon = $this->getCon();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		switch ( $oNotice->id ) {
 
 			case 'override-forceoff':
-				$bNeeded = $this->getCon()->getIfForceOffActive();
+				$bNeeded = $oCon->getIfForceOffActive();
 				break;
 
 			case 'plugin-disabled':
 				$bNeeded = $oOpts->isPluginGloballyDisabled();
+				break;
+
+			case 'wphashes-token-fail':
+				$bNeeded = $oCon->isPremiumActive() && !$oMod->getWpHashesTokenManager()->hasToken();
 				break;
 
 			case 'compat-sgoptimize':

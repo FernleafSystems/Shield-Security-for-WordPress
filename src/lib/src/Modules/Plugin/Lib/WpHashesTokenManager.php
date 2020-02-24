@@ -15,12 +15,21 @@ class WpHashesTokenManager {
 	 */
 	private $bCanRequestOverride = false;
 
+	public function run() {
+		add_action( $this->getCon()->prefix( 'event' ), function ( $sEventTag ) {
+			if ( $sEventTag === 'lic_check_success' ) {
+				$this->setCanRequestOverride( true )
+					 ->getToken();
+			}
+		} );
+	}
+
 	/**
 	 * @return string
 	 */
 	public function getToken() {
 
-		if ( $this->getCon()->isPremiumActive() ) {
+		if ( $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid() ) {
 			$aT = $this->loadToken();
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$aT = $this->loadToken();
@@ -38,6 +47,21 @@ class WpHashesTokenManager {
 		}
 
 		return empty( $aT[ 'token' ] ) ? '' : $aT[ 'token' ];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasToken() {
+		$sTok = $this->getTheToken();
+		return strlen( $sTok ) == 40 && !$this->isExpired();
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getTheToken() {
+		return $this->loadToken()[ 'token' ];
 	}
 
 	/**
@@ -60,7 +84,10 @@ class WpHashesTokenManager {
 	 */
 	private function canRequestNewToken() {
 		return $this->getCanRequestOverride() ||
-			   Services::Request()->carbon()->subHour()->timestamp > $this->loadToken()[ 'attempt_at' ];
+			   (
+				   Services::Request()->carbon()->subHours( 6 )->timestamp > $this->loadToken()[ 'attempt_at' ]
+				   && $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
+			   );
 	}
 
 	/**
