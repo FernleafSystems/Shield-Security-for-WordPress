@@ -43,10 +43,12 @@
 				<table class="table table-hover table-sm mb-0">
 					<tbody>
 						{% for license_key, license_val in vars.license_table %}
-							<tr>
-								<th scope="row">{{ attribute(strings, license_key) }}:</th>
-								<td class="">{{ license_val|raw }}</td>
-							</tr>
+							{% if license_val is not empty %}
+								<tr>
+									<th scope="row">{{ attribute(strings, license_key) }}:</th>
+									<td class="">{{ license_val|raw }}</td>
+								</tr>
+							{% endif %}
 						{% endfor %}
 					</tbody>
 				</table>

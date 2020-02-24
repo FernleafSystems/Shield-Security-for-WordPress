@@ -53,13 +53,6 @@
       "default":      0
     },
     {
-      "key":          "license_deactivated_reason",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "last_warning_email_sent_at",
       "section":      "section_non_ui",
       "transferable": false,
@@ -89,7 +82,7 @@
       "default":      0
     },
     {
-      "key":          "keyless_request_hash",
+      "key":          "keyless_handshake_hash",
       "section":      "section_non_ui",
       "sensitive":    true,
       "transferable": false,
@@ -97,7 +90,7 @@
       "default":      ""
     },
     {
-      "key":          "keyless_request_at",
+      "key":          "keyless_handshake_until",
       "section":      "section_non_ui",
       "sensitive":    true,
       "transferable": false,
@@ -115,15 +108,13 @@
   ],
   "definitions": {
     "license_store_url":            "https://onedollarplugin.com/edd-sl/",
+    "license_store_url_api":        "https://onedollarplugin.com/wp-json/odp-eddkeyless/v1",
     "keyless_cp":                   "https://shsec.io/c5",
     "license_item_name":            "Shield Security Pro",
     "license_item_id":              "6047",
     "license_item_name_sc":         "Shield Security Pro (via Shield Central)",
-    "license_item_id_sc":           "968",
     "lic_verify_expire_days":       7,
     "lic_verify_expire_grace_days": 3,
-    "license_key_length":           32,
-    "license_key_type":             "alphanumeric",
     "keyless":                      true,
     "keyless_handshake_expire":     90,
     "events":                       {

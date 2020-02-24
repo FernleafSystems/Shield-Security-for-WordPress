@@ -144,10 +144,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @inheritDoc
 	 */
-	public function handleModRequest() {
-		$oReq = Services::Request();
-		switch ( $oReq->query( 'exec' ) ) {
+	protected function handleModAction( $sAction ) {
+		switch ( $sAction ) {
 			case  'remove_secadmin_confirm':
 				( new SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
 					->setMod( $this )

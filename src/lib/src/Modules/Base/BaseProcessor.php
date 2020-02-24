@@ -141,6 +141,7 @@ class BaseProcessor extends Deprecated\Foundation {
 	 * @param       $sOptionKey
 	 * @param mixed $mDefault
 	 * @return mixed
+	 * @deprecated 8.6.2 - leave for a while JIC.
 	 */
 	public function getOption( $sOptionKey, $mDefault = false ) {
 		return $this->getMod()->getOpt( $sOptionKey, $mDefault );

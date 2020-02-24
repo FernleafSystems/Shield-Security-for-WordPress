@@ -56,6 +56,7 @@ class Strings {
 				'actions_summary'   => __( 'Perform actions for this module', 'wp-simple-firewall' ),
 				'help_title'        => __( 'Help', 'wp-simple-firewall' ),
 				'help_summary'      => __( 'Learn More', 'wp-simple-firewall' ),
+				'installation_id'   => __( 'Installation ID', 'wp-simple-firewall' ),
 				'ip_address'        => __( 'IP Address', 'wp-simple-firewall' ),
 				'select'            => __( 'Select' ),
 				'filters_clear'     => __( 'Clear Filters', 'wp-simple-firewall' ),

@@ -465,7 +465,8 @@ class Controller extends Shield\Deprecated\Foundation {
 			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
 			Services::WpGeneral()->updateOption( $sOptKey, $sId );
 		}
-		return str_replace( $sUrl.':', '', $sId );
+
+		return strpos( $sId, ':' ) ? explode( ':', $sId, 2 )[ 1 ] : '';
 	}
 
 	/**
@@ -525,12 +526,11 @@ class Controller extends Shield\Deprecated\Foundation {
 		$sNonceAction = Services::Request()->request( 'exec' );
 		check_ajax_referer( $sNonceAction, 'exec_nonce' );
 
-		$sAction = Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction';
 		ob_start();
-		$aResponseData = apply_filters( $this->prefix( $sAction ), [] );
-		if ( empty( $aResponseData ) ) {
-			$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
-		}
+		$aResponseData = apply_filters(
+			$this->prefix( Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction' ),
+			[], $sNonceAction
+		);
 		$sNoise = ob_get_clean();
 
 		if ( is_array( $aResponseData ) && isset( $aResponseData[ 'success' ] ) ) {
@@ -1631,11 +1631,12 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return bool
 	 */
 	public function isPremiumActive() {
-		return apply_filters( $this->getPremiumLicenseFilterName(), false );
+		return $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
 	/**
 	 * @return string
+	 * @deprecated 8.6.2
 	 */
 	public function getPremiumLicenseFilterName() {
 		return $this->prefix( 'license_is_valid'.$this->getUniqueRequestId( false ) );

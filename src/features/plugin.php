@@ -118,9 +118,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @inheritDoc
 	 */
-	public function handleModRequest() {
-		switch ( Services::Request()->request( 'exec' ) ) {
+	protected function handleModAction( $sAction ) {
+		switch ( $sAction ) {
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );

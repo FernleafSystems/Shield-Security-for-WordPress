@@ -97,16 +97,22 @@ class MfaController {
 		}
 	}
 
+	/**
+	 * Deals with the scenario when the user session has a login intent.
+	 */
 	private function assessLoginIntent() {
 		$oUser = Services::WpUsers()->getCurrentWpUser();
 		if ( $oUser instanceof \WP_User && $this->hasLoginIntent() ) {
 
-			if ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() ) {
-				$this->processActiveLoginIntent();
-			}
-			elseif ( $this->isSubjectToLoginIntent( $oUser ) ) {
-				Services::WpUsers()->logoutUser(); // clears the login and login intent
-				Services::Response()->redirectHere();
+			if ( $this->isSubjectToLoginIntent( $oUser ) ) {
+
+				if ( $this->getLoginIntentExpiresAt() > Services::Request()->ts() ) {
+					$this->processActiveLoginIntent();
+				}
+				else {
+					Services::WpUsers()->logoutUser(); // clears the login and login intent
+					Services::Response()->redirectHere();
+				}
 			}
 			else {
 				// This handles the case where an admin changes a setting while a user is logged-in
