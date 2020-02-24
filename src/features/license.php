@@ -61,12 +61,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'license_expires' => $sExpiresAt,
 			'license_email'   => $oCurrent->customer_email,
 			'last_checked'    => $sChecked,
+			'installation_id' => $oCon->getSiteInstallationId(),
 			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		];
 		return [
 			'vars'    => [
 				'license_table'  => $aLicenseTableVars,
-				'activation_url' => $oWp->getHomeUrl()
+				'activation_url' => $oWp->getHomeUrl(),
 			],
 			'inputs'  => [
 				'license_key' => [
@@ -284,7 +285,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @deprecated 8.6.2
 	 */
 	public function isLicenseActive() {
-		return false;
+		return $this->getLicenseHandler()->isActive();
 	}
 
 	/**
@@ -303,7 +304,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * Expires in 3 days.
 	 * @return bool
 	 * @deprecated 8.6.2
 	 */

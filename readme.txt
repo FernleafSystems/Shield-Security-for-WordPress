@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.6.1
+Stable tag: 8.6.2
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -374,7 +374,7 @@ You will always be able to use Shield Security and its free features in-full.
 *Released: 24th February, 2020* - [Release Notes](https://shsec.io/gl)
 
 * **(v.2)**  IMPROVED:	AJAX handling and general plugin requests have been refined to be less prone to errors.
-* **(v.2)**  IMPROVED:	The Traffic Log Viewer can now be displayed even if it's disabled.
+* **(v.2)**  IMPROVED:	The Traffic Log Viewer will now be displayed even if it's disabled.
 * **(v.2)**  REMOVED:	2 options from the Automatic Updates module have been removed, that influenced translations and version control.
 * **(v.2)**  IMPROVED:	Some minor improvements and optimisations.
 * **(v.2)**  IMPROVED:	Adjusted how Shield stores temporary WP options to prevent duplicates.
