@@ -17,9 +17,15 @@ class ApiTokenManager {
 
 	public function run() {
 		add_action( $this->getCon()->prefix( 'event' ), function ( $sEventTag ) {
-			if ( $sEventTag === 'lic_check_success' ) {
-				$this->setCanRequestOverride( true )
-					 ->getToken();
+			switch ( $sEventTag ) {
+				case 'lic_check_success':
+					$this->setCanRequestOverride( true )->getToken();
+					break;
+				case 'lic_fail_deactivate':
+					$this->storeToken( [] );
+					break;
+				default:
+					break;
 			}
 		} );
 	}
