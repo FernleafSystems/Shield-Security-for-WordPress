@@ -38,6 +38,11 @@ class Scan extends Shield\Scans\Base\BaseScan {
 	protected function scanItem( $sContext, $sFile ) {
 		$oResultsSet = new ResultsSet();
 
+		$sApiToken = $this->getCon()
+						  ->getModule_License()
+						  ->getWpHashesTokenManager()
+						  ->getToken();
+
 		if ( $sContext == 'plugins' ) {
 			$oWpPlugins = Services::WpPlugins();
 			$sSlug = $oWpPlugins->getSlug( $sFile );
@@ -45,12 +50,12 @@ class Scan extends Shield\Scans\Base\BaseScan {
 				$sSlug = dirname( $sFile );
 			}
 			$sVersion = $oWpPlugins->getPluginAsVo( $sFile )->Version;
-			$oLookup = new Vulnerabilities\Plugin();
+			$oLookup = new Vulnerabilities\Plugin( $sApiToken );
 		}
 		else {
 			$sSlug = $sFile;
 			$sVersion = Services::WpThemes()->getTheme( $sSlug )->get( 'Version' );
-			$oLookup = new Vulnerabilities\Theme();
+			$oLookup = new Vulnerabilities\Theme( $sApiToken );
 		}
 
 		$aVulns = $oLookup->getVulnerabilities( $sSlug, $sVersion );

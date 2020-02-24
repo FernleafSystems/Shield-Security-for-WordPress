@@ -42,11 +42,17 @@ class EmailValidate {
 				$sInvalidBecause = 'syntax';
 			}
 			else {
-				$aChecks = $oOpts->getEmailValidationChecks();
-				foreach ( ( new Email() )->getEmailVerification( $sEmail ) as $sValidation => $bIsValid ) {
-					if ( !$bIsValid && in_array( $sValidation, $aChecks ) ) {
-						$sInvalidBecause = $sValidation;
-						break;
+				$sApiToken = $this->getCon()
+								  ->getModule_License()
+								  ->getWpHashesTokenManager()
+								  ->getToken();
+				if ( !empty( $sApiToken ) ) {
+					$aChecks = $oOpts->getEmailValidationChecks();
+					foreach ( ( new Email( $sApiToken ) )->getEmailVerification( $sEmail ) as $sValidation => $bIsValid ) {
+						if ( !$bIsValid && in_array( $sValidation, $aChecks ) ) {
+							$sInvalidBecause = $sValidation;
+							break;
+						}
 					}
 				}
 			}

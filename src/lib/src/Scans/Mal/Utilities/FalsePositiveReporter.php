@@ -63,9 +63,15 @@ class FalsePositiveReporter {
 				sha1( Services::DataManipulation()->convertLineEndingsDosToLinux( $sFullPath ) ),
 				$bIsFalsePositive
 			] ) );
+
 			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
-				$bReported = ( new Malware\Whitelist\ReportFalsePositive() )
-					->report( $sFullPath, static::HASH_ALGO, $bIsFalsePositive );
+				$sApiToken = $this->getCon()
+								  ->getModule_License()
+								  ->getWpHashesTokenManager()
+								  ->getToken();
+				$bReported = !empty( $sApiToken ) &&
+							 ( new Malware\Whitelist\ReportFalsePositive( $sApiToken ) )
+								 ->report( $sFullPath, static::HASH_ALGO, $bIsFalsePositive );
 			}
 			$this->updateReportedCache( $sReportHash );
 		}
@@ -91,8 +97,12 @@ class FalsePositiveReporter {
 			$sReportHash = md5( $sFile.$sLine.( $bIsFalsePositive ? 'true' : 'false' ) );
 			if ( !$oOpts->isMalFalsePositiveReported( $sReportHash ) ) {
 				try {
-					if ( !$bIsFalsePositive || count( file( $sFile ) ) > 1 ) {
-						$bReported = ( new Malware\Signatures\ReportFalsePositive() )
+					$sApiToken = $this->getCon()
+									  ->getModule_License()
+									  ->getWpHashesTokenManager()
+									  ->getToken();
+					if ( !empty( $sApiToken ) && !$bIsFalsePositive || count( file( $sFile ) ) > 1 ) {
+						$bReported = ( new Malware\Signatures\ReportFalsePositive( $sApiToken ) )
 							->report( $sFile, $sLine, $bIsFalsePositive );
 					}
 				}
