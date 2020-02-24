@@ -190,9 +190,9 @@ class LicenseHandler {
 	 * @return bool
 	 */
 	private function canLicenseCheck_FileFlag() {
-		$oFs = Services::WpFs();
-		$sFileFlag = $this->getCon()->getPath_Flags( 'license_check' );
-		$nMtime = $oFs->exists( $sFileFlag ) ? $oFs->getModifiedTime( $sFileFlag ) : 0;
+		$nMtime = (int)Services::WpFs()->getModifiedTime(
+			$this->getCon()->getPath_Flags( 'license_check' )
+		);
 		return ( Services::Request()->ts() - $nMtime ) > MINUTE_IN_SECONDS;
 	}
 }
