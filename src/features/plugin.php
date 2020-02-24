@@ -7,21 +7,9 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	/**
-	 * @var Plugin\Lib\WpHashesTokenManager
-	 */
-	private $oWpHashesTokenManager;
-
 	protected function doPostConstruction() {
 		parent::doPostConstruction();
 		$this->setVisitorIpSource();
-	}
-
-	public function getWpHashesTokenManager() {
-		if ( !isset( $this->oWpHashesTokenManager ) ) {
-			$this->oWpHashesTokenManager = ( new Plugin\Lib\WpHashesTokenManager() )->setMod( $this );
-		}
-		return $this->oWpHashesTokenManager;
 	}
 
 	protected function setupCustomHooks() {
@@ -29,7 +17,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$oCon = $this->getCon();
 		add_filter( $oCon->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
 		add_filter( $oCon->prefix( 'google_recaptcha_config' ), [ $this, 'getGoogleRecaptchaConfig' ], 10, 0 );
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 		/* Enfold theme deletes all cookies except particular ones.
 		add_filter( 'avf_admin_keep_cookies', function ( $aCookiesToKeep ) use ( $oCon ) {
 			$aCookiesToKeep[] = $oCon->getPluginPrefix().'*';
@@ -79,13 +66,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * A action added to WordPress 'init' hook
-	 */
-	public function onWpLoaded() {
-		$this->getWpHashesTokenManager()->run();
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isDisplayPluginBadge() {
@@ -93,10 +73,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$oOpts = $this->getOptions();
 		return $oOpts->isOnFloatingPluginBadge()
 			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
-	}
-
-	public function runHourlyCron() {
-		$this->getWpHashesTokenManager()->getToken();
 	}
 
 	/**

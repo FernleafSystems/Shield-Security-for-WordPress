@@ -1,24 +1,40 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @var Shield\Modules\License\Lib\LicenseHandler
+	 * @var License\Lib\LicenseHandler
 	 */
 	private $oLicHandler;
 
 	/**
-	 * @return Shield\Modules\License\Lib\LicenseHandler
+	 * @var License\Lib\WpHashes\ApiTokenManager
+	 */
+	private $oWpHashesTokenManager;
+
+	/**
+	 * @return License\Lib\LicenseHandler
 	 */
 	public function getLicenseHandler() {
 		if ( !isset( $this->oLicHandler ) ) {
 			$this->oLicHandler = ( new Shield\Modules\License\Lib\LicenseHandler() )->setMod( $this );
 		}
 		return $this->oLicHandler;
+	}
+
+	/**
+	 * @return License\Lib\WpHashes\ApiTokenManager
+	 */
+	public function getWpHashesTokenManager() {
+		if ( !isset( $this->oWpHashesTokenManager ) ) {
+			$this->oWpHashesTokenManager = ( new Shield\Modules\License\Lib\WpHashes\ApiTokenManager() )->setMod( $this );
+		}
+		return $this->oWpHashesTokenManager;
 	}
 
 	/**
@@ -57,10 +73,12 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				$this->getDef( 'license_item_name_sc' ) :
 				$this->getDef( 'license_item_name' ),
 			'license_active'  => $this->getLicenseHandler()->hasValidWorkingLicense() ?
-				__( 'Yes', 'wp-simple-firewall' ) : __( 'Not Active', 'wp-simple-firewall' ),
+				__( '&#10004;', 'wp-simple-firewall' ) : __( '&#10006;', 'wp-simple-firewall' ),
 			'license_expires' => $sExpiresAt,
 			'license_email'   => $oCurrent->customer_email,
 			'last_checked'    => $sChecked,
+			'wphashes_token'  => $this->getWpHashesTokenManager()->hasToken() ?
+				__( '&#10004;', 'wp-simple-firewall' ) : __( '&#10006;', 'wp-simple-firewall' ),
 			'installation_id' => $oCon->getSiteInstallationId(),
 			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		];
@@ -101,6 +119,25 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			$this->getCon()->getModule_Insights()->getUrl_AdminPage(),
 			[ 'inav' => 'license' ]
 		);
+	}
+
+	public function runHourlyCron() {
+		$this->getWpHashesTokenManager()->getToken();
+	}
+
+	protected function setupCustomHooks() {
+		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
+	}
+
+	/**
+	 * @deprecated 8.6.2
+	 */
+	protected function updateHandler() {
+		$this->getWpHashesTokenManager()->getToken();
+	}
+
+	public function onWpLoaded() {
+		$this->getWpHashesTokenManager()->run();
 	}
 
 	/**

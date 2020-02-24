@@ -33,14 +33,6 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "wphashes-token-fail":          {
-      "id":               "wphashes-token-fail",
-      "schedule":         "conditions",
-      "valid_admin":      true,
-      "plugin_page_only": true,
-      "can_dismiss":      false,
-      "type":             "error"
-    },
     "compat-sgoptimize":          {
       "id":               "compat-sgoptimize",
       "schedule":         "conditions",
@@ -429,13 +421,6 @@
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
-    },
-    {
-      "key":          "wphashes_api_token",
-      "transferable": false,
-      "section":      "section_non_ui",
-      "type":         "array",
-      "default":      []
     }
   ],
   "definitions":   {
