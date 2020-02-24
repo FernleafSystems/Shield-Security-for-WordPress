@@ -1,6 +1,6 @@
 {
-  "slug":        "license",
-  "properties":  {
+  "slug":          "license",
+  "properties":    {
     "slug":                  "license",
     "name":                  "Pro Security",
     "menu_title":            "Go Pro!",
@@ -16,13 +16,23 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          true
   },
-  "sections":    [
+  "admin_notices": {
+    "wphashes-token-fail": {
+      "id":               "wphashes-token-fail",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "error"
+    }
+  },
+  "sections":      [
     {
       "slug":   "section_non_ui",
       "hidden": true
     }
   ],
-  "options":     [
+  "options":       [
     {
       "key":          "license_key",
       "section":      "section_non_ui",
@@ -104,9 +114,16 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "wphashes_api_token",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
-  "definitions": {
+  "definitions":   {
     "license_store_url":            "https://onedollarplugin.com/edd-sl/",
     "license_store_url_api":        "https://onedollarplugin.com/wp-json/odp-eddkeyless/v1",
     "keyless_cp":                   "https://shsec.io/c5",
@@ -118,14 +135,14 @@
     "keyless":                      true,
     "keyless_handshake_expire":     90,
     "events":                       {
-      "lic_check_success":         {
+      "lic_check_success":   {
         "stat": false
       },
       "lic_fail_email":      {
         "stat": false
       },
       "lic_fail_deactivate": {
-        "cat": 2,
+        "cat":  2,
         "stat": false
       }
     }

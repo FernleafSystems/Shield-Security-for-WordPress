@@ -32,9 +32,12 @@ class Patterns {
 		}
 
 		if ( empty( $oCacheDef->data ) ) {
-
+			$sApiToken = $this->getCon()
+							  ->getModule_License()
+							  ->getWpHashesTokenManager()
+							  ->getToken();
 			// First attempt to download from WP Hashes API.
-			$aPatts = ( new Malware\Patterns\Retrieve() )->getPatterns();
+			$aPatts = ( new Malware\Patterns\Retrieve( $sApiToken ) )->getPatterns();
 
 			// Fallback to original method
 			if ( !is_array( $aPatts ) || empty( $aPatts[ 'simple' ] ) || empty( $aPatts[ 'regex' ] ) ) {

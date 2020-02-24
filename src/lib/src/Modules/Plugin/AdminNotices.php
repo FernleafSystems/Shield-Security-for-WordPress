@@ -287,13 +287,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
+		$oCon = $this->getCon();
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		switch ( $oNotice->id ) {
 
 			case 'override-forceoff':
-				$bNeeded = $this->getCon()->getIfForceOffActive();
+				$bNeeded = $oCon->getIfForceOffActive();
 				break;
 
 			case 'plugin-disabled':

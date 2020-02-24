@@ -46,8 +46,11 @@ class FalsePositiveQuery {
 		/** @var Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-
-			$aData = ( new Malware\Confidence\Retrieve() )->retrieveForFile( $sFullPath );
+			$sApiToken = $this->getCon()
+							  ->getModule_License()
+							  ->getWpHashesTokenManager()
+							  ->getToken();
+			$aData = ( new Malware\Confidence\Retrieve( $sApiToken ) )->retrieveForFile( $sFullPath );
 			if ( isset( $aData[ 'score' ] ) ) {
 				$nFpConfidence = (int)$aData[ 'score' ];
 			}
@@ -66,9 +69,12 @@ class FalsePositiveQuery {
 		/** @var Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isMalUseNetworkIntelligence() ) {
-
+			$sApiToken = $this->getCon()
+							  ->getModule_License()
+							  ->getWpHashesTokenManager()
+							  ->getToken();
 			try {
-				$aData = ( new Malware\Confidence\Retrieve() )->retrieveForFileLine( $sFile, $sLine );
+				$aData = ( new Malware\Confidence\Retrieve( $sApiToken ) )->retrieveForFileLine( $sFile, $sLine );
 				if ( isset( $aData[ 'score' ] ) ) {
 					$nFpConfidence = (int)$aData[ 'score' ];
 				}

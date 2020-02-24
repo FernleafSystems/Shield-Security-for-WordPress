@@ -33,6 +33,7 @@ class Verify {
 				$oOpts->setOptAt( 'license_activated_at' );
 			}
 			$oMod->clearLastErrors();
+			$oOpts->setOpt( 'license_data', $oExisting->getRawDataAsArray() ); // need to do this before event
 			$oCon->fireEvent( 'lic_check_success' );
 		}
 		elseif ( $oLookupLicense->isReady() ) {

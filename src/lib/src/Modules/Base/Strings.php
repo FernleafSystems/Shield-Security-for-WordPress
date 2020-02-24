@@ -97,6 +97,8 @@ class Strings {
 				'get_pro_protection' => __( 'Upgrade To Pro Protection', 'wp-simple-firewall' ),
 
 				'page_title' => 'Twig Page',
+
+				'wphashes_token' => 'WPHashes.com API Token',
 			],
 			$this->getAdditionalDisplayStrings()
 		);
