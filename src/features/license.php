@@ -128,13 +128,6 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 
-	/**
-	 * @deprecated 8.6.2
-	 */
-	protected function updateHandler() {
-		$this->getWpHashesTokenManager()->getToken();
-	}
-
 	public function onWpLoaded() {
 		$this->getWpHashesTokenManager()->run();
 	}
