@@ -35,7 +35,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$sNavSection = $oReq->query( 'inav', 'overview' );
 		$sSubNavSection = $oReq->query( 'subnav' );
 
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
 		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
 		$oTrafficSelector = $oTrafficMod->getDbHandler_Traffic()->getQuerySelector();
