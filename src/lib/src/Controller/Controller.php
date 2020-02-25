@@ -457,16 +457,28 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getSiteInstallationId( $bRebuildIfRequired = false ) {
 		$sOptKey = $this->prefixOption( 'install_id' );
-		$sId = (string)Services::WpGeneral()->getOption( $sOptKey );
+		$aID = Services::WpGeneral()->getOption( $sOptKey );
 
-		$sUrl = base64_encode( Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ) );
-		if ( $bRebuildIfRequired &&
-			 ( empty( $sId ) || strpos( $sId, ':' ) === false || strpos( $sId, $sUrl ) !== 0 ) ) {
-			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
-			Services::WpGeneral()->updateOption( $sOptKey, $sId );
+		$aPossibleUniqs = [
+			'url'    => Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ),
+			'server' => Services::Data()->getServerHash(),
+		];
+
+		if ( !is_array( $aID ) ) {
+			$aID = [
+				'uniqs' => $aPossibleUniqs,
+				'id'    => ( is_string( $aID ) && strpos( $aID, ':' ) ) ? explode( ':', $aID, 2 )[ 1 ] : ''
+			];
 		}
 
-		return strpos( $sId, ':' ) ? explode( ':', $sId, 2 )[ 1 ] : '';
+		if ( empty( $aID[ 'id' ] ) || empty( $aID[ 'uniqs' ] ) ||
+			 ( $bRebuildIfRequired && count( array_intersect( $aPossibleUniqs, $aID[ 'uniqs' ] ) ) === 0 ) ) {
+			$aID[ 'id' ] = sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
+			$aID[ 'uniqs' ] = $aPossibleUniqs;
+			Services::WpGeneral()->updateOption( $sOptKey, $aID );
+		}
+
+		return $aID[ 'id' ];
 	}
 
 	/**
