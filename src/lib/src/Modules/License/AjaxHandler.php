@@ -87,9 +87,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				);
 			}
 			else {
-				$bSuccess = $sHandler->verify( true )
-									 ->hasValidWorkingLicense();
-				$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
+				try {
+					$bSuccess = $sHandler->verify( true )
+										 ->hasValidWorkingLicense();
+					$sMessage = $bSuccess ? __( 'Valid license found.', 'wp-simple-firewall' ) : __( "Valid license couldn't be found.", 'wp-simple-firewall' );
+				}
+				catch ( \Exception $oE ) {
+					$sMessage = $oE->getMessage();
+				}
 			}
 		}
 

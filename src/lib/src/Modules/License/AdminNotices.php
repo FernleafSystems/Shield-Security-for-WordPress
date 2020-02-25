@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
@@ -28,7 +29,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		$oNotice->render_data = [
 			'notice_attributes' => [],
 			'strings'           => [
-				'title'          => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
+				'title'           => sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ),
 					sprintf( __( '%s API Token Missing', 'wp-simple-firewall' ), 'WPHashes.com' ) ),
 				'messages'        => [
 					__( "This site appears to be activated for PRO, but there's been a problem obtaining an API token for WPHashes.com.", 'wp-simple-firewall' ),
@@ -58,7 +59,8 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 		switch ( $oNotice->id ) {
 
 			case 'wphashes-token-fail':
-				$bNeeded = $oCon->isPremiumActive() && !$oMod->getWpHashesTokenManager()->hasToken();
+				$bNeeded = $oCon->isPremiumActive() && !$oMod->getWpHashesTokenManager()->hasToken()
+						   && ( Services::Request()->ts() > 1583712000 ); // @deprecated 8.6.3 i.e. remove it
 				break;
 
 			default:

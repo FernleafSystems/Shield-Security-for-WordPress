@@ -788,7 +788,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param string $sGlue
 	 * @return string|array
 	 */
-	public function getLastErrors( $bAsString = true, $sGlue = " " ) {
+	public function getLastErrors( $bAsString = false, $sGlue = " " ) {
 		$aErrors = $this->getOpt( 'last_errors' );
 		if ( !is_array( $aErrors ) ) {
 			$aErrors = [];

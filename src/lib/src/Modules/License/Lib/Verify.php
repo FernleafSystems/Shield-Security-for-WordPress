@@ -10,6 +10,9 @@ class Verify {
 
 	use ModConsumer;
 
+	/**
+	 * @throws \Exception
+	 */
 	public function run() {
 		$oCon = $this->getCon();
 		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
@@ -26,7 +29,10 @@ class Verify {
 			->setMod( $oMod )
 			->lookup();
 
+		$bSuccessfulApiRequest = false;
+
 		if ( $oLookupLicense->isValid() ) {
+			$bSuccessfulApiRequest = true;
 			$oExisting = $oLookupLicense;
 			$oExisting->updateLastVerifiedAt( true );
 			if ( !$oHandler->isActive() ) {
@@ -37,11 +43,16 @@ class Verify {
 			$oCon->fireEvent( 'lic_check_success' );
 		}
 		elseif ( $oLookupLicense->isReady() ) {
+			$bSuccessfulApiRequest = true;
 			// License lookup failed but request was successful - so use what we get
 			$oHandler->deactivate();
 			$oExisting = $oHandler->getLicense();
 		}
 		elseif ( $oExisting->isReady() ) { // Has a stored license but license HTTP request failed
+
+			$oMod->setLastErrors( [
+				__( 'The most recent request to verify the site license encountered a problem.', 'wp-simple-firewall' )
+			] );
 
 			if ( Services::Request()->ts() > $oHandler->getRegistrationExpiresAt() ) {
 				$oHandler->deactivate();
@@ -67,6 +78,10 @@ class Verify {
 		$oExisting->last_request_at = Services::Request()->ts();
 		$oOpts->setOpt( 'license_data', $oExisting->getRawDataAsArray() );
 		$this->getMod()->saveModOptions();
+
+		if ( !$bSuccessfulApiRequest ) {
+			throw new \Exception( 'License API HTTP Request Failed.' );
+		}
 	}
 
 	private function preVerify() {
