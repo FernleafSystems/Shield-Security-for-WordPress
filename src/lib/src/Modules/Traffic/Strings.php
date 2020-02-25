@@ -46,8 +46,8 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'section_traffic_limiter' :
-				$sTitle = __( 'Traffic Limiter', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Brute Force Traffic Limiter', 'wp-simple-firewall' );
+				$sTitle = __( 'Brute Force Traffic Rate Limiting', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Traffic Rate Limiting', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Prevents excessive requests from a single visitor.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), sprintf( __( 'This feature is only available while the Traffic Logger is active.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) ),
@@ -83,6 +83,12 @@ class Strings extends Base\Strings {
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
 				$sSummary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $sModName );
 				$sDescription = sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $sModName );
+				break;
+
+			case 'enable_logger' :
+				$sName = __( 'Enable Traffic Logger', 'wp-simple-firewall' );
+				$sSummary = __( 'Turn On The Traffic Logging Feature', 'wp-simple-firewall' );
+				$sDescription = __( 'Enable or disable the ability to log and monitor requests to your site', 'wp-simple-firewall' );
 				break;
 
 			case 'type_exclusions' :
@@ -123,7 +129,8 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Maximum Number Of Requests Allowed In Time Limit', 'wp-simple-firewall' );
 				$sDescription = __( 'The maximum number of requests that are allowed within the given request time limit.', 'wp-simple-firewall' )
 								.'<br/>'.__( 'Any visitor that exceeds this number of requests in the given time period will register an offense against their IP address.', 'wp-simple-firewall' )
-								.'<br/>'.__( 'Enough offenses will result in a ban of the IP address.', 'wp-simple-firewall' );
+								.'<br/>'.__( 'Enough offenses will result in a ban of the IP address.', 'wp-simple-firewall' )
+								.'<br/>'.__( 'Use a larger maximum request limit to reduce the risk of blocking legitimate visitors.', 'wp-simple-firewall' );
 				break;
 
 			case 'limit_time_span' :
@@ -134,7 +141,8 @@ class Strings extends Base\Strings {
 								.'<br/>'.sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
 						sprintf( __( 'Use %s to test for excessive requests within a %s minutes interval.', 'wp-simple-firewall' ), '<code>300</code>', 5 ) )
 								.'<br/>'.sprintf( '%s: %s', __( 'Example', 'wp-simple-firewall' ),
-						sprintf( __( 'Use %s to test for excessive requests within a %s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) );
+						sprintf( __( 'Use %s to test for excessive requests within a %s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) )
+								.'<br/>'.__( 'Use a smaller interval to reduce the risk of blocking legitimate visitors.', 'wp-simple-firewall' );
 				break;
 
 			case 'auto_disable' :

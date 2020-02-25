@@ -24,11 +24,11 @@ class TestIp {
 		$oMod = $this->getMod();
 		/** @var Shield\Modules\Traffic\Options $oOpts */
 		$oOpts = $oMod->getOptions();
-		/** @var Traffic\Select $oSel */
-		$oSel = $oMod->getDbHandler_Traffic()->getQuerySelector();
 
 		$oNow = Services::Request()->carbon();
 
+		/** @var Traffic\Select $oSel */
+		$oSel = $oMod->getDbHandler_Traffic()->getQuerySelector();
 		$nCount = $oSel->filterByIp( inet_pton( $sHumanIp ) )
 					   ->filterByCreatedAt( $oNow->subSeconds( $oOpts->getLimitTimeSpan() )->timestamp, '>' )
 					   ->count();

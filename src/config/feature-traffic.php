@@ -67,6 +67,17 @@
       "description": "Un-Checking this option will completely disable the Traffic Watch module."
     },
     {
+      "key":         "enable_logger",
+      "section":     "section_traffic_options",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Enable Traffic Logger",
+      "summary":     "Turn On The Traffic Logging Feature",
+      "description": "Enable or disable the ability to log and monitor requests to your site."
+    },
+    {
       "key":           "type_exclusions",
       "section":       "section_traffic_options",
       "type":          "multiple_select",

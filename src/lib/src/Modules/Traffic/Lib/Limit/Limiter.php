@@ -23,14 +23,14 @@ class Limiter {
 	}
 
 	public function limit() {
-		/** @var Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
 		try {
-			$bAllowed = ( new TestIp() )
+			( new TestIp() )
 				->setMod( $this->getMod() )
 				->runTest( Services::IP()->getRequestIp() );
 		}
 		catch ( \Exception $oE ) {
+			/** @var Traffic\Options $oOpts */
+			$oOpts = $this->getOptions();
 			$this->getCon()->fireEvent(
 				'request_limit_exceeded',
 				[

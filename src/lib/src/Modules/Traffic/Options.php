@@ -68,7 +68,8 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isTrafficLoggerEnabled() {
-		return $this->isOpt( 'enable_traffic', 'Y' ) && $this->getMaxEntries() > 0 && $this->getAutoCleanDays() > 0;
+		return $this->isOpt( 'enable_traffic', 'Y' ) && $this->isOpt( 'enable_logger', 'Y' )
+			   && $this->getMaxEntries() > 0 && $this->getAutoCleanDays() > 0;
 	}
 
 	/**
