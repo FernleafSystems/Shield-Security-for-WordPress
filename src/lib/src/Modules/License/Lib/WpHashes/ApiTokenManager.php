@@ -1,17 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\WpHashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Token;
 
-/**
- * Class WpHashesTokenManager
- * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib
- * @deprecated 8.6.2
- */
-class WpHashesTokenManager {
+class ApiTokenManager {
 
 	use ModConsumer;
 
@@ -22,11 +17,25 @@ class WpHashesTokenManager {
 
 	public function run() {
 		add_action( $this->getCon()->prefix( 'event' ), function ( $sEventTag ) {
-			if ( $sEventTag === 'lic_check_success' ) {
-				$this->setCanRequestOverride( true )
-					 ->getToken();
+			switch ( $sEventTag ) {
+				case 'lic_check_success':
+					$this->setCanRequestOverride( true )->getToken();
+					break;
+				case 'lic_fail_deactivate':
+					$this->storeToken( [] );
+					break;
+				default:
+					break;
 			}
 		} );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasToken() {
+		$sTok = $this->getTheToken();
+		return strlen( $sTok ) == 40 && !$this->isExpired();
 	}
 
 	/**
@@ -52,6 +61,13 @@ class WpHashesTokenManager {
 		}
 
 		return empty( $aT[ 'token' ] ) ? '' : $aT[ 'token' ];
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getTheToken() {
+		return $this->loadToken()[ 'token' ];
 	}
 
 	/**

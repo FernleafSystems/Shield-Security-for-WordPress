@@ -75,12 +75,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
 	}
 
-	public function runHourlyCron() {
-		( new Plugin\Lib\WpHashesTokenManager() )
-			->setMod( $this )
-			->getToken();
-	}
-
 	/**
 	 * @param bool $bDisplay
 	 * @return $this

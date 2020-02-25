@@ -1,0 +1,7 @@
+{% extends "/notices/base-error.twig" %}
+
+{% block notice_body %}
+	{% for msg in strings.messages %}
+		<p>{{ msg }}</p>
+	{% endfor %}
+{% endblock %}

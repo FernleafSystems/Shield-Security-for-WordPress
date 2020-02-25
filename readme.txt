@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.3
-Stable tag: 8.6.2
+Stable tag: 8.6.3
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,16 +370,16 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.6.2 - Current Release =
-*Released: 24th February, 2020* - [Release Notes](https://shsec.io/gl)
+= 8.6.3 - Current Release =
+*Released: 25th February, 2020* - [Release Notes](https://shsec.io/gl)
 
-* **(v.2)**  IMPROVED:	AJAX handling and general plugin requests have been refined to be less prone to errors.
-* **(v.2)**  IMPROVED:	The Traffic Log Viewer will now be displayed even if it's disabled.
-* **(v.2)**  REMOVED:	2 options from the Automatic Updates module have been removed, that influenced translations and version control.
-* **(v.2)**  IMPROVED:	Some minor improvements and optimisations.
-* **(v.2)**  IMPROVED:	Adjusted how Shield stores temporary WP options to prevent duplicates.
-* **(v.2)**  FIXED:		Login backup-code wasn't always reset after it was used.
-* **(v.2)**  FIXED:		IP address wasn't blocked even after committing an offense in 1 particular scenario.
+* **(v.3)**  IMPROVED:	AJAX handling and general plugin requests have been refined to be less prone to errors.
+* **(v.3)**  IMPROVED:	The Traffic Log Viewer will now be displayed even if it's disabled.
+* **(v.3)**  REMOVED:	2 options from the Automatic Updates module have been removed, that influenced translations and version control.
+* **(v.3)**  IMPROVED:	Some minor improvements and optimisations.
+* **(v.3)**  IMPROVED:	Adjusted how Shield stores temporary WP options to prevent duplicates.
+* **(v.3)**  FIXED:		Login backup-code wasn't always reset after it was used.
+* **(v.3)**  FIXED:		IP address wasn't blocked even after committing an offense in 1 particular scenario.
 
 = 8.6 - Series =
 *Released: 19th February, 2020* - [Release Notes](https://shsec.io/gl)

@@ -23,6 +23,7 @@ class LicenseHandler {
 	 * @return $this
 	 */
 	public function clearLicense() {
+		$this->getMod()->clearLastErrors();
 		$this->getOptions()->setOpt( 'license_data', [] );
 		return $this;
 	}
@@ -167,10 +168,9 @@ class LicenseHandler {
 	}
 
 	/**
-	 * License check normally only happens when the verification_at expires (~3 days)
-	 * for a currently valid license.
 	 * @param bool $bForceCheck
 	 * @return $this
+	 * @throws \Exception
 	 */
 	public function verify( $bForceCheck = true ) {
 		if ( $bForceCheck || ( $this->isVerifyRequired() && $this->canCheck() ) ) {
