@@ -15,7 +15,11 @@ class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 		add_action( $oCon->prefix( 'adhoc_cron_license_check' ), function () {
 			/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
 			$oMod = $this->getMod();
-			$oMod->getLicenseHandler()->verify( true );
+			try {
+				$oMod->getLicenseHandler()->verify( true );
+			}
+			catch ( \Exception $oE ) {
+			}
 		} );
 
 		switch ( $oCon->getShieldAction() ) {

@@ -148,7 +148,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	public function onPluginShutdown() {
-		$this->getLicenseHandler()->verify( false );
+		try {
+			$this->getLicenseHandler()->verify( false );
+		}
+		catch ( Exception $oE ) {
+		}
 		parent::onPluginShutdown();
 	}
 
@@ -201,7 +205,11 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 * @deprecated 8.6.2
 	 */
 	public function verifyLicense( $bForceCheck = true ) {
-		$this->getLicenseHandler()->verify( $bForceCheck );
+		try {
+			$this->getLicenseHandler()->verify( $bForceCheck );
+		}
+		catch ( Exception $oE ) {
+		}
 		return $this;
 	}
 

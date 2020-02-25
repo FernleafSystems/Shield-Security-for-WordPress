@@ -27,7 +27,7 @@ class LookupRequest {
 			$oLook->lookup_url_stub = $oOpts->getDef( 'license_store_url_api' );
 			$oLook->item_id = $oOpts->getDef( 'license_item_id' );
 			$oLook->install_id = $oCon->getSiteInstallationId();
-			$oLook->check_url = $sUrl;
+			$oLook->url = $sUrl;
 			$oLook->nonce = $sPass;
 			$oLook->meta = [
 				'version_shield' => $oCon->getVersion(),
