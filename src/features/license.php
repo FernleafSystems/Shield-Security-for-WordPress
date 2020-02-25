@@ -77,15 +77,16 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 			'license_expires' => $sExpiresAt,
 			'license_email'   => $oCurrent->customer_email,
 			'last_checked'    => $sChecked,
+			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors( true ) : '',
 			'wphashes_token'  => $this->getWpHashesTokenManager()->hasToken() ?
 				__( '&#10004;', 'wp-simple-firewall' ) : __( '&#10006;', 'wp-simple-firewall' ),
 			'installation_id' => $oCon->getSiteInstallationId(),
-			'last_errors'     => $this->hasLastErrors() ? $this->getLastErrors() : ''
 		];
 		return [
 			'vars'    => [
 				'license_table'  => $aLicenseTableVars,
 				'activation_url' => $oWp->getHomeUrl(),
+				'error'          => $this->getLastErrors( true )
 			],
 			'inputs'  => [
 				'license_key' => [
@@ -108,7 +109,8 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 				'button_enabled_check'  => true,
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
-				'is_pro'                => $this->isPremium()
+				'is_pro'                => $this->isPremium(),
+				'has_error'             => $this->hasLastErrors()
 			],
 			'strings' => $this->getStrings()->getDisplayStrings(),
 		];

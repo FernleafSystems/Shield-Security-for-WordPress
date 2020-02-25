@@ -50,6 +50,10 @@ class Verify {
 		}
 		elseif ( $oExisting->isReady() ) { // Has a stored license but license HTTP request failed
 
+			$oMod->setLastErrors( [
+				__( 'The most recent request to verify the site license encountered a problem.', 'wp-simple-firewall' )
+			] );
+
 			if ( Services::Request()->ts() > $oHandler->getRegistrationExpiresAt() ) {
 				$oHandler->deactivate();
 				$oExisting = $oHandler->getLicense();

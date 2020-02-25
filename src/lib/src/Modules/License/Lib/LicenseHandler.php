@@ -23,6 +23,7 @@ class LicenseHandler {
 	 * @return $this
 	 */
 	public function clearLicense() {
+		$this->getMod()->clearLastErrors();
 		$this->getOptions()->setOpt( 'license_data', [] );
 		return $this;
 	}
