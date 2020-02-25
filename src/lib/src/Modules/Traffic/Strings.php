@@ -49,10 +49,10 @@ class Strings extends Base\Strings {
 				$sTitle = __( 'Traffic Limiter', 'wp-simple-firewall' );
 				$sTitleShort = __( 'Brute Force Traffic Limiter', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Provides ability to restrict excessive requests from a single visitor.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'These settings are dependent on your requirements.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Prevents excessive requests from a single visitor.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), sprintf( __( 'This feature is only available while the Traffic Logger is active.', 'wp-simple-firewall' ), __( 'User Management', 'wp-simple-firewall' ) ) ),
 					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use this feature with care.', 'wp-simple-firewall' ) )
-					.' '.sprintf( __( 'You could block legitimate visitors who load many pages in quick succession on your site.', 'wp-simple-firewall' ) )
+					.' '.sprintf( __( 'You could block legitimate visitors who load too many pages in quick succession on your site.', 'wp-simple-firewall' ) )
 				];
 				break;
 
@@ -112,10 +112,16 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'DB cleanup will delete logs to maintain this maximum number of records.', 'wp-simple-firewall' );
 				break;
 
+			case 'enable_limiter' :
+				$sName = __( 'Enable Rate Limiting', 'wp-simple-firewall' );
+				$sSummary = __( 'Turn On The Rate Limiting Feature', 'wp-simple-firewall' );
+				$sDescription = __( 'Enable or disable the rate limiting feature according to your rate limiting parameters.', 'wp-simple-firewall' );
+				break;
+
 			case 'limit_requests' :
 				$sName = __( 'Max Request Limit', 'wp-simple-firewall' );
 				$sSummary = __( 'Maximum Number Of Requests Allowed In Time Limit', 'wp-simple-firewall' );
-				$sDescription = __( 'The maximum number of requests that are allowed in the given request time limit.', 'wp-simple-firewall' )
+				$sDescription = __( 'The maximum number of requests that are allowed within the given request time limit.', 'wp-simple-firewall' )
 								.'<br/>'.__( 'Any visitor that exceeds this number of requests in the given time period will register an offense against their IP address.', 'wp-simple-firewall' )
 								.'<br/>'.__( 'Enough offenses will result in a ban of the IP address.', 'wp-simple-firewall' );
 				break;

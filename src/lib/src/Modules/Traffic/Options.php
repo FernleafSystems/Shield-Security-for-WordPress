@@ -75,7 +75,7 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isTrafficLimitEnabled() {
-		return $this->isTrafficLoggerEnabled()
+		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
 			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}
 }

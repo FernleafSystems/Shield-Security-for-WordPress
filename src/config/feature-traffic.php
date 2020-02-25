@@ -159,8 +159,19 @@
       "description": "Turn on to prevent unnecessary long-term traffic logging. Timer resets each time you save."
     },
     {
+      "key":         "enable_limiter",
+      "section":     "section_traffic_limiter",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Enable Rate Limiting",
+      "summary":     "Turn On The Rate Limiting Feature",
+      "description": "Enable or disable the rate limiting feature according to your rate limiting parameters."
+    },
+    {
       "key":         "limit_requests",
-      "section":     "section_non_ui",
+      "section":     "section_traffic_limiter",
       "default":     "20",
       "min":         0,
       "type":        "integer",
@@ -172,7 +183,7 @@
     },
     {
       "key":         "limit_time_span",
-      "section":     "section_non_ui",
+      "section":     "section_traffic_limiter",
       "default":     "20",
       "min":         0,
       "type":        "integer",
