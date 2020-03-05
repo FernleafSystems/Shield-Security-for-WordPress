@@ -45,7 +45,7 @@ class ApiTokenManager {
 
 		if ( $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid() ) {
 			$aT = $this->loadToken();
-			if ( $this->isExpired() && $this->canRequestNewToken() ) {
+			if ( $this->isNearlyExpired() && $this->canRequestNewToken() ) {
 				$aT = $this->loadToken();
 				try {
 					$aT = array_merge( $aT, $this->solicitApiToken() );
@@ -91,7 +91,7 @@ class ApiTokenManager {
 	private function canRequestNewToken() {
 		return $this->getCanRequestOverride() ||
 			   (
-				   Services::Request()->carbon()->subHours( 6 )->timestamp > $this->loadToken()[ 'attempt_at' ]
+				   Services::Request()->carbon()->subHour( 1 )->timestamp > $this->loadToken()[ 'attempt_at' ]
 				   && $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
 			   );
 	}
@@ -108,6 +108,13 @@ class ApiTokenManager {
 	 */
 	public function isExpired() {
 		return Services::Request()->ts() > $this->loadToken()[ 'expires_at' ];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isNearlyExpired() {
+		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->loadToken()[ 'expires_at' ];
 	}
 
 	/**
