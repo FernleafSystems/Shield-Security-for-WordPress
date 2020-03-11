@@ -900,8 +900,6 @@ th.column-request_info {
 	font-size: 13px;
 }
 .odp-outercontainer.icwp-wpsf-insights.settings #odp-PageMain {
-	position: relative;
-	top: 20px;
 }
 .insights_section {
 	margin-top: 20px;
@@ -1152,21 +1150,22 @@ input[type=checkbox].form-check-input {
 	margin: 0;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link {
-	padding: 0.5rem 0.7rem;
-	border: 1px solid rgba(0, 0, 0, 0.3);
-	border-bottom-right-radius: .25rem;
-	border-bottom-left-radius: .25rem;
-	margin-left: 6px;
-	font-size: 16px;
+	display: inline-block;
+	padding: 4px 6px;
+	font-size: 14px;
+	border: 1px solid transparent;
+	border-radius: 0;
+}
+#ModuleOptionsNav.nav-tabs a.nav-link.active{
 }
 #ModuleOptionsNav.nav-tabs a.nav-link.active,
 #ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
 	background-color: rgba(255, 255, 255, 0.6);
-	border-color: rgba(0, 0, 0, 0.3);
+	border-color: transparent;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link:hover {
 	background-color: #dddddd;
-	border-color: #999999;
+	border-color: transparent;
 }
 .options-summary {
 	margin-top: 10px;

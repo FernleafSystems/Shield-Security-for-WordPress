@@ -2,13 +2,16 @@
 	  autocomplete="off">
 
 	<ul id="ModuleOptionsNav" class="nav nav-tabs" role="tablist" aria-orientation="vertical">
-		{% for opt_section in data.all_options %}
-			<li class="nav-item">
+		{% for opt_sect_key,opt_section in data.all_options %}
+			<li class="nav-item"
+			>
 				<a href="#tab-{{ opt_section.slug }}" class="nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
 				   id="tab-navlink-{{ opt_section.slug }}"
+						{% if opt_sect_key > 0 %}style="border-left-color: rgba(190,190,190,0.8)"{% endif %}
 				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}"
-				>{{ opt_section.title_short }}</a>
+				>
+					{{ opt_section.title_short }}</a>
 			</li>
 		{% endfor %}
 	</ul>
