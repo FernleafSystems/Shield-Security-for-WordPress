@@ -1154,7 +1154,6 @@ input[type=checkbox].form-check-input {
 #ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
 	background-color: rgba(255, 255, 255, 0.6);
 	border-color: rgba(0, 0, 0, 0.3);
-	font-weight: bold;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link:hover {
 	background-color: #dddddd;
@@ -1190,9 +1189,7 @@ input[type=checkbox].form-check-input {
 }
 .content-options .option-links a {
 	color: #008000;
-	text-decoration: underline;
 	font-size: 14px;
-	font-weight: bold;
 }
 .content-options .option-links ul {
 	margin-top: 10px;
@@ -1319,4 +1316,9 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 }
 #SectionIpsWhite .form-inline {
 	background-color: transparent !important;
+}
+
+a.external-link::after {
+	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+	margin: 0 3px 0 5px;
 }

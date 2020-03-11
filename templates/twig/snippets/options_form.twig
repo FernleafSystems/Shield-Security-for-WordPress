@@ -220,16 +220,18 @@
 							{% endif %}
 						</div>
 
-						<div class="col-3">
+						<div class="col-xl-3 col-lg-12 mt-3 mt-xl-0">
 							<div class="option-links">
 								<div class="collapse option-description show"
 									 id="Description{{ aOption.key }}">{{ aOption.description|raw }}</div>
 								<ul>
 									{% if aOption.link_info %}
-										<li><a href="{{ aOption.link_info }}" target="_blank" class="option-link">
-										{{ strings.more_info }} ></a></li>
+										<li><a href="{{ aOption.link_info }}" target="_blank"
+											   class="option-link external-link">
+										{{ strings.more_info }}</a></li>
 										{% if aOption.link_blog %}
-										<li><a href="{{ aOption.link_blog }}" target="_blank" class="option-link">
+										<li><a href="{{ aOption.link_blog }}" target="_blank"
+											   class="option-link">
 											{{ strings.blog }} ></a></li>
 									{% endif %}
 									{% endif %}

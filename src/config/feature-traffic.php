@@ -126,6 +126,7 @@
     {
       "key":         "custom_exclusions",
       "section":     "section_traffic_options",
+      "premium":     true,
       "default":     [],
       "type":        "array",
       "link_info":   "https://shsec.io/ec",
@@ -149,6 +150,7 @@
     {
       "key":         "max_entries",
       "section":     "section_traffic_options",
+      "premium":     true,
       "default":     1000,
       "min":         0,
       "type":        "integer",
@@ -172,6 +174,7 @@
     {
       "key":         "enable_limiter",
       "section":     "section_traffic_limiter",
+      "premium":     true,
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "",
@@ -183,7 +186,7 @@
     {
       "key":         "limit_requests",
       "section":     "section_traffic_limiter",
-      "default":     "20",
+      "default":     "60",
       "min":         0,
       "type":        "integer",
       "link_info":   "",
@@ -195,7 +198,7 @@
     {
       "key":         "limit_time_span",
       "section":     "section_traffic_limiter",
-      "default":     "20",
+      "default":     "60",
       "min":         0,
       "type":        "integer",
       "link_info":   "",
