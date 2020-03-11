@@ -1151,17 +1151,17 @@ input[type=checkbox].form-check-input {
 }
 #ModuleOptionsNav.nav-tabs a.nav-link {
 	display: inline-block;
-	padding: 4px 6px;
+	padding: 7px 7px;
 	font-size: 14px;
 	border: 1px solid transparent;
-	border-radius: 0;
-}
-#ModuleOptionsNav.nav-tabs a.nav-link.active{
+	border-radius: 2px;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link.active,
 #ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
 	background-color: rgba(255, 255, 255, 0.6);
-	border-color: transparent;
+	border-color: rgba(190,190,190,0.8);
+}
+#ModuleOptionsNav.nav-tabs a.nav-link.active {
 }
 #ModuleOptionsNav.nav-tabs a.nav-link:hover {
 	background-color: #dddddd;
