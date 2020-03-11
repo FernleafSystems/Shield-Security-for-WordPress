@@ -128,6 +128,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				// MemberPress - Checkout == Registration
 				add_action( 'mepr-checkout-before-submit', [ $this, 'printRegisterFormItems_MePr' ], 10 );
 				add_filter( 'mepr-validate-signup', [ $this, 'checkReqRegistration_MePr' ], 10, 2 );
+				// Paid Member Subscriptions (https://wordpress.org/plugins/paid-member-subscriptions)
+				add_action( 'pms_register_form_after_fields', [ $this, 'printFormItems_PaidMemberSubscriptions' ], 100 );
+				add_filter( 'pms_register_form_validation', [ $this, 'checkReqReg_PaidMemberSubscriptions' ], 100 );
 				// Ultimate Member
 				add_action( 'um_after_register_fields', [ $this, 'printFormItems_UltMem' ], 100 );
 				add_action( 'um_submit_form_register', [ $this, 'checkReqRegistration_UltMem' ], 5, 0 );
@@ -432,6 +435,20 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 
 	/**
 	 */
+	public function checkReqReg_PaidMemberSubscriptions() {
+		if ( $this->isPaidMemberSubscriptions() ) {
+			try {
+				$this->setActionToAudit( 'paidmembersubscriptions-register' )
+					 ->performCheckWithException();
+			}
+			catch ( \Exception $oE ) {
+				\pms_errors()->add( 'shield-fail-register', $oE->getMessage() );
+			}
+		}
+	}
+
+	/**
+	 */
 	public function checkReqRegistration_UltMem() {
 		if ( $this->isUltimateMember() ) {
 			try {
@@ -505,6 +522,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 * @return void
 	 */
 	public function printLoginFormItems_MePr() {
+		$this->printLoginFormItems();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function printFormItems_PaidMemberSubscriptions() {
 		$this->printLoginFormItems();
 	}
 
@@ -641,8 +665,15 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	/**
 	 * @return bool
 	 */
+	protected function isPaidMemberSubscriptions() {
+		return @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	protected function isUltimateMember() {
-		return function_exists( 'UM' ) && class_exists( 'UM' ) && method_exists( 'UM', 'form' );
+		return function_exists( 'UM' ) && @class_exists( 'UM' ) && method_exists( 'UM', 'form' );
 	}
 
 	/**
