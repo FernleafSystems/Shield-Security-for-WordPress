@@ -1,0 +1,170 @@
+<div class="form-group row">
+
+	<div class="col-2" style="min-width: 140px">
+		<label for="Opt-{{ aOption.key }}"
+			   id="Label-{{ aOption.key }}"
+			   class="col-form-label">
+			{{ aOption.name }}
+			{% if aOption.disabled %}
+				<br />
+				<div class="badge badge-success">
+					<a href="{{ hrefs.go_pro }}" target="_blank"
+					   class="text-light">{{ strings.pro_only_option }}</a>
+				</div>
+			{% endif %}
+		</label>
+
+		{% if aOption.link_info %}
+			<div class="mt-2" style="text-wrap: none">
+				<a href="" class="external-link text-left float-left" target="_blank">
+					{{ strings.more_info }}</a>
+				{% if aOption.link_blog %}
+					<a href="{{ aOption.link_blog }}" target="_blank"
+					   class="float-right text-right external-link option-link">
+						{{ strings.blog }}</a>
+				{% endif %}
+			</div>
+		{% endif %}
+	</div>
+
+	<div class="col-4">
+
+		{% if aOption.type is sameas('checkbox') %}
+			<div class="form-check-null">
+				<div>
+					<span class="icwp-switch">
+						<input type="checkbox" name="{{ aOption.key }}"
+							   id="Opt-{{ aOption.key }}" class="form-check-input"
+							   {% if aOption.disabled %}disabled="disabled"{% endif %}
+								aria-labelledby="Label-{{ aOption.key }}"
+							   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
+						<span class="icwp-slider round"></span>
+					</span>
+				</div>
+				<div>
+				<label class="form-check-label"
+					   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
+				</div>
+			</div>
+
+		{% elseif aOption.type is sameas('text') %}
+
+			<input type="text" name="{{ aOption.key }}"
+				   id="Opt-{{ aOption.key }}"
+				   value="{{ aOption.value|raw }}"
+				   placeholder="{{ aOption.value }}"
+					{% if aOption.disabled %}
+						disabled="disabled"
+					{% endif %}
+				   class="form-control" />
+
+		{% elseif aOption.type is sameas('password') %}
+
+			<input type="password" name="{{ aOption.key }}"
+				   id="Opt-{{ aOption.key }}"
+				   value="{{ aOption.value|raw }}"
+				   placeholder="{{ strings.supply_password }}"
+				   {% if aOption.disabled %}disabled="disabled"{% endif %}
+				   class="form-control mb-2" />
+
+			<input type="password" name="{{ aOption.key }}_confirm"
+				   id="Opt-{{ aOption.key }}_confirm"
+				   value="{{ aOption.value|raw }}"
+				   placeholder="{{ strings.confirm_password }}"
+				   {% if aOption.disabled %}disabled="disabled"{% endif %}
+				   class="form-control" />
+
+		{% elseif aOption.type is sameas('email') %}
+
+			<input type="text" name="{{ aOption.key }}"
+				   id="Opt-{{ aOption.key }}"
+				   value="{{ aOption.value|raw }}"
+				   placeholder="{{ aOption.value }}"
+				   {% if aOption.disabled %}disabled="disabled"{% endif %}
+				   class="form-control" />
+
+		{% elseif aOption.type is sameas('select') %}
+
+			<select name="{{ aOption.key }}"
+					{% if aOption.disabled %}disabled="disabled"{% endif %}
+					id="Opt-{{ aOption.key }}"
+					class="custom-select">
+				{% for option_value, option_value_name in aOption.value_options %}
+					<option value="{{ option_value }}"
+							{% if aOption.value == option_value %}
+								selected="selected"
+							{% endif %}
+							id="Opt-{{ aOption.key }}_{{ option_value }}">
+						{{ option_value_name }}
+					</option>
+				{% endfor %}
+			</select>
+
+		{% elseif aOption.type is sameas('multiple_select') %}
+
+			<select name="{{ aOption.key }}[]"
+					id="Opt-{{ aOption.key }}"
+					multiple="multiple" multiple
+					size="{{ aOption.value_options|length }}"
+					{% if aOption.disabled %}disabled="disabled"{% endif %}
+					class="custom-select">
+				{% for option_value, option_value_name in aOption.value_options %}
+					<option value="{{ option_value }}"
+							{% if option_value in aOption.value %}
+								selected="selected"
+							{% endif %}
+							id="Opt-{{ aOption.key }}_{{ option_value }}">
+						{{ option_value_name }}
+					</option>
+				{% endfor %}
+			</select>
+
+		{% elseif aOption.type is sameas('array') %}
+
+			<textarea name="{{ aOption.key }}"
+					  id="Opt-{{ aOption.key }}"
+					  placeholder="{{ aOption.value|raw }}"
+					  rows="{{ aOption.rows }}"
+					  {% if aOption.disabled %}disabled="disabled"{% endif %}
+					  class="form-control">{{ aOption.value|raw }}</textarea>
+
+		{% elseif aOption.type is sameas('comma_separated_lists') %}
+
+			<textarea name="{{ aOption.key }}"
+					  id="Opt-{{ aOption.key }}"
+					  placeholder="{{ aOption.value }}"
+					  rows="{{ aOption.rows }}"
+					  {% if aOption.disabled %}disabled="disabled"{% endif %}
+					  class="form-control">{{ aOption.value }}</textarea>
+
+		{% elseif aOption.type is sameas('noneditable_text') %}
+
+			<input name="{{ aOption.key }}" id="Opt-{{ aOption.key }}"
+				   type="text" readonly
+				   class="form-control"
+				   value="{{ aOption.value }}" />
+
+		{% elseif aOption.type is sameas('integer') %}
+
+			<input type="text" name="{{ aOption.key }}"
+				   id="Opt-{{ aOption.key }}"
+				   value="{{ aOption.value }}"
+				   placeholder="{{ aOption.value }}"
+				   {% if aOption.disabled %}disabled="disabled"{% endif %}
+				   class="form-control" />
+
+		{% else %}
+			ERROR: Should never reach this point.
+		{% endif %}
+
+		{% if aOption.type is not sameas('checkbox') %}
+			{# checkboxes display slightly differently #}
+			<div class="options-summary">{{ aOption.summary }}</div>
+		{% endif %}
+	</div>
+
+	<div class="col-5">
+		<div class="option-description"
+			 id="Description{{ aOption.key }}">{{ aOption.description|raw }}</div>
+	</div>
+</div>

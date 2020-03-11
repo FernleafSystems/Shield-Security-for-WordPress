@@ -306,9 +306,9 @@ label input[type=checkbox] {
 }
 .module-icon:before {
 	-webkit-font-smoothing: antialiased;
-	display: inline-block;
-	font: 32px/1 'dashicons';
-	vertical-align: top;
+	display: inline;
+	font: 16px/1 'dashicons';
+	vertical-align: text-bottom;
 }
 .feature-summary-blocks .module-icon:before {
 	-webkit-font-smoothing: antialiased;
@@ -654,7 +654,6 @@ input:checked + .icwp-slider:before {
 #ColumnModules {
 	margin-left: 20px;
 	margin-top: 8px;
-	border-right: 1px dotted rgba(0, 128, 0, 1);
 }
 #ColumnOptions {
 	min-width: 590px; /** prevents col breaking **/
@@ -673,18 +672,19 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module {
 	height: 45px;
-	width: 140px;
+	width: 160px;
 	margin: auto;
 	text-align: left;
 	display: block;
 	padding: 10px 0 0 0;
+	color: #222222;
 }
 .modules a.module:first-child {
 }
 .modules a.module:hover,
 .modules a.module:focus {
 	/*background-color: #eeeeee;*/
-	color: #222222;
+	color: rgba(0, 128, 0, 1);
 	box-shadow: none;
 }
 .modules a.module.active {
@@ -692,7 +692,12 @@ input:checked + .icwp-slider:before {
 	color: rgba(0, 128, 0, 1);
 }
 .modules a.module.active > div {
-	border-bottom: 3px solid rgba(0, 128, 0, 1);
+}
+.modules a.module .module-icon::before {
+	color: #222222;
+}
+.modules a.module.active .module-icon::before {
+	color: rgba(0, 128, 0, 1);
 }
 .modules a#tab-license {
 	color: #1d00ff;
@@ -717,9 +722,6 @@ input:checked + .icwp-slider:before {
 	font-size: 16px !important;
 }
 .modules a.module.active .module-icon {
-}
-.modules a.module.active .module-icon:before {
-	color: #222222;
 }
 .icwp-options-page .tab-content {
 	background-color: #f1f1f1;
@@ -1155,13 +1157,19 @@ input[type=checkbox].form-check-input {
 	font-size: 14px;
 	border: 1px solid transparent;
 	border-radius: 2px;
+	color: #222222;
+}
+#ModuleOptionsNav.nav-tabs a.nav-link > span {
+	border-bottom: 1px dashed rgba(0, 0, 0, 0.2);
 }
 #ModuleOptionsNav.nav-tabs a.nav-link.active,
 #ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
 	background-color: rgba(255, 255, 255, 0.6);
-	border-color: rgba(190,190,190,0.4);
+	border-color: rgba(190, 190, 190, 0.4);
+	color: rgba(0, 128, 0, 1);
 }
-#ModuleOptionsNav.nav-tabs a.nav-link.active {
+#ModuleOptionsNav.nav-tabs a.nav-link.active > span {
+	border-bottom: 0 none;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link:hover {
 	background-color: rgba(238, 238, 238, 0.76);

@@ -11,8 +11,9 @@
 					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"
 					   id="tab-{{ mod_summary.slug }}"
 					   href="{{ mod_summary.href }}" role="tab">
-						<div>{{ mod_summary.tooltip }}</div>
-
+						<div><span class="module-icon module-icon-{{ mod_summary.slug }}"
+							 id="module-{{ mod_summary.slug }}"></span>
+						{{ mod_summary.tooltip }}</div>
 					</a>
 				{% endfor %}
 			</div>
