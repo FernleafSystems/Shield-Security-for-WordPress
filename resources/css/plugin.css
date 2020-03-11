@@ -13,7 +13,6 @@ body.rtl {
 	margin: 0;
 	padding: 0;
 }
-
 /** Hide WordPress update nag **/
 .update-nag {
 	display: none;
@@ -47,13 +46,21 @@ body.rtl {
 	line-height: 10px;
 	letter-spacing: -0.5px;
 }
-#ColumnOptions .form-actions {
+#OptionsFormActions.form-actions {
+	background: rgba(0, 0, 0, 0.1);
 	position: fixed;
-	bottom: 50px;
+	bottom: 0;
+	left: 0;
+	height: 70px;
+	width: 100%;
+	z-index: 100;
+	text-align: center;
 }
-#ColumnOptions .form-actions .row > div {
+#OptionsFormActions.form-actions .row > div {
 	background-color: transparent; /*#d8d8d8;*/
-	z-index: 1000;
+}
+#OptionsFormActions.form-actions button {
+	margin-top: 10px;
 }
 #ColumnOptions form {
 	margin-bottom: 50px;
@@ -645,10 +652,9 @@ input:checked + .icwp-slider:before {
 	left: 1px;
 }
 #ColumnModules {
-	text-align: center;
-	border-left: 1px solid rgba(0, 0, 0, 0.05);
-	max-width: 85px;
-	margin-top: 10px;
+	margin-left: 20px;
+	margin-top: 8px;
+	border-right: 1px dotted rgba(0, 128, 0, 1);
 }
 #ColumnOptions {
 	min-width: 590px; /** prevents col breaking **/
@@ -666,12 +672,27 @@ input:checked + .icwp-slider:before {
 	display: block;
 }
 .modules a.module {
-	height: 54px;
-	width: 66px;
+	height: 45px;
+	width: 140px;
 	margin: auto;
-	padding: 0.6rem 0.9rem;
+	text-align: left;
+	display: block;
+	padding: 10px 0 0 0;
 }
 .modules a.module:first-child {
+}
+.modules a.module:hover,
+.modules a.module:focus {
+	/*background-color: #eeeeee;*/
+	color: #222222;
+	box-shadow: none;
+}
+.modules a.module.active {
+	font-weight: bold;
+	color: rgba(0, 128, 0, 1);
+}
+.modules a.module.active > div {
+	border-bottom: 3px solid rgba(0, 128, 0, 1);
 }
 .modules a#tab-license {
 	color: #1d00ff;
@@ -694,17 +715,6 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module .dashicons-warning:before {
 	font-size: 16px !important;
-}
-.modules a.module:hover,
-.modules a.module:focus {
-	background-color: #eeeeee;
-	color: #222222;
-	box-shadow: none;
-}
-.modules a.module.active {
-	border: 1px solid rgba(0, 0, 0, 0.3);
-	border-radius: 0.25rem;
-	background-color: rgba(255, 255, 255, 0.6);
 }
 .modules a.module.active .module-icon {
 }
@@ -759,10 +769,10 @@ input:checked + .icwp-slider:before {
 	}
 
 	.modules a.module {
+		width: 81px;
 		font-size: 0.7rem;
 		font-weight: normal;
 		letter-spacing: -1px;
-		padding: 0.4rem 0.6rem 0.4rem 0.8rem;
 	}
 
 	.modules .module-name .dashicons {
@@ -860,7 +870,6 @@ th.column-request_info {
 #odp-PageHead {
 }
 .page-insights #odp-PageHead {
-	position: sticky;
 	top: 40px;
 	z-index: 3;
 }
@@ -1254,10 +1263,6 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 	font-weight: bold;
 	padding-top: 0;
 }
-.alert-info {
-	background-color: rgba(0, 128, 0, 0.30);
-	border-color: rgba(0, 128, 0, 0.30);
-}
 #SectionScanResultsAggregate .card-footer a:hover {
 	color: #ffffff;
 	background-color: #008000;
@@ -1299,10 +1304,10 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 .table-success, .table-success > td, .table-success > th {
 	background-color: rgba(0, 128, 0, 0.20);
 }
-#SectionIpsBlack .alert-info {
+#SectionIpsBlack .alert {
 	border-radius: 0;
 }
-#SectionIpsWhite .alert-info {
+#SectionIpsWhite .alert {
 	border-radius: 0;
 }
 #SectionIpsBlack .form-inline {
@@ -1317,8 +1322,10 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 #SectionIpsWhite .form-inline {
 	background-color: transparent !important;
 }
-
 a.external-link::after {
 	content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
 	margin: 0 3px 0 5px;
+}
+#footer-thankyou {
+	display: none;
 }

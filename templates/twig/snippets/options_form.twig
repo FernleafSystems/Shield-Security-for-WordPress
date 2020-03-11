@@ -67,7 +67,7 @@
 					{% for section_notice in opt_section.notices %}
 						<div class="row">
 							<div class="col">
-								<div class="alert alert-info text-center">{{ section_notice|raw }}</div>
+								<div class="alert alert-success text-center">{{ section_notice|raw }}</div>
 							</div>
 						</div>
 					{% endfor %}
@@ -88,7 +88,7 @@
 							{% endif %}
 						</label>
 
-						<div class="col-xl-6 col-lg-7 col-md-8 col-sm-8">
+						<div class="col-5">
 
 							{% if aOption.type is sameas('checkbox') %}
 								<div class="form-check-null">
@@ -220,7 +220,7 @@
 							{% endif %}
 						</div>
 
-						<div class="col-xl-3 col-lg-12 mt-3 mt-xl-0">
+						<div class="col-12">
 							<div class="option-links">
 								<div class="collapse option-description show"
 									 id="Description{{ aOption.key }}">{{ aOption.description|raw }}</div>
@@ -244,7 +244,7 @@
 		</div>
 		{% endfor %}
 	</div>
-	<div class="container-fluid form-actions">
+	<div class="container-fluid form-actions" id="OptionsFormActions">
 		<div class="row">
 			<div class="col">
 				<button type="submit" class="btn btn-primary btn-lg icwp-form-button"

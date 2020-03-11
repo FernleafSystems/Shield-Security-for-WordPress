@@ -13,7 +13,7 @@
 				{% else %}
 					{% if scan.flags.is_available %}
 						{% if not scan.flags.has_items %}
-							<div class="alert alert-info m-0">{{ strings.no_entries_to_display }}</div>
+							<div class="alert alert-success m-0">{{ strings.no_entries_to_display }}</div>
 						{% else %}
 							{% include '/wpadmin_pages/insights/scans/results/'~scankey~'_table.twig' %}
 						{% endif %}

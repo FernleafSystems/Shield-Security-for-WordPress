@@ -2,18 +2,17 @@
 
 {% block page_main %}
 	<div class="row" id="ModulePageTopRow">
-		<div class="col-1 modules smoothwidth" id="ColumnModules">
+		<div class="modules smoothwidth" id="ColumnModules">
 
 			<div class="nav flex-column">
 				{% for mod_summary in aSummaryData %}
-					<a class="nav-link module {% if mod_summary.active %}active{% endif %}
+					<a class="nav-link module
+					{% if mod_summary.active %}active{% endif %}
 					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"
 					   id="tab-{{ mod_summary.slug }}"
-					   data-toggle="tooltip"
-					   title="{{ mod_summary.tooltip }}"
 					   href="{{ mod_summary.href }}" role="tab">
-						<div class="module-icon module-icon-{{ mod_summary.slug }}"
-							 id="module-{{ mod_summary.slug }}"></div>
+						<div>{{ mod_summary.tooltip }}</div>
+
 					</a>
 				{% endfor %}
 			</div>
