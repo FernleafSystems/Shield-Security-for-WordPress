@@ -8,7 +8,7 @@
 				<a href="#tab-{{ opt_section.slug }}" class="nav-link {{ opt_section.primary ? 'active' : '' }}"
 				   {% if opt_section.primary %}aria-selected="true"{% endif %}
 				   id="tab-navlink-{{ opt_section.slug }}"
-						{% if opt_sect_key > 0 %}style="border-left-color: rgba(190,190,190,0.8); margin-left:-1px"{% endif %}
+						{% if opt_sect_key > 0 %}{% endif %}
 				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}"
 				>
 					{{ opt_section.title_short }}</a>

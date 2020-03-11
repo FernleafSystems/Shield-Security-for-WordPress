@@ -1159,12 +1159,12 @@ input[type=checkbox].form-check-input {
 #ModuleOptionsNav.nav-tabs a.nav-link.active,
 #ModuleOptionsNav.nav-tabs a.nav-link.active:hover {
 	background-color: rgba(255, 255, 255, 0.6);
-	border-color: rgba(190,190,190,0.8);
+	border-color: rgba(190,190,190,0.4);
 }
 #ModuleOptionsNav.nav-tabs a.nav-link.active {
 }
 #ModuleOptionsNav.nav-tabs a.nav-link:hover {
-	background-color: #dddddd;
+	background-color: rgba(238, 238, 238, 0.76);
 	border-color: transparent;
 }
 .options-summary {
