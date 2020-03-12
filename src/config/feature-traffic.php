@@ -35,7 +35,7 @@
     {
       "slug":        "section_traffic_limiter",
       "title":       "Traffic Rate Limiting",
-      "title_short": "Options",
+      "title_short": "Rate Limiting",
       "summary":     [
         "Purpose - Provides ability to restrict excessive requests from a single visitor.",
         "Recommendation - These settings are dependent on your requirements."
