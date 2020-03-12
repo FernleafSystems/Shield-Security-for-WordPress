@@ -709,7 +709,6 @@ class BaseModCon extends Deprecated\Foundation {
 			}
 		}
 
-//		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
 			'%s%s',
 			$aSum[ 'name' ],
