@@ -370,24 +370,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.6.3 - Current Release =
-*Released: 25th February, 2020* - [Release Notes](https://shsec.io/gl)
+= 8.7.0 - Current Release =
+*Released: 16th March, 2020* - [Release Notes](https://shsec.io/gv)
 
-* **(v.3)**  IMPROVED:	AJAX handling and general plugin requests have been refined to be less prone to errors.
-* **(v.3)**  IMPROVED:	The Traffic Log Viewer will now be displayed even if it's disabled.
-* **(v.3)**  REMOVED:	2 options from the Automatic Updates module have been removed, that influenced translations and version control.
-* **(v.3)**  IMPROVED:	Some minor improvements and optimisations.
-* **(v.3)**  IMPROVED:	Adjusted how Shield stores temporary WP options to prevent duplicates.
-* **(v.3)**  FIXED:		Login backup-code wasn't always reset after it was used.
-* **(v.3)**  FIXED:		IP address wasn't blocked even after committing an offense in 1 particular scenario.
-
-= 8.6 - Series =
-*Released: 19th February, 2020* - [Release Notes](https://shsec.io/gl)
-
-* **(v.1)**  NEW:		[**PRO**] Deep scanning for valid email addresses when user registers with site.
-* **(v.1)**  ADDED:		[**PRO**] New option allows users to turn on email-based two-factor authentication from their profile.
-* **(v.1)**  ADDED:		Support for manually blocking IP Ranges (not just single IPs).
-* **(v.1)**  IMPROVED:	Two-Factor Authentication system has been rewritten and improved.
-* **(v.1)**  IMPROVED:	Table ordering and descriptions for the IP Black List.
+* **(v.0)**  NEW:		[**PRO**] [Traffic Rate Limiting Feature](https://shsec.io/gv).
+* **(v.0)**  ADDED:		Support for registration forms in plugins: Profile Builder and Paid Member Subscriptions
+* **(v.0)**  IMPROVED:	Tweaks and changes to UI.
 
 #### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
