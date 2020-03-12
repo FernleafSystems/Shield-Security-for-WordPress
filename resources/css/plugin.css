@@ -678,6 +678,7 @@ input:checked + .icwp-slider:before {
 	display: block;
 	padding: 10px 0 0 0;
 	color: #222222;
+	font-size: 16px;
 }
 .modules a.module:first-child {
 }
@@ -690,7 +691,7 @@ input:checked + .icwp-slider:before {
 .modules a.module.active {
 	font-weight: bold;
 	color: rgba(0, 128, 0, 1);
-	padding-left: 10px;
+	padding-left: 5px;
 }
 .modules a.module.active > div {
 }
@@ -1203,6 +1204,21 @@ input[type=checkbox].form-check-input {
 .content-options .option-section-summary {
 	margin-bottom: 12px;
 	padding-top: 8px;
+}
+.content-options .option_label_name {
+	position: relative;
+	/*display: block;*/
+}
+.content-options .option_link_info {
+	/*position: absolute;*/
+	/*right: -18px;*/
+	/*top: -5px;*/
+}
+.content-options .option_link_info > .dashicons {
+	font-size: 16px;
+	text-decoration: none;
+	width: 1px;
+	margin-left: -3px;
 }
 .content-options .option-links {
 	font-size: 12px;

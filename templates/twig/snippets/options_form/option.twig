@@ -1,15 +1,15 @@
-<div class="form-group row">
+<div class="form-group row option_form_row">
 
 	<div class="col-2" style="min-width: 140px">
 		<label for="Opt-{{ aOption.key }}"
 			   id="Label-{{ aOption.key }}"
-			   class="col-form-label d-block">
-			{% if aOption.link_info %}
-				<a href="{{ aOption.link_info }}" class="float-right ml-2" target="_blank"
-				title="{{ strings.more_info }}">
+			   class="col-form-label">
+			<span class="option_label_name">{{ aOption.name }}{% if aOption.link_info %}
+					<a href="{{ aOption.link_info }}" class="option_link_info d-inline-block" target="_blank"
+					   title="{{ strings.more_info }}">
 					<span class="dashicons dashicons-editor-help"></span></a>
-			{% endif %}
-			{{ aOption.name }}
+				{% endif %}</span>
+
 
 			{% if aOption.disabled %}
 				<br />
