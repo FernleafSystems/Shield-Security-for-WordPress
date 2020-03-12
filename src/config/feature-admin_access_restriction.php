@@ -3,6 +3,7 @@
   "properties":    {
     "slug":                  "admin_access_restriction",
     "name":                  "Security Admin",
+    "sidebar_name":          "Security Admin",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "admin_access_restriction",

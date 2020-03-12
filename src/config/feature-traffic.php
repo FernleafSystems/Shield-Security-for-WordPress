@@ -3,6 +3,7 @@
   "properties":   {
     "slug":                  "traffic",
     "name":                  "Traffic Watch",
+    "sidebar_name":          "Traffic",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "traffic",

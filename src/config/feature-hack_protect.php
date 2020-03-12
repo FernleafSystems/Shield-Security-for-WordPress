@@ -3,6 +3,7 @@
   "properties":       {
     "slug":                  "hack_protect",
     "name":                  "Hack Guard",
+    "sidebar_name":          "Scanners",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "hack_protect",

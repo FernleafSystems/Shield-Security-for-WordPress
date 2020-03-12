@@ -693,10 +693,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @return array
 	 */
 	protected function buildSummaryData() {
-		$oOptsVo = $this->getOptions();
-		$sMenuTitle = $oOptsVo->getFeatureProperty( 'menu_title' );
+		$oOpts = $this->getOptions();
+		$sMenuTitle = $oOpts->getFeatureProperty( 'menu_title' );
 
-		$aSections = $oOptsVo->getSections();
+		$aSections = $oOpts->getSections();
 		foreach ( $aSections as $sSlug => $aSection ) {
 			try {
 				$aStrings = $this->getStrings()->getSectionStrings( $aSection[ 'slug' ] );
@@ -710,17 +710,18 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}
 
 		$aSum = [
-			'enabled'    => $this->isEnabledForUiSummary(),
-			'active'     => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
-			'slug'       => $this->getSlug(),
-			'name'       => $this->getMainFeatureName(),
-			'menu_title' => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
-			'href'       => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
-			'sections'   => $aSections,
-			'options'    => [],
+			'enabled'      => $this->isEnabledForUiSummary(),
+			'active'       => $this->isThisModulePage() || $this->isPage_InsightsThisModule(),
+			'slug'         => $this->getSlug(),
+			'name'         => $this->getMainFeatureName(),
+			'sidebar_name' => $oOpts->getFeatureProperty( 'sidebar_name' ),
+			'menu_title'   => empty( $sMenuTitle ) ? $this->getMainFeatureName() : __( $sMenuTitle, 'wp-simple-firewall' ),
+			'href'         => network_admin_url( 'admin.php?page='.$this->getModSlug() ),
+			'sections'     => $aSections,
+			'options'      => [],
 		];
 
-		foreach ( $oOptsVo->getVisibleOptionsKeys() as $sOptKey ) {
+		foreach ( $oOpts->getVisibleOptionsKeys() as $sOptKey ) {
 			try {
 				$aOptData = $this->getStrings()->getOptionStrings( $sOptKey );
 				$aOptData[ 'href' ] = $this->getUrl_DirectLinkToOption( $sOptKey );
@@ -732,9 +733,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 //		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
-			'%s%s',
-			$aSum[ 'name' ],
-			( $aSum[ 'enabled' ] ? '' : ' ('.strtolower( __( 'Disabled', 'wp-simple-firewall' ) ).')' )
+			'%s',
+			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : $aSum[ 'sidebar_name' ]
 		);
 		return $aSum;
 	}

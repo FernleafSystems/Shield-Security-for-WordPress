@@ -690,6 +690,7 @@ input:checked + .icwp-slider:before {
 .modules a.module.active {
 	font-weight: bold;
 	color: rgba(0, 128, 0, 1);
+	padding-left: 10px;
 }
 .modules a.module.active > div {
 }
@@ -886,6 +887,9 @@ th.column-request_info {
 	border: 1px solid rgba(0, 0, 0, 0.1);
 	border-radius: 3px;
 	color: #008000;
+}
+.nav-link.module.notenabled span.module-name {
+	text-decoration: line-through;
 }
 .nav-link.module.notenabled .module-icon:before {
 	color: rgba(0, 0, 0, 0.4);
@@ -1185,8 +1189,8 @@ input[type=checkbox].form-check-input {
 	padding-top: 14px;
 }
 .content-options .form-group.row {
-	margin-bottom: 20px;
-	padding-bottom: 15px;
+	/*margin-bottom: 20px;*/
+	padding: 15px 0 25px ;
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
 }
 .content-options .option-section-summary,
