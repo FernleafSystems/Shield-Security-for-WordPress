@@ -734,7 +734,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 //		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
 			'%s',
-			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : $aSum[ 'sidebar_name' ]
+			empty( $aSum[ 'sidebar_name' ] ) ? $aSum[ 'name' ] : __( $aSum[ 'sidebar_name' ], 'wp-simple-firewall' )
 		);
 		return $aSum;
 	}
