@@ -288,9 +288,8 @@ class Options {
 	 */
 	public function isSectionReqsMet( $sSectionSlug ) {
 		$aReqs = $this->getSection_Requirements( $sSectionSlug );
-		$bMet = Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
+		return Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
 				&& Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
-		return $bMet;
 	}
 
 	/**

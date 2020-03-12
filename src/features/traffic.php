@@ -39,7 +39,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 
 		$oOpts->setOpt( 'autodisable_at', $this->isAutoDisable() ? Services::Request()->ts() + WEEK_IN_SECONDS : 0 );
 
-		$aExcls = $this->getCustomExclusions();
+		$aExcls = $oOpts->getCustomExclusions();
 		foreach ( $aExcls as &$sExcl ) {
 			$sExcl = trim( esc_js( $sExcl ) );
 		}

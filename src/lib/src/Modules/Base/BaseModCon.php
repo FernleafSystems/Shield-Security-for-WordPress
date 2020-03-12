@@ -1132,10 +1132,6 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	public function onPluginDelete() {
-		$oDbh = $this->getDbHandler();
-		if ( !empty( $oDbh ) ) {
-			$oDbh->deleteTable();
-		}
 		$this->getOptions()->deleteStorage();
 	}
 
@@ -1832,9 +1828,7 @@ class BaseModCon extends Deprecated\Foundation {
 	 * @return bool
 	 */
 	protected function isHelpVideoDisplayable() {
-		$sId = $this->getHelpVideoId();
 		return false;
-		return !empty( $sId );
 	}
 
 	/**
