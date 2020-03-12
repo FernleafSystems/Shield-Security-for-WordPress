@@ -158,7 +158,7 @@ class Strings extends Base\Strings {
 								.'<br />'.sprintf(
 									__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
 									'<strong>'.$oOpts->getIpSource().'</strong>',
-									$oOpts->getOpt( 'last_ip_detect_source' )
+									Services::IP()->getRequestIp()
 								)
 								.'<br />'
 								.'<br />'.implode( '<br />', $this->buildIpAddressMap() );

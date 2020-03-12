@@ -131,6 +131,9 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				// Paid Member Subscriptions (https://wordpress.org/plugins/paid-member-subscriptions)
 				add_action( 'pms_register_form_after_fields', [ $this, 'printFormItems_PaidMemberSubscriptions' ], 100 );
 				add_filter( 'pms_register_form_validation', [ $this, 'checkReqReg_PaidMemberSubscriptions' ], 100 );
+				// Profile Builder (https://wordpress.org/plugins/profile-builder/)
+				add_action( 'wppb_form_before_submit_button', [ $this, 'printLoginFormItems' ], 100 );
+				add_filter( 'wppb_output_field_errors_filter', [ $this, 'checkReqReg_ProfileBuilder' ], 100 );
 				// Ultimate Member
 				add_action( 'um_after_register_fields', [ $this, 'printFormItems_UltMem' ], 100 );
 				add_action( 'um_submit_form_register', [ $this, 'checkReqRegistration_UltMem' ], 5, 0 );
@@ -433,8 +436,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		return $sFieldNameOrError;
 	}
 
-	/**
-	 */
 	public function checkReqReg_PaidMemberSubscriptions() {
 		if ( $this->isPaidMemberSubscriptions() ) {
 			try {
@@ -445,6 +446,24 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				\pms_errors()->add( 'shield-fail-register', $oE->getMessage() );
 			}
 		}
+	}
+
+	/**
+	 * @param array $aErrors
+	 * @return array
+	 */
+	public function checkReqReg_ProfileBuilder( $aErrors ) {
+		if ( $this->isProfileBuilder() ) {
+			try {
+				$this->setActionToAudit( 'profilebuilder-register' )
+					 ->performCheckWithException();
+			}
+			catch ( \Exception $oE ) {
+				$aErrors[ 'shield-fail-register' ] =
+					'<span class="wppb-form-error">Bot</span>';
+			}
+		}
+		return $aErrors;
 	}
 
 	/**
@@ -667,6 +686,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 */
 	protected function isPaidMemberSubscriptions() {
 		return @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isProfileBuilder() {
+		return defined( 'PROFILE_BUILDER_VERSION' );
 	}
 
 	/**
