@@ -49,11 +49,10 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
-		/* TODO: uncomment on any version 8.6+
 		$sPreferredSource = Services::IP()->getIpDetector()->getLastSuccessfulSource();
 		if ( !empty( $sPreferredSource ) ) {
-		$this->setOpt( 'last_ip_detect_source', $sPreferredSource );
-		} */
+			$this->setOpt( 'last_ip_detect_source', $sPreferredSource );
+		}
 		parent::onPluginShutdown();
 	}
 
