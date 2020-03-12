@@ -125,7 +125,10 @@ class Logger {
 		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
 		$oEntry->ua = $oReq->getUserAgent();
-		$oEntry->trans = $oMod->getIfIpTransgressed() ? 1 : 0;
+		$oEntry->trans = $this->getCon()
+							  ->getModule_IPs()
+							  ->loadOffenseTracker()
+							  ->getOffenseCount() > 0 ? 1 : 0;
 
 		$oDbh->getQueryInserter()
 			 ->insert( $oEntry );
