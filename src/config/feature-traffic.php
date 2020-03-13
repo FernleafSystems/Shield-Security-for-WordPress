@@ -178,8 +178,8 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
+      "link_info":   "https://shsec.io/gw",
+      "link_blog":   "https://shsec.io/gx",
       "name":        "Enable Rate Limiting",
       "summary":     "Turn On The Rate Limiting Feature",
       "description": "Enable or disable the rate limiting feature according to your rate limiting parameters."
