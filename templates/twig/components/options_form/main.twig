@@ -35,22 +35,19 @@
 								{% endif %}
 							</small>
 							{{ opt_section.title }}
+
+							{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
+								<a class="section_title_info"
+								   data-toggle="popover"
+								   data-content="<ul>
+							{% for item in opt_section.summary %}
+								<li class='mt-2'>{{ item|raw }}</li>
+							{% endfor %}
+							</ul>">
+								<span class="dashicons dashicons-info"></span></a>
+							{% endif %}
+
 						</h5>
-					</div>
-					<div class="col-12">
-						{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
-							<div class="row">
-								<div class="col">
-									<div class="alert alert-secondary" role="definition">
-										<ul class="mb-0">
-											{% for item in opt_section.summary %}
-												<li class="">{{ item|raw }}</li>
-											{% endfor %}
-										</ul>
-									</div>
-								</div>
-							</div>
-						{% endif %}
 					</div>
 				</div>
 

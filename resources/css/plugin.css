@@ -1158,7 +1158,7 @@ input[type=checkbox].form-check-input {
 }
 #ModuleOptionsNav.list-group a {
 	/*display: inline-block;*/
-	padding: 0.5rem 1rem ;
+	padding: 0.5rem 1rem;
 	font-size: 14px;
 	/*border: 1px solid transparent;*/
 	/*border-radius: 2px;*/
@@ -1194,7 +1194,7 @@ input[type=checkbox].form-check-input {
 }
 .content-options .form-group.row {
 	/*margin-bottom: 20px;*/
-	padding: 15px 0 25px ;
+	padding: 15px 0 25px;
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
 }
 .content-options .option-section-summary,
@@ -1286,9 +1286,6 @@ a:focus .gravatar, a:focus, a:focus .media-icon img {
 .wp-core-ui select {
 	min-height: 38px;
 }
-.alert-secondary {
-	background-color: transparent;
-}
 .col-form-label {
 	font-weight: bold;
 	padding-top: 0;
@@ -1358,4 +1355,7 @@ a.new-window-link::after {
 }
 #footer-thankyou {
 	display: none;
+}
+a.section_title_info .dashicons {
+	color: rgba(0, 128, 0, 1);
 }
