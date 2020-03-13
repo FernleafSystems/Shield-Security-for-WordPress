@@ -73,7 +73,7 @@ class LoginIntentPage {
 			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
 		}
 
-		$nMfaSkip = $oOpts->getMfaSkip();
+		$nMfaSkip = (int)( $oOpts->getMfaSkip()/DAY_IN_SECONDS );
 		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
 		$aDisplayData = [
 			'strings' => [
@@ -125,8 +125,8 @@ class LoginIntentPage {
 		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
 		$aDisplayData = [
 			'strings' => [
-				'what_is_this'   => __( 'What is this?', 'wp-simple-firewall' ),
-				'page_title'     => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
+				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 			],
 			'data'    => [
 				'time_remaining' => $nTimeRemaining,
