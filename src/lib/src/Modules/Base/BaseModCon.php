@@ -1584,7 +1584,7 @@ class BaseModCon extends Deprecated\Foundation {
 	public function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'snippets/options_form.twig';
+			$sTemplate = 'components/options_form/main.twig';
 		}
 		else {
 			$sTemplate = 'subfeature-access_restricted';

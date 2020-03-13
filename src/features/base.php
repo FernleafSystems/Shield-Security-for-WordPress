@@ -1610,7 +1610,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	public function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'snippets/options_form.twig';
+			$sTemplate = 'components/options_form/main.twig';
 		}
 		else {
 			$sTemplate = 'subfeature-access_restricted';

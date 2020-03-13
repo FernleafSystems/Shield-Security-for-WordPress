@@ -1152,17 +1152,20 @@ input[type=checkbox].form-check-input {
 	font-size: 14px;
 	padding-top: 10px;
 }
-#ModuleOptionsNav.nav-tabs {
+#ModuleOptionsNav.list-group {
 	border: 0 none;
 	margin: 0;
 }
-#ModuleOptionsNav.nav-tabs a.nav-link {
-	display: inline-block;
-	padding: 7px 7px;
+#ModuleOptionsNav.list-group a {
+	/*display: inline-block;*/
+	padding: 0.5rem 1rem ;
 	font-size: 14px;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	color: #222222;
+	/*border: 1px solid transparent;*/
+	/*border-radius: 2px;*/
+}
+#ModuleOptionsNav.list-group a.active {
+	background-color: rgba(0, 128, 0, 0.75);
+	border-color: transparent;
 }
 #ModuleOptionsNav.nav-tabs a.nav-link > span {
 	border-bottom: 1px dashed rgba(0, 0, 0, 0.2);

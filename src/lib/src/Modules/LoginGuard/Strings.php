@@ -288,14 +288,14 @@ class Strings extends Base\Strings {
 				$sName = __( 'Yubikey App ID', 'wp-simple-firewall' );
 				$sSummary = __( 'Your Unique Yubikey App ID', 'wp-simple-firewall' );
 				$sDescription = __( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' )
-								.__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
+								.'<br />'.__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_api_key' :
 				$sName = __( 'Yubikey API Key', 'wp-simple-firewall' );
 				$sSummary = __( 'Your Unique Yubikey App API Key', 'wp-simple-firewall' );
 				$sDescription = __( 'Combined with your Yubikey App ID this will form the basis of your Yubikey Authentication.', 'wp-simple-firewall' )
-								.__( 'Please review the info link on how to get your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
+								.'<br />'.__( 'Please review the info link on how to get your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_unique_keys' :

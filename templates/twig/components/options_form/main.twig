@@ -1,20 +1,18 @@
 <form action="{{ form_action }}" method="post" class="icwpOptionsForm form" novalidate="novalidate"
 	  autocomplete="off">
 
-	<ul id="ModuleOptionsNav" class="nav nav-tabs" role="tablist" aria-orientation="vertical">
+	<div id="ModuleOptionsNav" class="list-group list-group-horizontal " role="tablist" aria-orientation="horizontal">
 		{% for opt_sect_key,opt_section in data.all_options %}
-			<li class="nav-item"
-			>
-				<a href="#tab-{{ opt_section.slug }}" class="nav-link {{ opt_section.primary ? 'active' : '' }}"
-				   {% if opt_section.primary %}aria-selected="true"{% endif %}
-				   id="tab-navlink-{{ opt_section.slug }}"
-						{% if opt_sect_key > 0 %}{% endif %}
-				   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}"
-				>
-					<span>{{ opt_section.title_short }}</span></a>
-			</li>
+			<a href="#tab-{{ opt_section.slug }}"
+			   class="list-group-item list-group-item-action  {{ opt_section.primary ? 'active' : '' }}"
+			   {% if opt_section.primary %}aria-selected="true"{% endif %}
+			   id="tab-navlink-{{ opt_section.slug }}"
+					{% if opt_sect_key > 0 %}{% endif %}
+			   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
+					<span>{{ opt_section.title_short }}</span>
+			</a>
 		{% endfor %}
-	</ul>
+	</div>
 
 	<div class="tab-content container-fluid">
 		{% for opt_section in data.all_options %}
@@ -77,7 +75,7 @@
 				{% endif %}
 
 				{% for key, aOption in opt_section.options %}
-					{% include '/snippets/options_form/option.twig' %}
+					{% include '/components/options_form/option.twig' %}
 				{% endfor %}
 		</div>
 		{% endfor %}
