@@ -29,6 +29,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 		var sActiveTabHash = window.location.hash;
 		if ( typeof sActiveTabHash !== 'undefined' ) {
 			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
+			jQuery( 'html,body' ).scrollTop( 0 );
 		}
 
 		jQuery( function () {

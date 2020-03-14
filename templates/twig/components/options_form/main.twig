@@ -1,13 +1,12 @@
 <form action="{{ form_action }}" method="post" class="icwpOptionsForm form" novalidate="novalidate"
 	  autocomplete="off">
 
-	<div id="ModuleOptionsNav" class="list-group list-group-horizontal " role="tablist" aria-orientation="horizontal">
+	<div id="ModuleOptionsNav" class="list-group list-group-horizontal" role="tablist" aria-orientation="horizontal">
 		{% for opt_sect_key,opt_section in data.all_options %}
 			<a href="#tab-{{ opt_section.slug }}"
-			   class="list-group-item list-group-item-action  {{ opt_section.primary ? 'active' : '' }}"
+			   class="list-group-item list-group-item-action nav-link {{ opt_section.primary ? 'active' : '' }}"
 			   {% if opt_section.primary %}aria-selected="true"{% endif %}
 			   id="tab-navlink-{{ opt_section.slug }}"
-					{% if opt_sect_key > 0 %}{% endif %}
 			   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
 					<span>{{ opt_section.title_short }}</span>
 			</a>
