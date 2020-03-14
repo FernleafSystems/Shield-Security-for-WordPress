@@ -45,6 +45,8 @@ class Strings {
 				'time_until'        => __( 'Until', 'wp-simple-firewall' ),
 				'time_since'        => __( 'Since', 'wp-simple-firewall' ),
 				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
+				'opt_info_helpdesk' => __( 'Read the HelpDesk article for this option', 'wp-simple-firewall' ),
+				'opt_info_blog'     => __( 'Read our Blog article for this option', 'wp-simple-firewall' ),
 				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),

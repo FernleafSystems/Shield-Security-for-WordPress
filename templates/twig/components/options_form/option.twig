@@ -4,12 +4,13 @@
 		<label for="Opt-{{ aOption.key }}"
 			   id="Label-{{ aOption.key }}"
 			   class="col-form-label">
-			<span class="option_label_name">{{ aOption.name }}{% if aOption.link_info %}
+			<span class="option_label_name">{{ aOption.name }}
+				{% if aOption.link_info %}
 					<a href="{{ aOption.link_info }}" class="option_link_info d-inline-block" target="_blank"
-					   title="{{ strings.more_info }}">
+					   title="{{ strings.opt_info_helpdesk }}">
 					<span class="dashicons dashicons-editor-help"></span></a>
-				{% endif %}</span>
-
+				{% endif %}
+			</span>
 
 			{% if aOption.disabled %}
 				<br />
@@ -160,11 +161,15 @@
 	<div class="col">
 		<div class="option-description" id="Description{{ aOption.key }}">
 			{{ aOption.description|raw }}
-			{% if aOption.link_blog %}
-				<div class="mt-3 text-left" style="text-wrap: none">
-					<a href="{{ aOption.link_blog }}" target="_blank" class="new-window-link option-link">
-						{{ strings.blog }}
-					</a>
+			{% if aOption.link_info %}
+			<div class="mt-3 text-left text-nowrap">
+					<a href="{{ aOption.link_info }}" target="_blank"
+					   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
+				{% if aOption.link_blog %}
+					<span class="m-1">&vert;</span>
+						<a href="{{ aOption.link_blog }}" target="_blank"
+						   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
+				{% endif %}
 				</div>
 			{% endif %}
 		</div>

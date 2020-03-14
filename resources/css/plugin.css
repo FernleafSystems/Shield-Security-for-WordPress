@@ -1142,16 +1142,6 @@ input[type=checkbox].form-check-input {
 	width: 1px;
 	margin-left: -3px;
 }
-.content-options .option-links {
-	font-size: 12px;
-}
-.content-options .option-links a {
-	color: #008000;
-	font-size: 14px;
-}
-.content-options .option-links ul {
-	margin-top: 10px;
-}
 .tooltip .arrow {
 	display: none !important;
 }
