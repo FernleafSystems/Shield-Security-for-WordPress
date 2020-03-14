@@ -572,7 +572,8 @@ input:checked + .icwp-slider:before {
 	left: 1px;
 }
 #ColumnModules {
-	margin-left: 20px;
+	width: 200px;
+	margin-left: 15px;
 	margin-top: 8px;
 }
 #ColumnOptions {
@@ -592,7 +593,7 @@ input:checked + .icwp-slider:before {
 }
 .modules a.module {
 	height: 45px;
-	width: 160px;
+	width: 100%;
 	margin: auto;
 	text-align: left;
 	display: block;

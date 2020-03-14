@@ -3,7 +3,7 @@
   "properties":    {
     "slug":                  "login_protect",
     "name":                  "Login Guard",
-    "sidebar_name":          "Login/Register",
+    "sidebar_name":          "Login Protection",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "loginprotect",
