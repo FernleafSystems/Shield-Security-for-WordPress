@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
 /**
  * Class ICWP_WPSF_Processor_LoginProtect_Wizard
@@ -328,6 +329,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardIpDetect() {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oIps = Services::IP();
 		$sIp = Services::Request()->post( 'ip' );
 
@@ -343,14 +346,14 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 //			$sMessage = 'The IP address supplied was not a valid IP address.';
 //		}
 		else {
-			$sSource = $oIps->determineSourceFromIp( $sIp );
+			$sSource = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
 			if ( empty( $sSource ) ) {
 				$sMessage = __( "The address source couldn't be found from this IP.", 'wp-simple-firewall' );
 			}
 			else {
 				$oMod = $this->getCon()
 							 ->getModule_Plugin();
-				$oMod->setVisitorAddressSource( $sSource );
+				$oOpts->setVisitorAddressSource( $sSource );
 				$oMod->saveModOptions();
 				$oResponse->setSuccessful( true );
 				$sMessage = __( 'Success!', 'wp-simple-firewall' ).' '

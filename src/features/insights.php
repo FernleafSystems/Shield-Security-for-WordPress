@@ -445,6 +445,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_style( $sUnique );
 						$aDeps[] = $sUnique;
 					}
+
+					$this->includeScriptIpDetect();
 					break;
 
 				case 'scans':
@@ -516,6 +518,24 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				]
 			);
 		}
+	}
+
+	private function includeScriptIpDetect() {
+		$oCon = $this->getCon();
+		wp_register_script(
+			$oCon->prefix( 'ip_detect' ),
+			$oCon->getPluginUrl_Js( 'ip_detect.js' ),
+			[],
+			$oCon->getVersion(),
+			true
+		);
+		wp_enqueue_script( $oCon->prefix( 'ip_detect' ) );
+
+		wp_localize_script(
+			$oCon->prefix( 'ip_detect' ),
+			'icwp_wpsf_vars_ipdetect',
+			[ 'ajax' => $oCon->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
+		);
 	}
 
 	private function buildVars_Reports() {

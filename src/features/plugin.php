@@ -585,8 +585,9 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
+		$oCon = $this->getCon();
 		if ( Services::WpPost()->isCurrentPage( 'plugins.php' ) ) {
-			$sFile = $this->getCon()->getPluginBaseFile();
+			$sFile = $oCon->getPluginBaseFile();
 			wp_localize_script(
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
@@ -605,7 +606,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		}
 
 		wp_localize_script(
-			$this->prefix( 'plugin' ),
+			$oCon->prefix( 'plugin' ),
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
 		);

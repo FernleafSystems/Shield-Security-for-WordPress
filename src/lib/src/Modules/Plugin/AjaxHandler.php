@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
@@ -52,6 +53,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			case 'sgoptimizer_turnoff':
 				$aResponse = $this->ajaxExec_TurnOffSiteGroundOptions();
+				break;
+
+			case 'ipdetect':
+				$aResponse = $this->ajaxExec_IpDetect();
 				break;
 
 			case 'mark_tour_finished':
@@ -293,6 +298,22 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'success' => $bSuccess,
 			'message' => $bSuccess ? __( 'Switching-off conflicting options appears to have been successful.', 'wp-simple-firewall' )
 				: __( 'Switching-off conflicting options appears to have failed.', 'wp-simple-firewall' )
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_IpDetect() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		$sSource = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
+		if ( !empty( $sSource ) ) {
+			$oOpts->setVisitorAddressSource( $sSource );
+		}
+		return [
+			'success' => !empty( $sSource ),
+			'message' => empty( $sSource ) ? 'Could not find source' : 'IP Source Found: '.$sSource
 		];
 	}
 
