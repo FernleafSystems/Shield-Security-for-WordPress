@@ -41,7 +41,7 @@
 								   data-toggle="popover"
 								   data-content="<ul>
 							{% for item in opt_section.summary %}
-								<li class='mt-2'>{{ item|raw }}</li>
+								<li class='mt-2'>{{ item|raw|escape }}</li>
 							{% endfor %}
 							</ul>">
 								<span class="dashicons dashicons-info"></span></a>
