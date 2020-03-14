@@ -1131,10 +1131,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 		// add strings
 		try {
-			$aOptParams = Services::DataManipulation()->mergeArraysRecursive(
-				$aOptParams,
-				$this->getStrings()->getOptionStrings( $aOptParams[ 'key' ] )
-			);
+			$aOptStrings = $this->getStrings()->getOptionStrings( $aOptParams[ 'key' ] );
+			if ( is_array( $aOptStrings[ 'description' ] ) ) {
+				$aOptStrings[ 'description' ] = implode( "<br/>", $aOptStrings[ 'description' ] );
+			}
+			$aOptParams = Services::DataManipulation()->mergeArraysRecursive( $aOptParams, $aOptStrings );
 		}
 		catch ( \Exception $oE ) {
 		}

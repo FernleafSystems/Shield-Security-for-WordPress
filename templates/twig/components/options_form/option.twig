@@ -158,14 +158,14 @@
 	</div>
 
 	<div class="col">
-		<div class="option-description"
-			 id="Description{{ aOption.key }}">{{ aOption.description|raw }}
+		<div class="option-description" id="Description{{ aOption.key }}">
+			{{ aOption.description|raw }}
 			{% if aOption.link_blog %}
 				<div class="mt-3 text-left" style="text-wrap: none">
-						<a href="{{ aOption.link_blog }}" target="_blank"
-						   class="new-window-link option-link">
-						{{ strings.blog }}</a>
-			</div>
+					<a href="{{ aOption.link_blog }}" target="_blank" class="new-window-link option-link">
+						{{ strings.blog }}
+					</a>
+				</div>
 			{% endif %}
 		</div>
 	</div>
