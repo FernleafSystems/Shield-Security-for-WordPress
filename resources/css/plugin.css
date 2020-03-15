@@ -1269,3 +1269,12 @@ a.new-window-link::after {
 a.section_title_info .dashicons {
 	color: rgba(0, 128, 0, 1);
 }
+dl.pro-features dt{
+	margin-left:2px;
+}
+dl.pro-features dt:before {
+	content: "\1f44d";
+}
+dl.pro-features dd {
+	margin-bottom: 10px;
+}

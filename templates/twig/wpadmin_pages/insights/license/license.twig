@@ -1,3 +1,4 @@
+{% import "/common/macros.twig" as icwp_macros %}
 <style>
 	#accordionTop .accordion-toggle h3 {
 		color: #333333;
@@ -122,12 +123,12 @@
 
 			  <div class="card gopro-card">
 				<div class="card-header" id="headingOne">
-				  <h5 class="mb-0">
+				  <h4 class="mb-0">
 					<button class="btn btn-link" data-toggle="collapse" data-target="#collone"
 							aria-expanded="true" aria-controls="collone">
-					  &rarr; Shield Pro gives you ...
+					  &rarr; {{ icwp_macros.shieldpro }} gives you ...
 					</button>
-				  </h5>
+				  </h4>
 				</div>
 
 				<div id="collone" class="collapse show" aria-labelledby="headingOne"
@@ -135,11 +136,21 @@
 				  <div class="card-body">
 					  <p><a href="https://shsec.io/gp" target="_blank" class="btn btn-success">
 							  See All PRO Features and Extras &nearr;</a></p>
-					<dl>
+					<dl class="pro-features">
+						<dt>Easiest, Frustration-Free WP Pro-Upgrade Anywhere</dt>
+						<dd>No more license keys to remember/copy-paste! Simply activate your site URL in your
+							{{ icwp_macros.shieldpro }} control panel and get Pro features enabled on your site automatically.
+						</dd>
+
 						<dt>Powerful, Auto-Learning Malware Scanner</dt>
 						<dd>Detects common and uncommon malware patterns in PHP files and alerts you immediately.
 							<br/>With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives
 							so you can focus on risks that matter, and can ignore the noise that wastes your time.
+						</dd>
+
+						<dt>Traffic Rate Limiting</dt>
+						<dd>Prevent abuse of your web hosting resources by detecting and blocking bots that send
+							too many requests to your site.
 						</dd>
 
 						<dt>Plugin and Theme Vulnerability Scanner</dt>
