@@ -29,10 +29,12 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 		add_action( 'login_init', [ $this, 'aLoginFormAction' ], 0 );
 
 		// ensure that wp-login.php is never used in site urls or redirects
-		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20, 2 );
-		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20, 2 );
-		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20, 2 );
-		add_filter( 'wp_redirect', [ $this, 'fProtectUnauthorizedLoginRedirect' ], 50, 2 );
+		add_filter( 'site_url', [ $this, 'fCheckForLoginPhp' ], 20, 1 );
+		add_filter( 'network_site_url', [ $this, 'fCheckForLoginPhp' ], 20, 1 );
+		add_filter( 'wp_redirect', [ $this, 'fCheckForLoginPhp' ], 20, 1 );
+		if ( !Services::WpUsers()->isUserLoggedIn() ) {
+			add_filter( 'wp_redirect', [ $this, 'fProtectUnauthorizedLoginRedirect' ], 50, 1 );
+		}
 		add_filter( 'register_url', [ $this, 'blockRegisterUrlRedirect' ], 20, 1 );
 
 		add_filter( 'et_anticipate_exceptions', [ $this, 'fAddToEtMaintenanceExceptions' ] );
@@ -143,10 +145,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 
 	/**
 	 * @param string $sLocation
-	 * @param string $mStatus
 	 * @return string
 	 */
-	public function fCheckForLoginPhp( $sLocation, $mStatus ) {
+	public function fCheckForLoginPhp( $sLocation ) {
 
 		$sRedirectPath = parse_url( $sLocation, PHP_URL_PATH );
 		if ( strpos( $sRedirectPath, 'wp-login.php' ) !== false ) {
@@ -164,10 +165,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 
 	/**
 	 * @param string $sLocation
-	 * @param string $mStatus
 	 * @return string
 	 */
-	public function fProtectUnauthorizedLoginRedirect( $sLocation, $mStatus ) {
+	public function fProtectUnauthorizedLoginRedirect( $sLocation ) {
 
 		if ( !Services::WpGeneral()->isLoginUrl() ) {
 			$sRedirectPath = trim( parse_url( $sLocation, PHP_URL_PATH ), '/' );
