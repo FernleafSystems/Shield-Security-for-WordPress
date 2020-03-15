@@ -419,6 +419,7 @@
     {
       "key":          "openssl_private_key",
       "transferable": false,
+      "sensitive":    true,
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""

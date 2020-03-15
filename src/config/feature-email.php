@@ -10,7 +10,8 @@
     "premium":               false,
     "access_restricted":     true,
     "run_if_whitelisted":    true,
-    "run_if_wpcli":          true
+    "run_if_wpcli":          true,
+    "tracking_exclude":      true
   },
   "sections":   [
     {

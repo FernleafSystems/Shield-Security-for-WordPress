@@ -117,8 +117,11 @@ class ShieldProcessor extends Base\BaseProcessor {
 		if ( !is_array( $aData ) ) {
 			$aData = [];
 		}
-		$oFO = $this->getMod();
-		$aData[ $oFO->getSlug() ] = [ 'options' => $oFO->collectOptionsForTracking() ];
+		$oMod = $this->getMod();
+		$aOptions = $oMod->collectOptionsForTracking();
+		if ( !empty( $aOptions ) ) {
+			$aData[ $oMod->getSlug() ] = [ 'options' => $oMod->collectOptionsForTracking() ];
+		}
 		return $aData;
 	}
 

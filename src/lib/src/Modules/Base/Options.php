@@ -130,12 +130,36 @@ class Options {
 				$aOptions[ $sKey ] = $this->getOptDefault( $sKey );
 			}
 		}
-		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptionData ) {
-			if ( isset( $aOptionData[ 'sensitive' ] ) && $aOptionData[ 'sensitive' ] === true ) {
-				unset( $aOptions[ $aOptionData[ 'key' ] ] );
+		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptDef ) {
+			if ( isset( $aOptDef[ 'sensitive' ] ) && $aOptDef[ 'sensitive' ] === true ) {
+				unset( $aOptions[ $aOptDef[ 'key' ] ] );
 			}
 		}
 		return array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
+	}
+
+	/**
+	 * Returns an array of all the options with the values for "sensitive" options masked out.
+	 * @return array
+	 */
+	public function getOptionsForTracking() {
+		$aOpts = [];
+		if ( (bool)$this->getFeatureProperty( 'tracking_exclude' ) === false ) {
+
+			$aOptions = $this->getAllOptionsValues();
+			foreach ( $this->getOptionsKeys() as $sKey ) {
+				if ( !isset( $aOptions[ $sKey ] ) ) {
+					$aOptions[ $sKey ] = $this->getOptDefault( $sKey );
+				}
+			}
+			foreach ( $this->getRawData_AllOptions() as $nKey => $aOptDef ) {
+				if ( !empty( $aOptDef[ 'sensitive' ] ) || !empty( $aOptDef[ 'tracking_exclude' ] ) ) {
+					unset( $aOptions[ $aOptDef[ 'key' ] ] );
+				}
+			}
+			$aOpts = array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
+		}
+		return $aOpts;
 	}
 
 	/**
@@ -289,7 +313,7 @@ class Options {
 	public function isSectionReqsMet( $sSectionSlug ) {
 		$aReqs = $this->getSection_Requirements( $sSectionSlug );
 		return Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
-				&& Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
+			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
 	}
 
 	/**

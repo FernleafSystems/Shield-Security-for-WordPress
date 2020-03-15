@@ -1748,7 +1748,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function collectOptionsForTracking() {
 		$oVO = $this->getOptions();
-		$aOptionsData = $this->getOptions()->getOptionsMaskSensitive();
+		$aOptionsData = $this->getOptions()->getOptionsForTracking();
 		foreach ( $aOptionsData as $sOption => $mValue ) {
 			unset( $aOptionsData[ $sOption ] );
 			// some cleaning to ensure we don't have disallowed characters
