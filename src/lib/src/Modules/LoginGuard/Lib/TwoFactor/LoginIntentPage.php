@@ -70,7 +70,7 @@ class LoginIntentPage {
 
 		$sCancelHref = $oReq->post( 'cancel_href', '' );
 		if ( empty( $sCancelHref ) && Services::Data()->isValidWebUrl( $sReferUrl ) ) {
-			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
+			$sCancelHref = parse_url( $sReferUrl, PHP_URL_PATH );
 		}
 
 		$nMfaSkip = (int)( $oOpts->getMfaSkip()/DAY_IN_SECONDS );

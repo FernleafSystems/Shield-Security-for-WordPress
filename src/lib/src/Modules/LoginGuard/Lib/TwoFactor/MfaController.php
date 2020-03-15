@@ -127,7 +127,7 @@ class MfaController {
 	 */
 	private function getLoginIntentPageHandler() {
 		if ( !isset( $this->oLoginIntentPageHandler ) ) {
-			$this->oLoginIntentPageHandler =( new LoginIntentPage() )->setMfaController( $this );
+			$this->oLoginIntentPageHandler = ( new LoginIntentPage() )->setMfaController( $this );
 		}
 		return $this->oLoginIntentPageHandler;
 	}
@@ -185,7 +185,7 @@ class MfaController {
 			if ( $oReq->post( 'cancel' ) == 1 ) {
 				Services::WpUsers()->logoutUser(); // clears the login and login intent
 				$sRedirectHref = $oReq->post( 'cancel_href' );
-				empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( rawurldecode( $sRedirectHref ) );
+				empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( $sRedirectHref );
 			}
 			elseif ( $this->validateLoginIntentRequest() ) {
 
