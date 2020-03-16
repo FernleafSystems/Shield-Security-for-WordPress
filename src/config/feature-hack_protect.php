@@ -44,24 +44,6 @@
       ]
     },
     {
-      "slug":        "section_scan_options",
-      "title":       "Scan Options",
-      "title_short": "Schedule",
-      "summary":     [
-        "Purpose - Set how often the Hack Guard scans will run."
-      ]
-    },
-    {
-      "slug":        "section_scan_wcf",
-      "primary":     true,
-      "title":       "WordPress Core File Scanner",
-      "title_short": "WP Core File Scanner",
-      "summary":     [
-        "Purpose - Regularly scan your WordPress core files for changes compared to official WordPress files.",
-        "Recommendation - Keep the Core File Integrity Scanner feature turned on."
-      ]
-    },
-    {
       "slug":        "section_scan_wpv",
       "title":       "Vulnerability Scanner",
       "title_short": "Vulnerability Scanner",
@@ -80,35 +62,11 @@
       ]
     },
     {
-      "slug":        "section_realtime",
-      "title":       "Realtime Protection",
-      "title_short": "Realtime Protection",
+      "slug":        "section_scan_options",
+      "title":       "Scan Options",
+      "title_short": "Schedule",
       "summary":     [
-        "Purpose - Provides realtime protection for certain key files.",
-        "Recommendation - Keep realtime protection turned on to protect key files."
-      ]
-    },
-    {
-      "slug":        "section_scan_ptg",
-      "help_video":  {
-        "provider":  "vimeo",
-        "embed_url": "https://player.vimeo.com/video/256755089?color=3fde23&byline=0",
-        "id":        "256755089"
-      },
-      "title":       "Plugins/Themes Guard",
-      "title_short": "Plugins/Themes Guard",
-      "summary":     [
-        "Purpose - Detect malicious changes to your themes and plugins.",
-        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
-      ]
-    },
-    {
-      "slug":        "section_integrity_checking",
-      "title":       "Integrity Checks",
-      "title_short": "Integrity Checks",
-      "summary":     [
-        "Purpose - Monitor for unrecognised changes to your system.",
-        "Recommendation - Enable these to automatically recover from unauthorized changes to your WordPress site."
+        "Purpose - Set how often the Hack Guard scans will run."
       ]
     },
     {
@@ -248,6 +206,31 @@
       "description":   "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
+      "key":           "file_repair_areas",
+      "section":       "section_file_guard",
+      "type":          "multiple_select",
+      "default":       [ "wp", "plugin", "theme" ],
+      "value_options": [
+        {
+          "value_key": "wp",
+          "text":      "WP Core"
+        },
+        {
+          "value_key": "plugin",
+          "text":      "Plugin Files"
+        },
+        {
+          "value_key": "theme",
+          "text":      "Theme Files"
+        }
+      ],
+      "link_info":     "https://shsec.io/wpsf36",
+      "link_blog":     "https://shsec.io/wpsf37",
+      "name":          "Auto File Repair",
+      "summary":       "Which Files Should Be Automatically Repaired?",
+      "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
+    },
+    {
       "key":           "scan_frequency",
       "section":       "section_scan_options",
       "premium":       true,
@@ -292,31 +275,6 @@
       "name":          "Scan Frequency",
       "summary":       "Number Of Times To Automatically Scan Core Files In 24 Hours",
       "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
-    },
-    {
-      "key":           "file_repair_areas",
-      "section":       "section_file_guard",
-      "type":          "multiple_select",
-      "default":       [ "wp", "plugin", "theme" ],
-      "value_options": [
-        {
-          "value_key": "wp",
-          "text":      "WP Core"
-        },
-        {
-          "value_key": "plugin",
-          "text":      "Plugin Files"
-        },
-        {
-          "value_key": "theme",
-          "text":      "Theme Files"
-        }
-      ],
-      "link_info":     "https://shsec.io/wpsf36",
-      "link_blog":     "https://shsec.io/wpsf37",
-      "name":          "Auto File Repair",
-      "summary":       "Which Files Should Be Automatically Repaired?",
-      "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
     },
     {
       "key":           "enable_unrecognised_file_cleaner_scan",
