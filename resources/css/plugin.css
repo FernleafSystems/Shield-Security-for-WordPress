@@ -65,10 +65,6 @@ body.rtl {
 #ColumnOptions form {
 	margin-bottom: 50px;
 }
-#ColumnOptions form .form-group.row .form-check-null {
-	display: flex;
-	align-items: center;
-}
 #ColumnOptions .form-actions .btn {
 	box-shadow: -1px 2px 2px rgba(0, 0, 0, 0.3);
 	opacity: 0.85;
@@ -486,22 +482,6 @@ label.forcheckbox .summary {
 	vertical-align: top;
 	line-height: 20px;
 	margin-left: 7px;
-}
-.icwp-switch {
-	position: relative;
-	display: inline-block;
-	width: 40px;
-	height: 20px;
-	vertical-align: -8px;
-	margin-right: 8px;
-}
-.icwp-switch .summary {
-	display: block;
-}
-/* Hide default HTML checkbox */
-/*.icwp-switch input:disabled,*/
-.icwp-switch input {
-	opacity: 0 !important;
 }
 /* The slider */
 .icwp-slider {
@@ -1060,11 +1040,6 @@ input[type=checkbox].form-check-input {
 	margin-top: 5px;
 	margin-left: -20px;
 	margin-right: 5px;
-}
-.icwp-switch input[type=checkbox].form-check-input {
-	z-index: 10;
-	margin: 0;
-	border-width: 10px 20px;
 }
 /** copied from bootstrap to override WP admin styles */
 .content-options {

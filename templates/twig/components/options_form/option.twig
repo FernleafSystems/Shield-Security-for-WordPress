@@ -25,21 +25,18 @@
 	<div class="col-4">
 
 		{% if aOption.type is sameas('checkbox') %}
-			<div class="form-check-null">
-				<div>
-					<span class="icwp-switch">
-						<input type="checkbox" name="{{ aOption.key }}"
-							   id="Opt-{{ aOption.key }}" class="form-check-input"
-							   {% if aOption.disabled %}disabled="disabled"{% endif %}
-								aria-labelledby="Label-{{ aOption.key }}"
-							   value="Y" {{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }} />
-						<span class="icwp-slider round"></span>
-					</span>
-				</div>
-				<div>
-				<label class="form-check-label"
+			<div class="custom-control custom-switch">
+				<input type="checkbox"
+					   class="custom-control-input"
+					   id="Opt-{{ aOption.key }}"
+					   name="{{ aOption.key }}"
+					   {% if aOption.disabled %}disabled="disabled"{% endif %}
+					   aria-labelledby="Label-{{ aOption.key }}"
+					   value="Y"
+						{{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }}
+				/>
+				<label class="custom-control-label"
 					   for="Opt-{{ aOption.key }}">{{ aOption.summary }}</label>
-				</div>
 			</div>
 
 		{% elseif aOption.type is sameas('text') %}
