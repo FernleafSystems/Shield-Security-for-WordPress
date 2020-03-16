@@ -177,9 +177,11 @@ class Strings extends Base\Strings {
 
 			case 'scan_frequency' :
 				$sName = __( 'Daily Scan Frequency', 'wp-simple-firewall' );
-				$sSummary = __( 'Number Of Times To Automatically Run File Scan In 24hrs', 'wp-simple-firewall' );
-				$sDescription = sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), __( 'Once every 24hrs.', 'wp-simple-firewall' ) )
-								.'<br/>'.__( 'To improve security, increase the number of scans per day.', 'wp-simple-firewall' );
+				$sSummary = __( 'Number Of Times To Run All Scans Each Day', 'wp-simple-firewall' );
+				$sDescription = [
+					sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), __( 'Once every 24hrs.', 'wp-simple-firewall' ) ),
+					__( 'To improve security, increase the number of scans per day.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'enable_plugin_vulnerabilities_scan' :
@@ -215,7 +217,7 @@ class Strings extends Base\Strings {
 
 			case 'mal_scan_enable' :
 				$sName = __( 'Malware', 'wp-simple-firewall' );
-				$sSummary = __( 'Scan And Monitor All Files For Potential Malware', 'wp-simple-firewall' );
+				$sSummary = __( 'Scan And Monitor All Files For Malware Infections', 'wp-simple-firewall' );
 				$sDescription = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and detect presence of Malware signatures.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable this scanner to automatically detect infected files.', 'wp-simple-firewall' ) ),
@@ -235,7 +237,7 @@ class Strings extends Base\Strings {
 
 			case 'file_repair_areas' :
 				$sName = __( 'Automatic File Repair', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Repair Files That Have Changes Or Malware Detected', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Repair Files That Have Changes Or Malware Infection', 'wp-simple-firewall' );
 				$sDescription = [
 					__( 'Will attempt to automatically repair files that are detected to have been changed or infected with malware.', 'wp-simple-firewall' ),
 					__( 'In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files.', 'wp-simple-firewall' ),

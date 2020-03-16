@@ -321,6 +321,7 @@
       "section":     "section_scan_ufc",
       "default":     [
         "error_log",
+        "php_error_log",
         ".htaccess",
         ".htpasswd",
         ".user.ini",
