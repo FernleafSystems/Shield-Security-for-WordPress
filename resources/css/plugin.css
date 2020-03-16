@@ -1278,3 +1278,8 @@ dl.pro-features dt:before {
 dl.pro-features dd {
 	margin-bottom: 10px;
 }
+
+.custom-control-input:checked~.custom-control-label::before {
+	background-color: rgba(69, 119, 0, 1);
+	border-color: rgba(69, 119, 0, 1);
+}

@@ -97,22 +97,22 @@
 
 		{% elseif aOption.type is sameas('multiple_select') %}
 
-			<select name="{{ aOption.key }}[]"
-					id="Opt-{{ aOption.key }}"
-					multiple="multiple" multiple
-					size="{{ aOption.value_options|length }}"
-					{% if aOption.disabled %}disabled="disabled"{% endif %}
-					class="custom-select">
-				{% for option_value, option_value_name in aOption.value_options %}
-					<option value="{{ option_value }}"
+			{% for option_value, option_value_name in aOption.value_options %}
+				<div class="custom-control custom-checkbox">
+					<input type="checkbox"
+						   class="custom-control-input"
+						   id="Opt-{{ aOption.key }}_{{ option_value }}"
+						   name="{{ aOption.key }}[]"
+						   value="{{ option_value }}"
 							{% if option_value in aOption.value %}
-								selected="selected"
+								checked="checked"
 							{% endif %}
-							id="Opt-{{ aOption.key }}_{{ option_value }}">
-						{{ option_value_name }}
-					</option>
-				{% endfor %}
-			</select>
+						   {% if aOption.disabled %}disabled="disabled"{% endif %}
+					/>
+					<label class="custom-control-label"
+						   for="Opt-{{ aOption.key }}_{{ option_value }}">{{ option_value_name }}</label>
+				</div>
+			{% endfor %}
 
 		{% elseif aOption.type is sameas('array') %}
 
@@ -162,14 +162,14 @@
 		<div class="option-description" id="Description{{ aOption.key }}">
 			{{ aOption.description|raw }}
 			{% if aOption.link_info %}
-			<div class="mt-3 text-left text-nowrap">
+				<div class="mt-3 text-left text-nowrap">
 					<a href="{{ aOption.link_info }}" target="_blank"
 					   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
-				{% if aOption.link_blog %}
-					<span class="m-1">&vert;</span>
+					{% if aOption.link_blog %}
+						<span class="m-1">&vert;</span>
 						<a href="{{ aOption.link_blog }}" target="_blank"
 						   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
-				{% endif %}
+					{% endif %}
 				</div>
 			{% endif %}
 		</div>
