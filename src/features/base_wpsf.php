@@ -35,15 +35,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return Shield\Databases\GeoIp\Handler
-	 */
-	public function getDbHandler_GeoIp() {
-		return $this->getCon()
-					->getModule_Plugin()
-					->getDbHandler_GeoIp();
-	}
-
-	/**
 	 * @return Shield\Databases\Session\EntryVO|null
 	 */
 	public function getSession() {
@@ -359,21 +350,5 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'weight'  => 2,
 			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
 		];
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.7.0
-	 */
-	public function getIfIpTransgressed() {
-		return false;
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.7.0
-	 */
-	public function getIpOffenceCount() {
-		return 0;
 	}
 }

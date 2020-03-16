@@ -1943,14 +1943,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Base[]
-	 * @deprecated 8.7.0
-	 */
-	public function getModules() {
-		return is_array( $this->modules ) ? $this->modules : [];
-	}
-
-	/**
 	 * @param array $aModProps
 	 * @param bool  $bRecreate
 	 * @param bool  $bFullBuild

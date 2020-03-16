@@ -98,15 +98,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 8.5.2
-	 */
-	public function getCustomExclusions() {
-		$aEx = $this->getOpt( 'custom_exclusions' );
-		return is_array( $aEx ) ? $aEx : [];
-	}
-
-	/**
 	 * @return int
 	 */
 	public function getAutoDisableAt() {

@@ -74,11 +74,10 @@ class Traffic extends BaseBuild {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-
 		$oWpUsers = Services::WpUsers();
-		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $oMod->getDbHandler_GeoIp() );
+		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $this->getCon()
+															 ->getModule_Plugin()
+															 ->getDbHandler_GeoIp() );
 		$oIpSrv = Services::IP();
 		$sYou = $oIpSrv->getRequestIp();
 
