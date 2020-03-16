@@ -1258,3 +1258,7 @@ dl.pro-features dd {
 	background-color: rgba(69, 119, 0, 1);
 	border-color: rgba(69, 119, 0, 1);
 }
+.custom-switch .custom-control-input:disabled:checked~.custom-control-label::before {
+	background-color: rgba(69, 119, 0, 0.3);
+	border-color: rgba(69, 119, 0, 0.3);
+}

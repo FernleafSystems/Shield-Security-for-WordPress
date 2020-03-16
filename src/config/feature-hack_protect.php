@@ -294,39 +294,29 @@
       "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
-      "key":         "attempt_auto_file_repair",
-      "section":     "section_scan_options",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/wpsf36",
-      "link_blog":   "https://shsec.io/wpsf37",
-      "name":        "Auto Repair",
-      "summary":     "Automatically Repair WordPress Core Files That Have Been Altered",
-      "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
-    },
-    {
-      "key":         "mal_autorepair_plugins",
-      "section":     "section_scan_options",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Auto-Repair WP Plugins",
-      "summary":     "Automatically Repair WordPress.org Plugins",
-      "description": "Automatically repair any plugin files found to have potential malware."
-    },
-    {
-      "key":         "autorepair_themes",
-      "section":     "section_scan_options",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Auto-Repair WP Themes",
-      "summary":     "Automatically Repair WordPress.org Themes",
-      "description": "Automatically repair any theme files found to have potential malware."
+      "key":           "file_repair_areas",
+      "section":       "section_file_guard",
+      "type":          "multiple_select",
+      "default":       [ "wp", "plugin", "theme" ],
+      "value_options": [
+        {
+          "value_key": "wp",
+          "text":      "WP Core"
+        },
+        {
+          "value_key": "plugin",
+          "text":      "Plugin Files"
+        },
+        {
+          "value_key": "theme",
+          "text":      "Theme Files"
+        }
+      ],
+      "link_info":     "https://shsec.io/wpsf36",
+      "link_blog":     "https://shsec.io/wpsf37",
+      "name":          "Auto File Repair",
+      "summary":       "Which Files Should Be Automatically Repaired?",
+      "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
     },
     {
       "key":           "enable_unrecognised_file_cleaner_scan",

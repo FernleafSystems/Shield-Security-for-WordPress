@@ -43,6 +43,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getRepairAreas() {
+		return is_array( $this->getOpt( 'file_repair_areas' ) ) ? $this->getOpt( 'file_repair_areas' ) : [];
+	}
+
+	/**
 	 * @return int[] - keys are the unique report hash
 	 */
 	public function getMalFalsePositiveReports() {

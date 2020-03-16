@@ -77,6 +77,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	protected function updateHandler() {
+		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->getOpt( 'ptg_enable' ) == 'enabled' ) {
 			$oOpts->setOpt( 'ptg_enable', 'Y' );
@@ -84,6 +85,23 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		elseif ( $oOpts->getOpt( 'ptg_enable' ) == 'disabled' ) {
 			$oOpts->setOpt( 'ptg_enable', 'N' );
 		}
+
+		$aRepairAreas = $oOpts->getRepairAreas();
+		$aMap = [
+			'attempt_auto_file_repair' => 'wp',
+			'mal_autorepair_plugins'   => 'plugin',
+		];
+		foreach ( $aMap as $sOld => $sNew ) {
+			$bWasEnabled = $oOpts->isOpt( $sOld, 'Y' );
+			$nIsEnabled = array_search( $sNew, $aRepairAreas );
+			if ( $bWasEnabled && ( $nIsEnabled === false ) ) {
+				$aRepairAreas[] = $sNew;
+			}
+			elseif ( !$bWasEnabled && ( $nIsEnabled !== false ) ) {
+				unset( $aRepairAreas[ $nIsEnabled ] );
+			}
+		}
+		$this->setOpt( 'file_repair_areas', $aRepairAreas );
 	}
 
 	/**
