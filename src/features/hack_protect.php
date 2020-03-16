@@ -17,7 +17,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	private $aScanCons;
 
 	protected function doPostConstruction() {
-		parent::doPostConstruction();
 		$this->setCustomCronSchedules();
 	}
 
