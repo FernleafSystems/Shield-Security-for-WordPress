@@ -5,8 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doPostConstruction() {
-		parent::doPostConstruction();
+	protected function onModulesLoaded() {
 		$this->maybeRedirectToAdmin();
 	}
 

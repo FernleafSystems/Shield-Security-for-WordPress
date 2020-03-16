@@ -84,6 +84,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	protected function setupHooks( $aModProps ) {
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
+		add_action( $this->prefix( 'modules_loaded' ), function () {
+			$this->onModulesLoaded();
+		}, $nRunPriority );
 		add_action( $this->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
 		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
@@ -286,6 +289,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}
 
 		return $bMeetsReqs;
+	}
+
+	protected function onModulesLoaded() {
 	}
 
 	/**
