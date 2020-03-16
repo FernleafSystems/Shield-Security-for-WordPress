@@ -7,8 +7,8 @@ Tags: scan, malware, firewall, two factor authentication, login protection
 Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
-Tested up to: 5.3
-Stable tag: 8.6.3
+Tested up to: 5.4
+Stable tag: 8.7.0
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -371,10 +371,11 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://shsec.io/aa).
 
 = 8.7.0 - Current Release =
-*Released: 16th March, 2020* - [Release Notes](https://shsec.io/gv)
+*Released: 16th March, 2020* - [Release Notes](https://shsec.io/gy)
 
 * **(v.0)**  NEW:		[**PRO**] [Traffic Rate Limiting Feature](https://shsec.io/gv).
 * **(v.0)**  ADDED:		Support for registration forms in plugins: Profile Builder and Paid Member Subscriptions
 * **(v.0)**  IMPROVED:	Tweaks and changes to UI.
+* **(v.0)**  FIXED:		Minor issues with the MFA page.
 
 #### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
