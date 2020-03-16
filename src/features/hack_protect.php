@@ -76,6 +76,16 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 	}
 
+	protected function updateHandler() {
+		$oOpts = $this->getOptions();
+		if ( $oOpts->getOpt( 'ptg_enable' ) == 'enabled' ) {
+			$oOpts->setOpt( 'ptg_enable', 'Y' );
+		}
+		elseif ( $oOpts->getOpt( 'ptg_enable' ) == 'disabled' ) {
+			$oOpts->setOpt( 'ptg_enable', 'N' );
+		}
+	}
+
 	/**
 	 * @param Shield\Databases\Scanner\EntryVO $oEntryVo
 	 * @return string
@@ -91,7 +101,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function doExtraSubmitProcessing() {
 		$this->clearIcSnapshots();
 		$this->cleanFileExclusions();
-		$this->cleanPtgFileExtensions();
 
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 		$this->resetRtBackupFiles();
@@ -140,14 +149,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return int
 	 */
 	public function getScanNotificationInterval() {
-		return DAY_IN_SECONDS*$this->getOpt( 'notification_interval' );
+		return DAY_IN_SECONDS*(int)max( 0, apply_filters( 'icwp_shield_scan_notification_interval', 7 ) );
 	}
 
 	/**
 	 * @return bool
+	 * @deprecated 8.8.0
 	 */
 	public function isIncludeFileLists() {
-		return $this->isPremium() && $this->isOpt( 'email_files_list', 'Y' );
+		return false;
 	}
 
 	/**
@@ -233,21 +243,19 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getWpvulnPluginsHighlightOption() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isWpvulnEnabled() ? $oOpts->getOpt( 'wpvuln_scan_display' ) : 'disabled';
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isWpvulnPluginsHighlightEnabled() {
-		$sOpt = $this->getWpvulnPluginsHighlightOption();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isWpvulnEnabled() ) {
+			$sOpt = apply_filters( 'icwp_shield_wpvuln_scan_display', 'securityadmin' );
+		}
+		else {
+			$sOpt = 'disabled';
+		}
 		return ( $sOpt != 'disabled' ) && Services::WpUsers()->isUserAdmin()
-			   && ( ( $sOpt != 'enabled_securityadmin' ) || $this->getCon()->isPluginAdmin() );
+			   && ( ( $sOpt != 'securityadmin' ) || $this->getCon()->isPluginAdmin() );
 	}
 
 	/**
@@ -276,19 +284,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		return $bCanWrite;
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function cleanPtgFileExtensions() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oOpts->setOpt(
-			'ptg_extensions',
-			$this->cleanStringArray( $oOpts->getPtgFileExtensions(), '#[^a-z0-9_-]#i' )
-		);
-		return $this;
 	}
 
 	/**
@@ -922,5 +917,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	protected function getNamespaceBase() {
 		return 'HackGuard';
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 8.8.0
+	 */
+	public function getWpvulnPluginsHighlightOption() {
+		return 'disabled';
 	}
 }

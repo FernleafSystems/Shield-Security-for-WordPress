@@ -62,7 +62,7 @@ class Options extends Base\ShieldOptions {
 	 * @return int
 	 */
 	public function getMalConfidenceBoundary() {
-		return (int)$this->getOpt( 'mal_fp_confidence' );
+		return (int)apply_filters( 'icwp_shield_fp_confidence_boundary', 50 );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isMalAutoRepairThemes() {
-		return $this->isOpt( 'mal_autorepair_themes', 'Y' );
+		return $this->isOpt( 'autorepair_themes', 'Y' );
 	}
 
 	/**
@@ -157,7 +157,7 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isMalAutoRepairCore() {
-		return $this->isOpt( 'mal_autorepair_core', 'Y' );
+		return $this->isWcfScanAutoRepair();
 	}
 
 	/**
@@ -179,21 +179,6 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isMalUseNetworkIntelligence() {
 		return $this->getMalConfidenceBoundary() > 0;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getPtgFileExtensions() {
-		$aExt = $this->getOpt( 'ptg_extensions' );
-		return is_array( $aExt ) ? $aExt : [];
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getPtgScanDepth() {
-		return 0;
 	}
 
 	/**

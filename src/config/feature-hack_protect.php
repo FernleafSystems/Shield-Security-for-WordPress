@@ -34,6 +34,16 @@
   ],
   "sections":         [
     {
+      "slug":        "section_file_guard",
+      "primary":     true,
+      "title":       "File Guard",
+      "title_short": "File Guard",
+      "summary":     [
+        "Purpose - Monitor WordPress files and protect against malicious intrusion and hacking.",
+        "Recommendation - Keep the File Guard features turned on."
+      ]
+    },
+    {
       "slug":        "section_scan_options",
       "title":       "Scan Options",
       "title_short": "Schedule",
@@ -52,6 +62,15 @@
       ]
     },
     {
+      "slug":        "section_scan_wpv",
+      "title":       "Vulnerability Scanner",
+      "title_short": "Vulnerability Scanner",
+      "summary":     [
+        "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
+        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
+      ]
+    },
+    {
       "slug":        "section_scan_ufc",
       "title":       "Unrecognised Files Scanner",
       "title_short": "Unrecognised Files Scanner",
@@ -61,30 +80,12 @@
       ]
     },
     {
-      "slug":        "section_scan_apc",
-      "title":       "Abandoned Plugin Check",
-      "title_short": "Abandoned Plugin Check",
-      "summary":     [
-        "Purpose - Regularly scan your WordPress plugins and themes for plugins that have been abandoned.",
-        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
-      ]
-    },
-    {
       "slug":        "section_realtime",
       "title":       "Realtime Protection",
       "title_short": "Realtime Protection",
       "summary":     [
         "Purpose - Provides realtime protection for certain key files.",
         "Recommendation - Keep realtime protection turned on to protect key files."
-      ]
-    },
-    {
-      "slug":        "section_scan_mal",
-      "title":       "Malware Scan",
-      "title_short": "Malware Scan",
-      "summary":     [
-        "Purpose - Detect malicious changes to your themes and plugins.",
-        "Recommendation - Keep the Plugins/Theme Guard feature turned on."
       ]
     },
     {
@@ -99,15 +100,6 @@
       "summary":     [
         "Purpose - Detect malicious changes to your themes and plugins.",
         "Recommendation - Keep the Plugins/Theme Guard feature turned on."
-      ]
-    },
-    {
-      "slug":        "section_scan_wpv",
-      "title":       "Vulnerability Scanner",
-      "title_short": "Vulnerability Scanner",
-      "summary":     [
-        "Purpose - Regularly scan your WordPress plugins and themes for known security vulnerabilities.",
-        "Recommendation - Ensure this is turned on and you will always know if any of your assets have known security vulnerabilities."
       ]
     },
     {
@@ -196,34 +188,8 @@
       "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
     },
     {
-      "key":           "wpvuln_scan_display",
-      "section":       "section_scan_wpv",
-      "default":       "enabled_admin",
-      "premium":       true,
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Display Disabled"
-        },
-        {
-          "value_key": "enabled_admin",
-          "text":      "Display Enabled"
-        },
-        {
-          "value_key": "enabled_securityadmin",
-          "text":      "Display Only For Security Admins"
-        }
-      ],
-      "link_info":     "",
-      "link_blog":     "",
-      "name":          "Highlight Plugins",
-      "summary":       "Highlight Vulnerable Plugins",
-      "description":   "Vulnerable plugins will be highlighted on the main plugins page."
-    },
-    {
       "key":           "enabled_scan_apc",
-      "section":       "section_scan_apc",
+      "section":       "section_scan_wpv",
       "default":       "enabled_email",
       "type":          "select",
       "value_options": [
@@ -248,7 +214,7 @@
     },
     {
       "key":         "enable_core_file_integrity_scan",
-      "section":     "section_scan_wcf",
+      "section":     "section_file_guard",
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/wpsf36",
@@ -258,15 +224,28 @@
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
-      "key":         "attempt_auto_file_repair",
-      "section":     "section_scan_wcf",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/wpsf36",
-      "link_blog":   "https://shsec.io/wpsf37",
-      "name":        "Auto Repair",
-      "summary":     "Automatically Repair WordPress Core Files That Have Been Altered",
-      "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
+      "key":           "mal_scan_enable",
+      "section":       "section_file_guard",
+      "premium":       true,
+      "default":       "Y",
+      "type":          "checkbox",
+      "link_info":     "https://shsec.io/fp",
+      "link_blog":     "https://shsec.io/fx",
+      "name":          "Automatic Malware Scan",
+      "summary":       "Enable Malware File Scanner",
+      "description":   "When enabled the Malware scanner will run automatically."
+    },
+    {
+      "key":           "ptg_enable",
+      "section":       "section_file_guard",
+      "premium":       true,
+      "default":       "Y",
+      "type":          "checkbox",
+      "link_info":     "https://shsec.io/bl",
+      "link_blog":     "https://shsec.io/bm",
+      "name":          "Enable/Disable Guard",
+      "summary":       "Enable The Guard For Plugin And Theme Files",
+      "description":   "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
       "key":           "scan_frequency",
@@ -315,29 +294,39 @@
       "description":   "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
-      "key":         "notification_interval",
+      "key":         "attempt_auto_file_repair",
       "section":     "section_scan_options",
-      "premium":     true,
-      "default":     "7",
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Repeat Notifications",
-      "summary":     "Item Repeat Notifications Suppression Interval",
-      "description": "How long the automated scans should wait before repeating a notification about an item."
-    },
-    {
-      "key":         "email_files_list",
-      "section":     "section_scan_options",
-      "premium":     true,
       "default":     "N",
       "type":        "checkbox",
+      "link_info":   "https://shsec.io/wpsf36",
+      "link_blog":   "https://shsec.io/wpsf37",
+      "name":        "Auto Repair",
+      "summary":     "Automatically Repair WordPress Core Files That Have Been Altered",
+      "description": "Attempts to automatically repair WordPress Core files with the official WordPress file data, for files that have been altered or are missing."
+    },
+    {
+      "key":         "mal_autorepair_plugins",
+      "section":     "section_scan_options",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "N",
       "link_info":   "",
       "link_blog":   "",
-      "name":        "Email Files List",
-      "summary":     "Scan Notification Emails Should Include Full Listing Of Files",
-      "description": "Scanner notification emails will include a summary list of all affected files."
+      "name":        "Auto-Repair WP Plugins",
+      "summary":     "Automatically Repair WordPress.org Plugins",
+      "description": "Automatically repair any plugin files found to have potential malware."
+    },
+    {
+      "key":         "autorepair_themes",
+      "section":     "section_scan_options",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "N",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Auto-Repair WP Themes",
+      "summary":     "Automatically Repair WordPress.org Themes",
+      "description": "Automatically repair any theme files found to have potential malware."
     },
     {
       "key":           "enable_unrecognised_file_cleaner_scan",
@@ -422,86 +411,6 @@
       "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
-      "key":           "mal_scan_enable",
-      "section":       "section_scan_mal",
-      "premium":       true,
-      "default":       "disabled",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Automatic Scan Disabled"
-        },
-        {
-          "value_key": "enabled",
-          "text":      "Automatic Scan Enabled"
-        }
-      ],
-      "link_info":     "https://shsec.io/fp",
-      "link_blog":     "https://shsec.io/fx",
-      "name":          "Automatic Malware Scan",
-      "summary":       "Enable Malware File Scanner",
-      "description":   "When enabled the Malware scanner will run automatically."
-    },
-    {
-      "key":           "mal_fp_confidence",
-      "section":       "section_scan_mal",
-      "premium":       true,
-      "default":       "75",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "0",
-          "text":      "None - Turn Off Malware Intelligence Network"
-        },
-        {
-          "value_key": "25",
-          "text":      "Low"
-        },
-        {
-          "value_key": "50",
-          "text":      "Medium"
-        },
-        {
-          "value_key": "75",
-          "text":      "High"
-        },
-        {
-          "value_key": "100",
-          "text":      "Full"
-        }
-      ],
-      "link_info":     "https://shsec.io/fp",
-      "link_blog":     "https://shsec.io/fz",
-      "name":          "Automatic Malware Scan",
-      "summary":       "Enable Malware File Scanner",
-      "description":   "When enabled the Malware scanner will run automatically."
-    },
-    {
-      "key":         "mal_autorepair_core",
-      "section":     "section_scan_mal",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Auto-Repair WP Core",
-      "summary":     "Automatically Repair WordPress Core Files",
-      "description": "Automatically reinstall any core files found to have potential malware."
-    },
-    {
-      "key":         "mal_autorepair_plugins",
-      "section":     "section_scan_mal",
-      "premium":     true,
-      "type":        "checkbox",
-      "default":     "N",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Auto-Repair WP Plugins",
-      "summary":     "Automatically Repair WordPress.org Plugins",
-      "description": "Automatically repair any plugin files found to have potential malware."
-    },
-    {
       "key":         "mal_autorepair_surgical",
       "section":     "section_non_ui",
       "premium":     true,
@@ -514,48 +423,8 @@
       "description": "Attempts to automatically remove code from infected files."
     },
     {
-      "key":           "ptg_enable",
-      "section":       "section_scan_ptg",
-      "premium":       true,
-      "default":       "disabled",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Scan Disabled"
-        },
-        {
-          "value_key": "enabled",
-          "text":      "Scan Enabled"
-        }
-      ],
-      "link_info":     "https://shsec.io/bl",
-      "link_blog":     "https://shsec.io/bm",
-      "name":          "Enable/Disable Guard",
-      "summary":       "Enable The Guard For Plugin And Theme Files",
-      "description":   "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
-    },
-    {
-      "key":         "ptg_extensions",
-      "section":     "section_scan_ptg",
-      "premium":     true,
-      "default":     [
-        "php",
-        "php5",
-        "js",
-        "svg",
-        "htaccess"
-      ],
-      "type":        "array",
-      "link_info":   "https://shsec.io/bo",
-      "link_blog":   "",
-      "name":        "File Types",
-      "summary":     "The File Types Included In The Scan",
-      "description": "Take a new line for each file extension. No commas(,) or periods(.) necessary."
-    },
-    {
       "key":         "ptg_reinstall_links",
-      "section":     "section_scan_ptg",
+      "section":     "section_scan_options",
       "premium":     true,
       "type":        "checkbox",
       "default":     "Y",
