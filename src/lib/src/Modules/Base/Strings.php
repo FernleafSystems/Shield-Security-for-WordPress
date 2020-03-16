@@ -45,6 +45,8 @@ class Strings {
 				'time_until'        => __( 'Until', 'wp-simple-firewall' ),
 				'time_since'        => __( 'Since', 'wp-simple-firewall' ),
 				'more_info'         => __( 'Info', 'wp-simple-firewall' ),
+				'opt_info_helpdesk' => __( 'Read the HelpDesk article for this option', 'wp-simple-firewall' ),
+				'opt_info_blog'     => __( 'Read our Blog article for this option', 'wp-simple-firewall' ),
 				'logged_in'         => __( 'Logged-In', 'wp-simple-firewall' ),
 				'username'          => __( 'Username' ),
 				'blog'              => __( 'Blog', 'wp-simple-firewall' ),
@@ -133,6 +135,14 @@ class Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $sOptKey ) {
+		$aOpt = $this->getOptions()->getOptDefinition( $sOptKey );
+		if ( is_array( $aOpt ) && !empty( $aOpt[ 'name' ] ) && !empty( $aOpt[ 'summary' ] ) && !empty( $aOpt[ 'description' ] ) ) {
+			return [
+				'name'        => __( $aOpt[ 'name' ], 'wp-simple-firewall' ),
+				'summary'     => __( $aOpt[ 'summary' ], 'wp-simple-firewall' ),
+				'description' => __( $aOpt[ 'description' ], 'wp-simple-firewall' ),
+			];
+		}
 		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sOptKey ) );
 	}
 
@@ -156,7 +166,15 @@ class Strings {
 				break;
 
 			default:
-				throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				$aSect = $this->getOptions()->getSection( $sSectionSlug );
+				if ( is_array( $aSect ) && !empty( $aSect[ 'title' ] ) && !empty( $aSect[ 'title_short' ] ) ) {
+					$sTitle = __( $aSect[ 'title' ], 'wp-simple-firewall' );
+					$sTitleShort = __( $aSect[ 'title_short' ], 'wp-simple-firewall' );
+					$aSummary = empty( $aSect[ 'summary' ] ) ? [] : $aSect[ 'summary' ];
+				}
+				else {
+					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+				}
 		}
 
 		return [

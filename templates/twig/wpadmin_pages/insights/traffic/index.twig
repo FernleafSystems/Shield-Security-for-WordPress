@@ -5,7 +5,7 @@
 		<div class="col-12 insights_section">
 			{% if flags.can_traffic %}
 				{% if not flags.is_enabled %}
-					<div class="alert alert-info">
+					<div class="alert alert-success">
 						<h6 class="alert-heading">{{ strings.not_enabled }}</h6>
 						<p class="m-0"><a class="alert-link" href="{{ hrefs.please_enable }}">{{ strings.please_enable }}</a></p>
 					</div>

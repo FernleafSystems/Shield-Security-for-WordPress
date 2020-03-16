@@ -40,8 +40,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function hasSecAdminUsers() {
-		$aUsers = $this->getSecurityAdminUsers();
-		return !empty( $aUsers );
+		return count( $this->getSecurityAdminUsers() ) > 0;
 	}
 
 	/**

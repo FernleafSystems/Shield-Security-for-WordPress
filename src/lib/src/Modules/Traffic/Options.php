@@ -57,9 +57,26 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getReqTypeExclusions() {
+		$aEx = $this->getOpt( 'type_exclusions' );
+		return is_array( $aEx ) ? $aEx : [];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isTrafficLoggerEnabled() {
+		return $this->isOpt( 'enable_traffic', 'Y' ) && $this->isOpt( 'enable_logger', 'Y' )
+			   && $this->getMaxEntries() > 0 && $this->getAutoCleanDays() > 0;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isTrafficLimitEnabled() {
-		return ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
+		return $this->isTrafficLoggerEnabled() && $this->isOpt( 'enable_limiter', 'Y' )
+			   && ( $this->getLimitTimeSpan() > 0 ) && ( $this->getLimitRequestCount() > 0 );
 	}
 }

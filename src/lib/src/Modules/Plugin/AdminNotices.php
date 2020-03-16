@@ -159,6 +159,7 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @param Shield\Utilities\AdminNotices\NoticeVO $oNotice
 	 */
 	private function buildNotice_PluginMailingListSignup( $oNotice ) {
+		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$sName = $this->getCon()->getHumanName();

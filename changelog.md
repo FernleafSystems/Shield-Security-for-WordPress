@@ -1,3 +1,19 @@
+= 8.6 - Series =
+*Released: 19th February, 2020* - [Release Notes](https://shsec.io/gl)
+
+* **(v.3)**  IMPROVED:	AJAX handling and general plugin requests have been refined to be less prone to errors.
+* **(v.3)**  IMPROVED:	The Traffic Log Viewer will now be displayed even if it's disabled.
+* **(v.3)**  REMOVED:	2 options from the Automatic Updates module have been removed, that influenced translations and version control.
+* **(v.3)**  IMPROVED:	Some minor improvements and optimisations.
+* **(v.3)**  IMPROVED:	Adjusted how Shield stores temporary WP options to prevent duplicates.
+* **(v.3)**  FIXED:		Login backup-code wasn't always reset after it was used.
+* **(v.3)**  FIXED:		IP address wasn't blocked even after committing an offense in 1 particular scenario.
+* **(v.1)**  NEW:		[**PRO**] Deep scanning for valid email addresses when user registers with site.
+* **(v.1)**  ADDED:		[**PRO**] New option allows users to turn on email-based two-factor authentication from their profile.
+* **(v.1)**  ADDED:		Support for manually blocking IP Ranges (not just single IPs).
+* **(v.1)**  IMPROVED:	Two-Factor Authentication system has been rewritten and improved.
+* **(v.1)**  IMPROVED:	Table ordering and descriptions for the IP Black List.
+
 = 8.5 - Series =
 *Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
 

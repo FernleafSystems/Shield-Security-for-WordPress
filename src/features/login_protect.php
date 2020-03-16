@@ -11,15 +11,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	private $oLoginIntentController;
 
-	/**
-	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function getIfUseLoginIntentPage() {
-		return $this->isOpt( 'use_login_intent_page', true );
-	}
-
 	protected function doExtraSubmitProcessing() {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		/**
 		 * $oWp = $this->loadWpFunctionsProcessor();
 		 * $sCustomLoginPath = $this->cleanLoginUrlPath();
@@ -27,7 +21,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		 * $oWp->resavePermalinks();
 		 * }
 		 */
-		if ( $this->isModuleOptionsRequest() && $this->isEmailAuthenticationOptionOn() && !$this->getIfCanSendEmailVerified() ) {
+		if ( $this->isModuleOptionsRequest() && $oOpts->isEnabledEmailAuth() && !$oOpts->getIfCanSendEmailVerified() ) {
 			$this->setIfCanSendEmail( false )
 				 ->sendEmailVerifyCanSend();
 		}
@@ -64,10 +58,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @uses wp_redirect()
 	 */
 	private function processEmailSendVerify() {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$this->setIfCanSendEmail( true );
 		$this->saveModOptions();
 
-		if ( $this->getIfCanSendEmailVerified() ) {
+		if ( $oOpts->getIfCanSendEmailVerified() ) {
 			$bSuccess = true;
 			$sMessage = __( 'Email verification completed successfully.', 'wp-simple-firewall' );
 		}
@@ -151,21 +147,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getEmail2FaRoles() {
-		$aRoles = $this->getOpt( 'two_factor_auth_user_roles', [] );
-		if ( empty( $aRoles ) || !is_array( $aRoles ) ) {
-			$aRoles = $this->getOptEmailTwoFactorRolesDefaults();
-			$this->setOpt( 'two_factor_auth_user_roles', $aRoles );
-		}
-		if ( $this->isPremium() ) {
-			$aRoles = apply_filters( 'odp-shield-2fa_email_user_roles', $aRoles );
-		}
-		return is_array( $aRoles ) ? $aRoles : $this->getOptEmailTwoFactorRolesDefaults();
-	}
-
-	/**
 	 * @param bool $bAsOptDefaults
 	 * @return array
 	 */
@@ -235,82 +216,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	public function canUserMfaSkip( $oUser ) {
-		$oReq = Services::Request();
-		if ( $this->getMfaSkipEnabled() ) {
-			$aHashes = $this->getMfaLoginHashes( $oUser );
-			$nSkipTime = $this->getMfaSkip()*DAY_IN_SECONDS;
-
-			$sHash = md5( $oReq->getUserAgent() );
-			$bCanSkip = isset( $aHashes[ $sHash ] )
-						&& ( (int)$aHashes[ $sHash ] + $nSkipTime ) > $oReq->ts();
-		}
-		elseif ( $this->getIfSupport3rdParty() && class_exists( 'WC_Social_Login' ) ) {
-			// custom support for WooCommerce Social login
-			$oMeta = $this->getCon()->getUserMeta( $oUser );
-			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
-		}
-		else {
-			/**
-			 * TODO: remove the HTTP_REFERER bit once iCWP plugin is updated.
-			 * We want logins from iCWP to skip 2FA. To achieve this, iCWP plugin needs
-			 * to add a TRUE filter on 'odp-shield-2fa_skip' at the point of login.
-			 * Until then, we'll use the HTTP referrer as an indicator
-			 */
-			$bCanSkip = apply_filters(
-				'odp-shield-2fa_skip',
-				strpos( $oReq->server( 'HTTP_REFERER' ), 'https://app.icontrolwp.com/' ) === 0
-			);
-		}
-		return $bCanSkip;
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return $this
-	 */
-	public function addMfaLoginHash( $oUser ) {
-		$oReq = Services::Request();
-		$aHashes = $this->getMfaLoginHashes( $oUser );
-		$aHashes[ md5( $oReq->getUserAgent() ) ] = $oReq->ts();
-		$this->getCon()->getCurrentUserMeta()->hash_loginmfa = $aHashes;
-		return $this;
-	}
-
-	/**
-	 * @param WP_User $oUser
-	 * @return array
-	 */
-	public function getMfaLoginHashes( $oUser ) {
-		$oMeta = $this->getCon()->getUserMeta( $oUser );
-		$aHashes = $oMeta->hash_loginmfa;
-		if ( !is_array( $aHashes ) ) {
-			$aHashes = [];
-			$oMeta->hash_loginmfa = $aHashes;
-		}
-		return $aHashes;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getMfaSkipEnabled() {
-		return $this->getMfaSkip() > 0;
-	}
-
-	/**
-	 * NOTE: DO NOT REPLACE WITH OPTIONS USE AS THIS RETURNS DAYS
-	 * @return int - days
-	 * @deprecated 8.6.0
-	 */
-	public function getMfaSkip() {
-		return (int)$this->getOpt( 'mfa_skip', 0 );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getTwoAuthSecretKey() {
@@ -324,58 +229,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function isEmailAuthenticationOptionOn() {
-		return $this->isOpt( 'enable_email_authentication', 'Y' );
-	}
-
-	/**
-	 * Also considers whether email sending ability has been verified
-	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function isEmailAuthenticationActive() {
-		return $this->getIfCanSendEmailVerified() && $this->isEmailAuthenticationOptionOn();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function isEnabledBackupCodes() {
-		return $this->isPremium() && $this->isOpt( 'allow_backupcodes', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function isEnabledGoogleAuthenticator() {
-		return $this->isOpt( 'enable_google_authenticator', 'Y' );
-	}
-
-	/**
-	 * @return bool
 	 */
 	public function isGoogleRecaptchaEnabled() {
 		return ( !$this->isOpt( 'enable_google_recaptcha_login', 'disabled' ) && $this->isGoogleRecaptchaReady() );
-	}
-
-	/**
-	 * @return int
-	 * @deprecated 8.6.0
-	 */
-	public function getCanSendEmailVerifiedAt() {
-		return $this->getOpt( 'email_can_send_verified_at' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function getIfCanSendEmailVerified() {
-		return $this->getCanSendEmailVerifiedAt() > 0;
 	}
 
 	/**
@@ -407,14 +263,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				->setMod( $this );
 		}
 		return $this->oLoginIntentController;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function isChainedAuth() {
-		return $this->isOpt( 'enable_chained_authentication', 'Y' );
 	}
 
 	/**
@@ -539,24 +387,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	public function isYubikeyActive() {
-		return $this->isOpt( 'enable_yubikey', 'Y' ) && $this->isYubikeyConfigReady();
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 8.6.0
-	 */
-	private function isYubikeyConfigReady() {
-		$sAppId = $this->getOpt( 'yubikey_app_id' );
-		$sApiKey = $this->getOpt( 'yubikey_api_key' );
-		return !empty( $sAppId ) && !empty( $sApiKey );
-	}
-
-	/**
-	 * @return bool
 	 */
 	public function isEnabledBotJs() {
 		return $this->isPremium() && $this->isOpt( 'enable_antibot_js', 'Y' )
@@ -592,6 +422,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$aThis = [
 			'strings'      => [
 				'title' => __( 'Login Guard', 'wp-simple-firewall' ),
@@ -638,8 +470,8 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				'href'    => $this->getUrl_DirectLinkToOption( 'bot_protection_locations' ),
 			];
 
-			$bHas2Fa = $this->isEmailAuthenticationActive()
-					   || $this->isEnabledGoogleAuthenticator() || $this->isYubikeyActive();
+			$bHas2Fa = $oOpts->isEmailAuthenticationActive()
+					   || $oOpts->isEnabledGoogleAuthenticator() || $oOpts->isEnabledYubikey();
 			$aThis[ 'key_opts' ][ '2fa' ] = [
 				'name'    => __( 'Identity Verification', 'wp-simple-firewall' ),
 				'enabled' => $bHas2Fa,

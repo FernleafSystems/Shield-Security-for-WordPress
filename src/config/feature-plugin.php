@@ -2,6 +2,7 @@
   "properties":    {
     "slug":                  "plugin",
     "name":                  "General Settings",
+    "sidebar_name":          "General",
     "menu_title":            "Settings",
     "show_module_menu_item": true,
     "show_module_options":   true,
@@ -418,6 +419,7 @@
     {
       "key":          "openssl_private_key",
       "transferable": false,
+      "sensitive":    true,
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
@@ -470,17 +472,29 @@
         "load_priority": 15
       },
       {
+        "slug":          "audit_trail",
+        "storage_key":   "audit_trail",
+        "load_priority": 11,
+        "hidden":        false
+      },
+      {
         "slug":        "hack_protect",
         "storage_key": "hack_protect"
       },
       {
-        "slug":        "login_protect",
-        "storage_key": "loginprotect"
+        "slug":          "traffic",
+        "storage_key":   "traffic",
+        "load_priority": 12,
+        "min_php":       "5.4"
       },
       {
         "slug":          "firewall",
         "storage_key":   "firewall",
         "load_priority": 1000
+      },
+      {
+        "slug":        "login_protect",
+        "storage_key": "loginprotect"
       },
       {
         "slug":        "user_management",
@@ -489,18 +503,6 @@
       {
         "slug":        "comments_filter",
         "storage_key": "commentsfilter"
-      },
-      {
-        "slug":        "autoupdates",
-        "storage_key": "autoupdates"
-      },
-      {
-        "slug":        "headers",
-        "storage_key": "headers"
-      },
-      {
-        "slug":        "lockdown",
-        "storage_key": "lockdown"
       },
       {
         "slug":          "events",
@@ -513,21 +515,21 @@
         "load_priority": 5
       },
       {
-        "slug":          "audit_trail",
-        "storage_key":   "audit_trail",
-        "load_priority": 11,
-        "hidden":        false
-      },
-      {
-        "slug":          "traffic",
-        "storage_key":   "traffic",
-        "load_priority": 12,
-        "min_php":       "5.4"
-      },
-      {
         "slug":          "license",
         "storage_key":   "license",
         "load_priority": 10
+      },
+      {
+        "slug":        "autoupdates",
+        "storage_key": "autoupdates"
+      },
+      {
+        "slug":        "headers",
+        "storage_key": "headers"
+      },
+      {
+        "slug":        "lockdown",
+        "storage_key": "lockdown"
       },
       {
         "slug":        "email",

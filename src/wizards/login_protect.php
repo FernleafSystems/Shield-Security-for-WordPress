@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -185,16 +186,16 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Mfa() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aStepsSlugs = [ 'start' ];
 
-		if ( !$oFO->getIfCanSendEmailVerified() || !$oFO->isEmailAuthenticationActive() ) {
+		if ( !$oOpts->getIfCanSendEmailVerified() || !$oOpts->isEmailAuthenticationActive() ) {
 			$aStepsSlugs[] = 'authemail';
 		}
 
-		if ( !$oFO->isEnabledGoogleAuthenticator() ) {
+		if ( !$oOpts->isEnabledGoogleAuthenticator() ) {
 			$aStepsSlugs[] = 'authga';
 		}
 
@@ -210,6 +211,8 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 	protected function getRenderData_SlideExtra( $sStep ) {
 		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aAdditional = [];
 
@@ -248,7 +251,7 @@ class ICWP_WPSF_Wizard_LoginProtect extends ICWP_WPSF_Wizard_BaseWpsf {
 			case 'multiselect':
 				$aAdditional = [
 					'flags' => [
-						'has_multiselect' => $oMod->isChainedAuth(),
+						'has_multiselect' => $oOpts->isChainedAuth(),
 					]
 				];
 				break;

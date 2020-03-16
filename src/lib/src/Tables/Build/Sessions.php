@@ -74,6 +74,13 @@ class Sessions extends BaseBuild {
 			else {
 				$aE[ 'your_ip' ] = '';
 			}
+
+			$oWpUsers = Services::WpUsers();
+			$aE[ 'wp_username' ] = sprintf(
+				'<a href="%s">%s</a>',
+				$oWpUsers->getAdminUrl_ProfileEdit( $oWpUsers->getUserByUsername( $aE[ 'wp_username' ] ) ),
+				$aE[ 'wp_username' ]
+			);
 			$aEntries[ $nKey ] = $aE;
 		}
 		return $aEntries;

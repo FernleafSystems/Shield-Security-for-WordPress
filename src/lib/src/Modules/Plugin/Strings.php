@@ -145,9 +145,11 @@ class Strings extends Base\Strings {
 			case 'enable_tracking' :
 				$sName = __( 'Anonymous Usage Statistics', 'wp-simple-firewall' );
 				$sSummary = __( 'Permit Anonymous Usage Information Gathering', 'wp-simple-firewall' );
-				$sDescription = __( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
-								.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '<a href="%s" target="_blank">%s</a>', $oMod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) );
+				$sDescription = [
+					__( 'Allows us to gather information on statistics and features in-use across our client installations.', 'wp-simple-firewall' )
+					.' '.__( 'This information is strictly anonymous and contains no personally, or otherwise, identifiable data.', 'wp-simple-firewall' ),
+					sprintf( '<a href="%s" target="_blank" class="new-window-link">%s</a>', $oMod->getLinkToTrackingDataDump(), __( 'Click to see the exact data that would be sent.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'visitor_address_source' :
@@ -158,7 +160,7 @@ class Strings extends Base\Strings {
 								.'<br />'.sprintf(
 									__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
 									'<strong>'.$oOpts->getIpSource().'</strong>',
-									$oOpts->getOpt( 'last_ip_detect_source' )
+									Services::IP()->getRequestIp()
 								)
 								.'<br />'
 								.'<br />'.implode( '<br />', $this->buildIpAddressMap() );

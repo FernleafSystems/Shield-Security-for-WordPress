@@ -3,6 +3,7 @@
   "properties":       {
     "slug":                  "hack_protect",
     "name":                  "Hack Guard",
+    "sidebar_name":          "Scanners",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "hack_protect",
@@ -572,11 +573,12 @@
       "default":      false
     },
     {
-      "key":          "ptg_candiskwrite_at",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "integer",
-      "default":      false
+      "key":              "ptg_candiskwrite_at",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "integer",
+      "default":          false
     },
     {
       "key":          "snapshot_users",
@@ -587,46 +589,52 @@
       "default":      []
     },
     {
-      "key":          "rt_file_hashes",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
+      "key":              "rt_file_hashes",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "array",
+      "default":          []
     },
     {
-      "key":          "rt_file_backup_names",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
+      "key":              "rt_file_backup_names",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "array",
+      "default":          []
     },
     {
-      "key":          "rt_can_write_files",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
+      "key":              "rt_can_write_files",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "array",
+      "default":          []
     },
     {
-      "key":          "scans_to_build",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
+      "key":              "scans_to_build",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "array",
+      "default":          []
     },
     {
-      "key":          "is_scan_cron",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "boolean",
-      "default":      false
+      "key":              "is_scan_cron",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "boolean",
+      "default":          false
     },
     {
-      "key":          "mal_fp_reports",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "array",
-      "default":      []
+      "key":              "mal_fp_reports",
+      "section":          "section_non_ui",
+      "transferable":     false,
+      "tracking_exclude": true,
+      "type":             "array",
+      "default":          []
     }
   ],
   "definitions":      {

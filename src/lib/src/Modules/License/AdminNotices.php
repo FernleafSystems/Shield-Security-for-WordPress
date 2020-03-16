@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
 
 class AdminNotices extends Shield\Modules\Base\AdminNotices {
 
@@ -52,15 +51,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
-		$oCon = $this->getCon();
 		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
 		$oMod = $this->getMod();
 
 		switch ( $oNotice->id ) {
 
 			case 'wphashes-token-fail':
-				$bNeeded = $oCon->isPremiumActive() && !$oMod->getWpHashesTokenManager()->hasToken()
-						   && ( Services::Request()->ts() > 1583712000 ); // @deprecated 8.6.3 i.e. remove it
+				$bNeeded = $this->getCon()->isPremiumActive()
+						   && !$oMod->getWpHashesTokenManager()->hasToken();
 				break;
 
 			default:

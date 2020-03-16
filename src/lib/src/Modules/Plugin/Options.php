@@ -130,4 +130,12 @@ class Options extends Base\ShieldOptions {
 		return $this->setOpt( 'enable_tracking', $bOnOrOff ? 'Y' : 'N' )
 					->setOpt( 'tracking_permission_set_at', Services::Request()->ts() );
 	}
+
+	/**
+	 * @param string $sSource
+	 * @return $this
+	 */
+	public function setVisitorAddressSource( $sSource ) {
+		return $this->setOpt( 'visitor_address_source', $sSource );
+	}
 }

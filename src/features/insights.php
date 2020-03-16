@@ -5,8 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doPostConstruction() {
-		parent::doPostConstruction();
+	protected function onModulesLoaded() {
 		$this->maybeRedirectToAdmin();
 	}
 
@@ -35,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$sNavSection = $oReq->query( 'inav', 'overview' );
 		$sSubNavSection = $oReq->query( 'subnav' );
 
-		/** @var ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
+		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
 		$oTrafficMod = $oCon->getModule( 'traffic' );
 		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
 		$oTrafficSelector = $oTrafficMod->getDbHandler_Traffic()->getQuerySelector();
@@ -445,6 +444,8 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						wp_enqueue_style( $sUnique );
 						$aDeps[] = $sUnique;
 					}
+
+					$this->includeScriptIpDetect();
 					break;
 
 				case 'scans':
@@ -514,6 +515,28 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
 					],
 				]
+			);
+		}
+	}
+
+	private function includeScriptIpDetect() {
+		$oCon = $this->getCon();
+		/** @var Shield\Modules\Plugin\Options $oOpts */
+		$oOpts = $oCon->getModule_Plugin()->getOptions();
+		if ( $oOpts->isIpSourceAutoDetect() ) {
+			wp_register_script(
+				$oCon->prefix( 'ip_detect' ),
+				$oCon->getPluginUrl_Js( 'ip_detect.js' ),
+				[],
+				$oCon->getVersion(),
+				true
+			);
+			wp_enqueue_script( $oCon->prefix( 'ip_detect' ) );
+
+			wp_localize_script(
+				$oCon->prefix( 'ip_detect' ),
+				'icwp_wpsf_vars_ipdetect',
+				[ 'ajax' => $oCon->getModule_Plugin()->getAjaxActionData( 'ipdetect' ) ]
 			);
 		}
 	}

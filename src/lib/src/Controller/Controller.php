@@ -1647,14 +1647,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return string
-	 * @deprecated 8.6.2
-	 */
-	public function getPremiumLicenseFilterName() {
-		return $this->prefix( 'license_is_valid'.$this->getUniqueRequestId( false ) );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isRelabelled() {
@@ -1845,9 +1837,8 @@ class Controller extends Shield\Deprecated\Foundation {
 		}
 
 		$this->modules_loaded = true;
-
+		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
-
 		return $bSuccess;
 	}
 
@@ -1858,9 +1849,9 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function getModule( $sSlug ) {
 		if ( !is_array( $this->aModules ) ) {
 			$this->aModules = [];
-			$this->modules = $this->aModules;
+			$this->modules = [];
 		}
-		$oModule = isset( $this->aModules[ $sSlug ] ) ? $this->aModules[ $sSlug ] : null;
+		$oModule = isset( $this->modules[ $sSlug ] ) ? $this->modules[ $sSlug ] : null;
 		if ( !is_null( $oModule ) && !( $oModule instanceof \ICWP_WPSF_FeatureHandler_Base ) ) {
 			$oModule = null;
 		}
@@ -1953,9 +1944,10 @@ class Controller extends Shield\Deprecated\Foundation {
 
 	/**
 	 * @return \ICWP_WPSF_FeatureHandler_Base[]
+	 * @deprecated 8.7.0
 	 */
 	public function getModules() {
-		return is_array( $this->aModules ) ? $this->aModules : [];
+		return is_array( $this->modules ) ? $this->modules : [];
 	}
 
 	/**
@@ -1999,8 +1991,9 @@ class Controller extends Shield\Deprecated\Foundation {
 			throw new \Exception( $sMessage );
 		}
 
-		$this->aModules[ $sModSlug ] = $this->{$sOptionsVarName};
-		$this->modules = $this->aModules;
+		$aMs = $this->modules;
+		$aMs[ $sModSlug ] = $this->{$sOptionsVarName};
+		$this->modules = $aMs;
 		return $this->{$sOptionsVarName};
 	}
 
@@ -2194,7 +2187,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	private function runTests() {
 		die();
 		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();
-		foreach ( $this->getModules() as $oModule ) {
+		foreach ( $this->modules as $oModule ) {
 			( new \FernleafSystems\Wordpress\Plugin\Shield\Tests\VerifyConfig() )
 				->setOpts( $oModule->getOptions() )
 				->run();

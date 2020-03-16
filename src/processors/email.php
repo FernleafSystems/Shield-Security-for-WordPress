@@ -8,42 +8,6 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	const Slug = 'email';
 
 	/**
-	 * @var string
-	 * @deprecated 8.6.2
-	 */
-	protected static $sModeFile_EmailThrottled;
-
-	/**
-	 * @var int
-	 * @deprecated 8.6.2
-	 */
-	protected static $nThrottleInterval = 1;
-
-	/**
-	 * @var int
-	 * @deprecated 8.6.2
-	 */
-	protected $nEmailThrottleLimit;
-
-	/**
-	 * @var int
-	 * @deprecated 8.6.2
-	 */
-	protected $nEmailThrottleTime;
-
-	/**
-	 * @var int
-	 * @deprecated 8.6.2
-	 */
-	protected $nEmailThrottleCount;
-
-	/**
-	 * @var bool
-	 * @deprecated 8.6.2
-	 */
-	protected $bEmailIsThrottled;
-
-	/**
 	 * @return array
 	 */
 	protected function getEmailHeader() {
@@ -183,36 +147,10 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * Whether we're throttled is dependent on 2 signals.  The time interval has changed, or the there's a file
-	 * system object telling us we're throttled.
-	 * The file system object takes precedence.
-	 * @return bool
-	 * @deprecated 8.6.2
-	 */
-	protected function updateEmailThrottle() {
-		return true;
-	}
-
-	/**
-	 * @param bool $infOn
-	 * @deprecated 8.6.2
-	 */
-	public function setThrottledFile( $infOn = false ) {
-	}
-
-	/**
 	 * @param string $sEmail
 	 * @return string
 	 */
 	public function verifyEmailAddress( $sEmail = '' ) {
 		return Services::Data()->validEmail( $sEmail ) ? $sEmail : Services::WpGeneral()->getSiteAdminEmail();
-	}
-
-
-	/**
-	 * @deprecated 8.6.2
-	 */
-	public function getThrottleLimit() {
-		return 0;
 	}
 }

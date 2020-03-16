@@ -70,10 +70,10 @@ class LoginIntentPage {
 
 		$sCancelHref = $oReq->post( 'cancel_href', '' );
 		if ( empty( $sCancelHref ) && Services::Data()->isValidWebUrl( $sReferUrl ) ) {
-			$sCancelHref = rawurlencode( parse_url( $sReferUrl, PHP_URL_PATH ) );
+			$sCancelHref = parse_url( $sReferUrl, PHP_URL_PATH );
 		}
 
-		$nMfaSkip = $oOpts->getMfaSkip();
+		$nMfaSkip = (int)( $oOpts->getMfaSkip()/DAY_IN_SECONDS );
 		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
 		$aDisplayData = [
 			'strings' => [
@@ -101,7 +101,7 @@ class LoginIntentPage {
 				'cancel_href' => $sCancelHref
 			],
 			'flags'   => [
-				'can_skip_mfa'       => $oMod->getMfaSkipEnabled(),
+				'can_skip_mfa'       => $oOpts->isMfaSkip(),
 				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
 			]
 		];
@@ -125,8 +125,8 @@ class LoginIntentPage {
 		$nTimeRemaining = $oMod->getSession()->login_intent_expires_at - $oReq->ts();
 		$aDisplayData = [
 			'strings' => [
-				'what_is_this'   => __( 'What is this?', 'wp-simple-firewall' ),
-				'page_title'     => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
+				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
+				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $oCon->getHumanName() ),
 			],
 			'data'    => [
 				'time_remaining' => $nTimeRemaining,

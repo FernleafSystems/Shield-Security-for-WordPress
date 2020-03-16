@@ -265,7 +265,7 @@ class Base extends \WP_List_Table {
 	 */
 	protected function getIpWhoisLookupLink( $sIp ) {
 		$oIp = Services::IP();
-		return sprintf( '<a href="%s" target="_blank" class="ip-whois">%s</a>',
+		return sprintf( '<a href="%s" target="_blank" class="ip-whois new-window-link">%s</a>',
 			$oIp->isValidIpRange( $sIp ) ? $oIp->getIpWhoisLookup( $sIp ) : $oIp->getIpInfo( $sIp ),
 			$sIp
 		);

@@ -1,7 +1,6 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
@@ -105,49 +104,8 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 		return [
 			'cooldown'  => 'ICWP_WPSF_Processor_LoginProtect_Cooldown',
 			'gasp'      => 'ICWP_WPSF_Processor_LoginProtect_Gasp',
-			'intent'    => 'ICWP_WPSF_Processor_LoginProtect_Intent',
 			'recaptcha' => 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha',
 			'rename'    => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
 		];
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_LoginProtect_Cooldown
-	 * @deprecated 8.6.0
-	 */
-	private function getSubProCooldown() {
-		return $this->getSubPro( 'cooldown' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_LoginProtect_Gasp
-	 * @deprecated 8.6.0
-	 */
-	private function getSubProGasp() {
-		return $this->getSubPro( 'gasp' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
-	 * @deprecated 8.6.0
-	 */
-	private function getSubProRecaptcha() {
-		return $this->getSubPro( 'recaptcha' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_LoginProtect_WpLogin
-	 * @deprecated 8.6.0
-	 */
-	private function getSubProRename() {
-		return $this->getSubPro( 'rename' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_LoginProtect_Intent
-	 * @deprecated 8.6.0
-	 */
-	public function getSubProIntent() {
-		return $this->getSubPro( 'intent' );
 	}
 }

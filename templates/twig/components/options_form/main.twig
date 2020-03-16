@@ -1,0 +1,87 @@
+<form action="{{ form_action }}" method="post" class="icwpOptionsForm form" novalidate="novalidate"
+	  autocomplete="off">
+
+	<div id="ModuleOptionsNav" class="list-group list-group-horizontal" role="tablist" aria-orientation="horizontal">
+		{% for opt_sect_key,opt_section in data.all_options %}
+			<a href="#tab-{{ opt_section.slug }}"
+			   class="list-group-item list-group-item-action nav-link {{ opt_section.primary ? 'active' : '' }}"
+			   {% if opt_section.primary %}aria-selected="true"{% endif %}
+			   id="tab-navlink-{{ opt_section.slug }}"
+			   data-toggle="tab" role="tab" aria-controls="{{ opt_section.slug }}">
+					<span>{{ opt_section.title_short }}</span>
+			</a>
+		{% endfor %}
+	</div>
+
+	<div class="tab-content container-fluid">
+		{% for opt_section in data.all_options %}
+			<div class="tab-pane {{ opt_section.primary ? 'active show primary_section' : 'non_primary_section' }}"
+				 role="tabpanel" id="tab-{{ opt_section.slug }}">
+
+				<div class="row">
+					<div class="col-12">
+						<h5 class="mb-3 mt-3">
+							<small>
+								{% if opt_section.help_video_url is not empty %}
+									<a class="section-help-video"
+									   title="{{ strings.show_help_video_section }}"
+									   href="{{ opt_section.help_video_url }}"
+									   data-featherlight="iframe" data-featherlight-iframe-allowfullscreen="true"
+									   data-featherlight-iframe-width="1200"
+									   data-featherlight-iframe-height="675">
+										<span class="dashicons dashicons-video-alt3"></span>
+									</a>
+								{% endif %}
+							</small>
+							{{ opt_section.title }}
+
+							{% if ( opt_section.summary is defined ) and opt_section.summary|length %}
+								<a class="section_title_info"
+								   data-toggle="popover"
+								   data-content="<ul>
+							{% for item in opt_section.summary %}
+								<li class='mt-2'>{{ item|raw|escape }}</li>
+							{% endfor %}
+							</ul>">
+								<span class="dashicons dashicons-info"></span></a>
+							{% endif %}
+
+						</h5>
+					</div>
+				</div>
+
+				{% if opt_section.warnings|length %}
+					{% for section_warning in opt_section.warnings %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-warning text-center">{{ section_warning|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% if opt_section.notices|length %}
+					{% for section_notice in opt_section.notices %}
+						<div class="row">
+							<div class="col">
+								<div class="alert alert-success text-center">{{ section_notice|raw }}</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+
+				{% for key, aOption in opt_section.options %}
+					{% include '/components/options_form/option.twig' %}
+				{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+	<div class="container-fluid form-actions" id="OptionsFormActions">
+		<div class="row">
+			<div class="col">
+				<button type="submit" class="btn btn-primary btn-lg icwp-form-button"
+						name="submit">{{ strings.save_all_settings }}</button>
+			</div>
+		</div>
+	</div>
+</form>

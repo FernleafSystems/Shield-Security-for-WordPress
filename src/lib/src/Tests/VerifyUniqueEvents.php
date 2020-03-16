@@ -17,7 +17,7 @@ class VerifyUniqueEvents {
 		$oCon = $this->getCon();
 
 		$aAllKeys = [];
-		foreach ( $oCon->getModules() as $oMod ) {
+		foreach ( $oCon->modules as $oMod ) {
 			$aKeys = array_map(
 				function ( $aEvt ) {
 					return $aEvt[ 'key' ];

@@ -2,6 +2,7 @@
   "slug":        "user_management",
   "properties":  {
     "name":                  "User Management",
+    "sidebar_name":          "Users",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "user_management",

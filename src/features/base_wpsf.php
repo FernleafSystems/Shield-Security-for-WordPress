@@ -12,11 +12,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	protected static $bIsVerifiedBot;
 
 	/**
-	 * @var int
-	 */
-	private static $nIpOffenceCount = 0;
-
-	/**
 	 * @var bool
 	 */
 	private static $bVisitorIsWhitelisted;
@@ -368,15 +363,17 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 
 	/**
 	 * @return bool
+	 * @deprecated 8.7.0
 	 */
 	public function getIfIpTransgressed() {
-		return $this->getIpOffenceCount() > 0;
+		return false;
 	}
 
 	/**
 	 * @return int
+	 * @deprecated 8.7.0
 	 */
 	public function getIpOffenceCount() {
-		return isset( self::$nIpOffenceCount ) ? self::$nIpOffenceCount : 0;
+		return 0;
 	}
 }

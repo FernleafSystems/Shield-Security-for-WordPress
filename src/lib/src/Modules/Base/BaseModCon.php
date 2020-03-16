@@ -709,7 +709,6 @@ class BaseModCon extends Deprecated\Foundation {
 			}
 		}
 
-//		$aSum[ 'content' ] = $this->renderTemplate( 'snippets/summary_single', $aSum );
 		$aSum[ 'tooltip' ] = sprintf(
 			'%s%s',
 			$aSum[ 'name' ],
@@ -1133,10 +1132,6 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	public function onPluginDelete() {
-		$oDbh = $this->getDbHandler();
-		if ( !empty( $oDbh ) ) {
-			$oDbh->deleteTable();
-		}
 		$this->getOptions()->deleteStorage();
 	}
 
@@ -1589,7 +1584,7 @@ class BaseModCon extends Deprecated\Foundation {
 	public function renderOptionsForm() {
 
 		if ( $this->canDisplayOptionsForm() ) {
-			$sTemplate = 'snippets/options_form.twig';
+			$sTemplate = 'components/options_form/main.twig';
 		}
 		else {
 			$sTemplate = 'subfeature-access_restricted';
@@ -1833,9 +1828,7 @@ class BaseModCon extends Deprecated\Foundation {
 	 * @return bool
 	 */
 	protected function isHelpVideoDisplayable() {
-		$sId = $this->getHelpVideoId();
 		return false;
-		return !empty( $sId );
 	}
 
 	/**

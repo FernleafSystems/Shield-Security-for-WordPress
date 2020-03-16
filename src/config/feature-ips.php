@@ -3,6 +3,7 @@
   "properties":    {
     "slug":                  "ips",
     "name":                  "Block Bad IPs/Visitors",
+    "sidebar_name":          "IP Blocking",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "ips",

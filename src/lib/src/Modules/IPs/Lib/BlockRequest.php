@@ -20,7 +20,8 @@ class BlockRequest {
 			->run();
 
 		if ( $bIpBlocked ) {
-//			$this->setIfLogRequest( false ); // TODO don't log traffic from killed requests
+			// don't log killed requests
+			add_filter( $this->getCon()->prefix( 'is_log_traffic' ), '__return_false' );
 			try {
 				if ( $this->processAutoUnblockRequest() ) {
 					return;

@@ -174,18 +174,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @deprecated 8.5.7
-	 */
-	protected function maintainPluginLoadPosition() {
-		$oWpPlugins = Services::WpPlugins();
-		$sBaseFile = $this->getCon()->getPluginBaseFile();
-		$nLoadPosition = $oWpPlugins->getActivePluginLoadPosition( $sBaseFile );
-		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
-			$oWpPlugins->setActivePluginLoadFirst( $sBaseFile );
-		}
-	}
-
-	/**
 	 * Lets you remove certain plugin conflicts that might interfere with this plugin
 	 */
 	protected function removePluginConflicts() {

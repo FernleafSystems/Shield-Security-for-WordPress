@@ -21,15 +21,25 @@ var iCWP_WPSF_OptionsPages = new function () {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
 
-			jQuery( document ).on( "odp-optsrender", focusTab );
+			jQuery( document ).on( "odp-optsrender", onOptsTabRender );
 		} );
 	};
 
-	var focusTab = function ( evt ) {
+	var onOptsTabRender = function ( evt ) {
 		var sActiveTabHash = window.location.hash;
 		if ( typeof sActiveTabHash !== 'undefined' ) {
 			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
+			jQuery( 'html,body' ).scrollTop( 0 );
 		}
+
+		jQuery( function () {
+			jQuery( 'a.section_title_info' ).popover( {
+				placement: 'bottom',
+				trigger: 'hover',
+				delay: 200,
+				html: true
+			} )
+		} )
 	};
 
 }();

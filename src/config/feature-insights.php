@@ -14,7 +14,8 @@
     "access_restricted":     true,
     "run_if_whitelisted":    true,
     "run_if_verified_bot":   false,
-    "run_if_wpcli":          false
+    "run_if_wpcli":          false,
+    "tracking_exclude":      true
   },
   "requirements": {
     "php": {
