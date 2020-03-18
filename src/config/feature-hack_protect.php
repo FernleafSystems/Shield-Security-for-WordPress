@@ -182,34 +182,38 @@
       "description": "Compares all WordPress core files on your site against the official WordPress files. WordPress Core files should never be altered for any reason."
     },
     {
-      "key":           "mal_scan_enable",
-      "section":       "section_file_guard",
-      "premium":       true,
-      "default":       "Y",
-      "type":          "checkbox",
-      "link_info":     "https://shsec.io/fp",
-      "link_blog":     "https://shsec.io/fx",
-      "name":          "Automatic Malware Scan",
-      "summary":       "Enable Malware File Scanner",
-      "description":   "When enabled the Malware scanner will run automatically."
+      "key":         "mal_scan_enable",
+      "section":     "section_file_guard",
+      "premium":     true,
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/fp",
+      "link_blog":   "https://shsec.io/fx",
+      "name":        "Automatic Malware Scan",
+      "summary":     "Enable Malware File Scanner",
+      "description": "When enabled the Malware scanner will run automatically."
     },
     {
-      "key":           "ptg_enable",
-      "section":       "section_file_guard",
-      "premium":       true,
-      "default":       "Y",
-      "type":          "checkbox",
-      "link_info":     "https://shsec.io/bl",
-      "link_blog":     "https://shsec.io/bm",
-      "name":          "Enable/Disable Guard",
-      "summary":       "Enable The Guard For Plugin And Theme Files",
-      "description":   "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
+      "key":         "ptg_enable",
+      "section":     "section_file_guard",
+      "premium":     true,
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/bl",
+      "link_blog":   "https://shsec.io/bm",
+      "name":        "Enable/Disable Guard",
+      "summary":     "Enable The Guard For Plugin And Theme Files",
+      "description": "When enabled the Guard will automatically scan for changes to your Plugin and Theme files."
     },
     {
       "key":           "file_repair_areas",
       "section":       "section_file_guard",
       "type":          "multiple_select",
-      "default":       [ "wp", "plugin", "theme" ],
+      "default":       [
+        "wp",
+        "plugin",
+        "theme"
+      ],
       "value_options": [
         {
           "value_key": "wp",
@@ -457,8 +461,9 @@
   ],
   "definitions":      {
     "db_classes":                  {
-      "scanresults": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
-      "scanq":       "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
+      "scanresults":  "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Scanner\\Handler",
+      "scanq":        "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler",
+      "file_protect": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\ScanQueue\\Handler"
     },
     "all_scan_slugs":              [
       "apc",

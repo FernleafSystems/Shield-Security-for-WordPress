@@ -9,9 +9,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-
 		$sPath = Services::Request()->getPath();
 		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
 			$this->revSliderPatch_LFI();
@@ -19,16 +16,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		}
 
 		$this->getSubProScanner()->execute();
-		if ( $oMod->isRtEnabledWpConfig() ) {
-			$this->getSubProRealtime()->execute();
-		}
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Realtime|mixed
-	 */
-	public function getSubProRealtime() {
-		return $this->getSubPro( 'realtime' );
 	}
 
 	/**
@@ -44,7 +31,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 	protected function getSubProMap() {
 		return [
 			'scanner'  => 'ICWP_WPSF_Processor_HackProtect_Scanner',
-			'realtime' => 'ICWP_WPSF_Processor_HackProtect_Realtime',
 		];
 	}
 

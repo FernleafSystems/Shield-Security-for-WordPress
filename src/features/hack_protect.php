@@ -878,6 +878,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return false|Shield\Databases\Scanner\Handler
+	 */
+	public function getDbHandler_FileProtect() {
+		return $this->getDbH( 'file_protect' );
+	}
+
+	/**
 	 * @return bool
 	 * @throws \Exception
 	 */

@@ -1,25 +1,19 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Realtime\Files\Process;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ICWP_WPSF_Processor_HackProtect_Realtime extends Shield\Modules\BaseShield\ShieldProcessor {
+class Protector {
 
-	/**
-	 */
+	use ModConsumer;
+
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-
-		if ( $oMod->isRtEnabledWpConfig() ) {
-			$this->runWpConfig();
-		}
-	}
-
-	private function runWpConfig() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oProc = new Shield\Scans\Realtime\Files\Process();
+		$oProc = new Process();
 
 		$oModPlugin = $this->getCon()->getModule_Plugin();
 		$oProc->priv_key = $oModPlugin->getOpenSslPrivateKey();
@@ -43,15 +37,13 @@ class ICWP_WPSF_Processor_HackProtect_Realtime extends Shield\Modules\BaseShield
 
 	private function handleErrorCode( $nCode ) {
 		switch ( $nCode ) {
-
 			case 1:
 				break;
-
 			case 2:
 				break;
-
 			default:
 				break;
 		}
 	}
+
 }
