@@ -10,6 +10,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return string[]
 	 */
+	public function getDbColumns_FileLocker() {
+		return $this->getDef( 'table_columns_filelocker' );
+	}
+
+	/**
+	 * @return string[]
+	 */
 	public function getDbColumns_Scanner() {
 		return $this->getDef( 'table_columns_scanner' );
 	}
@@ -24,6 +31,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return string
 	 */
+	public function getDbTable_FileLocker() {
+		return $this->getCon()->prefixOption( $this->getDef( 'table_name_filelocker' ) );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getDbTable_Scanner() {
 		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanner' ) );
 	}
@@ -33,6 +47,14 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getDbTable_ScanQueue() {
 		return $this->getCon()->prefixOption( $this->getDef( 'table_name_scanqueue' ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFileLocks() {
+		$aLocks = $this->getOpt( 'file_locker', [] );
+		return is_array( $aLocks ) ? $aLocks : [];
 	}
 
 	/**

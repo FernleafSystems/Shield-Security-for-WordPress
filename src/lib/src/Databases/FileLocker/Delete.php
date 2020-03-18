@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileProtect;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 

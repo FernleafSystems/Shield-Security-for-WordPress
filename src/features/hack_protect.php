@@ -16,6 +16,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	private $aScanCons;
 
+	/**
+	 * @var HackGuard\Lib\FileLocker\FileLockerController
+	 */
+	private $oFileLocker;
+
 	protected function doPostConstruction() {
 		$this->setCustomCronSchedules();
 	}
@@ -26,6 +31,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	public function onWpInit() {
 		parent::onWpInit();
 		$this->getScanController();
+	}
+
+	/**
+	 * @return HackGuard\Lib\FileLocker\FileLockerController
+	 */
+	public function getFileLocker() {
+		if ( !isset( $this->oFileLocker ) ) {
+			$this->oFileLocker = ( new HackGuard\Lib\FileLocker\FileLockerController() )
+				->setMod( $this );
+		}
+		return $this->oFileLocker;
 	}
 
 	/**
@@ -521,7 +537,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$bCanWrite = $aFiles[ $sFile ] > 0;
 		}
 		else {
-			$bCanWrite = ( new Shield\Scans\Realtime\Files\TestWritable() )->run( $sFile );
+			$bCanWrite = ( new Shield\Modules\HackGuard\Lib\FileLocker\Ops\TestWritable() )->run( $sFile );
 			$this->setRtCanWriteFile( $sFile, $bCanWrite );
 		}
 		return $bCanWrite;
@@ -880,7 +896,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return false|Shield\Databases\Scanner\Handler
 	 */
-	public function getDbHandler_FileProtect() {
+	public function getDbHandler_FileLocker() {
 		return $this->getDbH( 'file_protect' );
 	}
 

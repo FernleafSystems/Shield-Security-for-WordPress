@@ -59,7 +59,7 @@ class EntryVO {
 	/**
 	 * @param string $sProperty
 	 * @param mixed  $mValue
-	 * @return $this
+	 * @return $this|mixed
 	 */
 	public function __set( $sProperty, $mValue ) {
 

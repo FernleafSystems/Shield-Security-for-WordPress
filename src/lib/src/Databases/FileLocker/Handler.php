@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileProtect;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
@@ -13,7 +13,7 @@ class Handler extends Base\Handler {
 	protected function getDefaultColumnsDefinition() {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->getDbColumns_ScanQueue();
+		return $oOpts->getDbColumns_FileLocker();
 	}
 
 	/**
@@ -22,7 +22,7 @@ class Handler extends Base\Handler {
 	protected function getDefaultTableName() {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->getDbTable_ScanQueue();
+		return $oOpts->getDbTable_FileLocker();
 	}
 
 	/**
@@ -31,12 +31,11 @@ class Handler extends Base\Handler {
 	protected function getDefaultCreateTableSql() {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			scan varchar(3) NOT NULL DEFAULT 0 COMMENT 'Scan Slug',
-			items text COMMENT 'Array of scan items',
-			results text COMMENT 'Array of results',
+			file varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH',
+			hash varchar(40) NOT NULL COMMENT 'SHA1 File Hash',
+			content blob COMMENT 'Content',
 			meta text COMMENT 'Meta Data',
-			started_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Started',
-			finished_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Finished',
+			updated_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Created',
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Soft Deleted',
 			PRIMARY KEY  (id)
