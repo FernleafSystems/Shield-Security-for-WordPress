@@ -12,14 +12,19 @@ class FileLockerController {
 
 	public function run() {
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
-			$this->runAnalysis();
+			if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
+				$this->deleteAllLocks();
+			}
+			else {
+				$this->runAnalysis();
+			}
 		} );
 	}
 
 	public function deleteAllLocks() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oMod->getDbHandler_FileLocker()->deleteTable();
+		$oMod->getDbHandler_FileLocker()->deleteTable( true );
 	}
 
 	private function runAnalysis() {

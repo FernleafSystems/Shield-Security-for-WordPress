@@ -26,16 +26,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * This is the point where you would want to do any options verification
-	 */
-	protected function doPrePluginOptionsSave() {
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isOptChanged( 'file_locker' ) ) {
-			$this->getFileLocker()->deleteAllLocks();
-		}
-	}
-
-	/**
 	 * A action added to WordPress 'init' hook
 	 */
 	public function onWpInit() {

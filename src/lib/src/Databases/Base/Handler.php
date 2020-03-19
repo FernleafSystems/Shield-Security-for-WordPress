@@ -91,10 +91,13 @@ class Handler {
 	}
 
 	/**
+	 * @param bool $bTruncate
 	 * @return bool
 	 */
-	public function deleteTable() {
-		return $this->isTable() ? Services::WpDb()->doDropTable( $this->getTable() ) : false;
+	public function deleteTable( $bTruncate = false ) {
+		$oDB = Services::WpDb();
+		return $this->isTable() &&
+			   ( $bTruncate ? $oDB->doTruncateTable( $this->getTable() ) : $oDB->doDropTable( $this->getTable() ) );
 	}
 
 	/**
