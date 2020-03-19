@@ -22,7 +22,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( count( $oOpts->getFileLocks() ) > 0 ) {
+		if ( count( $oOpts->getFilesToLock() ) > 0 ) {
 			$oMod->getFileLocker()->run();
 		}
 	}

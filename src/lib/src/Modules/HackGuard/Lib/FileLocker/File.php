@@ -82,7 +82,6 @@ class File {
 		else {
 			$this->dir = $sDir;
 		}
-		var_dump($this->getMaxDirLevels());
 		return $sFullPath;
 	}
 
