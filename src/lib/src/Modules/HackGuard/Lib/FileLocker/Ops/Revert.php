@@ -25,6 +25,16 @@ class Revert extends BaseOps {
 		else {
 			$sData = $oRecord->content;
 		}
-		return Services::WpFs()->putFileContent( $oRecord->file, $sData );
+		$bReverted = Services::WpFs()->putFileContent( $oRecord->file, $sData );
+		if ( $bReverted ) {
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
+			/** @var Databases\FileLocker\Handler $oDbH */
+			$oDbH = $oMod->getDbHandler_FileLocker();
+			/** @var Databases\FileLocker\Update $oUpd */
+			$oUpd = $oDbH->getQueryUpdater();
+			$oUpd->markReverted( $oRecord );
+		}
+		return $bReverted;
 	}
 }
