@@ -267,6 +267,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					if ( !empty( $aKeys[ 'private' ] ) ) {
 						$sKey = $aKeys[ 'private' ];
 						$this->setOpt( 'openssl_private_key', base64_encode( $sKey ) );
+						$this->saveModOptions();
 					}
 				}
 				catch ( \Exception $oE ) {
@@ -276,6 +277,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$sKey = base64_decode( $sKey );
 			}
 		}
+		var_dump($sKey);
 		return $sKey;
 	}
 

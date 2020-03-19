@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property string $file
  * @property string $hash
  * @property string $content
+ * @property bool   $encrypted
  */
 class EntryVO extends Base\EntryVO {
 
@@ -22,6 +23,7 @@ class EntryVO extends Base\EntryVO {
 
 		switch ( $sProperty ) {
 
+			case 'content':
 			case 'file':
 				$mValue = base64_decode( $mValue );
 				break;
@@ -41,6 +43,7 @@ class EntryVO extends Base\EntryVO {
 
 		switch ( $sProperty ) {
 
+			case 'content':
 			case 'file':
 				$mValue = base64_encode( $mValue );
 				break;

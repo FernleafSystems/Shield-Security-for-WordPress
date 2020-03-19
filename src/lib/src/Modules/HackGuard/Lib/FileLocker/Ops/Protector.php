@@ -2,37 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 class Protector extends BaseOps {
 
 	public function analyse() {
-		$oRecord = $this->findRecordForFile();
+		$oRecord = $this->findLockRecordForFile();
 		if ( empty( $oRecord ) ) { // create new lock
-			( new CreateLock( $this->oFile ) )
-				->setDbHandler( $this->getDbHandler() )
+			( new CreateFileLock( $this->oFile ) )
+				->setMod( $this->getMod() )
 				->create();
 		}
-		elseif ( !( new Ops\Verify() )->verify( $oRecord ) ) { // repair locked file.
-			( new Revert() )->run( $oRecord );
+		elseif ( !( new Ops\Verify() )->run( $oRecord ) ) { // repair locked file.
+			( new Revert( $this->oFile ) )
+				->setMod( $this->getMod() )
+				->run( $oRecord );
 		}
-	}
-
-	/**
-	 * @return FileLocker\EntryVO|null
-	 */
-	private function findRecordForFile() {
-		$oTheRecord = null;
-		foreach ( $this->oFile->getPossiblePaths() as $sPath ) {
-			foreach ( $this->getFileRecords() as $oRecord ) {
-				if ( $oRecord->file === $sPath ) {
-					$oTheRecord = $oRecord;
-					break;
-				}
-			}
-		}
-		return $oTheRecord;
 	}
 
 

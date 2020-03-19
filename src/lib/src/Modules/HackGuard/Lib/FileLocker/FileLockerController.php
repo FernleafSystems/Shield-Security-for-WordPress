@@ -17,16 +17,19 @@ class FileLockerController {
 		} );
 	}
 
-	private function runAnalysis() {
+	public function deleteAllLocks() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
+		$oMod->getDbHandler_FileLocker()->deleteTable();
+	}
+
+	private function runAnalysis() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		foreach ( $oOpts->getFileLocks() as $sFileKey ) {
 			try {
 				( new Protector( $this->getFile( $sFileKey ) ) )
 					->setMod( $this->getMod() )
-					->setDbHandler( $oMod->getDbHandler_FileLocker() )
 					->analyse();
 			}
 			catch ( \Exception $oE ) {

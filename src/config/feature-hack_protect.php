@@ -469,6 +469,7 @@
       "hash",
       "content",
       "meta",
+      "encrypted",
       "updated_at",
       "created_at",
       "deleted_at"

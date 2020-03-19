@@ -35,6 +35,7 @@ class Handler extends Base\Handler {
 			hash varchar(40) NOT NULL COMMENT 'SHA1 File Hash',
 			content blob COMMENT 'Content',
 			meta text COMMENT 'Meta Data',
+			encrypted TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is Content Encrypted',
 			updated_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated',
 			created_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Created',
 			deleted_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Soft Deleted',
