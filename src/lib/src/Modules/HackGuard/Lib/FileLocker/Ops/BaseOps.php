@@ -40,21 +40,18 @@ class BaseOps {
 	 * @return Databases\FileLocker\EntryVO[]|null
 	 */
 	protected function getFileLocks() {
-		if ( is_null( self::$aFileLockRecords ) ) {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
-			/** @var Databases\FileLocker\Handler $oDbH */
-			$oDbH = $oMod->getDbHandler_FileLocker();
-			self::$aFileLockRecords = $oDbH->getQuerySelector()->all();
-		}
-		return self::$aFileLockRecords;
+		return ( new LoadFileLocks() )
+			->setMod( $this->getMod() )
+			->loadLocks();
 	}
 
 	/**
 	 * @return $this
 	 */
 	protected function clearFileLocksCache() {
-		self::$aFileLockRecords = null;
+		( new LoadFileLocks() )
+			->setMod( $this->getMod() )
+			->clearLocksCache();
 		return $this;
 	}
 

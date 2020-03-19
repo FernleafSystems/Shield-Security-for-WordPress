@@ -178,7 +178,7 @@
       "link_info":     "https://shsec.io/wpsf36",
       "link_blog":     "https://shsec.io/wpsf37",
       "name":          "File Locker",
-      "summary":       "Lock Files Against Any Changes?",
+      "summary":       "Lock Files Against Tampering and Changes",
       "description":   "As soon as changes are detected to any selected files, the contents be immediately reverted."
     },
     {
@@ -470,6 +470,8 @@
       "content",
       "meta",
       "encrypted",
+      "reverted_at",
+      "notified_at",
       "updated_at",
       "created_at",
       "deleted_at"

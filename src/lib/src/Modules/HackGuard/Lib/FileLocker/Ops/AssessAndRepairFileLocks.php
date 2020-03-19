@@ -18,6 +18,7 @@ class AssessAndRepairFileLocks extends BaseOps {
 				( new Revert() )
 					->setMod( $this->getMod() )
 					->run( $oFileLock );
+
 				$this->clearFileLocksCache();
 			}
 		}

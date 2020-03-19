@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
@@ -163,7 +164,7 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $sOptKey ) {
-
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$sModName = $oMod->getMainFeatureName();
 
@@ -243,6 +244,23 @@ class Strings extends Base\Strings {
 					__( 'In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files.', 'wp-simple-firewall' ),
 					__( 'In the case of plugins & themes, only those installed from WordPress.org can be repaired.', 'wp-simple-firewall' ),
 				];
+				break;
+
+			case 'file_locker' :
+				$sName = __( 'Realtime File Locker', 'wp-simple-firewall' );
+				$sSummary = __( 'Lock Files Against Tampering And Changes', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'As soon as changes are detected to any selected files, the contents be immediately reverted.', 'wp-simple-firewall' ),
+				];
+				$aLocks = ( new LoadFileLocks() )
+					->setMod( $this->getMod() )
+					->loadLocks();
+				if ( !empty( $aLocks ) ) {
+					$sDescription[] = __( 'Locked Files', 'wp-simple-firewall' ).':';
+					foreach ( $aLocks as $oLock ) {
+						$sDescription[] = sprintf( '<code>%s</code>', $oLock->file );
+					}
+				}
 				break;
 
 			case 'enable_unrecognised_file_cleaner_scan' :
