@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\Protector;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
@@ -28,7 +27,7 @@ class FileLockerController {
 		$oOpts = $this->getOptions();
 		foreach ( $oOpts->getFileLocks() as $sFileKey ) {
 			try {
-				( new Protector( $this->getFile( $sFileKey ) ) )
+				( new FileLocker\Ops\Protector( $this->getFile( $sFileKey ) ) )
 					->setMod( $this->getMod() )
 					->analyse();
 			}

@@ -29,7 +29,7 @@ class CreateFileLock extends BaseOps {
 					$oEntry->encrypted = 1;
 				}
 				catch ( \Exception $oE ) {
-					$oEntry->content = base64_encode( $oFS->getFileContent( $sPossPath ) );
+					$oEntry->content = $oFS->getFileContent( $sPossPath );
 					$oEntry->encrypted = 0;
 				}
 				/** @var FileLocker\Insert $oInserter */

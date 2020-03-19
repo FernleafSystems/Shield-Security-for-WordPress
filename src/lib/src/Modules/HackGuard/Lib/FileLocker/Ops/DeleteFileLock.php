@@ -10,6 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
  */
 class DeleteFileLock extends BaseOps {
 
+	/**
+	 * @return bool
+	 */
 	public function delete() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
