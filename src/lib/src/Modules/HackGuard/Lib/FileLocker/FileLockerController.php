@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
+use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController {
 
@@ -40,7 +41,7 @@ class FileLockerController {
 		// 2. Create new file locks as required
 		foreach ( $oOpts->getFilesToLock() as $sFileKey ) {
 			try {
-				( new Ops\CreateFileLock() )
+				( new Ops\CreateFileLocks() )
 					->setMod( $this->getMod() )
 					->setWorkingFile( $this->getFile( $sFileKey ) )
 					->create();
@@ -58,26 +59,36 @@ class FileLockerController {
 	private function getFile( $sFileKey ) {
 		$oFile = null;
 
+		$bIsSplitWp = false;
+		$nMaxPaths = 0;
 		switch ( $sFileKey ) {
 			case 'wpconfig':
 				$sFileKey = 'wp-config.php';
-				$nLevels = 2;
+				$nLevels = $bIsSplitWp ? 3 : 2;
+				$nMaxPaths = 1;
 				// TODO: is split URL?
 				break;
 			case 'root_htaccess':
 				$sFileKey = '.htaccess';
-				$nLevels = 2;
+				$nLevels = $bIsSplitWp ? 2 : 1;
 				break;
 			case 'root_index':
 				$sFileKey = 'index.php';
-				$nLevels = 2;
+				$nLevels = $bIsSplitWp ? 2 : 1;
 				break;
 			default:
-				throw new \Exception( 'not currently support file lock type' );
+				if ( path_is_absolute( $sFileKey ) && Services::WpFs()->isFile( $sFileKey ) ) {
+					$nLevels = 1;
+					$nMaxPaths = 1;
+				}
+				else {
+					throw new \Exception( 'Not a supported file lock type' );
+				}
 				break;
 		}
 		$oFile = new FileLocker\File( $sFileKey );
 		$oFile->max_levels = $nLevels;
+		$oFile->max_paths = $nMaxPaths;
 		return $oFile;
 	}
 }

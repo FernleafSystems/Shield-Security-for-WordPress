@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string $dir
  * @property string $file
  * @property int    $max_levels
+ * @property int    $max_paths
  */
 class File {
 
@@ -22,15 +23,20 @@ class File {
 	}
 
 	/**
-	 * @return string|null
+	 * @return string[]
 	 */
-	public function getPathname() {
-		try {
-			return $this->findFile();
+	public function getExistingPossiblePaths() {
+		$aPaths = array_filter(
+			$this->getPossiblePaths(),
+			function ( $sPath ) {
+				return Services::WpFs()->isFile( $sPath );
+			}
+		);
+
+		if ( (int)$this->max_paths > 0 ) {
+			$aPaths = array_slice( $aPaths, 0, $this->max_paths );
 		}
-		catch ( \Exception $oE ) {
-			return null;
-		}
+		return $aPaths;
 	}
 
 	/**
@@ -53,42 +59,9 @@ class File {
 	}
 
 	/**
-	 * @return string
-	 * @throws \Exception
-	 */
-	protected function findFile() {
-		$oFS = Services::WpFs();
-
-		$sDir = $this->dir;
-		$sFullPath = null;
-		$nLimiter = 1;
-		do {
-			if ( empty( $sDir ) ) {
-				break;
-			}
-			$sMaybePath = path_join( $sDir, $this->file );
-			if ( $oFS->isFile( $sMaybePath ) ) {
-				$sFullPath = wp_normalize_path( $sMaybePath );
-				break;
-			}
-			$sDir = realpath( dirname( $sDir ) );
-			$nLimiter++;
-		} while ( $nLimiter < $this->getMaxDirLevels() );
-
-		if ( empty( $sFullPath ) ) {
-			throw new \Exception( sprintf( 'Could not find full file from dir "%s" and file "%s".',
-				$this->dir, $this->file ) );
-		}
-		else {
-			$this->dir = $sDir;
-		}
-		return $sFullPath;
-	}
-
-	/**
 	 * @return int
 	 */
 	protected function getMaxDirLevels() {
-		return (int)max( 1, empty( $this->max_levels ) ? 1 : $this->max_levels );
+		return (int)max( 1, (int)$this->max_levels );
 	}
 }

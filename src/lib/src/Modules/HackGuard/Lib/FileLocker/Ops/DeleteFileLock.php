@@ -19,7 +19,11 @@ class DeleteFileLock extends BaseOps {
 		/** @var FileLocker\Handler $oDbH */
 		$oDbH = $oMod->getDbHandler_FileLocker();
 		$oLockRecord = $this->findLockRecordForFile();
-		return $oLockRecord instanceof FileLocker\EntryVO
-			   && $oDbH->getQueryDeleter()->deleteEntry( $oLockRecord );
+		$bSuccess = $oLockRecord instanceof FileLocker\EntryVO
+					&& $oDbH->getQueryDeleter()->deleteEntry( $oLockRecord );
+		if ( $bSuccess ) {
+			$this->clearFileLocksCache();
+		}
+		return $bSuccess;
 	}
 }

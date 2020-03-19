@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncrypt;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
 /**
