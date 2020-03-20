@@ -42,7 +42,9 @@ class CreateFileLocks extends BaseOps {
 			$oEntry->file = $sPath;
 			$oEntry->hash_original = hash_file( 'sha1', $sPath );
 			try {
-				$oEntry->content = $this->buildEncryptedFilePayload( $sPath );
+				$oEntry->content = ( new BuildEncryptedFilePayload() )
+					->setMod( $oMod )
+					->build( $sPath );
 				$oEntry->encrypted = 1;
 			}
 			catch ( \Exception $oE ) {
@@ -55,23 +57,5 @@ class CreateFileLocks extends BaseOps {
 
 			$this->clearFileLocksCache();
 		}
-	}
-
-	/**
-	 * @param string $sPath
-	 * @return string
-	 * @throws \Exception
-	 */
-	private function buildEncryptedFilePayload( $sPath ) {
-		$oEnc = Services::Encrypt();
-		$mKey = $this->getCon()->getModule_Plugin()->getOpenSslPublicKey();
-		if ( empty( $mKey ) ) {
-			throw new \LogicException( 'Cannot encrypt without a key' );
-		}
-		$oPayload = $oEnc->sealData( Services::WpFs()->getFileContent( $sPath ), $mKey );
-		if ( !$oPayload->success ) {
-			throw new \ErrorException( 'File contents could not be encrypted' );
-		}
-		return json_encode( $oPayload->getRawDataAsArray() );
 	}
 }

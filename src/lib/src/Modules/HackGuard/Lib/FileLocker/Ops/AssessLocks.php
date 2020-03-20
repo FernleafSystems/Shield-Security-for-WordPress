@@ -24,7 +24,6 @@ class AssessLocks extends BaseOps {
 					}
 				}
 				else {
-					// Now we do a WP text diff. If the diff is empty, the only change is whitespace
 					$sDiff = wp_text_diff(
 						( new ReadOriginalFileContent() )
 							->setMod( $this->getMod() )
@@ -33,8 +32,10 @@ class AssessLocks extends BaseOps {
 					);
 
 					$sFileHash = hash_file( 'sha1', $oLock->file );
-					if ( empty( $sDiff ) ) { // Only whitespace has changed
-						$oUpd->updateOriginalHash( $oLock, $sFileHash );
+					if ( empty( $sDiff ) ) { // Only whitespace has changed so we accept it
+						( new Accept() )
+							->setMod( $this->getMod() )
+							->run( $oLock );
 					}
 					else {
 						$oUpd->updateCurrentHash( $oLock, $sFileHash );

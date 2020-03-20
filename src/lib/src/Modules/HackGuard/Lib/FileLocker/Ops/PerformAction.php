@@ -36,9 +36,9 @@ class PerformAction extends BaseOps {
 
 		switch ( $sAction ) {
 			case 'accept':
-				$mResult = ( new DeleteFileLock() )
+				$mResult = ( new Accept() )
 					->setMod( $this->getMod() )
-					->delete( $oLock );
+					->run( $oLock );
 				break;
 			case 'diff':
 				$mResult = $this->diff( $oLock );
