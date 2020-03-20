@@ -146,9 +146,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			]
 		];
 		try {
-			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\RenderHtmlFileDiff() )
+			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\PerformAction() )
 				->setMod( $this->getMod() )
-				->run( $nRID );
+				->run( $nRID, 'diff' );
 			$aData[ 'success' ] = true;
 		}
 		catch ( \Exception $oE ) {

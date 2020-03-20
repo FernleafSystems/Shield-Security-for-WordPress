@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 class AssessLocks extends BaseOps {
@@ -23,7 +24,21 @@ class AssessLocks extends BaseOps {
 					}
 				}
 				else {
-					$oUpd->updateCurrentHash( $oLock, hash_file( 'sha1', $oLock->file ) );
+					// Now we do a WP text diff. If the diff is empty, the only change is whitespace
+					$sDiff = wp_text_diff(
+						( new ReadOriginalFileContent() )
+							->setMod( $this->getMod() )
+							->run( $oLock ),
+						Services::WpFs()->getFileContent( $oLock->file )
+					);
+
+					$sFileHash = hash_file( 'sha1', $oLock->file );
+					if ( empty( $sDiff ) ) { // Only whitespace has changed
+						$oUpd->updateOriginalHash( $oLock, $sFileHash );
+					}
+					else {
+						$oUpd->updateCurrentHash( $oLock, $sFileHash );
+					}
 				}
 			}
 			catch ( \InvalidArgumentException $oE ) {
