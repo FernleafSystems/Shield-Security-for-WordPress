@@ -257,14 +257,12 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$oFLCon = $oMod->getFileLocker();
 
 		$oLockLoader = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $oMod );
-		$aLocks = [];
-		foreach ( $oLockLoader->loadLocks() as $oLock ) {
-			$aLocks[ $oLock->id ] = $oLock->file;
-		}
+		$aProblemLocks = $oLockLoader->withProblems();
+		$aGoodLocks = $oLockLoader->withoutProblems();
 
 		$aData = [
 			'ajax'    => [
-				'filelocker_showdiff'  => $oMod->getAjaxActionData( 'filelocker_showdiff', true ),
+				'filelocker_showdiff'   => $oMod->getAjaxActionData( 'filelocker_showdiff', true ),
 				'filelocker_fileaction' => $oMod->getAjaxActionData( 'filelocker_fileaction', true ),
 			],
 			'flags'   => [
@@ -274,14 +272,16 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_options' )
 			],
 			'vars'    => [
-				'file_locks' => $aLocks,
-				'file_diffs' => []
+				'file_locks' => [
+					'good' => $aGoodLocks,
+					'bad'  => $aProblemLocks,
+				],
 			],
 			'strings' => [
 				'title'    => __( "File Locker Results", 'wp-simple-firewall' ),
 				'subtitle' => __( "Results of file locker monitoring", 'wp-simple-firewall' )
 			],
-			'count'   => 0
+			'count'   => count( $aProblemLocks )
 		];
 
 		return $aData;

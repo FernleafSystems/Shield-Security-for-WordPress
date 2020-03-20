@@ -32,10 +32,12 @@ class Handler extends Base\Handler {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 			file varchar(256) NOT NULL COMMENT 'File Path relative to ABSPATH',
-			hash varchar(40) NOT NULL COMMENT 'SHA1 File Hash',
+			hash_original varchar(40) NOT NULL COMMENT 'SHA1 File Hash Original',
+			hash_current varchar(40) NOT NULL COMMENT 'SHA1 File Hash Current',
 			content blob COMMENT 'Content',
 			meta text COMMENT 'Meta Data',
 			encrypted TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is Content Encrypted',
+			detected_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Change Last Detected',
 			reverted_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Reverted To Backup',
 			notified_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Notification Sent',
 			updated_at int(15) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'TS Updated',

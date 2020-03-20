@@ -20,7 +20,14 @@ trait Common {
 	 * @param string $sHash
 	 * @return $this
 	 */
-	public function filterByHash( $sHash ) {
-		return $this->addWhereEquals( 'hash', base64_encode( $sHash ) );
+	public function filterByHashOriginal( $sHash ) {
+		return $this->addWhereEquals( 'hash_original', base64_encode( $sHash ) );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByProblem() {
+		return $this->addWhereNewerThan( 0, 'detected_at' );
 	}
 }

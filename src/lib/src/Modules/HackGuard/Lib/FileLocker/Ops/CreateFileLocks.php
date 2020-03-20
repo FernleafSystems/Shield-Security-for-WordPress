@@ -40,7 +40,7 @@ class CreateFileLocks extends BaseOps {
 		if ( $oFS->isFile( $sPath ) ) {
 			$oEntry = new FileLocker\EntryVO();
 			$oEntry->file = $sPath;
-			$oEntry->hash = hash_file( 'sha1', $sPath );
+			$oEntry->hash_original = hash_file( 'sha1', $sPath );
 			try {
 				$oEntry->content = $this->buildEncryptedFilePayload( $sPath );
 				$oEntry->encrypted = 1;

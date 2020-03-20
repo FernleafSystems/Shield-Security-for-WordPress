@@ -466,10 +466,12 @@
     "table_columns_filelocker":    [
       "id",
       "file",
-      "hash",
+      "hash_original",
+      "hash_current",
       "content",
       "meta",
       "encrypted",
+      "detected_at",
       "reverted_at",
       "notified_at",
       "updated_at",

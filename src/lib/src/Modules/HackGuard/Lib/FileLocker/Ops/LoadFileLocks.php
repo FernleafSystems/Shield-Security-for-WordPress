@@ -28,9 +28,41 @@ class LoadFileLocks {
 			/** @var FileLocker\Handler $oDbH */
 			$oDbH = $oMod->getDbHandler_FileLocker();
 			$aAll = $oDbH->getQuerySelector()->all();
-			self::$aFileLockRecords = is_array( $aAll ) ? $aAll : [];
+
+			self::$aFileLockRecords = [];
+			if ( is_array( $aAll ) ) {
+				foreach ( $aAll as $oLock ) {
+					self::$aFileLockRecords[ $oLock->id ] = $oLock;
+				}
+			}
 		}
 		return self::$aFileLockRecords;
+	}
+
+	/**
+	 * @return FileLocker\EntryVO[]
+	 */
+	public function withProblems() {
+		return array_filter(
+			$this->loadLocks(),
+			function ( $oLock ) {
+				/** @var FileLocker\EntryVO $oLock */
+				return $oLock->detected_at > 0;
+			}
+		);
+	}
+
+	/**
+	 * @return FileLocker\EntryVO[]
+	 */
+	public function withoutProblems() {
+		return array_filter(
+			$this->loadLocks(),
+			function ( $oLock ) {
+				/** @var FileLocker\EntryVO $oLock */
+				return $oLock->detected_at == 0;
+			}
+		);
 	}
 
 	/**

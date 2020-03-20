@@ -7,9 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 /**
  * Class EntryVO
  * @property string $file
- * @property string $hash
+ * @property string $hash_original
+ * @property string $hash_current
  * @property string $content
  * @property bool   $encrypted
+ * @property int    $detected_at
+ * @property int    $reverted_at
  */
 class EntryVO extends Base\EntryVO {
 

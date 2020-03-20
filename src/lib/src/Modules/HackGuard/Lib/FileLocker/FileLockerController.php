@@ -34,7 +34,7 @@ class FileLockerController {
 		$oOpts = $this->getOptions();
 
 		// 1. First assess the existing locks for changes.
-		( new Ops\AssessAndRepairFileLocks() )
+		( new Ops\AssessLocks() )
 			->setMod( $this->getMod() )
 			->run();
 

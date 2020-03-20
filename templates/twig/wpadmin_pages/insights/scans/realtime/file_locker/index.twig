@@ -11,8 +11,11 @@
 					 </div>
 					<select class="custom-select mw-100" id="FileLockerFileSelect">
 						<option selected value="-">--</option>
-						{% for file_key, file_name in scan.vars.file_locks %}
-							<option value="{{ file_key }}" class="text-success">{{ file_name }}</option>
+						{% for lock_key, file_lock in scan.vars.file_locks.bad %}
+							<option value="{{ lock_key }}" class="text-danger">{{ file_lock.file }}</option>
+						{% endfor %}
+						{% for lock_key, file_lock in scan.vars.file_locks.good %}
+							<option value="{{ lock_key }}" class="text-success">{{ file_lock.file }}</option>
 						{% endfor %}
 					</select>
 				 </div>
