@@ -106,6 +106,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					->setDbHandler( $this->getDbHandler_ScanResults() )
 					->downloadByItemId( (int)Services::Request()->query( 'rid', 0 ) );
 				break;
+			case  'filelocker_download_original':
+			case  'filelocker_download_current':
+				$this->getFileLocker()->handleFileDownloadRequest();
+				break;
 			default:
 				break;
 		}

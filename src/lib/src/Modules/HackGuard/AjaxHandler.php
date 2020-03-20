@@ -149,6 +149,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'butt_accept'           => __( 'Accept Changes' ),
 				'time_locked'           => __( 'File Locked' ),
 				'time_detected'         => __( 'File Change Detected' ),
+				'file_content_original' => __( 'Original File Content' ),
+				'file_content_current'  => __( 'Current File Content' ),
 				'download_original'     => __( 'Download Original' ),
 				'download_current'      => __( 'Download Current' ),
 				'file_download'         => __( 'File Download' ),
@@ -166,6 +168,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				->setMod( $this->getMod() )
 				->run( $nRID, 'diff' );
 			$oLock = $oFLCon->getFileLock( $nRID );
+			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
 			$aData[ 'vars' ][ 'time_locked' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
 			$aData[ 'vars' ][ 'time_detected' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
 			$aData[ 'success' ] = true;

@@ -56,8 +56,8 @@
 
 <script>
 	jQuery( document ).ready( function () {
-		jQuery( document ).on( "click", "a#ExportDownload", function () {
-			event.preventDefault();
+		jQuery( document ).on( "click", "a#ExportDownload", function ( evt ) {
+			evt.preventDefault();
 			jQuery.fileDownload( jQuery( this ).attr( 'href' ), {
 				preparingMessageHtml: "{{ strings.downloading_please_wait }}",
 				failMessageHtml: "{{ strings.problem_downloading_file }}"

@@ -27,11 +27,13 @@
 					<h5 class="card-title">{{ strings.file_download }}</h5>
 					<dl>
 						<dt>{{ strings.download_original }}</dt>
-						<dd>{{ vars.time_locked }}</dd>
+						<dd><a href="{{ ajax.original }}"
+							   class="shield_file_download">Download &searr;</a></dd>
 					</dl>
 					<dl>
 						<dt>{{ strings.download_current }}</dt>
-						<dd>{{ vars.time_detected }}</dd>
+						<dd><a href="{{ ajax.current }}"
+							   class="shield_file_download">Download &searr;</a></dd>
 					</dl>
 				</div>
 			</div>
@@ -53,7 +55,7 @@
 							   type="submit" value="{{ strings.butt_restore }}"
 							   data-action="restore"
 							   data-rid="{{ vars.rid }}"
-							   class="btn btn-outline-success btn-block btn-sm mt-3" />
+							   class="btn btn-outline-success btn-sm mt-3" />
 					</form>
 				</div>
 			</div>
@@ -75,11 +77,15 @@
 							   type="submit" value="{{ strings.butt_accept }}"
 							   data-action="accept"
 							   data-rid="{{ vars.rid }}"
-							   class="btn btn-outline-danger btn-block btn-sm mt-3" />
+							   class="btn btn-outline-danger btn-sm mt-3" />
 					</form>
 				</div>
 			</div>
 
+		</div>
+		<div class="row text-center mt-4">
+			<div class="col"><h5>{{ strings.file_content_original }}</h5></div>
+			<div class="col"><h5>{{ strings.file_content_current }}</h5></div>
 		</div>
 		<hr />
 		{{ html.diff|raw }}

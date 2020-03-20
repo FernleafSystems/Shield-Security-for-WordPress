@@ -391,3 +391,14 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 
 	return this;
 };
+
+jQuery( document ).ready( function () {
+	jQuery( document ).on( "click", "a.shield_file_download", function ( evt ) {
+		evt.preventDefault();
+		jQuery.fileDownload( jQuery( this ).attr( 'href' ), {
+			preparingMessageHtml: "Translate: Please wait",
+			failMessageHtml: "Translate: download failed"
+		} );
+		return false;
+	} );
+} );

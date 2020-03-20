@@ -31,6 +31,47 @@ class FileLockerController {
 			->withProblems() );
 	}
 
+	/**
+	 * @param FileLocker\EntryVO $oVO
+	 * @return string[]
+	 */
+	public function createFileDownloadLinks( $oVO ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$aLinks = [];
+		foreach ( [ 'original', 'current' ] as $sType ) {
+			$aActionNonce = $oMod->getNonceActionData( 'filelocker_download_'.$sType );
+			$aActionNonce[ 'rid' ] = $oVO->id;
+			$aLinks[ $sType ] = add_query_arg( $aActionNonce, $oMod->getUrl_AdminPage() );
+		}
+		return $aLinks;
+	}
+
+	public function handleFileDownloadRequest() {
+		$oReq = Services::Request();
+		$oLock = $this->getFileLock( (int)$oReq->query( 'rid', 0 ) );
+		if ( !empty( $oLock ) ) {
+			$sType = str_replace( 'filelocker_download_', '', $oReq->query( 'exec' ) );
+			if ( $sType == 'original' ) {
+				$sContent = ( new HackGuard\Lib\FileLocker\Ops\ReadOriginalFileContent() )
+					->setMod( $this->getMod() )
+					->run( $oLock );
+			}
+			elseif ( $sType == 'current' ) {
+				$oFs = Services::WpFs();
+				if ( $oFs->isFile( $oLock->file ) ) {
+					$sContent = $oFs->getFileContent( $oLock->file );
+				}
+			}
+			if ( !empty( $sContent ) ) {
+				header( 'Set-Cookie: fileDownload=true; path=/' );
+				Services::Response()->downloadStringAsFile( $sContent, basename( $oLock->file ) );
+			}
+		}
+
+		wp_die( "Something about this request wasn't right" );
+	}
+
 	public function deleteAllLocks() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
