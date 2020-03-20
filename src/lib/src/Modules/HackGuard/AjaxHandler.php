@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -47,6 +49,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			case 'plugin_reinstall':
 				$aResponse = $this->ajaxExec_PluginReinstall();
+				break;
+
+			case 'filelocker_show_diff':
+				$aResponse = $this->ajaxExec_LoadFileLockDiff();
 				break;
 
 			default:
@@ -111,6 +117,41 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return [
 			'success' => !empty( $oTableBuilder ),
 			'html'    => $sHtml
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_LoadFileLockDiff() {
+		$aData = [
+			'error'     => '',
+			'diff_html' => '',
+			'success'   => false,
+			'strings'   => [
+				'no_changes'    => __( 'There have been no changes to the selected file.' ),
+				'please_review' => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
+			]
+		];
+		try {
+			$aData[ 'diff_html' ] = ( new FileLocker\Ops\RenderHtmlFileDiff() )
+				->setMod( $this->getMod() )
+				->run( Services::Request()->post( 'rid' ) );
+			$aData[ 'success' ] = true;
+		}
+		catch ( \Exception $oE ) {
+			$aData[ 'error' ] = $oE->getMessage();
+		};
+
+		return [
+			'success' => $aData[ 'success' ],
+			'message' => $aData[ 'error' ],
+			'html'    => $this->getMod()
+							  ->renderTemplate(
+								  '/wpadmin_pages/insights/scans/realtime/file_locker/file_diff.twig',
+								  $aData,
+								  true
+							  )
 		];
 	}
 
@@ -242,7 +283,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'running' => $oQueCon->getScansRunningStates(),
 			'vars'    => [
 				'progress_html' => $oMod->renderTemplate(
-					'/wpadmin_pages/insights/scans/modal_progress_snippet.twig',
+					'/wpadmin_pages/insights/scans/modal/progress_snippet.twig',
 					[
 						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
 						'scan'            => $sCurrentScan,

@@ -448,5 +448,10 @@ class Strings extends Base\Strings {
 
 		__( 'Last Offense', 'wp-simple-firewall' );
 		__( 'Automatic license verification failed.', 'wp-simple-firewall' );
+
+		// scan
+		__( "Detect changes to core WordPress files when compared to the official distribution", 'wp-simple-firewall' );
+		__( "Detect files which aren't part of the official WordPress.org distribution", 'wp-simple-firewall' );
+		__( "Detect files that may be infected with malware", 'wp-simple-firewall' );
 	}
 }

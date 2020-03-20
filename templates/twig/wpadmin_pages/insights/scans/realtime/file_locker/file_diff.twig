@@ -1,0 +1,20 @@
+{% if success %}
+	{% if diff_html is empty %}
+		<div class="alert alert-success m-0">{{ strings.no_changes }}</div>
+	{% else %}
+		<div class="alert alert-warning m-0">
+			<p class="m-0">{{ strings.please_review }}</p>
+		</div>
+		<div class="row">
+			<div class="col-6 text-center">
+				<button class="btn btn-success m-3">Restore File To Original Contents</button>
+			</div>
+			<div class="col-6 text-center">
+				<button class="btn btn-warning m-3">Accept Current Changes Below</button>
+			</div>
+		</div>
+		{{ diff_html|raw }}
+	{% endif %}
+{% else %}
+	<div class="alert alert-warning m-0">{{ error }}</div>
+{% endif %}

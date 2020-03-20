@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
@@ -163,6 +164,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 									   ->filterByNotIgnored()
 									   ->count()
 			],
+			'file_locker'  => $this->getFileLockerVars(),
 			'scans'        => [
 				'apc' => [
 					'flags'   => [
@@ -239,6 +241,47 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 			$aScanData[ 'hrefs' ][ 'please_enable' ] = $oMod->getUrl_DirectLinkToSection( 'section_scan_'.$sSlug );
 			$aScanData[ 'count' ] = $oSelector->countForScan( $sSlug );
 		}
+
+		return $aData;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getFileLockerVars() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oFS = Services::WpFs();
+		$oFLCon = $oMod->getFileLocker();
+
+		$oLockLoader = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $oMod );
+		$aLocks = [];
+		foreach ( $oLockLoader->loadLocks() as $oLock ) {
+			$aLocks[ $oLock->id ] = $oLock->file;
+		}
+
+		$aData = [
+			'ajax'    => [
+				'filelocker_show_diff' => $oMod->getAjaxActionData( 'filelocker_show_diff', true ),
+			],
+			'flags'   => [
+				'has_items' => true,
+			],
+			'hrefs'   => [
+				'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_options' )
+			],
+			'vars'    => [
+				'file_locks' => $aLocks,
+				'file_diffs' => []
+			],
+			'strings' => [
+				'title'    => __( "File Locker Results", 'wp-simple-firewall' ),
+				'subtitle' => __( "Results of file locker monitoring", 'wp-simple-firewall' )
+			],
+			'count'   => 0
+		];
 
 		return $aData;
 	}

@@ -1,0 +1,57 @@
+<div class="row insights_widget" id="SectionScanResultsFileLocker">
+	<div class="col-12">
+		<div class="card card-scan_results">
+
+			<div class="card-header">
+				 <div class="input-group m-auto mt-3 mb-3 w-75">
+					 <div class="input-group-prepend">
+						 <label class="input-group-text" for="FileLockerFileSelect">
+							 Select File To Review
+						 </label>
+					 </div>
+					<select class="custom-select mw-100" id="FileLockerFileSelect">
+						<option selected value="-">--</option>
+						{% for file_key, file_name in scan.vars.file_locks %}
+							<option value="{{ file_key }}" class="text-success">{{ file_name }}</option>
+						{% endfor %}
+					</select>
+				 </div>
+			</div>
+
+			<div class="card-body">
+				<div id="FileLockerDiffContents"></div>
+			</div>
+
+			<div class="card-footer">
+				<div class="row">
+					<div class="col-sm-6">
+					</div>
+					<div class="col-sm-6 text-right">
+						<a href="{{ scan.hrefs.options }}"
+						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	jQuery( '#FileLockerFileSelect' ).on( 'change', function ( e ) {
+		iCWP_WPSF_BodyOverlay.show();
+		let ajax_vars ={{ scan.ajax.filelocker_show_diff|raw }};
+		ajax_vars.rid = jQuery( this ).val();
+		jQuery.post( ajaxurl, ajax_vars,
+			function ( oResponse ) {
+				jQuery( '#FileLockerDiffContents' ).html( oResponse.data.html );
+			}
+		).fail(
+			function () {
+			}
+		).always( function () {
+				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	} );
+</script>
