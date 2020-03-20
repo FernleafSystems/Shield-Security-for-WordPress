@@ -157,7 +157,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'vars'    => [
 				],
 				'strings' => [
-					'title'    => __( "File Scan Results", 'wp-simple-firewall' ),
+					'title'    => __( 'File Scan', 'wp-simple-firewall' ),
 					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
 				],
 				'count'   => $oSelector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
@@ -278,8 +278,9 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 			],
 			'strings' => [
-				'title'    => __( "File Locker Results", 'wp-simple-firewall' ),
-				'subtitle' => __( "Results of file locker monitoring", 'wp-simple-firewall' )
+				'title'    => __( "File Locker", 'wp-simple-firewall' ),
+				'subtitle' => __( "Results of file locker monitoring", 'wp-simple-firewall' ),
+				'please_select' => __( "Please select a file to review.", 'wp-simple-firewall' ),
 			],
 			'count'   => count( $aProblemLocks )
 		];
