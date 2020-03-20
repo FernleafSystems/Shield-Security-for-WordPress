@@ -40,7 +40,7 @@
 <script type="text/javascript">
 	jQuery( '#FileLockerFileSelect' ).on( 'change', function ( e ) {
 		iCWP_WPSF_BodyOverlay.show();
-		let ajax_vars ={{ scan.ajax.filelocker_show_diff|raw }};
+		let ajax_vars ={{ scan.ajax.filelocker_showdiff|raw }};
 		ajax_vars.rid = jQuery( this ).val();
 		jQuery.post( ajaxurl, ajax_vars,
 			function ( oResponse ) {
@@ -51,6 +51,23 @@
 			}
 		).always( function () {
 				iCWP_WPSF_BodyOverlay.hide();
+			}
+		);
+	} );
+	jQuery( document ).on( 'click', 'button.filelocker_fileaction', function ( e ) {
+		iCWP_WPSF_BodyOverlay.show();
+		let ajax_vars ={{ scan.ajax.filelocker_fileaction|raw }};
+		let $oButton = jQuery( this );
+		ajax_vars.rid = $oButton.data( 'rid' );
+		ajax_vars.file_action = $oButton.data( 'action' );
+		jQuery.post( ajaxurl, ajax_vars,
+			function ( oResponse ) {
+			}
+		).fail(
+			function () {
+			}
+		).always( function () {
+				location.reload();
 			}
 		);
 	} );

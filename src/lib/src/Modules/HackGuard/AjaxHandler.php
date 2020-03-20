@@ -51,8 +51,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_PluginReinstall();
 				break;
 
-			case 'filelocker_show_diff':
-				$aResponse = $this->ajaxExec_LoadFileLockDiff();
+			case 'filelocker_showdiff':
+				$aResponse = $this->ajaxExec_FileLockerShowDiff();
+				break;
+
+			case 'filelocker_fileaction':
+				$aResponse = $this->ajaxExec_FileLockerFileAction();
 				break;
 
 			default:
@@ -123,20 +127,28 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	/**
 	 * @return array
 	 */
-	private function ajaxExec_LoadFileLockDiff() {
+	private function ajaxExec_FileLockerShowDiff() {
+		$nRID = Services::Request()->post( 'rid' );
 		$aData = [
-			'error'     => '',
-			'diff_html' => '',
-			'success'   => false,
-			'strings'   => [
+			'error'   => '',
+			'success' => false,
+			'html'    => [
+				'diff' => '',
+			],
+			'vars'    => [
+				'rid' => $nRID,
+			],
+			'strings' => [
 				'no_changes'    => __( 'There have been no changes to the selected file.' ),
 				'please_review' => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
+				'butt_accept'   => __( 'Restore File Contents' ),
+				'butt_restore'  => __( 'Accept Current File Contents' ),
 			]
 		];
 		try {
-			$aData[ 'diff_html' ] = ( new FileLocker\Ops\RenderHtmlFileDiff() )
+			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\RenderHtmlFileDiff() )
 				->setMod( $this->getMod() )
-				->run( Services::Request()->post( 'rid' ) );
+				->run( $nRID );
 			$aData[ 'success' ] = true;
 		}
 		catch ( \Exception $oE ) {
@@ -152,6 +164,29 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 								  $aData,
 								  true
 							  )
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_FileLockerFileAction() {
+		$nRID = Services::Request()->post( 'rid' );
+		$sAction = Services::Request()->post( 'file_action' );
+		try {
+			$bSuccess = ( new FileLocker\Ops\PerformAction() )
+				->setMod( $this->getMod() )
+				->run( $nRID, $sAction );
+			$sMessage = __( 'Success', 'wp-simple-firewall' );
+		}
+		catch ( \Exception $oE ) {
+			$bSuccess = false;
+			$sMessage = __( 'Failed', 'wp-simple-firewall' );
+		}
+
+		return [
+			'success' => $bSuccess,
+			'message' => $sMessage,
 		];
 	}
 

@@ -14,12 +14,10 @@ class AssessAndRepairFileLocks extends BaseOps {
 			catch ( \InvalidArgumentException $oE ) {
 				$bFileValid = false;
 			}
-			if ( !$bFileValid ) {
-				( new Revert() )
+			if ( false&& !$bFileValid ) {
+				( new Restore() )
 					->setMod( $this->getMod() )
 					->run( $oFileLock );
-
-				$this->clearFileLocksCache();
 			}
 		}
 	}

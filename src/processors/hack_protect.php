@@ -264,7 +264,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 
 		$aData = [
 			'ajax'    => [
-				'filelocker_show_diff' => $oMod->getAjaxActionData( 'filelocker_show_diff', true ),
+				'filelocker_showdiff'  => $oMod->getAjaxActionData( 'filelocker_showdiff', true ),
+				'filelocker_fileaction' => $oMod->getAjaxActionData( 'filelocker_fileaction', true ),
 			],
 			'flags'   => [
 				'has_items' => true,

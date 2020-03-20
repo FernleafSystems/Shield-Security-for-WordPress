@@ -1,5 +1,5 @@
 {% if success %}
-	{% if diff_html is empty %}
+	{% if html.diff is empty %}
 		<div class="alert alert-success m-0">{{ strings.no_changes }}</div>
 	{% else %}
 		<div class="alert alert-warning m-0">
@@ -7,13 +7,17 @@
 		</div>
 		<div class="row">
 			<div class="col-6 text-center">
-				<button class="btn btn-success m-3">Restore File To Original Contents</button>
+				<button class="btn btn-success m-3 filelocker_fileaction"
+						data-action="restore"
+						data-rid="{{ vars.rid }}">{{ strings.butt_accept }}</button>
 			</div>
 			<div class="col-6 text-center">
-				<button class="btn btn-warning m-3">Accept Current Changes Below</button>
+				<button class="btn btn-warning m-3 filelocker_fileaction"
+						data-action="accept"
+						data-rid="{{ vars.rid }}">{{ strings.butt_restore }}</button>
 			</div>
 		</div>
-		{{ diff_html|raw }}
+		{{ html.diff|raw }}
 	{% endif %}
 {% else %}
 	<div class="alert alert-warning m-0">{{ error }}</div>
