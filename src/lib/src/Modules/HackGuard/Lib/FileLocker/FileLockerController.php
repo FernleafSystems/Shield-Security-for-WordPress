@@ -50,7 +50,8 @@ class FileLockerController {
 	public function handleFileDownloadRequest() {
 		$oReq = Services::Request();
 		$oLock = $this->getFileLock( (int)$oReq->query( 'rid', 0 ) );
-		if ( !empty( $oLock ) ) {
+
+		if ( $oLock instanceof FileLocker\EntryVO ) {
 			$sType = str_replace( 'filelocker_download_', '', $oReq->query( 'exec' ) );
 			if ( $sType == 'original' ) {
 				$sContent = ( new HackGuard\Lib\FileLocker\Ops\ReadOriginalFileContent() )
@@ -65,7 +66,8 @@ class FileLockerController {
 			}
 			if ( !empty( $sContent ) ) {
 				header( 'Set-Cookie: fileDownload=true; path=/' );
-				Services::Response()->downloadStringAsFile( $sContent, basename( $oLock->file ) );
+				Services::Response()
+						->downloadStringAsFile( $sContent, strtoupper( $sType ).'-'.basename( $oLock->file ) );
 			}
 		}
 

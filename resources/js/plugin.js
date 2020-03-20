@@ -392,13 +392,17 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 	return this;
 };
 
-jQuery( document ).ready( function () {
-	jQuery( document ).on( "click", "a.shield_file_download", function ( evt ) {
-		evt.preventDefault();
-		jQuery.fileDownload( jQuery( this ).attr( 'href' ), {
-			preparingMessageHtml: "Translate: Please wait",
-			failMessageHtml: "Translate: download failed"
+
+if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
+
+	jQuery( document ).ready( function () {
+		jQuery( document ).on( "click", "a.shield_file_download", function ( evt ) {
+			evt.preventDefault();
+			jQuery.fileDownload( jQuery( this ).attr( 'href' ), {
+				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
+				failMessageHtml: icwp_wpsf_vars_plugin.strings.problem_downloading_file
+			} );
+			return false;
 		} );
-		return false;
 	} );
-} );
+}

@@ -592,11 +592,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				[
-					'file'  => $sFile,
-					'ajax'  => [
+					'file'    => $sFile,
+					'ajax'    => [
 						'send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
 					],
-					'hrefs' => [
+					'hrefs'   => [
 						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $sFile ),
 					],
 				]
@@ -609,6 +609,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			$oCon->prefix( 'plugin' ),
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
+		);
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_plugin',
+			[
+				'strings' => [
+					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
+					'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+				],
+			]
 		);
 	}
 
