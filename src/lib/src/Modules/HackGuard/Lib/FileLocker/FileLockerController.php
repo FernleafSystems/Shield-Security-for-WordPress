@@ -58,12 +58,10 @@ class FileLockerController {
 					->setMod( $this->getMod() )
 					->run( $oLock );
 			}
-			elseif ( $sType == 'current' ) {
-				$oFs = Services::WpFs();
-				if ( $oFs->isFile( $oLock->file ) ) {
-					$sContent = $oFs->getFileContent( $oLock->file );
-				}
+			elseif ( $sType == 'current' && Services::WpFs()->isFile( $oLock->file ) ) {
+				$sContent = Services::WpFs()->getFileContent( $oLock->file );
 			}
+
 			if ( !empty( $sContent ) ) {
 				header( 'Set-Cookie: fileDownload=true; path=/' );
 				Services::Response()

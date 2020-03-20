@@ -1,39 +1,50 @@
 {% if success %}
-	{% if html.diff is empty %}
-		<div class="alert alert-success m-0">{{ strings.no_changes }}</div>
-	{% else %}
-		<div class="alert alert-warning mb-3">
-			<p class="m-0">{{ strings.please_review }}</p>
-		</div>
+	<div class="card-group">
 
-		<div class="card-group">
+		<div class="card">
 
-			<div class="card">
-				<div class="card-body">
-					<h5 class="card-title">{{ strings.file_info }}</h5>
-					<dl>
-						<dt>{{ strings.time_locked }}</dt>
-						<dd>{{ vars.time_locked }}</dd>
-					</dl>
-					<dl>
-						<dt>{{ strings.time_detected }}</dt>
-						<dd>{{ vars.time_detected }}</dd>
-					</dl>
-				</div>
+			<div class="card-body">
+				<h5 class="card-title">{{ strings.locked_file }}</h5>
+
+				<dl class="row">
+					<dt class="col">{{ strings.locked }}</dt>
+					<dd class="col">{{ vars.locked_at }}</dd>
+				</dl>
+
+				<dl class="row">
+					<dt class="col">{{ strings.file_size }}</dt>
+					<dd class="col">{{ vars.file_size_locked }}</dd>
+				</dl>
+
+				<dl class="row">
+					<dt class="col">{{ strings.download }}</dt>
+					<dd class="col"><a href="{{ ajax.original }}"
+									   class="shield_file_download">{{ strings.download }} &searr;</a></dd>
+				</dl>
 			</div>
 
+		</div>
+
+		{% if flags.has_diff %}
 			<div class="card">
+
 				<div class="card-body">
-					<h5 class="card-title">{{ strings.file_download }}</h5>
-					<dl>
-						<dt>{{ strings.download_original }}</dt>
-						<dd><a href="{{ ajax.original }}"
-							   class="shield_file_download">Download &searr;</a></dd>
+					<h5 class="card-title">{{ strings.modified_file }}</h5>
+
+					<dl class="row">
+						<dt class="col">{{ strings.modified_at }}</dt>
+						<dd class="col">{{ vars.modified_at }}</dd>
 					</dl>
-					<dl>
-						<dt>{{ strings.download_current }}</dt>
-						<dd><a href="{{ ajax.current }}"
-							   class="shield_file_download">Download &searr;</a></dd>
+
+					<dl class="row">
+						<dt class="col">{{ strings.file_size }}</dt>
+						<dd class="col">{{ vars.file_size_modified }}</dd>
+					</dl>
+
+					<dl class="row">
+						<dt class="col">{{ strings.download }}</dt>
+						<dd class="col"><a href="{{ ajax.current }}"
+										   class="shield_file_download">{{ strings.download }} &searr;</a></dd>
 					</dl>
 				</div>
 			</div>
@@ -81,7 +92,16 @@
 					</form>
 				</div>
 			</div>
+		{% endif %}
 
+	</div>
+	{% if flags.has_diff %}
+		<div class="row text-center mt-4">
+			<div class="col">
+				<div class="alert alert-warning mb-2">
+					<p class="m-0">{{ strings.please_review }}</p>
+				</div>
+			</div>
 		</div>
 		<div class="row text-center mt-4">
 			<div class="col"><h5>{{ strings.file_content_original }}</h5></div>

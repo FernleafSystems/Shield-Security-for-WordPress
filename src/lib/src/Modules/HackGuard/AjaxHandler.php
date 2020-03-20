@@ -131,11 +131,15 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$oFLCon = $oMod->getFileLocker();
+		$oFS = Services::WpFs();
 
 		$nRID = Services::Request()->post( 'rid' );
 		$aData = [
 			'error'   => '',
 			'success' => false,
+			'flags'   => [
+				'has_diff' => false,
+			],
 			'html'    => [
 				'diff' => '',
 			],
@@ -147,12 +151,18 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'please_review'         => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
 				'butt_restore'          => __( 'Restore File' ),
 				'butt_accept'           => __( 'Accept Changes' ),
-				'time_locked'           => __( 'File Locked' ),
-				'time_detected'         => __( 'File Change Detected' ),
+				'file_name'             => __( 'Name' ),
+				'file_size'             => __( 'File Size' ),
+				'locked_file'           => __( 'Locked File' ),
+				'modified_file'         => __( 'Modified File' ),
+				'locked'                => __( 'Locked' ),
+				'modified'              => __( 'Modified' ),
+				'download'              => __( 'Download' ),
+				'modified_at'           => __( 'Modified' ),
 				'file_content_original' => __( 'Original File Content' ),
 				'file_content_current'  => __( 'Current File Content' ),
 				'download_original'     => __( 'Download Original' ),
-				'download_current'      => __( 'Download Current' ),
+				'download_modified'     => __( 'Download Modified' ),
 				'file_download'         => __( 'File Download' ),
 				'file_info'             => __( 'File Info' ),
 				'file_accept'           => __( 'File Accept' ),
@@ -169,8 +179,17 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				->run( $nRID, 'diff' );
 			$oLock = $oFLCon->getFileLock( $nRID );
 			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
-			$aData[ 'vars' ][ 'time_locked' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
-			$aData[ 'vars' ][ 'time_detected' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
+			$aData[ 'flags' ][ 'has_diff' ] = !empty( $aData[ 'html' ][ 'diff' ] );
+			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
+			$aData[ 'vars' ][ 'modified_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
+			$aData[ 'vars' ][ 'file_size_locked' ] = sprintf( '%s bytes',
+				strlen( ( new FileLocker\Ops\ReadOriginalFileContent() )
+					->setMod( $oMod )
+					->run( $oLock ) )
+			);
+			$aData[ 'vars' ][ 'file_size_modified' ] = sprintf( '%s bytes',
+				$oFS->exists( $oLock->file ) ? $oFS->getFileSize( $oLock->file ) : 0 );
+			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
 			$aData[ 'success' ] = true;
 		}
 		catch ( \Exception $oE ) {
