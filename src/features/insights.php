@@ -18,6 +18,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @param string $sSubPage
+	 * @return string
+	 */
+	public function getUrl_SubInsightsPage( $sSubPage ) {
+		return add_query_arg(
+			[ 'inav' => sanitize_key( $sSubPage ) ],
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
+		);
+	}
+
+	/**
 	 * @param array $aData
 	 * @return string
 	 */

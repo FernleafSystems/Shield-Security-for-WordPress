@@ -5,16 +5,34 @@
 		<div class="alert alert-warning m-0">
 			<p class="m-0">{{ strings.please_review }}</p>
 		</div>
+{#		<div class="row mt-3">#}
+{#			<div class="col">#}
+{#				<ul >#}
+{#					<li></li>#}
+{#				</ul>#}
+{#				<dl>#}
+{#					<dt>{{ strings.date_original }}</dt>#}
+{#					<dd>{{ vars.date_original }}</dd>#}
+{#				</dl>#}
+{#			</div>#}
+{#			<div class="col">#}
+{#				<dl>#}
+{#					<dt>{{ strings.change_detected }}</dt>#}
+{#					<dd>{{ vars.change_detected }}</dd>#}
+{#				</dl>#}
+{#			</div>#}
+{#		</div>#}
+		<hr />
 		<div class="row">
 			<div class="col-6 text-center">
 				<button class="btn btn-success m-3 filelocker_fileaction"
 						data-action="restore"
-						data-rid="{{ vars.rid }}">{{ strings.butt_accept }}</button>
+						data-rid="{{ vars.rid }}">{{ strings.butt_accept }} &#8628;</button>
 			</div>
 			<div class="col-6 text-center">
 				<button class="btn btn-warning m-3 filelocker_fileaction"
 						data-action="accept"
-						data-rid="{{ vars.rid }}">{{ strings.butt_restore }}</button>
+						data-rid="{{ vars.rid }}">{{ strings.butt_restore }} &#8628;</button>
 			</div>
 		</div>
 		{{ html.diff|raw }}

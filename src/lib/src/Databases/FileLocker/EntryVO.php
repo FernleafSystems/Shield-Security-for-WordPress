@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property bool   $encrypted
  * @property int    $detected_at
  * @property int    $reverted_at
+ * @property int    $notified_at
  * @property int    $updated_at
  */
 class EntryVO extends Base\EntryVO {

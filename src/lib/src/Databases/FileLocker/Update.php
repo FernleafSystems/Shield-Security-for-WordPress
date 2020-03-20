@@ -11,6 +11,16 @@ class Update extends Base\Update {
 	 * @param EntryVO $oEntry
 	 * @return bool
 	 */
+	public function markNotified( EntryVO $oEntry ) {
+		return $this->updateEntry( $oEntry, [
+			'notified_at' => Services::Request()->ts()
+		] );
+	}
+
+	/**
+	 * @param EntryVO $oEntry
+	 * @return bool
+	 */
 	public function markProblem( EntryVO $oEntry ) {
 		return $this->updateEntry( $oEntry, [
 			'detected_at' => Services::Request()->ts()

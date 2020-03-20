@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 class AssessLocks extends BaseOps {
 
+	/**
+	 * @return int[]
+	 */
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
@@ -16,6 +19,7 @@ class AssessLocks extends BaseOps {
 		/** @var FileLocker\Update $oUpd */
 		$oUpd = $oDbH->getQueryUpdater();
 
+		$aProblemIds = [];
 		foreach ( $this->getFileLocks() as $oLock ) {
 			try {
 				if ( ( new CompareHash() )->isEqualFileSha1( $oLock->file, $oLock->hash_original ) ) {
@@ -37,15 +41,18 @@ class AssessLocks extends BaseOps {
 							->setMod( $this->getMod() )
 							->run( $oLock );
 					}
-					else {
+					elseif( !hash_equals( $oLock->hash_current, $sFileHash ) ) {
 						$oUpd->updateCurrentHash( $oLock, $sFileHash );
+						$aProblemIds[] = $oLock->id;
 					}
 				}
 			}
 			catch ( \InvalidArgumentException $oE ) {
 				$oUpd->markProblem( $oLock );
+				$aProblemIds[] = $oLock->id;
 			}
 		}
 		$this->clearFileLocksCache();
+		return $aProblemIds;
 	}
 }

@@ -33,10 +33,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'id'       => $oCon->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountFL ),
-				'href'     => add_query_arg(
-					[ 'inav' => 'scans' ],
-					$oCon->getModule_Insights()->getUrl_AdminPage()
-				),
+				'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
 				'warnings' => $nCountFL
 			];
 		}
@@ -615,6 +612,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			'messages' => []
 		];
 
+		$sScansUrl = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
+
 		{// Core files
 			if ( !$this->isScanEnabled( 'wcf' ) ) {
 				$aNotices[ 'messages' ][ 'wcf' ] = [
@@ -629,7 +628,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'wcf' ] = [
 					'title'   => $aScanNames[ 'wcf' ],
 					'message' => __( 'Modified WordPress core files found.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrlManualScan(),
+					'href'    => $sScansUrl,
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
 					'rec'     => __( 'Scan WP core files and repair any files that are flagged as modified.', 'wp-simple-firewall' )
 				];
@@ -650,7 +649,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ufc' ] = [
 					'title'   => $aScanNames[ 'ufc' ],
 					'message' => __( 'Unrecognised files found in WordPress Core directory.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrlManualScan(),
+					'href'    => $sScansUrl,
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
 					'rec'     => __( 'Scan and remove any files that are not meant to be in the WP core directories.', 'wp-simple-firewall' )
 				];
@@ -672,7 +671,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'ptg' ] = [
 					'title'   => $aScanNames[ 'ptg' ],
 					'message' => __( 'A plugin/theme was found to have been modified.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrlManualScan(),
+					'href'    => $sScansUrl,
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
 					'rec'     => __( 'Reviewing modifications to your plugins/themes is recommended.', 'wp-simple-firewall' )
 				];
@@ -693,7 +692,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'wpv' ] = [
 					'title'   => $aScanNames[ 'wpv' ],
 					'message' => __( 'At least 1 item has known vulnerabilities.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrlManualScan(),
+					'href'    => $sScansUrl,
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
 					'rec'     => __( 'Items with known vulnerabilities should be updated, removed, or replaced.', 'wp-simple-firewall' )
 				];
@@ -714,7 +713,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'apc' ] = [
 					'title'   => $aScanNames[ 'apc' ],
 					'message' => __( 'At least 1 plugin on your site is abandoned.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrlManualScan(),
+					'href'    => $sScansUrl,
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
 					'rec'     => __( 'Plugins that have been abandoned represent a potential risk to your site.', 'wp-simple-firewall' )
 				];
@@ -735,7 +734,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				$aNotices[ 'messages' ][ 'mal' ] = [
 					'title'   => $aScanNames[ 'mal' ],
 					'message' => __( 'At least 1 file with potential Malware has been discovered.', 'wp-simple-firewall' ),
-					'href'    => $this->getUrlManualScan(),
+					'href'    => $sScansUrl,
 					'action'  => __( 'Run Scan', 'wp-simple-firewall' ),
 					'rec'     => __( 'Files identified as potential malware should be examined as soon as possible.', 'wp-simple-firewall' )
 				];
@@ -889,16 +888,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 		$aAllData[ $this->getSlug() ] = $aThis;
 		return $aAllData;
-	}
-
-	/**
-	 * TODO: build better/dynamic direct linking to insights sub-pages
-	 */
-	public function getUrlManualScan() {
-		return add_query_arg(
-			[ 'inav' => 'scans' ],
-			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
-		);
 	}
 
 	/**

@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController {
@@ -38,12 +37,23 @@ class FileLockerController {
 		$oMod->getDbHandler_FileLocker()->deleteTable( true );
 	}
 
+	/**
+	 * @param $nID
+	 * @return FileLocker\EntryVO|null
+	 */
+	public function getFileLock( $nID ) {
+		$aLocks = ( new Ops\LoadFileLocks() )
+			->setMod( $this->getMod() )
+			->loadLocks();
+		return isset( $aLocks[ $nID ] ) ? $aLocks[ $nID ] : null;
+	}
+
 	private function runAnalysis() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		// 1. First assess the existing locks for changes.
-		( new Ops\AssessLocks() )
+		$aProblemIds = ( new Ops\AssessLocks() )
 			->setMod( $this->getMod() )
 			->run();
 
@@ -56,6 +66,58 @@ class FileLockerController {
 					->create();
 			}
 			catch ( \Exception $oE ) {
+			}
+		}
+
+		$this->runProblemNotifications( $aProblemIds );
+	}
+
+	/**
+	 * @param int[] $aProblemIds
+	 */
+	protected function runProblemNotifications( $aProblemIds ) {
+		if ( !empty( $aProblemIds ) ) {
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
+			/** @var FileLocker\Handler $oDbH */
+			$oDbH = $oMod->getDbHandler_FileLocker();
+
+			$aToNotify = [];
+			foreach ( $aProblemIds as $nKey => $nID ) {
+				$oLock = $this->getFileLock( $nID );
+				if ( Services::Request()->carbon()->subWeek()->timestamp > $oLock->notified_at ) {
+					$aToNotify[] = $oLock;
+				}
+			}
+			if ( !empty( $aToNotify ) ) {
+				$aEmailContent = [
+					__( 'Shield has detected that the contents of important files on your WordPress site have changed.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
+					'',
+					__( 'The following files have either been changed or deleted.', 'wp-simple-firewall' ),
+				];
+				foreach ( $aToNotify as $oLock ) {
+					$aEmailContent[] = '- '.$oLock->file;
+					/** @var FileLocker\Update $oUpd */
+					$oUpd = $oDbH->getQueryUpdater();
+					$oUpd->markNotified( $oLock );
+				}
+				$aEmailContent[] = '';
+				$aEmailContent[] = __( 'Use the link below to review the File Locker results.', 'wp-simple-firewall' );
+				$aEmailContent[] = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
+				$aEmailContent[] = '';
+				$aEmailContent[] = __( 'Thank You.', 'wp-simple-firewall' );
+
+				$sTitle = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
+					sprintf( __( '%s File Locker Has Detected Critical File Changes', 'wp-simple-firewall' ),
+						$this->getCon()->getHumanName() ) );
+				$this->getMod()
+					 ->getEmailProcessor()
+					 ->sendEmailWithWrap(
+						 $oMod->getPluginDefaultRecipientAddress(),
+						 $sTitle,
+						 $aEmailContent
+					 );
 			}
 		}
 	}
@@ -95,7 +157,7 @@ class FileLockerController {
 				}
 				break;
 		}
-		$oFile = new FileLocker\File( $sFileKey );
+		$oFile = new File( $sFileKey );
 		$oFile->max_levels = $nLevels;
 		$oFile->max_paths = $nMaxPaths;
 		return $oFile;

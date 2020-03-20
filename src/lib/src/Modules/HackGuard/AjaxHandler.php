@@ -128,6 +128,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_FileLockerShowDiff() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oFLCon = $oMod->getFileLocker();
+
 		$nRID = Services::Request()->post( 'rid' );
 		$aData = [
 			'error'   => '',
@@ -141,14 +145,20 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'strings' => [
 				'no_changes'    => __( 'There have been no changes to the selected file.' ),
 				'please_review' => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
-				'butt_accept'   => __( 'Restore File Contents' ),
+				'butt_accept'   => __( 'Restore Original File Contents' ),
 				'butt_restore'  => __( 'Accept Current File Contents' ),
+				'date_original' => __( 'Original Contents Locked' ),
+				'change_detected' => __( 'Change Detected' ),
 			]
 		];
 		try {
+			$oCarb = Services::Request()->carbon();
 			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\PerformAction() )
 				->setMod( $this->getMod() )
 				->run( $nRID, 'diff' );
+			$oLock = $oFLCon->getFileLock( $nRID );
+			$aData[ 'vars' ][ 'date_original' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
+			$aData[ 'vars' ][ 'change_detected' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
 			$aData[ 'success' ] = true;
 		}
 		catch ( \Exception $oE ) {
