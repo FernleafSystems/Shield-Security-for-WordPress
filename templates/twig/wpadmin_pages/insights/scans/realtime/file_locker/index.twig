@@ -1,9 +1,9 @@
-<div class="row insights_widget" id="SectionScanResultsFileLocker">
-	<div class="col-12">
-		<div class="card card-scan_results">
+<div class="row" id="SectionScanResultsFileLocker">
+	<div class="col">
+		<div class="row">
 
-			<div class="card-header">
-				 <div class="input-group m-auto mt-3 mb-3 w-75">
+			<div class="col mt-3 mb-3">
+				 <div class="input-group m-auto mt-3 mb-3">
 					 <div class="input-group-prepend">
 						 <label class="input-group-text" for="FileLockerFileSelect">
 							 Select File To Review
@@ -21,25 +21,16 @@
 				 </div>
 			</div>
 
-			<div class="card-body">
-				<div id="FileLockerDiffContents">
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<div id="FileLockerDiffContents" class="w-100">
 					<div class="alert alert-success m-0">
 						<p class="m-0">{{ scan.strings.please_select }}</p>
 					</div>
 				</div>
 			</div>
-
-			<div class="card-footer">
-				<div class="row">
-					<div class="col-sm-6">
-					</div>
-					<div class="col-sm-6 text-right">
-						<a href="{{ scan.hrefs.options }}"
-						   class="btn btn-sm btn-outline-dark">{{ strings.options }} &rarr;</a>
-					</div>
-				</div>
-			</div>
-
 		</div>
 	</div>
 </div>
@@ -61,21 +52,39 @@
 			}
 		);
 	} );
-	jQuery( document ).on( 'click', 'button.filelocker_fileaction', function ( e ) {
+	jQuery( document ).on( 'submit', 'form.filelocker_fileaction', function ( evt ) {
+		evt.preventDefault();
 		iCWP_WPSF_BodyOverlay.show();
 		let ajax_vars ={{ scan.ajax.filelocker_fileaction|raw }};
-		let $oButton = jQuery( this );
+		let $oButton = jQuery( 'input[type=submit]', this );
+		ajax_vars.confirmed = jQuery( 'input[type=checkbox]', this ).is( ':checked' ) ? 1 : 0;
 		ajax_vars.rid = $oButton.data( 'rid' );
 		ajax_vars.file_action = $oButton.data( 'action' );
+
 		jQuery.post( ajaxurl, ajax_vars,
 			function ( oResponse ) {
+				let sMessage = '';
+				if ( oResponse === null || typeof oResponse.data === 'undefined'
+					|| typeof oResponse.data.message === 'undefined' ) {
+					sMessage = oResponse.success ? 'Success' : 'Failure';
+				}
+				else {
+					sMessage = oResponse.data.message;
+				}
+				iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
+				if ( oResponse.success ) {
+					setTimeout( function () {
+						location.reload();
+					}, 500 );
+				}
 			}
 		).fail(
 			function () {
 			}
 		).always( function () {
-				location.reload();
+				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
+		return false;
 	} );
 </script>

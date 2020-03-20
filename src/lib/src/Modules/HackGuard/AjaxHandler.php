@@ -143,12 +143,21 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'rid' => $nRID,
 			],
 			'strings' => [
-				'no_changes'    => __( 'There have been no changes to the selected file.' ),
-				'please_review' => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
-				'butt_accept'   => __( 'Restore Original File Contents' ),
-				'butt_restore'  => __( 'Accept Current File Contents' ),
-				'date_original' => __( 'Original Contents Locked' ),
-				'change_detected' => __( 'Change Detected' ),
+				'no_changes'            => __( 'There have been no changes to the selected file.' ),
+				'please_review'         => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
+				'butt_restore'          => __( 'Restore File' ),
+				'butt_accept'           => __( 'Accept Changes' ),
+				'time_locked'           => __( 'File Locked' ),
+				'time_detected'         => __( 'File Change Detected' ),
+				'download_original'     => __( 'Download Original' ),
+				'download_current'      => __( 'Download Current' ),
+				'file_download'         => __( 'File Download' ),
+				'file_info'             => __( 'File Info' ),
+				'file_accept'           => __( 'File Accept' ),
+				'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?' ),
+				'file_restore'          => __( 'File Restore' ),
+				'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?' ),
+				'file_restore_button'   => __( 'Are you sure you want to restore the original file contents?' ),
 			]
 		];
 		try {
@@ -157,8 +166,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				->setMod( $this->getMod() )
 				->run( $nRID, 'diff' );
 			$oLock = $oFLCon->getFileLock( $nRID );
-			$aData[ 'vars' ][ 'date_original' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
-			$aData[ 'vars' ][ 'change_detected' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
+			$aData[ 'vars' ][ 'time_locked' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
+			$aData[ 'vars' ][ 'time_detected' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
 			$aData[ 'success' ] = true;
 		}
 		catch ( \Exception $oE ) {
@@ -181,17 +190,24 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_FileLockerFileAction() {
-		$nRID = Services::Request()->post( 'rid' );
-		$sAction = Services::Request()->post( 'file_action' );
-		try {
-			$bSuccess = ( new FileLocker\Ops\PerformAction() )
-				->setMod( $this->getMod() )
-				->run( $nRID, $sAction );
-			$sMessage = __( 'Success', 'wp-simple-firewall' );
+		$oReq = Services::Request();
+		$bSuccess = false;
+
+		if ( $oReq->post( 'confirmed' ) == '1' ) {
+			$nRID = $oReq->post( 'rid' );
+			$sAction = $oReq->post( 'file_action' );
+			try {
+				$bSuccess = ( new FileLocker\Ops\PerformAction() )
+					->setMod( $this->getMod() )
+					->run( $nRID, $sAction );
+				$sMessage = __( 'Requested action completed successfully.', 'wp-simple-firewall' );
+			}
+			catch ( \Exception $oE ) {
+				$sMessage = __( 'Requested action failed.', 'wp-simple-firewall' );
+			}
 		}
-		catch ( \Exception $oE ) {
-			$bSuccess = false;
-			$sMessage = __( 'Failed', 'wp-simple-firewall' );
+		else {
+			$sMessage = __( 'Please check the box to confirm this action', 'wp-simple-firewall' );
 		}
 
 		return [
