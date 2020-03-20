@@ -410,6 +410,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpAdminInit() {
+		add_action( 'admin_bar_menu', [ $this, 'onWpAdminBarMenu' ], 100 );
 		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminCss' ], 100 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
@@ -496,7 +497,34 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @param \WP_Admin_Bar $oAdminBar
 	 */
+	public function onWpAdminBarMenu( $oAdminBar ) {
+		$bShow = apply_filters( $this->prefix( 'show_admin_bar_menu' ),
+			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
+		);
+		if ( $bShow ) {
+			$aMenuItems = apply_filters( $this->prefix( 'admin_bar_menu_items' ), [] );
+			if ( !empty( $aMenuItems ) && is_array( $aMenuItems ) ) {
+				$nCountWarnings = 0;
+				foreach ( $aMenuItems as $aMenuItem ) {
+					$nCountWarnings += isset( $aMenuItem[ 'warnings' ] ) ? $aMenuItem[ 'warnings' ] : 0;
+				}
+
+				$sNodeId = $this->prefix( 'adminbarmenu' );
+				$oAdminBar->add_node( [
+					'id'    => $sNodeId,
+					'title' => $this->getHumanName()
+							   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountWarnings ),
+				] );
+				foreach ( $aMenuItems as $aMenuItem ) {
+					$aMenuItem[ 'parent' ] = $sNodeId;
+					$oAdminBar->add_menu( $aMenuItem );
+				}
+			}
+		}
+	}
+
 	public function onWpDashboardSetup() {
 		$bShow = apply_filters( $this->prefix( 'show_dashboard_widget' ),
 			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_dashboard_widget' )

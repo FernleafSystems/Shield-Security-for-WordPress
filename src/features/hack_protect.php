@@ -21,6 +21,28 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	private $oFileLocker;
 
+	/**
+	 * @param array $aItems
+	 * @return array
+	 */
+	public function addAdminMenuBarItems( array $aItems ) {
+		$oCon = $this->getCon();
+		$nCountFL = $this->getFileLocker()->countProblems();
+		if ( $nCountFL > 0 ) {
+			$aItems[] = [
+				'id'       => $oCon->prefix( 'filelocker_problems' ),
+				'title'    => __( 'File Locker', 'wp-simple-firewall' )
+							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountFL ),
+				'href'     => add_query_arg(
+					[ 'inav' => 'scans' ],
+					$oCon->getModule_Insights()->getUrl_AdminPage()
+				),
+				'warnings' => $nCountFL
+			];
+		}
+		return $aItems;
+	}
+
 	protected function doPostConstruction() {
 		$this->setCustomCronSchedules();
 	}

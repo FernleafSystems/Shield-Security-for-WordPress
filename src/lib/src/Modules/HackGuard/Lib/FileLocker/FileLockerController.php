@@ -23,6 +23,15 @@ class FileLockerController {
 		} );
 	}
 
+	/**
+	 * @return int
+	 */
+	public function countProblems() {
+		return count( ( new Ops\LoadFileLocks() )
+			->setMod( $this->getMod() )
+			->withProblems() );
+	}
+
 	public function deleteAllLocks() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();

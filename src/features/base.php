@@ -93,6 +93,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $this->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
+		add_filter( $this->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItems' ], $nMenuPri );
 		add_filter( $this->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
 		add_filter( $this->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
 		add_filter( $this->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
@@ -595,6 +596,14 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			$this->sModSlug = $this->getOptions()->getFeatureProperty( 'slug' );
 		}
 		return $this->sModSlug;
+	}
+
+	/**
+	 * @param array $aItems
+	 * @return array
+	 */
+	public function addAdminMenuBarItems( array $aItems ) {
+		return $aItems;
 	}
 
 	/**

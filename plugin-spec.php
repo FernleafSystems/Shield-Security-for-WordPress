@@ -12,6 +12,7 @@
     "wpms_network_admin_only": true,
     "logging_enabled":         true,
     "show_dashboard_widget":   true,
+    "show_admin_bar_menu":     true,
     "autoupdate":              "confidence",
     "autoupdate_days":         2,
     "options_encoding":        "json",
