@@ -18,8 +18,10 @@
 
 				<dl class="row">
 					<dt class="col">{{ strings.download }}</dt>
-					<dd class="col"><a href="{{ ajax.original }}"
-									   class="shield_file_download">{{ strings.download }} &searr;</a></dd>
+					<dd class="col">
+						<a href="{{ ajax.original }}" title="{{ strings.download }}" class="shield_file_download text-nowrap">
+							<span class="dashicons dashicons-download"></span></a>
+					</dd>
 				</dl>
 			</div>
 
@@ -43,8 +45,10 @@
 
 					<dl class="row">
 						<dt class="col">{{ strings.download }}</dt>
-						<dd class="col"><a href="{{ ajax.current }}"
-										   class="shield_file_download">{{ strings.download }} &searr;</a></dd>
+						<dd class="col">
+							<a href="{{ ajax.current }}" title="{{ strings.download }}" class="shield_file_download text-nowrap">
+								<span class="dashicons dashicons-download"></span></a>
+						</dd>
 					</dl>
 				</div>
 			</div>

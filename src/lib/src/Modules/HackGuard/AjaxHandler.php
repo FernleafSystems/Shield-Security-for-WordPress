@@ -182,13 +182,12 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$aData[ 'flags' ][ 'has_diff' ] = !empty( $aData[ 'html' ][ 'diff' ] );
 			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
 			$aData[ 'vars' ][ 'modified_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
-			$aData[ 'vars' ][ 'file_size_locked' ] = sprintf( '%s bytes',
-				strlen( ( new FileLocker\Ops\ReadOriginalFileContent() )
+			$aData[ 'vars' ][ 'file_size_locked' ] = $this->formatBytes( strlen(
+				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $oMod )
-					->run( $oLock ) )
-			);
-			$aData[ 'vars' ][ 'file_size_modified' ] = sprintf( '%s bytes',
-				$oFS->exists( $oLock->file ) ? $oFS->getFileSize( $oLock->file ) : 0 );
+					->run( $oLock )
+			), 3 );
+			$aData[ 'vars' ][ 'file_size_modified' ] = $oFS->exists( $oLock->file ) ? $this->formatBytes( $oFS->getFileSize( $oLock->file ), 3 ) : 0;
 			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
 			$aData[ 'success' ] = true;
 		}
@@ -206,6 +205,26 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 								  true
 							  )
 		];
+	}
+
+	/**
+	 * https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
+	 * @param     $bytes
+	 * @param int $precision
+	 * @return string
+	 */
+	private function formatBytes( $bytes, $precision = 2 ) {
+		$units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
+
+		$bytes = max( $bytes, 0 );
+		$pow = floor( ( $bytes ? log( $bytes ) : 0 )/log( 1024 ) );
+		$pow = min( $pow, count( $units ) - 1 );
+
+		// Uncomment one of the following alternatives
+		$bytes /= pow( 1024, $pow );
+		// $bytes /= (1 << (10 * $pow));
+
+		return round( $bytes, $precision ).' '.$units[ $pow ];
 	}
 
 	/**
