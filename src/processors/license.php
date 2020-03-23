@@ -1,14 +1,13 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 
 	public function run() {
 		$oCon = $this->getCon();
-		/** @var Modules\License\Options $oOpts */
-		$oOpts = $this->getOptions();
 		$oReq = Services::Request();
 
 		// performs the license check on-demand
@@ -25,10 +24,13 @@ class ICWP_WPSF_Processor_License extends Modules\BaseShield\ShieldProcessor {
 		switch ( $oCon->getShieldAction() ) {
 
 			case 'keyless_handshake':
+			case 'ssapi_handshake':
 				$sNonce = $oReq->query( 'nonce' );
-				if ( !empty( $sNonce ) && $sNonce === $oOpts->getOpt( 'keyless_handshake_hash' ) ) {
+				if ( !empty( $sNonce ) ) {
 					die( json_encode( [
-						'success' => $oOpts->getOpt( 'keyless_handshake_until', 0 ) >= $oReq->ts()
+						'success' => ( new HandshakingNonce() )
+							->setMod( $this->getMod() )
+							->verify( $sNonce )
 					] ) );
 				}
 				break;

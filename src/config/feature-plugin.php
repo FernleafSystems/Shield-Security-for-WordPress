@@ -423,6 +423,14 @@
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
+    },
+    {
+      "key":          "ssapi_nonces",
+      "transferable": false,
+      "sensitive":    true,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {
