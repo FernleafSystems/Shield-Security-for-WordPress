@@ -20,26 +20,9 @@ class Accept extends BaseOps {
 		/** @var FileLocker\Handler $oDbH */
 		$oDbH = $oMod->getDbHandler_FileLocker();
 
-		$oEntry = new FileLocker\EntryVO();
-		$oEntry->file = $oLock->file;
-		$oEntry->hash_original = hash_file( 'sha1', $oLock->file );
-		$oEntry->created_at = $oLock->created_at;
-		$oEntry->updated_at = Services::Request()->ts();
-		try {
-			$oEntry->content = ( new BuildEncryptedFilePayload() )
-				->setMod( $oMod )
-				->build( $oLock->file );
-			$oEntry->encrypted = 1;
-		}
-		catch ( \Exception $oE ) {
-			$oEntry->content = Services::WpFs()->getFileContent( $oLock->file );
-			$oEntry->encrypted = 0;
-		}
-
-		$oDbH->getQueryDeleter()->deleteEntry( $oLock );
-		/** @var FileLocker\Insert $oInserter */
-		$oInserter = $oDbH->getQueryInserter();
-		$oInserter->insert( $oEntry );
+		/** @var FileLocker\Update $oUpdater */
+		$oUpdater = $oDbH->getQueryUpdater();
+		$oUpdater->updateOriginalHash( $oLock, hash_file( 'sha1', $oLock->file ) );
 
 		$this->clearFileLocksCache();
 	}

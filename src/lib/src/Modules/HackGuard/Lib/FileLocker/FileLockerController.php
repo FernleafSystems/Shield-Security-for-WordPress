@@ -107,6 +107,7 @@ class FileLockerController {
 					->create();
 			}
 			catch ( \Exception $oE ) {
+				error_log( $oE->getMessage() );
 			}
 		}
 

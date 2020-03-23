@@ -45,7 +45,8 @@ class Update extends Base\Update {
 	public function updateCurrentHash( EntryVO $oEntry, $sHash = '' ) {
 		return $this->updateEntry( $oEntry, [
 			'hash_current' => $sHash,
-			'detected_at'  => empty( $sHash ) ? 0 : Services::Request()->ts()
+			'detected_at'  => empty( $sHash ) ? 0 : Services::Request()->ts(),
+			'updated_at'   => Services::Request()->ts(),
 		] );
 	}
 
@@ -57,7 +58,8 @@ class Update extends Base\Update {
 	public function updateOriginalHash( EntryVO $oEntry, $sHash ) {
 		return $this->updateEntry( $oEntry, [
 			'hash_original' => $sHash,
-			'detected_at'   => 0
+			'detected_at'   => 0,
+			'updated_at'    => Services::Request()->ts(),
 		] );
 	}
 }

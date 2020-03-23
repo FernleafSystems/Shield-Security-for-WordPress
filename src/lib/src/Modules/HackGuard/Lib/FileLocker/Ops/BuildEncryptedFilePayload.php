@@ -12,16 +12,13 @@ class BuildEncryptedFilePayload extends BaseOps {
 
 	/**
 	 * @param string $sPath
+	 * @param string $sPublicKey
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function build( $sPath ) {
+	public function build( $sPath, $sPublicKey ) {
 		$oEnc = Services::Encrypt();
-		$mKey = $this->getCon()->getModule_Plugin()->getOpenSslPublicKey();
-		if ( empty( $mKey ) ) {
-			throw new \LogicException( 'Cannot encrypt without a key' );
-		}
-		$oPayload = $oEnc->sealData( Services::WpFs()->getFileContent( $sPath ), $mKey );
+		$oPayload = $oEnc->sealData( Services::WpFs()->getFileContent( $sPath ), $sPublicKey );
 		if ( !$oPayload->success ) {
 			throw new \ErrorException( 'File contents could not be encrypted' );
 		}

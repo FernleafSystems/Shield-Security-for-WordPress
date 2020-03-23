@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * @property string $hash_original
  * @property string $hash_current
  * @property string $content
- * @property bool   $encrypted
+ * @property int    $public_key_id
  * @property int    $detected_at
  * @property int    $reverted_at
  * @property int    $notified_at

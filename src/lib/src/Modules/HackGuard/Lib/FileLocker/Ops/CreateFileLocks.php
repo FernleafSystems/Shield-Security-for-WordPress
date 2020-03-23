@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\FileLocker\GetPublicKey;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -11,6 +12,9 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class CreateFileLocks extends BaseOps {
 
+	/**
+	 * @throws \Exception
+	 */
 	public function create() {
 
 		foreach ( $this->oFile->getExistingPossiblePaths() as $sPath ) {
@@ -29,6 +33,7 @@ class CreateFileLocks extends BaseOps {
 
 	/**
 	 * @param string $sPath
+	 * @throws \Exception
 	 */
 	private function processPath( $sPath ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -41,16 +46,17 @@ class CreateFileLocks extends BaseOps {
 			$oEntry = new FileLocker\EntryVO();
 			$oEntry->file = $sPath;
 			$oEntry->hash_original = hash_file( 'sha1', $sPath );
-			try {
-				$oEntry->content = ( new BuildEncryptedFilePayload() )
-					->setMod( $oMod )
-					->build( $sPath );
-				$oEntry->encrypted = 1;
+
+			$aPublicKey = ( new GetPublicKey() )->retrieve();
+			if ( empty( $aPublicKey ) ) {
+				throw new \LogicException( 'Cannot encrypt without a public key' );
 			}
-			catch ( \Exception $oE ) {
-				$oEntry->content = $oFS->getFileContent( $sPath );
-				$oEntry->encrypted = 0;
-			}
+
+			$oEntry->public_key_id = key( $aPublicKey );
+			$oEntry->content = ( new BuildEncryptedFilePayload() )
+				->setMod( $oMod )
+				->build( $sPath, reset( $aPublicKey ) );
+
 			/** @var FileLocker\Insert $oInserter */
 			$oInserter = $oDbH->getQueryInserter();
 			$oInserter->insert( $oEntry );
