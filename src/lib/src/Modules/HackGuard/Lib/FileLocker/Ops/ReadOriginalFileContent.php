@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\FileLocker\DecryptFile;
 use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 
 /**
@@ -14,17 +14,12 @@ class ReadOriginalFileContent extends BaseOps {
 
 	/**
 	 * @param Databases\FileLocker\EntryVO $oRecord
-	 * @return mixed
+	 * @return string
 	 */
 	public function run( $oRecord ) {
-		if ( $oRecord->encrypted ) {
-			$oVO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $oRecord->content, true ) );
-			$sData = Services::Encrypt()->openDataVo( $oVO,
-				$this->getCon()->getModule_Plugin()->getOpenSslPrivateKey() );
-		}
-		else {
-			$sData = $oRecord->content;
-		}
-		return $sData;
+		$oVO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $oRecord->content, true ) );
+		return ( new DecryptFile() )
+			->setMod( $this->getMod() )
+			->retrieve( $oVO, $oRecord->public_key_id );
 	}
 }

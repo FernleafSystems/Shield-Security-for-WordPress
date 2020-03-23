@@ -28,20 +28,8 @@ class AssessLocks extends BaseOps {
 					}
 				}
 				else {
-					$sDiff = wp_text_diff(
-						( new ReadOriginalFileContent() )
-							->setMod( $this->getMod() )
-							->run( $oLock ),
-						Services::WpFs()->getFileContent( $oLock->file )
-					);
-
 					$sFileHash = hash_file( 'sha1', $oLock->file );
-					if ( empty( $sDiff ) ) { // Only whitespace has changed so we accept it
-						( new Accept() )
-							->setMod( $this->getMod() )
-							->run( $oLock );
-					}
-					elseif( !hash_equals( $oLock->hash_current, $sFileHash ) ) {
+					if ( empty( $oLock->hash_current ) || !hash_equals( $oLock->hash_current, $sFileHash ) ) {
 						$oUpd->updateCurrentHash( $oLock, $sFileHash );
 						$aProblemIds[] = $oLock->id;
 					}

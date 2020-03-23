@@ -47,11 +47,7 @@ class CreateFileLocks extends BaseOps {
 			$oEntry->file = $sPath;
 			$oEntry->hash_original = hash_file( 'sha1', $sPath );
 
-			$aPublicKey = ( new GetPublicKey() )->retrieve();
-			if ( empty( $aPublicKey ) ) {
-				throw new \LogicException( 'Cannot encrypt without a public key' );
-			}
-
+			$aPublicKey = $this->getPublicKey();
 			$oEntry->public_key_id = key( $aPublicKey );
 			$oEntry->content = ( new BuildEncryptedFilePayload() )
 				->setMod( $oMod )

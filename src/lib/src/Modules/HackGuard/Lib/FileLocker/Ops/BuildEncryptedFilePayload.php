@@ -14,7 +14,7 @@ class BuildEncryptedFilePayload extends BaseOps {
 	 * @param string $sPath
 	 * @param string $sPublicKey
 	 * @return string
-	 * @throws \Exception
+	 * @throws \ErrorException
 	 */
 	public function build( $sPath, $sPublicKey ) {
 		$oEnc = Services::Encrypt();

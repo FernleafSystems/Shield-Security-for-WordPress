@@ -49,17 +49,4 @@ class Update extends Base\Update {
 			'updated_at'   => Services::Request()->ts(),
 		] );
 	}
-
-	/**
-	 * @param EntryVO $oEntry
-	 * @param string  $sHash
-	 * @return bool
-	 */
-	public function updateOriginalHash( EntryVO $oEntry, $sHash ) {
-		return $this->updateEntry( $oEntry, [
-			'hash_original' => $sHash,
-			'detected_at'   => 0,
-			'updated_at'    => Services::Request()->ts(),
-		] );
-	}
 }

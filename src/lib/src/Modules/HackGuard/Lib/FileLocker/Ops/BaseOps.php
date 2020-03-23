@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\FileLocker\GetPublicKey;
 
 class BaseOps {
 
@@ -43,6 +44,18 @@ class BaseOps {
 		return ( new LoadFileLocks() )
 			->setMod( $this->getMod() )
 			->loadLocks();
+	}
+
+	/**
+	 * @return array
+	 * @throws \ErrorException
+	 */
+	protected function getPublicKey() {
+		$aPublicKey = ( new GetPublicKey() )->retrieve();
+		if ( empty( $aPublicKey ) ) {
+			throw new \ErrorException( 'Cannot encrypt without a public key' );
+		}
+		return $aPublicKey;
 	}
 
 	/**

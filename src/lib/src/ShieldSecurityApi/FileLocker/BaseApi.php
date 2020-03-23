@@ -36,10 +36,7 @@ abstract class BaseApi {
 
 		switch ( $this->request_method ) {
 			case 'post':
-				$aReqParams[ 'body' ] = array_intersect_key(
-					is_array( $this->params_body ) ? $this->params_body : [],
-					array_flip( $this->getRequestParamKeys() )
-				);
+				$aReqParams[ 'body' ] = is_array( $this->params_body ) ? $this->params_body : [];
 				$bReqSuccess = $oHttpReq->post( $this->getApiRequestUrl(), $aReqParams );
 				break;
 			case 'get':
@@ -50,7 +47,6 @@ abstract class BaseApi {
 					is_array( $this->params_query ) ? $this->params_query : [],
 					array_flip( $this->getRequestParamKeys() )
 				);
-				var_dump(add_query_arg( $aQueryParams, $this->getApiRequestUrl() ));
 				$bReqSuccess = $oHttpReq->get(
 					add_query_arg( $aQueryParams, $this->getApiRequestUrl() ),
 					$aReqParams

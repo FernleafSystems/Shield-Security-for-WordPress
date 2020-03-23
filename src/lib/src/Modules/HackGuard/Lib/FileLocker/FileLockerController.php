@@ -42,6 +42,7 @@ class FileLockerController {
 		foreach ( [ 'original', 'current' ] as $sType ) {
 			$aActionNonce = $oMod->getNonceActionData( 'filelocker_download_'.$sType );
 			$aActionNonce[ 'rid' ] = $oVO->id;
+			$aActionNonce[ 'rand' ] = rand();
 			$aLinks[ $sType ] = add_query_arg( $aActionNonce, $oMod->getUrl_AdminPage() );
 		}
 		return $aLinks;
