@@ -50,17 +50,20 @@ class FileLockerController {
 
 	public function handleFileDownloadRequest() {
 		$oReq = Services::Request();
+		$oFS = Services::WpFs();
 		$oLock = $this->getFileLock( (int)$oReq->query( 'rid', 0 ) );
 
 		if ( $oLock instanceof FileLocker\EntryVO ) {
 			$sType = str_replace( 'filelocker_download_', '', $oReq->query( 'exec' ) );
-			if ( $sType == 'original' ) {
+
+			// Note: Download what's on the disk if nothing is changed.
+			if ( $oFS->isFile( $oLock->file ) && ( $sType == 'current' || $oLock->detected_at == 0 ) ) {
+				$sContent = Services::WpFs()->getFileContent( $oLock->file );
+			}
+			elseif ( $sType == 'original' ) {
 				$sContent = ( new HackGuard\Lib\FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $this->getMod() )
 					->run( $oLock );
-			}
-			elseif ( $sType == 'current' && Services::WpFs()->isFile( $oLock->file ) ) {
-				$sContent = Services::WpFs()->getFileContent( $oLock->file );
 			}
 
 			if ( !empty( $sContent ) ) {

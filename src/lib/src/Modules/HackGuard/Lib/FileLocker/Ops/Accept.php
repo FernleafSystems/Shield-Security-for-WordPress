@@ -13,6 +13,7 @@ class Accept extends BaseOps {
 
 	/**
 	 * @param FileLocker\EntryVO $oLock
+	 * @return bool
 	 * @throws \ErrorException
 	 */
 	public function run( $oLock ) {
@@ -28,7 +29,7 @@ class Accept extends BaseOps {
 
 		/** @var FileLocker\Update $oUpdater */
 		$oUpdater = $oDbH->getQueryUpdater();
-		$oUpdater->updateEntry( $oLock, [
+		$bSuccess = $oUpdater->updateEntry( $oLock, [
 			'hash_original' => hash_file( 'sha1', $oLock->file ),
 			'content'       => base64_encode( $sRawContent ),
 			'public_key_id' => key( $aPublicKey ),
@@ -37,5 +38,6 @@ class Accept extends BaseOps {
 		] );
 
 		$this->clearFileLocksCache();
+		return $bSuccess;
 	}
 }
