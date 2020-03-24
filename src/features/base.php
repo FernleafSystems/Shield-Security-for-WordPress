@@ -324,7 +324,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				 ->setMultipleOptions(
 					 array_diff_key(
 						 $aOptions[ $this->getOptionsStorageKey() ],
-						 $this->getOptions()->getOpt( 'xfer_excluded' )
+						 array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
 					 )
 				 );
 			$this->saveModOptions();
