@@ -248,8 +248,8 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
 
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$nCode = $oMod->getImpExpController()
-						  ->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			$nCode = ( new Plugin\Lib\ImportExport\Import() )
+				->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}

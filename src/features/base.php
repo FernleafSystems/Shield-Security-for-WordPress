@@ -83,33 +83,35 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @param array $aModProps
 	 */
 	protected function setupHooks( $aModProps ) {
+		$oCon = $this->getCon();
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
-		add_action( $this->prefix( 'modules_loaded' ), function () {
+
+		add_action( $oCon->prefix( 'modules_loaded' ), function () {
 			$this->onModulesLoaded();
 		}, $nRunPriority );
-		add_action( $this->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
+		add_action( $oCon->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
+		add_action( $oCon->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
-		add_filter( $this->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
-		add_filter( $this->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItems' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
-		add_filter( $this->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
-		add_filter( $this->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
-		add_action( $this->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
-		add_action( $this->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
-		add_action( $this->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
-		add_filter( $this->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
+		add_filter( $oCon->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
+		add_filter( $oCon->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItems' ], $nMenuPri );
+		add_filter( $oCon->prefix( 'collect_mod_summary' ), [ $this, 'addModuleSummaryData' ], $nMenuPri );
+		add_filter( $oCon->prefix( 'collect_notices' ), [ $this, 'addInsightsNoticeData' ] );
+		add_filter( $oCon->prefix( 'collect_summary' ), [ $this, 'addInsightsConfigData' ], $nRunPriority );
+		add_action( $oCon->prefix( 'plugin_shutdown' ), [ $this, 'onPluginShutdown' ] );
+		add_action( $oCon->prefix( 'deactivate_plugin' ), [ $this, 'onPluginDeactivate' ] );
+		add_action( $oCon->prefix( 'delete_plugin' ), [ $this, 'onPluginDelete' ] );
+		add_filter( $oCon->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
 
-		add_filter( $this->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
-		add_filter( $this->prefix( 'gather_options_for_export' ), [ $this, 'exportTransferableOptions' ] );
+		add_filter( $oCon->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
+		add_filter( $oCon->prefix( 'gather_options_for_export' ), [ $this, 'exportTransferableOptions' ] );
 
-		add_action( $this->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
-		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+		add_action( $oCon->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
+		add_action( $oCon->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 
 		// supply supported events for this module
-		add_filter( $this->prefix( 'get_all_events' ), function ( $aEvents ) {
+		add_filter( $oCon->prefix( 'get_all_events' ), function ( $aEvents ) {
 			return array_merge(
 				is_array( $aEvents ) ? $aEvents : [],
 				array_map(
@@ -341,6 +343,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function onWpInit() {
 		$oReq = Services::Request();
+
+		$sShieldAction = $this->getCon()->getShieldAction();
+		if ( !empty( $sShieldAction ) ) {
+			do_action( $this->getCon()->prefix( 'shield_action' ), $sShieldAction );
+		}
+
 		if ( $this->isModuleRequest() ) {
 
 			if ( Services::WpGeneral()->isAjax() ) {

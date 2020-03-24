@@ -41,15 +41,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
 				break;
-
-			case 'importexport_export':
-			case 'importexport_import':
-			case 'importexport_handshake':
-			case 'importexport_updatenotified':
-				if ( $oOpts->isImportExportPermitted() ) {
-					add_action( 'init', [ $this->getSubProImportExport(), 'runAction' ] );
-				}
-				break;
 			default:
 				break;
 		}
@@ -95,18 +86,10 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_Plugin_ImportExport
-	 */
-	public function getSubProImportExport() {
-		return $this->getSubPro( 'importexport' );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {
 		return [
-			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
 			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
 		];
 	}
@@ -172,14 +155,14 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function runDailyCron() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
 		$this->getCon()->fireEvent( 'test_cron_run' );
 
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oMod->getImpExpController()
-			 ->runImport( $oOpts->getImportExportMasterImportUrl() );
+		if ( $oOpts->isImportExportPermitted() ) {
+			( new Plugin\Lib\ImportExport\Import() )
+				->fromSite( $oOpts->getImportExportMasterImportUrl() );
+		}
 	}
 
 	/**

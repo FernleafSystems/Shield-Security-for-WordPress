@@ -405,8 +405,8 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$sSecretKey = $oREq->post( 'MasterSiteSecretKey' );
 		$bEnabledNetwork = $oREq->post( 'ShieldNetworkCheck' ) === 'Y';
 
-		$nCode = $oMod->getImpExpController()
-					  ->runImport( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork, $sSiteResponse );
+		$nCode = ( new Plugin\Lib\ImportExport\Import() )
+			->fromSite( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork, $sSiteResponse );
 
 		$aErrors = [
 			__( 'Options imported successfully to your site.', 'wp-simple-firewall' ), // success

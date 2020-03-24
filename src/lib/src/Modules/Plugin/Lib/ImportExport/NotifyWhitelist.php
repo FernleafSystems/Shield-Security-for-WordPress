@@ -27,5 +27,4 @@ class NotifyWhitelist {
 			$this->getCon()->fireEvent( 'import_notify_sent' );
 		}
 	}
-
 }

@@ -133,18 +133,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
-				/** @var \ICWP_WPSF_Processor_Plugin $oPro */
-				$oPro = $this->getProcessor();
-				$oPro->getSubProImportExport()
-					 ->doExportDownload();
+				( new Plugin\Lib\ImportExport\Export() )
+					->setMod( $this )
+					->toFile();
 				break;
 
 			case 'import_file_upload':
-				/** @var \ICWP_WPSF_Processor_Plugin $oPro */
-				$oPro = $this->getProcessor();
 				try {
-					$oPro->getSubProImportExport()
-						 ->importFromUploadFile();
+					( new Plugin\Lib\ImportExport\Import() )
+						->setMod( $this )
+						->fromFile();
 					$bSuccess = true;
 					$sMessage = __( 'Options imported successfully', 'wp-simple-firewall' );
 				}

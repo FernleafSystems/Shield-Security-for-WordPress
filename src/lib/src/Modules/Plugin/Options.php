@@ -123,6 +123,14 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getImportExportWhitelist() {
+		$aWhitelist = $this->getOpt( 'importexport_whitelist', [] );
+		return is_array( $aWhitelist ) ? $aWhitelist : [];
+	}
+
+	/**
 	 * @param bool $bOnOrOff
 	 * @return $this
 	 */

@@ -12,11 +12,12 @@ class ImportExportController {
 	use ModConsumer;
 
 	public function run() {
+		$oCon = $this->getCon();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		// Cron
-		add_action( $this->getCon()->prefix( 'importexport_notify' ), function () {
+		add_action( $oCon->prefix( 'importexport_notify' ), function () {
 			( new NotifyWhitelist() )
 				->setMod( $this->getMod() )
 				->run();
@@ -24,7 +25,87 @@ class ImportExportController {
 
 		if ( $oOpts->hasImportExportMasterImportUrl() ) {
 			// For auto update whitelist notifications:
-			add_action( $this->getCon()->prefix( 'importexport_updatenotified' ), [ $this, 'runImport' ] );
+			add_action( $oCon->prefix( 'importexport_updatenotified' ), function () {
+				( new Import() )
+					->setMod( $this->getMod() )
+					->run( 'site' );
+			} );
+		}
+
+		add_action( $oCon->prefix( 'shield_action' ), function ( $sAction ) {
+			switch ( $sAction ) {
+				case 'importexport_export':
+					( new Export() )
+						->setMod( $this->getMod() )
+						->run( Services::Request()->query( 'method' ) );
+					break;
+
+				case 'importexport_import':
+					( new Import() )
+						->setMod( $this->getMod() )
+						->run( Services::Request()->query( 'method' ) );
+					break;
+
+				case 'importexport_handshake':
+					$this->confirmExportHandshake();
+					break;
+
+				case 'importexport_updatenotified':
+					$this->runOptionsUpdateNotified();
+					break;
+			}
+		} );
+	}
+
+	/**
+	 * We've been notified that there's an update to pull in from the master site so we set a cron to do this.
+	 */
+	private function runOptionsUpdateNotified() {
+		$oCon = $this->getCon();
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		$sCronHook = $oCon->prefix( 'importexport_updatenotified' );
+		if ( wp_next_scheduled( $sCronHook ) ) {
+			wp_clear_scheduled_hook( $sCronHook );
+		}
+
+		if ( !wp_next_scheduled( $sCronHook ) ) {
+
+			wp_schedule_single_event( Services::Request()->ts() + 12, $sCronHook );
+
+			preg_match( '#.*WordPress/.*\s+(.*)\s?#', Services::Request()->getUserAgent(), $aMatches );
+			if ( !empty( $aMatches[ 1 ] ) && filter_var( $aMatches[ 1 ], FILTER_VALIDATE_URL ) ) {
+				$sUrl = parse_url( $aMatches[ 1 ], PHP_URL_HOST );
+				if ( !empty( $sUrl ) ) {
+					$sUrl = 'Site: '.$sUrl;
+				}
+			}
+			else {
+				$sUrl = '';
+			}
+
+			$this->getCon()->fireEvent(
+				'import_notify_received',
+				[ 'audit' => [ 'master_site' => $oOpts->getImportExportMasterImportUrl() ] ]
+			);
+		}
+	}
+
+	/**
+	 * This is called from a remote site when this site sends out an export request to another
+	 * site but without a secret key i.e. it assumes it's on the white list. We give a 30 second
+	 * window for the handshake to complete.  We do not explicitly fail.
+	 */
+	private function confirmExportHandshake() {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( Services::Request()->ts() < $oOpts->getImportExportHandshakeExpiresAt() ) {
+			echo json_encode( [ 'success' => true ] );
+			die();
+		}
+		else {
+			return;
 		}
 	}
 
@@ -96,139 +177,5 @@ class ImportExportController {
 			$this->getMod()->getNonceActionData( 'export_file_download' ),
 			$this->getMod()->getUrl_AdminPage()
 		);
-	}
-
-	/**
-	 * @param string    $sMasterSiteUrl
-	 * @param string    $sSecretKey
-	 * @param bool|null $bEnableNetwork
-	 * @param string    $sSiteResponse
-	 * @return int
-	 */
-	public function runImport( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$oDP = Services::Data();
-
-		if ( empty( $sMasterSiteUrl ) ) {
-			$sMasterSiteUrl = $oOpts->getImportExportMasterImportUrl();
-		}
-
-		$aParts = parse_url( $sMasterSiteUrl );
-
-		$sOriginalMasterSiteUrl = $oOpts->getImportExportMasterImportUrl();
-		$bHadMasterSiteUrl = $oOpts->hasImportExportMasterImportUrl();
-		$bCheckKeyFormat = !$bHadMasterSiteUrl;
-		$sSecretKey = preg_replace( '#[^0-9a-z]#i', '', $sSecretKey );
-
-		if ( $bCheckKeyFormat && empty( $sSecretKey ) ) {
-			$nErrorCode = 1;
-		}
-		elseif ( $bCheckKeyFormat && strlen( $sSecretKey ) != 40 ) {
-			$nErrorCode = 2;
-		}
-		elseif ( $bCheckKeyFormat && preg_match( '#[^0-9a-z]#i', $sSecretKey ) ) {
-			$nErrorCode = 3; //unused
-		}
-		elseif ( empty( $aParts ) ) {
-			$nErrorCode = 4;
-		}
-		elseif ( $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ) === false ) {
-			$nErrorCode = 4; // a final check
-		}
-		else {
-			$bReady = true;
-			$aEssential = [ 'scheme', 'host' ];
-			foreach ( $aEssential as $sKey ) {
-				$bReady = $bReady && !empty( $aParts[ $sKey ] );
-			}
-
-			$sMasterSiteUrl = $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ); // final clean
-
-			if ( !$bReady || !$sMasterSiteUrl ) {
-				$nErrorCode = 4;
-			}
-			else {
-				$oMod->startImportExportHandshake();
-
-				$aData = [
-					'shield_action' => 'importexport_export',
-					'secret'        => $sSecretKey,
-					'url'           => Services::WpGeneral()->getHomeUrl()
-				];
-				// Don't send the network setup request if it's the cron.
-				if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
-					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
-				}
-
-				$sFinalUrl = add_query_arg( $aData, $sMasterSiteUrl );
-				$sResponse = Services::HttpRequest()->getContent( $sFinalUrl );
-				$aParts = @json_decode( $sResponse, true );
-
-				if ( empty( $aParts ) ) {
-					$nErrorCode = 5;
-				}
-				elseif ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
-
-					if ( empty ( $aParts[ 'message' ] ) ) {
-						$nErrorCode = 6;
-					}
-					else {
-						$nErrorCode = 7;
-						$sSiteResponse = $aParts[ 'message' ]; // This is crap because we can't use Response objects
-					}
-				}
-				elseif ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
-					$nErrorCode = 8;
-				}
-				else {
-					$this->processDataImport( $aParts[ 'data' ], $sMasterSiteUrl );
-
-					// Fix for the overwriting of the Master Site URL with an empty string.
-					// Only do so if we're not turning it off. i.e on or no-change
-					if ( is_null( $bEnableNetwork ) ) {
-						if ( $bHadMasterSiteUrl && !$oOpts->hasImportExportMasterImportUrl() ) {
-							$oMod->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
-						}
-					}
-					elseif ( $bEnableNetwork === true ) {
-						$oMod->setImportExportMasterImportUrl( $sMasterSiteUrl );
-						$this->getCon()->fireEvent(
-							'master_url_set',
-							[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
-						);
-					}
-					elseif ( $bEnableNetwork === false ) {
-						$oMod->setImportExportMasterImportUrl( '' );
-					}
-
-					$nErrorCode = 0;
-				}
-			}
-		}
-
-		return $nErrorCode;
-	}
-
-	/**
-	 * @param array  $aImportData
-	 * @param string $sImportSource
-	 * @return bool
-	 */
-	private function processDataImport( $aImportData, $sImportSource = 'unspecified' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		$bImported = false;
-		if ( md5( serialize( $aImportData ) ) != $oMod->getImportExportLastImportHash() ) {
-			do_action( $oMod->prefix( 'import_options' ), $aImportData );
-			$oMod->setImportExportLastImportHash( md5( serialize( $aImportData ) ) );
-			$this->getCon()->fireEvent(
-				'options_imported',
-				[ 'audit' => [ 'site' => $sImportSource ] ]
-			);
-		}
-		return $bImported;
 	}
 }
