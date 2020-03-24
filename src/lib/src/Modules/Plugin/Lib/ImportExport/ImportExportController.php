@@ -100,7 +100,7 @@ class ImportExportController {
 	private function confirmExportHandshake() {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( Services::Request()->ts() < $oOpts->getImportExportHandshakeExpiresAt() ) {
+		if ( Services::Request()->ts() < (int)$oOpts->getOpt( 'importexport_handshake_expires_at' ) ) {
 			echo json_encode( [ 'success' => true ] );
 			die();
 		}

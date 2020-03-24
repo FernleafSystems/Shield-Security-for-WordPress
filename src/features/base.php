@@ -1331,7 +1331,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 		// Handle Import/Export exclusions
 		if ( $this->isPremium() ) {
-			( new Shield\Modules\Plugin\Lib\ImportExport\Options\SaveTransferableOptions() )
+			( new Shield\Modules\Plugin\Lib\ImportExport\Options\SaveExcludedOptions() )
 				->setMod( $this )
 				->save( $aForm );
 		}

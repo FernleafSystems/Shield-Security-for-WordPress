@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-class SaveTransferableOptions {
+class SaveExcludedOptions {
 
 	use ModConsumer;
 

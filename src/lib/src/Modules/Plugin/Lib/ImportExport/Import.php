@@ -105,16 +105,13 @@ class Import {
 		$sOriginalMasterSiteUrl = $oOpts->getImportExportMasterImportUrl();
 		$bHadMasterSiteUrl = $oOpts->hasImportExportMasterImportUrl();
 		$bCheckKeyFormat = !$bHadMasterSiteUrl;
-		$sSecretKey = preg_replace( '#[^0-9a-z]#i', '', $sSecretKey );
+		$sSecretKey = sanitize_key( $sSecretKey );
 
 		if ( $bCheckKeyFormat && empty( $sSecretKey ) ) {
 			$nErrorCode = 1;
 		}
 		elseif ( $bCheckKeyFormat && strlen( $sSecretKey ) != 40 ) {
 			$nErrorCode = 2;
-		}
-		elseif ( $bCheckKeyFormat && preg_match( '#[^0-9a-z]#i', $sSecretKey ) ) {
-			$nErrorCode = 3; //unused
 		}
 		elseif ( empty( $aParts ) ) {
 			$nErrorCode = 4;
@@ -135,7 +132,8 @@ class Import {
 				$nErrorCode = 4;
 			}
 			else {
-				$oMod->startImportExportHandshake();
+				$oOpts->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
+				$this->getMod()->saveModOptions();
 
 				$aData = [
 					'shield_action' => 'importexport_export',
@@ -202,12 +200,14 @@ class Import {
 	 * @return bool
 	 */
 	private function processDataImport( $aImportData, $sImportSource = 'unspecified' ) {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$bImported = false;
-		if ( md5( serialize( $aImportData ) ) != $oMod->getImportExportLastImportHash() ) {
-			do_action( $oMod->prefix( 'import_options' ), $aImportData );
-			$oMod->setImportExportLastImportHash( md5( serialize( $aImportData ) ) );
+
+		$sLastHash = $oOpts->getOpt( 'importexport_last_import_hash' );
+		if ( empty( $sLastHash ) || hash_equals( $sLastHash, md5( serialize( $aImportData ) ) ) ) {
+			do_action( $this->getCon()->prefix( 'import_options' ), $aImportData );
+			$oOpts->setOpt( 'importexport_last_import_hash', md5( serialize( $aImportData ) ) );
 			$this->getCon()->fireEvent(
 				'options_imported',
 				[ 'audit' => [ 'site' => $sImportSource ] ]
