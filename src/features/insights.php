@@ -222,7 +222,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'importexport':
-				$aData = $oProPlugin->getSubProImportExport()->buildInsightsVars();
+				$aData = $oModPlugin->getImpExpController()->buildInsightsVars();
 				break;
 
 			case 'reports':

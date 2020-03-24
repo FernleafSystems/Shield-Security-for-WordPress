@@ -7,6 +7,22 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @var Plugin\Lib\ImportExport\ImportExportController
+	 */
+	private $oImportExportController;
+
+	/**
+	 * @return Plugin\Lib\ImportExport\ImportExportController
+	 */
+	public function getImpExpController() {
+		if ( !isset( $this->oImportExportController ) ) {
+			$this->oImportExportController = ( new Plugin\Lib\ImportExport\ImportExportController() )
+				->setMod( $this );
+		}
+		return $this->oImportExportController;
+	}
+
 	protected function doPostConstruction() {
 		$this->setVisitorIpSource();
 	}

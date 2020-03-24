@@ -11,19 +11,21 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	 */
 	public function run() {
 		parent::run();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$this->removePluginConflicts();
 
 		( new Shield\Crons\HourlyCron() )
-			->setMod( $this->getMod() )
+			->setMod( $oMod )
 			->run();
 		( new Shield\Crons\DailyCron() )
-			->setMod( $this->getMod() )
+			->setMod( $oMod )
 			->run();
 		( new Plugin\Components\PluginBadge() )
-			->setMod( $this->getMod() )
+			->setMod( $oMod )
 			->run();
 
 		if ( $oOpts->isTrackingEnabled() || !$oOpts->isTrackingPermissionSet() ) {
@@ -31,7 +33,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		}
 
 		if ( $oOpts->isImportExportPermitted() ) {
-			$this->getSubProImportExport()->execute();
+			$oMod->getImpExpController()->run();
 		}
 
 		$oCon = $this->getCon();
@@ -170,7 +172,14 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	public function runDailyCron() {
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 		$this->getCon()->fireEvent( 'test_cron_run' );
+
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oMod->getImpExpController()
+			 ->runImport( $oOpts->getImportExportMasterImportUrl() );
 	}
 
 	/**

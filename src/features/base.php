@@ -1323,7 +1323,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 
 		// Handle Import/Export exclusions
 		if ( $this->isPremium() ) {
-			( new Shield\Modules\Plugin\Lib\ImportExport\SaveTransferableOptions() )
+			( new Shield\Modules\Plugin\Lib\ImportExport\Options\SaveTransferableOptions() )
 				->setMod( $this )
 				->save( $aForm );
 		}
@@ -1455,7 +1455,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				'mod_slug'       => $this->getModSlug( true ),
 				'mod_slug_short' => $this->getModSlug( false ),
 				'all_options'    => $this->buildOptions(),
-				'xferable_opts'  => ( new Shield\Modules\Plugin\Lib\ImportExport\BuildTransferableOptions() )
+				'xferable_opts'  => ( new Shield\Modules\Plugin\Lib\ImportExport\Options\BuildTransferableOptions() )
 					->setMod( $this )
 					->build(),
 				'hidden_options' => $this->getOptions()->getHiddenOptions()

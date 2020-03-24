@@ -247,11 +247,9 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$bDisableNetwork = $aFormParams[ 'ShieldNetwork' ] === 'N';
 			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
 
-			/** @var \ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $oMod->getProcessor();
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$nCode = $oP->getSubProImportExport()
-						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			$nCode = $oMod->getImpExpController()
+						  ->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}
