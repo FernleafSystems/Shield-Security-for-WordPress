@@ -933,7 +933,7 @@ class Options {
 	 * @return array
 	 */
 	protected function getVirtualCommonOptions() {
-		return [ 'dismissed_notices', 'ui_track', 'help_video_options' ];
+		return [ 'dismissed_notices', 'ui_track', 'help_video_options', 'xfer_excluded' ];
 	}
 
 	/**

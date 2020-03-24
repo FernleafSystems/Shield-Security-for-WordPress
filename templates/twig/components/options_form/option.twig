@@ -104,7 +104,7 @@
 							{% if option_value in aOption.value %}
 								checked="checked"
 							{% endif %}
-						   {% if aOption.disabled %}disabled="disabled"{% endif %}
+							{% if aOption.disabled %}disabled="disabled"{% endif %}
 					/>
 					<label class="custom-control-label"
 						   for="Opt-{{ aOption.key }}_{{ option_value }}">{{ option_value_name }}</label>
@@ -164,27 +164,29 @@
 					<a href="{{ aOption.link_info }}" target="_blank"
 					   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
 					{% if aOption.link_blog %}
-						<span class="m-1">&vert;</span>
-						<a href="{{ aOption.link_blog }}" target="_blank"
-						   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
-					{% endif %}
+					<span class="m-1">&vert;</span>
+					<a href="{{ aOption.link_blog }}" target="_blank"
+					   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
+				{% endif %}
 				{% endif %}
 
 				{% if flags.show_transfer_switch %}
-					<span class="custom-control custom-switch float-right"
-						  title="{{ strings.is_opt_importexport }}" data-toggle="tooltip"
-					>
-						<input type="checkbox"
-							   class="custom-control-input"
-							   id="optxfer-{{ aOption.key }}"
-							   name="optxfer-{{ aOption.key }}"
-							   aria-labelledby="Label-{{ aOption.key }}"
-							   value="Y"
-								{{ ( aOption.value is sameas('Y') ) ? 'checked="checked"' : '' }}
-						/>
-						<label class="custom-control-label"
-							   for="optxfer-{{ aOption.key }}">&nbsp;</label>
-					</span>
+					{% if attribute(data.xferable_opts, aOption.key) is not same as(false) %}
+						<span class="custom-control custom-switch float-right"
+							  title="{{ strings.is_opt_importexport }}" data-toggle="tooltip"
+						>
+							<input type="checkbox"
+								   class="custom-control-input optxfer-exclude"
+								   id="optxfer-{{ aOption.key }}"
+								   name="optxfer-{{ aOption.key }}"
+								   aria-labelledby="Label-{{ aOption.key }}"
+								   value="Y"
+								{{ ( attribute(data.xferable_opts, aOption.key) is same as('Y') ) ? 'checked="checked"' : '' }}
+							/>
+							<label class="custom-control-label"
+								   for="optxfer-{{ aOption.key }}">&nbsp;</label>
+						</span>
+					{% endif %}
 				{% endif %}
 				<div class="clearfix"></div>
 			</div>

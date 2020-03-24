@@ -1,9 +1,6 @@
 var iCWP_WPSF_OptionsPages = new function () {
 
 	var showWaiting = function ( event ) {
-		/* var $oLink = jQuery( this ); for the inner collapses
-		jQuery( '#' + $oLink.data( 'targetcollapse' ) ).collapse( 'show' ); */
-
 		iCWP_WPSF_BodyOverlay.show();
 	};
 
@@ -47,7 +44,6 @@ var iCWP_WPSF_OptionsPages = new function () {
 			} );
 		} );
 	};
-
 }();
 
 let iCWP_WPSF_OptsPageRender = new function () {
