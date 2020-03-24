@@ -14,8 +14,8 @@ class GetPublicKey extends BaseShieldSecurityApi {
 	public function retrieve() {
 		$aKey = null;
 		$aRaw = $this->sendReq();
-		if ( is_array( $aRaw ) && !empty( $aRaw[ 'key' ] ) ) {
-			$aKey[ $aRaw[ 'key' ][ 'key_id' ] ] = $aRaw[ 'key' ][ 'pub_key' ];
+		if ( is_array( $aRaw ) && !empty( $aRaw[ 'data' ] ) ) {
+			$aKey[ $aRaw[ 'data' ][ 'key_id' ] ] = $aRaw[ 'data' ][ 'pub_key' ];
 		}
 		return $aKey;
 	}
