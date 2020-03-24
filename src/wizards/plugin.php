@@ -397,8 +397,6 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardImportOptions() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
 		$oREq = Services::Request();
 
 		$sMasterSiteUrl = $oREq->post( 'MasterSiteUrl' );
@@ -406,6 +404,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		$bEnabledNetwork = $oREq->post( 'ShieldNetworkCheck' ) === 'Y';
 
 		$nCode = ( new Plugin\Lib\ImportExport\Import() )
+			->setMod( $this->getMod() )
 			->fromSite( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork, $sSiteResponse );
 
 		$aErrors = [

@@ -225,9 +225,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ImportFromSite() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-
 		$bSuccess = false;
 		$aFormParams = array_merge(
 			[
@@ -249,6 +246,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
 			$nCode = ( new Plugin\Lib\ImportExport\Import() )
+				->setMod( $this->getMod() )
 				->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );

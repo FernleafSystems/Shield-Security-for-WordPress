@@ -331,7 +331,12 @@ class BaseModCon extends Deprecated\Foundation {
 	public function processImportOptions( $aOptions ) {
 		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
 			$this->getOptions()
-				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
+				 ->setMultipleOptions(
+					 array_diff_key(
+						 $aOptions[ $this->getOptionsStorageKey() ],
+						 array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
+					 )
+				 );
 			$this->saveModOptions();
 		}
 	}

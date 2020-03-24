@@ -161,6 +161,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isImportExportPermitted() ) {
 			( new Plugin\Lib\ImportExport\Import() )
+				->setMod( $this->getMod() )
 				->fromSite( $oOpts->getImportExportMasterImportUrl() );
 		}
 	}
