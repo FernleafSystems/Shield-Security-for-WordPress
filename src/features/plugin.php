@@ -592,11 +592,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				$this->prefix( 'global-plugin' ),
 				'icwp_wpsf_vars_plugin',
 				[
-					'file'    => $sFile,
-					'ajax'    => [
+					'file'  => $sFile,
+					'ajax'  => [
 						'send_deactivate_survey' => $this->getAjaxActionData( 'send_deactivate_survey' ),
 					],
-					'hrefs'   => [
+					'hrefs' => [
 						'deactivate' => Services::WpPlugins()->getUrl_Deactivate( $sFile ),
 					],
 				]

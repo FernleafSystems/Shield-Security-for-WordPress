@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\FileLocker;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\Common;
 
 use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use FernleafSystems\Wordpress\Services\Services;
@@ -43,12 +43,11 @@ abstract class BaseApi {
 			default:
 				// Doing it in the ['body'] on some sites fails with the params not passed through to query string.
 				// if they're not using the newer WP Request() class. WP 4.6+
-				$aQueryParams = array_intersect_key(
-					is_array( $this->params_query ) ? $this->params_query : [],
-					array_flip( $this->getRequestParamKeys() )
-				);
 				$bReqSuccess = $oHttpReq->get(
-					add_query_arg( $aQueryParams, $this->getApiRequestUrl() ),
+					add_query_arg(
+						is_array( $this->params_query ) ? $this->params_query : [],
+						$this->getApiRequestUrl()
+					),
 					$aReqParams
 				);
 				break;
