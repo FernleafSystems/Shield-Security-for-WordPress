@@ -38,8 +38,14 @@ var iCWP_WPSF_OptionsPages = new function () {
 				trigger: 'hover',
 				delay: 200,
 				html: true
-			} )
-		} )
+			} );
+			jQuery( '[data-toggle="tooltip"]' ).tooltip( {
+				placement: 'left',
+				trigger: 'hover focus',
+				delay: 200,
+				html: false
+			} );
+		} );
 	};
 
 }();

@@ -1462,8 +1462,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				'show_content_help'     => true,
 				'show_alt_content'      => false,
 				'has_wizard'            => $this->hasWizard(),
-
-				'is_premium' => $this->isPremium(),
+				'is_premium'            => $this->isPremium(),
+				'show_transfer_switch'  => $this->isPremium()
 			],
 			'hrefs'         => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
