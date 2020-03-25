@@ -113,8 +113,14 @@ class Export {
 	 * @return array
 	 */
 	private function getExportData() {
-		$aD = apply_filters( $this->getCon()->prefix( 'gather_options_for_export' ), [] );
-		return is_array( $aD ) ? $aD : [];
+		$aAll = [];
+		foreach ( $this->getCon()->modules as $oMod ) {
+			$aAll[ $oMod->getOptionsStorageKey() ] = array_diff_key(
+				$oMod->getOptions()->getTransferableOptions(),
+				array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
+			);
+		}
+		return $aAll;
 	}
 
 	/**

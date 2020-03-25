@@ -206,7 +206,17 @@ class Import {
 
 		$sLastHash = $oOpts->getOpt( 'importexport_last_import_hash' );
 		if ( empty( $sLastHash ) || hash_equals( $sLastHash, md5( serialize( $aImportData ) ) ) ) {
-			do_action( $this->getCon()->prefix( 'import_options' ), $aImportData );
+
+			foreach ( $this->getCon()->modules as $oMod ) {
+				$this->getOptions()
+					 ->setMultipleOptions(
+						 array_diff_key(
+							 $aImportData[ $oMod->getOptionsStorageKey() ],
+							 array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
+						 )
+					 );
+				$oMod->saveModOptions();
+			}
 			$oOpts->setOpt( 'importexport_last_import_hash', md5( serialize( $aImportData ) ) );
 			$this->getCon()->fireEvent(
 				'options_imported',

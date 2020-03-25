@@ -52,13 +52,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getImportExportHandshakeExpiresAt() {
-		return (int)$this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getImportExportMasterImportUrl() {

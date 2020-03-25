@@ -96,7 +96,6 @@ class BaseModCon extends Deprecated\Foundation {
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 		add_action( $this->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
 
 		if ( $this->isModuleRequest() ) {
 
@@ -122,7 +121,6 @@ class BaseModCon extends Deprecated\Foundation {
 		add_filter( $this->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
 
 		add_filter( $this->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
-		add_filter( $this->prefix( 'gather_options_for_export' ), [ $this, 'exportTransferableOptions' ] );
 
 		add_action( $this->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
@@ -322,22 +320,6 @@ class BaseModCon extends Deprecated\Foundation {
 		}
 		if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 			$this->doExecuteProcessor();
-		}
-	}
-
-	/**
-	 * @param array $aOptions
-	 */
-	public function processImportOptions( $aOptions ) {
-		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-			$this->getOptions()
-				 ->setMultipleOptions(
-					 array_diff_key(
-						 $aOptions[ $this->getOptionsStorageKey() ],
-						 array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
-					 )
-				 );
-			$this->saveModOptions();
 		}
 	}
 

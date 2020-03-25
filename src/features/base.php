@@ -91,7 +91,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}, $nRunPriority );
 		add_action( $oCon->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( $oCon->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $oCon->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
@@ -105,7 +104,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		add_filter( $oCon->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
 
 		add_filter( $oCon->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
-		add_filter( $oCon->prefix( 'gather_options_for_export' ), [ $this, 'exportTransferableOptions' ] );
 
 		add_action( $oCon->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $oCon->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
@@ -316,22 +314,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @param array $aOptions
-	 */
-	public function processImportOptions( $aOptions ) {
-		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-			$this->getOptions()
-				 ->setMultipleOptions(
-					 array_diff_key(
-						 $aOptions[ $this->getOptionsStorageKey() ],
-						 array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
-					 )
-				 );
-			$this->saveModOptions();
-		}
-	}
-
-	/**
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -459,7 +441,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	/**
 	 * @return string
 	 */
-	protected function getOptionsStorageKey() {
+	public function getOptionsStorageKey() {
 		return $this->getCon()->prefixOption( $this->sOptionsStoreKey ).'_options';
 	}
 
