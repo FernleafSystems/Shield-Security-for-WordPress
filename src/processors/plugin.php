@@ -24,9 +24,7 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		( new Shield\Crons\DailyCron() )
 			->setMod( $oMod )
 			->run();
-		( new Plugin\Components\PluginBadge() )
-			->setMod( $oMod )
-			->run();
+		$oMod->getPluginBadgeCon()->run();
 
 		if ( $oOpts->isTrackingEnabled() || !$oOpts->isTrackingPermissionSet() ) {
 			$this->getSubProTracking()->execute();

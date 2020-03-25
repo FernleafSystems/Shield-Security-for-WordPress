@@ -13,6 +13,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	private $oImportExportController;
 
 	/**
+	 * @var Plugin\Components\PluginBadge
+	 */
+	private $oPluginBadgeController;
+
+	/**
 	 * @return Plugin\Lib\ImportExport\ImportExportController
 	 */
 	public function getImpExpController() {
@@ -21,6 +26,17 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				->setMod( $this );
 		}
 		return $this->oImportExportController;
+	}
+
+	/**
+	 * @return Plugin\Components\PluginBadge
+	 */
+	public function getPluginBadgeCon() {
+		if ( !isset( $this->oPluginBadgeController ) ) {
+			$this->oPluginBadgeController = ( new Plugin\Components\PluginBadge() )
+				->setMod( $this );
+		}
+		return $this->oPluginBadgeController;
 	}
 
 	protected function doPostConstruction() {
@@ -80,24 +96,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isDisplayPluginBadge() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isOnFloatingPluginBadge()
-			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
-	}
-
-	/**
-	 * @param bool $bDisplay
-	 * @return $this
-	 */
-	public function setIsDisplayPluginBadge( $bDisplay ) {
-		return $this->setOpt( 'display_plugin_badge', $bDisplay ? 'Y' : 'N' );
-	}
-
-	/**
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
@@ -108,21 +106,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				( new Utilities\Net\VisitorIpDetection() )->setPreferredSource( $oOpts->getIpSource() )
 			);
 		}
-	}
-
-	/**
-	 * @param string $sSource
-	 * @return $this
-	 */
-	public function setVisitorAddressSource( $sSource ) {
-		return $this->getOptions()->setOpt( 'visitor_address_source', $sSource );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCookieIdBadgeState() {
-		return $this->prefix( 'badgeState' );
 	}
 
 	/**
@@ -696,5 +679,21 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isDisplayPluginBadge() {
+		return false;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getCookieIdBadgeState() {
+		return $this->prefix( 'badgeState' );
 	}
 }

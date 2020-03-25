@@ -97,12 +97,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_PluginBadgeClose() {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
-		$bSuccess = Services::Response()
-							->cookieSet(
-								$oMod->getCookieIdBadgeState(),
-								'closed',
-								DAY_IN_SECONDS
-							);
+		$bSuccess = $oMod->getPluginBadgeCon()->setBadgeStateClosed();
 		return [
 			'success' => $bSuccess,
 			'message' => $bSuccess ? 'Badge Closed' : 'Badge Not Closed'

@@ -580,7 +580,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 			if ( !empty( $sInput ) ) {
 				$bEnabled = $sInput === 'Y';
-				$oMod->setIsDisplayPluginBadge( $bEnabled );
+				$oMod->getPluginBadgeCon()->setIsDisplayPluginBadge( $bEnabled );
 				$bSuccess = true;
 				$sMessage = __( 'Preferences have been saved.', 'wp-simple-firewall' );
 			}
