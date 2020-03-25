@@ -2,15 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\OneTimeExecute;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BlacklistHandler {
+class BlacklistHandler extends OneTimeExecute {
 
 	use ModConsumer;
 
-	public function run() {
+	protected function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		/** @var IPs\Options $oOpts */

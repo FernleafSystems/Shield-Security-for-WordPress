@@ -301,11 +301,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( $this->isUpgrading() ) {
 			$this->updateHandler();
 		}
-		if ( $this->getOptions()->getFeatureProperty( 'auto_load_processor' ) ) {
+		$oOpts = $this->getOptions();
+		if ( $oOpts->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
 		}
 		try {
-			if ( !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
+			$bSkip = (bool)$oOpts->getFeatureProperty( 'skip_processor' );
+			if ( !$bSkip && !$this->isUpgrading() && $this->isModuleEnabled() && $this->isReadyToExecute() ) {
 				$this->doExecuteProcessor();
 			}
 		}
@@ -318,7 +320,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 * @throws \Exception
 	 */
 	protected function isReadyToExecute() {
-		return ( $this->getProcessor() instanceof Shield\Modules\Base\BaseProcessor );
+		return !is_null( $this->getProcessor() );
 	}
 
 	protected function doExecuteProcessor() {
@@ -446,7 +448,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
-	 * @return Shield\Modules\Base\BaseProcessor|mixed
+	 * @return Shield\Modules\Base\BaseProcessor|Shield\Modules\Base\OneTimeExecute|mixed
 	 */
 	public function getProcessor() {
 		return $this->loadProcessor();

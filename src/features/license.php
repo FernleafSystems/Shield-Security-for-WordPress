@@ -19,6 +19,13 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * @return License\Lib\LicenseHandler
 	 */
+	public function getProcessor() {
+		return $this->getLicenseHandler();
+	}
+
+	/**
+	 * @return License\Lib\LicenseHandler
+	 */
 	public function getLicenseHandler() {
 		if ( !isset( $this->oLicHandler ) ) {
 			$this->oLicHandler = ( new Shield\Modules\License\Lib\LicenseHandler() )->setMod( $this );

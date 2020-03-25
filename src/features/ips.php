@@ -16,6 +16,28 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	private $oOffenseTracker;
 
 	/**
+	 * @var IPs\Lib\BlacklistHandler
+	 */
+	private $oBlacklistHandler;
+
+	/**
+	 * @return IPs\Lib\BlacklistHandler
+	 */
+	public function getBlacklistHandler() {
+		if ( !isset( $this->oBlacklistHandler ) ) {
+			$this->oBlacklistHandler = ( new IPs\Lib\BlacklistHandler() )->setMod( $this );
+		}
+		return $this->oBlacklistHandler;
+	}
+
+	/**
+	 * @return IPs\Lib\BlacklistHandler
+	 */
+	public function getProcessor() {
+		return $this->getBlacklistHandler();
+	}
+
+	/**
 	 * @return false|Shield\Databases\IPs\Handler
 	 */
 	public function getDbHandler_IPs() {

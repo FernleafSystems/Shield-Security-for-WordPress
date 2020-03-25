@@ -11,6 +11,7 @@
     "access_restricted":     true,
     "run_if_whitelisted":    true,
     "run_if_wpcli":          true,
+    "skip_processor":        true,
     "tracking_exclude":      true
   },
   "sections":   [

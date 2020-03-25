@@ -154,13 +154,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return Shield\Modules\BaseShield\ShieldProcessor|mixed
-	 */
-	public function getProcessor() {
-		return parent::getProcessor();
-	}
-
-	/**
 	 * @uses echo()
 	 */
 	public function displayModuleAdminPage() {
