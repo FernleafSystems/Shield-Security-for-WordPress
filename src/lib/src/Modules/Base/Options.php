@@ -937,6 +937,13 @@ class Options {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getXferExcluded() {
+		return is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
+	}
+
+	/**
 	 */
 	private function cleanOptions() {
 		if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {

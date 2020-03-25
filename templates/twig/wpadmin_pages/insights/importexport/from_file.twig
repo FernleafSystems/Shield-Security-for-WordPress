@@ -45,7 +45,8 @@
 				<div class="" id="">
 					<div class="form-group text-right">
 						<a id="ExportDownload" href="{{ hrefs.export_file_download }}"
-						   class="btn btn-primary" type="submit">{{ strings.title_download_file }}</a>
+						   class="btn btn-primary shield_file_download"
+						   type="submit">{{ strings.title_download_file }}</a>
 					</div>
 				</div>
 			</div>
@@ -53,16 +54,3 @@
 	</div>
 
 </div>
-
-<script>
-	jQuery( document ).ready( function () {
-		jQuery( document ).on( "click", "a#ExportDownload", function ( evt ) {
-			evt.preventDefault();
-			jQuery.fileDownload( jQuery( this ).attr( 'href' ), {
-				preparingMessageHtml: "{{ strings.downloading_please_wait }}",
-				failMessageHtml: "{{ strings.problem_downloading_file }}"
-			} );
-			return false;
-		} );
-	} );
-</script>

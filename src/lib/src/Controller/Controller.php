@@ -559,6 +559,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $sAction,
 			'exec_nonce' => wp_create_nonce( $sAction ),
+//			'rand'       => wp_rand( 10000, 99999 )
 		];
 	}
 

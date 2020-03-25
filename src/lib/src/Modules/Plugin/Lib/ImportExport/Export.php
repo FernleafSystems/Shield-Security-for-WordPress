@@ -117,7 +117,7 @@ class Export {
 		foreach ( $this->getCon()->modules as $oMod ) {
 			$aAll[ $oMod->getOptionsStorageKey() ] = array_diff_key(
 				$oMod->getOptions()->getTransferableOptions(),
-				array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
+				array_flip( $this->getOptions()->getXferExcluded() )
 			);
 		}
 		return $aAll;

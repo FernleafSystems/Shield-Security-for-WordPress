@@ -212,7 +212,7 @@ class Import {
 					 ->setMultipleOptions(
 						 array_diff_key(
 							 $aImportData[ $oMod->getOptionsStorageKey() ],
-							 array_flip( $this->getOptions()->getOpt( 'xfer_excluded' ) )
+							 array_flip( $this->getOptions()->getXferExcluded() )
 						 )
 					 );
 				$oMod->saveModOptions();
