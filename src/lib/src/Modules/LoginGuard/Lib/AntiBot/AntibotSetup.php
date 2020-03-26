@@ -11,13 +11,11 @@ class AntibotSetup {
 	use ModConsumer;
 
 	public function __construct() {
-		if ( $this->getMod()->getIfSupport3rdParty() ) {
-			add_action( 'init', [ $this, 'onWpInit' ] );
-		}
+		add_action( 'init', [ $this, 'onWpInit' ] );
 	}
 
 	public function onWpInit() {
-		if ( !Services::WpUsers()->isUserLoggedIn() ) {
+		if ( !Services::WpUsers()->isUserLoggedIn() && $this->getMod()->getIfSupport3rdParty() ) {
 			$this->run();
 		}
 	}
