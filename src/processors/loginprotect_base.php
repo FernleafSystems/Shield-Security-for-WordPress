@@ -27,116 +27,14 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		add_action( 'init', [ $this, 'addHooks' ], -100 );
 	}
 
-	/**
-	 * Hooked to INIT so we can test for logged-in. We don't process for logged-in users.
-	 */
 	public function addHooks() {
-		if ( Services::WpUsers()->isUserLoggedIn() ) {
-			return;
-		}
-
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		$b3rdParty = $oMod->getIfSupport3rdParty();
-
-		if ( $oMod->isProtectLogin() ) {
-
-			if ( $b3rdParty ) {
-				add_action( 'woocommerce_login_form', [ $this, 'printLoginFormItems_Woo' ], 100 );
-				add_filter( 'woocommerce_process_login_errors', [ $this, 'checkReqLogin_Woo' ], 10, 2 );
-			}
-		}
-
-		if ( $oMod->isProtectLostPassword() ) {
-
-			if ( $b3rdParty ) {
-				add_action( 'woocommerce_lostpassword_form', [ $this, 'printFormItems' ], 10 );
-			}
-		}
-
-		if ( $oMod->isProtectRegister() ) {
-
-			if ( $b3rdParty ) {
-				// A Catch-all:
-				// 20180909 - not a bit wise as it breaks anything that doesn't properly display front-end output
-//				add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
-
-				add_action( 'woocommerce_register_form', [ $this, 'printRegisterFormItems_Woo' ], 10 );
-				add_action( 'woocommerce_after_checkout_registration_form', [
-					$this,
-					'printRegistrationFormItems_Woo'
-				], 10 );
-				add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkReqRegistration_Woo' ], 10, 2 );
-			}
-		}
-
-		if ( $b3rdParty && $oMod->isProtect( 'checkout_woo' ) ) {
-			add_action( 'woocommerce_after_checkout_registration_form', [
-				$this,
-				'printRegistrationFormItems_Woo'
-			], 10 );
-			add_action( 'woocommerce_after_checkout_validation', [ $this, 'checkReqCheckout_Woo' ], 10, 2 );
-		}
+		return;
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	abstract protected function performCheckWithException();
-
-	/**
-	 * @param \WP_Error $oWpError
-	 * @param string    $sUsername
-	 * @return \WP_Error
-	 */
-	public function checkReqLogin_Woo( $oWpError, $sUsername ) {
-		try {
-			$this->setUserToAudit( $sUsername )
-				 ->setActionToAudit( 'woo-login' )
-				 ->performCheckWithException();
-		}
-		catch ( \Exception $oE ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-		}
-		return $oWpError;
-	}
-
-	/**
-	 * see class-wc-checkout.php
-	 * @param \WP_Error $oWpError
-	 * @param array     $aPostedData
-	 * @return \WP_Error
-	 */
-	public function checkReqCheckout_Woo( $aPostedData, $oWpError ) {
-		try {
-			$this->setActionToAudit( 'woo-checkout' )
-				 ->performCheckWithException();
-		}
-		catch ( \Exception $oE ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-		}
-		return $oWpError;
-	}
-
-	/**
-	 * @param \WP_Error $oWpError
-	 * @param string    $sUsername
-	 * @return \WP_Error
-	 */
-	public function checkReqRegistration_Woo( $oWpError, $sUsername ) {
-		try {
-			$this->setUserToAudit( $sUsername )
-				 ->setActionToAudit( 'woo-register' )
-				 ->performCheckWithException();
-		}
-		catch ( \Exception $oE ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-		}
-		return $oWpError;
-	}
 
 	/**
 	 * @return string
@@ -182,17 +80,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 */
 	public function printRegisterFormItems_Woo() {
 		$this->printFormItems();
-	}
-
-	/**
-	 * see form-billing.php
-	 * @param \WC_Checkout $oCheckout
-	 * @return void
-	 */
-	public function printRegistrationFormItems_Woo( $oCheckout ) {
-		if ( $oCheckout instanceof \WC_Checkout && $oCheckout->is_registration_enabled() ) {
-			$this->printFormItems();
-		}
 	}
 
 	/**

@@ -89,7 +89,7 @@ abstract class BaseFormProvider {
 		$aInserts = [];
 		if ( is_array( self::$aProtectionProviders ) ) {
 			foreach ( self::$aProtectionProviders as $oProvider ) {
-				$aInserts[] = $oProvider->buildFormInsert();
+				$aInserts[] = $oProvider->buildFormInsert( $this );
 			}
 		}
 		return implode( "\n", $aInserts );

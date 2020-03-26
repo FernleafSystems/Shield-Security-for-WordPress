@@ -25,23 +25,10 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 		}
 
 		if ( !$oMod->isVisitorWhitelisted() ) {
-
 			( new AntiBot\AntibotSetup() )->setMod( $oMod );
-
-			if ( $oMod->isEnabledGaspCheck() ) {
-//				$this->getSubPro( 'gasp' )->execute();
+			if ( $oOpts->isCooldownEnabled() && Services::Request()->isPost() ) {
+				$this->getSubPro( 'cooldown' )->execute();
 			}
-
-			if ( $oOpts->isCooldownEnabled() ) {
-				if ( Services::Request()->isPost() ) {
-					$this->getSubPro( 'cooldown' )->execute();
-				}
-			}
-
-			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-//				$this->getSubPro( 'recaptcha' )->execute();
-			}
-
 			$oMod->getLoginIntentController()->run();
 		}
 	}

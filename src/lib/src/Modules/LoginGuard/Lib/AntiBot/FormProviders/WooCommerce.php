@@ -16,16 +16,14 @@ class WooCommerce extends BaseFormProvider {
 	}
 
 	protected function login() {
-		add_action( 'woocommerce_login_form', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'woocommerce_login_form', [ $this, 'formInsertsPrint_WooLogin' ], 100 );
 		add_filter( 'woocommerce_process_login_errors', [ $this, 'checkLogin' ], 10, 2 );
-
 		add_filter( 'authenticate', [ $this, 'checkLogin' ], 10, 3 );
 	}
 
 	protected function register() {
-		add_action( 'woocommerce_register_form', [ $this, 'formInsertsPrint' ] );
+		add_action( 'woocommerce_register_form', [ $this, 'formInsertsPrint_WooRegister' ] );
 		add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'formInsertsPrintCheckout' ] );
-
 		add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkRegister' ], 10, 2 );
 	}
 
@@ -36,6 +34,32 @@ class WooCommerce extends BaseFormProvider {
 	protected function woocheckout() {
 		add_action( 'woocommerce_after_checkout_registration_form', [ $this, 'formInsertsPrintCheckout' ] );
 		add_action( 'woocommerce_after_checkout_validation', [ $this, 'checkCheckout' ], 10, 2 );
+	}
+
+	/**
+	 * @return void
+	 */
+	public function formInsertsPrint_WooLogin() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		$sInserts = $this->formInsertsBuild();
+		if ( $oMod->getGoogleRecaptchaStyle() == 'invisible' ) {
+			$sInserts .= '<input type="hidden" name="login" value="Log in" />';
+		}
+		echo $sInserts;
+	}
+
+	/**
+	 * @return void
+	 */
+	public function formInsertsPrint_WooRegister() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		$sInserts = $this->formInsertsBuild();
+		if ( $oMod->getGoogleRecaptchaStyle() == 'invisible' ) {
+			$sInserts .= '<input type="hidden" name="register" value="Register" />';
+		}
+		echo $sInserts;
 	}
 
 	/**

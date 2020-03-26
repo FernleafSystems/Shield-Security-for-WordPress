@@ -11,7 +11,9 @@ class AntibotSetup {
 	use ModConsumer;
 
 	public function __construct() {
-		add_action( 'init', [ $this, 'onWpInit' ] );
+		if ( $this->getMod()->getIfSupport3rdParty() ) {
+			add_action( 'init', [ $this, 'onWpInit' ] );
+		}
 	}
 
 	public function onWpInit() {

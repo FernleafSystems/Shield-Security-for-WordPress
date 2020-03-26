@@ -101,9 +101,9 @@ class GaspJs extends BaseProtectionProvider {
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
-	public function buildFormInsert() {
+	public function buildFormInsert( $oFormProvider ) {
 		return $this->getMod()->renderTemplate(
 			'/snippets/anti_bot/gasp_js.twig',
 			[

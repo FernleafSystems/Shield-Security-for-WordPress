@@ -30,9 +30,10 @@ abstract class BaseProtectionProvider {
 	}
 
 	/**
+	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $oFormProvider
 	 * @return string
 	 */
-	abstract public function buildFormInsert();
+	abstract public function buildFormInsert( $oFormProvider );
 
 	abstract public function onWpEnqueueJs();
 
