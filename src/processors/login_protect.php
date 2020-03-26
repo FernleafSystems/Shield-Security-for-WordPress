@@ -26,24 +26,12 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 
 		if ( !$oMod->isVisitorWhitelisted() ) {
 
-//			$aProtectionProviders = [];
-//			if ( $oMod->isEnabledGaspCheck() ) {
-//				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GaspJs() )
-//					->setMod( $this->getMod() );
-//			}
-//			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-//				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
-//					->setMod( $this->getMod() );
-//			}
-//			if ( !empty( $aProtectionProviders ) ) {
-//				AntiBot\FormProviders\WordPress::SetProviders( $aProtectionProviders );
-//				( new AntiBot\FormProviders\WordPress() )
-//					->setMod( $this->getMod() )
-//					->run();
-//			}
+			( new AntiBot\AntibotSetup() )
+				->setMod( $oMod)
+				->run();
 
 			if ( $oMod->isEnabledGaspCheck() ) {
-				$this->getSubPro( 'gasp' )->execute();
+//				$this->getSubPro( 'gasp' )->execute();
 			}
 
 			if ( $oOpts->isCooldownEnabled() ) {
@@ -53,7 +41,7 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 			}
 
 			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-				$this->getSubPro( 'recaptcha' )->execute();
+//				$this->getSubPro( 'recaptcha' )->execute();
 			}
 
 			$oMod->getLoginIntentController()->run();

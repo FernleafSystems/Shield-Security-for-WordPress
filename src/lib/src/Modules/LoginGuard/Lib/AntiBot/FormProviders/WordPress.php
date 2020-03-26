@@ -10,6 +10,7 @@ class WordPress extends BaseFormProvider {
 		add_action( 'login_form', [ $this, 'formInsertsPrint' ], 100 );
 		add_filter( 'login_form_middle', [ $this, 'formInsertsAppend' ], 100 );
 
+		// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
 		add_filter( 'authenticate', [ $this, 'checkLogin' ], 10, 2 );
 	}
 
