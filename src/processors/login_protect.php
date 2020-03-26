@@ -26,9 +26,7 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 
 		if ( !$oMod->isVisitorWhitelisted() ) {
 
-			( new AntiBot\AntibotSetup() )
-				->setMod( $oMod)
-				->run();
+			( new AntiBot\AntibotSetup() )->setMod( $oMod );
 
 			if ( $oMod->isEnabledGaspCheck() ) {
 //				$this->getSubPro( 'gasp' )->execute();

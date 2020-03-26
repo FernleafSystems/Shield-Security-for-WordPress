@@ -40,7 +40,12 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		$b3rdParty = $oMod->getIfSupport3rdParty();
 
 		if ( $oMod->isProtectLogin() ) {
+
 			if ( $b3rdParty ) {
+
+				add_action( 'woocommerce_login_form', [ $this, 'printLoginFormItems_Woo' ], 100 );
+				add_filter( 'woocommerce_process_login_errors', [ $this, 'checkReqLogin_Woo' ], 10, 2 );
+
 				// MemberPress
 				add_action( 'mepr-login-form-before-submit', [ $this, 'printLoginFormItems_MePr' ], 100 );
 				add_filter( 'mepr-validate-login', [ $this, 'checkReqLogin_MePr' ], 100 );
@@ -59,10 +64,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		}
 
 		if ( $oMod->isProtectLostPassword() ) {
-			add_action( 'lostpassword_form', [ $this, 'printFormItems' ] );
-			add_action( 'lostpassword_post', [ $this, 'checkReqLostPassword_Wp' ], 10, 1 );
 
 			if ( $b3rdParty ) {
+				add_action( 'woocommerce_lostpassword_form', [ $this, 'printFormItems' ], 10 );
+
 				// MemberPress
 				add_action( 'mepr-forgot-password-form', [ $this, 'printLoginFormItems_MePr' ], 100 );
 				add_filter( 'mepr-validate-forgot-password', [ $this, 'checkReqLostPassword_MePr' ], 100 );
@@ -73,9 +78,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		}
 
 		if ( $oMod->isProtectRegister() ) {
-			add_action( 'register_form', [ $this, 'printFormItems' ] );
-//			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
-			add_filter( 'registration_errors', [ $this, 'checkReqRegistrationErrors_Wp' ], 10, 2 );
 
 			if ( $b3rdParty ) {
 				// A Catch-all:
@@ -84,6 +86,13 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 
 				add_action( 'bp_before_registration_submit_buttons', [ $this, 'printLoginFormItems_Bp' ], 10 );
 				add_action( 'bp_signup_validate', [ $this, 'checkReqRegistration_Bp' ], 10 );
+
+				add_action( 'woocommerce_register_form', [ $this, 'printRegisterFormItems_Woo' ], 10 );
+				add_action( 'woocommerce_after_checkout_registration_form', [
+					$this,
+					'printRegistrationFormItems_Woo'
+				], 10 );
+				add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkReqRegistration_Woo' ], 10, 2 );
 
 				// MemberPress - Checkout == Registration
 				add_action( 'mepr-checkout-before-submit', [ $this, 'printRegisterFormItems_MePr' ], 10 );
@@ -167,29 +176,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	}
 
 	/**
-	 * Should be a filter added to WordPress's "authenticate" filter, but before WordPress performs
-	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
-	 * @param null|WP_User|WP_Error $oUserOrError
-	 * @param string                $sUsername
-	 * @param string                $sPassword
-	 * @return WP_User|WP_Error
-	 */
-	public function checkReqLogin_Wp( $oUserOrError, $sUsername, $sPassword ) {
-		try {
-			if ( !is_wp_error( $oUserOrError ) && !empty( $sUsername ) && !empty( $sPassword ) ) {
-				$this->setUserToAudit( $sUsername )
-					 ->setActionToAudit( 'login' )
-					 ->performCheckWithException();
-			}
-		}
-		catch ( \Exception $oE ) {
-			$oUserOrError = $this->giveMeWpError( $oUserOrError );
-			$oUserOrError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-		}
-		return $oUserOrError;
-	}
-
-	/**
 	 * @param array $aErrors
 	 * @return array
 	 */
@@ -218,23 +204,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				\UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
 			}
 		}
-	}
-
-	/**
-	 * @param \WP_Error $oWpError
-	 * @return \WP_Error
-	 */
-	public function checkReqLostPassword_Wp( $oWpError ) {
-		try {
-			$this->setUserToAudit( Services::Request()->post( 'user_login', '' ) )
-				 ->setActionToAudit( 'reset-password' )
-				 ->performCheckWithException();
-		}
-		catch ( \Exception $oE ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-		}
-		return $oWpError;
 	}
 
 	/**
@@ -269,49 +238,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	}
 
 	/**
-	 * This is for the request where the User actually enters their new password
-	 * @param \WP_Error $oWpError
-	 * @return \WP_Error
-	 */
-	public function checkReqResetPassword_Wp( $oWpError ) {
-		try {
-			$oReq = Services::Request();
-			if ( $oReq->isPost() && is_wp_error( $oWpError ) && empty( $oWpError->errors ) ) {
-				list( $sUser, $null ) = explode( ':', wp_unslash( $oReq->cookie( 'wp-resetpass-'.COOKIEHASH, '' ) ), 2 );
-				$this->setUserToAudit( $sUser )
-					 ->setActionToAudit( 'set-password' )
-					 ->performCheckWithException();
-			}
-		}
-		catch ( \Exception $oE ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-		}
-		return $oWpError;
-	}
-
-	/**
-	 * @param array $aData
-	 * @return array
-	 */
-	public function checkPreUserInsert_Wp( $aData ) {
-		if ( !Services::WpUsers()->isUserLoggedIn() && Services::Request()->isPost() ) {
-			$this->setActionToAudit( 'register' )
-				 ->performCheckWithDie();
-		}
-		return $aData;
-	}
-
-	/**
-	 * @param string $sUsername
-	 */
-	public function checkReqRegistration_Wp( $sUsername ) {
-		return $this->setUserToAudit( $sUsername )
-					->setActionToAudit( 'register' )
-					->performCheckWithDie();
-	}
-
-	/**
 	 * see class-wc-checkout.php
 	 * @param \WP_Error $oWpError
 	 * @param array     $aPostedData
@@ -327,20 +253,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
-	}
-
-	/**
-	 */
-	public function checkReqRegistration_Edd() {
-		try {
-			$this->setActionToAudit( 'edd-register' )
-				 ->performCheckWithException();
-		}
-		catch ( \Exception $oE ) {
-			if ( function_exists( 'edd_set_error' ) ) {
-				edd_set_error( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-			}
-		}
 	}
 
 	/**
@@ -438,24 +350,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				UM()->form()->add_error( 'shield-fail-register', $oE->getMessage() );
 			}
 		}
-	}
-
-	/**
-	 * @param \WP_Error $oWpError
-	 * @param string    $sUsername
-	 * @return \WP_Error
-	 */
-	public function checkReqRegistrationErrors_Wp( $oWpError, $sUsername ) {
-		try {
-			$this->setUserToAudit( $sUsername )
-				 ->setActionToAudit( 'register' )
-				 ->performCheckWithException();
-		}
-		catch ( \Exception $oE ) {
-			$oWpError = $this->giveMeWpError( $oWpError );
-			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
-		}
-		return $oWpError;
 	}
 
 	/**

@@ -2,19 +2,27 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
+use FernleafSystems\Wordpress\Services\Services;
 
 class AntibotSetup {
 
 	use ModConsumer;
 
-	public function run() {
+	public function __construct() {
+		add_action( 'init', [ $this, 'onWpInit' ] );
+	}
+
+	public function onWpInit() {
+		if ( !Services::WpUsers()->isUserLoggedIn() ) {
+			$this->run();
+		}
+	}
+
+	private function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
 
 		$aProtectionProviders = [];
 		if ( $oMod->isEnabledGaspCheck() ) {

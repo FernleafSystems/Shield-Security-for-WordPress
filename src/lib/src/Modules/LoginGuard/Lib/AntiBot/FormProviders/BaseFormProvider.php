@@ -91,6 +91,7 @@ abstract class BaseFormProvider {
 	public function formInsertsPrint() {
 		echo $this->formInsertsBuild();
 	}
+
 	/**
 	 * @return string
 	 */

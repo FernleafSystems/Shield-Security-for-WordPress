@@ -34,7 +34,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
 		 */
-		$bInvisible = $oMod->getGoogleRecaptchaStyle() === 'invisible';
+		$bInvisible = $this->isInvisible();
 		echo $oMod->renderTemplate(
 			'snippets/google_recaptcha_js',
 			[
@@ -75,14 +75,21 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	 * @return string
 	 */
 	private function getGoogleRecaptchaHtml() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->getGoogleRecaptchaStyle() == 'invisible' ) {
+		if ( $this->isInvisible() ) {
 			$sExtraStyles = '';
 		}
 		else {
 			$sExtraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
 		}
 		return $sExtraStyles.'<div class="icwpg-recaptcha"></div>';
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isInvisible() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		return $oMod->getGoogleRecaptchaStyle() == 'invisible';
 	}
 }
