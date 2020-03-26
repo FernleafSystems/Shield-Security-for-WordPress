@@ -21,18 +21,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	private $bFactorTested;
 
 	/**
-	 * We assume that any given page will have at most 1 login form.
-	 * @var int
-	 */
-	private $nLoginFormCountMax = 1;
-
-	/**
-	 * Track the number of times a login form element has been printed.
-	 * @var int
-	 */
-	private $nLoginFormPrintCount = 0;
-
-	/**
 	 */
 	public function run() {
 		$this->setFactorTested( false );
@@ -47,11 +35,11 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			return;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		$b3rdParty = $oFO->getIfSupport3rdParty();
+		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		$b3rdParty = $oMod->getIfSupport3rdParty();
 
-		if ( $oFO->isProtectLogin() ) {
+		if ( $oMod->isProtectLogin() ) {
 			// We give it a priority of 10 so that we can jump in before WordPress does its own validation.
 			add_filter( 'authenticate', [ $this, 'checkReqLogin_Wp' ], 10, 3 );
 
@@ -81,7 +69,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			}
 		}
 
-		if ( $oFO->isProtectLostPassword() ) {
+		if ( $oMod->isProtectLostPassword() ) {
 			add_action( 'lostpassword_form', [ $this, 'printFormItems' ] );
 			add_action( 'lostpassword_post', [ $this, 'checkReqLostPassword_Wp' ], 10, 1 );
 
@@ -102,7 +90,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			}
 		}
 
-		if ( $oFO->isProtectRegister() ) {
+		if ( $oMod->isProtectRegister() ) {
 			add_action( 'register_form', [ $this, 'printFormItems' ] );
 //			add_action( 'register_post', array( $this, 'checkReqRegistration_Wp' ), 10, 1 );
 			add_filter( 'registration_errors', [ $this, 'checkReqRegistrationErrors_Wp' ], 10, 2 );
@@ -146,7 +134,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			}
 		}
 
-		if ( $b3rdParty && $oFO->isProtect( 'checkout_woo' ) ) {
+		if ( $b3rdParty && $oMod->isProtect( 'checkout_woo' ) ) {
 			add_action( 'woocommerce_after_checkout_registration_form', [
 				$this,
 				'printRegistrationFormItems_Woo'
@@ -516,7 +504,7 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 * @return string
 	 */
 	protected function buildLoginFormItems() {
-		$sItems = $this->canPrintLoginFormElement() ? $this->buildFormItems() : '';
+		$sItems = $this->buildFormItems();
 		if ( !empty( $sItems ) ) {
 			$this->incrementLoginFormPrintCount();
 		}
@@ -633,31 +621,10 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function canPrintLoginFormElement() {
-		return $this->getLoginFormPrintCount() < $this->getLoginFormCountMax();
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function getActionToAudit() {
 		return empty( $this->sActionToAudit ) ? 'unknown-action' : $this->sActionToAudit;
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getLoginFormCountMax() {
-		return $this->nLoginFormCountMax;
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function getLoginFormPrintCount() {
-		return max( 0, (int)$this->nLoginFormPrintCount );
 	}
 
 	/**
@@ -712,23 +679,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function incrementLoginFormPrintCount() {
-		$this->nLoginFormPrintCount = $this->getLoginFormPrintCount() + 1;
-		return $this;
-	}
-
-	/**
-	 * @param int $nMax
-	 * @return $this
-	 */
-	public function setLoginFormCountMax( $nMax ) {
-		$this->nLoginFormCountMax = $nMax;
-		return $this;
-	}
-
-	/**
 	 * @param bool $bFactorTested
 	 * @return $this
 	 */
@@ -744,5 +694,37 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	protected function setUserToAudit( $sUserToAudit ) {
 		$this->sUserToAudit = sanitize_user( $sUserToAudit );
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	protected function canPrintLoginFormElement() {
+		return true;
+	}
+
+	/**
+	 * @return $this
+	 * @deprecated 9.0
+	 */
+	public function incrementLoginFormPrintCount() {
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 9.0
+	 */
+	protected function getLoginFormCountMax() {
+		return 1;
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 9.0
+	 */
+	protected function getLoginFormPrintCount() {
+		return 0;
 	}
 }

@@ -1688,7 +1688,7 @@ class BaseModCon extends Deprecated\Foundation {
 		}
 		try {
 			$oRndr = $this->getCon()->getRenderer();
-			if ( $bUseTwig ) {
+			if ( $bUseTwig || preg_match( '#^.*\.twig$#i', $sTemplate ) ) {
 				$oRndr->setTemplateEngineTwig();
 			}
 

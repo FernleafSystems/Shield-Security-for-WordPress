@@ -29,7 +29,7 @@ class Options extends Base\ShieldOptions {
 	public function getCanIpRequestAutoUnblock( $sIp ) {
 		$aExistingIps = $this->getAutoUnblockIps();
 		return !array_key_exists( $sIp, $aExistingIps )
-			   || ( Services::Request()->carbon()->subDay( 1 ) > $aExistingIps[ $sIp ] );
+			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $aExistingIps[ $sIp ] );
 	}
 
 	/**

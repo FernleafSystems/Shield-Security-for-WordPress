@@ -13,6 +13,10 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		add_action( 'login_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
 	}
 
+	public function onWpEnqueueJs() {
+		$this->setRecaptchaToEnqueue();
+	}
+
 	/**
 	 * @throws \Exception
 	 */

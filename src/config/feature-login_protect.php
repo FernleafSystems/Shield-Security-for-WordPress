@@ -360,18 +360,6 @@
       "description":   "Use Google reCAPTCHA on the login screen."
     },
     {
-      "key":         "enable_antibot_js",
-      "section":     "section_brute_force_login_protection",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/dw",
-      "link_blog":   "",
-      "name":        "AntiBot JS",
-      "summary":     "Load Anti-Bot JS For 3rd Party Login Forms",
-      "description": "Important: This is experimental. Please contact support for further assistance."
-    },
-    {
       "key":         "antibot_form_ids",
       "section":     "section_brute_force_login_protection",
       "type":        "array",

@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				 ->sendEmailVerifyCanSend();
 		}
 
-		$aIds = $this->getAntiBotFormSelectors();
+		$aIds = $oOpts->getAntiBotFormSelectors();
 		foreach ( $aIds as $nKey => $sId ) {
 			$sId = trim( strip_tags( $sId ) );
 			if ( empty( $sId ) ) {
@@ -389,13 +389,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isEnabledBotJs() {
-		return $this->isPremium() && $this->isOpt( 'enable_antibot_js', 'Y' )
-			   && count( $this->getAntiBotFormSelectors() ) > 0
-			   && ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() );
+		return $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
 	}
 
 	/**
 	 * @return array
+	 * @deprecated 9.0
 	 */
 	public function getAntiBotFormSelectors() {
 		$aIds = $this->getOpt( 'antibot_form_ids', [] );

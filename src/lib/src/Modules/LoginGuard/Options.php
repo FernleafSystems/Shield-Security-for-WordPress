@@ -11,6 +11,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Options extends Base\ShieldOptions {
 
 	/**
+	 * @return array
+	 */
+	public function getAntiBotFormSelectors() {
+		$aIds = $this->getOpt( 'antibot_form_ids', [] );
+		return ( $this->isPremium() && is_array( $aIds ) ) ? $aIds : [];
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getCooldownInterval() {

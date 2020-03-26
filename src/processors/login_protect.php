@@ -42,48 +42,6 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 		}
 	}
 
-	public function onWpEnqueueJs() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-
-		if ( $oMod->isEnabledBotJs() ) {
-			$oConn = $this->getCon();
-
-			$sAsset = 'shield-antibot';
-			$sUnique = $oMod->prefix( $sAsset );
-			wp_register_script(
-				$sUnique,
-				$oConn->getPluginUrl_Js( $sAsset ),
-				[ 'jquery' ],
-				$oConn->getVersion(),
-				true
-			);
-			wp_enqueue_script( $sUnique );
-
-			wp_localize_script(
-				$sUnique,
-				'icwp_wpsf_vars_lpantibot',
-				[
-					'form_selectors' => implode( ',', $oMod->getAntiBotFormSelectors() ),
-					'uniq'           => preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) ),
-					'cbname'         => $oMod->getGaspKey(),
-					'strings'        => [
-						'label' => $oMod->getTextImAHuman(),
-						'alert' => $oMod->getTextPleaseCheckBox(),
-					],
-					'flags'          => [
-						'gasp'  => $oMod->isEnabledGaspCheck(),
-						'recap' => $oMod->isGoogleRecaptchaEnabled(),
-					]
-				]
-			);
-
-			if ( $oMod->isGoogleRecaptchaEnabled() ) {
-				$this->setRecaptchaToEnqueue();
-			}
-		}
-	}
-
 	/**
 	 * Override the original collection to then add plugin statistics to the mix
 	 * @param $aData

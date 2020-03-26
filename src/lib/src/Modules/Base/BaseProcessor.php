@@ -53,6 +53,7 @@ class BaseProcessor extends Deprecated\Foundation {
 		 */
 		if ( Services::Request()->query( 'wp_service_worker', 0 ) != 1 ) {
 			add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
+			add_action( 'login_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
 		}
 
 		$this->bHasExecuted = false;
