@@ -49,6 +49,9 @@ class AntibotSetup {
 			if ( @class_exists( 'WooCommerce' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
 			}
+			if ( @class_exists( 'BuddyPress' ) ) {
+				$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
+			}
 
 			foreach ( $aFormProviders as $oForm ) {
 				$oForm->setMod( $oMod )->run();

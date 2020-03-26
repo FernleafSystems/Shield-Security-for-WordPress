@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseFormProvider {
 
@@ -39,6 +40,15 @@ abstract class BaseFormProvider {
 			}
 		}
 		return true;
+	}
+
+	protected function checkThenDie() {
+		try {
+			$this->checkProviders();
+		}
+		catch ( \Exception $oE ) {
+			Services::WpGeneral()->wpDie( $oE->getMessage() );
+		}
 	}
 
 	public function run() {

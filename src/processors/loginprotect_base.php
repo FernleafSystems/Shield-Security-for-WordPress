@@ -84,9 +84,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				// 20180909 - not a bit wise as it breaks anything that doesn't properly display front-end output
 //				add_filter( 'wp_pre_insert_user_data', array( $this, 'checkPreUserInsert_Wp' ), 10, 1 );
 
-				add_action( 'bp_before_registration_submit_buttons', [ $this, 'printLoginFormItems_Bp' ], 10 );
-				add_action( 'bp_signup_validate', [ $this, 'checkReqRegistration_Bp' ], 10 );
-
 				add_action( 'woocommerce_register_form', [ $this, 'printRegisterFormItems_Woo' ], 10 );
 				add_action( 'woocommerce_after_checkout_registration_form', [
 					$this,
