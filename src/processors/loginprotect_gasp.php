@@ -1,8 +1,16 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginProtect_Base {
+
+	public function run() {
+		parent::run();
+		( new LoginGuard\Lib\AntiBot\IncludeJs() )
+			->setMod( $this->getMod() )
+			->run();
+	}
 
 	/**
 	 * @return string
@@ -15,19 +23,10 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 	 * @return string
 	 */
 	private function getGaspLoginHtml() {
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		$sUniqId = preg_replace( '#[^a-zA-Z0-9]#', '', apply_filters( 'icwp_shield_lp_gasp_uniqid', uniqid() ) );
 		return $this->getMod()->renderTemplate(
-			'snippets/gasp_js.php',
+			'/snippets/anti_bot/gasp_js.twig',
 			[
-				'sCbName'   => $oFO->getGaspKey(),
-				'sLabel'    => $oFO->getTextImAHuman(),
-				'sAlert'    => $oFO->getTextPleaseCheckBox(),
-				'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
-				'sUniqId'   => $sUniqId,
-				'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
-				'strings'   => [
+				'strings' => [
 					'loading' => __( 'Loading', 'wp-simple-firewall' )
 				]
 			]
@@ -42,7 +41,7 @@ class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginPro
 			return;
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		$this->setFactorTested( true );
 

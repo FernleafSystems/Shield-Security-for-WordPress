@@ -1737,7 +1737,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		}
 		try {
 			$oRndr = $this->getCon()->getRenderer();
-			if ( $bUseTwig ) {
+			if ( $bUseTwig || preg_match( '#^.*\.twig$#i', $sTemplate ) ) {
 				$oRndr->setTemplateEngineTwig();
 			}
 

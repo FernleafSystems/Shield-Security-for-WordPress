@@ -11,6 +11,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 class Options extends Base\ShieldOptions {
 
 	/**
+	 * @return array
+	 */
+	public function getAntiBotFormSelectors() {
+		$aIds = $this->getOpt( 'antibot_form_ids', [] );
+		return ( $this->isPremium() && is_array( $aIds ) ) ? $aIds : [];
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getCooldownInterval() {
@@ -110,6 +118,36 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isEnabledGoogleAuthenticator() {
 		return $this->isOpt( 'enable_google_authenticator', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProtectLogin() {
+		return $this->isProtect( 'login' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProtectLostPassword() {
+		return $this->isProtect( 'password' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProtectRegister() {
+		return $this->isProtect( 'register' );
+	}
+
+	/**
+	 * @param string $sLocation - see config for keys, e.g. login, register, password, checkout_woo
+	 * @return bool
+	 */
+	public function isProtect( $sLocation ) {
+		$aLocs = $this->getOpt( 'bot_protection_locations' );
+		return in_array( $sLocation, is_array( $aLocs ) ? $aLocs : $this->getOptDefault( 'bot_protection_locations' ) );
 	}
 
 	/**

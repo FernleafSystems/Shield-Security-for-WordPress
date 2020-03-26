@@ -248,12 +248,6 @@ class Strings extends Base\Strings {
 								.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
 				break;
 
-			case 'enable_antibot_js' :
-				$sName = __( 'AntiBot JS', 'wp-simple-firewall' );
-				$sSummary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
-				$sDescription = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
-				break;
-
 			case 'antibot_form_ids' :
 				$sName = __( 'AntiBot Forms', 'wp-simple-firewall' );
 				$sSummary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
@@ -319,6 +313,13 @@ class Strings extends Base\Strings {
 				$sSummary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
 				$sDescription = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
 								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getTextOptDefault( 'text_pleasecheckbox' ) );
+				break;
+
+			// removed 9.0
+			case 'enable_antibot_js' :
+				$sName = __( 'AntiBot JS', 'wp-simple-firewall' );
+				$sSummary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
+				$sDescription = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
 				break;
 
 			default:
