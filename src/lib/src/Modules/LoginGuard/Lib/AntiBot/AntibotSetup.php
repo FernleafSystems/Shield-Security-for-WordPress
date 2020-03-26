@@ -55,6 +55,9 @@ class AntibotSetup {
 			if ( defined( 'MEPR_LIB_PATH' ) || defined( 'MEPR_PLUGIN_NAME' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\MemberPress();
 			}
+			if ( function_exists( 'UM' ) && @class_exists( 'UM' ) && method_exists( 'UM', 'form' ) ) {
+				$aFormProviders[] = new AntiBot\FormProviders\UltimateMember();
+			}
 
 			foreach ( $aFormProviders as $oForm ) {
 				$oForm->setMod( $oMod )->run();

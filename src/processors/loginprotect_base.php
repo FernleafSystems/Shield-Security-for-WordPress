@@ -46,10 +46,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				add_action( 'woocommerce_login_form', [ $this, 'printLoginFormItems_Woo' ], 100 );
 				add_filter( 'woocommerce_process_login_errors', [ $this, 'checkReqLogin_Woo' ], 10, 2 );
 
-				// Ultimate Member
-				add_action( 'um_after_login_fields', [ $this, 'printFormItems_UltMem' ], 100 );
-				add_action( 'um_submit_form_login', [ $this, 'checkReqLogin_UltMem' ], 100 );
-
 				// LearnPress
 				add_action( 'learn-press/after-form-login-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
 				add_action( 'learn-press/before-checkout-form-login-button', [
@@ -64,10 +60,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 
 			if ( $b3rdParty ) {
 				add_action( 'woocommerce_lostpassword_form', [ $this, 'printFormItems' ], 10 );
-
-				// Ultimate Member
-				add_action( 'um_after_password_reset_fields', [ $this, 'printFormItems_UltMem' ], 100 );
-				add_action( 'um_submit_form_password_reset', [ $this, 'checkReqLostPassword_UltMem' ], 5, 0 );
 			}
 		}
 
@@ -91,9 +83,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				// Profile Builder (https://wordpress.org/plugins/profile-builder/)
 				add_action( 'wppb_form_before_submit_button', [ $this, 'printLoginFormItems' ], 100 );
 				add_filter( 'wppb_output_field_errors_filter', [ $this, 'checkReqReg_ProfileBuilder' ], 100 );
-				// Ultimate Member
-				add_action( 'um_after_register_fields', [ $this, 'printFormItems_UltMem' ], 100 );
-				add_action( 'um_submit_form_register', [ $this, 'checkReqRegistration_UltMem' ], 5, 0 );
 				// LearnPress
 				add_action( 'learn-press/after-form-register-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
 				add_filter( 'learn-press/register-validate-field', [
@@ -161,34 +150,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
-	}
-
-	/**
-	 */
-	public function checkReqLogin_UltMem() {
-		if ( $this->isUltimateMember() ) {
-			try {
-				$this->setActionToAudit( 'ultimatemember-login' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				\UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
-			}
-		}
-	}
-
-	/**
-	 */
-	public function checkReqLostPassword_UltMem() {
-		if ( $this->isUltimateMember() ) {
-			try {
-				$this->setActionToAudit( 'ultimatemember-lostpassword' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				UM()->form()->add_error( 'shield-fail-lostpassword', $oE->getMessage() );
-			}
-		}
 	}
 
 	/**
@@ -275,27 +236,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	}
 
 	/**
-	 */
-	public function checkReqRegistration_UltMem() {
-		if ( $this->isUltimateMember() ) {
-			try {
-				$this->setActionToAudit( 'ultimatemember-register' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				UM()->form()->add_error( 'shield-fail-register', $oE->getMessage() );
-			}
-		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function checkReqRegistration_Bp() {
-		return $this->performCheckWithDie();
-	}
-
-	/**
 	 * @return string
 	 */
 	protected function buildFormItems() {
@@ -339,15 +279,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 * @return void
 	 */
 	public function printFormItems_LearnPress() {
-		$this->printLoginFormItems();
-	}
-
-	/**
-	 * Ultimate Member Forms
-	 * https://wordpress.org/plugins/ultimate-member/
-	 * @return void
-	 */
-	public function printFormItems_UltMem() {
 		$this->printLoginFormItems();
 	}
 
@@ -441,13 +372,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 */
 	protected function isProfileBuilder() {
 		return defined( 'PROFILE_BUILDER_VERSION' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isUltimateMember() {
-		return function_exists( 'UM' ) && @class_exists( 'UM' ) && method_exists( 'UM', 'form' );
 	}
 
 	/**
