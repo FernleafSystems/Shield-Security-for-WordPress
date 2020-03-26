@@ -68,9 +68,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				], 10 );
 				add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkReqRegistration_Woo' ], 10, 2 );
 
-				// Paid Member Subscriptions (https://wordpress.org/plugins/paid-member-subscriptions)
-				add_action( 'pms_register_form_after_fields', [ $this, 'printFormItems_PaidMemberSubscriptions' ], 100 );
-				add_filter( 'pms_register_form_validation', [ $this, 'checkReqReg_PaidMemberSubscriptions' ], 100 );
 				// Profile Builder (https://wordpress.org/plugins/profile-builder/)
 				add_action( 'wppb_form_before_submit_button', [ $this, 'printLoginFormItems' ], 100 );
 				add_filter( 'wppb_output_field_errors_filter', [ $this, 'checkReqReg_ProfileBuilder' ], 100 );
@@ -90,17 +87,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 * @throws \Exception
 	 */
 	abstract protected function performCheckWithException();
-
-	/**
-	 */
-	protected function performCheckWithDie() {
-		try {
-			$this->performCheckWithException();
-		}
-		catch ( \Exception $oE ) {
-			Services::WpGeneral()->wpDie( $oE->getMessage() );
-		}
-	}
 
 	/**
 	 * @param \WP_Error $oWpError
@@ -156,18 +142,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		return $oWpError;
 	}
 
-	public function checkReqReg_PaidMemberSubscriptions() {
-		if ( $this->isPaidMemberSubscriptions() ) {
-			try {
-				$this->setActionToAudit( 'paidmembersubscriptions-register' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				\pms_errors()->add( 'shield-fail-register', $oE->getMessage() );
-			}
-		}
-	}
-
 	/**
 	 * @param array $aErrors
 	 * @return array
@@ -221,13 +195,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	/**
 	 * @return void
 	 */
-	public function printFormItems_PaidMemberSubscriptions() {
-		$this->printLoginFormItems();
-	}
-
-	/**
-	 * @return void
-	 */
 	public function printLoginFormItems_Woo() {
 		$this->printLoginFormItems();
 	}
@@ -248,13 +215,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		if ( $oCheckout instanceof \WC_Checkout && $oCheckout->is_registration_enabled() ) {
 			$this->printFormItems();
 		}
-	}
-
-	/**
-	 * @return void
-	 */
-	public function printLoginFormItems_Bp() {
-		$this->printLoginFormItems();
 	}
 
 	/**
@@ -301,13 +261,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 */
 	public function isFactorTested() {
 		return (bool)$this->bFactorTested;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isPaidMemberSubscriptions() {
-		return @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' );
 	}
 
 	/**

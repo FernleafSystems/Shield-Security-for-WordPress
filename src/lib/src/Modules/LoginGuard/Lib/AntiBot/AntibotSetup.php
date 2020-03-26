@@ -61,6 +61,9 @@ class AntibotSetup {
 			if ( @class_exists( 'LearnPress' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\LearnPress();
 			}
+			if ( @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' ) ) {
+				$aFormProviders[] = new AntiBot\FormProviders\PaidMemberSubscriptions();
+			}
 
 			foreach ( $aFormProviders as $oForm ) {
 				$oForm->setMod( $oMod )->run();
