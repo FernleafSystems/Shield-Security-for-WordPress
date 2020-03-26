@@ -52,6 +52,9 @@ class AntibotSetup {
 			if ( @class_exists( 'BuddyPress' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
 			}
+			if ( defined( 'MEPR_LIB_PATH' ) || defined( 'MEPR_PLUGIN_NAME' ) ) {
+				$aFormProviders[] = new AntiBot\FormProviders\MemberPress();
+			}
 
 			foreach ( $aFormProviders as $oForm ) {
 				$oForm->setMod( $oMod )->run();

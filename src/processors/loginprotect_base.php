@@ -46,9 +46,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				add_action( 'woocommerce_login_form', [ $this, 'printLoginFormItems_Woo' ], 100 );
 				add_filter( 'woocommerce_process_login_errors', [ $this, 'checkReqLogin_Woo' ], 10, 2 );
 
-				// MemberPress
-				add_action( 'mepr-login-form-before-submit', [ $this, 'printLoginFormItems_MePr' ], 100 );
-				add_filter( 'mepr-validate-login', [ $this, 'checkReqLogin_MePr' ], 100 );
 				// Ultimate Member
 				add_action( 'um_after_login_fields', [ $this, 'printFormItems_UltMem' ], 100 );
 				add_action( 'um_submit_form_login', [ $this, 'checkReqLogin_UltMem' ], 100 );
@@ -68,9 +65,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			if ( $b3rdParty ) {
 				add_action( 'woocommerce_lostpassword_form', [ $this, 'printFormItems' ], 10 );
 
-				// MemberPress
-				add_action( 'mepr-forgot-password-form', [ $this, 'printLoginFormItems_MePr' ], 100 );
-				add_filter( 'mepr-validate-forgot-password', [ $this, 'checkReqLostPassword_MePr' ], 100 );
 				// Ultimate Member
 				add_action( 'um_after_password_reset_fields', [ $this, 'printFormItems_UltMem' ], 100 );
 				add_action( 'um_submit_form_password_reset', [ $this, 'checkReqLostPassword_UltMem' ], 5, 0 );
@@ -91,9 +85,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				], 10 );
 				add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkReqRegistration_Woo' ], 10, 2 );
 
-				// MemberPress - Checkout == Registration
-				add_action( 'mepr-checkout-before-submit', [ $this, 'printRegisterFormItems_MePr' ], 10 );
-				add_filter( 'mepr-validate-signup', [ $this, 'checkReqRegistration_MePr' ], 10, 2 );
 				// Paid Member Subscriptions (https://wordpress.org/plugins/paid-member-subscriptions)
 				add_action( 'pms_register_form_after_fields', [ $this, 'printFormItems_PaidMemberSubscriptions' ], 100 );
 				add_filter( 'pms_register_form_validation', [ $this, 'checkReqReg_PaidMemberSubscriptions' ], 100 );
@@ -173,23 +164,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	}
 
 	/**
-	 * @param array $aErrors
-	 * @return array
-	 */
-	public function checkReqLogin_MePr( $aErrors ) {
-		if ( !empty( $aErrors ) && $this->isMemberPress() ) {
-			try {
-				$this->setActionToAudit( 'memberpress-login' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				$aErrors[] = $oE->getMessage();
-			}
-		}
-		return $aErrors;
-	}
-
-	/**
 	 */
 	public function checkReqLogin_UltMem() {
 		if ( $this->isUltimateMember() ) {
@@ -201,23 +175,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				\UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
 			}
 		}
-	}
-
-	/**
-	 * @param array $aErrors
-	 * @return array
-	 */
-	public function checkReqLostPassword_MePr( $aErrors ) {
-		if ( !empty( $aErrors ) && $this->isMemberPress() ) {
-			try {
-				$this->setActionToAudit( 'memberpress-lostpassword' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				$aErrors[] = $oE->getMessage();
-			}
-		}
-		return $aErrors;
 	}
 
 	/**
@@ -268,24 +225,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
-	}
-
-	/**
-	 * Errors are passed about here using an array of strings.
-	 * @param string[] $aErrors
-	 * @return string[]
-	 */
-	public function checkReqRegistration_MePr( $aErrors ) {
-		if ( !empty( $aErrors ) && $this->isMemberPress() ) {
-			try {
-				$this->setActionToAudit( 'memberpress-register' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				$aErrors[] = $oE->getMessage();
-			}
-		}
-		return $aErrors;
 	}
 
 	/**
@@ -391,13 +330,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	/**
 	 * @return void
 	 */
-	public function printLoginFormItems_MePr() {
-		$this->printLoginFormItems();
-	}
-
-	/**
-	 * @return void
-	 */
 	public function printFormItems_PaidMemberSubscriptions() {
 		$this->printLoginFormItems();
 	}
@@ -416,13 +348,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 * @return void
 	 */
 	public function printFormItems_UltMem() {
-		$this->printLoginFormItems();
-	}
-
-	/**
-	 * @return void
-	 */
-	public function printRegisterFormItems_MePr() {
 		$this->printLoginFormItems();
 	}
 
@@ -502,13 +427,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 */
 	public function isFactorTested() {
 		return (bool)$this->bFactorTested;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isMemberPress() {
-		return defined( 'MEPR_LIB_PATH' ) || defined( 'MEPR_PLUGIN_NAME' );
 	}
 
 	/**
