@@ -49,7 +49,7 @@ class AntibotSetup {
 			if ( @class_exists( 'WooCommerce' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
 			}
-			if ( @class_exists( 'BuddyPress' ) ) {
+			if ( @class_exists( 'LearnPress' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
 			}
 			if ( defined( 'MEPR_LIB_PATH' ) || defined( 'MEPR_PLUGIN_NAME' ) ) {
@@ -57,6 +57,9 @@ class AntibotSetup {
 			}
 			if ( function_exists( 'UM' ) && @class_exists( 'UM' ) && method_exists( 'UM', 'form' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\UltimateMember();
+			}
+			if ( @class_exists( 'LearnPress' ) ) {
+				$aFormProviders[] = new AntiBot\FormProviders\LearnPress();
 			}
 
 			foreach ( $aFormProviders as $oForm ) {

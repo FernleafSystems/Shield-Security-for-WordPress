@@ -42,17 +42,8 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		if ( $oMod->isProtectLogin() ) {
 
 			if ( $b3rdParty ) {
-
 				add_action( 'woocommerce_login_form', [ $this, 'printLoginFormItems_Woo' ], 100 );
 				add_filter( 'woocommerce_process_login_errors', [ $this, 'checkReqLogin_Woo' ], 10, 2 );
-
-				// LearnPress
-				add_action( 'learn-press/after-form-login-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
-				add_action( 'learn-press/before-checkout-form-login-button', [
-					$this,
-					'printFormItems_LearnPress'
-				], 100 );
-				add_filter( 'learn-press/login-validate-field', [ $this, 'checkReqLogin_LearnPress' ], 100 );
 			}
 		}
 
@@ -83,12 +74,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 				// Profile Builder (https://wordpress.org/plugins/profile-builder/)
 				add_action( 'wppb_form_before_submit_button', [ $this, 'printLoginFormItems' ], 100 );
 				add_filter( 'wppb_output_field_errors_filter', [ $this, 'checkReqReg_ProfileBuilder' ], 100 );
-				// LearnPress
-				add_action( 'learn-press/after-form-register-fields', [ $this, 'printFormItems_LearnPress' ], 100 );
-				add_filter( 'learn-press/register-validate-field', [
-					$this,
-					'checkReqRegistration_LearnPress'
-				], 100, 1 );
 			}
 		}
 
@@ -115,23 +100,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 		catch ( \Exception $oE ) {
 			Services::WpGeneral()->wpDie( $oE->getMessage() );
 		}
-	}
-
-	/**
-	 * @param string|WP_Error $sFieldNameOrError
-	 * @return string|WP_Error
-	 */
-	public function checkReqLogin_LearnPress( $sFieldNameOrError ) {
-		if ( !empty( $sFieldNameOrError ) || !is_wp_error( $sFieldNameOrError ) ) {
-			try {
-				$this->setActionToAudit( 'learnpress-login' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				$sFieldNameOrError = new \WP_Error( 'shield-fail-login', $oE->getMessage() );
-			}
-		}
-		return $sFieldNameOrError;
 	}
 
 	/**
@@ -186,23 +154,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
-	}
-
-	/**
-	 * @param string|WP_Error $sFieldNameOrError
-	 * @return string|WP_Error
-	 */
-	public function checkReqRegistration_LearnPress( $sFieldNameOrError ) {
-		if ( !empty( $sFieldNameOrError ) || !is_wp_error( $sFieldNameOrError ) ) {
-			try {
-				$this->setActionToAudit( 'learnpress-register' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				$sFieldNameOrError = new \WP_Error( 'shield-fail-register', $oE->getMessage() );
-			}
-		}
-		return $sFieldNameOrError;
 	}
 
 	public function checkReqReg_PaidMemberSubscriptions() {
@@ -271,14 +222,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 * @return void
 	 */
 	public function printFormItems_PaidMemberSubscriptions() {
-		$this->printLoginFormItems();
-	}
-
-	/**
-	 * LearnPress
-	 * @return void
-	 */
-	public function printFormItems_LearnPress() {
 		$this->printLoginFormItems();
 	}
 
