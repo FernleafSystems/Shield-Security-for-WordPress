@@ -119,6 +119,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isProtectLogin() {
 		return $this->isProtect( 'login' );
@@ -126,6 +127,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isProtectLostPassword() {
 		return $this->isProtect( 'password' );
@@ -133,6 +135,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isProtectRegister() {
 		return $this->isProtect( 'register' );
@@ -141,6 +144,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	/**
 	 * @param string $sLocationKey - see config for keys, e.g. login, register, password, checkout_woo
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isProtect( $sLocationKey ) {
 		return in_array( $sLocationKey, $this->getBotProtectionLocations() );
@@ -248,6 +252,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return array
+	 * @deprecated 9.0
 	 */
 	public function getBotProtectionLocations() {
 		$aLocs = $this->getOpt( 'bot_protection_locations' );

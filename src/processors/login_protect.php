@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcessor {
@@ -24,6 +25,23 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 		}
 
 		if ( !$oMod->isVisitorWhitelisted() ) {
+
+//			$aProtectionProviders = [];
+//			if ( $oMod->isEnabledGaspCheck() ) {
+//				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GaspJs() )
+//					->setMod( $this->getMod() );
+//			}
+//			if ( $oMod->isGoogleRecaptchaEnabled() ) {
+//				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
+//					->setMod( $this->getMod() );
+//			}
+//			if ( !empty( $aProtectionProviders ) ) {
+//				AntiBot\FormProviders\WordPress::SetProviders( $aProtectionProviders );
+//				( new AntiBot\FormProviders\WordPress() )
+//					->setMod( $this->getMod() )
+//					->run();
+//			}
+
 			if ( $oMod->isEnabledGaspCheck() ) {
 				$this->getSubPro( 'gasp' )->execute();
 			}

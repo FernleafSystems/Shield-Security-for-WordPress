@@ -123,6 +123,36 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
+	public function isProtectLogin() {
+		return $this->isProtect( 'login' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProtectLostPassword() {
+		return $this->isProtect( 'password' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isProtectRegister() {
+		return $this->isProtect( 'register' );
+	}
+
+	/**
+	 * @param string $sLocation - see config for keys, e.g. login, register, password, checkout_woo
+	 * @return bool
+	 */
+	public function isProtect( $sLocation ) {
+		$aLocs = $this->getOpt( 'bot_protection_locations' );
+		return in_array( $sLocation, is_array( $aLocs ) ? $aLocs : $this->getOptDefault( 'bot_protection_locations' ) );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isUseLoginIntentPage() {
 		return $this->isOpt( 'use_login_intent_page', true );
 	}
