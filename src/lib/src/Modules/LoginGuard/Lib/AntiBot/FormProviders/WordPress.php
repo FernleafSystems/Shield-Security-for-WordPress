@@ -10,7 +10,7 @@ class WordPress extends BaseFormProvider {
 		add_action( 'login_form', [ $this, 'formInsertsPrint' ], 100 );
 		add_filter( 'login_form_middle', [ $this, 'formInsertsAppend' ], 100 );
 
-		add_filter( 'authenticate', [ $this, 'checkLogin' ], 10, 3 );
+		add_filter( 'authenticate', [ $this, 'checkLogin' ], 10, 2 );
 	}
 
 	protected function register() {
@@ -29,12 +29,11 @@ class WordPress extends BaseFormProvider {
 	 * it's own authentication (theirs is priority 30, so we could go in at around 20).
 	 * @param null|\WP_User|\WP_Error $oUserOrError
 	 * @param string                  $sUsername
-	 * @param string                  $sPassword
 	 * @return \WP_User|\WP_Error
 	 */
-	public function checkLogin( $oUserOrError, $sUsername, $sPassword ) {
+	public function checkLogin( $oUserOrError, $sUsername ) {
 		try {
-			if ( !is_wp_error( $oUserOrError ) && !empty( $sUsername ) && !empty( $sPassword ) ) {
+			if ( !is_wp_error( $oUserOrError ) && !empty( $sUsername ) ) {
 				$this->setUserToAudit( $sUsername )
 					 ->setActionToAudit( 'login' )
 					 ->checkProviders();
