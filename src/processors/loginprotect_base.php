@@ -67,10 +67,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 					'printRegistrationFormItems_Woo'
 				], 10 );
 				add_filter( 'woocommerce_process_registration_errors', [ $this, 'checkReqRegistration_Woo' ], 10, 2 );
-
-				// Profile Builder (https://wordpress.org/plugins/profile-builder/)
-				add_action( 'wppb_form_before_submit_button', [ $this, 'printLoginFormItems' ], 100 );
-				add_filter( 'wppb_output_field_errors_filter', [ $this, 'checkReqReg_ProfileBuilder' ], 100 );
 			}
 		}
 
@@ -140,24 +136,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 			$oWpError->add( $this->getCon()->prefix( rand() ), $oE->getMessage() );
 		}
 		return $oWpError;
-	}
-
-	/**
-	 * @param array $aErrors
-	 * @return array
-	 */
-	public function checkReqReg_ProfileBuilder( $aErrors ) {
-		if ( $this->isProfileBuilder() ) {
-			try {
-				$this->setActionToAudit( 'profilebuilder-register' )
-					 ->performCheckWithException();
-			}
-			catch ( \Exception $oE ) {
-				$aErrors[ 'shield-fail-register' ] =
-					'<span class="wppb-form-error">Bot</span>';
-			}
-		}
-		return $aErrors;
 	}
 
 	/**
@@ -261,13 +239,6 @@ abstract class ICWP_WPSF_Processor_LoginProtect_Base extends Modules\BaseShield\
 	 */
 	public function isFactorTested() {
 		return (bool)$this->bFactorTested;
-	}
-
-	/**
-	 * @return bool
-	 */
-	protected function isProfileBuilder() {
-		return defined( 'PROFILE_BUILDER_VERSION' );
 	}
 
 	/**

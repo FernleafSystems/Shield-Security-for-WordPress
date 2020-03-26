@@ -64,6 +64,9 @@ class AntibotSetup {
 			if ( @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\PaidMemberSubscriptions();
 			}
+			if ( defined( 'PROFILE_BUILDER_VERSION' ) ) {
+				$aFormProviders[] = new AntiBot\FormProviders\ProfileBuilder();
+			}
 
 			foreach ( $aFormProviders as $oForm ) {
 				$oForm->setMod( $oMod )->run();
