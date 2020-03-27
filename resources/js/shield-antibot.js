@@ -16,6 +16,14 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 					}
 				);
 
+				jQuery( 'form' ).each(
+					function ( _ ) {
+						if ( this !== null ) {
+							cleanDuplicates( this );
+						}
+					}
+				);
+
 				jQuery( 'p.shield_gasp_placeholder' ).each(
 					function ( _ ) {
 						if ( this !== null ) {
@@ -32,11 +40,24 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 			jQuery( recap_div ).insertBefore( jQuery( ':submit', form ) );
 		};
 
+		var cleanDuplicates = function ( form ) {
+			let $oPlaceholders = jQuery( 'p.shield_gasp_placeholder', form );
+			if ( $oPlaceholders.length > 1 ) {
+				$oPlaceholders.each(
+					function ( nkey ) {
+						if ( nkey > 0 && this !== null ) {
+							jQuery( this ).remove();
+						}
+					}
+				);
+			}
+		};
+
 		var insertPlaceHolder_Gasp = function ( form ) {
 			if ( jQuery( 'p.shield_gasp_placeholder', form ).length === 0 ) {
 				let the_p = document.createElement( "p" );
 				the_p.classList.add( 'shield_gasp_placeholder' );
-				the_p.innerHTML = icwp_wpsf_vars_lpantibot.strings.loading+'&hellip;';
+				the_p.innerHTML = icwp_wpsf_vars_lpantibot.strings.loading + '&hellip;';
 				jQuery( the_p ).insertBefore( jQuery( ':submit', form ) );
 			}
 		};

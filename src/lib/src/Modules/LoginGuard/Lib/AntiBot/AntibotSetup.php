@@ -52,7 +52,7 @@ class AntibotSetup {
 			if ( @class_exists( 'LearnPress' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
 			}
-			if ( defined( 'MEPR_LIB_PATH' ) || defined( 'MEPR_PLUGIN_NAME' ) ) {
+			if ( function_exists( 'mepr_autoloader' ) || @class_exists( 'MeprAccountCtrl' ) ) {
 				$aFormProviders[] = new AntiBot\FormProviders\MemberPress();
 			}
 			if ( function_exists( 'UM' ) && @class_exists( 'UM' ) && method_exists( 'UM', 'form' ) ) {
