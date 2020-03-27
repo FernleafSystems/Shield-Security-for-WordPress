@@ -11,7 +11,7 @@ class AntibotSetup {
 	use ModConsumer;
 
 	public function __construct() {
-		add_action( 'init', [ $this, 'onWpInit' ] );
+		add_action( 'init', [ $this, 'onWpInit' ], -100 );
 	}
 
 	public function onWpInit() {
