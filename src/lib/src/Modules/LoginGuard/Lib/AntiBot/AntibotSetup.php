@@ -43,14 +43,14 @@ class AntibotSetup {
 			];
 
 			if ( $this->getMod()->getIfSupport3rdParty()) {
+				if ( @class_exists( 'BuddyPress' ) ) {
+					$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
+				}
 				if ( @class_exists( 'Easy_Digital_Downloads' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\EasyDigitalDownloads();
 				}
-				if ( @class_exists( 'WooCommerce' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
-				}
 				if ( @class_exists( 'LearnPress' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
+					$aFormProviders[] = new AntiBot\FormProviders\LearnPress();
 				}
 				if ( function_exists( 'mepr_autoloader' ) || @class_exists( 'MeprAccountCtrl' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\MemberPress();
@@ -58,14 +58,14 @@ class AntibotSetup {
 				if ( function_exists( 'UM' ) && @class_exists( 'UM' ) && method_exists( 'UM', 'form' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\UltimateMember();
 				}
-				if ( @class_exists( 'LearnPress' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\LearnPress();
-				}
 				if ( @class_exists( 'Paid_Member_Subscriptions' ) && function_exists( 'pms_errors' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\PaidMemberSubscriptions();
 				}
 				if ( defined( 'PROFILE_BUILDER_VERSION' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\ProfileBuilder();
+				}
+				if ( @class_exists( 'WooCommerce' ) ) {
+					$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
 				}
 			}
 
