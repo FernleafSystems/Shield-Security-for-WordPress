@@ -49,7 +49,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 				$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
 				if ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
 
-					if ( $this->isManualAction() || $oOpts->isMalAutoRepairPlugins() ) {
+					if ( $this->isManualAction() || $oOpts->isRepairFilePlugin() ) {
 						$bSuccess = $this->repairItemInPlugin( $oItem );
 					}
 				}
@@ -57,7 +57,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 					$oTheme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
 					if ( $oTheme instanceof Services\Core\VOs\WpThemeVo && $oTheme->isWpOrg() ) {
 
-						if ( $this->isManualAction() || $oOpts->isMalAutoRepairThemes() ) {
+						if ( $this->isManualAction() || $oOpts->isRepairFileTheme() ) {
 							$bSuccess = $this->repairItemInTheme( $oItem );
 						}
 					}

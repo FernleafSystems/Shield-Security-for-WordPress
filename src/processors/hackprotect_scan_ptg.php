@@ -12,10 +12,12 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	public function run() {
 		parent::run();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( $oOpts->isPtgReinstallLinks() ) {
+		if ( $oMod->getScanCon( 'ptg' )->isEnabled() && $oOpts->isPtgReinstallLinks() ) {
 			add_filter( 'plugin_action_links', [ $this, 'addActionLinkRefresh' ], 50, 2 );
 			add_action( 'admin_footer', [ $this, 'printPluginReinstallDialogs' ] );
 		}
@@ -113,7 +115,7 @@ class ICWP_WPSF_Processor_HackProtect_Ptg extends ICWP_WPSF_Processor_ScanBase {
 	 * @param Shield\Scans\Ptg\ResultsSet $oRes
 	 */
 	protected function emailResults( $oRes ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
 		$oFO = $this->getMod();
 		$oWpPlugins = Services\Services::WpPlugins();
 		$oWpThemes = Services\Services::WpThemes();

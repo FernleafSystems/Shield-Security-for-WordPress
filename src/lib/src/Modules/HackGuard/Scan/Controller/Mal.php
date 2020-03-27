@@ -29,7 +29,7 @@ class Mal extends Base {
 	public function isCronAutoRepair() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isMalAutoRepair();
+		return $oOpts->isRepairFileAuto();
 	}
 
 	/**

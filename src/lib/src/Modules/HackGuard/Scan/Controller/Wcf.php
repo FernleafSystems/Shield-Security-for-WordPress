@@ -31,7 +31,7 @@ class Wcf extends Base {
 	public function isCronAutoRepair() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isWcfScanAutoRepair();
+		return $oOpts->isRepairFileWP();
 	}
 
 	/**
@@ -40,7 +40,7 @@ class Wcf extends Base {
 	public function isEnabled() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isWcfScanEnabled();
+		return $oOpts->isOpt( 'enable_core_file_integrity_scan', 'Y' );
 	}
 
 	/**

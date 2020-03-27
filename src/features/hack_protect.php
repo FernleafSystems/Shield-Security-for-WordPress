@@ -303,9 +303,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return bool
 	 */
 	public function isWpvulnPluginsHighlightEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isWpvulnEnabled() ) {
+		$oWpvCon = $this->getScanCon( 'wpv' );
+		if ( $oWpvCon->isEnabled() ) {
 			$sOpt = apply_filters( 'icwp_shield_wpvuln_scan_display', 'securityadmin' );
 		}
 		else {
@@ -796,11 +795,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToOption( 'enable_core_file_integrity_scan' ),
 			];
-			if ( $bCore && !$oOpts->isWcfScanAutoRepair() ) {
+			if ( $bCore && !$oOpts->isRepairFileWP() ) {
 				$aThis[ 'key_opts' ][ 'wcf_repair' ] = [
 					'name'    => __( 'WP Core File Repair', 'wp-simple-firewall' ),
-					'enabled' => $oOpts->isWcfScanAutoRepair(),
-					'summary' => $oOpts->isWcfScanAutoRepair() ?
+					'enabled' => $oOpts->isRepairFileWP(),
+					'summary' => $oOpts->isRepairFileWP() ?
 						__( 'Core files are automatically repaired', 'wp-simple-firewall' )
 						: __( "Core files aren't automatically repaired!", 'wp-simple-firewall' ),
 					'weight'  => 1,
@@ -808,7 +807,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				];
 			}
 
-			$bUcf = $oOpts->isUfcEnabled();
+			$bUcf = $this->isScanEnabled( 'ufc' );
 			$aThis[ 'key_opts' ][ 'ufc' ] = [
 				'name'    => __( 'Unrecognised Files', 'wp-simple-firewall' ),
 				'enabled' => $bUcf,
@@ -830,7 +829,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				];
 			}
 
-			$bWpv = $oOpts->isWpvulnEnabled();
+			$bWpv = $this->isScanEnabled( 'wpv' );
 			$aThis[ 'key_opts' ][ 'wpv' ] = [
 				'name'    => __( 'Vulnerability Scan', 'wp-simple-firewall' ),
 				'enabled' => $bWpv,

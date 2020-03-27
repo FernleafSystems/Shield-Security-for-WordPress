@@ -331,22 +331,6 @@ class Strings extends Base\Strings {
 				$sDescription = __( "Automatically reinstall any core files found to have potential malware.", 'wp-simple-firewall' );
 				break;
 
-			case 'mal_autorepair_plugins' :
-				$sName = __( 'Auto-Repair WP Plugins', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Repair WordPress.org Plugins', 'wp-simple-firewall' );
-				$sDescription = __( "Automatically repair any plugin files found to have potential malware.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with plugins installed from WordPress.org.', 'wp-simple-firewall' ) )
-								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the plugin.", 'wp-simple-firewall' ) );
-				break;
-
-			case 'autorepair_themes' :
-				$sName = __( 'Auto-Repair WP Themes', 'wp-simple-firewall' );
-				$sSummary = __( 'Automatically Repair WordPress.org Themes', 'wp-simple-firewall' );
-				$sDescription = __( "Automatically repair any theme files found to have potential malware.", 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with themes installed from WordPress.org.', 'wp-simple-firewall' ) )
-								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the theme.", 'wp-simple-firewall' ) );
-				break;
-
 			case 'mal_autorepair_surgical' :
 				$sName = __( 'Surgical Auto-Repair', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Attempt To Surgically Remove Malware Code', 'wp-simple-firewall' );
@@ -362,6 +346,20 @@ class Strings extends Base\Strings {
 				break;
 
 			// REMOVED:
+			case 'mal_autorepair_plugins' :
+				$sName = __( 'Auto-Repair WP Plugins', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Repair WordPress.org Plugins', 'wp-simple-firewall' );
+				$sDescription = __( "Automatically repair any plugin files found to have potential malware.", 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with plugins installed from WordPress.org.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the plugin.", 'wp-simple-firewall' ) );
+				break;
+			case 'autorepair_themes' :
+				$sName = __( 'Auto-Repair WP Themes', 'wp-simple-firewall' );
+				$sSummary = __( 'Automatically Repair WordPress.org Themes', 'wp-simple-firewall' );
+				$sDescription = __( "Automatically repair any theme files found to have potential malware.", 'wp-simple-firewall' )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Only compatible with themes installed from WordPress.org.', 'wp-simple-firewall' ) )
+								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Also deletes suspected files if they weren't originally distributed with the theme.", 'wp-simple-firewall' ) );
+				break;
 			case 'wpvuln_scan_display' :
 				$sName = __( 'Highlight Plugins', 'wp-simple-firewall' );
 				$sSummary = __( 'Highlight Vulnerable Plugins Upon Display', 'wp-simple-firewall' );

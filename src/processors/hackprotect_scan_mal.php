@@ -62,11 +62,11 @@ class ICWP_WPSF_Processor_HackProtect_Mal extends ICWP_WPSF_Processor_ScanBase {
 			sprintf( '%s: %s', __( 'Site URL', 'wp-simple-firewall' ), sprintf( '<a href="%s" target="_blank">%s</a>', $sHomeUrl, $sHomeUrl ) ),
 		];
 
-		if ( $oOpts->isMalAutoRepair() || $oMod->isIncludeFileLists() ) {
+		if ( $oOpts->isRepairFileAuto() || $oMod->isIncludeFileLists() ) {
 			$aContent = array_merge( $aContent, $this->buildListOfFilesForEmail( $oResults ) );
 			$aContent[] = '';
 
-			if ( $oOpts->isMalAutoRepair() ) {
+			if ( $oOpts->isRepairFileAuto() ) {
 				$aContent[] = '<strong>'.sprintf( __( "%s has already attempted to repair the files.", 'wp-simple-firewall' ), $sName ).'</strong>'
 							  .' '.__( 'But, you should always check these files to ensure everything is as you expect.', 'wp-simple-firewall' );
 			}

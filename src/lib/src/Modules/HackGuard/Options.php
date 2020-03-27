@@ -163,35 +163,6 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
-	public function isMalAutoRepairPlugins() {
-		return $this->isOpt( 'mal_autorepair_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairThemes() {
-		return $this->isOpt( 'autorepair_themes', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepair() {
-		return $this->isMalAutoRepairCore() || $this->isMalAutoRepairPlugins() || $this->isMalAutoRepairThemes()
-			   || $this->isMalAutoRepairSurgical();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isMalAutoRepairCore() {
-		return $this->isWcfScanAutoRepair();
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isMalAutoRepairSurgical() {
 		return $this->isOpt( 'mal_autorepair_surgical', 'Y' );
 	}
@@ -213,29 +184,36 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
-	public function isPtgEnabled() {
-		return $this->isOpt( 'ptg_enable', 'enabled' ) && $this->isOptReqsMet( 'ptg_enable' );
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isPtgReinstallLinks() {
-		return $this->isPtgEnabled() && $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->isPremium();
+		return $this->isOpt( 'ptg_reinstall_links', 'Y' ) && $this->isPremium();
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isWcfScanEnabled() {
-		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
+	public function isRepairFileAuto() {
+		return count( $this->getRepairAreas() ) > 0;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isWpvulnEnabled() {
-		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
+	public function isRepairFilePlugin() {
+		return in_array( 'plugin', $this->getRepairAreas() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRepairFileTheme() {
+		return in_array( 'theme', $this->getRepairAreas() );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRepairFileWP() {
+		return in_array( 'wp', $this->getRepairAreas() );
 	}
 
 	/**
@@ -305,17 +283,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getUfcFileExclusions() {
-		$aExclusions = $this->getOpt( 'ufc_exclusions', [] );
-		if ( !is_array( $aExclusions ) ) {
-			$aExclusions = [];
-		}
-		return $aExclusions;
-	}
-
-	/**
 	 * Provides an array where the key is the root dir, and the value is the specific file types.
 	 * An empty array means all files.
 	 * @return string[]
@@ -326,7 +293,7 @@ class Options extends Base\ShieldOptions {
 			path_join( ABSPATH, 'wp-includes' ) => []
 		];
 
-		if ( $this->isUfcScanUploads() ) {
+		if ( $this->isOpt( 'ufc_scan_uploads', 'Y' ) ) { // include uploads
 			$sUploadsDir = Services::WpGeneral()->getDirUploads();
 			if ( !empty( $sUploadsDir ) ) {
 				$aDirs[ $sUploadsDir ] = [
@@ -358,13 +325,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isUfcEnabled() {
-		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
-	}
-
-	/**
 	 * @return string
 	 */
 	public function isUfcSendReport() {
@@ -372,20 +332,6 @@ class Options extends Base\ShieldOptions {
 			'enabled_report_only',
 			'enabled_delete_report'
 		] );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isUfcScanUploads() {
-		return $this->isOpt( 'ufc_scan_uploads', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isWcfScanAutoRepair() {
-		return $this->isOpt( 'attempt_auto_file_repair', 'Y' );
 	}
 
 	/**
@@ -459,5 +405,73 @@ class Options extends Base\ShieldOptions {
 				return $nTS > Services::Request()->carbon()->subMonth()->timestamp;
 			}
 		) );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isMalAutoRepairCore() {
+		return $this->isRepairFileWP();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isWcfScanAutoRepair() {
+		return $this->isRepairFileWP();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isWpvulnEnabled() {
+		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isPtgEnabled() {
+		return $this->isOpt( 'ptg_enable', 'enabled' ) && $this->isOptReqsMet( 'ptg_enable' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isUfcEnabled() {
+		return ( $this->getUnrecognisedFileScannerOption() != 'disabled' );
+	}
+
+	/**
+	 * @return array
+	 * @deprecated 9.0
+	 */
+	public function getUfcFileExclusions() {
+		$aExclusions = $this->getOpt( 'ufc_exclusions', [] );
+		if ( !is_array( $aExclusions ) ) {
+			$aExclusions = [];
+		}
+		return $aExclusions;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isUfcScanUploads() {
+		return $this->isOpt( 'ufc_scan_uploads', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isWcfScanEnabled() {
+		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
 	}
 }

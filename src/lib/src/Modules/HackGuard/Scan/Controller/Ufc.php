@@ -38,7 +38,7 @@ class Ufc extends Base {
 	public function isEnabled() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isUfcEnabled();
+		return $oOpts->getUnrecognisedFileScannerOption() != 'disabled';
 	}
 
 	/**
