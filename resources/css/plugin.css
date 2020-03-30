@@ -332,6 +332,9 @@ label input[type=checkbox] {
 .module-icon-login_protect:before {
 	content: "\f112";
 }
+.module-icon-reporting:before {
+	content: "\f488";
+}
 .module-icon-comments_filter:before {
 	content: "\f117";
 }

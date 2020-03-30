@@ -16,8 +16,17 @@
   },
   "sections":    [
     {
-      "slug":        "section_enable_mod_reporting",
+      "slug":        "section_timings",
       "primary":     true,
+      "title":       "Report Timings",
+      "title_short": "Report Timings",
+      "summary":     [
+        "Purpose - Helps you see at a glance how effective the plugin has been.",
+        "Recommendation - Keep the Reporting feature turned on."
+      ]
+    },
+    {
+      "slug":        "section_enable_mod_reporting",
       "title":       "Enable Module: Reports",
       "title_short": "Disable Module",
       "summary":     [
@@ -41,6 +50,68 @@
       "name":        "Enable Reporting",
       "summary":     "Enable (or Disable) The Reporting module",
       "description": "Un-Checking this option will completely disable the Reporting module"
+    },
+    {
+      "key":           "frequency_alerts",
+      "section":       "section_timings",
+      "type":          "select",
+      "default":       "hourly",
+      "value_options": [
+        {
+          "value_key": "realtime",
+          "text":      "Realtime"
+        },
+        {
+          "value_key": "hourly",
+          "text":      "Hourly"
+        },
+        {
+          "value_key": "daily",
+          "text":      "Daily"
+        },
+        {
+          "value_key": "weekly",
+          "text":      "Weekly"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Alert Frequency",
+      "summary":       "How Often Should You Be Sent Important Alerts",
+      "description":   "Decide when you should be sent important and critical alerts about your site security."
+    },
+    {
+      "key":           "frequency_info",
+      "section":       "section_timings",
+      "type":          "select",
+      "default":       "daily",
+      "value_options": [
+        {
+          "value_key": "hourly",
+          "text":      "Hourly"
+        },
+        {
+          "value_key": "daily",
+          "text":      "Daily"
+        },
+        {
+          "value_key": "weekly",
+          "text":      "Weekly"
+        },
+        {
+          "value_key": "bi-weekly",
+          "text":      "Bi-Weekly"
+        },
+        {
+          "value_key": "monthly",
+          "text":      "Monthly"
+        }
+      ],
+      "link_info":     "",
+      "link_blog":     "",
+      "name":          "Info Frequency",
+      "summary":       "How Often Should You Be Sent Information Reports",
+      "description":   "Decide when you should be sent non-critical information and reports about your site security."
     }
   ],
   "definitions": {

@@ -77,20 +77,17 @@
 
 		{% elseif aOption.type is sameas('select') %}
 
-			<select name="{{ aOption.key }}"
-					{% if aOption.disabled %}disabled="disabled"{% endif %}
-					id="Opt-{{ aOption.key }}"
-					class="custom-select">
-				{% for option_value, option_value_name in aOption.value_options %}
-					<option value="{{ option_value }}"
-							{% if aOption.value == option_value %}
-								selected="selected"
-							{% endif %}
-							id="Opt-{{ aOption.key }}_{{ option_value }}">
-						{{ option_value_name }}
-					</option>
-				{% endfor %}
-			</select>
+			{% for option_value, option_value_name in aOption.value_options %}
+				<div class="custom-control custom-radio">
+					<input type="radio" id="Opt-{{ aOption.key }}_{{ option_value }}"
+						   name="{{ aOption.key }}"
+						   value="{{ option_value }}"
+						   {% if aOption.value == option_value %}checked="checked"{% endif %}
+						   class="custom-control-input">
+					<label class="custom-control-label" for="Opt-{{ aOption.key }}_{{ option_value }}"
+					>{{ option_value_name }}</label>
+				</div>
+			{% endfor %}
 
 		{% elseif aOption.type is sameas('multiple_select') %}
 
