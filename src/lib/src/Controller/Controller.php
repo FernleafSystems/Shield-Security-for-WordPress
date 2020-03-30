@@ -9,17 +9,17 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class Controller
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
- * @property bool                                    $is_activating
- * @property bool                                    $modules_loaded
- * @property bool                                    $rebuild_options
- * @property bool                                    $plugin_deleting
- * @property bool                                    $plugin_reset
- * @property string                                  $file_forceoff
- * @property string                                  $base_file
- * @property string                                  $root_file
- * @property bool                                    $user_can_base_permissions
- * @property Shield\Modules\Events\Lib\EventsService $service_events
- * @property \ICWP_WPSF_FeatureHandler_Base[]        $modules
+ * @property bool                                     $is_activating
+ * @property bool                                     $modules_loaded
+ * @property bool                                     $rebuild_options
+ * @property bool                                     $plugin_deleting
+ * @property bool                                     $plugin_reset
+ * @property string                                   $file_forceoff
+ * @property string                                   $base_file
+ * @property string                                   $root_file
+ * @property bool                                     $user_can_base_permissions
+ * @property Shield\Modules\Events\Lib\EventsService  $service_events
+ * @property mixed[]|\ICWP_WPSF_FeatureHandler_Base[] $modules
  */
 class Controller extends Shield\Deprecated\Foundation {
 
@@ -159,6 +159,8 @@ class Controller extends Shield\Deprecated\Foundation {
 		$this->sRootFile = $sRootFile;
 		$this->root_file = $sRootFile;
 		$this->base_file = $this->getRootFile();
+		$this->modules = [];
+
 		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
@@ -1393,7 +1395,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->loadCorePluginFeatureHandler()->getUrl_AdminPage();
+		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
 
 	/**
@@ -1797,34 +1799,29 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return \ICWP_WPSF_FeatureHandler_Plugin
 	 * @throws \Exception from loadFeatureHandler()
 	 */
-	public function &loadCorePluginFeatureHandler() {
-		$sSlug = 'plugin';
-		$oMod = $this->getModule( $sSlug );
-		if ( is_null( $oMod ) ) {
-			$oMod = $this->loadFeatureHandler(
+	public function loadCorePluginFeatureHandler() {
+		if ( !isset( $this->modules[ 'plugin' ] )
+			 || !$this->modules[ 'plugin' ] instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			$this->loadFeatureHandler(
 				[
-					'slug'          => $sSlug,
-					'storage_key'   => $sSlug,
+					'slug'          => 'plugin',
+					'storage_key'   => 'plugin',
 					'load_priority' => 10
 				]
 			);
 		}
-		return $oMod;
+		return $this->modules[ 'plugin' ];
 	}
 
 	/**
-	 * @param bool $bRecreate
-	 * @param bool $bFullBuild
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public function loadAllFeatures( $bRecreate = false, $bFullBuild = false ) {
-
-		$oCoreModule = $this->loadCorePluginFeatureHandler();
-
+	public function loadAllFeatures() {
 		$bSuccess = true;
-		foreach ( $oCoreModule->getActivePluginFeatures() as $sSlug => $aFeatureProperties ) {
+		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $sSlug ) {
 			try {
-				$this->loadFeatureHandler( $aFeatureProperties, $bRecreate, $bFullBuild );
+				$this->getModule( $sSlug );
 				$bSuccess = true;
 			}
 			catch ( \Exception $oE ) {
@@ -1847,15 +1844,18 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return \ICWP_WPSF_FeatureHandler_Base|null|mixed
 	 */
 	public function getModule( $sSlug ) {
-		if ( !is_array( $this->aModules ) ) {
-			$this->aModules = [];
-			$this->modules = [];
+		$oMod = isset( $this->modules[ $sSlug ] ) ? $this->modules[ $sSlug ] : null;
+		if ( !$oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			try {
+				$aMods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
+				if ( isset( $aMods[ $sSlug ] ) ) {
+					$oMod = $this->loadFeatureHandler( $aMods[ $sSlug ] );
+				}
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
-		$oModule = isset( $this->modules[ $sSlug ] ) ? $this->modules[ $sSlug ] : null;
-		if ( !is_null( $oModule ) && !( $oModule instanceof \ICWP_WPSF_FeatureHandler_Base ) ) {
-			$oModule = null;
-		}
-		return $oModule;
+		return $oMod;
 	}
 
 	/**
@@ -1952,18 +1952,14 @@ class Controller extends Shield\Deprecated\Foundation {
 
 	/**
 	 * @param array $aModProps
-	 * @param bool  $bRecreate
-	 * @param bool  $bFullBuild
-	 * @return mixed
+	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed
 	 * @throws \Exception
 	 */
-	public function loadFeatureHandler( $aModProps, $bRecreate = false, $bFullBuild = false ) {
-
+	public function loadFeatureHandler( $aModProps ) {
 		$sModSlug = $aModProps[ 'slug' ];
-
-		$oHandler = $this->getModule( $sModSlug );
-		if ( !empty( $oHandler ) ) {
-			return $oHandler;
+		$oMod = isset( $this->modules[ $sModSlug ] ) ? $this->modules[ $sModSlug ] : null;
+		if ( $oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			return $oMod;
 		}
 
 		if ( !empty( $aModProps[ 'min_php' ] )
@@ -1979,12 +1975,7 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
 		if ( class_exists( $sClassName ) ) {
-			if ( !isset( $this->{$sOptionsVarName} ) || $bRecreate ) {
-				$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
-			}
-			if ( $bFullBuild ) {
-				$this->{$sOptionsVarName}->buildOptions();
-			}
+			$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
 		}
 		else {
 			$sMessage = sprintf( 'Class "%s" is missing', $sClassName );
@@ -1994,7 +1985,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		$aMs = $this->modules;
 		$aMs[ $sModSlug ] = $this->{$sOptionsVarName};
 		$this->modules = $aMs;
-		return $this->{$sOptionsVarName};
+		return $this->modules[ $sModSlug ];
 	}
 
 	/**

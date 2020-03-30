@@ -509,7 +509,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function getEmailHandler() {
 		if ( is_null( self::$oEmailHandler ) ) {
-			self::$oEmailHandler = $this->getCon()->loadFeatureHandler( [ 'slug' => 'email' ] );
+			self::$oEmailHandler = $this->getCon()->getModule( 'email' );
 		}
 		return self::$oEmailHandler;
 	}
