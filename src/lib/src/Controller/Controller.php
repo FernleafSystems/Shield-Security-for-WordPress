@@ -1951,6 +1951,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_Reporting
+	 */
+	public function getModule_Reporting() {
+		return $this->getModule( 'reporting' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_AdminAccessRestriction
 	 */
 	public function getModule_SecAdmin() {

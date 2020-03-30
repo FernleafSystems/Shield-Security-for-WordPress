@@ -518,6 +518,11 @@
         "load_priority": 11
       },
       {
+        "slug":          "reporting",
+        "storage_key":   "reporting",
+        "load_priority": 12
+      },
+      {
         "slug":          "sessions",
         "storage_key":   "sessions",
         "load_priority": 5
