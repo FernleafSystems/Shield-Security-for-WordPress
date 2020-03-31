@@ -146,6 +146,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( $oOpts->getOpt( 'enable_unrecognised_file_cleaner_scan' ) == 'enabled_delete_report' ) {
 				$oOpts->setOpt( 'enable_unrecognised_file_cleaner_scan', 'enabled_delete_only' );
 			}
+			$sApcOpt = $oOpts->getOpt( 'enabled_scan_apc' );
+			if ( strlen( $sApcOpt ) > 1 ) {
+				$oOpts->setOpt( 'enabled_scan_apc', $sApcOpt == 'disabled' ? 'N' : 'Y' );
+			}
 		}
 	}
 

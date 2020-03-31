@@ -19,9 +19,7 @@ class Apc extends BaseForAssets {
 	 * @return bool
 	 */
 	public function isEnabled() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isApcEnabled();
+		return $this->getOptions()->isOpt( 'enabled_scan_apc', 'Y' );
 	}
 
 	/**

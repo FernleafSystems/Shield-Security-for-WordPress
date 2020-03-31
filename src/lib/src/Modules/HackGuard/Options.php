@@ -58,13 +58,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isApcEnabled() {
-		return !$this->isOpt( 'enabled_scan_apc', 'disabled' );
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getRepairAreas() {
@@ -460,5 +453,13 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isWcfScanEnabled() {
 		return $this->isOpt( 'enable_core_file_integrity_scan', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isApcEnabled() {
+		return $this->isOpt( 'enabled_scan_apc', 'Y' );
 	}
 }
