@@ -408,7 +408,7 @@ class Options extends Base\ShieldOptions {
 	 * @deprecated 9.0
 	 */
 	public function isWpvulnEnabled() {
-		return $this->isPremium() && !$this->isOpt( 'enable_wpvuln_scan', 'disabled' );
+		return $this->isPremium() && $this->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
 
 	/**

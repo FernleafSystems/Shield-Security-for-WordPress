@@ -99,22 +99,8 @@
       "key":           "enable_wpvuln_scan",
       "section":       "section_scan_wpv",
       "premium":       true,
-      "default":       "enabled_email",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Automatic Scan Disabled"
-        },
-        {
-          "value_key": "enabled_email",
-          "text":      "Scan Enabled - Send Email Notification"
-        },
-        {
-          "value_key": "enabled_no_email",
-          "text":      "Scan Enabled - No Email Notification"
-        }
-      ],
+      "type":          "checkbox",
+      "default":       "Y",
       "link_info":     "https://shsec.io/du",
       "link_blog":     "https://shsec.io/ah",
       "name":          "Vulnerability Scanner",

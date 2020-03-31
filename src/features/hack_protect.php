@@ -150,6 +150,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			if ( strlen( $sApcOpt ) > 1 ) {
 				$oOpts->setOpt( 'enabled_scan_apc', $sApcOpt == 'disabled' ? 'N' : 'Y' );
 			}
+			$sWpvOpt = $oOpts->getOpt( 'enable_wpvuln_scan' );
+			if ( strlen( $sWpvOpt ) > 1 ) {
+				$oOpts->setOpt( 'enable_wpvuln_scan', $sWpvOpt == 'disabled' ? 'N' : 'Y' );
+			}
 		}
 	}
 
