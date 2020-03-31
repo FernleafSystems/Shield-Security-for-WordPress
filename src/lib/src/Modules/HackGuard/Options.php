@@ -327,16 +327,6 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return string
 	 */
-	public function isUfcSendReport() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), [
-			'enabled_report_only',
-			'enabled_delete_report'
-		] );
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getWcfFileExclusions() {
 		$sPattern = null;
 
