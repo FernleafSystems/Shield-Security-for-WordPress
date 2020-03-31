@@ -29,7 +29,7 @@ class Ufc extends Base {
 	public function isCronAutoRepair() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isUfcDeleteFiles();
+		return $oOpts->isUfsDeleteFiles();
 	}
 
 	/**

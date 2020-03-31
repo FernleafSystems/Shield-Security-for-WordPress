@@ -305,15 +305,11 @@
         },
         {
           "value_key": "enabled_report_only",
-          "text":      "Scan Enabled - Send Email Notification"
+          "text":      "Scan Enabled - Report Only"
         },
         {
           "value_key": "enabled_delete_only",
           "text":      "Scan Enabled - Automatically Delete Files"
-        },
-        {
-          "value_key": "enabled_delete_report",
-          "text":      "Scan Enabled - Delete Files and Send Email Notification"
         }
       ],
       "link_info":     "https://shsec.io/9y",

@@ -141,6 +141,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			}
 		}
 		$this->setOpt( 'file_repair_areas', $aRepairAreas );
+
+		{ // migrate old scan options
+			if ( $oOpts->getOpt( 'enable_unrecognised_file_cleaner_scan' ) == 'enabled_delete_report' ) {
+				$oOpts->setOpt( 'enable_unrecognised_file_cleaner_scan', 'enabled_delete_only' );
+			}
+		}
 	}
 
 	/**
@@ -810,11 +816,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				'weight'  => 2,
 				'href'    => $this->getUrl_DirectLinkToSection( 'section_scan_ufc' ),
 			];
-			if ( $bUcf && !$oOpts->isUfcDeleteFiles() ) {
+			if ( $bUcf && !$oOpts->isUfsDeleteFiles() ) {
 				$aThis[ 'key_opts' ][ 'ufc_repair' ] = [
 					'name'    => __( 'Unrecognised Files Removal', 'wp-simple-firewall' ),
-					'enabled' => $oOpts->isUfcDeleteFiles(),
-					'summary' => $oOpts->isUfcDeleteFiles() ?
+					'enabled' => $oOpts->isUfsDeleteFiles(),
+					'summary' => $oOpts->isUfsDeleteFiles() ?
 						__( 'Unrecognised files are automatically removed', 'wp-simple-firewall' )
 						: __( "Unrecognised files aren't automatically removed!", 'wp-simple-firewall' ),
 					'weight'  => 1,

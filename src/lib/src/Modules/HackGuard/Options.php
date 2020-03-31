@@ -315,13 +315,10 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string
+	 * @return bool
 	 */
-	public function isUfcDeleteFiles() {
-		return in_array( $this->getUnrecognisedFileScannerOption(), [
-			'enabled_delete_only',
-			'enabled_delete_report'
-		] );
+	public function isUfsDeleteFiles() {
+		return $this->getUnrecognisedFileScannerOption() === 'enabled_delete_only';
 	}
 
 	/**
