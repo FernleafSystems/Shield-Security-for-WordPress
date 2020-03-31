@@ -1,0 +1,7 @@
+<h3>{{ strings.title }}</h3>
+{% for scan_slug,scan_data in vars.scan_counts %}
+	<ul>
+		<li>{{ scan_data.name }}: {{ scan_data.count }}</li>
+	</ul>
+{% endfor %}
+<p><a href="{{ hrefs.view_results }}" target="_blank">{{ strings.view_results }} &nearr;</a></p>

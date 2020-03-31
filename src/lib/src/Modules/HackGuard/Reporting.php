@@ -10,34 +10,70 @@ class Reporting extends BaseReporting {
 	/**
 	 * @inheritDoc
 	 */
-	public function buildAlerts( $nFromTs = null, $nUntilTs = null ) {
+	public function buildAlerts() {
 		$aAlerts = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_ScanResults();
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var Strings $oStrings */
+		$oStrings = $oMod->getStrings();
+		$aScanNames = $oStrings->getScanNames();
 
-		/** @var Scanner\Select $oSel */
-		$oSel = $oDbH->getQuerySelector();
-		foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
-			$oScanCon = $oMod->getScanCon( $sScanSlug );
-			$oSel->filterByScan( $sScanSlug )
-				 ->filterByNotNotified()
-				 ->filterByNotIgnored();
-			if ( is_int( $nFromTs ) && $nFromTs >= 0 ) {
-				$oSel->filterByCreatedAt( $nFromTs, '>' );
+		$aCounts = array_filter( $this->countForEachScan() );
+		if ( !empty( $aCounts ) ) {
+			foreach ( $aCounts as $sScan => $nCount ) {
+				$aCounts[ $sScan ] = [
+					'count' => $nCount,
+					'name'  => $aScanNames[ $sScan ],
+				];
 			}
-			if ( is_int( $nUntilTs ) && $nUntilTs >= 0 ) {
-				$oSel->filterByCreatedAt( $nUntilTs, '<' );
-			}
-			$nCount = $oSel->count();
-			if ( $nCount > 0 ) {
-				$aAlerts[] = $sScanSlug.': '.$nCount;
-			}
+			$aAlerts[] = $oMod->renderTemplate(
+				'/components/reports/mod/hack_protect/scan_results.twig',
+				[
+					'vars'    => [
+						'scan_counts' => $aCounts
+					],
+					'strings' => [
+						'title'        => __( 'New Scan Results To Report', 'wp-simple-firewall' ),
+						'view_results' => __( 'Click Here To View Scan Results Details', 'wp-simple-firewall' ),
+					],
+					'hrefs'   => [
+						'view_results' => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+					],
+				]
+			);
 		}
 
 		return $aAlerts;
+	}
+
+	/**
+	 * @return int[] - key is scan slug
+	 */
+	private function countForEachScan() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		/** @var Scanner\Select $oSel */
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
+
+		$aCounts = [];
+
+		$nFromTs = $this->getFromTS();
+		$nUntilTs = $this->getUntilTS();
+
+		foreach ( $oOpts->getScanSlugs() as $sScanSlug ) {
+			$oSel->filterByScan( $sScanSlug )
+				 ->filterByNotNotified()
+				 ->filterByNotIgnored();
+			if ( !is_null( $nFromTs ) ) {
+				$oSel->filterByCreatedAt( $nFromTs, '>' );
+			}
+			if ( !is_null( $nUntilTs ) ) {
+				$oSel->filterByCreatedAt( $nUntilTs, '<' );
+			}
+			$aCounts[ $sScanSlug ] = $oSel->count();
+		}
+		return $aCounts;
 	}
 }
