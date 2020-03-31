@@ -12,8 +12,27 @@ class ReportingController extends Base\OneTimeExecute {
 	}
 
 	public function runHourlyCron() {
-		$a=( new BuildAlerts() )
-			->setMod($this->getMod())
-			->build();
+		$this->buildAndSendAlert();
+	}
+
+	private function buildAndSendAlert() {
+		try {
+			$sAlertsBody = ( new BuildAlerts() )
+				->setMod( $this->getMod() )
+				->build();
+			$this->sendAlertsEmail( $sAlertsBody );
+		}
+		catch ( \Exception $oE ) {
+		}
+	}
+
+	private function sendAlertsEmail( $sAlertsBody ) {
+		$this->getMod()
+			 ->getEmailProcessor()
+			 ->send(
+				 $this->getMod()->getPluginDefaultRecipientAddress(),
+				 'Shield Alert',
+				 $sAlertsBody
+			 );
 	}
 }

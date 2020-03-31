@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\BaseReporting;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Reporting extends BaseReporting {
 
@@ -13,9 +14,8 @@ class Reporting extends BaseReporting {
 	public function buildAlerts() {
 		$aAlerts = [];
 
-		$oMod = $this->getMod();
 		/** @var Strings $oStrings */
-		$oStrings = $oMod->getStrings();
+		$oStrings = $this->getMod()->getStrings();
 		$aScanNames = $oStrings->getScanNames();
 
 		$aCounts = array_filter( $this->countForEachScan() );
@@ -26,7 +26,7 @@ class Reporting extends BaseReporting {
 					'name'  => $aScanNames[ $sScan ],
 				];
 			}
-			$aAlerts[] = $oMod->renderTemplate(
+			$aAlerts[] = $this->getMod()->renderTemplate(
 				'/components/reports/mod/hack_protect/scan_results.twig',
 				[
 					'vars'    => [
@@ -43,7 +43,28 @@ class Reporting extends BaseReporting {
 			);
 		}
 
+		$this->markAlertsAsNotified();
+
 		return $aAlerts;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function markAlertsAsNotified() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var Scanner\Update $oUpdater */
+		$oUpdater = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
+		return $oUpdater
+				   ->setUpdateWheres( [
+					   'ignored_at'  => 0,
+					   'notified_at' => 0,
+				   ] )
+				   ->setUpdateData( [
+					   'notified_at' => Services::Request()->ts()
+				   ] )
+				   ->query() !== false;
 	}
 
 	/**
