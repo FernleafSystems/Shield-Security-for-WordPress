@@ -54,6 +54,7 @@
     {
       "key":           "frequency_alerts",
       "section":       "section_timings",
+      "premium":       true,
       "type":          "select",
       "default":       "hourly",
       "value_options": [
@@ -83,6 +84,7 @@
     {
       "key":           "frequency_info",
       "section":       "section_timings",
+      "premium":       true,
       "type":          "select",
       "default":       "daily",
       "value_options": [
