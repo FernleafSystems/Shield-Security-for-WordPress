@@ -33,7 +33,7 @@ class Reporting extends BaseReporting {
 						'scan_counts' => $aCounts
 					],
 					'strings' => [
-						'title'        => __( 'New Scan Results To Report', 'wp-simple-firewall' ),
+						'title'        => __( 'New Scan Results', 'wp-simple-firewall' ),
 						'view_results' => __( 'Click Here To View Scan Results Details', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
