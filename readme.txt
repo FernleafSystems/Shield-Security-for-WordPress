@@ -349,7 +349,7 @@ Use the following filter and return the HTML/Text you wish to display:
 
 Use the following filter and return the role in the function:
 
-`add_filter( 'icwp_wpsf-login-notification-email-role', 'your_function_to_return_role' );`
+`add_filter( 'icwp-wpsf-login-notification-email-role', 'your_function_to_return_role' );`
 
 Possible options are: network_admin, administrator, editor, author, contributor, subscriber
 

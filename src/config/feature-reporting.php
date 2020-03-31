@@ -115,13 +115,17 @@
     }
   ],
   "definitions": {
-    "db_classes":             {
+    "db_classes":            {
+      "reports": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\Reports\\Handler"
     },
-    "events_table_name":                 "report",
-    "events_table_columns":              [
+    "reports_table_name":    "reports",
+    "reports_table_columns": [
       "id",
-      "event",
-      "count",
+      "rid",
+      "type",
+      "from_ts",
+      "until_ts",
+      "updated_at",
       "created_at",
       "deleted_at"
     ]
