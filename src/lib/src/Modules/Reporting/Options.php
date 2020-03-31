@@ -19,4 +19,18 @@ class Options extends Base\ShieldOptions {
 	public function getDbTable_Reports() {
 		return $this->getCon()->prefixOption( $this->getDef( 'reports_table_name' ) );
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getFrequencyAlerts() {
+		return $this->getOpt( 'frequency_alerts' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFrequencyInfo() {
+		return $this->getOpt( 'frequency_info' );
+	}
 }

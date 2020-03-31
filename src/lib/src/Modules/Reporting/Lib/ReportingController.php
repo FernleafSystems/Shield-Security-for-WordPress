@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BuildAlerts;
 
 class ReportingController extends Base\OneTimeExecute {
 
@@ -12,6 +13,4 @@ class ReportingController extends Base\OneTimeExecute {
 
 	public function runHourlyCron() {
 	}
-
-
 }

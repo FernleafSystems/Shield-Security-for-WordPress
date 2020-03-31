@@ -38,6 +38,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	private $oWizard;
 
 	/**
+	 * @var Shield\Modules\Base\BaseReporting
+	 */
+	private $oReporting;
+
+	/**
 	 * @var Shield\Modules\Base\Strings
 	 */
 	private $oStrings;
@@ -1914,6 +1919,19 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			$this->oStrings = $this->loadStrings()->setMod( $this );
 		}
 		return $this->oStrings;
+	}
+
+	/**
+	 * @return Shield\Modules\Base\BaseReporting|mixed|false
+	 */
+	public function getReportingHandler() {
+		if ( !isset( $this->oReporting ) ) {
+			$this->oReporting = $this->loadClass( 'Reporting' );
+			if ( $this->oReporting instanceof Shield\Modules\Base\BaseReporting ) {
+				$this->oReporting->setMod( $this );
+			}
+		}
+		return $this->oReporting;
 	}
 
 	/**
