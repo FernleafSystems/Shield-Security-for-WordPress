@@ -9,8 +9,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 
 	use Shield\Crons\StandardCron;
 
-	/**
-	 */
 	public function run() {
 		$this->getSubPro( 'apc' )->execute();
 		$this->getSubPro( 'ufc' )->execute();

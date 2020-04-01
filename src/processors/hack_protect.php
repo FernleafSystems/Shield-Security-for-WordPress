@@ -253,8 +253,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$oMod = $this->getMod();
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oFS = Services::WpFs();
-		$oFLCon = $oMod->getFileLocker();
 
 		$oLockLoader = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $oMod );
 		$aProblemLocks = $oLockLoader->withProblems();

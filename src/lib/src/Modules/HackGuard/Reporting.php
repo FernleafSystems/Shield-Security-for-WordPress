@@ -20,4 +20,18 @@ class Reporting extends BaseReporting {
 				->buildAlerts()
 		);
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function buildInfo() {
+		return array_merge(
+			( new Reports\ScanAlerts() )
+				->setMod( $this->getMod() )
+				->buildAlerts(),
+			( new Reports\FileLockerAlerts() )
+				->setMod( $this->getMod() )
+				->buildAlerts()
+		);
+	}
 }

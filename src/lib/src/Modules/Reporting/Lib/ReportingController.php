@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BuildAlerts;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
 class ReportingController extends Base\OneTimeExecute {
 
@@ -12,27 +12,42 @@ class ReportingController extends Base\OneTimeExecute {
 	}
 
 	public function runHourlyCron() {
-		$this->buildAndSendAlert();
+		$this->buildAndSendEmail();
 	}
 
-	private function buildAndSendAlert() {
+	private function buildAndSendEmail() {
+		$sBody = '';
 		try {
-			$sAlertsBody = ( new BuildAlerts() )
+			$sBody .= ( new Reports\BuildAlerts() )
 				->setMod( $this->getMod() )
 				->build();
-			$this->sendAlertsEmail( $sAlertsBody );
 		}
 		catch ( \Exception $oE ) {
 		}
+
+		try {
+			$sBody .= ( new Reports\BuildInfo() )
+				->setMod( $this->getMod() )
+				->build();
+		}
+		catch ( \Exception $oE ) {
+		}
+
+		$this->sendEmail( $sBody );
 	}
 
-	private function sendAlertsEmail( $sAlertsBody ) {
-		$this->getMod()
-			 ->getEmailProcessor()
-			 ->send(
-				 $this->getMod()->getPluginDefaultRecipientAddress(),
-				 'Shield Alert',
-				 $sAlertsBody
-			 );
+	/**
+	 * @param string $sBody
+	 */
+	private function sendEmail( $sBody ) {
+		if ( !empty( $sBody ) ) {
+			$this->getMod()
+				 ->getEmailProcessor()
+				 ->send(
+					 $this->getMod()->getPluginDefaultRecipientAddress(),
+					 'Shield Alert',
+					 $sBody
+				 );
+		}
 	}
 }

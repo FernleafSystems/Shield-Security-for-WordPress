@@ -21,7 +21,16 @@ abstract class BaseReporting {
 	/**
 	 * @return array
 	 */
-	abstract public function buildAlerts();
+	public function buildAlerts() {
+		return [];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function buildInfo() {
+		return [];
+	}
 
 	/**
 	 * @return int|null

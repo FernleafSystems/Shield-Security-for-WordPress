@@ -89,7 +89,7 @@ class FileLockerController {
 	}
 
 	/**
-	 * @param $nID
+	 * @param int $nID
 	 * @return FileLocker\EntryVO|null
 	 */
 	public function getFileLock( $nID ) {
