@@ -42,30 +42,27 @@ class ScanAlerts extends BaseReporting {
 					],
 				]
 			);
-		}
 
-		$this->markAlertsAsNotified();
+			$this->markAlertsAsNotified();
+		}
 
 		return $aAlerts;
 	}
 
-	/**
-	 * @return bool
-	 */
 	private function markAlertsAsNotified() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		/** @var Scanner\Update $oUpdater */
 		$oUpdater = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
-		return $oUpdater
-				   ->setUpdateWheres( [
-					   'ignored_at'  => 0,
-					   'notified_at' => 0,
-				   ] )
-				   ->setUpdateData( [
-					   'notified_at' => Services::Request()->ts()
-				   ] )
-				   ->query() !== false;
+		$oUpdater
+			->setUpdateWheres( [
+				'ignored_at'  => 0,
+				'notified_at' => 0,
+			] )
+			->setUpdateData( [
+				'notified_at' => Services::Request()->ts()
+			] )
+			->query();
 	}
 
 	/**
