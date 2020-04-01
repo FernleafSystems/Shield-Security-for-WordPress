@@ -28,7 +28,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function getLicenseHandler() {
 		if ( !isset( $this->oLicHandler ) ) {
-			$this->oLicHandler = ( new Shield\Modules\License\Lib\LicenseHandler() )->setMod( $this );
+			$this->oLicHandler = ( new License\Lib\LicenseHandler() )->setMod( $this );
 		}
 		return $this->oLicHandler;
 	}
@@ -38,7 +38,7 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	public function getWpHashesTokenManager() {
 		if ( !isset( $this->oWpHashesTokenManager ) ) {
-			$this->oWpHashesTokenManager = ( new Shield\Modules\License\Lib\WpHashes\ApiTokenManager() )->setMod( $this );
+			$this->oWpHashesTokenManager = ( new License\Lib\WpHashes\ApiTokenManager() )->setMod( $this );
 		}
 		return $this->oWpHashesTokenManager;
 	}
