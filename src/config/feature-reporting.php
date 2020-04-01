@@ -101,7 +101,7 @@
           "text":      "Weekly"
         },
         {
-          "value_key": "bi-weekly",
+          "value_key": "biweekly",
           "text":      "Bi-Weekly"
         },
         {

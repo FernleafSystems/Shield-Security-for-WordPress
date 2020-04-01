@@ -9,6 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 class ReportingController extends Base\OneTimeExecute {
 
 	protected function run() {
+		if ( isset( $_GET[ 'test123' ] ) ) {
+			$this->buildAndSendReport();
+		}
 		add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 	}
 
@@ -73,5 +76,11 @@ class ReportingController extends Base\OneTimeExecute {
 					 $sBody
 				 );
 		}
+	}
+
+	public function purge() {
+		/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
+		$oMod = $this->getMod();
+		$oMod->getDbHandler_Reports()->deleteTable();
 	}
 }
