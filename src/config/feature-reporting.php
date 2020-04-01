@@ -125,9 +125,7 @@
       "id",
       "rid",
       "type",
-      "from_ts",
-      "until_ts",
-      "updated_at",
+      "sent_at",
       "created_at",
       "deleted_at"
     ]

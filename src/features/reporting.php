@@ -13,7 +13,7 @@ class ICWP_WPSF_FeatureHandler_Reporting extends ICWP_WPSF_FeatureHandler_BaseWp
 	/**
 	 * @return Shield\Databases\Reports\Handler
 	 */
-	public function getDbHandler_Sessions() {
+	public function getDbHandler_Reports() {
 		return $this->getDbH( 'reports' );
 	}
 

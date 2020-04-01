@@ -28,10 +28,10 @@ class Reporting extends BaseReporting {
 		return array_merge(
 			( new Reports\ScanAlerts() )
 				->setMod( $this->getMod() )
-				->buildAlerts(),
+				->buildInfo(),
 			( new Reports\FileLockerAlerts() )
 				->setMod( $this->getMod() )
-				->buildAlerts()
+				->buildInfo()
 		);
 	}
 }

@@ -9,10 +9,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class Select extends Base\Select {
 
 	/**
-	 * @return string[]
+	 * @return int
 	 */
-	public function getDistinctIps() {
-		return IpListSort::Sort( $this->getDistinctForColumn( 'ip' ) );
+	public function getLastReportId() {
+		return $this->setColumnsToSelect( [ 'rid' ] )
+					->setOrderBy( 'rid', 'DESC' )
+					->setLimit( 1 )
+					->queryVar();
 	}
 
 	/**
