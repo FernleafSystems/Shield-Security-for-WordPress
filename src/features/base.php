@@ -1165,8 +1165,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	protected function doPrePluginOptionsSave() {
 	}
 
-	/**
-	 */
 	public function onPluginDeactivate() {
 	}
 

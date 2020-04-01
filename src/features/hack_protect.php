@@ -933,6 +933,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			   && parent::isReadyToExecute();
 	}
 
+	public function onPluginDeactivate() {
+		// 1. Clean out the scanners
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
+			$this->getScanCon( $sSlug )->purge();
+		}
+		// 2. Clean out the file locker
+		$this->getFileLocker()->purge();
+	}
+
 	/**
 	 * @return string
 	 */

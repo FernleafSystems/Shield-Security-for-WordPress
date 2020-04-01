@@ -82,6 +82,12 @@ class FileLockerController {
 		$oMod->getDbHandler_FileLocker()->deleteTable( true );
 	}
 
+	public function purge() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oMod->getDbHandler_FileLocker()->deleteTable();
+	}
+
 	/**
 	 * @param $nID
 	 * @return FileLocker\EntryVO|null

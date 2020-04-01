@@ -25,18 +25,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
-	 */
-	public function deactivatePlugin() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
-			$oMod->getScanCon( $sSlug )->purge();
-		}
-	}
-
-	/**
 	 * @return ICWP_WPSF_Processor_HackProtect_Ptg
 	 */
 	public function getSubProcessorPtg() {
