@@ -53,6 +53,15 @@
       ]
     },
     {
+      "slug":        "section_realtime",
+      "title":       "Realtime Change Detection",
+      "title_short": "Realtime Change Detection",
+      "summary":     [
+        "Purpose - Monitor Your WordPress Site For Changes To Critical Components In Realtime.",
+        "Recommendation - Keep The Realtime Change Detection Active."
+      ]
+    },
+    {
       "slug":        "section_scan_ufc",
       "title":       "Unrecognised Files Scanner",
       "title_short": "Unrecognised Files Scanner",
@@ -144,7 +153,7 @@
     },
     {
       "key":           "file_locker",
-      "section":       "section_file_guard",
+      "section":       "section_realtime",
       "type":          "multiple_select",
       "default":       [],
       "value_options": [
@@ -165,7 +174,7 @@
       "link_blog":     "https://shsec.io/wpsf37",
       "name":          "File Locker",
       "summary":       "Lock Files Against Tampering and Changes",
-      "description":   "As soon as changes are detected to any selected files, the contents be immediately reverted."
+      "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
     },
     {
       "key":           "file_repair_areas",

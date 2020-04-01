@@ -247,10 +247,10 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'file_locker' :
-				$sName = __( 'Realtime File Locker', 'wp-simple-firewall' );
+				$sName = __( 'File Locker', 'wp-simple-firewall' );
 				$sSummary = __( 'Lock Files Against Tampering And Changes', 'wp-simple-firewall' );
 				$sDescription = [
-					__( 'As soon as changes are detected to any selected files, the contents be immediately reverted.', 'wp-simple-firewall' ),
+					__( 'As soon as changes are detected to any selected files, the contents may be examined and reverted.', 'wp-simple-firewall' ),
 				];
 				$aLocks = ( new LoadFileLocks() )
 					->setMod( $this->getMod() )

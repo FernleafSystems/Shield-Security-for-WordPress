@@ -20,11 +20,11 @@ class DecryptFile extends BaseShieldSecurityApi {
 		$sContent = null;
 
 		$this->request_method = 'post';
-		$this->params_body = array_merge( $this->getBaseParams(), [
+		$this->params_body = [
 			'key_id'      => $nPublicKeyId,
 			'sealed_data' => $oOpenSslVO->sealed_data,
 			'sealed_pass' => $oOpenSslVO->sealed_password,
-		] );
+		];
 
 		$aRaw = $this->sendReq();
 		if ( is_array( $aRaw ) && !empty( $aRaw[ 'data' ] ) ) {

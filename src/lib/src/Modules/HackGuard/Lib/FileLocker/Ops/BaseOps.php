@@ -51,7 +51,9 @@ class BaseOps {
 	 * @throws \ErrorException
 	 */
 	protected function getPublicKey() {
-		$aPublicKey = ( new GetPublicKey() )->retrieve();
+		$aPublicKey = ( new GetPublicKey() )
+			->setMod( $this->getMod() )
+			->retrieve();
 		if ( empty( $aPublicKey ) ) {
 			throw new \ErrorException( 'Cannot encrypt without a public key' );
 		}

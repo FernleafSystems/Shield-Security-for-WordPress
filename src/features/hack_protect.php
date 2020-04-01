@@ -419,18 +419,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_realtime':
-				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
-					$aWarnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
-				}
-				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
-					$aWarnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
-				}
-				else {
-					$sPath = $this->getRtMapFileKeyToFilePath( 'wpconfig' );
-					if ( !$this->getRtCanWriteFile( $sPath ) ) {
-						$aWarnings[] = sprintf( __( "The %s file isn't writable and so can't be further protected.", 'wp-simple-firewall' ), 'wp-config.php' );
-					}
-				}
+//				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
+//					$aWarnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
+//				}
+//				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
+//					$aWarnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
+//				}
+//				else {
+//					$sPath = $this->getRtMapFileKeyToFilePath( 'wpconfig' );
+//					if ( !$this->getRtCanWriteFile( $sPath ) ) {
+//						$aWarnings[] = sprintf( __( "The %s file isn't writable and so can't be further protected.", 'wp-simple-firewall' ), 'wp-config.php' );
+//					}
+//				}
 				break;
 		}
 

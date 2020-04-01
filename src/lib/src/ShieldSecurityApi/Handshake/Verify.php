@@ -12,7 +12,6 @@ class Verify extends Common\BaseShieldSecurityApi {
 	 * @return bool
 	 */
 	public function run() {
-		$this->params_query = $this->getBaseParams();
 		$aRaw = $this->sendReq();
 		return is_array( $aRaw ) && !empty( $aRaw[ 'data' ][ 'success' ] );
 	}
