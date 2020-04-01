@@ -50,7 +50,7 @@ class BaseBuild {
 	 */
 	protected function isReadyToSend() {
 		$oLast = $this->getLastReport();
-		return empty( $oLast ) || $this->getBoundaryTs() > $oLast->sent_at;
+		return !Services::WpGeneral()->isCron() || empty( $oLast ) || $this->getBoundaryTs() > $oLast->sent_at;
 	}
 
 	/**
