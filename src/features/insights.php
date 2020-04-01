@@ -80,8 +80,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$oTourManager->setCompleted( 'insights_overview' );
 		}
 
-		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
-		$oProPlugin = $oModPlugin->getProcessor();
 		$oEvtsMod = $oCon->getModule_Events();
 
 		$bIsPro = $this->isPremium();

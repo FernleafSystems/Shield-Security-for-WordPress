@@ -35,17 +35,63 @@ class BuildInfo extends BaseBuild {
 	 * @return string[]
 	 */
 	protected function gatherInfo() {
-		$aAlerts = [];
-		foreach ( $this->getCon()->modules as $oMod ) {
-			$oRepCon = $oMod->getReportingHandler();
-			if ( $oRepCon instanceof BaseReporting ) {
-				$aAlerts = array_merge(
-					$aAlerts,
-					$oRepCon->buildInfo()
-				);
+		$aData = [];
+		try {
+			foreach ( $this->getCon()->modules as $oMod ) {
+				$oRepCon = $oMod->getReportingHandler();
+				if ( $oRepCon instanceof BaseReporting ) {
+					$aData = array_merge( $aData, $oRepCon->buildInfo() );
+				}
 			}
 		}
-		return $aAlerts;
+		catch ( \Exception $oE ) {
+		}
+		return $aData;
+	}
+
+	/**
+	 * @return int[] - key0: start TS; key1: end TS
+	 * @throws \Exception
+	 * @TODO: Delete?
+	 */
+	private function getStartAndEndTS() {
+		/** @var Reporting\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		$oBoundary = Services::Request()->carbon();
+		switch ( $oOpts->getFrequencyAlerts() ) {
+			case 'hourly':
+				$nStartTS = $oBoundary->subHours( 1 )
+									  ->startOfHour()->timestamp;
+				$nEndTS = $oBoundary->endOfHour()->timestamp;
+				break;
+			case 'daily':
+				$nStartTS = $oBoundary->subDays( 1 )
+									  ->startOfDay()->timestamp;
+				$nEndTS = $oBoundary->endOfDay()->timestamp;
+				break;
+			case 'weekly':
+				$nStartTS = $oBoundary->subWeeks( 1 )
+									  ->startOfWeek()->timestamp;
+				$nEndTS = $oBoundary->endOfWeek()->timestamp;
+				break;
+			case 'biweekly':
+				$nStartTS = $oBoundary->subWeeks( 2 )
+									  ->startOfWeek()->timestamp;
+				$nEndTS = $oBoundary->addWeeks( 1 )
+									->endOfWeek()->timestamp;
+				$oBoundary->subWeeks( 2 );
+				break;
+			case 'monthly':
+				$nStartTS = $oBoundary->subMonths( 1 )
+									  ->startOfMonth()->timestamp;
+				$nEndTS = $oBoundary->endOfMonth()->timestamp;
+				break;
+			default:
+				throw new \Exception( 'Not a supported frequency' );
+				break;
+		}
+		return [ $nStartTS, $nEndTS ];
 	}
 
 	/**
