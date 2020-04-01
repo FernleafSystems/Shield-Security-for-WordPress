@@ -29,7 +29,9 @@ class FileLockerAlerts extends BaseReporting {
 						'count' => $oMod->getFileLocker()->countProblems()
 					],
 					'strings' => [
-						'title'        => __( 'File Locker Issues', 'wp-simple-firewall' ),
+						'title'        => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
+						'file_changed' => __( 'Changes have been detected in the contents of critical files.', 'wp-simple-firewall' ),
+						'total_files'  => sprintf( '%s: %s', __( 'Total Changed Files', 'wp-simple-firewall' ), count( $aNotNotified ) ),
 						'view_results' => __( 'Click Here To View File Locker Results', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [

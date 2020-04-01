@@ -1,9 +1,8 @@
 <h3>{{ strings.title }}</h3>
-{% for scan_slug,scan_data in vars.scan_counts %}
-	<ul>
-		<li>{{ scan_data.name }}: {{ scan_data.count }}</li>
-	</ul>
-{% endfor %}
+<p>
+	<span>{{ strings.file_changed }}</span>
+	<br/><span>{{ strings.total_files }}</span>
+</p>
 
 <p><a href="{{ hrefs.view_results }}"
 	  style="border:1px solid #008000;padding:16px;line-height:19px;margin:8px 4px 10px;display:inline-block;text-align:center;font-size:18px;color: #008000;border-radius:3px;"

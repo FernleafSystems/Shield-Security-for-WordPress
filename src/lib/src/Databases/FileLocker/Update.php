@@ -23,7 +23,8 @@ class Update extends Base\Update {
 	 */
 	public function markProblem( EntryVO $oEntry ) {
 		return $this->updateEntry( $oEntry, [
-			'detected_at' => Services::Request()->ts()
+			'detected_at' => Services::Request()->ts(),
+			'notified_at' => 0
 		] );
 	}
 
@@ -46,6 +47,7 @@ class Update extends Base\Update {
 		return $this->updateEntry( $oEntry, [
 			'hash_current' => $sHash,
 			'detected_at'  => empty( $sHash ) ? 0 : Services::Request()->ts(),
+			'notified_at'  => 0,
 			'updated_at'   => Services::Request()->ts(),
 		] );
 	}

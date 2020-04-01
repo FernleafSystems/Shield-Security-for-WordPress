@@ -98,7 +98,7 @@ class FileLockerController {
 		$oOpts = $this->getOptions();
 
 		// 1. First assess the existing locks for changes.
-		$aProblemIds = ( new Ops\AssessLocks() )
+		( new Ops\AssessLocks() )
 			->setMod( $this->getMod() )
 			->run();
 
@@ -112,58 +112,6 @@ class FileLockerController {
 			}
 			catch ( \Exception $oE ) {
 				error_log( $oE->getMessage() );
-			}
-		}
-
-		$this->runProblemNotifications( $aProblemIds );
-	}
-
-	/**
-	 * @param int[] $aProblemIds
-	 */
-	protected function runProblemNotifications( $aProblemIds ) {
-		if ( !empty( $aProblemIds ) ) {
-			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-			$oMod = $this->getMod();
-			/** @var FileLocker\Handler $oDbH */
-			$oDbH = $oMod->getDbHandler_FileLocker();
-
-			$aToNotify = [];
-			foreach ( $aProblemIds as $nKey => $nID ) {
-				$oLock = $this->getFileLock( $nID );
-				if ( Services::Request()->carbon()->subWeek()->timestamp > $oLock->notified_at ) {
-					$aToNotify[] = $oLock;
-				}
-			}
-			if ( !empty( $aToNotify ) ) {
-				$aEmailContent = [
-					__( 'Shield has detected that the contents of important files on your WordPress site have changed.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
-					'',
-					__( 'The following files have either been changed or deleted.', 'wp-simple-firewall' ),
-				];
-				foreach ( $aToNotify as $oLock ) {
-					$aEmailContent[] = '- '.$oLock->file;
-					/** @var FileLocker\Update $oUpd */
-					$oUpd = $oDbH->getQueryUpdater();
-					$oUpd->markNotified( $oLock );
-				}
-				$aEmailContent[] = '';
-				$aEmailContent[] = __( 'Use the link below to review the File Locker results.', 'wp-simple-firewall' );
-				$aEmailContent[] = $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' );
-				$aEmailContent[] = '';
-				$aEmailContent[] = __( 'Thank You.', 'wp-simple-firewall' );
-
-				$sTitle = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ),
-					sprintf( __( '%s File Locker Has Detected Critical File Changes', 'wp-simple-firewall' ),
-						$this->getCon()->getHumanName() ) );
-				$this->getMod()
-					 ->getEmailProcessor()
-					 ->sendEmailWithWrap(
-						 $oMod->getPluginDefaultRecipientAddress(),
-						 $sTitle,
-						 $aEmailContent
-					 );
 			}
 		}
 	}

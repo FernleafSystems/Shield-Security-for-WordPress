@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 
 class AssessLocks extends BaseOps {
