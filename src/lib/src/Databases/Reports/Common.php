@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports;
 trait Common {
 
 	/**
-	 * @param string $sInterval
+	 * @param string $sFrequency
 	 * @return $this
 	 */
-	public function filterByInterval( $sInterval ) {
-		return $this->addWhere( 'interval', $sInterval );
+	public function filterByFrequency( $sFrequency ) {
+		return $this->addWhere( 'frequency', $sFrequency );
 	}
 
 	/**

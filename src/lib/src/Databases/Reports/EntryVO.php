@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
  * Class EntryVO
  * @property int    $rid
  * @property string $type
- * @property string $interval
+ * @property string $frequency
  * @property int    $interval_end_at
  * @property int    $sent_at
  */

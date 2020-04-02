@@ -17,7 +17,7 @@ class ReportingController extends Base\OneTimeExecute {
 		try {
 			$this->buildAndSendReport();
 		}
-		catch ( \Exception $e ) {
+		catch ( \Exception $oE ) {
 		}
 	}
 
@@ -49,14 +49,14 @@ class ReportingController extends Base\OneTimeExecute {
 			if ( !empty( $oAlertReport->content ) ) {
 				$oReport->rid = $oAlertReport->rid;
 				$oReport->type = $oAlertReport->type;
-				$oReport->interval = $oAlertReport->interval;
+				$oReport->frequency = $oAlertReport->interval;
 				$oReport->interval_end_at = $oAlertReport->interval_end_at;
 				$oDbH->getQueryInserter()->insert( $oReport );
 			}
 			if ( !empty( $oInfoReport->content ) ) {
 				$oReport->rid = $oInfoReport->rid;
 				$oReport->type = $oInfoReport->type;
-				$oReport->interval = $oInfoReport->interval;
+				$oReport->frequency = $oInfoReport->interval;
 				$oReport->interval_end_at = $oInfoReport->interval_end_at;
 				$oDbH->getQueryInserter()->insert( $oReport );
 			}
@@ -69,13 +69,13 @@ class ReportingController extends Base\OneTimeExecute {
 	 * @param array $aBody
 	 */
 	private function sendEmail( array $aBody ) {
-		if ( !empty( $sBody ) ) {
+		if ( !empty( $aBody ) ) {
 			$this->getMod()
 				 ->getEmailProcessor()
-				 ->send(
+				 ->sendEmailWithWrap(
 					 $this->getMod()->getPluginDefaultRecipientAddress(),
 					 'Shield Alert',
-					 implode( "\n", array_filter( $aBody ) )
+					 array_filter( $aBody )
 				 );
 		}
 	}

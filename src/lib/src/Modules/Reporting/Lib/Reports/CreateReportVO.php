@@ -70,7 +70,7 @@ class CreateReportVO {
 		$oSel = $oMod->getDbHandler_Reports()->getQuerySelector();
 		/** @var Reports\EntryVO $oLast */
 		$this->rep->previous = $oSel->filterByType( $this->rep->type )
-									->filterByInterval( $this->rep->interval )
+									->filterByFrequency( $this->rep->interval )
 									->setOrderBy( 'sent_at', 'DESC' )
 									->first();
 		return $this;
@@ -97,28 +97,28 @@ class CreateReportVO {
 				break;
 			case 'hourly':
 				$oC->addHours( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfHour();
-				$this->rep->interval_end_at = $oC->endOfHour();
+				$this->rep->interval_start_at = $oC->startOfHour()->timestamp;
+				$this->rep->interval_end_at = $oC->endOfHour()->timestamp;
 				break;
 			case 'daily':
 				$oC->addDays( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfDay();
-				$this->rep->interval_end_at = $oC->endOfDay();
+				$this->rep->interval_start_at = $oC->startOfDay()->timestamp;
+				$this->rep->interval_end_at = $oC->endOfDay()->timestamp;
 				break;
 			case 'weekly':
 				$oC->addWeeks( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfWeek();
-				$this->rep->interval_end_at = $oC->endOfWeek();
+				$this->rep->interval_start_at = $oC->startOfWeek()->timestamp;
+				$this->rep->interval_end_at = $oC->endOfWeek()->timestamp;
 				break;
 			case 'monthly':
 				$oC->addMonths( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfMonth();
-				$this->rep->interval_end_at = $oC->endOfMonth();
+				$this->rep->interval_start_at = $oC->startOfMonth()->timestamp;
+				$this->rep->interval_end_at = $oC->endOfMonth()->timestamp;
 				break;
 			case 'yearly':
 				$oC->addYears( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfYear();
-				$this->rep->interval_end_at = $oC->endOfYear();
+				$this->rep->interval_start_at = $oC->startOfYear()->timestamp;
+				$this->rep->interval_end_at = $oC->endOfYear()->timestamp;
 				break;
 			default:
 				throw new \Exception( 'Not a supported frequency' );

@@ -125,7 +125,7 @@
       "id",
       "rid",
       "type",
-      "interval",
+      "frequency",
       "interval_end_at",
       "sent_at",
       "created_at",

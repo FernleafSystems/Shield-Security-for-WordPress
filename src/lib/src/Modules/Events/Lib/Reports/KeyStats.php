@@ -60,8 +60,8 @@ class KeyStats extends BaseReporting {
 						'subtitle'    => __( 'The following are statistics for important events that have occurred on your site.', 'wp-simple-firewall' ),
 						'dates_below' => __( 'The information provided is for the dates below.', 'wp-simple-firewall' ),
 						'dates'       => sprintf( '%s - %s',
-							$oWP->getTimeStringForDisplay( $oRep->interval_start_at ),
-							$oWP->getTimeStringForDisplay( $oRep->interval_end_at )
+							$oWP->getTimeStampForDisplay( $oRep->interval_start_at ),
+							$oWP->getTimeStampForDisplay( $oRep->interval_end_at )
 						),
 					],
 					'hrefs'   => [

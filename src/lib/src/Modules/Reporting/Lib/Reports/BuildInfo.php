@@ -41,8 +41,8 @@ class BuildInfo extends BaseBuild {
 					'subtitle'    => __( 'The following is a collection of the latest information since your previous report.', 'wp-simple-firewall' ),
 					'dates_below' => __( 'The information provided is for the dates below.', 'wp-simple-firewall' ),
 					'dates'       => sprintf( '%s - %s',
-						$oWP->getTimeStringForDisplay( $this->rep->interval_start_at ),
-						$oWP->getTimeStringForDisplay( $this->rep->interval_end_at )
+						$oWP->getTimeStampForDisplay( $this->rep->interval_start_at ),
+						$oWP->getTimeStampForDisplay( $this->rep->interval_end_at )
 					),
 				],
 			]
