@@ -25,9 +25,7 @@ class LoadFileLocks {
 		if ( is_null( self::$aFileLockRecords ) ) {
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 			$oMod = $this->getMod();
-			/** @var FileLocker\Handler $oDbH */
-			$oDbH = $oMod->getDbHandler_FileLocker();
-			$aAll = $oDbH->getQuerySelector()->all();
+			$aAll = $oMod->getDbHandler_FileLocker()->getQuerySelector()->all();
 
 			self::$aFileLockRecords = [];
 			if ( is_array( $aAll ) ) {

@@ -38,11 +38,8 @@ class CreateFileLocks extends BaseOps {
 	private function processPath( $sPath ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var FileLocker\Handler $oDbH */
-		$oDbH = $oMod->getDbHandler_FileLocker();
-		$oFS = Services::WpFs();
 
-		if ( $oFS->isFile( $sPath ) ) {
+		if ( Services::WpFs()->isFile( $sPath ) ) {
 			$oEntry = new FileLocker\EntryVO();
 			$oEntry->file = $sPath;
 			$oEntry->hash_original = hash_file( 'sha1', $sPath );
@@ -54,7 +51,7 @@ class CreateFileLocks extends BaseOps {
 				->build( $sPath, reset( $aPublicKey ) );
 
 			/** @var FileLocker\Insert $oInserter */
-			$oInserter = $oDbH->getQueryInserter();
+			$oInserter = $oMod->getDbHandler_FileLocker()->getQueryInserter();
 			$oInserter->insert( $oEntry );
 
 			$this->clearFileLocksCache();

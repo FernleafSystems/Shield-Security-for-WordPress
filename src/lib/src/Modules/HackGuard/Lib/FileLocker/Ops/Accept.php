@@ -19,8 +19,6 @@ class Accept extends BaseOps {
 	public function run( $oLock ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var FileLocker\Handler $oDbH */
-		$oDbH = $oMod->getDbHandler_FileLocker();
 
 		$aPublicKey = $this->getPublicKey();
 		$sRawContent = ( new BuildEncryptedFilePayload() )
@@ -28,7 +26,7 @@ class Accept extends BaseOps {
 			->build( $oLock->file, reset( $aPublicKey ) );
 
 		/** @var FileLocker\Update $oUpdater */
-		$oUpdater = $oDbH->getQueryUpdater();
+		$oUpdater = $oMod->getDbHandler_FileLocker()->getQueryUpdater();
 		$bSuccess = $oUpdater->updateEntry( $oLock, [
 			'hash_original' => hash_file( 'sha1', $oLock->file ),
 			'content'       => base64_encode( $sRawContent ),

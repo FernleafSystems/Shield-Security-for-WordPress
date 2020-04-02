@@ -11,19 +11,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 class DeleteFileLock extends BaseOps {
 
 	/**
-	 * @param FileLocker\EntryVO $oLockRecord
+	 * @param FileLocker\EntryVO $oLock
 	 * @return bool
 	 */
-	public function delete( $oLockRecord = null ) {
+	public function delete( $oLock = null ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var FileLocker\Handler $oDbH */
-		$oDbH = $oMod->getDbHandler_FileLocker();
-		if ( empty( $oLockRecord ) ) {
-			$oLockRecord = $this->findLockRecordForFile();
+		if ( empty( $oLock ) ) {
+			$oLock = $this->findLockRecordForFile();
 		}
-		$bSuccess = $oLockRecord instanceof FileLocker\EntryVO
-					&& $oDbH->getQueryDeleter()->deleteEntry( $oLockRecord );
+		$bSuccess = $oLock instanceof FileLocker\EntryVO
+					&& $oMod->getDbHandler_FileLocker()
+							->getQueryDeleter()
+							->deleteEntry( $oLock );
 		if ( $bSuccess ) {
 			$this->clearFileLocksCache();
 		}

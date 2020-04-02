@@ -25,10 +25,8 @@ class Restore extends BaseOps {
 		if ( $bReverted ) {
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 			$oMod = $this->getMod();
-			/** @var Databases\FileLocker\Handler $oDbH */
-			$oDbH = $oMod->getDbHandler_FileLocker();
 			/** @var Databases\FileLocker\Update $oUpd */
-			$oUpd = $oDbH->getQueryUpdater();
+			$oUpd = $oMod->getDbHandler_FileLocker()->getQueryUpdater();
 			$oUpd->markReverted( $oRecord );
 			$this->clearFileLocksCache();
 		}

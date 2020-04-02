@@ -20,8 +20,6 @@ class PerformAction extends BaseOps {
 	public function run( $nLockID, $sAction ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var Databases\FileLocker\Handler $oDbH */
-		$oDbH = $oMod->getDbHandler_FileLocker();
 
 		if ( !in_array( $sAction, [ 'accept', 'restore', 'diff' ] ) ) {
 			throw new \Exception( __( 'Not a supported file lock action.', 'wp-simple-firewall' ) );
@@ -29,7 +27,9 @@ class PerformAction extends BaseOps {
 		if ( !is_numeric( $nLockID ) ) {
 			throw new \Exception( __( 'Please select a valid file.', 'wp-simple-firewall' ) );
 		}
-		$oLock = $oDbH->getQuerySelector()->byId( (int)$nLockID );
+		$oLock = $oMod->getDbHandler_FileLocker()
+					  ->getQuerySelector()
+					  ->byId( (int)$nLockID );
 		if ( !$oLock instanceof Databases\FileLocker\EntryVO ) {
 			throw new \Exception( __( 'Not valid file lock ID.', 'wp-simple-firewall' ) );
 		}

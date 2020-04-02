@@ -13,12 +13,10 @@ class AssessLocks extends BaseOps {
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var FileLocker\Handler $oDbH */
-		$oDbH = $oMod->getDbHandler_FileLocker();
 		/** @var FileLocker\Update $oUpd */
-		$oUpd = $oDbH->getQueryUpdater();
+		$oUpd = $oMod->getDbHandler_FileLocker()->getQueryUpdater();
 
-		$this->checkForDuplicates();
+		$this->removeDuplicates();
 
 		$aProblemIds = [];
 		foreach ( $this->getFileLocks() as $oLock ) {
@@ -45,10 +43,10 @@ class AssessLocks extends BaseOps {
 		return $aProblemIds;
 	}
 
-	private function checkForDuplicates() {
-		$aPath = [];
+	private function removeDuplicates() {
+		$aPaths = [];
 		foreach ( $this->getFileLocks() as $oLock ) {
-			if ( in_array( $oLock->file, $aPath ) ) {
+			if ( in_array( $oLock->file, $aPaths ) ) {
 				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 				$oMod = $this->getMod();
 				$oMod->getDbHandler_FileLocker()
@@ -56,10 +54,10 @@ class AssessLocks extends BaseOps {
 					 ->deleteById( $oLock->id );
 			}
 			else {
-				$aPath[] = $oLock->file;
+				$aPaths[] = $oLock->file;
 			}
 		}
-		if ( count( $this->getFileLocks() ) != count( $aPath ) ) {
+		if ( count( $this->getFileLocks() ) != count( $aPaths ) ) {
 			$this->clearFileLocksCache();
 		}
 	}
