@@ -14,18 +14,15 @@ use FernleafSystems\Wordpress\Services\Utilities\Encrypt\OpenSslEncryptVo;
 class ReadOriginalFileContent extends BaseOps {
 
 	/**
-	 * @param Databases\FileLocker\EntryVO $oRecord
+	 * @param Databases\FileLocker\EntryVO $oLock
 	 * @return string
 	 */
-	public function run( $oRecord ) {
+	public function run( $oLock ) {
 		try {
-			$sContent = $this->useOriginalFile( $oRecord );
+			$sContent = $this->useOriginalFile( $oLock );
 		}
 		catch ( \Exception $oE ) {
-			$oVO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $oRecord->content, true ) );
-			$sContent = ( new DecryptFile() )
-				->setMod( $this->getMod() )
-				->retrieve( $oVO, $oRecord->public_key_id );
+			$sContent = $this->useCacheAndApi( $oLock );
 		}
 		return $sContent;
 	}
@@ -42,5 +39,22 @@ class ReadOriginalFileContent extends BaseOps {
 			return $oFS->getFileContent( $oLock->file );
 		}
 		throw new \Exception( 'Cannot use original file' );
+	}
+
+	/**
+	 * @param Databases\FileLocker\EntryVO $oLock
+	 * @return string|null
+	 */
+	private function useCacheAndApi( Databases\FileLocker\EntryVO $oLock ) {
+		$sCacheKey = 'file-content-'.$oLock->id;
+		$sContent = wp_cache_get( $sCacheKey, $this->getCon()->prefix( 'filelocker' ) );
+		if ( $sContent === false ) {
+			$oVO = ( new OpenSslEncryptVo() )->applyFromArray( json_decode( $oLock->content, true ) );
+			$sContent = ( new DecryptFile() )
+				->setMod( $this->getMod() )
+				->retrieve( $oVO, $oLock->public_key_id );
+			wp_cache_set( $sCacheKey, $sContent, $this->getCon()->prefix( 'filelocker' ), 3 );
+		}
+		return $sContent;
 	}
 }

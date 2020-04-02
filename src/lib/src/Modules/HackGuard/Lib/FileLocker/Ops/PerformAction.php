@@ -71,6 +71,7 @@ class PerformAction extends BaseOps {
 		if ( empty( $sContent ) ) {
 			throw new \Exception( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
 		}
+
 		return wp_text_diff(
 			( new ReadOriginalFileContent() )
 				->setMod( $this->getMod() )

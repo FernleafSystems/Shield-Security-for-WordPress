@@ -50,7 +50,6 @@ class FileLockerController {
 
 	public function handleFileDownloadRequest() {
 		$oReq = Services::Request();
-		$oFS = Services::WpFs();
 		$oLock = $this->getFileLock( (int)$oReq->query( 'rid', 0 ) );
 
 		if ( $oLock instanceof FileLocker\EntryVO ) {
