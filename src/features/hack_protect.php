@@ -901,6 +901,13 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return Shield\Databases\FileLocker\Handler
+	 */
+	public function getDbHandler_FileLocker() {
+		return $this->getDbH( 'file_protect' );
+	}
+
+	/**
 	 * @return false|Shield\Databases\ScanQueue\Handler
 	 */
 	public function getDbHandler_ScanQueue() {
@@ -912,13 +919,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getDbHandler_ScanResults() {
 		return $this->getDbH( 'scanresults' );
-	}
-
-	/**
-	 * @return false|Shield\Databases\Scanner\Handler
-	 */
-	public function getDbHandler_FileLocker() {
-		return $this->getDbH( 'file_protect' );
 	}
 
 	/**

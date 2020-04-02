@@ -18,6 +18,8 @@ class AssessLocks extends BaseOps {
 		/** @var FileLocker\Update $oUpd */
 		$oUpd = $oDbH->getQueryUpdater();
 
+		$this->checkForDuplicates();
+
 		$aProblemIds = [];
 		foreach ( $this->getFileLocks() as $oLock ) {
 			try {
@@ -41,5 +43,24 @@ class AssessLocks extends BaseOps {
 		}
 		$this->clearFileLocksCache();
 		return $aProblemIds;
+	}
+
+	private function checkForDuplicates() {
+		$aPath = [];
+		foreach ( $this->getFileLocks() as $oLock ) {
+			if ( in_array( $oLock->file, $aPath ) ) {
+				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+				$oMod = $this->getMod();
+				$oMod->getDbHandler_FileLocker()
+					 ->getQueryDeleter()
+					 ->deleteById( $oLock->id );
+			}
+			else {
+				$aPath[] = $oLock->file;
+			}
+		}
+		if ( count( $this->getFileLocks() ) != count( $aPath ) ) {
+			$this->clearFileLocksCache();
+		}
 	}
 }
