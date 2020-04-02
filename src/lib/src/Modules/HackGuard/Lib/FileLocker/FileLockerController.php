@@ -57,7 +57,7 @@ class FileLockerController {
 			$sType = str_replace( 'filelocker_download_', '', $oReq->query( 'exec' ) );
 
 			// Note: Download what's on the disk if nothing is changed.
-			if ( $oFS->isFile( $oLock->file ) && ( $sType == 'current' || $oLock->detected_at == 0 ) ) {
+			if ( $sType == 'current' ) {
 				$sContent = Services::WpFs()->getFileContent( $oLock->file );
 			}
 			elseif ( $sType == 'original' ) {
