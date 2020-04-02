@@ -51,7 +51,7 @@ class File {
 				break;
 			}
 			$aPossible[] = path_join( $sDir, $this->file );
-			$sDir = realpath( dirname( $this->dir, $nLimiter ) );
+			$sDir = realpath( dirname( $sDir ) );
 			$nLimiter++;
 		} while ( $nLimiter <= $this->getMaxDirLevels() );
 
