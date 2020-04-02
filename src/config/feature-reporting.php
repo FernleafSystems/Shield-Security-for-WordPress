@@ -125,6 +125,8 @@
       "id",
       "rid",
       "type",
+      "interval",
+      "interval_end_at",
       "sent_at",
       "created_at",
       "deleted_at"
