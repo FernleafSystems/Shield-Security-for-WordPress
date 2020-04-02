@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO;
 
 abstract class BaseReporting {
 
@@ -26,9 +27,10 @@ abstract class BaseReporting {
 	}
 
 	/**
+	 * @param ReportVO $oRep
 	 * @return array
 	 */
-	public function buildInfo() {
+	public function buildInfo( ReportVO $oRep ) {
 		return [];
 	}
 

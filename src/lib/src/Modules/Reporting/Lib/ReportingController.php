@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ReportingController extends Base\OneTimeExecute {
 
@@ -13,71 +14,69 @@ class ReportingController extends Base\OneTimeExecute {
 	}
 
 	public function runHourlyCron() {
-		$this->buildAndSendReport();
-	}
-
-	private function buildAndSendReport() {
-		$sBody = '';
 		try {
-			$sBody .= ( new Reports\BuildAlerts() )
-				->setMod( $this->getMod() )
-				->build();
-			$bReportAlert = true;
+			$this->buildAndSendReport();
 		}
-		catch ( \Exception $oE ) {
-			$bReportAlert = false;
-		}
-
-		try {
-			$sBody .= ( new Reports\BuildInfo() )
-				->setMod( $this->getMod() )
-				->build();
-			$bReportInfo = true;
-		}
-		catch ( \Exception $oE ) {
-			$bReportInfo = false;
-		}
-
-		if ( $bReportInfo || $bReportAlert ) {
-			/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
-			$oMod = $this->getMod();
-			$oDbH = $oMod->getDbHandler_Reports();
-			/** @var Databases\Reports\Select $oSel */
-			$oSel = $oDbH->getQuerySelector();
-
-			$nPrevReportId = $oSel->getLastReportId();
-			$nNextReportId = is_numeric( $nPrevReportId ) ? $nPrevReportId + 1 : 1;
-
-			/** @var Databases\Reports\Insert $oInserter */
-			$oInserter = $oDbH->getQueryInserter();
-			if ( $bReportAlert ) {
-				$oInserter->create( $nNextReportId, $oDbH::TYPE_ALERT );
-			}
-			if ( $bReportInfo ) {
-				$oInserter->create( $nNextReportId, $oDbH::TYPE_INFO );
-			}
-			$this->sendEmail( $sBody );
+		catch ( \Exception $e ) {
 		}
 	}
 
 	/**
-	 * @param string $sBody
+	 * @throws \Exception
 	 */
-	private function sendEmail( $sBody ) {
+	private function buildAndSendReport() {
+		/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
+		$oMod = $this->getMod();
+		$oDbH = $oMod->getDbHandler_Reports();
+
+		$oAlertReport = ( new Reports\CreateReportVO( $oDbH::TYPE_ALERT ) )
+			->setMod( $oMod )
+			->create();
+		$oInfoReport = ( new Reports\CreateReportVO( $oDbH::TYPE_INFO ) )
+			->setMod( $oMod )
+			->create();
+
+		( new Reports\BuildAlerts( $oAlertReport ) )
+			->setMod( $oMod )
+			->build();
+		( new Reports\BuildInfo( $oInfoReport ) )
+			->setMod( $oMod )
+			->build();
+
+		if ( !empty( $oInfoReport->content ) || !empty( $oAlertReport->content ) ) {
+			$oReport = new DBReports\EntryVO();
+			$oReport->sent_at = Services::Request()->ts();
+			if ( !empty( $oAlertReport->content ) ) {
+				$oReport->rid = $oAlertReport->rid;
+				$oReport->type = $oAlertReport->type;
+				$oReport->interval = $oAlertReport->interval;
+				$oReport->interval_end_at = $oAlertReport->interval_end_at;
+				$oDbH->getQueryInserter()->insert( $oReport );
+			}
+			if ( !empty( $oInfoReport->content ) ) {
+				$oReport->rid = $oInfoReport->rid;
+				$oReport->type = $oInfoReport->type;
+				$oReport->interval = $oInfoReport->interval;
+				$oReport->interval_end_at = $oInfoReport->interval_end_at;
+				$oDbH->getQueryInserter()->insert( $oReport );
+			}
+
+			$this->sendEmail( [ $oAlertReport->content, $oInfoReport->content ] );
+		}
+	}
+
+	/**
+	 * @param array $aBody
+	 */
+	private function sendEmail( array $aBody ) {
 		if ( !empty( $sBody ) ) {
 			$this->getMod()
 				 ->getEmailProcessor()
 				 ->send(
 					 $this->getMod()->getPluginDefaultRecipientAddress(),
 					 'Shield Alert',
-					 $sBody
+					 implode( "\n", array_filter( $aBody ) )
 				 );
 		}
-	}
-
-	public function purge() {
-		/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
-		$oMod = $this->getMod();
-		$oMod->getDbHandler_Reports()->deleteTable();
 	}
 }
