@@ -29,38 +29,56 @@ class ReportingController extends Base\OneTimeExecute {
 		$oMod = $this->getMod();
 		$oDbH = $oMod->getDbHandler_Reports();
 
-		$oAlertReport = ( new Reports\CreateReportVO( $oDbH::TYPE_ALERT ) )
-			->setMod( $oMod )
-			->create();
-		$oInfoReport = ( new Reports\CreateReportVO( $oDbH::TYPE_INFO ) )
-			->setMod( $oMod )
-			->create();
+		$oReportRecord = new DBReports\EntryVO();
+		$oReportRecord->sent_at = Services::Request()->ts();
 
-		( new Reports\BuildAlerts( $oAlertReport ) )
-			->setMod( $oMod )
-			->build();
-		( new Reports\BuildInfo( $oInfoReport ) )
-			->setMod( $oMod )
-			->build();
-
-		$oReport = new DBReports\EntryVO();
-		$oReport->sent_at = Services::Request()->ts();
+		$oAlertReport = $this->buildReportAlerts();
 		if ( !empty( $oAlertReport->content ) ) {
-			$oReport->rid = $oAlertReport->rid;
-			$oReport->type = $oAlertReport->type;
-			$oReport->frequency = $oAlertReport->interval;
-			$oReport->interval_end_at = $oAlertReport->interval_end_at;
-			$oDbH->getQueryInserter()->insert( $oReport );
+			$oReportRecord->rid = $oAlertReport->rid;
+			$oReportRecord->type = $oAlertReport->type;
+			$oReportRecord->frequency = $oAlertReport->interval;
+			$oReportRecord->interval_end_at = $oAlertReport->interval_end_at;
+			$oDbH->getQueryInserter()->insert( $oReportRecord );
 		}
+
+		$oInfoReport = $this->buildReportInfo();
 		if ( !empty( $oInfoReport->content ) ) {
-			$oReport->rid = $oInfoReport->rid;
-			$oReport->type = $oInfoReport->type;
-			$oReport->frequency = $oInfoReport->interval;
-			$oReport->interval_end_at = $oInfoReport->interval_end_at;
-			$oDbH->getQueryInserter()->insert( $oReport );
+			$oReportRecord->rid = $oInfoReport->rid;
+			$oReportRecord->type = $oInfoReport->type;
+			$oReportRecord->frequency = $oInfoReport->interval;
+			$oReportRecord->interval_end_at = $oInfoReport->interval_end_at;
+			$oDbH->getQueryInserter()->insert( $oReportRecord );
 		}
 
 		$this->sendEmail( [ $oAlertReport->content, $oInfoReport->content ] );
+	}
+
+	/**
+	 * @return Reports\ReportVO
+	 * @throws \Exception
+	 */
+	private function buildReportAlerts() {
+		$oReport = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_ALERT ) )
+			->setMod( $this->getMod() )
+			->create();
+		( new Reports\BuildAlerts( $oReport ) )
+			->setMod( $this->getMod() )
+			->build();
+		return $oReport;
+	}
+
+	/**
+	 * @return Reports\ReportVO
+	 * @throws \Exception
+	 */
+	private function buildReportInfo() {
+		$oReport = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_INFO ) )
+			->setMod( $this->getMod() )
+			->create();
+		( new Reports\BuildInfo( $oReport ) )
+			->setMod( $this->getMod() )
+			->build();
+		return $oReport;
 	}
 
 	/**
