@@ -24,8 +24,18 @@ class KeyStats extends BaseReporting {
 
 		$aEventKeys = [
 			'ip_offense',
+			'ip_blocked',
 			'conn_kill',
 			'firewall_block',
+			'bottrack_404',
+			'bottrack_fakewebcrawler',
+			'bottrack_linkcheese',
+			'bottrack_loginfailed',
+			'bottrack_logininvalid',
+			'bottrack_xmlrpc',
+			'spam_block_bot',
+			'spam_block_recaptcha',
+			'spam_block_human',
 		];
 
 		$aCounts = [];
@@ -55,7 +65,6 @@ class KeyStats extends BaseReporting {
 					],
 					'strings' => [
 						'title'       => __( 'Top Security Statistics', 'wp-simple-firewall' ),
-						'subtitle'    => __( 'The following are statistics for important events that have occurred on your site.', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
 					],

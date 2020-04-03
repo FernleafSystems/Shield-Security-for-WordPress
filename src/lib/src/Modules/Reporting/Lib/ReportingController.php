@@ -96,13 +96,30 @@ class ReportingController extends Base\OneTimeExecute {
 	 * @param array $aBody
 	 */
 	private function sendEmail( array $aBody ) {
+		$oWP = Services::WpGeneral();
 		$aBody = array_filter( $aBody );
 		if ( !empty( $aBody ) ) {
+			$aBody = array_merge(
+				[
+					__( 'Please find your site report below.', 'wp-simple-firewall' ),
+					__( 'Depending on your reporting settings and cron timings, this report may contain a mix of alerts, statistics and other information.', 'wp-simple-firewall' ),
+					'',
+					sprintf( '- %s: %s', __( 'Site URL', 'wp-simple-firewall' ), $oWP->getHomeUrl() ),
+					sprintf( '- %s: %s', __( 'Report Generation Date', 'wp-simple-firewall' ),
+						$oWP->getTimeStampForDisplay() ),
+					'',
+					__( 'Please use the links provided to review the report details.', 'wp-simple-firewall' ),
+				],
+				$aBody,
+				[
+					__( 'Thank You.', 'wp-simple-firewall' ),
+				]
+			);
 			$this->getMod()
 				 ->getEmailProcessor()
 				 ->sendEmailWithWrap(
 					 $this->getMod()->getPluginDefaultRecipientAddress(),
-					 'Shield Alert',
+					 __( 'Site Report' ).' - '.$this->getCon()->getHumanName(),
 					 $aBody
 				 );
 		}
