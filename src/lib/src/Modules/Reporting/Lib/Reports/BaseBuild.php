@@ -53,11 +53,13 @@ abstract class BaseBuild {
 	abstract protected function render( array $aGatheredData );
 
 	/**
+	 * When displaying, we must take into account the GMT offset of the site.
 	 * @return string
 	 */
 	protected function getTimeIntervalForDisplay() {
-		$oCStart = ( new Carbon() )->setTimestamp( $this->rep->interval_start_at );
-		$oCEnd = ( new Carbon() )->setTimestamp( $this->rep->interval_end_at );
+		$oWP = Services::WpGeneral();
+		$oCStart = ( new Carbon() )->setTimestamp( $oWP->getTimeAsGmtOffset( $this->rep->interval_start_at ) );
+		$oCEnd = ( new Carbon() )->setTimestamp( $oWP->getTimeAsGmtOffset( $this->rep->interval_end_at ) );
 		switch ( $this->rep->interval ) {
 			case 'hourly':
 				$sTime = sprintf( 'The full hour from %s until %s on %s.',
