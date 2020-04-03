@@ -21,8 +21,6 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends Modules\BaseShi
 		}
 	}
 
-	/**
-	 */
 	public function printGoogleRecaptchaCheck() {
 		$this->setRecaptchaToEnqueue();
 		echo $this->getGoogleRecaptchaHtml();

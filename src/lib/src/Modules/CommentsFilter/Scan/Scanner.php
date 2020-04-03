@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Scanner {
@@ -130,9 +130,16 @@ class Scanner {
 
 		if ( !is_wp_error( $mResult ) && $oMod->isGoogleRecaptchaEnabled() ) {
 			try {
-				( new ReCaptcha\TestRequest() )
-					->setMod( $oMod )
-					->test();
+				if ( $oMod->getCaptchaConfig()[ 'provider' ] === 'hcaptcha' ) {
+					( new Utilities\HCaptcha\TestRequest() )
+						->setMod( $oMod )
+						->test();
+				}
+				else {
+					( new Utilities\ReCaptcha\TestRequest() )
+						->setMod( $oMod )
+						->test();
+				}
 			}
 			catch ( \Exception $oE ) {
 				$mResult = new \WP_Error( 'recaptcha', $oE->getMessage(), [] );
