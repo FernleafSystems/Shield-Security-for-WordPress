@@ -43,7 +43,7 @@ class WooCommerce extends BaseFormProvider {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		$sInserts = $this->formInsertsBuild();
-		if ( $oMod->getGoogleRecaptchaStyle() == 'invisible' ) {
+		if ( $oMod->getCaptchaStyle() == 'invisible' ) {
 			$sInserts .= '<input type="hidden" name="login" value="Log in" />';
 		}
 		echo $sInserts;
@@ -56,7 +56,7 @@ class WooCommerce extends BaseFormProvider {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		$sInserts = $this->formInsertsBuild();
-		if ( $oMod->getGoogleRecaptchaStyle() == 'invisible' ) {
+		if ( $oMod->getCaptchaStyle() == 'invisible' ) {
 			$sInserts .= '<input type="hidden" name="register" value="Register" />';
 		}
 		echo $sInserts;

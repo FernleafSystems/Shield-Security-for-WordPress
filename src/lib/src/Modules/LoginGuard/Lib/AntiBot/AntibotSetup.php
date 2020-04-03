@@ -29,8 +29,14 @@ class AntibotSetup {
 			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GaspJs() )
 				->setMod( $oMod );
 		}
+
 		if ( $oMod->isGoogleRecaptchaEnabled() ) {
 			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
+				->setMod( $oMod );
+		}
+
+		if ( $oMod->isHCaptchaEnabled() ) {
+			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
 				->setMod( $oMod );
 		}
 

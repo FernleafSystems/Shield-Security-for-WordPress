@@ -30,7 +30,7 @@ class TestRequest {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	private function runTest() {
+	protected function runTest() {
 		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
 		$oMod = $this->getMod();
 
@@ -40,7 +40,7 @@ class TestRequest {
 			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'Google reCAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
-			$oResponse = ( new ReCaptcha( $oMod->getGoogleRecaptchaConfig()[ 'secret' ], new WordpressPost() ) )
+			$oResponse = ( new ReCaptcha( $oMod->getCaptchaConfig()[ 'secret' ], new WordpressPost() ) )
 				->verify( $sCaptchaResponse, Services::IP()->getRequestIp() );
 			if ( empty( $oResponse ) || !$oResponse->isSuccess() ) {
 				$aMsg = [

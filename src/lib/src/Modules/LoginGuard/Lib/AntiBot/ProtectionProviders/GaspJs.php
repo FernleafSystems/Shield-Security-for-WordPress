@@ -93,8 +93,8 @@ class GaspJs extends BaseProtectionProvider {
 					'loading' => __( 'Loading', 'wp-simple-firewall' )
 				],
 				'flags'          => [
-					'gasp'  => $oMod->isEnabledGaspCheck(),
-					'recap' => $oMod->isGoogleRecaptchaEnabled(),
+					'gasp'    => $oMod->isEnabledGaspCheck(),
+					'captcha' => $oMod->isEnabledCaptcha(),
 				]
 			]
 		);

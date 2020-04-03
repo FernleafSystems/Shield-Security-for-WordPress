@@ -52,8 +52,6 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 	protected function getSubProMap() {
 		return [
 			'cooldown'  => 'ICWP_WPSF_Processor_LoginProtect_Cooldown',
-			'gasp'      => 'ICWP_WPSF_Processor_LoginProtect_Gasp',
-			'recaptcha' => 'ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha',
 			'rename'    => 'ICWP_WPSF_Processor_LoginProtect_WpLogin',
 		];
 	}

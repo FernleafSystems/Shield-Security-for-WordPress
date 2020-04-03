@@ -47,7 +47,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		parent::setupCustomHooks();
 		$oCon = $this->getCon();
 		add_filter( $oCon->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
-		add_filter( $oCon->prefix( 'google_recaptcha_config' ), [ $this, 'getGoogleRecaptchaConfig' ], 10, 0 );
+		add_filter( $oCon->prefix( 'google_recaptcha_config' ), [ $this, 'getCaptchaConfig' ], 10, 0 );
 		/* Enfold theme deletes all cookies except particular ones.
 		add_filter( 'avf_admin_keep_cookies', function ( $aCookiesToKeep ) use ( $oCon ) {
 			$aCookiesToKeep[] = $oCon->getPluginPrefix().'*';
@@ -156,7 +156,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return array
 	 */
-	public function getGoogleRecaptchaConfig() {
+	public function getCaptchaConfig() {
 		$aConfig = [
 			'key'    => $this->getOpt( 'google_recaptcha_site_key' ),
 			'secret' => $this->getOpt( 'google_recaptcha_secret_key' ),
@@ -637,15 +637,15 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			];
 
-			$bRecap = $this->isGoogleRecaptchaReady();
+			$bRecap = $this->isCaptchaReady();
 			$aThis[ 'key_opts' ][ 'recap' ] = [
-				'name'    => __( 'reCAPTCHA', 'wp-simple-firewall' ),
+				'name'    => __( 'CAPTCHA', 'wp-simple-firewall' ),
 				'enabled' => $bRecap,
 				'summary' => $bRecap ?
-					__( 'Google reCAPTCHA keys have been provided', 'wp-simple-firewall' )
-					: __( "Google reCAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
+					__( 'CAPTCHA keys have been provided', 'wp-simple-firewall' )
+					: __( "CAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
 				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
 			];
 		}
 

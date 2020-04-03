@@ -51,7 +51,7 @@ class ShieldProcessor extends Base\BaseProcessor {
 	protected function getRecaptchaTheme() {
 		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 		$oFO = $this->getMod();
-		return $this->isRecaptchaInvisible() ? 'light' : $oFO->getGoogleRecaptchaStyle();
+		return $this->isRecaptchaInvisible() ? 'light' : $oFO->getCaptchaStyle();
 	}
 
 	/**
@@ -76,7 +76,7 @@ class ShieldProcessor extends Base\BaseProcessor {
 	protected function isRecaptchaInvisible() {
 		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
 		$oFO = $this->getMod();
-		return ( $oFO->getGoogleRecaptchaStyle() == 'invisible' );
+		return ( $oFO->getCaptchaStyle() == 'invisible' );
 	}
 
 	public function registerGoogleRecaptchaJs() {

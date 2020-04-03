@@ -2,6 +2,10 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 
+/**
+ * Class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha
+ * @deprecated 9.0
+ */
 class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_LoginProtect_Base {
 
 	/**

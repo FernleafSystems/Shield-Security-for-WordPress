@@ -90,9 +90,9 @@ class Strings extends Base\Strings {
 				$sTitleShort = __( 'General Options', 'wp-simple-firewall' );
 				break;
 
-			case 'section_third_party_google' :
-				$sTitle = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
+			case 'section_third_party_captcha' :
+				$sTitle = __( 'CAPTCHA', 'wp-simple-firewall' );
+				$sTitleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup Google reCAPTCHA for use across %s.', 'wp-simple-firewall' ), $sPlugName ) ),
 					sprintf( '%s - %s',
@@ -237,6 +237,15 @@ class Strings extends Base\Strings {
 				$sName = __( 'Installation ID', 'wp-simple-firewall' );
 				$sSummary = __( 'Unique Plugin Installation ID', 'wp-simple-firewall' );
 				$sDescription = __( 'Keep this ID private.', 'wp-simple-firewall' );
+				break;
+
+			case 'captcha_provider' :
+				$sName = __( 'CAPTCHA Provider', 'wp-simple-firewall' );
+				$sSummary = __( 'Which CAPTCHA Provider To Use Throughout', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'You can choose the CAPTCHA provider depending on your preferences.', 'wp-simple-firewall' ),
+					__( 'Ensure your Site Keys and Secret Keys are supplied from the appropriate provider.', 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'google_recaptcha_secret_key' :

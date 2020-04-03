@@ -85,7 +85,7 @@
       "help_video_id": "338540386"
     },
     {
-      "slug":          "section_third_party_google",
+      "slug":          "section_third_party_captcha",
       "title":         "Google reCAPTCHA",
       "title_short":   "Google reCAPTCHA",
       "help_video_id": "338546796"
@@ -304,8 +304,30 @@
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
+      "key":           "captcha_provider",
+      "section":       "section_third_party_captcha",
+      "premium":       true,
+      "default":       "recaptcha",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "grecaptcha",
+          "text":      "Google reCAPTCHA"
+        },
+        {
+          "value_key": "hcaptcha",
+          "text":      "hCaptcha"
+        }
+      ],
+      "link_info":     "https://shsec.io/dq",
+      "link_blog":     "",
+      "name":          "CAPTCHA Provider",
+      "summary":       "Which CAPTCHA Provider To Use Throughout",
+      "description":   "You can choose the CAPTCHA provider depending on your preferences."
+    },
+    {
       "key":           "google_recaptcha_style",
-      "section":       "section_third_party_google",
+      "section":       "section_third_party_captcha",
       "premium":       true,
       "default":       "light",
       "type":          "select",
@@ -325,13 +347,13 @@
       ],
       "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
-      "name":          "reCAPTCHA Style",
+      "name":          "CAPTCHA Type",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
       "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
     },
     {
       "key":         "google_recaptcha_site_key",
-      "section":     "section_third_party_google",
+      "section":     "section_third_party_captcha",
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -343,7 +365,7 @@
     },
     {
       "key":         "google_recaptcha_secret_key",
-      "section":     "section_third_party_google",
+      "section":     "section_third_party_captcha",
       "sensitive":   true,
       "default":     "",
       "type":        "text",

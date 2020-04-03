@@ -8,9 +8,9 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return string
 	 */
-	public function getGoogleRecaptchaStyle() {
+	public function getCaptchaStyle() {
 		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
-		$aConfig = $this->getGoogleRecaptchaConfig();
+		$aConfig = $this->getCaptchaConfig();
 		if ( $aConfig[ 'style_override' ] || $sStyle == 'default' ) {
 			$sStyle = $aConfig[ 'style' ];
 		}
@@ -145,10 +145,10 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		switch ( $sSection ) {
 			case 'section_recaptcha':
 				$oP = $this->getCon()->getModule_Plugin();
-				if ( !$oP->isGoogleRecaptchaReady() ) {
+				if ( !$oP->isCaptchaReady() ) {
 					$aWarnings[] = sprintf(
 						__( 'Please remember to supply reCAPTCHA keys: %s', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" target="_blank">%s</a>', $oP->getUrl_DirectLinkToSection( 'section_third_party_google' ), __( 'reCAPTCHA Settings' ) )
+						sprintf( '<a href="%s" target="_blank">%s</a>', $oP->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), __( 'reCAPTCHA Settings' ) )
 					);
 				}
 				break;
@@ -162,7 +162,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function isGoogleRecaptchaEnabled() {
 		return $this->isModOptEnabled() &&
-			   ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isGoogleRecaptchaReady() );
+			   ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isCaptchaReady() );
 	}
 
 	/**

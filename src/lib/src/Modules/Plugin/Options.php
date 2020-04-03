@@ -38,8 +38,9 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return array
 	 */
-	public function getGoogleRecaptchaConfig() {
+	public function getCaptchaConfig() {
 		$aConfig = [
+			'provider'       => $this->getOpt( 'captcha_provider', 'grecaptcha' ),
 			'key'            => $this->getOpt( 'google_recaptcha_site_key' ),
 			'secret'         => $this->getOpt( 'google_recaptcha_secret_key' ),
 			'style'          => $this->getOpt( 'google_recaptcha_style' ),

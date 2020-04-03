@@ -80,12 +80,12 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return array
 	 */
-	public function getGoogleRecaptchaConfig() {
+	public function getCaptchaConfig() {
 		/** @var Shield\Modules\Plugin\Options $oOpts */
 		$oOpts = $this->getCon()
 					  ->getModule_Plugin()
 					  ->getOptions();
-		return $oOpts->getGoogleRecaptchaConfig();
+		return $oOpts->getCaptchaConfig();
 	}
 
 	/**
@@ -93,7 +93,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSecretKey() {
-		return $this->getGoogleRecaptchaConfig()[ 'secret' ];
+		return $this->getCaptchaConfig()[ 'secret' ];
 	}
 
 	/**
@@ -101,21 +101,21 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSiteKey() {
-		return $this->getGoogleRecaptchaConfig()[ 'key' ];
+		return $this->getCaptchaConfig()[ 'key' ];
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getGoogleRecaptchaStyle() {
-		return $this->getGoogleRecaptchaConfig()[ 'style' ];
+	public function getCaptchaStyle() {
+		return $this->getCaptchaConfig()[ 'style' ];
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isGoogleRecaptchaReady() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
+	public function isCaptchaReady() {
+		$aConfig = $this->getCaptchaConfig();
 		return ( !empty( $aConfig[ 'secret' ] ) && !empty( $aConfig[ 'key' ] ) );
 	}
 

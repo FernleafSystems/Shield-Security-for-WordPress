@@ -7,7 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class GoogleRecaptcha extends BaseProtectionProvider {
 
-	const RECAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
+	const CAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
+	const URL_API = 'https://www.google.com/recaptcha/api.js';
 
 	public function onWpEnqueueJs() {
 		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
@@ -18,18 +19,18 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 				'onload' => 'onLoadIcwpRecaptchaCallback',
 				'render' => 'explicit',
 			],
-			'https://www.google.com/recaptcha/api.js'
+			static::URL_API
 		);
-		wp_register_script( self::RECAPTCHA_JS_HANDLE, $sJsUri, [], false, true );
-		wp_enqueue_script( self::RECAPTCHA_JS_HANDLE );
+		wp_register_script( static::CAPTCHA_JS_HANDLE, $sJsUri, [], false, true );
+		wp_enqueue_script( static::CAPTCHA_JS_HANDLE );
 
 		// This also gives us the chance to remove recaptcha before it's printed, if it isn't needed
 //		add_action( 'wp_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 //		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
 
 		Services::Includes()
-				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
-				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
+				->addIncludeAttribute( self::CAPTCHA_JS_HANDLE, 'async', 'async' )
+				->addIncludeAttribute( self::CAPTCHA_JS_HANDLE, 'defer', 'defer' );
 		/**
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
@@ -40,7 +41,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 			[
 				'sitekey' => $oMod->getGoogleRecaptchaSiteKey(),
 				'size'    => $bInvisible ? 'invisible' : '',
-				'theme'   => $bInvisible ? 'light' : $oMod->getGoogleRecaptchaStyle(),
+				'theme'   => $bInvisible ? 'light' : $oMod->getCaptchaStyle(),
 				'invis'   => $bInvisible,
 			]
 		);
@@ -53,15 +54,22 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
 			try {
-				( new TestRequest() )
-					->setMod( $this->getMod() )
-					->test();
+				$this->getResponseTester()
+					 ->setMod( $this->getMod() )
+					 ->test();
 			}
 			catch ( \Exception $oE ) {
 				$this->processFailure();
 				throw $oE;
 			}
 		}
+	}
+
+	/**
+	 * @return TestRequest
+	 */
+	protected function getResponseTester() {
+		return new TestRequest();
 	}
 
 	/**
@@ -79,7 +87,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 			$sExtraStyles = '';
 		}
 		else {
-			$sExtraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
+			$sExtraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.895);-webkit-transform:scale(0.895);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
 		}
 		return $sExtraStyles.'<div class="icwpg-recaptcha"></div>';
 	}
@@ -90,6 +98,6 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	private function isInvisible() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
-		return $oMod->getGoogleRecaptchaStyle() == 'invisible';
+		return $oMod->getCaptchaStyle() == 'invisible';
 	}
 }

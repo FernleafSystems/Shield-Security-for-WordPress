@@ -3,14 +3,11 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_Processor_LoginProtect_Gasp
+ * @deprecated 9.0
+ */
 class ICWP_WPSF_Processor_LoginProtect_Gasp extends ICWP_WPSF_Processor_LoginProtect_Base {
-
-	public function run() {
-		parent::run();
-		( new LoginGuard\Lib\AntiBot\IncludeJs() )
-			->setMod( $this->getMod() )
-			->run();
-	}
 
 	/**
 	 * @return string

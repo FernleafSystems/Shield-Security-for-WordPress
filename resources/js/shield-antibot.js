@@ -6,7 +6,7 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 				jQuery( icwp_wpsf_vars_lpantibot.form_selectors ).each(
 					function ( _ ) {
 						if ( this !== null ) {
-							if ( icwp_wpsf_vars_lpantibot.flags.recap ) {
+							if ( icwp_wpsf_vars_lpantibot.flags.captcha ) {
 								insertPlaceHolder_Recap( this );
 							}
 							if ( icwp_wpsf_vars_lpantibot.flags.gasp ) {
