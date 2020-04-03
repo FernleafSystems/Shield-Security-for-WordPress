@@ -83,7 +83,7 @@ class CreateReportVO {
 	private function setIntervalBoundaries() {
 
 		$bHasPrevious = !empty( $this->rep->previous );
-		if ( $bHasPrevious ) {
+		if ( $bHasPrevious && !$this->isOnDemandReport() ) {
 			$nAddition = 1;
 			$oC = ( new Carbon() )->setTimestamp( $this->rep->previous->interval_end_at );
 		}
@@ -139,5 +139,12 @@ class CreateReportVO {
 		$nPrevID = $oSel->getLastReportId();
 		$this->rep->rid = is_numeric( $nPrevID ) ? $nPrevID + 1 : 1;
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isOnDemandReport() {
+		return !Services::WpGeneral()->isCron();
 	}
 }
