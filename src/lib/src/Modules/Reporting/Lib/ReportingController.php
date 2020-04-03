@@ -43,39 +43,38 @@ class ReportingController extends Base\OneTimeExecute {
 			->setMod( $oMod )
 			->build();
 
-		if ( !empty( $oInfoReport->content ) || !empty( $oAlertReport->content ) ) {
-			$oReport = new DBReports\EntryVO();
-			$oReport->sent_at = Services::Request()->ts();
-			if ( !empty( $oAlertReport->content ) ) {
-				$oReport->rid = $oAlertReport->rid;
-				$oReport->type = $oAlertReport->type;
-				$oReport->frequency = $oAlertReport->interval;
-				$oReport->interval_end_at = $oAlertReport->interval_end_at;
-				$oDbH->getQueryInserter()->insert( $oReport );
-			}
-			if ( !empty( $oInfoReport->content ) ) {
-				$oReport->rid = $oInfoReport->rid;
-				$oReport->type = $oInfoReport->type;
-				$oReport->frequency = $oInfoReport->interval;
-				$oReport->interval_end_at = $oInfoReport->interval_end_at;
-				$oDbH->getQueryInserter()->insert( $oReport );
-			}
-
-			$this->sendEmail( [ $oAlertReport->content, $oInfoReport->content ] );
+		$oReport = new DBReports\EntryVO();
+		$oReport->sent_at = Services::Request()->ts();
+		if ( !empty( $oAlertReport->content ) ) {
+			$oReport->rid = $oAlertReport->rid;
+			$oReport->type = $oAlertReport->type;
+			$oReport->frequency = $oAlertReport->interval;
+			$oReport->interval_end_at = $oAlertReport->interval_end_at;
+			$oDbH->getQueryInserter()->insert( $oReport );
 		}
+		if ( !empty( $oInfoReport->content ) ) {
+			$oReport->rid = $oInfoReport->rid;
+			$oReport->type = $oInfoReport->type;
+			$oReport->frequency = $oInfoReport->interval;
+			$oReport->interval_end_at = $oInfoReport->interval_end_at;
+			$oDbH->getQueryInserter()->insert( $oReport );
+		}
+
+		$this->sendEmail( [ $oAlertReport->content, $oInfoReport->content ] );
 	}
 
 	/**
 	 * @param array $aBody
 	 */
 	private function sendEmail( array $aBody ) {
+		$aBody = array_filter( $aBody );
 		if ( !empty( $aBody ) ) {
 			$this->getMod()
 				 ->getEmailProcessor()
 				 ->sendEmailWithWrap(
 					 $this->getMod()->getPluginDefaultRecipientAddress(),
 					 'Shield Alert',
-					 array_filter( $aBody )
+					 $aBody
 				 );
 		}
 	}
