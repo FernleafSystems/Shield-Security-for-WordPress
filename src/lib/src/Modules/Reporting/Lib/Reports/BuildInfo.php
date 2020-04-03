@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\BaseReporting;
-use FernleafSystems\Wordpress\Services\Services;
 
 class BuildInfo extends BaseBuild {
 
@@ -29,7 +28,6 @@ class BuildInfo extends BaseBuild {
 	 * @inheritDoc
 	 */
 	protected function render( array $aGatheredData ) {
-		$oWP = Services::WpGeneral();
 		return $this->getMod()->renderTemplate(
 			'/components/reports/info_body.twig',
 			[
@@ -37,13 +35,11 @@ class BuildInfo extends BaseBuild {
 					'alerts' => $aGatheredData
 				],
 				'strings' => [
-					'title'       => __( 'Site Information Update', 'wp-simple-firewall' ),
-					'subtitle'    => __( 'The following is a collection of the latest information since your previous report.', 'wp-simple-firewall' ),
-					'dates_below' => __( 'The information provided is for the dates below.', 'wp-simple-firewall' ),
-					'dates'       => sprintf( '%s - %s',
-						$oWP->getTimeStampForDisplay( $this->rep->interval_start_at ),
-						$oWP->getTimeStampForDisplay( $this->rep->interval_end_at )
-					),
+					'title'            => __( 'Site Information Report', 'wp-simple-firewall' ),
+					'subtitle'         => __( 'The following is a collection of the latest information based on your reporting settings.', 'wp-simple-firewall' ),
+					'dates_below'      => __( 'Information is for the following time period.', 'wp-simple-firewall' ),
+					'reporting_period'      => __( 'Reporting Period', 'wp-simple-firewall' ),
+					'time_interval'    => $this->getTimeIntervalForDisplay(),
 				],
 			]
 		);

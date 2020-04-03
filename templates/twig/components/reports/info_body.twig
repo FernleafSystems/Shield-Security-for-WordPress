@@ -1,9 +1,6 @@
 <h2>{{ strings.title }}</h2>
 <p>{{ strings.subtitle }}</p>
-<p>
-	{{ strings.dates_below }}
-	<br />{{ strings.dates }}
-</p>
+<p>{{ strings.reporting_period }}: <strong>{{ strings.time_interval }}</strong></p>
 {% for alert in vars.alerts %}
 	<div>{{ alert|raw }}</div>
 {% endfor %}
