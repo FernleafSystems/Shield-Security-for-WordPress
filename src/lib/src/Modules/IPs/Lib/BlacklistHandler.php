@@ -18,6 +18,11 @@ class BlacklistHandler extends OneTimeExecute {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAutoBlackList() ) {
 
+			$oCon = $this->getCon();
+			if ( Services::WpGeneral()->isCron() && $oCon->isPremiumActive() ) {
+				add_action( $oCon->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+			}
+
 			( new IPs\Components\UnblockIpByFlag() )
 				->setMod( $oMod )
 				->run();
@@ -98,5 +103,11 @@ class BlacklistHandler extends OneTimeExecute {
 			}
 		}
 		return $bWhitelisted;
+	}
+
+	public function runHourlyCron() {
+		( new IPs\Components\ImportIpsFromFile() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 }
