@@ -205,17 +205,18 @@ class Import {
 		$bImported = false;
 
 		$sLastHash = $oOpts->getOpt( 'importexport_last_import_hash' );
-		if ( empty( $sLastHash ) || hash_equals( $sLastHash, md5( serialize( $aImportData ) ) ) ) {
-
-			foreach ( $this->getCon()->modules as $oMod ) {
-				$this->getOptions()
-					 ->setMultipleOptions(
-						 array_diff_key(
-							 $aImportData[ $oMod->getOptionsStorageKey() ],
-							 array_flip( $this->getOptions()->getXferExcluded() )
-						 )
-					 );
-				$oMod->saveModOptions();
+		if ( empty( $sLastHash ) || !hash_equals( $sLastHash, md5( serialize( $aImportData ) ) ) ) {
+			foreach ( $this->getCon()->modules as $oThisMod ) {
+				if ( !empty( $aImportData[ $oThisMod->getOptionsStorageKey() ] ) ) {
+					$oTheseOpts = $oThisMod->getOptions();
+					$oTheseOpts->setMultipleOptions(
+						array_diff_key(
+							$aImportData[ $oThisMod->getOptionsStorageKey() ],
+							array_flip( $oTheseOpts->getXferExcluded() )
+						)
+					);
+					$oThisMod->saveModOptions();
+				}
 			}
 			$oOpts->setOpt( 'importexport_last_import_hash', md5( serialize( $aImportData ) ) );
 			$this->getCon()->fireEvent(

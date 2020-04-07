@@ -61,7 +61,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				/** @var Plugin\Options $oOpts */
 				$oOpts = $this->getOptions();
 				if ( $this->getCaptchaCfg()->ready ) {
-					if ( $oOpts->getOpt( 'captcha_checked_at' ) < 0  ) {
+					if ( $oOpts->getOpt( 'captcha_checked_at' ) < 0 ) {
 						( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
 							->setMod( $this )
 							->check();
@@ -156,23 +156,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$sMessage = $oE->getMessage();
 				}
 				$this->setFlashAdminNotice( $sMessage, !$bSuccess );
-				Services::Response()->redirect( $this->getUrlImportExport() );
+				Services::Response()->redirect(
+					$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'importexport' )
+				);
 				break;
 
 			default:
 				break;
 		}
-	}
-
-	/**
-	 * TODO: build better/dynamic direct linking to insights sub-pages
-	 * see also hackprotect getUrlManualScan()
-	 */
-	private function getUrlImportExport() {
-		return add_query_arg(
-			[ 'inav' => 'importexport' ],
-			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
-		);
 	}
 
 	/**
