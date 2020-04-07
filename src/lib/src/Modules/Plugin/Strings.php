@@ -245,6 +245,10 @@ class Strings extends Base\Strings {
 				$sDescription = [
 					__( 'You can choose the CAPTCHA provider depending on your preferences.', 'wp-simple-firewall' ),
 					__( 'Ensure your Site Keys and Secret Keys are supplied from the appropriate provider.', 'wp-simple-firewall' ),
+					sprintf( '<strong>%s</strong>',
+						sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
+							__( 'Keys for different providers are not interchangeable.', 'wp-simple-firewall' ) )
+					),
 				];
 				break;
 
