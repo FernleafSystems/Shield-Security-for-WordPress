@@ -115,9 +115,10 @@ class Export {
 	private function getExportData() {
 		$aAll = [];
 		foreach ( $this->getCon()->modules as $oMod ) {
+			$oOpts = $oMod->getOptions();
 			$aAll[ $oMod->getOptionsStorageKey() ] = array_diff_key(
-				$oMod->getOptions()->getTransferableOptions(),
-				array_flip( $oMod->getOptions()->getXferExcluded() )
+				$oOpts->getTransferableOptions(),
+				array_flip( $oOpts->getXferExcluded() )
 			);
 		}
 		return $aAll;
