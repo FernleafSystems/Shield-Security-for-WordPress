@@ -36,12 +36,13 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
 		 */
 		$bInvisible = $this->isInvisible();
+		$aCfg = $oMod->getCaptchaConfig();
 		echo $oMod->renderTemplate(
 			'snippets/google_recaptcha_js',
 			[
-				'sitekey' => $oMod->getGoogleRecaptchaSiteKey(),
+				'sitekey' => $aCfg[ 'key' ],
 				'size'    => $bInvisible ? 'invisible' : '',
-				'theme'   => $bInvisible ? 'light' : $oMod->getCaptchaStyle(),
+				'theme'   => $bInvisible ? 'light' : $aCfg[ 'style' ],
 				'invis'   => $bInvisible,
 			]
 		);
@@ -98,6 +99,6 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	private function isInvisible() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
-		return $oMod->getCaptchaStyle() == 'invisible';
+		return $oMod->getCaptchaConfig()[ 'style' ] == 'invisible';
 	}
 }

@@ -48,15 +48,6 @@ class ShieldProcessor extends Base\BaseProcessor {
 	/**
 	 * @return bool
 	 */
-	protected function getRecaptchaTheme() {
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-		return $this->isRecaptchaInvisible() ? 'light' : $oFO->getCaptchaStyle();
-	}
-
-	/**
-	 * @return bool
-	 */
 	protected function getIfLogRequest() {
 		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !Services::WpGeneral()->isCron();
 	}
@@ -74,9 +65,9 @@ class ShieldProcessor extends Base\BaseProcessor {
 	 * @return bool
 	 */
 	protected function isRecaptchaInvisible() {
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oFO */
-		$oFO = $this->getMod();
-		return ( $oFO->getCaptchaStyle() == 'invisible' );
+		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
+		$oMod = $this->getMod();
+		return ( $oMod->getCaptchaConfig()[ 'style' ] == 'invisible' );
 	}
 
 	public function registerGoogleRecaptchaJs() {
@@ -135,13 +126,15 @@ class ShieldProcessor extends Base\BaseProcessor {
 		if ( $this->isRecaptchaEnqueue() ) {
 			/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
 			$oMod = $this->getMod();
+			$aCfg = $oMod->getCaptchaConfig();
+			$bInvisible = $aCfg[ 'style' ] == 'invisible';
 			echo $oMod->renderTemplate(
 				'snippets/google_recaptcha_js',
 				[
-					'sitekey' => $oMod->getGoogleRecaptchaSiteKey(),
-					'size'    => $this->isRecaptchaInvisible() ? 'invisible' : '',
-					'theme'   => $this->getRecaptchaTheme(),
-					'invis'   => $this->isRecaptchaInvisible(),
+					'sitekey' => $aCfg[ 'key' ],
+					'size'    => $bInvisible ? 'invisible' : '',
+					'theme'   => $bInvisible ? 'light' : $aCfg[ 'style' ],
+					'invis'   => $bInvisible,
 				]
 
 			);
@@ -167,5 +160,13 @@ class ShieldProcessor extends Base\BaseProcessor {
 	public function setRecaptchaToEnqueue() {
 		self::$bRecaptchaEnqueue = true;
 		return $this;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	protected function getRecaptchaTheme() {
+		return 'light';
 	}
 }
