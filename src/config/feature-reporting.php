@@ -59,10 +59,6 @@
       "default":       "hourly",
       "value_options": [
         {
-          "value_key": "realtime",
-          "text":      "Realtime"
-        },
-        {
           "value_key": "hourly",
           "text":      "Hourly"
         },

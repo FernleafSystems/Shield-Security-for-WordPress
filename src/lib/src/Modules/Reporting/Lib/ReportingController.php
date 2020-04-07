@@ -10,17 +10,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ReportingController extends Base\OneTimeExecute {
 
 	protected function run() {
-		if (isset($_GET['test123'])) {
-			try {
-				$oAlertReport = $this->buildReportAlerts();
-				var_dump($oAlertReport->content);
-				$oInfoReport = $this->buildReportInfo();
-				var_dump($oInfoReport->content);
-			}
-			catch ( \Exception $oE ) {
-			}
-			die();
-		}
 		add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 	}
 

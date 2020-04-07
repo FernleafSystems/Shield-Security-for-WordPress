@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -57,9 +56,9 @@ abstract class BaseBuild {
 	 * @return string
 	 */
 	protected function getTimeIntervalForDisplay() {
-		$oWP = Services::WpGeneral();
-		$oCStart = ( new Carbon() )->setTimestamp( $oWP->getTimeAsGmtOffset( $this->rep->interval_start_at ) );
-		$oCEnd = ( new Carbon() )->setTimestamp( $oWP->getTimeAsGmtOffset( $this->rep->interval_end_at ) );
+		$oCStart = Services::Request()->carbon( true )->setTimestamp( $this->rep->interval_start_at );
+		$oCEnd = Services::Request()->carbon( true )->setTimestamp( $this->rep->interval_end_at );
+
 		switch ( $this->rep->interval ) {
 			case 'hourly':
 				$sTime = sprintf( 'The full hour from %s until %s on %s.',

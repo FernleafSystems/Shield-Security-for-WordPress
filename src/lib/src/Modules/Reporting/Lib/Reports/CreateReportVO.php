@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting;
@@ -82,14 +81,13 @@ class CreateReportVO {
 	 */
 	private function setIntervalBoundaries() {
 
-		$bHasPrevious = !empty( $this->rep->previous );
-		if ( $bHasPrevious && !$this->isOnDemandReport() ) {
+		$oC = Services::Request()->carbon( true );
+		if ( !empty( $this->rep->previous ) && !$this->isOnDemandReport() ) {
 			$nAddition = 1;
-			$oC = ( new Carbon() )->setTimestamp( $this->rep->previous->interval_end_at );
+			$oC->setTimestamp( $this->rep->previous->interval_end_at );
 		}
 		else {
 			$nAddition = -1;
-			$oC = Services::Request()->carbon();
 		}
 
 		switch ( $this->rep->interval ) {
@@ -124,6 +122,7 @@ class CreateReportVO {
 				throw new \Exception( 'Not a supported frequency' );
 				break;
 		}
+
 		return $this;
 	}
 
