@@ -306,7 +306,6 @@
     {
       "key":           "captcha_provider",
       "section":       "section_third_party_captcha",
-      "premium":       true,
       "default":       "recaptcha",
       "type":          "select",
       "value_options": [

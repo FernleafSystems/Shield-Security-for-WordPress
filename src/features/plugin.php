@@ -43,20 +43,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->setVisitorIpSource();
 	}
 
-	protected function setupCustomHooks() {
-		parent::setupCustomHooks();
-		$oCon = $this->getCon();
-		add_filter( $oCon->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
-		add_filter( $oCon->prefix( 'google_recaptcha_config' ), [ $this, 'getCaptchaConfig' ], 10, 0 );
-		/* Enfold theme deletes all cookies except particular ones.
-		add_filter( 'avf_admin_keep_cookies', function ( $aCookiesToKeep ) use ( $oCon ) {
-			$aCookiesToKeep[] = $oCon->getPluginPrefix().'*';
-			$aCookiesToKeep[] = $oCon->getOptionStoragePrefix().'*';
-			return $aCookiesToKeep;
-		}, 10, 0 );
-		 */
-	}
-
 	protected function updateHandler() {
 		parent::updateHandler();
 		$this->deleteAllPluginCrons();
@@ -154,21 +140,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getCaptchaConfig() {
-		$aConfig = [
-			'key'    => $this->getOpt( 'google_recaptcha_site_key' ),
-			'secret' => $this->getOpt( 'google_recaptcha_secret_key' ),
-			'style'  => $this->getOpt( 'google_recaptcha_style' ),
-		];
-		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
-			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
-		}
-		return $aConfig;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getCanSiteCallToItself() {
@@ -206,12 +177,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param string $sEmail
 	 * @return string
 	 */
-	public function supplyPluginReportEmail( $sEmail = '' ) {
+	public function getPluginReportEmail() {
 		$sE = $this->getOpt( 'block_send_email_address' );
-		return Services::Data()->validEmail( $sE ) ? $sE : $sEmail;
+		return Services::Data()->validEmail( $sE ) ? $sE : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
 	/**
@@ -625,14 +595,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			];
 
-			$bHasSupportEmail = Services::Data()->validEmail( $this->supplyPluginReportEmail() );
+			$bHasSupportEmail = Services::Data()->validEmail( $this->getOpt( 'block_send_email_address' ) );
 			$aThis[ 'key_opts' ][ 'reports' ] = [
 				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
 				'enabled' => $bHasSupportEmail,
 				'summary' => $bHasSupportEmail ?
-					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $this->supplyPluginReportEmail() )
-					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), Services::WpGeneral()
-																											  ->getSiteAdminEmail() ),
+					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() )
+					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			];
@@ -695,5 +664,13 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getCookieIdBadgeState() {
 		return $this->prefix( 'badgeState' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function supplyPluginReportEmail() {
+		return $this->getPluginReportEmail();
 	}
 }

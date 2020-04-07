@@ -118,7 +118,7 @@ class ReportingController extends Base\OneTimeExecute {
 			$this->getMod()
 				 ->getEmailProcessor()
 				 ->sendEmailWithWrap(
-					 $this->getMod()->getPluginDefaultRecipientAddress(),
+					 $this->getMod()->getPluginReportEmail(),
 					 __( 'Site Report' ).' - '.$this->getCon()->getHumanName(),
 					 $aBody
 				 );
