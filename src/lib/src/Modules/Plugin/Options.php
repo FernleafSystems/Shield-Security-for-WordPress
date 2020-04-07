@@ -39,17 +39,12 @@ class Options extends Base\ShieldOptions {
 	 * @return array
 	 */
 	public function getCaptchaConfig() {
-		$aConfig = [
-			'provider'       => $this->getOpt( 'captcha_provider', 'grecaptcha' ),
-			'key'            => $this->getOpt( 'google_recaptcha_site_key' ),
-			'secret'         => $this->getOpt( 'google_recaptcha_secret_key' ),
-			'style'          => $this->getOpt( 'google_recaptcha_style' ),
-			'style_override' => !$this->getCon()->isPremiumActive()
+		return [
+			'provider' => $this->getOpt( 'captcha_provider', 'grecaptcha' ),
+			'key'      => $this->getOpt( 'google_recaptcha_site_key' ),
+			'secret'   => $this->getOpt( 'google_recaptcha_secret_key' ),
+			'theme'    => $this->getOpt( 'google_recaptcha_style' ),
 		];
-		if ( $aConfig[ 'style_override' ] ) {
-			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
-		}
-		return $aConfig;
 	}
 
 	/**

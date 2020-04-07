@@ -43,6 +43,42 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->setVisitorIpSource();
 	}
 
+	protected function doExtraSubmitProcessing() {
+		( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
+			->setMod( $this )
+			->check();
+	}
+
+	/**
+	 * @param string $sSection
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSection ) {
+		$aWarnings = [];
+
+		switch ( $sSection ) {
+			case 'section_third_party_captcha':
+				/** @var Plugin\Options $oOpts */
+				$oOpts = $this->getOptions();
+				if ( $this->getCaptchaCfg()->ready ) {
+					if ( $oOpts->getOpt( 'captcha_checked_at' ) < 0  ) {
+						( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
+							->setMod( $this )
+							->check();
+					}
+					if ( $oOpts->getOpt( 'captcha_checked_at' ) == 0 ) {
+						$aWarnings[] = sprintf(
+							__( "Your captcha key and secret couldn't be verified.", 'wp-simple-firewall' ).' '
+							.__( "Please double-check and make sure you haven't mixed them about.", 'wp-simple-firewall' )
+						);
+					}
+				}
+				break;
+		}
+
+		return $aWarnings;
+	}
+
 	protected function updateHandler() {
 		parent::updateHandler();
 		$this->deleteAllPluginCrons();
@@ -606,7 +642,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			];
 
-			$bRecap = $this->isCaptchaReady();
+			$bRecap = $this->getCaptchaCfg()->ready;
 			$aThis[ 'key_opts' ][ 'recap' ] = [
 				'name'    => __( 'CAPTCHA', 'wp-simple-firewall' ),
 				'enabled' => $bRecap,

@@ -130,7 +130,7 @@ class Scanner {
 
 		if ( !is_wp_error( $mResult ) && $oMod->isGoogleRecaptchaEnabled() ) {
 			try {
-				if ( $oMod->getCaptchaConfig()[ 'provider' ] === 'hcaptcha' ) {
+				if ( $oMod->getCaptchaCfg()->provider === 'hcaptcha' ) {
 					( new Utilities\HCaptcha\TestRequest() )
 						->setMod( $oMod )
 						->test();

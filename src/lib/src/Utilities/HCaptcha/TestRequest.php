@@ -26,7 +26,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 			$oHTTP = Services::HttpRequest();
 			$bSuccess = $oHTTP->post( self::URL_VERIFY, [
 					'body' => [
-						'secret'   => $oMod->getCaptchaConfig()[ 'secret' ],
+						'secret'   => $oMod->getCaptchaCfg()->secret,
 						'response' => $sCaptchaResponse,
 						'remoteip' => Services::IP()->getRequestIp(),
 					]

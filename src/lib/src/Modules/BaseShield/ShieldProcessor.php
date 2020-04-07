@@ -61,15 +61,6 @@ class ShieldProcessor extends Base\BaseProcessor {
 		return $this;
 	}
 
-	/**
-	 * @return bool
-	 */
-	protected function isRecaptchaInvisible() {
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
-		$oMod = $this->getMod();
-		return ( $oMod->getCaptchaConfig()[ 'style' ] == 'invisible' );
-	}
-
 	public function registerGoogleRecaptchaJs() {
 		$sJsUri = add_query_arg(
 			[
@@ -126,15 +117,14 @@ class ShieldProcessor extends Base\BaseProcessor {
 		if ( $this->isRecaptchaEnqueue() ) {
 			/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
 			$oMod = $this->getMod();
-			$aCfg = $oMod->getCaptchaConfig();
-			$bInvisible = $aCfg[ 'style' ] == 'invisible';
+			$oCFG = $oMod->getCaptchaCfg();
 			echo $oMod->renderTemplate(
 				'snippets/google_recaptcha_js',
 				[
-					'sitekey' => $aCfg[ 'key' ],
-					'size'    => $bInvisible ? 'invisible' : '',
-					'theme'   => $bInvisible ? 'light' : $aCfg[ 'style' ],
-					'invis'   => $bInvisible,
+					'sitekey' => $oCFG->key,
+					'size'    => $oCFG->invisible ? 'invisible' : '',
+					'theme'   => $oCFG->invisible ? 'light' : $oCFG->theme,
+					'invis'   => $oCFG->invisible,
 				]
 
 			);
@@ -168,5 +158,13 @@ class ShieldProcessor extends Base\BaseProcessor {
 	 */
 	protected function getRecaptchaTheme() {
 		return 'light';
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	protected function isRecaptchaInvisible() {
+		return false;
 	}
 }

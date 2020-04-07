@@ -235,33 +235,33 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return bool
 	 */
 	public function isEnabledCaptcha() {
-		return ( !$this->isOpt( 'enable_google_recaptcha_login', 'disabled' ) && $this->isCaptchaReady() );
+		return ( !$this->isOpt( 'enable_google_recaptcha_login', 'disabled' ) && $this->getCaptchaCfg()->ready );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isGoogleRecaptchaEnabled() {
-		return $this->isEnabledCaptcha() && $this->getCaptchaConfig()[ 'provider' ] === 'grecaptcha';
+		return $this->isEnabledCaptcha() && $this->getCaptchaCfg()->provider === 'grecaptcha';
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isHCaptchaEnabled() {
-		return $this->isEnabledCaptcha() && $this->getCaptchaConfig()[ 'provider' ] === 'hcaptcha';
+		return $this->isEnabledCaptcha() && $this->getCaptchaCfg()->provider === 'hcaptcha';
 	}
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
-	public function getCaptchaStyle() {
+	public function getCaptchaCfg() {
+		$oCfg = parent::getCaptchaCfg();
 		$sStyle = $this->getOpt( 'enable_google_recaptcha_login' );
-		$aConfig = $this->getCaptchaConfig();
-		if ( $aConfig[ 'style_override' ] || $sStyle == 'default' ) {
-			$sStyle = $aConfig[ 'style' ];
+		if ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+			$oCfg->theme = $sStyle;
 		}
-		return $sStyle;
+		return $oCfg;
 	}
 
 	/**

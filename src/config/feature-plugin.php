@@ -86,8 +86,8 @@
     },
     {
       "slug":          "section_third_party_captcha",
-      "title":         "Google reCAPTCHA",
-      "title_short":   "Google reCAPTCHA",
+      "title":         "CAPTCHA",
+      "title_short":   "CAPTCHA",
       "help_video_id": "338546796"
     },
     {
@@ -311,7 +311,7 @@
       "value_options": [
         {
           "value_key": "grecaptcha",
-          "text":      "Google reCAPTCHA"
+          "text":      "Google reCAPTCHA v2"
         },
         {
           "value_key": "hcaptcha",
@@ -452,6 +452,13 @@
       "section":      "section_non_ui",
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "captcha_checked_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "int",
+      "default":      -1
     }
   ],
   "definitions":   {

@@ -101,4 +101,14 @@ class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Process
 		$sNonInvisStyle = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.90);-webkit-transform:scale(0.90);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
 		return sprintf( '%s<div class="icwpg-recaptcha"></div>', $this->isRecaptchaInvisible() ? '' : $sNonInvisStyle );
 	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	protected function isRecaptchaInvisible() {
+		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
+		$oMod = $this->getMod();
+		return ( $oMod->getCaptchaCfg()->theme == 'invisible' );
+	}
 }

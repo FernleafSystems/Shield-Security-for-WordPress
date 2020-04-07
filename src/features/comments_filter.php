@@ -6,15 +6,15 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return string
+	 * @inheritDoc
 	 */
-	public function getCaptchaStyle() {
+	public function getCaptchaCfg() {
+		$oCfg = parent::getCaptchaCfg();
 		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
-		$aConfig = $this->getCaptchaConfig();
-		if ( $aConfig[ 'style_override' ] || $sStyle == 'default' ) {
-			$sStyle = $aConfig[ 'style' ];
+		if ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+			$oCfg->theme = $sStyle;
 		}
-		return $sStyle;
+		return $oCfg;
 	}
 
 	/**
@@ -145,7 +145,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		switch ( $sSection ) {
 			case 'section_recaptcha':
 				$oP = $this->getCon()->getModule_Plugin();
-				if ( !$oP->isCaptchaReady() ) {
+				if ( !$this->getCaptchaCfg()->ready ) {
 					$aWarnings[] = sprintf(
 						__( 'Please remember to supply reCAPTCHA keys: %s', 'wp-simple-firewall' ),
 						sprintf( '<a href="%s" target="_blank">%s</a>', $oP->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), __( 'reCAPTCHA Settings' ) )
@@ -162,7 +162,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	public function isGoogleRecaptchaEnabled() {
 		return $this->isModOptEnabled() &&
-			   ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isCaptchaReady() );
+			   ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->getCaptchaCfg()->ready );
 	}
 
 	/**

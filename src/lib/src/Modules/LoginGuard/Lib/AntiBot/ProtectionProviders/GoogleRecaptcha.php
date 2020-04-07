@@ -35,15 +35,14 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		 * Change to recaptcha implementation now means
 		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
 		 */
-		$bInvisible = $this->isInvisible();
-		$aCfg = $oMod->getCaptchaConfig();
+		$oCfg = $oMod->getCaptchaCfg();
 		echo $oMod->renderTemplate(
 			'snippets/google_recaptcha_js',
 			[
-				'sitekey' => $aCfg[ 'key' ],
-				'size'    => $bInvisible ? 'invisible' : '',
-				'theme'   => $bInvisible ? 'light' : $aCfg[ 'style' ],
-				'invis'   => $bInvisible,
+				'sitekey' => $oCfg->key,
+				'size'    => $oCfg->invisible ? 'invisible' : '',
+				'theme'   => $oCfg->invisible ? 'light' : $oCfg->theme,
+				'invis'   => $oCfg->invisible,
 			]
 		);
 	}
@@ -84,21 +83,14 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	 * @return string
 	 */
 	private function getGoogleRecaptchaHtml() {
-		if ( $this->isInvisible() ) {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+		if ( $oMod->getCaptchaCfg()->invisible ) {
 			$sExtraStyles = '';
 		}
 		else {
 			$sExtraStyles = '<style>@media screen {#rc-imageselect, .icwpg-recaptcha iframe {transform:scale(0.895);-webkit-transform:scale(0.895);transform-origin:0 0;-webkit-transform-origin:0 0;}</style>';
 		}
 		return $sExtraStyles.'<div class="icwpg-recaptcha"></div>';
-	}
-
-	/**
-	 * @return bool
-	 */
-	private function isInvisible() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getCaptchaConfig()[ 'style' ] == 'invisible';
 	}
 }

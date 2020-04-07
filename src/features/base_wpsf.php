@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -78,14 +79,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return array
+	 * @return Plugin\Lib\Captcha\CaptchaConfigVO
 	 */
-	public function getCaptchaConfig() {
+	public function getCaptchaCfg() {
 		/** @var Shield\Modules\Plugin\Options $oOpts */
 		$oOpts = $this->getCon()
 					  ->getModule_Plugin()
 					  ->getOptions();
-		return $oOpts->getCaptchaConfig();
+		return ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $oOpts->getCaptchaConfig() );
 	}
 
 	/**
@@ -93,7 +94,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSecretKey() {
-		return $this->getCaptchaConfig()[ 'secret' ];
+		return $this->getCaptchaCfg()->secret;
 	}
 
 	/**
@@ -101,22 +102,14 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @deprecated
 	 */
 	public function getGoogleRecaptchaSiteKey() {
-		return $this->getCaptchaConfig()[ 'key' ];
+		return $this->getCaptchaCfg()->key;
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getCaptchaStyle() {
-		return $this->getCaptchaConfig()[ 'style' ];
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isCaptchaReady() {
-		$aConfig = $this->getCaptchaConfig();
-		return ( !empty( $aConfig[ 'secret' ] ) && !empty( $aConfig[ 'key' ] ) );
+		return $this->getCaptchaCfg()->theme;
 	}
 
 	/**
