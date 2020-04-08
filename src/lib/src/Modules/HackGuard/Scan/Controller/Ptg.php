@@ -58,7 +58,7 @@ class Ptg extends BaseForAssets {
 	public function isEnabled() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isOpt( 'ptg_enable', 'enabled' ) && $oOpts->isOptReqsMet( 'ptg_enable' );
+		return $oOpts->isOpt( 'ptg_enable', 'Y' ) && $oOpts->isOptReqsMet( 'ptg_enable' );
 	}
 
 	/**
