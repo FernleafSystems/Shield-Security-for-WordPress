@@ -424,13 +424,6 @@
       "default":      0
     },
     {
-      "key":          "importexport_last_import_hash",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",

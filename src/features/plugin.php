@@ -68,8 +68,8 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					}
 					if ( $oOpts->getOpt( 'captcha_checked_at' ) == 0 ) {
 						$aWarnings[] = sprintf(
-							__( "Your captcha key and secret couldn't be verified.", 'wp-simple-firewall' ).' '
-							.__( "Please double-check and make sure you haven't mixed them about.", 'wp-simple-firewall' )
+							__( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
+							.__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' )
 						);
 					}
 				}

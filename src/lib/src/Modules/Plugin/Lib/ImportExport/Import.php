@@ -200,30 +200,31 @@ class Import {
 	 * @return bool
 	 */
 	private function processDataImport( $aImportData, $sImportSource = 'unspecified' ) {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
 		$bImported = false;
 
-		$sLastHash = $oOpts->getOpt( 'importexport_last_import_hash' );
-		if ( empty( $sLastHash ) || !hash_equals( $sLastHash, md5( serialize( $aImportData ) ) ) ) {
-			foreach ( $this->getCon()->modules as $oThisMod ) {
-				if ( !empty( $aImportData[ $oThisMod->getOptionsStorageKey() ] ) ) {
-					$oTheseOpts = $oThisMod->getOptions();
-					$oTheseOpts->setMultipleOptions(
-						array_diff_key(
-							$aImportData[ $oThisMod->getOptionsStorageKey() ],
-							array_flip( $oTheseOpts->getXferExcluded() )
-						)
-					);
-					$oThisMod->saveModOptions();
-				}
+		$bAnythingChanged = false;
+		foreach ( $this->getCon()->modules as $oThisMod ) {
+			if ( !empty( $aImportData[ $oThisMod->getOptionsStorageKey() ] ) ) {
+				$oTheseOpts = $oThisMod->getOptions();
+				$oTheseOpts->setMultipleOptions(
+					array_diff_key(
+						$aImportData[ $oThisMod->getOptionsStorageKey() ],
+						array_flip( $oTheseOpts->getXferExcluded() )
+					)
+				);
+
+				$bAnythingChanged = $bAnythingChanged || $oTheseOpts->getNeedSave();
+				$oThisMod->saveModOptions();
 			}
-			$oOpts->setOpt( 'importexport_last_import_hash', md5( serialize( $aImportData ) ) );
+		}
+
+		if ( $bAnythingChanged ) {
 			$this->getCon()->fireEvent(
 				'options_imported',
 				[ 'audit' => [ 'site' => $sImportSource ] ]
 			);
 		}
+
 		return $bImported;
 	}
 }

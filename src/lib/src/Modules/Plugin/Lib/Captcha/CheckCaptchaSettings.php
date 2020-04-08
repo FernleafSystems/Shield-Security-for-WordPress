@@ -14,7 +14,7 @@ class CheckCaptchaSettings {
 		$oMod = $this->getMod();
 		$oCfg = $oMod->getCaptchaCfg();
 
-		$nAt = 0;
+		$nAt = -1;
 		if ( $oCfg->ready ) {
 			if ( $oCfg->provider == 'grecaptcha' ) {
 				$bValid = $this->verifyRecaptcha();
