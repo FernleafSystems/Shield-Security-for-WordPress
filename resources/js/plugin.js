@@ -33,13 +33,13 @@ var iCWP_WPSF_OptionsPages = new function () {
 			jQuery( 'a.section_title_info' ).popover( {
 				placement: 'bottom',
 				trigger: 'click',
-				delay: 200,
+				delay: 50,
 				html: true
 			} );
 			jQuery( '[data-toggle="tooltip"]' ).tooltip( {
 				placement: 'left',
 				trigger: 'hover focus',
-				delay: 200,
+				delay: 150,
 				html: false
 			} );
 		} );

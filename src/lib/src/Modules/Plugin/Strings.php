@@ -45,7 +45,7 @@ class Strings extends Base\Strings {
 				__( 'Master Site URL set: %s', 'wp-simple-firewall' ),
 			],
 			'recaptcha_fail'         => [
-				__( 'Google reCAPTCHA Test Fail', 'wp-simple-firewall' )
+				__( 'CAPTCHA Test Fail', 'wp-simple-firewall' )
 			],
 		];
 	}
@@ -94,15 +94,16 @@ class Strings extends Base\Strings {
 				$sTitle = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$sTitleShort = __( 'CAPTCHA', 'wp-simple-firewall' );
 				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup Google reCAPTCHA for use across %s.', 'wp-simple-firewall' ), $sPlugName ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Setup CAPTCHA for use across %s.', 'wp-simple-firewall' ), $sPlugName ) ),
 					sprintf( '%s - %s',
 						__( 'Recommendation', 'wp-simple-firewall' ),
 						sprintf( __( 'Use of this feature is highly recommend.', 'wp-simple-firewall' ).' '
-								 .sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You must create your own Google reCAPTCHA API Keys.', 'wp-simple-firewall' ) )
+								 .sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You must create your own CAPTCHA API Keys.', 'wp-simple-firewall' ) )
 						)
-						.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', __( 'Manage Keys Here', 'wp-simple-firewall' ) )
+						.'<ul class="mt-1"><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://www.google.com/recaptcha/admin', __( 'Google reCAPTCHA Keys', 'wp-simple-firewall' ) )
+						.'</li><li>- '.sprintf( ' <a href="%s" target="_blank">%s</a>', 'https://dashboard.hcaptcha.com/', __( 'hCaptcha Keys', 'wp-simple-firewall' ) ).'</li></ul>'
 					),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Invisible Google reCAPTCHA is available with %s Pro.', 'wp-simple-firewall' ), $sPlugName ) )
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), sprintf( __( 'Invisible CAPTCHA is available with %s Pro.', 'wp-simple-firewall' ), $sPlugName ) )
 				];
 				break;
 
@@ -253,23 +254,23 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'google_recaptcha_secret_key' :
-				$sName = __( 'reCAPTCHA Secret', 'wp-simple-firewall' );
-				$sSummary = __( 'Google reCAPTCHA Secret Key', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter your Google reCAPTCHA secret key for use throughout the plugin.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), 'reCAPTCHA v3 not supported.' );
+				$sName = __( 'CAPTCHA Secret', 'wp-simple-firewall' );
+				$sSummary = __( 'CAPTCHA Secret Key', 'wp-simple-firewall' );
+				$sDescription = __( 'Enter your CAPTCHA secret key for use throughout the plugin.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'google_recaptcha_site_key' :
-				$sName = __( 'reCAPTCHA Site Key', 'wp-simple-firewall' );
-				$sSummary = __( 'Google reCAPTCHA Site Key', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter your Google reCAPTCHA site key for use throughout the plugin', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), 'reCAPTCHA v3 not supported.' );
+				$sName = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
+				$sSummary = __( 'CAPTCHA Site Key', 'wp-simple-firewall' );
+				$sDescription = __( 'Enter your CAPTCHA site key for use throughout the plugin.', 'wp-simple-firewall' )
+								.'<br />'.sprintf( '<strong>%s</strong>: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Google reCAPTCHA v3 not supported.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'google_recaptcha_style' :
-				$sName = __( 'reCAPTCHA Style', 'wp-simple-firewall' );
-				$sSummary = __( 'How Google reCAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
-				$sDescription = __( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha', 'wp-simple-firewall' );
+				$sName = __( 'CAPTCHA Style', 'wp-simple-firewall' );
+				$sSummary = __( 'How CAPTCHA Will Be Displayed By Default', 'wp-simple-firewall' );
+				$sDescription = __( 'You can choose the CAPTCHA display format that best suits your site, including the new Invisible CAPTCHA.', 'wp-simple-firewall' );
 				break;
 
 			default:
