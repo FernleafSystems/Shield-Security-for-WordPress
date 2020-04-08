@@ -1244,6 +1244,9 @@ a.new-window-link::after {
 #footer-thankyou {
 	display: none;
 }
+a.section_title_info {
+	cursor:pointer;
+}
 a.section_title_info .dashicons {
 	color: rgba(0, 128, 0, 1);
 }

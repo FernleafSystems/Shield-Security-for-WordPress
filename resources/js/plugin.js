@@ -32,7 +32,7 @@ var iCWP_WPSF_OptionsPages = new function () {
 		jQuery( function () {
 			jQuery( 'a.section_title_info' ).popover( {
 				placement: 'bottom',
-				trigger: 'hover',
+				trigger: 'click',
 				delay: 200,
 				html: true
 			} );
