@@ -1245,13 +1245,13 @@ a.new-window-link::after {
 	display: none;
 }
 a.section_title_info {
-	cursor:pointer;
+	cursor: pointer;
 }
 a.section_title_info .dashicons {
 	color: rgba(0, 128, 0, 1);
 }
-dl.pro-features dt{
-	margin-left:2px;
+dl.pro-features dt {
+	margin-left: 2px;
 }
 dl.pro-features dt:before {
 	content: "\1f44d";
@@ -1259,12 +1259,21 @@ dl.pro-features dt:before {
 dl.pro-features dd {
 	margin-bottom: 10px;
 }
-
-.custom-control-input:checked~.custom-control-label::before {
+.custom-control.custom-radio .custom-control-input:checked ~ .custom-control-label::before,
+.custom-control.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before,
+.option-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
 	background-color: rgba(69, 119, 0, 1);
 	border-color: rgba(69, 119, 0, 1);
 }
-.custom-switch .custom-control-input:disabled:checked~.custom-control-label::before {
+.option-checkbox.custom-switch .custom-control-input:disabled:checked ~ .custom-control-label::before {
 	background-color: rgba(69, 119, 0, 0.3);
 	border-color: rgba(69, 119, 0, 0.3);
+}
+.importexport-checkbox.custom-switch .custom-control-input:checked ~ .custom-control-label::before {
+	background-color: rgba(119, 107, 12, 1);
+	border-color: rgba(119, 107, 12, 1);
+}
+.importexport-checkbox.custom-switch .custom-control-input:disabled:checked ~ .custom-control-label::before {
+	background-color: rgba(119, 107, 12, 0.3);
+	border-color: rgba(119, 107, 12, 0.3);
 }

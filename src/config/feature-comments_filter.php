@@ -37,16 +37,6 @@
       ]
     },
     {
-      "slug":        "section_captcha",
-      "title":       "CAPTCHA",
-      "title_short": "CAPTCHA",
-      "summary":     [
-        "Purpose - Adds CAPTCHA to the Comment Forms.",
-        "Recommendation - Keep this turned on.",
-        "Note - You will need to register for CAPTCHA keys and store them in the Shield 'Dashboard' settings."
-      ]
-    },
-    {
       "slug":        "section_human_spam_filter",
       "title":       "Human Comment SPAM Protection Filter",
       "title_short": "Human SPAM",
@@ -130,6 +120,39 @@
       "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
     },
     {
+      "key":           "google_recaptcha_style_comments",
+      "section":       "section_bot_comment_spam_protection_filter",
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "default",
+          "text":      "Default Style"
+        },
+        {
+          "value_key": "light",
+          "text":      "Light Theme"
+        },
+        {
+          "value_key": "dark",
+          "text":      "Dark Theme"
+        },
+        {
+          "value_key": "invisible",
+          "text":      "Invisible"
+        }
+      ],
+      "link_info":     "https://shsec.io/e4",
+      "link_blog":     "",
+      "name":          "CAPTCHA",
+      "summary":       "Enable CAPTCHA To Protect Against SPAM Comments",
+      "description":   "You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA."
+    },
+    {
       "key":         "enable_comments_gasp_protection",
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",
@@ -139,18 +162,6 @@
       "name":        "GASP Protection",
       "summary":     "Block Bot Comment SPAM",
       "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
-    },
-    {
-      "key":         "comments_cooldown_interval",
-      "section":     "section_bot_comment_spam_protection_filter",
-      "default":     10,
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "https://shsec.io/3o",
-      "link_blog":   "",
-      "name":        "Comments Cooldown",
-      "summary":     "Limit posting comments to X seconds after the page has loaded",
-      "description": "By forcing a comments cooldown period, you restrict a Spambot's ability to post multiple times to your posts."
     },
     {
       "key":           "comments_default_action_spam_bot",
@@ -177,9 +188,21 @@
       ],
       "link_info":     "https://shsec.io/6j",
       "link_blog":     "",
-      "name":          "Default SPAM Action",
+      "name":          "SPAM Action",
       "summary":       "How To Categorise Comments When Identified To Be SPAM",
       "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
+    },
+    {
+      "key":         "comments_cooldown_interval",
+      "section":     "section_bot_comment_spam_protection_filter",
+      "default":     10,
+      "min":         0,
+      "type":        "integer",
+      "link_info":   "https://shsec.io/3o",
+      "link_blog":   "",
+      "name":        "Comments Cooldown",
+      "summary":     "Limit posting comments to X seconds after the page has loaded",
+      "description": "By forcing a comments cooldown period, you restrict a Spambot's ability to post multiple times to your posts."
     },
     {
       "key":         "enable_comments_human_spam_filter",
@@ -259,50 +282,9 @@
           "text":      "Block And Redirect"
         }
       ],
-      "name":          "Default SPAM Action",
+      "name":          "SPAM Action",
       "summary":       "How To Categorise Comments When Identified To Be SPAM'",
       "description":   "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
-    },
-    {
-      "key":         "enable_google_recaptcha_comments",
-      "section":     "section_captcha",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/shld5",
-      "link_blog":   "",
-      "name":        "CAPTCHA",
-      "summary":     "Enable CAPTCHA For Comments",
-      "description": "Use CAPTCHA on the comments form to prevent bot-spam comments."
-    },
-    {
-      "key":           "google_recaptcha_style_comments",
-      "section":       "section_captcha",
-      "premium":       true,
-      "default":       "default",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "default",
-          "text":      "Default Style"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
-        },
-        {
-          "value_key": "dark",
-          "text":      "Dark Theme"
-        },
-        {
-          "value_key": "invisible",
-          "text":      "Invisible"
-        }
-      ],
-      "link_info":     "https://shsec.io/e4",
-      "link_blog":     "",
-      "name":          "CAPTCHA Style",
-      "summary":       "How CAPTCHA Will Be Displayed",
-      "description":   "You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA."
     },
     {
       "key":         "comments_token_expire_interval",

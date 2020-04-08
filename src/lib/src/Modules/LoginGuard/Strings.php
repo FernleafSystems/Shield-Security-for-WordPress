@@ -228,12 +228,6 @@ class Strings extends Base\Strings {
 								.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
 				break;
 
-			case 'google_recaptcha_style_login' : // Unused
-				$sName = __( 'reCAPTCHA Style', 'wp-simple-firewall' );
-				$sSummary = __( 'How Google reCAPTCHA Will Be Displayed', 'wp-simple-firewall' );
-				$sDescription = __( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha', 'wp-simple-firewall' );
-				break;
-
 			case 'bot_protection_locations' :
 				$sName = __( 'Protection Locations', 'wp-simple-firewall' );
 				$sSummary = __( 'Which Forms Should Be Protected', 'wp-simple-firewall' );

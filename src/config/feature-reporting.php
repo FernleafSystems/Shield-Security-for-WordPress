@@ -5,7 +5,7 @@
     "storage_key":           "reporting",
     "tagline":               "Shield Reporting",
     "show_central":          true,
-    "show_module_menu_item": true,
+    "show_module_menu_item": false,
     "show_module_options":   true,
     "premium":               false,
     "access_restricted":     true,

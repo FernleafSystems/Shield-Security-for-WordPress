@@ -25,7 +25,7 @@
 	<div class="col-4">
 
 		{% if aOption.type is sameas('checkbox') %}
-			<div class="custom-control custom-switch">
+			<div class="custom-control custom-switch option-checkbox">
 				<input type="checkbox"
 					   class="custom-control-input"
 					   id="Opt-{{ aOption.key }}"
@@ -170,7 +170,7 @@
 
 				{% if flags.show_transfer_switch %}
 					{% if attribute(data.xferable_opts, aOption.key) is not same as(false) %}
-						<span class="custom-control custom-switch float-right"
+						<span class="custom-control custom-switch float-right importexport-checkbox"
 							  title="{{ strings.is_opt_importexport }}" data-toggle="tooltip"
 						>
 							<input type="checkbox"

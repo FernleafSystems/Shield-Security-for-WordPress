@@ -46,7 +46,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	protected function doExtraSubmitProcessing() {
 		( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
 			->setMod( $this )
-			->check();
+			->checkAll();
 	}
 
 	/**
@@ -64,7 +64,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					if ( $oOpts->getOpt( 'captcha_checked_at' ) < 0 ) {
 						( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
 							->setMod( $this )
-							->check();
+							->checkAll();
 					}
 					if ( $oOpts->getOpt( 'captcha_checked_at' ) == 0 ) {
 						$aWarnings[] = sprintf(

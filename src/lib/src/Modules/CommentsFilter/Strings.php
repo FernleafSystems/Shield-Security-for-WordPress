@@ -96,6 +96,8 @@ class Strings extends Base\Strings {
 	 * @throws \Exception
 	 */
 	public function getOptionStrings( $sOptKey ) {
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
+		$oMod = $this->getMod();
 		$sModName = $this->getMod()->getMainFeatureName();
 
 		switch ( $sOptKey ) {
@@ -136,7 +138,7 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'comments_default_action_human_spam' :
-				$sName = __( 'Default SPAM Action', 'wp-simple-firewall' );
+				$sName = __( 'SPAM Action', 'wp-simple-firewall' );
 				$sSummary = __( 'How To Categorise Comments When Identified To Be SPAM', 'wp-simple-firewall' );
 				$sDescription = sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'a human commenter', 'wp-simple-firewall' ).'</span>' );
 				break;
@@ -149,7 +151,7 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'comments_default_action_spam_bot' :
-				$sName = __( 'Default SPAM Action', 'wp-simple-firewall' );
+				$sName = __( 'SPAM Action', 'wp-simple-firewall' );
 				$sSummary = __( 'How To Categorise Comments When Identified To Be SPAM', 'wp-simple-firewall' );
 				$sDescription = sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'an automatic bot', 'wp-simple-firewall' ).'</span>' );
 				break;
@@ -173,16 +175,20 @@ class Strings extends Base\Strings {
 								.'<br />'.sprintf( __( 'Default Message: %s', 'wp-simple-firewall' ), __( "Please check the box to confirm you're not a spammer", 'wp-simple-firewall' ) );
 				break;
 
-			case 'enable_google_recaptcha_comments' :
-				$sName = 'Google reCAPTCHA';
-				$sSummary = __( 'Enable Google reCAPTCHA For Comments', 'wp-simple-firewall' );
-				$sDescription = __( 'Use Google reCAPTCHA on the comments form to prevent bot-spam comments.', 'wp-simple-firewall' );
-				break;
-
 			case 'google_recaptcha_style_comments' :
-				$sName = __( 'reCAPTCHA Style', 'wp-simple-firewall' );
-				$sSummary = __( 'How Google reCAPTCHA Will Be Displayed', 'wp-simple-firewall' );
-				$sDescription = __( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha', 'wp-simple-firewall' );
+				$sName = __( 'CAPTCHA', 'wp-simple-firewall' );
+				$sSummary = __( 'Enable CAPTCHA To Protect Against SPAM Comments', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA, when you upgrade to PRO.', 'wp-simple-firewall' )
+				];
+				if ( !$oMod->getCaptchaCfg()->ready ) {
+					$sDescription[] = sprintf( '<a href="%s">%s</a>',
+						$this->getCon()
+							 ->getModule_Plugin()
+							 ->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
+						__( 'Before enabling CAPTCHA, you need to update your settings.', 'wp-simple-firewall' )
+					);
+				}
 				break;
 
 			case 'custom_message_alert' :

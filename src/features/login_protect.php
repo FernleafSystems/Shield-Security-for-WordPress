@@ -36,9 +36,16 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$aIds[ $nKey ] = $sId;
 			}
 		}
-		$this->setOpt( 'antibot_form_ids', array_values( array_unique( $aIds ) ) );
+		$oOpts->setOpt( 'antibot_form_ids', array_values( array_unique( $aIds ) ) );
 
 		$this->cleanLoginUrlPath();
+
+		if ( !$this->isPremium() ) {
+			$sStyle = $oOpts->getOpt( 'enable_google_recaptcha_login' );
+			if ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+				$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
+			}
+		}
 	}
 
 	/**
@@ -258,7 +265,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	public function getCaptchaCfg() {
 		$oCfg = parent::getCaptchaCfg();
 		$sStyle = $this->getOpt( 'enable_google_recaptcha_login' );
-		if ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+		if ( $sStyle !== 'default' && $this->isPremium() ) {
 			$oCfg->theme = $sStyle;
 		}
 		return $oCfg;
