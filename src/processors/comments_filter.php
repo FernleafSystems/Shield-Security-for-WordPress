@@ -25,7 +25,7 @@ class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProces
 
 		if ( $bLoadComProc ) {
 
-			if ( $oMod->isGoogleRecaptchaEnabled() ) {
+			if ( $oMod->isEnabledCaptcha() ) {
 				$this->getSubPro( 'recaptcha' )->execute();
 			}
 

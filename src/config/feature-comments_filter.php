@@ -37,13 +37,13 @@
       ]
     },
     {
-      "slug":        "section_recaptcha",
-      "title":       "Google reCAPTCHA",
-      "title_short": "reCAPTCHA",
+      "slug":        "section_captcha",
+      "title":       "CAPTCHA",
+      "title_short": "CAPTCHA",
       "summary":     [
-        "Purpose - Adds Google reCAPTCHA to the Comment Forms.",
+        "Purpose - Adds CAPTCHA to the Comment Forms.",
         "Recommendation - Keep this turned on.",
-        "Note - You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
+        "Note - You will need to register for CAPTCHA keys and store them in the Shield 'Dashboard' settings."
       ]
     },
     {
@@ -265,18 +265,18 @@
     },
     {
       "key":         "enable_google_recaptcha_comments",
-      "section":     "section_recaptcha",
+      "section":     "section_captcha",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/shld5",
       "link_blog":   "",
-      "name":        "Google reCAPTCHA",
-      "summary":     "Enable Google reCAPTCHA For Comments",
-      "description": "Use Google reCAPTCHA on the comments form to prevent bot-spam comments."
+      "name":        "CAPTCHA",
+      "summary":     "Enable CAPTCHA For Comments",
+      "description": "Use CAPTCHA on the comments form to prevent bot-spam comments."
     },
     {
       "key":           "google_recaptcha_style_comments",
-      "section":       "section_recaptcha",
+      "section":       "section_captcha",
       "premium":       true,
       "default":       "default",
       "type":          "select",
@@ -300,9 +300,9 @@
       ],
       "link_info":     "https://shsec.io/e4",
       "link_blog":     "",
-      "name":          "reCAPTCHA Style",
-      "summary":       "How Google reCAPTCHA Will Be Displayed",
-      "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
+      "name":          "CAPTCHA Style",
+      "summary":       "How CAPTCHA Will Be Displayed",
+      "description":   "You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA."
     },
     {
       "key":         "comments_token_expire_interval",

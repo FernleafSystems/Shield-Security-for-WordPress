@@ -128,7 +128,7 @@ class Scanner {
 				->scan( $aCommData[ 'comment_post_ID' ] );
 		}
 
-		if ( !is_wp_error( $mResult ) && $oMod->isGoogleRecaptchaEnabled() ) {
+		if ( !is_wp_error( $mResult ) && $oMod->isEnabledCaptcha() ) {
 			try {
 				if ( $oMod->getCaptchaCfg()->provider === 'hcaptcha' ) {
 					( new Utilities\HCaptcha\TestRequest() )

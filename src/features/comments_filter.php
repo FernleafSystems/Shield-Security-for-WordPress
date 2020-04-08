@@ -113,8 +113,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		else {
 			$aThis[ 'key_opts' ][ 'bot' ] = [
 				'name'    => __( 'Bot SPAM', 'wp-simple-firewall' ),
-				'enabled' => $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled(),
-				'summary' => ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() ) ?
+				'enabled' => $this->isEnabledGaspCheck() || $this->isEnabledCaptcha(),
+				'summary' => ( $this->isEnabledGaspCheck() || $this->isEnabledCaptcha() ) ?
 					__( 'Bot SPAM comments are blocked', 'wp-simple-firewall' )
 					: __( 'There is no protection against Bot SPAM comments', 'wp-simple-firewall' ),
 				'weight'  => 2,
@@ -160,7 +160,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	/**
 	 * @return bool
 	 */
-	public function isGoogleRecaptchaEnabled() {
+	public function isEnabledCaptcha() {
 		return $this->isModOptEnabled() &&
 			   ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->getCaptchaCfg()->ready );
 	}

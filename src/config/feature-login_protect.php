@@ -39,16 +39,6 @@
       ]
     },
     {
-      "slug":        "section_recaptcha",
-      "title":       "Google reCAPTCHA",
-      "title_short": "reCAPTCHA",
-      "summary":     [
-        "Purpose - Adds Google reCAPTCHA to the Login Forms.",
-        "Recommendation - Keep this turned on.",
-        "Note - You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
-      ]
-    },
-    {
       "slug":        "section_2fa_email",
       "title":       "Email Two-Factor Authentication",
       "title_short": "2FA - Email",
@@ -355,9 +345,9 @@
       ],
       "link_info":     "https://shsec.io/9m",
       "link_blog":     "https://shsec.io/shld5",
-      "name":          "Google reCAPTCHA",
-      "summary":       "Enable Google reCAPTCHA",
-      "description":   "Use Google reCAPTCHA on the login screen."
+      "name":          "CAPTCHA",
+      "summary":       "Enable CAPTCHA",
+      "description":   "Use CAPTCHA on the login screen."
     },
     {
       "key":         "antibot_form_ids",
