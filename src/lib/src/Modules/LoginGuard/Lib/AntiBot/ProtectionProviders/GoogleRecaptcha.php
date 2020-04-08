@@ -76,13 +76,13 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 	 * @inheritDoc
 	 */
 	public function buildFormInsert( $oFormProvider ) {
-		return $this->getGoogleRecaptchaHtml();
+		return $this->getCaptchaHtml();
 	}
 
 	/**
 	 * @return string
 	 */
-	private function getGoogleRecaptchaHtml() {
+	private function getCaptchaHtml() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
 		if ( $oMod->getCaptchaCfg()->invisible ) {
