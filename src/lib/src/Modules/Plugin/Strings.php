@@ -162,9 +162,7 @@ class Strings extends Base\Strings {
 									__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
 									'<strong>'.$oOpts->getIpSource().'</strong>',
 									Services::IP()->getRequestIp()
-								)
-								.'<br />'
-								.'<br />'.implode( '<br />', $this->buildIpAddressMap() );
+								);
 				break;
 
 			case 'block_send_email_address' :
@@ -282,37 +280,6 @@ class Strings extends Base\Strings {
 			'summary'     => $sSummary,
 			'description' => $sDescription,
 		];
-	}
-
-	/**
-	 * @return array
-	 */
-	private function buildIpAddressMap() {
-		$oReq = Services::Request();
-		$oOpts = $this->getOptions();
-
-		$aOptionData = $oOpts->getRawData_SingleOption( 'visitor_address_source' );
-		$aValueOptions = $aOptionData[ 'value_options' ];
-
-		$aMap = [];
-		$aEmpties = [];
-		foreach ( $aValueOptions as $aOptionValue ) {
-			$sKey = $aOptionValue[ 'value_key' ];
-			if ( $sKey == 'AUTO_DETECT_IP' ) {
-				$sKey = 'Auto Detect';
-				$sIp = Services::IP()->getRequestIp().sprintf( ' (%s)', $oOpts->getOpt( 'last_ip_detect_source' ) );
-			}
-			else {
-				$sIp = $oReq->server( $sKey );
-			}
-			if ( empty( $sIp ) ) {
-				$aEmpties[] = sprintf( '%s- %s', $sKey, 'ip not available' );
-			}
-			else {
-				$aMap[] = sprintf( '%s- %s', $sKey, empty( $sIp ) ? 'ip not available' : '<strong>'.$sIp.'</strong>' );
-			}
-		}
-		return array_merge( $aMap, $aEmpties );
 	}
 
 	/**

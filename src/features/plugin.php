@@ -664,6 +664,30 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @param array $aOptParams
+	 * @return array
+	 */
+	protected function buildOptionForUi( $aOptParams ) {
+		$aOptParams = parent::buildOptionForUi( $aOptParams );
+		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
+			$aNewOptions = [];
+			$oIPDet = Services::IP()->getIpDetector();
+			foreach ( $aOptParams[ 'value_options' ] as $sValKey => $sSource ) {
+				if ( $sValKey == 'AUTO_DETECT_IP' ) {
+					$aNewOptions[ $sValKey ] = $sSource;
+				}
+				else {
+					$sIPs = implode( ', ', $oIPDet->getIpsFromSource( $sSource ) );
+					$aNewOptions[ $sValKey ] = sprintf( '%s (%s)',
+						$sSource, empty( $sIPs ) ? '-' : $sIPs );
+				}
+			}
+			$aOptParams[ 'value_options' ] = $aNewOptions;
+		}
+		return $aOptParams;
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {

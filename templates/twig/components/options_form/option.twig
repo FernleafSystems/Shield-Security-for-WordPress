@@ -82,11 +82,16 @@
 					<input type="radio" id="Opt-{{ aOption.key }}_{{ option_value }}"
 						   name="{{ aOption.key }}"
 						   value="{{ option_value }}"
-							{% if aOption.disabled %}disabled="disabled"{% endif %}
-						   {% if aOption.value == option_value %}checked="checked"{% endif %}
+						   {% if aOption.disabled %}disabled="disabled"{% endif %}
+							{% if aOption.value == option_value %}checked="checked"{% endif %}
 						   class="custom-control-input">
-					<label class="custom-control-label" for="Opt-{{ aOption.key }}_{{ option_value }}"
-					>{{ option_value_name }}</label>
+					<label class="custom-control-label"
+						   for="Opt-{{ aOption.key }}_{{ option_value }}">
+							{% if aOption.value == option_value %}
+								<strong>{{ option_value_name }}</strong>
+							{% else %}
+								{{ option_value_name }}
+							{% endif %}</label>
 				</div>
 			{% endfor %}
 
@@ -105,7 +110,12 @@
 							{% if aOption.disabled %}disabled="disabled"{% endif %}
 					/>
 					<label class="custom-control-label"
-						   for="Opt-{{ aOption.key }}_{{ option_value }}">{{ option_value_name }}</label>
+						   for="Opt-{{ aOption.key }}_{{ option_value }}">
+							{% if option_value in aOption.value %}
+								<strong>{{ option_value_name }}</strong>
+							{% else %}
+								{{ option_value_name }}
+							{% endif %}</label>
 				</div>
 			{% endfor %}
 
@@ -153,8 +163,8 @@
 		{% endif %}
 	</div>
 
-	<div class="col">
-		<div class="option-description" id="Description{{ aOption.key }}">
+	<div class="col option-description">
+		<div id="Description{{ aOption.key }}">
 			<div>{{ aOption.description|raw }}</div>
 
 			<div class="mt-3 text-left text-nowrap">
