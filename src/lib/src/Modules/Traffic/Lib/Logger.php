@@ -120,7 +120,7 @@ class Logger {
 
 		$oEntry->rid = $this->getCon()->getShortRequestId();
 		$oEntry->uid = Services::WpUsers()->getCurrentWpUserId();
-		$oEntry->ip = inet_pton( Services::IP()->getRequestIp() );
+		$oEntry->ip = Services::IP()->getRequestIp();
 		$oEntry->verb = $oReq->getMethod();
 		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();
