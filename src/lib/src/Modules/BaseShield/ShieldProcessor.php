@@ -15,11 +15,6 @@ class ShieldProcessor extends Base\BaseProcessor {
 	private static $bRecaptchaEnqueue = false;
 
 	/**
-	 * @var bool
-	 */
-	private $bLogRequest;
-
-	/**
 	 * Resets the object values to be re-used anew
 	 */
 	public function init() {
@@ -46,47 +41,6 @@ class ShieldProcessor extends Base\BaseProcessor {
 	}
 
 	/**
-	 * @return bool
-	 */
-	protected function getIfLogRequest() {
-		return isset( $this->bLogRequest ) ? (bool)$this->bLogRequest : !Services::WpGeneral()->isCron();
-	}
-
-	/**
-	 * @param bool $bLog
-	 * @return $this
-	 */
-	public function setIfLogRequest( $bLog ) {
-		$this->bLogRequest = $bLog;
-		return $this;
-	}
-
-	public function registerGoogleRecaptchaJs() {
-		$sJsUri = add_query_arg(
-			[
-				'hl'     => $this->getGoogleRecaptchaLocale(),
-				'onload' => 'onLoadIcwpRecaptchaCallback',
-				'render' => 'explicit',
-			],
-			'https://www.google.com/recaptcha/api.js'
-		);
-		wp_register_script( self::RECAPTCHA_JS_HANDLE, $sJsUri, [], false, true );
-		wp_enqueue_script( self::RECAPTCHA_JS_HANDLE );
-
-		// This also gives us the chance to remove recaptcha before it's printed, if it isn't needed
-		add_action( 'wp_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
-		add_action( 'login_footer', [ $this, 'maybeDequeueRecaptcha' ], -100 );
-
-		Services::Includes()
-				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'async', 'async' )
-				->addIncludeAttribute( self::RECAPTCHA_JS_HANDLE, 'defer', 'defer' );
-		/**
-		 * Change to recaptcha implementation now means
-		 * 1 - the form will not submit unless the recaptcha has been executed (either invisible or manual)
-		 */
-	}
-
-	/**
 	 * Filter used to collect plugin data for tracking.  Fired from the plugin processor only if the option is enabled
 	 * - it is not enabled by default.
 	 * Note that in this case we "mask" options that have been identified as "sensitive" - i.e. could contain
@@ -108,37 +62,23 @@ class ShieldProcessor extends Base\BaseProcessor {
 	}
 
 	/**
-	 * If recaptcha is required, it prints the necessary snippet and does not remove the enqueue
-	 *
 	 * @throws \Exception
+	 * @deprecated 9.0
 	 */
 	public function maybeDequeueRecaptcha() {
-
-		if ( $this->isRecaptchaEnqueue() ) {
-			/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
-			$oMod = $this->getMod();
-			$oCFG = $oMod->getCaptchaCfg();
-			echo $oMod->renderTemplate(
-				'snippets/google_recaptcha_js',
-				[
-					'sitekey' => $oCFG->key,
-					'size'    => $oCFG->invisible ? 'invisible' : '',
-					'theme'   => $oCFG->invisible ? 'light' : $oCFG->theme,
-					'invis'   => $oCFG->invisible,
-				]
-
-			);
-		}
-		else {
-			wp_dequeue_script( self::RECAPTCHA_JS_HANDLE );
-		}
 	}
 
 	/**
-	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function registerGoogleRecaptchaJs() {
+	}
+
+	/**
+	 * @deprecated 9.0
 	 */
 	public function isRecaptchaEnqueue() {
-		return self::$bRecaptchaEnqueue;
+		return false;
 	}
 
 	/**
@@ -148,7 +88,6 @@ class ShieldProcessor extends Base\BaseProcessor {
 	 * @return $this
 	 */
 	public function setRecaptchaToEnqueue() {
-		self::$bRecaptchaEnqueue = true;
 		return $this;
 	}
 

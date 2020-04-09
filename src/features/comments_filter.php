@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @inheritDoc
+	 * @return Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO
 	 */
 	public function getCaptchaCfg() {
 		$oCfg = parent::getCaptchaCfg();

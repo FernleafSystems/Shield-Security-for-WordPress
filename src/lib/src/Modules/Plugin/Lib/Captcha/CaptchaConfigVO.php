@@ -13,6 +13,8 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property string $theme
  * @property bool   $invisible
  * @property bool   $ready
+ * @property string $url_api
+ * @property string $js_handle
  */
 class CaptchaConfigVO {
 

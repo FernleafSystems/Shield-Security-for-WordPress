@@ -18,6 +18,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	private $oPluginBadgeController;
 
 	/**
+	 * @var Shield\Utilities\ReCaptcha\Enqueue
+	 */
+	private $oCaptchaEnqueue;
+
+	/**
 	 * @return Plugin\Lib\ImportExport\ImportExportController
 	 */
 	public function getImpExpController() {
@@ -661,6 +666,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getDbHandler_Notes() {
 		return $this->getDbH( 'notes' );
+	}
+
+	/**
+	 * @return Shield\Utilities\ReCaptcha\Enqueue
+	 */
+	public function getCaptchaEnqueue() {
+		if ( !isset( $this->oCaptchaEnqueue ) ) {
+			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
+		}
+		return $this->oCaptchaEnqueue;
 	}
 
 	/**

@@ -8,35 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield;
  */
 class ICWP_WPSF_Processor_LoginProtect_GoogleRecaptcha extends ICWP_WPSF_Processor_LoginProtect_Base {
 
-	/**
-	 * We no longer check if recaptcha is ready, we just use run(). So check beforehand.
-	 */
-	public function run() {
-		parent::run();
-		add_action( 'wp_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
-		add_action( 'login_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
-	}
-
 	public function onWpEnqueueJs() {
-		$this->setRecaptchaToEnqueue();
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function performCheckWithException() {
-		if ( !$this->isFactorTested() ) {
-			$this->setFactorTested( true );
-			try {
-				( new Shield\Utilities\ReCaptcha\TestRequest() )
-					->setMod( $this->getMod() )
-					->test();
-			}
-			catch ( \Exception $oE ) {
-				$this->processFailure();
-				throw $oE;
-			}
-		}
 	}
 
 	/**

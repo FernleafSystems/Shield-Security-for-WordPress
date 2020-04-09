@@ -82,11 +82,19 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @return Plugin\Lib\Captcha\CaptchaConfigVO
 	 */
 	public function getCaptchaCfg() {
+		$oPlugMod = $this->getCon()->getModule_Plugin();
 		/** @var Shield\Modules\Plugin\Options $oOpts */
-		$oOpts = $this->getCon()
-					  ->getModule_Plugin()
-					  ->getOptions();
-		return ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $oOpts->getCaptchaConfig() );
+		$oOpts = $oPlugMod->getOptions();
+		$oCfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $oOpts->getCaptchaConfig() );
+		if ( $oCfg->provider === 'gcaptcha' ) {
+			$oCfg->url_api = 'https://www.google.com/recaptcha/api.js';
+			$oCfg->js_handle = $this->getCon()->prefix( 'gcaptcha' );
+		}
+		elseif ( $oCfg->provider === 'hcaptcha' ) {
+			$oCfg->url_api = 'https://hcaptcha.com/1/api.js';
+			$oCfg->js_handle = $this->getCon()->prefix( 'hcaptcha' );
+		}
+		return $oCfg;
 	}
 
 	/**

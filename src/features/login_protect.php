@@ -260,7 +260,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @inheritDoc
+	 * @return Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO
 	 */
 	public function getCaptchaCfg() {
 		$oCfg = parent::getCaptchaCfg();

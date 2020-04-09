@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseProtectionProvider {
 
@@ -16,10 +15,10 @@ abstract class BaseProtectionProvider {
 	private $bFactorTested;
 
 	public function __construct() {
-		if ( Services::Request()->query( 'wp_service_worker', 0 ) != 1 ) {
-			add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
-			add_action( 'login_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
-		}
+		add_action( 'wp_loaded', [ $this, 'setup' ] );
+	}
+
+	public function setup() {
 	}
 
 	/**
@@ -34,9 +33,6 @@ abstract class BaseProtectionProvider {
 	 * @return string
 	 */
 	abstract public function buildFormInsert( $oFormProvider );
-
-	public function onWpEnqueueJs() {
-	}
 
 	/**
 	 * @param LoginGuard\Lib\AntiBot\FormProviders\BaseFormProvider $oForm
