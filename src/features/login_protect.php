@@ -39,12 +39,28 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$oOpts->setOpt( 'antibot_form_ids', array_values( array_unique( $aIds ) ) );
 
 		$this->cleanLoginUrlPath();
+		$this->ensureCorrectCaptchaConfig();
+	}
 
-		if ( !$this->isPremium() ) {
-			$sStyle = $oOpts->getOpt( 'enable_google_recaptcha_login' );
-			if ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
-				$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
+	protected function updateHandler() {
+		$this->ensureCorrectCaptchaConfig();
+	}
+
+	protected function ensureCorrectCaptchaConfig() {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		$sStyle = $oOpts->getOpt( 'enable_google_recaptcha_login' );
+		if ( $this->isPremium() ) {
+			$oCfg = $this->getCaptchaCfg();
+			if ( $oCfg->provider == $oCfg::PROV_GOOGLE_RECAP2 ) {
+				if ( !$oCfg->invisible && $sStyle == 'invisible' ) {
+					$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
+				}
 			}
+		}
+		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+			$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
 		}
 	}
 
@@ -253,6 +269,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$sStyle = $this->getOpt( 'enable_google_recaptcha_login' );
 		if ( $sStyle !== 'default' && $this->isPremium() ) {
 			$oCfg->theme = $sStyle;
+			$oCfg->invisible = $oCfg->theme == 'invisible';
 		}
 		return $oCfg;
 	}

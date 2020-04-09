@@ -72,7 +72,7 @@ class Enqueue {
 				[
 					'sitekey' => $oCFG->key,
 					'size'    => $oCFG->invisible ? 'invisible' : '',
-					'theme'   => $oCFG->invisible ? 'light' : $oCFG->theme,
+					'theme'   => $oCFG->theme,
 					'invis'   => $oCFG->invisible,
 				]
 

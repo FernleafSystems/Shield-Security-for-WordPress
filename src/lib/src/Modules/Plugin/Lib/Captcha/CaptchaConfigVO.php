@@ -34,10 +34,6 @@ class CaptchaConfigVO {
 
 		switch ( $sProperty ) {
 
-			case 'invisible':
-				$mValue = $this->theme == 'invisible';
-				break;
-
 			case 'ready':
 				$mValue = !empty( $this->key ) && !empty( $this->secret );
 				break;

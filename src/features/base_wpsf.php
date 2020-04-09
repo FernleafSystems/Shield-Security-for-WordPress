@@ -86,6 +86,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		/** @var Shield\Modules\Plugin\Options $oOpts */
 		$oOpts = $oPlugMod->getOptions();
 		$oCfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $oOpts->getCaptchaConfig() );
+		$oCfg->invisible = $oCfg->theme === 'invisible';
 
 		if ( $oCfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
 			$oCfg->url_api = 'https://www.google.com/recaptcha/api.js';

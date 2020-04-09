@@ -10,6 +10,7 @@ class GoogleRecaptcha extends BaseProtectionProvider {
 		$this->getCon()
 			 ->getModule_Plugin()
 			 ->getCaptchaEnqueue()
+			 ->setMod( $this->getMod() )
 			 ->setToEnqueue();
 	}
 

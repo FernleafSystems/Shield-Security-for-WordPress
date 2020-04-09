@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
@@ -13,8 +14,27 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
 		if ( $sStyle !== 'default' && $this->isPremium() ) {
 			$oCfg->theme = $sStyle;
+			$oCfg->invisible = $oCfg->theme == 'invisible';
 		}
 		return $oCfg;
+	}
+
+	protected function ensureCorrectCaptchaConfig() {
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		$sStyle = $oOpts->getOpt( 'google_recaptcha_style_comments' );
+		if ( $this->isPremium() ) {
+			$oCfg = $this->getCaptchaCfg();
+			if ( $oCfg->provider == $oCfg::PROV_GOOGLE_RECAP2 ) {
+				if ( !$oCfg->invisible && $sStyle == 'invisible' ) {
+					$oOpts->setOpt( 'google_recaptcha_style_comments', 'default' );
+				}
+			}
+		}
+		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+			$oOpts->setOpt( 'google_recaptcha_style_comments', 'default' );
+		}
 	}
 
 	/**
@@ -84,12 +104,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 			) ) )
 		);
 
-		if ( !$this->isPremium() ) {
-			$sStyle = $oOpts->getOpt( 'google_recaptcha_style_comments' );
-			if ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
-				$oOpts->setOpt( 'google_recaptcha_style_comments', 'default' );
-			}
-		}
+		$this->ensureCorrectCaptchaConfig();
 	}
 
 	/**
@@ -210,6 +225,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		if ( !$oOpts->isOpt( 'enable_google_recaptcha_comments', 'Y' ) ) {
 			$oOpts->setOpt( 'google_recaptcha_style_comments', 'disabled' );
 		}
+		$this->ensureCorrectCaptchaConfig();
 	}
 
 	/**

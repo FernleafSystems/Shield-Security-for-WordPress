@@ -19,6 +19,7 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends Modules\BaseShi
 			$this->getCon()
 				 ->getModule_Plugin()
 				 ->getCaptchaEnqueue()
+				 ->setMod( $this->getMod() )
 				 ->setToEnqueue();
 			add_action( 'comment_form_after_fields', [ $this, 'printGoogleRecaptchaCheck' ] );
 		}
