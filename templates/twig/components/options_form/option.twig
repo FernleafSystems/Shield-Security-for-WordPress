@@ -83,11 +83,12 @@
 						   name="{{ aOption.key }}"
 						   value="{{ option_value }}"
 						   {% if aOption.disabled %}disabled="disabled"{% endif %}
-							{% if aOption.value is sameas(option_value) %}checked="checked"{% endif %}
+							{# this type of comparison required for comment spam as value is 0 or '0' #}
+							{% if aOption.value matches "'^"~option_value~"$'" %}checked="checked"{% endif %}
 						   class="custom-control-input">
 					<label class="custom-control-label"
 						   for="Opt-{{ aOption.key }}_{{ option_value }}">
-							{% if aOption.value is sameas(option_value) %}
+							{% if aOption.value matches "'^"~option_value~"$'" %}
 								<strong>{{ option_value_name }}</strong>
 							{% else %}
 								{{ option_value_name }}
