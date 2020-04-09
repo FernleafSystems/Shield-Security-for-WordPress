@@ -86,14 +86,19 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		/** @var Shield\Modules\Plugin\Options $oOpts */
 		$oOpts = $oPlugMod->getOptions();
 		$oCfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $oOpts->getCaptchaConfig() );
-		if ( $oCfg->provider === 'gcaptcha' ) {
+
+		if ( $oCfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
 			$oCfg->url_api = 'https://www.google.com/recaptcha/api.js';
-			$oCfg->js_handle = $this->getCon()->prefix( 'gcaptcha' );
 		}
-		elseif ( $oCfg->provider === 'hcaptcha' ) {
+		elseif ( $oCfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_HCAPTCHA ) {
 			$oCfg->url_api = 'https://hcaptcha.com/1/api.js';
-			$oCfg->js_handle = $this->getCon()->prefix( 'hcaptcha' );
 		}
+		else {
+			error_log( 'CAPTCHA Provider not support' );
+		}
+
+		$oCfg->js_handle = $this->getCon()->prefix( $oCfg->provider );
+
 		return $oCfg;
 	}
 

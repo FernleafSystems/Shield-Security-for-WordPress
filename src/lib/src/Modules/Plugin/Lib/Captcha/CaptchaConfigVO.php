@@ -18,6 +18,8 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  */
 class CaptchaConfigVO {
 
+	const PROV_GOOGLE_RECAP2 = 'grecaptcha';
+	const PROV_HCAPTCHA = 'hcaptcha';
 	use StdClassAdapter {
 		__get as __adapterGet;
 	}

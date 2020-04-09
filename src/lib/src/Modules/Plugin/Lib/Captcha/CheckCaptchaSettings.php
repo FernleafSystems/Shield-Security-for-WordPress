@@ -32,10 +32,10 @@ class CheckCaptchaSettings {
 
 		$nAt = -1;
 		if ( $oCfg->ready && $oOpts->getOpt( 'captcha_checked_at' ) <= 0 ) {
-			if ( $oCfg->provider == 'grecaptcha' ) {
+			if ( $oCfg->provider == CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
 				$bValid = $this->verifyRecaptcha();
 			}
-			elseif ( $oCfg->provider == 'hcaptcha' ) {
+			elseif ( $oCfg->provider == CaptchaConfigVO::PROV_HCAPTCHA ) {
 				$bValid = $this->verifyHcaptcha();
 			}
 			else {

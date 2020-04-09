@@ -6,9 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\ReCaptcha\TestRequest;
 
 class GoogleRecaptcha extends BaseProtectionProvider {
 
-	const CAPTCHA_JS_HANDLE = 'icwp-google-recaptcha';
-	const URL_API = 'https://www.google.com/recaptcha/api.js';
-
 	public function setup() {
 		$this->getCon()
 			 ->getModule_Plugin()

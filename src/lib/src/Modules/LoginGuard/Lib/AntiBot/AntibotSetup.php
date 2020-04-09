@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AntibotSetup {
@@ -38,14 +39,16 @@ class AntibotSetup {
 				->setMod( $oMod );
 		}
 
-		if ( $oMod->isGoogleRecaptchaEnabled() ) {
-			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
-				->setMod( $oMod );
-		}
-
-		if ( $oMod->isHCaptchaEnabled() ) {
-			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
-				->setMod( $oMod );
+		if ( $oMod->isEnabledCaptcha() ) {
+			$oCfg = $oMod->getCaptchaCfg();
+			if ( $oCfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
+				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
+					->setMod( $oMod );
+			}
+			elseif ( $oCfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
+				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
+					->setMod( $oMod );
+			}
 		}
 
 		if ( !empty( $aProtectionProviders ) ) {
@@ -56,7 +59,7 @@ class AntibotSetup {
 				new AntiBot\FormProviders\WordPress()
 			];
 
-			if ( $this->getMod()->getIfSupport3rdParty()) {
+			if ( $this->getMod()->getIfSupport3rdParty() ) {
 				if ( @class_exists( 'BuddyPress' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\BuddyPress();
 				}
