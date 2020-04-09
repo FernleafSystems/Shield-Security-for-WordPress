@@ -1,25 +1,22 @@
 <?php
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\ProtectionProviders;
 
-/**
- * Class ICWP_WPSF_Processor_LoginProtect_Cooldown
- * @deprecated 9.0
- */
-class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_LoginProtect_Base {
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\CooldownFlagFile;
+
+class CoolDown extends BaseProtectionProvider {
 
 	/**
-	 * @throws \Exception
+	 * @inheritDoc
 	 */
-	protected function performCheckWithException() {
-
+	public function performCheck( $oForm ) {
 		if ( !$this->isFactorTested() ) {
 			$this->setFactorTested( true );
 
 			// At this point someone has attempted to login within the previous login wait interval
 			// So we remove WordPress's authentication filter and our own user check authentication
 			// And finally return a WP_Error which will be reflected back to the user.
-			$oCooldownFlag = ( new LoginGuard\Lib\CooldownFlagFile() )->setMod( $this->getMod() );
+			$oCooldownFlag = ( new CooldownFlagFile() )->setMod( $this->getMod() );
 			if ( $oCooldownFlag->isWithinCooldownPeriod() ) {
 				$sErrorString = __( "Request Cooldown in effect.", 'wp-simple-firewall' ).' '
 								.sprintf(
@@ -34,5 +31,12 @@ class ICWP_WPSF_Processor_LoginProtect_Cooldown extends ICWP_WPSF_Processor_Logi
 
 			$oCooldownFlag->updateCooldownFlag();
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function buildFormInsert( $oFormProvider ) {
+		return '';
 	}
 }

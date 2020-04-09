@@ -354,6 +354,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isEnabledGaspCheck() {
 		return $this->isModOptEnabled() && $this->isOpt( 'enable_login_gasp_check', 'Y' );
@@ -413,9 +414,12 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isEnabledBotJs() {
-		return $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledGaspCheck() || $this->isEnabledCaptcha();
 	}
 
 	/**
@@ -462,7 +466,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bHasBotCheck = $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
+			$bHasBotCheck = $oOpts->isEnabledGaspCheck() || $this->isEnabledCaptcha();
 
 			$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
 			$bBotRegister = $bHasBotCheck && $this->isProtectRegister();

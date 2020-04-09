@@ -6,6 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class IncludeJs
+ * @package    FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot
+ * @deprecated 9.0
+ */
 class IncludeJs {
 
 	use ModConsumer;
@@ -27,7 +32,7 @@ class IncludeJs {
 		$oOpts = $this->getOptions();
 
 		$sAsset = 'shield-antibot';
-		$sUnique = $oMod->prefix( $sAsset );
+		$sUnique = $oCon->prefix( $sAsset );
 		wp_register_script(
 			$sUnique,
 			$oCon->getPluginUrl_Js( $sAsset ),
@@ -50,7 +55,7 @@ class IncludeJs {
 					'loading' => __( 'Loading', 'wp-simple-firewall' )
 				],
 				'flags'          => [
-					'gasp'  => $oMod->isEnabledGaspCheck(),
+					'gasp'  => $oOpts->isEnabledGaspCheck(),
 					'recap' => $oMod->isGoogleRecaptchaEnabled(),
 				]
 			]

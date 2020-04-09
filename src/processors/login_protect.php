@@ -11,8 +11,6 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var Modules\LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
 
 		// XML-RPC Compatibility
 		if ( Services::WpGeneral()->isXmlrpc() && $oMod->isXmlrpcBypass() ) {
@@ -26,9 +24,6 @@ class ICWP_WPSF_Processor_LoginProtect extends Modules\BaseShield\ShieldProcesso
 
 		if ( !$oMod->isVisitorWhitelisted() ) {
 			( new AntiBot\AntibotSetup() )->setMod( $oMod );
-			if ( $oOpts->isCooldownEnabled() && Services::Request()->isPost() ) {
-				$this->getSubPro( 'cooldown' )->execute();
-			}
 			$oMod->getLoginIntentController()->run();
 		}
 	}

@@ -78,13 +78,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isCooldownEnabled() {
-		return $this->getCooldownInterval() > 0;
-	}
-
-	/**
 	 * Also considers whether email sending ability has been verified
 	 * @return bool
 	 */
@@ -97,6 +90,20 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isEnabledEmailAuth() {
 		return $this->isOpt( 'enable_email_authentication', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledCooldown() {
+		return $this->getCooldownInterval() > 0;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledGaspCheck() {
+		return $this->isOpt( 'enable_login_gasp_check', 'Y' );
 	}
 
 	/**

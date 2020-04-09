@@ -155,9 +155,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'ips';
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_LoginProtect $oModule */
-		$oModule = $oConn->getModule( 'login_protect' );
-		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+		$oModule = $oConn->getModule_LoginGuard();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
+		$oOpts = $oModule->getOptions();
+		if ( !( $oModule->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
@@ -531,6 +532,9 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardLoginProtect() {
+		$oMod = $this->getCon()->getModule_LoginGuard();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
+		$oOpts = $oMod->getOptions();
 
 		$sInput = Services::Request()->post( 'LoginProtectOption' );
 		$bSuccess = false;
@@ -539,14 +543,13 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			$oMod = $this->getCon()->getModule_LoginGuard();
 			if ( $bEnabled ) { // we don't disable the whole module
 				$oMod->setIsMainFeatureEnabled( true );
 			}
 			$oMod->setEnabledGaspCheck( $bEnabled );
 			$oMod->saveModOptions();
 
-			$bSuccess = $oMod->isEnabledGaspCheck() === $bEnabled;
+			$bSuccess = $oOpts->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', __( 'Login Guard', 'wp-simple-firewall' ),
 					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )
