@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\FileLocker\GetPublicKey;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker\GetPublicKey;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**

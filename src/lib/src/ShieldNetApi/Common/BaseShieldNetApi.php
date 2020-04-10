@@ -1,12 +1,12 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\Common;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\HandshakingNonce;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseShieldSecurityApi extends BaseApi {
+class BaseShieldNetApi extends BaseApi {
 
 	use ModConsumer;
 	const DEFAULT_URL_STUB = 'https://onedollarplugin.com/wp-json/apto-ssapi/v1';

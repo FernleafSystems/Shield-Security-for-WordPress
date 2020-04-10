@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\Common;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
 use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use FernleafSystems\Wordpress\Services\Services;

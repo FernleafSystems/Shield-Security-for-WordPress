@@ -1,8 +1,9 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HandshakingNonce {
@@ -16,7 +17,7 @@ class HandshakingNonce {
 		$aNonces = $this->getNonces();
 
 		$sPass = wp_generate_password( 12, false );
-		$aNonces[ $sPass ] = Services::Request()->carbon()->addSeconds( 90 )->timestamp;
+		$aNonces[ $sPass ] = Services::Request()->ts() + 90;
 		$this->storeNonces( $aNonces );
 
 		return $sPass;
@@ -41,11 +42,11 @@ class HandshakingNonce {
 	 * @return int[]
 	 */
 	private function getNonces() {
-		$aNonces = $this->getCon()
-						->getModule_Plugin()
-						->getOptions()
-						->getOpt( 'ssapi_nonces', [] );
-		return is_array( $aNonces ) ? $aNonces : [];
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getCon()
+					  ->getModule_Plugin()
+					  ->getOptions();
+		return $oOpts->getShieldNetApiData()[ 'nonces' ];
 	}
 
 	/**
@@ -55,15 +56,18 @@ class HandshakingNonce {
 	 */
 	private function storeNonces( array $aNonces ) {
 		$oModPlugin = $this->getCon()->getModule_Plugin();
-		$oModPlugin->getOptions()
-				   ->setOpt( 'ssapi_nonces',
-					   array_filter(
-						   $aNonces,
-						   function ( $nTS ) {
-							   return $nTS > Services::Request()->ts();
-						   }
-					   )
-				   );
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $oModPlugin->getOptions();
+
+		$aD = $oOpts->getShieldNetApiData();
+		$aD[ 'nonces' ] = array_filter(
+			$aNonces,
+			function ( $nTS ) {
+				return $nTS > Services::Request()->ts();
+			}
+		);
+		$oOpts->setOpt( 'snapi_data', $aD );
+
 		$oModPlugin->saveModOptions();
 		return $this;
 	}

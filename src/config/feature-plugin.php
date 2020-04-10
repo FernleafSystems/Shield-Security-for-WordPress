@@ -439,7 +439,7 @@
       "default":      ""
     },
     {
-      "key":          "ssapi_nonces",
+      "key":          "snapi_data",
       "transferable": false,
       "sensitive":    true,
       "section":      "section_non_ui",

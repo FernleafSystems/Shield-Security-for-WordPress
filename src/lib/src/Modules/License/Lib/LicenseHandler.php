@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\OneTimeExecute;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\HandshakingNonce;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseHandler extends OneTimeExecute {

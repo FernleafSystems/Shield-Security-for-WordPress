@@ -1,10 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\FileLocker;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\Common\BaseShieldSecurityApi;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApi;
 
-class GetPublicKey extends BaseShieldSecurityApi {
+class GetPublicKey extends BaseShieldNetApi {
 
 	const API_ACTION = 'filelocker/public_key';
 

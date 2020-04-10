@@ -1,10 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\Handshake;
+namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Handshake;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldSecurityApi\Common;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common;
 
-class Verify extends Common\BaseShieldSecurityApi {
+class Verify extends Common\BaseShieldNetApi {
 
 	const API_ACTION = 'handshake/verify';
 
