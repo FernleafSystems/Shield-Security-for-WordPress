@@ -9,6 +9,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi
  * @property int   $last_handshake_at
  * @property int   $last_handshake_attempt_at
+ * @property int   $handshake_fail_count
  * @property int[] $nonces
  */
 class ShieldNetApiDataVO {
@@ -31,6 +32,12 @@ class ShieldNetApiDataVO {
 				if ( !is_array( $mValue ) ) {
 					$mValue = [];
 				}
+				break;
+
+			case 'last_handshake_at':
+			case 'last_handshake_attempt_at':
+			case 'handshake_fail_count':
+				$mValue = (int)$mValue;
 				break;
 
 			default:

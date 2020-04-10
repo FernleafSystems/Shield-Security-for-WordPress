@@ -52,15 +52,16 @@ class HandshakingNonce {
 	 * @return $this
 	 */
 	private function storeNonces( array $aNonces ) {
-		$oVO = $this->getCon()
-					->getModule_Plugin()
-					->getShieldNetApiController()->vo;
-		$oVO->nonces = array_filter(
+		$oSnapiCon = $this->getCon()
+						  ->getModule_Plugin()
+						  ->getShieldNetApiController();
+		$oSnapiCon->vo->nonces = array_filter(
 			$aNonces,
 			function ( $nTS ) {
 				return $nTS > Services::Request()->ts();
 			}
 		);
+		$oSnapiCon->storeVoData();
 		return $this;
 	}
 }

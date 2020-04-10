@@ -18,7 +18,6 @@ class ShieldNetApiController {
 	use ModConsumer;
 	use StdClassAdapter {
 		__get as __adapterGet;
-		__set as __adapterSet;
 	}
 
 	/**
@@ -26,26 +25,32 @@ class ShieldNetApiController {
 	 */
 	public function canHandshake() {
 		$nNow = Services::Request()->ts();
-		if ( empty( $this->vo->last_handshake_at )
-			 && $nNow - MINUTE_IN_SECONDS*5 > (int)$this->vo->last_handshake_attempt_at ) {
-			$bCanHandshake = ( new ShieldNetApi\Handshake\Verify() )
-				->setMod( $this->getMod() )
-				->run();
+		if ( empty( $this->vo->last_handshake_at ) ) {
 
-			$this->vo->last_handshake_attempt_at = $nNow;
-			if ( $bCanHandshake ) {
-				$this->vo->last_handshake_at = $nNow;
+			$bCanTry = $nNow - MINUTE_IN_SECONDS*5*$this->vo->handshake_fail_count
+					   > (int)$this->vo->last_handshake_attempt_at;
+			if ( $bCanTry ) {
+				$bCanHandshake = ( new ShieldNetApi\Handshake\Verify() )
+					->setMod( $this->getMod() )
+					->run();
+
+				if ( $bCanHandshake ) {
+					$this->vo->last_handshake_at = $nNow;
+					$this->vo->handshake_fail_count = 0;
+				}
+				else {
+					$this->vo->handshake_fail_count++;
+				}
+				$this->vo->last_handshake_attempt_at = $nNow;
+				$this->storeVoData();
 			}
-			$this->storeVoData();
 		}
 
 		return $this->vo->last_handshake_at > 0;
 	}
 
-	private function storeVoData() {
-		$oMod = $this->getMod();
-		$oMod->getOptions()->setOpt( 'snapi_data', $this->vo->getRawDataAsArray() );
-		$oMod->saveModOptions();
+	public function storeVoData() {
+		$this->getMod()->getOptions()->setOpt( 'snapi_data', $this->vo->getRawDataAsArray() );
 	}
 
 	/**
@@ -54,9 +59,7 @@ class ShieldNetApiController {
 	 */
 	public function __get( $sProperty ) {
 		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getCon()
-					  ->getModule_Plugin()
-					  ->getOptions();
+		$oOpts = $this->getOptions();
 
 		$mValue = $this->__adapterGet( $sProperty );
 
@@ -64,7 +67,11 @@ class ShieldNetApiController {
 
 			case 'vo':
 				if ( empty( $mValue ) ) {
-					$mValue = ( new ShieldNetApiDataVO() )->applyFromArray( $oOpts->getShieldNetApiData() );
+					$aData = $oOpts->getOpt( 'snapi_data', [] );
+					$mValue = ( new ShieldNetApiDataVO() )->applyFromArray(
+						is_array( $aData ) ? $aData : []
+					);
+					$this->vo = $mValue;
 				}
 				break;
 
@@ -73,16 +80,5 @@ class ShieldNetApiController {
 		}
 
 		return $mValue;
-	}
-
-	/**
-	 * @param string $sProperty
-	 * @param mixed  $mValue
-	 * @return $this|mixed
-	 */
-	public function __set( $sProperty, $mValue ) {
-		$this->__adapterSet( $sProperty, $mValue );
-		$this->storeVoData(); // ensure it's save when we update the VO
-		return;
 	}
 }
