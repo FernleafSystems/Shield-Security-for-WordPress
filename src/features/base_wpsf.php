@@ -44,6 +44,26 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return Shield\ShieldNetApi\ShieldNetApiDataVO
+	 */
+	public function getShieldNetApiVO() {
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getCon()
+					  ->getModule_Plugin()
+					  ->getOptions();
+		return ( new Shield\ShieldNetApi\ShieldNetApiDataVO() )->applyFromArray( $oOpts->getShieldNetApiData() );
+	}
+
+	/**
+	 * @param Shield\ShieldNetApi\ShieldNetApiDataVO $oVO
+	 */
+	public function updateShieldNetApiVO( Shield\ShieldNetApi\ShieldNetApiDataVO $oVO ) {
+		$oTheMod = $this->getCon()->getModule_Plugin();
+		$oTheMod->getOptions()->setOpt( 'snapi_data', $oVO->getRawDataAsArray() );
+		$oTheMod->saveModOptions();
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function hasSession() {
@@ -101,29 +121,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		$oCfg->js_handle = $this->getCon()->prefix( $oCfg->provider );
 
 		return $oCfg;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated
-	 */
-	public function getGoogleRecaptchaSecretKey() {
-		return $this->getCaptchaCfg()->secret;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated
-	 */
-	public function getGoogleRecaptchaSiteKey() {
-		return $this->getCaptchaCfg()->key;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCaptchaStyle() {
-		return $this->getCaptchaCfg()->theme;
 	}
 
 	/**
@@ -361,5 +358,29 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function getPluginDefaultRecipientAddress() {
 		return $this->getPluginReportEmail();
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getGoogleRecaptchaSecretKey() {
+		return $this->getCaptchaCfg()->secret;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getGoogleRecaptchaSiteKey() {
+		return $this->getCaptchaCfg()->key;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getCaptchaStyle() {
+		return $this->getCaptchaCfg()->theme;
 	}
 }

@@ -66,15 +66,7 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getShieldNetApiData() {
 		$aD = $this->getOpt( 'snapi_data', [] );
-		if ( !is_array( $aD ) ) {
-			$aD = [];
-		}
-		return array_merge(
-			[
-				'nonces' => []
-			],
-			$aD
-		);
+		return is_array( $aD ) ? $aD:[];
 	}
 
 	/**

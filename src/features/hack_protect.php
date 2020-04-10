@@ -419,6 +419,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 				break;
 
 			case 'section_realtime':
+				if ( !$this->canHandshake() ) {
+					$aWarnings[] = sprintf( __( 'Not available your site cannot handshake with ShieldNET API.', 'wp-simple-firewall' ), 'OpenSSL' );
+				}
 //				if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 //					$aWarnings[] = sprintf( __( 'Not available because the %s extension is not available.', 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
@@ -435,6 +438,29 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		return $aWarnings;
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function canHandshake() {
+		$oVO = $this->getShieldNetApiVO();
+
+		$nNow = Services::Request()->ts();
+		if ( empty( $oVO->last_handshake_at )
+			 && $nNow - MINUTE_IN_SECONDS*5 > (int)$oVO->last_handshake_attempt_at ) {
+			$bCanHandshake = ( new Shield\ShieldNetApi\Handshake\Verify() )
+				->setMod( $this )
+				->run();
+
+			$oVO->last_handshake_attempt_at = $nNow;
+			if ( $bCanHandshake) {
+				$oVO->last_handshake_at = $nNow;
+			}
+			$this->updateShieldNetApiVO( $oVO );
+		}
+
+		return $oVO->last_handshake_at > 0;
 	}
 
 	/**

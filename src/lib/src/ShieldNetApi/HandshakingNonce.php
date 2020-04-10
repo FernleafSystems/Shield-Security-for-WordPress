@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HandshakingNonce {
@@ -42,11 +41,9 @@ class HandshakingNonce {
 	 * @return int[]
 	 */
 	private function getNonces() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getCon()
-					  ->getModule_Plugin()
-					  ->getOptions();
-		return $oOpts->getShieldNetApiData()[ 'nonces' ];
+		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
+		$oMod = $this->getMod();
+		return $oMod->getShieldNetApiVO()->nonces;
 	}
 
 	/**
@@ -56,19 +53,16 @@ class HandshakingNonce {
 	 */
 	private function storeNonces( array $aNonces ) {
 		$oModPlugin = $this->getCon()->getModule_Plugin();
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $oModPlugin->getOptions();
 
-		$aD = $oOpts->getShieldNetApiData();
-		$aD[ 'nonces' ] = array_filter(
+		$oVO = $oModPlugin->getShieldNetApiVO();
+		$oVO->nonces = array_filter(
 			$aNonces,
 			function ( $nTS ) {
 				return $nTS > Services::Request()->ts();
 			}
 		);
-		$oOpts->setOpt( 'snapi_data', $aD );
+		$oModPlugin->updateShieldNetApiVO( $oVO );
 
-		$oModPlugin->saveModOptions();
 		return $this;
 	}
 }
