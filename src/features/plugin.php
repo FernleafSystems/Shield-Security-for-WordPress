@@ -23,6 +23,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	private $oCaptchaEnqueue;
 
 	/**
+	 * @var Shield\ShieldNetApi\ShieldNetApiController
+	 */
+	private $oShieldNetApiController;
+
+	/**
 	 * @return Plugin\Lib\ImportExport\ImportExportController
 	 */
 	public function getImpExpController() {
@@ -42,6 +47,17 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				->setMod( $this );
 		}
 		return $this->oPluginBadgeController;
+	}
+
+	/**
+	 * @return Shield\ShieldNetApi\ShieldNetApiController
+	 */
+	public function getShieldNetApiController() {
+		if ( !isset( $this->oShieldNetApiController ) ) {
+			$this->oShieldNetApiController = ( new Shield\ShieldNetApi\ShieldNetApiController() )
+				->setMod( $this );
+		}
+		return $this->oShieldNetApiController;
 	}
 
 	protected function doPostConstruction() {

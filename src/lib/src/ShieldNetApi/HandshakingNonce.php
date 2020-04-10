@@ -41,9 +41,9 @@ class HandshakingNonce {
 	 * @return int[]
 	 */
 	private function getNonces() {
-		/** @var \ICWP_WPSF_FeatureHandler_BaseWpsf $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getShieldNetApiVO()->nonces;
+		return $this->getCon()
+					->getModule_Plugin()
+					->getShieldNetApiController()->vo->nonces;
 	}
 
 	/**
@@ -52,17 +52,15 @@ class HandshakingNonce {
 	 * @return $this
 	 */
 	private function storeNonces( array $aNonces ) {
-		$oModPlugin = $this->getCon()->getModule_Plugin();
-
-		$oVO = $oModPlugin->getShieldNetApiVO();
+		$oVO = $this->getCon()
+					->getModule_Plugin()
+					->getShieldNetApiController()->vo;
 		$oVO->nonces = array_filter(
 			$aNonces,
 			function ( $nTS ) {
 				return $nTS > Services::Request()->ts();
 			}
 		);
-		$oModPlugin->updateShieldNetApiVO( $oVO );
-
 		return $this;
 	}
 }
