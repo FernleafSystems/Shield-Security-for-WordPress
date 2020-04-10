@@ -561,7 +561,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $sAction,
 			'exec_nonce' => wp_create_nonce( $sAction ),
-//			'rand'       => wp_rand( 10000, 99999 )
+			//			'rand'       => wp_rand( 10000, 99999 )
 		];
 	}
 
@@ -850,21 +850,26 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * Use logic in here to prevent display of future incompatible updates
+	 * Prevents upgrades to Shield versions when the system PHP version is too old.
 	 * @param \stdClass $oUpdates
 	 * @return \stdClass
 	 */
 	public function blockIncompatibleUpdates( $oUpdates ) {
-		/*
-		 * No longer used: prevent upgrades to v7.0 for php < 5.4
 		$sFile = $this->getPluginBaseFile();
 		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
-			if ( version_compare( $oUpdates->response[ $sFile ]->new_version, '7.0.0', '>=' )
-				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' ) ) {
-				unset( $oUpdates->response[ $sFile ] );
+			$aUpgradeReqs = $this->getPluginSpec()[ 'upgrade_reqs' ];
+			foreach ( $aUpgradeReqs as $sShieldVer => $aReqs ) {
+				$bNeedsHidden = version_compare( $oUpdates->response[ $sFile ]->new_version, $sShieldVer, '>=' )
+								&& (
+									!Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php' ] )
+									|| !Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp' ] )
+								);
+				if ( $bNeedsHidden ) {
+					unset( $oUpdates->response[ $sFile ] );
+					break;
+				}
 			}
 		}
-		 */
 		return $oUpdates;
 	}
 

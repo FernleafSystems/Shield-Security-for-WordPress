@@ -22,6 +22,16 @@
     "php":       "5.4.0",
     "wordpress": "3.5.2"
   },
+  "upgrade_reqs": {
+    "7.0":  {
+      "php": "5.4",
+      "wp":  "3.5.2"
+    },
+    "10.0": {
+      "php": "7.0",
+      "wp":  "3.5.2"
+    }
+  },
   "paths":        {
     "source":    "src",
     "autoload":  "lib/vendor/autoload.php",
