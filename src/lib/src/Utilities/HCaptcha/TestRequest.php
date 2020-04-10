@@ -20,7 +20,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 		$sCaptchaResponse = Services::Request()->post( 'h-captcha-response' );
 
 		if ( empty( $sCaptchaResponse ) ) {
-			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'hCaptcha was not submitted.', 'wp-simple-firewall' ), 1 );
+			throw new \Exception( __( 'Whoops.', 'wp-simple-firewall' ).' '.__( 'CAPTCHA was not submitted.', 'wp-simple-firewall' ), 1 );
 		}
 		else {
 			$oHTTP = Services::HttpRequest();
@@ -37,7 +37,7 @@ class TestRequest extends ReCaptcha\TestRequest {
 			if ( empty( $aResponse[ 'success' ] ) ) {
 				$aMsg = [
 					__( 'Whoops.', 'wp-simple-firewall' ),
-					__( 'Google reCAPTCHA verification failed.', 'wp-simple-firewall' ),
+					__( 'CAPTCHA verification failed.', 'wp-simple-firewall' ),
 					Services::WpGeneral()->isAjax() ?
 						__( 'Maybe refresh the page and try again.', 'wp-simple-firewall' ) : ''
 				];

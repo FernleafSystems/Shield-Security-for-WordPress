@@ -72,16 +72,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_recaptcha' :
-				$sTitle = 'CAPTCHA';
-				$sTitleShort = 'CAPTCHA';
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Adds CAPTCHA to the Login Forms.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this turned on.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You will need to register for CAPTCHA keys and store them in the Shield 'Dashboard' settings.", 'wp-simple-firewall' ) ),
-				];
-				break;
-
 			case 'section_rename_wplogin' :
 				$sTitle = __( 'Hide WordPress Login Page', 'wp-simple-firewall' );
 				$sTitleShort = __( 'Hide Login', 'wp-simple-firewall' );

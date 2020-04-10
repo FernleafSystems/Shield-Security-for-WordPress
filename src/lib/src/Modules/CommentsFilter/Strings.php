@@ -60,15 +60,6 @@ class Strings extends Base\Strings {
 				$sTitleShort = __( 'Bot SPAM', 'wp-simple-firewall' );
 				break;
 
-			case 'section_recaptcha' :
-				$sTitle = 'Google reCAPTCHA';
-				$sTitleShort = 'reCAPTCHA';
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Adds Google reCAPTCHA to the Comment Forms.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this turned on.', 'wp-simple-firewall' ) ),
-				];
-				break;
-
 			case 'section_human_spam_filter' :
 				$sTitle = sprintf( __( '%s Comment SPAM Protection Filter', 'wp-simple-firewall' ), __( 'Human', 'wp-simple-firewall' ) );
 				$aSummary = [
@@ -186,7 +177,7 @@ class Strings extends Base\Strings {
 						$this->getCon()
 							 ->getModule_Plugin()
 							 ->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
-						__( 'Before enabling CAPTCHA, you need to update your settings.', 'wp-simple-firewall' )
+						__( 'Please remember to provide your CAPTCHA keys.', 'wp-simple-firewall' )
 					);
 				}
 				break;

@@ -158,28 +158,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		switch ( $sSection ) {
-			case 'section_recaptcha':
-				$oP = $this->getCon()->getModule_Plugin();
-				if ( !$this->getCaptchaCfg()->ready ) {
-					$aWarnings[] = sprintf(
-						__( 'Please remember to supply reCAPTCHA keys: %s', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" target="_blank">%s</a>', $oP->getUrl_DirectLinkToSection( 'section_third_party_captcha' ), __( 'reCAPTCHA Settings' ) )
-					);
-				}
-				break;
-		}
-
-		return $aWarnings;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isEnabledCaptcha() {

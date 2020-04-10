@@ -173,7 +173,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			]
 		];
 		try {
-			$oCarb = Services::Request()->carbon();
+			$oCarb = Services::Request()->carbon( true );
 			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\PerformAction() )
 				->setMod( $this->getMod() )
 				->run( $nRID, 'diff' );

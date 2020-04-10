@@ -121,7 +121,7 @@ class Email extends BaseProvider {
 		}
 		else {
 			$this->setProfileValidated( $oUser, false );
-			$sMsg = __( 'Email Two-Factor Authentication was has been disabled.', 'wp-simple-firewall' );
+			$sMsg = __( 'Email Two-Factor Authentication has been disabled.', 'wp-simple-firewall' );
 		}
 
 		if ( !empty( $sMsg ) ) {
