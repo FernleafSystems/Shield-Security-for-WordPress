@@ -72,7 +72,7 @@ class EmailValidate {
 				);
 
 				if ( $sOpt == 'block' ) {
-					wp_die( 'Attempted user registration with invalid email addressed has been blocked.' );
+					wp_die( 'Attempted user registration with invalid email address has been blocked.' );
 				}
 			}
 		}
