@@ -306,7 +306,7 @@
     {
       "key":           "captcha_provider",
       "section":       "section_third_party_captcha",
-      "default":       "recaptcha",
+      "default":       "grecaptcha",
       "type":          "select",
       "value_options": [
         {

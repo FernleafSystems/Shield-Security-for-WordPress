@@ -887,6 +887,16 @@ class Options {
 				}
 				break;
 
+			case 'select':
+				$aPossible = array_map(
+					function ( $aPoss ) {
+						return $aPoss[ 'value_key' ];
+					},
+					$this->getOptProperty( $sOptKey, 'value_options' )
+				);
+				$bValid = in_array( $mPotentialValue, $aPossible );
+				break;
+
 			case 'email':
 				$bValid = empty( $mPotentialValue ) || Services::Data()->validEmail( $mPotentialValue );
 				break;

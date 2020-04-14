@@ -95,7 +95,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			$oCfg->url_api = 'https://hcaptcha.com/1/api.js';
 		}
 		else {
-			error_log( 'CAPTCHA Provider not support' );
+			error_log( 'CAPTCHA Provider not supported: '.$oCfg->provider );
 		}
 
 		$oCfg->js_handle = $this->getCon()->prefix( $oCfg->provider );
