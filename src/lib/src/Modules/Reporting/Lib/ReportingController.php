@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
 use FernleafSystems\Wordpress\Services\Services;
 
-class ReportingController extends Base\OneTimeExecute {
+class ReportingController {
+
+	use Modules\ModConsumer;
+	use Modules\Base\OneTimeExecute;
 
 	protected function run() {
 		add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );

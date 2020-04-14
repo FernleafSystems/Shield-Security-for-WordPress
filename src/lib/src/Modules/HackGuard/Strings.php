@@ -109,6 +109,17 @@ class Strings extends Base\Strings {
 				];
 				break;
 
+			case 'section_realtime' :
+				$sTitleShort = __( 'Realtime Change Detection', 'wp-simple-firewall' );
+				$sTitle = __( 'Realtime Change Detection', 'wp-simple-firewall' );
+				$aSummary = [
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ),
+						__( 'Monitor Your WordPress Site For Changes To Critical Components In Realtime.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ),
+						sprintf( __( 'Enable The Realtime Change Detection Features.', 'wp-simple-firewall' ), $sTitle ) )
+				];
+				break;
+
 			case 'section_scan_ufc' :
 				$sTitleShort = __( 'Unrecognised Files', 'wp-simple-firewall' );
 				$sTitle = __( 'Unrecognised Files Scanner', 'wp-simple-firewall' );
@@ -250,7 +261,7 @@ class Strings extends Base\Strings {
 				$sName = __( 'File Locker', 'wp-simple-firewall' );
 				$sSummary = __( 'Lock Files Against Tampering And Changes', 'wp-simple-firewall' );
 				$sDescription = [
-					__( 'As soon as changes are detected to any selected files, the contents may be examined and reverted.', 'wp-simple-firewall' ),
+					__( 'Detects changes to the files, then lets you examine contents and revert as required.', 'wp-simple-firewall' ),
 				];
 				$aLocks = ( new LoadFileLocks() )
 					->setMod( $this->getMod() )
@@ -337,12 +348,6 @@ class Strings extends Base\Strings {
 				$sDescription = __( "Attempts to automatically remove code from infected files.", 'wp-simple-firewall' )
 								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This could break your site if code removal leaves remaining code in an inconsistent state.', 'wp-simple-firewall' ) )
 								.'<br />'.sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( "Only applies to files that don't fall under the other categories for automatic repair.", 'wp-simple-firewall' ) );
-				break;
-
-			case 'rt_file_wpconfig' :
-				$sName = __( 'WP Config', 'wp-simple-firewall' );
-				$sSummary = __( 'Realtime Protection For WP Config File', 'wp-simple-firewall' );
-				$sDescription = __( "Realtime protection for the wp-config.php file.", 'wp-simple-firewall' );
 				break;
 
 			// REMOVED:

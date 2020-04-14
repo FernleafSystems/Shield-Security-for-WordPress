@@ -3,15 +3,30 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController {
 
-	use ModConsumer;
+	use Modules\ModConsumer;
+	use Modules\Base\OneTimeExecute;
 
-	public function run() {
+	/**
+	 * @return bool
+	 */
+	protected function canRun() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return ( count( $oOpts->getFilesToLock() ) > 0 )
+			   && $this->getCon()
+					   ->getModule_Plugin()
+					   ->getShieldNetApiController()
+					   ->canHandshake();
+	}
+
+	protected function run() {
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
 			if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
 				$this->deleteAllLocks();
@@ -60,7 +75,7 @@ class FileLockerController {
 				$sContent = Services::WpFs()->getFileContent( $oLock->file );
 			}
 			elseif ( $sType == 'original' ) {
-				$sContent = ( new HackGuard\Lib\FileLocker\Ops\ReadOriginalFileContent() )
+				$sContent = ( new Lib\FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $this->getMod() )
 					->run( $oLock );
 			}
@@ -92,14 +107,14 @@ class FileLockerController {
 	 * @return FileLocker\EntryVO|null
 	 */
 	public function getFileLock( $nID ) {
-		$aLocks = ( new Ops\LoadFileLocks() )
+		$aLocks = ( new Lib\FileLocker\Ops\LoadFileLocks() )
 			->setMod( $this->getMod() )
 			->loadLocks();
 		return isset( $aLocks[ $nID ] ) ? $aLocks[ $nID ] : null;
 	}
 
 	private function runAnalysis() {
-		/** @var HackGuard\Options $oOpts */
+		/** @var Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		// 1. First assess the existing locks for changes.

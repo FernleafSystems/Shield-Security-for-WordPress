@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\OneTimeExecute;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
-class LicenseHandler extends OneTimeExecute {
+class LicenseHandler {
+
+	use Modules\ModConsumer;
+	use Modules\Base\OneTimeExecute;
 
 	protected function run() {
 		$oCon = $this->getCon();

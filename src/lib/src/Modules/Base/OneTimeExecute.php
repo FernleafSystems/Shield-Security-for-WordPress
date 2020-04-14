@@ -2,17 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-
-abstract class OneTimeExecute {
-
-	use ModConsumer;
+trait OneTimeExecute {
 
 	private $bExecuted = false;
 
+	/**
+	 * @return bool
+	 */
+	protected function canRun() {
+		return true;
+	}
+
 	public function execute() {
 		$this->bExecuted = false;
-		$this->run();
+		if ( $this->canRun() ) {
+			$this->run();
+		}
 		$this->bExecuted = true;
 	}
 

@@ -158,23 +158,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @param Shield\Databases\Scanner\EntryVO $oEntryVo
-	 * @return string
-	 */
-	public function createFileDownloadLink( $oEntryVo ) {
-		$aActionNonce = $this->getNonceActionData( 'scan_file_download' );
-		$aActionNonce[ 'rid' ] = $oEntryVo->id;
-		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
-	}
-
-	/**
 	 */
 	protected function doExtraSubmitProcessing() {
-		$this->clearIcSnapshots();
 		$this->cleanFileExclusions();
-
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
-		$this->resetRtBackupFiles();
 
 		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
 		$oPro = $this->getProcessor();
@@ -224,14 +211,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 8.8.0
-	 */
-	public function isIncludeFileLists() {
-		return false;
-	}
-
-	/**
 	 * @return $this
 	 */
 	protected function setCustomCronSchedules() {
@@ -247,35 +226,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					]
 				);
 		return $this;
-	}
-
-	/**
-	 * @return $this
-	 */
-	protected function clearIcSnapshots() {
-		return $this->setIcSnapshotUsers( [] );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIcEnabled() {
-		return $this->isOpt( 'ic_enabled', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIcUsersEnabled() {
-		return $this->isOpt( 'ic_users', 'Y' );
-	}
-
-	/**
-	 * @param array[] $aUsers
-	 * @return $this
-	 */
-	public function setIcSnapshotUsers( $aUsers ) {
-		return $this->setOpt( 'snapshot_users', $aUsers );
 	}
 
 	/**
@@ -432,12 +382,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 //				if ( !Services::WpFs()->isFilesystemAccessDirect() ) {
 //					$aWarnings[] = sprintf( __( "Not available because PHP/WordPress doesn't have direct filesystem access.", 'wp-simple-firewall' ), 'OpenSSL' );
 //				}
-//				else {
-//					$sPath = $this->getRtMapFileKeyToFilePath( 'wpconfig' );
-//					if ( !$this->getRtCanWriteFile( $sPath ) ) {
-//						$aWarnings[] = sprintf( __( "The %s file isn't writable and so can't be further protected.", 'wp-simple-firewall' ), 'wp-config.php' );
-//					}
-//				}
 				break;
 		}
 
@@ -457,154 +401,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function hasWizard() {
 		return false;
-	}
-
-	/**
-	 * cleans out any reference to any backup files
-	 */
-	private function resetRtBackupFiles() {
-		$oCon = $this->getCon();
-		$oFs = Services::WpFs();
-		$oOpts = $this->getOptions();
-		foreach ( [ 'htaccess', 'wpconfig' ] as $sFileKey ) {
-			if ( $oOpts->isOptChanged( 'rt_file_'.$sFileKey ) ) {
-				$sPath = $this->getRtMapFileKeyToFilePath( $sFileKey );
-				try {
-					$sBackupFile = $oCon->getPluginCachePath( $this->getRtFileBackupName( $sPath ) );
-					if ( $oFs->exists( $sBackupFile ) ) {
-						$oFs->deleteFile( $sBackupFile );
-					}
-
-					if ( !$this->getRtCanWriteFile( $sPath ) ) {
-						$this->setOpt( 'rt_file_'.$sFileKey, 'N' );
-					}
-				}
-				catch ( \Exception $oE ) {
-				}
-				$this->setRtFileHash( $sPath, '' )
-					 ->setRtFileBackupName( $sPath, '' );
-			}
-		}
-	}
-
-	/**
-	 * @param string $sKey
-	 * @return string|null
-	 */
-	private function getRtMapFileKeyToFilePath( $sKey ) {
-		$aMap = [
-			'wpconfig' => Services::WpGeneral()->getPath_WpConfig(),
-			'htaccess' => path_join( ABSPATH, '.htaccess' ),
-		];
-		return isset( $aMap[ $sKey ] ) ? $aMap[ $sKey ] : null;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getRtFileBackupNames() {
-		$aF = $this->getOpt( 'rt_file_backup_names', [] );
-		return is_array( $aF ) ? $aF : [];
-	}
-
-	/**
-	 * @param string $sFile
-	 * @return string|null
-	 */
-	public function getRtFileBackupName( $sFile ) {
-		$aD = $this->getRtFileBackupNames();
-		return isset( $aD[ $sFile ] ) ? $aD[ $sFile ] : null;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getRtFileHashes() {
-		$aF = $this->getOpt( 'rt_file_hashes', [] );
-		return is_array( $aF ) ? $aF : [];
-	}
-
-	/**
-	 * @param string $sFile
-	 * @return string|null
-	 */
-	public function getRtFileHash( $sFile ) {
-		$aD = $this->getRtFileHashes();
-		return isset( $aD[ $sFile ] ) ? $aD[ $sFile ] : null;
-	}
-
-	/**
-	 * @param string $sFile
-	 * @param string $sName
-	 * @return $this
-	 */
-	public function setRtFileBackupName( $sFile, $sName ) {
-		$aD = $this->getRtFileBackupNames();
-		$aD[ $sFile ] = $sName;
-		return $this->setOpt( 'rt_file_backup_names', $aD );
-	}
-
-	/**
-	 * @param string $sFile
-	 * @param string $sHash
-	 * @return $this
-	 */
-	public function setRtFileHash( $sFile, $sHash ) {
-		$aD = $this->getRtFileHashes();
-		$aD[ $sFile ] = $sHash;
-		return $this->setOpt( 'rt_file_hashes', $aD );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getRtCanWriteFiles() {
-		$aF = $this->getOpt( 'rt_can_write_files', [] );
-		return is_array( $aF ) ? $aF : [];
-	}
-
-	/**
-	 * @param string $sFile
-	 * @return bool
-	 */
-	public function getRtCanWriteFile( $sFile ) {
-		$aFiles = $this->getRtCanWriteFiles();
-		if ( isset( $aFiles[ $sFile ] ) ) {
-			$bCanWrite = $aFiles[ $sFile ] > 0;
-		}
-		else {
-			$bCanWrite = ( new Shield\Modules\HackGuard\Lib\FileLocker\Ops\TestWritable() )->run( $sFile );
-			$this->setRtCanWriteFile( $sFile, $bCanWrite );
-		}
-		return $bCanWrite;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRtAvailable() {
-		return $this->isPremium()
-			   && Services::WpFs()->isFilesystemAccessDirect()
-			   && Services::Encrypt()->isSupportedOpenSslDataEncryption();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isRtEnabledWpConfig() {
-		return $this->isRtAvailable() && $this->isOpt( 'rt_file_wpconfig', 'Y' )
-			   && $this->getRtCanWriteFile( $this->getRtMapFileKeyToFilePath( 'wpconfig' ) );
-	}
-
-	/**
-	 * @param string $sPath
-	 * @param bool   $bCanWrite
-	 * @return $this
-	 */
-	public function setRtCanWriteFile( $sPath, $bCanWrite ) {
-		$aFiles = $this->getRtCanWriteFiles();
-		$aFiles[ $sPath ] = $bCanWrite ? Services::Request()->ts() : 0;
-		return $this->setOpt( 'rt_can_write_files', $aFiles );
 	}
 
 	/**
@@ -960,9 +756,17 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 * @return string
-	 * @deprecated 8.8.0
+	 * @deprecated 9.0
 	 */
 	public function getWpvulnPluginsHighlightOption() {
 		return 'disabled';
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isIncludeFileLists() {
+		return false;
 	}
 }

@@ -105,16 +105,39 @@
       "description": "Un-Checking this option will completely disable the Hack Guard module"
     },
     {
-      "key":           "enable_wpvuln_scan",
-      "section":       "section_scan_wpv",
-      "premium":       true,
-      "type":          "checkbox",
-      "default":       "Y",
-      "link_info":     "https://shsec.io/du",
-      "link_blog":     "https://shsec.io/ah",
-      "name":          "Vulnerability Scanner",
-      "summary":       "Enable The Vulnerability Scanner",
-      "description":   "Scan all your WordPress assets for known security vulnerabilities."
+      "key":         "enabled_scan_apc",
+      "section":     "section_scan_wpv",
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "https://shsec.io/ew",
+      "link_blog":   "https://shsec.io/eo",
+      "name":        "Abandoned Plugin Scanner",
+      "summary":     "Enable The Abandoned Plugin Scanner",
+      "description": "Scan your WordPress.org assets for whether they've been abandoned."
+    },
+    {
+      "key":         "enable_wpvuln_scan",
+      "section":     "section_scan_wpv",
+      "premium":     true,
+      "type":        "checkbox",
+      "default":     "Y",
+      "link_info":   "https://shsec.io/du",
+      "link_blog":   "https://shsec.io/ah",
+      "name":        "Vulnerability Scanner",
+      "summary":     "Enable The Vulnerability Scanner",
+      "description": "Scan all your WordPress assets for known security vulnerabilities."
+    },
+    {
+      "key":         "wpvuln_scan_autoupdate",
+      "section":     "section_scan_wpv",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "",
+      "link_blog":   "",
+      "name":        "Automatic Updates",
+      "summary":     "Apply Updates Automatically To Vulnerable Plugins",
+      "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
     },
     {
       "key":         "enable_core_file_integrity_scan",
@@ -154,6 +177,7 @@
     {
       "key":           "file_locker",
       "section":       "section_realtime",
+      "premium":       true,
       "type":          "multiple_select",
       "default":       [],
       "value_options": [
@@ -204,29 +228,6 @@
       "name":          "Auto File Repair",
       "summary":       "Which Files Should Be Automatically Repaired?",
       "description":   "When a file is modified, or malware is detected, Shield can try to repair files."
-    },
-    {
-      "key":         "wpvuln_scan_autoupdate",
-      "section":     "section_scan_wpv",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Automatic Updates",
-      "summary":     "Apply Updates Automatically To Vulnerable Plugins",
-      "description": "When an update becomes available, automatically apply updates to items with known vulnerabilities."
-    },
-    {
-      "key":           "enabled_scan_apc",
-      "section":       "section_scan_wpv",
-      "type":          "checkbox",
-      "default":       "Y",
-      "link_info":     "https://shsec.io/ew",
-      "link_blog":     "https://shsec.io/eo",
-      "name":          "Abandoned Plugin Scanner",
-      "summary":       "Enable The Abandoned Plugin Scanner",
-      "description":   "Scan your WordPress.org assets for whether they've been abandoned."
     },
     {
       "key":           "scan_frequency",
@@ -330,28 +331,6 @@
       "name":        "File Exclusions",
       "summary":     "Provide A List Of Files To Be Excluded From The Scan",
       "description": "Take a new line for each file you wish to exclude from the scan. No commas are necessary."
-    },
-    {
-      "key":         "ic_enabled",
-      "section":     "section_non_ui",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Enable Integrity Checking Scan",
-      "summary":     "Scans For Critical Changes Made To Your WordPress Site",
-      "description": "Detects changes made to your WordPress site outside of WordPress."
-    },
-    {
-      "key":         "ic_users",
-      "section":     "section_non_ui",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Monitor User Accounts",
-      "summary":     "Scans For Critical Changes Made To User Accounts",
-      "description": "Detects changes made to critical user account information that were made directly on the database and outside of the WordPress system."
     },
     {
       "key":         "mal_autorepair_surgical",

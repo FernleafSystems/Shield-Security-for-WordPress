@@ -37,7 +37,7 @@ abstract class BaseApi {
 		switch ( $this->request_method ) {
 
 			case 'post':
-				$aReqParams[ 'body' ] = is_array( $this->params_body ) ? $this->params_body : [];
+				$aReqParams[ 'body' ] = $this->params_body;
 				$bReqSuccess = $oHttpReq->post( $this->getApiRequestUrl(), $aReqParams );
 				break;
 
@@ -46,10 +46,7 @@ abstract class BaseApi {
 				// Doing it in the ['body'] on some sites fails with the params not passed through to query string.
 				// if they're not using the newer WP Request() class. WP 4.6+
 				$bReqSuccess = $oHttpReq->get(
-					add_query_arg(
-						is_array( $this->params_query ) ? $this->params_query : [],
-						$this->getApiRequestUrl()
-					),
+					add_query_arg( $this->params_query, $this->getApiRequestUrl() ),
 					$aReqParams
 				);
 				break;

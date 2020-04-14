@@ -42,6 +42,18 @@ abstract class Base {
 	}
 
 	/**
+	 * @param Databases\Scanner\EntryVO $oEntryVo
+	 * @return string
+	 */
+	public function createFileDownloadLink( $oEntryVo ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$aActionNonce = $oMod->getNonceActionData( 'scan_file_download' );
+		$aActionNonce[ 'rid' ] = $oEntryVo->id;
+		return add_query_arg( $aActionNonce, $oMod->getUrl_AdminPage() );
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function getScanHasProblem() {

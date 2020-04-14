@@ -35,7 +35,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	protected function getSubProMap() {
 		return [
 			'apc' => 'ICWP_WPSF_Processor_HackProtect_Apc',
-			'int' => 'ICWP_WPSF_Processor_HackProtect_Integrity',
 			'mal' => 'ICWP_WPSF_Processor_HackProtect_Mal',
 			'ptg' => 'ICWP_WPSF_Processor_HackProtect_Ptg',
 			'ufc' => 'ICWP_WPSF_Processor_HackProtect_Ufc',

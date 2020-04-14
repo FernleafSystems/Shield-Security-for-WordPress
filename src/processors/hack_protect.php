@@ -24,7 +24,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( count( $oOpts->getFilesToLock() ) > 0 ) {
-			$oMod->getFileLocker()->run();
+			$oMod->getFileLocker()->execute();
 		}
 	}
 
@@ -251,14 +251,12 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 	protected function getFileLockerVars() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
 
 		$oLockLoader = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $oMod );
 		$aProblemLocks = $oLockLoader->withProblems();
 		$aGoodLocks = $oLockLoader->withoutProblems();
 
-		$aData = [
+		return [
 			'ajax'    => [
 				'filelocker_showdiff'   => $oMod->getAjaxActionData( 'filelocker_showdiff', true ),
 				'filelocker_fileaction' => $oMod->getAjaxActionData( 'filelocker_fileaction', true ),
@@ -276,14 +274,12 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				],
 			],
 			'strings' => [
-				'title'    => __( "File Locker", 'wp-simple-firewall' ),
-				'subtitle' => __( "Results of file locker monitoring", 'wp-simple-firewall' ),
-				'please_select' => __( "Please select a file to review.", 'wp-simple-firewall' ),
+				'title'         => __( 'File Locker', 'wp-simple-firewall' ),
+				'subtitle'      => __( 'Results of file locker monitoring', 'wp-simple-firewall' ),
+				'please_select' => __( 'Please select a file to review.', 'wp-simple-firewall' ),
 			],
 			'count'   => count( $aProblemLocks )
 		];
-
-		return $aData;
 	}
 
 	/**
