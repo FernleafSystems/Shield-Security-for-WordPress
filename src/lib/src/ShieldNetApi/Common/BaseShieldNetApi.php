@@ -14,7 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class BaseShieldNetApi extends BaseApi {
 
 	use ModConsumer;
-	const DEFAULT_URL_STUB = 'https://onedollarplugin.com/wp-json/apto-snapi/v1';
+	const DEFAULT_URL_STUB = 'https://net.shieldsecurity.io/wp-json/apto-snapi/v1';
 
 	/**
 	 * @param string $sProperty
@@ -28,18 +28,12 @@ class BaseShieldNetApi extends BaseApi {
 
 			case 'params_query':
 				if ( $this->request_method == 'get' ) {
-					if ( !is_array( $mValue ) ) {
-						$mValue = [];
-					}
 					$mValue = array_merge( $this->shield_net_params, $mValue );
 				}
 				break;
 
 			case 'params_body':
 				if ( $this->request_method == 'post' ) {
-					if ( !is_array( $mValue ) ) {
-						$mValue = [];
-					}
 					$mValue = array_merge( $this->shield_net_params, $mValue );
 				}
 				break;

@@ -35,7 +35,7 @@ abstract class BaseApi {
 		];
 
 		switch ( $this->request_method ) {
-			
+
 			case 'post':
 				$aReqParams[ 'body' ] = is_array( $this->params_body ) ? $this->params_body : [];
 				$bReqSuccess = $oHttpReq->post( $this->getApiRequestUrl(), $aReqParams );
@@ -89,6 +89,13 @@ abstract class BaseApi {
 		$mValue = $this->__adapterGet( $sProperty );
 
 		switch ( $sProperty ) {
+
+			case 'params_query':
+			case 'params_body':
+				if ( !is_array( $mValue ) ) {
+					$mValue = [];
+				}
+				break;
 
 			case 'request_method':
 				$mValue = empty( $mValue ) ? 'get' : strtolower( $mValue );

@@ -25,10 +25,10 @@ class ShieldNetApiController {
 	 */
 	public function canHandshake() {
 		$nNow = Services::Request()->ts();
-		if ( (int)$this->vo->last_handshake_at === 0 ) {
+		if ( $this->vo->last_handshake_at === 0 ) {
 
 			$bCanTry = $nNow - MINUTE_IN_SECONDS*5*$this->vo->handshake_fail_count
-					   > (int)$this->vo->last_handshake_attempt_at;
+					   > $this->vo->last_handshake_attempt_at;
 			if ( $bCanTry ) {
 				$bCanHandshake = ( new ShieldNetApi\Handshake\Verify() )
 					->setMod( $this->getMod() )
