@@ -13,12 +13,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
-		$sPath = Services::Request()->getPath();
-		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
-			$this->revSliderPatch_LFI();
-			$this->revSliderPatch_AFU();
-		}
-
 		$this->getSubProScanner()->execute();
 
 		/** @var HackGuard\Options $oOpts */
@@ -42,28 +36,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		return [
 			'scanner' => 'ICWP_WPSF_Processor_HackProtect_Scanner',
 		];
-	}
-
-	protected function revSliderPatch_LFI() {
-		$oReq = Services::Request();
-
-		$sAction = $oReq->query( 'action', '' );
-		$sFileExt = strtolower( Services::Data()->getExtension( $oReq->query( 'img', '' ) ) );
-		if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
-			if ( !in_array( $sFileExt, [ 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ] ) ) {
-				die( 'RevSlider Local File Inclusion Attempt' );
-			}
-		}
-	}
-
-	protected function revSliderPatch_AFU() {
-		$oReq = Services::Request();
-
-		$sAction = strtolower( $oReq->request( 'action', '' ) );
-		$sClientAction = strtolower( $oReq->request( 'client_action', '' ) );
-		if ( ( strpos( $sAction, 'revslider_ajax_action' ) !== false || strpos( $sAction, 'showbiz_ajax_action' ) !== false ) && $sClientAction == 'update_plugin' ) {
-			die( 'RevSlider Arbitrary File Upload Attempt' );
-		}
 	}
 
 	/**
@@ -262,7 +234,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'filelocker_fileaction' => $oMod->getAjaxActionData( 'filelocker_fileaction', true ),
 			],
 			'flags'   => [
-				'has_items' => true,
+				'has_items'     => count( $oLockLoader->loadLocks() ) > 0,
+				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
 				'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_options' )

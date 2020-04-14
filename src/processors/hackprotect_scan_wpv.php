@@ -32,7 +32,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 
 	/**
 	 * @param bool            $bDoAutoUpdate
-	 * @param StdClass|string $mItem
+	 * @param \stdClass|string $mItem
 	 * @return bool
 	 */
 	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
