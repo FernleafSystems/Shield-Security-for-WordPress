@@ -25,7 +25,7 @@ class ShieldNetApiController {
 	 */
 	public function canHandshake() {
 		$nNow = Services::Request()->ts();
-		if ( empty( $this->vo->last_handshake_at ) ) {
+		if ( (int)$this->vo->last_handshake_at === 0 ) {
 
 			$bCanTry = $nNow - MINUTE_IN_SECONDS*5*$this->vo->handshake_fail_count
 					   > (int)$this->vo->last_handshake_attempt_at;
@@ -50,7 +50,9 @@ class ShieldNetApiController {
 	}
 
 	public function storeVoData() {
-		$this->getMod()->getOptions()->setOpt( 'snapi_data', $this->vo->getRawDataAsArray() );
+		$oMod = $this->getMod();
+		$oMod->getOptions()->setOpt( 'snapi_data', $this->vo->getRawDataAsArray() );
+		$oMod->saveModOptions();
 	}
 
 	/**

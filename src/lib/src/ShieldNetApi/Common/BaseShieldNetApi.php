@@ -6,10 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class BaseShieldNetApi
+ * @package FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common
+ * @property array $shield_net_params
+ */
 class BaseShieldNetApi extends BaseApi {
 
 	use ModConsumer;
-	const DEFAULT_URL_STUB = 'https://onedollarplugin.com/wp-json/apto-ssapi/v1';
+	const DEFAULT_URL_STUB = 'https://onedollarplugin.com/wp-json/apto-snapi/v1';
 
 	/**
 	 * @param string $sProperty
@@ -26,10 +31,7 @@ class BaseShieldNetApi extends BaseApi {
 					if ( !is_array( $mValue ) ) {
 						$mValue = [];
 					}
-					$mValue = array_merge(
-						$this->getBaseShieldApiParams(),
-						$mValue
-					);
+					$mValue = array_merge( $this->shield_net_params, $mValue );
 				}
 				break;
 
@@ -38,10 +40,14 @@ class BaseShieldNetApi extends BaseApi {
 					if ( !is_array( $mValue ) ) {
 						$mValue = [];
 					}
-					$mValue = array_merge(
-						$this->getBaseShieldApiParams(),
-						$mValue
-					);
+					$mValue = array_merge( $this->shield_net_params, $mValue );
+				}
+				break;
+
+			case 'shield_net_params':
+				if ( !is_array( $mValue ) ) {
+					$mValue = $this->getShieldNetApiParams();
+					$this->shield_net_params = $mValue;
 				}
 				break;
 
@@ -55,7 +61,7 @@ class BaseShieldNetApi extends BaseApi {
 	/**
 	 * @return string[]
 	 */
-	protected function getBaseShieldApiParams() {
+	protected function getShieldNetApiParams() {
 		return [
 			'url'        => Services::WpGeneral()->getHomeUrl( '', true ),
 			'install_id' => $this->getCon()->getSiteInstallationId(),

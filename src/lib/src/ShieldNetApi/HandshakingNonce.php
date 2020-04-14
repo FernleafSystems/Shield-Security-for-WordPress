@@ -30,7 +30,7 @@ class HandshakingNonce {
 		$aNs = $this->getNonces();
 		$bValid = false;
 		if ( isset( $aNs[ $sNonce ] ) ) {
-			$bValid = Services::Request()->ts() < $aNs[ $sNonce ];
+			$bValid = Services::Request()->ts() <= $aNs[ $sNonce ];
 			unset( $aNs[ $sNonce ] );
 			$this->storeNonces( $aNs );
 		}

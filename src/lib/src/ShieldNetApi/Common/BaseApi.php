@@ -35,10 +35,12 @@ abstract class BaseApi {
 		];
 
 		switch ( $this->request_method ) {
+			
 			case 'post':
 				$aReqParams[ 'body' ] = is_array( $this->params_body ) ? $this->params_body : [];
 				$bReqSuccess = $oHttpReq->post( $this->getApiRequestUrl(), $aReqParams );
 				break;
+
 			case 'get':
 			default:
 				// Doing it in the ['body'] on some sites fails with the params not passed through to query string.

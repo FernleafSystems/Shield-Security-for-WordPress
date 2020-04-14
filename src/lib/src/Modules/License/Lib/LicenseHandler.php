@@ -17,7 +17,7 @@ class LicenseHandler extends OneTimeExecute {
 			switch ( $sAction ) {
 
 				case 'keyless_handshake':
-				case 'ssapi_handshake':
+				case 'snapi_handshake':
 					$sNonce = Services::Request()->query( 'nonce' );
 					if ( !empty( $sNonce ) ) {
 						die( json_encode( [
