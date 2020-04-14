@@ -58,7 +58,7 @@
 							{% endfor %}
 						</select>
 						</li>
-						<div class="nav-item" id="PluginHeadwayChangelog"></div>
+						<div class="nav-item announcekit-widget"></div>
 					</ul>
 				</div>
 				{#<form class="form-inline">#}
@@ -68,12 +68,15 @@
 			</nav>
 		</div>
 	</div>
-
 	<script>
-	  var HW_config = {
-		  selector: "#PluginHeadwayChangelog", // CSS selector where to inject the badge
-		  account: "{{ vars.changelog_id }}"
-	  };
+	  window.announcekit = (window.announcekit || { queue: [], on: function(n, x) { window.announcekit.queue.push([n, x]); }, push: function(x) { window.announcekit.queue.push(x); } });
+	  window.announcekit.push({
+		  "widget": "https://announcekit.app/widget/{{ vars.changelog_id }}",
+		  "selector": ".announcekit-widget",
+		  "version": 2
+	  })
+	</script>
+	<script>
 	  jQuery( document ).ready( function () {
 		  jQuery.fn.selectpicker.Constructor.BootstrapVersion = '4';
 
@@ -81,7 +84,7 @@
 								   .removeAttr( "selected" );
 	  } );
 	</script>
-	<script async src="https://cdn.headwayapp.co/widget.js"></script>
+	<script async src="https://cdn.announcekit.app/widget.js"></script>
 {% endblock %}
 
 {% block page_main %}

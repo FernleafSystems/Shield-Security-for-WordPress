@@ -378,7 +378,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				],
 				'strings' => $this->getStrings()->getDisplayStrings(),
 				'vars'    => [
-					'changelog_id'  => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+					'changelog_id'  => $oCon->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
 					'search_select' => $aSearchSelect
 				],
 			],
