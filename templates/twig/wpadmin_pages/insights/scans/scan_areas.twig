@@ -158,7 +158,6 @@
 			{% endif %}
 		</div>
 	</div>
-	{% include '/wpadmin_pages/insights/scans/modal/progress.twig' %}
 </form>
 
 <script>
@@ -169,11 +168,11 @@
 		}
 	);
 	{% if vars.initial_check %}
-	jQuery( document ).icwpWpsfScansCheck(
-		{
-			'ajax_scans_check':{{ ajax.scans_check|raw }}
-		}
-	);
+		jQuery( document ).icwpWpsfScansCheck(
+			{
+				'ajax_scans_check':{{ ajax.scans_check|raw }}
+			}
+		);
 	{% endif %}
 
 </script>
