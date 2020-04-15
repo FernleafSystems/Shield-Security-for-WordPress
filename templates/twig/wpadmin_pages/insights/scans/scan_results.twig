@@ -51,11 +51,7 @@
 
 	<div class="tab-pane show" id="h-tabs-file_locker" role="tabpanel"
 		 aria-labelledby="h-tabs-aggregate-tab">
-		{% if file_locker.flags.is_restricted %}
-			{% include '/wpadmin_pages/insights/scans/results/common_unavailable.twig' %}
-		{% else %}
-			{% set scan = file_locker %}
-			{% include '/wpadmin_pages/insights/scans/realtime/file_locker/index.twig' %}
-		{% endif %}
+		{% set scan = file_locker %}
+		{% include '/wpadmin_pages/insights/scans/realtime/file_locker/index.twig' %}
 	</div>
 </div>

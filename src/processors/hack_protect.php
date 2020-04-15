@@ -109,7 +109,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
 				'clear_suppression_sub' => __( 'Allow notification emails to be resent (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
-				'no_entries_to_display' => __( 'No entries to display.', 'wp-simple-firewall' ),
+				'no_entries_to_display' => __( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ),
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 			],
@@ -238,7 +238,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
-				'options' => $oMod->getUrl_DirectLinkToSection( 'section_scan_options' )
+				'options'       => $oMod->getUrl_DirectLinkToSection( 'section_realtime' ),
+				'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_realtime' ),
 			],
 			'vars'    => [
 				'file_locks' => [

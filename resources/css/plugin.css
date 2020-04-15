@@ -1269,3 +1269,10 @@ dl.pro-features dd {
 	background-color: rgba(119, 107, 12, 0.3);
 	border-color: rgba(119, 107, 12, 0.3);
 }
+
+#FileLockerDiffContents {
+	margin-bottom: 20px;
+}
+#FileLockerDiffContents .card-body {
+	padding: 1.25rem;
+}
