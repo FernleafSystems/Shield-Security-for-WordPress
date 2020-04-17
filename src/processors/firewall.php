@@ -49,8 +49,8 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 */
 	private function getIfPerformFirewallScan() {
 		$bPerformScan = true;
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var Modules\Firewall\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$sPath = Services::Request()->getPath();
 
@@ -65,7 +65,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 			$bPerformScan = false;
 		}
 		// TODO: are we calling is_super_admin() too early?
-		elseif ( $oFO->isIgnoreAdmin() && is_super_admin() ) {
+		elseif ( $oOpts->isIgnoreAdmin() && is_super_admin() ) {
 			$bPerformScan = false;
 		}
 
@@ -111,8 +111,8 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	protected function doPassCheckBlockExeFileUploads() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oMod */
+		$oMod = $this->getMod();
 
 		$sKey = 'exefile';
 		$bFAIL = false;
@@ -142,7 +142,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 						 'block_exefile',
 						 [
 							 'audit' => [
-								 'blockresponse' => $oFO->getBlockResponse(),
+								 'blockresponse' => $oMod->getBlockResponse(),
 								 'blockkey'      => $sKey,
 							 ]
 						 ]
@@ -160,8 +160,8 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	private function doPassCheck( $sBlockKey ) {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
+		$oMod = $this->getMod();
 
 		$aMatchTerms = $this->getFirewallPatterns( $sBlockKey );
 		$aParamValues = $this->getParamsToCheck();
@@ -215,7 +215,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 						 'audit' => [
 							 'param'         => $sParam,
 							 'val'           => $mValue,
-							 'blockresponse' => $oFO->getBlockResponse(),
+							 'blockresponse' => $oMod->getBlockResponse(),
 							 'blockkey'      => $sBlockKey,
 						 ]
 					 ]
@@ -332,12 +332,13 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		if ( isset( $this->aPageParams ) ) {
 			return $this->aPageParams;
 		}
-		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+
+		/** @var Modules\Firewall\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$this->aPageParams = $this->getRawRequestParams();
 		$aWhitelist = Services::DataManipulation()
-							  ->mergeArraysRecursive( $oFO->getDefaultWhitelist(), $oFO->getCustomWhitelist() );
+							  ->mergeArraysRecursive( $oOpts->getDef( 'default_whitelist' ), $oOpts->getCustomWhitelist() );
 
 		// first we remove globally whitelisted request parameters
 		if ( !empty( $aWhitelist[ '*' ] ) && is_array( $aWhitelist[ '*' ] ) ) {

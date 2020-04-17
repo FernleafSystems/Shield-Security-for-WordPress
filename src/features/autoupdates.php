@@ -7,16 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ICWP_WPSF_FeatureHandler_Autoupdates extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 */
-	protected function setupCustomHooks() {
-		parent::setupCustomHooks();
-		// Force run automatic updates
-		if ( Services::Request()->query( 'force_run_auto_updates' ) == 'now' ) {
-			add_filter( $this->prefix( 'force_autoupdate' ), '__return_true' );
-		}
-	}
-
-	/**
 	 * @param array $aAllNotices
 	 * @return array
 	 */
