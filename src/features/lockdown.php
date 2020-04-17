@@ -45,7 +45,7 @@ class ICWP_WPSF_FeatureHandler_Lockdown extends ICWP_WPSF_FeatureHandler_BaseWps
 		return $this->isOpt( 'disable_xmlrpc', 'Y' );
 	}
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		$sMask = $this->getOpt( 'mask_wordpress_version' );
 		if ( !empty( $sMask ) ) {
 			$this->setOpt( 'mask_wordpress_version', preg_replace( '/[^a-z0-9_.-]/i', '', $sMask ) );

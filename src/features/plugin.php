@@ -64,7 +64,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		$this->setVisitorIpSource();
 	}
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
 			->setMod( $this )
 			->checkAll();

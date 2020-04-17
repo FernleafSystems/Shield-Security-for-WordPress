@@ -81,7 +81,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		return $sText;
 	}
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		/** @var Shield\Modules\CommentsFilter\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->getTokenExpireInterval() != 0 && $oOpts->getTokenCooldown() > $oOpts->getTokenExpireInterval() ) {

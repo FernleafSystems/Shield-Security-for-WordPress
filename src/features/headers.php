@@ -5,7 +5,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_Headers extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		$this->cleanCspHosts();
 		$this->cleanCustomRules();
 	}

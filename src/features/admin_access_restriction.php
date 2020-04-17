@@ -54,7 +54,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 */
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		if ( $this->isValidSecAdminRequest() ) {
 			$this->setSecurityAdminStatusOnOff( true );
 		}

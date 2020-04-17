@@ -34,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		return $aEmails;
 	}
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
 

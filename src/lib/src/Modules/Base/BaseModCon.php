@@ -1152,15 +1152,10 @@ class BaseModCon extends Deprecated\Foundation {
 			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
 		$this->doSaveStandardOptions();
-		$this->doExtraSubmitProcessing();
+		$this->preProcessOptions();
 	}
 
-	protected function verifyFormSubmit() {
-		return $this->getCon()->isPluginAdmin()
-			   && check_admin_referer( $this->getCon()->getPluginPrefix() );
-	}
-
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 	}
 
 	/**
@@ -1192,16 +1187,6 @@ class BaseModCon extends Deprecated\Foundation {
 	 */
 	public function isPremium() {
 		return $this->getCon()->isPremiumActive();
-	}
-
-	/**
-	 * UNUSED
-	 * Ensure that if an option is premium, it is never changed unless we have premium access
-	 */
-	protected function resetPremiumOptions() {
-		if ( !$this->isPremium() ) {
-			$this->getOptions()->resetPremiumOptsToDefault();
-		}
 	}
 
 	/**

@@ -56,7 +56,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			   && parent::isReadyToExecute();
 	}
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( !defined( strtoupper( $oOpts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {

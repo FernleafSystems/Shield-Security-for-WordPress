@@ -159,7 +159,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 
 	/**
 	 */
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		$this->cleanFileExclusions();
 		$this->setOpt( 'ptg_candiskwrite_at', 0 );
 

@@ -974,9 +974,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	}
 
 	/**
+	 * @param bool $bPreProcessOptions
 	 * @return $this
 	 */
-	public function saveModOptions() {
+	public function saveModOptions( $bPreProcessOptions = false ) {
+
+		if ( $bPreProcessOptions ) {
+			$this->preProcessOptions();
+		}
+
 		$this->doPrePluginOptionsSave();
 		if ( apply_filters( $this->prefix( 'force_options_resave' ), false ) ) {
 			$this->getOptions()
@@ -987,6 +993,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		$this->bImportExportWhitelistNotify = $this->getOptions()->getNeedSave();
 		$this->store();
 		return $this;
+	}
+
+	protected function preProcessOptions() {
 	}
 
 	private function store() {
@@ -1207,16 +1216,17 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
+
 		$this->doSaveStandardOptions();
-		$this->doExtraSubmitProcessing();
-	}
 
-	protected function verifyFormSubmit() {
-		return $this->getCon()->isPluginAdmin()
-			   && check_admin_referer( $this->getCon()->getPluginPrefix() );
-	}
+		$this->saveModOptions( true );
 
-	protected function doExtraSubmitProcessing() {
+		// only use this flag when the options are being updated with a MANUAL save.
+		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
+			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
+				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
+			}
+		}
 	}
 
 	/**
@@ -1248,16 +1258,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function isPremium() {
 		return $this->getCon()->isPremiumActive();
-	}
-
-	/**
-	 * UNUSED
-	 * Ensure that if an option is premium, it is never changed unless we have premium access
-	 */
-	protected function resetPremiumOptions() {
-		if ( !$this->isPremium() ) {
-			$this->getOptions()->resetPremiumOptsToDefault();
-		}
 	}
 
 	/**
@@ -1311,8 +1311,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 				elseif ( $sOptType == 'comma_separated_lists' ) {
 					$sOptionValue = Services::Data()->extractCommaSeparatedList( $sOptionValue );
 				}
-				elseif ( $sOptType == 'multiple_select' ) {
-				}
+				/* elseif ( $sOptType == 'multiple_select' ) { } */
 			}
 
 			// Prevent overwriting of non-editable fields
@@ -1326,15 +1325,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 			( new Shield\Modules\Plugin\Lib\ImportExport\Options\SaveExcludedOptions() )
 				->setMod( $this )
 				->save( $aForm );
-		}
-
-		$this->saveModOptions();
-
-		// only use this flag when the options are being updated with a MANUAL save.
-		if ( isset( $this->bImportExportWhitelistNotify ) && $this->bImportExportWhitelistNotify ) {
-			if ( !wp_next_scheduled( $this->prefix( 'importexport_notify' ) ) ) {
-				wp_schedule_single_event( Services::Request()->ts() + 15, $this->prefix( 'importexport_notify' ) );
-			}
 		}
 	}
 
@@ -1999,5 +1989,12 @@ abstract class ICWP_WPSF_FeatureHandler_Base extends Shield\Deprecated\Foundatio
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * @deprecated 9.0
+	 */
+	protected function doExtraSubmitProcessing() {
+		$this->preProcessOptions();
 	}
 }

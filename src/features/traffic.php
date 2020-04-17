@@ -33,7 +33,7 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	/**
 	 * We clean the database after saving.
 	 */
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		/** @var Traffic\Options $oOpts */
 		$oOpts = $this->getOptions();
 

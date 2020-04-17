@@ -11,7 +11,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	private $oLoginIntentController;
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		/**
