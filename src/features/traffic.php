@@ -21,23 +21,12 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 	}
 
-	public function onPluginShutdown() {
-		if ( $this->isAutoDisable() && Services::Request()->ts() - $this->getAutoDisableAt() > 0 ) {
-			$this->setOpt( 'auto_disable', 'N' )
-				 ->setOpt( 'autodisable_at', 0 )
-				 ->setIsMainFeatureEnabled( false );
-		}
-		parent::onPluginShutdown();
-	}
-
 	/**
 	 * We clean the database after saving.
 	 */
 	protected function preProcessOptions() {
 		/** @var Traffic\Options $oOpts */
 		$oOpts = $this->getOptions();
-
-		$oOpts->setOpt( 'autodisable_at', $this->isAutoDisable() ? Services::Request()->ts() + WEEK_IN_SECONDS : 0 );
 
 		$aExcls = $oOpts->getCustomExclusions();
 		foreach ( $aExcls as &$sExcl ) {
@@ -98,27 +87,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	}
 
 	/**
-	 * @return int
-	 */
-	public function getAutoDisableAt() {
-		return (int)$this->getOpt( 'autodisable_at' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getAutoDisableTimestamp() {
-		return Services::WpGeneral()->getTimeStampForDisplay( $this->getAutoDisableAt() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isAutoDisable() {
-		return $this->isOpt( 'auto_disable', 'Y' );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isIncluded_Ajax() {
@@ -172,5 +140,29 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	 */
 	protected function getNamespaceBase() {
 		return 'Traffic';
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 9.0
+	 */
+	public function getAutoDisableAt() {
+		return 0;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getAutoDisableTimestamp() {
+		return '';
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isAutoDisable() {
+		return false;
 	}
 }

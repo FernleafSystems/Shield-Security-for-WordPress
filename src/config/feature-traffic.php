@@ -162,17 +162,6 @@
       "description": "Automated DB cleanup will delete logs to maintain this maximum number of records."
     },
     {
-      "key":         "auto_disable",
-      "section":     "section_traffic_options",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Auto Disable",
-      "summary":     "Auto Disable Traffic Logging After 1 Week",
-      "description": "Turn on to prevent unnecessary long-term traffic logging. Timer resets each time you save."
-    },
-    {
       "key":         "enable_limiter",
       "section":     "section_traffic_limiter",
       "premium":     true,
@@ -207,13 +196,6 @@
       "name":        "Request Limit Time Interval",
       "summary":     "The Time Interval To Test For Excessive Requests",
       "description": "The time limit within which to monitor for excessive requests that exceed the limit."
-    },
-    {
-      "key":          "autodisable_at",
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "transferable": false,
-      "default":      0
     }
   ],
   "definitions":  {
