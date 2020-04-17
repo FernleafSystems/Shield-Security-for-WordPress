@@ -203,18 +203,18 @@ class Import {
 		$bImported = false;
 
 		$bAnythingChanged = false;
-		foreach ( $this->getCon()->modules as $oThisMod ) {
-			if ( !empty( $aImportData[ $oThisMod->getOptionsStorageKey() ] ) ) {
-				$oTheseOpts = $oThisMod->getOptions();
+		foreach ( $this->getCon()->modules as $oTheMod ) {
+			if ( !empty( $aImportData[ $oTheMod->getOptionsStorageKey() ] ) ) {
+				$oTheseOpts = $oTheMod->getOptions();
 				$oTheseOpts->setMultipleOptions(
 					array_diff_key(
-						$aImportData[ $oThisMod->getOptionsStorageKey() ],
+						$aImportData[ $oTheMod->getOptionsStorageKey() ],
 						array_flip( $oTheseOpts->getXferExcluded() )
 					)
 				);
 
 				$bAnythingChanged = $bAnythingChanged || $oTheseOpts->getNeedSave();
-				$oThisMod->saveModOptions();
+				$oTheMod->saveModOptions( true );
 			}
 		}
 
