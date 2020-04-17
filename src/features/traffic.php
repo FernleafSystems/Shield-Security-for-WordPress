@@ -13,14 +13,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		return $this->getDbH( 'traffic' );
 	}
 
-	protected function updateHandler() {
-		/** @var Traffic\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $this->isModOptEnabled() ) {
-			$oOpts->setOpt( 'enable_logger', 'Y' );
-		}
-	}
-
 	/**
 	 * We clean the database after saving.
 	 */
@@ -76,63 +68,6 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		}
 
 		return $aWarnings;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getExclusions() {
-		$aEx = $this->getOpt( 'type_exclusions' );
-		return is_array( $aEx ) ? $aEx : [];
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIncluded_Ajax() {
-		return !in_array( 'ajax', $this->getExclusions() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIncluded_Cron() {
-		return !in_array( 'cron', $this->getExclusions() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIncluded_LoggedInUser() {
-		return !in_array( 'logged_in', $this->getExclusions() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIncluded_Search() {
-		return !in_array( 'search', $this->getExclusions() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIncluded_Simple() {
-		return !in_array( 'simple', $this->getExclusions() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIncluded_Uptime() {
-		return !in_array( 'uptime', $this->getExclusions() );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isLogUsers() {
-		return $this->isIncluded_LoggedInUser();
 	}
 
 	/**

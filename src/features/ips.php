@@ -98,14 +98,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getAutoUnblockIps() {
-		$aIps = $this->getOpt( 'autounblock_ips', [] );
-		return is_array( $aIps ) ? $aIps : [];
-	}
-
-	/**
 	 * @return IPs\Lib\OffenseTracker
 	 */
 	public function loadOffenseTracker() {
@@ -113,24 +105,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			$this->oOffenseTracker = new IPs\Lib\OffenseTracker( $this->getCon() );
 		}
 		return $this->oOffenseTracker;
-	}
-
-	/**
-	 * @param string $sIp
-	 * @return $this
-	 */
-	public function updateIpRequestAutoUnblockTs( $sIp ) {
-		$aExistingIps = $this->getAutoUnblockIps();
-		$aExistingIps[ $sIp ] = Services::Request()->ts();
-		return $this->setAutoUnblockIps( $aExistingIps );
-	}
-
-	/**
-	 * @param array $aIps
-	 * @return $this
-	 */
-	public function setAutoUnblockIps( $aIps ) {
-		return $this->setOpt( 'autounblock_ips', $aIps );
 	}
 
 	/**
