@@ -141,39 +141,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtectLogin() {
-		return $this->isProtect( 'login' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtectLostPassword() {
-		return $this->isProtect( 'password' );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtectRegister() {
-		return $this->isProtect( 'register' );
-	}
-
-	/**
-	 * @param string $sLocationKey - see config for keys, e.g. login, register, password, checkout_woo
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtect( $sLocationKey ) {
-		return in_array( $sLocationKey, $this->getBotProtectionLocations() );
-	}
-
-	/**
 	 * @param bool $bAsOptDefaults
 	 * @return array
 	 */
@@ -239,19 +206,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	public function getCanEmailVerifyCode() {
-		return strtoupper( substr( $this->getTwoAuthSecretKey(), 10, 6 ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTwoAuthSecretKey() {
-		$sKey = $this->getOpt( 'two_factor_secret_key' );
-		if ( empty( $sKey ) ) {
-			$sKey = md5( mt_rand() );
-			$this->setOpt( 'two_factor_secret_key', $sKey );
-		}
-		return $sKey;
+		return strtoupper( substr( $this->getCon()->getSiteInstallationId(), 10, 6 ) );
 	}
 
 	/**
@@ -471,9 +426,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		else {
 			$bHasBotCheck = $oOpts->isEnabledGaspCheck() || $this->isEnabledCaptcha();
 
-			$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
-			$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
-			$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
+			$bBotLogin = $bHasBotCheck && $oOpts->isProtectLogin();
+			$bBotRegister = $bHasBotCheck && $oOpts->isProtectRegister();
+			$bBotPassword = $bHasBotCheck && $oOpts->isProtectLostPassword();
 			$aThis[ 'key_opts' ][ 'bot_login' ] = [
 				'name'    => __( 'Brute Force Login', 'wp-simple-firewall' ),
 				'enabled' => $bBotLogin,
@@ -524,5 +479,37 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	protected function getNamespaceBase() {
 		return 'LoginGuard';
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtectLogin() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtectLostPassword() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtectRegister() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtect() {
+		return false;
 	}
 }

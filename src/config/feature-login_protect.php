@@ -441,14 +441,6 @@
       "default":      ""
     },
     {
-      "key":          "two_factor_secret_key",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "sensitive":    true,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "use_login_intent_page",
       "section":      "section_non_ui",
       "transferable": false,

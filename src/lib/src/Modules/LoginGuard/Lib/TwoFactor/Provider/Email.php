@@ -82,10 +82,8 @@ class Email extends BaseProvider {
 	 * @return string
 	 */
 	protected function getSecret( \WP_User $oUser ) {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
 		return strtoupper( substr(
-			hash_hmac( 'sha1', $this->getCon()->getUniqueRequestId(), $oMod->getTwoAuthSecretKey() ),
+			hash_hmac( 'sha1', $this->getCon()->getUniqueRequestId(), $this->getCon()->getSiteInstallationId() ),
 			0, 6
 		) );
 	}

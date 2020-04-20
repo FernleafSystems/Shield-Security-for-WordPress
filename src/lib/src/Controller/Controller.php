@@ -858,15 +858,17 @@ class Controller extends Shield\Deprecated\Foundation {
 		$sFile = $this->getPluginBaseFile();
 		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
 			$aUpgradeReqs = $this->getPluginSpec()[ 'upgrade_reqs' ];
-			foreach ( $aUpgradeReqs as $sShieldVer => $aReqs ) {
-				$bNeedsHidden = version_compare( $oUpdates->response[ $sFile ]->new_version, $sShieldVer, '>=' )
-								&& (
-									!Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php' ] )
-									|| !Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp' ] )
-								);
-				if ( $bNeedsHidden ) {
-					unset( $oUpdates->response[ $sFile ] );
-					break;
+			if ( is_array( $aUpgradeReqs ) ) {
+				foreach ( $aUpgradeReqs as $sShieldVer => $aReqs ) {
+					$bNeedsHidden = version_compare( $oUpdates->response[ $sFile ]->new_version, $sShieldVer, '>=' )
+									&& (
+										!Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php' ] )
+										|| !Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp' ] )
+									);
+					if ( $bNeedsHidden ) {
+						unset( $oUpdates->response[ $sFile ] );
+						break;
+					}
 				}
 			}
 		}

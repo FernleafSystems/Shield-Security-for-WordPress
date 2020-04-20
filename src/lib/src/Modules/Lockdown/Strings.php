@@ -100,7 +100,10 @@ class Strings extends Base\Strings {
 			case 'disable_anonymous_restapi' :
 				$sName = __( 'Anonymous Rest API', 'wp-simple-firewall' );
 				$sSummary = sprintf( __( 'Disable The %s System', 'wp-simple-firewall' ), __( 'Anonymous Rest API', 'wp-simple-firewall' ) );
-				$sDescription = __( 'You can choose to completely disable anonymous access to the REST API.', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'You can choose to completely disable anonymous access to the REST API.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Enabling this option may break plugins that use the REST API for your site visitors.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'api_namespace_exclusions' :
