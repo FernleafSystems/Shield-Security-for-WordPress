@@ -21,16 +21,34 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getHumanSpamFilterItems() {
+		$aItems = $this->getOpt( 'enable_comments_human_spam_filter_items' );
+		return is_array( $aItems ) ? $aItems : [];
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getTokenCooldown() {
-		return (int)$this->getOpt( 'comments_cooldown_interval' );
+		return (int)max( 0,
+			apply_filters(
+				$this->getCon()->prefix( 'comments_cooldown' ),
+				$this->getOpt( 'comments_cooldown', 10 )
+			)
+		);
 	}
 
 	/**
 	 * @return int
 	 */
 	public function getTokenExpireInterval() {
-		return (int)$this->getOpt( 'comments_token_expire_interval' );
+		return (int)max( 0,
+			apply_filters(
+				$this->getCon()->prefix( 'comments_expire' ),
+				$this->getOpt( 'comments_expire', 600 )
+			)
+		);
 	}
 }

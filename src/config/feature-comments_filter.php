@@ -193,18 +193,6 @@
       "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
     },
     {
-      "key":         "comments_cooldown_interval",
-      "section":     "section_bot_comment_spam_protection_filter",
-      "default":     10,
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "https://shsec.io/3o",
-      "link_blog":   "",
-      "name":        "Comments Cooldown",
-      "summary":     "Limit posting comments to X seconds after the page has loaded",
-      "description": "By forcing a comments cooldown period, you restrict a Spambot's ability to post multiple times to your posts."
-    },
-    {
       "key":         "enable_comments_human_spam_filter",
       "section":     "section_human_spam_filter",
       "default":     "N",
@@ -287,18 +275,6 @@
       "description":   "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
     },
     {
-      "key":         "comments_token_expire_interval",
-      "section":     "section_bot_comment_spam_protection_filter",
-      "default":     600,
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "https://shsec.io/3o",
-      "link_blog":   "https://shsec.io/9v",
-      "name":        "Comment Token Expire",
-      "summary":     "A visitor has X seconds within which to post a comment",
-      "description": "Default: 600 seconds (10 minutes). Each visitor is given a unique 'Token' so they can comment. This restricts spambots, but we need to force these tokens to expire and at the same time not bother the visitors."
-    },
-    {
       "key":         "custom_message_checkbox",
       "section":     "section_user_messages",
       "sensitive":   true,
@@ -345,6 +321,20 @@
       "name":        "Custom Reload Message",
       "summary":     "If you want a custom message when the comment token has expired, please provide this here.",
       "description": "This message is displayed on the submit-button when the comment token is expired."
+    },
+    {
+      "key":         "comments_cooldown",
+      "section":     "section_non_ui",
+      "default":     10,
+      "min":         0,
+      "type":        "integer"
+    },
+    {
+      "key":         "comments_expire",
+      "section":     "section_non_ui",
+      "default":     600,
+      "min":         0,
+      "type":        "integer"
     }
   ],
   "definitions":   {

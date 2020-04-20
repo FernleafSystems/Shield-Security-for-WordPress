@@ -84,10 +84,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	protected function preProcessOptions() {
 		/** @var Shield\Modules\CommentsFilter\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( $oOpts->getTokenExpireInterval() != 0 && $oOpts->getTokenCooldown() > $oOpts->getTokenExpireInterval() ) {
-			$oOpts->resetOptToDefault( 'comments_cooldown_interval' );
-			$oOpts->resetOptToDefault( 'comments_token_expire_interval' );
-		}
 
 		$aCommentsFilters = $oOpts->getOpt( 'enable_comments_human_spam_filter_items' );
 		if ( empty( $aCommentsFilters ) || !is_array( $aCommentsFilters ) ) {
@@ -105,14 +101,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		);
 
 		$this->ensureCorrectCaptchaConfig();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getHumanSpamFilterItems() {
-		$aItems = $this->getOpt( 'enable_comments_human_spam_filter_items' );
-		return is_array( $aItems ) ? $aItems : [];
 	}
 
 	/**
@@ -169,7 +157,10 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_gasp_protection', 'Y' );
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_gasp_protection', 'Y' )
+			   && ( $oOpts->getTokenExpireInterval() > $oOpts->getTokenCooldown() );
 	}
 
 	/**
@@ -203,6 +194,10 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		if ( !$oOpts->isOpt( 'enable_google_recaptcha_comments', 'Y' ) ) {
 			$oOpts->setOpt( 'google_recaptcha_style_comments', 'disabled' );
 		}
+
+		$oOpts->setOpt( 'comments_cooldown', $oOpts->getOpt( 'comments_cooldown_interval' ) );
+		$oOpts->setOpt( 'comments_expire', $oOpts->getOpt( 'comments_token_expire_interval' ) );
+
 		$this->ensureCorrectCaptchaConfig();
 	}
 

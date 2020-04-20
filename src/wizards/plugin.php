@@ -162,7 +162,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
+		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
 		$oModule = $oConn->getModule( 'comments_filter' );
 		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'comments_filter';

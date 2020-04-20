@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,8 +18,8 @@ class Human {
 	 * @return \WP_Error|true
 	 */
 	public function scan( $aCommData ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$aItemsToCheck = array_intersect_key(
 			[
@@ -29,7 +30,7 @@ class Human {
 				'ip_address'      => Services::IP()->getRequestIp(),
 				'user_agent'      => substr( Services::Request()->getUserAgent(), 0, 254 )
 			],
-			array_flip( $oMod->getHumanSpamFilterItems() )
+			array_flip( $oOpts->getHumanSpamFilterItems() )
 		);
 
 		$mResult = true;

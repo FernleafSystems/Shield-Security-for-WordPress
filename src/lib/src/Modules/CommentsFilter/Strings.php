@@ -147,18 +147,6 @@ class Strings extends Base\Strings {
 				$sDescription = sprintf( __( 'When a comment is detected as being SPAM from %s, the comment will be categorised based on this setting.', 'wp-simple-firewall' ), '<span style"text-decoration:underline;">'.__( 'an automatic bot', 'wp-simple-firewall' ).'</span>' );
 				break;
 
-			case 'comments_cooldown_interval' :
-				$sName = __( 'Comments Cooldown', 'wp-simple-firewall' );
-				$sSummary = __( 'Limit posting comments to X seconds after the page has loaded', 'wp-simple-firewall' );
-				$sDescription = __( "By forcing a comments cooldown period, you restrict a Spambot's ability to post multiple times to your posts.", 'wp-simple-firewall' );
-				break;
-
-			case 'comments_token_expire_interval' :
-				$sName = __( 'Comment Token Expire', 'wp-simple-firewall' );
-				$sSummary = __( 'A visitor has X seconds within which to post a comment', 'wp-simple-firewall' );
-				$sDescription = __( "Default: 600 seconds (10 minutes). Each visitor is given a unique 'Token' so they can comment. This restricts spambots, but we need to force these tokens to expire and at the same time not bother the visitors.", 'wp-simple-firewall' );
-				break;
-
 			case 'custom_message_checkbox' :
 				$sName = __( 'GASP Checkbox Message', 'wp-simple-firewall' );
 				$sSummary = __( 'If you want a custom checkbox message, please provide this here', 'wp-simple-firewall' );
