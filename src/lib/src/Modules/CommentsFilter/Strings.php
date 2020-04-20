@@ -122,12 +122,6 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below.', 'wp-simple-firewall' );
 				break;
 
-			case 'enable_comments_human_spam_filter_items' :
-				$sName = __( 'Comment Filter Items', 'wp-simple-firewall' );
-				$sSummary = __( 'Select The Items To Scan For SPAM', 'wp-simple-firewall' );
-				$sDescription = __( 'When a user submits a comment, only the selected parts of the comment data will be scanned for SPAM content.', 'wp-simple-firewall' ).' '.sprintf( __( 'Recommended: %s', 'wp-simple-firewall' ), __( 'All', 'wp-simple-firewall' ) );
-				break;
-
 			case 'comments_default_action_human_spam' :
 				$sName = __( 'SPAM Action', 'wp-simple-firewall' );
 				$sSummary = __( 'How To Categorise Comments When Identified To Be SPAM', 'wp-simple-firewall' );

@@ -204,50 +204,6 @@
       "description": "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
     },
     {
-      "key":           "enable_comments_human_spam_filter_items",
-      "section":       "section_human_spam_filter",
-      "type":          "multiple_select",
-      "default":       [
-        "author_name",
-        "author_email",
-        "comment_content",
-        "url",
-        "ip_address",
-        "user_agent"
-      ],
-      "value_options": [
-        {
-          "value_key": "author_name",
-          "text":      "Author Name"
-        },
-        {
-          "value_key": "author_email",
-          "text":      "Author Email"
-        },
-        {
-          "value_key": "comment_content",
-          "text":      "Comment Content"
-        },
-        {
-          "value_key": "url",
-          "text":      "URL"
-        },
-        {
-          "value_key": "ip_address",
-          "text":      "IP Address"
-        },
-        {
-          "value_key": "user_agent",
-          "text":      "Browser User Agent"
-        }
-      ],
-      "link_info":     "https://shsec.io/58",
-      "link_blog":     "",
-      "name":          "Comment Filter Items",
-      "summary":       "Select The Items To Scan For SPAM",
-      "description":   "When a user submits a comment, only the selected parts of the comment data will be scanned for SPAM content."
-    },
-    {
       "key":           "comments_default_action_human_spam",
       "section":       "section_human_spam_filter",
       "default":       0,
@@ -335,6 +291,19 @@
       "default":     600,
       "min":         0,
       "type":        "integer"
+    },
+    {
+      "key":           "human_spam_items",
+      "section":       "section_non_ui",
+      "type":          "array",
+      "default":       [
+        "author_name",
+        "author_email",
+        "comment_content",
+        "url",
+        "ip_address",
+        "user_agent"
+      ]
     }
   ],
   "definitions":   {

@@ -24,8 +24,12 @@ class Options extends Base\ShieldOptions {
 	 * @return string[]
 	 */
 	public function getHumanSpamFilterItems() {
-		$aItems = $this->getOpt( 'enable_comments_human_spam_filter_items' );
-		return is_array( $aItems ) ? $aItems : [];
+		$aDefault = $this->getOptDefault( 'human_spam_items' );
+		$aItems = apply_filters(
+			$this->getCon()->prefix( 'human_spam_items' ),
+			$this->getOpt( 'human_spam_items', [] )
+		);
+		return is_array( $aItems ) ? array_intersect( $aDefault, $aItems ) : $aDefault;
 	}
 
 	/**
