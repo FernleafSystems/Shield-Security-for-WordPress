@@ -2,7 +2,6 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
-use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
@@ -89,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		$oOpts->setOpt( 'trusted_user_roles',
 			array_unique( array_filter( array_map(
 				function ( $sRole ) {
-					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+					return sanitize_key( strtolower( $sRole ) );
 				},
 				$this->getTrustedRoles()
 			) ) )
@@ -162,7 +161,10 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 * @return bool
 	 */
 	public function isEnabledHumanCheck() {
-		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_human_spam_filter', 'Y' );
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $this->isModOptEnabled() && $oOpts->isOpt( 'enable_comments_human_spam_filter', 'Y' )
+			   && count( $oOpts->getHumanSpamFilterItems() ) > 0;
 	}
 
 	/**
@@ -181,10 +183,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function updateHandler() {
-		$oFs = Services::WpFs();
-		if ( $oFs->exists( $this->getSpamBlacklistFile() ) ) {
-			$oFs->deleteFile( $this->getSpamBlacklistFile() );
-		}
 		$oOpts = $this->getOptions();
 		if ( !$oOpts->isOpt( 'enable_google_recaptcha_comments', 'Y' ) ) {
 			$oOpts->setOpt( 'google_recaptcha_style_comments', 'disabled' );

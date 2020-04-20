@@ -82,7 +82,7 @@
       "section":       "section_timings",
       "premium":       true,
       "type":          "select",
-      "default":       "daily",
+      "default":       "weekly",
       "value_options": [
         {
           "value_key": "hourly",
