@@ -45,8 +45,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$sNavSection = $oReq->query( 'inav', 'overview' );
 		$sSubNavSection = $oReq->query( 'subnav' );
 
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
-		$oTrafficMod = $oCon->getModule( 'traffic' );
+		$oTrafficMod = $oCon->getModule_Traffic();
+		/** @var Shield\Modules\Traffic\Options $oTrafficOpts */
+		$oTrafficOpts = $oTrafficMod->getOptions();
 		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
 		$oTrafficSelector = $oTrafficMod->getDbHandler_Traffic()->getQuerySelector();
 
@@ -188,7 +189,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					],
 					'flags'   => [
 						'can_traffic' => true, // since 8.2 it's always available
-						'is_enabled'  => $oTrafficMod->isModOptEnabled(),
+						'is_enabled'  => $oTrafficOpts->isTrafficLoggerEnabled(),
 					],
 					'hrefs'   => [
 						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_traffic' ),

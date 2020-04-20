@@ -53,6 +53,14 @@ class Traffic extends BaseBuild {
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function buildEmpty() {
+		return sprintf( '<div class="alert alert-success m-0">%s</div>',
+			__( "No requests have been logged.", 'wp-simple-firewall' ) );
+	}
+
+	/**
 	 * Override to allow other parameter keys for building the table
 	 * @return array
 	 */

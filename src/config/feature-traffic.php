@@ -59,7 +59,7 @@
     {
       "key":         "enable_traffic",
       "section":     "section_enable_plugin_feature_traffic",
-      "default":     "N",
+      "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ed",
       "link_blog":   "https://shsec.io/ee",
