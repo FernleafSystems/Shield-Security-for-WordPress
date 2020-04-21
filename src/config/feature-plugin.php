@@ -34,6 +34,14 @@
       "can_dismiss":      false,
       "type":             "error"
     },
+    "php7":          {
+      "id":               "php7",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": false,
+      "can_dismiss":      true,
+      "type":             "warning"
+    },
     "compat-sgoptimize":          {
       "id":               "compat-sgoptimize",
       "schedule":         "conditions",
