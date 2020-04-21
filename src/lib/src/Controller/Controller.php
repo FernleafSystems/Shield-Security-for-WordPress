@@ -896,13 +896,6 @@ class Controller extends Shield\Deprecated\Foundation {
 				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
 					$oConOptions->update_first_detected[ $sNewVersion ] = Services::Request()->ts();
 				}
-
-				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
-				foreach ( $oConOptions as $sKey => $aData ) {
-					if ( strpos( $sKey, 'update_first_detected_' ) !== false ) {
-						unset( $oConOptions->{$sKey} );
-					}
-				}
 			}
 		}
 
