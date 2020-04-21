@@ -63,7 +63,7 @@ class BaseBuild {
 	 */
 	protected function buildEmpty() {
 		return sprintf( '<div class="alert alert-success m-0">%s</div>',
-			__( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ) );
+			__( "No entries to display.", 'wp-simple-firewall' ) );
 	}
 
 	/**

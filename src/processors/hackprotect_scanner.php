@@ -144,8 +144,8 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 */
 	public function getFirstRunTimestamp() {
 		$oCarb = Services::Request()->carbon( true );
-		$oCarb->addHours( $oCarb->minute < 25 ? 0 : 1 )
-			  ->minute( 30 )
+		$oCarb->addHours( $oCarb->minute < 40 ? 0 : 1 )
+			  ->minute( $oCarb->minute < 40 ? 45 : 15 )
 			  ->second( 0 );
 		return $oCarb->timestamp;
 	}
