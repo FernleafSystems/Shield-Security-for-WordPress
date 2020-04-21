@@ -142,6 +142,17 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	/**
 	 * @return int
 	 */
+	public function getFirstRunTimestamp() {
+		$oCarb = Services::Request()->carbon( true );
+		$oCarb->addHours( $oCarb->minute < 25 ? 0 : 1 )
+			  ->minute( 30 )
+			  ->second( 0 );
+		return $oCarb->timestamp;
+	}
+
+	/**
+	 * @return int
+	 */
 	protected function getCronName() {
 		return $this->getCon()->prefix( $this->getOptions()->getDef( 'cron_all_scans' ) );
 	}

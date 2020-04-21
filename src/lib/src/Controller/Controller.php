@@ -1638,15 +1638,11 @@ class Controller extends Shield\Deprecated\Foundation {
 		return self::$oControllerOptions;
 	}
 
-	/**
-	 */
 	protected function deletePluginControllerOptions() {
 		$this->setPluginControllerOptions( false );
 		$this->saveCurrentPluginControllerOptions();
 	}
 
-	/**
-	 */
 	protected function deleteCronJobs() {
 		$oWpCron = Services::WpCron();
 		$aCrons = $oWpCron->getCrons();
