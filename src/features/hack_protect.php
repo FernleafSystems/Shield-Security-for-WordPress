@@ -49,7 +49,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function onWpInit() {
 		parent::onWpInit();
-		$this->getScanController();
+		$this->getScanQueueController();
 	}
 
 	/**
@@ -66,7 +66,7 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return HackGuard\Scan\Queue\Controller
 	 */
-	public function getScanController() {
+	public function getScanQueueController() {
 		if ( !isset( $this->oScanQueueController ) ) {
 			$this->oScanQueueController = ( new HackGuard\Scan\Queue\Controller() )
 				->setMod( $this );
@@ -201,13 +201,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 					 ->getQuerySelector();
 		$oEntry = $oSel->getLatestForEvent( $sScan.'_scan_run' );
 		return ( $oEntry instanceof Shield\Databases\Events\EntryVO ) ? $oEntry->created_at : 0;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getScanNotificationInterval() {
-		return DAY_IN_SECONDS*(int)max( 0, apply_filters( 'icwp_shield_scan_notification_interval', 7 ) );
 	}
 
 	/**
@@ -768,5 +761,21 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function isIncludeFileLists() {
 		return false;
+	}
+
+	/**
+	 * @return int
+	 * @deprecated 9.0
+	 */
+	public function getScanNotificationInterval() {
+		return 0;
+	}
+
+	/**
+	 * @return HackGuard\Scan\Queue\Controller
+	 * @deprecated 9.0
+	 */
+	public function getScanController() {
+		return $this->getScanQueueController();
 	}
 }

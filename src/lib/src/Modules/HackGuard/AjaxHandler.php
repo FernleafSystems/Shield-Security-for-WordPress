@@ -342,7 +342,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					}
 					else {
 						// rescan
-						$oMod->getScanController()->startScans( $aScanSlugs );
+						$oMod->getScanQueueController()->startScans( $aScanSlugs );
 						$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 					}
 				}
@@ -370,7 +370,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var Shield\Databases\ScanQueue\Select $oSel */
 		$oSel = $oMod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$oQueCon = $oMod->getScanController();
+		$oQueCon = $oMod->getScanQueueController();
 		$sCurrent = $oSel->getCurrentScan();
 		$bHasCurrent = !empty( $sCurrent );
 		if ( $bHasCurrent ) {
@@ -413,7 +413,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
-		$oScanCon = $oMod->getScanController();
+		$oScanCon = $oMod->getScanQueueController();
 
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );

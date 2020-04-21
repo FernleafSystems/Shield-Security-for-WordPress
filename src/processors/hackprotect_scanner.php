@@ -44,15 +44,16 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
-	 * Responsible for sending out emails and doing any automated repairs.
+	 * Responsible for any automated repairs.
 	 */
 	private function handlePostScanCron() {
 		add_action( $this->getCon()->prefix( 'post_scan' ), function ( $aScansToNotify ) {
 			/** @var HackGuard\Options $oOpts */
 			$oOpts = $this->getOptions();
 			foreach ( array_intersect( $oOpts->getScanSlugs(), $aScansToNotify ) as $sSlug ) {
-				$this->getSubPro( $sSlug )
-					 ->cronProcessScanResults();
+				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+				$oMod = $this->getMod();
+				$oMod->getScanCon( $sSlug )->runCronAutoRepair();
 			}
 		} );
 	}
@@ -106,7 +107,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 
 			$oOpts->setIsScanCron( true );
 			$oMod->saveModOptions()
-				 ->getScanController()
+				 ->getScanQueueController()
 				 ->startScans( $aScans );
 		}
 		else {

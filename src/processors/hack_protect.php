@@ -68,7 +68,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$aReasonCantScan = $this->getSubProScanner()
 								->getReasonsScansCantExecute();
 
-		$oQueCon = $oMod->getScanController();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		$aData = [
@@ -114,7 +113,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 			],
 			'vars'         => [
-				'initial_check'       => $oQueCon->hasRunningScans(),
+				'initial_check'       => $oMod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $aReasonCantScan
 			],
 			'scan_results' => [

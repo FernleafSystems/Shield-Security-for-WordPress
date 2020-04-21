@@ -107,12 +107,10 @@ abstract class Base {
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
 	public function getAllResultsForCron() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		/** @var Databases\Scanner\Select $oSel */
 		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$oSel->filterByScan( $this->getSlug() )
-			 ->filterForCron( $oMod->getScanNotificationInterval() );
+			 ->filterByNotIgnored();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
 			->fromVOsToResultsSet( $oSel->query() );
@@ -224,16 +222,16 @@ abstract class Base {
 		return $this;
 	}
 
-	/**
-	 * @param Scans\Base\BaseResultsSet $oRes
-	 */
-	public function runCronAutoRepair( $oRes ) {
+	public function runCronAutoRepair() {
 		if ( $this->isCronAutoRepair() ) {
-			$this->getItemActionHandler()
-				 ->getRepairer()
-				 ->setIsManualAction( false )
-				 ->setAllowDelete( false )
-				 ->repairResultsSet( $oRes );
+			$oRes = $this->getAllResultsForCron();
+			if ( $oRes->hasItems() ) {
+				$this->getItemActionHandler()
+					 ->getRepairer()
+					 ->setIsManualAction( false )
+					 ->setAllowDelete( false )
+					 ->repairResultsSet( $oRes );
+			}
 		}
 	}
 

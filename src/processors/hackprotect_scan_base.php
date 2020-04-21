@@ -15,7 +15,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 			function () {
 				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 				$oMod = $this->getMod();
-				$oMod->getScanController()
+				$oMod->getScanQueueController()
 					 ->startScans( [ $this->getThisScanCon()->getSlug() ] );
 			}
 		);
@@ -45,24 +45,18 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * Because it's the cron and we'll maybe be notifying user, we look
-	 * only for items that have not been notified recently.
-	 */
-	public function cronProcessScanResults() {
-		$oScanCon = $this->getThisScanCon();
-		$oRes = $oScanCon->getAllResultsForCron();
-		if ( $oRes->hasItems() ) {
-			$this->getThisScanCon()->runCronAutoRepair( $oRes );
-		}
-	}
-
-	/**
 	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
 	protected function getThisScanCon() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		return $oMod->getScanCon( static::SCAN_SLUG );
+	}
+
+	/**
+	 * @deprecated 9.0
+	 */
+	public function cronProcessScanResults() {
 	}
 
 	/**
