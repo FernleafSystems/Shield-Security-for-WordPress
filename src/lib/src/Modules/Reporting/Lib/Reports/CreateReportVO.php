@@ -76,52 +76,57 @@ class CreateReportVO {
 	}
 
 	/**
+	 * Here we test whether the report time boundary overlaps with the boundaries of the previous report.
+	 * If it does overlap, we're creating a duplicate report.
+	 *
 	 * @return $this
 	 * @throws \Exception
 	 */
 	private function setIntervalBoundaries() {
 
 		$oC = Services::Request()->carbon( true );
-		if ( !empty( $this->rep->previous ) && !$this->isOnDemandReport() ) {
-			$nAddition = 1;
-			$oC->setTimestamp( $this->rep->previous->interval_end_at );
-		}
-		else {
-			$nAddition = -1;
-		}
+		$nAddition = -1; // the previous hour, day, week, month
 
 		switch ( $this->rep->interval ) {
-			case 'realtime':
-				break;
+//			case 'realtime':
+//				break;
 			case 'hourly':
 				$oC->addHours( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfHour()->timestamp;
-				$this->rep->interval_end_at = $oC->endOfHour()->timestamp;
+				$nStart = $oC->startOfHour()->timestamp;
+				$nEnd = $oC->endOfHour()->timestamp;
 				break;
 			case 'daily':
 				$oC->addDays( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfDay()->timestamp;
-				$this->rep->interval_end_at = $oC->endOfDay()->timestamp;
+				$nStart = $oC->startOfDay()->timestamp;
+				$nEnd = $oC->endOfDay()->timestamp;
 				break;
 			case 'weekly':
 				$oC->addWeeks( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfWeek()->timestamp;
-				$this->rep->interval_end_at = $oC->endOfWeek()->timestamp;
+				$nStart = $oC->startOfWeek()->timestamp;
+				$nEnd = $oC->endOfWeek()->timestamp;
 				break;
 			case 'monthly':
 				$oC->addMonths( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfMonth()->timestamp;
-				$this->rep->interval_end_at = $oC->endOfMonth()->timestamp;
+				$nStart = $oC->startOfMonth()->timestamp;
+				$nEnd = $oC->endOfMonth()->timestamp;
 				break;
 			case 'yearly':
 				$oC->addYears( $nAddition );
-				$this->rep->interval_start_at = $oC->startOfYear()->timestamp;
-				$this->rep->interval_end_at = $oC->endOfYear()->timestamp;
+				$nStart = $oC->startOfYear()->timestamp;
+				$nEnd = $oC->endOfYear()->timestamp;
 				break;
 			default:
 				throw new \Exception( 'Not a supported frequency' );
 				break;
 		}
+
+		if ( $this->rep->previous instanceof Reports\EntryVO
+			 && $nEnd <= $this->rep->previous->interval_end_at ) {
+			throw new \Exception( 'Attempting to create a duplicate report based on interval.' );
+		}
+
+		$this->rep->interval_start_at = $nStart;
+		$this->rep->interval_end_at = $nEnd;
 
 		return $this;
 	}
@@ -141,6 +146,7 @@ class CreateReportVO {
 	}
 
 	/**
+	 * TODO
 	 * @return bool
 	 */
 	private function isOnDemandReport() {
