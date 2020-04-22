@@ -45,7 +45,7 @@ class GaspJs extends BaseProtectionProvider {
 					]
 				]
 			);
-			$sError = __( "You must check that box to say you're not a bot.", 'wp-simple-firewall' );
+			$sError = __( "Please check that box to say you're human, and not a bot.", 'wp-simple-firewall' );
 		}
 		elseif ( !empty( $sHoney ) ) {
 			$this->getCon()->fireEvent(
