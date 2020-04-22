@@ -228,11 +228,15 @@ abstract class Base {
 	public function runCronAutoRepair() {
 		$oRes = $this->getItemsToRepair();
 		if ( $oRes->hasItems() ) {
-			$this->getItemActionHandler()
-				 ->getRepairer()
-				 ->setIsManualAction( false )
-				 ->setAllowDelete( false )
-				 ->repairResultsSet( $oRes );
+			foreach ( $oRes->getAllItems() as $oItem ) {
+				try {
+					$this->getItemActionHandler()
+						 ->setScanItem( $oItem )
+						 ->repair();
+				}
+				catch ( \Exception $oE ) {
+				}
+			}
 			$this->cleanStalesResults();
 		}
 	}
