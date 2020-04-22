@@ -21,12 +21,19 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	public function repairItem() {
 		/** @var Ptg\ResultItem $oItem */
 		$oItem = $this->getScanItem();
-		if ( $oItem->context == 'plugins' ) {
-			$bSuccess = $this->repairPluginFile( $oItem->path_full );
+
+		if ( $this->canRepair() ) {
+			if ( $oItem->context == 'plugins' ) {
+				$bSuccess = $this->repairPluginFile( $oItem->path_full );
+			}
+			else {
+				$bSuccess = $this->repairThemeFile( $oItem->path_full );
+			}
 		}
 		else {
-			$bSuccess = $this->repairThemeFile( $oItem->path_full );
+			$bSuccess = false;
 		}
+
 		return $bSuccess;
 	}
 
@@ -35,20 +42,17 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairPluginFile( $sPath ) {
+		$bSuccess = false;
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
 			if ( $oFiles->isValidFileFromPlugin( $sPath ) ) {
 				$bSuccess = $oFiles->replaceFileFromVcs( $sPath );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = Services::WpFs()->deleteFile( $sPath );
-			}
-			else {
-				$bSuccess = false;
+				$bSuccess = (bool)Services::WpFs()->deleteFile( $sPath );
 			}
 		}
 		catch ( \InvalidArgumentException $oE ) {
-			$bSuccess = false;
 		}
 		return (bool)$bSuccess;
 	}
@@ -58,20 +62,17 @@ class Repair extends Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairThemeFile( $sPath ) {
+		$bSuccess = false;
 		$oFiles = new WpOrg\Theme\Files();
 		try {
 			if ( $oFiles->isValidFileFromTheme( $sPath ) ) {
 				$bSuccess = $oFiles->replaceFileFromVcs( $sPath );
 			}
 			elseif ( $this->isAllowDelete() ) {
-				$bSuccess = Services::WpFs()->deleteFile( $sPath );
-			}
-			else {
-				$bSuccess = false;
+				$bSuccess = (bool)Services::WpFs()->deleteFile( $sPath );
 			}
 		}
 		catch ( \InvalidArgumentException $oE ) {
-			$bSuccess = false;
 		}
 		return (bool)$bSuccess;
 	}
