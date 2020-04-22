@@ -27,7 +27,6 @@ class CompleteQueue {
 		$oDbH = $this->getDbHandler();
 		$oSel = $oDbH->getQuerySelector();
 
-		$aScansToNotify = [];
 		foreach ( $oSel->getDistinctForColumn( 'scan' ) as $sScanSlug ) {
 
 			$oScanCon = $oMod->getScanCon( $sScanSlug );
@@ -46,7 +45,6 @@ class CompleteQueue {
 
 				if ( $oResultsSet->countItems() > 0 ) {
 					$this->getCon()->fireEvent( $sScanSlug.'_scan_found' );
-					$aScansToNotify[] = $sScanSlug;
 				}
 			}
 
@@ -58,11 +56,10 @@ class CompleteQueue {
 
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( $oOpts->isScanCron() && !empty( $aScansToNotify ) && !wp_next_scheduled( $oMod->prefix( 'post_scan' ) ) ) {
+		if ( $oOpts->isScanCron() && !wp_next_scheduled( $oMod->prefix( 'post_scan' ) ) ) {
 			wp_schedule_single_event(
 				Services::Request()->ts() + 30,
-				$oMod->prefix( 'post_scan' ),
-				[ $aScansToNotify ]
+				$oMod->prefix( 'post_scan' )
 			);
 		}
 		$oOpts->setIsScanCron( false );

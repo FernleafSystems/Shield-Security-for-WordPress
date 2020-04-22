@@ -106,7 +106,7 @@ abstract class Base {
 	/**
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
-	public function getAllResultsForCron() {
+	protected function getItemsToRepair() {
 		/** @var Databases\Scanner\Select $oSel */
 		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$oSel->filterByScan( $this->getSlug() )
@@ -222,17 +222,18 @@ abstract class Base {
 		return $this;
 	}
 
+	/**
+	 * TODO: Make private/protected
+	 */
 	public function runCronAutoRepair() {
-		if ( $this->isCronAutoRepair() ) {
-			$oRes = $this->getAllResultsForCron();
-			if ( $oRes->hasItems() ) {
-				$this->getItemActionHandler()
-					 ->getRepairer()
-					 ->setIsManualAction( false )
-					 ->setAllowDelete( false )
-					 ->repairResultsSet( $oRes );
-				$this->cleanStalesResults();
-			}
+		$oRes = $this->getItemsToRepair();
+		if ( $oRes->hasItems() ) {
+			$this->getItemActionHandler()
+				 ->getRepairer()
+				 ->setIsManualAction( false )
+				 ->setAllowDelete( false )
+				 ->repairResultsSet( $oRes );
+			$this->cleanStalesResults();
 		}
 	}
 

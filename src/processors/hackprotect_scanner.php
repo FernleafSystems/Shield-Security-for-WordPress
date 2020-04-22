@@ -47,13 +47,16 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	 * Responsible for any automated repairs.
 	 */
 	private function handlePostScanCron() {
-		add_action( $this->getCon()->prefix( 'post_scan' ), function ( $aScansToNotify ) {
+		add_action( $this->getCon()->prefix( 'post_scan' ), function () {
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
 			/** @var HackGuard\Options $oOpts */
 			$oOpts = $this->getOptions();
-			foreach ( array_intersect( $oOpts->getScanSlugs(), $aScansToNotify ) as $sSlug ) {
-				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-				$oMod = $this->getMod();
-				$oMod->getScanCon( $sSlug )->runCronAutoRepair();
+			foreach ( $oOpts->getScanSlugs() as $sSlug ) {
+				$oScanCon = $oMod->getScanCon( $sSlug );
+				if ( $oScanCon->isCronAutoRepair() ) {
+					$oScanCon->runCronAutoRepair();
+				}
 			}
 		} );
 	}

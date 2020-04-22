@@ -10,6 +10,37 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 class Ptg extends BaseForAssets {
 
 	/**
+	 * @return Scans\Ptg\ResultsSet
+	 */
+	protected function getItemsToRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		/** @var Scans\Ptg\ResultsSet $oRes */
+		$oRes = parent::getItemsToRepair();
+
+		if ( !$oOpts->isRepairFilePlugin() || !$oOpts->isRepairFileTheme() ) {
+			if ( $oOpts->isRepairFileTheme() ) {
+				$oRes = $oRes->getResultsForThemesContext();
+			}
+			elseif ( $oOpts->isRepairFilePlugin() ) {
+				$oRes = $oRes->getResultsForPluginsContext();
+			}
+		}
+
+		return $oRes;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCronAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isRepairFilePlugin() || $oOpts->isRepairFileTheme();
+	}
+
+	/**
 	 * @param Scans\Mal\ResultItem $oItem
 	 * @return bool
 	 */

@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 
 /**
- * Class MergeResultsSets
+ * Class CopyResultsSets
  * @package FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers
  */
 class CopyResultsSets {
