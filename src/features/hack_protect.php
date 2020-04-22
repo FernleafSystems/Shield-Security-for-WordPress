@@ -44,9 +44,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$this->setCustomCronSchedules();
 	}
 
-	/**
-	 * A action added to WordPress 'init' hook
-	 */
 	public function onWpInit() {
 		parent::onWpInit();
 		$this->getScanQueueController();
@@ -160,15 +157,25 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 	}
 
-	/**
-	 */
 	protected function preProcessOptions() {
-		$this->cleanFileExclusions();
-		$this->setOpt( 'ptg_candiskwrite_at', 0 );
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		/** @var ICWP_WPSF_Processor_HackProtect $oPro */
-		$oPro = $this->getProcessor();
-		$oPro->getSubProScanner()->deleteCron(); // very important if the scan cron schedule is changed.
+		$this->cleanFileExclusions();
+		$oOpts->setOpt( 'ptg_candiskwrite_at', 0 );
+
+		if ( $oOpts->isOptChanged( 'scan_frequency' ) ) {
+			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
+			$oPro = $this->getProcessor();
+			$oPro->getSubProScanner()->deleteCron();
+		}
+
+		if ( count( $oOpts->getFilesToLock() ) > 0 && $this->getCon()
+														   ->getModule_Plugin()
+														   ->getShieldNetApiController()
+														   ->canHandshake() ) {
+			$oOpts->setOpt( 'file_locker', [] );
+		}
 	}
 
 	/**
@@ -224,39 +231,30 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		return $this;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getUfcFileExclusions() {
-		$aExclusions = $this->getOpt( 'ufc_exclusions', [] );
-		if ( empty( $aExclusions ) || !is_array( $aExclusions ) ) {
-			$aExclusions = [];
-		}
-		return $aExclusions;
-	}
-
-	/**
-	 * @return $this
-	 */
 	protected function cleanFileExclusions() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
 		$aExclusions = [];
 
-		foreach ( $this->getUfcFileExclusions() as $nKey => $sExclusion ) {
-			$sExclusion = wp_normalize_path( trim( $sExclusion ) );
+		$aToClean = $this->getOpt( 'ufc_exclusions', [] );
+		if ( is_array( $aToClean ) ) {
+			foreach ( $aToClean as $nKey => $sExclusion ) {
+				$sExclusion = wp_normalize_path( trim( $sExclusion ) );
 
-			if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
-				// ignore it
-			}
-			elseif ( strpos( $sExclusion, '/' ) === false ) { // filename only
-				$sExclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $sExclusion ) );
-			}
+				if ( preg_match( '/^#(.+)#$/', $sExclusion, $aMatches ) ) { // it's regex
+					// ignore it
+				}
+				elseif ( strpos( $sExclusion, '/' ) === false ) { // filename only
+					$sExclusion = trim( preg_replace( '#[^.0-9a-z_-]#i', '', $sExclusion ) );
+				}
 
-			if ( !empty( $sExclusion ) ) {
-				$aExclusions[] = $sExclusion;
+				if ( !empty( $sExclusion ) ) {
+					$aExclusions[] = $sExclusion;
+				}
 			}
 		}
 
-		return $this->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
+		$oOpts->setOpt( 'ufc_exclusions', array_unique( $aExclusions ) );
 	}
 
 	/**

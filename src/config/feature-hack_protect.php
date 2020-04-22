@@ -73,7 +73,7 @@
     {
       "slug":        "section_scan_options",
       "title":       "Scan Options",
-      "title_short": "Schedule",
+      "title_short": "Scan Options",
       "summary":     [
         "Purpose - Set how often the Hack Guard scans will run."
       ]

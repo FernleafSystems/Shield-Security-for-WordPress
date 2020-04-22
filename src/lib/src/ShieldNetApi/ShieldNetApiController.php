@@ -21,6 +21,13 @@ class ShieldNetApiController {
 	}
 
 	/**
+	 * Automatically throttles request because otherwise PRO-nulled versions of Shield will cause
+	 * overload on our API.
+	 *
+	 * Note To Plugin 'Null'ers:
+	 * PRO features that require handshaking wont work even if you null the plugin because our
+	 * API will always reject those requests. Don't fiddle with this function, please.  You may get
+	 * away with nulling the plugin for many PRO features, but you can't null our API, sorry.
 	 * @return bool
 	 */
 	public function canHandshake() {
