@@ -206,8 +206,7 @@
       "type":          "multiple_select",
       "default":       [
         "wp",
-        "plugin",
-        "theme"
+        "plugin"
       ],
       "value_options": [
         {

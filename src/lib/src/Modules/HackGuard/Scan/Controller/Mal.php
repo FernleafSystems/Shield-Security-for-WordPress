@@ -38,6 +38,6 @@ class Mal extends Base {
 	public function isEnabled() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isMalScanEnabled();
+		return $oOpts->isOpt( 'mal_scan_enable', 'Y' );
 	}
 }

@@ -125,6 +125,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oOpts->setOpt( 'ptg_enable', 'N' );
 		}
 
+		/**
+		 * @deprecated 9.0
+		 */
 		$aRepairAreas = $oOpts->getRepairAreas();
 		$aMap = [
 			'attempt_auto_file_repair' => 'wp',

@@ -231,6 +231,7 @@ abstract class Base {
 					 ->setIsManualAction( false )
 					 ->setAllowDelete( false )
 					 ->repairResultsSet( $oRes );
+				$this->cleanStalesResults();
 			}
 		}
 	}
