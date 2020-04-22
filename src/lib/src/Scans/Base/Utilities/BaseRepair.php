@@ -2,9 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultItem;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
 
 /**
@@ -21,22 +18,10 @@ abstract class BaseRepair {
 	private $bAllowDelete = false;
 
 	/**
-	 * @var bool
-	 */
-	private $bIsManualAction = false;
-
-	/**
 	 * @return bool
 	 */
 	public function isAllowDelete() {
 		return (bool)$this->bAllowDelete;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isManualAction() {
-		return (bool)$this->bIsManualAction;
 	}
 
 	/**
@@ -46,30 +31,6 @@ abstract class BaseRepair {
 	public function setAllowDelete( $bAllowDelete ) {
 		$this->bAllowDelete = $bAllowDelete;
 		return $this;
-	}
-
-	/**
-	 * @param bool $bManual
-	 * @return $this
-	 */
-	public function setIsManualAction( $bManual ) {
-		$this->bIsManualAction = $bManual;
-		return $this;
-	}
-
-	/**
-	 * @param BaseResultsSet $oResults
-	 */
-	public function repairResultsSet( $oResults ) {
-		foreach ( $oResults->getItems() as $oItem ) {
-			try {
-				/** @var BaseResultItem $oItem */
-				$this->setScanItem( $oItem )
-					 ->repairItem();
-			}
-			catch ( \Exception $oE ) {
-			}
-		}
 	}
 
 	/**

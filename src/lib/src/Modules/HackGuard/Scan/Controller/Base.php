@@ -33,7 +33,7 @@ abstract class Base {
 			->retrieve();
 		foreach ( $oResults->getItems() as $oItem ) {
 			if ( !$this->isResultItemStale( $oItem ) ) {
-				$oResults->removeItem( $oItem->hash );
+				$oResults->removeItemByHash( $oItem->hash );
 			}
 		}
 		( new HackGuard\Scan\Results\ResultsDelete() )
@@ -106,7 +106,7 @@ abstract class Base {
 	/**
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
-	protected function getItemsToRepair() {
+	protected function getItemsToAutoRepair() {
 		/** @var Databases\Scanner\Select $oSel */
 		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$oSel->filterByScan( $this->getSlug() )
@@ -226,7 +226,7 @@ abstract class Base {
 	 * TODO: Make private/protected
 	 */
 	public function runCronAutoRepair() {
-		$oRes = $this->getItemsToRepair();
+		$oRes = $this->getItemsToAutoRepair();
 		if ( $oRes->hasItems() ) {
 			foreach ( $oRes->getAllItems() as $oItem ) {
 				try {

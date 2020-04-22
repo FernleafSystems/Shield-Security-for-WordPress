@@ -5,8 +5,49 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Control
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 
 class Mal extends Base {
+
+	/**
+	 * Can only possibly repair themes, plugins or core files.
+	 * @return Scans\Mal\ResultsSet
+	 */
+	protected function getItemsToAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		$oRes = new Scans\Mal\ResultsSet();
+
+		/** @var Scans\Mal\ResultItem $oItem */
+		foreach ( parent::getItemsToAutoRepair()->getAllItems() as $oItem ) {
+
+			try {
+				if ( $oOpts->isRepairFilePlugin()
+					 && ( new WpOrg\Plugin\Files() )->isValidFileFromPlugin( $oItem->path_full ) ) {
+					$oRes->addItem( $oItem );
+				}
+			}
+			catch ( \InvalidArgumentException $e ) {
+			}
+
+			try {
+				if ( $oOpts->isRepairFileTheme()
+					 && ( new WpOrg\Theme\Files() )->isValidFileFromTheme( $oItem->path_full ) ) {
+					$oRes->addItem( $oItem );
+				}
+			}
+			catch ( \InvalidArgumentException $e ) {
+			}
+
+			if ( !$oOpts->isRepairFileWP()
+				 && Services::CoreFileHashes()->isCoreFile( $oItem->path_full ) ) {
+				$oRes->addItem( $oItem );
+			}
+		}
+
+		return $oRes;
+	}
 
 	/**
 	 * @param Scans\Mal\ResultItem $oItem

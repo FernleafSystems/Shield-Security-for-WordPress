@@ -12,12 +12,12 @@ class Ptg extends BaseForAssets {
 	/**
 	 * @return Scans\Ptg\ResultsSet
 	 */
-	protected function getItemsToRepair() {
+	protected function getItemsToAutoRepair() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		/** @var Scans\Ptg\ResultsSet $oRes */
-		$oRes = parent::getItemsToRepair();
+		$oRes = parent::getItemsToAutoRepair();
 
 		if ( !$oOpts->isRepairFilePlugin() || !$oOpts->isRepairFileTheme() ) {
 			if ( $oOpts->isRepairFileTheme() ) {

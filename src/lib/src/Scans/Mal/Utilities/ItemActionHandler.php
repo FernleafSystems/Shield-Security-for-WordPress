@@ -13,7 +13,6 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	 */
 	public function delete() {
 		return $this->getRepairer()
-					->setIsManualAction( true )
 					->setAllowDelete( true )
 					->repairItem();
 	}
@@ -38,7 +37,6 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	 */
 	public function repair() {
 		return $this->getRepairer()
-					->setIsManualAction( true )
 					->setAllowDelete( false )
 					->repairItem();
 	}

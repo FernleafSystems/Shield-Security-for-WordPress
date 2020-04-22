@@ -108,10 +108,18 @@ class BaseResultsSet {
 	}
 
 	/**
+	 * @param BaseResultItem $oItem
+	 * @return $this
+	 */
+	public function removeItem( $oItem ) {
+		return $this->removeItemByHash( $oItem->hash );
+	}
+
+	/**
 	 * @param string $sHash
 	 * @return $this
 	 */
-	public function removeItem( $sHash ) {
+	public function removeItemByHash( $sHash ) {
 		if ( $this->getItemExists( $sHash ) ) {
 			$aItems = $this->getAllItems();
 			unset( $aItems[ $sHash ] );
