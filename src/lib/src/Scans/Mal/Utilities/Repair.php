@@ -110,9 +110,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 						)
 					);
 				}
-				if ( !( new WpOrg\Plugin\Versions() )
-					->setWorkingSlug( $oPlugin->slug )
-					->exists( $oPlugin->Version, true ) ) {
+				if ( !$oPlugin->svn_uses_tags ) {
 					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
 				}
 

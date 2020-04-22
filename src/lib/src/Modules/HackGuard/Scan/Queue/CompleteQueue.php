@@ -58,7 +58,7 @@ class CompleteQueue {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isScanCron() && !wp_next_scheduled( $oMod->prefix( 'post_scan' ) ) ) {
 			wp_schedule_single_event(
-				Services::Request()->ts() + 30,
+				Services::Request()->ts() + 5,
 				$oMod->prefix( 'post_scan' )
 			);
 		}

@@ -80,9 +80,20 @@ abstract class ItemActionHandler {
 		if ( !$oRep->canRepair() ) {
 			throw new \Exception( 'This item cannot be automatically repaired.' );
 		}
-		$bSuccess = $oRep->repairItem();
-		$this->fireRepairEvent( $bSuccess );
-		return $bSuccess;
+
+		$oItem = $this->getScanItem();
+		$oItem->repaired = $oRep->repairItem();
+		$this->fireRepairEvent( $oItem->repaired );
+
+		if ( $oItem->repaired ) {
+			/** @var Scanner\Delete $oDel */
+			$oDel = $this->getDbHandler()->getQueryDeleter();
+			$oDel->filterByHash( $oItem->hash )
+				 ->filterByScan( $oItem->scan )
+				 ->query();
+		}
+
+		return $oItem->repaired;
 	}
 
 	/**
