@@ -17,43 +17,52 @@ class ReportingController {
 	}
 
 	public function runHourlyCron() {
+		$this->buildAndSendReport();
+	}
+
+	private function buildAndSendReport() {
+		$aReports = [];
+
 		try {
-			$this->buildAndSendReport();
+			$oAlertReport = $this->buildReportAlerts();
+			if ( !empty( $oAlertReport->content ) ) {
+				$this->storeReportRecord( $oAlertReport );
+				$aReports[] = $oAlertReport;
+			}
 		}
 		catch ( \Exception $oE ) {
 		}
+
+		try {
+			$oInfoReport = $this->buildReportInfo();
+			if ( !empty( $oInfoReport->content ) ) {
+				$this->storeReportRecord( $oInfoReport );
+				$aReports[] = $oInfoReport;
+			}
+		}
+		catch ( \Exception $oE ) {
+		}
+
+		$this->sendEmail( $aReports );
 	}
 
 	/**
-	 * @throws \Exception
+	 * @param Reports\ReportVO $oReport
+	 * @return bool
 	 */
-	private function buildAndSendReport() {
+	private function storeReportRecord( Reports\ReportVO $oReport ) {
+		$oRecord = new DBReports\EntryVO();
+		$oRecord->sent_at = Services::Request()->ts();
+		$oRecord->rid = $oReport->rid;
+		$oRecord->type = $oReport->type;
+		$oRecord->frequency = $oReport->interval;
+		$oRecord->interval_end_at = $oReport->interval_end_at;
+
 		/** @var \ICWP_WPSF_FeatureHandler_Reporting $oMod */
 		$oMod = $this->getMod();
-		$oDbH = $oMod->getDbHandler_Reports();
-
-		$oReportRecord = new DBReports\EntryVO();
-		$oReportRecord->sent_at = Services::Request()->ts();
-
-		$oAlertReport = $this->buildReportAlerts();
-		if ( !empty( $oAlertReport->content ) ) {
-			$oReportRecord->rid = $oAlertReport->rid;
-			$oReportRecord->type = $oAlertReport->type;
-			$oReportRecord->frequency = $oAlertReport->interval;
-			$oReportRecord->interval_end_at = $oAlertReport->interval_end_at;
-			$oDbH->getQueryInserter()->insert( $oReportRecord );
-		}
-
-		$oInfoReport = $this->buildReportInfo();
-		if ( !empty( $oInfoReport->content ) ) {
-			$oReportRecord->rid = $oInfoReport->rid;
-			$oReportRecord->type = $oInfoReport->type;
-			$oReportRecord->frequency = $oInfoReport->interval;
-			$oReportRecord->interval_end_at = $oInfoReport->interval_end_at;
-			$oDbH->getQueryInserter()->insert( $oReportRecord );
-		}
-
-		$this->sendEmail( [ $oAlertReport->content, $oInfoReport->content ] );
+		return $oMod->getDbHandler_Reports()
+					->getQueryInserter()
+					->insert( $oRecord );
 	}
 
 	/**
@@ -85,16 +94,23 @@ class ReportingController {
 	}
 
 	/**
-	 * @param array $aBody
+	 * @param Reports\ReportVO[] $aReportVOs
 	 */
-	private function sendEmail( array $aBody ) {
-		$oWP = Services::WpGeneral();
-		$aBody = array_filter( $aBody );
-		if ( !empty( $aBody ) ) {
-			$aBody = array_merge(
+	private function sendEmail( array $aReportVOs ) {
+
+		$aReports = array_filter( array_map(
+			function ( $oReport ) {
+				return $oReport->content;
+			},
+			$aReportVOs
+		) );
+
+		if ( !empty( $aReports ) ) {
+			$oWP = Services::WpGeneral();
+			$aReports = array_merge(
 				[
 					__( 'Please find your site report below.', 'wp-simple-firewall' ),
-					__( 'Depending on your reporting settings and cron timings, this report may contain a mix of alerts, statistics and other information.', 'wp-simple-firewall' ),
+					__( 'Depending on your settings and cron timings, this report may contain a combination of alerts, statistics and other information.', 'wp-simple-firewall' ),
 					'',
 					sprintf( '- %s: %s', __( 'Site URL', 'wp-simple-firewall' ), $oWP->getHomeUrl() ),
 					sprintf( '- %s: %s', __( 'Report Generation Date', 'wp-simple-firewall' ),
@@ -102,7 +118,7 @@ class ReportingController {
 					'',
 					__( 'Please use the links provided to review the report details.', 'wp-simple-firewall' ),
 				],
-				$aBody,
+				$aReports,
 				[
 					__( 'Thank You.', 'wp-simple-firewall' ),
 				]
@@ -111,8 +127,8 @@ class ReportingController {
 				 ->getEmailProcessor()
 				 ->sendEmailWithWrap(
 					 $this->getMod()->getPluginReportEmail(),
-					 __( 'Site Report' ).' - '.$this->getCon()->getHumanName(),
-					 $aBody
+					 __( 'Site Report', 'wp-simple-firewall' ).' - '.$this->getCon()->getHumanName(),
+					 $aReports
 				 );
 		}
 	}
