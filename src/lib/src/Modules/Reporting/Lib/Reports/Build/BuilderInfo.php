@@ -14,11 +14,10 @@ class BuilderInfo extends BaseBuilder {
 		foreach ( $this->getCon()->modules as $oMod ) {
 			$oRepCon = $oMod->getReportingHandler();
 			if ( $oRepCon instanceof BaseReporting ) {
-				foreach ( $oRepCon->enumInfoReporters() as $oReporter ) {
+				foreach ( $oRepCon->getInfoReporters() as $oReporter ) {
 					$aReports = array_merge(
 						$aReports,
-						$oReporter->setMod( $this->getMod() )
-								  ->setReport( $this->rep )
+						$oReporter->setReport( $this->rep )
 								  ->build()
 					);
 				}

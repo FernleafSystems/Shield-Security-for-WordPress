@@ -12,14 +12,38 @@ abstract class BaseReporting {
 	/**
 	 * @return Reports\BaseReporter[]
 	 */
-	public function enumAlertReporters() {
+	public function getAlertReporters() {
+		return $this->assignMod( $this->enumAlertReporters() );
+	}
+
+	/**
+	 * @return Reports\BaseReporter[]
+	 */
+	public function getInfoReporters() {
+		return $this->assignMod( $this->enumInfoReporters() );
+	}
+
+	/**
+	 * @return Reports\BaseReporter[]
+	 */
+	protected function enumAlertReporters() {
 		return [];
 	}
 
 	/**
 	 * @return Reports\BaseReporter[]
 	 */
-	public function enumInfoReporters() {
+	protected function enumInfoReporters() {
 		return [];
+	}
+
+	/**
+	 * @param Reports\BaseReporter[] $aReporters
+	 * @return array
+	 */
+	protected function assignMod( $aReporters ) {
+		return array_map( function ( $oReporter ) {
+			return $oReporter->setMod( $this->getMod() );
+		}, $aReporters );
 	}
 }

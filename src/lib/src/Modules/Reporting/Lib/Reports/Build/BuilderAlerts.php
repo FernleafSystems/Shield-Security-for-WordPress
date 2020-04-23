@@ -15,11 +15,10 @@ class BuilderAlerts extends BaseBuilder {
 		foreach ( $this->getCon()->modules as $oMod ) {
 			$oRepCon = $oMod->getReportingHandler();
 			if ( $oRepCon instanceof BaseReporting ) {
-				foreach ( $oRepCon->enumAlertReporters() as $oReporter ) {
+				foreach ( $oRepCon->getAlertReporters() as $oReporter ) {
 					$aReports = array_merge(
 						$aReports,
-						$oReporter->setMod( $this->getMod() )
-								  ->setReport( $this->rep )
+						$oReporter->setReport( $this->rep )
 								  ->build()
 					);
 				}

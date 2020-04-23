@@ -10,9 +10,18 @@ class Reporting extends BaseReporting {
 	/**
 	 * @inheritDoc
 	 */
-	public function enumInfoReporters() {
+	protected function enumAlertReporters() {
 		return [
-			new Reports\KeyStats()
+			new Reports\ScanRepairs(),
+		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function enumInfoReporters() {
+		return [
+			new Reports\KeyStats(),
 		];
 	}
 }

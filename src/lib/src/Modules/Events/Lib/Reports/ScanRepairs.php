@@ -22,28 +22,12 @@ class ScanRepairs extends BaseReporter {
 		/** @var Events\Strings $oStrings */
 		$oStrings = $oMod->getStrings();
 
-		/** @var Options $oHGOptions */
-		$oHGOptions = $this->getCon()->getModule_HackGuard()->getOptions();
-
-		$aEventKeys = [
-			'ip_offense',
-			'ip_blocked',
-			'conn_kill',
-			'firewall_block',
-			'bottrack_404',
-			'bottrack_fakewebcrawler',
-			'bottrack_linkcheese',
-			'bottrack_loginfailed',
-			'bottrack_logininvalid',
-			'bottrack_xmlrpc',
-			'spam_block_bot',
-			'spam_block_recaptcha',
-			'spam_block_human',
-		];
-
 		$oRep = $this->getReport();
 
 		$aCounts = [];
+
+		/** @var Options $oHGOptions */
+		$oHGOptions = $this->getCon()->getModule_HackGuard()->getOptions();
 		foreach ( $oHGOptions->getScanSlugs() as $sScan ) {
 			try {
 				$sEvt = $sScan.'_item_repair_success';
@@ -70,7 +54,7 @@ class ScanRepairs extends BaseReporter {
 						'counts' => $aCounts
 					],
 					'strings' => [
-						'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),
+						'title' => __( 'Scanner Repairs', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
 					],
