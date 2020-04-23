@@ -12,7 +12,6 @@ abstract class ItemActionHandler {
 
 	use ModConsumer;
 	use ScanItemConsumer;
-	use HandlerConsumer;
 	use ScanControllerConsumer;
 
 	/**
@@ -62,8 +61,10 @@ abstract class ItemActionHandler {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Scanner\Update $oUp */
-		$oUp = $this->getDbHandler()->getQueryUpdater();
+		$oUp = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
 		if ( !$oUp->setIgnored( $oEntry ) ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
@@ -86,8 +87,10 @@ abstract class ItemActionHandler {
 		$this->fireRepairEvent( $oItem->repaired );
 
 		if ( $oItem->repaired ) {
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
 			/** @var Scanner\Delete $oDel */
-			$oDel = $this->getDbHandler()->getQueryDeleter();
+			$oDel = $oMod->getDbHandler_ScanResults()->getQueryDeleter();
 			$oDel->filterByHash( $oItem->hash )
 				 ->filterByScan( $oItem->scan )
 				 ->query();
@@ -100,8 +103,10 @@ abstract class ItemActionHandler {
 	 * @return Scanner\EntryVO|null
 	 */
 	protected function getEntryVO() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Scanner\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		return $oSel->filterByHash( $this->getScanItem()->hash )
 					->filterByScan( $this->getScanController()->getSlug() )
 					->first();
