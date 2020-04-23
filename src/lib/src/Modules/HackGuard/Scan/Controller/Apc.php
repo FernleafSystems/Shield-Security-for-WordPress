@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Apc extends BaseForAssets {
 

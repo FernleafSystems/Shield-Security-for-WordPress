@@ -95,7 +95,6 @@ abstract class Base {
 				->convertVoToResultItem( $oEntry );
 
 			$bSuccess = $this->getItemActionHandler()
-							 ->setDbHandler( $this->getScanResultsDbHandler() )
 							 ->setScanItem( $oItem )
 							 ->process( $sAction );
 		}
