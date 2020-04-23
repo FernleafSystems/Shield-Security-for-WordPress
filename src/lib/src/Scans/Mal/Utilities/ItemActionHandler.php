@@ -11,16 +11,6 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function delete() {
-		return $this->getRepairer()
-					->setAllowDelete( true )
-					->repairItem();
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
 	public function ignore() {
 		parent::ignore();
 
@@ -29,16 +19,6 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 			->reportResultItem( $this->getScanItem(), true );
 
 		return true;
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function repair() {
-		return $this->getRepairer()
-					->setAllowDelete( false )
-					->repairItem();
 	}
 
 	/**

@@ -138,6 +138,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 				}
 			}
 		}
+
 		return $bCanRepair;
 	}
 
