@@ -4,9 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Events\Lib\Reports;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Events;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Events as DBEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Options;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseReporter;
 
-class KeyStats extends BaseReporter {
+class ScanRepairs extends BaseReporter {
 
 	/**
 	 * @inheritDoc
@@ -20,6 +21,9 @@ class KeyStats extends BaseReporter {
 		$oSelEvts = $oMod->getDbHandler_Events()->getQuerySelector();
 		/** @var Events\Strings $oStrings */
 		$oStrings = $oMod->getStrings();
+
+		/** @var Options $oHGOptions */
+		$oHGOptions = $this->getCon()->getModule_HackGuard()->getOptions();
 
 		$aEventKeys = [
 			'ip_offense',
@@ -40,16 +44,17 @@ class KeyStats extends BaseReporter {
 		$oRep = $this->getReport();
 
 		$aCounts = [];
-		foreach ( $aEventKeys as $sEvent ) {
+		foreach ( $oHGOptions->getScanSlugs() as $sScan ) {
 			try {
+				$sEvt = $sScan.'_item_repair_success';
 				$nCount = $oSelEvts
-					->filterByEvent( $sEvent )
+					->filterByEvent( $sEvt )
 					->filterByBoundary( $oRep->interval_start_at, $oRep->interval_end_at )
 					->count();
 				if ( $nCount > 0 ) {
-					$aCounts[ $sEvent ] = [
+					$aCounts[ $sScan ] = [
 						'count' => $nCount,
-						'name'  => $oStrings->getEventName( $sEvent ),
+						'name'  => $oStrings->getEventName( $sEvt ),
 					];
 				}
 			}
@@ -65,7 +70,7 @@ class KeyStats extends BaseReporter {
 						'counts' => $aCounts
 					],
 					'strings' => [
-						'title'       => __( 'Top Security Statistics', 'wp-simple-firewall' ),
+						'title' => __( 'Top Security Statistics', 'wp-simple-firewall' ),
 					],
 					'hrefs'   => [
 					],

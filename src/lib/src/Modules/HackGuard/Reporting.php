@@ -10,14 +10,10 @@ class Reporting extends BaseReporting {
 	/**
 	 * @inheritDoc
 	 */
-	public function buildAlerts() {
-		return array_merge(
-			( new Reports\ScanAlerts() )
-				->setMod( $this->getMod() )
-				->buildAlerts(),
-			( new Reports\FileLockerAlerts() )
-				->setMod( $this->getMod() )
-				->buildAlerts()
-		);
+	public function enumAlertReporters() {
+		return [
+			new Reports\ScanAlerts(),
+			new Reports\FileLockerAlerts(),
+		];
 	}
 }

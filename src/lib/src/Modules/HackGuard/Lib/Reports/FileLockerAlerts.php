@@ -2,16 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Reports;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\BaseReporting;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\BaseReporter;
 
-class FileLockerAlerts extends BaseReporting {
+class FileLockerAlerts extends BaseReporter {
 
 	/**
 	 * @inheritDoc
 	 */
-	public function buildAlerts() {
+	public function build() {
 		$aAlerts = [];
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */

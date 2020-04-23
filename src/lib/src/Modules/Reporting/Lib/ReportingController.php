@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Reports as DBReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportingController {
@@ -47,7 +47,7 @@ class ReportingController {
 	}
 
 	/**
-	 * @param Reports\ReportVO $oReport
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO $oReport
 	 * @return bool
 	 */
 	private function storeReportRecord( Reports\ReportVO $oReport ) {
@@ -66,35 +66,35 @@ class ReportingController {
 	}
 
 	/**
-	 * @return Reports\ReportVO
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO
 	 * @throws \Exception
 	 */
 	private function buildReportAlerts() {
 		$oReport = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_ALERT ) )
 			->setMod( $this->getMod() )
 			->create();
-		( new Reports\BuildAlerts( $oReport ) )
+		( new Build\BuilderAlerts( $oReport ) )
 			->setMod( $this->getMod() )
 			->build();
 		return $oReport;
 	}
 
 	/**
-	 * @return Reports\ReportVO
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO
 	 * @throws \Exception
 	 */
 	private function buildReportInfo() {
 		$oReport = ( new Reports\CreateReportVO( DBReports\Handler::TYPE_INFO ) )
 			->setMod( $this->getMod() )
 			->create();
-		( new Reports\BuildInfo( $oReport ) )
+		( new Build\BuilderInfo( $oReport ) )
 			->setMod( $this->getMod() )
 			->build();
 		return $oReport;
 	}
 
 	/**
-	 * @param Reports\ReportVO[] $aReportVOs
+	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO[] $aReportVOs
 	 */
 	private function sendEmail( array $aReportVOs ) {
 

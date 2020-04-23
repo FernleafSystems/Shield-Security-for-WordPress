@@ -1,27 +1,31 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\BaseReporting;
 
-class BuildAlerts extends BaseBuild {
+class BuilderAlerts extends BaseBuilder {
 
 	/**
 	 * @return string[]
 	 */
 	protected function gather() {
-		$aAlerts = [];
+		$aReports = [];
 		foreach ( $this->getCon()->modules as $oMod ) {
 			$oRepCon = $oMod->getReportingHandler();
 			if ( $oRepCon instanceof BaseReporting ) {
-				$aAlerts = array_merge(
-					$aAlerts,
-					$oRepCon->buildAlerts()
-				);
+				foreach ( $oRepCon->enumAlertReporters() as $oReporter ) {
+					$aReports = array_merge(
+						$aReports,
+						$oReporter->setMod( $this->getMod() )
+								  ->setReport( $this->rep )
+								  ->build()
+					);
+				}
 			}
 		}
-		return $aAlerts;
+		return $aReports;
 	}
 
 	/**

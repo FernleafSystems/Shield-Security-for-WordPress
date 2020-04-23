@@ -1,12 +1,13 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Reporting\Lib\Reports\ReportVO;
 use FernleafSystems\Wordpress\Services\Services;
 
-abstract class BaseBuild {
+abstract class BaseBuilder {
 
 	use ModConsumer;
 
