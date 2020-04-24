@@ -121,6 +121,15 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		elseif ( $oOpts->getOpt( 'ptg_enable' ) == 'disabled' ) {
 			$oOpts->setOpt( 'ptg_enable', 'N' );
 		}
+		
+		{
+			if ( $oOpts->getOpt( 'mal_scan_enable' ) === 'enabled' ) {
+				$oOpts->setOpt( 'mal_scan_enable', 'Y' );
+			}
+			elseif ( $oOpts->getOpt( 'mal_scan_enable' ) === 'disabled' ) {
+				$oOpts->setOpt( 'mal_scan_enable', 'N' );
+			}
+		}
 
 		/**
 		 * @deprecated 9.0
