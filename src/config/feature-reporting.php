@@ -56,8 +56,12 @@
       "section":       "section_timings",
       "premium":       true,
       "type":          "select",
-      "default":       "hourly",
+      "default":       "daily",
       "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
         {
           "value_key": "hourly",
           "text":      "Hourly"
@@ -84,6 +88,10 @@
       "type":          "select",
       "default":       "weekly",
       "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
         {
           "value_key": "hourly",
           "text":      "Hourly"

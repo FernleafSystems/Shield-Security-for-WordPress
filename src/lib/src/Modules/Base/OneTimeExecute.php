@@ -14,11 +14,17 @@ trait OneTimeExecute {
 	}
 
 	public function execute() {
-		$this->bExecuted = false;
-		if ( $this->canRun() ) {
+		if ( !$this->isAlreadyExecuted() && $this->canRun() ) {
+			$this->bExecuted = true;
 			$this->run();
 		}
-		$this->bExecuted = true;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isAlreadyExecuted() {
+		return (bool)$this->bExecuted;
 	}
 
 	protected function run() {

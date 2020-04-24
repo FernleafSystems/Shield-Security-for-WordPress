@@ -12,6 +12,15 @@ class ReportingController {
 	use Modules\ModConsumer;
 	use Modules\Base\OneTimeExecute;
 
+	/**
+	 * @return bool
+	 */
+	protected function canRun() {
+		/** @var Modules\Reporting\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->getFrequencyInfo() !== 'disabled' || $oOpts->getFrequencyAlerts() !== 'disabled';
+	}
+
 	protected function run() {
 		add_action( $this->getCon()->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
 	}
@@ -21,26 +30,33 @@ class ReportingController {
 	}
 
 	private function buildAndSendReport() {
+		/** @var Modules\Reporting\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		$aReports = [];
 
-		try {
-			$oAlertReport = $this->buildReportAlerts();
-			if ( !empty( $oAlertReport->content ) ) {
-				$this->storeReportRecord( $oAlertReport );
-				$aReports[] = $oAlertReport;
+		if ( $oOpts->getFrequencyAlerts() !== 'disabled' ) {
+			try {
+				$oAlertReport = $this->buildReportAlerts();
+				if ( !empty( $oAlertReport->content ) ) {
+					$this->storeReportRecord( $oAlertReport );
+					$aReports[] = $oAlertReport;
+				}
 			}
-		}
-		catch ( \Exception $oE ) {
+			catch ( \Exception $oE ) {
+			}
 		}
 
-		try {
-			$oInfoReport = $this->buildReportInfo();
-			if ( !empty( $oInfoReport->content ) ) {
-				$this->storeReportRecord( $oInfoReport );
-				$aReports[] = $oInfoReport;
+		if ( $oOpts->getFrequencyInfo() !== 'disabled' ) {
+			try {
+				$oInfoReport = $this->buildReportInfo();
+				if ( !empty( $oInfoReport->content ) ) {
+					$this->storeReportRecord( $oInfoReport );
+					$aReports[] = $oInfoReport;
+				}
 			}
-		}
-		catch ( \Exception $oE ) {
+			catch ( \Exception $oE ) {
+			}
 		}
 
 		$this->sendEmail( $aReports );
