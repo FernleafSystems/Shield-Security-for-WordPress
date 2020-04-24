@@ -21,8 +21,47 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @return array
 	 */
 	protected function getEmailFooter() {
+		$oCon = $this->getCon();
 		$oWp = Services::WpGeneral();
-		$sUrl = [
+
+		{
+			$aGoProPhrases = [
+				'Go PRO For The Equivalent Of 1 Cappuccino Per Month &#9749;',
+				'Go PRO For The Equivalent Of 1 Beer Per Month &#127866;',
+				'Go PRO For The Equivalent Of 1 Glass Of Wine Per Month &#127863;',
+			];
+			$aBenefits = [
+				'The Easiest, Frustration-Free Pro-Upgrade Available Anywhere',
+				'Powerful, Auto-Learning Malware Scanner',
+				'Plugin and Theme File Guard',
+				'Vulnerability Scanner',
+				'Traffic Rate Limiting',
+				'WooCommerce Support',
+				'Automatic Import/Export Sync Of Options Across Your WP Portfolio',
+				'Powerful User Password Policies',
+				'Exclusive Customer Support',
+				'That Warm And Fuzzy Feeling That Comes From Supporting Future Development',
+			];
+			shuffle( $aBenefits );
+		}
+		$aFooter = [
+			'',
+			$this->getMod()
+				 ->renderTemplate( '/snippets/email/footer.twig', [
+					 'strings' => [
+						 'benefits'  => $aBenefits,
+						 'much_more' => 'And So Much More',
+						 'upgrade'   => $aGoProPhrases[ array_rand( $aGoProPhrases ) ],
+					 ],
+					 'hrefs'   => [
+						 'upgrade'   => 'https://shsec.io/buyshieldpro',
+						 'much_more' => 'https://shsec.io/gp'
+					 ],
+					 'flags'   => [
+						 'is_pro'           => false && $oCon->isPremiumActive(),
+						 'is_whitelabelled' => $oCon->getModule_SecAdmin()->isWlEnabled()
+					 ]
+				 ] ),
 			'',
 			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
 				$this->getCon()->getHumanName(),
@@ -33,7 +72,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() )
 		];
 
-		return apply_filters( 'icwp_shield_email_footer', $sUrl );
+		return apply_filters( 'icwp_shield_email_footer', $aFooter );
 	}
 
 	/**
