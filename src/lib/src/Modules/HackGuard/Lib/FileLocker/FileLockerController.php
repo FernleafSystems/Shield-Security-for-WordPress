@@ -162,7 +162,7 @@ class FileLockerController {
 				$nLevels = $bIsSplitWp ? 2 : 1;
 				break;
 			default:
-				if ( path_is_absolute( $sFileKey ) && Services::WpFs()->isFile( $sFileKey ) ) {
+				if ( Services::WpFs()->isAbsPath( $sFileKey ) && Services::WpFs()->isFile( $sFileKey ) ) {
 					$nLevels = 1;
 					$nMaxPaths = 1;
 				}
