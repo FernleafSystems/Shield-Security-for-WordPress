@@ -54,11 +54,11 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 						 'upgrade'   => $aGoProPhrases[ array_rand( $aGoProPhrases ) ],
 					 ],
 					 'hrefs'   => [
-						 'upgrade'   => 'https://shsec.io/buyshieldpro',
+						 'upgrade'   => 'https://shsec.io/buyshieldproemailfooter',
 						 'much_more' => 'https://shsec.io/gp'
 					 ],
 					 'flags'   => [
-						 'is_pro'           => false && $oCon->isPremiumActive(),
+						 'is_pro'           => $oCon->isPremiumActive(),
 						 'is_whitelabelled' => $oCon->getModule_SecAdmin()->isWlEnabled()
 					 ]
 				 ] ),

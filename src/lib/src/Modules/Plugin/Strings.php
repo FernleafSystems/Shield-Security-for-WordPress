@@ -162,6 +162,11 @@ class Strings extends Base\Strings {
 									__( 'Current source is: %s (%s)', 'wp-simple-firewall' ),
 									'<strong>'.$oOpts->getIpSource().'</strong>',
 									Services::IP()->getRequestIp()
+								)
+								.sprintf(
+									'<p class="mt-2"><a href="%s" target="_blank">%s</a></p>',
+									'https://shsec.io/shieldwhatismyip',
+									__( 'What Is My IP Address?', 'wp-simple-firewall' )
 								);
 				break;
 
