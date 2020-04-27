@@ -52,4 +52,51 @@ class Strings extends Base\Strings {
 			],
 		];
 	}
+
+	/**
+	 * @param string $sOptKey
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function getOptionStrings( $sOptKey ) {
+		$oCon = $this->getCon();
+
+		switch ( $sOptKey ) {
+
+			case 'frequency_alert' :
+				$sName = __( 'Alert Frequency', 'wp-simple-firewall' );
+				$sSummary = __( 'How Often Important Alerts Will Be Sent To You', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Choose when you should be sent important and critical alerts about your site security.', 'wp-simple-firewall' ),
+					__( 'Critical alerts are typically results from your most recent site scans.', 'wp-simple-firewall' )
+				];
+				if ( !$oCon->isPremiumActive() ) {
+					$sDescription[] = __( 'If you wish to receive alerts more quickly, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
+					$sDescription[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
+				}
+				break;
+
+			case 'frequency_info' :
+				$sName = __( 'Info Frequency', 'wp-simple-firewall' );
+				$sSummary = __( 'How Often Informational Alerts Will Be Sent To You', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
+					__( 'Information and reports are typically statistics.', 'wp-simple-firewall' )
+				];
+				if ( !$oCon->isPremiumActive() ) {
+					$sDescription[] = __( 'If you wish to receive reports more often, please consider upgrading to ShieldPRO.', 'wp-simple-firewall' );
+					$sDescription[] = sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/shieldgoprofeature', __( 'Upgrade to ShieldPRO', 'wp-simple-firewall' ) );
+				}
+				break;
+
+			default:
+				return parent::getOptionStrings( $sOptKey );
+		}
+
+		return [
+			'name'        => $sName,
+			'summary'     => $sSummary,
+			'description' => $sDescription,
+		];
+	}
 }
