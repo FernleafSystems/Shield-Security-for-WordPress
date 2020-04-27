@@ -373,10 +373,11 @@ You will always be able to use Shield Security and its free features in-full.
 = 9.0.0 - Current Release =
 *Released: 20th March, 2020* - [Release Notes](https://shsec.io/gy)
 
-* **(v.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/gv) to protect `wp-config.php` files.
+* **(v.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
 * **(v.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
 * **(v.0)**  NEW:		[**PRO**] Support for excluding individual options from import and export operations.
 * **(v.0)**  NEW:		Support for hCaptcha in-place of Google reCAPTCHA.
+* **(v.0)**  IMPROVED:	Automatic file repair for WordPress, plugins, and theme is much more reliable.
 * **(v.0)**  IMPROVED:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
 * **(v.0)**  IMPROVED:	Major simplification of many options and plugin configuration.
 * **(v.0)**  IMPROVED:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.

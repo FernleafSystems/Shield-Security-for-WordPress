@@ -1,6 +1,8 @@
-<html lang="">
+<!DOCTYPE html>
+<html{% for htmlattr, htmlattrval in head.html %} {{ htmlattr }}="{{ htmlattrval }}"{% endfor %}>
 <head>
     <link rel="icon" type="image/png" href="{{ imgs.favicon }}" />
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	{% if not head.meta is empty %}
 		{% for metaEntry in head.meta %}
@@ -8,7 +10,7 @@
 		{% endfor %}
 	{% endif %}
 
-    <title>{{ strings.page_title }}</title>
+	<title>{{ strings.page_title }}</title>
 
 	{% block head_stylesheets %}
 		<link rel="stylesheet" href="{{ hrefs.css_bootstrap }}" />
@@ -36,22 +38,22 @@
 		{% endblock %}
 
 		{% block body_content %}
-		<div class="container-fluid">
+			<div class="container-fluid">
 			{% block body_content_header %}
 				<div class="row">
 					<div class="col-4 offset-4"></div>
 				</div>
 			{% endblock %}
-			{% block body_content_main %}
-				<div class="row">
+				{% block body_content_main %}
+					<div class="row">
 					<div class="col-4 offset-4"></div>
 				</div>
-			{% endblock %}
-			{% block body_content_footer %}
-				<div class="row">
+				{% endblock %}
+				{% block body_content_footer %}
+					<div class="row">
 					<div class="col-4 offset-4"></div>
 				</div>
-			{% endblock %}
+				{% endblock %}
 		</div>
 		{% endblock %}
 

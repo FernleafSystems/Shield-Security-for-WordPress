@@ -159,6 +159,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			parent::getBaseDisplayData(),
 			[
 				'head'    => [
+					'html' => [
+						'lang' => Services::WpGeneral()->getLocale( '-' ),
+						'dir'  => is_rtl() ? 'rtl' : 'ltr',
+					],
 					'meta' => [
 						[
 							'type'      => 'http-equiv',
