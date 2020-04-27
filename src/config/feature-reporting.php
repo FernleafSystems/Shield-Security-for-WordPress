@@ -52,9 +52,8 @@
       "description": "Un-Checking this option will completely disable the Reporting module"
     },
     {
-      "key":           "frequency_alerts",
+      "key":           "frequency_alert",
       "section":       "section_timings",
-      "premium":       true,
       "type":          "select",
       "default":       "daily",
       "value_options": [
@@ -84,7 +83,6 @@
     {
       "key":           "frequency_info",
       "section":       "section_timings",
-      "premium":       true,
       "type":          "select",
       "default":       "weekly",
       "value_options": [

@@ -18,7 +18,7 @@ class ReportingController {
 	protected function canRun() {
 		/** @var Modules\Reporting\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->getFrequencyInfo() !== 'disabled' || $oOpts->getFrequencyAlerts() !== 'disabled';
+		return $oOpts->getFrequencyInfo() !== 'disabled' || $oOpts->getFrequencyAlert() !== 'disabled';
 	}
 
 	protected function run() {
@@ -35,7 +35,7 @@ class ReportingController {
 
 		$aReports = [];
 
-		if ( $oOpts->getFrequencyAlerts() !== 'disabled' ) {
+		if ( $oOpts->getFrequencyAlert() !== 'disabled' ) {
 			try {
 				$oAlertReport = $this->buildReportAlerts();
 				if ( !empty( $oAlertReport->content ) ) {

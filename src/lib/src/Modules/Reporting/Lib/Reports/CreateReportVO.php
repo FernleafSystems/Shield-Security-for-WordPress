@@ -47,7 +47,7 @@ class CreateReportVO {
 
 		switch ( $this->rep->type ) {
 			case Reports\Handler::TYPE_ALERT:
-				$this->rep->interval = $oOpts->getFrequencyAlerts();
+				$this->rep->interval = $oOpts->getFrequencyAlert();
 				break;
 			case Reports\Handler::TYPE_INFO:
 				$this->rep->interval = $oOpts->getFrequencyInfo();

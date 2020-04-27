@@ -23,14 +23,26 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return string
 	 */
-	public function getFrequencyAlerts() {
-		return $this->getOpt( 'frequency_alerts' );
+	public function getFrequencyAlert() {
+		return $this->getFrequency( 'alert' );
 	}
 
 	/**
 	 * @return string
 	 */
 	public function getFrequencyInfo() {
-		return $this->getOpt( 'frequency_info' );
+		return $this->getFrequency( 'info' );
+	}
+
+	/**
+	 * @param string $sType
+	 * @return string
+	 */
+	private function getFrequency( $sType ) {
+		$sKey = 'frequency_'.$sType;
+		$sDefault = $this->getOptDefault( $sKey );
+		return ( $this->isPremium() || in_array( $this->getOpt( $sKey ), [ 'disabled', $sDefault ] ) )
+			? $this->getOpt( $sKey )
+			: $sDefault;
 	}
 }
