@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Deprecated;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseProcessor extends Deprecated\Foundation {
+class BaseProcessor {
 
 	use Modules\ModConsumer;
 

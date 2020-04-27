@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Deprecated;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseModCon extends Deprecated\Foundation {
+class BaseModCon {
 
 	use Modules\PluginControllerConsumer;
 

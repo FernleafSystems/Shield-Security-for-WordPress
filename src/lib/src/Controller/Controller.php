@@ -21,7 +21,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property Shield\Modules\Events\Lib\EventsService  $service_events
  * @property mixed[]|\ICWP_WPSF_FeatureHandler_Base[] $modules
  */
-class Controller extends Shield\Deprecated\Foundation {
+class Controller {
 
 	use StdClassAdapter;
 

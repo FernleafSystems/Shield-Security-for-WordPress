@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Deprecated;
 
+/**
+ * Class Foundation
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Deprecated
+ * @deprecated 9.0
+ */
 class Foundation {
 
 	const DEFAULT_SERVICE_PREFIX = 'icwp_wpsf_';

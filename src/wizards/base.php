@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @uses php 5.4+
  * Class ICWP_WPSF_Wizard_Base
  */
-abstract class ICWP_WPSF_Wizard_Base extends \FernleafSystems\Wordpress\Plugin\Shield\Deprecated\Foundation {
+abstract class ICWP_WPSF_Wizard_Base {
 
 	use Shield\Modules\ModConsumer;
 
