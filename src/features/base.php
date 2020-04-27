@@ -348,11 +348,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			if ( Services::WpGeneral()->isAjax() ) {
 				$this->loadAjaxHandler();
 			}
-
-			if ( $oReq->request( 'action' ) == $this->prefix()
-				 && check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' )
-				 && $this->getCon()->getMeetsBasePermissions() ) {
-				$this->handleModAction( $oReq->request( 'exec' ) );
+			else {
+				try {
+					if ( $this->verifyModActionRequest() ) {
+						$this->handleModAction( $oReq->request( 'exec' ) );
+					}
+				}
+				catch ( \Exception $oE ) {
+					wp_nonce_ays( '' );
+				}
 			}
 		}
 
@@ -478,6 +482,52 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		$aActionNonce = $this->getNonceActionData( $sAction );
 		$aActionNonce[ 'ts' ] = Services::Request()->ts();
 		return add_query_arg( $aActionNonce, $this->getUrl_AdminPage() );
+	}
+
+	/**
+	 * @param string $sAction
+	 * @return array
+	 */
+	protected function getModActionParams( $sAction ) {
+		$oCon = $this->getCon();
+		return [
+			'action'     => $oCon->prefix(),
+			'exec'       => $sAction,
+			'mod_slug'   => $this->getModSlug(),
+			'ts'         => Services::Request()->ts(),
+			'exec_nonce' => substr(
+				hash_hmac( 'md5', $sAction.Services::Request()->ts(), $oCon->getSiteInstallationId() )
+				, 0, 6 )
+		];
+	}
+
+	/**
+	 * @return bool
+	 * @throws \Exception
+	 */
+	protected function verifyModActionRequest() {
+		$bValid = false;
+
+		$oCon = $this->getCon();
+		$oReq = Services::Request();
+
+		$sExec = $oReq->request( 'exec' );
+		if ( !empty( $sExec ) && $oReq->request( 'action' ) == $oCon->prefix() ) {
+
+
+			if ( wp_verify_nonce( $oReq->request( 'exec_nonce' ), $sExec ) && $oCon->getMeetsBasePermissions() ) {
+				$bValid = true;
+			}
+			else {
+				$bValid = $oReq->request( 'exec_nonce' ) ===
+						  substr( hash_hmac( 'md5', $sExec.$oReq->request( 'ts' ), $oCon->getSiteInstallationId() ), 0, 6 );
+			}
+			if ( !$bValid ) {
+				throw new Exception( 'Invalid request' );
+			}
+		}
+
+		return $bValid;
 	}
 
 	/**

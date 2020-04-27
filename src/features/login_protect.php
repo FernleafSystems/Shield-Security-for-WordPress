@@ -95,7 +95,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sMessage = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
 		}
 		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
-		Services::Response()->redirect( $this->getUrl_AdminPage() );
+		if ( Services::WpUsers()->isUserLoggedIn() ) {
+			Services::Response()->redirect( $this->getUrl_AdminPage() );
+		}
 	}
 
 	/**
@@ -118,7 +120,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		if ( $bSendAsLink ) {
 			$aMessage[] = sprintf(
 				__( 'Click the verify link: %s', 'wp-simple-firewall' ),
-				$this->buildAdminActionNonceUrl( 'email_send_verify' )
+				add_query_arg( $this->getModActionParams( 'email_send_verify' ), Services::WpGeneral()->getHomeUrl() )
 			);
 		}
 		else {
