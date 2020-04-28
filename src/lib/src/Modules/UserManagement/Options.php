@@ -9,6 +9,16 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return array
 	 */
+	public function getSuspendHardUserIds() {
+		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
+		return is_array( $aIds ) ? array_filter( $aIds, function ( $nTime ) {
+			return is_int( $nTime ) && $nTime > 0;
+		} ) : [];
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getSuspendAutoIdleUserRoles() {
 		$aRoles = $this->getOpt( 'auto_idle_roles', [] );
 		return is_array( $aRoles ) ? $aRoles : [];

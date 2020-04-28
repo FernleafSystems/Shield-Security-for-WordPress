@@ -71,8 +71,8 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 	 * Sets-up all the UI filters necessary to provide manual user suspension and filter the User Tables
 	 */
 	private function setupUserFilters() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		// User profile UI
 		add_filter( 'edit_user_profile', [ $this, 'addUserBlockOption' ], 1, 1 );
@@ -82,7 +82,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 		add_filter( 'manage_users_columns', [ $this, 'addUserListSuspendedFlag' ] );
 
 		// Provide Suspended user filter above table
-		$aUserIds = array_keys( $oMod->getSuspendHardUserIds() );
+		$aUserIds = array_keys( $oOpts->getSuspendHardUserIds() );
 		if ( !empty( $aUserIds ) ) {
 			// Provide the link above the table.
 			add_filter( 'views_users', function ( $aViews ) use ( $aUserIds ) {
@@ -124,7 +124,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 							$sNewContent = sprintf( '%s: %s',
 								__( 'Suspended', 'wp-simple-firewall' ),
 								Services::Request()
-										->carbon()
+										->carbon( true )
 										->setTimestamp( $oMeta->hard_suspended_at )
 										->diffForHumans()
 							);
@@ -155,8 +155,8 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 				'label'       => __( 'Check to un/suspend user account', 'wp-simple-firewall' ),
 				'description' => __( 'The user can never login while their account is suspended.', 'wp-simple-firewall' ),
 				'cant_manage' => __( 'Sorry, suspension for this account may only be managed by a security administrator.', 'wp-simple-firewall' ),
-				'since'       => sprintf( '%s: %s', __( 'Suspended', 'wp-simple-firewall' ), Services::WpGeneral()
-																									 ->getTimeStringForDisplay( $oMeta->hard_suspended_at ) ),
+				'since'       => sprintf( '%s: %s', __( 'Suspended', 'wp-simple-firewall' ),
+					Services::WpGeneral()->getTimeStringForDisplay( $oMeta->hard_suspended_at ) ),
 			],
 			'flags'   => [
 				'can_manage_suspension' => !$oWpUsers->isUserAdmin( $oUser ) || $oCon->isPluginAdmin(),
