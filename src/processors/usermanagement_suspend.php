@@ -180,7 +180,7 @@ class ICWP_WPSF_Processor_UserManagement_Suspend extends Modules\BaseShield\Shie
 
 		if ( !$oWpUsers->isUserAdmin( $oEditedUser ) || $oCon->isPluginAdmin() ) {
 			$bIsSuspend = Services::Request()->post( 'shield_suspend_user' ) === 'Y';
-			/** @var ICWP_WPSF_FeatureHandler_UserManagement $oMod */
+			/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 			$oMod = $this->getMod();
 			$oMod->addRemoveHardSuspendUserId( $nUserId, $bIsSuspend );
 
