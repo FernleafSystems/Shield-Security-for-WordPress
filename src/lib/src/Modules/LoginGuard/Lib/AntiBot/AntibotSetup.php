@@ -84,6 +84,9 @@ class AntibotSetup {
 				if ( @class_exists( 'WooCommerce' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
 				}
+				if ( false && @class_exists( 'UserRegistration' ) && @function_exists( 'UR' ) ) {
+					$aFormProviders[] = new AntiBot\FormProviders\UserRegistration();
+				}
 			}
 
 			foreach ( $aFormProviders as $oForm ) {
