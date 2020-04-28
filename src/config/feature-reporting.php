@@ -18,11 +18,10 @@
     {
       "slug":        "section_timings",
       "primary":     true,
-      "title":       "Report Timings",
-      "title_short": "Report Timings",
+      "title":       "Report Frequencies",
+      "title_short": "Report Frequencies",
       "summary":     [
-        "Purpose - Helps you see at a glance how effective the plugin has been.",
-        "Recommendation - Keep the Reporting feature turned on."
+        "Purpose - Choose the most appropriate frequency to receive alerts from Shield according to your schedule."
       ]
     },
     {

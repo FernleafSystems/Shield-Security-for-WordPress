@@ -78,7 +78,7 @@ class Strings extends Base\Strings {
 
 			case 'frequency_info' :
 				$sName = __( 'Info Frequency', 'wp-simple-firewall' );
-				$sSummary = __( 'How Often Informational Alerts Will Be Sent To You', 'wp-simple-firewall' );
+				$sSummary = __( 'How Often Informational Reports Will Be Sent To You', 'wp-simple-firewall' );
 				$sDescription = [
 					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
 					__( 'Information and reports are typically statistics.', 'wp-simple-firewall' )
@@ -97,6 +97,42 @@ class Strings extends Base\Strings {
 			'name'        => $sName,
 			'summary'     => $sSummary,
 			'description' => $sDescription,
+		];
+	}
+
+	/**
+	 * @param string $sSectionSlug
+	 * @return array
+	 * @throws \Exception
+	 */
+	public function getSectionStrings( $sSectionSlug ) {
+
+		switch ( $sSectionSlug ) {
+
+			case 'section_timings' :
+				$sTitle = __( 'Report Frequencies', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Report Frequencies', 'wp-simple-firewall' );
+				$aSummary = [
+					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
+					sprintf( 'Your reporting email address is: %s', '<code>'.$this->getMod()->getPluginReportEmail().'</code>' )
+					.' '.
+					sprintf( '<br/><a href="%s" class="font-weight-bolder">%s</a>',
+						$this->getCon()->getModule_Plugin()
+							 ->getUrl_DirectLinkToOption( 'block_send_email_address' ),
+						__( 'Update reporting email address', 'wp-simple-firewall' )
+					),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Choose the most appropriate frequency to receive alerts from Shield according to your schedule.', 'wp-simple-firewall' ) ),
+				];
+				break;
+
+			default:
+				return parent::getSectionStrings( $sSectionSlug );
+		}
+
+		return [
+			'title'       => $sTitle,
+			'title_short' => $sTitleShort,
+			'summary'     => ( isset( $aSummary ) && is_array( $aSummary ) ) ? $aSummary : [],
 		];
 	}
 }
