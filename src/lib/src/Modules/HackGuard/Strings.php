@@ -229,11 +229,12 @@ class Strings extends Base\Strings {
 
 			case 'mal_scan_enable' :
 				$sName = __( 'Malware', 'wp-simple-firewall' );
-				$sSummary = __( 'Scan And Monitor All Files For Malware Infections', 'wp-simple-firewall' );
+				$sSummary = __( 'Scan And Monitor Files For Malware Infections', 'wp-simple-firewall' );
 				$sDescription = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Monitor and detect presence of Malware signatures.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Enable this scanner to automatically detect infected files.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) )
+					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) ),
+					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( 'Currently files of the following types are supported:', 'wp-simple-firewall' ) )
+					.' '.implode( ', ', [ 'PHP' ] )
 				];
 				break;
 
@@ -242,7 +243,8 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Scan And Monitor Plugin & Theme Files For Changes', 'wp-simple-firewall' );
 
 				$sDescription = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Detect malicious changes to your themes and plugins.', 'wp-simple-firewall' ) ),
+					__( "Looks for new files added to plugins or themes, and also for changes to existing files.", 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Doesn't currently detect missing files.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) )
 				];
 				break;
@@ -251,9 +253,11 @@ class Strings extends Base\Strings {
 				$sName = __( 'Automatic File Repair', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Repair Files That Have Changes Or Malware Infection', 'wp-simple-firewall' );
 				$sDescription = [
-					__( 'Will attempt to automatically repair files that are detected to have been changed or infected with malware.', 'wp-simple-firewall' ),
-					__( 'In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files.', 'wp-simple-firewall' ),
-					__( 'In the case of plugins & themes, only those installed from WordPress.org can be repaired.', 'wp-simple-firewall' ),
+					__( 'Will attempt to automatically repair files that have been changed or infected with malware.', 'wp-simple-firewall' ),
+					'- '.__( 'In the case of WordPress, original files will be downloaded from WordPress.org to repair any broken files.', 'wp-simple-firewall' ),
+					'- '.__( 'In the case of plugins & themes, only those installed from WordPress.org may be repaired.', 'wp-simple-firewall' ),
+					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Auto-Repair will never automatically delete new or unrecognised files.", 'wp-simple-firewall' ) )
+					.' '.__( "Unrecognised files will need to be manually deleted.", 'wp-simple-firewall' ),
 				];
 				break;
 
@@ -459,7 +463,6 @@ class Strings extends Base\Strings {
 		__( 'Modified Themes:', 'wp-simple-firewall' );
 		__( 'Modified Plugins:', 'wp-simple-firewall' );
 		__( 'Plugins/Themes Have Been Altered', 'wp-simple-firewall' );
-
 
 		$aContent = [
 			sprintf( __( '%s has detected items with known security vulnerabilities.', 'wp-simple-firewall' ), $oCon->getHumanName() ),

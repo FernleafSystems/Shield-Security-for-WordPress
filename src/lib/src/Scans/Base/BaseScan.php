@@ -35,7 +35,6 @@ abstract class BaseScan {
 	}
 
 	protected function scan() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
 		if ( empty( $oAction->items ) ) {

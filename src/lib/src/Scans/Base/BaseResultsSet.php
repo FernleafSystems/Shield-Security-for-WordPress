@@ -66,7 +66,6 @@ class BaseResultsSet {
 		return array_values( array_filter(
 			$this->getAllItems(),
 			function ( $oItem ) {
-				/** @var BaseResultItem $oItem */
 				return $oItem->is_excluded;
 			}
 		) );
@@ -80,7 +79,6 @@ class BaseResultsSet {
 		return array_values( array_filter(
 			$this->getAllItems(),
 			function ( $oItem ) {
-				/** @var BaseResultItem $oItem */
 				return !$this->isFilterExcludedItems() || !$oItem->is_excluded;
 			}
 		) );

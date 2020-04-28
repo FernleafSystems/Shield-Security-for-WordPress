@@ -20,9 +20,6 @@ class BuildFileMap {
 	public function build() {
 		$aFiles = [];
 
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-
 		$sAbsPath = wp_normalize_path( ABSPATH );
 		foreach ( $this->getScanRoots() as $sRootDir ) {
 			try {

@@ -14,7 +14,6 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	public function build() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Scan Action VO not provided.' );
@@ -32,7 +31,6 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	protected function buildScanItems() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		$this->buildItems();
 		$oAction->total_items = count( $oAction->items );
@@ -45,7 +43,6 @@ abstract class BaseBuildScanAction {
 	/**
 	 */
 	protected function setStandardFields() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( empty( $oAction->created_at ) ) {
 			$oAction->created_at = Services::Request()->ts();
@@ -54,8 +51,6 @@ abstract class BaseBuildScanAction {
 		}
 	}
 
-	/**
-	 */
 	protected function setCustomFields() {
 	}
 }
