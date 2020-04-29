@@ -1,3 +1,27 @@
+= 9.0 - Series =
+*Released: 4th April, 2020* - [Release Notes](https://shsec.io/gy)
+
+* **(v.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
+* **(v.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
+* **(v.0)**  NEW:		[**PRO**] Support for excluding individual options from import and export operations.
+* **(v.0)**  NEW:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(v.0)**  NEW:		Integrated Help desk widget for searching documentation.
+* **(v.0)**  IMPROVED:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
+* **(v.0)**  IMPROVED:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
+* **(v.0)**  IMPROVED:	Major simplification of many options and plugin configuration.
+* **(v.0)**  IMPROVED:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
+* **(v.0)**  IMPROVED:	Tweaks and changes to UI.
+* **(v.0)**  FIXED:		Minor issues with the MFA page.
+* **(v.0)**  REMOVED:	Several unused/useless options, including "Mask WordPress Version".
+
+= 8.7.0 - Series =
+*Released: 16th March, 2020* - [Release Notes](https://shsec.io/gy)
+
+* **(v.0)**  NEW:		[**PRO**] [Traffic Rate Limiting Feature](https://shsec.io/gv).
+* **(v.0)**  ADDED:		Support for registration forms in plugins: Profile Builder and Paid Member Subscriptions
+* **(v.0)**  IMPROVED:	Tweaks and changes to UI.
+* **(v.0)**  FIXED:		Minor issues with the MFA page.
+
 = 8.6 - Series =
 *Released: 19th February, 2020* - [Release Notes](https://shsec.io/gl)
 
