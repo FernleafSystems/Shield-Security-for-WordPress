@@ -36,18 +36,18 @@ abstract class BaseBuildScanAction {
 		$oAction->total_items = count( $oAction->items );
 	}
 
-	/**
-	 */
 	abstract protected function buildItems();
 
-	/**
-	 */
 	protected function setStandardFields() {
 		$oAction = $this->getScanActionVO();
 		if ( empty( $oAction->created_at ) ) {
 			$oAction->created_at = Services::Request()->ts();
 			$oAction->started_at = 0;
 			$oAction->finished_at = 0;
+			$oAction->usleep = (int)( 1000000*max( 0.50, apply_filters(
+					$this->getCon()->prefix( 'scan_item_sleep' ),
+					0, $oAction->scan
+				) ) );
 		}
 	}
 

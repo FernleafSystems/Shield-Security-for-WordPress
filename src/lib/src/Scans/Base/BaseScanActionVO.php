@@ -16,10 +16,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Table\BaseEntryFormatter;
  * @property int      $total_items
  * @property string[] $items
  * @property array[]  $results
+ * @property int      $usleep
  */
 abstract class BaseScanActionVO {
 
 	use StdClassAdapter;
+
 	const QUEUE_GROUP_SIZE_LIMIT = 1;
 
 	/**

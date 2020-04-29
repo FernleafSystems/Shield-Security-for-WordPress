@@ -76,6 +76,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$oReporter->reportPath( $sFullPath, true );
 			}
 			else {
+				/** @var ScanActionVO $oAction */
 				$oAction = $this->getScanActionVO();
 
 				if ( $oAction->confidence_threshold > 0 ) {
@@ -183,7 +184,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 		}
 		catch ( \Exception $oE ) {
 		}
-		
+
 		return $bIsValidFile;
 	}
 
