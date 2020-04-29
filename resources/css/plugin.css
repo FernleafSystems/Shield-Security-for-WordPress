@@ -732,7 +732,7 @@ td.column-message textarea {
 }
 .table-side-filter {
 	position: sticky;
-	top: 120px;
+	top: 126px;
 }
 #SectionNotices tr.title_row th {
 	padding: 0.25rem 1.0rem;

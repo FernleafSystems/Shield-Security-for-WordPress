@@ -44,7 +44,7 @@
       "section":     "section_enable_mod_reporting",
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://shsec.io/hb",
       "link_blog":   "",
       "name":        "Enable Reporting",
       "summary":     "Enable (or Disable) The Reporting module",
@@ -73,7 +73,7 @@
           "text":      "Weekly"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://shsec.io/h9",
       "link_blog":     "",
       "name":          "Alert Frequency",
       "summary":       "How Often Should You Be Sent Important Alerts",
@@ -110,7 +110,7 @@
           "text":      "Monthly"
         }
       ],
-      "link_info":     "",
+      "link_info":     "https://shsec.io/ha",
       "link_blog":     "",
       "name":          "Info Frequency",
       "summary":       "How Often Should You Be Sent Information Reports",

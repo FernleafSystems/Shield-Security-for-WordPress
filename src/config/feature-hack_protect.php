@@ -194,8 +194,8 @@
           "text":      "Root index.php"
         }
       ],
-      "link_info":     "https://shsec.io/wpsf36",
-      "link_blog":     "https://shsec.io/wpsf37",
+      "link_info":     "https://shsec.io/h7",
+      "link_blog":     "https://shsec.io/h8",
       "name":          "File Locker",
       "summary":       "Lock Files Against Tampering and Changes",
       "description":   "As soon as changes are detected to any selected files, the contents may be examined and reverted."
