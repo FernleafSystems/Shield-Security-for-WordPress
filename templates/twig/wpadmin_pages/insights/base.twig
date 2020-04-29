@@ -40,24 +40,6 @@
 							{% endif %}
 						{% endfor %}
 
-						<li class="nav-item dropdown" id="NavItem-OptionSearch">
-						<select class="selectpicker" data-live-search="true"
-								title="{{ strings.jump_to_option }}"
-								data-size="10" multiple
-								data-header="{{ strings.type_below_search }} ..."
-								onchange="location = this.value;">
-							{% for select_section_name,select_section_opts in vars.search_select %}
-								<optgroup label="{{ select_section_name }}">
-									{% for select_opt_key,select_opt_data in select_section_opts %}
-										<option value="{{ select_opt_data.href }}" aria-selected="false"
-												data-tokens="{{ select_opt_data.summary }}"
-										>{{ select_opt_data.name }}
-										</option>
-									{% endfor %}
-								</optgroup>
-							{% endfor %}
-						</select>
-						</li>
 						<div class="nav-item announcekit-widget"></div>
 					</ul>
 				</div>
@@ -91,6 +73,7 @@
 	  } );
 	</script>
 	<script async src="https://cdn.announcekit.app/widget.js"></script>
+	{% include '/snippets/js/widget_freshdesk.twig' %}
 {% endblock %}
 
 {% block page_main %}

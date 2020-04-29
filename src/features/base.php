@@ -1503,6 +1503,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 			'ajax'          => [
 				'mod_options' => $this->getAjaxActionData( 'mod_options' ),
 			],
+			'vendors'       => [
+				'widget_freshdesk' => '3000000081' /* TODO: plugin spec config */
+			],
 			'strings'       => $this->getStrings()->getDisplayStrings(),
 			'flags'         => [
 				'access_restricted'     => !$this->canDisplayOptionsForm(),
