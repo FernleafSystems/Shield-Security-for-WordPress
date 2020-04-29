@@ -126,13 +126,6 @@ class Strings extends Base\Strings {
 								.'<br />'.__( 'Equivalent to setting "FORCE_SSL_ADMIN" to TRUE.', 'wp-simple-firewall' );
 				break;
 
-			case 'mask_wordpress_version' :
-				$sName = __( 'Mask WordPress Version', 'wp-simple-firewall' );
-				$sSummary = __( 'Prevents Public Display Of Your WordPress Version', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter how you would like your WordPress version displayed publicly. Leave blank to disable this feature.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This may interfere with WordPress plugins that rely on the $wp_version variable.', 'wp-simple-firewall' ) );
-				break;
-
 			case 'hide_wordpress_generator_tag' :
 				$sName = __( 'WP Generator Tag', 'wp-simple-firewall' );
 				$sSummary = __( 'Remove WP Generator Meta Tag', 'wp-simple-firewall' );

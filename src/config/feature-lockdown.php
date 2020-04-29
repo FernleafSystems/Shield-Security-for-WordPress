@@ -131,17 +131,6 @@
       "description": "Please only enable this option if you have a valid SSL certificate installed. Equivalent to setting 'FORCE_SSL_ADMIN' to TRUE."
     },
     {
-      "key":         "mask_wordpress_version",
-      "section":     "section_wordpress_obscurity_options",
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/43",
-      "link_blog":   "",
-      "name":        "Mask WordPress Version",
-      "summary":     "Prevents Public Display Of Your WordPress Version",
-      "description": "Enter how you would like your WordPress version displayed publicly. Leave blank to disable this feature. Warning: This may interfere with WordPress plugins that rely on the $wp_version variable."
-    },
-    {
       "key":         "hide_wordpress_generator_tag",
       "section":     "section_wordpress_obscurity_options",
       "default":     "N",
