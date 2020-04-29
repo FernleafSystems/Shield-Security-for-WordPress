@@ -344,7 +344,7 @@
         }
       ],
       "link_info":     "https://shsec.io/9m",
-      "link_blog":     "https://shsec.io/shld5",
+      "link_blog":     "",
       "name":          "CAPTCHA",
       "summary":       "Enable CAPTCHA",
       "description":   "Use CAPTCHA on the login screen."
@@ -357,7 +357,7 @@
         "form#ihc_login_form",
         "form#createuser"
       ],
-      "link_info":   "",
+      "link_info":   "https://shsec.io/hg",
       "link_blog":   "",
       "name":        "AntiBot Forms",
       "summary":     "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS",

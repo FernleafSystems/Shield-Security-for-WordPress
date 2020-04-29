@@ -86,7 +86,7 @@
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/e3",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/hi",
       "name":        "Enable User Management",
       "summary":     "Enable (or Disable) The User Management module",
       "description": "Un-Checking this option will completely disable the User Management module"
@@ -188,7 +188,7 @@
         }
       ],
       "link_info":     "https://shsec.io/gk",
-      "link_blog":     "",
+      "link_blog":     "https://shsec.io/hh",
       "name":          "Validate Email Addresses",
       "summary":       "Validate Email Addresses When User Attempts To Register",
       "description":   "Validate Email Addresses When User Attempts To Register."

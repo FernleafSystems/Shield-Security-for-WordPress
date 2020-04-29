@@ -72,7 +72,7 @@
       "section":     "section_traffic_options",
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
+      "link_info":   "https://shsec.io/hf",
       "link_blog":   "",
       "name":        "Enable Traffic Logger",
       "summary":     "Turn On The Traffic Logging Feature",

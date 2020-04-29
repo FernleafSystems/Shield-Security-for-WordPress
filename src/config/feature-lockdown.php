@@ -114,7 +114,7 @@
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4q",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/hk",
       "name":        "Disable File Editing",
       "summary":     "Disable Ability To Edit Files From Within WordPress",
       "description": "Removes the option to directly edit any files from within the WordPress admin area. Equivalent to setting 'DISALLOW_FILE_EDIT' to TRUE."

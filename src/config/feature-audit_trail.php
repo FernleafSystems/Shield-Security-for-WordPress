@@ -91,7 +91,7 @@
       "default":     1000,
       "min":         0,
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "https://shsec.io/hc",
       "link_blog":   "",
       "name":        "Max Trail Length",
       "summary":     "Maximum Audit Trail Length To Keep",

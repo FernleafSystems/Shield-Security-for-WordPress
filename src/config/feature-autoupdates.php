@@ -54,7 +54,7 @@
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3w",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/hj",
       "name":        "Enable Automatic Updates",
       "summary":     "Enable (or Disable) The Automatic Updates module",
       "description": "Un-Checking this option will completely disable the Automatic Updates module"
