@@ -1,29 +1,7 @@
 {% import "/common/macros.twig" as icwp_macros %}
 <style>
-	#accordionTop .accordion-toggle h3 {
-		color: #333333;
-	}
-	#accordionTop .accordion-toggle {
-		background-color: rgba(255, 255, 255, 0.6);
-	}
-	#accordionTop .accordion-toggle:hover {
-		text-decoration: none;
-		background-color: rgba(255, 255, 255, 0.6);
-	}
-	#accordionTop .accordion-toggle:focus {
-		box-shadow: none;
-	}
-	#accordionTop .accordion-group {
-		margin-bottom: 15px;
-	}
-	#accordionTop .accordion-inner {
-		background-color: rgba(255, 255, 255, 0.6);
-	}
 	#ButtonBuyNow {
 		margin: 20px;
-	}
-	.licenseForm button {
-		display: block;
 	}
 	.card {
 		margin-bottom: 20px;
@@ -65,76 +43,102 @@
 				<h6 class="card-subtitle text-muted">{{ strings.check_availability }}</h6>
 			</div>
 			<div class="card-body">
+
+				<ol>
+					<li>
+						<a target="_blank" href="{{ aHrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
+					</li>
+					<li>{{ strings.url_to_activate }}:
+						<code class="font-weight-bold">{{ vars.activation_url }}</code></li>
+					<li>{{ strings.license_check_limit }}.
+						<br />({{ strings.more_frequent }})
+					</li>
+				</ol>
+
 				<form method="post" class="licenseForm">
 					{% for ajax_key, ajax_val in ajax.license_handling %}
 						<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
 					{% endfor %}
 					<input type="hidden" name="license-action" value="check" />
-					<button class="btn btn-info m-2" type="submit"
-							{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
-						{{ strings.check_license }}
-					</button>
-
-					<div class="form-text text-muted">
-						<ol>
-							<li>{{ strings.url_to_activate }}:
-								<code class="font-weight-bold">{{ vars.activation_url }}</code></li>
-							<li class="font-weight-bold">
-								<a target="_blank" href="{{ aHrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
-							</li>
-							<li>{{ strings.license_check_limit }}.
-								<br />({{ strings.more_frequent }})
-							</li>
-						</ol>
-					</div>
-				</form>
-				{% if flags.is_pro %}
-					<form method="post" class="licenseForm">
-						{% for ajax_key, ajax_val in ajax.license_handling %}
-							<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
-						{% endfor %}
-						<input type="hidden" name="license-action" value="clear" />
-
-						<button class="btn btn-link m-2" type="submit"
-								style="float: right; text-decoration: none; font-size: small;"
+					<p class="text-center">
+						<button class="btn btn-success m-2" type="submit"
 								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
-							<span class="text-danger">&#10008; {{ strings.clear_license }}</span>
+							{{ strings.check_license }}
 						</button>
-					</form>
-				{% endif %}
-			</div>
-			<div class="card-footer">
-				<form method="post" id="ConnectionDebug">
-					{% for ajax_key, ajax_val in ajax.connection_debug %}
-						<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
-					{% endfor %}
-					<p class="mb-0 text-right">
-						{{ strings.incase_debug }}:
-						<button class="btn btn-link btn-sm p-0" type="submit">[{{ strings.debug }}]</button>
 					</p>
 				</form>
+
+				<div class="row">
+					<div class="col-6 text-left">
+						{% if flags.is_pro %}
+							<form method="post" class="licenseForm">
+								{% for ajax_key, ajax_val in ajax.license_handling %}
+									<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
+								{% endfor %}
+								<input type="hidden" name="license-action" value="clear" />
+
+								<button class="btn btn-link p-0" type="submit"
+										style="text-decoration: none; font-size: small;"
+										{% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
+									<span class="text-danger">&#10008; {{ strings.clear_license }}</span>
+								</button>
+							</form>
+						{% else %}
+							<a href="https://shsec.io/buyshieldpro" target="_blank" class="card-link"
+							   class="">{{ strings.go_pro }}</a>
+						{% endif %}
+					</div>
+
+					<div class="col-6 text-right">
+						<form method="post" id="ConnectionDebug">
+							{% for ajax_key, ajax_val in ajax.connection_debug %}
+								<input type="hidden" name="{{ ajax_key }}" value="{{ ajax_val }}" />
+							{% endfor %}
+							<p class="mb-0">
+								<button class="btn btn-link btn-sm p-0"
+										title="{{ strings.incase_debug }}"
+										type="submit">{{ strings.debug }}</button>
+							</p>
+						</form>
+					</div>
+
+				</div>
 			</div>
 
 		</div>
+
+		{% if not flags.is_premium %}
+			<div class="card gopro-card">
+				<div class="card-body">
+
+					<p>Shield Security Pro is available from our online store and may be purchased
+					   in US Dollar, &euro;uros, or &pound;GBPounds</p>
+					<ol>
+						<li>Just grab a new license from the
+							<a href="https://shsec.io/buyshieldpro" target="_blank">Shield Pro store</a>.</li>
+						<li>Register your site URL with our control panel.</li>
+						<li>Activate your license on your sites using the 'Check License' button.</li>
+					</ol>
+
+					<p class="text-center">
+						<a href="https://shsec.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
+						   class="btn btn-large btn-outline-success">
+							Upgrade To Shield Pro Now</a>
+					</p>
+				</div>
+			</div>
+		{% endif %}
+
 	</div>
 
 	<div class="col-7">
 		<div id="accordion">
 
 			  <div class="card gopro-card">
-				<div class="card-header" id="headingOne">
-				  <h4 class="mb-0">
-					<button class="btn btn-link" data-toggle="collapse" data-target="#collone"
-							aria-expanded="true" aria-controls="collone">
-					  &rarr; {{ icwp_macros.shieldpro }} gives you ...
-					</button>
-				  </h4>
-				</div>
 
-				<div id="collone" class="collapse show" aria-labelledby="headingOne"
-					 data-parent="#accordion">
+				<div id="collone" aria-labelledby="headingOne">
 				  <div class="card-body">
-					  <p><a href="https://shsec.io/gp" target="_blank" class="btn btn-success">
+					  <p><a href="https://shsec.io/gp" target="_blank" class="btn btn-outline-success">
 							  See All PRO Features and Extras</a></p>
 					<dl class="pro-features">
 						<dt>Easiest, Frustration-Free WP Pro-Upgrade Anywhere</dt>
@@ -144,7 +148,7 @@
 
 						<dt>Powerful, Auto-Learning Malware Scanner</dt>
 						<dd>Detects common and uncommon malware patterns in PHP files and alerts you immediately.
-							<br/>With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives
+							<br />With ShieldNET crowd-sourcing intelligence, Shield automatically hides false-positives
 							so you can focus on risks that matter, and can ignore the noise that wastes your time.
 						</dd>
 
@@ -190,63 +194,6 @@
 				</div>
 			  </div>
 
-			  <div class="card gopro-card">
-				<div class="card-header" id="headingTwo">
-				  <h5 class="mb-0">
-					<button class="btn btn-link collapsed" data-toggle="collapse" data-target="#colltwo"
-							aria-expanded="false" aria-controls="colltwo">
-					  &rarr; Coming Soon...
-					</button>
-				  </h5>
-				</div>
-				<div id="colltwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-				  <div class="card-body">
-					<dl>
-						<dt>Select individual plugins for automatic updates</dt>
-						<dd>You'll soon be able to select individual plugins for automatic updates. Right now it's all or nothing.</dd>
-
-						<dt>Improved performance/optimizations for PHP 5.6+</dt>
-						<dd>We're rewriting your favourite security plugin to take full advantage of the latest PHP developments.</dd>
-
-						<dt>Statistic and Reporting</dt>
-						<dd>You'll be able to review and generate reports on keys security events on your sites.</dd>
-
-						<dt>And Much More...</dt>
-						<dd>With your continued support, we'll add more and more features...</dd>
-					</dl>
-				  </div>
-				</div>
-			  </div>
-
-			  <div class="card gopro-card">
-				<div class="card-header" id="headingThree">
-				  <h5 class="mb-0">
-					<button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collthree"
-							aria-expanded="false" aria-controls="collthree">
-					  &rarr; How To Get Shield Pro?
-					</button>
-				  </h5>
-				</div>
-				<div id="collthree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
-				  <div class="card-body">
-
-					<p>Shield Security Pro is available from our online store and may be purchased
-					   in US Dollar, &euro;uros, or &pound;GBPounds</p>
-					<ol>
-						<li>Just grab a new license from the
-							<a href="https://shsec.io/buyshieldpro" target="_blank">Shield Pro store</a>.</li>
-						<li>Register your site URL with our control panel.</li>
-						<li>Activate your license on your sites using the 'Check License' button.</li>
-					</ol>
-
-					<p class="text-center">
-						<a href="https://shsec.io/buyshieldpro" target="_blank" id="ButtonBuyNow"
-						   class="btn btn-large btn-success">
-							Upgrade To Shield Pro Now &rarr;</a>
-					</p>
-				  </div>
-				</div>
-			  </div>
 			</div>
 	</div>
 
@@ -258,8 +205,6 @@ var iCWP_WPSF_LicenseHandler = new function () {
 
 	var bRequestCurrentlyRunning = false;
 
-	/**
-	 */
 	var submitLicenseForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
