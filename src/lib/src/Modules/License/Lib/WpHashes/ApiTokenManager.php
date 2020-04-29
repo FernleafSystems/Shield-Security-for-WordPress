@@ -2,20 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\WpHashes;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\Token;
 
 class ApiTokenManager {
 
-	use ModConsumer;
+	use Modules\ModConsumer;
+	use Modules\Base\OneTimeExecute;
 
 	/**
 	 * @var bool
 	 */
 	private $bCanRequestOverride = false;
 
-	public function run() {
+	protected function run() {
 		add_action( $this->getCon()->prefix( 'event' ), function ( $sEventTag ) {
 			switch ( $sEventTag ) {
 				case 'lic_check_success':
@@ -39,6 +40,13 @@ class ApiTokenManager {
 	}
 
 	/**
+	 * IMPORTANT:
+	 * To 'Pro Plugin' Nullers: Modifying this wont do your fake PRO registration any good.
+	 * The WP Hashes Token API request will always fail for invalid PRO sites.
+	 * Please don't change it, as the only result is invalid requests against our API.
+	 * Eventually we will completely block their IP addresses and this will result in blocks for the
+	 * API requests which don't even require an API Token
+	 *
 	 * @return string
 	 */
 	public function getToken() {

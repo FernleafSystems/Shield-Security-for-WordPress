@@ -133,12 +133,9 @@ class ICWP_WPSF_FeatureHandler_License extends ICWP_WPSF_FeatureHandler_BaseWpsf
 		$this->getWpHashesTokenManager()->getToken();
 	}
 
-	protected function setupCustomHooks() {
-		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
-	}
-
-	public function onWpLoaded() {
-		$this->getWpHashesTokenManager()->run();
+	public function onWpInit() {
+		parent::onWpInit();
+		$this->getWpHashesTokenManager()->execute();
 	}
 
 	/**
