@@ -27,8 +27,10 @@
 		</div>
 	</div>
 </div>
-{% if flags.show_promo %}
-	<div id="FooterWizardBanner" class="container-fluid">
+
+{% block pro_promo %}
+	{% if flags.show_promo %}
+		<div id="FooterWizardBanner" class="container-fluid">
 		<div id="WizardBanner" class="row">
 			<div class="col-xl-5 offset-xl-1 col-6">
 				<h6 class="text-left">{{ strings.join_thousands_H }}</h6>
@@ -40,7 +42,8 @@
 			</div>
 		</div>
 	</div>
-{% endif %}
+	{% endif %}
+{% endblock %}
 
 {% block inline_scripts %}
 {% endblock %}
