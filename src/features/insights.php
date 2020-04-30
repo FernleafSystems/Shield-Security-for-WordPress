@@ -114,6 +114,16 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				];
 				break;
 
+			case 'debug':
+				$aData = [
+					'vars' => [
+						'debug_data' => ( new Shield\Modules\Plugin\Lib\Debug\Collate() )
+							->setMod( $oModPlugin )
+							->run()
+					],
+				];
+				break;
+
 			case 'ips':
 				$aData = [
 					'ajax'    => [
@@ -321,6 +331,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
 			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
+//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
 		];
 		if ( $bIsPro ) {
 			unset( $aTopNav[ 'license' ] );
