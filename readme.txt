@@ -284,7 +284,7 @@ Whitelist. So if you have the same address in both lists, it'll be whitelisted a
 = What changes go into each version? =
 
 The changelog outlines the main changes for each release. We group changes by minor release "Series". Changes in smaller "point" releases are highlighted
- using **(v.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(v.1)**
+ using **(.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(.1)**
 
 = Can I assist with development? =
 
@@ -375,17 +375,17 @@ You will always be able to use Shield Security and its free features in-full.
 
 **The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.**
 
-* **(v.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
-* **(v.0)**  NEW:		[**PRO**] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
-* **(v.0)**  NEW:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
-* **(v.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
-* **(v.0)**  NEW:		Integrated Help desk widget for searching documentation.
-* **(v.0)**  IMPROVED:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
-* **(v.0)**  IMPROVED:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
-* **(v.0)**  IMPROVED:	Major simplification of many options and plugin configuration.
-* **(v.0)**  IMPROVED:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
-* **(v.0)**  IMPROVED:	Tweaks and changes to UI.
-* **(v.0)**  FIXED:		Minor issues with the MFA page.
-* **(v.0)**  REMOVED:	Several unused/useless options, including "Mask WordPress Version".
+* **(.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
+* **(.0)**  NEW:		[**PRO**] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
+* **(.0)**  NEW:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
+* **(.0)**  NEW:		Integrated Help desk widget for searching documentation.
+* **(.0)**  IMPROVED:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
+* **(.0)**  IMPROVED:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
+* **(.0)**  IMPROVED:	Major simplification of many options and plugin configuration.
+* **(.0)**  IMPROVED:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
+* **(.0)**  IMPROVED:	Tweaks and changes to UI.
+* **(.0)**  FIXED:		Minor issues with the MFA page.
+* **(.0)**  REMOVED:	Several unused/useless options, including "Mask WordPress Version".
 
 #### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
