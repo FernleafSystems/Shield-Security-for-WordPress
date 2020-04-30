@@ -38,15 +38,25 @@ class Collate {
 	 * @return array
 	 */
 	private function getEnv() {
+		$oIP = Services::IP();
 		$oReq = Services::Request();
 
 		$sSig = $oReq->server( 'SERVER_SIGNATURE' );
+		$aIPs = $oIP->getServerPublicIPs();
+		$rDNS = '';
+		foreach ( $aIPs as $sIP ) {
+			if ( $oIP->getIpVersion( $sIP ) === 4 ) {
+				$rDNS = gethostbyaddr( $sIP );
+				break;
+			}
+		}
 		return [
 			'Host OS'          => PHP_OS,
 			'Server Hostname'  => gethostname(),
-			'Server IPs'       => implode( ', ', Services::IP()->getServerPublicIPs() ),
+			'Server IPs'       => implode( ', ', $aIPs ),
 			'Server Signature' => empty( $sSig ) ? '-' : $sSig,
 			'Server Name'      => $oReq->server( 'SERVER_NAME' ),
+			'rDNS'             => empty( $rDNS ) ? '-' : $rDNS,
 		];
 	}
 
