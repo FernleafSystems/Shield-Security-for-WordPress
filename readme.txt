@@ -376,9 +376,9 @@ You will always be able to use Shield Security and its free features in-full.
 **The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.**
 
 * **(v.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
-* **(v.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
 * **(v.0)**  NEW:		[**PRO**] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
 * **(v.0)**  NEW:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(v.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
 * **(v.0)**  NEW:		Integrated Help desk widget for searching documentation.
 * **(v.0)**  IMPROVED:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
 * **(v.0)**  IMPROVED:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
