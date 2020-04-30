@@ -140,7 +140,13 @@ class Strings extends Base\Strings {
 			case 'global_enable_plugin_features' :
 				$sName = sprintf( __( 'Enable %s Protection', 'wp-simple-firewall' ), $sPlugName );
 				$sSummary = __( 'Switch Off To Disable All Security Protection', 'wp-simple-firewall' );
-				$sDescription = sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $sPlugName );
+				$sDescription = [
+					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $sPlugName ),
+					sprintf( '<a href="%s" target="_blank">%s</a>',
+						$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'debug' ),
+						'Launch Debug Info Page'
+					)
+				];
 				break;
 
 			case 'enable_tracking' :

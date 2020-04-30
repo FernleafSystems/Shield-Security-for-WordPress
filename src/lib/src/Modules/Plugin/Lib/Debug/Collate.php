@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Licenses;
 
 /**
  * Class Collate
@@ -130,15 +131,21 @@ class Collate {
 	 */
 	private function getShield() {
 		$oCon = $this->getCon();
+		$oModPlugin = $oCon->getModule_Plugin();
 
 		$aD = [
-			'Version'                => $oCon->getVersion(),
-			'PRO'                    => $oCon->isPremiumActive() ? 'Yes' : 'No',
-			'Security Admin Enabled' => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
+			'Version'                 => $oCon->getVersion(),
+			'PRO'                     => $oCon->isPremiumActive() ? 'Yes' : 'No',
+			'Security Admin Enabled'  => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
+			'Can Handshake ShieldNET' => $oModPlugin->getShieldNetApiController()->canHandshake() ? 'Yes' : 'No',
 		];
 
+		$oPing = new Licenses\Keyless\Ping();
+		$oPing->lookup_url_stub = $this->getOptions()->getDef( 'license_store_url_api' );
+		$aD[ 'Ping License Server' ] = $oPing->ping() ? 'Yes' : 'No';
+
 		/** @var Options $oOptsIP */
-		$oOptsPlugin = $oCon->getModule_Plugin()->getOptions();
+		$oOptsPlugin = $oModPlugin->getOptions();
 		$sSource = $oOptsPlugin->getSelectOptionValueText( 'visitor_address_source' );
 		$aD[ 'Visitor IP Source' ] = $sSource.' - '.Services::Request()->server( $sSource );
 
