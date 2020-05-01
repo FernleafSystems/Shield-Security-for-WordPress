@@ -46,7 +46,7 @@ class AuditWriter extends EventsListener {
 	}
 
 	protected function onShutdown() {
-		if ( !$this->getCon()->isPluginDeleting() ) {
+		if ( !$this->getCon()->plugin_deleting ) {
 			( new Commit() )
 				->setDbHandler( $this->getDbHandler() )
 				->commitAudits( $this->getLogs() );

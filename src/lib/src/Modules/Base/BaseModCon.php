@@ -420,7 +420,7 @@ class BaseModCon {
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
-		if ( !$this->getCon()->isPluginDeleting() ) {
+		if ( !$this->getCon()->plugin_deleting ) {
 			if ( rand( 1, 40 ) === 2 ) {
 				// cleanup databases randomly just in-case cron doesn't run.
 				$this->cleanupDatabases();

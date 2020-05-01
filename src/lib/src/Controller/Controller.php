@@ -51,16 +51,6 @@ class Controller {
 	protected $sForceOffFile;
 
 	/**
-	 * @var bool
-	 */
-	protected $bResetPlugin;
-
-	/**
-	 * @var bool
-	 */
-	protected $bPluginDeleting = false;
-
-	/**
 	 * @var string
 	 */
 	private $sPluginBaseFile;
@@ -285,15 +275,12 @@ class Controller {
 		return $this->aRequirementsMessages;
 	}
 
-	/**
-	 */
 	public function onWpDeactivatePlugin() {
 		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
 		if ( $this->isPluginAdmin() ) {
 			do_action( $this->prefix( 'deactivate_plugin' ) );
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
-				$this->bPluginDeleting = true;
-				$this->plugin_deleting = $this->bPluginDeleting;
+				$this->plugin_deleting = true;
 				do_action( $this->prefix( 'delete_plugin' ) );
 				$this->deletePluginControllerOptions();
 			}
@@ -1020,8 +1007,6 @@ class Controller {
 		}
 	}
 
-	/**
-	 */
 	protected function deleteFlags() {
 		$oFS = Services::WpFs();
 		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
@@ -1227,13 +1212,6 @@ class Controller {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isPluginDeleting() {
-		return (bool)$this->bPluginDeleting;
-	}
-
-	/**
 	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
 	 * @return bool
@@ -1334,12 +1312,10 @@ class Controller {
 	 * @return bool
 	 */
 	public function getIsResetPlugin() {
-		if ( !isset( $this->bResetPlugin ) ) {
-			$bExists = Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
-			$this->bResetPlugin = (bool)$bExists;
-			$this->plugin_reset = $this->bResetPlugin;
+		if ( !isset( $this->plugin_reset ) ) {
+			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
 		}
-		return $this->bResetPlugin;
+		return $this->plugin_reset;
 	}
 
 	/**
@@ -2207,5 +2183,13 @@ class Controller {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isPluginDeleting() {
+		return (bool)$this->plugin_deleting;
 	}
 }

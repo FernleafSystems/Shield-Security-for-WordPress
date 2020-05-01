@@ -175,7 +175,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
-		if ( !$this->getCon()->isPluginDeleting() ) {
+		if ( !$this->getCon()->plugin_deleting ) {
 			$this->addFilterIpsToWhiteList();
 		}
 		parent::onPluginShutdown();

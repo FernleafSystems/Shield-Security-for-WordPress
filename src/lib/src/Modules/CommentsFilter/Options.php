@@ -9,20 +9,6 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return string[]
 	 */
-	public function getDbColumns_Spam() {
-		return $this->getDef( 'spambot_comments_filter_table_columns' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getDbTable_Spam() {
-		return $this->getCon()->prefixOption( $this->getDef( 'spambot_comments_filter_table_name' ) );
-	}
-
-	/**
-	 * @return string[]
-	 */
 	public function getHumanSpamFilterItems() {
 		$aDefault = $this->getOptDefault( 'human_spam_items' );
 		$aItems = apply_filters(

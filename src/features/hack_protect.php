@@ -748,6 +748,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
 			$this->getScanCon( $sSlug )->purge();
 		}
+		$this->getDbHandler_ScanQueue()->deleteTable();
+		$this->getDbHandler_ScanResults()->deleteTable();
 		// 2. Clean out the file locker
 		$this->getFileLocker()->purge();
 	}

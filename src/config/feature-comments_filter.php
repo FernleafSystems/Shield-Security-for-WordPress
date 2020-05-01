@@ -279,24 +279,24 @@
       "description": "This message is displayed on the submit-button when the comment token is expired."
     },
     {
-      "key":         "comments_cooldown",
-      "section":     "section_non_ui",
-      "default":     10,
-      "min":         0,
-      "type":        "integer"
+      "key":     "comments_cooldown",
+      "section": "section_non_ui",
+      "default": 10,
+      "min":     0,
+      "type":    "integer"
     },
     {
-      "key":         "comments_expire",
-      "section":     "section_non_ui",
-      "default":     600,
-      "min":         0,
-      "type":        "integer"
+      "key":     "comments_expire",
+      "section": "section_non_ui",
+      "default": 600,
+      "min":     0,
+      "type":    "integer"
     },
     {
-      "key":           "human_spam_items",
-      "section":       "section_non_ui",
-      "type":          "array",
-      "default":       [
+      "key":     "human_spam_items",
+      "section": "section_non_ui",
+      "type":    "array",
+      "default": [
         "author_name",
         "author_email",
         "comment_content",
@@ -307,17 +307,8 @@
     }
   ],
   "definitions":   {
-    "url_spam_blacklist_terms":              "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
-    "spambot_comments_filter_table_name":    "spambot_comments_filter",
-    "spambot_comments_filter_table_columns": [
-      "id",
-      "post_id",
-      "unique_token",
-      "ip",
-      "created_at",
-      "deleted_at"
-    ],
-    "events":                                {
+    "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
+    "events":                   {
       "spam_block_bot":       {
         "recent":  true,
         "offense": true

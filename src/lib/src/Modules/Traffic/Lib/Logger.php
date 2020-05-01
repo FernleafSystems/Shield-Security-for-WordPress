@@ -27,8 +27,8 @@ class Logger {
 	 * @return bool
 	 */
 	private function isRequestToBeLogged() {
-		return apply_filters( $this->getCon()->prefix( 'is_log_traffic' ), true )
-			   && !$this->getCon()->isPluginDeleting()
+		return !$this->getCon()->plugin_deleting
+			   && apply_filters( $this->getCon()->prefix( 'is_log_traffic' ), true )
 			   && ( !$this->isCustomExcluded() )
 			   && ( !$this->isRequestTypeExcluded() );
 	}
