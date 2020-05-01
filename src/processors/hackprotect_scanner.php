@@ -152,6 +152,18 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		$oCarb->addHours( $oCarb->minute < 40 ? 0 : 1 )
 			  ->minute( $oCarb->minute < 40 ? 45 : 15 )
 			  ->second( 0 );
+
+		if ( $this->getCronFrequency() === 1 ) { // If it's a daily scan only, set to 3am by default
+			$nHour = (int)apply_filters( $this->getCon()->prefix( 'daily_scan_cron_hour' ), 3 );
+			if ( $nHour < 0 || $nHour > 23 ) {
+				$nHour = 3;
+			}
+			if ( $oCarb->hour >= $nHour ) {
+				$oCarb->addDays( 1 );
+			}
+			$oCarb->hour( $nHour );
+		}
+
 		return $oCarb->timestamp;
 	}
 
