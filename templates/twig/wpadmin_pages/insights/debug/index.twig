@@ -2,8 +2,9 @@
 
 {% block page_main %}
 	<div class="row">
-		{% for group in vars.debug_data %}
+		{% for group_title,group in vars.debug_data %}
 			<div class="col-12 insights_section">
+				<h5 class="mb-3">{{ group_title }}</h5>
 				<div class="card-group">
 					{% for title,section_data in group %}
 						<div class="card">

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes\ApiPing;
 use FernleafSystems\Wordpress\Services\Utilities\Licenses;
 
 /**
@@ -20,13 +21,16 @@ class Collate {
 	 */
 	public function run() {
 		return [
-			[
-				'WordPress'   => $this->getWordPress(),
-				'Shield'      => $this->getShield(),
+			'Shield'    => [
+				'Summary'      => $this->getShieldSummary(),
+				'Capabilities' => $this->getShieldCapabilities(),
+			],
+			'System'    => [
 				'PHP'         => $this->getPHP(),
 				'Environment' => $this->getEnv(),
 			],
-			[
+			'WordPress' => [
+				'Summary'            => $this->getWordPressSummary(),
 				'Plugins (Active)'   => $this->getPlugins( true ),
 				'Plugins (Inactive)' => $this->getPlugins( false ),
 				'Themes (Active)'    => $this->getThemes( true ),
@@ -54,9 +58,9 @@ class Collate {
 			'Host OS'          => PHP_OS,
 			'Server Hostname'  => gethostname(),
 			'Server IPs'       => implode( ', ', $aIPs ),
-			'Server Signature' => empty( $sSig ) ? '-' : $sSig,
-			'Server Name'      => $oReq->server( 'SERVER_NAME' ),
 			'rDNS'             => empty( $rDNS ) ? '-' : $rDNS,
+			'Server Name'      => $oReq->server( 'SERVER_NAME' ),
+			'Server Signature' => empty( $sSig ) ? '-' : $sSig,
 		];
 	}
 
@@ -139,28 +143,24 @@ class Collate {
 	/**
 	 * @return array
 	 */
-	private function getShield() {
+	private function getShieldCapabilities() {
 		$oCon = $this->getCon();
 		$oModPlugin = $oCon->getModule_Plugin();
 
+		$sHome = Services::WpGeneral()->getHomeUrl();
 		$aD = [
-			'Version'                 => $oCon->getVersion(),
-			'PRO'                     => $oCon->isPremiumActive() ? 'Yes' : 'No',
-			'Security Admin Enabled'  => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
-			'Can Handshake ShieldNET' => $oModPlugin->getShieldNetApiController()->canHandshake() ? 'Yes' : 'No',
+			sprintf( 'Loopback To %s', $sHome ) => $oModPlugin->getCanSiteCallToItself() ? 'Yes' : 'No',
+			'Handshake ShieldNET'               => $oModPlugin->getShieldNetApiController()
+															  ->canHandshake() ? 'Yes' : 'No',
+			'WP Hashes Ping'                    => ( new ApiPing() )->ping() ? 'Yes' : 'No',
 		];
 
 		$oPing = new Licenses\Keyless\Ping();
 		$oPing->lookup_url_stub = $this->getOptions()->getDef( 'license_store_url_api' );
 		$aD[ 'Ping License Server' ] = $oPing->ping() ? 'Yes' : 'No';
 
-		/** @var Options $oOptsIP */
-		$oOptsPlugin = $oModPlugin->getOptions();
-		$sSource = $oOptsPlugin->getSelectOptionValueText( 'visitor_address_source' );
-		$aD[ 'Visitor IP Source' ] = $sSource.' - '.Services::Request()->server( $sSource );
-
 		$sTmpPath = $oCon->getPluginCachePath();
-		$aD[ 'Can Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
+		$aD[ 'Write TMP DIR' ] = empty( $sTmpPath ) ? 'No' : 'Yes: '.$sTmpPath;
 
 		return $aD;
 	}
@@ -168,7 +168,28 @@ class Collate {
 	/**
 	 * @return array
 	 */
-	private function getWordPress() {
+	private function getShieldSummary() {
+		$oCon = $this->getCon();
+		$oModPlugin = $oCon->getModule_Plugin();
+
+		$aD = [
+			'Version'                => $oCon->getVersion(),
+			'PRO'                    => $oCon->isPremiumActive() ? 'Yes' : 'No',
+			'Security Admin Enabled' => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
+		];
+
+		/** @var Options $oOptsIP */
+		$oOptsPlugin = $oModPlugin->getOptions();
+		$sSource = $oOptsPlugin->getSelectOptionValueText( 'visitor_address_source' );
+		$aD[ 'Visitor IP Source' ] = $sSource.' - '.Services::Request()->server( $sSource );
+
+		return $aD;
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getWordPressSummary() {
 		$oWP = Services::WpGeneral();
 		$aD = [
 			'URL - Home' => $oWP->getHomeUrl(),
