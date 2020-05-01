@@ -475,11 +475,6 @@
       "wp-admin/install.php",
       "xmlrpc.php"
     ],
-    "corechecksum_autofix":        [
-      "wp-content/index.php",
-      "wp-content/plugins/index.php",
-      "wp-content/themes/index.php"
-    ],
     "events":                      {
       "apc_alert_sent":          {
       },
