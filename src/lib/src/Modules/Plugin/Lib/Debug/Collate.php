@@ -170,11 +170,13 @@ class Collate {
 	 */
 	private function getShieldSummary() {
 		$oCon = $this->getCon();
+		$oModLicense = $oCon->getModule_License();
 		$oModPlugin = $oCon->getModule_Plugin();
 
 		$aD = [
 			'Version'                => $oCon->getVersion(),
 			'PRO'                    => $oCon->isPremiumActive() ? 'Yes' : 'No',
+			'WP Hashes Token'        => $oModLicense->getWpHashesTokenManager()->hasToken() ? 'Yes' : 'No',
 			'Security Admin Enabled' => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
 		];
 
