@@ -370,22 +370,23 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 9.0 Series =
-*Released: 4th April, 2020* - [Release Notes](https://shsec.io/gy)
+#### 9.0 Series
+*Released: 4th April 2020* - [Release Announcement](https://shsec.io/gy)
 
-**The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.**
+**Note**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
-* **(.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
-* **(.0)**  NEW:		[**PRO**] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
-* **(.0)**  NEW:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
-* **(.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
-* **(.0)**  NEW:		Integrated Help desk widget for searching documentation.
-* **(.0)**  IMPROVED:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
-* **(.0)**  IMPROVED:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
-* **(.0)**  IMPROVED:	Major simplification of many options and plugin configuration.
-* **(.0)**  IMPROVED:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
-* **(.0)**  IMPROVED:	Tweaks and changes to UI.
-* **(.0)**  FIXED:		Minor issues with the MFA page.
-* **(.0)**  REMOVED:	Several unused/useless options, including "Mask WordPress Version".
+* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
+* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
+* **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
+* **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
+* **(.0)  IMPROVED**:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
+* **(.0)  IMPROVED**:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
+* **(.0)  IMPROVED**:	Major simplification of many options and plugin configuration.
+* **(.0)  IMPROVED**:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
+* **(.0)  IMPROVED**:	Tweaks and changes to UI.
+* **(.0)  FIXED**:		Minor issues with the MFA page.
+* **(.0)  FIXED**:		Older Twig Library compatibility with PHP 7.4.
+* **(.0)  REMOVED**:	Several unused/useless options, including "Mask WordPress Version".
 
-#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+##### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)

@@ -1,23 +1,27 @@
-= 9.0 - Series =
-*Released: 4th April, 2020* - [Release Notes](https://shsec.io/gy)
 
-* **(.0)**  NEW:		[**PRO**] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
-* **(.0)**  NEW:		[**PRO**] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
-* **(.0)**  NEW:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
-* **(.0)**  NEW:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
-* **(.0)**  NEW:		Integrated Help desk widget for searching documentation.
-* **(.0)**  IMPROVED:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
-* **(.0)**  IMPROVED:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
-* **(.0)**  IMPROVED:	Major simplification of many options and plugin configuration.
-* **(.0)**  IMPROVED:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
-* **(.0)**  IMPROVED:	Tweaks and changes to UI.
-* **(.0)**  FIXED:		Minor issues with the MFA page.
-* **(.0)**  REMOVED:	Several unused/useless options, including "Mask WordPress Version".
+#### 9.0 Series
+*Released: 4th April 2020* - [Release Announcement](https://shsec.io/gy)
 
-= 8.7.0 - Series =
-*Released: 16th March, 2020* - [Release Notes](https://shsec.io/gy)
+**Note**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
-* **(.0)**  NEW:		[**PRO**] [Traffic Rate Limiting Feature](https://shsec.io/gv).
+* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
+* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
+* **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
+* **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
+* **(.0)  IMPROVED**:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
+* **(.0)  IMPROVED**:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
+* **(.0)  IMPROVED**:	Major simplification of many options and plugin configuration.
+* **(.0)  IMPROVED**:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
+* **(.0)  IMPROVED**:	Tweaks and changes to UI.
+* **(.0)  FIXED**:		Minor issues with the MFA page.
+* **(.0)  FIXED**:		Older Twig Library compatibility with PHP 7.4.
+* **(.0)  REMOVED**:	Several unused/useless options, including "Mask WordPress Version".
+
+#### 8.7 Series
+*Released: 16th March 2020* - [Release Announcement](https://shsec.io/gy)
+
+* **(.0)**  NEW:		[*PRO*] [Traffic Rate Limiting Feature](https://shsec.io/gv).
 * **(.0)**  ADDED:		Support for registration forms in plugins: Profile Builder and Paid Member Subscriptions
 * **(.0)**  IMPROVED:	Tweaks and changes to UI.
 * **(.0)**  FIXED:		Minor issues with the MFA page.
@@ -32,8 +36,8 @@
 * **(.3)**  IMPROVED:	Adjusted how Shield stores temporary WP options to prevent duplicates.
 * **(.3)**  FIXED:		Login backup-code wasn't always reset after it was used.
 * **(.3)**  FIXED:		IP address wasn't blocked even after committing an offense in 1 particular scenario.
-* **(.1)**  NEW:		[**PRO**] Deep scanning for valid email addresses when user registers with site.
-* **(.1)**  ADDED:		[**PRO**] New option allows users to turn on email-based two-factor authentication from their profile.
+* **(.1)**  NEW:		[*PRO*] Deep scanning for valid email addresses when user registers with site.
+* **(.1)**  ADDED:		[*PRO*] New option allows users to turn on email-based two-factor authentication from their profile.
 * **(.1)**  ADDED:		Support for manually blocking IP Ranges (not just single IPs).
 * **(.1)**  IMPROVED:	Two-Factor Authentication system has been rewritten and improved.
 * **(.1)**  IMPROVED:	Table ordering and descriptions for the IP Black List.
@@ -65,7 +69,7 @@
 * **(.0)**  ADDED:		Ability to whitelist requests so that they are never blacklisted.
 * **(.0)**  ADDED:		Ability to filter the IP White/Black list tables for a specific IP address.
 * **(.0)**  ADDED:		Support for repeated audit trail entries - so the logs don't get filled with repeated messages.
-* **(.0)**  ADDED:		[**PRO**] Option to provide complete, custom Content Security Policy headers.
+* **(.0)**  ADDED:		[*PRO*] Option to provide complete, custom Content Security Policy headers.
 * **(.0)**  IMPROVED:	Protection against a certain type of broken plugin installation if WordPress doesn't properly copy files.
 * **(.0)**  IMPROVED:	Redesigned Table UI for scan results.
 * **(.0)**  IMPROVED:	Redesigned Plugin/Theme File Guard.
@@ -116,7 +120,7 @@
 * **(.1)**  ADDED:		Initial support for repairing Themes that have been installed from WordPress.org.
 * **(.1)**  ADDED:		Support for using [WP Hashes.com](https://wphashes.com) for WordPress.org themes (already done for plugins).
 * **(.1)**  FIXED:		PHP notices in the logs.
-* **(.0)**  IMPROVED:	[**PRO**] Malware scanner now uses network intelligence to the gather information on malware results.
+* **(.0)**  IMPROVED:	[*PRO*] Malware scanner now uses network intelligence to the gather information on malware results.
 * **(.0)**  NEW:		Traffic Watcher feature is now free for all users (no longer Pro-only).
 * **(.0)**  IMPROVED:	Scanning cron is improved and more efficient.
 * **(.0)**  ADDED:		Bulk Delete/Repair/Ignore actions now available for Malware scan results.
@@ -138,7 +142,7 @@
 
 * **(.1)**  FIXED:		Error for sites pre-5.0 that don't have function `determine_locale()`
 * **(.0)**  IMPROVED:	Massive improvements to asynchronous scans in performance and reliability.
-* **(.0)**  ADDED:		[**PRO**] Possible to supply multiple email addresses for Administrator login notifications.
+* **(.0)**  ADDED:		[*PRO*] Possible to supply multiple email addresses for Administrator login notifications.
 * **(.0)**  ADDED:		New firewall whitelist rule to prevent firewall blocks when activating certain plugins.
 * **(.0)**  IMPROVED:	Prevent errors caused by other plugins not passing correctly-formatted data through WP filters.
 * **(.0)**  ADDED:		Japanese translations (14%).
@@ -157,11 +161,11 @@
 * **(.1)**  FIXED:		Shield Widget/Badge broken in some cases.
 * **(.1)**  ADDED:		You can force Shield to operate in any [locale, regardless of site locale](https://shsec.io/gistshieldlocale).
 * **(.1)**  ADDED:		Russian translations are now at 100% and some Dutch translations have been adjusted.
-* **(.0)**  NEW:		[**PRO**] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
+* **(.0)**  NEW:		[*PRO*] New Malware Scanner with automated file repair for WordPress.org Plugins and Core.
 * **(.0)**  NEW:		Complete overhaul of events system to better audit and collect statistics.
 * **(.0)**  IMPROVED:	Asynchronous scans - scans run in the background and so support more restrictive hosting.
 * **(.0)**  IMPROVED:	Plugin notification system is much improved.
-* **(.0)**  IMPROVED:	[**PRO**] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://shsec.io/fw).
+* **(.0)**  IMPROVED:	[*PRO*] Plugin Guard uses SVN repositories for file references [via WP Hashes API](https://shsec.io/fw).
 * **(.0)**  CHANGED:	Comment SPAM system now uses WordPress Transients API instead of dedicated DB table.
 * **(.0)**  ADDED:		100% Translation coverage for French, Spanish, German, Portuguese, Serbian, Bosnian, Dutch. (Russian on the way)
 * **(.0)**  CHANGED:	Major code cleaning/refactoring for much of the plugin. More to come.
@@ -175,9 +179,9 @@
 * **(.2)**  FIXED:		Welcome wizard launching was broken.
 * **(.1)**  NEW:		Adjustments and redesign of Shield options pages.
 * **(.1)**  IMPROVED:	Further prep for better internationalization.
-* **(.0)**  NEW:		[**PRO**] [Manual/Automatic User Suspension](https://shsec.io/fa)
+* **(.0)**  NEW:		[*PRO*] [Manual/Automatic User Suspension](https://shsec.io/fa)
 * **(.0)**  NEW:		Comment SPAM - Increase minimum number of approved comments before scanning is skipped
-* **(.0)**  NEW:		[**PRO**] Comment SPAM - Trusted user roles where comments scanning is skipped
+* **(.0)**  NEW:		[*PRO*] Comment SPAM - Trusted user roles where comments scanning is skipped
 * **(.0)**  IMPROVED:	AntiBot JS was improperly included when not required.
 * **(.0)**  IMPROVED:	Added a GeoIP caching table and removed bundled GeoIP database - greatly reduces download size.
 * **(.0)**  FIXED:		Inconsistent behaviour when PWA plugin is active and it infinitely reloads pages.
@@ -191,7 +195,7 @@
 * **(.2)**  IMPROVED:	Provided inline links for new [Bot Signals](https://shsec.io/ez) options.
 * **(.2)**  CHANGED:	Added a workaround for WPML plugin using old, buggy version of TWIG library.
 * **(.1)**  FIX:		Protection against 404 tracking blocking visitors in some cases.
-* **(.0)**  NEW:		[**PRO**] [7x New Bot Signals](https://shsec.io/ez) - rules to catch and block bad bots.
+* **(.0)**  NEW:		[*PRO*] [7x New Bot Signals](https://shsec.io/ez) - rules to catch and block bad bots.
 * **(.0)**  ADDED:		Date picker for filtering Audit Log entries.
 * **(.0)**  IMPROVED:	Audit Log viewer now combines entries from the same request into 1 for better readability.
 * **(.0)**  CHANGED:	Use a more refined clearing of WP Fastest Cache.
@@ -216,8 +220,8 @@
 * **(.2)**  FIX:		Firewall email notification was breaking in some instances.
 * **(.1)**  FIX:		IP retrieval.
 * **(.0)**  NEW:		Moved Import/Export UI from Wizard to main Shield Dashboard.
-* **(.0)**  NEW:		[**PRO**] Option to import/export settings using file downloads/uploads
-* **(.0)**  NEW:		[**PRO**] Option to allow visitors to automatically unblock themselves (once in 24hrs)
+* **(.0)**  NEW:		[*PRO*] Option to import/export settings using file downloads/uploads
+* **(.0)**  NEW:		[*PRO*] Option to allow visitors to automatically unblock themselves (once in 24hrs)
 * **(.0)**  NEW:		Integrated changelog directly into plugin admin for easy updates (between releases)
 * **(.0)**  FIXED:		WP Core files scanner now correctly ignores certain files as it used to do, pre-v7. e.g. wp-config-sample.php
 * **(.0)**  FIXED:		Shield was indicating plugin/theme file editing was possible, when it in-fact was disabled.
@@ -252,7 +256,7 @@
 *Released: 15th October, 2018* - [Release Notes](https://shsec.io/dg)
 
 * **(.9)**  FIXED:		Admin notices displaying to non-admins.
-* **(.7)**  ADDED:		[**PRO**] New option to specify usernames for Security Admin role.
+* **(.7)**  ADDED:		[*PRO*] New option to specify usernames for Security Admin role.
 * **(.7)**  IMPROVED:	Idle user detection.
 * **(.7)**  IMPROVED:	Support for redirect/cancel URLs in 2FA login page.
 * **(.7)**  CHANGED:	Final release before Shield v7. Small warning shown on plugins page if PHP < 5.4
@@ -273,9 +277,9 @@
 * **(.2)**  IMPROVED:	IP Whitelisting code enhanced and optimised
 * **(.2)**  IMPROVED:	Code cleaning and refactoring.
 * **(.1)**  FIXED:		Googlebot PHP error notice.
-* **(.0)**  NEW:		[**PRO**] 2FA Login Backup Codes - all users can create a backup login code in-case their MFA factors are temporarily unavailable.
-* **(.0)**  NEW:		[**PRO**] White Label - you can now specify custom image for 2FA login screen.
-* **(.0)**  ADDED:		[**PRO**] Custom Exclusion Rules for Traffic Watcher so you can exclude certain User Agents and request paths.
+* **(.0)**  NEW:		[*PRO*] 2FA Login Backup Codes - all users can create a backup login code in-case their MFA factors are temporarily unavailable.
+* **(.0)**  NEW:		[*PRO*] White Label - you can now specify custom image for 2FA login screen.
+* **(.0)**  ADDED:		[*PRO*] Custom Exclusion Rules for Traffic Watcher so you can exclude certain User Agents and request paths.
 * **(.0)**  ADDED:		Detection of official spiders/bots for Google, Bing, Apple and Yandex - these visitors will never get blacklisted.
 * **(.0)**  IMPROVED:	Two-Factor Authentication system much improved (+ critical bug fix).
 * **(.0)**  IMPROVED:	Audit Trail entries for 2FA login factors.
@@ -289,9 +293,9 @@
 = 6.9.0 - Series =
 *Released: 6th September, 2018* - [Release Notes](https://shsec.io/dc)
 
-* **(.0)**  NEW:		[**PRO**] [Traffic Watcher](https://shsec.io/c1) - live tracking of all requests to your site.
-* **(.0)**  NEW:		[**PRO**] [Yubikey](https://shsec.io/c1) - Allows for multiple Yubikeys on the same user profile.
-* **(.0)**  ADDED:		[**PRO**] Option to include listing of affected files within Hack Guard notification emails.
+* **(.0)**  NEW:		[*PRO*] [Traffic Watcher](https://shsec.io/c1) - live tracking of all requests to your site.
+* **(.0)**  NEW:		[*PRO*] [Yubikey](https://shsec.io/c1) - Allows for multiple Yubikeys on the same user profile.
+* **(.0)**  ADDED:		[*PRO*] Option to include listing of affected files within Hack Guard notification emails.
 * **(.0)**  ADDED:		Option to delete the Security Admin Access Key
 * **(.0)**  ADDED:		Option to add WooCommerce roles to 2FA-Email setting.
 * **(.0)**  CHANGED:	Basic Stats system now requires minimum PHP v5.4.
@@ -323,8 +327,8 @@
 * **(.2)**  FIXED:		Bug with Pwned passwords always being checked even if setting turned off.
 * **(.1)**  FIXED:		A couple of bugs with WooCommerce reCAPTCHA processing.
 * **(.1)**  FIXED:		A bug with user sessions cleaning
-* **(.0)**  ADDED:		[**PRO**] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
-* **(.0)**  ADDED:		[**PRO**] Option for all users to receive notification email upon login to their accounts.
+* **(.0)**  ADDED:		[*PRO*] White Label - ability to re-brand the entire Shield Security plugin to your company brand.
+* **(.0)**  ADDED:		[*PRO*] Option for all users to receive notification email upon login to their accounts.
 * **(.0)**  IMPROVED:	Completely rebuilt the bot and reCAPTCHA login protection system.
 * **(.0)**  IMPROVED:	Import/Export system hugely improved with respect to automated push of options from Master sites.
 * **(.0)**  IMPROVED:	A different approach to sessions management that should handle sessions a bit better.
@@ -333,17 +337,17 @@
 = 6.7 Series =
 *Released: 21st May, 2018* - [Release Notes](https://shsec.io/cx)
 
-* **(.2)**  ADDED:		[**PRO**] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
+* **(.2)**  ADDED:		[*PRO*] Admin Notes feature - Notes can now be easily deleted (editing will not be possible).
 * **(.2)**  UPDATED:	Some translations.
 * **(.2)**  FIXED:		A few bugs with the Insights Dashboard.
 * **(.2)**  FIXED:		Removed the dependency on jQuery with Invisible reCAPTCHA.
 * **(.1)**  FIXED:		A few bugs with the Insights Dashboard
-* **(.1)**  ADDED:		[**PRO**] Admin Notes feature - you can now add notes to the Shield plugin in the Insights Dashboard.
+* **(.1)**  ADDED:		[*PRO*] Admin Notes feature - you can now add notes to the Shield plugin in the Insights Dashboard.
 * **(.0)**  ADDED:		All-New Insights Dashboard providing a high-level overview of your site security, with recommendations.
 * **(.0)**  ADDED:		Helpful, explanatory videos directly into the Guided Welcome Wizard.
 * **(.0)**  ADDED:		A simple test cron to demonstrate whether your site crons are running.
-* **(.0)**  ADDED:		[**PRO**] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
-* **(.0)**  ADDED:		[**PRO**] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
+* **(.0)**  ADDED:		[*PRO*] Full support for new WordPress GDPR Privacy Policy controls for exporting and erasing data.
+* **(.0)**  ADDED:		[*PRO*] New GDPR guided wizard for exporting/erasing particular data based on custom search results.
 * **(.0)**  CHANGED:	Guided Wizards now load through WP admin to fix ajax problems for poorly configured SSL on some sites
 * **(.0)**  IMPROVED:	Upgraded Bootstrap library to 4.1.1.
 * **(.0)**  IMPROVED:	Compatibility with AIO Events Cal - they like to force their old Twig libraries on everyone else.
@@ -359,7 +363,7 @@
 * **(.6)**  ADDED:		Workaround for a [ridiculous NGG bug](https://wordpress.org/support/topic/forcefully-executing-wp_footer-not-compatible-with-other-plugins/).
 * **(.1-4)**  FIXED:	Various small fixes and improvements
 * **(.4)**  FIXED:		PHP Fatal Error on wp object cache.
-* **(.0)**  NEW:		[**PRO**] [Keyless Activation of Pro licenses](https://shsec.io/c1).
+* **(.0)**  NEW:		[*PRO*] [Keyless Activation of Pro licenses](https://shsec.io/c1).
 * **(.0)**  ADDED:		[WordPress Password Policies](https://shsec.io/c2).
 * **(.0)**  ADDED:		Pwned Passwords Detection.
 * **(.0)**  IMPROVED:	Major rewrite of plugin AJAX handling.
@@ -372,7 +376,7 @@
 * **(.0)**  IMPROVED:		[Plugin Guard](https://shsec.io/bq) better handles the case where a plugin/theme has been entirely renamed/removed.
 * **(.0)**  IMPROVED:		Attempts to access the XML-RPC system when it's disabled will now result in a transgression increment in the IP Black List
 * **(.0)**  IMPROVED:		Try to prevent black listing the server's own public IP address where visitor IP address detection is not correctly configured.
-* **(.0)**  ADDED:			[**PRO**] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
+* **(.0)**  ADDED:			[*PRO*] Provisional support for not processing 2FA logins for Woocommerce Social Login plugin.
 * **(.0)**  FIXED:			Plugin Guard better handles ignoring non-WordPress.org Plugins/Themes
 * **(.0)**  FIXED:			A few small bugs
 
@@ -380,7 +384,7 @@
 *Released: 26th February, 2018* - [Release Notes](https://shsec.io/br)
 
 * **(.1-4)**  FIXED:		Various Fixes
-* **(.0)**  ADDED:			[**PRO**] New Scanner to [detect file changes for active plugins and themes](https://shsec.io/bq)
+* **(.0)**  ADDED:			[*PRO*] New Scanner to [detect file changes for active plugins and themes](https://shsec.io/bq)
 * **(.0)**  IMPROVED:		Automatic updates for vulnerable plugins ignores [automatic updates delay setting](https://shsec.io/bc)
 * **(.0)**  CHANGED:		Email notifications for scanners will now link to the Wizard where possible, instead of listing files.
 
@@ -390,7 +394,7 @@
 * **(.3)**  FIXED:			Bug with automatic updates delay setting
 * **(.2)**  CHANGED:		Changed a text that seems to cause servers to swallow-up emails. [See here for more reliable email](https://shsec.io/bi)
 * **(.1)**  FIXED:			Options page javascript to work around conflicts.
-* **(.0)**  ADDED:			[**PRO**] [Automatic updates stability delay](https://shsec.io/bc)
+* **(.0)**  ADDED:			[*PRO*] [Automatic updates stability delay](https://shsec.io/bc)
 * **(.0)**  IMPROVED:		Complete [plugin UI rebuild](https://shsec.io/bd), using the new Bootstrap 4.
 * **(.0)**  FIXED:			A few bugs with Google Authenticator.
 
@@ -404,8 +408,8 @@
 * **(.0)**  IMPROVED:		Major overhaul of the Shield User Sessions system.
 * **(.0)**  IMPROVED:		Link the Security Admin authentication with the new Sessions system.
 * **(.0)**  IMPROVED:		Major overhaul to plugin's user meta data storage, limiting to a single DB entry for all data.
-* **(.0)**  ADDED:			[**PRO**] Ability to increase frequency of file system scans up to once every hour.
-* **(.0)**  ADDED:			[**PRO**] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
+* **(.0)**  ADDED:			[*PRO*] Ability to increase frequency of file system scans up to once every hour.
+* **(.0)**  ADDED:			[*PRO*] Add a "remember me" option, to allow users to skip Multi-factor authentication for a set number of days.
 
 = 6.1 Series =
 *Released: 15th January, 2018* - [Release Notes](https://shsec.io/ay)
@@ -421,14 +425,14 @@
 *Released: 18th December, 2017*
 
 * **(.0)**  ADDED:			All-new Shield Welcome and Setup Wizard - more helpful guided wizards to come.
-* **(.0)**  ADDED:			[**PRO**] [Shield options import and export](https://shsec.io/at)
-* **(.0)**  ADDED:			[**PRO**] In conjunction with import/export - Shield Security Network: automated options syncing.
+* **(.0)**  ADDED:			[*PRO*] [Shield options import and export](https://shsec.io/at)
+* **(.0)**  ADDED:			[*PRO*] In conjunction with import/export - Shield Security Network: automated options syncing.
 * **(.0)**  CHANGED:		Going forward, new features and options will [support only PHP 5.4+](https://shsec.io/au). Existing features will remain unaffected.
 
 = 5.20 Series =
 *Released: 11th December, 2017*
 
-* **(.0)**  IMPROVED:		[**PRO**] Audit Trail length are configurable. Length for free is 50 entries (the original unpaginated limit)
+* **(.0)**  IMPROVED:		[*PRO*] Audit Trail length are configurable. Length for free is 50 entries (the original unpaginated limit)
 * **(.0)**  IMPROVED:		Large redesign of options sections to be more intuitive and cleaner
 * **(.0)**  IMPROVED:		Added dedicated help section for each module.
 * **(.0)**  IMPROVED:		Certain modules have an new *Actions* centre, such a Audit Trail viewer and User Sessions manager
@@ -439,16 +443,16 @@
 *Released: 4th December, 2017*
 
 * **(.1)**  FIXED:			Plugin Vulnerabilities scan for premium plugins.
-* **(.0)**  ADDED:			[**PRO**] Automated WordPress plugins vulnerability scanner with auto updates email notifications
+* **(.0)**  ADDED:			[*PRO*] Automated WordPress plugins vulnerability scanner with auto updates email notifications
 * **(.0)**  ADDED:			Added Google reCAPTCHA support for register/forget password pages.
-* **(.0)**  ADDED:			[**PRO**] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
-* **(.0)**  ADDED:			[**PRO**] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
+* **(.0)**  ADDED:			[*PRO*] Support for Multi-Factor Authentication for WooCommerce and other 3rd party plugins.
+* **(.0)**  ADDED:			[*PRO*] Bot-protection/Google reCAPTCHA support for BuddyPress register pages.
 
 = 5.18 Series =
 *Released: 27th November, 2017*
 
-* **(.0)**  ADDED:			[**PRO**] Invisible Google reCAPTCHA option.
-* **(.0)**  ADDED:			[**PRO**] Support for Google reCAPTCHA themes - light and dark.
+* **(.0)**  ADDED:			[*PRO*] Invisible Google reCAPTCHA option.
+* **(.0)**  ADDED:			[*PRO*] Support for Google reCAPTCHA themes - light and dark.
 * **(.0)**  IMPROVEMENT:	Google reCAPTCHA is more reliable and configurable.
 
 = 5.17 Series =
@@ -456,9 +460,9 @@
 
 * **(.0)**  ADDED:			Shield Security goes Pro! Added new options and extras to premium clients.
 * **(.0)**  IMPROVEMENT:	Fix and improvement to Google reCAPTCHA.
-* **(.0)**  ADDED:			[**PRO**] Support for Woocommerce and Easy Digital Downloads login/registration form protection.
-* **(.0)**  ADDED:			[**PRO**] Ability to customise most user-facing texts.
-* **(.0)**  ADDED:			[**PRO**] Extra IP Transgression signal.
+* **(.0)**  ADDED:			[*PRO*] Support for Woocommerce and Easy Digital Downloads login/registration form protection.
+* **(.0)**  ADDED:			[*PRO*] Ability to customise most user-facing texts.
+* **(.0)**  ADDED:			[*PRO*] Extra IP Transgression signal.
 
 = 5.16 Series =
 *Released: 16th October, 2017*
