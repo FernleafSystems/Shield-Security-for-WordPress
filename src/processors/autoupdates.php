@@ -373,20 +373,21 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 
 		$aTrkd = $this->getTrackedAssetsVersions();
 
+		$oWpPlugins = Services::WpPlugins();
 		if ( !empty( $aUpdateResults[ 'plugin' ] ) && is_array( $aUpdateResults[ 'plugin' ] ) ) {
 			$bHasPluginUpdates = false;
 			$aTrkdPlugs = $aTrkd[ 'plugins' ];
 
 			$aTempContent[] = __( 'Plugins Updated:', 'wp-simple-firewall' );
 			foreach ( $aUpdateResults[ 'plugin' ] as $oUpdate ) {
-				$oItem = $oUpdate->item;
-				$bValidUpdate = isset( $oUpdate->result ) && $oUpdate->result && !empty( $oUpdate->name )
-								&& isset( $aTrkdPlugs[ $oItem->plugin ] )
-								&& version_compare( $aTrkdPlugs[ $oItem->plugin ], $oUpdate->item->new_version, '<' );
+				$oP = $oWpPlugins->getPluginAsVo( $oUpdate->item->plugin, true );
+				$bValidUpdate = !empty( $oUpdate->result ) && !empty( $oUpdate->name )
+								&& isset( $aTrkdPlugs[ $oP->file ] )
+								&& version_compare( $aTrkdPlugs[ $oP->file ], $oP->Version, '<' );
 				if ( $bValidUpdate ) {
 					$aTempContent[] = ' - '.sprintf(
 							__( 'Plugin "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
-							$oUpdate->name, $aTrkdPlugs[ $oItem->plugin ], $oUpdate->item->new_version );
+							$oUpdate->name, $aTrkdPlugs[ $oP->file ], $oP->Version );
 					$bHasPluginUpdates = true;
 				}
 			}
