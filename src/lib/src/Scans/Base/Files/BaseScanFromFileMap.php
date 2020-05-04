@@ -28,9 +28,6 @@ abstract class BaseScanFromFileMap {
 				if ( $oItem instanceof Scans\Base\BaseResultItem ) {
 					$oResultSet->addItem( $oItem );
 				}
-				if ( $oAction->usleep > 0 ) {
-					usleep( $oAction->usleep );
-				}
 			}
 		}
 

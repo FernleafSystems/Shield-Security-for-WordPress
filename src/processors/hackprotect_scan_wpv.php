@@ -31,14 +31,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param bool            $bDoAutoUpdate
+	 * @param bool             $bDoAutoUpdate
 	 * @param \stdClass|string $mItem
 	 * @return bool
 	 */
 	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
 		$sItemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
 		// TODO Audit.
-		return $bDoAutoUpdate || ( $this->getPluginVulnerabilities( $sItemFile ) > 0 );
+		return $bDoAutoUpdate || count( $this->getPluginVulnerabilities( $sItemFile ) ) > 0;
 	}
 
 	/**
@@ -140,6 +140,7 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 					  ->renderTemplate( 'snippets/plugin-vulnerability.php', $aRenderData );
 		}
 	}
+
 	/**
 	 * @param string $sFile
 	 * @return Shield\Scans\Wpv\WpVulnDb\WpVulnVO[]
@@ -149,7 +150,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 		$oVulnerableRes = $this->getThisScanCon()->getAllResults();
 		return array_map(
 			function ( $oItem ) {
-				/** @var Shield\Scans\Wpv\ResultItem $oItem */
 				return $oItem->getWpVulnVo();
 			},
 			$oVulnerableRes->getItemsForSlug( $sFile )

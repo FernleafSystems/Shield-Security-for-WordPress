@@ -44,8 +44,8 @@ abstract class BaseBuildScanAction {
 			$oAction->created_at = Services::Request()->ts();
 			$oAction->started_at = 0;
 			$oAction->finished_at = 0;
-			$oAction->usleep = (int)( 1000000*min( 0.50, apply_filters(
-					$this->getCon()->prefix( 'scan_item_sleep' ),
+			$oAction->usleep = (int)( 1000000*max( 0, apply_filters(
+					$this->getCon()->prefix( 'scan_block_sleep' ),
 					0, $oAction->scan
 				) ) );
 		}
