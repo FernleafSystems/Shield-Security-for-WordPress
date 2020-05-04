@@ -213,7 +213,7 @@ class Options {
 
 	/**
 	 * Determines whether the given option key is a valid option
-	 * @param string
+	 * @param string $sOptionKey
 	 * @return bool
 	 */
 	public function isValidOptionKey( $sOptionKey ) {

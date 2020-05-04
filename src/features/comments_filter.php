@@ -184,7 +184,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 
 	protected function updateHandler() {
 		$oOpts = $this->getOptions();
-		if ( !$oOpts->isOpt( 'enable_google_recaptcha_comments', 'Y' ) ) {
+		if ( $oOpts->isValidOptionKey( 'enable_google_recaptcha_comments' ) && !$oOpts->isOpt( 'enable_google_recaptcha_comments', 'Y' ) ) {
 			$oOpts->setOpt( 'google_recaptcha_style_comments', 'disabled' );
 		}
 
