@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TestCacheDirWrite;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AntibotSetup {
@@ -30,8 +31,13 @@ class AntibotSetup {
 
 		$aProtectionProviders = [];
 		if ( $oOpts->isEnabledCooldown() ) {
-			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\CoolDown() )
-				->setMod( $oMod );
+			$bCanWrite = ( new TestCacheDirWrite() )
+				->setMod( $this->getCon()->getModule_Plugin() )
+				->canWrite();
+			if ( $bCanWrite ) {
+				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\CoolDown() )
+					->setMod( $oMod );
+			}
 		}
 
 		if ( $oOpts->isEnabledGaspCheck() ) {

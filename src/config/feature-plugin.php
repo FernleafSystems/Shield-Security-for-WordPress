@@ -460,6 +460,13 @@
       "section":      "section_non_ui",
       "type":         "int",
       "default":      -1
+    },
+    {
+      "key":          "cache_dir_write_test",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {

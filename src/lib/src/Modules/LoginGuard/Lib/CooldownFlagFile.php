@@ -33,7 +33,7 @@ class CooldownFlagFile {
 	 * @return string
 	 */
 	public function getFlagFilePath() {
-		return path_join( $this->getCon()->getRootDir(), 'mode.login_throttled' );
+		return path_join( $this->getCon()->getPluginCachePath(), 'mode.login_throttled' );
 	}
 
 	/**
