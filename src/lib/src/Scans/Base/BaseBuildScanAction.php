@@ -46,7 +46,7 @@ abstract class BaseBuildScanAction {
 			$oAction->finished_at = 0;
 			$oAction->usleep = (int)( 1000000*max( 0, apply_filters(
 					$this->getCon()->prefix( 'scan_block_sleep' ),
-					0, $oAction->scan
+					$oAction::DEFAULT_SLEEP_SECONDS, $oAction->scan
 				) ) );
 		}
 	}

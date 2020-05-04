@@ -23,6 +23,7 @@ abstract class BaseScanActionVO {
 	use StdClassAdapter;
 
 	const QUEUE_GROUP_SIZE_LIMIT = 1;
+	const DEFAULT_SLEEP_SECONDS = 0;
 
 	/**
 	 * @return BaseResultItem|mixed
