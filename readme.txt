@@ -371,7 +371,7 @@ You will always be able to use Shield Security and its free features in-full.
 [Go Pro for just $1/month](https://shsec.io/aa).
 
 #### 9.0 Series
-*Released: 4th April 2020* - [Release Announcement](https://shsec.io/gy)
+*Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
 
 **Note**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
@@ -380,9 +380,11 @@ You will always be able to use Shield Security and its free features in-full.
 * **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
 * **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
 * **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
+* **(.0)  NEW**:		Debug page to show summary and important information for debugging.
+* **(.0)  IMPROVED**:	Hourly and Daily crons set to specific run times.
 * **(.0)  IMPROVED**:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
 * **(.0)  IMPROVED**:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
-* **(.0)  IMPROVED**:	Major simplification of many options and plugin configuration.
+* **(.0)  IMPROVED**:	Simplification of many options and plugin configuration.
 * **(.0)  IMPROVED**:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
 * **(.0)  IMPROVED**:	Tweaks and changes to UI.
 * **(.0)  FIXED**:		Minor issues with the MFA page.

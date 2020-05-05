@@ -10,8 +10,6 @@ if ( isset( $oICWP_Wpsf ) ) {
 	return;
 }
 
-// By requiring this file here, we assume we wont need to require it anywhere else.
-
 class ICWP_WPSF_Shield_Security {
 
 	/**
