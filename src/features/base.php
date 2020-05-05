@@ -1123,7 +1123,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 				else {
 					$sHelpVideoUrl = '';
 				}
-				$aOptions[ $nSectionKey ][ 'help_video_url' ] = $sHelpVideoUrl;
+				$aOptions[ $nSectionKey ][ 'help_video_url' ] = ''; /* Remove on Shield 9.0 */
 			}
 		}
 
