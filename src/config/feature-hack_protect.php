@@ -356,21 +356,6 @@
       "description": "Show links to re-install plugins and offer re-install when activating plugins."
     },
     {
-      "key":          "ptg_candiskwrite",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "boolean",
-      "default":      false
-    },
-    {
-      "key":              "ptg_candiskwrite_at",
-      "section":          "section_non_ui",
-      "transferable":     false,
-      "tracking_exclude": true,
-      "type":             "integer",
-      "default":          false
-    },
-    {
       "key":          "snapshot_users",
       "section":      "section_non_ui",
       "transferable": false,

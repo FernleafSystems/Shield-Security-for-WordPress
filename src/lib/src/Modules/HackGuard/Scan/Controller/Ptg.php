@@ -100,7 +100,7 @@ class Ptg extends BaseForAssets {
 		$oMod = $this->getMod();
 		return parent::isScanningAvailable()
 			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
-			   && $oMod->canPtgWriteToDisk();
+			   && $oMod->canCacheDirWrite();
 	}
 
 	/**

@@ -18,6 +18,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	private static $bVisitorIsWhitelisted;
 
 	/**
+	 * @return bool
+	 */
+	public function canCacheDirWrite() {
+		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->canWrite();
+	}
+
+	/**
 	 * @return \ICWP_WPSF_Processor_Sessions
 	 */
 	public function getSessionsProcessor() {

@@ -30,14 +30,9 @@ class AntibotSetup {
 		$oOpts = $this->getOptions();
 
 		$aProtectionProviders = [];
-		if ( $oOpts->isEnabledCooldown() ) {
-			$bCanWrite = ( new TestCacheDirWrite() )
-				->setMod( $this->getCon()->getModule_Plugin() )
-				->canWrite();
-			if ( $bCanWrite ) {
-				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\CoolDown() )
-					->setMod( $oMod );
-			}
+		if ( $oOpts->isEnabledCooldown() && $oMod->canCacheDirWrite() ) {
+			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\CoolDown() )
+				->setMod( $oMod );
 		}
 
 		if ( $oOpts->isEnabledGaspCheck() ) {

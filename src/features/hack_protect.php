@@ -173,7 +173,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$oOpts = $this->getOptions();
 
 		$this->cleanFileExclusions();
-		$oOpts->setOpt( 'ptg_candiskwrite_at', 0 );
 
 		if ( $oOpts->isOptChanged( 'scan_frequency' ) ) {
 			/** @var \ICWP_WPSF_Processor_HackProtect $oPro */
@@ -286,39 +285,11 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	/**
 	 * @return bool
 	 */
-	public function canPtgWriteToDisk() {
-		$nNow = Services::Request()->ts();
-		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
-
-		$bCanWrite = $this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
-		if ( !$bCanWrite ) {
-			$oFS = Services::WpFs();
-			$sDir = $this->getPtgSnapsBaseDir();
-
-			if ( $sDir && $oFS->mkdir( $sDir ) ) {
-				$sTestFile = path_join( $sDir, 'test.txt' );
-				$oFS->putFileContent( $sTestFile, 'test-'.$nNow );
-				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
-				if ( $sContents === 'test-'.$nNow ) {
-					$oFS->deleteFile( $sTestFile );
-					$bCanWrite = !$oFS->exists( $sTestFile );
-					$this->setOpt( 'ptg_candiskwrite', $bCanWrite );
-				}
-				$this->setOpt( 'ptg_candiskwrite_at', $nNow );
-			}
-		}
-
-		return $bCanWrite;
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isPtgEnabled() {
 		return $this->isModuleEnabled() && $this->isPremium()
 			   && $this->isOpt( 'ptg_enable', 'enabled' )
 			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
-			   && $this->canPtgWriteToDisk();
+			   && $this->canCacheDirWrite();
 	}
 
 	/**
@@ -366,12 +337,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		$aWarnings = [];
 
 		switch ( $sSection ) {
-
-			case 'section_scan_ptg': //TODO
-				if ( !$this->canPtgWriteToDisk() ) {
-					$aWarnings[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: "%s"', 'wp-simple-firewall' ), $this->getPtgSnapsBaseDir() );
-				}
-				break;
 
 			case 'section_realtime':
 				$bCanHandshake = $this->getCon()
@@ -791,5 +756,34 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	public function getScanController() {
 		return $this->getScanQueueController();
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function canPtgWriteToDisk() {
+		$nNow = Services::Request()->ts();
+		$bLastCheckExpired = ( $nNow - $this->getOpt( 'ptg_candiskwrite_at', 0 ) ) > DAY_IN_SECONDS;
+
+		$bCanWrite = $this->getOpt( 'ptg_candiskwrite' ) && !$bLastCheckExpired;
+		if ( !$bCanWrite ) {
+			$oFS = Services::WpFs();
+			$sDir = $this->getPtgSnapsBaseDir();
+
+			if ( $sDir && $oFS->mkdir( $sDir ) ) {
+				$sTestFile = path_join( $sDir, 'test.txt' );
+				$oFS->putFileContent( $sTestFile, 'test-'.$nNow );
+				$sContents = $oFS->exists( $sTestFile ) ? $oFS->getFileContent( $sTestFile ) : '';
+				if ( $sContents === 'test-'.$nNow ) {
+					$oFS->deleteFile( $sTestFile );
+					$bCanWrite = !$oFS->exists( $sTestFile );
+					$this->setOpt( 'ptg_candiskwrite', $bCanWrite );
+				}
+				$this->setOpt( 'ptg_candiskwrite_at', $nNow );
+			}
+		}
+
+		return $bCanWrite;
 	}
 }

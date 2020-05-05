@@ -247,6 +247,10 @@ class Strings extends Base\Strings {
 					sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Doesn't currently detect missing files.", 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this feature turned on, at all times.', 'wp-simple-firewall' ) )
 				];
+				if ( !$oMod->canCacheDirWrite()) {
+					$sDescription[] = sprintf( __( 'Sorry, this feature is not available because we cannot write to disk at this location: %s', 'wp-simple-firewall' ),
+						'<code>'.$oMod->getPtgSnapsBaseDir().'</code>' );
+				}
 				break;
 
 			case 'file_repair_areas' :
