@@ -19,20 +19,25 @@ class FileLockerController {
 	protected function canRun() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		return ( count( $oOpts->getFilesToLock() ) > 0 )
 			   && $this->getCon()
 					   ->getModule_Plugin()
 					   ->getShieldNetApiController()
-					   ->canHandshake();
+					   ->canHandshake()
+			   && $oMod->getDbHandler_FileLocker()->isTable();
 	}
 
 	protected function run() {
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
-			if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
-				$this->deleteAllLocks();
-			}
-			else {
-				$this->runAnalysis();
+			if ( !$this->getCon()->plugin_deactivating ) {
+				if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
+					$this->deleteAllLocks();
+				}
+				else {
+					$this->runAnalysis();
+				}
 			}
 		} );
 	}

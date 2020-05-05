@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool                                     $is_activating
  * @property bool                                     $modules_loaded
  * @property bool                                     $rebuild_options
+ * @property bool                                     $plugin_deactivating
  * @property bool                                     $plugin_deleting
  * @property bool                                     $plugin_reset
  * @property string                                   $file_forceoff
@@ -279,6 +280,7 @@ class Controller {
 		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
 		if ( $this->isPluginAdmin() ) {
 			do_action( $this->prefix( 'deactivate_plugin' ) );
+			$this->plugin_deactivating = true;
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 				$this->plugin_deleting = true;
 				do_action( $this->prefix( 'delete_plugin' ) );
