@@ -183,15 +183,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	protected function updateHandler() {
-		$oOpts = $this->getOptions();
-		if ( $oOpts->isValidOptionKey( 'enable_google_recaptcha_comments' ) && !$oOpts->isOpt( 'enable_google_recaptcha_comments', 'Y' ) ) {
-			$oOpts->setOpt( 'google_recaptcha_style_comments', 'disabled' );
-		}
-
-		$oOpts->setOpt( 'comments_cooldown', $oOpts->getOpt( 'comments_cooldown_interval' ) );
-		$oOpts->setOpt( 'comments_expire', $oOpts->getOpt( 'comments_token_expire_interval' ) );
-		$oOpts->setOpt( 'human_spam_items', $oOpts->getOpt( 'enable_comments_human_spam_filter_items' ) );
-
 		$this->ensureCorrectCaptchaConfig();
 	}
 

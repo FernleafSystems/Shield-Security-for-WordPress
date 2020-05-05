@@ -2186,12 +2186,4 @@ class Controller {
 				->run();
 		}
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isPluginDeleting() {
-		return (bool)$this->plugin_deleting;
-	}
 }

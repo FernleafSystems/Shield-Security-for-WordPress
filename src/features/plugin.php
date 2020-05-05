@@ -101,7 +101,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	protected function updateHandler() {
-		parent::updateHandler();
 		$this->deleteAllPluginCrons();
 	}
 
@@ -730,29 +729,5 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isDisplayPluginBadge() {
-		return false;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getCookieIdBadgeState() {
-		return $this->prefix( 'badgeState' );
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function supplyPluginReportEmail() {
-		return $this->getPluginReportEmail();
 	}
 }

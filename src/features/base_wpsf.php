@@ -341,36 +341,4 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
 		];
 	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getPluginDefaultRecipientAddress() {
-		return $this->getPluginReportEmail();
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getGoogleRecaptchaSecretKey() {
-		return $this->getCaptchaCfg()->secret;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getGoogleRecaptchaSiteKey() {
-		return $this->getCaptchaCfg()->key;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getCaptchaStyle() {
-		return $this->getCaptchaCfg()->theme;
-	}
 }

@@ -2043,11 +2043,4 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function savePluginOptions() {
 		$this->saveModOptions();
 	}
-
-	/**
-	 * @deprecated 9.0
-	 */
-	protected function doExtraSubmitProcessing() {
-		$this->preProcessOptions();
-	}
 }

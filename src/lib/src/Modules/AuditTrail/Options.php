@@ -159,12 +159,4 @@ class Options extends Base\ShieldOptions {
 	public function updateCTLastSnapshotAt() {
 		return $this->setOptAt( 'ct_last_snapshot_at' );
 	}
-
-	/**
-	 * @return int
-	 * @deprecated 9.0
-	 */
-	public function getDefaultMaxEntries() {
-		return $this->getDef( 'audit_trail_free_max_entries' );
-	}
 }
