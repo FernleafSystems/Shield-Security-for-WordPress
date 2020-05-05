@@ -9,15 +9,6 @@ class Select extends Base\Select {
 	use Common;
 
 	/**
-	 * @param int $nNotifiedInterval
-	 * @return $this
-	 */
-	public function filterForCron( $nNotifiedInterval ) {
-		return $this->filterByNotRecentlyNotified( $nNotifiedInterval )
-					->filterByNotIgnored();
-	}
-
-	/**
 	 * @param string $sScan
 	 * @return int
 	 */

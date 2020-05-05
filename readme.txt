@@ -284,7 +284,7 @@ Whitelist. So if you have the same address in both lists, it'll be whitelisted a
 = What changes go into each version? =
 
 The changelog outlines the main changes for each release. We group changes by minor release "Series". Changes in smaller "point" releases are highlighted
- using **(v.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(v.1)**
+ using **(.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(.1)**
 
 = Can I assist with development? =
 
@@ -349,7 +349,7 @@ Use the following filter and return the HTML/Text you wish to display:
 
 Use the following filter and return the role in the function:
 
-`add_filter( 'icwp_wpsf-login-notification-email-role', 'your_function_to_return_role' );`
+`add_filter( 'icwp-wpsf-login-notification-email-role', 'your_function_to_return_role' );`
 
 Possible options are: network_admin, administrator, editor, author, contributor, subscriber
 
@@ -370,12 +370,25 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.7.0 - Current Release =
-*Released: 16th March, 2020* - [Release Notes](https://shsec.io/gy)
+#### 9.0 Series
+*Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
 
-* **(v.0)**  NEW:		[**PRO**] [Traffic Rate Limiting Feature](https://shsec.io/gv).
-* **(v.0)**  ADDED:		Support for registration forms in plugins: Profile Builder and Paid Member Subscriptions
-* **(v.0)**  IMPROVED:	Tweaks and changes to UI.
-* **(v.0)**  FIXED:		Minor issues with the MFA page.
+**Note**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
-#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
+* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
+* **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
+* **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
+* **(.0)  NEW**:		Debug page to show summary and important information for debugging.
+* **(.0)  IMPROVED**:	Hourly and Daily crons set to specific run times.
+* **(.0)  IMPROVED**:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
+* **(.0)  IMPROVED**:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
+* **(.0)  IMPROVED**:	Simplification of many options and plugin configuration.
+* **(.0)  IMPROVED**:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
+* **(.0)  IMPROVED**:	Tweaks and changes to UI.
+* **(.0)  FIXED**:		Minor issues with the MFA page.
+* **(.0)  FIXED**:		Older Twig Library compatibility with PHP 7.4.
+* **(.0)  REMOVED**:	Several unused/useless options, including "Mask WordPress Version".
+
+##### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)

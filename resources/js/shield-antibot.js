@@ -6,7 +6,7 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 				jQuery( icwp_wpsf_vars_lpantibot.form_selectors ).each(
 					function ( _ ) {
 						if ( this !== null ) {
-							if ( icwp_wpsf_vars_lpantibot.flags.recap ) {
+							if ( icwp_wpsf_vars_lpantibot.flags.captcha ) {
 								insertPlaceHolder_Recap( this );
 							}
 							if ( icwp_wpsf_vars_lpantibot.flags.gasp ) {
@@ -16,6 +16,21 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 					}
 				);
 
+				jQuery( 'form' ).each(
+					function ( _ ) {
+						if ( this !== null ) {
+							cleanDuplicates( this );
+						}
+					}
+				);
+
+				jQuery( 'p.shield_gasp_placeholder' ).each(
+					function ( _ ) {
+						if ( this !== null ) {
+							processPlaceHolder_Gasp( this );
+						}
+					}
+				);
 			} );
 		};
 
@@ -25,19 +40,34 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 			jQuery( recap_div ).insertBefore( jQuery( ':submit', form ) );
 		};
 
-		/**
-		 */
-		var insertPlaceHolder_Gasp = function ( form ) {
-			var uniq = icwp_wpsf_vars_lpantibot.uniq;
-			var shiep = document.createElement( "p" );
-			shiep.id = 'icwp_wpsf_login_p' + uniq;
-			shiep.classList.add( 'icwpImHuman_' + uniq );
-			shiep.innerHTML = '';
+		var cleanDuplicates = function ( form ) {
+			let $oPlaceholders = jQuery( 'p.shield_gasp_placeholder', form );
+			if ( $oPlaceholders.length > 1 ) {
+				$oPlaceholders.each(
+					function ( nkey ) {
+						if ( nkey > 0 && this !== null ) {
+							jQuery( this ).remove();
+						}
+					}
+				);
+			}
+		};
 
+		var insertPlaceHolder_Gasp = function ( form ) {
+			if ( jQuery( 'p.shield_gasp_placeholder', form ).length === 0 ) {
+				let the_p = document.createElement( "p" );
+				the_p.classList.add( 'shield_gasp_placeholder' );
+				the_p.innerHTML = icwp_wpsf_vars_lpantibot.strings.loading + '&hellip;';
+				jQuery( the_p ).insertBefore( jQuery( ':submit', form ) );
+			}
+		};
+
+		var processPlaceHolder_Gasp = function ( shiep ) {
 			var shishoney = document.createElement( "input" );
 			shishoney.type = "hidden";
 			shishoney.name = "icwp_wpsf_login_email";
 
+			shiep.innerHTML = '';
 			shiep.appendChild( shishoney );
 
 			var shieThe_lab = document.createElement( "label" );
@@ -50,15 +80,22 @@ if ( typeof icwp_wpsf_vars_lpantibot !== 'undefined' ) {
 			shieThe_lab.appendChild( shieThe_cb );
 			shieThe_lab.appendChild( shieThe_txt );
 
-			jQuery( shiep ).insertBefore( jQuery( ':submit', form ) );
+			let $oPH = jQuery( shiep );
+			if ( [ 'p', 'P' ].includes( $oPH.parent()[ 0 ].nodeName ) ) {
+				/** try to prevent nested paragraphs */
+				jQuery( shiep ).insertBefore( $oPH.parent() )
+			}
 
-			form.onsubmit = function () {
-				if ( shieThe_cb.checked !== true ) {
-					alert( icwp_wpsf_vars_lpantibot.strings.alert );
-					return false;
-				}
-				return true;
-			};
+			let $oParentForm = $oPH.closest( 'form' );
+			if ( $oParentForm.length > 0 ) {
+				$oParentForm[ 0 ].onsubmit = function () {
+					if ( shieThe_cb.checked !== true ) {
+						alert( icwp_wpsf_vars_lpantibot.strings.alert );
+						return false;
+					}
+					return true;
+				};
+			}
 		};
 	}();
 	iCWP_WPSF_LoginGuard_Gasp.initialise();

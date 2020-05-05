@@ -21,7 +21,7 @@
       "title_short": "Disable Module",
       "summary":     [
         "Purpose - Helps you see at a glance how effective the plugin has been.",
-        "Recommendation - Keep the Statistics feature turned on."
+        "Recommendation - Keep the Events feature turned on."
       ]
     },
     {
@@ -38,8 +38,8 @@
       "link_info":   "",
       "link_blog":   "",
       "name":        "Enable Events",
-      "summary":     "Enable (or Disable) The Statistics module",
-      "description": "Un-Checking this option will completely disable the Statistics module"
+      "summary":     "Enable (or Disable) The Events module",
+      "description": "Un-Checking this option will completely disable the Events module"
     }
   ],
   "definitions": {

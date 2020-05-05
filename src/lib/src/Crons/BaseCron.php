@@ -9,8 +9,6 @@ abstract class BaseCron {
 	use Shield\Crons\StandardCron;
 	use Shield\Modules\ModConsumer;
 
-	/**
-	 */
 	public function run() {
 		$this->setupCron();
 	}

@@ -11,7 +11,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	private $oLoginIntentController;
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		/**
@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				 ->sendEmailVerifyCanSend();
 		}
 
-		$aIds = $this->getAntiBotFormSelectors();
+		$aIds = $oOpts->getAntiBotFormSelectors();
 		foreach ( $aIds as $nKey => $sId ) {
 			$sId = trim( strip_tags( $sId ) );
 			if ( empty( $sId ) ) {
@@ -36,9 +36,32 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				$aIds[ $nKey ] = $sId;
 			}
 		}
-		$this->setOpt( 'antibot_form_ids', array_values( array_unique( $aIds ) ) );
+		$oOpts->setOpt( 'antibot_form_ids', array_values( array_unique( $aIds ) ) );
 
 		$this->cleanLoginUrlPath();
+		$this->ensureCorrectCaptchaConfig();
+	}
+
+	protected function updateHandler() {
+		$this->ensureCorrectCaptchaConfig();
+	}
+
+	protected function ensureCorrectCaptchaConfig() {
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		$sStyle = $oOpts->getOpt( 'enable_google_recaptcha_login' );
+		if ( $this->isPremium() ) {
+			$oCfg = $this->getCaptchaCfg();
+			if ( $oCfg->provider == $oCfg::PROV_GOOGLE_RECAP2 ) {
+				if ( !$oCfg->invisible && $sStyle == 'invisible' ) {
+					$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
+				}
+			}
+		}
+		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+			$oOpts->setOpt( 'enable_google_recaptcha_login', 'default' );
+		}
 	}
 
 	/**
@@ -72,7 +95,9 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sMessage = __( 'Email verification could not be completed.', 'wp-simple-firewall' );
 		}
 		$this->setFlashAdminNotice( $sMessage, !$bSuccess );
-		Services::Response()->redirect( $this->getUrl_AdminPage() );
+		if ( Services::WpUsers()->isUserLoggedIn() ) {
+			Services::Response()->redirect( $this->getUrl_AdminPage() );
+		}
 	}
 
 	/**
@@ -95,7 +120,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		if ( $bSendAsLink ) {
 			$aMessage[] = sprintf(
 				__( 'Click the verify link: %s', 'wp-simple-firewall' ),
-				$this->buildAdminActionNonceUrl( 'email_send_verify' )
+				add_query_arg( $this->getModActionParams( 'email_send_verify' ), Services::WpGeneral()->getHomeUrl() )
 			);
 		}
 		else {
@@ -115,35 +140,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$sCustomLoginPath = preg_replace( '#[^0-9a-zA-Z-]#', '', trim( $sCustomLoginPath, '/' ) );
 			$this->setOpt( 'rename_wplogin_path', $sCustomLoginPath );
 		}
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isProtectLogin() {
-		return $this->isProtect( 'login' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isProtectLostPassword() {
-		return $this->isProtect( 'password' );
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isProtectRegister() {
-		return $this->isProtect( 'register' );
-	}
-
-	/**
-	 * @param string $sLocationKey - see config for keys, e.g. login, register, password, checkout_woo
-	 * @return bool
-	 */
-	public function isProtect( $sLocationKey ) {
-		return in_array( $sLocationKey, $this->getBotProtectionLocations() );
 	}
 
 	/**
@@ -212,42 +208,32 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 * @return string
 	 */
 	public function getCanEmailVerifyCode() {
-		return strtoupper( substr( $this->getTwoAuthSecretKey(), 10, 6 ) );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTwoAuthSecretKey() {
-		$sKey = $this->getOpt( 'two_factor_secret_key' );
-		if ( empty( $sKey ) ) {
-			$sKey = md5( mt_rand() );
-			$this->setOpt( 'two_factor_secret_key', $sKey );
-		}
-		return $sKey;
+		return strtoupper( substr( $this->getCon()->getSiteInstallationId(), 10, 6 ) );
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isGoogleRecaptchaEnabled() {
-		return ( !$this->isOpt( 'enable_google_recaptcha_login', 'disabled' ) && $this->isGoogleRecaptchaReady() );
+	public function isEnabledCaptcha() {
+		return !$this->isOpt( 'enable_google_recaptcha_login', 'disabled' ) && $this->getCaptchaCfg()->ready;
 	}
 
 	/**
-	 * @return string
+	 * @return Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO
 	 */
-	public function getGoogleRecaptchaStyle() {
+	public function getCaptchaCfg() {
+		$oCfg = parent::getCaptchaCfg();
 		$sStyle = $this->getOpt( 'enable_google_recaptcha_login' );
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		if ( $aConfig[ 'style_override' ] || $sStyle == 'default' ) {
-			$sStyle = $aConfig[ 'style' ];
+		if ( $sStyle !== 'default' && $this->isPremium() ) {
+			$oCfg->theme = $sStyle;
+			$oCfg->invisible = $oCfg->theme == 'invisible';
 		}
-		return $sStyle;
+		return $oCfg;
 	}
 
 	/**
 	 * @return array
+	 * @deprecated 9.0
 	 */
 	public function getBotProtectionLocations() {
 		$aLocs = $this->getOpt( 'bot_protection_locations' );
@@ -328,6 +314,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isEnabledGaspCheck() {
 		return $this->isModOptEnabled() && $this->isOpt( 'enable_login_gasp_check', 'Y' );
@@ -387,15 +374,17 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 
 	/**
 	 * @return bool
+	 * @deprecated 9.0
 	 */
 	public function isEnabledBotJs() {
-		return $this->isPremium() && $this->isOpt( 'enable_antibot_js', 'Y' )
-			   && count( $this->getAntiBotFormSelectors() ) > 0
-			   && ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() );
+		/** @var LoginGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isEnabledGaspCheck() || $this->isEnabledCaptcha();
 	}
 
 	/**
 	 * @return array
+	 * @deprecated 9.0
 	 */
 	public function getAntiBotFormSelectors() {
 		$aIds = $this->getOpt( 'antibot_form_ids', [] );
@@ -437,11 +426,11 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			$aThis[ 'key_opts' ][ 'mod' ] = $this->getModDisabledInsight();
 		}
 		else {
-			$bHasBotCheck = $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled();
+			$bHasBotCheck = $oOpts->isEnabledGaspCheck() || $this->isEnabledCaptcha();
 
-			$bBotLogin = $bHasBotCheck && $this->isProtectLogin();
-			$bBotRegister = $bHasBotCheck && $this->isProtectRegister();
-			$bBotPassword = $bHasBotCheck && $this->isProtectLostPassword();
+			$bBotLogin = $bHasBotCheck && $oOpts->isProtectLogin();
+			$bBotRegister = $bHasBotCheck && $oOpts->isProtectRegister();
+			$bBotPassword = $bHasBotCheck && $oOpts->isProtectLostPassword();
 			$aThis[ 'key_opts' ][ 'bot_login' ] = [
 				'name'    => __( 'Brute Force Login', 'wp-simple-firewall' ),
 				'enabled' => $bBotLogin,
@@ -492,5 +481,37 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	protected function getNamespaceBase() {
 		return 'LoginGuard';
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtectLogin() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtectLostPassword() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtectRegister() {
+		return false;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isProtect() {
+		return false;
 	}
 }

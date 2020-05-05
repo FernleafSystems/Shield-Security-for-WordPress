@@ -29,7 +29,7 @@ class BlackmarkRequest {
 		$oMod = $this->getMod();
 
 		$oTracker = $oMod->loadOffenseTracker();
-		if ( !$this->getCon()->isPluginDeleting() && $oTracker->hasVisitorOffended() && $oTracker->isCommit() ) {
+		if ( !$this->getCon()->plugin_deleting && $oTracker->hasVisitorOffended() && $oTracker->isCommit() ) {
 			( new IPs\Components\ProcessOffense() )
 				->setMod( $oMod )
 				->setIp( Services::IP()->getRequestIp() )

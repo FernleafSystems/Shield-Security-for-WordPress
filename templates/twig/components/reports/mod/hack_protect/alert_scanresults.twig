@@ -1,0 +1,12 @@
+<div style="padding-left: 10px;">
+	<h3>{{ strings.title }}</h3>
+	<ul>
+		{% for scan_slug,scan_data in vars.scan_counts %}
+			<li>{{ scan_data.name }}: {{ scan_data.count }}</li>
+		{% endfor %}
+	</ul>
+
+	<p><a href="{{ hrefs.view_results }}"
+		  style="margin:8px 4px 10px;font-size:14px;color:#008000;"
+		  target="_blank">{{ strings.view_results }}</a></p>
+</div>

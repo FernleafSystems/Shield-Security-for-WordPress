@@ -8,20 +8,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class Options extends Base\ShieldOptions {
 
 	/**
-	 * @return string[]
-	 */
-	public function getAutoupdatePlugins() {
-		$aSelected = [];
-		if ( $this->isAutoupdateIndividualPlugins() ) {
-			$aSelected = $this->getOpt( 'selected_plugins', [] );
-			if ( !is_array( $aSelected ) ) {
-				$aSelected = [];
-			}
-		}
-		return $aSelected;
-	}
-
-	/**
 	 * @return array
 	 */
 	public function getDelayTracking() {
@@ -87,13 +73,6 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
-	public function isAutoupdateIndividualPlugins() {
-		return $this->isPremium() && $this->isOpt( 'enable_individual_autoupdate_plugins', 'Y' );
-	}
-
-	/**
-	 * @return bool
-	 */
 	public function isDisableAllAutoUpdates() {
 		return $this->isOpt( 'enable_autoupdate_disable_all', 'Y' );
 	}
@@ -103,14 +82,6 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isDelayUpdates() {
 		return $this->getDelayUpdatesPeriod() > 0;
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return bool
-	 */
-	public function isPluginSetToAutoupdate( $sPluginFile ) {
-		return in_array( $sPluginFile, $this->getAutoupdatePlugins() );
 	}
 
 	/**
@@ -129,20 +100,27 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @param string $sPluginFile
-	 * @return $this
+	 * @return bool
+	 * @deprecated 9.0
 	 */
-	public function setPluginToAutoUpdate( $sPluginFile ) {
-		$aPlugins = $this->getAutoupdatePlugins();
-		$nKey = array_search( $sPluginFile, $aPlugins );
+	public function isAutoupdateIndividualPlugins() {
+		return false;
+	}
 
-		if ( $nKey === false ) {
-			$aPlugins[] = $sPluginFile;
-		}
-		else {
-			unset( $aPlugins[ $nKey ] );
-		}
+	/**
+	 * @param string $sPluginFile
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isPluginSetToAutoupdate( $sPluginFile ) {
+		return false;
+	}
 
-		return $this->setOpt( 'selected_plugins', $aPlugins );
+	/**
+	 * @return string[]
+	 * @deprecated 9.0
+	 */
+	public function getAutoupdatePlugins() {
+		return [];
 	}
 }

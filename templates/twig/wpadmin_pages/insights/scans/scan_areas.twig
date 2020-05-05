@@ -146,7 +146,7 @@
 		<div class="card-footer">
 			<button class="btn btn-primary float-right"
 					{% if not flags.can_scan %}disabled="disabled"{% endif %}
-					type="submit" id="StartScans">{{ strings.run_scans_now }} &rarr;</button>
+					type="submit" id="StartScansButton">{{ strings.run_scans_now }} &rarr;</button>
 			{% if flags.can_scan %}
 				{{ strings.more_items_longer }}
 			{% else %}
@@ -158,7 +158,6 @@
 			{% endif %}
 		</div>
 	</div>
-	{% include '/wpadmin_pages/insights/scans/modal_progress.twig' %}
 </form>
 
 <script>
@@ -169,11 +168,11 @@
 		}
 	);
 	{% if vars.initial_check %}
-	jQuery( document ).icwpWpsfScansCheck(
-		{
-			'ajax_scans_check':{{ ajax.scans_check|raw }}
-		}
-	);
+		jQuery( document ).icwpWpsfScansCheck(
+			{
+				'ajax_scans_check':{{ ajax.scans_check|raw }}
+			}
+		);
 	{% endif %}
 
 </script>

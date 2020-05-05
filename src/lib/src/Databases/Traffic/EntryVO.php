@@ -6,14 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base;
 
 /**
  * Class EntryVO
- * @property string rid
- * @property int    uid
- * @property string ip
- * @property string path
- * @property string code
- * @property string ua
- * @property string verb
- * @property bool   trans
+ * @property string $rid
+ * @property int    $uid
+ * @property string $ip
+ * @property string $path
+ * @property string $code
+ * @property string $ua
+ * @property string $verb
+ * @property bool   $trans
  */
 class EntryVO extends Base\EntryVO {
 
@@ -32,5 +32,25 @@ class EntryVO extends Base\EntryVO {
 				$mVal = parent::__get( $sProperty );
 		}
 		return $mVal;
+	}
+
+	/**
+	 * @param string $sProperty
+	 * @param mixed  $mValue
+	 * @return $this
+	 */
+	public function __set( $sProperty, $mValue ) {
+
+		switch ( $sProperty ) {
+
+			case 'ip':
+				$mValue = inet_pton( $mValue );
+				break;
+
+			default:
+				break;
+		}
+
+		return parent::__set( $sProperty, $mValue );
 	}
 }

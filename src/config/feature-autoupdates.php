@@ -54,7 +54,7 @@
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3w",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/hj",
       "name":        "Enable Automatic Updates",
       "summary":     "Enable (or Disable) The Automatic Updates module",
       "description": "Un-Checking this option will completely disable the Automatic Updates module"
@@ -105,18 +105,6 @@
       "name":        "Plugins",
       "summary":     "Automatically Update Plugins",
       "description": "Note: Automatic updates for plugins are disabled on WordPress by default."
-    },
-    {
-      "key":         "enable_individual_autoupdate_plugins",
-      "section":     "section_non_ui",
-      "default":     "N",
-      "type":        "checkbox",
-      "premium":     true,
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Individually Select Plugins",
-      "summary":     "Select Individual Plugins To Automatically Update",
-      "description": "Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated."
     },
     {
       "key":         "enable_autoupdate_themes",

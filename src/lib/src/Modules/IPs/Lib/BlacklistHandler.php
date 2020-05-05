@@ -2,20 +2,26 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BlacklistHandler {
 
-	use ModConsumer;
+	use Modules\ModConsumer;
+	use Modules\Base\OneTimeExecute;
 
-	public function run() {
+	protected function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAutoBlackList() ) {
+
+			$oCon = $this->getCon();
+			if ( Services::WpGeneral()->isCron() && $oCon->isPremiumActive() ) {
+				add_action( $oCon->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
+			}
 
 			( new IPs\Components\UnblockIpByFlag() )
 				->setMod( $oMod )
@@ -97,5 +103,11 @@ class BlacklistHandler {
 			}
 		}
 		return $bWhitelisted;
+	}
+
+	public function runHourlyCron() {
+		( new IPs\Components\ImportIpsFromFile() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 }

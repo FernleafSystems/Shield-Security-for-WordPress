@@ -10,14 +10,9 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 	 */
 	public function run() {
 		$this->setupSnapshots();
-
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->isIcUsersEnabled() ) {
-			add_action( 'user_register', [ $this, 'snapshotUsers' ] );
-			add_action( 'profile_update', [ $this, 'snapshotUsers' ] );
-			add_action( 'after_password_reset', [ $this, 'snapshotUsers' ] );
-		}
+		add_action( 'user_register', [ $this, 'snapshotUsers' ] );
+		add_action( 'profile_update', [ $this, 'snapshotUsers' ] );
+		add_action( 'after_password_reset', [ $this, 'snapshotUsers' ] );
 	}
 
 	/**
@@ -47,12 +42,6 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 	}
 
 	protected function verifyUsers() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		if ( !$oMod->isIcUsersEnabled() ) {
-			return;
-		}
-
 		$aSnapshot = $this->getSnapshotUsers();
 		$aFieldsToCheck = $this->getStandardUserFields();
 
@@ -113,10 +102,8 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 	 * @return $this
 	 */
 	public function snapshotUsers( $bUpdate = false ) {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
 
-		if ( $oFO->isIcUsersEnabled() && ( $bUpdate || !$this->hasSnapshotUsers() ) ) {
+		if ( $bUpdate || !$this->hasSnapshotUsers() ) {
 
 			$aUsersToStore = [];
 			$aFields = $this->getStandardUserFields();
@@ -128,7 +115,7 @@ class ICWP_WPSF_Processor_HackProtect_Integrity extends ShieldProcessor {
 				}
 				$aUsersToStore[ $oUser->ID ] = $aUserData;
 			}
-			$oFO->setIcSnapshotUsers( $aUsersToStore );
+			// store snapshot users
 		}
 		return $this;
 	}

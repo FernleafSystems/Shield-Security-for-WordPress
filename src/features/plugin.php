@@ -7,22 +7,97 @@ use FernleafSystems\Wordpress\Services\Utilities;
 
 class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
+	/**
+	 * @var Plugin\Lib\ImportExport\ImportExportController
+	 */
+	private $oImportExportController;
+
+	/**
+	 * @var Plugin\Components\PluginBadge
+	 */
+	private $oPluginBadgeController;
+
+	/**
+	 * @var Shield\Utilities\ReCaptcha\Enqueue
+	 */
+	private $oCaptchaEnqueue;
+
+	/**
+	 * @var Shield\ShieldNetApi\ShieldNetApiController
+	 */
+	private $oShieldNetApiController;
+
+	/**
+	 * @return Plugin\Lib\ImportExport\ImportExportController
+	 */
+	public function getImpExpController() {
+		if ( !isset( $this->oImportExportController ) ) {
+			$this->oImportExportController = ( new Plugin\Lib\ImportExport\ImportExportController() )
+				->setMod( $this );
+		}
+		return $this->oImportExportController;
+	}
+
+	/**
+	 * @return Plugin\Components\PluginBadge
+	 */
+	public function getPluginBadgeCon() {
+		if ( !isset( $this->oPluginBadgeController ) ) {
+			$this->oPluginBadgeController = ( new Plugin\Components\PluginBadge() )
+				->setMod( $this );
+		}
+		return $this->oPluginBadgeController;
+	}
+
+	/**
+	 * @return Shield\ShieldNetApi\ShieldNetApiController
+	 */
+	public function getShieldNetApiController() {
+		if ( !isset( $this->oShieldNetApiController ) ) {
+			$this->oShieldNetApiController = ( new Shield\ShieldNetApi\ShieldNetApiController() )
+				->setMod( $this );
+		}
+		return $this->oShieldNetApiController;
+	}
+
 	protected function doPostConstruction() {
 		$this->setVisitorIpSource();
 	}
 
-	protected function setupCustomHooks() {
-		parent::setupCustomHooks();
-		$oCon = $this->getCon();
-		add_filter( $oCon->prefix( 'report_email_address' ), [ $this, 'supplyPluginReportEmail' ] );
-		add_filter( $oCon->prefix( 'google_recaptcha_config' ), [ $this, 'getGoogleRecaptchaConfig' ], 10, 0 );
-		/* Enfold theme deletes all cookies except particular ones.
-		add_filter( 'avf_admin_keep_cookies', function ( $aCookiesToKeep ) use ( $oCon ) {
-			$aCookiesToKeep[] = $oCon->getPluginPrefix().'*';
-			$aCookiesToKeep[] = $oCon->getOptionStoragePrefix().'*';
-			return $aCookiesToKeep;
-		}, 10, 0 );
-		 */
+	protected function preProcessOptions() {
+		( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
+			->setMod( $this )
+			->checkAll();
+	}
+
+	/**
+	 * @param string $sSection
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSection ) {
+		$aWarnings = [];
+
+		switch ( $sSection ) {
+			case 'section_third_party_captcha':
+				/** @var Plugin\Options $oOpts */
+				$oOpts = $this->getOptions();
+				if ( $this->getCaptchaCfg()->ready ) {
+					if ( $oOpts->getOpt( 'captcha_checked_at' ) < 0 ) {
+						( new Plugin\Lib\Captcha\CheckCaptchaSettings() )
+							->setMod( $this )
+							->checkAll();
+					}
+					if ( $oOpts->getOpt( 'captcha_checked_at' ) == 0 ) {
+						$aWarnings[] = sprintf(
+							__( "Your captcha key and secret haven't been verified.", 'wp-simple-firewall' ).' '
+							.__( "Please double-check and make sure you haven't mixed them about, and then re-save.", 'wp-simple-firewall' )
+						);
+					}
+				}
+				break;
+		}
+
+		return $aWarnings;
 	}
 
 	protected function updateHandler() {
@@ -64,24 +139,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isDisplayPluginBadge() {
-		/** @var Plugin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isOnFloatingPluginBadge()
-			   && ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
-	}
-
-	/**
-	 * @param bool $bDisplay
-	 * @return $this
-	 */
-	public function setIsDisplayPluginBadge( $bDisplay ) {
-		return $this->setOpt( 'display_plugin_badge', $bDisplay ? 'Y' : 'N' );
-	}
-
-	/**
 	 * Forcefully sets preferred Visitor IP source in the Data component for use throughout the plugin
 	 */
 	private function setVisitorIpSource() {
@@ -95,21 +152,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param string $sSource
-	 * @return $this
-	 */
-	public function setVisitorAddressSource( $sSource ) {
-		return $this->getOptions()->setOpt( 'visitor_address_source', $sSource );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCookieIdBadgeState() {
-		return $this->prefix( 'badgeState' );
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	protected function handleModAction( $sAction ) {
@@ -117,18 +159,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 
 			case 'export_file_download':
 				header( 'Set-Cookie: fileDownload=true; path=/' );
-				/** @var \ICWP_WPSF_Processor_Plugin $oPro */
-				$oPro = $this->getProcessor();
-				$oPro->getSubProImportExport()
-					 ->doExportDownload();
+				( new Plugin\Lib\ImportExport\Export() )
+					->setMod( $this )
+					->toFile();
 				break;
 
 			case 'import_file_upload':
-				/** @var \ICWP_WPSF_Processor_Plugin $oPro */
-				$oPro = $this->getProcessor();
 				try {
-					$oPro->getSubProImportExport()
-						 ->importFromUploadFile();
+					( new Plugin\Lib\ImportExport\Import() )
+						->setMod( $this )
+						->fromFile();
 					$bSuccess = true;
 					$sMessage = __( 'Options imported successfully', 'wp-simple-firewall' );
 				}
@@ -137,38 +177,14 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					$sMessage = $oE->getMessage();
 				}
 				$this->setFlashAdminNotice( $sMessage, !$bSuccess );
-				Services::Response()->redirect( $this->getUrlImportExport() );
+				Services::Response()->redirect(
+					$this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'importexport' )
+				);
 				break;
 
 			default:
 				break;
 		}
-	}
-
-	/**
-	 * TODO: build better/dynamic direct linking to insights sub-pages
-	 * see also hackprotect getUrlManualScan()
-	 */
-	private function getUrlImportExport() {
-		return add_query_arg(
-			[ 'inav' => 'importexport' ],
-			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
-		);
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getGoogleRecaptchaConfig() {
-		$aConfig = [
-			'key'    => $this->getOpt( 'google_recaptcha_site_key' ),
-			'secret' => $this->getOpt( 'google_recaptcha_secret_key' ),
-			'style'  => $this->getOpt( 'google_recaptcha_style' ),
-		];
-		if ( !$this->isPremium() && $aConfig[ 'style' ] != 'light' ) {
-			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
-		}
-		return $aConfig;
 	}
 
 	/**
@@ -209,12 +225,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @param string $sEmail
 	 * @return string
 	 */
-	public function supplyPluginReportEmail( $sEmail = '' ) {
+	public function getPluginReportEmail() {
 		$sE = $this->getOpt( 'block_send_email_address' );
-		return Services::Data()->validEmail( $sE ) ? $sE : $sEmail;
+		return Services::Data()->validEmail( $sE ) ? $sE : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
 	/**
@@ -267,6 +282,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 					if ( !empty( $aKeys[ 'private' ] ) ) {
 						$sKey = $aKeys[ 'private' ];
 						$this->setOpt( 'openssl_private_key', base64_encode( $sKey ) );
+						$this->saveModOptions();
 					}
 				}
 				catch ( \Exception $oE ) {
@@ -431,13 +447,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	/**
 	 * @return string
 	 */
-	public function getImportExportLastImportHash() {
-		return $this->getOpt( 'importexport_last_import_hash', '' );
-	}
-
-	/**
-	 * @return string
-	 */
 	protected function getImportExportSecretKey() {
 		$sId = $this->getOpt( 'importexport_secretkey', '' );
 		if ( empty( $sId ) || $this->isImportExportSecretKeyExpired() ) {
@@ -535,22 +544,6 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
-	 * @return $this
-	 */
-	public function startImportExportHandshake() {
-		$this->getOptions()->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
-		return $this->saveModOptions();
-	}
-
-	/**
-	 * @param string $sHash
-	 * @return $this
-	 */
-	public function setImportExportLastImportHash( $sHash ) {
-		return $this->setOpt( 'importexport_last_import_hash', $sHash );
-	}
-
-	/**
 	 * @param string $sUrl
 	 * @return $this
 	 */
@@ -609,6 +602,16 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 			'icwp_wpsf_vars_tourmanager',
 			[ 'ajax' => $this->getAjaxActionData( 'mark_tour_finished' ) ]
 		);
+		wp_localize_script(
+			$this->prefix( 'plugin' ),
+			'icwp_wpsf_vars_plugin',
+			[
+				'strings' => [
+					'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
+					'problem_downloading_file' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
+				],
+			]
+		);
 	}
 
 	/**
@@ -640,27 +643,26 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				'href'    => $this->getUrl_DirectLinkToOption( 'visitor_address_source' ),
 			];
 
-			$bHasSupportEmail = Services::Data()->validEmail( $this->supplyPluginReportEmail() );
+			$bHasSupportEmail = Services::Data()->validEmail( $this->getOpt( 'block_send_email_address' ) );
 			$aThis[ 'key_opts' ][ 'reports' ] = [
 				'name'    => __( 'Reporting Email', 'wp-simple-firewall' ),
 				'enabled' => $bHasSupportEmail,
 				'summary' => $bHasSupportEmail ?
-					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $this->supplyPluginReportEmail() )
-					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), Services::WpGeneral()
-																											  ->getSiteAdminEmail() ),
+					sprintf( __( 'Email address for reports set to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() )
+					: sprintf( __( 'No address provided - defaulting to: %s', 'wp-simple-firewall' ), $this->getPluginReportEmail() ),
 				'weight'  => 0,
 				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
 			];
 
-			$bRecap = $this->isGoogleRecaptchaReady();
+			$bRecap = $this->getCaptchaCfg()->ready;
 			$aThis[ 'key_opts' ][ 'recap' ] = [
-				'name'    => __( 'reCAPTCHA', 'wp-simple-firewall' ),
+				'name'    => __( 'CAPTCHA', 'wp-simple-firewall' ),
 				'enabled' => $bRecap,
 				'summary' => $bRecap ?
-					__( 'Google reCAPTCHA keys have been provided', 'wp-simple-firewall' )
-					: __( "Google reCAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
+					__( 'CAPTCHA keys have been provided', 'wp-simple-firewall' )
+					: __( "CAPTCHA keys haven't been provided", 'wp-simple-firewall' ),
 				'weight'  => 1,
-				'href'    => $this->getUrl_DirectLinkToOption( 'block_send_email_address' ),
+				'href'    => $this->getUrl_DirectLinkToSection( 'section_third_party_captcha' ),
 			];
 		}
 
@@ -683,6 +685,40 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	}
 
 	/**
+	 * @return Shield\Utilities\ReCaptcha\Enqueue
+	 */
+	public function getCaptchaEnqueue() {
+		if ( !isset( $this->oCaptchaEnqueue ) ) {
+			$this->oCaptchaEnqueue = ( new Shield\Utilities\ReCaptcha\Enqueue() )->setMod( $this );
+		}
+		return $this->oCaptchaEnqueue;
+	}
+
+	/**
+	 * @param array $aOptParams
+	 * @return array
+	 */
+	protected function buildOptionForUi( $aOptParams ) {
+		$aOptParams = parent::buildOptionForUi( $aOptParams );
+		if ( $aOptParams[ 'key' ] === 'visitor_address_source' ) {
+			$aNewOptions = [];
+			$oIPDet = Services::IP()->getIpDetector();
+			foreach ( $aOptParams[ 'value_options' ] as $sValKey => $sSource ) {
+				if ( $sValKey == 'AUTO_DETECT_IP' ) {
+					$aNewOptions[ $sValKey ] = $sSource;
+				}
+				else {
+					$sIPs = implode( ', ', $oIPDet->getIpsFromSource( $sSource ) );
+					$aNewOptions[ $sValKey ] = sprintf( '%s (%s)',
+						$sSource, empty( $sIPs ) ? '-' : $sIPs );
+				}
+			}
+			$aOptParams[ 'value_options' ] = $aNewOptions;
+		}
+		return $aOptParams;
+	}
+
+	/**
 	 * @return string
 	 */
 	protected function getNamespaceBase() {
@@ -694,5 +730,29 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 */
 	public function getSurveyEmail() {
 		return base64_decode( $this->getDef( 'survey_email' ) );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isDisplayPluginBadge() {
+		return false;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getCookieIdBadgeState() {
+		return $this->prefix( 'badgeState' );
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function supplyPluginReportEmail() {
+		return $this->getPluginReportEmail();
 	}
 }

@@ -145,21 +145,6 @@ class Strings extends Base\Strings {
 								.'<br/>'.__( 'Use a smaller interval to reduce the risk of blocking legitimate visitors.', 'wp-simple-firewall' );
 				break;
 
-			case 'auto_disable' :
-				$sName = __( 'Auto Disable', 'wp-simple-firewall' );
-				$sSummary = __( 'Auto Disable Traffic Logging After 1 Week', 'wp-simple-firewall' );
-
-				if ( $oMod->isAutoDisable() ) {
-					$sTimestamp = '<br/>'.sprintf( __( 'Auto Disable At: %s', 'wp-simple-firewall' ), $oMod->getAutoDisableTimestamp() );
-				}
-				else {
-					$sTimestamp = '';
-				}
-				$sDescription = __( 'Turn on to prevent unnecessary long-term traffic logging.', 'wp-simple-firewall' )
-								.'<br />'.__( 'Timer resets after options save.', 'wp-simple-firewall' )
-								.$sTimestamp;
-				break;
-
 			default:
 				return parent::getOptionStrings( $sOptKey );
 		}

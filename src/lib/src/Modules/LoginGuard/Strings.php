@@ -72,16 +72,6 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_recaptcha' :
-				$sTitle = 'Google reCAPTCHA';
-				$sTitleShort = 'reCAPTCHA';
-				$aSummary = [
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Adds Google reCAPTCHA to the Login Forms.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'Keep this turned on.', 'wp-simple-firewall' ) ),
-					sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings.", 'wp-simple-firewall' ) ),
-				];
-				break;
-
 			case 'section_rename_wplogin' :
 				$sTitle = __( 'Hide WordPress Login Page', 'wp-simple-firewall' );
 				$sTitleShort = __( 'Hide Login', 'wp-simple-firewall' );
@@ -220,18 +210,12 @@ class Strings extends Base\Strings {
 				break;
 
 			case 'enable_google_recaptcha_login' :
-				$sName = __( 'Google reCAPTCHA', 'wp-simple-firewall' );
-				$sSummary = __( 'Protect WordPress Account Access Requests With Google reCAPTCHA', 'wp-simple-firewall' );
-				$sDescription = __( 'Use Google reCAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
+				$sName = __( 'CAPTCHA', 'wp-simple-firewall' );
+				$sSummary = __( 'Protect WordPress Account Access Requests With CAPTCHA', 'wp-simple-firewall' );
+				$sDescription = __( 'Use CAPTCHA on the user account forms such as login, register, etc.', 'wp-simple-firewall' ).'<br />'
 								.sprintf( __( 'Use of any theme other than "%s", requires a Pro license.', 'wp-simple-firewall' ), __( 'Light Theme', 'wp-simple-firewall' ) )
-								.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your Google reCAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
-								.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible reCAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
-				break;
-
-			case 'google_recaptcha_style_login' : // Unused
-				$sName = __( 'reCAPTCHA Style', 'wp-simple-firewall' );
-				$sSummary = __( 'How Google reCAPTCHA Will Be Displayed', 'wp-simple-firewall' );
-				$sDescription = __( 'You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha', 'wp-simple-firewall' );
+								.'<br/>'.sprintf( '%s - %s', __( 'Note', 'wp-simple-firewall' ), __( "You'll need to setup your CAPTCHA API Keys in 'General' settings.", 'wp-simple-firewall' ) )
+								.'<br/><strong>'.sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Some forms are more dynamic than others so if you experience problems, please use non-Invisible CAPTCHA.", 'wp-simple-firewall' ) ).'</strong>';
 				break;
 
 			case 'bot_protection_locations' :
@@ -248,18 +232,12 @@ class Strings extends Base\Strings {
 								.'<br />'.sprintf( '%s: %s', __( 'Recommendation', 'wp-simple-firewall' ), __( 'ON', 'wp-simple-firewall' ) );
 				break;
 
-			case 'enable_antibot_js' :
-				$sName = __( 'AntiBot JS', 'wp-simple-firewall' );
-				$sSummary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
-				$sDescription = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
-				break;
-
 			case 'antibot_form_ids' :
 				$sName = __( 'AntiBot Forms', 'wp-simple-firewall' );
 				$sSummary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
-				$sDescription = __( 'For use with the AntiBot JS option.', 'wp-simple-firewall' )
-								.' '.__( 'IDs are prefixed with "#".', 'wp-simple-firewall' )
-								.' '.__( 'Classes are prefixed with ".".', 'wp-simple-firewall' )
+				$sDescription = __( 'Provide DOM selectors to attached AntiBot protection to any form.', 'wp-simple-firewall' )
+								.'<br />'.__( 'IDs are prefixed with "#".', 'wp-simple-firewall' )
+								.'<br />'.__( 'Classes are prefixed with ".".', 'wp-simple-firewall' )
 								.'<br />'.__( 'IDs are preferred over classes.', 'wp-simple-firewall' );
 				break;
 
@@ -319,6 +297,13 @@ class Strings extends Base\Strings {
 				$sSummary = __( "The Message Displayed If The User Doesn't Check The Box", 'wp-simple-firewall' );
 				$sDescription = __( "You can change the text displayed to the user in the alert message if they don't check the box.", 'wp-simple-firewall' )
 								.'<br />'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oMod->getTextOptDefault( 'text_pleasecheckbox' ) );
+				break;
+
+			// removed 9.0
+			case 'enable_antibot_js' :
+				$sName = __( 'AntiBot JS', 'wp-simple-firewall' );
+				$sSummary = __( 'Use AntiBot JS Includes For Custom 3rd Party Forms', 'wp-simple-firewall' );
+				$sDescription = __( 'Important: This is experimental. Please contact support for further assistance.', 'wp-simple-firewall' );
 				break;
 
 			default:

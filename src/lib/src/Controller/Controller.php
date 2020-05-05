@@ -9,19 +9,20 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * Class Controller
  * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
- * @property bool                                    $is_activating
- * @property bool                                    $modules_loaded
- * @property bool                                    $rebuild_options
- * @property bool                                    $plugin_deleting
- * @property bool                                    $plugin_reset
- * @property string                                  $file_forceoff
- * @property string                                  $base_file
- * @property string                                  $root_file
- * @property bool                                    $user_can_base_permissions
- * @property Shield\Modules\Events\Lib\EventsService $service_events
- * @property \ICWP_WPSF_FeatureHandler_Base[]        $modules
+ * @property bool                                     $is_activating
+ * @property bool                                     $modules_loaded
+ * @property bool                                     $rebuild_options
+ * @property bool                                     $plugin_deactivating
+ * @property bool                                     $plugin_deleting
+ * @property bool                                     $plugin_reset
+ * @property string                                   $file_forceoff
+ * @property string                                   $base_file
+ * @property string                                   $root_file
+ * @property bool                                     $user_can_base_permissions
+ * @property Shield\Modules\Events\Lib\EventsService  $service_events
+ * @property mixed[]|\ICWP_WPSF_FeatureHandler_Base[] $modules
  */
-class Controller extends Shield\Deprecated\Foundation {
+class Controller {
 
 	use StdClassAdapter;
 
@@ -49,16 +50,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @var string
 	 */
 	protected $sForceOffFile;
-
-	/**
-	 * @var bool
-	 */
-	protected $bResetPlugin;
-
-	/**
-	 * @var bool
-	 */
-	protected $bPluginDeleting = false;
 
 	/**
 	 * @var string
@@ -159,6 +150,8 @@ class Controller extends Shield\Deprecated\Foundation {
 		$this->sRootFile = $sRootFile;
 		$this->root_file = $sRootFile;
 		$this->base_file = $this->getRootFile();
+		$this->modules = [];
+
 		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
@@ -283,15 +276,13 @@ class Controller extends Shield\Deprecated\Foundation {
 		return $this->aRequirementsMessages;
 	}
 
-	/**
-	 */
 	public function onWpDeactivatePlugin() {
 		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
 		if ( $this->isPluginAdmin() ) {
 			do_action( $this->prefix( 'deactivate_plugin' ) );
+			$this->plugin_deactivating = true;
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
-				$this->bPluginDeleting = true;
-				$this->plugin_deleting = $this->bPluginDeleting;
+				$this->plugin_deleting = true;
 				do_action( $this->prefix( 'delete_plugin' ) );
 				$this->deletePluginControllerOptions();
 			}
@@ -370,7 +361,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
-		add_action( 'shutdown', [ $this, 'onWpShutdown' ], 0 );
+		add_action( 'shutdown', [ $this, 'onWpShutdown' ], -1 );
 		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// GDPR
@@ -410,6 +401,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpAdminInit() {
+		add_action( 'admin_bar_menu', [ $this, 'onWpAdminBarMenu' ], 100 );
 		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminCss' ], 100 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
@@ -496,7 +488,34 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @param \WP_Admin_Bar $oAdminBar
 	 */
+	public function onWpAdminBarMenu( $oAdminBar ) {
+		$bShow = apply_filters( $this->prefix( 'show_admin_bar_menu' ),
+			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
+		);
+		if ( $bShow ) {
+			$aMenuItems = apply_filters( $this->prefix( 'admin_bar_menu_items' ), [] );
+			if ( !empty( $aMenuItems ) && is_array( $aMenuItems ) ) {
+				$nCountWarnings = 0;
+				foreach ( $aMenuItems as $aMenuItem ) {
+					$nCountWarnings += isset( $aMenuItem[ 'warnings' ] ) ? $aMenuItem[ 'warnings' ] : 0;
+				}
+
+				$sNodeId = $this->prefix( 'adminbarmenu' );
+				$oAdminBar->add_node( [
+					'id'    => $sNodeId,
+					'title' => $this->getHumanName()
+							   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountWarnings ),
+				] );
+				foreach ( $aMenuItems as $aMenuItem ) {
+					$aMenuItem[ 'parent' ] = $sNodeId;
+					$oAdminBar->add_menu( $aMenuItem );
+				}
+			}
+		}
+	}
+
 	public function onWpDashboardSetup() {
 		$bShow = apply_filters( $this->prefix( 'show_dashboard_widget' ),
 			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_dashboard_widget' )
@@ -531,6 +550,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $sAction,
 			'exec_nonce' => wp_create_nonce( $sAction ),
+			//			'rand'       => wp_rand( 10000, 99999 )
 		];
 	}
 
@@ -819,21 +839,28 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * Use logic in here to prevent display of future incompatible updates
+	 * Prevents upgrades to Shield versions when the system PHP version is too old.
 	 * @param \stdClass $oUpdates
 	 * @return \stdClass
 	 */
 	public function blockIncompatibleUpdates( $oUpdates ) {
-		/*
-		 * No longer used: prevent upgrades to v7.0 for php < 5.4
 		$sFile = $this->getPluginBaseFile();
 		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
-			if ( version_compare( $oUpdates->response[ $sFile ]->new_version, '7.0.0', '>=' )
-				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' ) ) {
-				unset( $oUpdates->response[ $sFile ] );
+			$aUpgradeReqs = $this->getPluginSpec()[ 'upgrade_reqs' ];
+			if ( is_array( $aUpgradeReqs ) ) {
+				foreach ( $aUpgradeReqs as $sShieldVer => $aReqs ) {
+					$bNeedsHidden = version_compare( $oUpdates->response[ $sFile ]->new_version, $sShieldVer, '>=' )
+									&& (
+										!Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php' ] )
+										|| !Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp' ] )
+									);
+					if ( $bNeedsHidden ) {
+						unset( $oUpdates->response[ $sFile ] );
+						break;
+					}
+				}
 			}
 		}
-		 */
 		return $oUpdates;
 	}
 
@@ -857,13 +884,6 @@ class Controller extends Shield\Deprecated\Foundation {
 				}
 				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
 					$oConOptions->update_first_detected[ $sNewVersion ] = Services::Request()->ts();
-				}
-
-				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
-				foreach ( $oConOptions as $sKey => $aData ) {
-					if ( strpos( $sKey, 'update_first_detected_' ) !== false ) {
-						unset( $oConOptions->{$sKey} );
-					}
 				}
 			}
 		}
@@ -989,8 +1009,6 @@ class Controller extends Shield\Deprecated\Foundation {
 		}
 	}
 
-	/**
-	 */
 	protected function deleteFlags() {
 		$oFS = Services::WpFs();
 		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
@@ -1196,13 +1214,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isPluginDeleting() {
-		return (bool)$this->bPluginDeleting;
-	}
-
-	/**
 	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
 	 * @return bool
@@ -1303,12 +1314,10 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return bool
 	 */
 	public function getIsResetPlugin() {
-		if ( !isset( $this->bResetPlugin ) ) {
-			$bExists = Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
-			$this->bResetPlugin = (bool)$bExists;
-			$this->plugin_reset = $this->bResetPlugin;
+		if ( !isset( $this->plugin_reset ) ) {
+			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
 		}
-		return $this->bResetPlugin;
+		return $this->plugin_reset;
 	}
 
 	/**
@@ -1393,7 +1402,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->loadCorePluginFeatureHandler()->getUrl_AdminPage();
+		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
 
 	/**
@@ -1607,15 +1616,11 @@ class Controller extends Shield\Deprecated\Foundation {
 		return self::$oControllerOptions;
 	}
 
-	/**
-	 */
 	protected function deletePluginControllerOptions() {
 		$this->setPluginControllerOptions( false );
 		$this->saveCurrentPluginControllerOptions();
 	}
 
-	/**
-	 */
 	protected function deleteCronJobs() {
 		$oWpCron = Services::WpCron();
 		$aCrons = $oWpCron->getCrons();
@@ -1797,34 +1802,29 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return \ICWP_WPSF_FeatureHandler_Plugin
 	 * @throws \Exception from loadFeatureHandler()
 	 */
-	public function &loadCorePluginFeatureHandler() {
-		$sSlug = 'plugin';
-		$oMod = $this->getModule( $sSlug );
-		if ( is_null( $oMod ) ) {
-			$oMod = $this->loadFeatureHandler(
+	public function loadCorePluginFeatureHandler() {
+		if ( !isset( $this->modules[ 'plugin' ] )
+			 || !$this->modules[ 'plugin' ] instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			$this->loadFeatureHandler(
 				[
-					'slug'          => $sSlug,
-					'storage_key'   => $sSlug,
+					'slug'          => 'plugin',
+					'storage_key'   => 'plugin',
 					'load_priority' => 10
 				]
 			);
 		}
-		return $oMod;
+		return $this->modules[ 'plugin' ];
 	}
 
 	/**
-	 * @param bool $bRecreate
-	 * @param bool $bFullBuild
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public function loadAllFeatures( $bRecreate = false, $bFullBuild = false ) {
-
-		$oCoreModule = $this->loadCorePluginFeatureHandler();
-
+	public function loadAllFeatures() {
 		$bSuccess = true;
-		foreach ( $oCoreModule->getActivePluginFeatures() as $sSlug => $aFeatureProperties ) {
+		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $sSlug ) {
 			try {
-				$this->loadFeatureHandler( $aFeatureProperties, $bRecreate, $bFullBuild );
+				$this->getModule( $sSlug );
 				$bSuccess = true;
 			}
 			catch ( \Exception $oE ) {
@@ -1847,15 +1847,18 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return \ICWP_WPSF_FeatureHandler_Base|null|mixed
 	 */
 	public function getModule( $sSlug ) {
-		if ( !is_array( $this->aModules ) ) {
-			$this->aModules = [];
-			$this->modules = [];
+		$oMod = isset( $this->modules[ $sSlug ] ) ? $this->modules[ $sSlug ] : null;
+		if ( !$oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			try {
+				$aMods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
+				if ( isset( $aMods[ $sSlug ] ) ) {
+					$oMod = $this->loadFeatureHandler( $aMods[ $sSlug ] );
+				}
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
-		$oModule = isset( $this->modules[ $sSlug ] ) ? $this->modules[ $sSlug ] : null;
-		if ( !is_null( $oModule ) && !( $oModule instanceof \ICWP_WPSF_FeatureHandler_Base ) ) {
-			$oModule = null;
-		}
-		return $oModule;
+		return $oMod;
 	}
 
 	/**
@@ -1922,6 +1925,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_Reporting
+	 */
+	public function getModule_Reporting() {
+		return $this->getModule( 'reporting' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_AdminAccessRestriction
 	 */
 	public function getModule_SecAdmin() {
@@ -1943,27 +1953,15 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Base[]
-	 * @deprecated 8.7.0
-	 */
-	public function getModules() {
-		return is_array( $this->modules ) ? $this->modules : [];
-	}
-
-	/**
 	 * @param array $aModProps
-	 * @param bool  $bRecreate
-	 * @param bool  $bFullBuild
-	 * @return mixed
+	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed
 	 * @throws \Exception
 	 */
-	public function loadFeatureHandler( $aModProps, $bRecreate = false, $bFullBuild = false ) {
-
+	public function loadFeatureHandler( $aModProps ) {
 		$sModSlug = $aModProps[ 'slug' ];
-
-		$oHandler = $this->getModule( $sModSlug );
-		if ( !empty( $oHandler ) ) {
-			return $oHandler;
+		$oMod = isset( $this->modules[ $sModSlug ] ) ? $this->modules[ $sModSlug ] : null;
+		if ( $oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			return $oMod;
 		}
 
 		if ( !empty( $aModProps[ 'min_php' ] )
@@ -1979,12 +1977,7 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
 		if ( class_exists( $sClassName ) ) {
-			if ( !isset( $this->{$sOptionsVarName} ) || $bRecreate ) {
-				$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
-			}
-			if ( $bFullBuild ) {
-				$this->{$sOptionsVarName}->buildOptions();
-			}
+			$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
 		}
 		else {
 			$sMessage = sprintf( 'Class "%s" is missing', $sClassName );
@@ -1994,7 +1987,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		$aMs = $this->modules;
 		$aMs[ $sModSlug ] = $this->{$sOptionsVarName};
 		$this->modules = $aMs;
-		return $this->{$sOptionsVarName};
+		return $this->modules[ $sModSlug ];
 	}
 
 	/**
@@ -2192,5 +2185,13 @@ class Controller extends Shield\Deprecated\Foundation {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0
+	 */
+	public function isPluginDeleting() {
+		return (bool)$this->plugin_deleting;
 	}
 }

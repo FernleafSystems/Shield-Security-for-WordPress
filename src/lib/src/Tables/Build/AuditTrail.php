@@ -61,7 +61,8 @@ class AuditTrail extends BaseBuild {
 			$oSelector->filterByIsLoggedIn( $aParams[ 'fLoggedIn' ] );
 		}
 
-		$oSelector->setOrderBy( 'updated_at' )->setOrderBy( 'created_at' );
+		$oSelector->setOrderBy( 'updated_at', 'DESC', true )
+				  ->setOrderBy( 'created_at' );
 
 		return $this;
 	}
@@ -142,7 +143,7 @@ class AuditTrail extends BaseBuild {
 
 			if ( $oEntry->count > 1 ) {
 				$aE[ 'message' ] = $sMsg."\n"
-								   .sprintf( __( 'This event repeated %s times in succession.', 'wp-simple-firewall' ), $oEntry->count );
+								   .sprintf( __( 'This event repeated %s times in the last 24hrs.', 'wp-simple-firewall' ), $oEntry->count );
 			}
 
 			$aEntries[ $oEntry->rid ] = $aE;

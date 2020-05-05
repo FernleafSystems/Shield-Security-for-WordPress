@@ -45,11 +45,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 				$this->trackAssetsVersions();
 				add_action( 'automatic_updates_complete', [ $this, 'sendNotificationEmail' ] );
 			}
-
-			if ( $oOpts->isAutoupdateIndividualPlugins() ) {
-				// Adds automatic update indicator column to all plugins in plugin listing.
-				add_filter( 'manage_plugins_columns', [ $this, 'fAddPluginsListAutoUpdateColumn' ] );
-			}
 		}
 	}
 
@@ -247,9 +242,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 			if ( $oOpts->isAutoupdateAllPlugins() ) {
 				$bDoAutoUpdate = true;
 			}
-			elseif ( $oOpts->isPluginSetToAutoupdate( $sFile ) ) {
-				$bDoAutoUpdate = true;
-			}
 			elseif ( $sFile === $this->getCon()->getPluginBaseFile() ) {
 				$sAuto = $oOpts->getSelfAutoUpdateOpt();
 				if ( $sAuto === 'immediate' ) {
@@ -361,59 +353,6 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 	}
 
 	/**
-	 * @filter
-	 * @param array  $aPluginMeta
-	 * @param string $sPluginBaseFileName
-	 * @return array
-	 */
-	public function fAddAutomaticUpdatePluginMeta( $aPluginMeta, $sPluginBaseFileName ) {
-
-		// first we prevent collision between iControlWP <-> Simple Firewall by not duplicating icons
-		foreach ( $aPluginMeta as $sMetaItem ) {
-			if ( strpos( $sMetaItem, 'icwp-pluginautoupdateicon' ) !== false ) {
-				return $aPluginMeta;
-			}
-		}
-		$bUpdate = Services::WpPlugins()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
-		$sHtml = $this->getPluginAutoupdateIconHtml( $bUpdate );
-		array_unshift( $aPluginMeta, sprintf( '%s', $sHtml ) );
-		return $aPluginMeta;
-	}
-
-	/**
-	 * Adds the column to the plugins listing table to indicate whether WordPress will automatically update the plugins
-	 * @param array $aColumns
-	 * @return array
-	 */
-	public function fAddPluginsListAutoUpdateColumn( $aColumns ) {
-		if ( $this->getCon()->isPluginAdmin() && !isset( $aColumns[ 'icwp_autoupdate' ] ) ) {
-			$aColumns[ 'icwp_autoupdate' ] = 'Auto Update';
-			add_action( 'manage_plugins_custom_column',
-				[ $this, 'aPrintPluginsListAutoUpdateColumnContent' ],
-				100, 2
-			);
-		}
-		return $aColumns;
-	}
-
-	/**
-	 * @param string $sColumnName
-	 * @param string $sPluginBaseFileName
-	 */
-	public function aPrintPluginsListAutoUpdateColumnContent( $sColumnName, $sPluginBaseFileName ) {
-		if ( $sColumnName != 'icwp_autoupdate' ) {
-			return;
-		}
-		/** @var Modules\Autoupdates\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$bUpdate = Services::WpPlugins()->isPluginAutomaticallyUpdated( $sPluginBaseFileName );
-//		$bUpdate = in_array( $sPluginBaseFileName, $oOpts->getAutoupdatePlugins() );
-		$bDisabled = $bUpdate && !in_array( $sPluginBaseFileName, $oOpts->getAutoupdatePlugins() );
-		echo $this->getPluginAutoupdateIconHtml( $sPluginBaseFileName, $bUpdate, $bDisabled );
-	}
-
-	/**
 	 * @param array $aUpdateResults
 	 */
 	public function sendNotificationEmail( $aUpdateResults ) {
@@ -434,20 +373,21 @@ class ICWP_WPSF_Processor_Autoupdates extends Modules\BaseShield\ShieldProcessor
 
 		$aTrkd = $this->getTrackedAssetsVersions();
 
+		$oWpPlugins = Services::WpPlugins();
 		if ( !empty( $aUpdateResults[ 'plugin' ] ) && is_array( $aUpdateResults[ 'plugin' ] ) ) {
 			$bHasPluginUpdates = false;
 			$aTrkdPlugs = $aTrkd[ 'plugins' ];
 
 			$aTempContent[] = __( 'Plugins Updated:', 'wp-simple-firewall' );
 			foreach ( $aUpdateResults[ 'plugin' ] as $oUpdate ) {
-				$oItem = $oUpdate->item;
-				$bValidUpdate = isset( $oUpdate->result ) && $oUpdate->result && !empty( $oUpdate->name )
-								&& isset( $aTrkdPlugs[ $oItem->plugin ] )
-								&& version_compare( $aTrkdPlugs[ $oItem->plugin ], $oUpdate->item->new_version, '<' );
+				$oP = $oWpPlugins->getPluginAsVo( $oUpdate->item->plugin, true );
+				$bValidUpdate = !empty( $oUpdate->result ) && !empty( $oUpdate->name )
+								&& isset( $aTrkdPlugs[ $oP->file ] )
+								&& version_compare( $aTrkdPlugs[ $oP->file ], $oP->Version, '<' );
 				if ( $bValidUpdate ) {
 					$aTempContent[] = ' - '.sprintf(
 							__( 'Plugin "%s" auto-updated from "%s" to version "%s"', 'wp-simple-firewall' ),
-							$oUpdate->name, $aTrkdPlugs[ $oItem->plugin ], $oUpdate->item->new_version );
+							$oUpdate->name, $aTrkdPlugs[ $oP->file ], $oP->Version );
 					$bHasPluginUpdates = true;
 				}
 			}

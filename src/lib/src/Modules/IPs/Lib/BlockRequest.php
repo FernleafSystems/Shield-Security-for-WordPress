@@ -68,7 +68,12 @@ class BlockRequest {
 			if ( !$oOpts->getCanIpRequestAutoUnblock( $sIp ) ) {
 				throw new \Exception( 'IP already processed in the last 24hrs' );
 			}
-			$oMod->updateIpRequestAutoUnblockTs( $sIp );
+
+			{
+				$aExistingIps = $oOpts->getAutoUnblockIps();
+				$aExistingIps[ $sIp ] = Services::Request()->ts();
+				$oOpts->setOpt( 'autounblock_ips', $aExistingIps );
+			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
 				->setDbHandler( $oMod->getDbHandler_IPs() )

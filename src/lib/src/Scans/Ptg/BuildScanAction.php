@@ -13,12 +13,4 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 			->setScanActionVO( $oAction )
 			->build();
 	}
-
-	protected function setCustomFields() {
-		/** @var ScanActionVO $oAction */
-		$oAction = $this->getScanActionVO();
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oAction->file_exts = $oOpts->getPtgFileExtensions();
-	}
 }

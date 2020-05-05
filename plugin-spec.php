@@ -1,8 +1,8 @@
 {
   "properties":   {
-    "version":                 "8.7.0",
-    "release_timestamp":       1584347026,
-    "build":                   "202003.1601",
+    "version":                 "9.0.0",
+    "release_timestamp":       1588667204,
+    "build":                   "202005.0501",
     "slug_parent":             "icwp",
     "slug_plugin":             "wpsf",
     "human_name":              "Shield",
@@ -12,6 +12,7 @@
     "wpms_network_admin_only": true,
     "logging_enabled":         true,
     "show_dashboard_widget":   true,
+    "show_admin_bar_menu":     true,
     "autoupdate":              "confidence",
     "autoupdate_days":         2,
     "options_encoding":        "json",
@@ -20,6 +21,16 @@
   "requirements": {
     "php":       "5.4.0",
     "wordpress": "3.5.2"
+  },
+  "upgrade_reqs": {
+    "7.0":  {
+      "php": "5.4",
+      "wp":  "3.5.2"
+    },
+    "10.0": {
+      "php": "7.0",
+      "wp":  "3.5.2"
+    }
   },
   "paths":        {
     "source":    "src",
@@ -85,7 +96,7 @@
   },
   "meta":         {
     "url_repo_home":        "https://shsec.io/eh",
-    "headway_changelog_id": "xaoEZJ",
+    "announcekit_changelog_id": "3ObUvS",
     "privacy_policy_href":  "https://shsec.io/shieldprivacypolicy"
   },
   "plugin_meta":  [

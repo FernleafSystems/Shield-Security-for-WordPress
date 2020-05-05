@@ -15,7 +15,7 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 			function () {
 				/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 				$oMod = $this->getMod();
-				$oMod->getScanController()
+				$oMod->getScanQueueController()
 					 ->startScans( [ $this->getThisScanCon()->getSlug() ] );
 			}
 		);
@@ -45,48 +45,26 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 	}
 
 	/**
-	 * Because it's the cron and we'll maybe be notifying user, we look
-	 * only for items that have not been notified recently.
-	 */
-	public function cronProcessScanResults() {
-		$oScanCon = $this->getThisScanCon();
-		$oRes = $oScanCon->getAllResultsForCron();
-		if ( $oRes->hasItems() ) {
-			$this->getThisScanCon()->runCronAutoRepair( $oRes );
-
-			if ( $this->runCronUserNotify( $oRes ) ) {
-				$oScanCon->updateAllAsNotified();
-			}
-		}
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oRes
-	 * @return bool - true if user notified
-	 */
-	protected function runCronUserNotify( $oRes ) {
-		return false;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getScannerButtonForEmail() {
-		/** @var ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
-		return sprintf( '<a href="%s" target="_blank" style="%s">%s →</a>',
-			$oFO->getUrlManualScan(),
-			'border:2px solid #e66900;padding:20px;line-height:19px;margin:15px 20px 10px;display:inline-block;text-align:center;width:200px;font-size:18px;color: #e66900;border-radius:3px;',
-			__( 'Run Scanner', 'wp-simple-firewall' )
-		);
-	}
-
-	/**
 	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
 	protected function getThisScanCon() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		return $oMod->getScanCon( static::SCAN_SLUG );
+	}
+
+	/**
+	 * @deprecated 9.0
+	 */
+	public function cronProcessScanResults() {
+	}
+
+	/**
+	 * @param Shield\Scans\Base\BaseResultsSet $oRes
+	 * @return bool - true if user notified
+	 * @deprecated 9.0
+	 */
+	protected function runCronUserNotify( $oRes ) {
+		return false;
 	}
 }

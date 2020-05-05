@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -14,9 +15,11 @@ class PluginBadge {
 	use ModConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-		if ( $oMod->isDisplayPluginBadge() ) {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		$bDisplay = $oOpts->isOnFloatingPluginBadge()
+					&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' );
+		if ( $bDisplay ) {
 			add_action( 'wp_enqueue_scripts', [ $this, 'includeJquery' ] );
 			add_action( 'login_enqueue_scripts', [ $this, 'includeJquery' ] );
 			add_action( 'wp_footer', [ $this, 'printPluginBadge' ], 100 );
@@ -42,6 +45,13 @@ class PluginBadge {
 		}
 	}
 
+	/**
+	 * @return string
+	 */
+	private function getCookieIdBadgeState() {
+		return $this->getCon()->prefix( 'badgeState' );
+	}
+
 	public function includeJquery() {
 		wp_enqueue_script( 'jquery', null, [], false, true );
 	}
@@ -55,13 +65,11 @@ class PluginBadge {
 	 * @return string
 	 */
 	public function render( $bFloating = false ) {
-		$oMod = $this->getMod();
 		$oCon = $this->getCon();
-
 		$sName = $oCon->getHumanName();
 		$aData = [
 			'ajax'    => [
-				'plugin_badge_close' => $oMod->getAjaxActionData( 'plugin_badge_close', true ),
+				'plugin_badge_close' => $this->getMod()->getAjaxActionData( 'plugin_badge_close', true ),
 			],
 			'flags'   => [
 				'nofollow'    => apply_filters( 'icwp_shield_badge_relnofollow', false ),
@@ -81,12 +89,32 @@ class PluginBadge {
 		];
 
 		try {
-			$sRender = $oMod->renderTemplate( 'snippets/plugin_badge_widget', $aData, true );
+			$sRender = $this->getMod()->renderTemplate( 'snippets/plugin_badge_widget', $aData, true );
 		}
 		catch ( \Exception $oE ) {
 			$sRender = 'Could not generate badge: '.$oE->getMessage();
 		}
 
 		return $sRender;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function setBadgeStateClosed() {
+		return Services::Response()
+				->cookieSet(
+					$this->getCookieIdBadgeState(),
+					'closed',
+					DAY_IN_SECONDS
+				);
+	}
+
+	/**
+	 * @param bool $bDisplay
+	 * @return void
+	 */
+	public function setIsDisplayPluginBadge( $bDisplay ) {
+		$this->getOptions()->setOpt( 'display_plugin_badge', $bDisplay ? 'Y' : 'N' );
 	}
 }

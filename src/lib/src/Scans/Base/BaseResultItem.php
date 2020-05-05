@@ -10,6 +10,7 @@ use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
  * @property string $hash
  * @property bool   $is_excluded
  * @property string $scan
+ * @property bool   $repaired
  */
 class BaseResultItem {
 

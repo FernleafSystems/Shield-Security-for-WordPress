@@ -16,22 +16,19 @@ class ICWP_WPSF_Processor_CommentsFilter_GoogleRecaptcha extends Modules\BaseShi
 	 */
 	public function setup() {
 		if ( Services::WpComments()->isCommentsOpen() ) {
-			add_action( 'wp_enqueue_scripts', [ $this, 'registerGoogleRecaptchaJs' ], 99 );
+			$this->getCon()
+				 ->getModule_Plugin()
+				 ->getCaptchaEnqueue()
+				 ->setMod( $this->getMod() )
+				 ->setToEnqueue();
 			add_action( 'comment_form_after_fields', [ $this, 'printGoogleRecaptchaCheck' ] );
 		}
 	}
 
-	/**
-	 */
 	public function printGoogleRecaptchaCheck() {
-		$this->setRecaptchaToEnqueue();
-		echo $this->getGoogleRecaptchaHtml();
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getGoogleRecaptchaHtml() {
-		return '<div class="icwpg-recaptcha" style="margin: 10px 0; clear:both;"></div>';
+		echo $this->getCon()
+				  ->getModule_Plugin()
+				  ->getCaptchaEnqueue()
+				  ->getCaptchaHtml();
 	}
 }

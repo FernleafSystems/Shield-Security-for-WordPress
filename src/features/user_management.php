@@ -34,7 +34,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		return $aEmails;
 	}
 
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		/** @var UserManagement\Options $oOpts */
 		$oOpts = $this->getOptions();
 
@@ -111,15 +111,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 * @return $this
 	 */
 	public function addRemoveHardSuspendUserId( $nUserId, $bAdd = true ) {
-		$sAdminUser = Services::WpUsers()->getCurrentWpUsername();
+		/** @var UserManagement\Options $oOpts */
+		$oOpts = $this->getOptions();
 
-		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
-		if ( !is_array( $aIds ) ) {
-			$aIds = [];
-		}
+		$aIds = $oOpts->getSuspendHardUserIds();
 
-		$bIdSuspended = isset( $aIds[ $nUserId ] );
 		$oMeta = $this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
+		$bIdSuspended = isset( $aIds[ $nUserId ] ) || $oMeta->hard_suspended_at > 0;
 
 		if ( $bAdd && !$bIdSuspended ) {
 			$oMeta->hard_suspended_at = Services::Request()->ts();
@@ -129,7 +127,7 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				[
 					'audit' => [
 						'user_id' => $nUserId,
-						'admin'   => $sAdminUser,
+						'admin'   => Services::WpUsers()->getCurrentWpUsername(),
 					]
 				]
 			);
@@ -142,21 +140,13 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 				[
 					'audit' => [
 						'user_id' => $nUserId,
-						'admin'   => $sAdminUser,
+						'admin'   => Services::WpUsers()->getCurrentWpUsername(),
 					]
 				]
 			);
 		}
 
 		return $this->setOpt( 'hard_suspended_userids', $aIds );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getSuspendHardUserIds() {
-		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
-		return is_array( $aIds ) ? array_filter( $aIds, 'is_int' ) : [];
 	}
 
 	/**
@@ -279,5 +269,14 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	 */
 	protected function getNamespaceBase() {
 		return 'UserManagement';
+	}
+
+	/**
+	 * @return array
+	 * @deprecated 9.0
+	 */
+	public function getSuspendHardUserIds() {
+		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
+		return is_array( $aIds ) ? array_filter( $aIds, 'is_int' ) : [];
 	}
 }

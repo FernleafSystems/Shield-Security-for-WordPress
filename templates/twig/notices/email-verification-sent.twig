@@ -45,7 +45,7 @@
 						}
 						iCWP_WPSF_Toaster.showMessage( sMessage, oResponse.success );
 						if ( oResponse.data.page_reload ) {
-							location.reload( true );
+							location.reload();
 						}
 					}
 				).always( function () {

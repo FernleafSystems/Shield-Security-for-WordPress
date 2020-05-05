@@ -25,7 +25,7 @@ class DiffResultForStorage {
 		// 1 Remove items in EXISTING that are not in NEW
 		foreach ( $oExistingRes->getAllItems() as $oExistItem ) {
 			if ( !$oNewResults->getItemExists( $oExistItem->hash ) ) {
-				$oExistingRes->removeItem( $oExistItem->hash );
+				$oExistingRes->removeItemByHash( $oExistItem->hash );
 				$oToDelete->addItem( $oExistItem );
 			}
 		}
@@ -34,7 +34,7 @@ class DiffResultForStorage {
 		foreach ( $oNewResults->getAllItems() as $oNewItem ) {
 			if ( $oExistingRes->getItemExists( $oNewItem->hash ) ) {
 				$oMerger->mergeItemTo( $oExistingRes->getItemByHash( $oNewItem->hash ), $oNewItem );
-				$oNewResults->removeItem( $oNewItem->hash );
+				$oNewResults->removeItemByHash( $oNewItem->hash );
 			}
 		}
 

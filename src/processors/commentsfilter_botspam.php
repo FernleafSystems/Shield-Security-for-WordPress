@@ -72,7 +72,7 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 				],
 				'flags'   => [
 					'gasp'  => true,
-					'recap' => $oMod->isGoogleRecaptchaEnabled(),
+					'recap' => $oMod->isEnabledCaptcha(),
 				]
 			]
 		);

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Deprecated;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseModCon extends Deprecated\Foundation {
+class BaseModCon {
 
 	use Modules\PluginControllerConsumer;
 
@@ -96,7 +96,6 @@ class BaseModCon extends Deprecated\Foundation {
 		$nRunPriority = isset( $aModProps[ 'load_priority' ] ) ? $aModProps[ 'load_priority' ] : 100;
 		add_action( $this->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( $this->prefix( 'import_options' ), [ $this, 'processImportOptions' ] );
 
 		if ( $this->isModuleRequest() ) {
 
@@ -122,7 +121,6 @@ class BaseModCon extends Deprecated\Foundation {
 		add_filter( $this->prefix( 'aggregate_all_plugin_options' ), [ $this, 'aggregateOptionsValues' ] );
 
 		add_filter( $this->prefix( 'register_admin_notices' ), [ $this, 'fRegisterAdminNotices' ] );
-		add_filter( $this->prefix( 'gather_options_for_export' ), [ $this, 'exportTransferableOptions' ] );
 
 		add_action( $this->prefix( 'daily_cron' ), [ $this, 'runDailyCron' ] );
 		add_action( $this->prefix( 'hourly_cron' ), [ $this, 'runHourlyCron' ] );
@@ -326,17 +324,6 @@ class BaseModCon extends Deprecated\Foundation {
 	}
 
 	/**
-	 * @param array $aOptions
-	 */
-	public function processImportOptions( $aOptions ) {
-		if ( !empty( $aOptions ) && is_array( $aOptions ) && array_key_exists( $this->getOptionsStorageKey(), $aOptions ) ) {
-			$this->getOptions()
-				 ->setMultipleOptions( $aOptions[ $this->getOptionsStorageKey() ] );
-			$this->saveModOptions();
-		}
-	}
-
-	/**
 	 * @return bool
 	 */
 	protected function isReadyToExecute() {
@@ -433,7 +420,7 @@ class BaseModCon extends Deprecated\Foundation {
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
-		if ( !$this->getCon()->isPluginDeleting() ) {
+		if ( !$this->getCon()->plugin_deleting ) {
 			if ( rand( 1, 40 ) === 2 ) {
 				// cleanup databases randomly just in-case cron doesn't run.
 				$this->cleanupDatabases();
@@ -499,7 +486,7 @@ class BaseModCon extends Deprecated\Foundation {
 	 */
 	public function getEmailHandler() {
 		if ( is_null( self::$oEmailHandler ) ) {
-			self::$oEmailHandler = $this->getCon()->loadFeatureHandler( [ 'slug' => 'email' ] );
+			self::$oEmailHandler = $this->getCon()->getModule( 'email' );
 		}
 		return self::$oEmailHandler;
 	}
@@ -1165,15 +1152,10 @@ class BaseModCon extends Deprecated\Foundation {
 			throw new \Exception( __( "You don't currently have permission to save settings.", 'wp-simple-firewall' ) );
 		}
 		$this->doSaveStandardOptions();
-		$this->doExtraSubmitProcessing();
+		$this->preProcessOptions();
 	}
 
-	protected function verifyFormSubmit() {
-		return $this->getCon()->isPluginAdmin()
-			   && check_admin_referer( $this->getCon()->getPluginPrefix() );
-	}
-
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 	}
 
 	/**
@@ -1205,16 +1187,6 @@ class BaseModCon extends Deprecated\Foundation {
 	 */
 	public function isPremium() {
 		return $this->getCon()->isPremiumActive();
-	}
-
-	/**
-	 * UNUSED
-	 * Ensure that if an option is premium, it is never changed unless we have premium access
-	 */
-	protected function resetPremiumOptions() {
-		if ( !$this->isPremium() ) {
-			$this->getOptions()->resetPremiumOptsToDefault();
-		}
 	}
 
 	/**
@@ -1688,7 +1660,7 @@ class BaseModCon extends Deprecated\Foundation {
 		}
 		try {
 			$oRndr = $this->getCon()->getRenderer();
-			if ( $bUseTwig ) {
+			if ( $bUseTwig || preg_match( '#^.*\.twig$#i', $sTemplate ) ) {
 				$oRndr->setTemplateEngineTwig();
 			}
 

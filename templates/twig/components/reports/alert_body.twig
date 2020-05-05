@@ -1,0 +1,5 @@
+<h2>{{ strings.title }}</h2>
+<p>{{ strings.subtitle }}</p>
+{% for alert in vars.alerts %}
+	<div>{{ alert|raw }}</div>
+{% endfor %}

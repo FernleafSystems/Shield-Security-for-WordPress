@@ -1,13 +1,11 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 
+/**
+ * Class ICWP_WPSF_Processor_Ips
+ * @deprecated 9.0
+ */
 class ICWP_WPSF_Processor_Ips extends Shield\Modules\BaseShield\ShieldProcessor {
 
-	public function run() {
-		( new IPs\Lib\BlacklistHandler() )
-			->setMod( $this->getMod() )
-			->run();
-	}
 }

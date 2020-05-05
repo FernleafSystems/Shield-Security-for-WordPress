@@ -222,13 +222,22 @@ abstract class BaseQuery {
 	}
 
 	/**
+	 * @param int $nStartTS
+	 * @param int $nEndTS
+	 * @return $this
+	 */
+	public function filterByBoundary( $nStartTS, $nEndTS ) {
+		return $this->filterByCreatedAt( $nEndTS, '<=' )
+					->filterByCreatedAt( $nStartTS, '>=' );
+	}
+
+	/**
 	 * @param int $nTs
 	 * @return $this
 	 */
 	public function filterByBoundary_Day( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByCreatedAt( $oCbn->endOfDay()->timestamp, '<=' )
-					->filterByCreatedAt( $oCbn->startOfDay()->timestamp, '>=' );
+		return $this->filterByBoundary( $oCbn->startOfDay()->timestamp, $oCbn->endOfDay()->timestamp );
 	}
 
 	/**
@@ -237,8 +246,7 @@ abstract class BaseQuery {
 	 */
 	public function filterByBoundary_Hour( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByCreatedAt( $oCbn->endOfHour()->timestamp, '<=' )
-					->filterByCreatedAt( $oCbn->startOfHour()->timestamp, '>=' );
+		return $this->filterByBoundary( $oCbn->startOfHour()->timestamp, $oCbn->endOfHour()->timestamp );
 	}
 
 	/**
@@ -247,8 +255,7 @@ abstract class BaseQuery {
 	 */
 	public function filterByBoundary_Month( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByCreatedAt( $oCbn->startOfMonth()->timestamp, '>=' )
-					->filterByCreatedAt( $oCbn->endOfMonth()->timestamp, '<=' );
+		return $this->filterByBoundary( $oCbn->startOfMonth()->timestamp, $oCbn->endOfMonth()->timestamp );
 	}
 
 	/**
@@ -257,8 +264,7 @@ abstract class BaseQuery {
 	 */
 	public function filterByBoundary_Week( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByCreatedAt( $oCbn->endOfWeek()->timestamp, '<=' )
-					->filterByCreatedAt( $oCbn->startOfWeek()->timestamp, '>=' );
+		return $this->filterByBoundary( $oCbn->startOfWeek()->timestamp, $oCbn->endOfWeek()->timestamp );
 	}
 
 	/**
@@ -267,8 +273,7 @@ abstract class BaseQuery {
 	 */
 	public function filterByBoundary_Year( $nTs ) {
 		$oCbn = ( new Carbon() )->setTimestamp( $nTs );
-		return $this->filterByCreatedAt( $oCbn->startOfYear()->timestamp, '>=' )
-					->filterByCreatedAt( $oCbn->endOfYear()->timestamp, '<=' );
+		return $this->filterByBoundary( $oCbn->startOfYear()->timestamp, $oCbn->endOfYear()->timestamp );
 	}
 
 	/**

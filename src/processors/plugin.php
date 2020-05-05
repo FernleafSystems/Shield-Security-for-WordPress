@@ -11,42 +11,33 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	 */
 	public function run() {
 		parent::run();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$this->removePluginConflicts();
 
 		( new Shield\Crons\HourlyCron() )
-			->setMod( $this->getMod() )
+			->setMod( $oMod )
 			->run();
 		( new Shield\Crons\DailyCron() )
-			->setMod( $this->getMod() )
+			->setMod( $oMod )
 			->run();
-		( new Plugin\Components\PluginBadge() )
-			->setMod( $this->getMod() )
-			->run();
+		$oMod->getPluginBadgeCon()->run();
 
 		if ( $oOpts->isTrackingEnabled() || !$oOpts->isTrackingPermissionSet() ) {
 			$this->getSubProTracking()->execute();
 		}
 
 		if ( $oOpts->isImportExportPermitted() ) {
-			$this->getSubProImportExport()->execute();
+			$oMod->getImpExpController()->run();
 		}
 
 		$oCon = $this->getCon();
 		switch ( $oCon->getShieldAction() ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
-				break;
-
-			case 'importexport_export':
-			case 'importexport_import':
-			case 'importexport_handshake':
-			case 'importexport_updatenotified':
-				if ( $oOpts->isImportExportPermitted() ) {
-					add_action( 'init', [ $this->getSubProImportExport(), 'runAction' ] );
-				}
 				break;
 			default:
 				break;
@@ -93,19 +84,11 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_Plugin_ImportExport
-	 */
-	public function getSubProImportExport() {
-		return $this->getSubPro( 'importexport' );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {
 		return [
-			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
-			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
+			'tracking' => 'ICWP_WPSF_Processor_Plugin_Tracking',
 		];
 	}
 
@@ -171,6 +154,14 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
 	public function runDailyCron() {
 		$this->getCon()->fireEvent( 'test_cron_run' );
+
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isImportExportPermitted() ) {
+			( new Plugin\Lib\ImportExport\Import() )
+				->setMod( $this->getMod() )
+				->fromSite( $oOpts->getImportExportMasterImportUrl() );
+		}
 	}
 
 	/**

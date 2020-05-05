@@ -29,7 +29,7 @@ class LicenseEmails {
 			];
 			$oMod->getEmailProcessor()
 				 ->sendEmailWithWrap(
-					 $oMod->getPluginDefaultRecipientAddress(),
+					 $oMod->getPluginReportEmail(),
 					 'Pro License Check Has Failed',
 					 $aMessage
 				 );
@@ -57,7 +57,7 @@ class LicenseEmails {
 			];
 			$oMod->getEmailProcessor()
 				 ->sendEmailWithWrap(
-					 $oMod->getPluginDefaultRecipientAddress(),
+					 $oMod->getPluginReportEmail(),
 					 '[Action May Be Required] Pro License Has Been Deactivated',
 					 $aMessage
 				 );

@@ -31,6 +31,10 @@ class ScanExecute {
 			 ->setMod( $oMod )
 			 ->run();
 
+		if ( $oAction->usleep > 0 ) {
+			usleep( $oAction->usleep );
+		}
+
 		$oEntry->results = $oAction->results;
 
 		return $oEntry;

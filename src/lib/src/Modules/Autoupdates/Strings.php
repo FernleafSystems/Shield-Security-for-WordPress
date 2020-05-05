@@ -125,12 +125,6 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'Note: Automatic updates for plugins are disabled on WordPress by default.', 'wp-simple-firewall' );
 				break;
 
-			case 'enable_individual_autoupdate_plugins' :
-				$sName = __( 'Individually Select Plugins', 'wp-simple-firewall' );
-				$sSummary = __( 'Select Individual Plugins To Automatically Update', 'wp-simple-firewall' );
-				$sDescription = __( 'Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated.', 'wp-simple-firewall' );
-				break;
-
 			case 'enable_autoupdate_themes' :
 				$sName = __( 'Themes', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Update Themes', 'wp-simple-firewall' );

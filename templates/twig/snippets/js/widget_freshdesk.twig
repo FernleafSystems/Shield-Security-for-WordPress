@@ -1,0 +1,17 @@
+{% if not vendors.widget_freshdesk|default('') is empty %}
+	<script>
+		window.fwSettings = {
+			'widget_id': {{ vendors.widget_freshdesk }}
+		};
+		!function () {
+			if ( "function" != typeof window.FreshworksWidget ) {
+				var n = function () {
+					n.q.push( arguments )
+				};
+				n.q = [], window.FreshworksWidget = n
+			}
+		}()
+	</script>
+	<script type="text/javascript" src="https://widget.freshworks.com/widgets/{{ vendors.widget_freshdesk }}.js"
+			async defer></script>
+{% endif %}

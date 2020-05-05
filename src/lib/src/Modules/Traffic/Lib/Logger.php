@@ -27,8 +27,8 @@ class Logger {
 	 * @return bool
 	 */
 	private function isRequestToBeLogged() {
-		return apply_filters( $this->getCon()->prefix( 'is_log_traffic' ), true )
-			   && !$this->getCon()->isPluginDeleting()
+		return !$this->getCon()->plugin_deleting
+			   && apply_filters( $this->getCon()->prefix( 'is_log_traffic' ), true )
 			   && ( !$this->isCustomExcluded() )
 			   && ( !$this->isRequestTypeExcluded() );
 	}
@@ -120,7 +120,7 @@ class Logger {
 
 		$oEntry->rid = $this->getCon()->getShortRequestId();
 		$oEntry->uid = Services::WpUsers()->getCurrentWpUserId();
-		$oEntry->ip = inet_pton( Services::IP()->getRequestIp() );
+		$oEntry->ip = Services::IP()->getRequestIp();
 		$oEntry->verb = $oReq->getMethod();
 		$oEntry->path = $sLeadingPath.$oReq->getPath().( empty( $_GET ) ? '' : '?'.http_build_query( $_GET ) );
 		$oEntry->code = http_response_code();

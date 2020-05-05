@@ -3,12 +3,53 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\License\EddLicenseVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\HandshakingNonce;
 use FernleafSystems\Wordpress\Services\Services;
 
 class LicenseHandler {
 
-	use ModConsumer;
+	use Modules\ModConsumer;
+	use Modules\Base\OneTimeExecute;
+
+	protected function run() {
+		$oCon = $this->getCon();
+
+		add_action( $oCon->prefix( 'shield_action' ), function ( $sAction ) {
+			$oCon = $this->getCon();
+			switch ( $sAction ) {
+
+				case 'keyless_handshake':
+				case 'snapi_handshake':
+					$sNonce = Services::Request()->query( 'nonce' );
+					if ( !empty( $sNonce ) ) {
+						die( json_encode( [
+							'success' => ( new HandshakingNonce() )
+								->setMod( $this->getMod() )
+								->verify( $sNonce )
+						] ) );
+					}
+					break;
+
+				case 'license_check':
+					if ( !wp_next_scheduled( $oCon->prefix( 'adhoc_cron_license_check' ) ) ) {
+						wp_schedule_single_event( Services::Request()->ts() + 20, $oCon->prefix( 'adhoc_cron_license_check' ) );
+					}
+					break;
+			}
+		} );
+
+		// performs the license check on-demand
+		add_action( $oCon->prefix( 'adhoc_cron_license_check' ), function () {
+			/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
+			$oMod = $this->getMod();
+			try {
+				$oMod->getLicenseHandler()->verify( true );
+			}
+			catch ( \Exception $oE ) {
+			}
+		} );
+	}
 
 	/**
 	 * @return bool

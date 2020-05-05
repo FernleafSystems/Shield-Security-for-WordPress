@@ -2,6 +2,7 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
@@ -12,23 +13,13 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
-		$sPath = Services::Request()->getPath();
-		if ( !empty( $sPath ) && ( strpos( $sPath, '/wp-admin/admin-ajax.php' ) !== false ) ) {
-			$this->revSliderPatch_LFI();
-			$this->revSliderPatch_AFU();
-		}
-
 		$this->getSubProScanner()->execute();
-		if ( $oMod->isRtEnabledWpConfig() ) {
-			$this->getSubProRealtime()->execute();
-		}
-	}
 
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Realtime|mixed
-	 */
-	public function getSubProRealtime() {
-		return $this->getSubPro( 'realtime' );
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( count( $oOpts->getFilesToLock() ) > 0 ) {
+			$oMod->getFileLocker()->execute();
+		}
 	}
 
 	/**
@@ -43,31 +34,8 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 	 */
 	protected function getSubProMap() {
 		return [
-			'scanner'  => 'ICWP_WPSF_Processor_HackProtect_Scanner',
-			'realtime' => 'ICWP_WPSF_Processor_HackProtect_Realtime',
+			'scanner' => 'ICWP_WPSF_Processor_HackProtect_Scanner',
 		];
-	}
-
-	protected function revSliderPatch_LFI() {
-		$oReq = Services::Request();
-
-		$sAction = $oReq->query( 'action', '' );
-		$sFileExt = strtolower( Services::Data()->getExtension( $oReq->query( 'img', '' ) ) );
-		if ( $sAction == 'revslider_show_image' && !empty( $sFileExt ) ) {
-			if ( !in_array( $sFileExt, [ 'jpg', 'jpeg', 'png', 'tiff', 'tif', 'gif' ] ) ) {
-				die( 'RevSlider Local File Inclusion Attempt' );
-			}
-		}
-	}
-
-	protected function revSliderPatch_AFU() {
-		$oReq = Services::Request();
-
-		$sAction = strtolower( $oReq->request( 'action', '' ) );
-		$sClientAction = strtolower( $oReq->request( 'client_action', '' ) );
-		if ( ( strpos( $sAction, 'revslider_ajax_action' ) !== false || strpos( $sAction, 'showbiz_ajax_action' ) !== false ) && $sClientAction == 'update_plugin' ) {
-			die( 'RevSlider Arbitrary File Upload Attempt' );
-		}
 	}
 
 	/**
@@ -100,7 +68,6 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		$aReasonCantScan = $this->getSubProScanner()
 								->getReasonsScansCantExecute();
 
-		$oQueCon = $oMod->getScanController();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner\Select $oSelector */
 		$oSelector = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		$aData = [
@@ -141,12 +108,12 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'clear_suppression'     => __( 'Remove Notification Suppression', 'wp-simple-firewall' ),
 				'clear_suppression_sub' => __( 'Allow notification emails to be resent (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
-				'no_entries_to_display' => __( 'No entries to display.', 'wp-simple-firewall' ),
+				'no_entries_to_display' => __( "The previous scan either didn't detect any items that require your attention or they've already been repaired.", 'wp-simple-firewall' ),
 				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 			],
 			'vars'         => [
-				'initial_check'       => $oQueCon->hasRunningScans(),
+				'initial_check'       => $oMod->getScanQueueController()->hasRunningScans(),
 				'cannot_scan_reasons' => $aReasonCantScan
 			],
 			'scan_results' => [
@@ -161,13 +128,14 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'vars'    => [
 				],
 				'strings' => [
-					'title'    => __( "File Scan Results", 'wp-simple-firewall' ),
+					'title'    => __( 'File Scan', 'wp-simple-firewall' ),
 					'subtitle' => __( "Results of all file scans", 'wp-simple-firewall' )
 				],
 				'count'   => $oSelector->filterByScans( [ 'ptg', 'mal', 'wcf', 'ufc' ] )
 									   ->filterByNotIgnored()
 									   ->count()
 			],
+			'file_locker'  => $this->getFileLockerVars(),
 			'scans'        => [
 				'apc' => [
 					'flags'   => [
@@ -246,6 +214,45 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		}
 
 		return $aData;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getFileLockerVars() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+
+		$oLockLoader = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $oMod );
+		$aProblemLocks = $oLockLoader->withProblems();
+		$aGoodLocks = $oLockLoader->withoutProblems();
+
+		return [
+			'ajax'    => [
+				'filelocker_showdiff'   => $oMod->getAjaxActionData( 'filelocker_showdiff', true ),
+				'filelocker_fileaction' => $oMod->getAjaxActionData( 'filelocker_fileaction', true ),
+			],
+			'flags'   => [
+				'has_items'     => count( $oLockLoader->loadLocks() ) > 0,
+				'is_restricted' => !$this->getCon()->isPremiumActive(),
+			],
+			'hrefs'   => [
+				'options'       => $oMod->getUrl_DirectLinkToSection( 'section_realtime' ),
+				'please_enable' => $oMod->getUrl_DirectLinkToSection( 'section_realtime' ),
+			],
+			'vars'    => [
+				'file_locks' => [
+					'good' => $aGoodLocks,
+					'bad'  => $aProblemLocks,
+				],
+			],
+			'strings' => [
+				'title'         => __( 'File Locker', 'wp-simple-firewall' ),
+				'subtitle'      => __( 'Results of file locker monitoring', 'wp-simple-firewall' ),
+				'please_select' => __( 'Please select a file to review.', 'wp-simple-firewall' ),
+			],
+			'count'   => count( $aProblemLocks )
+		];
 	}
 
 	/**

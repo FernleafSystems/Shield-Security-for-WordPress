@@ -53,6 +53,14 @@ class Traffic extends BaseBuild {
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function buildEmpty() {
+		return sprintf( '<div class="alert alert-success m-0">%s</div>',
+			__( "No requests have been logged.", 'wp-simple-firewall' ) );
+	}
+
+	/**
 	 * Override to allow other parameter keys for building the table
 	 * @return array
 	 */
@@ -74,11 +82,10 @@ class Traffic extends BaseBuild {
 	protected function getEntriesFormatted() {
 		$aEntries = [];
 
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-
 		$oWpUsers = Services::WpUsers();
-		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $oMod->getDbHandler_GeoIp() );
+		$oGeoIpLookup = ( new Lookup() )->setDbHandler( $this->getCon()
+															 ->getModule_Plugin()
+															 ->getDbHandler_GeoIp() );
 		$oIpSrv = Services::IP();
 		$sYou = $oIpSrv->getRequestIp();
 

@@ -1,0 +1,26 @@
+{% extends '/wpadmin_pages/insights/base.twig' %}
+
+{% block page_main %}
+	<div class="row">
+		{% for group_title,group in vars.debug_data %}
+			<div class="col-12 insights_section">
+				<h5 class="mb-3">{{ group_title }}</h5>
+				<div class="card-group">
+					{% for title,section_data in group %}
+						<div class="card">
+							<div class="card-header">{{ title }}</div>
+							<div class="card-body">
+								<dl>
+								{% for key,val in section_data %}
+									<dt>{{ key }}</dt>
+									<dd class="mb-2">{{ val }}</dd>
+								{% endfor %}
+								</dl>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+{% endblock %}

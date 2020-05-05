@@ -100,7 +100,10 @@ class Strings extends Base\Strings {
 			case 'disable_anonymous_restapi' :
 				$sName = __( 'Anonymous Rest API', 'wp-simple-firewall' );
 				$sSummary = sprintf( __( 'Disable The %s System', 'wp-simple-firewall' ), __( 'Anonymous Rest API', 'wp-simple-firewall' ) );
-				$sDescription = __( 'You can choose to completely disable anonymous access to the REST API.', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'You can choose to completely disable anonymous access to the REST API.', 'wp-simple-firewall' ),
+					sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ), __( 'Enabling this option may break plugins that use the REST API for your site visitors.', 'wp-simple-firewall' ) )
+				];
 				break;
 
 			case 'api_namespace_exclusions' :
@@ -121,13 +124,6 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Forces WordPress Admin Dashboard To Be Delivered Over SSL', 'wp-simple-firewall' );
 				$sDescription = __( 'Please only enable this option if you have a valid SSL certificate installed.', 'wp-simple-firewall' )
 								.'<br />'.__( 'Equivalent to setting "FORCE_SSL_ADMIN" to TRUE.', 'wp-simple-firewall' );
-				break;
-
-			case 'mask_wordpress_version' :
-				$sName = __( 'Mask WordPress Version', 'wp-simple-firewall' );
-				$sSummary = __( 'Prevents Public Display Of Your WordPress Version', 'wp-simple-firewall' );
-				$sDescription = __( 'Enter how you would like your WordPress version displayed publicly. Leave blank to disable this feature.', 'wp-simple-firewall' )
-								.'<br />'.sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'This may interfere with WordPress plugins that rely on the $wp_version variable.', 'wp-simple-firewall' ) );
 				break;
 
 			case 'hide_wordpress_generator_tag' :

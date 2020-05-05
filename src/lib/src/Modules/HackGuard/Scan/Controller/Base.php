@@ -33,12 +33,24 @@ abstract class Base {
 			->retrieve();
 		foreach ( $oResults->getItems() as $oItem ) {
 			if ( !$this->isResultItemStale( $oItem ) ) {
-				$oResults->removeItem( $oItem->hash );
+				$oResults->removeItemByHash( $oItem->hash );
 			}
 		}
 		( new HackGuard\Scan\Results\ResultsDelete() )
 			->setScanController( $this )
 			->delete( $oResults );
+	}
+
+	/**
+	 * @param Databases\Scanner\EntryVO $oEntryVo
+	 * @return string
+	 */
+	public function createFileDownloadLink( $oEntryVo ) {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$aActionNonce = $oMod->getNonceActionData( 'scan_file_download' );
+		$aActionNonce[ 'rid' ] = $oEntryVo->id;
+		return add_query_arg( $aActionNonce, $oMod->getUrl_AdminPage() );
 	}
 
 	/**
@@ -83,7 +95,6 @@ abstract class Base {
 				->convertVoToResultItem( $oEntry );
 
 			$bSuccess = $this->getItemActionHandler()
-							 ->setDbHandler( $this->getScanResultsDbHandler() )
 							 ->setScanItem( $oItem )
 							 ->process( $sAction );
 		}
@@ -94,13 +105,11 @@ abstract class Base {
 	/**
 	 * @return Scans\Base\BaseResultsSet|mixed
 	 */
-	public function getAllResultsForCron() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
+	protected function getItemsToAutoRepair() {
 		/** @var Databases\Scanner\Select $oSel */
 		$oSel = $this->getScanResultsDbHandler()->getQuerySelector();
 		$oSel->filterByScan( $this->getSlug() )
-			 ->filterForCron( $oMod->getScanNotificationInterval() );
+			 ->filterByNotIgnored();
 		return ( new HackGuard\Scan\Results\ConvertBetweenTypes() )
 			->setScanController( $this )
 			->fromVOsToResultsSet( $oSel->query() );
@@ -213,15 +222,21 @@ abstract class Base {
 	}
 
 	/**
-	 * @param Scans\Base\BaseResultsSet $oRes
+	 * TODO: Make private/protected
 	 */
-	public function runCronAutoRepair( $oRes ) {
-		if ( $this->isCronAutoRepair() ) {
-			$this->getItemActionHandler()
-				 ->getRepairer()
-				 ->setIsManualAction( false )
-				 ->setAllowDelete( false )
-				 ->repairResultsSet( $oRes );
+	public function runCronAutoRepair() {
+		$oRes = $this->getItemsToAutoRepair();
+		if ( $oRes->hasItems() ) {
+			foreach ( $oRes->getAllItems() as $oItem ) {
+				try {
+					$this->getItemActionHandler()
+						 ->setScanItem( $oItem )
+						 ->repair();
+				}
+				catch ( \Exception $oE ) {
+				}
+			}
+			$this->cleanStalesResults();
 		}
 	}
 

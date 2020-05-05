@@ -38,24 +38,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return array
 	 */
-	public function getGoogleRecaptchaConfig() {
-		$aConfig = [
-			'key'            => $this->getOpt( 'google_recaptcha_site_key' ),
-			'secret'         => $this->getOpt( 'google_recaptcha_secret_key' ),
-			'style'          => $this->getOpt( 'google_recaptcha_style' ),
-			'style_override' => !$this->getCon()->isPremiumActive()
+	public function getCaptchaConfig() {
+		return [
+			'provider' => $this->getOpt( 'captcha_provider', 'grecaptcha' ),
+			'key'      => $this->getOpt( 'google_recaptcha_site_key' ),
+			'secret'   => $this->getOpt( 'google_recaptcha_secret_key' ),
+			'theme'    => $this->getOpt( 'google_recaptcha_style' ),
 		];
-		if ( $aConfig[ 'style_override' ] ) {
-			$aConfig[ 'style' ] = 'light'; // hard-coded light style for non-pro
-		}
-		return $aConfig;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getImportExportHandshakeExpiresAt() {
-		return (int)$this->getOpt( 'importexport_handshake_expires_at', Services::Request()->ts() );
 	}
 
 	/**
@@ -70,6 +59,14 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getIpSource() {
 		return $this->getOpt( 'visitor_address_source' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getShieldNetApiData() {
+		$aD = $this->getOpt( 'snapi_data', [] );
+		return is_array( $aD ) ? $aD:[];
 	}
 
 	/**
@@ -120,6 +117,14 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isImportExportPermitted() {
 		return $this->isPremium() && $this->isOpt( 'importexport_enable', 'Y' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getImportExportWhitelist() {
+		$aWhitelist = $this->getOpt( 'importexport_whitelist', [] );
+		return is_array( $aWhitelist ) ? $aWhitelist : [];
 	}
 
 	/**

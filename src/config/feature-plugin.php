@@ -34,6 +34,14 @@
       "can_dismiss":      false,
       "type":             "error"
     },
+    "php7":          {
+      "id":               "php7",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": false,
+      "can_dismiss":      true,
+      "type":             "warning"
+    },
     "compat-sgoptimize":          {
       "id":               "compat-sgoptimize",
       "schedule":         "conditions",
@@ -85,9 +93,9 @@
       "help_video_id": "338540386"
     },
     {
-      "slug":          "section_third_party_google",
-      "title":         "Google reCAPTCHA",
-      "title_short":   "Google reCAPTCHA",
+      "slug":          "section_third_party_captcha",
+      "title":         "CAPTCHA",
+      "title_short":   "CAPTCHA",
       "help_video_id": "338546796"
     },
     {
@@ -304,8 +312,29 @@
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
+      "key":           "captcha_provider",
+      "section":       "section_third_party_captcha",
+      "default":       "grecaptcha",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "grecaptcha",
+          "text":      "Google reCAPTCHA v2"
+        },
+        {
+          "value_key": "hcaptcha",
+          "text":      "hCaptcha"
+        }
+      ],
+      "link_info":     "https://shsec.io/dq",
+      "link_blog":     "",
+      "name":          "CAPTCHA Provider",
+      "summary":       "Which CAPTCHA Provider To Use Throughout",
+      "description":   "You can choose the CAPTCHA provider depending on your preferences."
+    },
+    {
       "key":           "google_recaptcha_style",
-      "section":       "section_third_party_google",
+      "section":       "section_third_party_captcha",
       "premium":       true,
       "default":       "light",
       "type":          "select",
@@ -325,13 +354,13 @@
       ],
       "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
-      "name":          "reCAPTCHA Style",
+      "name":          "CAPTCHA Type",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
       "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
     },
     {
       "key":         "google_recaptcha_site_key",
-      "section":     "section_third_party_google",
+      "section":     "section_third_party_captcha",
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -343,7 +372,7 @@
     },
     {
       "key":         "google_recaptcha_secret_key",
-      "section":     "section_third_party_google",
+      "section":     "section_third_party_captcha",
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -403,13 +432,6 @@
       "default":      0
     },
     {
-      "key":          "importexport_last_import_hash",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
@@ -423,6 +445,28 @@
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
+    },
+    {
+      "key":          "snapi_data",
+      "transferable": false,
+      "sensitive":    true,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "captcha_checked_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "int",
+      "default":      -1
+    },
+    {
+      "key":          "cache_dir_write_test",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {
@@ -508,6 +552,11 @@
         "slug":          "events",
         "storage_key":   "events",
         "load_priority": 11
+      },
+      {
+        "slug":          "reporting",
+        "storage_key":   "reporting",
+        "load_priority": 12
       },
       {
         "slug":          "sessions",

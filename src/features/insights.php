@@ -18,6 +18,17 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
+	 * @param string $sSubPage
+	 * @return string
+	 */
+	public function getUrl_SubInsightsPage( $sSubPage ) {
+		return add_query_arg(
+			[ 'inav' => sanitize_key( $sSubPage ) ],
+			$this->getCon()->getModule_Insights()->getUrl_AdminPage()
+		);
+	}
+
+	/**
 	 * @param array $aData
 	 * @return string
 	 */
@@ -34,8 +45,9 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 		$sNavSection = $oReq->query( 'inav', 'overview' );
 		$sSubNavSection = $oReq->query( 'subnav' );
 
-		/** @var \ICWP_WPSF_FeatureHandler_Traffic $oTrafficMod */
-		$oTrafficMod = $oCon->getModule( 'traffic' );
+		$oTrafficMod = $oCon->getModule_Traffic();
+		/** @var Shield\Modules\Traffic\Options $oTrafficOpts */
+		$oTrafficOpts = $oTrafficMod->getOptions();
 		/** @var Shield\Databases\Traffic\Select $oTrafficSelector */
 		$oTrafficSelector = $oTrafficMod->getDbHandler_Traffic()->getQuerySelector();
 
@@ -69,8 +81,6 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			$oTourManager->setCompleted( 'insights_overview' );
 		}
 
-		/** @var ICWP_WPSF_Processor_Plugin $oProPlugin */
-		$oProPlugin = $oModPlugin->getProcessor();
 		$oEvtsMod = $oCon->getModule_Events();
 
 		$bIsPro = $this->isPremium();
@@ -100,6 +110,16 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'events_for_select' => $aEventsSelect,
 						'unique_ips'        => $oAuditSelect->getDistinctIps(),
 						'unique_users'      => $oAuditSelect->getDistinctUsernames(),
+					],
+				];
+				break;
+
+			case 'debug':
+				$aData = [
+					'vars' => [
+						'debug_data' => ( new Shield\Modules\Plugin\Lib\Debug\Collate() )
+							->setMod( $oModPlugin )
+							->run()
 					],
 				];
 				break;
@@ -179,7 +199,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 					],
 					'flags'   => [
 						'can_traffic' => true, // since 8.2 it's always available
-						'is_enabled'  => $oTrafficMod->isModOptEnabled(),
+						'is_enabled'  => $oTrafficOpts->isTrafficLoggerEnabled(),
 					],
 					'hrefs'   => [
 						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_traffic' ),
@@ -211,7 +231,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				break;
 
 			case 'importexport':
-				$aData = $oProPlugin->getSubProImportExport()->buildInsightsVars();
+				$aData = $oModPlugin->getImpExpController()->buildInsightsVars();
 				break;
 
 			case 'reports':
@@ -311,6 +331,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 			'notes'        => __( 'Notes', 'wp-simple-firewall' ),
 			//			'reports'      => __( 'Reports', 'wp-simple-firewall' ),
 			'importexport' => sprintf( '%s/%s', __( 'Import', 'wp-simple-firewall' ), __( 'Export', 'wp-simple-firewall' ) ),
+//			'debug'        => __( 'Debug', 'wp-simple-firewall' ),
 		];
 		if ( $bIsPro ) {
 			unset( $aTopNav[ 'license' ] );
@@ -369,7 +390,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 				],
 				'strings' => $this->getStrings()->getDisplayStrings(),
 				'vars'    => [
-					'changelog_id'  => $oCon->getPluginSpec()[ 'meta' ][ 'headway_changelog_id' ],
+					'changelog_id'  => $oCon->getPluginSpec()[ 'meta' ][ 'announcekit_changelog_id' ],
 					'search_select' => $aSearchSelect
 				],
 			],

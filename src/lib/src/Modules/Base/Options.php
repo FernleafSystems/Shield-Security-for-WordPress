@@ -213,7 +213,7 @@ class Options {
 
 	/**
 	 * Determines whether the given option key is a valid option
-	 * @param string
+	 * @param string $sOptionKey
 	 * @return bool
 	 */
 	public function isValidOptionKey( $sOptionKey ) {
@@ -887,6 +887,16 @@ class Options {
 				}
 				break;
 
+			case 'select':
+				$aPossible = array_map(
+					function ( $aPoss ) {
+						return $aPoss[ 'value_key' ];
+					},
+					$this->getOptProperty( $sOptKey, 'value_options' )
+				);
+				$bValid = in_array( $mPotentialValue, $aPossible );
+				break;
+
 			case 'email':
 				$bValid = empty( $mPotentialValue ) || Services::Data()->validEmail( $mPotentialValue );
 				break;
@@ -933,7 +943,14 @@ class Options {
 	 * @return array
 	 */
 	protected function getVirtualCommonOptions() {
-		return [ 'dismissed_notices', 'ui_track', 'help_video_options' ];
+		return [ 'dismissed_notices', 'ui_track', 'help_video_options', 'xfer_excluded' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getXferExcluded() {
+		return is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
 	}
 
 	/**

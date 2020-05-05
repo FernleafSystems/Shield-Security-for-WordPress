@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -15,6 +16,15 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	 * @var bool
 	 */
 	private static $bVisitorIsWhitelisted;
+
+	/**
+	 * @return bool
+	 */
+	public function canCacheDirWrite() {
+		return ( new Shield\Modules\Plugin\Lib\TestCacheDirWrite() )
+			->setMod( $this->getCon()->getModule_Plugin() )
+			->canWrite();
+	}
 
 	/**
 	 * @return \ICWP_WPSF_Processor_Sessions
@@ -32,15 +42,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return $this->getCon()
 					->getModule_Sessions()
 					->getDbHandler_Sessions();
-	}
-
-	/**
-	 * @return Shield\Databases\GeoIp\Handler
-	 */
-	public function getDbHandler_GeoIp() {
-		return $this->getCon()
-					->getModule_Plugin()
-					->getDbHandler_GeoIp();
 	}
 
 	/**
@@ -65,9 +66,6 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 		return Services::IP()->isValidIp( Services::IP()->getRequestIp() );
 	}
 
-	/**
-	 * A action added to WordPress 'init' hook
-	 */
 	public function onWpInit() {
 		parent::onWpInit();
 		if ( $this->isThisModulePage() && !$this->isWizardPage() && ( $this->getSlug() != 'insights' ) ) {
@@ -87,45 +85,28 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return array
+	 * @return Plugin\Lib\Captcha\CaptchaConfigVO
 	 */
-	public function getGoogleRecaptchaConfig() {
+	public function getCaptchaCfg() {
+		$oPlugMod = $this->getCon()->getModule_Plugin();
 		/** @var Shield\Modules\Plugin\Options $oOpts */
-		$oOpts = $this->getCon()
-					  ->getModule_Plugin()
-					  ->getOptions();
-		return $oOpts->getGoogleRecaptchaConfig();
-	}
+		$oOpts = $oPlugMod->getOptions();
+		$oCfg = ( new Plugin\Lib\Captcha\CaptchaConfigVO() )->applyFromArray( $oOpts->getCaptchaConfig() );
+		$oCfg->invisible = $oCfg->theme === 'invisible';
 
-	/**
-	 * @return string
-	 * @deprecated
-	 */
-	public function getGoogleRecaptchaSecretKey() {
-		return $this->getGoogleRecaptchaConfig()[ 'secret' ];
-	}
+		if ( $oCfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
+			$oCfg->url_api = 'https://www.google.com/recaptcha/api.js';
+		}
+		elseif ( $oCfg->provider === Plugin\Lib\Captcha\CaptchaConfigVO::PROV_HCAPTCHA ) {
+			$oCfg->url_api = 'https://hcaptcha.com/1/api.js';
+		}
+		else {
+			error_log( 'CAPTCHA Provider not supported: '.$oCfg->provider );
+		}
 
-	/**
-	 * @return string
-	 * @deprecated
-	 */
-	public function getGoogleRecaptchaSiteKey() {
-		return $this->getGoogleRecaptchaConfig()[ 'key' ];
-	}
+		$oCfg->js_handle = $this->getCon()->prefix( $oCfg->provider );
 
-	/**
-	 * @return string
-	 */
-	public function getGoogleRecaptchaStyle() {
-		return $this->getGoogleRecaptchaConfig()[ 'style' ];
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isGoogleRecaptchaReady() {
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		return ( !empty( $aConfig[ 'secret' ] ) && !empty( $aConfig[ 'key' ] ) );
+		return $oCfg;
 	}
 
 	/**
@@ -158,15 +139,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return string
 	 */
-	public function getPluginDefaultRecipientAddress() {
-		return apply_filters( $this->prefix( 'report_email_address' ), Services::WpGeneral()->getSiteAdminEmail() );
-	}
-
-	/**
-	 * @return Shield\Modules\BaseShield\ShieldProcessor|mixed
-	 */
-	public function getProcessor() {
-		return parent::getProcessor();
+	public function getPluginReportEmail() {
+		return $this->getCon()
+					->getModule_Plugin()
+					->getPluginReportEmail();
 	}
 
 	/**
@@ -189,6 +165,10 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			parent::getBaseDisplayData(),
 			[
 				'head'    => [
+					'html' => [
+						'lang' => Services::WpGeneral()->getLocale( '-' ),
+						'dir'  => is_rtl() ? 'rtl' : 'ltr',
+					],
 					'meta' => [
 						[
 							'type'      => 'http-equiv',
@@ -244,7 +224,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 									 'force_remove_email' => __( "If you've forgotten your key, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
 									 'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
 									 'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
-										 Utilities\Obfuscate::Email( $this->getPluginDefaultRecipientAddress() ) ),
+										 Utilities\Obfuscate::Email( $this->getPluginReportEmail() ) ),
 									 'no_email_override'  => __( "The Security Administrator has restricted the use of the email override feature.", 'wp-simple-firewall' ),
 								 ],
 								 'flags'   => [
@@ -313,7 +293,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 										|| $oSP->isIp_DuckDuckGoBot( $sIp, $sAgent )
 										|| $oSP->isIp_YandexBot( $sIp, $sAgent )
 										|| ( class_exists( 'ICWP_Plugin' ) && $oSP->isIp_iControlWP( $sIp ) )
-										|| $oSP->isIp_BaiduBot( $sIp, $sAgent );
+										|| $oSP->isIp_BaiduBot( $sIp, $sAgent )
+										|| $oSP->isIp_Stripe( $sIp, $sAgent );
 			}
 		}
 		return self::$bIsVerifiedBot;
@@ -362,18 +343,34 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 8.7.0
+	 * @return string
+	 * @deprecated 9.0
 	 */
-	public function getIfIpTransgressed() {
-		return false;
+	public function getPluginDefaultRecipientAddress() {
+		return $this->getPluginReportEmail();
 	}
 
 	/**
-	 * @return int
-	 * @deprecated 8.7.0
+	 * @return string
+	 * @deprecated 9.0
 	 */
-	public function getIpOffenceCount() {
-		return 0;
+	public function getGoogleRecaptchaSecretKey() {
+		return $this->getCaptchaCfg()->secret;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getGoogleRecaptchaSiteKey() {
+		return $this->getCaptchaCfg()->key;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.0
+	 */
+	public function getCaptchaStyle() {
+		return $this->getCaptchaCfg()->theme;
 	}
 }

@@ -97,12 +97,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_PluginBadgeClose() {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
-		$bSuccess = Services::Response()
-							->cookieSet(
-								$oMod->getCookieIdBadgeState(),
-								'closed',
-								DAY_IN_SECONDS
-							);
+		$bSuccess = $oMod->getPluginBadgeCon()->setBadgeStateClosed();
 		return [
 			'success' => $bSuccess,
 			'message' => $bSuccess ? 'Badge Closed' : 'Badge Not Closed'
@@ -225,9 +220,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ImportFromSite() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-
 		$bSuccess = false;
 		$aFormParams = array_merge(
 			[
@@ -247,11 +239,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$bDisableNetwork = $aFormParams[ 'ShieldNetwork' ] === 'N';
 			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
 
-			/** @var \ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $oMod->getProcessor();
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$nCode = $oP->getSubProImportExport()
-						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			$nCode = ( new Plugin\Lib\ImportExport\Import() )
+				->setMod( $this->getMod() )
+				->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}

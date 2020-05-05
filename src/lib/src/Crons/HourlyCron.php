@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Crons;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Services\Services;
 
 class HourlyCron extends BaseCron {
 
@@ -22,8 +23,17 @@ class HourlyCron extends BaseCron {
 	}
 
 	/**
-	 * Use the included action to hook into the plugin's daily cron
+	 * @return int
 	 */
+	public function getFirstRunTimestamp() {
+		$oCarb = Services::Request()
+						 ->carbon( true )
+						 ->addHours( 1 )
+						 ->minute( 1 )
+						 ->second( 0 );
+		return $oCarb->timestamp;
+	}
+
 	public function runCron() {
 		do_action( $this->getCon()->prefix( 'hourly_cron' ) );
 	}

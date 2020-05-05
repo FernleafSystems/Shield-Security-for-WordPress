@@ -100,7 +100,8 @@ class Strings {
 
 				'page_title' => 'Twig Page',
 
-				'wphashes_token' => 'WPHashes.com API Token',
+				'wphashes_token'      => 'WPHashes.com API Token',
+				'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
 			],
 			$this->getAdditionalDisplayStrings()
 		);

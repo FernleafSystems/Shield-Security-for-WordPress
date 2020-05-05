@@ -25,22 +25,14 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		$oOpts = $this->getOptions();
 		$bSuccess = false;
 
-		// 2). Repair
 		try {
-			$bCanAutoRepair = $this->canRepair();
+			$bCanRepair = $this->canRepair();
 		}
 		catch ( \Exception $e ) {
-			$bCanAutoRepair = false;
+			$bCanRepair = false;
 		}
 
-		if ( $bCanAutoRepair || $this->isManualAction() ) {
-			// 1) Report the file as being malware.
-			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
-				->setMod( $this->getMod() )
-				->reportResultItem( $oItem, false );
-		}
-
-		if ( $bCanAutoRepair ) {
+		if ( $bCanRepair ) {
 
 			if ( Services\Services::CoreFileHashes()->isCoreFile( $oItem->path_fragment ) ) {
 				$bSuccess = $this->repairCoreItem( $oItem );
@@ -49,17 +41,13 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 				$oPlugin = ( new WpOrg\Plugin\Files() )->findPluginFromFile( $oItem->path_full );
 				if ( $oPlugin instanceof Services\Core\VOs\WpPluginVo && $oPlugin->isWpOrg() ) {
 
-					if ( $this->isManualAction() || $oOpts->isMalAutoRepairPlugins() ) {
-						$bSuccess = $this->repairItemInPlugin( $oItem );
-					}
+					$bSuccess = $this->repairItemInPlugin( $oItem );
 				}
 				else {
 					$oTheme = ( new WpOrg\Theme\Files() )->findThemeFromFile( $oItem->path_full );
 					if ( $oTheme instanceof Services\Core\VOs\WpThemeVo && $oTheme->isWpOrg() ) {
 
-						if ( $this->isManualAction() || $oOpts->isMalAutoRepairThemes() ) {
-							$bSuccess = $this->repairItemInTheme( $oItem );
-						}
+						$bSuccess = $this->repairItemInTheme( $oItem );
 					}
 					elseif ( $oOpts->isMalAutoRepairSurgical() ) {
 						$bSuccess = $this->repairSurgicalItem( $oItem );
@@ -69,6 +57,13 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 		}
 		elseif ( $this->isAllowDelete() ) {
 			$bSuccess = $this->repairItemByDelete( $oItem );
+		}
+
+		if ( $bSuccess ) {
+			// 1) Report the file as being malware.
+			( new Shield\Scans\Mal\Utilities\FalsePositiveReporter() )
+				->setMod( $this->getMod() )
+				->reportResultItem( $oItem, false );
 		}
 
 		return $bSuccess;
@@ -110,9 +105,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 						)
 					);
 				}
-				if ( !( new WpOrg\Plugin\Versions() )
-					->setWorkingSlug( $oPlugin->slug )
-					->exists( $oPlugin->Version, true ) ) {
+				if ( !$oPlugin->svn_uses_tags ) {
 					throw new \Exception( __( "Plugin developer doesn't use SVN tags for official releases.", 'wp-simple-firewall' ) );
 				}
 
@@ -145,6 +138,7 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 				}
 			}
 		}
+
 		return $bCanRepair;
 	}
 
@@ -187,19 +181,21 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairItemInPlugin( $oItem ) {
+		$bSuccess = false;
+
 		$oFiles = new WpOrg\Plugin\Files();
 		try {
 			if ( $oFiles->isValidFileFromPlugin( $oItem->path_full ) ) {
 				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
 			}
-			else {
-				$bSuccess = Services\Services::WpFs()->deleteFile( $oItem->path_full );
+			elseif ( $this->isAllowDelete() ) {
+				$bSuccess = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
 			}
 		}
 		catch ( \InvalidArgumentException $oE ) {
-			$bSuccess = false;
 		}
-		return (bool)$bSuccess;
+
+		return $bSuccess;
 	}
 
 	/**
@@ -207,18 +203,20 @@ class Repair extends Shield\Scans\Base\Utilities\BaseRepair {
 	 * @return bool
 	 */
 	private function repairItemInTheme( $oItem ) {
+		$bSuccess = false;
+
 		$oFiles = new WpOrg\Theme\Files();
 		try {
 			if ( $oFiles->isValidFileFromTheme( $oItem->path_full ) ) {
 				$bSuccess = $oFiles->replaceFileFromVcs( $oItem->path_full );
 			}
-			else {
-				$bSuccess = Services\Services::WpFs()->deleteFile( $oItem->path_full );
+			elseif ( $this->isAllowDelete() ) {
+				$bSuccess = (bool)Services\Services::WpFs()->deleteFile( $oItem->path_full );
 			}
 		}
 		catch ( \InvalidArgumentException $oE ) {
-			$bSuccess = false;
 		}
-		return (bool)$bSuccess;
+
+		return $bSuccess;
 	}
 }
