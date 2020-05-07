@@ -731,57 +731,59 @@ class Controller {
 	}
 
 	public function onWpEnqueueFrontendCss() {
-
 		$aFrontendIncludes = $this->getPluginSpec_Include( 'frontend' );
 		if ( isset( $aFrontendIncludes[ 'css' ] ) && !empty( $aFrontendIncludes[ 'css' ] ) && is_array( $aFrontendIncludes[ 'css' ] ) ) {
-			foreach ( $aFrontendIncludes[ 'css' ] as $sCssAsset ) {
-				$sUnique = $this->prefix( $sCssAsset );
-				wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
-				wp_enqueue_style( $sUnique );
-				$sDependent = $sUnique;
+
+			$aDeps = [];
+			foreach ( $aFrontendIncludes[ 'css' ] as $sAsset ) {
+				$sUrl = $this->getPluginUrl_Css( $sAsset );
+				if ( !empty( $sUrl ) ) {
+					$sAsset = $this->prefix( $sAsset );
+					wp_register_style( $sAsset, $sUrl, $aDeps, $this->getVersion() );
+					wp_enqueue_style( $sAsset );
+					$aDeps[] = $aDeps;
+				}
 			}
 		}
 	}
 
 	public function onWpEnqueueAdminJs() {
-		$sVers = $this->getVersion();
 
-		$aAdminJs = $this->getPluginSpec_Include( 'admin' );
-		if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-			$sDep = false;
-			foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
-				$sUrl = $this->getPluginUrl_Js( $sAsset );
-				if ( !empty( $sUrl ) ) {
-					$sUnique = $this->prefix( $sAsset );
-					wp_register_script( $sUnique, $sUrl, $sDep ? [ $sDep ] : [], $sVers );
-					wp_enqueue_script( $sUnique );
-					$sDep = $sUnique;
-				}
+		$aIncludes = [];
+		if ( $this->getIsPage_PluginAdmin() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'plugin_admin' );
+			if ( !empty( $aAdminIncludes[ 'js' ] ) && is_array( $aAdminIncludes[ 'js' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'js' ];
+			}
+		}
+		elseif ( $this->isValidAdminArea() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'admin' );
+			if ( !empty( $aAdminIncludes[ 'js' ] ) && is_array( $aAdminIncludes[ 'js' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'js' ];
 			}
 		}
 
-		if ( $this->getIsPage_PluginAdmin() ) {
-			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-				$sDep = false;
-				foreach ( $aAdminJs[ 'js' ] as $sAsset ) {
+		$aBuiltIn = [
+			'jquery'
+		];
 
-					// Built-in handles
-					if ( in_array( $sAsset, [ 'jquery' ] ) ) {
-						if ( wp_script_is( $sAsset, 'registered' ) ) {
-							wp_enqueue_script( $sAsset );
-							$sDep = $sAsset;
-						}
-						continue;
-					}
+		$aDeps = [];
+		foreach ( $aIncludes as $sAsset ) {
 
-					$sUrl = $this->getPluginUrl_Js( $sAsset );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script( $sUnique, $sUrl, $sDep ? [ $sDep ] : [], $sVers );
-						wp_enqueue_script( $sUnique );
-						$sDep = $sUnique;
-					}
+			// Built-in handles
+			if ( in_array( $sAsset, $aBuiltIn ) ) {
+				if ( wp_script_is( $sAsset, 'registered' ) ) {
+					wp_enqueue_script( $sAsset );
+					$aDeps[] = $sAsset;
+				}
+			}
+			else {
+				$sUrl = $this->getPluginUrl_Js( $sAsset );
+				if ( !empty( $sUrl ) ) {
+					$sAsset = $this->prefix( $sAsset );
+					wp_register_script( $sAsset, $sUrl, $aDeps, $this->getVersion() );
+					wp_enqueue_script( $sAsset );
+					$aDeps[] = $sAsset;
 				}
 			}
 		}
@@ -789,35 +791,28 @@ class Controller {
 
 	public function onWpEnqueueAdminCss() {
 
-		if ( $this->isValidAdminArea() ) {
-			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
-			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
-				$sDependent = false;
-				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
-						wp_enqueue_style( $sUnique );
-						$sDependent = $sUnique;
-					}
-				}
+		$aIncludes = [];
+		if ( $this->getIsPage_PluginAdmin() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'plugin_admin' );
+			if ( !empty( $aAdminIncludes[ 'css' ] ) && is_array( $aAdminIncludes[ 'css' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'css' ];
+			}
+		}
+		elseif ( $this->isValidAdminArea() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'admin' );
+			if ( !empty( $aAdminIncludes[ 'css' ] ) && is_array( $aAdminIncludes[ 'css' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'css' ];
 			}
 		}
 
-		if ( $this->getIsPage_PluginAdmin() ) {
-			$aAdminCss = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
-				$sDependent = false;
-				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
-						wp_enqueue_style( $sUnique );
-						$sDependent = $sUnique;
-					}
-				}
+		$aDeps = [];
+		foreach ( $aIncludes as $sAsset ) {
+			$sUrl = $this->getPluginUrl_Css( $sAsset );
+			if ( !empty( $sUrl ) ) {
+				$sAsset = $this->prefix( $sAsset );
+				wp_register_style( $sAsset, $sUrl, $aDeps, $this->getVersion() );
+				wp_enqueue_style( $sAsset );
+				$aDeps[] = $sAsset;
 			}
 		}
 	}

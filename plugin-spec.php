@@ -55,6 +55,7 @@
       "css": [
         "bootstrap4.min",
         "bootstrap-select.min",
+        "global-plugin",
         "plugin",
         "featherlight"
       ],
@@ -62,6 +63,7 @@
         "bootstrap4.bundle.min",
         "bootstrap-select.min",
         "jquery",
+        "global-plugin",
         "plugin",
         "base64.min",
         "lz-string.min",
