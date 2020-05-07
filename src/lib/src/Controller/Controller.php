@@ -473,8 +473,6 @@ class Controller {
 		return $aID[ 'id' ];
 	}
 
-	/**
-	 */
 	public function onWpLoaded() {
 		$this->getAdminNotices();
 	}
@@ -536,6 +534,10 @@ class Controller {
 	 */
 	public function getAdminNotices() {
 		if ( !isset( $this->oNotices ) ) {
+			if ( $this->getIsPage_PluginAdmin() ) {
+				remove_all_filters( 'admin_notices' );
+				remove_all_filters( 'network_admin_notices' );
+			}
 			$this->oNotices = ( new Shield\Utilities\AdminNotices\Controller() )->setCon( $this );
 		}
 		return $this->oNotices;
