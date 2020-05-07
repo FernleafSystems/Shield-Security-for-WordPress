@@ -82,8 +82,7 @@ class GaspJs extends BaseProtectionProvider {
 			$sUnique,
 			$oCon->getPluginUrl_Js( $sAsset ),
 			[ 'jquery' ],
-			$oCon->getVersion(),
-			true
+			$oCon->getVersion()
 		);
 		wp_enqueue_script( $sUnique );
 
