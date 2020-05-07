@@ -11,7 +11,7 @@ class MemberPress extends BaseFormProvider {
 
 	protected function register() {
 		add_action( 'mepr-checkout-before-submit', [ $this, 'formInsertsPrint' ], 10 );
-		add_filter( 'mepr-validate-signup', [ $this, 'checkReqRegistration_MePr' ], 10, 2 );
+		add_filter( 'mepr-validate-signup', [ $this, 'checkRegister' ], 10, 2 );
 	}
 
 	protected function lostpassword() {
