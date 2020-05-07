@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.4
-Stable tag: 9.0.0
+Stable tag: 9.0.1
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -375,6 +375,8 @@ You will always be able to use Shield Security and its free features in-full.
 
 **Note**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
+* **(.1)  FIXED**:		Javascript for Anti-Bot Login Protection not loading in all cases.
+* **(.1)  FIXED**:		MemberPress Registration protection PHP error.
 * **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
 * **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
 * **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
