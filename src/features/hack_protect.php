@@ -115,10 +115,10 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	protected function updateHandler() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		if ( $oOpts->getOpt( 'ptg_enable' ) == 'enabled' ) {
+		if ( $oOpts->getOpt( 'ptg_enable' ) === 'enabled' ) {
 			$oOpts->setOpt( 'ptg_enable', 'Y' );
 		}
-		elseif ( $oOpts->getOpt( 'ptg_enable' ) == 'disabled' ) {
+		elseif ( $oOpts->getOpt( 'ptg_enable' ) === 'disabled' ) {
 			$oOpts->setOpt( 'ptg_enable', 'N' );
 		}
 
