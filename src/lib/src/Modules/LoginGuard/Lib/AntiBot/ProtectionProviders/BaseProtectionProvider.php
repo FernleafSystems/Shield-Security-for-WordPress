@@ -15,7 +15,7 @@ abstract class BaseProtectionProvider {
 	private $bFactorTested;
 
 	public function __construct() {
-		add_action( 'wp_loaded', [ $this, 'setup' ] );
+		add_action( 'wp_loaded', [ $this, 'setup' ], 0 ); // 0 to ensure WPS Hide Login doesn't fire before us.
 	}
 
 	public function setup() {
