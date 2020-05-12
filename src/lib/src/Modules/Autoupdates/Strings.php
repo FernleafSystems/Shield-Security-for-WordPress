@@ -101,10 +101,13 @@ class Strings extends Base\Strings {
 			case 'autoupdate_plugin_self' :
 				$sName = __( 'Auto Update Plugin', 'wp-simple-firewall' );
 				$sSummary = __( 'Always Automatically Update This Plugin', 'wp-simple-firewall' );
-				$sDescription = sprintf(
-					__( 'Regardless of any other settings, automatically update the "%s" plugin.', 'wp-simple-firewall' ),
-					$sPlugName
-				);
+				$sDescription = [
+					sprintf(
+						__( 'Regardless of any other settings, automatically update the "%s" plugin.', 'wp-simple-firewall' ),
+						$sPlugName
+					),
+					__( 'The plugin will normally automatically update after approximately 2 days, if left to decide.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'autoupdate_core' :

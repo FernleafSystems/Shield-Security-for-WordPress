@@ -20,10 +20,13 @@ class BuildFileMap {
 	public function build() {
 		$aFiles = [];
 
+		/** @var ScanActionVO $oScanAction */
+		$oScanAction = $this->getScanActionVO();
+
 		$sAbsPath = wp_normalize_path( ABSPATH );
 		foreach ( $this->getScanRoots() as $sRootDir ) {
 			try {
-				$oDirIt = StandardDirectoryIterator::create( $sRootDir );
+				$oDirIt = StandardDirectoryIterator::create( $sRootDir, 0, $oScanAction->file_exts );
 				foreach ( $oDirIt as $oFsItem ) {
 					/** @var \SplFileInfo $oFsItem */
 					if ( $oFsItem->getSize() != 0 ) {
