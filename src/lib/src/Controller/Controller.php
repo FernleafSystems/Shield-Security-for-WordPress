@@ -448,24 +448,37 @@ class Controller {
 	 * @return string - the unique, never-changing site install ID.
 	 */
 	public function getSiteInstallationId( $bRebuildIfRequired = false ) {
+		$oWP = Services::WpGeneral();
+		$oDP = Services::Data();
+
 		$sOptKey = $this->prefixOption( 'install_id' );
-		$aID = Services::WpGeneral()->getOption( $sOptKey );
 
 		$aPossibleUniqs = [
-			'url'    => Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ),
-			'server' => Services::Data()->getServerHash(),
+			'url'    => $oDP->urlStripSchema( $oWP->getHomeUrl( '', true ) ),
+			'title'  => get_bloginfo( 'name' ),
+			'server' => $oDP->getServerHash(),
 		];
 
-		if ( !is_array( $aID ) ) {
+		$mStoredID = $oWP->getOption( $sOptKey );
+		if ( !is_array( $mStoredID ) ) {
 			$aID = [
+				'id'    => ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) ? explode( ':', $mStoredID, 2 )[ 1 ] : '',
 				'uniqs' => $aPossibleUniqs,
-				'id'    => ( is_string( $aID ) && strpos( $aID, ':' ) ) ? explode( ':', $aID, 2 )[ 1 ] : ''
 			];
 		}
+		else {
+			$aID = $mStoredID;
+		}
 
-		if ( empty( $aID[ 'id' ] ) || empty( $aID[ 'uniqs' ] ) ||
-			 ( $bRebuildIfRequired && count( array_intersect( $aPossibleUniqs, $aID[ 'uniqs' ] ) ) === 0 ) ) {
-			$aID[ 'id' ] = sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
+		$bRebuildID = ( empty( $aID[ 'id' ] ) || empty( $aID[ 'uniqs' ] ) )
+					  || ( $bRebuildIfRequired && count( array_intersect( $aID[ 'uniqs' ], $aPossibleUniqs ) ) === 0 );
+		if ( $bRebuildID ) {
+			$aID[ 'id' ] = sha1( uniqid( $oWP->getHomeUrl( '', true ), true ) );
+		}
+
+		// Something's changed in the uniqs, but not enough necessarily to warrant an ID rebuild
+		if ( $bRebuildID || !is_array( $mStoredID )
+			 || ( $bRebuildIfRequired && count( array_diff( $aPossibleUniqs, $aID[ 'uniqs' ] ) ) === 0 ) ) {
 			$aID[ 'uniqs' ] = $aPossibleUniqs;
 			Services::WpGeneral()->updateOption( $sOptKey, $aID );
 		}
@@ -998,8 +1011,6 @@ class Controller {
 		$this->deleteFlags();
 	}
 
-	/**
-	 */
 	public function onWpLogout() {
 		if ( $this->hasSessionId() ) {
 			$this->clearSession();
