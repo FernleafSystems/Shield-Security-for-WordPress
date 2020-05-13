@@ -2,7 +2,9 @@
 #### 9.0 Series
 *Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
 
-**Note**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
+**Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
+
+##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
 
 * **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.
 * **(.2)  IMPROVED**:	Some minor improvements to encoding special characters in the email subject/from name.
