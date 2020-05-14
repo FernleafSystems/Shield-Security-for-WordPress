@@ -8,6 +8,7 @@
 
 * **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.
 * **(.2)  IMPROVED**:	Some minor improvements to encoding special characters in the email subject/from name.
+* **(.2)  IMPROVED**:	[WPHashes.com](https://shsec.io/hs) API token update is more reliable.
 * **(.2)  FIXED**:		Applying a plugin update from within the Vulnerabilities scanner no longer disables that plugin.
 * **(.1)  FIXED**:		Javascript for Anti-Bot Login Protection not loading in all cases.
 * **(.1)  FIXED**:		MemberPress Registration PHP error.
