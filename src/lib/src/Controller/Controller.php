@@ -449,41 +449,32 @@ class Controller {
 	 */
 	public function getSiteInstallationId( $bRebuildIfRequired = false ) {
 		$oWP = Services::WpGeneral();
-		$oDP = Services::Data();
 
 		$sOptKey = $this->prefixOption( 'install_id' );
-
-		$aPossibleUniqs = [
-			'url'    => $oDP->urlStripSchema( $oWP->getHomeUrl( '', true ) ),
-			'title'  => get_bloginfo( 'name' ),
-			'server' => $oDP->getServerHash(),
-		];
-
 		$mStoredID = $oWP->getOption( $sOptKey );
-		if ( !is_array( $mStoredID ) ) {
-			$aID = [
-				'id'    => ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) ? explode( ':', $mStoredID, 2 )[ 1 ] : '',
-				'uniqs' => $aPossibleUniqs,
-			];
+		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
+			$sID = $mStoredID[ 'id' ];
+		}
+		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':', 2 ) ) {
+			$sID = explode( ':', $mStoredID, 2 )[ 1 ];
 		}
 		else {
-			$aID = $mStoredID;
+			$sID = $mStoredID;
 		}
 
-		$bRebuildID = ( empty( $aID[ 'id' ] ) || empty( $aID[ 'uniqs' ] ) )
-					  || ( $bRebuildIfRequired && count( array_intersect( $aID[ 'uniqs' ], $aPossibleUniqs ) ) === 0 );
-		if ( $bRebuildID ) {
-			$aID[ 'id' ] = sha1( uniqid( $oWP->getHomeUrl( '', true ), true ) );
+		$bValid = !empty( $sID ) && is_string( $sID ) &&
+				  ( strlen( $sID ) === 40 || \Ramsey\Uuid\Uuid::isValid( $sID ) );
+		if ( !$bValid ) {
+			try {
+				$sID = \Ramsey\Uuid\Uuid::uuid4()->toString();
+			}
+			catch ( \InvalidArgumentException $e ) {
+				$sID = sha1( uniqid( $oWP->getHomeUrl( '', true ), true ) );
+			}
+			Services::WpGeneral()->updateOption( $sOptKey, $sID );
 		}
 
-		// Something's changed in the uniqs, but not enough necessarily to warrant an ID rebuild
-		if ( $bRebuildID || !is_array( $mStoredID )
-			 || ( $bRebuildIfRequired && count( array_diff( $aPossibleUniqs, $aID[ 'uniqs' ] ) ) === 0 ) ) {
-			$aID[ 'uniqs' ] = $aPossibleUniqs;
-			Services::WpGeneral()->updateOption( $sOptKey, $aID );
-		}
-
-		return $aID[ 'id' ];
+		return $sID;
 	}
 
 	public function onWpLoaded() {
