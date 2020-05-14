@@ -453,12 +453,15 @@ class Controller {
 		$mStoredID = $oWP->getOption( $sOptKey );
 		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
 			$sID = $mStoredID[ 'id' ];
+			$bUpdate = true;
 		}
 		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) {
 			$sID = explode( ':', $mStoredID, 2 )[ 1 ];
+			$bUpdate = true;
 		}
 		else {
 			$sID = $mStoredID;
+			$bUpdate = false;
 		}
 
 		if ( empty( $sID ) || !is_string( $sID ) || ( strlen( $sID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
@@ -468,6 +471,10 @@ class Controller {
 			catch ( \Exception $e ) {
 				$sID = sha1( uniqid( $oWP->getHomeUrl( '', true ), true ) );
 			}
+			$bUpdate = true;
+		}
+
+		if ( $bUpdate ) {
 			$oWP->updateOption( $sOptKey, $sID );
 		}
 
