@@ -83,10 +83,14 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool
 	 */
 	public function sendEmailWithWrap( $sAddress = '', $sSubject = '', $aMessage = [] ) {
+		$oWP = Services::WpGeneral();
 		return $this->send(
 			$sAddress,
-			wp_specialchars_decode( sprintf( '[%s] %s', Services::WpGeneral()->getSiteName(), $sSubject ) ),
-			'<html>'.implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) ).'</html>'
+			sprintf( '[%s] %s', html_entity_decode( $oWP->getSiteName(), ENT_QUOTES ), $sSubject ),
+			sprintf( '<html lang="%s">%s</html>',
+				$oWP->getLocale( '-' ),
+				implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) )
+			)
 		);
 	}
 
@@ -167,10 +171,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			$sFromName = $sProposedFromName;
 		}
 		else {
-			$sFromName = sprintf( '%s - %s',
-				Services::WpGeneral()->getSiteName(),
-				$this->getCon()->getHumanName()
-			);
+			$sFromName = sprintf( '%s - %s', $sFromName, $this->getCon()->getHumanName() );
 		}
 		return $sFromName;
 	}

@@ -15,8 +15,6 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 			->build();
 	}
 
-	/**
-	 */
 	protected function setCustomFields() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();

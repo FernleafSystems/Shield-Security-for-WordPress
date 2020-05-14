@@ -235,10 +235,12 @@ class Strings extends Base\Strings {
 			case 'antibot_form_ids' :
 				$sName = __( 'AntiBot Forms', 'wp-simple-firewall' );
 				$sSummary = __( 'Enter The Selectors Of The 3rd Party Login Forms For Use With AntiBot JS', 'wp-simple-firewall' );
-				$sDescription = __( 'Provide DOM selectors to attached AntiBot protection to any form.', 'wp-simple-firewall' )
-								.'<br />'.__( 'IDs are prefixed with "#".', 'wp-simple-firewall' )
-								.'<br />'.__( 'Classes are prefixed with ".".', 'wp-simple-firewall' )
-								.'<br />'.__( 'IDs are preferred over classes.', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Provide DOM selectors to attached AntiBot protection to any form.', 'wp-simple-firewall' ),
+					__( 'IDs are prefixed with "#".', 'wp-simple-firewall' ),
+					__( 'Classes are prefixed with ".".', 'wp-simple-firewall' ),
+					__( 'IDs are preferred over classes.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'login_limit_interval' :
