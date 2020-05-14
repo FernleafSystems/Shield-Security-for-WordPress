@@ -352,6 +352,7 @@
     {
       "key":         "antibot_form_ids",
       "section":     "section_brute_force_login_protection",
+      "premium":     true,
       "type":        "array",
       "default":     [
         "form#ihc_login_form",

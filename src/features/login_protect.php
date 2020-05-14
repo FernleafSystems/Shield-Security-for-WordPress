@@ -26,7 +26,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 				 ->sendEmailVerifyCanSend();
 		}
 
-		$aIds = $oOpts->getAntiBotFormSelectors();
+		$aIds = $oOpts->getOpt( 'antibot_form_ids', [] );
 		foreach ( $aIds as $nKey => $sId ) {
 			$sId = trim( strip_tags( $sId ) );
 			if ( empty( $sId ) ) {

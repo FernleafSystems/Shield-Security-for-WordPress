@@ -444,33 +444,44 @@ class Controller {
 	/**
 	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
 	 * Certain plugins can modify the ID at different points in the load.
-	 * @param bool $bRebuildIfRequired
 	 * @return string - the unique, never-changing site install ID.
 	 */
-	public function getSiteInstallationId( $bRebuildIfRequired = false ) {
+	public function getSiteInstallationId() {
+		$oWP = Services::WpGeneral();
 		$sOptKey = $this->prefixOption( 'install_id' );
-		$aID = Services::WpGeneral()->getOption( $sOptKey );
 
-		$aPossibleUniqs = [
-			'url'    => Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ),
-			'server' => Services::Data()->getServerHash(),
-		];
-
-		if ( !is_array( $aID ) ) {
-			$aID = [
-				'uniqs' => $aPossibleUniqs,
-				'id'    => ( is_string( $aID ) && strpos( $aID, ':' ) ) ? explode( ':', $aID, 2 )[ 1 ] : ''
-			];
+		$mStoredID = $oWP->getOption( $sOptKey );
+		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
+			$sID = $mStoredID[ 'id' ];
+		}
+		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) {
+			$sID = explode( ':', $mStoredID, 2 )[ 1 ];
+		}
+		else {
+			$sID = $mStoredID;
 		}
 
-		if ( empty( $aID[ 'id' ] ) || empty( $aID[ 'uniqs' ] ) ||
-			 ( $bRebuildIfRequired && count( array_intersect( $aPossibleUniqs, $aID[ 'uniqs' ] ) ) === 0 ) ) {
-			$aID[ 'id' ] = sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
-			$aID[ 'uniqs' ] = $aPossibleUniqs;
-			Services::WpGeneral()->updateOption( $sOptKey, $aID );
+		if ( empty( $sID ) || !is_string( $sID ) || ( strlen( $sID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
+			try {
+				$sID = \Ramsey\Uuid\Uuid::uuid4()->toString();
+			}
+			catch ( \Exception $e ) {
+				$sID = sha1( uniqid( $oWP->getHomeUrl( '', true ), true ) );
+			}
+			$oWP->updateOption( $sOptKey, $sID );
 		}
 
-		return $aID[ 'id' ];
+		return $sID;
+	}
+
+	/**
+	 * TODO: Use to set ID after license verify where applicable
+	 * @param string $sID
+	 */
+	public function setSiteInstallID( $sID ) {
+		if ( !empty( $sID ) && ( \Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
+			Services::WpGeneral()->updateOption( $this->prefixOption( 'install_id' ), $sID );
+		}
 	}
 
 	public function onWpLoaded() {
@@ -991,15 +1002,13 @@ class Controller {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
-		$this->getSiteInstallationId( true );
+		$this->getSiteInstallationId();
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
 		$this->deleteFlags();
 	}
 
-	/**
-	 */
 	public function onWpLogout() {
 		if ( $this->hasSessionId() ) {
 			$this->clearSession();
