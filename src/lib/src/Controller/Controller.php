@@ -444,37 +444,44 @@ class Controller {
 	/**
 	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
 	 * Certain plugins can modify the ID at different points in the load.
-	 * @param bool $bRebuildIfRequired
 	 * @return string - the unique, never-changing site install ID.
 	 */
-	public function getSiteInstallationId( $bRebuildIfRequired = false ) {
+	public function getSiteInstallationId() {
 		$oWP = Services::WpGeneral();
-
 		$sOptKey = $this->prefixOption( 'install_id' );
+
 		$mStoredID = $oWP->getOption( $sOptKey );
 		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
 			$sID = $mStoredID[ 'id' ];
 		}
-		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':', 2 ) ) {
+		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) {
 			$sID = explode( ':', $mStoredID, 2 )[ 1 ];
 		}
 		else {
 			$sID = $mStoredID;
 		}
 
-		$bValid = !empty( $sID ) && is_string( $sID ) &&
-				  ( strlen( $sID ) === 40 || \Ramsey\Uuid\Uuid::isValid( $sID ) );
-		if ( !$bValid ) {
+		if ( empty( $sID ) || !is_string( $sID ) || ( strlen( $sID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
 			try {
 				$sID = \Ramsey\Uuid\Uuid::uuid4()->toString();
 			}
-			catch ( \InvalidArgumentException $e ) {
+			catch ( \Exception $e ) {
 				$sID = sha1( uniqid( $oWP->getHomeUrl( '', true ), true ) );
 			}
-			Services::WpGeneral()->updateOption( $sOptKey, $sID );
+			$oWP->updateOption( $sOptKey, $sID );
 		}
 
 		return $sID;
+	}
+
+	/**
+	 * TODO: Use to set ID after license verify where applicable
+	 * @param string $sID
+	 */
+	public function setSiteInstallID( $sID ) {
+		if ( !empty( $sID ) && ( \Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
+			Services::WpGeneral()->updateOption( $this->prefixOption( 'install_id' ), $sID );
+		}
 	}
 
 	public function onWpLoaded() {
@@ -995,7 +1002,7 @@ class Controller {
 	 * Hooked to 'shutdown'
 	 */
 	public function onWpShutdown() {
-		$this->getSiteInstallationId( true );
+		$this->getSiteInstallationId();
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
 		do_action( $this->prefix( 'plugin_shutdown' ) );
 		$this->saveCurrentPluginControllerOptions();
