@@ -7,6 +7,12 @@ class MemberPress extends BaseFormProvider {
 	protected function login() {
 		add_action( 'mepr-login-form-before-submit', [ $this, 'formInsertsPrint' ], 100 );
 		add_filter( 'mepr-validate-login', [ $this, 'checkLogin' ], 100 );
+		/**
+		 * We have to add a checkbox to the password reset form because MemberPress attempts to
+		 * login the given user upon success of password update. Without this checkbox being present
+		 * the login will fail (though the password update will not).
+		 */
+		add_action( 'mepr-reset-password-after-password-fields', [ $this, 'formInsertsPrint' ], 100 );
 	}
 
 	protected function register() {
@@ -41,6 +47,7 @@ class MemberPress extends BaseFormProvider {
 	 * @return array
 	 */
 	public function checkLostPassword( $aErrors ) {
+		error_log( __FUNCTION__ );
 		if ( !empty( $aErrors ) ) {
 			try {
 				$this->setActionToAudit( 'memberpress-lostpassword' )
