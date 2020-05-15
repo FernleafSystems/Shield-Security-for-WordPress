@@ -57,9 +57,8 @@ class ShieldNetApiController {
 	}
 
 	public function storeVoData() {
-		$oMod = $this->getMod();
-		$oMod->getOptions()->setOpt( 'snapi_data', $this->vo->getRawDataAsArray() );
-		$oMod->saveModOptions();
+		$this->getOptions()->setOpt( 'snapi_data', $this->vo->getRawDataAsArray() );
+		$this->getMod()->saveModOptions();
 	}
 
 	/**
