@@ -130,6 +130,13 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
+	public function isEnabledU2F() {
+		return $this->isPremium() && $this->isOpt( 'allow_u2f', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isProtectLogin() {
 		return $this->isProtect( 'login' );
 	}
