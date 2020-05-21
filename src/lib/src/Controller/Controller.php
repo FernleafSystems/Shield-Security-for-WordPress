@@ -493,6 +493,16 @@ class Controller {
 
 	public function onWpLoaded() {
 		$this->getAdminNotices();
+		$this->initCrons();
+	}
+
+	protected function initCrons() {
+		( new Shield\Crons\HourlyCron() )
+			->setCon( $this )
+			->run();
+		( new Shield\Crons\DailyCron() )
+			->setCon( $this )
+			->run();
 	}
 
 	/**

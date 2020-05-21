@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 		parent::run();
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
@@ -18,12 +16,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
 		$this->removePluginConflicts();
 
-		( new Shield\Crons\HourlyCron() )
-			->setMod( $oMod )
-			->run();
-		( new Shield\Crons\DailyCron() )
-			->setMod( $oMod )
-			->run();
 		$oMod->getPluginBadgeCon()->run();
 
 		if ( $oOpts->isTrackingEnabled() || !$oOpts->isTrackingPermissionSet() ) {
@@ -55,8 +47,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		);
 	}
 
-	/**
-	 */
 	public function printDashboardWidget() {
 		$oCon = $this->getCon();
 		/** @var Plugin\Options $oOpts */
@@ -142,8 +132,6 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		}
 	}
 
-	/**
-	 */
 	public function dumpTrackingData() {
 		if ( $this->getCon()->isPluginAdmin() ) {
 			echo sprintf( '<pre><code>%s</code></pre>',
@@ -162,6 +150,10 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 				->setMod( $this->getMod() )
 				->fromSite( $oOpts->getImportExportMasterImportUrl() );
 		}
+
+		( new Shield\Utilities\Options\CleanStorage() )
+			->setCon( $this->getCon() )
+			->run();
 	}
 
 	/**

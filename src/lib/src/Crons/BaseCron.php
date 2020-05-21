@@ -3,11 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Crons;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class BaseCron {
 
 	use Shield\Crons\StandardCron;
-	use Shield\Modules\ModConsumer;
+	use PluginControllerConsumer;
 
 	public function run() {
 		$this->setupCron();
