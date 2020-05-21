@@ -227,7 +227,11 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 	 * @return string
 	 */
 	public function getPluginReportEmail() {
-		$sE = $this->getOpt( 'block_send_email_address' );
+		$sE = (string)$this->getOpt( 'block_send_email_address' );
+		if ( $this->isPremium() ) {
+			$sE = apply_filters( $this->prefix( 'report_email' ), $sE );
+		}
+		$sE = trim( $sE );
 		return Services::Data()->validEmail( $sE ) ? $sE : Services::WpGeneral()->getSiteAdminEmail();
 	}
 
