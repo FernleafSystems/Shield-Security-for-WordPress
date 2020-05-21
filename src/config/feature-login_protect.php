@@ -171,6 +171,18 @@
       "description": "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
     },
     {
+      "key":         "allow_u2f",
+      "section":     "section_multifactor_authentication",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/dx",
+      "link_blog":   "https://shsec.io/dy",
+      "name":        "Allow U2F",
+      "summary":     "Allow U2F Code",
+      "description": "Allow U2F."
+    },
+    {
       "key":         "enable_google_authenticator",
       "section":     "section_2fa_ga",
       "default":     "N",

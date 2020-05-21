@@ -142,6 +142,7 @@ class MfaController {
 				Provider\GoogleAuth::SLUG => ( new Provider\GoogleAuth() )->setMod( $this->getMod() ),
 				Provider\Yubikey::SLUG    => ( new Provider\Yubikey() )->setMod( $this->getMod() ),
 				Provider\Backup::SLUG     => ( new Provider\Backup() )->setMod( $this->getMod() ),
+				Provider\U2F::SLUG        => ( new Provider\U2F() )->setMod( $this->getMod() ),
 			];
 		}
 		return $this->aProviders;

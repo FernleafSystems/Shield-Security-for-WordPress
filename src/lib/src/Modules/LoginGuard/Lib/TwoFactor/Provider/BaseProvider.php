@@ -10,6 +10,9 @@ abstract class BaseProvider {
 	use Modules\ModConsumer;
 	const SLUG = '';
 
+	public function __construct() {
+	}
+
 	/**
 	 * Assumes this is only called on active profiles
 	 * @param \WP_User $oUser
