@@ -4,34 +4,70 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
+use u2flib_server\RegisterRequest;
 
 class U2F extends BaseProvider {
 
 	const SLUG = 'u2f';
 
+	public function setup() {
+		add_action( 'admin_enqueue_scripts', function ( $sHook ) {
+			if ( in_array( $sHook, [ 'profile.php', ] ) ) {
+				$this->enqueueAdminU2f();
+			}
+		} );
+	}
+
+	private function enqueueAdminU2f() {
+		$aDeps = [];
+		foreach ( [ 'u2f-bundle', 'shield-u2f-admin' ] as $sScript ) {
+			wp_enqueue_script(
+				$this->getCon()->prefix( $sScript ),
+				$this->getCon()->getPluginUrl_Js( $sScript ),
+				$aDeps
+			);
+			$aDeps[] = $this->getCon()->prefix( $sScript );
+		}
+
+		try {
+			/** @var RegisterRequest $oReq */
+			$aParts = wp_parse_url( Services::WpGeneral()->getHomeUrl() );
+			$sAppId = sprintf( 'https://%s%s', $aParts[ 'host' ], empty( $aParts[ 'port' ] ) ? '' : ':'.$aParts[ 'port' ] );
+			list( $oReq, $signatures ) = ( new \u2flib_server\U2F( $sAppId ) )->getRegisterData( [] );
+
+			wp_localize_script(
+				$this->getCon()->prefix( 'shield-u2f-admin' ),
+				'icwp_wpsf_vars_u2f',
+				[
+					'raw_request' => (array)$oReq,
+					'request'     => [
+						'version'   => $oReq->version,
+						'challenge' => $oReq->challenge
+					],
+					'app_id'      => $oReq->appId,
+					'strings'     => [
+						'not_supported' => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
+						'failed'       => __( 'Key registration failed.', 'wp-simple-firewall' )
+										  .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
+						'do_save'       => __( 'Key registration was successful.', 'wp-simple-firewall' )
+										   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' )
+					]
+				]
+			);
+		}
+		catch ( \Exception $oE ) {
+		}
+	}
+
 	/**
 	 * @inheritDoc
 	 */
 	public function renderUserProfileOptions( \WP_User $oUser ) {
-		$oCon = $this->getCon();
-
 		$aData = [
 			'strings' => [
 				'title'                 => __( 'U2F', 'wp-simple-firewall' ),
 				'button_reg_key'        => __( 'Register A New U2F Security Key', 'wp-simple-firewall' ),
-				'button_del_code'       => __( 'Delete Login Backup Code', 'wp-simple-firewall' ),
-				'not_available'         => __( 'Backup login codes are not available if you do not have any other two-factor authentication modes active.', 'wp-simple-firewall' ),
-				'description_code'      => __( 'Click to generate a backup login code for your two-factor authentication.', 'wp-simple-firewall' ),
-				'description_code_ext1' => sprintf( '%s: %s',
-					__( 'Important', 'wp-simple-firewall' ),
-					__( 'This code will be displayed only once and you may use it to verify your login only once.', 'wp-simple-firewall' )
-					.' '.__( 'Store it somewhere safe.', 'wp-simple-firewall' ) ),
-				'description_code_ext2' => __( 'Generating a new code will replace your existing code.', 'wp-simple-firewall' ),
-				'label_enter_code'      => __( 'Create Backup 2FA Login Code', 'wp-simple-firewall' ),
-				'cant_add_other_user'   => sprintf( __( "Sorry, %s may not be added to another user's account.", 'wp-simple-firewall' ), 'Backup Codes' ),
-				'cant_remove_admins'    => sprintf( __( "Sorry, %s may only be removed from another user's account by a Security Administrator.", 'wp-simple-firewall' ), __( 'Backup Codes', 'wp-simple-firewall' ) ),
-				'provided_by'           => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-				'remove_more_info'      => sprintf( __( 'Understand how to remove Google Authenticator', 'wp-simple-firewall' ) )
+				'prompt'                => __( 'Click To Start U2F Security Registration', 'wp-simple-firewall' ),
 			]
 		];
 

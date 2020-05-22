@@ -18,15 +18,6 @@ class UserProfile {
 				add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
 			}
 		}
-		add_action( 'admin_enqueue_scripts', function () {
-			$oCon = $this->getMfaCon()->getCon();
-			error_log(
-				$oCon->getPluginUrl_Js( 'u2f-admin.js' ) );
-			wp_enqueue_script(
-				$oCon->prefix( 'u2f-admin' ),
-				$oCon->getPluginUrl_Js( 'u2f-admin.js' )
-			);
-		} );
 	}
 
 	/**

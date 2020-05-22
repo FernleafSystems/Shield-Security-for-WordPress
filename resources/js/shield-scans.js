@@ -1,5 +1,3 @@
-/**
- */
 jQuery.fn.icwpWpsfScansStart = function ( aOptions ) {
 
 	let startScans = function ( evt ) {

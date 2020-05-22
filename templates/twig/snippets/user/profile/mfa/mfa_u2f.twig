@@ -1,44 +1,14 @@
 {% if (flags.is_my_user_profile or flags.i_am_valid_admin) %}
 	<tr>
-		<th><label for="{{ vars.otp_field_name }}">{{ strings.title }}</label></th>
-		<td>
-			<div class="register-security-key">
-				<input type="hidden" name="do_new_security_key" id="do_new_security_key" />
-				<input type="hidden" name="u2f_response" id="u2f_response" />
-				<button type="button" class="button button-secondary" id="register_security_key">
+		<th><label for="icwp_reg_new_key">{{ strings.title }}</label></th>
+		<td id="icwp_u2f_section">
+			<p>
+				<input type="hidden" name="icwp_new_u2f_response" id="icwp_new_u2f_response" />
+				<button type="button" class="button button-secondary" id="icwp_reg_new_key" disabled="disabled">
 					{{ strings.button_reg_key }}
 				</button>
-				<span class="spinner"></span>
-				<span class="security-key-status"></span>
-			</div>
-
-
-
-{#			{% if flags.is_profile_active %}#}
-{#				<p>{{ strings.current_yubi_ids }}</p>#}
-{#				<ul style=" list-style: circle inside; ">#}
-{#					{% for yubi_id in vars.yubi_ids %}#}
-{#						<li><code>{{ yubi_id }}</code></li>#}
-{#					{% endfor %}#}
-{#				</ul>#}
-{#			{% else %}#}
-{#				<p>{{ strings.no_active_yubi_ids }}</p>#}
-{#			{% endif %}#}
-
-{#			<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>#}
-{#			<input class="regular-text"#}
-{#				   type="text"#}
-{#				   id="{{ vars.otp_field_name }}"#}
-{#				   name="{{ vars.otp_field_name }}"#}
-{#				   value="" autocomplete="off" />#}
-{#			{% if flags.is_profile_active %}#}
-{#				<p class="description">#}
-{#						{{ strings.to_remove_device }}#}
-{#				</p>#}
-{#			{% endif %}#}
-{#			<p class="description">#}
-{#				{{ strings.multiple_for_pro }}#}
-{#			</p>#}
+			</p>
+			<p class="description">{{ strings.prompt }}</p>
 		</td>
 	</tr>
 {% else %}
