@@ -223,19 +223,23 @@ class U2F extends BaseProvider {
 	private function validateU2F( $oUser, $sOtpCode ) {
 		try {
 			$oReq = Services::Request();
+
+			// Recreate the signing/authenticate request from the form submission.
 			$oSign = new SignRequest();
 			$oSign->version = $oReq->post( 'version' );
 			$oSign->appId = $oReq->post( 'appId' );
 			$oSign->challenge = $oReq->post( 'challenge' );
 			$oSign->keyHandle = $oReq->post( 'keyHandle' );
 
-			/** @var SignRequest[] $aSignReqs */
 			$oRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 				->doAuthenticate(
 					[ $oSign ],
 					[ json_decode( $this->getSecret( $oUser ) ) ],
 					json_decode( $sOtpCode )
 				);
+
+			// We "update" the registration as there is a counter to track requests
+			$this->setSecret( $oUser, json_encode( (object)$oRegistration ) );
 		}
 		catch ( \Exception $oE ) {
 			error_log( $oE->getMessage() );
