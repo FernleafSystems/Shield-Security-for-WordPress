@@ -30,13 +30,6 @@ class LoginIntentPage {
 		$oReq = Services::Request();
 		$oWP = Services::WpGeneral();
 
-		$aLoginIntentFields = array_filter( array_map(
-			function ( $oProvider ) {
-				return $oProvider->getFormField();
-			},
-			$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
-		) );
-
 		$oNotice = $oCon->getAdminNotices()->getFlashNotice();
 		if ( $oNotice instanceof NoticeVO ) {
 			$sMessage = $oNotice->render_data[ 'message' ];
@@ -88,7 +81,12 @@ class LoginIntentPage {
 				)
 			],
 			'data'    => [
-				'login_fields'      => $aLoginIntentFields,
+				'login_fields'      => array_filter( array_map(
+					function ( $oProvider ) {
+						return $oProvider->getFormField();
+					},
+					$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
+				) ),
 				'time_remaining'    => $nTimeRemaining,
 				'message_type'      => 'info',
 				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
@@ -141,11 +139,27 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
+				'has_u2f'            => isset( $oIC->getProvidersForUser(
+						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
 			'content' => [
 				'form' => $this->renderForm(),
 			]
 		];
+
+		// Provide the U2F scripts if required.
+		if ( $aDisplayData[ 'flags' ][ 'has_u2f' ] ) {
+			$aDisplayData[ 'head' ] = [
+				'scripts' => [
+					[
+						'src' => $oCon->getPluginUrl_Js( 'u2f-bundle.js' ),
+					],
+					[
+						'src' => $oCon->getPluginUrl_Js( 'u2f-frontend.js' ),
+					]
+				]
+			];
+		}
 
 		return $oMod->renderTemplate( '/pages/login_intent/index.twig',
 			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );

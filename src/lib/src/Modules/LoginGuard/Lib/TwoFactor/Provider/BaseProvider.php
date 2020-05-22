@@ -235,7 +235,7 @@ abstract class BaseProvider {
 	 * @return string
 	 */
 	protected function fetchCodeFromRequest() {
-		return esc_attr( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
+		return Services::Request()->request( $this->getLoginFormParameter(), false, '' );
 	}
 
 	/**

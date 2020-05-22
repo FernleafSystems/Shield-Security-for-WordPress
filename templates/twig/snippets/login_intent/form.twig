@@ -50,6 +50,9 @@
 						   placeholder="{{ aField.placeholder }}"
 						   autocomplete="off"
 						   {% if key_field == 0 %}autofocus{% endif %}
+							{% for datakey, dataval in aField.datas|default([]) %}
+								data-{{ datakey }}="{{ dataval }}"
+							{% endfor %}
 					/>
 
 					{% if flags.show_branded_links %}

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 use FernleafSystems\Wordpress\Services\Services;
 use u2flib_server\RegisterRequest;
+use u2flib_server\SignRequest;
 
 class U2F extends BaseProvider {
 
@@ -36,7 +37,6 @@ class U2F extends BaseProvider {
 
 		$oUser = Services::WpUsers()->getCurrentWpUser();
 		$bValidated = $this->hasValidatedProfile( $oUser );
-		error_log( var_export( $bValidated, true ) );
 		try {
 			wp_localize_script(
 				$this->getCon()->prefix( 'shield-u2f-admin' ),
@@ -58,6 +58,46 @@ class U2F extends BaseProvider {
 		}
 		catch ( \Exception $oE ) {
 		}
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFormField() {
+		$oUser = Services::WpUsers()->getCurrentWpUser();
+
+		$aFieldData = [];
+		try {
+			$oRegistration = json_decode( $this->getSecret( $oUser ) );
+			/** @var SignRequest[] $aSignReqs */
+			$aSignReqs = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
+				->getAuthenticateData( [ $oRegistration ] );
+
+			if ( empty( $aSignReqs ) ) {
+				throw new \Exception( 'No signature requests could be created' );
+			}
+			$oSign = array_pop( $aSignReqs );
+			$aFieldData = [
+				'name'        => $this->getLoginFormParameter(),
+				'type'        => 'hidden',
+				'value'       => $this->fetchCodeFromRequest(),
+				'placeholder' => __( 'This code was just sent to your registered Email address.', 'wp-simple-firewall' ),
+				'text'        => __( 'U2F Key Verification', 'wp-simple-firewall' ),
+				'help_link'   => 'https://shsec.io/3t',
+				'datas'       => [
+					'req'       => json_encode( $oSign ),
+					'version'   => $oSign->version,
+					'challenge' => $oSign->challenge,
+					// note these keys are different. The JS breaks with the .data() otherwise
+					'handle'    => $oSign->keyHandle,
+					'app_id'    => $oSign->appId,
+				]
+			];
+		}
+		catch ( \Exception $oE ) {
+		}
+
+		return $aFieldData;
 	}
 
 	/**
@@ -181,7 +221,27 @@ class U2F extends BaseProvider {
 	 * @return bool
 	 */
 	private function validateU2F( $oUser, $sOtpCode ) {
-		return false; // TODO
+		try {
+			$oReq = Services::Request();
+			$oSign = new SignRequest();
+			$oSign->version = $oReq->post( 'version' );
+			$oSign->appId = $oReq->post( 'appId' );
+			$oSign->challenge = $oReq->post( 'challenge' );
+			$oSign->keyHandle = $oReq->post( 'keyHandle' );
+
+			/** @var SignRequest[] $aSignReqs */
+			$oRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
+				->doAuthenticate(
+					[ $oSign ],
+					[ json_decode( $this->getSecret( $oUser ) ) ],
+					json_decode( $sOtpCode )
+				);
+		}
+		catch ( \Exception $oE ) {
+			error_log( $oE->getMessage() );
+		}
+
+		return !empty( $oRegistration );
 	}
 
 	/**

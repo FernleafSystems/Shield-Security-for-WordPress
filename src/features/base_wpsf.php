@@ -165,11 +165,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			parent::getBaseDisplayData(),
 			[
 				'head'    => [
-					'html' => [
+					'html'    => [
 						'lang' => Services::WpGeneral()->getLocale( '-' ),
 						'dir'  => is_rtl() ? 'rtl' : 'ltr',
 					],
-					'meta' => [
+					'meta'    => [
 						[
 							'type'      => 'http-equiv',
 							'type_type' => 'Cache-Control',
@@ -180,7 +180,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 							'type_type' => 'Expires',
 							'content'   => '0',
 						],
-					]
+					],
+					'scripts' => []
 				],
 				'ajax'    => [
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
