@@ -80,9 +80,9 @@ class U2F extends BaseProvider {
 			$aFieldData = [
 				'name'        => $this->getLoginFormParameter(),
 				'type'        => 'hidden',
-				'value'       => $this->fetchCodeFromRequest(),
-				'placeholder' => __( 'This code was just sent to your registered Email address.', 'wp-simple-firewall' ),
-				'text'        => __( 'U2F Key Verification', 'wp-simple-firewall' ),
+				'value'       => '',
+				'placeholder' => '',
+				'text'        => '',
 				'help_link'   => 'https://shsec.io/3t',
 				'datas'       => [
 					'req'       => json_encode( $oSign ),
