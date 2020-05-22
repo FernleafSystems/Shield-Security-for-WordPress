@@ -219,7 +219,6 @@ class GoogleAuth extends BaseProvider {
 	/**
 	 * @param \WP_User $oUser
 	 * @return GoogleAuthenticator\Secret
-	 * @throws \InvalidArgumentException
 	 */
 	private function getGaSecret( $oUser ) {
 		if ( !isset( $this->oWorkingSecret ) ) {

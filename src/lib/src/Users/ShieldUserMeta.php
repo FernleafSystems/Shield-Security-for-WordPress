@@ -13,6 +13,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string $backupcode_validated
  * @property string $ga_secret
  * @property bool   $ga_validated
+ * @property string $u2f_secret
+ * @property bool   $u2f_validated
  * @property array  $hash_loginmfa
  * @property string $pass_hash
  * @property int    $first_seen_at

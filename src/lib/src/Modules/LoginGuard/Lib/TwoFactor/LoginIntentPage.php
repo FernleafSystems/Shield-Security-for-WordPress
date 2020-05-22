@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,13 +30,12 @@ class LoginIntentPage {
 		$oReq = Services::Request();
 		$oWP = Services::WpGeneral();
 
-		$aLoginIntentFields = array_map(
+		$aLoginIntentFields = array_filter( array_map(
 			function ( $oProvider ) {
-				/** @var TwoFactor\Provider\BaseProvider $oProvider */
 				return $oProvider->getFormField();
 			},
 			$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
-		);
+		) );
 
 		$oNotice = $oCon->getAdminNotices()->getFlashNotice();
 		if ( $oNotice instanceof NoticeVO ) {

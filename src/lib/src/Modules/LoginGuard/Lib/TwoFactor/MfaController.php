@@ -57,9 +57,11 @@ class MfaController {
 			return $this->getLoginIntentPageHandler()->renderForm();
 		} );
 
-		$aProvs = $this->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), false );
-		if ( isset( $aProvs[ Provider\U2F::SLUG ] ) ) {
-			$aProvs[ Provider\U2F::SLUG ]->setup();
+		if ( Services::WpUsers()->isUserLoggedIn() ) {
+			$aProvs = $this->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), false );
+			if ( isset( $aProvs[ Provider\U2F::SLUG ] ) ) {
+				$aProvs[ Provider\U2F::SLUG ]->setup();
+			}
 		}
 	}
 

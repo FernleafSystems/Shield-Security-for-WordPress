@@ -134,7 +134,7 @@ abstract class BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @return string
+	 * @return string|mixed
 	 */
 	protected function genNewSecret( \WP_User $oUser ) {
 		return '';
@@ -204,7 +204,9 @@ abstract class BaseProvider {
 	/**
 	 * @return array
 	 */
-	abstract public function getFormField();
+	public function getFormField() {
+		return [];
+	}
 
 	/**
 	 * @param \WP_User $oUser
