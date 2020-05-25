@@ -3,6 +3,9 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_FeatureHandler_Base
+ */
 abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	use Shield\Modules\PluginControllerConsumer;
@@ -53,6 +56,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	private $oOpts;
 
 	/**
+	 * @var Shield\Modules\Base\WpCli
+	 */
+	private $oWpCli;
+
+	/**
 	 * @var Shield\Databases\Base\Handler[]
 	 */
 	private $aDbHandlers;
@@ -96,6 +104,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}, $nRunPriority );
 		add_action( $oCon->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
+		add_action( 'cli_init', function () {
+			try {
+				$this->getWpCli()->execute();
+			}
+			catch ( \Exception $oE ) {
+			}
+		} );
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $oCon->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
@@ -1941,6 +1956,23 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 						->setIfLoadOptionsFromStorage( !$oCon->getIsResetPlugin() );
 		}
 		return $this->oOpts;
+	}
+
+	/**
+	 * @return Shield\Modules\Base\WpCli
+	 * @throws \Exception
+	 */
+	public function getWpCli() {
+		if ( !isset( $this->oWpCli ) ) {
+			$this->oWpCli = $this->loadClass( 'WpCli' );
+			if ( $this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
+				$this->oWpCli->setMod( $this );
+			}
+			else {
+				throw new Exception( 'WP-CLI not supported' );
+			}
+		}
+		return $this->oWpCli;
 	}
 
 	/**

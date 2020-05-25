@@ -14,6 +14,7 @@
     "run_if_whitelisted":    false,
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
+    "has_wpcli":          	 true,
     "order":                 20
   },
   "admin_notices": {

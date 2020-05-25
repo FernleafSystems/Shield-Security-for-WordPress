@@ -10,8 +10,6 @@ class RemoveSecAdmin {
 
 	use ModConsumer;
 
-	/**
-	 */
 	public function remove() {
 		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
