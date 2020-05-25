@@ -1965,12 +1965,13 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function getWpCli() {
 		if ( !isset( $this->oWpCli ) ) {
 			$this->oWpCli = $this->loadClass( 'WpCli' );
-			if ( $this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
-				$this->oWpCli->setMod( $this );
+			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
+				$this->oWpCli = $this->loadClassFromBase( 'WpCli' );
+				if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
+					throw new Exception( 'WP-CLI not supported' );
+				}
 			}
-			else {
-				throw new Exception( 'WP-CLI not supported' );
-			}
+			$this->oWpCli->setMod( $this );
 		}
 		return $this->oWpCli;
 	}
@@ -2051,6 +2052,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	private function loadClass( $sClass ) {
 		$sC = $this->getNamespace().$sClass;
 		return @class_exists( $sC ) ? new $sC() : false;
+	}
+
+	/**
+	 * @param $sClass
+	 * @return \stdClass|mixed|false
+	 */
+	private function loadClassFromBase( $sClass ) {
+		$sC = $this->getBaseNamespace().$sClass;
+		return @class_exists( $sC ) ? new $sC() : false;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getBaseNamespace() {
+		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\\';
 	}
 
 	/**

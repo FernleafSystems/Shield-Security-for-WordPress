@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 
-abstract class WpCli {
+class WpCli {
 
 	use ModConsumer;
 	use \FernleafSystems\Utilities\Logic\OneTimeExecute;
@@ -14,10 +14,12 @@ abstract class WpCli {
 	/**
 	 * @throws \Exception
 	 */
-	abstract protected function addCmds();
+	protected function addCmds() {
+	}
 
 	protected function run() {
 		try {
+			error_log( $this->getMod()->getModSlug() );
 			$this->addDefaultCmds();
 			$this->addCmds();
 		}
@@ -121,6 +123,15 @@ abstract class WpCli {
 	 * @return string[]
 	 */
 	protected function getBaseCmdParts() {
-		return [ 'shield', static::MOD_COMMAND_KEY ];
+		return [ 'shield', $this->getBaseCmdKey() ];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getBaseCmdKey() {
+		return strlen( static::MOD_COMMAND_KEY ) > 0 ?
+			static::MOD_COMMAND_KEY
+			: $this->getMod()->getModSlug( false );
 	}
 }
