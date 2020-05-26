@@ -7,8 +7,6 @@ use WP_CLI;
 
 class License extends Base\WpCli\BaseWpCliCmd {
 
-	const MOD_COMMAND_KEY = 'license';
-
 	/**
 	 * @throws \Exception
 	 */

@@ -12,7 +12,8 @@ class WpCli extends Base\WpCli {
 	 */
 	protected function getCmdHandlers() {
 		return [
-			new Plugin\WpCli\ForceOff()
+			new Plugin\WpCli\ForceOff(),
+			new Plugin\WpCli\Reset(),
 		];
 	}
 }

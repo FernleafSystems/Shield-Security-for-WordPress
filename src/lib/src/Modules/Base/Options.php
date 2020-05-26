@@ -951,7 +951,6 @@ class Options {
 	 * @return mixed
 	 */
 	public function unsetOpt( $sOptionKey ) {
-
 		unset( $this->aOptionsValues[ $sOptionKey ] );
 		$this->setNeedSave( true );
 		return true;
@@ -1099,6 +1098,16 @@ class Options {
 	 */
 	public function setPathToConfig( $sPathToConfig ) {
 		$this->sPathToConfig = $sPathToConfig;
+		return $this;
+	}
+
+	/**
+	 * @param $aValues
+	 * @return $this
+	 */
+	public function setOptionsValues( array $aValues = [] ) {
+		$this->aOptionsValues = $aValues;
+		$this->setNeedSave( true );
 		return $this;
 	}
 }
