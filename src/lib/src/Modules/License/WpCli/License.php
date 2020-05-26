@@ -41,6 +41,9 @@ class License extends Base\WpCli\BaseWpCliCmd {
 		$oMod = $this->getMod();
 
 		try {
+			if ( $this->getCon()->isPremiumActive() ) {
+				WP_CLI::log( 'Premium license is already active. Re-checking...' );
+			}
 			$bSuccess = $oMod
 				->getLicenseHandler()
 				->verify()
