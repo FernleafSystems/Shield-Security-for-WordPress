@@ -32,7 +32,8 @@ class Pin extends Base {
 			WP_CLI::error_multi_line(
 				[
 					__( 'Setting Security admin pin failed.', 'wp-simple-firewall' ),
-					__( 'To remove the pin, use `pin remove`.', 'wp-simple-firewall' ),
+					__( 'Use the `--pin=` option to set the PIN.', 'wp-simple-firewall' ),
+					__( 'To remove the pin, use the command `pin remove`.', 'wp-simple-firewall' ),
 					$oE->getMessage()
 				]
 			);

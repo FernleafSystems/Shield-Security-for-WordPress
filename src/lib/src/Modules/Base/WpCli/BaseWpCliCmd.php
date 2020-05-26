@@ -51,6 +51,7 @@ abstract class BaseWpCliCmd {
 	 * @return string
 	 */
 	protected function getBaseCmdKey() {
-		return $this->getOptions()->getWpCliCfg()[ 'root' ];
+		$sRoot = $this->getOptions()->getWpCliCfg()[ 'root' ];
+		return empty( $sRoot ) ? $this->getMod()->getModSlug( false ) : $sRoot;
 	}
 }
