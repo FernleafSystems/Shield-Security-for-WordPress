@@ -1,9 +1,9 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\License;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 
 class WpCli extends Base\WpCli {
 
@@ -12,7 +12,7 @@ class WpCli extends Base\WpCli {
 	 */
 	protected function getCmdHandlers() {
 		return [
-			new License\WpCli\License()
+			new Plugin\WpCli\ForceOff()
 		];
 	}
 }

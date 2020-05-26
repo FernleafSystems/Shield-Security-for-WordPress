@@ -139,6 +139,19 @@ class Options {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	public function getOptionsForWpCli() {
+		return array_filter(
+			$this->getOptionsKeys(),
+			function ( $sKey ) {
+				return $this->getRawData_SingleOption( $sKey )[ 'section' ]
+					   !== 'section_non_ui';
+			}
+		);
+	}
+
+	/**
 	 * Returns an array of all the options with the values for "sensitive" options masked out.
 	 * @return array
 	 */
@@ -169,6 +182,20 @@ class Options {
 	public function getFeatureProperty( $sProperty ) {
 		$aRawConfig = $this->getRawData_FullFeatureConfig();
 		return ( isset( $aRawConfig[ 'properties' ] ) && isset( $aRawConfig[ 'properties' ][ $sProperty ] ) ) ? $aRawConfig[ 'properties' ][ $sProperty ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getWpCliCfg() {
+		$aCfg = $this->getRawData_FullFeatureConfig();
+		$aCli = empty( $aCfg[ 'wpcli' ] ) ? [] : $aCfg[ 'wpcli' ];
+		return array_merge(
+			[
+				'root' => $this->getSlug(),
+			],
+			$aCli
+		);
 	}
 
 	/**
@@ -953,8 +980,6 @@ class Options {
 		return is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
 	}
 
-	/**
-	 */
 	private function cleanOptions() {
 		if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {
 			$this->aOptionsValues = array_intersect_key(
