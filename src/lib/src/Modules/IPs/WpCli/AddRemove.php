@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\WpCli;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Ops;
 use WP_CLI;
 
-class IPs extends Base {
+class AddRemove extends Base {
 
 	/**
 	 * @throws \Exception

@@ -25,10 +25,10 @@ class License extends Base\WpCli\BaseWpCliCmd {
 		if ( !$this->getCon()->isPremiumActive() ) {
 			WP_CLI::success( __( 'No license to remove.', 'wp-simple-firewall' ) );
 		}
-		elseif ( !isset( $aNamed[ 'confirm' ] ) ) {
-			WP_CLI::error( __( 'Please confirm license removal using `--confirm`.', 'wp-simple-firewall' ) );
-		}
 		else {
+			if ( !array_key_exists( 'force', $aNamed ) ) {
+				WP_CLI::confirm( __( 'Are you sure you want to remove the ShieldPRO license?', 'wp-simple-firewall' ) );
+			}
 			/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
 			$oMod = $this->getMod();
 			$oMod->getLicenseHandler()->clearLicense();
