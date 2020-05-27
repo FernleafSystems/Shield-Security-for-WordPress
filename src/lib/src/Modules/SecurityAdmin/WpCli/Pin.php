@@ -14,7 +14,7 @@ class Pin extends Base {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'pin' ] ),
 			[ $this, 'cmdPin' ], [
-			'shortdesc' => 'Set the Security Admin PIN.',
+			'shortdesc' => 'Set or remove the Security Admin PIN.',
 			'synopsis'  => [
 				[
 					'type'        => 'assoc',

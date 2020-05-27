@@ -15,40 +15,92 @@ class SessionOps extends BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'terminate' ] ),
-			[ $this, 'cmdTerminate' ]
-		);
+			[ $this, 'cmdTerminate' ], [
+			'shortdesc' => 'Terminate 1, some, or all user sessions.',
+			'synopsis'  => [
+				[
+					'type'        => 'assoc',
+					'name'        => 'uid',
+					'optional'    => true,
+					'description' => 'Terminate all sessions for the given user ID.',
+				],
+				[
+					'type'        => 'assoc',
+					'name'        => 'username',
+					'optional'    => true,
+					'description' => 'Terminate all sessions for a user with the given username.',
+				],
+				[
+					'type'        => 'assoc',
+					'name'        => 'email',
+					'optional'    => true,
+					'description' => 'Terminate all sessions for a user with the given email address.',
+				],
+				[
+					'type'        => 'flag',
+					'name'        => 'all',
+					'optional'    => true,
+					'description' => 'Terminate all sessions.',
+				],
+				[
+					'type'        => 'flag',
+					'name'        => 'force',
+					'optional'    => true,
+					'description' => 'By-pass confirmation prompt.',
+				],
+			],
+		] );
 	}
 
 	/**
 	 * @param array $null
-	 * @param array $aArgs
+	 * @param array $aA
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdTerminate( $null, $aArgs ) {
+	public function cmdTerminate( $null, $aA ) {
 		$oWpUsers = Services::WpUsers();
 
-		if ( !array_key_exists( 'all', $aArgs )
-			 && !array_key_exists( 'user_id', $aArgs ) && !array_key_exists( 'user_login', $aArgs ) ) {
-			WP_CLI::error_multi_line(
-				[
-					"Please provide a user.",
-					"Use `--all`, `--user_id=` or `--user_login=`.",
-				]
-			);
-			WP_CLI::halt( 1 );
+		$bShowConfirm = true;
+		if ( isset( $aA[ 'force' ] ) ) {
+			$bShowConfirm = false;
+			unset( $aA[ 'force' ] );
 		}
 
-		WP_CLI::confirm( 'This will logout all affected users. Are you sure?' );
-
-		if ( array_key_exists( 'all', $aArgs ) ) {
+		if ( isset( $aA[ 'all' ] ) ) {
+			if ( $bShowConfirm ) {
+				WP_CLI::confirm( 'This will logout all users. Are you sure?' );
+			}
 			$this->runTerminateAll();
+			return;
 		}
-		elseif ( !empty( $aArgs[ 'user_id' ] ) ) {
-			$this->runTerminateByUser( $oWpUsers->getUserById( $aArgs[ 'user_id' ] ) );
+
+		if ( count( $aA ) === 0 ) {
+			WP_CLI::error( 'Please specify the user for which you want to terminate sessions.' );
 		}
-		elseif ( !empty( $aArgs[ 'user_login' ] ) ) {
-			$this->runTerminateByUser( $oWpUsers->getUserByUsername( $aArgs[ 'user_login' ] ) );
+		if ( count( $aA ) > 1 ) {
+			WP_CLI::error( 'Please specify only 1 way to identify a user.' );
 		}
+
+		$oU = null;
+		if ( isset( $aA[ 'uid' ] ) ) {
+			$oU = $oWpUsers->getUserById( $aA[ 'uid' ] );
+		}
+		elseif ( isset( $aA[ 'email' ] ) ) {
+			$oU = $oWpUsers->getUserByEmail( $aA[ 'email' ] );
+		}
+		elseif ( isset( $aA[ 'username' ] ) ) {
+			$oU = $oWpUsers->getUserByUsername( $aA[ 'username' ] );
+		}
+
+		if ( !$oU instanceof \WP_User ) {
+			WP_CLI::error( "Couldn't find that user." );
+		}
+
+		if ( $bShowConfirm ) {
+			WP_CLI::confirm( 'This will logout all session for this user. Are you sure?' );
+		}
+
+		$this->runTerminateByUser( $oU );
 	}
 
 	/**
