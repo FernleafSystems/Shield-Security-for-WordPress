@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\WpCli;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Actions;
 use WP_CLI;
 
-class Pin extends Base {
+class Pin extends BaseWpCliCmd {
 
 	/**
 	 * @throws \Exception

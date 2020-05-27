@@ -12,21 +12,60 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'check' ] ),
-			[ $this, 'cmdCheck' ]
-		);
-		WP_CLI::add_command(
-			$this->buildCmd( [ 'remove' ] ),
-			[ $this, 'cmdRemove' ]
+			$this->buildCmd( [] ),
+			[ $this, 'cmdAction' ], [
+				'shortdesc' => 'Manage the ShieldPRO license.',
+				'synopsis'  => [
+					[
+						'type'        => 'assoc',
+						'name'        => 'action',
+						'options'     => [
+							'status',
+							'verify',
+							'remove',
+						],
+						'optional'    => false,
+						'description' => 'Action to perform on the ShieldPRO license.',
+					],
+					[
+						'type'        => 'flag',
+						'name'        => 'force',
+						'optional'    => true,
+						'description' => 'By-pass confirmation prompt.',
+					],
+				],
+			]
 		);
 	}
 
-	public function cmdRemove( $args, $aNamed ) {
+	/**
+	 * @param array $null
+	 * @param array $aA
+	 * @throws WP_CLI\ExitException
+	 */
+	public function cmdAction( array $null, array $aA ) {
+
+		switch ( $aA[ 'action' ] ) {
+			case 'status':
+				$this->runStatus();
+				break;
+				
+			case 'verify':
+				$this->runVerify();
+				break;
+
+			case 'remove':
+				$this->runRemove( isset( $aA[ 'force' ] ) );
+				break;
+		}
+	}
+
+	private function runRemove( $bConfirm ) {
 		if ( !$this->getCon()->isPremiumActive() ) {
 			WP_CLI::success( __( 'No license to remove.', 'wp-simple-firewall' ) );
 		}
 		else {
-			if ( !array_key_exists( 'force', $aNamed ) ) {
+			if ( !$bConfirm ) {
 				WP_CLI::confirm( __( 'Are you sure you want to remove the ShieldPRO license?', 'wp-simple-firewall' ) );
 			}
 			/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
@@ -36,7 +75,21 @@ class License extends Base\WpCli\BaseWpCliCmd {
 		}
 	}
 
-	public function cmdCheck( $args, $aNamed ) {
+	/**
+	 * @throws WP_CLI\ExitException
+	 */
+	private function runStatus() {
+		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
+		$oMod = $this->getMod();
+		$oMod->getLicenseHandler()->isActive() ?
+			WP_CLI::success( __( 'Active license found.', 'wp-simple-firewall' ) )
+			: WP_CLI::error( __( 'No active license present.', 'wp-simple-firewall' ) );
+	}
+
+	/**
+	 * @throws WP_CLI\ExitException
+	 */
+	private function runVerify() {
 		/** @var \ICWP_WPSF_FeatureHandler_License $oMod */
 		$oMod = $this->getMod();
 

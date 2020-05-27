@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\WpCli;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
-class ForceOff extends Base {
+class ForceOff extends BaseWpCliCmd {
 
 	/**
 	 * @throws \Exception
