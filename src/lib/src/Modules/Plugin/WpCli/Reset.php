@@ -14,12 +14,21 @@ class Reset extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'reset' ] ),
-			[ $this, 'cmdReset' ]
-		);
+			[ $this, 'cmdReset' ], [
+			'shortdesc' => 'Reset the Shield plugin to default settings.',
+			'synopsis'  => [
+				[
+					'type'        => 'flag',
+					'name'        => 'force',
+					'optional'    => true,
+					'description' => 'By-pass confirmation prompt.',
+				],
+			],
+		] );
 	}
 
-	public function cmdReset( $null, $aNamed ) {
-		if ( !array_key_exists( 'force', $aNamed ) ) {
+	public function cmdReset( $null, $aA ) {
+		if ( !array_key_exists( 'force', $aA ) ) {
 			WP_CLI::confirm( __( 'Are you sure you want to reset the Shield plugin to defaults?', 'wp-simple-firewall' ) );
 		}
 		( new ResetPlugin() )
