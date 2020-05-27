@@ -32,13 +32,13 @@ class ModuleStandard extends BaseWpCliCmd {
 					'name'        => 'key',
 					'optional'    => false,
 					'options'     => $this->getOptions()->getOptionsForWpCli(),
-					'description' => 'The option key to set.',
+					'description' => 'The option key to update.',
 				],
 				[
 					'type'        => 'assoc',
 					'name'        => 'value',
 					'optional'    => false,
-					'description' => 'The option value.',
+					'description' => "The option's new value.",
 				],
 			],
 		] );
@@ -100,56 +100,7 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	public function cmdOptSet( array $null, array $aA ) {
-
-		if ( is_null( @$aA[ 'value' ] ) ) {
-			\WP_CLI::error(
-				__( 'Please supply a value for the option.', 'wp-simple-firewall' )
-			);
-		}
-
 		$this->getOptions()->setOpt( $aA[ 'opt' ], $aA[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
-	}
-
-	/**
-	 * @param array $aA
-	 * @throws \WP_CLI\ExitException
-	 */
-	private function commonOptCmdChecking( array $aA ) {
-
-		if ( empty( $aA[ 'opt' ] ) ) {
-			\WP_CLI::error_multi_line( array_merge(
-				[
-					__( 'Please provide an option key.', 'wp-simple-firewall' ),
-					__( 'Possible option keys include:', 'wp-simple-firewall' ),
-				],
-				$this->listOptKeysForError()
-			) );
-			\WP_CLI::halt( 1 );
-		}
-		$oOpts = $this->getOptions();
-		if ( !in_array( $aA[ 'opt' ], $oOpts->getOptionsForWpCli() ) ) {
-			\WP_CLI::error_multi_line( array_merge(
-				[
-					sprintf( 'Not a valid option key for this module: "%s"', $aA[ 'opt' ] ),
-					'Possible option keys are:'
-				],
-				$this->listOptKeysForError()
-			) );
-			\WP_CLI::halt( 2 );
-		}
-	}
-
-	/**
-	 * @return string[]
-	 * @throws \Exception
-	 */
-	private function listOptKeysForError() {
-		$aList = [];
-		$oStrings = $this->getMod()->getStrings();
-		foreach ( $this->getOptions()->getOptionsForWpCli() as $sOptKey ) {
-			$aList[] = sprintf( '%s: %s', $sOptKey, $oStrings->getOptionStrings( $sOptKey )[ 'name' ] );
-		}
-		return $aList;
 	}
 }
