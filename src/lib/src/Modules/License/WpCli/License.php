@@ -12,7 +12,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [] ),
+			$this->buildCmd( [ 'pro' ] ),
 			[ $this, 'cmdAction' ], [
 				'shortdesc' => 'Manage the ShieldPRO license.',
 				'synopsis'  => [
@@ -49,7 +49,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 			case 'status':
 				$this->runStatus();
 				break;
-				
+
 			case 'verify':
 				$this->runVerify();
 				break;

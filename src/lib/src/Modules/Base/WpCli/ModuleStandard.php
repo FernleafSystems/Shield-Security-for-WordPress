@@ -17,28 +17,50 @@ class ModuleStandard extends BaseWpCliCmd {
 			[ $this, 'cmdOptSet' ]
 		);
 		\WP_CLI::add_command(
-			$this->buildCmd( [ 'module', 'disable' ] ),
-			[ $this, 'cmdModDisable' ]
-		);
-		\WP_CLI::add_command(
-			$this->buildCmd( [ 'module', 'enable' ] ),
-			[ $this, 'cmdModEnable' ]
-		);
+			$this->buildCmd( [ 'module' ] ),
+			[ $this, 'cmdModAction' ], [
+			'shortdesc' => 'Enable, disable, or query the status of a module.',
+			'synopsis'  => [
+				[
+					'type'        => 'assoc',
+					'name'        => 'action',
+					'optional'    => false,
+					'options'     => [
+						'status',
+						'enable',
+						'disable',
+					],
+					'description' => 'The action to perform on the module.',
+				],
+			],
+		] );
 	}
 
-	public function cmdModDisable( $aArgs, $aNamed ) {
-		\WP_CLI::log( $this->getMod()->getSlug() );
-		$this->getMod()
-			 ->setIsMainFeatureEnabled( false )
-			 ->saveModOptions();
-		\WP_CLI::success( 'Module disabled.' );
-	}
+	public function cmdModAction( $null, $aA ) {
+		$oMod = $this->getMod();
 
-	public function cmdModEnable( $aArgs, $aNamed ) {
-		$this->getMod()
-			 ->setIsMainFeatureEnabled( false )
-			 ->saveModOptions();
-		\WP_CLI::success( 'Module enabled.' );
+		switch ( $aA[ 'action' ] ) {
+
+			case 'status':
+				$oMod->isModOptEnabled() ?
+					\WP_CLI::log( 'Module is currently enabled.' )
+					: \WP_CLI::log( 'Module is currently disabled.' );
+				break;
+
+			case 'enable':
+				$this->getMod()
+					 ->setIsMainFeatureEnabled( true )
+					 ->saveModOptions();
+				\WP_CLI::success( 'Module enabled.' );
+				break;
+
+			case 'disable':
+				$this->getMod()
+					 ->setIsMainFeatureEnabled( false )
+					 ->saveModOptions();
+				\WP_CLI::success( 'Module disabled.' );
+				break;
+		}
 	}
 
 	/**

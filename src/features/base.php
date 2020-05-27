@@ -628,7 +628,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	protected function isModOptEnabled() {
+	public function isModOptEnabled() {
 		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
 			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
 	}
