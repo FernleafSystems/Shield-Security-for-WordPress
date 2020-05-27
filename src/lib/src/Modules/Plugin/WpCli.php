@@ -14,6 +14,7 @@ class WpCli extends Base\WpCli {
 		return [
 			new Plugin\WpCli\ForceOff(),
 			new Plugin\WpCli\Reset(),
+			new Plugin\WpCli\Import(),
 		];
 	}
 }

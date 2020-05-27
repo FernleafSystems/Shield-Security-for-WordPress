@@ -19,6 +19,11 @@ class SessionOps extends BaseWpCliCmd {
 		);
 	}
 
+	/**
+	 * @param array $null
+	 * @param array $aArgs
+	 * @throws WP_CLI\ExitException
+	 */
 	public function cmdTerminate( $null, $aArgs ) {
 		$oWpUsers = Services::WpUsers();
 
