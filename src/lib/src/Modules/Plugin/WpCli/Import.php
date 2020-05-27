@@ -14,7 +14,42 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'import' ] ),
-			[ $this, 'cmdImport' ]
+			[ $this, 'cmdImport' ],
+			[
+				'shortdesc' => 'Import configuration from another WP site running Shield',
+				'synopsis'  => [
+					[
+						'type'        => 'assoc',
+						'name'        => 'source',
+						'optional'    => false,
+						'description' => 'The URL of the source site from which to export. Must include HTTP:// or HTTPS://',
+					],
+					[
+						'type'        => 'assoc',
+						'name'        => 'secret',
+						'optional'    => true,
+						'default'     => null,
+						'description' => 'The secret key on the source site. Not required if this site is already registered on the source site.',
+					],
+					[
+						'type'        => 'assoc',
+						'name'        => 'slave',
+						'optional'    => true,
+						'default'     => null,
+						'options'     => [
+							'add',
+							'remove',
+						],
+						'description' => 'Add or remove this site as a registered slave (in the whitelist) on the source site. Secret is required to `add`.',
+					],
+					[
+						'type'        => 'flag',
+						'name'        => 'force',
+						'optional'    => true,
+						'description' => 'By-pass confirmation prompt.',
+					],
+				],
+			]
 		);
 	}
 
@@ -38,21 +73,26 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 		}
 
 		$sSecret = isset( $aA[ 'secret' ] ) ? $aA[ 'secret' ] : '';
-		$bNetwork = isset( $aA[ 'set-slave' ] ) && $aA[ 'set-slave' ];
+		$sSlave = isset( $aA[ 'slave' ] ) ? strtolower( $aA[ 'slave' ] ) : '';
 		if ( empty( $sSecret ) ) {
-			WP_CLI::log( __( "No secret provided so we're proceeding as a whitelisted site.", 'wp-simple-firewall' ) );
-			if ( $bNetwork ) {
+			WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
+			if ( $sSlave === 'add' ) {
 				WP_CLI::error( __( "You have elected to set this site up as a slave without providing the `secret`.", 'wp-simple-firewall' ) );
 			}
 		}
 
-		if ( !array_key_exists( 'force', $aA ) ) {
+		if ( !isset( $aA[ 'force' ] ) ) {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
+
 		try {
 			( new Lib\ImportExport\Import() )
 				->setMod( $this->getMod() )
-				->fromSite( $sSource, $sSecret, $bNetwork );
+				->fromSite(
+					$sSource,
+					$sSecret,
+					$sSlave === 'add' ? true : ( $sSlave === 'remove' ? false : null )
+				);
 		}
 		catch ( \Exception $oE ) {
 			WP_CLI::error_multi_line(
