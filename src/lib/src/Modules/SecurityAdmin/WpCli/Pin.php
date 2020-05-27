@@ -12,42 +12,62 @@ class Pin extends Base {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'pin', 'set' ] ),
-			[ $this, 'cmdSet' ]
-		);
-		WP_CLI::add_command(
-			$this->buildCmd( [ 'pin', 'remove' ] ),
-			[ $this, 'cmdRemove' ]
-		);
-	}
-
-	public function cmdSet( $args, $aNamed ) {
-		$sPin = isset( $aNamed[ 'pin' ] ) ? $aNamed[ 'pin' ] : '';
-		try {
-			( new Actions\SetSecAdminPin() )
-				->setMod( $this->getMod() )
-				->run( $sPin );
-		}
-		catch ( \Exception $oE ) {
-			WP_CLI::error_multi_line(
+			$this->buildCmd( [ 'pin' ] ),
+			[ $this, 'cmdPin' ], [
+			'shortdesc' => 'Set the Security Admin PIN.',
+			'synopsis'  => [
 				[
-					__( 'Setting Security admin pin failed.', 'wp-simple-firewall' ),
-					__( 'Use the `--pin=` option to set the PIN.', 'wp-simple-firewall' ),
-					__( 'To remove the pin, use the command `pin remove`.', 'wp-simple-firewall' ),
-					$oE->getMessage()
-				]
-			);
-			WP_CLI::halt( 1 );
-		}
-		WP_CLI::success(
-			sprintf( __( 'Security admin pin set to: "%s"', 'wp-simple-firewall' ), $sPin )
-		);
+					'type'        => 'assoc',
+					'name'        => 'set',
+					'optional'    => true,
+					'description' => 'Set a new Security Admin PIN.',
+				],
+				[
+					'type'        => 'flag',
+					'name'        => 'remove',
+					'optional'    => true,
+					'description' => 'Use this to remove any existing PIN.',
+				],
+			],
+		] );
 	}
 
-	public function cmdRemove( $args, $assoc_args ) {
-		( new Actions\RemoveSecAdmin() )
-			->setMod( $this->getMod() )
-			->remove();
-		WP_CLI::success( __( 'Security admin pin removed.', 'wp-simple-firewall' ) );
+	public function cmdPin( $args, $aA ) {
+
+		$sNewPin = isset( $aA[ 'set' ] ) ? $aA[ 'set' ] : null;
+		$bRemove = isset( $aA[ 'remove' ] );
+
+		if ( !empty( $sNewPin ) && !empty( $bRemove ) ) {
+			WP_CLI::error( 'Please use either `--set` or `--remove`, but not both.' );
+		}
+		elseif (empty( $sNewPin ) && empty( $bRemove )) {
+			WP_CLI::error( 'Please provide the desired action, either `--set` or `--remove`.' );
+		}
+
+		if ( $bRemove ) {
+			( new Actions\RemoveSecAdmin() )
+				->setMod( $this->getMod() )
+				->remove();
+			WP_CLI::success( __( 'Security admin pin removed.', 'wp-simple-firewall' ) );
+		}
+		else {
+			try {
+				( new Actions\SetSecAdminPin() )
+					->setMod( $this->getMod() )
+					->run( $sNewPin );
+				WP_CLI::success(
+					sprintf( __( 'Security admin pin set to: "%s"', 'wp-simple-firewall' ), $sNewPin )
+				);
+			}
+			catch ( \Exception $oE ) {
+				WP_CLI::error_multi_line(
+					[
+						__( 'Setting Security admin pin failed.', 'wp-simple-firewall' ),
+						$oE->getMessage()
+					]
+				);
+				WP_CLI::halt( 1 );
+			}
+		}
 	}
 }
