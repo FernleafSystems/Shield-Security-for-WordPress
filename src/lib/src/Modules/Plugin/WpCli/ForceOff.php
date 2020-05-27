@@ -12,57 +12,63 @@ class ForceOff extends Base {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'forceoff', 'state' ] ),
-			[ $this, 'cmdForceoffQuery' ]
-		);
-		WP_CLI::add_command(
-			$this->buildCmd( [ 'forceoff', 'create' ] ),
-			[ $this, 'cmdForceoffCreate' ]
-		);
-		WP_CLI::add_command(
-			$this->buildCmd( [ 'forceoff', 'delete' ] ),
-			[ $this, 'cmdForceoffDelete' ]
-		);
+			$this->buildCmd( [ 'forceoff' ] ),
+			[ $this, 'cmdForceOff' ], [
+			'shortdesc' => 'Manage the `forceoff` file.',
+			'synopsis'  => [
+				[
+					'type'        => 'assoc',
+					'name'        => 'action',
+					'options'     => [
+						'create',
+						'delete',
+						'query',
+					],
+					'optional'    => false,
+					'description' => 'Action to take with the `forceoff` file.',
+				],
+			],
+		] );
 	}
 
-	public function cmdForceoffQuery( $args, $aNamed ) {
-		$sPath = path_join( $this->getCon()->getRootDir(), 'forceoff' );
-		if ( Services::WpFs()->exists( $sPath ) ) {
-			WP_CLI::log( '`forceoff` file is active.' );
-		}
-		else {
-			WP_CLI::log( "`forceoff` file isn't active." );
-		}
-	}
-
-	public function cmdForceoffCreate( $args, $aNamed ) {
+	public function cmdForceOff( $null, $aA ) {
 		$oFS = Services::WpFs();
 		$sPath = path_join( $this->getCon()->getRootDir(), 'forceoff' );
 
-		$oFS->touch( $sPath );
-		if ( $oFS->exists( $sPath ) ) {
-			WP_CLI::success( '`forceoff` file created successfully.' );
-		}
-		else {
-			WP_CLI::error( '`forceoff` file could not be created.' );
-		}
-	}
+		switch ( $aA[ 'action' ] ) {
+			case 'query':
+				if ( $oFS->exists( $sPath ) ) {
+					WP_CLI::log( '`forceoff` file is present.' );
+				}
+				else {
+					WP_CLI::log( "`forceoff` file isn't present." );
+				}
+				break;
 
-	public function cmdForceoffDelete( $args, $aNamed ) {
-		$oFS = Services::WpFs();
-		$sPath = path_join( $this->getCon()->getRootDir(), 'forceoff' );
+			case 'create':
+				$oFS->touch( $sPath );
+				if ( $oFS->exists( $sPath ) ) {
+					WP_CLI::success( '`forceoff` file created successfully.' );
+				}
+				else {
+					WP_CLI::error( '`forceoff` file could not be created.' );
+				}
+				break;
 
-		if ( !$oFS->exists( $sPath ) ) {
-			WP_CLI::success( "`forceoff` doesn't exist." );
-		}
-		else {
-			$oFS->deleteFile( $sPath );
-			if ( $oFS->exists( $sPath ) ) {
-				WP_CLI::error( "`forceoff` file couldn't be deleted." );
-			}
-			else {
-				WP_CLI::success( '`forceoff` file deleted successfully.' );
-			}
+			case 'delete':
+				if ( !$oFS->exists( $sPath ) ) {
+					WP_CLI::success( "`forceoff` doesn't exist." );
+				}
+				else {
+					$oFS->deleteFile( $sPath );
+					if ( $oFS->exists( $sPath ) ) {
+						WP_CLI::error( "`forceoff` file couldn't be deleted." );
+					}
+					else {
+						WP_CLI::success( '`forceoff` file deleted successfully.' );
+					}
+				}
+				break;
 		}
 	}
 }

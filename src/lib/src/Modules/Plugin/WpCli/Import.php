@@ -14,43 +14,41 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'import' ] ),
-			[ $this, 'cmdImport' ],
-			[
-				'shortdesc' => 'Import configuration from another WP site running Shield',
-				'synopsis'  => [
-					[
-						'type'        => 'assoc',
-						'name'        => 'source',
-						'optional'    => false,
-						'description' => 'The URL of the source site from which to export. Must include HTTP:// or HTTPS://',
-					],
-					[
-						'type'        => 'assoc',
-						'name'        => 'secret',
-						'optional'    => true,
-						'default'     => null,
-						'description' => 'The secret key on the source site. Not required if this site is already registered on the source site.',
-					],
-					[
-						'type'        => 'assoc',
-						'name'        => 'slave',
-						'optional'    => true,
-						'default'     => null,
-						'options'     => [
-							'add',
-							'remove',
-						],
-						'description' => 'Add or remove this site as a registered slave (in the whitelist) on the source site. Secret is required to `add`.',
-					],
-					[
-						'type'        => 'flag',
-						'name'        => 'force',
-						'optional'    => true,
-						'description' => 'By-pass confirmation prompt.',
-					],
+			[ $this, 'cmdImport' ], [
+			'shortdesc' => 'Import configuration from another WP site running Shield',
+			'synopsis'  => [
+				[
+					'type'        => 'assoc',
+					'name'        => 'source',
+					'optional'    => false,
+					'description' => 'The URL of the source site from which to export. Must include HTTP:// or HTTPS://',
 				],
-			]
-		);
+				[
+					'type'        => 'assoc',
+					'name'        => 'secret',
+					'optional'    => true,
+					'default'     => null,
+					'description' => 'The secret key on the source site. Not required if this site is already registered on the source site.',
+				],
+				[
+					'type'        => 'assoc',
+					'name'        => 'slave',
+					'optional'    => true,
+					'default'     => null,
+					'options'     => [
+						'add',
+						'remove',
+					],
+					'description' => 'Add or remove this site as a registered slave (in the whitelist) on the source site. Secret is required to `add`.',
+				],
+				[
+					'type'        => 'flag',
+					'name'        => 'force',
+					'optional'    => true,
+					'description' => 'By-pass confirmation prompt.',
+				],
+			],
+		] );
 	}
 
 	/**
