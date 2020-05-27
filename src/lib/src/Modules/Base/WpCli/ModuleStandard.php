@@ -10,12 +10,39 @@ class ModuleStandard extends BaseWpCliCmd {
 	protected function addCmds() {
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt', 'get' ] ),
-			[ $this, 'cmdOptGet' ]
-		);
+			[ $this, 'cmdOptGet' ], [
+			'shortdesc' => 'Enable, disable, or query the status of a module.',
+			'synopsis'  => [
+				[
+					'type'        => 'assoc',
+					'name'        => 'key',
+					'optional'    => false,
+					'options'     => $this->getOptions()->getOptionsForWpCli(),
+					'description' => 'The option key to get.',
+				],
+			],
+		] );
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt', 'set' ] ),
-			[ $this, 'cmdOptSet' ]
-		);
+			[ $this, 'cmdOptSet' ], [
+			'shortdesc' => 'Enable, disable, or query the status of a module.',
+			'synopsis'  => [
+				[
+					'type'        => 'assoc',
+					'name'        => 'key',
+					'optional'    => false,
+					'options'     => $this->getOptions()->getOptionsForWpCli(),
+					'description' => 'The option key to set.',
+				],
+				[
+					'type'        => 'assoc',
+					'name'        => 'value',
+					'optional'    => false,
+					'description' => 'The option value.',
+				],
+			],
+		] );
+
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'module' ] ),
 			[ $this, 'cmdModAction' ], [
@@ -64,31 +91,24 @@ class ModuleStandard extends BaseWpCliCmd {
 	}
 
 	/**
-	 * @param $aArgs
-	 * @param $aNamed
-	 * @throws \WP_CLI\ExitException
+	 * @param array $null
+	 * @param array $aA
 	 */
-	public function cmdOptGet( $aArgs, $aNamed ) {
-		$this->commonOptCmdChecking( $aNamed );
+	public function cmdOptGet( array $null, array $aA ) {
 		\WP_CLI::log( sprintf( __( 'Current value: %s' ),
-			$this->getOptions()->getOpt( $aNamed[ 'opt' ] ) ) );
+			$this->getOptions()->getOpt( $aA[ 'opt' ] ) ) );
 	}
 
-	public function cmdOptSet( $aArgs, $aNamed ) {
+	public function cmdOptSet( array $null, array $aA ) {
 
-		$this->commonOptCmdChecking( $aNamed );
-		if ( is_null( @$aNamed[ 'value' ] ) ) {
+		if ( is_null( @$aA[ 'value' ] ) ) {
 			\WP_CLI::error(
 				__( 'Please supply a value for the option.', 'wp-simple-firewall' )
 			);
 		}
 
-		$this->getOptions()->setOpt( $aNamed[ 'opt' ], $aNamed[ 'value' ] );
+		$this->getOptions()->setOpt( $aA[ 'opt' ], $aA[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
-	}
-
-	private function setOption( $sKey, $mValue ) {
-
 	}
 
 	/**
