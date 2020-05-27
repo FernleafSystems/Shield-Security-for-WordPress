@@ -38,7 +38,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 		}
 
 		$sSecret = isset( $aA[ 'secret' ] ) ? $aA[ 'secret' ] : '';
-		$bNetwork = isset( $aA[ 'set_slave' ] ) && $aA[ 'set_slave' ];
+		$bNetwork = isset( $aA[ 'set-slave' ] ) && $aA[ 'set-slave' ];
 		if ( empty( $sSecret ) ) {
 			WP_CLI::log( __( "No secret provided so we're proceeding as a whitelisted site.", 'wp-simple-firewall' ) );
 			if ( $bNetwork ) {
@@ -47,16 +47,12 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 		}
 
 		if ( !array_key_exists( 'force', $aA ) ) {
-			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration?", 'wp-simple-firewall' ) );
+			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
 		try {
 			( new Lib\ImportExport\Import() )
 				->setMod( $this->getMod() )
-				->fromSite(
-					$sSource,
-					$sSecret,
-					$bNetwork
-				);
+				->fromSite( $sSource, $sSecret, $bNetwork );
 		}
 		catch ( \Exception $oE ) {
 			WP_CLI::error_multi_line(
