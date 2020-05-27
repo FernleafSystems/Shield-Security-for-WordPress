@@ -86,10 +86,10 @@ class Import {
 	 * @param string    $sMasterSiteUrl
 	 * @param string    $sSecretKey
 	 * @param bool|null $bEnableNetwork
-	 * @param string    $sSiteResponse
 	 * @return int
+	 * @throws \Exception
 	 */
-	public function fromSite( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null, &$sSiteResponse = '' ) {
+	public function fromSite( $sMasterSiteUrl = '', $sSecretKey = '', $bEnableNetwork = null ) {
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
@@ -100,98 +100,99 @@ class Import {
 			$sMasterSiteUrl = $oOpts->getImportExportMasterImportUrl();
 		}
 
-		$aParts = parse_url( $sMasterSiteUrl );
-
 		$sOriginalMasterSiteUrl = $oOpts->getImportExportMasterImportUrl();
 		$bHadMasterSiteUrl = $oOpts->hasImportExportMasterImportUrl();
 		$bCheckKeyFormat = !$bHadMasterSiteUrl;
 		$sSecretKey = sanitize_key( $sSecretKey );
 
-		if ( $bCheckKeyFormat && empty( $sSecretKey ) ) {
-			$nErrorCode = 1;
-		}
-		elseif ( $bCheckKeyFormat && strlen( $sSecretKey ) != 40 ) {
-			$nErrorCode = 2;
-		}
-		elseif ( empty( $aParts ) ) {
-			$nErrorCode = 4;
-		}
-		elseif ( $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ) === false ) {
-			$nErrorCode = 4; // a final check
-		}
-		else {
-			$bReady = true;
-			$aEssential = [ 'scheme', 'host' ];
-			foreach ( $aEssential as $sKey ) {
-				$bReady = $bReady && !empty( $aParts[ $sKey ] );
+		if ( $bCheckKeyFormat ) {
+			if ( empty( $sSecretKey ) ) {
+				throw new \Exception( 'Empty secret key', 1 );
 			}
+			if ( strlen( $sSecretKey ) != 40 ) {
+				throw new \Exception( "Secret key isn't of the correct format", 2 );
+			}
+		}
 
-			$sMasterSiteUrl = $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ); // final clean
+		// Ensure we have entries for 'scheme' and 'host'
+		$aUrlParts = wp_parse_url( $sMasterSiteUrl );
+		$bHasParts = !empty( $aUrlParts )
+					 && count(
+							array_filter( array_intersect_key(
+								$aUrlParts,
+								array_flip( [ 'scheme', 'host' ] )
+							) )
+						) === 2;
+		if ( !$bHasParts ) {
+			throw new \Exception( "Couldn't parse the URL into its parts", 4 );
+		}
+		$sMasterSiteUrl = $oDP->validateSimpleHttpUrl( $sMasterSiteUrl ); // final clean
+		if ( empty( $sMasterSiteUrl ) ) {
+			throw new \Exception( "Couldn't validate the URL.", 4 );
+		}
 
-			if ( !$bReady || !$sMasterSiteUrl ) {
-				$nErrorCode = 4;
+		// Begin the handshake process.
+		$oOpts->setOpt(
+			'importexport_handshake_expires_at',
+			Services::Request()->ts() + 30
+		);
+		$this->getMod()->saveModOptions();
+
+		$aData = [
+			'shield_action' => 'importexport_export',
+			'secret'        => $sSecretKey,
+			'url'           => Services::WpGeneral()->getHomeUrl()
+		];
+		// Don't send the network setup request if it's the cron.
+		if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
+			$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
+		}
+
+		{ // Make the request
+			$sFinalUrl = add_query_arg( $aData, $sMasterSiteUrl );
+			$sResponse = Services::HttpRequest()->getContent( $sFinalUrl );
+			$aResponse = @json_decode( $sResponse, true );
+
+			if ( empty( $aResponse ) ) {
+				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
+			}
+		}
+
+		if ( empty( $aResponse[ 'success' ] ) ) {
+
+			if ( empty ( $aResponse[ 'message' ] ) ) {
+				throw new \Exception( "Request failed with no error message from the source site.", 6 );
 			}
 			else {
-				$oOpts->setOpt( 'importexport_handshake_expires_at', Services::Request()->ts() + 30 );
-				$this->getMod()->saveModOptions();
-
-				$aData = [
-					'shield_action' => 'importexport_export',
-					'secret'        => $sSecretKey,
-					'url'           => Services::WpGeneral()->getHomeUrl()
-				];
-				// Don't send the network setup request if it's the cron.
-				if ( !is_null( $bEnableNetwork ) && !Services::WpGeneral()->isCron() ) {
-					$aData[ 'network' ] = $bEnableNetwork ? 'Y' : 'N';
-				}
-
-				$sFinalUrl = add_query_arg( $aData, $sMasterSiteUrl );
-				$sResponse = Services::HttpRequest()->getContent( $sFinalUrl );
-				$aParts = @json_decode( $sResponse, true );
-
-				if ( empty( $aParts ) ) {
-					$nErrorCode = 5;
-				}
-				elseif ( !isset( $aParts[ 'success' ] ) || !$aParts[ 'success' ] ) {
-
-					if ( empty ( $aParts[ 'message' ] ) ) {
-						$nErrorCode = 6;
-					}
-					else {
-						$nErrorCode = 7;
-						$sSiteResponse = $aParts[ 'message' ]; // This is crap because we can't use Response objects
-					}
-				}
-				elseif ( empty( $aParts[ 'data' ] ) || !is_array( $aParts[ 'data' ] ) ) {
-					$nErrorCode = 8;
-				}
-				else {
-					$this->processDataImport( $aParts[ 'data' ], $sMasterSiteUrl );
-
-					// Fix for the overwriting of the Master Site URL with an empty string.
-					// Only do so if we're not turning it off. i.e on or no-change
-					if ( is_null( $bEnableNetwork ) ) {
-						if ( $bHadMasterSiteUrl && !$oOpts->hasImportExportMasterImportUrl() ) {
-							$oMod->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
-						}
-					}
-					elseif ( $bEnableNetwork === true ) {
-						$oMod->setImportExportMasterImportUrl( $sMasterSiteUrl );
-						$this->getCon()->fireEvent(
-							'master_url_set',
-							[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
-						);
-					}
-					elseif ( $bEnableNetwork === false ) {
-						$oMod->setImportExportMasterImportUrl( '' );
-					}
-
-					$nErrorCode = 0;
-				}
+				throw new \Exception( "Request failed with error message from the source site: ".$aResponse[ 'message' ], 7 );
 			}
 		}
 
-		return $nErrorCode;
+		if ( empty( $aResponse[ 'data' ] ) || !is_array( $aResponse[ 'data' ] ) ) {
+			throw new \Exception( "Response data was empty", 8 );
+		}
+
+		$this->processDataImport( $aResponse[ 'data' ], $sMasterSiteUrl );
+
+		// Fix for the overwriting of the Master Site URL with an empty string.
+		// Only do so if we're not turning it off. i.e on or no-change
+		if ( is_null( $bEnableNetwork ) ) {
+			if ( $bHadMasterSiteUrl && !$oOpts->hasImportExportMasterImportUrl() ) {
+				$oMod->setImportExportMasterImportUrl( $sOriginalMasterSiteUrl );
+			}
+		}
+		elseif ( $bEnableNetwork === true ) {
+			$oMod->setImportExportMasterImportUrl( $sMasterSiteUrl );
+			$this->getCon()->fireEvent(
+				'master_url_set',
+				[ 'audit' => [ 'site' => $sMasterSiteUrl ] ]
+			);
+		}
+		elseif ( $bEnableNetwork === false ) {
+			$oMod->setImportExportMasterImportUrl( '' );
+		}
+
+		return 0;
 	}
 
 	/**

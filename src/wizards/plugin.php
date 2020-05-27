@@ -398,15 +398,21 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return \FernleafSystems\Utilities\Response
 	 */
 	private function wizardImportOptions() {
-		$oREq = Services::Request();
+		$oReq = Services::Request();
 
-		$sMasterSiteUrl = $oREq->post( 'MasterSiteUrl' );
-		$sSecretKey = $oREq->post( 'MasterSiteSecretKey' );
-		$bEnabledNetwork = $oREq->post( 'ShieldNetworkCheck' ) === 'Y';
+		$sMasterSiteUrl = $oReq->post( 'MasterSiteUrl' );
+		$sSecretKey = $oReq->post( 'MasterSiteSecretKey' );
+		$bEnabledNetwork = $oReq->post( 'ShieldNetworkCheck' ) === 'Y';
 
-		$nCode = ( new Plugin\Lib\ImportExport\Import() )
-			->setMod( $this->getMod() )
-			->fromSite( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork, $sSiteResponse );
+		try {
+			$nCode = ( new Plugin\Lib\ImportExport\Import() )
+				->setMod( $this->getMod() )
+				->fromSite( $sMasterSiteUrl, $sSecretKey, $bEnabledNetwork );
+		}
+		catch ( Exception $oE ) {
+			$sSiteResponse = $oE->getMessage();
+			$nCode = $oE->getCode();
+		}
 
 		$aErrors = [
 			__( 'Options imported successfully to your site.', 'wp-simple-firewall' ), // success

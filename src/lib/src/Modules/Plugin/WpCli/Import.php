@@ -34,7 +34,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 					__( 'Use the `--source=` argument.', 'wp-simple-firewall' )
 				]
 			);
-			WP_CLI::halt(1);
+			WP_CLI::halt( 1 );
 		}
 
 		$sSecret = isset( $aA[ 'secret' ] ) ? $aA[ 'secret' ] : '';
@@ -49,23 +49,25 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 		if ( !array_key_exists( 'force', $aA ) ) {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration?", 'wp-simple-firewall' ) );
 		}
-		$nCode = ( new Lib\ImportExport\Import() )
-			->setMod( $this->getMod() )
-			->fromSite(
-				$sSource,
-				$sSecret,
-				$bNetwork,
-				$sReponse
-			);
-		if ( $nCode !== 0 ) {
+		try {
+			( new Lib\ImportExport\Import() )
+				->setMod( $this->getMod() )
+				->fromSite(
+					$sSource,
+					$sSecret,
+					$bNetwork
+				);
+		}
+		catch ( \Exception $oE ) {
 			WP_CLI::error_multi_line(
 				[
 					__( 'The import encountered an error.', 'wp-simple-firewall' ),
-					$sReponse,
+					$oE->getMessage(),
 				]
 			);
-			WP_CLI::halt( $nCode );
+			WP_CLI::halt( $oE->getCode() );
 		}
+
 		WP_CLI::success( __( 'Plugin settings imported successfully.', 'wp-simple-firewall' ) );
 	}
 }
