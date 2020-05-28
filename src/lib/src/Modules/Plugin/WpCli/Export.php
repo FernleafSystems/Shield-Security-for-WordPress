@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
+use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
 class Export extends Base\WpCli\BaseWpCliCmd {
@@ -13,39 +14,26 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'import' ] ),
-			[ $this, 'cmdImport' ], [
-			'shortdesc' => 'Import configuration from another WP site running Shield',
+			$this->buildCmd( [ 'export' ] ),
+			[ $this, 'cmdExport' ], [
+			'shortdesc' => 'Export configuration to file.',
 			'synopsis'  => [
 				[
 					'type'        => 'assoc',
-					'name'        => 'source',
+					'name'        => 'file',
 					'optional'    => false,
-					'description' => 'The URL of the source site from which to export. Must include HTTP:// or HTTPS://',
+					'description' => 'The absolute path to the file for export.',
 				],
 				[
 					'type'        => 'assoc',
-					'name'        => 'secret',
-					'optional'    => true,
-					'default'     => null,
-					'description' => 'The secret key on the source site. Not required if this site is already registered on the source site.',
-				],
-				[
-					'type'        => 'assoc',
-					'name'        => 'slave',
-					'optional'    => true,
-					'default'     => null,
-					'options'     => [
-						'add',
-						'remove',
+					'name'        => 'overwrite',
+					'optional'    => false,
+					'default'     => 'y',
+					'option'      => [
+						'y',
+						'n'
 					],
-					'description' => 'Add or remove this site as a registered slave (in the whitelist) on the source site. Secret is required to `add`.',
-				],
-				[
-					'type'        => 'flag',
-					'name'        => 'force',
-					'optional'    => true,
-					'description' => 'By-pass confirmation prompt.',
+					'description' => 'Whether to overwrite the file if it already exists. Default behaviour will overwrite existing files.',
 				],
 			],
 		] );
@@ -56,52 +44,30 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 	 * @param array $aA
 	 * @throws WP_CLI\ExitException
 	 */
-	public function cmdImport( array $null, array $aA ) {
+	public function cmdExport( array $null, array $aA ) {
+		$oFS = Services::WpFs();
 
-		$sSource = isset( $aA[ 'source' ] ) ? $aA[ 'source' ] : '';
-		if ( empty( $sSource ) ) {
-			WP_CLI::error_multi_line(
-				[
-					__( 'Please provide the source site.', 'wp-simple-firewall' ),
-					__( 'It must be running ShieldPRO and be configured to allow exports.', 'wp-simple-firewall' ),
-					__( 'Use the `--source=` argument.', 'wp-simple-firewall' )
-				]
-			);
-			WP_CLI::halt( 1 );
+		$sFile = isset( $aA[ 'file' ] ) ? $aA[ 'file' ] : '';
+		$bOverwrite = $aA[ 'overwrite' ] === 'y';
+
+		if ( !path_is_absolute( $sFile ) ) {
+			WP_CLI::error( __( "The path you've specified isn't an absolute path.", 'wp-simple-firewall' ) );
+		}
+		if ( $oFS->isFile( $sFile ) && !$bOverwrite ) {
+			WP_CLI::error( __( "The path you've specified already exists.", 'wp-simple-firewall' ) );
 		}
 
-		$sSecret = isset( $aA[ 'secret' ] ) ? $aA[ 'secret' ] : '';
-		$sSlave = isset( $aA[ 'slave' ] ) ? strtolower( $aA[ 'slave' ] ) : '';
-		if ( empty( $sSecret ) ) {
-			WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
-			if ( $sSlave === 'add' ) {
-				WP_CLI::error( __( "You have elected to set this site up as a slave without providing the `secret`.", 'wp-simple-firewall' ) );
-			}
+		if ( !is_writable( $sFile ) ) {
+			WP_CLI::error( __( "The system reports that this file path isn't writable.", 'wp-simple-firewall' ) );
 		}
 
-		if ( !isset( $aA[ 'force' ] ) ) {
-			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
+		$aData = ( new Lib\ImportExport\Export() )
+			->setMod( $this->getMod() )
+			->toStandardArray();
+		if ( !$oFS->putFileContent( $sFile, implode( "\n", $aData ) ) ) {
+			WP_CLI::error( __( "The system reports that writing the export file failed.", 'wp-simple-firewall' ) );
 		}
 
-		try {
-			( new Lib\ImportExport\Import() )
-				->setMod( $this->getMod() )
-				->fromSite(
-					$sSource,
-					$sSecret,
-					$sSlave === 'add' ? true : ( $sSlave === 'remove' ? false : null )
-				);
-		}
-		catch ( \Exception $oE ) {
-			WP_CLI::error_multi_line(
-				[
-					__( 'The import encountered an error.', 'wp-simple-firewall' ),
-					$oE->getMessage(),
-				]
-			);
-			WP_CLI::halt( $oE->getCode() );
-		}
-
-		WP_CLI::success( __( 'Plugin settings imported successfully.', 'wp-simple-firewall' ) );
+		WP_CLI::success( __( 'Plugin configuration exported successfully.', 'wp-simple-firewall' ) );
 	}
 }
