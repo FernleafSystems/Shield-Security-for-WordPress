@@ -286,13 +286,6 @@
       "type":    "integer"
     },
     {
-      "key":     "comments_expire",
-      "section": "section_non_ui",
-      "default": 600,
-      "min":     0,
-      "type":    "integer"
-    },
-    {
       "key":     "human_spam_items",
       "section": "section_non_ui",
       "type":    "array",
@@ -307,6 +300,7 @@
     }
   ],
   "definitions":   {
+    "comments_expire": 1800,
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "events":                   {
       "spam_block_bot":       {
