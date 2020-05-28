@@ -167,7 +167,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 				try {
 					( new Plugin\Lib\ImportExport\Import() )
 						->setMod( $this )
-						->fromFile();
+						->fromFileUpload();
 					$bSuccess = true;
 					$sMessage = __( 'Options imported successfully', 'wp-simple-firewall' );
 				}

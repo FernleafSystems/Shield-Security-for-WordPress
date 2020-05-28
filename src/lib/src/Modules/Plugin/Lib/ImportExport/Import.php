@@ -17,7 +17,7 @@ class Import {
 		try {
 			switch ( $sMethod ) {
 				case 'file':
-					$this->fromFile();
+					$this->fromFileUpload();
 					break;
 				case 'site':
 				default:
@@ -31,31 +31,15 @@ class Import {
 	}
 
 	/**
+	 * @param string $sPath
 	 * @throws \Exception
 	 */
-	public function fromFile() {
+	public function fromFile( $sPath ) {
 		if ( !$this->getCon()->isPluginAdmin() ) {
 			throw new \Exception( __( 'Not currently logged-in as security admin', 'wp-simple-firewall' ) );
 		}
 
-		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
-			throw new \Exception( __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' ) );
-		}
-
-		$oFs = Services::WpFs();
-		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
-			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
-			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) );
-		}
-		if ( $_FILES[ 'import_file' ][ 'size' ] == 0
-			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
-			 || !$oFs->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
-			 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0
-		) {
-			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
-		}
-
-		$sContent = Services::WpFs()->getFileContent( $_FILES[ 'import_file' ][ 'tmp_name' ] );
+		$sContent = Services::WpFs()->getFileContent( $sPath );
 		if ( empty( $sContent ) ) {
 			throw new \Exception( __( 'Uploaded file was empty', 'wp-simple-firewall' ) );
 		}
@@ -74,11 +58,36 @@ class Import {
 		{//parse the options json
 			$aData = @json_decode( array_shift( $aParts ), true );
 			if ( empty( $aData ) || !is_array( $aData ) ) {
-				throw new \Exception( __( 'Uploaded options data was not of the correct format', 'wp-simple-firewall' ) );
+				throw new \Exception( __( "Options data in the file wasn't of the correct format.", 'wp-simple-firewall' ) );
 			}
 		}
 
 		$this->processDataImport( $aData, __( 'uploaded file', 'wp-simple-firewall' ) );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function fromFileUpload() {
+		if ( Services::Request()->post( 'confirm' ) != 'Y' ) {
+			throw new \Exception( __( 'Please check the box to confirm your intent to overwrite settings', 'wp-simple-firewall' ) );
+		}
+
+		$oFs = Services::WpFs();
+		if ( empty( $_FILES ) || !isset( $_FILES[ 'import_file' ] )
+			 || empty( $_FILES[ 'import_file' ][ 'tmp_name' ] ) ) {
+			throw new \Exception( __( 'Please select a file to upload', 'wp-simple-firewall' ) );
+		}
+		if ( $_FILES[ 'import_file' ][ 'size' ] == 0
+			 || isset( $_FILES[ 'error' ] ) && $_FILES[ 'error' ] != UPLOAD_ERR_OK
+			 || !$oFs->isFile( $_FILES[ 'import_file' ][ 'tmp_name' ] )
+			 || filesize( $_FILES[ 'import_file' ][ 'tmp_name' ] ) === 0
+		) {
+			throw new \Exception( __( 'Uploading of file failed', 'wp-simple-firewall' ) );
+		}
+
+		$this->fromFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
+
 		$oFs->deleteFile( $_FILES[ 'import_file' ][ 'tmp_name' ] );
 	}
 
