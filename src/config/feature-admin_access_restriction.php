@@ -109,7 +109,7 @@
       "section":     "section_admin_access_restriction_settings",
       "sensitive":   true,
       "premium":     true,
-      "default":     "",
+      "default":     [],
       "type":        "array",
       "link_info":   "https://shsec.io/dk",
       "link_blog":   "",

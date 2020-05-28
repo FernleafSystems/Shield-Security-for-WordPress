@@ -9,6 +9,13 @@ class ModuleStandard extends BaseWpCliCmd {
 	 */
 	protected function addCmds() {
 		\WP_CLI::add_command(
+			$this->buildCmd( [ 'opt', 'list' ] ),
+			[ $this, 'cmdOptList' ], [
+			'shortdesc' => 'List the option keys and their names.',
+			'synopsis'  => [],
+		] );
+
+		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt', 'get' ] ),
 			[ $this, 'cmdOptGet' ], [
 			'shortdesc' => 'Enable, disable, or query the status of a module.',
@@ -22,6 +29,7 @@ class ModuleStandard extends BaseWpCliCmd {
 				],
 			],
 		] );
+
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt', 'set' ] ),
 			[ $this, 'cmdOptSet' ], [
@@ -32,7 +40,8 @@ class ModuleStandard extends BaseWpCliCmd {
 					'name'        => 'key',
 					'optional'    => false,
 					'options'     => $this->getOptions()->getOptionsForWpCli(),
-					'description' => 'The option key to update.',
+					'description' => 'The option key to updateModuleStandard.php
+					.',
 				],
 				[
 					'type'        => 'assoc',
@@ -96,11 +105,34 @@ class ModuleStandard extends BaseWpCliCmd {
 	 */
 	public function cmdOptGet( array $null, array $aA ) {
 		\WP_CLI::log( sprintf( __( 'Current value: %s' ),
-			$this->getOptions()->getOpt( $aA[ 'opt' ] ) ) );
+			$this->getOptions()->getOpt( $aA[ 'key' ] ) ) );
 	}
 
 	public function cmdOptSet( array $null, array $aA ) {
-		$this->getOptions()->setOpt( $aA[ 'opt' ], $aA[ 'value' ] );
+		$this->getOptions()->setOpt( $aA[ 'key' ], $aA[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );
+	}
+
+	public function cmdOptList( array $null, array $aA ) {
+		$oOpts = $this->getOptions();
+		$oStrings = $this->getMod()->getStrings();
+		$aOpts = [];
+		foreach ( $oOpts->getOptionsForWpCli() as $sKey ) {
+			try {
+				$aOpts[] = [
+					'key'      => $sKey,
+					'name'     => $oStrings->getOptionStrings( $sKey )[ 'name' ],
+					'type'     => $oOpts->getOptionType( $sKey ),
+					'default' => $oOpts->getOptDefault( $sKey ),
+				];
+			}
+			catch ( \Exception $e ) {
+			}
+		}
+		\WP_CLI\Utils\format_items(
+			'table',
+			$aOpts,
+			[ 'key', 'name', 'type', 'default' ]
+		);
 	}
 }
