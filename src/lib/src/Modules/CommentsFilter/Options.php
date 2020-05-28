@@ -37,13 +37,10 @@ class Options extends Base\ShieldOptions {
 	 * @return int
 	 */
 	public function getTokenExpireInterval() {
-		if ( (int)$this->getOpt( 'comments_expire', 600 ) < 1 ) {
-			$this->resetOptToDefault( 'comments_expire' );
-		}
 		return (int)max( 0,
 			apply_filters(
 				$this->getCon()->prefix( 'comments_expire' ),
-				$this->getOpt( 'comments_expire', 600 )
+				$this->getDef( 'comments_expire' )
 			)
 		);
 	}
