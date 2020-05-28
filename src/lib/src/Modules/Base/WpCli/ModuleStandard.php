@@ -12,7 +12,27 @@ class ModuleStandard extends BaseWpCliCmd {
 			$this->buildCmd( [ 'opt', 'list' ] ),
 			[ $this, 'cmdOptList' ], [
 			'shortdesc' => 'List the option keys and their names.',
-			'synopsis'  => [],
+			'synopsis'  => [
+				[
+					'type'        => 'assoc',
+					'name'        => 'format',
+					'optional'    => true,
+					'options'     => [
+						'table',
+						'json',
+						'yaml',
+						'csv',
+					],
+					'default'     => 'table',
+					'description' => 'Display all the option details.',
+				],
+				[
+					'type'        => 'flag',
+					'name'        => 'full',
+					'optional'    => true,
+					'description' => 'Display all the option details.',
+				],
+			],
 		] );
 
 		\WP_CLI::add_command(
@@ -120,19 +140,37 @@ class ModuleStandard extends BaseWpCliCmd {
 		foreach ( $oOpts->getOptionsForWpCli() as $sKey ) {
 			try {
 				$aOpts[] = [
-					'key'      => $sKey,
-					'name'     => $oStrings->getOptionStrings( $sKey )[ 'name' ],
-					'type'     => $oOpts->getOptionType( $sKey ),
+					'key'     => $sKey,
+					'name'    => $oStrings->getOptionStrings( $sKey )[ 'name' ],
+					'type'    => $oOpts->getOptionType( $sKey ),
+					'current' => $oOpts->getOpt( $sKey ),
 					'default' => $oOpts->getOptDefault( $sKey ),
 				];
 			}
 			catch ( \Exception $e ) {
 			}
 		}
-		\WP_CLI\Utils\format_items(
-			'table',
-			$aOpts,
-			[ 'key', 'name', 'type', 'default' ]
-		);
+
+		if ( empty( $aOpts ) ) {
+			\WP_CLI::log( "This module doesn't have any configurable options." );
+		}
+		else {
+			if ( !isset( $aA[ 'full' ] ) ) {
+				$aKeys = [
+					'key',
+					'name',
+					'current'
+				];
+			}
+			else {
+				$aKeys = array_keys( $aOpts[ 0 ] );
+			}
+
+			\WP_CLI\Utils\format_items(
+				$aA[ 'format' ],
+				$aOpts,
+				$aKeys
+			);
+		}
 	}
 }
