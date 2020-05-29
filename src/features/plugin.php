@@ -100,11 +100,7 @@ class ICWP_WPSF_FeatureHandler_Plugin extends ICWP_WPSF_FeatureHandler_BaseWpsf 
 		return $aWarnings;
 	}
 
-	protected function updateHandler() {
-		$this->deleteAllPluginCrons();
-	}
-
-	private function deleteAllPluginCrons() {
+	public function deleteAllPluginCrons() {
 		$oCon = $this->getCon();
 		$oWpCron = Services::WpCron();
 

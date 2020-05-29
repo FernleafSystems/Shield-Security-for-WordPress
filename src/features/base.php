@@ -232,11 +232,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return is_array( $aCls ) ? $aCls : [];
 	}
 
-	/**
-	 * Should be over-ridden by each new class to handle upgrades.
-	 * Called upon construction and after plugin options are initialized.
-	 */
 	protected function updateHandler() {
+		$oH = $this->loadClass( 'Upgrade' );
+		if ( $oH instanceof Shield\Modules\Base\Upgrade ) {
+			$oH->setMod( $this )->execute();
+		}
 	}
 
 	/**
@@ -315,8 +315,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	protected function onModulesLoaded() {
 	}
 
-	/**
-	 */
 	public function onRunProcessors() {
 		if ( $this->isUpgrading() ) {
 			$this->updateHandler();
@@ -393,8 +391,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		add_action( 'load-'.$page_hook, [ $this, 'onLoadOptionsScreen' ] );
 	}
 
-	/**
-	 */
 	public function onLoadOptionsScreen() {
 		if ( $this->getCon()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
@@ -1393,8 +1389,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}
 	}
 
-	/**
-	 */
 	protected function runWizards() {
 		if ( $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();

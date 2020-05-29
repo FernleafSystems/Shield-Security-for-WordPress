@@ -55,17 +55,10 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 
 		{
 			$aChecks = $oOpts->getEmailValidationChecks();
-			if ( !in_array( 'syntax', $aChecks ) ) {
+			if ( !empty( $aChecks ) ) {
 				$aChecks[] = 'syntax';
 			}
-			// fill in dependencies
-			if ( in_array( 'nondisposable', $aChecks ) && !in_array( 'mx', $aChecks ) ) {
-				$aChecks[] = 'mx';
-			}
-			if ( in_array( 'mx', $aChecks ) && !in_array( 'domain', $aChecks ) ) {
-				$aChecks[] = 'domain';
-			}
-			$oOpts->setOpt( 'email_checks', $aChecks );
+			$oOpts->setOpt( 'email_checks', array_unique( $aChecks ) );
 		}
 	}
 

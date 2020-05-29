@@ -204,8 +204,12 @@
           "text":      "Email Address Syntax"
         },
         {
-          "value_key": "domain",
-          "text":      "Domain Name Resolves"
+          "value_key": "domain_registered",
+          "text":      "Domain Is Registered"
+        },
+        {
+          "value_key": "domain_resolves",
+          "text":      "Domain Resolve To IP"
         },
         {
           "value_key": "mx",

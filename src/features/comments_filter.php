@@ -18,7 +18,7 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		return $oCfg;
 	}
 
-	protected function ensureCorrectCaptchaConfig() {
+	public function ensureCorrectCaptchaConfig() {
 		/** @var CommentsFilter\Options $oOpts */
 		$oOpts = $this->getOptions();
 
@@ -180,10 +180,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	protected function getNamespaceBase() {
 		return 'CommentsFilter';
-	}
-
-	protected function updateHandler() {
-		$this->ensureCorrectCaptchaConfig();
 	}
 
 	/**

@@ -1596,6 +1596,13 @@ class Controller {
 	/**
 	 * @return string
 	 */
+	public function getBuild() {
+		return $this->getPluginSpec_Property( 'build' );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getVersion() {
 		return $this->getPluginSpec_Property( 'version' );
 	}
