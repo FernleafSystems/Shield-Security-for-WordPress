@@ -6,11 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Upgrade extends Base\Upgrade {
 
-	protected function upgradeModule($sCurrentBuild) {
-		$this->upgrade_900();
-	}
-
-	private function upgrade_900() {
+	protected function upgrade_900() {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->getOpt( 'ptg_enable' ) === 'enabled' ) {
@@ -49,7 +45,7 @@ class Upgrade extends Base\Upgrade {
 				}
 			}
 		}
-		$this->setOpt( 'file_repair_areas', $aRepairAreas );
+		$oOpts->setOpt( 'file_repair_areas', $aRepairAreas );
 
 		{ // migrate old scan options
 			if ( $oOpts->getOpt( 'enable_unrecognised_file_cleaner_scan' ) == 'enabled_delete_report' ) {

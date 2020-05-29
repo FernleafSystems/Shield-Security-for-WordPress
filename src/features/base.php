@@ -218,9 +218,9 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	protected function updateHandler() {
-		$oH = $this->loadClass( 'UpdateHandler' );
+		$oH = $this->loadClass( 'Upgrade' );
 		if ( $oH instanceof Shield\Modules\Base\Upgrade ) {
-			$oH->execute();
+			$oH->setMod( $this )->execute();
 		}
 	}
 
@@ -300,8 +300,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	protected function onModulesLoaded() {
 	}
 
-	/**
-	 */
 	public function onRunProcessors() {
 		if ( $this->isUpgrading() ) {
 			$this->updateHandler();
@@ -378,8 +376,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		add_action( 'load-'.$page_hook, [ $this, 'onLoadOptionsScreen' ] );
 	}
 
-	/**
-	 */
 	public function onLoadOptionsScreen() {
 		if ( $this->getCon()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
@@ -1378,8 +1374,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}
 	}
 
-	/**
-	 */
 	protected function runWizards() {
 		if ( $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();

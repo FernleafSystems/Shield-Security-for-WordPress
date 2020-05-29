@@ -948,7 +948,7 @@ class Options {
 			'ui_track',
 			'help_video_options',
 			'xfer_excluded',
-			'cfg_build'
+			'cfg_version'
 		];
 	}
 

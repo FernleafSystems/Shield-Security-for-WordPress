@@ -6,13 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Upgrade extends Base\Upgrade {
 
-	protected function upgradeModule($sCurrentBuild) {
-		if (version_compare($sCurrentBuild, )) {
-		}
-		$this->upgrade_900();
-	}
-
-	private function upgrade_900() {
+	protected function upgrade_900() {
 		$oOpts = $this->getOptions();
 
 		if ( $oOpts->getOpt( 'enable_google_recaptcha_comments' ) === 'N' ) {
