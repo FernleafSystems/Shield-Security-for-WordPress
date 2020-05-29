@@ -943,7 +943,13 @@ class Options {
 	 * @return array
 	 */
 	protected function getVirtualCommonOptions() {
-		return [ 'dismissed_notices', 'ui_track', 'help_video_options', 'xfer_excluded' ];
+		return [
+			'dismissed_notices',
+			'ui_track',
+			'help_video_options',
+			'xfer_excluded',
+			'cfg_build'
+		];
 	}
 
 	/**
@@ -953,8 +959,6 @@ class Options {
 		return is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
 	}
 
-	/**
-	 */
 	private function cleanOptions() {
 		if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {
 			$this->aOptionsValues = array_intersect_key(

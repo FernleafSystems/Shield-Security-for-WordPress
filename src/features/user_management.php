@@ -62,18 +62,6 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 		}
 	}
 
-	protected function updateHandler() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
-
-		$aChecks = $oOpts->getEmailValidationChecks();
-		if ( in_array( 'domain', $aChecks ) ) {
-			$aChecks[] = 'domain_registered';
-			unset( $aChecks[ array_search( 'domain', $aChecks ) ] );
-			$oOpts->setOpt( 'email_checks', $aChecks );
-		}
-	}
-
 	/**
 	 * Currently no distinction between the module and user sessions.
 	 * @return bool
