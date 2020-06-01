@@ -111,7 +111,13 @@ class License extends Base\WpCli\BaseWpCliCmd {
 		$bSuccess ? WP_CLI::success( $sMessage ) : WP_CLI::error( $sMessage );
 	}
 
+	/**
+	 * License checking WP-CLI cmds may be run if you're not premium,
+	 * or you're premium and you haven't switched it off (parent).
+	 * @inheritDoc
+	 */
 	protected function canRun() {
-		return true;
+		return !$this->getCon()->isPremiumActive()
+			   || parent::canRun();
 	}
 }

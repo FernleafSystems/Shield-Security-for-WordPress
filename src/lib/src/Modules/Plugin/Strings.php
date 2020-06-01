@@ -196,6 +196,12 @@ class Strings extends Base\Strings {
 								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) );
 				break;
 
+			case 'enable_wpcli' :
+				$sName = __( 'Allow WP-CLI', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Access And Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
+				$sDescription = __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' );
+				break;
+
 			case 'delete_on_deactivate' :
 				$sName = __( 'Delete Plugin Settings', 'wp-simple-firewall' );
 				$sSummary = __( 'Delete All Plugin Settings Upon Plugin Deactivation', 'wp-simple-firewall' );

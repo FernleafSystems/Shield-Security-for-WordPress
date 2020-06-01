@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 
 abstract class BaseWpCliCmd {
 
@@ -37,7 +38,11 @@ abstract class BaseWpCliCmd {
 	 * @return bool
 	 */
 	protected function canRun() {
-		return $this->getCon()->isPremiumActive();
+		/** @var Options $oOpts */
+		$oOpts = $this->getCon()
+					  ->getModule_Plugin()
+					  ->getOptions();
+		return $oOpts->isEnabledWpcli();
 	}
 
 	/**

@@ -1480,6 +1480,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function getBaseDisplayData() {
 		$oCon = $this->getCon();
 
+		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
+		$oPluginOptions = $oCon->getModule_Plugin()
+							   ->getOptions();
+
 		return [
 			'sPluginName'   => $oCon->getHumanName(),
 			'sTagline'      => $this->getOptions()->getFeatureTagline(),
@@ -1525,7 +1529,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 				'show_alt_content'      => false,
 				'has_wizard'            => $this->hasWizard(),
 				'is_premium'            => $this->isPremium(),
-				'show_transfer_switch'  => $this->isPremium()
+				'show_transfer_switch'  => $this->isPremium(),
+				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
 			],
 			'hrefs'         => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
