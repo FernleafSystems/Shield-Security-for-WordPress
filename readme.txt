@@ -377,8 +377,10 @@ You will always be able to use Shield Security and its free features in-full.
 
 ##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
 
-* **(.2)  FIX**:		Yubikeys weren't always registered correctly.
-* **(.2)  FIX**:		Support MemberPress Password Reset with Auto-Login.
+* **(.3)  IMPROVED**:	Scanning for SPAM email registrations is improved with more signals.
+* **(.3)  IMPROVED**:	Better recovery from errors during certain scans.
+* **(.3)  FIX**:		Yubikeys weren't always registered correctly.
+* **(.3)  FIX**:		Support MemberPress Password Reset that has an Auto-Login.
 * **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.
 * **(.2)  IMPROVED**:	Some minor improvements to encoding special characters in the email subject/from name.
 * **(.2)  IMPROVED**:	[WPHashes.com](https://shsec.io/hs) API token update is more reliable.
