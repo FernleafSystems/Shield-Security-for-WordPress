@@ -379,6 +379,7 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(.3)  IMPROVED**:	Scanning for SPAM email registrations is improved with more signals.
 * **(.3)  IMPROVED**:	Better recovery from errors during certain scans.
+* **(.3)  IMPROVED**:	WPHashes Token Retrieval.
 * **(.3)  FIX**:		Yubikeys weren't always registered correctly.
 * **(.3)  FIX**:		Support MemberPress Password Reset that has an Auto-Login.
 * **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.

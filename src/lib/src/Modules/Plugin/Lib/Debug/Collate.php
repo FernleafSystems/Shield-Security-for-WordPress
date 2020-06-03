@@ -173,10 +173,22 @@ class Collate {
 		$oModLicense = $oCon->getModule_License();
 		$oModPlugin = $oCon->getModule_Plugin();
 		$oWpHashes = $oModLicense->getWpHashesTokenManager();
+
+		$nPrevAttempt = $oWpHashes->getPreviousAttemptAt();
+		if ( empty( $nPrevAttempt ) ) {
+			$sPrev = 'Never';
+		}
+		else {
+			$sPrev = 'Last Attempt: '.Services::Request()
+												 ->carbon()
+												 ->setTimestamp( $nPrevAttempt )
+												 ->diffForHumans();
+		}
+
 		$aD = [
 			'Version'                => $oCon->getVersion(),
 			'PRO'                    => $oCon->isPremiumActive() ? 'Yes' : 'No',
-			'WP Hashes Token'        => $oWpHashes->hasToken() ? $oWpHashes->getToken() : 'No',
+			'WP Hashes Token'        => ( $oWpHashes->hasToken() ? $oWpHashes->getToken() : '' ).' ('.$sPrev.')',
 			'Security Admin Enabled' => $oCon->getModule_SecAdmin()->isEnabledSecurityAdmin() ? 'Yes' : 'No',
 		];
 
