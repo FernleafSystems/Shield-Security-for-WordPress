@@ -220,8 +220,8 @@
           "text":      "Disposable Email Service"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://shsec.io/gk",
+      "link_blog":     "https://shsec.io/hh",
       "name":          "Email Checks",
       "summary":       "The Email Address Properties That Will Be Tested",
       "description":   "Select which ."
