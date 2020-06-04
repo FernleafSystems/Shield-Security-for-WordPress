@@ -162,7 +162,10 @@ class Strings extends Base\Strings {
 			case 'reg_email_validate' :
 				$sName = __( 'Validate Email Addresses', 'wp-simple-firewall' );
 				$sSummary = __( 'Validate Email Addresses When User Attempts To Register', 'wp-simple-firewall' );
-				$sDesc = __( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' );
+				$sDesc = [
+					__( 'Validate Email Addresses When User Attempts To Register.', 'wp-simple-firewall' ),
+					__( 'To validate an email your site sends a request to the WPHashes API and may cause a small delay during the user registration request.', 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'email_checks' :

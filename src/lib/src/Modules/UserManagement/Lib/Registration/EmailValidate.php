@@ -48,10 +48,13 @@ class EmailValidate {
 								  ->getToken();
 				if ( !empty( $sApiToken ) ) {
 					$aChecks = $oOpts->getEmailValidationChecks();
-					foreach ( ( new Email( $sApiToken ) )->getEmailVerification( $sEmail ) as $sValidation => $bIsValid ) {
-						if ( !$bIsValid && in_array( $sValidation, $aChecks ) ) {
-							$sInvalidBecause = $sValidation;
-							break;
+					$aVerifys = ( new Email( $sApiToken ) )->getEmailVerification( $sEmail );
+					if ( is_array( $aVerifys ) ) {
+						foreach ( $aVerifys as $sVerifyKey => $bIsValid ) {
+							if ( !$bIsValid && in_array( $sVerifyKey, $aChecks ) ) {
+								$sInvalidBecause = $sVerifyKey;
+								break;
+							}
 						}
 					}
 				}
