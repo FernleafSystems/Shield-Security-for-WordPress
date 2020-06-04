@@ -136,11 +136,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oPro->getSubProScanner()->deleteCron();
 		}
 
-		if ( count( $oOpts->getFilesToLock() ) > 0 && !$this->getCon()
+		if ( count( $oOpts->getFilesToLock() ) === 0 || !$this->getCon()
 															->getModule_Plugin()
 															->getShieldNetApiController()
 															->canHandshake() ) {
 			$oOpts->setOpt( 'file_locker', [] );
+			$this->getFileLocker()->purge();
 		}
 
 		foreach ( $this->getAllScanCons() as $oCon ) {
