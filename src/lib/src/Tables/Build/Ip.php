@@ -26,6 +26,8 @@ class Ip extends BaseBuild {
 			$oSelector->filterByIp( $aParams[ 'fIp' ] );
 		}
 
+		$oSelector->setOrderBy( 'last_access_at', 'DESC', true );
+
 		return $this;
 	}
 
@@ -56,7 +58,7 @@ class Ip extends BaseBuild {
 			$aE = $oEntry->getRawDataAsArray();
 			$bBlocked = $oEntry->blocked_at > 0 || $oEntry->transgressions >= $nTransLimit;
 			$aE[ 'last_trans_at' ] = Services::Request()
-											 ->carbon()
+											 ->carbon( true )
 											 ->setTimestamp( $oEntry->last_access_at )
 											 ->diffForHumans();
 			$aE[ 'last_access_at' ] = $this->formatTimestampField( $oEntry->last_access_at );

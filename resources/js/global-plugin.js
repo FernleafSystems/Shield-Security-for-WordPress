@@ -27,7 +27,9 @@ var iCWP_WPSF_SecurityAdmin = new function () {
 				jQuery( document ).on( "click", '#SecAdminRemoveConfirmEmail',
 					function ( event ) {
 						event.preventDefault();
-						iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_secadmin.ajax.req_email_remove );
+						if ( confirm( icwp_wpsf_vars_secadmin.strings.are_you_sure ) ) {
+							iCWP_WPSF_StandardAjax.send_ajax_req( icwp_wpsf_vars_secadmin.ajax.req_email_remove );
+						}
 						return false;
 					}
 				);

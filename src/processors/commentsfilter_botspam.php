@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\ShieldProcessor {
@@ -28,10 +29,12 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 	public function onWpEnqueueJs() {
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 		$oConn = $this->getCon();
 
 		$sAsset = 'shield-comments';
-		$sUnique = $oMod->prefix( 'shield-comments' );
+		$sUnique = $oConn->prefix( 'shield-comments' );
 		wp_register_script(
 			$sUnique,
 			$oConn->getPluginUrl_Js( $sAsset ),
@@ -58,8 +61,8 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 					'botts'    => $nTs,
 					'token'    => 'not created',
 					'uniq'     => $this->getUniqueFormId(),
-					'cooldown' => $oMod->getTokenCooldown(),
-					'expires'  => $oMod->getTokenExpireInterval(),
+					'cooldown' => $oOpts->getTokenCooldown(),
+					'expires'  => $oOpts->getTokenExpireInterval(),
 				],
 				'strings' => [
 					'label'           => $oMod->getTextOpt( 'custom_message_checkbox' ),
@@ -69,7 +72,7 @@ class ICWP_WPSF_Processor_CommentsFilter_BotSpam extends Modules\BaseShield\Shie
 				],
 				'flags'   => [
 					'gasp'  => true,
-					'recap' => $oMod->isGoogleRecaptchaEnabled(),
+					'recap' => $oMod->isEnabledCaptcha(),
 				]
 			]
 		);

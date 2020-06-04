@@ -2,11 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Deprecated;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
-class BaseProcessor extends Deprecated\Foundation {
+class BaseProcessor {
 
 	use Modules\ModConsumer;
 
@@ -53,6 +52,7 @@ class BaseProcessor extends Deprecated\Foundation {
 		 */
 		if ( Services::Request()->query( 'wp_service_worker', 0 ) != 1 ) {
 			add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
+			add_action( 'login_enqueue_scripts', [ $this, 'onWpEnqueueJs' ] );
 		}
 
 		$this->bHasExecuted = false;
@@ -135,15 +135,6 @@ class BaseProcessor extends Deprecated\Foundation {
 	 * Override to set what this processor does when it's "run"
 	 */
 	public function run() {
-	}
-
-	/**
-	 * @param       $sOptionKey
-	 * @param mixed $mDefault
-	 * @return mixed
-	 */
-	public function getOption( $sOptionKey, $mDefault = false ) {
-		return $this->getMod()->getOpt( $sOptionKey, $mDefault );
 	}
 
 	/**

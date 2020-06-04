@@ -1,6 +1,7 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Lockdown;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
@@ -8,25 +9,21 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_Lockdown $oMod */
 		$oMod = $this->getMod();
+		/** @var Lockdown\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		if ( $oMod->isOptFileEditingDisabled() ) {
 			$this->blockFileEditing();
 		}
 
-		$sWpVersionMask = $this->getOption( 'mask_wordpress_version' );
-		if ( !empty( $sWpVersionMask ) ) {
-			global $wp_version;
-			$wp_version = $sWpVersionMask;
-		}
-
-		if ( $oMod->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
+		if ( $oOpts->isOpt( 'force_ssl_admin', 'Y' ) && function_exists( 'force_ssl_admin' ) ) {
 			if ( !defined( 'FORCE_SSL_ADMIN' ) ) {
 				define( 'FORCE_SSL_ADMIN', true );
 			}
 			force_ssl_admin( true );
 		}
 
-		if ( $oMod->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
+		if ( $oOpts->isOpt( 'hide_wordpress_generator_tag', 'Y' ) ) {
 			remove_action( 'wp_head', 'wp_generator' );
 		}
 
@@ -128,18 +125,5 @@ class ICWP_WPSF_Processor_Lockdown extends Modules\BaseShield\ShieldProcessor {
 		}
 
 		return $mStatus;
-	}
-
-	/**
-	 * Override the original collection to then add plugin statistics to the mix
-	 * @param $aData
-	 * @return array
-	 */
-	public function tracking_DataCollect( $aData ) {
-		$aData = parent::tracking_DataCollect( $aData );
-		$sSlug = $this->getMod()->getSlug();
-		$aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ]
-			= empty( $aData[ $sSlug ][ 'options' ][ 'mask_wordpress_version' ] ) ? 0 : 1;
-		return $aData;
 	}
 }

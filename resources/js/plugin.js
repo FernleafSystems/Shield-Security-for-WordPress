@@ -1,9 +1,6 @@
 var iCWP_WPSF_OptionsPages = new function () {
 
 	var showWaiting = function ( event ) {
-		/* var $oLink = jQuery( this ); for the inner collapses
-		jQuery( '#' + $oLink.data( 'targetcollapse' ) ).collapse( 'show' ); */
-
 		iCWP_WPSF_BodyOverlay.show();
 	};
 
@@ -21,17 +18,32 @@ var iCWP_WPSF_OptionsPages = new function () {
 				window.location.hash = jQuery( e.target ).attr( "href" ).substr( 1 );
 			} );
 
-			jQuery( document ).on( "odp-optsrender", focusTab );
+			jQuery( document ).on( "odp-optsrender", onOptsTabRender );
 		} );
 	};
 
-	var focusTab = function ( evt ) {
+	var onOptsTabRender = function ( evt ) {
 		var sActiveTabHash = window.location.hash;
 		if ( typeof sActiveTabHash !== 'undefined' ) {
 			jQuery( '#ModuleOptionsNav a[href="' + sActiveTabHash + '"]' ).tab( 'show' );
+			jQuery( 'html,body' ).scrollTop( 0 );
 		}
-	};
 
+		jQuery( function () {
+			jQuery( 'a.section_title_info' ).popover( {
+				placement: 'bottom',
+				trigger: 'click',
+				delay: 50,
+				html: true
+			} );
+			jQuery( '[data-toggle="tooltip"]' ).tooltip( {
+				placement: 'left',
+				trigger: 'hover focus',
+				delay: 150,
+				html: false
+			} );
+		} );
+	};
 }();
 
 let iCWP_WPSF_OptsPageRender = new function () {
@@ -381,3 +393,20 @@ jQuery.fn.icwpWpsfAjaxTable = function ( aOptions ) {
 
 	return this;
 };
+
+if ( typeof icwp_wpsf_vars_plugin !== 'undefined' ) {
+
+	jQuery( document ).ready( function () {
+		jQuery( document ).on( "click", "a.shield_file_download", function ( evt ) {
+			evt.preventDefault();
+			/** Cache busting **/
+			let url = jQuery( this ).attr( 'href' ) + '&rand='
+				+ Math.floor( 10000 * Math.random() );
+			jQuery.fileDownload( url, {
+				preparingMessageHtml: icwp_wpsf_vars_plugin.strings.downloading_file,
+				failMessageHtml: icwp_wpsf_vars_plugin.strings.problem_downloading_file
+			} );
+			return false;
+		} );
+	} );
+}

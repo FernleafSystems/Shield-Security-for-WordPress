@@ -61,8 +61,6 @@ trait StandardCron {
 		return is_numeric( $nNext ) ? $nNext : 0;
 	}
 
-	/**
-	 */
 	public function deleteCron() {
 		Services::WpCron()->deleteCronJob( $this->getCronName() );
 	}
@@ -72,8 +70,6 @@ trait StandardCron {
 		$this->setupCron();
 	}
 
-	/**
-	 */
 	public function runCron() {
 		// Override to run the actual Cron activity
 	}

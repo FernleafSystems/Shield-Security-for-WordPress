@@ -101,10 +101,13 @@ class Strings extends Base\Strings {
 			case 'autoupdate_plugin_self' :
 				$sName = __( 'Auto Update Plugin', 'wp-simple-firewall' );
 				$sSummary = __( 'Always Automatically Update This Plugin', 'wp-simple-firewall' );
-				$sDescription = sprintf(
-					__( 'Regardless of any other settings, automatically update the "%s" plugin.', 'wp-simple-firewall' ),
-					$sPlugName
-				);
+				$sDescription = [
+					sprintf(
+						__( 'Regardless of any other settings, automatically update the "%s" plugin.', 'wp-simple-firewall' ),
+						$sPlugName
+					),
+					__( 'The plugin will normally automatically update after approximately 2 days, if left to decide.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'autoupdate_core' :
@@ -113,7 +116,7 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'At least automatically upgrading minor versions is recommended (and is the WordPress default).', 'wp-simple-firewall' );
 				break;
 
-			case 'enable_autoupdate_translations' :
+			case 'enable_autoupdate_translations' : // REMOVED 8.6.2
 				$sName = __( 'Translations', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Update Translations', 'wp-simple-firewall' );
 				$sDescription = __( 'Note: Automatic updates for translations are enabled on WordPress by default.', 'wp-simple-firewall' );
@@ -125,19 +128,13 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'Note: Automatic updates for plugins are disabled on WordPress by default.', 'wp-simple-firewall' );
 				break;
 
-			case 'enable_individual_autoupdate_plugins' :
-				$sName = __( 'Individually Select Plugins', 'wp-simple-firewall' );
-				$sSummary = __( 'Select Individual Plugins To Automatically Update', 'wp-simple-firewall' );
-				$sDescription = __( 'Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated.', 'wp-simple-firewall' );
-				break;
-
 			case 'enable_autoupdate_themes' :
 				$sName = __( 'Themes', 'wp-simple-firewall' );
 				$sSummary = __( 'Automatically Update Themes', 'wp-simple-firewall' );
 				$sDescription = __( 'Note: Automatic updates for themes are disabled on WordPress by default.', 'wp-simple-firewall' );
 				break;
 
-			case 'enable_autoupdate_ignore_vcs' :
+			case 'enable_autoupdate_ignore_vcs' : // REMOVED 8.6.2
 				$sName = __( 'Ignore Version Control', 'wp-simple-firewall' );
 				$sSummary = __( 'Ignore Version Control Systems Such As GIT and SVN', 'wp-simple-firewall' );
 				$sDescription = __( 'If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates.', 'wp-simple-firewall' );

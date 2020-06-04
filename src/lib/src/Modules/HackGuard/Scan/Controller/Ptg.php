@@ -10,6 +10,37 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg;
 class Ptg extends BaseForAssets {
 
 	/**
+	 * @return Scans\Ptg\ResultsSet
+	 */
+	protected function getItemsToAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		/** @var Scans\Ptg\ResultsSet $oRes */
+		$oRes = parent::getItemsToAutoRepair();
+
+		if ( !$oOpts->isRepairFilePlugin() || !$oOpts->isRepairFileTheme() ) {
+			if ( $oOpts->isRepairFileTheme() ) {
+				$oRes = $oRes->getResultsForThemesContext();
+			}
+			elseif ( $oOpts->isRepairFilePlugin() ) {
+				$oRes = $oRes->getResultsForPluginsContext();
+			}
+		}
+
+		return $oRes;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isCronAutoRepair() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $oOpts->isRepairFilePlugin() || $oOpts->isRepairFileTheme();
+	}
+
+	/**
 	 * @param Scans\Mal\ResultItem $oItem
 	 * @return bool
 	 */
@@ -58,7 +89,7 @@ class Ptg extends BaseForAssets {
 	public function isEnabled() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isPtgEnabled();
+		return $oOpts->isOpt( 'ptg_enable', 'Y' ) && $oOpts->isOptReqsMet( 'ptg_enable' );
 	}
 
 	/**
@@ -67,7 +98,9 @@ class Ptg extends BaseForAssets {
 	public function isScanningAvailable() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		return parent::isScanningAvailable() && $oMod->canPtgWriteToDisk();
+		return parent::isScanningAvailable()
+			   && $this->getOptions()->isOptReqsMet( 'ptg_enable' )
+			   && $oMod->canCacheDirWrite();
 	}
 
 	/**

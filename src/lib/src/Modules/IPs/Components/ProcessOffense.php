@@ -25,18 +25,23 @@ class ProcessOffense {
 		/** @var IPs\Options $oOpts */
 		$oOpts = $oMod->getOptions();
 
-		$oIP = ( new IPs\Lib\Ops\AddIp() )
-			->setMod( $oMod )
-			->setIP( $this->getIP() )
-			->toAutoBlacklist();
+		try {
+			$oIP = ( new IPs\Lib\Ops\AddIp() )
+				->setMod( $oMod )
+				->setIP( $this->getIP() )
+				->toAutoBlacklist();
+		}
+		catch ( \Exception $oE ) {
+			$oIP = null;
+		}
 
 		if ( $oIP instanceof Databases\IPs\EntryVO ) {
 			$nCurrent = $oIP->transgressions;
 
 			$oTracker = $oMod->loadOffenseTracker();
-			$bToBlock = $oTracker->isBlocked() ||
-						( $oIP->blocked_at == 0 && ( $oOpts->getOffenseLimit() - $nCurrent == 1 ) );
 			$nNewTotal = $oIP->transgressions + $oTracker->getOffenseCount();
+			$bToBlock = $oTracker->isBlocked() ||
+						( $oIP->blocked_at == 0 && ( $nNewTotal >= $oOpts->getOffenseLimit() ) );
 
 			/** @var Databases\IPs\Update $oUp */
 			$oUp = $oMod->getDbHandler_IPs()->getQueryUpdater();

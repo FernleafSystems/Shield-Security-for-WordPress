@@ -3,6 +3,7 @@
   "properties":   {
     "slug":                  "traffic",
     "name":                  "Traffic Watch",
+    "sidebar_name":          "Traffic",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "traffic",
@@ -33,8 +34,8 @@
     },
     {
       "slug":        "section_traffic_limiter",
-      "title":       "Traffic Limiter",
-      "title_short": "Options",
+      "title":       "Traffic Rate Limiting",
+      "title_short": "Rate Limiting",
       "summary":     [
         "Purpose - Provides ability to restrict excessive requests from a single visitor.",
         "Recommendation - These settings are dependent on your requirements."
@@ -58,13 +59,24 @@
     {
       "key":         "enable_traffic",
       "section":     "section_enable_plugin_feature_traffic",
-      "default":     "N",
+      "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/ed",
       "link_blog":   "https://shsec.io/ee",
       "name":        "Enable Traffic Watch",
       "summary":     "Enable (or Disable) The Traffic Watch Module",
       "description": "Un-Checking this option will completely disable the Traffic Watch module."
+    },
+    {
+      "key":         "enable_logger",
+      "section":     "section_traffic_options",
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/hf",
+      "link_blog":   "",
+      "name":        "Enable Traffic Logger",
+      "summary":     "Turn On The Traffic Logging Feature",
+      "description": "Enable or disable the ability to log and monitor requests to your site."
     },
     {
       "key":           "type_exclusions",
@@ -115,6 +127,7 @@
     {
       "key":         "custom_exclusions",
       "section":     "section_traffic_options",
+      "premium":     true,
       "default":     [],
       "type":        "array",
       "link_info":   "https://shsec.io/ec",
@@ -138,6 +151,7 @@
     {
       "key":         "max_entries",
       "section":     "section_traffic_options",
+      "premium":     true,
       "default":     1000,
       "min":         0,
       "type":        "integer",
@@ -148,20 +162,21 @@
       "description": "Automated DB cleanup will delete logs to maintain this maximum number of records."
     },
     {
-      "key":         "auto_disable",
-      "section":     "section_traffic_options",
+      "key":         "enable_limiter",
+      "section":     "section_traffic_limiter",
+      "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Auto Disable",
-      "summary":     "Auto Disable Traffic Logging After 1 Week",
-      "description": "Turn on to prevent unnecessary long-term traffic logging. Timer resets each time you save."
+      "link_info":   "https://shsec.io/gw",
+      "link_blog":   "https://shsec.io/gx",
+      "name":        "Enable Rate Limiting",
+      "summary":     "Turn On The Rate Limiting Feature",
+      "description": "Enable or disable the rate limiting feature according to your rate limiting parameters."
     },
     {
       "key":         "limit_requests",
-      "section":     "section_non_ui",
-      "default":     "20",
+      "section":     "section_traffic_limiter",
+      "default":     "60",
       "min":         0,
       "type":        "integer",
       "link_info":   "",
@@ -172,8 +187,8 @@
     },
     {
       "key":         "limit_time_span",
-      "section":     "section_non_ui",
-      "default":     "20",
+      "section":     "section_traffic_limiter",
+      "default":     "60",
       "min":         0,
       "type":        "integer",
       "link_info":   "",
@@ -181,13 +196,6 @@
       "name":        "Request Limit Time Interval",
       "summary":     "The Time Interval To Test For Excessive Requests",
       "description": "The time limit within which to monitor for excessive requests that exceed the limit."
-    },
-    {
-      "key":          "autodisable_at",
-      "section":      "section_non_ui",
-      "type":         "integer",
-      "transferable": false,
-      "default":      0
     }
   ],
   "definitions":  {

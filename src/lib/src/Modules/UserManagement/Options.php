@@ -9,6 +9,16 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return array
 	 */
+	public function getSuspendHardUserIds() {
+		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
+		return is_array( $aIds ) ? array_filter( $aIds, function ( $nTime ) {
+			return is_int( $nTime ) && $nTime > 0;
+		} ) : [];
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getSuspendAutoIdleUserRoles() {
 		$aRoles = $this->getOpt( 'auto_idle_roles', [] );
 		return is_array( $aRoles ) ? $aRoles : [];
@@ -145,5 +155,21 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isSuspendManualEnabled() {
 		return $this->isOpt( 'manual_suspend', 'Y' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getValidateEmailOnRegistration() {
+		return $this->isPremium() ?
+			$this->getOpt( 'reg_email_validate', 'disabled' )
+			: 'disabled';
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getEmailValidationChecks() {
+		return $this->getOpt( 'email_checks', [] );
 	}
 }

@@ -3,6 +3,7 @@
   "properties":  {
     "slug":                  "autoupdates",
     "name":                  "Automatic Updates",
+    "sidebar_name":          "Auto Updates",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "autoupdates",
@@ -53,7 +54,7 @@
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/3w",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/hj",
       "name":        "Enable Automatic Updates",
       "summary":     "Enable (or Disable) The Automatic Updates module",
       "description": "Un-Checking this option will completely disable the Automatic Updates module"
@@ -106,18 +107,6 @@
       "description": "Note: Automatic updates for plugins are disabled on WordPress by default."
     },
     {
-      "key":         "enable_individual_autoupdate_plugins",
-      "section":     "section_non_ui",
-      "default":     "N",
-      "type":        "checkbox",
-      "premium":     true,
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Individually Select Plugins",
-      "summary":     "Select Individual Plugins To Automatically Update",
-      "description": "Turning this on will provide an option on the plugins page to select whether a plugin is automatically updated."
-    },
-    {
       "key":         "enable_autoupdate_themes",
       "section":     "section_automatic_updates_for_wordpress_components",
       "default":     "N",
@@ -127,28 +116,6 @@
       "name":        "Themes",
       "summary":     "Automatically Update Themes",
       "description": "Note: Automatic updates for themes are disabled on WordPress by default."
-    },
-    {
-      "key":         "enable_autoupdate_translations",
-      "section":     "section_automatic_updates_for_wordpress_components",
-      "default":     "Y",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Translations",
-      "summary":     "Automatically Update Translations",
-      "description": "Note: Automatic updates for translations are enabled on WordPress by default."
-    },
-    {
-      "key":         "enable_autoupdate_ignore_vcs",
-      "section":     "section_automatic_updates_for_wordpress_components",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "",
-      "link_blog":   "",
-      "name":        "Ignore Version Control",
-      "summary":     "Ignore Version Control Systems Such As GIT and SVN",
-      "description": "If you use SVN or GIT and WordPress detects it, automatic updates are disabled by default. Check this box to ignore version control systems and allow automatic updates."
     },
     {
       "key":         "update_delay",

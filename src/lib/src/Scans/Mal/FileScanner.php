@@ -3,6 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Mal;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpThemeVo;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities;
 
@@ -73,6 +76,7 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 				$oReporter->reportPath( $sFullPath, true );
 			}
 			else {
+				/** @var ScanActionVO $oAction */
 				$oAction = $this->getScanActionVO();
 
 				if ( $oAction->confidence_threshold > 0 ) {
@@ -147,12 +151,19 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function isPluginFileValid( $sFullPath ) {
+		$bIsValidFile = false;
 		try {
-			$bIsValidFile = ( new Utilities\WpOrg\Plugin\Files() )->verifyFileContents( $sFullPath );
+			$oPluginFiles = new Utilities\WpOrg\Plugin\Files();
+			$oPlugin = $oPluginFiles->findPluginFromFile( $sFullPath );
+			if ( $oPlugin instanceof WpPluginVo ) {
+				$bIsValidFile = $oPlugin->isWpOrg() ?
+					$oPluginFiles->verifyFileContents( $sFullPath )
+					: $this->verifyPremiumAssetFile( $sFullPath, $oPlugin );
+			}
 		}
 		catch ( \Exception $oE ) {
-			$bIsValidFile = false;
 		}
+
 		return $bIsValidFile;
 	}
 
@@ -161,11 +172,36 @@ class FileScanner extends Shield\Scans\Base\Files\BaseFileScanner {
 	 * @return bool
 	 */
 	private function isThemeFileValid( $sFullPath ) {
+		$bIsValidFile = false;
 		try {
-			$bIsValidFile = ( new Utilities\WpOrg\Theme\Files() )->verifyFileContents( $sFullPath );
+			$oThemeFiles = new Utilities\WpOrg\Theme\Files();
+			$oTheme = $oThemeFiles->findThemeFromFile( $sFullPath );
+			if ( $oTheme instanceof WpThemeVo ) {
+				$bIsValidFile = $oTheme->isWpOrg() ?
+					$oThemeFiles->verifyFileContents( $sFullPath )
+					: $this->verifyPremiumAssetFile( $sFullPath, $oTheme );
+			}
 		}
 		catch ( \Exception $oE ) {
-			$bIsValidFile = false;
+		}
+
+		return $bIsValidFile;
+	}
+
+	/**
+	 * @param string               $sFullPath
+	 * @param WpPluginVo|WpThemeVo $oPluginOrTheme
+	 * @return bool
+	 * @throws \Exception
+	 */
+	private function verifyPremiumAssetFile( $sFullPath, $oPluginOrTheme ) {
+		$bIsValidFile = false;
+		$aHashes = ( new Lib\Snapshots\Build\BuildHashesFromApi() )
+			->build( $oPluginOrTheme );
+		$sFragment = str_replace( $oPluginOrTheme->getInstallDir(), '', $sFullPath );
+		if ( !empty( $aHashes ) && !empty( $aHashes[ $sFragment ] ) ) {
+			$bIsValidFile = ( new Utilities\File\Compare\CompareHash() )
+				->isEqualFileMd5( $sFullPath, $aHashes[ $sFragment ] );
 		}
 		return $bIsValidFile;
 	}

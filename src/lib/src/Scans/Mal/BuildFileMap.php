@@ -25,19 +25,22 @@ class BuildFileMap {
 
 		foreach ( $oAction->scan_root_dirs as $sScanDir => $nDepth ) {
 			try {
-				$oDirIt = StandardDirectoryIterator::create( $sScanDir, (int)$nDepth, $oAction->file_exts, false );
-				foreach ( $oDirIt as $oFsItem ) {
-					$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
+				foreach ( StandardDirectoryIterator::create( $sScanDir, (int)$nDepth, $oAction->file_exts, false ) as $oFsItem ) {
 					/** @var \SplFileInfo $oFsItem */
-					if ( $this->isWhitelistedPath( $sFullPath ) || $oFsItem->getSize() == 0 ) {
-						continue;
+					$sFullPath = wp_normalize_path( $oFsItem->getPathname() );
+					try {
+						if ( !$this->isWhitelistedPath( $sFullPath ) && $oFsItem->getSize() > 0 ) {
+							$aFiles[] = $sFullPath;
+						}
 					}
-					$aFiles[] = $sFullPath;
+					catch ( \Exception $oE ) {
+					}
 				}
 			}
 			catch ( \Exception $oE ) {
 				error_log(
-					sprintf( 'Shield file scanner attempted to read directory (%s) but there was error: "%s".', $sScanDir, $oE->getMessage() )
+					sprintf( 'Shield file scanner (%s) attempted to read directory (%s) but there was error: "%s".',
+						$oAction->scan, $sScanDir, $oE->getMessage() )
 				);
 			}
 		}

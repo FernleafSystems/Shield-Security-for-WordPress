@@ -2,18 +2,25 @@
 
 {% block page_main %}
 	<div class="row" id="ModulePageTopRow">
-		<div class="col-1 modules smoothwidth" id="ColumnModules">
+		<div class="modules smoothwidth" id="ColumnModules">
 
 			<div class="nav flex-column">
+				<h5 class="mt-3 border-bottom"
+					style="font-variant: small-caps;font-weight: normal">Shield Modules</h5>
 				{% for mod_summary in aSummaryData %}
-					<a class="nav-link module {% if mod_summary.active %}active{% endif %}
+					<a class="nav-link module
+					{% if mod_summary.active %}active{% endif %}
 					{% if mod_summary.enabled %}enabled{% else %}notenabled{% endif %}"
 					   id="tab-{{ mod_summary.slug }}"
-					   data-toggle="tooltip"
-					   title="{{ mod_summary.tooltip }}"
 					   href="{{ mod_summary.href }}" role="tab">
-						<div class="module-icon module-icon-{{ mod_summary.slug }}"
-							 id="module-{{ mod_summary.slug }}"></div>
+						<div>
+							{% if mod_summary.active %}&rdsh;{% endif %}
+							<span class="module-icon module-icon-{{ mod_summary.slug }}"
+								  id="module-{{ mod_summary.slug }}"></span>
+							<span class="module-name">
+								{{ mod_summary.tooltip }}
+							</span>
+						</div>
 					</a>
 				{% endfor %}
 			</div>
@@ -25,11 +32,11 @@
 	<script>
 		iCWP_WPSF_OptsPageRender.renderForm( {{ ajax.mod_opts_form_render|raw }} );
 		iCWP_WPSF_OptionsFormSubmit.updateAjaxReqParams( {{ ajax.mod_options|raw }} );
-		jQuery( 'a.nav-link.module' ).tooltip({
+		jQuery( 'a.nav-link.module' ).tooltip( {
 			placement: 'right',
 			trigger: 'hover'
 		} );
-		jQuery( 'a.section-help-video' ).tooltip({
+		jQuery( 'a.section-help-video' ).tooltip( {
 			placement: 'right',
 			trigger: 'hover'
 		} );

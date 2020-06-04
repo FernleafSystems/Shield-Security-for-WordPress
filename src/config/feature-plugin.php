@@ -2,6 +2,7 @@
   "properties":    {
     "slug":                  "plugin",
     "name":                  "General Settings",
+    "sidebar_name":          "General",
     "menu_title":            "Settings",
     "show_module_menu_item": true,
     "show_module_options":   true,
@@ -24,6 +25,22 @@
       "plugin_page_only": false,
       "can_dismiss":      false,
       "type":             "error"
+    },
+    "plugin-disabled":            {
+      "id":               "plugin-disabled",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": true,
+      "can_dismiss":      false,
+      "type":             "error"
+    },
+    "php7":          {
+      "id":               "php7",
+      "schedule":         "conditions",
+      "valid_admin":      true,
+      "plugin_page_only": false,
+      "can_dismiss":      true,
+      "type":             "warning"
     },
     "compat-sgoptimize":          {
       "id":               "compat-sgoptimize",
@@ -76,9 +93,9 @@
       "help_video_id": "338540386"
     },
     {
-      "slug":          "section_third_party_google",
-      "title":         "Google reCAPTCHA",
-      "title_short":   "Google reCAPTCHA",
+      "slug":          "section_third_party_captcha",
+      "title":         "CAPTCHA",
+      "title_short":   "CAPTCHA",
       "help_video_id": "338546796"
     },
     {
@@ -212,6 +229,18 @@
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
     },
     {
+      "key":         "enable_wpcli",
+      "section":     "section_general_plugin_options",
+      "premium":     true,
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/5v",
+      "link_blog":   "https://shsec.io/wpsf20",
+      "name":        "Allow WP-CLI",
+      "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
+      "description": "Turn off this option to disable this plugin's WP-CLI integration."
+    },
+    {
       "key":         "enable_xmlrpc_compatibility",
       "section":     "section_defaults",
       "default":     "N",
@@ -295,8 +324,29 @@
       "description": "Careful: Removes all plugin options when you deactivate the plugin."
     },
     {
+      "key":           "captcha_provider",
+      "section":       "section_third_party_captcha",
+      "default":       "grecaptcha",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "grecaptcha",
+          "text":      "Google reCAPTCHA v2"
+        },
+        {
+          "value_key": "hcaptcha",
+          "text":      "hCaptcha"
+        }
+      ],
+      "link_info":     "https://shsec.io/dq",
+      "link_blog":     "",
+      "name":          "CAPTCHA Provider",
+      "summary":       "Which CAPTCHA Provider To Use Throughout",
+      "description":   "You can choose the CAPTCHA provider depending on your preferences."
+    },
+    {
       "key":           "google_recaptcha_style",
-      "section":       "section_third_party_google",
+      "section":       "section_third_party_captcha",
       "premium":       true,
       "default":       "light",
       "type":          "select",
@@ -316,13 +366,13 @@
       ],
       "link_info":     "https://shsec.io/dq",
       "link_blog":     "",
-      "name":          "reCAPTCHA Style",
+      "name":          "CAPTCHA Type",
       "summary":       "How Google reCAPTCHA Will Be Displayed By Default",
       "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
     },
     {
       "key":         "google_recaptcha_site_key",
-      "section":     "section_third_party_google",
+      "section":     "section_third_party_captcha",
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -334,7 +384,7 @@
     },
     {
       "key":         "google_recaptcha_secret_key",
-      "section":     "section_third_party_google",
+      "section":     "section_third_party_captcha",
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -394,13 +444,6 @@
       "default":      0
     },
     {
-      "key":          "importexport_last_import_hash",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "type":         "text",
-      "default":      ""
-    },
-    {
       "key":          "last_ip_detect_source",
       "transferable": false,
       "section":      "section_non_ui",
@@ -410,9 +453,32 @@
     {
       "key":          "openssl_private_key",
       "transferable": false,
+      "sensitive":    true,
       "section":      "section_non_ui",
       "type":         "text",
       "default":      ""
+    },
+    {
+      "key":          "snapi_data",
+      "transferable": false,
+      "sensitive":    true,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
+    },
+    {
+      "key":          "captcha_checked_at",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "int",
+      "default":      -1
+    },
+    {
+      "key":          "cache_dir_write_test",
+      "transferable": false,
+      "section":      "section_non_ui",
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {
@@ -462,17 +528,29 @@
         "load_priority": 15
       },
       {
+        "slug":          "audit_trail",
+        "storage_key":   "audit_trail",
+        "load_priority": 11,
+        "hidden":        false
+      },
+      {
         "slug":        "hack_protect",
         "storage_key": "hack_protect"
       },
       {
-        "slug":        "login_protect",
-        "storage_key": "loginprotect"
+        "slug":          "traffic",
+        "storage_key":   "traffic",
+        "load_priority": 12,
+        "min_php":       "5.4"
       },
       {
         "slug":          "firewall",
         "storage_key":   "firewall",
         "load_priority": 1000
+      },
+      {
+        "slug":        "login_protect",
+        "storage_key": "loginprotect"
       },
       {
         "slug":        "user_management",
@@ -481,6 +559,26 @@
       {
         "slug":        "comments_filter",
         "storage_key": "commentsfilter"
+      },
+      {
+        "slug":          "events",
+        "storage_key":   "events",
+        "load_priority": 11
+      },
+      {
+        "slug":          "reporting",
+        "storage_key":   "reporting",
+        "load_priority": 12
+      },
+      {
+        "slug":          "sessions",
+        "storage_key":   "sessions",
+        "load_priority": 5
+      },
+      {
+        "slug":          "license",
+        "storage_key":   "license",
+        "load_priority": 10
       },
       {
         "slug":        "autoupdates",
@@ -493,33 +591,6 @@
       {
         "slug":        "lockdown",
         "storage_key": "lockdown"
-      },
-      {
-        "slug":          "events",
-        "storage_key":   "events",
-        "load_priority": 11
-      },
-      {
-        "slug":          "sessions",
-        "storage_key":   "sessions",
-        "load_priority": 5
-      },
-      {
-        "slug":          "audit_trail",
-        "storage_key":   "audit_trail",
-        "load_priority": 11,
-        "hidden":        false
-      },
-      {
-        "slug":          "traffic",
-        "storage_key":   "traffic",
-        "load_priority": 12,
-        "min_php":       "5.4"
-      },
-      {
-        "slug":          "license",
-        "storage_key":   "license",
-        "load_priority": 10
       },
       {
         "slug":        "email",

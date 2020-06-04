@@ -84,7 +84,7 @@ class Controller {
 	/**
 	 * @return NoticeVO|null
 	 */
-	private function getFlashNotice() {
+	public function getFlashNotice() {
 		$oNotice = null;
 		$aM = $this->retrieveFlashMessage();
 		if ( is_array( $aM ) ) {

@@ -7,8 +7,8 @@ Tags: scan, malware, firewall, two factor authentication, login protection
 Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
-Tested up to: 5.3
-Stable tag: 8.5.2
+Tested up to: 5.4
+Stable tag: 9.0.3
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -284,7 +284,7 @@ Whitelist. So if you have the same address in both lists, it'll be whitelisted a
 = What changes go into each version? =
 
 The changelog outlines the main changes for each release. We group changes by minor release "Series". Changes in smaller "point" releases are highlighted
- using **(v.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(v.1)**
+ using **(.1)** notation.  So for example, version 4.4**.1** will have changelog items appended with **(.1)**
 
 = Can I assist with development? =
 
@@ -349,7 +349,7 @@ Use the following filter and return the HTML/Text you wish to display:
 
 Use the following filter and return the role in the function:
 
-`add_filter( 'icwp_wpsf-login-notification-email-role', 'your_function_to_return_role' );`
+`add_filter( 'icwp-wpsf-login-notification-email-role', 'your_function_to_return_role' );`
 
 Possible options are: network_admin, administrator, editor, author, contributor, subscriber
 
@@ -370,51 +370,40 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-= 8.5.2 - Current Release =
-*Released: 28th January, 2020* - [Release Notes](https://shsec.io/gb)
+#### 9.0 Series
+*Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
 
-* **(v.2)**  ADDED:		Introductory tour of plugin, on activation.
-* **(v.2)**  IMPROVED:	Enhanced IP detection of service providers for exclusion from traffic log.
-* **(v.2)**  IMPROVED:	Plugin/Theme Hack Guard Snapshot building is optimised to reduce disruption is some cases.
-* **(v.2)**  IMPROVED:	Visitor IP detection processing.
-* **(v.2)**  IMPROVED:	Improved cache-prevention of Login Two-Factor Authentication portal.
-* **(v.2)**  FIXED:		Firewall email alert was not sent when using certain dedicated email plugins.
-* **(v.2)**  FIXED:		Firewall 404 setting was redirecting instead of responding with 404.
-* **(v.2)**  ADDED:		Added support for NodePing filtering in the traffic logger.
+**Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
-= 8.5 - Series =
-*Released: 8th January, 2020* - [Release Notes](https://shsec.io/gb)
+##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
 
-* **(v.1)**  FIXED:		Fix for page loading issue/slowdown in some cases.
-* **(v.0)**  NEW:		Initial support for checksum scanning of premium plugins and themes.
-* **(v.0)**  NEW:		Ability to switch-off Security Admin with an email confirmation if key is lost/forgotten.
-* **(v.0)**  NEW:		Ability to auto-repair theme files.
-* **(v.0)**  ADDED:		Ability to whitelist requests so that they are never blacklisted.
-* **(v.0)**  ADDED:		Ability to filter the IP White/Black list tables for a specific IP address.
-* **(v.0)**  ADDED:		Support for repeated audit trail entries - so the logs don't get filled with repeated messages.
-* **(v.0)**  ADDED:		[**PRO**] Option to provide complete, custom Content Security Policy headers.
-* **(v.0)**  IMPROVED:	Protection against a certain type of broken plugin installation if WordPress doesn't properly copy files.
-* **(v.0)**  IMPROVED:	Redesigned Table UI for scan results.
-* **(v.0)**  IMPROVED:	Redesigned Plugin/Theme File Guard.
-* **(v.0)**  IMPROVED:	Completely re-written much of the scanners code.
-* **(v.0)**  IMPROVED:	Better detection of the hosting server's IP addresses - i.e. support for IPv6 alongside IPv4.
-* **(v.0)**  FIXED:		Two-Factor Authentication (2FA) login screen redirection bug.
-* **(v.0)**  FIXED:		It was possible to temporarily by-pass the 2FA screen to gain access to WP Admin after logging-in.
-* **(v.0)**  CLEANED:	Code cleaning.
-* **(v.0)**  UPDATED:	Twitter Bootstrap library.
+* **(.3)  IMPROVED**:	Scanning for SPAM email registrations is improved with more signals.
+* **(.3)  IMPROVED**:	Better recovery from errors during certain scans.
+* **(.3)  IMPROVED**:	WPHashes Token Retrieval.
+* **(.3)  FIX**:		Plugins were sometimes disabled when updates applied via Scan UI.
+* **(.3)  FIX**:		Audit Trail more correctly reflects "repair/delete" activity from the Unrecognised File Scanner.
+* **(.3)  FIX**:		Yubikeys weren't always registered correctly.
+* **(.3)  FIX**:		Support MemberPress Password Reset that has an Auto-Login.
+* **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.
+* **(.2)  IMPROVED**:	Some minor improvements to encoding special characters in the email subject/from name.
+* **(.2)  IMPROVED**:	[WPHashes.com](https://shsec.io/hs) API token update is more reliable.
+* **(.2)  FIXED**:		Applying a plugin update from within the Vulnerabilities scanner no longer disables that plugin.
+* **(.1)  FIXED**:		Javascript for Anti-Bot Login Protection not loading in all cases.
+* **(.1)  FIXED**:		MemberPress Registration protection PHP error.
+* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
+* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
+* **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
+* **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
+* **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
+* **(.0)  NEW**:		Debug page to show summary and important information for debugging.
+* **(.0)  IMPROVED**:	Hourly and Daily crons set to specific run times.
+* **(.0)  IMPROVED**:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
+* **(.0)  IMPROVED**:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
+* **(.0)  IMPROVED**:	Simplification of many options and plugin configuration.
+* **(.0)  IMPROVED**:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
+* **(.0)  IMPROVED**:	Tweaks and changes to UI.
+* **(.0)  FIXED**:		Minor issues with the MFA page.
+* **(.0)  FIXED**:		Older Twig Library compatibility with PHP 7.4.
+* **(.0)  REMOVED**:	Several unused/useless options, including "Mask WordPress Version".
 
-= 8.4 - Series =
-*Released: 29th November, 2019* - [Release Notes](https://shsec.io/g5)
-
-* **(v.4)**  IMPROVED:	Discovered serious conflict with SiteGround Optimizer plugin. Provided admin notice and automatic fixing.
-* **(v.4)**  FIXED:		Protected against spurious error log notices when comparing hashes with "nothing".
-* **(v.3)**  FIXED:		Reduce chances of fatal error occurring during upgrade.
-* **(v.0)**  ADDED:		Charts of important events on Overview page highlight effectiveness of Shield.
-* **(v.0)**  ADDED:		Support for whitelisting IPv6 ranges.
-* **(v.0)**  ADDED:		Allow Audit Trail logging for Shield's Bot Detection features for all free installations.
-* **(v.0)**  IMPROVED:	Malware scanner false-positive lookups now use further intelligence from API.
-* **(v.0)**  IMPROVED:	Refactor Comment SPAM implementation away from inline-Javascript.
-* **(v.0)**  IMPROVED:	Consolidate Events/Statistics database table to significantly reduce DB size.
-* **(v.0)**  CLEANED:	Significant clean-out of old, deprecated, retired code.
-
-#### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+##### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)

@@ -47,6 +47,13 @@
 				for ( var i = 0; i < document.forms.length; i++ ) {
 					this.setupForm( document.forms[ i ] );
 				}
+				/**
+				 * For some crazy reason invisible recaptcha badge attaches to div with this class.
+				 * Fortunately removing the class at this stage doesn't interrupt normal behaviour.
+				 */
+				if ( bInvisible ) {
+					document.querySelector( 'form' ).classList.remove( 'shake' );
+				}
 			}
 		};
 	}();

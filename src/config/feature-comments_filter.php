@@ -3,6 +3,7 @@
   "properties":    {
     "slug":                  "comments_filter",
     "name":                  "Comments SPAM",
+    "sidebar_name":          "SPAM",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "commentsfilter",
@@ -33,16 +34,6 @@
       "summary":     [
         "Purpose - Blocks 100% of all automated bot-generated comment SPAM.",
         "Recommendation - Use of this feature is highly recommend."
-      ]
-    },
-    {
-      "slug":        "section_recaptcha",
-      "title":       "Google reCAPTCHA",
-      "title_short": "reCAPTCHA",
-      "summary":     [
-        "Purpose - Adds Google reCAPTCHA to the Comment Forms.",
-        "Recommendation - Keep this turned on.",
-        "Note - You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
       ]
     },
     {
@@ -129,6 +120,39 @@
       "description": "Shield doesn't normally scan comments from logged-in or registered users. Specify user roles here that shouldn't be scanned."
     },
     {
+      "key":           "google_recaptcha_style_comments",
+      "section":       "section_bot_comment_spam_protection_filter",
+      "default":       "disabled",
+      "type":          "select",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "default",
+          "text":      "Default Style"
+        },
+        {
+          "value_key": "light",
+          "text":      "Light Theme"
+        },
+        {
+          "value_key": "dark",
+          "text":      "Dark Theme"
+        },
+        {
+          "value_key": "invisible",
+          "text":      "Invisible"
+        }
+      ],
+      "link_info":     "https://shsec.io/e4",
+      "link_blog":     "",
+      "name":          "CAPTCHA",
+      "summary":       "Enable CAPTCHA To Protect Against SPAM Comments",
+      "description":   "You can choose the CAPTCHA display format that best suits your site, including the newer Invisible CAPTCHA."
+    },
+    {
       "key":         "enable_comments_gasp_protection",
       "section":     "section_bot_comment_spam_protection_filter",
       "default":     "N",
@@ -138,18 +162,6 @@
       "name":        "GASP Protection",
       "summary":     "Block Bot Comment SPAM",
       "description": "Taking the lead from the original GASP plugin for WordPress, we have extended it to include advanced spam-bot protection."
-    },
-    {
-      "key":         "comments_cooldown_interval",
-      "section":     "section_bot_comment_spam_protection_filter",
-      "default":     10,
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "https://shsec.io/3o",
-      "link_blog":   "",
-      "name":        "Comments Cooldown",
-      "summary":     "Limit posting comments to X seconds after the page has loaded",
-      "description": "By forcing a comments cooldown period, you restrict a Spambot's ability to post multiple times to your posts."
     },
     {
       "key":           "comments_default_action_spam_bot",
@@ -176,7 +188,7 @@
       ],
       "link_info":     "https://shsec.io/6j",
       "link_blog":     "",
-      "name":          "Default SPAM Action",
+      "name":          "SPAM Action",
       "summary":       "How To Categorise Comments When Identified To Be SPAM",
       "description":   "When a comment is detected as being SPAM from an automatic bot, the comment will be categorised based on this setting."
     },
@@ -190,50 +202,6 @@
       "name":        "Human SPAM Filter",
       "summary":     "Enable (or Disable) The Human SPAM Filter module",
       "description": "Scans the content of WordPress comments for keywords that are indicative of SPAM and marks the comment according to your preferred setting below."
-    },
-    {
-      "key":           "enable_comments_human_spam_filter_items",
-      "section":       "section_human_spam_filter",
-      "type":          "multiple_select",
-      "default":       [
-        "author_name",
-        "author_email",
-        "comment_content",
-        "url",
-        "ip_address",
-        "user_agent"
-      ],
-      "value_options": [
-        {
-          "value_key": "author_name",
-          "text":      "Author Name"
-        },
-        {
-          "value_key": "author_email",
-          "text":      "Author Email"
-        },
-        {
-          "value_key": "comment_content",
-          "text":      "Comment Content"
-        },
-        {
-          "value_key": "url",
-          "text":      "URL"
-        },
-        {
-          "value_key": "ip_address",
-          "text":      "IP Address"
-        },
-        {
-          "value_key": "user_agent",
-          "text":      "Browser User Agent"
-        }
-      ],
-      "link_info":     "https://shsec.io/58",
-      "link_blog":     "",
-      "name":          "Comment Filter Items",
-      "summary":       "Select The Items To Scan For SPAM",
-      "description":   "When a user submits a comment, only the selected parts of the comment data will be scanned for SPAM content."
     },
     {
       "key":           "comments_default_action_human_spam",
@@ -258,62 +226,9 @@
           "text":      "Block And Redirect"
         }
       ],
-      "name":          "Default SPAM Action",
+      "name":          "SPAM Action",
       "summary":       "How To Categorise Comments When Identified To Be SPAM'",
       "description":   "When a comment is detected as being SPAM from a human commenter, the comment will be categorised based on this setting."
-    },
-    {
-      "key":         "enable_google_recaptcha_comments",
-      "section":     "section_recaptcha",
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/shld5",
-      "link_blog":   "",
-      "name":        "Google reCAPTCHA",
-      "summary":     "Enable Google reCAPTCHA For Comments",
-      "description": "Use Google reCAPTCHA on the comments form to prevent bot-spam comments."
-    },
-    {
-      "key":           "google_recaptcha_style_comments",
-      "section":       "section_recaptcha",
-      "premium":       true,
-      "default":       "default",
-      "type":          "select",
-      "value_options": [
-        {
-          "value_key": "default",
-          "text":      "Default Style"
-        },
-        {
-          "value_key": "light",
-          "text":      "Light Theme"
-        },
-        {
-          "value_key": "dark",
-          "text":      "Dark Theme"
-        },
-        {
-          "value_key": "invisible",
-          "text":      "Invisible"
-        }
-      ],
-      "link_info":     "https://shsec.io/e4",
-      "link_blog":     "",
-      "name":          "reCAPTCHA Style",
-      "summary":       "How Google reCAPTCHA Will Be Displayed",
-      "description":   "You can choose the reCAPTCHA display format that best suits your site, including the new Invisible Recaptcha."
-    },
-    {
-      "key":         "comments_token_expire_interval",
-      "section":     "section_bot_comment_spam_protection_filter",
-      "default":     600,
-      "min":         0,
-      "type":        "integer",
-      "link_info":   "https://shsec.io/3o",
-      "link_blog":   "https://shsec.io/9v",
-      "name":        "Comment Token Expire",
-      "summary":     "A visitor has X seconds within which to post a comment",
-      "description": "Default: 600 seconds (10 minutes). Each visitor is given a unique 'Token' so they can comment. This restricts spambots, but we need to force these tokens to expire and at the same time not bother the visitors."
     },
     {
       "key":         "custom_message_checkbox",
@@ -362,20 +277,32 @@
       "name":        "Custom Reload Message",
       "summary":     "If you want a custom message when the comment token has expired, please provide this here.",
       "description": "This message is displayed on the submit-button when the comment token is expired."
+    },
+    {
+      "key":     "comments_cooldown",
+      "section": "section_non_ui",
+      "default": 10,
+      "min":     0,
+      "type":    "integer"
+    },
+    {
+      "key":     "human_spam_items",
+      "section": "section_non_ui",
+      "type":    "array",
+      "default": [
+        "author_name",
+        "author_email",
+        "comment_content",
+        "url",
+        "ip_address",
+        "user_agent"
+      ]
     }
   ],
   "definitions":   {
-    "url_spam_blacklist_terms":              "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
-    "spambot_comments_filter_table_name":    "spambot_comments_filter",
-    "spambot_comments_filter_table_columns": [
-      "id",
-      "post_id",
-      "unique_token",
-      "ip",
-      "created_at",
-      "deleted_at"
-    ],
-    "events":                                {
+    "comments_expire": 1800,
+    "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
+    "events":                   {
       "spam_block_bot":       {
         "recent":  true,
         "offense": true

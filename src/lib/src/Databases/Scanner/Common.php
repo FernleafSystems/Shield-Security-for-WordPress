@@ -40,6 +40,20 @@ trait Common {
 	}
 
 	/**
+	 * @return $this
+	 */
+	public function filterByNotified() {
+		return $this->addWhereOlderThan( 0, 'notified_at' );
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function filterByNotNotified() {
+		return $this->addWhereEquals( 'notified_at', 0 );
+	}
+
+	/**
 	 * @param int $nInterval
 	 * @return $this
 	 */

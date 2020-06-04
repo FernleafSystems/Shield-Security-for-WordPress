@@ -30,7 +30,7 @@ class ScheduleBuildAll extends BaseBulk {
 	public function schedule() {
 		$sHook = $this->getCronHook();
 		if ( wp_next_scheduled( $sHook ) === false && count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-			wp_schedule_single_event( Services::Request()->ts() + 30, $sHook );
+			wp_schedule_single_event( Services::Request()->ts() + 15, $sHook );
 		}
 	}
 

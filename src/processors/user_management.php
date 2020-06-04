@@ -42,6 +42,10 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 		add_action( 'user_register', function ( $nUserId ) {
 			$this->getCon()->getUserMeta( Services::WpUsers()->getUserById( $nUserId ) );
 		} );
+
+		( new UserManagement\Lib\Registration\EmailValidate() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	/**

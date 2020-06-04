@@ -18,7 +18,6 @@ abstract class BaseScanFromFileMap {
 	 * @return Scans\Base\BaseResultsSet
 	 */
 	public function run() {
-		/** @var Scans\Base\BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		$oResultSet = $oAction->getNewResultsSet();
 

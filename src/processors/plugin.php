@@ -1,48 +1,35 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 		parent::run();
+		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
+		$oMod = $this->getMod();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
-		$this->getSubProCronDaily()->execute();
-		$this->getSubProCronHourly()->execute();
-
 		$this->removePluginConflicts();
 
-		( new Plugin\Components\PluginBadge() )
-			->setMod( $this->getMod() )
-			->run();
+		$oMod->getPluginBadgeCon()->run();
 
 		if ( $oOpts->isTrackingEnabled() || !$oOpts->isTrackingPermissionSet() ) {
 			$this->getSubProTracking()->execute();
 		}
 
 		if ( $oOpts->isImportExportPermitted() ) {
-			$this->getSubProImportExport()->execute();
+			$oMod->getImpExpController()->run();
 		}
 
 		$oCon = $this->getCon();
 		switch ( $oCon->getShieldAction() ) {
 			case 'dump_tracking_data':
 				add_action( 'wp_loaded', [ $this, 'dumpTrackingData' ] );
-				break;
-
-			case 'importexport_export':
-			case 'importexport_import':
-			case 'importexport_handshake':
-			case 'importexport_updatenotified':
-				if ( $oOpts->isImportExportPermitted() ) {
-					add_action( 'init', [ $this->getSubProImportExport(), 'runAction' ] );
-				}
 				break;
 			default:
 				break;
@@ -53,56 +40,30 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 		add_filter( $oCon->prefix( 'delete_on_deactivate' ), function ( $bDelete ) use ( $oOpts ) {
 			return $bDelete || $oOpts->isOpt( 'delete_on_deactivate', 'Y' );
 		} );
+
+		add_action( $oCon->prefix( 'dashboard_widget_content' ),
+			[ $this, 'printDashboardWidget' ],
+			100
+		);
 	}
 
-	public function onWpLoaded() {
-		$oCon = $this->getCon();
-		if ( $oCon->isValidAdminArea() ) {
-			$this->maintainPluginLoadPosition();
-		}
-		add_filter( $oCon->prefix( 'dashboard_widget_content' ), [ $this, 'gatherPluginWidgetContent' ], 100 );
-	}
-
-	/**
-	 * @param array $aContent
-	 * @return array
-	 */
-	public function gatherPluginWidgetContent( $aContent ) {
+	public function printDashboardWidget() {
 		$oCon = $this->getCon();
 		/** @var Plugin\Options $oOpts */
 		$oOpts = $this->getOptions();
-
 		$aLabels = $oCon->getLabels();
-		$sFooter = sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
-			sprintf( '<a href="%s">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
+
+		echo $this->getMod()->renderTemplate(
+			'snippets/widget_dashboard_plugin.php',
+			[
+				'install_days' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $oOpts->getInstallationDays() ),
+				'footer'       => sprintf( __( '%s is provided by %s', 'wp-simple-firewall' ), $oCon->getHumanName(),
+					sprintf( '<a href="%s" target="_blank">%s</a>', $aLabels[ 'AuthorURI' ], $aLabels[ 'Author' ] )
+				),
+				'ip_address'   => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), Services::IP()
+																										 ->getRequestIp() )
+			]
 		);
-
-		$aDisplayData = [
-			'sInstallationDays' => sprintf( __( 'Days Installed: %s', 'wp-simple-firewall' ), $oOpts->getInstallationDays() ),
-			'sFooter'           => $sFooter,
-			'sIpAddress'        => sprintf( __( 'Your IP address is: %s', 'wp-simple-firewall' ), Services::IP()
-																										  ->getRequestIp() )
-		];
-
-		if ( !is_array( $aContent ) ) {
-			$aContent = [];
-		}
-		$aContent[] = $this->getMod()->renderTemplate( 'snippets/widget_dashboard_plugin.php', $aDisplayData );
-		return $aContent;
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_Plugin_CronDaily
-	 */
-	protected function getSubProCronDaily() {
-		return $this->getSubPro( 'crondaily' );
-	}
-
-	/**
-	 * @return \ICWP_WPSF_Processor_Plugin_CronHourly
-	 */
-	protected function getSubProCronHourly() {
-		return $this->getSubPro( 'cronhourly' );
 	}
 
 	/**
@@ -113,21 +74,11 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_Processor_Plugin_ImportExport
-	 */
-	public function getSubProImportExport() {
-		return $this->getSubPro( 'importexport' );
-	}
-
-	/**
 	 * @return array
 	 */
 	protected function getSubProMap() {
 		return [
-			'importexport' => 'ICWP_WPSF_Processor_Plugin_ImportExport',
-			'tracking'     => 'ICWP_WPSF_Processor_Plugin_Tracking',
-			'crondaily'    => 'ICWP_WPSF_Processor_Plugin_CronDaily',
-			'cronhourly'   => 'ICWP_WPSF_Processor_Plugin_CronHourly',
+			'tracking' => 'ICWP_WPSF_Processor_Plugin_Tracking',
 		];
 	}
 
@@ -147,8 +98,9 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 				],
 				'js_snippets' => []
 			];
-			echo $this->getMod()
-					  ->renderTemplate( 'snippets/toaster.twig', $aRenderData, true );
+			echo $this->getMod()->renderTemplate(
+				'snippets/toaster.twig', $aRenderData, true
+			);
 		}
 	}
 
@@ -174,35 +126,38 @@ class ICWP_WPSF_Processor_Plugin extends Modules\BaseShield\ShieldProcessor {
 				],
 				'js_snippets' => []
 			];
-			echo $this->getMod()
-					  ->renderTemplate( 'snippets/plugin-deactivate-survey.php', $aData );
+			echo $this->getMod()->renderTemplate(
+				'snippets/plugin-deactivate-survey.php', $aData
+			);
 		}
 	}
 
-	/**
-	 */
 	public function dumpTrackingData() {
 		if ( $this->getCon()->isPluginAdmin() ) {
-			echo sprintf( '<pre><code>%s</code></pre>', print_r( $this->getSubProTracking()
-																	  ->collectTrackingData(), true ) );
+			echo sprintf( '<pre><code>%s</code></pre>',
+				print_r( $this->getSubProTracking()->collectTrackingData(), true ) );
 			die();
 		}
 	}
 
 	public function runDailyCron() {
 		$this->getCon()->fireEvent( 'test_cron_run' );
-	}
 
-	/**
-	 * Sets this plugin to be the first loaded of all the plugins.
-	 */
-	protected function maintainPluginLoadPosition() {
-		$oWpPlugins = Services::WpPlugins();
-		$sBaseFile = $this->getCon()->getPluginBaseFile();
-		$nLoadPosition = $oWpPlugins->getActivePluginLoadPosition( $sBaseFile );
-		if ( $nLoadPosition !== 0 && $nLoadPosition > 0 ) {
-			$oWpPlugins->setActivePluginLoadFirst( $sBaseFile );
+		/** @var Plugin\Options $oOpts */
+		$oOpts = $this->getOptions();
+		if ( $oOpts->isImportExportPermitted() ) {
+			try {
+				( new Plugin\Lib\ImportExport\Import() )
+					->setMod( $this->getMod() )
+					->fromSite( $oOpts->getImportExportMasterImportUrl() );
+			}
+			catch ( Exception $oE ) {
+			}
 		}
+
+		( new Shield\Utilities\Options\CleanStorage() )
+			->setCon( $this->getCon() )
+			->run();
 	}
 
 	/**

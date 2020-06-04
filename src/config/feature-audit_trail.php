@@ -3,6 +3,7 @@
   "properties":  {
     "slug":                  "audit_trail",
     "name":                  "Audit Trail",
+    "sidebar_name":          "Audit Trail",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "audit_trail",
@@ -90,7 +91,7 @@
       "default":     1000,
       "min":         0,
       "type":        "integer",
-      "link_info":   "",
+      "link_info":   "https://shsec.io/hc",
       "link_blog":   "",
       "name":        "Max Trail Length",
       "summary":     "Maximum Audit Trail Length To Keep",
@@ -234,7 +235,7 @@
     "db_classes":                      {
       "audit": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\AuditTrail\\Handler"
     },
-    "audit_trail_default_max_entries": 100,
+    "audit_trail_free_max_entries": 100,
     "audit_trail_table_name":          "audit_trail",
     "audit_trail_table_columns":       [
       "id",

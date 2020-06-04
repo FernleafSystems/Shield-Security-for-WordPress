@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
@@ -54,6 +55,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_TurnOffSiteGroundOptions();
 				break;
 
+			case 'ipdetect':
+				$aResponse = $this->ajaxExec_IpDetect();
+				break;
+
 			case 'mark_tour_finished':
 				$aResponse = $this->ajaxExec_MarkTourFinished();
 				break;
@@ -92,12 +97,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	private function ajaxExec_PluginBadgeClose() {
 		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
 		$oMod = $this->getMod();
-		$bSuccess = Services::Response()
-							->cookieSet(
-								$oMod->getCookieIdBadgeState(),
-								'closed',
-								DAY_IN_SECONDS
-							);
+		$bSuccess = $oMod->getPluginBadgeCon()->setBadgeStateClosed();
 		return [
 			'success' => $bSuccess,
 			'message' => $bSuccess ? 'Badge Closed' : 'Badge Not Closed'
@@ -220,9 +220,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_ImportFromSite() {
-		/** @var \ICWP_WPSF_FeatureHandler_Plugin $oMod */
-		$oMod = $this->getMod();
-
 		$bSuccess = false;
 		$aFormParams = array_merge(
 			[
@@ -242,14 +239,19 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$bDisableNetwork = $aFormParams[ 'ShieldNetwork' ] === 'N';
 			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
 
-			/** @var \ICWP_WPSF_Processor_Plugin $oP */
-			$oP = $oMod->getProcessor();
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$nCode = $oP->getSubProImportExport()
-						->runImport( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			try {
+				$nCode = ( new Plugin\Lib\ImportExport\Import() )
+					->setMod( $this->getMod() )
+					->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			}
+			catch ( \Exception $oE ) {
+				$nCode = $oE->getCode();
+			}
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}
+
 		return [
 			'success' => $bSuccess,
 			'message' => $sMessage
@@ -293,6 +295,22 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'success' => $bSuccess,
 			'message' => $bSuccess ? __( 'Switching-off conflicting options appears to have been successful.', 'wp-simple-firewall' )
 				: __( 'Switching-off conflicting options appears to have failed.', 'wp-simple-firewall' )
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_IpDetect() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		$sSource = ( new FindSourceFromIp() )->run( Services::Request()->post( 'ip' ) );
+		if ( !empty( $sSource ) ) {
+			$oOpts->setVisitorAddressSource( $sSource );
+		}
+		return [
+			'success' => !empty( $sSource ),
+			'message' => empty( $sSource ) ? 'Could not find source' : 'IP Source Found: '.$sSource
 		];
 	}
 

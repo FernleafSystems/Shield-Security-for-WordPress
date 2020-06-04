@@ -45,15 +45,8 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return int
 	 */
-	public function getDefaultMaxEntries() {
-		return $this->getDef( 'audit_trail_default_max_entries' );
-	}
-
-	/**
-	 * @return int
-	 */
 	public function getMaxEntries() {
-		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDefaultMaxEntries();
+		return $this->isPremium() ? (int)$this->getOpt( 'audit_trail_max_entries' ) : $this->getDef( 'audit_trail_free_max_entries' );
 	}
 
 	/**

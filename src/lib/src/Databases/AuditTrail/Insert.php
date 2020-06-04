@@ -22,6 +22,9 @@ class Insert extends Base\Insert {
 		if ( isset( $aData[ 'data' ] ) && !is_string( $aData[ 'data' ] ) ) {
 			$aData[ 'data' ] = '';
 		}
+		if ( empty( $aData[ 'ip' ] ) || !Services::IP()->isValidIp( $aData[ 'ip' ] ) ) {
+			$aData[ 'ip' ] = '';
+		}
 
 		return $this->setInsertData( $aData );
 	}

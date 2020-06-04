@@ -10,6 +10,16 @@ class Terminate {
 	use ModConsumer;
 
 	/**
+	 * @return bool
+	 */
+	public function all() {
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
+		$oMod = $this->getMod();
+		return $oMod->getDbHandler_Sessions()
+					->deleteTable( true );
+	}
+
+	/**
 	 * @param int $nId
 	 * @return bool
 	 */

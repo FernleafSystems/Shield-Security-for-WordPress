@@ -3,6 +3,7 @@
   "properties":  {
     "slug":                  "lockdown",
     "name":                  "WP Lockdown",
+    "sidebar_name":          "Lockdown",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "lockdown",
@@ -113,7 +114,7 @@
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4q",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/hk",
       "name":        "Disable File Editing",
       "summary":     "Disable Ability To Edit Files From Within WordPress",
       "description": "Removes the option to directly edit any files from within the WordPress admin area. Equivalent to setting 'DISALLOW_FILE_EDIT' to TRUE."
@@ -128,17 +129,6 @@
       "name":        "Force SSL Admin",
       "summary":     "Forces WordPress Admin Dashboard To Be Delivered Over SSL",
       "description": "Please only enable this option if you have a valid SSL certificate installed. Equivalent to setting 'FORCE_SSL_ADMIN' to TRUE."
-    },
-    {
-      "key":         "mask_wordpress_version",
-      "section":     "section_wordpress_obscurity_options",
-      "default":     "",
-      "type":        "text",
-      "link_info":   "https://shsec.io/43",
-      "link_blog":   "",
-      "name":        "Mask WordPress Version",
-      "summary":     "Prevents Public Display Of Your WordPress Version",
-      "description": "Enter how you would like your WordPress version displayed publicly. Leave blank to disable this feature. Warning: This may interfere with WordPress plugins that rely on the $wp_version variable."
     },
     {
       "key":         "hide_wordpress_generator_tag",

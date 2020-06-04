@@ -2,10 +2,29 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller;
 
+use FernleafSystems\Utilities\Data\Adapter\StdClassAdapter;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
-class Controller extends Shield\Deprecated\Foundation {
+/**
+ * Class Controller
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Controller
+ * @property bool                                     $is_activating
+ * @property bool                                     $modules_loaded
+ * @property bool                                     $rebuild_options
+ * @property bool                                     $plugin_deactivating
+ * @property bool                                     $plugin_deleting
+ * @property bool                                     $plugin_reset
+ * @property string                                   $file_forceoff
+ * @property string                                   $base_file
+ * @property string                                   $root_file
+ * @property bool                                     $user_can_base_permissions
+ * @property Shield\Modules\Events\Lib\EventsService  $service_events
+ * @property mixed[]|\ICWP_WPSF_FeatureHandler_Base[] $modules
+ */
+class Controller {
+
+	use StdClassAdapter;
 
 	/**
 	 * @var \stdClass
@@ -31,16 +50,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @var string
 	 */
 	protected $sForceOffFile;
-
-	/**
-	 * @var bool
-	 */
-	protected $bResetPlugin;
-
-	/**
-	 * @var bool
-	 */
-	protected $bPluginDeleting = false;
 
 	/**
 	 * @var string
@@ -116,6 +125,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( !isset( $this->oEventsService ) ) {
 			$this->oEventsService = ( new Shield\Modules\Events\Lib\EventsService() )
 				->setCon( $this );
+			$this->service_events = $this->oEventsService;
 		}
 		return $this->oEventsService;
 	}
@@ -138,6 +148,10 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	protected function __construct( $sRootFile ) {
 		$this->sRootFile = $sRootFile;
+		$this->root_file = $sRootFile;
+		$this->base_file = $this->getRootFile();
+		$this->modules = [];
+
 		$this->loadServices();
 		$this->checkMinimumRequirements();
 		$this->doRegisterHooks();
@@ -262,14 +276,13 @@ class Controller extends Shield\Deprecated\Foundation {
 		return $this->aRequirementsMessages;
 	}
 
-	/**
-	 */
 	public function onWpDeactivatePlugin() {
 		do_action( $this->prefix( 'pre_deactivate_plugin' ) );
 		if ( $this->isPluginAdmin() ) {
 			do_action( $this->prefix( 'deactivate_plugin' ) );
+			$this->plugin_deactivating = true;
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
-				$this->bPluginDeleting = true;
+				$this->plugin_deleting = true;
 				do_action( $this->prefix( 'delete_plugin' ) );
 				$this->deletePluginControllerOptions();
 			}
@@ -278,7 +291,11 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	public function onWpActivatePlugin() {
-		$this->getModule_Plugin()->setActivatedAt();
+		$this->is_activating = true;
+		$oModPlugin = $this->getModule_Plugin();
+		if ( $oModPlugin instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			$oModPlugin->setActivatedAt();
+		}
 	}
 
 	/**
@@ -344,7 +361,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		add_filter( 'auto_update_plugin', [ $this, 'onWpAutoUpdate' ], 500, 2 );
 		add_filter( 'set_site_transient_update_plugins', [ $this, 'setUpdateFirstDetectedAt' ] );
 
-		add_action( 'shutdown', [ $this, 'onWpShutdown' ], 0 );
+		add_action( 'shutdown', [ $this, 'onWpShutdown' ], -1 );
 		add_action( 'wp_logout', [ $this, 'onWpLogout' ] );
 
 		// GDPR
@@ -384,9 +401,8 @@ class Controller extends Shield\Deprecated\Foundation {
 	/**
 	 */
 	public function onWpAdminInit() {
-		if ( $this->getPluginSpec_Property( 'show_dashboard_widget' ) === true ) {
-			add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
-		}
+		add_action( 'admin_bar_menu', [ $this, 'onWpAdminBarMenu' ], 100 );
+		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminCss' ], 100 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'onWpEnqueueAdminJs' ], 5 );
 
@@ -394,7 +410,8 @@ class Controller extends Shield\Deprecated\Foundation {
 			$this->runTests();
 		}
 
-		if ( !Services::WpGeneral()->isAjax() && function_exists( 'wp_add_privacy_policy_content' ) ) {
+		if ( !empty( $this->modules_loaded ) && !Services::WpGeneral()->isAjax()
+			 && function_exists( 'wp_add_privacy_policy_content' ) ) {
 			wp_add_privacy_policy_content( $this->getHumanName(), $this->buildPrivacyPolicyContent() );
 		}
 	}
@@ -425,29 +442,70 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * Only set to rebuild as required if you're doing so at the same point in the WordPress load each time.
+	 * Certain plugins can modify the ID at different points in the load.
 	 * @return string - the unique, never-changing site install ID.
 	 */
 	public function getSiteInstallationId() {
+		$oWP = Services::WpGeneral();
 		$sOptKey = $this->prefixOption( 'install_id' );
-		$sId = (string)Services::WpGeneral()->getOption( $sOptKey );
 
-		$sUrl = base64_encode( Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl( '', true ) ) );
-		if ( empty( $sId ) || strpos( $sId, ':' ) == false || strpos( $sId, $sUrl ) !== 0 ) {
-			$sId = $sUrl.':'.sha1( uniqid( Services::WpGeneral()->getHomeUrl( '', true ), true ) );
-			Services::WpGeneral()->updateOption( $sOptKey, $sId );
+		$mStoredID = $oWP->getOption( $sOptKey );
+		if ( is_array( $mStoredID ) && !empty( $mStoredID[ 'id' ] ) ) {
+			$sID = $mStoredID[ 'id' ];
+			$bUpdate = true;
 		}
-		return str_replace( $sUrl.':', '', $sId );
+		elseif ( is_string( $mStoredID ) && strpos( $mStoredID, ':' ) ) {
+			$sID = explode( ':', $mStoredID, 2 )[ 1 ];
+			$bUpdate = true;
+		}
+		else {
+			$sID = $mStoredID;
+			$bUpdate = false;
+		}
+
+		if ( empty( $sID ) || !is_string( $sID ) || ( strlen( $sID ) !== 40 && !\Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
+			try {
+				$sID = \Ramsey\Uuid\Uuid::uuid4()->toString();
+			}
+			catch ( \Exception $e ) {
+				$sID = sha1( uniqid( $oWP->getHomeUrl( '', true ), true ) );
+			}
+			$bUpdate = true;
+		}
+
+		if ( $bUpdate ) {
+			$oWP->updateOption( $sOptKey, $sID );
+		}
+
+		return $sID;
 	}
 
 	/**
+	 * TODO: Use to set ID after license verify where applicable
+	 * @param string $sID
 	 */
+	public function setSiteInstallID( $sID ) {
+		if ( !empty( $sID ) && ( \Ramsey\Uuid\Uuid::isValid( $sID ) ) ) {
+			Services::WpGeneral()->updateOption( $this->prefixOption( 'install_id' ), $sID );
+		}
+	}
+
 	public function onWpLoaded() {
 		$this->getAdminNotices();
-		add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueFrontendCss' ], 99 );
-
+		$this->initCrons();
 		if ( $this->isPremiumActive() ) {
 			$this->initMainWpDashboardExtention();
 		}
+	}
+
+	protected function initCrons() {
+		( new Shield\Crons\HourlyCron() )
+			->setCon( $this )
+			->run();
+		( new Shield\Crons\DailyCron() )
+			->setCon( $this )
+			->run();
 	}
 
 	private function initMainWpDashboardExtention() {
@@ -512,20 +570,47 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @param \WP_Admin_Bar $oAdminBar
 	 */
-	public function onWpDashboardSetup() {
-		if ( $this->isValidAdminArea() ) {
-			wp_add_dashboard_widget(
-				$this->prefix( 'dashboard_widget' ),
-				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
-				[ $this, 'displayDashboardWidget' ]
-			);
+	public function onWpAdminBarMenu( $oAdminBar ) {
+		$bShow = apply_filters( $this->prefix( 'show_admin_bar_menu' ),
+			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
+		);
+		if ( $bShow ) {
+			$aMenuItems = apply_filters( $this->prefix( 'admin_bar_menu_items' ), [] );
+			if ( !empty( $aMenuItems ) && is_array( $aMenuItems ) ) {
+				$nCountWarnings = 0;
+				foreach ( $aMenuItems as $aMenuItem ) {
+					$nCountWarnings += isset( $aMenuItem[ 'warnings' ] ) ? $aMenuItem[ 'warnings' ] : 0;
+				}
+
+				$sNodeId = $this->prefix( 'adminbarmenu' );
+				$oAdminBar->add_node( [
+					'id'    => $sNodeId,
+					'title' => $this->getHumanName()
+							   .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountWarnings ),
+				] );
+				foreach ( $aMenuItems as $aMenuItem ) {
+					$aMenuItem[ 'parent' ] = $sNodeId;
+					$oAdminBar->add_menu( $aMenuItem );
+				}
+			}
 		}
 	}
 
-	public function displayDashboardWidget() {
-		$aContent = apply_filters( $this->prefix( 'dashboard_widget_content' ), [] );
-		echo implode( '', $aContent );
+	public function onWpDashboardSetup() {
+		$bShow = apply_filters( $this->prefix( 'show_dashboard_widget' ),
+			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_dashboard_widget' )
+		);
+		if ( $bShow ) {
+			wp_add_dashboard_widget(
+				$this->prefix( 'dashboard_widget' ),
+				apply_filters( $this->prefix( 'dashboard_widget_title' ), $this->getHumanName() ),
+				function () {
+					do_action( $this->prefix( 'dashboard_widget_content' ) );
+				}
+			);
+		}
 	}
 
 	/**
@@ -533,6 +618,10 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getAdminNotices() {
 		if ( !isset( $this->oNotices ) ) {
+			if ( $this->getIsPage_PluginAdmin() ) {
+				remove_all_filters( 'admin_notices' );
+				remove_all_filters( 'network_admin_notices' );
+			}
 			$this->oNotices = ( new Shield\Utilities\AdminNotices\Controller() )->setCon( $this );
 		}
 		return $this->oNotices;
@@ -547,6 +636,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			'action'     => $this->prefix(), //wp ajax doesn't work without this.
 			'exec'       => $sAction,
 			'exec_nonce' => wp_create_nonce( $sAction ),
+			//			'rand'       => wp_rand( 10000, 99999 )
 		];
 	}
 
@@ -554,12 +644,11 @@ class Controller extends Shield\Deprecated\Foundation {
 		$sNonceAction = Services::Request()->request( 'exec' );
 		check_ajax_referer( $sNonceAction, 'exec_nonce' );
 
-		$sAction = Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction';
 		ob_start();
-		$aResponseData = apply_filters( $this->prefix( $sAction ), [] );
-		if ( empty( $aResponseData ) ) {
-			$aResponseData = apply_filters( $this->prefix( 'ajaxAction' ), $aResponseData );
-		}
+		$aResponseData = apply_filters(
+			$this->prefix( Services::WpUsers()->isUserLoggedIn() ? 'ajaxAuthAction' : 'ajaxNonAuthAction' ),
+			[], $sNonceAction
+		);
 		$sNoise = ob_get_clean();
 
 		if ( is_array( $aResponseData ) && isset( $aResponseData[ 'success' ] ) ) {
@@ -726,57 +815,59 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	public function onWpEnqueueFrontendCss() {
-
 		$aFrontendIncludes = $this->getPluginSpec_Include( 'frontend' );
 		if ( isset( $aFrontendIncludes[ 'css' ] ) && !empty( $aFrontendIncludes[ 'css' ] ) && is_array( $aFrontendIncludes[ 'css' ] ) ) {
-			foreach ( $aFrontendIncludes[ 'css' ] as $sCssAsset ) {
-				$sUnique = $this->prefix( $sCssAsset );
-				wp_register_style( $sUnique, $this->getPluginUrl_Css( $sCssAsset.'.css' ), ( empty( $sDependent ) ? false : $sDependent ), $this->getVersion() );
-				wp_enqueue_style( $sUnique );
-				$sDependent = $sUnique;
+
+			$aDeps = [];
+			foreach ( $aFrontendIncludes[ 'css' ] as $sAsset ) {
+				$sUrl = $this->getPluginUrl_Css( $sAsset );
+				if ( !empty( $sUrl ) ) {
+					$sAsset = $this->prefix( $sAsset );
+					wp_register_style( $sAsset, $sUrl, $aDeps, $this->getVersion() );
+					wp_enqueue_style( $sAsset );
+					$aDeps[] = $aDeps;
+				}
 			}
 		}
 	}
 
 	public function onWpEnqueueAdminJs() {
-		$sVers = $this->getVersion();
 
-		$aAdminJs = $this->getPluginSpec_Include( 'admin' );
-		if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-			$sDep = false;
-			foreach ( $aAdminJs[ 'css' ] as $sAsset ) {
-				$sUrl = $this->getPluginUrl_Js( $sAsset );
-				if ( !empty( $sUrl ) ) {
-					$sUnique = $this->prefix( $sAsset );
-					wp_register_script( $sUnique, $sUrl, $sDep ? [ $sDep ] : [], $sVers );
-					wp_enqueue_script( $sUnique );
-					$sDep = $sUnique;
-				}
+		$aIncludes = [];
+		if ( $this->getIsPage_PluginAdmin() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'plugin_admin' );
+			if ( !empty( $aAdminIncludes[ 'js' ] ) && is_array( $aAdminIncludes[ 'js' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'js' ];
+			}
+		}
+		elseif ( $this->isValidAdminArea() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'admin' );
+			if ( !empty( $aAdminIncludes[ 'js' ] ) && is_array( $aAdminIncludes[ 'js' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'js' ];
 			}
 		}
 
-		if ( $this->getIsPage_PluginAdmin() ) {
-			$aAdminJs = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( !empty( $aAdminJs[ 'js' ] ) && is_array( $aAdminJs[ 'js' ] ) ) {
-				$sDep = false;
-				foreach ( $aAdminJs[ 'js' ] as $sAsset ) {
+		$aBuiltIn = [
+			'jquery'
+		];
 
-					// Built-in handles
-					if ( in_array( $sAsset, [ 'jquery' ] ) ) {
-						if ( wp_script_is( $sAsset, 'registered' ) ) {
-							wp_enqueue_script( $sAsset );
-							$sDep = $sAsset;
-						}
-						continue;
-					}
+		$aDeps = [];
+		foreach ( $aIncludes as $sAsset ) {
 
-					$sUrl = $this->getPluginUrl_Js( $sAsset );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sAsset );
-						wp_register_script( $sUnique, $sUrl, $sDep ? [ $sDep ] : [], $sVers );
-						wp_enqueue_script( $sUnique );
-						$sDep = $sUnique;
-					}
+			// Built-in handles
+			if ( in_array( $sAsset, $aBuiltIn ) ) {
+				if ( wp_script_is( $sAsset, 'registered' ) ) {
+					wp_enqueue_script( $sAsset );
+					$aDeps[] = $sAsset;
+				}
+			}
+			else {
+				$sUrl = $this->getPluginUrl_Js( $sAsset );
+				if ( !empty( $sUrl ) ) {
+					$sAsset = $this->prefix( $sAsset );
+					wp_register_script( $sAsset, $sUrl, $aDeps, $this->getVersion() );
+					wp_enqueue_script( $sAsset );
+					$aDeps[] = $sAsset;
 				}
 			}
 		}
@@ -784,35 +875,28 @@ class Controller extends Shield\Deprecated\Foundation {
 
 	public function onWpEnqueueAdminCss() {
 
-		if ( $this->isValidAdminArea() ) {
-			$aAdminCss = $this->getPluginSpec_Include( 'admin' );
-			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
-				$sDependent = false;
-				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
-						wp_enqueue_style( $sUnique );
-						$sDependent = $sUnique;
-					}
-				}
+		$aIncludes = [];
+		if ( $this->getIsPage_PluginAdmin() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'plugin_admin' );
+			if ( !empty( $aAdminIncludes[ 'css' ] ) && is_array( $aAdminIncludes[ 'css' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'css' ];
+			}
+		}
+		elseif ( $this->isValidAdminArea() ) {
+			$aAdminIncludes = $this->getPluginSpec_Include( 'admin' );
+			if ( !empty( $aAdminIncludes[ 'css' ] ) && is_array( $aAdminIncludes[ 'css' ] ) ) {
+				$aIncludes = $aAdminIncludes[ 'css' ];
 			}
 		}
 
-		if ( $this->getIsPage_PluginAdmin() ) {
-			$aAdminCss = $this->getPluginSpec_Include( 'plugin_admin' );
-			if ( !empty( $aAdminCss[ 'css' ] ) && is_array( $aAdminCss[ 'css' ] ) ) {
-				$sDependent = false;
-				foreach ( $aAdminCss[ 'css' ] as $sCssAsset ) {
-					$sUrl = $this->getPluginUrl_Css( $sCssAsset.'.css' );
-					if ( !empty( $sUrl ) ) {
-						$sUnique = $this->prefix( $sCssAsset );
-						wp_register_style( $sUnique, $sUrl, $sDependent, $this->getVersion() );
-						wp_enqueue_style( $sUnique );
-						$sDependent = $sUnique;
-					}
-				}
+		$aDeps = [];
+		foreach ( $aIncludes as $sAsset ) {
+			$sUrl = $this->getPluginUrl_Css( $sAsset );
+			if ( !empty( $sUrl ) ) {
+				$sAsset = $this->prefix( $sAsset );
+				wp_register_style( $sAsset, $sUrl, $aDeps, $this->getVersion() );
+				wp_enqueue_style( $sAsset );
+				$aDeps[] = $sAsset;
 			}
 		}
 	}
@@ -836,21 +920,28 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * Use logic in here to prevent display of future incompatible updates
+	 * Prevents upgrades to Shield versions when the system PHP version is too old.
 	 * @param \stdClass $oUpdates
 	 * @return \stdClass
 	 */
 	public function blockIncompatibleUpdates( $oUpdates ) {
-		/*
-		 * No longer used: prevent upgrades to v7.0 for php < 5.4
 		$sFile = $this->getPluginBaseFile();
 		if ( !empty( $oUpdates->response ) && isset( $oUpdates->response[ $sFile ] ) ) {
-			if ( version_compare( $oUpdates->response[ $sFile ]->new_version, '7.0.0', '>=' )
-				 && !$this->loadDP()->getPhpVersionIsAtLeast( '5.4.0' ) ) {
-				unset( $oUpdates->response[ $sFile ] );
+			$aUpgradeReqs = $this->getPluginSpec()[ 'upgrade_reqs' ];
+			if ( is_array( $aUpgradeReqs ) ) {
+				foreach ( $aUpgradeReqs as $sShieldVer => $aReqs ) {
+					$bNeedsHidden = version_compare( $oUpdates->response[ $sFile ]->new_version, $sShieldVer, '>=' )
+									&& (
+										!Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php' ] )
+										|| !Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp' ] )
+									);
+					if ( $bNeedsHidden ) {
+						unset( $oUpdates->response[ $sFile ] );
+						break;
+					}
+				}
 			}
 		}
-		 */
 		return $oUpdates;
 	}
 
@@ -874,13 +965,6 @@ class Controller extends Shield\Deprecated\Foundation {
 				}
 				if ( !isset( $oConOptions->update_first_detected[ $sNewVersion ] ) ) {
 					$oConOptions->update_first_detected[ $sNewVersion ] = Services::Request()->ts();
-				}
-
-				// a bit of cleanup to remove the old-style entries which would gather foreva-eva
-				foreach ( $oConOptions as $sKey => $aData ) {
-					if ( strpos( $sKey, 'update_first_detected_' ) !== false ) {
-						unset( $oConOptions->{$sKey} );
-					}
 				}
 			}
 		}
@@ -998,16 +1082,12 @@ class Controller extends Shield\Deprecated\Foundation {
 		$this->deleteFlags();
 	}
 
-	/**
-	 */
 	public function onWpLogout() {
 		if ( $this->hasSessionId() ) {
 			$this->clearSession();
 		}
 	}
 
-	/**
-	 */
 	protected function deleteFlags() {
 		$oFS = Services::WpFs();
 		if ( $oFS->exists( $this->getPath_Flags( 'rebuild' ) ) ) {
@@ -1213,13 +1293,6 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isPluginDeleting() {
-		return (bool)$this->bPluginDeleting;
-	}
-
-	/**
 	 * DO NOT CHANGE THIS IMPLEMENTATION. We call this as early as possible so that the
 	 * current_user_can() never gets caught up in an infinite loop of permissions checking
 	 * @return bool
@@ -1227,6 +1300,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	public function getMeetsBasePermissions() {
 		if ( did_action( 'init' ) && !isset( $this->bMeetsBasePermissions ) ) {
 			$this->bMeetsBasePermissions = current_user_can( $this->getBasePermissions() );
+			$this->user_can_base_permissions = $this->bMeetsBasePermissions;
 		}
 		return isset( $this->bMeetsBasePermissions ) ? $this->bMeetsBasePermissions : false;
 	}
@@ -1304,6 +1378,7 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		$oConOptions->hash = $sCurrentHash;
 		$oConOptions->mod_time = $sModifiedTime;
+		$this->rebuild_options = $this->bRebuildOptions;
 		return $this->bRebuildOptions;
 	}
 
@@ -1318,11 +1393,10 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return bool
 	 */
 	public function getIsResetPlugin() {
-		if ( !isset( $this->bResetPlugin ) ) {
-			$bExists = Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
-			$this->bResetPlugin = (bool)$bExists;
+		if ( !isset( $this->plugin_reset ) ) {
+			$this->plugin_reset = (bool)Services::WpFs()->isFile( $this->getPath_Flags( 'reset' ) );
 		}
-		return $this->bResetPlugin;
+		return $this->plugin_reset;
 	}
 
 	/**
@@ -1407,7 +1481,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 */
 	public function getPluginUrl_AdminMainPage() {
-		return $this->loadCorePluginFeatureHandler()->getUrl_AdminPage();
+		return $this->getModule_Plugin()->getUrl_AdminPage();
 	}
 
 	/**
@@ -1548,8 +1622,15 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return string
 	 */
 	public function getRootFile() {
-		if ( !isset( $this->sRootFile ) ) {
-			$this->sRootFile = __FILE__;
+		if ( empty( $this->sRootFile ) ) {
+			$oVO = ( new \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files() )
+				->findPluginFromFile( __FILE__ );
+			if ( $oVO instanceof \FernleafSystems\Wordpress\Services\Core\VOs\WpPluginVo ) {
+				$this->sRootFile = path_join( WP_PLUGIN_DIR, $oVO->file );
+			}
+			else {
+				$this->sRootFile = __FILE__;
+			}
 		}
 		return $this->sRootFile;
 	}
@@ -1566,6 +1647,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getTextDomain() {
 		return $this->getPluginSpec_Property( 'text_domain' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getBuild() {
+		return $this->getPluginSpec_Property( 'build' );
 	}
 
 	/**
@@ -1614,15 +1702,11 @@ class Controller extends Shield\Deprecated\Foundation {
 		return self::$oControllerOptions;
 	}
 
-	/**
-	 */
 	protected function deletePluginControllerOptions() {
 		$this->setPluginControllerOptions( false );
 		$this->saveCurrentPluginControllerOptions();
 	}
 
-	/**
-	 */
 	protected function deleteCronJobs() {
 		$oWpCron = Services::WpCron();
 		$aCrons = $oWpCron->getCrons();
@@ -1650,14 +1734,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return bool
 	 */
 	public function isPremiumActive() {
-		return apply_filters( $this->getPremiumLicenseFilterName(), false );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getPremiumLicenseFilterName() {
-		return $this->prefix( 'license_is_valid'.$this->getUniqueRequestId( false ) );
+		return $this->getModule_License()->getLicenseHandler()->hasValidWorkingLicense();
 	}
 
 	/**
@@ -1725,6 +1802,7 @@ class Controller extends Shield\Deprecated\Foundation {
 		if ( $this->getIfForceOffActive() ) {
 			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
 			$this->sForceOffFile = null;
+			unset( $this->file_forceoff );
 			clearstatcache();
 		}
 		return $this;
@@ -1745,6 +1823,7 @@ class Controller extends Shield\Deprecated\Foundation {
 			$oFs = Services::WpFs();
 			$sFile = $oFs->findFileInDir( 'forceOff', $this->getRootDir(), false, false );
 			$this->sForceOffFile = ( !empty( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
+			$this->file_forceoff = $this->sForceOffFile;
 		}
 		return $this->sForceOffFile;
 	}
@@ -1809,34 +1888,29 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return \ICWP_WPSF_FeatureHandler_Plugin
 	 * @throws \Exception from loadFeatureHandler()
 	 */
-	public function &loadCorePluginFeatureHandler() {
-		$sSlug = 'plugin';
-		$oMod = $this->getModule( $sSlug );
-		if ( is_null( $oMod ) ) {
-			$oMod = $this->loadFeatureHandler(
+	public function loadCorePluginFeatureHandler() {
+		if ( !isset( $this->modules[ 'plugin' ] )
+			 || !$this->modules[ 'plugin' ] instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			$this->loadFeatureHandler(
 				[
-					'slug'          => $sSlug,
-					'storage_key'   => $sSlug,
+					'slug'          => 'plugin',
+					'storage_key'   => 'plugin',
 					'load_priority' => 10
 				]
 			);
 		}
-		return $oMod;
+		return $this->modules[ 'plugin' ];
 	}
 
 	/**
-	 * @param bool $bRecreate
-	 * @param bool $bFullBuild
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public function loadAllFeatures( $bRecreate = false, $bFullBuild = false ) {
-
-		$oCoreModule = $this->loadCorePluginFeatureHandler();
-
+	public function loadAllFeatures() {
 		$bSuccess = true;
-		foreach ( $oCoreModule->getActivePluginFeatures() as $sSlug => $aFeatureProperties ) {
+		foreach ( array_keys( $this->loadCorePluginFeatureHandler()->getActivePluginFeatures() ) as $sSlug ) {
 			try {
-				$this->loadFeatureHandler( $aFeatureProperties, $bRecreate, $bFullBuild );
+				$this->getModule( $sSlug );
 				$bSuccess = true;
 			}
 			catch ( \Exception $oE ) {
@@ -1848,8 +1922,9 @@ class Controller extends Shield\Deprecated\Foundation {
 			}
 		}
 
+		$this->modules_loaded = true;
+		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
-
 		return $bSuccess;
 	}
 
@@ -1858,14 +1933,18 @@ class Controller extends Shield\Deprecated\Foundation {
 	 * @return \ICWP_WPSF_FeatureHandler_Base|null|mixed
 	 */
 	public function getModule( $sSlug ) {
-		if ( !is_array( $this->aModules ) ) {
-			$this->aModules = [];
+		$oMod = isset( $this->modules[ $sSlug ] ) ? $this->modules[ $sSlug ] : null;
+		if ( !$oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			try {
+				$aMods = $this->loadCorePluginFeatureHandler()->getActivePluginFeatures();
+				if ( isset( $aMods[ $sSlug ] ) ) {
+					$oMod = $this->loadFeatureHandler( $aMods[ $sSlug ] );
+				}
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
-		$oModule = isset( $this->aModules[ $sSlug ] ) ? $this->aModules[ $sSlug ] : null;
-		if ( !is_null( $oModule ) && !( $oModule instanceof \ICWP_WPSF_FeatureHandler_Base ) ) {
-			$oModule = null;
-		}
-		return $oModule;
+		return $oMod;
 	}
 
 	/**
@@ -1890,6 +1969,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_HackProtect
+	 */
+	public function getModule_HackGuard() {
+		return $this->getModule( 'hack_protect' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_Insights
 	 */
 	public function getModule_Insights() {
@@ -1904,6 +1990,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
+	 * @return \ICWP_WPSF_FeatureHandler_License
+	 */
+	public function getModule_License() {
+		return $this->getModule( 'license' );
+	}
+
+	/**
 	 * @return \ICWP_WPSF_FeatureHandler_LoginProtect
 	 */
 	public function getModule_LoginGuard() {
@@ -1915,6 +2008,13 @@ class Controller extends Shield\Deprecated\Foundation {
 	 */
 	public function getModule_Plugin() {
 		return $this->getModule( 'plugin' );
+	}
+
+	/**
+	 * @return \ICWP_WPSF_FeatureHandler_Reporting
+	 */
+	public function getModule_Reporting() {
+		return $this->getModule( 'reporting' );
 	}
 
 	/**
@@ -1939,26 +2039,15 @@ class Controller extends Shield\Deprecated\Foundation {
 	}
 
 	/**
-	 * @return \ICWP_WPSF_FeatureHandler_Base[]
-	 */
-	public function getModules() {
-		return is_array( $this->aModules ) ? $this->aModules : [];
-	}
-
-	/**
 	 * @param array $aModProps
-	 * @param bool  $bRecreate
-	 * @param bool  $bFullBuild
-	 * @return mixed
+	 * @return \ICWP_WPSF_FeatureHandler_Base|mixed
 	 * @throws \Exception
 	 */
-	public function loadFeatureHandler( $aModProps, $bRecreate = false, $bFullBuild = false ) {
-
+	public function loadFeatureHandler( $aModProps ) {
 		$sModSlug = $aModProps[ 'slug' ];
-
-		$oHandler = $this->getModule( $sModSlug );
-		if ( !empty( $oHandler ) ) {
-			return $oHandler;
+		$oMod = isset( $this->modules[ $sModSlug ] ) ? $this->modules[ $sModSlug ] : null;
+		if ( $oMod instanceof \ICWP_WPSF_FeatureHandler_Base ) {
+			return $oMod;
 		}
 
 		if ( !empty( $aModProps[ 'min_php' ] )
@@ -1974,20 +2063,17 @@ class Controller extends Shield\Deprecated\Foundation {
 
 		// All this to prevent fatal errors if the plugin doesn't install/upgrade correctly
 		if ( class_exists( $sClassName ) ) {
-			if ( !isset( $this->{$sOptionsVarName} ) || $bRecreate ) {
-				$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
-			}
-			if ( $bFullBuild ) {
-				$this->{$sOptionsVarName}->buildOptions();
-			}
+			$this->{$sOptionsVarName} = new $sClassName( $this, $aModProps );
 		}
 		else {
 			$sMessage = sprintf( 'Class "%s" is missing', $sClassName );
 			throw new \Exception( $sMessage );
 		}
 
-		$this->aModules[ $sModSlug ] = $this->{$sOptionsVarName};
-		return $this->{$sOptionsVarName};
+		$aMs = $this->modules;
+		$aMs[ $sModSlug ] = $this->{$sOptionsVarName};
+		$this->modules = $aMs;
+		return $this->modules[ $sModSlug ];
 	}
 
 	/**
@@ -2180,7 +2266,7 @@ class Controller extends Shield\Deprecated\Foundation {
 	private function runTests() {
 		die();
 		( new Shield\Tests\VerifyUniqueEvents() )->setCon( $this )->run();
-		foreach ( $this->getModules() as $oModule ) {
+		foreach ( $this->modules as $oModule ) {
 			( new \FernleafSystems\Wordpress\Plugin\Shield\Tests\VerifyConfig() )
 				->setOpts( $oModule->getOptions() )
 				->run();

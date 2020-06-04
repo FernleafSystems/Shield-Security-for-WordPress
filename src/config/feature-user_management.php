@@ -2,6 +2,7 @@
   "slug":        "user_management",
   "properties":  {
     "name":                  "User Management",
+    "sidebar_name":          "Users",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "user_management",
@@ -22,6 +23,15 @@
       "title_short": "Session Options",
       "summary":     [
         "Purpose - Allows you to better control user sessions on your site and expire idle sessions and prevent account sharing.",
+        "Recommendation - Use of this feature is highly recommend."
+      ]
+    },
+    {
+      "slug":        "section_user_reg",
+      "title":       "User Registration",
+      "title_short": "User Registration",
+      "summary":     [
+        "Purpose - Control user registration and prevent SPAM.",
         "Recommendation - Use of this feature is highly recommend."
       ]
     },
@@ -76,7 +86,7 @@
       "default":     "Y",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/e3",
-      "link_blog":   "",
+      "link_blog":   "https://shsec.io/hi",
       "name":        "Enable User Management",
       "summary":     "Enable (or Disable) The User Management module",
       "description": "Un-Checking this option will completely disable the User Management module"
@@ -152,6 +162,69 @@
       "name":        "Max Simultaneous Sessions",
       "summary":     "Limit Simultaneous Sessions For The Same Username",
       "description": "The number provided here is the maximum number of simultaneous, distinct, sessions allowed for any given username. Use '0' for no limits."
+    },
+    {
+      "key":           "reg_email_validate",
+      "section":       "section_user_reg",
+      "premium":       true,
+      "type":          "select",
+      "default":       "log",
+      "value_options": [
+        {
+          "value_key": "disabled",
+          "text":      "Disabled"
+        },
+        {
+          "value_key": "log",
+          "text":      "Log Only"
+        },
+        {
+          "value_key": "offense",
+          "text":      "Increment Offense Counter"
+        },
+        {
+          "value_key": "block",
+          "text":      "Immediate Block and Kill"
+        }
+      ],
+      "link_info":     "https://shsec.io/gk",
+      "link_blog":     "https://shsec.io/hh",
+      "name":          "Validate Email Addresses",
+      "summary":       "Validate Email Addresses When User Attempts To Register",
+      "description":   "Validate Email Addresses When User Attempts To Register."
+    },
+    {
+      "key":           "email_checks",
+      "section":       "section_user_reg",
+      "type":          "multiple_select",
+      "default":       [ "syntax", "domain" ],
+      "value_options": [
+        {
+          "value_key": "syntax",
+          "text":      "Email Address Syntax"
+        },
+        {
+          "value_key": "domain_registered",
+          "text":      "Domain Is Registered"
+        },
+        {
+          "value_key": "domain_resolves",
+          "text":      "Domain Resolve To IP"
+        },
+        {
+          "value_key": "mx",
+          "text":      "Domain MX"
+        },
+        {
+          "value_key": "nondisposable",
+          "text":      "Disposable Email Service"
+        }
+      ],
+      "link_info":     "https://shsec.io/gk",
+      "link_blog":     "https://shsec.io/hh",
+      "name":          "Email Checks",
+      "summary":       "The Email Address Properties That Will Be Tested",
+      "description":   "Select which ."
     },
     {
       "key":         "enable_password_policies",
@@ -342,6 +415,9 @@
         "recent": true
       },
       "user_hard_unsuspended":        {
+      },
+      "reg_email_invalid":            {
+        "offense": true
       }
     }
   }

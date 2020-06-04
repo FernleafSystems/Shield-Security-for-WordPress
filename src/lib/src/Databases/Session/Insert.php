@@ -16,6 +16,7 @@ class Insert extends Base\Insert {
 		$aData = [
 			'session_id'  => $sSessionId,
 			'wp_username' => $sUsername,
+			'ip'          => Services::IP()->getRequestIp()
 		];
 		return $this->setInsertData( $aData )->query() === 1;
 	}
@@ -35,16 +36,19 @@ class Insert extends Base\Insert {
 			throw new \Exception( 'WP Username not provided' );
 		}
 
-		$oReq = Services::Request();
-		$nTimeStamp = $oReq->ts();
+		$oIP = Services::IP();
+		if ( empty( $aData[ 'ip' ] ) || !$oIP->isValidIp( $aData[ 'ip' ] ) ) {
+			$sReqIP = $oIP->getRequestIp();
+			$aData[ 'ip' ] = $oIP->isValidIp( $sReqIP ) ? $sReqIP : '';
+		}
 
+		$oReq = Services::Request();
 		$aData = array_merge(
 			[
 				'browser'                 => md5( $oReq->getUserAgent() ),
-				'ip'                      => Services::IP()->getRequestIp(), // TODO: SHA1
-				'logged_in_at'            => $nTimeStamp,
-				'last_activity_at'        => $nTimeStamp,
-				'last_activity_uri'       => $oReq->server( 'REQUEST_URI' ),
+				'logged_in_at'            => $oReq->ts(),
+				'last_activity_at'        => $oReq->ts(),
+				'last_activity_uri'       => $oReq->getRequestUri(),
 				'login_intent_expires_at' => 0,
 				'secadmin_at'             => 0,
 			],

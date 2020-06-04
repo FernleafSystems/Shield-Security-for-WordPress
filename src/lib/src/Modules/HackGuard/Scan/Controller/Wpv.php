@@ -29,6 +29,6 @@ class Wpv extends BaseForAssets {
 	public function isEnabled() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		return $oOpts->isWpvulnEnabled();
+		return $oOpts->isPremium() && $oOpts->isOpt( 'enable_wpvuln_scan', 'Y' );
 	}
 }

@@ -1,42 +1,29 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Firewall;
 
 class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return array
-	 */
-	public function getDefaultWhitelist() {
-		$aW = $this->getDef( 'default_whitelist' );
-		return is_array( $aW ) ? $aW : [];
-	}
-
-	/**
 	 * @param string $sParam
 	 * @param string $sPage
-	 * @return ICWP_WPSF_FeatureHandler_Firewall
 	 */
 	public function addParamToWhitelist( $sParam, $sPage = '*' ) {
+		/** @var Firewall\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		if ( empty( $sPage ) ) {
 			$sPage = '*';
 		}
 
-		$aW = $this->getCustomWhitelist();
+		$aW = $oOpts->getCustomWhitelist();
 		$aParams = isset( $aW[ $sPage ] ) ? $aW[ $sPage ] : [];
 		$aParams[] = $sParam;
 		natsort( $aParams );
 		$aW[ $sPage ] = array_unique( $aParams );
 
-		return $this->setOpt( 'page_params_whitelist', $aW );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getCustomWhitelist() {
-		$aW = $this->getOpt( 'page_params_whitelist', [] );
-		return is_array( $aW ) ? $aW : [];
+		$oOpts->setOpt( 'page_params_whitelist', $aW );
 	}
 
 	/**
@@ -70,17 +57,13 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isIgnoreAdmin() {
-		return $this->isOpt( 'whitelist_admins', 'Y' );
-	}
-
-	/**
 	 * @param array $aAllData
 	 * @return array
 	 */
 	public function addInsightsConfigData( $aAllData ) {
+		/** @var Firewall\Options $oOpts */
+		$oOpts = $this->getOptions();
+
 		$aThis = [
 			'strings'      => [
 				'title' => __( 'Firewall', 'wp-simple-firewall' ),
@@ -105,7 +88,7 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 			];
 
 			//ignoring admin isn't a good idea
-			$bAdminIncluded = !$this->isIgnoreAdmin();
+			$bAdminIncluded = !$oOpts->isIgnoreAdmin();
 			$aThis[ 'key_opts' ][ 'admin' ] = [
 				'name'    => __( 'Ignore Admins', 'wp-simple-firewall' ),
 				'enabled' => $bAdminIncluded,

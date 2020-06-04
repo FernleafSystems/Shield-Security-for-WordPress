@@ -40,25 +40,7 @@
 							{% endif %}
 						{% endfor %}
 
-						<li class="nav-item dropdown" id="NavItem-OptionSearch">
-						<select class="selectpicker" data-live-search="true"
-								title="{{ strings.jump_to_option }}"
-								data-size="10" multiple
-								data-header="{{ strings.type_below_search }} ..."
-								onchange="location = this.value;">
-							{% for select_section_name,select_section_opts in vars.search_select %}
-								<optgroup label="{{ select_section_name }}">
-									{% for select_opt_key,select_opt_data in select_section_opts %}
-										<option value="{{ select_opt_data.href }}" aria-selected="false"
-												data-tokens="{{ select_opt_data.summary }}"
-										>{{ select_opt_data.name }}
-										</option>
-									{% endfor %}
-								</optgroup>
-							{% endfor %}
-						</select>
-						</li>
-						<div class="nav-item" id="PluginHeadwayChangelog"></div>
+						<div class="nav-item announcekit-widget"></div>
 					</ul>
 				</div>
 				{#<form class="form-inline">#}
@@ -68,12 +50,21 @@
 			</nav>
 		</div>
 	</div>
-
 	<script>
-	  var HW_config = {
-		  selector: "#PluginHeadwayChangelog", // CSS selector where to inject the badge
-		  account: "{{ vars.changelog_id }}"
-	  };
+	  window.announcekit = (window.announcekit || {
+		  queue: [], on: function ( n, x ) {
+			  window.announcekit.queue.push( [ n, x ] );
+		  }, push: function ( x ) {
+			  window.announcekit.queue.push( x );
+		  }
+	  });
+	  window.announcekit.push( {
+		  "widget": "https://announcekit.app/widget/{{ vars.changelog_id }}",
+		  "selector": ".announcekit-widget",
+		  "version": 2
+	  } )
+	</script>
+	<script>
 	  jQuery( document ).ready( function () {
 		  jQuery.fn.selectpicker.Constructor.BootstrapVersion = '4';
 
@@ -81,7 +72,8 @@
 								   .removeAttr( "selected" );
 	  } );
 	</script>
-	<script async src="https://cdn.headwayapp.co/widget.js"></script>
+	<script async src="https://cdn.announcekit.app/widget.js"></script>
+	{% include '/snippets/js/widget_freshdesk.twig' %}
 {% endblock %}
 
 {% block page_main %}

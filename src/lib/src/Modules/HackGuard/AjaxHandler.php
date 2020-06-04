@@ -3,6 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Databases;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -47,6 +49,14 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			case 'plugin_reinstall':
 				$aResponse = $this->ajaxExec_PluginReinstall();
+				break;
+
+			case 'filelocker_showdiff':
+				$aResponse = $this->ajaxExec_FileLockerShowDiff();
+				break;
+
+			case 'filelocker_fileaction':
+				$aResponse = $this->ajaxExec_FileLockerFileAction();
 				break;
 
 			default:
@@ -111,6 +121,139 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return [
 			'success' => !empty( $oTableBuilder ),
 			'html'    => $sHtml
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_FileLockerShowDiff() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		$oFLCon = $oMod->getFileLocker();
+		$oFS = Services::WpFs();
+
+		$nRID = Services::Request()->post( 'rid' );
+		$aData = [
+			'error'   => '',
+			'success' => false,
+			'flags'   => [
+				'has_diff' => false,
+			],
+			'html'    => [
+				'diff' => '',
+			],
+			'vars'    => [
+				'rid' => $nRID,
+			],
+			'strings' => [
+				'no_changes'            => __( 'There have been no changes to the selected file.' ),
+				'please_review'         => __( 'Please review the changes below and accept them, or restore the original file contents.' ),
+				'butt_restore'          => __( 'Restore File' ),
+				'butt_accept'           => __( 'Accept Changes' ),
+				'file_name'             => __( 'Name' ),
+				'file_size'             => __( 'File Size' ),
+				'locked_file'           => __( 'Locked File' ),
+				'modified_file'         => __( 'Modified File' ),
+				'locked'                => __( 'Locked' ),
+				'modified'              => __( 'Modified' ),
+				'download'              => __( 'Download' ),
+				'modified_at'           => __( 'Modified' ),
+				'file_content_original' => __( 'Original File Content' ),
+				'file_content_current'  => __( 'Current File Content' ),
+				'download_original'     => __( 'Download Original' ),
+				'download_modified'     => __( 'Download Modified' ),
+				'file_download'         => __( 'File Download' ),
+				'file_info'             => __( 'File Info' ),
+				'file_accept'           => __( 'File Accept' ),
+				'file_accept_checkbox'  => __( 'Are you sure you want to keep the file changes?' ),
+				'file_restore'          => __( 'File Restore' ),
+				'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?' ),
+				'file_restore_button'   => __( 'Are you sure you want to restore the original file contents?' ),
+			]
+		];
+		try {
+			$oCarb = Services::Request()->carbon( true );
+			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\PerformAction() )
+				->setMod( $this->getMod() )
+				->run( $nRID, 'diff' );
+			$oLock = $oFLCon->getFileLock( $nRID );
+			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
+			$aData[ 'flags' ][ 'has_diff' ] = !empty( $aData[ 'html' ][ 'diff' ] );
+			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
+			$aData[ 'vars' ][ 'modified_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
+			$aData[ 'vars' ][ 'file_size_locked' ] = $this->formatBytes( strlen(
+				( new FileLocker\Ops\ReadOriginalFileContent() )
+					->setMod( $oMod )
+					->run( $oLock )
+			), 3 );
+			$aData[ 'vars' ][ 'file_size_modified' ] = $oFS->exists( $oLock->file ) ? $this->formatBytes( $oFS->getFileSize( $oLock->file ), 3 ) : 0;
+			$aData[ 'vars' ][ 'file_name' ] = basename( $oLock->file );
+			$aData[ 'success' ] = true;
+		}
+		catch ( \Exception $oE ) {
+			$aData[ 'error' ] = $oE->getMessage();
+		};
+
+		return [
+			'success' => $aData[ 'success' ],
+			'message' => $aData[ 'error' ],
+			'html'    => $this->getMod()
+							  ->renderTemplate(
+								  '/wpadmin_pages/insights/scans/realtime/file_locker/file_diff.twig',
+								  $aData,
+								  true
+							  )
+		];
+	}
+
+	/**
+	 * https://stackoverflow.com/questions/2510434/format-bytes-to-kilobytes-megabytes-gigabytes
+	 * @param     $bytes
+	 * @param int $precision
+	 * @return string
+	 */
+	private function formatBytes( $bytes, $precision = 2 ) {
+		$units = [ 'B', 'KB', 'MB', 'GB', 'TB' ];
+
+		$bytes = max( $bytes, 0 );
+		$pow = floor( ( $bytes ? log( $bytes ) : 0 )/log( 1024 ) );
+		$pow = min( $pow, count( $units ) - 1 );
+
+		// Uncomment one of the following alternatives
+		$bytes /= pow( 1024, $pow );
+		// $bytes /= (1 << (10 * $pow));
+
+		return round( $bytes, $precision ).' '.$units[ $pow ];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_FileLockerFileAction() {
+		$oReq = Services::Request();
+		$bSuccess = false;
+
+		if ( $oReq->post( 'confirmed' ) == '1' ) {
+			$nRID = $oReq->post( 'rid' );
+			$sAction = $oReq->post( 'file_action' );
+			try {
+				$bSuccess = ( new FileLocker\Ops\PerformAction() )
+					->setMod( $this->getMod() )
+					->run( $nRID, $sAction );
+				$sMessage = __( 'Requested action completed successfully.', 'wp-simple-firewall' );
+			}
+			catch ( \Exception $oE ) {
+				$sMessage = __( 'Requested action failed.', 'wp-simple-firewall' );
+			}
+		}
+		else {
+			$sMessage = __( 'Please check the box to confirm this action', 'wp-simple-firewall' );
+		}
+
+		return [
+			'success' => $bSuccess,
+			'message' => $sMessage,
 		];
 	}
 
@@ -199,7 +342,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 					}
 					else {
 						// rescan
-						$oMod->getScanController()->startScans( $aScanSlugs );
+						$oMod->getScanQueueController()->startScans( $aScanSlugs );
 						$sMessage .= ' '.__( 'Rescanning', 'wp-simple-firewall' ).' ...';
 					}
 				}
@@ -227,7 +370,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		/** @var Shield\Databases\ScanQueue\Select $oSel */
 		$oSel = $oMod->getDbHandler_ScanQueue()->getQuerySelector();
 
-		$oQueCon = $oMod->getScanController();
+		$oQueCon = $oMod->getScanQueueController();
 		$sCurrent = $oSel->getCurrentScan();
 		$bHasCurrent = !empty( $sCurrent );
 		if ( $bHasCurrent ) {
@@ -242,7 +385,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'running' => $oQueCon->getScansRunningStates(),
 			'vars'    => [
 				'progress_html' => $oMod->renderTemplate(
-					'/wpadmin_pages/insights/scans/modal_progress_snippet.twig',
+					'/wpadmin_pages/insights/scans/modal/progress_snippet.twig',
 					[
 						'current_scan'    => __( 'Current Scan', 'wp-simple-firewall' ),
 						'scan'            => $sCurrentScan,
@@ -270,7 +413,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		$sMessage = __( 'No scans were selected', 'wp-simple-firewall' );
 		$aFormParams = $this->getAjaxFormParams();
 
-		$oScanCon = $oMod->getScanController();
+		$oScanCon = $oMod->getScanQueueController();
 
 		if ( !empty( $aFormParams ) ) {
 			$aSelectedScans = array_keys( $aFormParams );

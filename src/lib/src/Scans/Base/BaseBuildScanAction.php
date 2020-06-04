@@ -14,7 +14,6 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	public function build() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( !$oAction instanceof BaseScanActionVO ) {
 			throw new \Exception( 'Scan Action VO not provided.' );
@@ -32,30 +31,26 @@ abstract class BaseBuildScanAction {
 	 * @throws \Exception
 	 */
 	protected function buildScanItems() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		$this->buildItems();
 		$oAction->total_items = count( $oAction->items );
 	}
 
-	/**
-	 */
 	abstract protected function buildItems();
 
-	/**
-	 */
 	protected function setStandardFields() {
-		/** @var BaseScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 		if ( empty( $oAction->created_at ) ) {
 			$oAction->created_at = Services::Request()->ts();
 			$oAction->started_at = 0;
 			$oAction->finished_at = 0;
+			$oAction->usleep = (int)( 1000000*max( 0, apply_filters(
+					$this->getCon()->prefix( 'scan_block_sleep' ),
+					$oAction::DEFAULT_SLEEP_SECONDS, $oAction->scan
+				) ) );
 		}
 	}
 
-	/**
-	 */
 	protected function setCustomFields() {
 	}
 }

@@ -15,7 +15,7 @@ class TrackLinkCheese extends Base {
 	const OPT_KEY = 'track_linkcheese';
 
 	protected function process() {
-		add_filter( 'robots_txt', [ $this, 'appendRobotsTxt' ], 5 );
+		add_filter( 'robots_txt', [ $this, 'appendRobotsTxt' ], 15 );
 		add_action( 'wp_footer', [ $this, 'insertMouseTrap' ], 0 );
 		if ( $this->isCheese() ) {
 			$this->doTransgression();

@@ -10,9 +10,7 @@ if ( isset( $oICWP_Wpsf ) ) {
 	return;
 }
 
-// By requiring this file here, we assume we wont need to require it anywhere else.
-
-class ICWP_WPSF_Shield_Security extends \FernleafSystems\Wordpress\Plugin\Shield\Deprecated\Foundation {
+class ICWP_WPSF_Shield_Security {
 
 	/**
 	 * @var ICWP_WPSF_Shield_Security
@@ -58,5 +56,15 @@ catch ( \Exception $oE ) {
 	if ( is_admin() ) {
 		error_log( 'Perhaps due to a failed upgrade, the Shield plugin failed to load certain component(s) - you should remove the plugin and reinstall.' );
 		error_log( $oE->getMessage() );
+	}
+}
+
+if ( !function_exists( 'shield_security_get_plugin' ) ) {
+	/**
+	 * @return ICWP_WPSF_Shield_Security|null
+	 */
+	function shield_security_get_plugin() {
+		global $oICWP_Wpsf;
+		return ( $oICWP_Wpsf instanceof \ICWP_WPSF_Shield_Security ) ? $oICWP_Wpsf : null;
 	}
 }

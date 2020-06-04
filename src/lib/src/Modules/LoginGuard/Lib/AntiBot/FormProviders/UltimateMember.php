@@ -1,0 +1,59 @@
+<?php
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
+
+/**
+ * Class UltimateMember
+ * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders
+ * https://wordpress.org/plugins/ultimate-member/
+ */
+class UltimateMember extends BaseFormProvider {
+
+	protected function login() {
+		add_action( 'um_after_login_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'um_submit_form_login', [ $this, 'checkLogin' ], 100 );
+	}
+
+	protected function register() {
+		add_action( 'um_after_register_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'um_submit_form_register', [ $this, 'checkRegister' ], 5, 0 );
+	}
+
+	protected function lostpassword() {
+		add_action( 'um_after_password_reset_fields', [ $this, 'formInsertsPrint' ], 100 );
+		add_action( 'um_submit_form_password_reset', [ $this, 'checkLostPassword' ], 5, 0 );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function checkLogin() {
+		try {
+			$this->setActionToAudit( 'ultimatemember-login' )
+				 ->checkProviders();
+		}
+		catch ( \Exception $oE ) {
+			\UM()->form()->add_error( 'shield-fail-login', $oE->getMessage() );
+		}
+	}
+
+	public function checkLostPassword() {
+		try {
+			$this->setActionToAudit( 'ultimatemember-lostpassword' )
+				 ->checkProviders();
+		}
+		catch ( \Exception $oE ) {
+			\UM()->form()->add_error( 'shield-fail-lostpassword', $oE->getMessage() );
+		}
+	}
+
+	public function checkRegister() {
+		try {
+			$this->setActionToAudit( 'ultimatemember-register' )
+				 ->checkProviders();
+		}
+		catch ( \Exception $oE ) {
+			\UM()->form()->add_error( 'shield-fail-register', $oE->getMessage() );
+		}
+	}
+}

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,8 +15,8 @@ class Bot {
 	 * @return true|\WP_Error
 	 */
 	public function scan( $nPostId ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		$oReq = Services::Request();
 		$sFieldCheckboxName = $oReq->post( 'cb_nombre' );
@@ -23,8 +24,8 @@ class Bot {
 		$nCommentTs = (int)$oReq->post( 'botts' );
 		$sCommentToken = $oReq->post( 'comment_token' );
 
-		$nCooldown = $oMod->getTokenCooldown();
-		$nExpire = $oMod->getTokenExpireInterval();
+		$nCooldown = $oOpts->getTokenCooldown();
+		$nExpire = $oOpts->getTokenExpireInterval();
 
 		$sKey = null;
 		$sExplanation = null;

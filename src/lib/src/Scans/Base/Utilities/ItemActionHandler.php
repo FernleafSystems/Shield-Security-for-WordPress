@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Databases\Base\HandlerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Databases\Scanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
@@ -12,7 +11,6 @@ abstract class ItemActionHandler {
 
 	use ModConsumer;
 	use ScanItemConsumer;
-	use HandlerConsumer;
 	use ScanControllerConsumer;
 
 	/**
@@ -42,6 +40,7 @@ abstract class ItemActionHandler {
 	}
 
 	/**
+	 * TODO: Determine if "delete" is always the same as a "repair" - see UFC override
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -62,8 +61,10 @@ abstract class ItemActionHandler {
 			throw new \Exception( 'Item could not be found to ignore.' );
 		}
 
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Scanner\Update $oUp */
-		$oUp = $this->getDbHandler()->getQueryUpdater();
+		$oUp = $oMod->getDbHandler_ScanResults()->getQueryUpdater();
 		if ( !$oUp->setIgnored( $oEntry ) ) {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
@@ -72,25 +73,43 @@ abstract class ItemActionHandler {
 	}
 
 	/**
+	 * @param bool $bAllowDelete
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repair() {
+	public function repair( $bAllowDelete = false ) {
 		$oRep = $this->getRepairer();
 		if ( !$oRep->canRepair() ) {
 			throw new \Exception( 'This item cannot be automatically repaired.' );
 		}
-		$bSuccess = $oRep->repairItem();
-		$this->fireRepairEvent( $bSuccess );
-		return $bSuccess;
+
+		$oRep->setAllowDelete( $bAllowDelete );
+
+		$oItem = $this->getScanItem();
+		$oItem->repaired = $oRep->repairItem();
+		$this->fireRepairEvent( $oItem->repaired );
+
+		if ( $oItem->repaired ) {
+			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+			$oMod = $this->getMod();
+			/** @var Scanner\Delete $oDel */
+			$oDel = $oMod->getDbHandler_ScanResults()->getQueryDeleter();
+			$oDel->filterByHash( $oItem->hash )
+				 ->filterByScan( $oItem->scan )
+				 ->query();
+		}
+
+		return $oItem->repaired;
 	}
 
 	/**
 	 * @return Scanner\EntryVO|null
 	 */
 	protected function getEntryVO() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 		/** @var Scanner\Select $oSel */
-		$oSel = $this->getDbHandler()->getQuerySelector();
+		$oSel = $oMod->getDbHandler_ScanResults()->getQuerySelector();
 		return $oSel->filterByHash( $this->getScanItem()->hash )
 					->filterByScan( $this->getScanController()->getSlug() )
 					->first();

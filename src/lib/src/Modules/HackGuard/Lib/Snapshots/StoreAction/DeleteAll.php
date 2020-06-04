@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class DeleteAll extends BaseBulk {
 
-	/**
-	 */
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();

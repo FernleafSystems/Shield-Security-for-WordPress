@@ -193,8 +193,14 @@ class Strings extends Base\Strings {
 			case 'audit_trail_max_entries' :
 				$sName = __( 'Max Trail Length', 'wp-simple-firewall' );
 				$sSummary = __( 'Maximum Audit Trail Length To Keep', 'wp-simple-firewall' );
-				$sDescription = __( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' )
-								.'<br/>'.sprintf( '%s: %s', __( 'Default', 'wp-simple-firewall' ), $oOpts->getDefaultMaxEntries() );
+				$sDescription = [
+					__( 'Automatically remove any audit trail entries when this limit is exceeded.', 'wp-simple-firewall' ),
+				];
+				if ( !$oCon->isPremiumActive() ) {
+					$sDescription[] = sprintf( __( 'Upgrade to PRO to increase limit above %s.', 'wp-simple-firewall' ),
+						'<code>'.$oOpts->getDef( 'audit_trail_free_max_entries' ).'</code>' );
+				}
+
 				break;
 
 			case 'audit_trail_auto_clean' :

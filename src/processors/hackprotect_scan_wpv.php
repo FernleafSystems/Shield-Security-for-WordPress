@@ -31,28 +31,14 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Wpv\ResultsSet $oRes
-	 * @return bool - true if user notified
-	 */
-	protected function runCronUserNotify( $oRes ) {
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$bSend = $oOpts->isOpt( 'enable_wpvuln_scan', 'enabled_email' );
-		if ( $bSend ) {
-			$this->emailResults( $oRes );
-		}
-		return $bSend;
-	}
-
-	/**
-	 * @param bool            $bDoAutoUpdate
-	 * @param StdClass|string $mItem
+	 * @param bool             $bDoAutoUpdate
+	 * @param \stdClass|string $mItem
 	 * @return bool
 	 */
 	public function autoupdateVulnerablePlugins( $bDoAutoUpdate, $mItem ) {
 		$sItemFile = Services::WpGeneral()->getFileFromAutomaticUpdateItem( $mItem );
 		// TODO Audit.
-		return $bDoAutoUpdate || ( $this->getPluginVulnerabilities( $sItemFile ) > 0 );
+		return $bDoAutoUpdate || count( $this->getPluginVulnerabilities( $sItemFile ) ) > 0;
 	}
 
 	/**
@@ -67,10 +53,10 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	public function addPluginVulnerabilityRows() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oFO */
-		$oFO = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
 
-		if ( $oFO->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {
+		if ( $oMod->isWpvulnPluginsHighlightEnabled() && $this->countVulnerablePlugins() > 0 ) {
 			// These 3 add the 'Vulnerable' plugin status view.
 			// BUG: when vulnerable is active, only 1 plugin is available to "All" status. don't know fix.
 			add_action( 'pre_current_active_plugins', [ $this, 'addVulnerablePluginStatusView' ], 1000 );
@@ -156,64 +142,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	}
 
 	/**
-	 * @param Shield\Scans\Wpv\ResultsSet $oRes
-	 */
-	protected function emailResults( $oRes ) {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oWpPlugins = Services::WpPlugins();
-		$oWpThemes = Services::WpThemes();
-		$oCon = $this->getCon();
-
-		$aContent = [
-			sprintf( __( '%s has detected items with known security vulnerabilities.', 'wp-simple-firewall' ), $oCon->getHumanName() ),
-			__( 'You should update or remove these items at your earliest convenience.', 'wp-simple-firewall' ),
-			__( 'Details for the items(s) are below:', 'wp-simple-firewall' ),
-			'',
-		];
-
-		/** @var Shield\Scans\Wpv\ResultItem $oItem */
-		foreach ( $oRes->getItems() as $oItem ) {
-
-			if ( $oItem->context == 'plugins' ) {
-				$aPlugin = $oWpPlugins->getPlugin( $oItem->slug );
-				$sName = sprintf( '%s - %s', __( 'Plugin', 'wp-simple-firewall' ), empty( $aPlugin ) ? 'Unknown' : $aPlugin[ 'Name' ] );
-			}
-			else {
-				$sName = sprintf( '%s - %s', __( 'Theme', 'wp-simple-firewall' ), $oWpThemes->getCurrentThemeName() );
-			}
-
-			$oVuln = $oItem->getWpVulnVo();
-			$aContent[] = implode( "<br />", [
-				sprintf( '%s: %s', __( 'Item', 'wp-simple-firewall' ), $sName ),
-				'- '.sprintf( __( 'Vulnerability Title: %s', 'wp-simple-firewall' ), $oVuln->title ),
-				'- '.sprintf( __( 'Vulnerability Type: %s', 'wp-simple-firewall' ), $oVuln->vuln_type ),
-				'- '.sprintf( __( 'Fixed Version: %s', 'wp-simple-firewall' ), $oVuln->fixed_in ),
-				'- '.sprintf( __( 'Further Information: %s', 'wp-simple-firewall' ), $oVuln->getUrl() ),
-				'',
-			] );
-		}
-
-		$aContent[] = $this->getScannerButtonForEmail();
-		$aContent[] = '';
-
-		$sSubject = sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Plugin(s) Discovered With Known Security Vulnerabilities.', 'wp-simple-firewall' ) );
-		$sTo = $oMod->getPluginDefaultRecipientAddress();
-		$this->getEmailProcessor()
-			 ->sendEmailWithWrap( $sTo, $sSubject, $aContent );
-
-		$this->getCon()->fireEvent(
-			'wpv_alert_sent',
-			[
-				'audit' => [
-					'to'  => $sTo,
-					'via' => 'email',
-				]
-			]
-		);
-	}
-
-	/**
 	 * @param string $sFile
 	 * @return Shield\Scans\Wpv\WpVulnDb\WpVulnVO[]
 	 */
@@ -222,7 +150,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 		$oVulnerableRes = $this->getThisScanCon()->getAllResults();
 		return array_map(
 			function ( $oItem ) {
-				/** @var Shield\Scans\Wpv\ResultItem $oItem */
 				return $oItem->getWpVulnVo();
 			},
 			$oVulnerableRes->getItemsForSlug( $sFile )

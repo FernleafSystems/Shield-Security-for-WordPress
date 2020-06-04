@@ -9,8 +9,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 
 	use Shield\Crons\StandardCron;
 
-	/**
-	 */
 	public function run() {
 		$this->getSubPro( 'apc' )->execute();
 		$this->getSubPro( 'ufc' )->execute();
@@ -25,19 +23,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	}
 
 	/**
-	 */
-	public function deactivatePlugin() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
-			$oMod->getScanCon( $sSlug )->purge();
-		}
-	}
-
-	/**
-	 * @return ICWP_WPSF_Processor_HackProtect_Ptg
+	 * @return \ICWP_WPSF_Processor_HackProtect_Ptg
 	 */
 	public function getSubProcessorPtg() {
 		return $this->getSubPro( 'ptg' );
@@ -49,7 +35,6 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 	protected function getSubProMap() {
 		return [
 			'apc' => 'ICWP_WPSF_Processor_HackProtect_Apc',
-			'int' => 'ICWP_WPSF_Processor_HackProtect_Integrity',
 			'mal' => 'ICWP_WPSF_Processor_HackProtect_Mal',
 			'ptg' => 'ICWP_WPSF_Processor_HackProtect_Ptg',
 			'ufc' => 'ICWP_WPSF_Processor_HackProtect_Ufc',
@@ -58,18 +43,23 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		];
 	}
 
-	/**
-	 * Responsible for sending out emails and doing any automated repairs.
-	 */
 	private function handlePostScanCron() {
-		add_action( $this->getCon()->prefix( 'post_scan' ), function ( $aScansToNotify ) {
-			/** @var HackGuard\Options $oOpts */
-			$oOpts = $this->getOptions();
-			foreach ( array_intersect( $oOpts->getScanSlugs(), $aScansToNotify ) as $sSlug ) {
-				$this->getSubPro( $sSlug )
-					 ->cronProcessScanResults();
-			}
+		add_action( $this->getCon()->prefix( 'post_scan' ), function () {
+			$this->runAutoRepair();
 		} );
+	}
+
+	private function runAutoRepair() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		foreach ( $oOpts->getScanSlugs() as $sSlug ) {
+			$oScanCon = $oMod->getScanCon( $sSlug );
+			if ( $oScanCon->isCronAutoRepair() ) {
+				$oScanCon->runCronAutoRepair();
+			}
+		}
 	}
 
 	public function runHourlyCron() {
@@ -121,7 +111,7 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 
 			$oOpts->setIsScanCron( true );
 			$oMod->saveModOptions()
-				 ->getScanController()
+				 ->getScanQueueController()
 				 ->startScans( $aScans );
 		}
 		else {
@@ -152,6 +142,29 @@ class ICWP_WPSF_Processor_HackProtect_Scanner extends ShieldProcessor {
 		/** @var Shield\Modules\HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $oOpts->getScanFrequency();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getFirstRunTimestamp() {
+		$oCarb = Services::Request()->carbon( true );
+		$oCarb->addHours( $oCarb->minute < 40 ? 0 : 1 )
+			  ->minute( $oCarb->minute < 40 ? 45 : 15 )
+			  ->second( 0 );
+
+		if ( $this->getCronFrequency() === 1 ) { // If it's a daily scan only, set to 3am by default
+			$nHour = (int)apply_filters( $this->getCon()->prefix( 'daily_scan_cron_hour' ), 3 );
+			if ( $nHour < 0 || $nHour > 23 ) {
+				$nHour = 3;
+			}
+			if ( $oCarb->hour >= $nHour ) {
+				$oCarb->addDays( 1 );
+			}
+			$oCarb->hour( $nHour );
+		}
+
+		return $oCarb->timestamp;
 	}
 
 	/**

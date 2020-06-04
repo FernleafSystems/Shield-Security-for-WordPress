@@ -40,8 +40,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function hasSecAdminUsers() {
-		$aUsers = $this->getSecurityAdminUsers();
-		return !empty( $aUsers );
+		return count( $this->getSecurityAdminUsers() ) > 0;
 	}
 
 	/**
@@ -55,7 +54,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 */
-	protected function doExtraSubmitProcessing() {
+	protected function preProcessOptions() {
 		if ( $this->isValidSecAdminRequest() ) {
 			$this->setSecurityAdminStatusOnOff( true );
 		}
@@ -86,7 +85,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private function verifySecAdminUsers( $aSecUsers ) {
 		$oDP = Services::Data();
 		$oWpUsers = Services::WpUsers();
-		/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
+		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		$aFiltered = [];
@@ -144,10 +143,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @inheritDoc
 	 */
-	public function handleModRequest() {
-		$oReq = Services::Request();
-		switch ( $oReq->query( 'exec' ) ) {
+	protected function handleModAction( $sAction ) {
+		switch ( $sAction ) {
 			case  'remove_secadmin_confirm':
 				( new SecurityAdmin\Lib\Actions\RemoveSecAdmin() )
 					->setMod( $this )
@@ -169,7 +168,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isEnabledSecurityAdmin() {
-		/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
+		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $this->isModOptEnabled() &&
 			   ( $this->hasSecAdminUsers() ||
@@ -204,7 +203,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$bValid = false;
 			$sReqKey = Services::Request()->post( 'sec_admin_key' );
 			if ( !empty( $sReqKey ) ) {
-				/** @var Shield\Modules\SecurityAdmin\Options $oOpts */
+				/** @var SecurityAdmin\Options $oOpts */
 				$oOpts = $this->getOptions();
 				$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sReqKey ) );
 				if ( !$bValid ) {
@@ -326,17 +325,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return $this->saveModOptions();
 	}
 
-	/**
-	 * @return $this
-	 */
-	protected function clearAdminAccessKey() {
-		return $this->setOpt( 'admin_access_key', '' );
-	}
-
 	public function insertCustomJsVars_Admin() {
 		parent::insertCustomJsVars_Admin();
 
-		$aInsertData = [];
 		if ( $this->getSecAdminTimeLeft() > 0 ) {
 			$aInsertData = [
 				'ajax'         => [
@@ -357,6 +348,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 					'req_email_remove' => $this->getAjaxActionData( 'req_email_remove' ),
 				],
 				'strings' => [
+					'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
 				]
 			];
 		}

@@ -130,12 +130,49 @@ class Options {
 				$aOptions[ $sKey ] = $this->getOptDefault( $sKey );
 			}
 		}
-		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptionData ) {
-			if ( isset( $aOptionData[ 'sensitive' ] ) && $aOptionData[ 'sensitive' ] === true ) {
-				unset( $aOptions[ $aOptionData[ 'key' ] ] );
+		foreach ( $this->getRawData_AllOptions() as $nKey => $aOptDef ) {
+			if ( isset( $aOptDef[ 'sensitive' ] ) && $aOptDef[ 'sensitive' ] === true ) {
+				unset( $aOptions[ $aOptDef[ 'key' ] ] );
 			}
 		}
 		return array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function getOptionsForWpCli() {
+		return array_filter(
+			$this->getOptionsKeys(),
+			function ( $sKey ) {
+				return $this->getRawData_SingleOption( $sKey )[ 'section' ]
+					   !== 'section_non_ui';
+			}
+		);
+	}
+
+	/**
+	 * Returns an array of all the options with the values for "sensitive" options masked out.
+	 * @return array
+	 */
+	public function getOptionsForTracking() {
+		$aOpts = [];
+		if ( (bool)$this->getFeatureProperty( 'tracking_exclude' ) === false ) {
+
+			$aOptions = $this->getAllOptionsValues();
+			foreach ( $this->getOptionsKeys() as $sKey ) {
+				if ( !isset( $aOptions[ $sKey ] ) ) {
+					$aOptions[ $sKey ] = $this->getOptDefault( $sKey );
+				}
+			}
+			foreach ( $this->getRawData_AllOptions() as $nKey => $aOptDef ) {
+				if ( !empty( $aOptDef[ 'sensitive' ] ) || !empty( $aOptDef[ 'tracking_exclude' ] ) ) {
+					unset( $aOptions[ $aOptDef[ 'key' ] ] );
+				}
+			}
+			$aOpts = array_diff_key( $aOptions, array_flip( $this->getVirtualCommonOptions() ) );
+		}
+		return $aOpts;
 	}
 
 	/**
@@ -145,6 +182,20 @@ class Options {
 	public function getFeatureProperty( $sProperty ) {
 		$aRawConfig = $this->getRawData_FullFeatureConfig();
 		return ( isset( $aRawConfig[ 'properties' ] ) && isset( $aRawConfig[ 'properties' ][ $sProperty ] ) ) ? $aRawConfig[ 'properties' ][ $sProperty ] : null;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getWpCliCfg() {
+		$aCfg = $this->getRawData_FullFeatureConfig();
+		$aCli = empty( $aCfg[ 'wpcli' ] ) ? [] : $aCfg[ 'wpcli' ];
+		return array_merge(
+			[
+				'root' => $this->getSlug(),
+			],
+			$aCli
+		);
 	}
 
 	/**
@@ -189,7 +240,7 @@ class Options {
 
 	/**
 	 * Determines whether the given option key is a valid option
-	 * @param string
+	 * @param string $sOptionKey
 	 * @return bool
 	 */
 	public function isValidOptionKey( $sOptionKey ) {
@@ -288,9 +339,8 @@ class Options {
 	 */
 	public function isSectionReqsMet( $sSectionSlug ) {
 		$aReqs = $this->getSection_Requirements( $sSectionSlug );
-		$bMet = Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
-				&& Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
-		return $bMet;
+		return Services::Data()->getPhpVersionIsAtLeast( $aReqs[ 'php_min' ] )
+			   && Services::WpGeneral()->getWordpressIsAtLeastVersion( $aReqs[ 'wp_min' ] );
 	}
 
 	/**
@@ -864,6 +914,16 @@ class Options {
 				}
 				break;
 
+			case 'select':
+				$aPossible = array_map(
+					function ( $aPoss ) {
+						return $aPoss[ 'value_key' ];
+					},
+					$this->getOptProperty( $sOptKey, 'value_options' )
+				);
+				$bValid = in_array( $mPotentialValue, $aPossible );
+				break;
+
 			case 'email':
 				$bValid = empty( $mPotentialValue ) || Services::Data()->validEmail( $mPotentialValue );
 				break;
@@ -891,7 +951,6 @@ class Options {
 	 * @return mixed
 	 */
 	public function unsetOpt( $sOptionKey ) {
-
 		unset( $this->aOptionsValues[ $sOptionKey ] );
 		$this->setNeedSave( true );
 		return true;
@@ -910,11 +969,22 @@ class Options {
 	 * @return array
 	 */
 	protected function getVirtualCommonOptions() {
-		return [ 'dismissed_notices', 'ui_track', 'help_video_options' ];
+		return [
+			'dismissed_notices',
+			'ui_track',
+			'help_video_options',
+			'xfer_excluded',
+			'cfg_version'
+		];
 	}
 
 	/**
+	 * @return string[]
 	 */
+	public function getXferExcluded() {
+		return is_array( $this->getOpt( 'xfer_excluded' ) ) ? $this->getOpt( 'xfer_excluded' ) : [];
+	}
+
 	private function cleanOptions() {
 		if ( !empty( $this->aOptionsValues ) && is_array( $this->aOptionsValues ) ) {
 			$this->aOptionsValues = array_intersect_key(
@@ -1015,7 +1085,9 @@ class Options {
 	 * @return string
 	 */
 	private function getConfigStorageKey() {
-		return 'shield_mod_config_'.md5( $this->getPathToConfig() );
+		return 'shield_mod_config_'.md5(
+				str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $this->getPathToConfig() ) )
+			);
 	}
 
 	/**
@@ -1032,6 +1104,16 @@ class Options {
 	 */
 	public function setPathToConfig( $sPathToConfig ) {
 		$this->sPathToConfig = $sPathToConfig;
+		return $this;
+	}
+
+	/**
+	 * @param $aValues
+	 * @return $this
+	 */
+	public function setOptionsValues( array $aValues = [] ) {
+		$this->aOptionsValues = $aValues;
+		$this->setNeedSave( true );
 		return $this;
 	}
 }

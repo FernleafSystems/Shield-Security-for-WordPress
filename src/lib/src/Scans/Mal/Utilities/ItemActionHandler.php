@@ -11,17 +11,6 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function delete() {
-		return $this->getRepairer()
-					->setIsManualAction( true )
-					->setAllowDelete( true )
-					->repairItem();
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
 	public function ignore() {
 		parent::ignore();
 
@@ -30,17 +19,6 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 			->reportResultItem( $this->getScanItem(), true );
 
 		return true;
-	}
-
-	/**
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public function repair() {
-		return $this->getRepairer()
-					->setIsManualAction( true )
-					->setAllowDelete( false )
-					->repairItem();
 	}
 
 	/**
@@ -60,7 +38,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 		$oItem = $this->getScanItem();
 		$this->getCon()->fireEvent(
 			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
+			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
 		);
 	}
 }

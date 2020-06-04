@@ -59,12 +59,14 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	protected function isDisplayNeeded( $oNotice ) {
 		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
 		$oMod = $this->getMod();
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		switch ( $oNotice->id ) {
 
 			case 'email-verification-sent':
-				$bNeeded = $oMod->isEmailAuthenticationOptionOn()
-						   && !$oMod->isEmailAuthenticationActive() && !$oMod->getIfCanSendEmailVerified();
+				$bNeeded = $oOpts->isEnabledEmailAuth()
+						   && !$oOpts->isEmailAuthenticationActive() && !$oOpts->getIfCanSendEmailVerified();
 				break;
 
 			default:

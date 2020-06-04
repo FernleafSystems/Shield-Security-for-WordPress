@@ -14,7 +14,7 @@ class EntryFormatter extends BaseFileEntryFormatter {
 	public function format() {
 		$aE = $this->getBaseData();
 		$aE[ 'status' ] = __( 'Potential Malware Detected', 'wp-simple-firewall' );
-		if ( !in_array( 'repair', $aE[ 'actions' ] ) ) {
+		if ( !array_key_exists( 'repair', $aE[ 'actions' ] ) ) {
 			$aE[ 'explanation' ][] = __( 'Repair Unavailable', 'wp-simple-firewall' );
 		}
 
@@ -44,9 +44,9 @@ class EntryFormatter extends BaseFileEntryFormatter {
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isMalUseNetworkIntelligence() ) {
 			$aExpl[] = sprintf( '%s: %s/100 [%s]',
-				__( 'False Positive Confidence' ),
+				__( 'Likelihood That This Is A False Positive' ),
 				sprintf( '<strong>%s</strong>', (int)$oIt->fp_confidence ),
-				sprintf( '<a href="%s" target="_blank">%s&nearr;</a>', 'https://shsec.io/isthismalware', __( 'more info', 'wp-simple-firewall' ) )
+				sprintf( '<a href="%s" target="_blank">%s</a>', 'https://shsec.io/isthismalware', __( 'more info', 'wp-simple-firewall' ) )
 			);
 		}
 

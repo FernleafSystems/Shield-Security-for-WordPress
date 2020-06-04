@@ -17,8 +17,17 @@ class BuildScanAction extends Shield\Scans\Base\BaseBuildScanAction {
 	protected function setCustomFields() {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
-		/** @var Shield\Modules\HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oAction->file_exts = $oOpts->getPtgFileExtensions();
+		$oAction->file_exts = $this->getFileExts();
+	}
+
+	/**
+	 * @return array
+	 */
+	private function getFileExts() {
+		$aFileExts = apply_filters(
+			$this->getCon()->prefix( 'scan_ptg_file_exts' ),
+			[ 'js', 'json', 'otf', 'svg', 'ttf', 'eot', 'woff', 'woff2', 'php', 'php5', 'php7', 'phtml' ]
+		);
+		return is_array( $aFileExts ) ? $aFileExts : [];
 	}
 }

@@ -1,34 +1,39 @@
 <?php
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter;
 
 class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 
 	/**
-	 * @return int
+	 * @return Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO
 	 */
-	public function getTokenCooldown() {
-		return (int)$this->getOpt( 'comments_cooldown_interval' );
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getTokenExpireInterval() {
-		return (int)$this->getOpt( 'comments_token_expire_interval' );
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getGoogleRecaptchaStyle() {
+	public function getCaptchaCfg() {
+		$oCfg = parent::getCaptchaCfg();
 		$sStyle = $this->getOpt( 'google_recaptcha_style_comments' );
-		$aConfig = $this->getGoogleRecaptchaConfig();
-		if ( $aConfig[ 'style_override' ] || $sStyle == 'default' ) {
-			$sStyle = $aConfig[ 'style' ];
+		if ( $sStyle !== 'default' && $this->isPremium() ) {
+			$oCfg->theme = $sStyle;
+			$oCfg->invisible = $oCfg->theme == 'invisible';
 		}
-		return $sStyle;
+		return $oCfg;
+	}
+
+	public function ensureCorrectCaptchaConfig() {
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
+
+		$sStyle = $oOpts->getOpt( 'google_recaptcha_style_comments' );
+		if ( $this->isPremium() ) {
+			$oCfg = $this->getCaptchaCfg();
+			if ( $oCfg->provider == $oCfg::PROV_GOOGLE_RECAP2 ) {
+				if ( !$oCfg->invisible && $sStyle == 'invisible' ) {
+					$oOpts->setOpt( 'google_recaptcha_style_comments', 'default' );
+				}
+			}
+		}
+		elseif ( !in_array( $sStyle, [ 'disabled', 'default' ] ) ) {
+			$oOpts->setOpt( 'google_recaptcha_style_comments', 'default' );
+		}
 	}
 
 	/**
@@ -75,34 +80,21 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		return $sText;
 	}
 
-	protected function doExtraSubmitProcessing() {
-		if ( $this->getTokenExpireInterval() != 0 && $this->getTokenCooldown() > $this->getTokenExpireInterval() ) {
-			$this->getOptions()->resetOptToDefault( 'comments_cooldown_interval' );
-			$this->getOptions()->resetOptToDefault( 'comments_token_expire_interval' );
-		}
-
-		$aCommentsFilters = $this->getOpt( 'enable_comments_human_spam_filter_items' );
-		if ( empty( $aCommentsFilters ) || !is_array( $aCommentsFilters ) ) {
-			$this->getOptions()->resetOptToDefault( 'enable_comments_human_spam_filter_items' );
-		}
+	protected function preProcessOptions() {
+		/** @var Shield\Modules\CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
 
 		// clean roles
-		$this->setOpt( 'trusted_user_roles',
+		$oOpts->setOpt( 'trusted_user_roles',
 			array_unique( array_filter( array_map(
 				function ( $sRole ) {
-					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
+					return sanitize_key( strtolower( $sRole ) );
 				},
 				$this->getTrustedRoles()
 			) ) )
 		);
-	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getHumanSpamFilterItems() {
-		$aItems = $this->getOpt( 'enable_comments_human_spam_filter_items' );
-		return is_array( $aItems ) ? $aItems : [];
+		$this->ensureCorrectCaptchaConfig();
 	}
 
 	/**
@@ -125,8 +117,8 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 		else {
 			$aThis[ 'key_opts' ][ 'bot' ] = [
 				'name'    => __( 'Bot SPAM', 'wp-simple-firewall' ),
-				'enabled' => $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled(),
-				'summary' => ( $this->isEnabledGaspCheck() || $this->isGoogleRecaptchaEnabled() ) ?
+				'enabled' => $this->isEnabledGaspCheck() || $this->isEnabledCaptcha(),
+				'summary' => ( $this->isEnabledGaspCheck() || $this->isEnabledCaptcha() ) ?
 					__( 'Bot SPAM comments are blocked', 'wp-simple-firewall' )
 					: __( 'There is no protection against Bot SPAM comments', 'wp-simple-firewall' ),
 				'weight'  => 2,
@@ -148,47 +140,31 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	}
 
 	/**
-	 * @param string $sSection
-	 * @return array
-	 */
-	protected function getSectionWarnings( $sSection ) {
-		$aWarnings = [];
-
-		switch ( $sSection ) {
-			case 'section_recaptcha':
-				$oP = $this->getCon()->getModule_Plugin();
-				if ( !$oP->isGoogleRecaptchaReady() ) {
-					$aWarnings[] = sprintf(
-						__( 'Please remember to supply reCAPTCHA keys: %s', 'wp-simple-firewall' ),
-						sprintf( '<a href="%s" target="_blank">%s</a>', $oP->getUrl_DirectLinkToSection( 'section_third_party_google' ), __( 'reCAPTCHA Settings' ) )
-					);
-				}
-				break;
-		}
-
-		return $aWarnings;
-	}
-
-	/**
 	 * @return bool
 	 */
-	public function isGoogleRecaptchaEnabled() {
-		return $this->isModOptEnabled() &&
-			   ( $this->isOpt( 'enable_google_recaptcha_comments', 'Y' ) && $this->isGoogleRecaptchaReady() );
+	public function isEnabledCaptcha() {
+		return $this->isModOptEnabled() && !$this->isOpt( 'google_recaptcha_style_comments', 'disabled' )
+			   && $this->getCaptchaCfg()->ready;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabledGaspCheck() {
-		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_gasp_protection', 'Y' );
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_gasp_protection', 'Y' )
+			   && ( $oOpts->getTokenExpireInterval() > $oOpts->getTokenCooldown() );
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isEnabledHumanCheck() {
-		return $this->isModOptEnabled() && $this->isOpt( 'enable_comments_human_spam_filter', 'Y' );
+		/** @var CommentsFilter\Options $oOpts */
+		$oOpts = $this->getOptions();
+		return $this->isModOptEnabled() && $oOpts->isOpt( 'enable_comments_human_spam_filter', 'Y' )
+			   && count( $oOpts->getHumanSpamFilterItems() ) > 0;
 	}
 
 	/**
@@ -204,13 +180,6 @@ class ICWP_WPSF_FeatureHandler_CommentsFilter extends ICWP_WPSF_FeatureHandler_B
 	 */
 	protected function getNamespaceBase() {
 		return 'CommentsFilter';
-	}
-
-	protected function updateHandler() {
-		$oFs = Services::WpFs();
-		if ( $oFs->exists( $this->getSpamBlacklistFile() ) ) {
-			$oFs->deleteFile( $this->getSpamBlacklistFile() );
-		}
 	}
 
 	/**

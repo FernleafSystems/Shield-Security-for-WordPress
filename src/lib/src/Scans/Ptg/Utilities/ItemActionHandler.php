@@ -113,7 +113,7 @@ class ItemActionHandler extends Base\Utilities\ItemActionHandlerAssets {
 		$oItem = $this->getScanItem();
 		$this->getCon()->fireEvent(
 			$this->getScanController()->getSlug().'_item_repair_'.( $bSuccess ? 'success' : 'fail' ),
-			[ 'audit' => [ 'fragment' => $oItem->path_fragment ] ]
+			[ 'audit' => [ 'fragment' => $oItem->path_full ] ]
 		);
 	}
 }

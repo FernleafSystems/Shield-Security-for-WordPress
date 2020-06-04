@@ -22,7 +22,7 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 		$oEntry = $oSel->filterByNotStarted()
 					   ->filterByNotFinished()
-					   ->setOrderBy( 'created_at', 'ASC' )
+					   ->setOrderBy( 'id', 'ASC', true )
 					   ->first();
 
 		$oBatch = new \stdClass();

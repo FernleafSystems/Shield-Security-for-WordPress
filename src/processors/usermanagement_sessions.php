@@ -53,7 +53,9 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
 		try {
-			$this->assessSession();
+			if ( $oMod->hasValidRequestIP() ) {
+				$this->assessSession();
+			}
 		}
 		catch ( \Exception $oE ) {
 			$sEvent = $oE->getMessage();
@@ -92,8 +94,12 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		}
 
 		$oIP = Services::IP();
-		if ( $oOpts->isLockToIp() && !$oIP->isLoopback() && $oIP->getRequestIp() != $oSess->ip ) {
-			throw new \Exception( 'session_iplock' );
+		if ( $oOpts->isLockToIp() && $oIP->getRequestIp() != $oSess->ip ) {
+			// We force-refresh the server IPs just to be sure.
+			Services::IP()->getServerPublicIPs( true );
+			if ( !$oIP->isLoopback() ) {
+				throw new \Exception( 'session_iplock' );
+			}
 		}
 		// TODO: 'session_browserlock';
 	}

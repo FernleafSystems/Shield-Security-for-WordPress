@@ -51,7 +51,7 @@ class AuditTrail extends Base {
 	public function column_details( $aItem ) {
 		$sContent = sprintf( '%s<br />%s%s',
 			$aItem[ 'wp_username' ],
-			$this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
+			empty( $aItem[ 'ip' ] ) ? '' : $this->getIpWhoisLookupLink( $aItem[ 'ip' ] ),
 			$aItem[ 'your_ip' ]
 		);
 		if ( isset( $aItem[ 'meta' ][ 'param' ] ) ) {

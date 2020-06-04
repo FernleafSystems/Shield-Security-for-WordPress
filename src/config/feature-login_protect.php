@@ -3,6 +3,7 @@
   "properties":    {
     "slug":                  "login_protect",
     "name":                  "Login Guard",
+    "sidebar_name":          "Login Protection",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "loginprotect",
@@ -18,9 +19,12 @@
   "admin_notices": {
     "email-verification-sent": {
       "id":               "email-verification-sent",
-      "once":             false,
+      "schedule":         "conditions",
+      "plugin_page_only": true,
+      "can_dismiss":      false,
       "type":             "warning",
-      "plugin_admin":     "yes"
+      "plugin_admin":     "yes",
+      "valid_admin":      true
     }
   },
   "sections":      [
@@ -32,16 +36,6 @@
       "summary":     [
         "Purpose - Blocks brute force hacking attacks against your login and registration pages.",
         "Recommendation - Use of this feature is highly recommend."
-      ]
-    },
-    {
-      "slug":        "section_recaptcha",
-      "title":       "Google reCAPTCHA",
-      "title_short": "reCAPTCHA",
-      "summary":     [
-        "Purpose - Adds Google reCAPTCHA to the Login Forms.",
-        "Recommendation - Keep this turned on.",
-        "Note - You will need to register for Google reCAPTCHA keys and store them in the Shield 'Dashboard' settings."
       ]
     },
     {
@@ -177,6 +171,18 @@
       "description": "Allow users to generate a backup code that can be used to login if MFA factors are unavailable."
     },
     {
+      "key":         "allow_u2f",
+      "section":     "section_multifactor_authentication",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/dx",
+      "link_blog":   "https://shsec.io/dy",
+      "name":        "Allow U2F",
+      "summary":     "Allow U2F Code",
+      "description": "Allow U2F."
+    },
+    {
       "key":         "enable_google_authenticator",
       "section":     "section_2fa_ga",
       "default":     "N",
@@ -255,6 +261,18 @@
       "name":          "Enforce - Email Authentication",
       "summary":       "All User Roles Subject To Email Authentication",
       "description":   "Enforces email-based authentication on all users with the selected roles. Note: This setting only applies to email authentication."
+    },
+    {
+      "key":         "email_any_user_set",
+      "section":     "section_2fa_email",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/gj",
+      "link_blog":   "",
+      "name":        "Allow Any User",
+      "summary":     "Allow Any User To Turn-On Two-Factor Authentication By Email",
+      "description": "Allow Any User To Turn-On Two-Factor Authentication By Email."
     },
     {
       "key":           "bot_protection_locations",
@@ -338,32 +356,21 @@
         }
       ],
       "link_info":     "https://shsec.io/9m",
-      "link_blog":     "https://shsec.io/shld5",
-      "name":          "Google reCAPTCHA",
-      "summary":       "Enable Google reCAPTCHA",
-      "description":   "Use Google reCAPTCHA on the login screen."
-    },
-    {
-      "key":         "enable_antibot_js",
-      "section":     "section_brute_force_login_protection",
-      "premium":     true,
-      "default":     "N",
-      "type":        "checkbox",
-      "link_info":   "https://shsec.io/dw",
-      "link_blog":   "",
-      "name":        "AntiBot JS",
-      "summary":     "Load Anti-Bot JS For 3rd Party Login Forms",
-      "description": "Important: This is experimental. Please contact support for further assistance."
+      "link_blog":     "",
+      "name":          "CAPTCHA",
+      "summary":       "Enable CAPTCHA",
+      "description":   "Use CAPTCHA on the login screen."
     },
     {
       "key":         "antibot_form_ids",
       "section":     "section_brute_force_login_protection",
+      "premium":     true,
       "type":        "array",
       "default":     [
         "form#ihc_login_form",
         "form#createuser"
       ],
-      "link_info":   "",
+      "link_info":   "https://shsec.io/hg",
       "link_blog":   "",
       "name":        "AntiBot Forms",
       "summary":     "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS",
@@ -435,18 +442,11 @@
       "section":      "section_non_ui",
       "transferable": false,
       "type":         "integer",
-      "default":      -1
+      "default":      0,
+      "min":          0
     },
     {
       "key":          "gasp_key",
-      "section":      "section_non_ui",
-      "transferable": false,
-      "sensitive":    true,
-      "type":         "text",
-      "default":      ""
-    },
-    {
-      "key":          "two_factor_secret_key",
       "section":      "section_non_ui",
       "transferable": false,
       "sensitive":    true,

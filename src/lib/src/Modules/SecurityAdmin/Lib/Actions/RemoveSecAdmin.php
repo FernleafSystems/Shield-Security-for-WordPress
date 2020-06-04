@@ -10,20 +10,20 @@ class RemoveSecAdmin {
 
 	use ModConsumer;
 
-	/**
-	 */
 	public function remove() {
 		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
-		$oOpts->clearSecurityAdminKey();
-		$this->getMod()->saveModOptions();
-		$this->sendNotificationEmail();
+		if ( $oOpts->hasAccessKey() ) {
+			$oOpts->clearSecurityAdminKey();
+			$this->getMod()->saveModOptions();
+			$this->sendNotificationEmail();
+		}
 	}
 
 	public function sendConfirmationEmail() {
 		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
 		$oMod = $this->getMod();
-		$sEmail = $oMod->getPluginDefaultRecipientAddress();
+		$sEmail = $oMod->getPluginReportEmail();
 		if ( !Services::Data()->validEmail( $sEmail ) ) {
 			$sEmail = Services::WpGeneral()->getSiteAdminEmail();
 		}
@@ -53,7 +53,7 @@ class RemoveSecAdmin {
 	}
 
 	private function sendNotificationEmail() {
-		$sEmail = $this->getMod()->getPluginDefaultRecipientAddress();
+		$sEmail = $this->getMod()->getPluginReportEmail();
 		if ( !Services::Data()->validEmail( $sEmail ) ) {
 			$sEmail = Services::WpGeneral()->getSiteAdminEmail();
 		}

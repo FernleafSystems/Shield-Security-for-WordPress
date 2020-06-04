@@ -16,6 +16,28 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	private $oOffenseTracker;
 
 	/**
+	 * @var IPs\Lib\BlacklistHandler
+	 */
+	private $oBlacklistHandler;
+
+	/**
+	 * @return IPs\Lib\BlacklistHandler
+	 */
+	public function getBlacklistHandler() {
+		if ( !isset( $this->oBlacklistHandler ) ) {
+			$this->oBlacklistHandler = ( new IPs\Lib\BlacklistHandler() )->setMod( $this );
+		}
+		return $this->oBlacklistHandler;
+	}
+
+	/**
+	 * @return IPs\Lib\BlacklistHandler
+	 */
+	public function getProcessor() {
+		return $this->getBlacklistHandler();
+	}
+
+	/**
 	 * @return false|Shield\Databases\IPs\Handler
 	 */
 	public function getDbHandler_IPs() {
@@ -34,8 +56,8 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 			   && parent::isReadyToExecute();
 	}
 
-	protected function doExtraSubmitProcessing() {
-		/** @var Shield\Modules\IPs\Options $oOpts */
+	protected function preProcessOptions() {
+		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( !defined( strtoupper( $oOpts->getOpt( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
 			$oOpts->resetOptToDefault( 'auto_expire' );
@@ -76,14 +98,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getAutoUnblockIps() {
-		$aIps = $this->getOpt( 'autounblock_ips', [] );
-		return is_array( $aIps ) ? $aIps : [];
-	}
-
-	/**
 	 * @return IPs\Lib\OffenseTracker
 	 */
 	public function loadOffenseTracker() {
@@ -94,31 +108,13 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	}
 
 	/**
-	 * @param string $sIp
-	 * @return $this
-	 */
-	public function updateIpRequestAutoUnblockTs( $sIp ) {
-		$aExistingIps = $this->getAutoUnblockIps();
-		$aExistingIps[ $sIp ] = Services::Request()->ts();
-		return $this->setAutoUnblockIps( $aExistingIps );
-	}
-
-	/**
-	 * @param array $aIps
-	 * @return $this
-	 */
-	public function setAutoUnblockIps( $aIps ) {
-		return $this->setOpt( 'autounblock_ips', $aIps );
-	}
-
-	/**
 	 * @param string $sSection
 	 * @return array
 	 */
 	protected function getSectionWarnings( $sSection ) {
 		$aWarnings = [];
 
-		/** @var Shield\Modules\IPs\Options $oOpts */
+		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 
 		switch ( $sSection ) {
@@ -179,7 +175,7 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 	 * Hooked to the plugin's main plugin_shutdown action
 	 */
 	public function onPluginShutdown() {
-		if ( !$this->getCon()->isPluginDeleting() ) {
+		if ( !$this->getCon()->plugin_deleting ) {
 			$this->addFilterIpsToWhiteList();
 		}
 		parent::onPluginShutdown();
@@ -206,15 +202,19 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		$aIps = apply_filters( 'icwp_simple_firewall_whitelist_ips', $aIps );
 
 		if ( !empty( $aIps ) && is_array( $aIps ) ) {
-			$aWhiteIps = ( new Shield\Modules\IPs\Lib\Ops\RetrieveIpsForLists() )
+			$aWhiteIps = ( new IPs\Lib\Ops\RetrieveIpsForLists() )
 				->setDbHandler( $this->getDbHandler_IPs() )
 				->white();
 			foreach ( $aIps as $sIP => $sLabel ) {
 				if ( !in_array( $sIP, $aWhiteIps ) ) {
-					( new Shield\Modules\IPs\Lib\Ops\AddIp() )
-						->setMod( $this )
-						->setIP( $sIP )
-						->toManualWhitelist( $sLabel );
+					try {
+						( new IPs\Lib\Ops\AddIp() )
+							->setMod( $this )
+							->setIP( $sIP )
+							->toManualWhitelist( $sLabel );
+					}
+					catch ( Exception $oE ) {
+					}
 				}
 			}
 		}

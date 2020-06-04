@@ -3,6 +3,7 @@
   "properties":    {
     "slug":                  "admin_access_restriction",
     "name":                  "Security Admin",
+    "sidebar_name":          "Security Admin",
     "show_module_menu_item": false,
     "show_module_options":   true,
     "storage_key":           "admin_access_restriction",
@@ -14,6 +15,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false,
     "order":                 20
+  },
+  "wpcli": {
+    "root":            "secadmin"
   },
   "admin_notices": {
     "certain-options-restricted": {
@@ -105,7 +109,7 @@
       "section":     "section_admin_access_restriction_settings",
       "sensitive":   true,
       "premium":     true,
-      "default":     "",
+      "default":     [],
       "type":        "array",
       "link_info":   "https://shsec.io/dk",
       "link_blog":   "",

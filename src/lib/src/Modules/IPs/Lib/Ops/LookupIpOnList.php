@@ -24,10 +24,11 @@ class LookupIpOnList {
 	/**
 	 * @param bool $bIncludeRanges
 	 * @return Databases\IPs\EntryVO|null
+	 * @version 8.6.0 - switched to lookup ranges first
 	 */
 	public function lookup( $bIncludeRanges = true ) {
-		$oIp = $this->lookupIp();
-		if ( $bIncludeRanges && !$oIp instanceof Databases\IPs\EntryVO ) {
+		$oIp = null;
+		if ( $bIncludeRanges ) {
 			foreach ( $this->lookupRange() as $oMaybeIp ) {
 				try {
 					if ( Services::IP()->checkIp( $this->getIP(), $oMaybeIp->ip ) ) {
@@ -39,7 +40,7 @@ class LookupIpOnList {
 				}
 			}
 		}
-		return $oIp;
+		return ( $oIp instanceof Databases\IPs\EntryVO ) ? $oIp : $this->lookupIp();
 	}
 
 	/**

@@ -66,7 +66,6 @@ class BaseResultsSet {
 		return array_values( array_filter(
 			$this->getAllItems(),
 			function ( $oItem ) {
-				/** @var BaseResultItem $oItem */
 				return $oItem->is_excluded;
 			}
 		) );
@@ -80,7 +79,6 @@ class BaseResultsSet {
 		return array_values( array_filter(
 			$this->getAllItems(),
 			function ( $oItem ) {
-				/** @var BaseResultItem $oItem */
 				return !$this->isFilterExcludedItems() || !$oItem->is_excluded;
 			}
 		) );
@@ -108,10 +106,18 @@ class BaseResultsSet {
 	}
 
 	/**
+	 * @param BaseResultItem $oItem
+	 * @return $this
+	 */
+	public function removeItem( $oItem ) {
+		return $this->removeItemByHash( $oItem->hash );
+	}
+
+	/**
 	 * @param string $sHash
 	 * @return $this
 	 */
-	public function removeItem( $sHash ) {
+	public function removeItemByHash( $sHash ) {
 		if ( $this->getItemExists( $sHash ) ) {
 			$aItems = $this->getAllItems();
 			unset( $aItems[ $sHash ] );
