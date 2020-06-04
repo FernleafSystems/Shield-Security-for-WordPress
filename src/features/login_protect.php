@@ -42,11 +42,7 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 		$this->ensureCorrectCaptchaConfig();
 	}
 
-	protected function updateHandler() {
-		$this->ensureCorrectCaptchaConfig();
-	}
-
-	protected function ensureCorrectCaptchaConfig() {
+	public function ensureCorrectCaptchaConfig() {
 		/** @var LoginGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
 

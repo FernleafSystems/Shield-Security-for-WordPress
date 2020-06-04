@@ -493,6 +493,16 @@ class Controller {
 
 	public function onWpLoaded() {
 		$this->getAdminNotices();
+		$this->initCrons();
+	}
+
+	protected function initCrons() {
+		( new Shield\Crons\HourlyCron() )
+			->setCon( $this )
+			->run();
+		( new Shield\Crons\DailyCron() )
+			->setCon( $this )
+			->run();
 	}
 
 	/**
@@ -1581,6 +1591,13 @@ class Controller {
 	 */
 	public function getTextDomain() {
 		return $this->getPluginSpec_Property( 'text_domain' );
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getBuild() {
+		return $this->getPluginSpec_Property( 'build' );
 	}
 
 	/**

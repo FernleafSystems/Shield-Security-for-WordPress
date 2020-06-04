@@ -204,8 +204,12 @@
           "text":      "Email Address Syntax"
         },
         {
-          "value_key": "domain",
-          "text":      "Domain Name Resolves"
+          "value_key": "domain_registered",
+          "text":      "Domain Is Registered"
+        },
+        {
+          "value_key": "domain_resolves",
+          "text":      "Domain Resolve To IP"
         },
         {
           "value_key": "mx",
@@ -216,8 +220,8 @@
           "text":      "Disposable Email Service"
         }
       ],
-      "link_info":     "",
-      "link_blog":     "",
+      "link_info":     "https://shsec.io/gk",
+      "link_blog":     "https://shsec.io/hh",
       "name":          "Email Checks",
       "summary":       "The Email Address Properties That Will Be Tested",
       "description":   "Select which ."

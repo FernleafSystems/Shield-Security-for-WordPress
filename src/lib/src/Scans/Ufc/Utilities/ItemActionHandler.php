@@ -8,6 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Ufc;
 class ItemActionHandler extends Base\Utilities\ItemActionHandler {
 
 	/**
+	 * @inheritDoc
+	 */
+	public function delete() {
+		return $this->repair( true );
+	}
+
+	/**
 	 * @return Repair
 	 */
 	public function getRepairer() {

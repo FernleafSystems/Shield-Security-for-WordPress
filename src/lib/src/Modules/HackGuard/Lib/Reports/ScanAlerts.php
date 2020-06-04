@@ -66,6 +66,7 @@ class ScanAlerts extends BaseReporter {
 	}
 
 	/**
+	 * TODO: As class that can be used by ShieldCentral also
 	 * @return int[] - key is scan slug
 	 */
 	private function countItemsForEachScan() {

@@ -120,7 +120,7 @@ class Yubikey extends BaseProvider {
 	 * @return array
 	 */
 	private function getYubiIds( \WP_User $oUser ) {
-		return explode( ',', $this->getSecret( $oUser ) );
+		return array_filter( array_map( 'trim', explode( ',', $this->getSecret( $oUser ) ) ) );
 	}
 
 	/**

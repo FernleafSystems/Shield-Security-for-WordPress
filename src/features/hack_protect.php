@@ -72,6 +72,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return HackGuard\Scan\Controller\Base[]
+	 */
+	public function getAllScanCons() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		foreach ( $oOpts->getScanSlugs() as $scanSlug ) {
+			$this->getScanCon( $scanSlug );
+		}
+		return $this->aScanCons;
+	}
+
+	/**
 	 * @param string $sSlug
 	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
@@ -112,62 +124,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 	}
 
-	protected function updateHandler() {
-		/** @var HackGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->getOpt( 'ptg_enable' ) === 'enabled' ) {
-			$oOpts->setOpt( 'ptg_enable', 'Y' );
-		}
-		elseif ( $oOpts->getOpt( 'ptg_enable' ) === 'disabled' ) {
-			$oOpts->setOpt( 'ptg_enable', 'N' );
-		}
-
-		/**
-		 * @deprecated 9.0
-		 */
-		{
-			if ( $oOpts->getOpt( 'mal_scan_enable' ) === 'enabled' ) {
-				$oOpts->setOpt( 'mal_scan_enable', 'Y' );
-			}
-			elseif ( $oOpts->getOpt( 'mal_scan_enable' ) === 'disabled' ) {
-				$oOpts->setOpt( 'mal_scan_enable', 'N' );
-			}
-		}
-
-		$aRepairAreas = $oOpts->getRepairAreas();
-		$aMap = [
-			'attempt_auto_file_repair' => 'wp',
-			'mal_autorepair_plugins'   => 'plugin',
-		];
-		foreach ( $aMap as $sOld => $sNew ) {
-			if ( $oOpts->getOpt( $sOld ) !== false ) {
-				$bWasEnabled = $oOpts->isOpt( $sOld, 'Y' );
-				$nIsEnabled = array_search( $sNew, $aRepairAreas );
-				if ( $bWasEnabled && ( $nIsEnabled === false ) ) {
-					$aRepairAreas[] = $sNew;
-				}
-				elseif ( !$bWasEnabled && ( $nIsEnabled !== false ) ) {
-					unset( $aRepairAreas[ $nIsEnabled ] );
-				}
-			}
-		}
-		$this->setOpt( 'file_repair_areas', $aRepairAreas );
-
-		{ // migrate old scan options
-			if ( $oOpts->getOpt( 'enable_unrecognised_file_cleaner_scan' ) == 'enabled_delete_report' ) {
-				$oOpts->setOpt( 'enable_unrecognised_file_cleaner_scan', 'enabled_delete_only' );
-			}
-			$sApcOpt = $oOpts->getOpt( 'enabled_scan_apc' );
-			if ( strlen( $sApcOpt ) > 1 ) {
-				$oOpts->setOpt( 'enabled_scan_apc', $sApcOpt == 'disabled' ? 'N' : 'Y' );
-			}
-			$sWpvOpt = $oOpts->getOpt( 'enable_wpvuln_scan' );
-			if ( strlen( $sWpvOpt ) > 1 ) {
-				$oOpts->setOpt( 'enable_wpvuln_scan', $sWpvOpt == 'disabled' ? 'N' : 'Y' );
-			}
-		}
-	}
-
 	protected function preProcessOptions() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
@@ -180,11 +136,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 			$oPro->getSubProScanner()->deleteCron();
 		}
 
-		if ( count( $oOpts->getFilesToLock() ) > 0 && !$this->getCon()
+		if ( count( $oOpts->getFilesToLock() ) === 0 || !$this->getCon()
 															->getModule_Plugin()
 															->getShieldNetApiController()
 															->canHandshake() ) {
 			$oOpts->setOpt( 'file_locker', [] );
+			$this->getFileLocker()->purge();
+		}
+
+		foreach ( $this->getAllScanCons() as $oCon ) {
+			if ( !$oCon->isEnabled() ) {
+				$oCon->purge();
+			}
 		}
 	}
 

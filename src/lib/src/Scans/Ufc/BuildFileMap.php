@@ -27,7 +27,7 @@ class BuildFileMap {
 		/** @var ScanActionVO $oAction */
 		$oAction = $this->getScanActionVO();
 
-		foreach ( $oAction->scan_dirs as $sDir => $aFileExts ) {
+		foreach ( $oAction->scan_dirs as $sScanDir => $aFileExts ) {
 			try {
 				/**
 				 * The filter handles the bulk of the file inclusions and exclusions
@@ -36,9 +36,7 @@ class BuildFileMap {
 				 * The filter will also be responsible (in this case) for filtering out
 				 * WP Core files from the collection of files to be assessed
 				 */
-				$oDirIt = StandardDirectoryIterator::create( $sDir, 0, $aFileExts, true );
-
-				foreach ( $oDirIt as $oFsItem ) {
+				foreach ( StandardDirectoryIterator::create( $sScanDir, 0, $aFileExts, true ) as $oFsItem ) {
 					/** @var \SplFileInfo $oFsItem */
 					$sFullPath = $oFsItem->getPathname();
 					if ( !$oHashes->isCoreFile( $sFullPath ) ) {
@@ -48,7 +46,8 @@ class BuildFileMap {
 			}
 			catch ( \Exception $oE ) {
 				error_log(
-					sprintf( 'Shield file scanner attempted to read directory but there was error: "%s".', $oE->getMessage() )
+					sprintf( 'Shield file scanner (%s) attempted to read directory (%s) but there was error: "%s".',
+						$oAction->scan, $sScanDir, $oE->getMessage() )
 				);
 			}
 		}
