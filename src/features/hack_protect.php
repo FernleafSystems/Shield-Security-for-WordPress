@@ -72,6 +72,18 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	}
 
 	/**
+	 * @return HackGuard\Scan\Controller\Base[]
+	 */
+	public function getAllScanCons() {
+		/** @var HackGuard\Options $oOpts */
+		$oOpts = $this->getOptions();
+		foreach ( $oOpts->getScanSlugs() as $scanSlug ) {
+			$this->getScanCon( $scanSlug );
+		}
+		return $this->aScanCons;
+	}
+
+	/**
 	 * @param string $sSlug
 	 * @return HackGuard\Scan\Controller\Base|mixed
 	 */
@@ -129,6 +141,12 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 															->getShieldNetApiController()
 															->canHandshake() ) {
 			$oOpts->setOpt( 'file_locker', [] );
+		}
+
+		foreach ( $this->getAllScanCons() as $oCon ) {
+			if ( !$oCon->isEnabled() ) {
+				$oCon->purge();
+			}
 		}
 	}
 
