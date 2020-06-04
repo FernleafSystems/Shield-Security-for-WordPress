@@ -40,6 +40,7 @@ abstract class ItemActionHandler {
 	}
 
 	/**
+	 * TODO: Determine if "delete" is always the same as a "repair" - see UFC override
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -72,14 +73,17 @@ abstract class ItemActionHandler {
 	}
 
 	/**
+	 * @param bool $bAllowDelete
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public function repair() {
+	public function repair( $bAllowDelete = false ) {
 		$oRep = $this->getRepairer();
 		if ( !$oRep->canRepair() ) {
 			throw new \Exception( 'This item cannot be automatically repaired.' );
 		}
+
+		$oRep->setAllowDelete( $bAllowDelete );
 
 		$oItem = $this->getScanItem();
 		$oItem->repaired = $oRep->repairItem();

@@ -32,14 +32,6 @@ class ApiTokenManager {
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function hasToken() {
-		$sTok = $this->getTheToken();
-		return strlen( $sTok ) == 40 && !$this->isExpired();
-	}
-
-	/**
 	 * IMPORTANT:
 	 * To 'Pro Plugin' Nullers: Modifying this wont do your fake PRO registration any good.
 	 * The WP Hashes Token API request will always fail for invalid PRO sites.
@@ -53,7 +45,7 @@ class ApiTokenManager {
 
 		if ( $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid() ) {
 			$aT = $this->loadToken();
-			if ( $this->isNearlyExpired() && $this->canRequestNewToken() ) {
+			if ( $this->isExpired() && $this->canRequestNewToken() ) {
 				$aT = $this->loadToken();
 				try {
 					$aT = array_merge( $aT, $this->solicitApiToken() );
@@ -61,6 +53,7 @@ class ApiTokenManager {
 				catch ( \Exception $oE ) {
 				}
 				$aT[ 'attempt_at' ] = Services::Request()->ts();
+				$aT[ 'next_attempt_from' ] = Services::Request()->ts() + HOUR_IN_SECONDS;
 				$this->storeToken( $aT );
 			}
 		}
@@ -73,9 +66,18 @@ class ApiTokenManager {
 
 	/**
 	 * @return string
+	 * @deprecated 9.0.3
 	 */
 	private function getTheToken() {
 		return $this->loadToken()[ 'token' ];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasToken() {
+		$sTok = $this->getToken();
+		return strlen( $sTok ) == 40 && !$this->isExpired();
 	}
 
 	/**
@@ -84,10 +86,11 @@ class ApiTokenManager {
 	private function loadToken() {
 		return array_merge(
 			[
-				'token'         => '',
-				'expires_at'    => 0,
-				'attempt_at'    => 0,
-				'valid_license' => false,
+				'token'             => '',
+				'expires_at'        => 0,
+				'attempt_at'        => 0,
+				'next_attempt_from' => 0,
+				'valid_license'     => false,
 			],
 			$this->getOptions()->getOpt( 'wphashes_api_token', [] )
 		);
@@ -99,7 +102,7 @@ class ApiTokenManager {
 	private function canRequestNewToken() {
 		return $this->getCanRequestOverride() ||
 			   (
-				   Services::Request()->carbon()->subHour( 1 )->timestamp > $this->loadToken()[ 'attempt_at' ]
+				   Services::Request()->ts() >= $this->getNextAttemptAllowedFrom()
 				   && $this->getCon()->getModule_License()->getLicenseHandler()->getLicense()->isValid()
 			   );
 	}
@@ -112,17 +115,38 @@ class ApiTokenManager {
 	}
 
 	/**
+	 * @return int
+	 */
+	public function getExpiresAt() {
+		return $this->loadToken()[ 'expires_at' ];
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getNextAttemptAllowedFrom() {
+		return $this->loadToken()[ 'next_attempt_from' ];
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPreviousAttemptAt() {
+		return $this->loadToken()[ 'attempt_at' ];
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isExpired() {
-		return Services::Request()->ts() > $this->loadToken()[ 'expires_at' ];
+		return Services::Request()->ts() > $this->getExpiresAt();
 	}
 
 	/**
 	 * @return bool
 	 */
 	public function isNearlyExpired() {
-		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->loadToken()[ 'expires_at' ];
+		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->getExpiresAt();
 	}
 
 	/**
