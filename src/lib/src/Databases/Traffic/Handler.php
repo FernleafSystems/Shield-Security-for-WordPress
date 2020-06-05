@@ -11,7 +11,7 @@ class Handler extends Base\Handler {
 		/** @var Options $oOpts */
 		$oOpts = $this->getOptions();
 		$this->cleanDb( $oOpts->getAutoCleanDays() );
-		$this->trimDb( $oOpts->getMaxEntries() );
+		$this->tableTrimExcess( $oOpts->getMaxEntries() );
 	}
 
 	/**

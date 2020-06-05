@@ -26,7 +26,7 @@ class FileLockerController {
 					   ->getModule_Plugin()
 					   ->getShieldNetApiController()
 					   ->canHandshake()
-			   && $oMod->getDbHandler_FileLocker()->isTable();
+			   && $oMod->getDbHandler_FileLocker()->isReady();
 	}
 
 	protected function run() {
