@@ -43,6 +43,26 @@ class FileLockerController {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAdminMenuItem() {
+		$aItem = [];
+		if ( $this->getDbHandler()->isReady() ) {
+			$nCountFL = $this->countProblems();
+			if ( $nCountFL > 0 ) {
+				$aItem = [
+					'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
+					'title'    => __( 'File Locker', 'wp-simple-firewall' )
+								  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountFL ),
+					'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+					'warnings' => $nCountFL
+				];
+			}
+		}
+		return $aItem;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function countProblems() {
@@ -180,5 +200,14 @@ class FileLockerController {
 		$oFile->max_levels = $nLevels;
 		$oFile->max_paths = $nMaxPaths;
 		return $oFile;
+	}
+
+	/**
+	 * @return FileLocker\Handler
+	 */
+	private function getDbHandler() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $oMod->getDbHandler_FileLocker();
 	}
 }

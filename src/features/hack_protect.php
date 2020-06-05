@@ -26,18 +26,8 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 * @return array
 	 */
 	public function addAdminMenuBarItems( array $aItems ) {
-		$oCon = $this->getCon();
-		$nCountFL = $this->getFileLocker()->countProblems();
-		if ( $nCountFL > 0 ) {
-			$aItems[] = [
-				'id'       => $oCon->prefix( 'filelocker_problems' ),
-				'title'    => __( 'File Locker', 'wp-simple-firewall' )
-							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountFL ),
-				'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
-				'warnings' => $nCountFL
-			];
-		}
-		return $aItems;
+		$aItems[] = $this->getFileLocker()->getAdminMenuItem();
+		return array_filter( $aItems );
 	}
 
 	protected function doPostConstruction() {
@@ -137,9 +127,9 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 		}
 
 		if ( count( $oOpts->getFilesToLock() ) === 0 || !$this->getCon()
-															->getModule_Plugin()
-															->getShieldNetApiController()
-															->canHandshake() ) {
+															  ->getModule_Plugin()
+															  ->getShieldNetApiController()
+															  ->canHandshake() ) {
 			$oOpts->setOpt( 'file_locker', [] );
 			$this->getFileLocker()->purge();
 		}
