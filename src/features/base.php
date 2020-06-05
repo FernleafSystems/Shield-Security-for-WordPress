@@ -155,12 +155,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	protected function cleanupDatabases() {
 		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
-			try {
-				if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
-					$oDbh->autoCleanDb();
-				}
-			}
-			catch ( \Exception $oE ) {
+			if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
+				$oDbh->autoCleanDb();
 			}
 		}
 	}

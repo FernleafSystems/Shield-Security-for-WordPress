@@ -25,30 +25,30 @@ class BaseBuild {
 	 */
 	public function buildTable() {
 
-		try {
-			$bReady = $this->getDbHandler()->isReady();
-		}
-		catch ( \Exception $oE ) {
-			$bReady = false;
-		}
+		$sRendered = null;
 
-		$this->preBuildTable();
-
-		if ( $bReady && $this->countTotal() > 0 ) {
-			$oTable = $this->getTableRenderer()
-						   ->setItemEntries( $this->getEntriesFormatted() )
-						   ->setPerPage( $this->getParams()[ 'limit' ] )
-						   ->setTotalRecords( $this->countTotal() )
-						   ->prepare_items();
-			ob_start();
-			$oTable->display();
-			$sRendered = ob_get_clean();
+		if ( !$this->getDbHandler()->isReady() ) {
+			$sRendered = __( 'There was an error retrieving entries.', 'wp-simple-firewall' );
 		}
 		else {
-			$sRendered = $this->buildEmpty();
+			$this->preBuildTable();
+
+			if ( $this->countTotal() > 0 ) {
+				$oTable = $this->getTableRenderer()
+							   ->setItemEntries( $this->getEntriesFormatted() )
+							   ->setPerPage( $this->getParams()[ 'limit' ] )
+							   ->setTotalRecords( $this->countTotal() )
+							   ->prepare_items();
+				ob_start();
+				$oTable->display();
+				$sRendered = ob_get_clean();
+			}
+			else {
+				$sRendered = $this->buildEmpty();
+			}
 		}
 
-		return empty( $sRendered ) ? __( 'There was an error retrieving entries.', 'wp-simple-firewall' ) : $sRendered;
+		return $sRendered;
 	}
 
 	/**

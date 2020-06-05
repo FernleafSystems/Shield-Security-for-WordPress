@@ -32,8 +32,14 @@ class Handler {
 
 	/**
 	 * @var bool
+	 * @deprecated 9.0.4
 	 */
 	private $bTableExist;
+
+	/**
+	 * @var bool
+	 */
+	private $bIsReady;
 
 	/**
 	 * @var string
@@ -59,45 +65,13 @@ class Handler {
 	}
 
 	/**
-	 * @param int $nRowsLimit
-	 * @return $this;
-	 */
-	public function trimDb( $nRowsLimit ) {
-		try {
-			$this->getQueryDeleter()
-				 ->deleteExcess( $nRowsLimit );
-		}
-		catch ( \Exception $oE ) {
-		}
-		return $this;
-	}
-
-	/**
 	 * @param int $nTimeStamp
 	 * @return bool
 	 */
 	public function deleteRowsOlderThan( $nTimeStamp ) {
-		$bSuccess = false;
-		try {
-			if ( $this->isReady() ) {
-				$bSuccess = $this->getQueryDeleter()
-								 ->addWhereOlderThan( $nTimeStamp )
-								 ->query();
-			}
-		}
-		catch ( \Exception $oE ) {
-		}
-		return $bSuccess;
-	}
-
-	/**
-	 * @param bool $bTruncate
-	 * @return bool
-	 */
-	public function deleteTable( $bTruncate = false ) {
-		$oDB = Services::WpDb();
-		return $this->isTable() &&
-			   ( $bTruncate ? $oDB->doTruncateTable( $this->getTable() ) : $oDB->doDropTable( $this->getTable() ) );
+		return $this->isReady() && $this->getQueryDeleter()
+										->addWhereOlderThan( $nTimeStamp )
+										->query();
 	}
 
 	/**
@@ -199,13 +173,45 @@ class Handler {
 	 * @return $this
 	 * @throws \Exception
 	 */
+	protected function tableCreate() {
+		$sSql = $this->getSqlCreate();
+		if ( empty( $sSql ) ) {
+			throw new \Exception( 'Table Create SQL is empty' );
+		}
+		$oDB = Services::WpDb();
+		$sSql = sprintf( $sSql, $this->getTable(), $oDB->getCharCollate() );
+		$this->isTable() ? $oDB->dbDelta( $sSql ) : $oDB->doSql( $sSql );
+		return $this;
+	}
+
+	/**
+	 * @param bool $bTruncate
+	 * @return bool
+	 */
+	public function tableDelete( $bTruncate = false ) {
+		$table = $this->getTable();
+		$oDB = Services::WpDb();
+		$mResult = !$this->isTable() ||
+				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
+		$this->reset();
+		return $mResult !== false;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function tableExists() {
+		return Services::WpDb()->getIfTableExists( $this->getTable() );
+	}
+
+	/**
+	 * @return $this
+	 * @throws \Exception
+	 */
 	public function tableInit() {
 		if ( !$this->isReady() ) {
 
-			// apply DB Delta
-			if ( $this->isTable() ) {
-				$this->tableCreate();
-			}
+			$this->tableCreate();
 
 			if ( !$this->isReady( true ) ) {
 				$this->deleteTable();
@@ -216,46 +222,38 @@ class Handler {
 	}
 
 	/**
-	 * @return $this
-	 * @throws \Exception
+	 * @param int $nRowsLimit
+	 * @return $this;
 	 */
-	protected function tableCreate() {
-		$sSql = $this->getSqlCreate();
-		if ( empty( $sSql ) ) {
-			throw new \Exception( 'Table Create SQL is empty' );
+	public function tableTrimExcess( $nRowsLimit ) {
+		try {
+			$this->getQueryDeleter()
+				 ->deleteExcess( $nRowsLimit );
 		}
-		$sSql = sprintf( $sSql, $this->getTable(), Services::WpDb()->getCharCollate() );
-		Services::WpDb()->dbDelta( $sSql );
+		catch ( \Exception $oE ) {
+		}
 		return $this;
 	}
 
 	/**
 	 * @param bool $bReTest
 	 * @return bool
-	 * @throws \Exception
 	 */
 	public function isReady( $bReTest = false ) {
 		if ( $bReTest ) {
-			unset( $this->bTableExist );
-			unset( $this->aColActual );
+			$this->reset();
 		}
 
-		$sTableSlug = $this->getTableSlug();
-		if ( empty( $sTableSlug ) ) {
-			throw new \Exception( 'Table name not provided for '.( new \ReflectionClass( $this ) )->getNamespaceName() );
+		if ( !isset( $this->bIsReady ) ) {
+			try {
+				$this->bIsReady = $this->isTable() && $this->verifyTableStructure();
+			}
+			catch ( \Exception $e ) {
+				$this->bIsReady = false;
+			}
 		}
 
-		return $this->isTable() && $this->verifyTableStructure();
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isTable() {
-		if ( !isset( $this->bTableExist ) ) {
-			$this->bTableExist = Services::WpDb()->getIfTableExists( $this->getTable() );
-		}
-		return $this->bTableExist;
+		return $this->bIsReady;
 	}
 
 	/**
@@ -332,5 +330,36 @@ class Handler {
 			$sNS = __NAMESPACE__;
 		}
 		return rtrim( $sNS, '\\' ).'\\';
+	}
+
+	/**
+	 * @return $this
+	 */
+	private function reset() {
+		unset( $this->bIsReady );
+		unset( $this->aColActual );
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0.4
+	 */
+	public function isTable() {
+		return Services::WpDb()->getIfTableExists( $this->getTable() );
+	}
+
+	/**
+	 * @param bool $bTruncate
+	 * @return bool
+	 * @deprecated 9.0.4
+	 */
+	public function deleteTable( $bTruncate = false ) {
+		$table = $this->getTable();
+		$oDB = Services::WpDb();
+		$mResult = !$this->isTable() ||
+				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
+		$this->reset();
+		return $mResult !== false;
 	}
 }
