@@ -85,7 +85,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 		return [
 			'success' => true,
-			'html'    => $oTableBuilder->buildTable()
+			'html'    => $oTableBuilder->render()
 		];
 	}
 }

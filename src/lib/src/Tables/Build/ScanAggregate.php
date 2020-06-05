@@ -29,7 +29,7 @@ class ScanAggregate extends ScanBase {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		// first filter out PTG results as we process them a bit separately.
 		$aPtgScanEntries = [];
 		$aRaw = $this->getEntriesRaw();

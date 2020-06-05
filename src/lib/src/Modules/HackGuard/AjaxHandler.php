@@ -115,7 +115,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$sHtml = $oTableBuilder
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_ScanResults() )
-				->buildTable();
+				->render();
 		}
 
 		return [

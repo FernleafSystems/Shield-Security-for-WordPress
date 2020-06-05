@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\Build\AuditTrail;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables;
 use WP_CLI;
 
 class Display extends Base\WpCli\BaseWpCliCmd {
@@ -65,8 +65,11 @@ class Display extends Base\WpCli\BaseWpCliCmd {
 	public function cmdDisplay( array $null, array $aA ) {
 		/** @var \ICWP_WPSF_FeatureHandler_AuditTrail $oMod */
 		$oMod = $this->getMod();
-		$oTableBuilder = ( new AuditTrail() )
+		$oTableBuilder = ( new Tables\Build\AuditTrail() )
 			->setMod( $oMod )
 			->setDbHandler( $oMod->getDbHandler_AuditTrail() );
+		( new Tables\Render\WpCliTable\AuditTrail() )
+			->setDataBuilder( $oTableBuilder )
+			->render();
 	}
 }

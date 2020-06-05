@@ -15,7 +15,7 @@ class ScanApc extends ScanBase {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		$aEntries = [];
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */

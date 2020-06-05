@@ -86,7 +86,7 @@ class AuditTrail extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();

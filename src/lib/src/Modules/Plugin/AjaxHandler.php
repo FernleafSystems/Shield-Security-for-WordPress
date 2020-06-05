@@ -177,7 +177,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'html'    => ( new Shield\Tables\Build\AdminNotes() )
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_Notes() )
-				->buildTable()
+				->render()
 		];
 	}
 

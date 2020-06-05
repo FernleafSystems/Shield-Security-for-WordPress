@@ -23,7 +23,7 @@ class BaseBuild {
 	/**
 	 * @return string
 	 */
-	public function buildTable() {
+	public function render() {
 
 		$sRendered = null;
 
@@ -69,7 +69,7 @@ class BaseBuild {
 	/**
 	 * @return array[]|int|string[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		return $this->getEntriesRaw();
 	}
 

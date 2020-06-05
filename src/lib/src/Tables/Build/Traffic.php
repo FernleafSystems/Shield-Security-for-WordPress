@@ -79,7 +79,7 @@ class Traffic extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		$aEntries = [];
 
 		$oWpUsers = Services::WpUsers();

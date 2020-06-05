@@ -23,7 +23,7 @@ class ScanBase extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		$aEntries = [];
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
