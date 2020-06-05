@@ -546,7 +546,11 @@ class Options {
 			foreach ( $this->getRawData_AllOptions() as $aOption ) {
 				$this->aOptionsKeys[] = $aOption[ 'key' ];
 			}
-			$this->aOptionsKeys = array_merge( $this->aOptionsKeys, $this->getCommonStandardOptions() );
+			$this->aOptionsKeys = array_merge(
+				$this->aOptionsKeys,
+				$this->getCommonStandardOptions(),
+				$this->getVirtualCommonOptions()
+			);
 		}
 		return $this->aOptionsKeys;
 	}

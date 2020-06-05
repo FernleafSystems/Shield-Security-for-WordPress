@@ -284,7 +284,6 @@ class Controller {
 			if ( apply_filters( $this->prefix( 'delete_on_deactivate' ), false ) ) {
 				$this->plugin_deleting = true;
 				do_action( $this->prefix( 'delete_plugin' ) );
-				$this->deletePluginControllerOptions();
 			}
 		}
 		$this->deleteCronJobs();
@@ -1646,6 +1645,9 @@ class Controller {
 		return self::$oControllerOptions;
 	}
 
+	/**
+	 * @deprecated 9.0.4
+	 */
 	protected function deletePluginControllerOptions() {
 		$this->setPluginControllerOptions( false );
 		$this->saveCurrentPluginControllerOptions();
@@ -1688,15 +1690,18 @@ class Controller {
 		return apply_filters( $this->prefix( 'is_relabelled' ), false );
 	}
 
-	/**
-	 */
 	protected function saveCurrentPluginControllerOptions() {
-		$oOptions = $this->getPluginControllerOptions();
-		if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
-			add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
-			Services::WpGeneral()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
-			remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
+		if ( $this->plugin_deleting ) {
+			Services::WpGeneral()->deleteOption( $this->getPluginControllerOptionsKey() );
 		}
+		else {
+			$oOptions = $this->getPluginControllerOptions();
+			if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
+				Services::WpGeneral()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+			}
+		}
+		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}
 
 	/**
