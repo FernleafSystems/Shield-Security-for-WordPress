@@ -29,7 +29,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 					],
 					[
 						'type'        => 'flag',
-						'name'        => 'force',
+						'name'        => 'quiet',
 						'optional'    => true,
 						'description' => 'By-pass confirmation prompt.',
 					],
@@ -55,7 +55,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 				break;
 
 			case 'remove':
-				$this->runRemove( isset( $aA[ 'force' ] ) );
+				$this->runRemove( isset( $aA[ 'quiet' ] ) );
 				break;
 		}
 	}

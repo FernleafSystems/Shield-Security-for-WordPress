@@ -124,10 +124,35 @@ class ModuleStandard extends BaseWpCliCmd {
 	 * @param array $aA
 	 */
 	public function cmdOptGet( array $null, array $aA ) {
-		\WP_CLI::log( sprintf( __( 'Current value: %s' ),
-			$this->getOptions()->getOpt( $aA[ 'key' ] ) ) );
+		$oOpts = $this->getOptions();
+
+		$mVal = $oOpts->getOpt( $aA[ 'key' ], $null );
+		$aOpt = $oOpts->getRawData_SingleOption( $aA[ 'key' ] );
+		if ( !is_numeric( $mVal ) && empty( $mVal ) ) {
+			\WP_CLI::log( __( 'No value set.', 'wp-simple-firewall' ) );
+		}
+		else {
+			$sExplain = '';
+
+			if ( is_array( $mVal ) ) {
+				$mVal = sprintf( '[ %s ]', implode( ', ', $mVal ) );
+			}
+
+			if ( $aOpt[ 'type' ] === 'checkbox' ) {
+				$sExplain = sprintf( 'Note: %s', __( '"Y" = Turned On; "N" = Turned Off' ) );
+			}
+
+			\WP_CLI::log( sprintf( __( 'Current value: %s', 'wp-simple-firewall' ), $mVal ) );
+			if ( !empty( $sExplain ) ) {
+				\WP_CLI::log( $sExplain );
+			}
+		}
 	}
 
+	/**
+	 * @param array $null
+	 * @param array $aA
+	 */
 	public function cmdOptSet( array $null, array $aA ) {
 		$this->getOptions()->setOpt( $aA[ 'key' ], $aA[ 'value' ] );
 		\WP_CLI::success( 'Option updated.' );

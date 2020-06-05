@@ -44,7 +44,7 @@ class SessionOps extends BaseWpCliCmd {
 				],
 				[
 					'type'        => 'flag',
-					'name'        => 'force',
+					'name'        => 'quiet',
 					'optional'    => true,
 					'description' => 'By-pass confirmation prompt.',
 				],
@@ -61,9 +61,9 @@ class SessionOps extends BaseWpCliCmd {
 		$oWpUsers = Services::WpUsers();
 
 		$bShowConfirm = true;
-		if ( isset( $aA[ 'force' ] ) ) {
+		if ( isset( $aA[ 'quiet' ] ) ) {
 			$bShowConfirm = false;
-			unset( $aA[ 'force' ] );
+			unset( $aA[ 'quiet' ] );
 		}
 
 		if ( isset( $aA[ 'all' ] ) ) {

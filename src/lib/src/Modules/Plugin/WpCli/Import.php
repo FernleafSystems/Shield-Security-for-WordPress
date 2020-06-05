@@ -44,7 +44,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 				],
 				[
 					'type'        => 'flag',
-					'name'        => 'force',
+					'name'        => 'quiet',
 					'optional'    => true,
 					'description' => 'By-pass confirmation prompt.',
 				],
@@ -70,7 +70,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 			WP_CLI::error( __( 'Please use the `--source=` argument to provide the source site URL or path to file.', 'wp-simple-firewall' ) );
 		}
 
-		if ( !isset( $aA[ 'force' ] ) ) {
+		if ( !isset( $aA[ 'quiet' ] ) ) {
 			WP_CLI::confirm( __( "Importing options will overwrite this site's Shield configuration. Are you sure?", 'wp-simple-firewall' ) );
 		}
 

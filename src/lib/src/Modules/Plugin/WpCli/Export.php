@@ -27,7 +27,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 				[
 					'type'        => 'assoc',
 					'name'        => 'overwrite',
-					'optional'    => false,
+					'optional'    => true,
 					'default'     => 'y',
 					'option'      => [
 						'y',
