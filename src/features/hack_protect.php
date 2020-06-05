@@ -21,15 +21,6 @@ class ICWP_WPSF_FeatureHandler_HackProtect extends ICWP_WPSF_FeatureHandler_Base
 	 */
 	private $oFileLocker;
 
-	/**
-	 * @param array $aItems
-	 * @return array
-	 */
-	public function addAdminMenuBarItems( array $aItems ) {
-		$aItems[] = $this->getFileLocker()->getAdminMenuItem();
-		return array_filter( $aItems );
-	}
-
 	protected function doPostConstruction() {
 		$this->setCustomCronSchedules();
 	}

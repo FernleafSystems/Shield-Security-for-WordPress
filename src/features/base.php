@@ -660,6 +660,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param array $aItems
 	 * @return array
+	 * @deprecated 9.0.4
 	 */
 	public function addAdminMenuBarItems( array $aItems ) {
 		return $aItems;

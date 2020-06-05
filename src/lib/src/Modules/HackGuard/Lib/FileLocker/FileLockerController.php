@@ -30,6 +30,8 @@ class FileLockerController {
 	}
 
 	protected function run() {
+		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
 			if ( !$this->getCon()->plugin_deactivating ) {
 				if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
@@ -43,23 +45,21 @@ class FileLockerController {
 	}
 
 	/**
+	 * @param array $aItems
 	 * @return array
 	 */
-	public function getAdminMenuItem() {
-		$aItem = [];
-		if ( $this->getDbHandler()->isReady() ) {
-			$nCountFL = $this->countProblems();
-			if ( $nCountFL > 0 ) {
-				$aItem = [
-					'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
-					'title'    => __( 'File Locker', 'wp-simple-firewall' )
-								  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountFL ),
-					'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
-					'warnings' => $nCountFL
-				];
-			}
+	public function addAdminMenuBarItem( array $aItems ) {
+		$nCountFL = $this->countProblems();
+		if ( $nCountFL > 0 ) {
+			$aItems[] = [
+				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
+				'title'    => __( 'File Locker', 'wp-simple-firewall' )
+							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountFL ),
+				'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+				'warnings' => $nCountFL
+			];
 		}
-		return $aItem;
+		return $aItems;
 	}
 
 	/**

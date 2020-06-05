@@ -6,6 +6,7 @@
 
 ##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
 
+* **(.4)  FIX**:		Timing error in some cases attempting to access database table when it hasn't been created.
 * **(.3)  IMPROVED**:	Scanning for SPAM email registrations is improved with more signals.
 * **(.3)  IMPROVED**:	Better recovery from errors during certain scans.
 * **(.3)  IMPROVED**:	WPHashes Token Retrieval.
