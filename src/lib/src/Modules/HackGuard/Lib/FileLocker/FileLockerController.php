@@ -26,10 +26,12 @@ class FileLockerController {
 					   ->getModule_Plugin()
 					   ->getShieldNetApiController()
 					   ->canHandshake()
-			   && $oMod->getDbHandler_FileLocker()->isTable();
+			   && $oMod->getDbHandler_FileLocker()->isReady();
 	}
 
 	protected function run() {
+		add_filter( $this->getCon()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
+
 		add_action( $this->getCon()->prefix( 'plugin_shutdown' ), function () {
 			if ( !$this->getCon()->plugin_deactivating ) {
 				if ( $this->getOptions()->isOptChanged( 'file_locker' ) ) {
@@ -40,6 +42,24 @@ class FileLockerController {
 				}
 			}
 		} );
+	}
+
+	/**
+	 * @param array $aItems
+	 * @return array
+	 */
+	public function addAdminMenuBarItem( array $aItems ) {
+		$nCountFL = $this->countProblems();
+		if ( $nCountFL > 0 ) {
+			$aItems[] = [
+				'id'       => $this->getCon()->prefix( 'filelocker_problems' ),
+				'title'    => __( 'File Locker', 'wp-simple-firewall' )
+							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $nCountFL ),
+				'href'     => $this->getCon()->getModule_Insights()->getUrl_SubInsightsPage( 'scans' ),
+				'warnings' => $nCountFL
+			];
+		}
+		return $aItems;
 	}
 
 	/**
@@ -180,5 +200,14 @@ class FileLockerController {
 		$oFile->max_levels = $nLevels;
 		$oFile->max_paths = $nMaxPaths;
 		return $oFile;
+	}
+
+	/**
+	 * @return FileLocker\Handler
+	 */
+	private function getDbHandler() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $oMod->getDbHandler_FileLocker();
 	}
 }

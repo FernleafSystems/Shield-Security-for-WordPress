@@ -155,12 +155,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	protected function cleanupDatabases() {
 		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
-			try {
-				if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
-					$oDbh->autoCleanDb();
-				}
-			}
-			catch ( \Exception $oE ) {
+			if ( $oDbh instanceof Shield\Databases\Base\Handler && $oDbh->isReady() ) {
+				$oDbh->autoCleanDb();
 			}
 		}
 	}
@@ -649,6 +645,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param array $aItems
 	 * @return array
+	 * @deprecated 9.0.4
 	 */
 	public function addAdminMenuBarItems( array $aItems ) {
 		return $aItems;

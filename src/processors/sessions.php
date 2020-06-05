@@ -54,7 +54,7 @@ class ICWP_WPSF_Processor_Sessions extends Modules\BaseShield\ShieldProcessor {
 		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
 		$oMod = $this->getMod();
 
-		if ( !Services::Rest()->isRest() ) {
+		if ( !Services::Rest()->isRest() && !$this->getCon()->plugin_deleting ) {
 			$oSession = $this->getCurrentSession();
 			if ( $oSession instanceof Session\EntryVO ) {
 				/** @var Session\Update $oUpd */

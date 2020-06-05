@@ -44,7 +44,6 @@ class LoadFileLocks {
 		return array_filter(
 			$this->loadLocks(),
 			function ( $oLock ) {
-				/** @var FileLocker\EntryVO $oLock */
 				return $oLock->detected_at > 0;
 			}
 		);
