@@ -22,18 +22,13 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 					'type'        => 'assoc',
 					'name'        => 'file',
 					'optional'    => false,
-					'description' => 'The absolute path to the file for export.',
+					'description' => 'The absolute or relative (to ABSPATH) path to the file for export.',
 				],
 				[
-					'type'        => 'assoc',
-					'name'        => 'overwrite',
+					'type'        => 'flag',
+					'name'        => 'quiet',
 					'optional'    => true,
-					'default'     => 'y',
-					'option'      => [
-						'y',
-						'n'
-					],
-					'description' => 'Whether to overwrite the file if it already exists. Default behaviour will overwrite existing files.',
+					'description' => 'By-pass confirmation to overwrite files - files will be overwritten quietly.',
 				],
 			],
 		] );
@@ -47,16 +42,37 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 	public function cmdExport( array $null, array $aA ) {
 		$oFS = Services::WpFs();
 
-		$sFile = isset( $aA[ 'file' ] ) ? $aA[ 'file' ] : '';
-		$bOverwrite = $aA[ 'overwrite' ] === 'y';
-
+		$sFile = $aA[ 'file' ];
+		$bQuiet = isset( $aA[ 'quiet' ] );
 		if ( !path_is_absolute( $sFile ) ) {
-			WP_CLI::error( __( "The path you've specified isn't an absolute path.", 'wp-simple-firewall' ) );
+			$sFile = path_join( ABSPATH, $sFile );
+			WP_CLI::log( __( "The file you specified wasn't an absolute path, so we're using the following path to the export file:" ) );
 		}
-		if ( $oFS->isFile( $sFile ) && !$bOverwrite ) {
-			WP_CLI::error( __( "The path you've specified already exists.", 'wp-simple-firewall' ) );
+		WP_CLI::log( sprintf( '%s: %s', __( 'Export file path', 'wp-simple-firewall' ), $sFile ) );
+
+		if ( $oFS->isDir( $sFile ) ) {
+			WP_CLI::error( __( "The file path you've provide is an existing directory.", 'wp-simple-firewall' ) );
 		}
 
+		$dir = dirname( $sFile );
+		if ( !$oFS->isDir( $dir ) ) {
+			if ( !$bQuiet ) {
+				WP_CLI::confirm( "The directory for the export file doesn't exist. Create it?" );
+			}
+			$oFS->mkdir( $sFile );
+			if ( $oFS->mkdir( $sFile ) && !$oFS->isDir( $dir ) ) {
+				WP_CLI::error( sprintf( __( "Couldn't create the directory: %s", 'wp-simple-firewall' ), $dir ) );
+			}
+		}
+
+		if ( $oFS->isFile( $sFile ) && !$bQuiet ) {
+			WP_CLI::confirm( "The export file already exists. Overwrite?" );
+		}
+
+		$oFS->touch( $sFile );
+		if ( !$oFS->isFile( $sFile ) ) {
+			WP_CLI::error( __( "Couldn't create the export file.", 'wp-simple-firewall' ) );
+		}
 		if ( !is_writable( $sFile ) ) {
 			WP_CLI::error( __( "The system reports that this file path isn't writable.", 'wp-simple-firewall' ) );
 		}
