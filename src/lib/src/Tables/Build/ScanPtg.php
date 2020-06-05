@@ -43,9 +43,9 @@ class ScanPtg extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanPtg
+	 * @return Shield\Tables\Render\WpListTable\ScanPtg
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanPtg();
+		return new Shield\Tables\Render\WpListTable\ScanPtg();
 	}
 }

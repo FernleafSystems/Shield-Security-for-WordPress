@@ -152,9 +152,9 @@ class AuditTrail extends BaseBuild {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\AuditTrail
+	 * @return Shield\Tables\Render\WpListTable\AuditTrail
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\AuditTrail();
+		return new Shield\Tables\Render\WpListTable\AuditTrail();
 	}
 }

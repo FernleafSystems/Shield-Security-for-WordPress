@@ -63,9 +63,9 @@ class ScanWpv extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanWpv
+	 * @return Shield\Tables\Render\WpListTable\ScanWpv
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanWpv();
+		return new Shield\Tables\Render\WpListTable\ScanWpv();
 	}
 }

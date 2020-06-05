@@ -1,6 +1,6 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 

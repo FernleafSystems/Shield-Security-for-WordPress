@@ -108,10 +108,10 @@ class BaseBuild {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\Base
+	 * @return Shield\Tables\Render\WpListTable\Base
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\Base();
+		return new Shield\Tables\Render\WpListTable\Base();
 	}
 
 	/**

@@ -162,9 +162,9 @@ class Traffic extends BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\Traffic
+	 * @return Tables\Render\WpListTable\Traffic
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\Traffic();
+		return new Tables\Render\WpListTable\Traffic();
 	}
 }

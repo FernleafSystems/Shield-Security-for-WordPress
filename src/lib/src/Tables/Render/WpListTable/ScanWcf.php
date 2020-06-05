@@ -1,10 +1,10 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpListTable;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 
-class ScanUfc extends ScanBase {
+class ScanWcf extends ScanBase {
 
 	/**
 	 * @param array $aItem
@@ -13,7 +13,7 @@ class ScanUfc extends ScanBase {
 	public function column_path( $aItem ) {
 		$aButtons = [
 			$this->getActionButton_Ignore( $aItem[ 'id' ] ),
-			$this->getActionButton_Delete( $aItem[ 'id' ] ),
+			$this->getActionButton_Repair( $aItem[ 'id' ] ),
 		];
 		if ( !empty( $aItem[ 'href_download' ] ) ) {
 			$aButtons[] = $this->getActionButton_DownloadFile( $aItem[ 'href_download' ] );
@@ -26,7 +26,7 @@ class ScanUfc extends ScanBase {
 	 */
 	protected function get_bulk_actions() {
 		return [
-			'delete' => __( 'Delete', 'wp-simple-firewall' ),
+			'repair' => __( 'Repair', 'wp-simple-firewall' ),
 			'ignore' => __( 'Ignore', 'wp-simple-firewall' ),
 		];
 	}

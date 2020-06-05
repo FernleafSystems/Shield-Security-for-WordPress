@@ -1,8 +1,8 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Render\WpCliTable;
 
-class AuditTrail extends Base {
+class AuditTrail {
 
 	/**
 	 * Generates content for a single row of the table

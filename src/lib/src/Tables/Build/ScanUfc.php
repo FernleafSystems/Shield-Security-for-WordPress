@@ -11,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield;
 class ScanUfc extends ScanBase {
 
 	/**
-	 * @return Shield\Tables\Render\ScanUfc
+	 * @return Shield\Tables\Render\WpListTable\ScanUfc
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanUfc();
+		return new Shield\Tables\Render\WpListTable\ScanUfc();
 	}
 }

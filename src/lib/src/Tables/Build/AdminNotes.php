@@ -28,9 +28,9 @@ class AdminNotes extends BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\AdminNotes
+	 * @return Tables\Render\WpListTable\AdminNotes
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\AdminNotes();
+		return new Tables\Render\WpListTable\AdminNotes();
 	}
 }

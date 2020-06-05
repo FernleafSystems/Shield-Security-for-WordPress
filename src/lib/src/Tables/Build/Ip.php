@@ -71,17 +71,17 @@ class Ip extends BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\IpBlack|Tables\Render\IpWhite
+	 * @return Tables\Render\WpListTable\IpBlack|Tables\Render\WpListTable\IpWhite
 	 */
 	protected function getTableRenderer() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
 		$aLists = $this->getParams()[ 'fLists' ];
 		if ( empty( $aLists ) || in_array( $oMod::LIST_MANUAL_WHITE, $aLists ) ) {
-			$sTable = new Tables\Render\IpWhite();
+			$sTable = new Tables\Render\WpListTable\IpWhite();
 		}
 		else {
-			$sTable = new Tables\Render\IpBlack();
+			$sTable = new Tables\Render\WpListTable\IpBlack();
 		}
 		return $sTable;
 	}

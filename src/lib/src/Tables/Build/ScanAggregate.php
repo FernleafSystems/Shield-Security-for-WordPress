@@ -134,9 +134,9 @@ class ScanAggregate extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanAggregate
+	 * @return Shield\Tables\Render\WpListTable\ScanAggregate
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanAggregate();
+		return new Shield\Tables\Render\WpListTable\ScanAggregate();
 	}
 }
