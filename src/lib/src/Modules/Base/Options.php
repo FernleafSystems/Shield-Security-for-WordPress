@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\Options\OptValueSanitize;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -805,35 +806,45 @@ class Options {
 	 */
 	public function setOpt( $sOptKey, $mNewValue ) {
 
-		// NOTE: can't use getOpt() for current value since we'll create an infinite loop
-		$aOptionsValues = $this->getAllOptionsValues();
-		$mCurrent = isset( $aOptionsValues[ $sOptKey ] ) ? $aOptionsValues[ $sOptKey ] : null;
+		// NOTE: can't use getOpt() for current as it'll create infinite loop
+		$aOptVals = $this->getAllOptionsValues();
+		$mCurrent = isset( $aOptVals[ $sOptKey ] ) ? $aOptVals[ $sOptKey ] : null;
 
-		$mNewValue = $this->ensureOptValueState( $sOptKey, $mNewValue );
-
-		// Here we try to ensure that values that are repeatedly changed properly reflect their changed
-		// states, as they may be reverted back to their original state and we "think" it's been changed.
-		$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $mNewValue );
-		// basically if we're actually resetting back to the original value
-		$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $sOptKey )
-						&& ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
-
-		if ( $bValueIsDifferent && $this->verifyCanSet( $sOptKey, $mNewValue ) ) {
-			$this->setNeedSave( true );
-
-			//Load the config and do some pre-set verification where possible. This will slowly grow.
-			$aOption = $this->getRawData_SingleOption( $sOptKey );
-			if ( !empty( $aOption[ 'type' ] ) ) {
-				if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $mNewValue ) ) {
-					return $this->resetOptToDefault( $sOptKey );
-				}
-			}
-			$this->setOldOptValue( $sOptKey, $mCurrent )
-				 ->setOptValue( $sOptKey, $mNewValue );
+		try {
+			$mNewValue = ( new OptValueSanitize() )
+				->setMod( $this->getMod() )
+				->run( $sOptKey, $mNewValue );
+			$bVerified = true;
+		}
+		catch ( \Exception $oE ) {
+			$bVerified = false;
 		}
 
-		if ( $bIsResetting ) {
-			unset( $this->aOld[ $sOptKey ] );
+		if ( $bVerified ) {
+			// Here we try to ensure that values that are repeatedly changed properly reflect their changed
+			// states, as they may be reverted back to their original state and we "think" it's been changed.
+			$bValueIsDifferent = serialize( $mCurrent ) !== serialize( $mNewValue );
+			// basically if we're actually resetting back to the original value
+			$bIsResetting = $bValueIsDifferent && $this->isOptChanged( $sOptKey )
+							&& ( serialize( $this->getOldValue( $sOptKey ) ) === serialize( $mNewValue ) );
+
+			if ( $bValueIsDifferent && $this->verifyCanSet( $sOptKey, $mNewValue ) ) {
+				$this->setNeedSave( true );
+
+				//Load the config and do some pre-set verification where possible. This will slowly grow.
+				$aOption = $this->getRawData_SingleOption( $sOptKey );
+				if ( !empty( $aOption[ 'type' ] ) ) {
+					if ( $aOption[ 'type' ] == 'boolean' && !is_bool( $mNewValue ) ) {
+						return $this->resetOptToDefault( $sOptKey );
+					}
+				}
+				$this->setOldOptValue( $sOptKey, $mCurrent )
+					 ->setOptValue( $sOptKey, $mNewValue );
+			}
+
+			if ( $bIsResetting ) {
+				unset( $this->aOld[ $sOptKey ] );
+			}
 		}
 
 		return $this;
@@ -855,7 +866,7 @@ class Options {
 	 * @param mixed  $mValue
 	 * @return $this
 	 */
-	private function setOptValue( $sOptKey, $mValue ) {
+	public function setOptValue( $sOptKey, $mValue ) {
 		$aValues = $this->getAllOptionsValues();
 		$aValues[ $sOptKey ] = $mValue;
 		$this->aOptionsValues = $aValues;
@@ -863,35 +874,13 @@ class Options {
 	}
 
 	/**
-	 * Ensures that set options values are of the correct type
-	 * @param string $sOptKey
-	 * @param mixed  $mValue
-	 * @return mixed
+	 * @param $sOptKey
+	 * @param $mValue
+	 * @return array|int|mixed|string
+	 * @throws \Exception
+	 * @deprecated 9.1.0
 	 */
 	private function ensureOptValueState( $sOptKey, $mValue ) {
-		$sType = $this->getOptionType( $sOptKey );
-		if ( !empty( $sType ) ) {
-			switch ( $sType ) {
-				case 'integer':
-					$mValue = (int)$mValue;
-					break;
-
-				case 'text':
-				case 'email':
-					$mValue = (string)$mValue;
-					break;
-
-				case 'array':
-				case 'multiple_select':
-					if ( !is_array( $mValue ) ) {
-						$mValue = $this->getOptDefault( $sOptKey );
-					}
-					break;
-
-				default:
-					break;
-			}
-		}
 		return $mValue;
 	}
 
