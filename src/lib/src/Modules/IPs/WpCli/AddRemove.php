@@ -17,7 +17,7 @@ class AddRemove extends BaseWpCliCmd {
 			[ $this, 'cmdIpAdd' ], [
 			'shortdesc' => 'Add an IP address to one of your lists, white or black.',
 			'synopsis'  => array_merge(
-				$this->getCommonSynopsis(),
+				$this->getCommonIpCmdArgs(),
 				[
 					'type'        => 'assoc',
 					'name'        => 'label',
@@ -30,7 +30,7 @@ class AddRemove extends BaseWpCliCmd {
 			$this->buildCmd( [ 'ip', 'remove' ] ),
 			[ $this, 'cmdIpRemove' ], [
 				'shortdesc' => 'Remove an IP address from one of your lists, white or black.',
-				'synopsis'  => $this->getCommonSynopsis(),
+				'synopsis'  => $this->getCommonIpCmdArgs(),
 			]
 		);
 	}
@@ -88,7 +88,7 @@ class AddRemove extends BaseWpCliCmd {
 	/**
 	 * @return array[]
 	 */
-	private function getCommonSynopsis() {
+	private function getCommonIpCmdArgs() {
 		return [
 			[
 				'type'        => 'assoc',

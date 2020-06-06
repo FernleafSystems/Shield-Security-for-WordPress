@@ -59,4 +59,35 @@ abstract class BaseWpCliCmd {
 		$sRoot = $this->getOptions()->getWpCliCfg()[ 'root' ];
 		return empty( $sRoot ) ? $this->getMod()->getModSlug( false ) : $sRoot;
 	}
+
+	/**
+	 * @param array $aArgs
+	 * @return array
+	 */
+	protected function mergeCommonCmdArgs( array $aArgs ) {
+		return array_merge(
+			$this->getCommonCmdArgs(),
+			$aArgs
+		);
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getCommonCmdArgs() {
+		return [
+			'before_invoke' => function () {
+				$this->beforeInvokeCmd();
+			},
+			'after_invoke' => function () {
+				$this->afterInvokeCmd();
+			}
+		];
+	}
+
+	protected function afterInvokeCmd() {
+	}
+
+	protected function beforeInvokeCmd() {
+	}
 }

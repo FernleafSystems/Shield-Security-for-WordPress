@@ -10,7 +10,7 @@ class ModuleStandard extends BaseWpCliCmd {
 	protected function addCmds() {
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt', 'list' ] ),
-			[ $this, 'cmdOptList' ], [
+			[ $this, 'cmdOptList' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'List the option keys and their names.',
 			'synopsis'  => [
 				[
@@ -33,11 +33,11 @@ class ModuleStandard extends BaseWpCliCmd {
 					'description' => 'Display all the option details.',
 				],
 			],
-		] );
+		] ) );
 
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt', 'get' ] ),
-			[ $this, 'cmdOptGet' ], [
+			[ $this, 'cmdOptGet' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Enable, disable, or query the status of a module.',
 			'synopsis'  => [
 				[
@@ -48,11 +48,11 @@ class ModuleStandard extends BaseWpCliCmd {
 					'description' => 'The option key to get.',
 				],
 			],
-		] );
+		] ) );
 
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'opt', 'set' ] ),
-			[ $this, 'cmdOptSet' ], [
+			[ $this, 'cmdOptSet' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Enable, disable, or query the status of a module.',
 			'synopsis'  => [
 				[
@@ -70,11 +70,11 @@ class ModuleStandard extends BaseWpCliCmd {
 					'description' => "The option's new value.",
 				],
 			],
-		] );
+		] ) );
 
 		\WP_CLI::add_command(
 			$this->buildCmd( [ 'module' ] ),
-			[ $this, 'cmdModAction' ], [
+			[ $this, 'cmdModAction' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Enable, disable, or query the status of a module.',
 			'synopsis'  => [
 				[
@@ -89,7 +89,7 @@ class ModuleStandard extends BaseWpCliCmd {
 					'description' => 'The action to perform on the module.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	public function cmdModAction( $null, $aA ) {
