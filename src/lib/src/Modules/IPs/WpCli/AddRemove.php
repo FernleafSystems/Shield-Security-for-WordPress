@@ -14,7 +14,7 @@ class AddRemove extends BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'ip', 'add' ] ),
-			[ $this, 'cmdIpAdd' ], [
+			[ $this, 'cmdIpAdd' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Add an IP address to one of your lists, white or black.',
 			'synopsis'  => array_merge(
 				$this->getCommonIpCmdArgs(),
@@ -25,14 +25,14 @@ class AddRemove extends BaseWpCliCmd {
 					'description' => 'The label to assign to this IP entry.',
 				]
 			),
-		] );
+		] ) );
+
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'ip', 'remove' ] ),
-			[ $this, 'cmdIpRemove' ], [
-				'shortdesc' => 'Remove an IP address from one of your lists, white or black.',
-				'synopsis'  => $this->getCommonIpCmdArgs(),
-			]
-		);
+			[ $this, 'cmdIpRemove' ], $this->mergeCommonCmdArgs( [
+			'shortdesc' => 'Remove an IP address from one of your lists, white or black.',
+			'synopsis'  => $this->getCommonIpCmdArgs(),
+		] ) );
 	}
 
 	/**

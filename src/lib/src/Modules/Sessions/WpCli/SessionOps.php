@@ -15,7 +15,7 @@ class SessionOps extends BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'terminate' ] ),
-			[ $this, 'cmdTerminate' ], [
+			[ $this, 'cmdTerminate' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Terminate 1, some, or all user sessions.',
 			'synopsis'  => [
 				[
@@ -49,7 +49,7 @@ class SessionOps extends BaseWpCliCmd {
 					'description' => 'By-pass confirmation prompt.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	/**

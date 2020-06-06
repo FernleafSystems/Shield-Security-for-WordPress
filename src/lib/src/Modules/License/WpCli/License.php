@@ -13,7 +13,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'pro' ] ),
-			[ $this, 'cmdAction' ], [
+			[ $this, 'cmdAction' ], $this->mergeCommonCmdArgs( [
 				'shortdesc' => 'Manage the ShieldPRO license.',
 				'synopsis'  => [
 					[
@@ -35,7 +35,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 					],
 				],
 			]
-		);
+		) );
 	}
 
 	/**

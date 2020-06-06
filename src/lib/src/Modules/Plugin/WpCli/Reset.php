@@ -14,7 +14,7 @@ class Reset extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'reset' ] ),
-			[ $this, 'cmdReset' ], [
+			[ $this, 'cmdReset' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Reset the Shield plugin to default settings.',
 			'synopsis'  => [
 				[
@@ -24,7 +24,7 @@ class Reset extends Base\WpCli\BaseWpCliCmd {
 					'description' => 'By-pass confirmation prompt.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	public function cmdReset( $null, $aA ) {

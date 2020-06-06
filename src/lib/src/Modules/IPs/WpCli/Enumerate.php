@@ -14,7 +14,7 @@ class Enumerate extends BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'print' ] ),
-			[ $this, 'cmdPrint' ], [
+			[ $this, 'cmdPrint' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Enumerate all IPs currently present on your lists.',
 			'synopsis'  => [
 				[
@@ -28,7 +28,7 @@ class Enumerate extends BaseWpCliCmd {
 					'description' => 'The IP list to enumerate.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	public function cmdPrint( $null, $aA ) {

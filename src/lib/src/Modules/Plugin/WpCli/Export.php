@@ -15,7 +15,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'export' ] ),
-			[ $this, 'cmdExport' ], [
+			[ $this, 'cmdExport' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Export configuration to file.',
 			'synopsis'  => [
 				[
@@ -31,7 +31,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 					'description' => 'By-pass confirmation to overwrite files - files will be overwritten quietly.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	/**

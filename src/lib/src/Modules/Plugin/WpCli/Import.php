@@ -15,7 +15,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'import' ] ),
-			[ $this, 'cmdImport' ], [
+			[ $this, 'cmdImport' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Import configuration from another WP site running Shield',
 			'synopsis'  => [
 				[
@@ -55,7 +55,7 @@ class Import extends Base\WpCli\BaseWpCliCmd {
 					'description' => 'Delete file after configurations have been imported.',
 				],
 			],
-		] );
+		] ) );
 	}
 
 	/**

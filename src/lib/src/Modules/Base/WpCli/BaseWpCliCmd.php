@@ -79,9 +79,10 @@ abstract class BaseWpCliCmd {
 			'before_invoke' => function () {
 				$this->beforeInvokeCmd();
 			},
-			'after_invoke' => function () {
+			'after_invoke'  => function () {
 				$this->afterInvokeCmd();
-			}
+			},
+			'when'          => 'before_wp_load',
 		];
 	}
 

@@ -14,7 +14,7 @@ class Display extends Base\WpCli\BaseWpCliCmd {
 	protected function addCmds() {
 		WP_CLI::add_command(
 			$this->buildCmd( [ 'display' ] ),
-			[ $this, 'cmdDisplay' ], [
+			[ $this, 'cmdDisplay' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Import configuration from another WP site running Shield',
 			'synopsis'  => [
 //				[
@@ -54,7 +54,7 @@ class Display extends Base\WpCli\BaseWpCliCmd {
 //					'description' => 'Delete file after configurations have been imported.',
 //				],
 			],
-		] );
+		] ) );
 	}
 
 	/**
