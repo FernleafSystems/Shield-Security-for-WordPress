@@ -104,13 +104,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		}, $nRunPriority );
 		add_action( $oCon->prefix( 'run_processors' ), [ $this, 'onRunProcessors' ], $nRunPriority );
 		add_action( 'init', [ $this, 'onWpInit' ], 1 );
-		add_action( 'cli_init', function () {
-			try {
-				$this->getWpCli()->execute();
-			}
-			catch ( \Exception $oE ) {
-			}
-		} );
 
 		$nMenuPri = isset( $aModProps[ 'menu_priority' ] ) ? $aModProps[ 'menu_priority' ] : 100;
 		add_filter( $oCon->prefix( 'submenu_items' ), [ $this, 'supplySubMenuItem' ], $nMenuPri );
@@ -350,6 +343,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		$sShieldAction = $this->getCon()->getShieldAction();
 		if ( !empty( $sShieldAction ) ) {
 			do_action( $this->getCon()->prefix( 'shield_action' ), $sShieldAction );
+		}
+
+		if ( Services::Data()->getPhpVersionIsAtLeast( '7.0' ) ) {
+			add_action( 'cli_init', function () {
+				try {
+					$this->getWpCli()->execute();
+				}
+				catch ( \Exception $oE ) {
+				}
+			} );
 		}
 
 		if ( $this->isModuleRequest() ) {
