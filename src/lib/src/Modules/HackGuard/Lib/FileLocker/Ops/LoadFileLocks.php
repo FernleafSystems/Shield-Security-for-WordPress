@@ -25,12 +25,14 @@ class LoadFileLocks {
 		if ( is_null( self::$aFileLockRecords ) ) {
 			/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 			$oMod = $this->getMod();
-			$aAll = $oMod->getDbHandler_FileLocker()->getQuerySelector()->all();
 
 			self::$aFileLockRecords = [];
-			if ( is_array( $aAll ) ) {
-				foreach ( $aAll as $oLock ) {
-					self::$aFileLockRecords[ $oLock->id ] = $oLock;
+			if ( $oMod->getFileLocker()->isEnabled() ) {
+				$aAll = $oMod->getDbHandler_FileLocker()->getQuerySelector()->all();
+				if ( is_array( $aAll ) ) {
+					foreach ( $aAll as $oLock ) {
+						self::$aFileLockRecords[ $oLock->id ] = $oLock;
+					}
 				}
 			}
 		}
@@ -69,7 +71,6 @@ class LoadFileLocks {
 		return array_filter(
 			$this->loadLocks(),
 			function ( $oLock ) {
-				/** @var FileLocker\EntryVO $oLock */
 				return $oLock->detected_at == 0;
 			}
 		);

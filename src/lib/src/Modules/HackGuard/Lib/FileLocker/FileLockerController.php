@@ -16,16 +16,23 @@ class FileLockerController {
 	/**
 	 * @return bool
 	 */
-	protected function canRun() {
+	public function isEnabled() {
 		/** @var HackGuard\Options $oOpts */
 		$oOpts = $this->getOptions();
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
 		return ( count( $oOpts->getFilesToLock() ) > 0 )
 			   && $this->getCon()
 					   ->getModule_Plugin()
 					   ->getShieldNetApiController()
-					   ->canHandshake()
+					   ->canHandshake();
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function canRun() {
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
+		$oMod = $this->getMod();
+		return $this->isEnabled()
 			   && $oMod->getDbHandler_FileLocker()->isReady();
 	}
 
@@ -118,13 +125,13 @@ class FileLockerController {
 	public function deleteAllLocks() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oMod->getDbHandler_FileLocker()->deleteTable( true );
+		$oMod->getDbHandler_FileLocker()->tableDelete( true );
 	}
 
 	public function purge() {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
-		$oMod->getDbHandler_FileLocker()->deleteTable();
+		$oMod->getDbHandler_FileLocker()->tableDelete();
 	}
 
 	/**
