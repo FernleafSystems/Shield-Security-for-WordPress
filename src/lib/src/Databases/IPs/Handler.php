@@ -55,7 +55,7 @@ class Handler extends Base\Handler {
 	protected function getDefaultCreateTableSql() {
 		return "CREATE TABLE %s (
 			id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-			ip varchar(40) NOT NULL DEFAULT '',
+			ip varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range',
 			label varchar(255) NOT NULL DEFAULT '',
 			transgressions smallint(1) UNSIGNED NOT NULL DEFAULT 0,
 			list varchar(4) NOT NULL DEFAULT '',
