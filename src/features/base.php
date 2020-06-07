@@ -1241,7 +1241,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function onPluginDelete() {
 		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
 			if ( !empty( $oDbh ) ) {
-				$oDbh->deleteTable();
+				$oDbh->tableDelete();
 			}
 		}
 		$this->getOptions()->deleteStorage();

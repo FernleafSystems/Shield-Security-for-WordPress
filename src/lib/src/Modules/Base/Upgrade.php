@@ -11,10 +11,9 @@ class Upgrade {
 
 	protected function run() {
 		$version = $this->getOptions()->getOpt( 'cfg_version' );
-		if ( empty( $version ) ) {
-			$version = '9.0.2'; // TODO: delete after next release is propagated
+		if ( !empty( $version ) ) {
+			$this->upgradeModule( $version );
 		}
-		$this->upgradeModule( $version );
 		$this->runEveryUpgrade();
 		$this->upgradeCommon();
 	}
@@ -26,6 +25,7 @@ class Upgrade {
 		return [
 			'9.0.0',
 			'9.0.3',
+			'9.0.5',
 		];
 	}
 
@@ -38,6 +38,8 @@ class Upgrade {
 	}
 
 	/**
+	 * Runs through each version with upgrade code available and if the current config
+	 * version is less than the upgrade version, run the upgrade code.
 	 * @param string $sCurrent
 	 */
 	protected function upgradeModule( $sCurrent ) {
