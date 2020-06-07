@@ -294,7 +294,33 @@ class Handler {
 	 * @return string
 	 */
 	protected function getDefaultCreateTableSql() {
-		return '';
+		$aCols = [];
+		foreach ( $this->enumerateColumns() as $col => $def ) {
+			$aCols[] = sprintf( '%s %s', $col, $def );
+		}
+		$aCols[] = $this->getPrimaryKeySpec();
+
+		return "CREATE TABLE %s (
+			".implode( ", ", $aCols )."
+		) %s;";
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getColumnsAsArray() {
+		return [];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function enumerateColumns() {
+		return array_merge(
+			$this->getColumn_ID(),
+			$this->getColumnsAsArray(),
+			$this->getColumns_Ats()
+		);
 	}
 
 	/**
@@ -361,5 +387,31 @@ class Handler {
 				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
 		$this->reset();
 		return $mResult !== false;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getColumn_ID() {
+		return [
+			'id' => 'int(11) UNSIGNED NOT NULL AUTO_INCREMENT',
+		];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	protected function getColumns_Ats() {
+		return [
+			'created_at' => "int(15) UNSIGNED NOT NULL DEFAULT 0",
+			'deleted_at' => "int(15) UNSIGNED NOT NULL DEFAULT 0",
+		];
+	}
+
+	/**
+	 * @return strinG
+	 */
+	protected function getPrimaryKeySpec() {
+		return 'PRIMARY KEY  (id)';
 	}
 }
