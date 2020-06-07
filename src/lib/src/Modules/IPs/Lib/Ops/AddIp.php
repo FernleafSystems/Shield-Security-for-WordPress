@@ -173,6 +173,7 @@ class AddIp {
 	 * @param string   $sLabel
 	 * @param int|null $nLastAccessAt
 	 * @return Databases\IPs\EntryVO|null
+	 * @throws \Exception
 	 */
 	private function add( $sList, $sLabel = '', $nLastAccessAt = null ) {
 		$oIP = null;
@@ -197,6 +198,10 @@ class AddIp {
 			$oIP = $oDbh->getQuerySelector()
 						->setWheresFromVo( $oTempIp )
 						->first();
+		}
+
+		if ( !$oIP instanceof Databases\IPs\EntryVO ) {
+			throw new \Exception( "IP couldn't be added to the database." );
 		}
 
 		return $oIP;
