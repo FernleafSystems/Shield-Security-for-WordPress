@@ -38,6 +38,8 @@ class Upgrade {
 	}
 
 	/**
+	 * Runs through each version with upgrade code available and if the current config
+	 * version is less than the upgrade version, run the upgrade code.
 	 * @param string $sCurrent
 	 */
 	protected function upgradeModule( $sCurrent ) {
