@@ -1612,7 +1612,8 @@ class Controller {
 	public function getPreviousVersion() {
 		$oOpts = $this->getPluginControllerOptions();
 		if ( empty( $oOpts->previous_version ) ) {
-			$oOpts->previous_version = $this->getVersion();
+			$oOpts->previous_version = '9.0.4'; //@deprecated 9.0.4
+//			$oOpts->previous_version = $this->getVersion();
 		}
 		return $oOpts->previous_version;
 	}
@@ -1702,14 +1703,15 @@ class Controller {
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
+		$oWP = Services::WpGeneral();
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 		if ( $this->plugin_deleting ) {
-			Services::WpGeneral()->deleteOption( $this->getPluginControllerOptionsKey() );
+			$oWP->deleteOption( $this->getPluginControllerOptionsKey() );
 		}
 		else {
 			$oOptions = $this->getPluginControllerOptions();
 			if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
-				Services::WpGeneral()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+				$oWP->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
 			}
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
