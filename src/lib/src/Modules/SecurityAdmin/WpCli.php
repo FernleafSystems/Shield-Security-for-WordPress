@@ -13,7 +13,8 @@ class WpCli extends Base\WpCli {
 	protected function getCmdHandlers() {
 		return [
 			new SecurityAdmin\WpCli\Pin(),
-			new SecurityAdmin\WpCli\AdminAdd()
+			new SecurityAdmin\WpCli\AdminAdd(),
+			new SecurityAdmin\WpCli\AdminRemove()
 		];
 	}
 }
