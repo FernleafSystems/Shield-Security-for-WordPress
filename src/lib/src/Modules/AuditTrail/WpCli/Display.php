@@ -43,7 +43,7 @@ class Display extends Base\WpCli\BaseWpCliCmd {
 //				],
 //				[
 //					'type'        => 'flag',
-//					'name'        => 'quiet',
+//					'name'        => 'force',
 //					'optional'    => true,
 //					'description' => 'By-pass confirmation prompt.',
 //				],

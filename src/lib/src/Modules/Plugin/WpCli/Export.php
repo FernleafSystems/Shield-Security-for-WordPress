@@ -26,9 +26,9 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 				],
 				[
 					'type'        => 'flag',
-					'name'        => 'quiet',
+					'name'        => 'force',
 					'optional'    => true,
-					'description' => 'By-pass confirmation to overwrite files - files will be overwritten quietly.',
+					'description' => 'By-pass confirmation to overwrite files and create necessary directories.',
 				],
 			],
 		] ) );
@@ -43,20 +43,20 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 		$oFS = Services::WpFs();
 
 		$sFile = $aA[ 'file' ];
-		$bQuiet = isset( $aA[ 'quiet' ] );
+		$bForce = isset( $aA[ 'force' ] );
 		if ( !path_is_absolute( $sFile ) ) {
 			$sFile = path_join( ABSPATH, $sFile );
-			WP_CLI::log( __( "The file you specified wasn't an absolute path, so we're using the following path to the export file:" ) );
+			WP_CLI::log( __( "The file specified wasn't an absolute path, so we're using the following path to the export file:" ) );
 		}
 		WP_CLI::log( sprintf( '%s: %s', __( 'Export file path', 'wp-simple-firewall' ), $sFile ) );
 
 		if ( $oFS->isDir( $sFile ) ) {
-			WP_CLI::error( __( "The file path you've provide is an existing directory.", 'wp-simple-firewall' ) );
+			WP_CLI::error( __( "The file specified is an existing directory.", 'wp-simple-firewall' ) );
 		}
 
 		$dir = dirname( $sFile );
 		if ( !$oFS->isDir( $dir ) ) {
-			if ( !$bQuiet ) {
+			if ( !$bForce ) {
 				WP_CLI::confirm( "The directory for the export file doesn't exist. Create it?" );
 			}
 			$oFS->mkdir( $sFile );
@@ -65,7 +65,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 			}
 		}
 
-		if ( $oFS->isFile( $sFile ) && !$bQuiet ) {
+		if ( $oFS->isFile( $sFile ) && !$bForce ) {
 			WP_CLI::confirm( "The export file already exists. Overwrite?" );
 		}
 

@@ -19,7 +19,7 @@ class Reset extends Base\WpCli\BaseWpCliCmd {
 			'synopsis'  => [
 				[
 					'type'        => 'flag',
-					'name'        => 'quiet',
+					'name'        => 'force',
 					'optional'    => true,
 					'description' => 'By-pass confirmation prompt.',
 				],
@@ -28,7 +28,7 @@ class Reset extends Base\WpCli\BaseWpCliCmd {
 	}
 
 	public function cmdReset( $null, $aA ) {
-		if ( !array_key_exists( 'quiet', $aA ) ) {
+		if ( !isset( $aA[ 'force' ] ) ) {
 			WP_CLI::confirm( __( 'Are you sure you want to reset the Shield plugin to defaults?', 'wp-simple-firewall' ) );
 		}
 		( new ResetPlugin() )
