@@ -9,7 +9,7 @@ class ModuleStandard extends BaseWpCliCmd {
 	 */
 	protected function addCmds() {
 		\WP_CLI::add_command(
-			$this->buildCmd( [ 'opt', 'list' ] ),
+			$this->buildCmd( [ 'opt-list' ] ),
 			[ $this, 'cmdOptList' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'List the option keys and their names.',
 			'synopsis'  => [
@@ -36,7 +36,7 @@ class ModuleStandard extends BaseWpCliCmd {
 		] ) );
 
 		\WP_CLI::add_command(
-			$this->buildCmd( [ 'opt', 'get' ] ),
+			$this->buildCmd( [ 'opt-get' ] ),
 			[ $this, 'cmdOptGet' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Enable, disable, or query the status of a module.',
 			'synopsis'  => [
@@ -51,7 +51,7 @@ class ModuleStandard extends BaseWpCliCmd {
 		] ) );
 
 		\WP_CLI::add_command(
-			$this->buildCmd( [ 'opt', 'set' ] ),
+			$this->buildCmd( [ 'opt-set' ] ),
 			[ $this, 'cmdOptSet' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Enable, disable, or query the status of a module.',
 			'synopsis'  => [

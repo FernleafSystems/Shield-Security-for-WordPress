@@ -12,7 +12,7 @@ class Add extends BaseAddRemove {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'ip', 'add' ] ),
+			$this->buildCmd( [ 'ip-add' ] ),
 			[ $this, 'cmdIpAdd' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Add an IP address to one of your lists, white or black.',
 			'synopsis'  => array_merge(

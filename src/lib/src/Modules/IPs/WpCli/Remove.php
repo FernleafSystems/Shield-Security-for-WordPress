@@ -12,7 +12,7 @@ class Remove extends BaseAddRemove {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'ip', 'remove' ] ),
+			$this->buildCmd( [ 'ip-remove' ] ),
 			[ $this, 'cmdIpRemove' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Remove an IP address from one of your lists, white or black.',
 			'synopsis'  => $this->getCommonIpCmdArgs(),

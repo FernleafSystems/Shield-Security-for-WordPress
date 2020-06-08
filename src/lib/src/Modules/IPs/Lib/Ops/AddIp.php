@@ -26,7 +26,7 @@ class AddIp {
 
 		$sIP = $this->getIP();
 		if ( !Services::IP()->isValidIp( $sIP ) ) {
-			throw new \Exception( 'IP address is not valid' );
+			throw new \Exception( "IP address isn't valid." );
 		}
 		if ( in_array( $sIP, Services::IP()->getServerPublicIPs() ) ) {
 			throw new \Exception( 'Will not black mark our own server IP' );
@@ -70,7 +70,7 @@ class AddIp {
 
 		$sIP = $this->getIP();
 		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
-			throw new \Exception( 'IP address is not valid' );
+			throw new \Exception( "IP address isn't valid." );
 		}
 
 		$oIP = null;
@@ -127,7 +127,7 @@ class AddIp {
 
 		$sIP = $this->getIP();
 		if ( !$oIpServ->isValidIp( $sIP ) && !$oIpServ->isValidIpRange( $sIP ) ) {
-			throw new \Exception( 'IP address is not valid' );
+			throw new \Exception( "IP address isn't valid." );
 		}
 
 		if ( $oIpServ->isValidIpRange( $sIP ) ) {
