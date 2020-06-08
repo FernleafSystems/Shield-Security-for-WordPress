@@ -30,6 +30,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @return array
+	 * @deprecated 9.1.0
 	 */
 	public function getSecurityAdminUsers() {
 		$aU = $this->getOpt( 'sec_admin_users', [] );
@@ -38,13 +39,15 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @return bool
+	 * @deprecated 9.1.0
 	 */
 	public function hasSecAdminUsers() {
 		return count( $this->getSecurityAdminUsers() ) > 0;
 	}
 
 	/**
-	 * No checking of admin capabilities in-case of infinite loop with admin access caps check
+	 * No checking of admin capabilities in-case of infinite loop with
+	 * admin access caps check
 	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser() {
@@ -52,8 +55,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		return !empty( $sUser ) && in_array( $sUser, $this->getSecurityAdminUsers() );
 	}
 
-	/**
-	 */
 	protected function preProcessOptions() {
 		if ( $this->isValidSecAdminRequest() ) {
 			$this->setSecurityAdminStatusOnOff( true );
@@ -171,7 +172,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		/** @var SecurityAdmin\Options $oOpts */
 		$oOpts = $this->getOptions();
 		return $this->isModOptEnabled() &&
-			   ( $this->hasSecAdminUsers() ||
+			   ( count( $oOpts->getSecurityAdminUsers() ) > 0 ||
 				 ( $oOpts->hasAccessKey() && $this->getSecAdminTimeout() > 0 )
 			   );
 	}

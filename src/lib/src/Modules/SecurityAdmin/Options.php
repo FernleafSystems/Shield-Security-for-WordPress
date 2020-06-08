@@ -88,6 +88,14 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getSecurityAdminUsers() {
+		$aU = $this->getOpt( 'sec_admin_users', [] );
+		return ( is_array( $aU ) && $this->isPremium() ) ? $aU : [];
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function hasAccessKey() {

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseWpCliCmd {
 
@@ -91,5 +92,31 @@ abstract class BaseWpCliCmd {
 	}
 
 	protected function beforeInvokeCmd() {
+	}
+
+	/**
+	 * @param array $aA
+	 * @return \WP_User
+	 * @throws \WP_CLI\ExitException
+	 */
+	protected function loadUserFromArgs( array $aA ) {
+		$oWpUsers = Services::WpUsers();
+
+		$oU = null;
+		if ( isset( $aA[ 'uid' ] ) ) {
+			$oU = $oWpUsers->getUserById( $aA[ 'uid' ] );
+		}
+		elseif ( isset( $aA[ 'email' ] ) ) {
+			$oU = $oWpUsers->getUserByEmail( $aA[ 'email' ] );
+		}
+		elseif ( isset( $aA[ 'username' ] ) ) {
+			$oU = $oWpUsers->getUserByUsername( $aA[ 'username' ] );
+		}
+
+		if ( !$oU instanceof \WP_User || $oU->ID < 1 ) {
+			\WP_CLI::error( "Couldn't find that user." );
+		}
+
+		return $oU;
 	}
 }

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
-use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
 class SessionTerminate extends BaseWpCliCmd {
@@ -58,7 +57,6 @@ class SessionTerminate extends BaseWpCliCmd {
 	 * @throws WP_CLI\ExitException
 	 */
 	public function cmdTerminate( $null, $aA ) {
-		$oWpUsers = Services::WpUsers();
 
 		$bShowConfirm = true;
 		if ( isset( $aA[ 'quiet' ] ) ) {
@@ -81,20 +79,7 @@ class SessionTerminate extends BaseWpCliCmd {
 			WP_CLI::error( 'Please specify only 1 way to identify a user.' );
 		}
 
-		$oU = null;
-		if ( isset( $aA[ 'uid' ] ) ) {
-			$oU = $oWpUsers->getUserById( $aA[ 'uid' ] );
-		}
-		elseif ( isset( $aA[ 'email' ] ) ) {
-			$oU = $oWpUsers->getUserByEmail( $aA[ 'email' ] );
-		}
-		elseif ( isset( $aA[ 'username' ] ) ) {
-			$oU = $oWpUsers->getUserByUsername( $aA[ 'username' ] );
-		}
-
-		if ( !$oU instanceof \WP_User ) {
-			WP_CLI::error( "Couldn't find that user." );
-		}
+		$oU = $this->loadUserFromArgs( $aA );
 
 		if ( $bShowConfirm ) {
 			WP_CLI::confirm( 'This will logout all session for this user. Are you sure?' );

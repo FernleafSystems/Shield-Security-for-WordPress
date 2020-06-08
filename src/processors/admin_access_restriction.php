@@ -29,10 +29,10 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 	 * @return bool
 	 */
 	public function adjustUserAdminPermissions( $bHasPermission = true ) {
-		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oFO */
-		$oFO = $this->getMod();
-		return $bHasPermission && ( $oFO->isRegisteredSecAdminUser() || $oFO->isSecAdminSessionValid()
-									|| $oFO->testSecAccessKeyRequest() );
+		/** @var \ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oMod */
+		$oMod = $this->getMod();
+		return $bHasPermission && ( $oMod->isRegisteredSecAdminUser() || $oMod->isSecAdminSessionValid()
+									|| $oMod->testSecAccessKeyRequest() );
 	}
 
 	public function onWpInit() {
