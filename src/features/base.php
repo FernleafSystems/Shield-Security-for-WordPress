@@ -221,11 +221,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return is_array( $aCls ) ? $aCls : [];
 	}
 
-	protected function updateHandler() {
-		$oH = $this->loadClass( 'Upgrade' );
-		if ( $oH instanceof Shield\Modules\Base\Upgrade ) {
-			$oH->setMod( $this )->execute();
-		}
+	/**
+	 * @return false|Shield\Modules\Base\Upgrade|mixed
+	 */
+	public function getUpgradeHandler() {
+		return $this->loadClass( 'Upgrade' );
 	}
 
 	/**
@@ -305,9 +305,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	public function onRunProcessors() {
-		if ( $this->isUpgrading() ) {
-			$this->updateHandler();
-		}
 		$oOpts = $this->getOptions();
 		if ( $oOpts->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
@@ -2090,5 +2087,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
+	}
+
+	/**
+	 * @deprecated 9.0
+	 */
+	protected function doExtraSubmitProcessing() {
+		$this->preProcessOptions();
+	}
+
+	/**
+	 * @deprecated 9.0.5
+	 */
+	protected function updateHandler() {
+		$oH = $this->getUpgradeHandler();
+		if ( $oH instanceof Shield\Modules\Base\Upgrade ) {
+			$oH->setMod( $this )->execute();
+		}
 	}
 }

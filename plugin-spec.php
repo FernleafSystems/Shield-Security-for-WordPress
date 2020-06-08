@@ -107,6 +107,11 @@
       "href": "https://shsec.io/wpsf29"
     }
   ],
+  "version_upgrades":  [
+    "9.0.0",
+    "9.0.3",
+    "9.0.5"
+  ],
   "action_links": {
     "remove": null,
     "add":    [
