@@ -14,6 +14,9 @@
     "skip_processor":        true,
     "tracking_exclude":      true
   },
+  "wpcli": {
+    "enabled": false
+  },
   "sections":   [
     {
       "slug":    "section_email_options",

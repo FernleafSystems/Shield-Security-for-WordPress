@@ -190,12 +190,12 @@ class Options {
 	 */
 	public function getWpCliCfg() {
 		$aCfg = $this->getRawData_FullFeatureConfig();
-		$aCli = empty( $aCfg[ 'wpcli' ] ) ? [] : $aCfg[ 'wpcli' ];
 		return array_merge(
 			[
-				'root' => $this->getSlug(),
+				'enabled' => true,
+				'root'    => $this->getSlug(),
 			],
-			$aCli
+			empty( $aCfg[ 'wpcli' ] ) ? [] : $aCfg[ 'wpcli' ]
 		);
 	}
 

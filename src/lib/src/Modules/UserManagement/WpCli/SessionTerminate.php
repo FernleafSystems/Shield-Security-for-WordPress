@@ -1,20 +1,20 @@
 <?php
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\WpCli;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\WpCli;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\WpCli\BaseWpCliCmd;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions\Lib\Ops\Terminate;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
 
-class SessionOps extends BaseWpCliCmd {
+class SessionTerminate extends BaseWpCliCmd {
 
 	/**
 	 * @throws \Exception
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'terminate' ] ),
+			$this->buildCmd( [ 'session', 'terminate' ] ),
 			[ $this, 'cmdTerminate' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Terminate 1, some, or all user sessions.',
 			'synopsis'  => [

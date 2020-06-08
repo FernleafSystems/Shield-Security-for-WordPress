@@ -42,7 +42,8 @@ abstract class BaseWpCliCmd {
 		$oOpts = $this->getCon()
 					  ->getModule_Plugin()
 					  ->getOptions();
-		return $oOpts->isEnabledWpcli();
+		return $this->getOptions()->getWpCliCfg()[ 'enabled' ]
+			   && $oOpts->isEnabledWpcli();
 	}
 
 	/**

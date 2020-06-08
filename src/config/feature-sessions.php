@@ -15,6 +15,9 @@
     "run_if_wpcli":          false,
     "tracking_exclude":      true
   },
+  "wpcli": {
+    "enabled": false
+  },
   "sections":    [
     {
       "slug":        "section_enable_plugin_feature_sessions",

@@ -18,6 +18,9 @@
     "skip_processor":        true,
     "tracking_exclude":      true
   },
+  "wpcli": {
+    "enabled": false
+  },
   "requirements": {
     "php": {
       "version": "5.4"

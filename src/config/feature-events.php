@@ -13,6 +13,9 @@
     "run_if_wpcli":          true,
     "tracking_exclude":      true
   },
+  "wpcli": {
+    "enabled": false
+  },
   "sections":    [
     {
       "slug":        "section_enable_plugin_feature_events",
