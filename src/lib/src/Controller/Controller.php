@@ -1607,6 +1607,17 @@ class Controller {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPreviousVersion() {
+		$oOpts = $this->getPluginControllerOptions();
+		if ( empty( $oOpts->previous_version ) ) {
+			$oOpts->previous_version = $this->getVersion();
+		}
+		return $oOpts->previous_version;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getVersionNumeric() {
@@ -1623,9 +1634,9 @@ class Controller {
 	}
 
 	/**
-	 * @return mixed|\stdClass
+	 * @return \stdClass
 	 */
-	protected function getPluginControllerOptions() {
+	public function getPluginControllerOptions() {
 		if ( !isset( self::$oControllerOptions ) ) {
 
 			self::$oControllerOptions = Services::WpGeneral()->getOption( $this->getPluginControllerOptionsKey() );
@@ -1872,6 +1883,12 @@ class Controller {
 		}
 
 		$this->modules_loaded = true;
+
+		// Upgrade modules
+		( new Shield\Controller\Utilities\Upgrade() )
+			->setCon( $this )
+			->execute();
+
 		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
 		return $bSuccess;
