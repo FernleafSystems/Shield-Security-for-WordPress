@@ -162,18 +162,18 @@ class MfaController {
 	 * @return Provider\BaseProvider[]
 	 */
 	public function getProvidersForUser( $oUser, $bOnlyActiveProfiles = false ) {
-		$aProviders = array_filter( $this->getProviders(),
+		$aPs = array_filter( $this->getProviders(),
 			function ( $oProvider ) use ( $oUser, $bOnlyActiveProfiles ) {
 				/** @var Provider\BaseProvider $oProvider */
 				return $oProvider->isProviderAvailableToUser( $oUser )
 					   && ( !$bOnlyActiveProfiles || $oProvider->isProfileActive( $oUser ) );
 			}
 		);
-		// Backups should NEVER be the only 1 available.
-		if ( count( $aProviders ) === 1 && isset( $aProviders[ Provider\Backup::SLUG ] ) ) {
-			unset( $aProviders[ Provider\Backup::SLUG ] );
+		// Neither BackupCode NOR U2F should EVER be the only 1 provider available.
+		if ( count( $aPs ) === 1 && !reset( $aPs )::STANDALONE ) {
+			$aPs = [];
 		}
-		return $aProviders;
+		return $aPs;
 	}
 
 	/**

@@ -263,7 +263,8 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Allow Registration Of U2F Devices', 'wp-simple-firewall' );
 				$sDescription = [
 					__( 'Allow users to register U2F devices to complete their login.', 'wp-simple-firewall' ),
-					__( "Currently on U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' )
+					__( "Currently only U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' ),
+					__( "Experimental! This may only be used when at least 1 other 2FA option is enabled on a user account.", 'wp-simple-firewall' )
 				];
 				break;
 

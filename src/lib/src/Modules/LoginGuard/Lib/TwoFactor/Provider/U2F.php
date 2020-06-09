@@ -10,6 +10,7 @@ use u2flib_server\SignRequest;
 class U2F extends BaseProvider {
 
 	const SLUG = 'u2f';
+	const STANDALONE = false;
 
 	/**
 	 * @var RegisterRequest

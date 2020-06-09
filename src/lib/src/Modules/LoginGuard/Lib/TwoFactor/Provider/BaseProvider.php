@@ -8,7 +8,13 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseProvider {
 
 	use Modules\ModConsumer;
+
 	const SLUG = '';
+	/**
+	 * Set to true if this provider can be used in isolation. False if there
+	 * must be at least 1 other 2FA provider active.
+	 */
+	const STANDALONE = true;
 
 	public function __construct() {
 	}
