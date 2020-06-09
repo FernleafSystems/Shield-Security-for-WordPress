@@ -24,7 +24,7 @@
     "bjeavons/zxcvbn-php":                "^0.3",
     "dolondro/google-authenticator":      "^2.0",
     "google/recaptcha":                   "1.1.2",
-    "nesbot/carbon":                      "~1.37.0",
+    "nesbot/carbon":                      "^1.39",
     "nullpunkt/lz-string-php":            "^1.2.0",
     "ramsey/uuid":                        "^3.9"
   },
