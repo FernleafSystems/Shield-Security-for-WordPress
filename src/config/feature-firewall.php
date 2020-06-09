@@ -306,7 +306,8 @@
         "/^wordpress_logged_in_[0-9a-f]+$/",
         "edd_action",
         "edd_redirect",
-        "wpcf7-form"
+        "wpcf7-form",
+        "yoast_wpseo_metadesc"
       ]
     },
     "firewall_patterns": {
