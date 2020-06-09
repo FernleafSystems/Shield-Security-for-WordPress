@@ -41,7 +41,7 @@ class Pin extends BaseWpCliCmd {
 	public function cmdPin( array $null, array$aA ) {
 
 		$sNewPin = isset( $aA[ 'set' ] ) ? $aA[ 'set' ] : null;
-		$bRemove = isset( $aA[ 'remove' ] );
+		$bRemove = WP_CLI\Utils\get_flag_value( $aA, 'remove', false );
 
 		if ( !empty( $sNewPin ) && !empty( $bRemove ) ) {
 			WP_CLI::error( 'Please use either `--set` or `--remove`, but not both.' );

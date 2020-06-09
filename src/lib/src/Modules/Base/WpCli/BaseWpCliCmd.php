@@ -119,4 +119,12 @@ abstract class BaseWpCliCmd {
 
 		return $oU;
 	}
+
+	/**
+	 * @param array $aA
+	 * @return bool
+	 */
+	protected function isForceFlag( array $aA ) {
+		return (bool)\WP_CLI\Utils\get_flag_value( $aA, 'force', false );
+	}
 }

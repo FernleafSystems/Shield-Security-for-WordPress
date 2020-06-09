@@ -55,7 +55,7 @@ class License extends Base\WpCli\BaseWpCliCmd {
 				break;
 
 			case 'remove':
-				$this->runRemove( isset( $aA[ 'force' ] ) );
+				$this->runRemove( $this->isForceFlag( $aA ) );
 				break;
 		}
 	}

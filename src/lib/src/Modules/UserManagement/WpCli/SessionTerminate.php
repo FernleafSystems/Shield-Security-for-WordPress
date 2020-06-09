@@ -43,7 +43,7 @@ class SessionTerminate extends BaseWpCliCmd {
 				],
 				[
 					'type'        => 'flag',
-					'name'        => 'quiet',
+					'name'        => 'force',
 					'optional'    => true,
 					'description' => 'By-pass confirmation prompt.',
 				],
@@ -59,12 +59,12 @@ class SessionTerminate extends BaseWpCliCmd {
 	public function cmdTerminate( $null, $aA ) {
 
 		$bShowConfirm = true;
-		if ( isset( $aA[ 'quiet' ] ) ) {
+		if ( $this->isForceFlag( $aA ) ) {
 			$bShowConfirm = false;
-			unset( $aA[ 'quiet' ] );
+			unset( $aA[ 'force' ] );
 		}
 
-		if ( isset( $aA[ 'all' ] ) ) {
+		if ( WP_CLI\Utils\get_flag_value( $aA, 'all', false ) ) {
 			if ( $bShowConfirm ) {
 				WP_CLI::confirm( 'This will logout all users. Are you sure?' );
 			}

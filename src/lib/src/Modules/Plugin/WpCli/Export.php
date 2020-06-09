@@ -43,7 +43,7 @@ class Export extends Base\WpCli\BaseWpCliCmd {
 		$oFS = Services::WpFs();
 
 		$sFile = $aA[ 'file' ];
-		$bForce = isset( $aA[ 'force' ] );
+		$bForce = $this->isForceFlag( $aA );
 		if ( !path_is_absolute( $sFile ) ) {
 			$sFile = path_join( ABSPATH, $sFile );
 			WP_CLI::log( __( "The file specified wasn't an absolute path, so we're using the following path to the export file:" ) );

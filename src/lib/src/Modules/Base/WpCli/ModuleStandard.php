@@ -180,7 +180,7 @@ class ModuleStandard extends BaseWpCliCmd {
 			\WP_CLI::log( "This module doesn't have any configurable options." );
 		}
 		else {
-			if ( !isset( $aA[ 'full' ] ) ) {
+			if ( !\WP_CLI\Utils\get_flag_value( $aA, 'full', false ) ) {
 				$aKeys = [
 					'key',
 					'name',
