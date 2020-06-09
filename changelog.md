@@ -1,8 +1,18 @@
 
+#### 9.1 Series
+*Released: 15th April 2020* - [Release Announcement](https://shsec.io/hq)
+
+##### [Please review the full Shield 9.1 Upgrade Guide here](https://shsec.io/shieldupgradeguide91).
+
+* **(.0)  NEW**:		[*PRO*] [WP-CLI](https://shsec.io/h4) Beta support for WP-CLI.
+* **(.0)  NEW**:		[*PRO*] [U2F Login](https://shsec.io/hl) - Support for registration and use of U2F keys for 2-factor authentication.
+* **(.0)  IMPROVED**:	Plugin upgrade handling.
+* **(.0)  FIXED**:		Adding IPv6 address ranges didn't work in all cases.
+* **(.0)  FIXED**:		Errors while trying to access an uninitialised database.
+* **(.0)  FIXED**:		Upgrade Carbon PHP library to latest available v1.
+
 #### 9.0 Series
 *Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
-
-**Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
 ##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
 
