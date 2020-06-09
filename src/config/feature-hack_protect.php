@@ -16,6 +16,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false
   },
+  "wpcli":            {
+    "root": "hack_guard"
+  },
   "menu_items":       [
     {
       "title":    "Scans",

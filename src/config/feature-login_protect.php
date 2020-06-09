@@ -471,7 +471,7 @@
       },
       "2fa_email_verified":      {
       },
-      "2fa_email_verify_fail":          {
+      "2fa_email_verify_fail":   {
         "offense": true
       },
       "2fa_googleauth_verified": {

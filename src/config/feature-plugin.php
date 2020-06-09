@@ -34,7 +34,7 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "php7":          {
+    "php7":                       {
       "id":               "php7",
       "schedule":         "conditions",
       "valid_admin":      true,
