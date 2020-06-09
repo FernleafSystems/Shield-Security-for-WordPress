@@ -118,9 +118,9 @@ class Strings extends Base\Strings {
 				];
 				break;
 
-			case 'section_yubikey_authentication' :
-				$sTitle = __( 'Yubikey Two-Factor Authentication', 'wp-simple-firewall' );
-				$sTitleShort = __( 'Yubikey', 'wp-simple-firewall' );
+			case 'section_hardware_authentication' :
+				$sTitle = __( 'Hardware 2-Factor Authentication', 'wp-simple-firewall' );
+				$sTitleShort = __( 'Hardware 2FA', 'wp-simple-firewall' );
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Verifies the identity of users who log in to your site using Yubikey one-time-passwords.', 'wp-simple-firewall' ) ),
 					sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'You may combine multiple authentication factors for increased security.', 'wp-simple-firewall' ) )
@@ -258,17 +258,28 @@ class Strings extends Base\Strings {
 				$sDescription = __( 'When enabled, settings in this section will also apply to new user registration and users trying to reset passwords.', 'wp-simple-firewall' );
 				break;
 
+			case 'enable_u2f' :
+				$sName = __( 'Allow U2F', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Registration Of U2F Devices', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Allow users to register U2F devices to complete their login.', 'wp-simple-firewall' ),
+					__( "Currently on U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' )
+				];
+				break;
+
 			case 'enable_yubikey' :
-				$sName = __( 'Enable Yubikey Authentication', 'wp-simple-firewall' );
-				$sSummary = __( 'Turn On / Off Yubikey Authentication On This Site', 'wp-simple-firewall' );
+				$sName = __( 'Allow Yubikey OTP', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Yubikey Registration For One Time Passwords', 'wp-simple-firewall' );
 				$sDescription = __( 'Combined with your Yubikey API details this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' );
 				break;
 
 			case 'yubikey_app_id' :
 				$sName = __( 'Yubikey App ID', 'wp-simple-firewall' );
 				$sSummary = __( 'Your Unique Yubikey App ID', 'wp-simple-firewall' );
-				$sDescription = __( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' )
-								.'<br />'.__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' );
+				$sDescription = [
+					__( 'Combined with your Yubikey API Key this will form the basis of your Yubikey Authentication', 'wp-simple-firewall' ),
+					__( 'Please review the info link on how to obtain your own Yubikey App ID and API Key.', 'wp-simple-firewall' )
+				];
 				break;
 
 			case 'yubikey_api_key' :
