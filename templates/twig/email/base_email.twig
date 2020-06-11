@@ -3,20 +3,20 @@
 {% endblock %}
 
 {% block email_header %}
-	{% for line in header %}
-		<p>{{ line|raw }}</p>
+	{% for section in header %}
+		<div>{{ section|raw }}</div>
 	{% endfor %}
 {% endblock %}
 
 {% block email_body %}
-	{% for line in body %}
-		<p>{{ line|raw }}</p>
+	{% for section in body %}
+		<div>{{ section|raw }}</div>
 	{% endfor %}
 {% endblock %}
 
 {% block email_footer %}
-	{% for line in footer %}
-		<p>{{ line|raw }}</p>
+	{% for section in footer %}
+		<div>{{ section|raw }}</div>
 	{% endfor %}
 {% endblock %}
 
