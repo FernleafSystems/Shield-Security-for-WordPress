@@ -11,7 +11,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * @return array
 	 */
-	public function getEmailHeader() {
+	protected function getEmailHeader() {
 		return [
 			__( 'Hi !', 'wp-simple-firewall' ),
 			'',
@@ -21,7 +21,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * @return array
 	 */
-	public function getEmailFooter() {
+	protected function getEmailFooter() {
 		$oCon = $this->getCon();
 		$oWp = Services::WpGeneral();
 
@@ -45,14 +45,21 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			];
 			shuffle( $aBenefits );
 		}
+
 		$aFooter = [
-			'',
 			$this->getMod()
-				 ->renderTemplate( '/snippets/email/footer.twig', [
+				 ->renderTemplate( '/email/footer.twig', [
 					 'strings' => [
 						 'benefits'  => $aBenefits,
 						 'much_more' => 'And So Much More',
 						 'upgrade'   => $aGoProPhrases[ array_rand( $aGoProPhrases ) ],
+						 'sent_from' => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
+							 $this->getCon()->getHumanName(),
+							 $this->getCon()->getVersion(),
+							 $oWp->getHomeUrl()
+						 ),
+						 'delays'    => __( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
+						 'time_sent' => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() ),
 					 ],
 					 'hrefs'   => [
 						 'upgrade'   => 'https://shsec.io/buyshieldproemailfooter',
@@ -63,14 +70,6 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 						 'is_whitelabelled' => $oCon->getModule_SecAdmin()->isWlEnabled()
 					 ]
 				 ] ),
-			'',
-			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName(),
-				$this->getCon()->getVersion(),
-				$oWp->getHomeUrl()
-			),
-			__( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() )
 		];
 
 		return apply_filters( 'icwp_shield_email_footer', $aFooter );
