@@ -1160,7 +1160,7 @@ class Controller {
 	 * @param string $sKey
 	 * @return mixed|null
 	 */
-	protected function getPluginSpec_Path( $sKey ) {
+	public function getPluginSpec_Path( $sKey ) {
 		$aData = $this->getPluginSpec()[ 'paths' ];
 		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
 	}

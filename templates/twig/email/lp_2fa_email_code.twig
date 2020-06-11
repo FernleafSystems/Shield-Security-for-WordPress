@@ -1,0 +1,21 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>
+		{{ body.strings.someone }}
+		<br />{{ body.strings.requires }}
+	</p>
+
+	<p>{{ body.strings.verification }}: <strong>{{ body.vars.code }}</strong></p>
+
+	<p><strong>{{ body.strings.details_1 }}</strong></p>
+	<ul>
+		<li>{{ body.strings.details_url }}</li>
+		<li>{{ body.strings.details_username }}</li>
+		<li>{{ body.strings.details_ip }}</li>
+	</ul>
+
+	{% if body.flags.show_login_link %}
+		<a href="{{ body.hrefs.login_link }}" target="_blank">{{ body.strings.login_link }}</a>
+	{% endif %}
+{% endblock %}

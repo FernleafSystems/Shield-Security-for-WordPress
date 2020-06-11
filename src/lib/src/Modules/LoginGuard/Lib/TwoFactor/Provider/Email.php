@@ -154,31 +154,44 @@ class Email extends BaseProvider {
 	 * @return $this
 	 */
 	private function sendEmailTwoFactorVerify( \WP_User $oUser ) {
-		$aMessage = [
-			__( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
-			__( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
-			'',
-			sprintf( __( 'Verification Code: %s', 'wp-simple-firewall' ), sprintf( '<strong>%s</strong>', $this->getSecret( $oUser ) ) ),
-			'',
-			sprintf( '<strong>%s</strong>', __( 'Login Details', 'wp-simple-firewall' ) ),
-			sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()->getHomeUrl() ),
-			sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
-			sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()->getRequestIp() ),
-			'',
+
+		$aLines = [
+			'someone'          => __( 'Someone attempted to login into this WordPress site using your account.', 'wp-simple-firewall' ),
+			'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
+			'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
+			'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
+			'details_1'        => __( 'Login Details', 'wp-simple-firewall' ),
+			'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()
+																								->getHomeUrl() ),
+			'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),
+			'details_ip'       => sprintf( '%s: %s', __( 'IP Address', 'wp-simple-firewall' ), Services::IP()
+																									   ->getRequestIp() ),
 		];
 
-		if ( !$this->getCon()->isRelabelled() ) {
-			$aMessage[] = sprintf( '- <a href="%s" target="_blank">%s</a>', 'https://shsec.io/96', __( 'Why no login link?', 'wp-simple-firewall' ) );
-			$aContent[] = '';
+		try {
+			$bResult = $this->getMod()
+							->getEmailProcessor()
+							->sendEmailWithTemplate(
+								'/email/lp_2fa_email_code',
+								$oUser->user_email,
+								__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+								[
+									'flags'   => [
+										'show_login_link' => !$this->getCon()->isRelabelled()
+									],
+									'vars'    => [
+										'code' => $this->getSecret( $oUser )
+									],
+									'hrefs'   => [
+										'login_link' => 'https://shsec.io/96'
+									],
+									'strings' => $aLines
+								]
+							);
 		}
-
-		$bResult = $this->getMod()
-						->getEmailProcessor()
-						->sendEmailWithWrap(
-							$oUser->user_email,
-							__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
-							$aMessage
-						);
+		catch ( \Exception $e ) {
+			$bResult = false;
+		}
 
 		$this->getCon()->fireEvent(
 			$bResult ? '2fa_email_send_success' : '2fa_email_send_fail',

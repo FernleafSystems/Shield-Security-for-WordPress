@@ -1,5 +1,5 @@
 {
-  "properties":   {
+  "properties":       {
     "version":                 "9.0.4",
     "release_timestamp":       1591349642,
     "build":                   "202006.0501",
@@ -18,11 +18,11 @@
     "options_encoding":        "json",
     "enable_premium":          true
   },
-  "requirements": {
+  "requirements":     {
     "php":       "5.4.0",
     "wordpress": "3.5.2"
   },
-  "upgrade_reqs": {
+  "upgrade_reqs":     {
     "7.0":  {
       "php": "5.4",
       "wp":  "3.5.2"
@@ -32,16 +32,17 @@
       "wp":  "3.5.2"
     }
   },
-  "paths":        {
-    "source":    "src",
-    "autoload":  "lib/vendor/autoload.php",
-    "assets":    "resources",
-    "languages": "languages",
-    "templates": "templates",
-    "flags":     "flags",
-    "cache":     "shield"
+  "paths":            {
+    "source":           "src",
+    "autoload":         "lib/vendor/autoload.php",
+    "assets":           "resources",
+    "languages":        "languages",
+    "templates":        "templates",
+    "custom_templates": "shield_templates",
+    "flags":            "flags",
+    "cache":            "shield"
   },
-  "includes":     {
+  "includes":         {
     "admin":        {
       "css": [
         "global-plugin"
@@ -75,7 +76,7 @@
       "css": null
     }
   },
-  "menu":         {
+  "menu":             {
     "show":           true,
     "title":          "Shield Security",
     "top_level":      true,
@@ -84,7 +85,7 @@
     "icon_image":     "pluginlogo_16x16.png",
     "has_submenu":    true
   },
-  "labels":       {
+  "labels":           {
     "Name":             "Shield",
     "Description":      "Ultimate WP Security Protection - Scans, 2FA, Firewall, SPAM, Audit Trail, Security Admin, and so much more.",
     "Title":            "Shield Security",
@@ -96,23 +97,23 @@
     "icon_url_32x32":   "pluginlogo_32x32.png",
     "icon_url_128x128": "pluginlogo_128x128.png"
   },
-  "meta":         {
-    "url_repo_home":        "https://shsec.io/eh",
+  "meta":             {
+    "url_repo_home":            "https://shsec.io/eh",
     "announcekit_changelog_id": "3ObUvS",
-    "privacy_policy_href":  "https://shsec.io/shieldprivacypolicy"
+    "privacy_policy_href":      "https://shsec.io/shieldprivacypolicy"
   },
-  "plugin_meta":  [
+  "plugin_meta":      [
     {
       "name": "5&#10025; Rate This Plugin",
       "href": "https://shsec.io/wpsf29"
     }
   ],
-  "version_upgrades":  [
+  "version_upgrades": [
     "9.0.0",
     "9.0.3",
     "9.0.5"
   ],
-  "action_links": {
+  "action_links":     {
     "remove": null,
     "add":    [
       {

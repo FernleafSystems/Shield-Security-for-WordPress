@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -10,7 +11,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * @return array
 	 */
-	protected function getEmailHeader() {
+	public function getEmailHeader() {
 		return [
 			__( 'Hi !', 'wp-simple-firewall' ),
 			'',
@@ -20,7 +21,7 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	/**
 	 * @return array
 	 */
-	protected function getEmailFooter() {
+	public function getEmailFooter() {
 		$oCon = $this->getCon();
 		$oWp = Services::WpGeneral();
 
@@ -92,6 +93,42 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 				implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) )
 			)
 		);
+	}
+
+	/**
+	 * @param string $sTemplate
+	 * @param string $sAddress
+	 * @param string $sSubject
+	 * @param array  $aBody
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function sendEmailWithTemplate( $sTemplate, $sAddress, $sSubject, array $aBody ) {
+		$sTemplatePath = ( new Shield\Render\LocateTemplate() )
+			->setCon( $this->getCon() )
+			->setTemplatePart( $sTemplate )
+			->run();
+		if ( empty( $sTemplatePath ) ) {
+			throw new \Exception( 'Could not find template file for: '.$sTemplate );
+		}
+
+		$aData = [
+			'header' => $this->getEmailHeader(),
+			'body'   => $aBody,
+			'footer' => $this->getEmailFooter(),
+			'vars'   => [
+				'lang' => Services::WpGeneral()->getLocale( '-' )
+			]
+		];
+
+		$sContent = $this->getCon()
+						 ->getRenderer()
+						 ->setTemplateEngineTwig()
+						 ->setTemplate( $sTemplatePath )
+						 ->setRenderVars( $aData )
+						 ->render();
+
+		return $this->send( $sAddress, $sSubject, $sContent );
 	}
 
 	/**
