@@ -103,14 +103,6 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 	 * @throws \Exception
 	 */
 	public function sendEmailWithTemplate( $sTemplate, $sAddress, $sSubject, array $aBody ) {
-		$sTemplatePath = ( new Shield\Render\LocateTemplate() )
-			->setCon( $this->getCon() )
-			->setTemplatePart( $sTemplate )
-			->run();
-		if ( empty( $sTemplatePath ) ) {
-			throw new \Exception( 'Could not find template file for: '.$sTemplate );
-		}
-
 		$aData = [
 			'header' => $this->getEmailHeader(),
 			'body'   => $aBody,
@@ -120,14 +112,11 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			]
 		];
 
-		$sContent = $this->getCon()
-						 ->getRenderer()
-						 ->setTemplateEngineTwig()
-						 ->setTemplate( $sTemplatePath )
-						 ->setRenderVars( $aData )
-						 ->render();
-
-		return $this->send( $sAddress, $sSubject, $sContent );
+		return $this->send(
+			$sAddress,
+			$sSubject,
+			$this->getMod()->renderTemplate( $sTemplate, $aData, true )
+		);
 	}
 
 	/**

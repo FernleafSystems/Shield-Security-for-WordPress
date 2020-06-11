@@ -160,7 +160,7 @@ class Email extends BaseProvider {
 			'requires'         => __( 'Login requires verification with the following code.', 'wp-simple-firewall' ),
 			'verification'     => __( 'Verification Code', 'wp-simple-firewall' ),
 			'login_link'       => __( 'Why no login link?', 'wp-simple-firewall' ),
-			'details_1'        => __( 'Login Details', 'wp-simple-firewall' ),
+			'details_heading'  => __( 'Login Details', 'wp-simple-firewall' ),
 			'details_url'      => sprintf( '%s: %s', __( 'URL', 'wp-simple-firewall' ), Services::WpGeneral()
 																								->getHomeUrl() ),
 			'details_username' => sprintf( '%s: %s', __( 'Username', 'wp-simple-firewall' ), $oUser->user_login ),

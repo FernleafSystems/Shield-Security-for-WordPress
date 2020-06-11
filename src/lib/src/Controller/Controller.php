@@ -2081,7 +2081,13 @@ class Controller {
 	 * @return \FernleafSystems\Wordpress\Services\Utilities\Render
 	 */
 	public function getRenderer() {
-		return Services::Render()->setTemplateRoot( $this->getPath_Templates() );
+		$oRndr = Services::Render();
+		$oLocator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
+		foreach ( $oLocator->run() as $sDir ) {
+			$oRndr->setTwigTemplateRoot( $sDir );
+		}
+		$oRndr->setTemplateRoot( $this->getPath_Templates() );
+		return $oRndr;
 	}
 
 	/**
