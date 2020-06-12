@@ -38,7 +38,7 @@
 	{% endif %}
 
 	{% for key_field, aField in data.login_fields %}
-		<div class="form-row">
+		<div class="form-row {% if aField.type == "hidden" %}d-none{% endif %}">
 			<div class="form-group col">
 				<label for="{{ aField.name }}">{{ aField.text }}</label>
 				<div class="input-group">

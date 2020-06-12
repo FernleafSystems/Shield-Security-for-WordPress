@@ -92,7 +92,7 @@ class U2F extends BaseProvider {
 				'value'       => '',
 				'placeholder' => '',
 				'text'        => '',
-				'help_link'   => 'https://shsec.io/3t',
+				'help_link'   => '',
 				'datas'       => [
 					'req'       => json_encode( $oSign ),
 					'version'   => $oSign->version,
@@ -184,7 +184,7 @@ class U2F extends BaseProvider {
 		$bError = false;
 		$sMsg = null;
 
-		$sU2fResponse = Services::Request()->post( 'icwp_new_u2f_response' );
+		$sU2fResponse = Services::Request()->post( 'icwp_wpsf_new_u2f_response' );
 		if ( !$this->hasValidatedProfile( $oUser ) && !empty( $sU2fResponse ) ) {
 			try {
 				$aReg = json_decode( $this->getSecret( $oUser ), true );
@@ -204,7 +204,7 @@ class U2F extends BaseProvider {
 					$oE->getMessage() );
 			}
 		}
-		elseif ( Services::Request()->post( 'icwp_u2f_key_delete' ) === 'Y' ) {
+		elseif ( Services::Request()->post( 'wpsf_u2f_key_delete' ) === 'Y' ) {
 			$this->processRemovalFromAccount( $oUser );
 			$sMsg = __( 'Registered U2F Key has been removed from your profile.', 'wp-simple-firewall' );
 		}

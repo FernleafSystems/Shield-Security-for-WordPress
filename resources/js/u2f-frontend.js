@@ -2,7 +2,7 @@ jQuery( document ).ready( function () {
 
 	setTimeout(
 		function () {
-			var $oU2fInput = jQuery( '#icwp_wpsf_u2f_otp' );
+			let $oU2fInput = jQuery( '#icwp_wpsf_u2f_otp' );
 
 			u2fApi.isSupported()
 				  .then( function ( supported ) {

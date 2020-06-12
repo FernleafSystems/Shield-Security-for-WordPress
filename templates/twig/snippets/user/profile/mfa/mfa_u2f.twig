@@ -1,13 +1,13 @@
 {% if (flags.is_my_user_profile or flags.i_am_valid_admin) %}
 <tr>
-		<th><label for="{% if flags.is_validated %}icwp_u2f_key_reg{% else %}icwp_u2f_key_delete{% endif %}">{{ strings.title }}</label></th>
+		<th><label for="{% if flags.is_validated %}icwp_u2f_key_reg{% endif %}">{{ strings.title }}</label></th>
 		<td id="icwp_u2f_section">
 			{% if flags.is_validated %}
-				<input type="checkbox" name="icwp_u2f_key_delete" id="icwp_u2f_key_delete" value="Y" />
+				<input type="checkbox" name="wpsf_u2f_key_delete" id="wpsf_u2f_key_delete" value="Y" />
 				<p class="description">{{ strings.check_to_delete }}</p>
 			{% else %}
 				<p>
-					<input type="hidden" name="icwp_new_u2f_response" id="icwp_new_u2f_response" />
+					<input type="hidden" name="icwp_wpsf_new_u2f_response" id="icwp_wpsf_new_u2f_response" />
 					<button type="button" class="button button-secondary" id="icwp_u2f_key_reg" disabled="disabled">
 						{{ strings.button_reg_key }}
 					</button>

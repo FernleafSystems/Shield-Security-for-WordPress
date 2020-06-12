@@ -1,9 +1,8 @@
 if ( typeof icwp_wpsf_vars_u2f !== 'undefined' ) {
 	jQuery( document ).ready( function () {
 
-		var $oU2fStatus = jQuery( '#icwp_u2f_section p.description' );
-		var $oBtnReg = jQuery( 'button#icwp_u2f_key_reg' );
-		var $oBtnDelete = jQuery( 'button#icwp_u2f_key_delete' );
+		let $oBtnReg = jQuery( 'button#icwp_u2f_key_reg' );
+		let $oU2fStatus = jQuery( '#icwp_u2f_section p.description' );
 
 		if ( !icwp_wpsf_vars_u2f.flags.is_validated ) {
 			u2fApi.isSupported()
@@ -13,7 +12,7 @@ if ( typeof icwp_wpsf_vars_u2f !== 'undefined' ) {
 						  $oBtnReg.on( 'click', function () {
 							  u2fApi.register( icwp_wpsf_vars_u2f.registration )
 									.then( function ( response ) {
-										jQuery( '#icwp_new_u2f_response' ).val( JSON.stringify( response ) )
+										jQuery( '#icwp_wpsf_new_u2f_response' ).val( JSON.stringify( response ) )
 										$oU2fStatus.text( icwp_wpsf_vars_u2f.strings.do_save );
 										$oU2fStatus.css( 'font-weight', 'bolder' )
 												   .css( 'color', 'green' );
