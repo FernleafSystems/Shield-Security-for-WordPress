@@ -13,6 +13,14 @@ class U2F extends BaseProvider {
 	const STANDALONE = false;
 
 	/**
+	 * @param \WP_User $oUser
+	 * @return bool
+	 */
+	public function isProfileActive( \WP_User $oUser ) {
+		return parent::isProfileActive( $oUser ) && $this->hasValidatedProfile( $oUser );
+	}
+
+	/**
 	 * @var RegisterRequest
 	 */
 	private $oWorkingRegistration;
@@ -197,8 +205,7 @@ class U2F extends BaseProvider {
 			}
 		}
 		elseif ( Services::Request()->post( 'icwp_u2f_key_delete' ) === 'Y' ) {
-			$this->deleteSecret( $oUser )
-				 ->setProfileValidated( $oUser, false );
+			$this->processRemovalFromAccount( $oUser );
 			$sMsg = __( 'Registered U2F Key has been removed from your profile.', 'wp-simple-firewall' );
 		}
 
@@ -214,6 +221,15 @@ class U2F extends BaseProvider {
 	 */
 	protected function processOtp( $oUser, $sOtpCode ) {
 		return $this->validateU2F( $oUser, $sOtpCode );
+	}
+
+	/**
+	 * @param \WP_User $oUser
+	 * @return $this
+	 */
+	protected function processRemovalFromAccount( $oUser ) {
+		return $this->setProfileValidated( $oUser, false )
+					->deleteSecret( $oUser );
 	}
 
 	/**

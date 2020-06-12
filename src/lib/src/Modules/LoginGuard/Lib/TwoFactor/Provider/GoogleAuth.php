@@ -20,7 +20,7 @@ class GoogleAuth extends BaseProvider {
 	 * @return bool
 	 */
 	public function isProfileActive( \WP_User $oUser ) {
-		return $this->hasValidSecret( $oUser ) && $this->hasValidatedProfile( $oUser );
+		return parent::isProfileActive( $oUser ) && $this->hasValidatedProfile( $oUser );
 	}
 
 	/**

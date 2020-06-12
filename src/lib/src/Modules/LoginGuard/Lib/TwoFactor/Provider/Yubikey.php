@@ -11,14 +11,6 @@ class Yubikey extends BaseProvider {
 	const OTP_LENGTH = 12;
 	const URL_YUBIKEY_VERIFY = 'https://api.yubico.com/wsapi/2.0/verify';
 
-	/**
-	 * @param \WP_User $oUser
-	 * @return bool
-	 */
-	public function isProfileActive( \WP_User $oUser ) {
-		return $this->hasValidSecret( $oUser );
-	}
-
 	public function setupProfile() {
 		add_action( 'admin_enqueue_scripts', function ( $sHook ) {
 			if ( in_array( $sHook, [ 'profile.php', ] ) ) {
