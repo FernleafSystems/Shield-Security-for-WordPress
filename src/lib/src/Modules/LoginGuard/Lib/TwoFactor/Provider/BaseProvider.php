@@ -19,6 +19,9 @@ abstract class BaseProvider {
 	public function __construct() {
 	}
 
+	public function setupProfile() {
+	}
+
 	/**
 	 * Assumes this is only called on active profiles
 	 * @param \WP_User $oUser

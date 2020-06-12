@@ -56,13 +56,6 @@ class MfaController {
 		add_shortcode( 'SHIELD_2FA_LOGIN', function () {
 			return $this->getLoginIntentPageHandler()->renderForm();
 		} );
-
-		if ( Services::WpUsers()->isUserLoggedIn() ) {
-			$aProvs = $this->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), false );
-			if ( isset( $aProvs[ Provider\U2F::SLUG ] ) ) {
-				$aProvs[ Provider\U2F::SLUG ]->setup();
-			}
-		}
 	}
 
 	/**

@@ -19,6 +19,32 @@ class Yubikey extends BaseProvider {
 		return $this->hasValidSecret( $oUser );
 	}
 
+	public function setupProfile() {
+		add_action( 'admin_enqueue_scripts', function ( $sHook ) {
+			if ( in_array( $sHook, [ 'profile.php', ] ) ) {
+				$this->enqueueYubikeyJS();
+			}
+		} );
+	}
+
+	/**
+	 * Enqueue the Javascript for removing Yubikey
+	 */
+	private function enqueueYubikeyJS() {
+		$oCon = $this->getCon();
+		$sScript = 'shield-profileyubikey';
+		wp_enqueue_script(
+			$oCon->prefix( $sScript ),
+			$oCon->getPluginUrl_Js( $sScript ),
+			[ 'jquery', $oCon->prefix( 'global-plugin' ) ]
+		);
+		wp_localize_script(
+			$oCon->prefix( $sScript ),
+			'icwp_wpsf_vars_profileyubikey',
+			[ 'ajax_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
+		);
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -30,7 +56,7 @@ class Yubikey extends BaseProvider {
 				'yubi_ids' => $this->getYubiIds( $oUser ),
 			],
 			'strings' => [
-				'current_yubi_ids'     => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
+				'registered_yubi_ids'  => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
 				'no_active_yubi_ids'   => __( 'There are no registered Yubikey devices on this profile.', 'wp-simple-firewall' ),
 				'enter_otp'            => __( 'To register a new Yubikey device, enter a One Time Password from the Yubikey.', 'wp-simple-firewall' ),
 				'to_remove_device'     => __( 'To remove a Yubikey device, enter the registered device ID and save.', 'wp-simple-firewall' ),
@@ -187,7 +213,7 @@ class Yubikey extends BaseProvider {
 	 * @param bool     $bAdd - true to add; false to remove
 	 * @return $this
 	 */
-	private function addRemoveRegisteredYubiId( \WP_User $oUser, $sKey, $bAdd = true ) {
+	public function addRemoveRegisteredYubiId( \WP_User $oUser, $sKey, $bAdd = true ) {
 		$aIDs = $this->getYubiIds( $oUser );
 		if ( $bAdd ) {
 			$aIDs[] = $sKey;

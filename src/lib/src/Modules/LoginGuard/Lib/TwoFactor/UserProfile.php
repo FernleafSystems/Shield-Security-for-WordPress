@@ -17,6 +17,14 @@ class UserProfile {
 				add_action( 'edit_user_profile', [ $this, 'addOptionsToUserEditProfile' ] );
 				add_action( 'edit_user_profile_update', [ $this, 'handleEditOtherUserProfileSubmit' ] );
 			}
+
+			$oWpUsers = Services::WpUsers();
+			if ( $oWpUsers->isUserLoggedIn() ) {
+				$oMC = $this->getMfaCon();
+				foreach ( $oMC->getProvidersForUser( $oWpUsers->getCurrentWpUser(), false ) as $oP ) {
+					$oP->setupProfile();
+				}
+			}
 		}
 	}
 
@@ -44,7 +52,7 @@ class UserProfile {
 					'provided_by' => sprintf( __( 'Provided by %s', 'wp-simple-firewall' ), $oMC->getCon()
 																								->getHumanName() )
 				],
-				'mfa_rows'              => $aRows
+				'mfa_rows'              => $aRows,
 			];
 
 			echo $oMC->getMod()

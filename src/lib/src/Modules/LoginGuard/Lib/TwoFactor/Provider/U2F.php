@@ -17,9 +17,9 @@ class U2F extends BaseProvider {
 	 */
 	private $oWorkingRegistration;
 
-	public function setup() {
+	public function setupProfile() {
 		add_action( 'admin_enqueue_scripts', function ( $sHook ) {
-			if ( in_array( $sHook, [ 'profile.php', ] ) && Services::WpUsers()->isUserLoggedIn() ) {
+			if ( in_array( $sHook, [ 'profile.php', ] ) ) {
 				$this->enqueueAdminU2f();
 			}
 		} );

@@ -31,6 +31,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				$aResponse = $this->ajaxExec_ResendEmailVerification();
 				break;
 
+			case 'yubikey_remove':
+				$aResponse = $this->ajaxExec_ProfileYubikeyRemove();
+				break;
+
 			default:
 				$aResponse = parent::processAjaxAction( $sAction );
 		}
@@ -85,6 +89,24 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 		return [
 			'success'     => true,
 			'message'     => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
+			'page_reload' => true
+		];
+	}
+
+	/**
+	 * @return array
+	 */
+	private function ajaxExec_ProfileYubikeyRemove() {
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
+		$oMod = $this->getMod();
+
+		$sKey = Services::Request()->post( 'yubikeyid' );
+		( new TwoFactor\Provider\Yubikey() )
+			->setMod( $oMod )
+			->addRemoveRegisteredYubiId( Services::WpUsers()->getCurrentWpUser(), $sKey, false );
+		return [
+			'success'     => true,
+			'message'     => __( 'Yubikey removed from profile.', 'wp-simple-firewall' ),
 			'page_reload' => true
 		];
 	}
