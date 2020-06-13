@@ -289,7 +289,6 @@ class U2F extends BaseProvider {
 
 		if ( !empty( $aReg[ 'label' ] ) ) {
 			$aRegs[ $aReg[ 'label' ] ] = $aReg;
-			error_log( var_export( $aRegs, true ) );
 		}
 
 		return $this->storeRegistrations( $oUser, $aRegs );
@@ -326,21 +325,13 @@ class U2F extends BaseProvider {
 	 */
 	private function validateU2F( $oUser, $sOtpCode ) {
 		try {
-			$oReq = Services::Request();
-
-			// Recreate the signing/authenticate request from the form submission.
-
 			$oRegistration = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 				->doAuthenticate(
-					json_decode( base64_decode( $oReq->post( 'u2f_signs' ) ) ),
+					json_decode( base64_decode( Services::Request()->post( 'u2f_signs' ) ) ),
 					$this->getRegistrations( $oUser ),
 					json_decode( $sOtpCode )
 				);
-
 			$this->addRegistration( $oUser, get_object_vars( $oRegistration ) );
-
-			// We "update" the registration as there is a counter to track requests
-//			$this->setSecret( $oUser, json_encode( (object)$oRegistration ) );
 		}
 		catch ( \Exception $oE ) {
 			error_log( $oE->getMessage() );
