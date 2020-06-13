@@ -10,12 +10,12 @@ if ( typeof icwp_wpsf_vars_u2f !== 'undefined' ) {
 				  if ( supported ) {
 					  $oBtnReg.prop( 'disabled', false );
 					  $oBtnReg.on( 'click', function () {
-						  let label = prompt( "Please provide a label for the new U2F device.", "" );
+						  let label = prompt( icwp_wpsf_vars_u2f.strings.prompt_dialog, "<Insert Label>" );
 						  if ( typeof label === 'undefined' || label === null ) {
-							  alert( 'Please provide a label for this U2F device.' )
+							  alert( icwp_wpsf_vars_u2f.strings.err_no_label )
 						  }
 						  else if ( !oLabelRegEx.test( label ) ) {
-							  alert( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.' )
+							  alert( icwp_wpsf_vars_u2f.strings.err_invalid_label )
 						  }
 						  else {
 							  u2fApi.register( icwp_wpsf_vars_u2f.reg_request, icwp_wpsf_vars_u2f.signs )

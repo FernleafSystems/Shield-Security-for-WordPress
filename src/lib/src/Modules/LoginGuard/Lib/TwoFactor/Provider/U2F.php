@@ -57,9 +57,13 @@ class U2F extends BaseProvider {
 					'strings'     => [
 						'not_supported' => __( 'U2F Security Key registration is not supported in this browser', 'wp-simple-firewall' ),
 						'failed'        => __( 'Key registration failed.', 'wp-simple-firewall' )
+										   .' '.__( "Perhaps the device isn't supported, or you've already registered it.", 'wp-simple-firewall' )
 										   .' '.__( 'Please retry or refresh the page.', 'wp-simple-firewall' ),
 						'do_save'       => __( 'Key registration was successful.', 'wp-simple-firewall' )
-										   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' )
+										   .' '.__( 'Please now save your profile settings.', 'wp-simple-firewall' ),
+						'prompt_dialog'     => __( 'Please provide a label to identify the new U2F device.', 'wp-simple-firewall' ),
+						'err_no_label'      => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
+						'err_invalid_label' => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
 					]
 				]
 			);
@@ -162,10 +166,9 @@ class U2F extends BaseProvider {
 
 		$aData = [
 			'strings' => [
-				'title'           => __( 'U2F', 'wp-simple-firewall' ),
-				'button_reg_key'  => __( 'Register A New U2F Security Key', 'wp-simple-firewall' ),
-				'prompt'          => __( 'Click To Start U2F Security Registration.', 'wp-simple-firewall' ),
-				'check_to_delete' => __( 'Check the box to delete your existing U2F key registration.', 'wp-simple-firewall' ),
+				'title'          => __( 'U2F', 'wp-simple-firewall' ),
+				'button_reg_key' => __( 'Register A New U2F Security Key', 'wp-simple-firewall' ),
+				'prompt'         => __( 'Click To Register A U2F Device.', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
 				'is_validated' => $bValidated
@@ -223,17 +226,17 @@ class U2F extends BaseProvider {
 				$this->addRegistration( $oUser, $aConfirmedReg )
 					 ->setProfileValidated( $oUser );
 
-				$sMsg = __( 'U2F Key has been registered successfully on your profile.', 'wp-simple-firewall' );
+				$sMsg = __( 'U2F Device was successfully registered on your profile.', 'wp-simple-firewall' );
 			}
 			catch ( \Exception $oE ) {
 				$bError = true;
-				$sMsg = sprintf( __( 'U2F Key registration failed with the following error: %s', 'wp-simple-firewall' ),
+				$sMsg = sprintf( __( 'U2F Device registration failed with the following error: %s', 'wp-simple-firewall' ),
 					$oE->getMessage() );
 			}
 		}
 		elseif ( Services::Request()->post( 'wpsf_u2f_key_delete' ) === 'Y' ) {
 			$this->processRemovalFromAccount( $oUser );
-			$sMsg = __( 'Registered U2F Key has been removed from your profile.', 'wp-simple-firewall' );
+			$sMsg = __( 'U2F Device was removed from your profile.', 'wp-simple-firewall' );
 		}
 
 		if ( !empty( $sMsg ) ) {
