@@ -8,23 +8,16 @@ jQuery( document ).ready( function () {
 				  .then( function ( supported ) {
 					  if ( supported ) {
 
-						  var sign_request = {
-							  'version': $oU2fInput.data( 'version' ),
-							  'challenge': $oU2fInput.data( 'challenge' ),
-							  'keyHandle': $oU2fInput.data( 'handle' ),
-							  'appId': $oU2fInput.data( 'app_id' )
-						  };
-						  u2fApi.sign( sign_request )
+						  let aSigns = JSON.parse( atob( $oU2fInput.data( 'signs' ) ) );
+						  u2fApi.sign( aSigns )
 								.then( function ( response ) {
 									$oU2fInput.val( JSON.stringify( response ) );
-									var $oForm = $oU2fInput.closest( 'form' );
-									for ( let key in sign_request ) {
-										jQuery( '<input>' ).attr( {
-											type: 'hidden',
-											name: key,
-											value: sign_request[ key ]
-										} ).appendTo( $oForm );
-									}
+									let $oForm = $oU2fInput.closest( 'form' );
+									jQuery( '<input>' ).attr( {
+										type: 'hidden',
+										name: 'u2f_signs',
+										value: $oU2fInput.data( 'signs' )
+									} ).appendTo( $oForm );
 									$oForm.submit();
 								} )
 								.catch( function ( response ) {

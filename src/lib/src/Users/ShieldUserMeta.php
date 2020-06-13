@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool   $ga_validated
  * @property string $u2f_secret
  * @property bool   $u2f_validated
+ * @property string $u2f_regrequest
  * @property array  $hash_loginmfa
  * @property string $pass_hash
  * @property int    $first_seen_at

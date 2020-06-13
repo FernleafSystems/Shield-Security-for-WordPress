@@ -24,7 +24,7 @@ class Yubikey extends BaseProvider {
 	 */
 	private function enqueueYubikeyJS() {
 		$oCon = $this->getCon();
-		$sScript = 'shield-profileyubikey';
+		$sScript = 'shield-userprofile';
 		wp_enqueue_script(
 			$oCon->prefix( $sScript ),
 			$oCon->getPluginUrl_Js( $sScript ),
@@ -33,7 +33,7 @@ class Yubikey extends BaseProvider {
 		wp_localize_script(
 			$oCon->prefix( $sScript ),
 			'icwp_wpsf_vars_profileyubikey',
-			[ 'ajax_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
+			[ 'yubikey_remove' => $this->getMod()->getAjaxActionData( 'yubikey_remove' ) ]
 		);
 	}
 
