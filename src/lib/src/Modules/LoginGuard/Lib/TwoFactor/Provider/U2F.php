@@ -203,7 +203,7 @@ class U2F extends BaseProvider {
 
 			try {
 				$oDecodedResponse = json_decode( $sU2fResponse );
-				$sLabel = sanitize_key( $oDecodedResponse->label );
+				$sLabel = preg_replace( '#[^a-z0-9_-]#i', '', $oDecodedResponse->label );
 				if ( strlen( $sLabel ) > 16 ) {
 					throw new \Exception( 'U2F Device label is larger than 16 characters.' );
 				}

@@ -3,7 +3,7 @@ if ( typeof icwp_wpsf_vars_u2f !== 'undefined' ) {
 
 		let $oBtnReg = jQuery( 'button#icwp_u2f_key_reg' );
 		let $oU2fStatus = jQuery( '#icwp_u2f_section p.description' );
-		let oLabelRegEx = new RegExp( "^[a-z0-9_-]{1,16}$" );
+		let oLabelRegEx = new RegExp( "^[a-zA-Z0-9_-]{1,16}$" );
 
 		u2fApi.isSupported()
 			  .then( function ( supported ) {
@@ -15,7 +15,7 @@ if ( typeof icwp_wpsf_vars_u2f !== 'undefined' ) {
 							  alert( 'Please provide a label for this U2F device.' )
 						  }
 						  else if ( !oLabelRegEx.test( label ) ) {
-							  alert( 'Device label must contain lowercase letters, numbers, underscore, or hypen, and be no more than 16 characters.' )
+							  alert( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.' )
 						  }
 						  else {
 							  u2fApi.register( icwp_wpsf_vars_u2f.reg_request, icwp_wpsf_vars_u2f.signs )
