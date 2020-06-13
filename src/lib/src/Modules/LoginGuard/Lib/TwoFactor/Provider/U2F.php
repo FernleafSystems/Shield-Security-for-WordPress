@@ -51,7 +51,7 @@ class U2F extends BaseProvider {
 				$this->getCon()->prefix( 'shield-u2f-admin' ),
 				'icwp_wpsf_vars_u2f',
 				[
-					'registration' => $bValidated ? [] : json_decode( $this->resetSecret( $oUser ) ),
+					'registration' => $bValidated ? new \stdClass() : json_decode( $this->resetSecret( $oUser ) ),
 					'flags'        => [
 						'is_validated' => $bValidated
 					],
