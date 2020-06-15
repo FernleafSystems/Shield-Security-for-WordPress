@@ -40,13 +40,13 @@
 	{% for key_field, aField in data.login_fields %}
 		<div class="form-row {% if aField.type == "hidden" %}d-none{% endif %}">
 			<div class="form-group col">
-				<label for="{{ aField.name }}">{{ aField.text }}</label>
+				<label for="{{ aField.id|default(aField.name) }}">{{ aField.text }}</label>
 				<div class="input-group">
 					<input type="{{ aField.type }}"
 						   name="{{ aField.name }}"
 						   value="{{ aField.value }}"
-						   class="form-control"
-						   id="{{ aField.name }}"
+						   class="form-control{% for class in aField.classes|default([]) %} {{ class }}{% endfor %}"
+						   id="{{ aField.id|default(aField.name) }}"
 						   placeholder="{{ aField.placeholder }}"
 						   autocomplete="off"
 						   {% if key_field == 0 %}autofocus{% endif %}
