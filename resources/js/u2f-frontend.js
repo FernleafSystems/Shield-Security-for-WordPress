@@ -22,6 +22,7 @@ jQuery( document ).ready( function () {
 									name: $oU2fStart.data( 'input_otp' ),
 									value: JSON.stringify( response )
 								} ).appendTo( $oForm );
+								$oU2fStart.prop( 'disabled', true );
 								$oU2fStart.val( 'U2F successful. Submit form when ready.' );
 							} )
 							.catch( function ( response ) {
