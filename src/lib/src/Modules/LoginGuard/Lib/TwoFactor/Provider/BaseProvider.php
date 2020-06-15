@@ -248,7 +248,7 @@ abstract class BaseProvider {
 	 * @return string
 	 */
 	protected function fetchCodeFromRequest() {
-		return Services::Request()->request( $this->getLoginFormParameter(), false, '' );
+		return trim( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
 	}
 
 	/**
