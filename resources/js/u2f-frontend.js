@@ -23,7 +23,7 @@ jQuery( document ).ready( function () {
 									value: JSON.stringify( response )
 								} ).appendTo( $oForm );
 								$oU2fStart.prop( 'disabled', true );
-								$oU2fStart.val( 'U2F successful. Submit form when ready.' );
+								$oU2fStart.val( 'U2F successful. Submit the form when ready.' );
 							} )
 							.catch( function ( response ) {
 								alert( 'U2F authentication failed. Reload the page to retry.' );
