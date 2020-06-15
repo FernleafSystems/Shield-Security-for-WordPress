@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class Options
@@ -131,7 +132,8 @@ class Options extends Base\ShieldOptions {
 	 * @return bool
 	 */
 	public function isEnabledU2F() {
-		return $this->isPremium() && $this->isOpt( 'enable_u2f', 'Y' );
+		return Services::Data()->getPhpVersionIsAtLeast( '7.0' )
+			   && $this->isPremium() && $this->isOpt( 'enable_u2f', 'Y' );
 	}
 
 	/**

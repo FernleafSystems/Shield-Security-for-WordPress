@@ -15,6 +15,10 @@ abstract class BaseProvider {
 	 * must be at least 1 other 2FA provider active.
 	 */
 	const STANDALONE = true;
+	/**
+	 * Always a screen, but maybe an json-encoded string, e.g. '[]', like U2F
+	 */
+	const DEFAULT_SECRET = '';
 
 	public function __construct() {
 	}
@@ -43,7 +47,7 @@ abstract class BaseProvider {
 	 */
 	protected function getSecret( \WP_User $oUser ) {
 		$sSecret = $this->getCon()->getUserMeta( $oUser )->{static::SLUG.'_secret'};
-		return empty( $sSecret ) ? '' : $sSecret;
+		return empty( $sSecret ) ? static::DEFAULT_SECRET : $sSecret;
 	}
 
 	/**

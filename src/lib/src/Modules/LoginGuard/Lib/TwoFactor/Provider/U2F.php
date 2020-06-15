@@ -11,6 +11,7 @@ class U2F extends BaseProvider {
 
 	const SLUG = 'u2f';
 	const STANDALONE = false;
+	const DEFAULT_SECRET = '[]';
 
 	/**
 	 * @param \WP_User $oUser
@@ -94,7 +95,7 @@ class U2F extends BaseProvider {
 				'value'       => 'Click To Begin U2F Authentication',
 				'placeholder' => '',
 				'text'        => 'U2F Authentication',
-				'classes'     => ['btn', 'btn-light'],
+				'classes'     => [ 'btn', 'btn-light' ],
 				'help_link'   => '',
 				'datas'       => [
 					'signs'     => base64_encode( json_encode( $aSignReqs ) ),
@@ -117,7 +118,7 @@ class U2F extends BaseProvider {
 		$oMeta = $this->getCon()->getUserMeta( $oUser );
 		list( $oRegRequest, $aSignRequests ) = ( new \u2flib_server\U2F( $this->getU2fAppID() ) )
 			->getRegisterData( $this->getRegistrations( $oUser ) );
-		$oMeta->u2f_regrequest = json_encode( get_object_vars( $oRegRequest ) );
+		$oMeta->u2f_regrequest = json_encode( $oRegRequest );
 		return [ $oRegRequest, $aSignRequests ];
 	}
 
@@ -125,38 +126,24 @@ class U2F extends BaseProvider {
 	 * @param \WP_User $oUser
 	 * @return \stdClass[]
 	 */
-	private function getRegistrations( \WP_User $oUser, $bAsObjects = true ) {
+	private function getRegistrations( \WP_User $oUser ) {
 		$aRegs = json_decode( $this->getSecret( $oUser ), true );
-		if ( $bAsObjects ) {
-			$aRegs = array_map(
-				function ( $aReg ) {
-					return (object)$aReg;
-				},
-				$aRegs
-			);
-		}
-		return $aRegs;
+		return array_map(
+			function ( $aReg ) {
+				return (object)$aReg;
+			},
+			is_array( $aRegs ) ? $aRegs : []
+		);
 	}
 
 	/**
+	 * TODO: Does this port stuff make a difference whatsoever?
 	 * @return string
 	 */
 	private function getU2fAppID() {
-		$aParts = wp_parse_url( Services::WpGeneral()->getHomeUrl() );
-		return sprintf( 'https://%s%s', $aParts[ 'host' ], empty( $aParts[ 'port' ] ) ? '' : ':'.$aParts[ 'port' ] );
-	}
-
-	/**
-	 * @param \WP_User $oUser
-	 * @return string
-	 */
-	protected function genNewSecret( \WP_User $oUser ) {
-		try {
-			return json_encode( (object)$this->createNewU2fRegistrationRequest( $oUser ) );
-		}
-		catch ( \Exception $oE ) {
-			return '';
-		}
+		$aPs = wp_parse_url( Services::WpGeneral()->getHomeUrl() );
+		$sPort = ( empty( $aPs[ 'port' ] ) || in_array( $aPs[ 'port' ], [ 80, 443 ] ) ) ? '' : $aPs[ 'port' ];
+		return sprintf( 'https://%s%s', $aPs[ 'host' ], $sPort );
 	}
 
 	/**
@@ -176,7 +163,21 @@ class U2F extends BaseProvider {
 				'is_validated' => $bValidated
 			],
 			'vars'    => [
-				'registrations' => $this->getRegistrations( $oUser )
+				'registrations' => array_map(
+					function ( $oReg ) {
+						$oReg->used_at = sprintf( '(%s: %s)',
+							__( 'Used', 'wp-simple-firewall' ),
+							empty( $oReg->used_at ) ?
+								__( 'Never', 'wp-simple-firewall' )
+								: Services::Request()
+										  ->carbon()
+										  ->setTimestamp( $oReg->used_at )
+										  ->diffForHumans()
+						);
+						return $oReg;
+					},
+					$this->getRegistrations( $oUser )
+				)
 			],
 		];
 
@@ -270,30 +271,32 @@ class U2F extends BaseProvider {
 	 * @return $this
 	 */
 	private function addRegistration( \WP_User $oUser, array $aReg ) {
-		$aRegs = $this->getRegistrations( $oUser, false );
+		$aRegs = $this->getRegistrations( $oUser );
 
 		// We've been passed a Registration without a label. (for example counter increment)
-		// So we try to locate the pre-existing registration in order to update it.
+		// So we try to locate the pre-existing registration and update it.
 		if ( empty( $aReg[ 'label' ] ) ) {
-			$aComparisonKeys = [
-				'keyHandle',
-				'publicKey',
-				'certificate',
-			];
-			foreach ( $aRegs as $sLabel => $aMaybeReg ) {
+			$aComparisonKeys = [ 'keyHandle', 'publicKey', 'certificate', ];
+			foreach ( $aRegs as $sLabel => $oMaybeReg ) {
 				$bIsReg = true;
-				foreach ( $aComparisonKeys as $sKeyToCompare ) {
-					$bIsReg = $bIsReg && ( $aMaybeReg[ $sKeyToCompare ] === $aReg[ $sKeyToCompare ] );
+				foreach ( $aComparisonKeys as $sKeyCompare ) {
+					$bIsReg = $bIsReg && ( $oMaybeReg->{$sKeyCompare} === $aReg[ $sKeyCompare ] );
 				}
 				if ( $bIsReg ) {
-					$aReg[ 'label' ] = $aMaybeReg[ 'label' ];
+					$aReg = array_merge( get_object_vars( $oMaybeReg ), $aReg );
 					break;
 				}
 			}
 		}
 
+		// Only add if there's a label, and set defaults
 		if ( !empty( $aReg[ 'label' ] ) ) {
-			$aRegs[ $aReg[ 'label' ] ] = $aReg;
+			$aRegs[ $aReg[ 'label' ] ] = array_merge(
+				[
+					'used_at' => 0
+				],
+				$aReg
+			);
 		}
 
 		return $this->storeRegistrations( $oUser, $aRegs );
@@ -336,7 +339,9 @@ class U2F extends BaseProvider {
 					$this->getRegistrations( $oUser ),
 					json_decode( $sOtpCode )
 				);
-			$this->addRegistration( $oUser, get_object_vars( $oRegistration ) );
+			$aReg = get_object_vars( $oRegistration );
+			$aReg[ 'used_at' ] = Services::Request()->ts();
+			$this->addRegistration( $oUser, $aReg );
 		}
 		catch ( \Exception $oE ) {
 			error_log( $oE->getMessage() );

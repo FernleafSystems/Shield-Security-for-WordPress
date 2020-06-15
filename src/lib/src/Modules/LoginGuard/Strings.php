@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Strings extends Base\Strings {
 
@@ -264,8 +265,11 @@ class Strings extends Base\Strings {
 				$sDescription = [
 					__( 'Allow users to register U2F devices to complete their login.', 'wp-simple-firewall' ),
 					__( "Currently only U2F keys are supported. Built-in fingerprint scanners aren't supported (yet).", 'wp-simple-firewall' ),
-					__( "Experimental! This may only be used when at least 1 other 2FA option is enabled on a user account.", 'wp-simple-firewall' )
+					__( "Beta! This may only be used when at least 1 other 2FA option is enabled on a user account.", 'wp-simple-firewall' ),
 				];
+				if ( !Services::Data()->getPhpVersionIsAtLeast( '7.0' ) ) {
+					$sDescription[] = sprintf( '%s - %s', __( 'Important', 'wp-simple-firewall' ), __( "Requires PHP 7.0 or later.", 'wp-simple-firewall' ) );
+				}
 				break;
 
 			case 'enable_yubikey' :
