@@ -162,9 +162,14 @@ class MfaController {
 					   && ( !$bOnlyActiveProfiles || $oProvider->isProfileActive( $oUser ) );
 			}
 		);
+
 		// Neither BackupCode NOR U2F should EVER be the only 1 provider available.
-		if ( count( $aPs ) === 1 && !reset( $aPs )::STANDALONE ) {
-			$aPs = [];
+		if ( count( $aPs ) === 1 ) {
+			/** @var Provider\BaseProvider $oFirst */
+			$oFirst = reset( $aPs );
+			if ( !$oFirst::STANDALONE ) {
+				$aPs = [];
+			}
 		}
 		return $aPs;
 	}
