@@ -170,7 +170,7 @@
       "type":          "select",
       "value_options": [
         {
-          "value_key": 0,
+          "value_key": "0",
           "text":      "Move To Pending Moderation"
         },
         {

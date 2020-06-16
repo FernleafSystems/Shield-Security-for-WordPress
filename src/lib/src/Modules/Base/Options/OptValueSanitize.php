@@ -54,7 +54,7 @@ class OptValueSanitize {
 				break;
 
 			case 'select':
-				$validValue = !empty( $mVal ) && is_string( $mVal );
+				$validValue = is_string( $mVal ) && strlen( $mVal ) > 0;
 				break;
 
 			case 'multiple_select':
