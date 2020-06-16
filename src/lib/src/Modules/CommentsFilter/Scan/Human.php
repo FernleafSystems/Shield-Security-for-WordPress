@@ -80,8 +80,6 @@ class Human {
 		return $aList;
 	}
 
-	/**
-	 */
 	private function importBlacklist() {
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
 		$oMod = $this->getMod();

@@ -206,11 +206,11 @@
     {
       "key":           "comments_default_action_human_spam",
       "section":       "section_human_spam_filter",
-      "default":       0,
+      "default":       "0",
       "type":          "select",
       "value_options": [
         {
-          "value_key": 0,
+          "value_key": "0",
           "text":      "Move To Pending Moderation"
         },
         {
