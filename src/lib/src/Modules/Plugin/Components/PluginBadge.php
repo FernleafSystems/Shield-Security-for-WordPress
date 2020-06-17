@@ -73,7 +73,7 @@ class PluginBadge {
 						 ->getLicenseHandler()
 						 ->getLicense();
 		if ( !empty( $oLicense->aff_ref ) ) {
-			$sBadgeUrl = add_query_arg( [ 'ref', $oLicense->aff_ref ], $sBadgeUrl );
+			$sBadgeUrl = add_query_arg( [ 'ref' => $oLicense->aff_ref ], $sBadgeUrl );
 		}
 
 		$aData = [
