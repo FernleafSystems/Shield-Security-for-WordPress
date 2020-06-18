@@ -102,6 +102,10 @@ class Strings {
 
 				'wphashes_token'      => 'WPHashes.com API Token',
 				'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
+
+				'search_select' => [
+					'title' => ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
+				]
 			],
 			$this->getAdditionalDisplayStrings()
 		);
