@@ -156,9 +156,10 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'locked_file'           => __( 'Locked File' ),
 				'modified_file'         => __( 'Modified File' ),
 				'locked'                => __( 'Locked' ),
+				'modified_timestamp'    => __( 'File Modified Timestamp' ),
 				'modified'              => __( 'Modified' ),
 				'download'              => __( 'Download' ),
-				'modified_at'           => __( 'Modified' ),
+				'change_detected_at'    => __( 'Change Detected' ),
 				'file_content_original' => __( 'Original File Content' ),
 				'file_content_current'  => __( 'Current File Content' ),
 				'download_original'     => __( 'Download Original' ),
@@ -180,8 +181,11 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$oLock = $oFLCon->getFileLock( $nRID );
 			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
 			$aData[ 'flags' ][ 'has_diff' ] = !empty( $aData[ 'html' ][ 'diff' ] );
-			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->updated_at )->diffForHumans();
-			$aData[ 'vars' ][ 'modified_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
+			error_log( var_export( $aData[ 'flags' ][ 'has_diff' ], true ) );
+			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
+			$aData[ 'vars' ][ 'file_modified_at' ] =
+				Services::WpGeneral()->getTimeStampForDisplay( $oFS->getModifiedTime( $oLock->file ) );
+			$aData[ 'vars' ][ 'change_detected_at' ] = $oCarb->setTimestamp( $oLock->detected_at )->diffForHumans();
 			$aData[ 'vars' ][ 'file_size_locked' ] = $this->formatBytes( strlen(
 				( new FileLocker\Ops\ReadOriginalFileContent() )
 					->setMod( $oMod )

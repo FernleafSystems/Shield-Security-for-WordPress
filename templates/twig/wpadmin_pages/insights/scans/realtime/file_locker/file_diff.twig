@@ -17,6 +17,11 @@
 				</dl>
 
 				<dl class="row">
+					<dt class="col">{{ strings.modified_timestamp }}</dt>
+					<dd class="col">{{ vars.file_modified_at }}</dd>
+				</dl>
+
+				<dl class="row">
 					<dt class="col">{{ strings.download }}</dt>
 					<dd class="col">
 						<a href="{{ ajax.original }}" title="{{ strings.download }}" class="shield_file_download text-nowrap">
@@ -34,8 +39,8 @@
 					<h5 class="card-title">{{ strings.modified_file }}</h5>
 
 					<dl class="row">
-						<dt class="col">{{ strings.modified_at }}</dt>
-						<dd class="col">{{ vars.modified_at }}</dd>
+						<dt class="col">{{ strings.change_detected_at }}</dt>
+						<dd class="col">{{ vars.change_detected_at }}</dd>
 					</dl>
 
 					<dl class="row">

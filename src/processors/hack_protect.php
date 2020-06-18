@@ -223,6 +223,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 
+		$oLockCon = $oMod->getFileLocker();
 		$oLockLoader = ( new HackGuard\Lib\FileLocker\Ops\LoadFileLocks() )->setMod( $oMod );
 		$aProblemLocks = $oLockLoader->withProblems();
 		$aGoodLocks = $oLockLoader->withoutProblems();
@@ -233,7 +234,7 @@ class ICWP_WPSF_Processor_HackProtect extends Modules\BaseShield\ShieldProcessor
 				'filelocker_fileaction' => $oMod->getAjaxActionData( 'filelocker_fileaction', true ),
 			],
 			'flags'   => [
-				'has_items'     => count( $aProblemLocks ),
+				'is_enabled' => $oLockCon->isEnabled(),
 				'is_restricted' => !$this->getCon()->isPremiumActive(),
 			],
 			'hrefs'   => [
