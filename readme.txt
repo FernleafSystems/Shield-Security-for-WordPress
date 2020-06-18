@@ -377,11 +377,13 @@ You will always be able to use Shield Security and its free features in-full.
 
 ##### [Please review the full Shield 9.1 Upgrade Guide here](https://shsec.io/shieldupgradeguide91).
 
-* **(.0)  NEW**:		[*PRO*] [WP-CLI](https://shsec.io/h4) Support for WP-CLI (beta).
-* **(.0)  NEW**:		[*PRO*] [U2F Login](https://shsec.io/hl) - Support for registration and use of U2F keys for 2-factor authentication.
+* **(.0)  NEW**:		[*PRO*] [WP-CLI](https://shsec.io/hw) Support for WP-CLI (beta).
+* **(.0)  NEW**:		[*PRO*] [U2F Login](https://shsec.io/hv) - Support for registration and use of U2F keys for 2-factor authentication.
+* **(.0)  NEW**:		[*PRO*] [Custom Email Templates](https://shsec.io/hw) - Support for custom email templates, starting with 2FA.
+* **(.0)  NEW**:		[*PRO*] [Affiliate Rewards](https://shsec.io/hw) - We now offer affiliate rewards with ShieldPRO.
 * **(.0)  IMPROVED**:	Plugin upgrade handling.
 * **(.0)  FIXED**:		Adding IPv6 address ranges didn't work in all cases.
 * **(.0)  FIXED**:		Errors while trying to access an uninitialised database.
-* **(.0)  FIXED**:		Upgrade Carbon PHP library to latest available v1.
+* **(.0)  FIXED**:		Upgrade Carbon PHP library to latest available (v1.39).
 
 ##### [Entire Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
