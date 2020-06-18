@@ -235,7 +235,7 @@
       "key":           "scan_frequency",
       "section":       "section_scan_options",
       "premium":       true,
-      "default":       1,
+      "default":       "1",
       "type":          "select",
       "value_options": [
         {
