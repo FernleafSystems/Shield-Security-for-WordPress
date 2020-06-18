@@ -179,7 +179,14 @@ class Strings extends Base\Strings {
 			case 'block_send_email_address' :
 				$sName = __( 'Report Email', 'wp-simple-firewall' );
 				$sSummary = __( 'Where to send email reports', 'wp-simple-firewall' );
-				$sDescription = sprintf( __( 'If this is empty, it will default to the blog admin email address: %s', 'wp-simple-firewall' ), '<br /><strong>'.get_bloginfo( 'admin_email' ).'</strong>' );
+				$sDescription = [
+					__( "This lets you customise the default email address for all emails sent by the plugin.", 'wp-simple-firewall' ),
+					sprintf( __( "The plugin defaults to the site administration email address, which is: %s", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" target="_blank" title="%s"><code>'.get_bloginfo( 'admin_email' ).'</code></a>',
+							Services::WpGeneral()->getAdminUrl( 'options-general.php' ),
+							__( 'Review site settings', 'wp-simple-firewall' ) )
+					)
+				];
 				break;
 
 			case 'enable_upgrade_admin_notice' :
