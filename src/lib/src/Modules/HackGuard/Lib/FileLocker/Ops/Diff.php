@@ -34,12 +34,12 @@ class Diff extends BaseOps {
 			->setMod( $this->getMod() )
 			->run( $oLock );
 
-		try {
+		$sDiff = $this->useWpDiff( $sOriginal, $sContent );
+		// The WP Diff is empty if the only difference is white space
+		if ( empty( $sDiff ) ) {
 			$sDiff = $this->useWpHashes( $sOriginal, $sContent );
 		}
-		catch ( \Exception $oE ) {
-			$sDiff = $this->useWpDiff( $sOriginal, $sContent );
-		}
+
 		return $sDiff;
 	}
 
@@ -52,7 +52,7 @@ class Diff extends BaseOps {
 	private function useWpHashes( $sOriginal, $sCurrent ) {
 		$aRes = ( new WpHashes\Util\Diff() )->getDiff( $sOriginal, $sCurrent );
 		if ( !is_array( $aRes ) || empty( $aRes[ 'html' ] ) ) {
-			throw new \Exception( 'Could not get a valid diff from WP Hashes.' );
+			throw new \Exception( 'Could not get a valid diff for this file.' );
 		}
 		return sprintf( '<style>%s</style>%s',
 			'table.diff.diff-wrapper tbody tr td:nth-child(2){ width:auto;}'.
