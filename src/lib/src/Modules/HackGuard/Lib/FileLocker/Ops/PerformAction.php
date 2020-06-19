@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Databases;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Class PerformAction
@@ -41,7 +40,9 @@ class PerformAction extends BaseOps {
 					->run( $oLock );
 				break;
 			case 'diff':
-				$mResult = $this->diff( $oLock );
+				$mResult = ( new Diff() )
+					->setMod( $this->getMod() )
+					->run( $oLock );
 				break;
 			case 'restore':
 				$mResult = ( new Restore() )
@@ -53,30 +54,5 @@ class PerformAction extends BaseOps {
 				break;
 		}
 		return $mResult;
-	}
-
-	/**
-	 * @param Databases\FileLocker\EntryVO $oLock
-	 * @return string
-	 * @throws \Exception
-	 */
-	protected function diff( Databases\FileLocker\EntryVO $oLock ) {
-		$oFS = Services::WpFs();
-
-		if ( !$oFS->isFile( $oLock->file ) ) {
-			throw new \Exception( __( 'File is missing or could not be read.', 'wp-simple-firewall' ) );
-		}
-
-		$sContent = Services::WpFs()->getFileContent( $oLock->file );
-		if ( empty( $sContent ) ) {
-			throw new \Exception( __( 'File is empty or could not be read.', 'wp-simple-firewall' ) );
-		}
-
-		return wp_text_diff(
-			( new ReadOriginalFileContent() )
-				->setMod( $this->getMod() )
-				->run( $oLock ),
-			$sContent
-		);
 	}
 }

@@ -181,7 +181,6 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$oLock = $oFLCon->getFileLock( $nRID );
 			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
 			$aData[ 'flags' ][ 'has_diff' ] = !empty( $aData[ 'html' ][ 'diff' ] );
-			error_log( var_export( $aData[ 'flags' ][ 'has_diff' ], true ) );
 			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
 			$aData[ 'vars' ][ 'file_modified_at' ] =
 				Services::WpGeneral()->getTimeStampForDisplay( $oFS->getModifiedTime( $oLock->file ) );
