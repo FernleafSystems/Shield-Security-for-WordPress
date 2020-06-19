@@ -55,7 +55,11 @@ class Diff extends BaseOps {
 			throw new \Exception( 'Could not get a valid diff from WP Hashes.' );
 		}
 		return sprintf( '<style>%s</style>%s',
-			base64_decode( $aRes[ 'html' ][ 'css_default' ] ), base64_decode( $aRes[ 'html' ][ 'content' ] ) );
+			'table.diff.diff-wrapper tbody tr td:nth-child(2){ width:auto;}'.
+			'table.diff.diff-wrapper { table-layout: auto;}'.
+			base64_decode( $aRes[ 'html' ][ 'css_default' ] ),
+			base64_decode( $aRes[ 'html' ][ 'content' ] )
+		);
 	}
 
 	/**
