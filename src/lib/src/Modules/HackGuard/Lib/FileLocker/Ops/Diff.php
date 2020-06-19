@@ -50,11 +50,12 @@ class Diff extends BaseOps {
 	 * @throws \Exception
 	 */
 	private function useWpHashes( $sOriginal, $sCurrent ) {
-		$aResult = ( new WpHashes\Util\Diff() )->getDiff( $sOriginal, $sCurrent );
-		if ( !is_array( $aResult ) || empty( $aResult[ 'html' ] ) ) {
+		$aRes = ( new WpHashes\Util\Diff() )->getDiff( $sOriginal, $sCurrent );
+		if ( !is_array( $aRes ) || empty( $aRes[ 'html' ] ) ) {
 			throw new \Exception( 'Could not get a valid diff from WP Hashes.' );
 		}
-		return base64_decode( $aResult[ 'html' ] );
+		return sprintf( '<style>%s</style>%s',
+			base64_decode( $aRes[ 'html' ][ 'css_default' ] ), base64_decode( $aRes[ 'html' ][ 'content' ] ) );
 	}
 
 	/**
