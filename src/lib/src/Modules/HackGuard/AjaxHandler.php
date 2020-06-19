@@ -174,13 +174,17 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			]
 		];
 		try {
-			$oCarb = Services::Request()->carbon( true );
-			$aData[ 'html' ][ 'diff' ] = ( new FileLocker\Ops\PerformAction() )
-				->setMod( $this->getMod() )
-				->run( $nRID, 'diff' );
+
 			$oLock = $oFLCon->getFileLock( $nRID );
+			$bDiff = $oLock->detected_at > 0;
 			$aData[ 'ajax' ] = $oFLCon->createFileDownloadLinks( $oLock );
-			$aData[ 'flags' ][ 'has_diff' ] = !empty( $aData[ 'html' ][ 'diff' ] );
+			$aData[ 'flags' ][ 'has_diff' ] = $bDiff;
+			$aData[ 'html' ][ 'diff' ] = $bDiff ?
+				( new FileLocker\Ops\PerformAction() )
+					->setMod( $this->getMod() )
+					->run( $nRID, 'diff' ) : '';
+
+			$oCarb = Services::Request()->carbon( true );
 			$aData[ 'vars' ][ 'locked_at' ] = $oCarb->setTimestamp( $oLock->created_at )->diffForHumans();
 			$aData[ 'vars' ][ 'file_modified_at' ] =
 				Services::WpGeneral()->getTimeStampForDisplay( $oFS->getModifiedTime( $oLock->file ) );
