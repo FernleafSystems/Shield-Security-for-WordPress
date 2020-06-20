@@ -183,22 +183,24 @@ class MfaController {
 		$oCon = $this->getCon();
 		$oReq = Services::Request();
 		$oWpResp = Services::Response();
-		$oUser = Services::WpUsers()->getCurrentWpUser();
+		$oWpUsers = Services::WpUsers();
 
 		// Is 2FA/login-intent submit
 		if ( $oReq->request( $this->getLoginIntentRequestFlag() ) == 1 ) {
 
 			if ( $oReq->post( 'cancel' ) == 1 ) {
-				Services::WpUsers()->logoutUser(); // clears the login and login intent
+				$oWpUsers->logoutUser(); // clears the login and login intent
 				$sRedirectHref = $oReq->post( 'cancel_href' );
 				empty( $sRedirectHref ) ? $oWpResp->redirectToLogin() : $oWpResp->redirect( $sRedirectHref );
 			}
 			elseif ( $this->validateLoginIntentRequest() ) {
 
-				if ( $oReq->post( 'skip_mfa' ) === 'Y' ) { // store the browser hash
-					$oCon->getUserMeta( $oUser )
-						 ->addMfaSkipAgent( $oReq->getUserAgent(), $oOpts->getMfaSkip() );
+				if ( $oReq->post( 'skip_mfa' ) === 'Y' ) {
+					( new MfaSkip() )
+						->setMod( $this->getMod() )
+						->addMfaSkip( $oWpUsers->getCurrentWpUser() );
 				}
+
 				$oCon->fireEvent( '2fa_success' );
 
 				$sFlash = __( 'Success', 'wp-simple-firewall' ).'! '.__( 'Thank you for authenticating your login.', 'wp-simple-firewall' );
@@ -249,35 +251,17 @@ class MfaController {
 	 * @return bool
 	 */
 	private function canUserMfaSkip( $oUser ) {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		$oReq = Services::Request();
+		$bCanSkip = ( new MfaSkip() )
+			->setMod( $this->getMod() )
+			->canMfaSkip( $oUser );
 
-		$oMeta = $this->getCon()->getUserMeta( $oUser );
-		if ( $oOpts->isMfaSkip() ) {
-			$aHashes = is_array( $oMeta->hash_loginmfa ) ? $oMeta->hash_loginmfa : [];
-			$sAgentHash = md5( $oReq->getUserAgent() );
-			$bCanSkip = isset( $aHashes[ $sAgentHash ] )
-						&& ( (int)$aHashes[ $sAgentHash ] + $oOpts->getMfaSkip() ) > $oReq->ts();
-		}
-		elseif ( $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
+		if ( !$bCanSkip && $this->getCon()->isPremiumActive() && @class_exists( 'WC_Social_Login' ) ) {
 			// custom support for WooCommerce Social login
 			$oMeta = $this->getCon()->getUserMeta( $oUser );
 			$bCanSkip = isset( $oMeta->wc_social_login_valid ) ? $oMeta->wc_social_login_valid : false;
 		}
-		else {
-			/**
-			 * TODO: remove the HTTP_REFERER bit once iCWP plugin is updated.
-			 * We want logins from iCWP to skip 2FA. To achieve this, iCWP plugin needs
-			 * to add a TRUE filter on 'odp-shield-2fa_skip' at the point of login.
-			 * Until then, we'll use the HTTP referrer as an indicator
-			 */
-			$bCanSkip = apply_filters(
-				'odp-shield-2fa_skip',
-				strpos( $oReq->server( 'HTTP_REFERER' ), 'https://app.icontrolwp.com/' ) === 0
-			);
-		}
-		return $bCanSkip;
+
+		return apply_filters( 'odp-shield-2fa_skip', $bCanSkip );
 	}
 
 	/**

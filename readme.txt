@@ -382,6 +382,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(.0)  NEW**:		[*PRO*] [Custom Email Templates](https://shsec.io/hw) - Support for custom email templates, starting with 2FA.
 * **(.0)  NEW**:		[*PRO*] [Affiliate Rewards](https://shsec.io/hw) - We now offer affiliate rewards with ShieldPRO.
 * **(.0)  IMPROVED**:	WP-Config File Locker protection now correctly display the file diff for empty lines.
+* **(.0)  IMPROVED**:	2-Factor Authentication "Remember Me" now uses the visitor IP address as a factor.
 * **(.0)  IMPROVED**:	Restored the option search but turned it into a modal dialog.
 * **(.0)  IMPROVED**:	Plugin upgrade handling.
 * **(.0)  FIXED**:		Adding IPv6 address ranges didn't work in all cases.
