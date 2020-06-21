@@ -444,10 +444,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 
 		$bSuccess = false;
 		if ( empty( $sKey ) ) {
-			$sMessage = 'Security access key was empty.';
+			$sMessage = __( "Security Admin PIN was empty.", 'wp-simple-firewall' );
 		}
 		elseif ( $sKey != $sConfirm ) {
-			$sMessage = 'Keys do not match.';
+			$sMessage = __( "Security PINs don't match.", 'wp-simple-firewall' );
 		}
 		else {
 			/** @var ICWP_WPSF_FeatureHandler_AdminAccessRestriction $oModule */
@@ -456,7 +456,7 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 				$oModule->setNewAccessKeyManually( $sKey )
 						->setSecurityAdminStatusOnOff( true );
 				$bSuccess = true;
-				$sMessage = __( 'Security Admin setup was successful.', 'wp-simple-firewall' );
+				$sMessage = __( 'Security Admin PIN setup was successful.', 'wp-simple-firewall' );
 			}
 			catch ( Exception $oE ) {
 				$sMessage = __( $oE->getMessage(), 'wp-simple-firewall' );

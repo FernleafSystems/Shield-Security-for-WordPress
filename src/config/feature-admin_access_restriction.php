@@ -42,7 +42,7 @@
       "title":         "Security Admin Restriction Settings",
       "title_short":   "Security Admin Settings",
       "summary":       [
-        "Purpose - Restrict access using a simple Access Key.",
+        "Purpose - Restrict access using a simple Access PIN.",
         "Recommendation - Use of this feature is highly recommend."
       ],
       "help_video_id": "338551188"
@@ -72,7 +72,7 @@
       "summary":     [
         "Purpose - Restricts access to this plugin preventing unauthorized changes to your security settings.",
         "Recommendation - Keep the Security Admin feature turned on.",
-        "You need to also enter a new Access Key to enable this feature."
+        "You need to also enter a new Access PIN to enable this feature."
       ]
     },
     {
@@ -90,7 +90,7 @@
       "link_blog":   "https://shsec.io/wpsf02",
       "name":        "Enable Security Admin",
       "summary":     "Enforce Security Admin Access Restriction",
-      "description": "Enable this with great care and consideration. When this Access Key option is enabled, you must specify a key below and use it to gain access to this plugin."
+      "description": "Enable this with great care and consideration. When this Access PIN option is enabled, you must specify a key below and use it to gain access to this plugin."
     },
     {
       "key":         "admin_access_key",
@@ -100,8 +100,8 @@
       "type":        "password",
       "link_info":   "https://shsec.io/42",
       "link_blog":   "",
-      "name":        "Security Admin Access Key",
-      "summary":     "Provide/Update Security Admin Access Key",
+      "name":        "Security Admin Access PIN",
+      "summary":     "Provide/Update Security Admin Access PIN",
       "description": "Careful: If you forget this, you could potentially lock yourself out from using this plugin."
     },
     {
@@ -127,7 +127,7 @@
       "link_blog":   "",
       "name":        "Security Admin Timeout",
       "summary":     "Specify An Automatic Timeout Interval For Security Admin Access",
-      "description": "This will automatically expire your Security Admin Session. Does not apply until you enter the access key again. Default: 60 minutes."
+      "description": "This will automatically expire your Security Admin Session. Does not apply until you enter the access PIN again. Default: 60 minutes."
     },
     {
       "key":         "allow_email_override",

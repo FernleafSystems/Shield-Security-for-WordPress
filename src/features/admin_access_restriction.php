@@ -315,10 +315,10 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 */
 	public function setNewAccessKeyManually( $sKey ) {
 		if ( empty( $sKey ) ) {
-			throw new \Exception( 'Attempting to set an empty Security Admin Access Key.' );
+			throw new \Exception( 'Attempting to set an empty Security PIN.' );
 		}
 		if ( !$this->getCon()->isPluginAdmin() ) {
-			throw new \Exception( 'User does not have permission to update the Security Admin Access Key.' );
+			throw new \Exception( 'User does not have permission to update the Security PIN.' );
 		}
 
 		$this->setIsMainFeatureEnabled( true )

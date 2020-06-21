@@ -385,6 +385,7 @@ You will always be able to use Shield Security and its free features in-full.
 * **(.0)  IMPROVED**:	2-Factor Authentication "Remember Me" now uses the visitor IP address as a factor.
 * **(.0)  IMPROVED**:	Restored the option search but turned it into a modal dialog.
 * **(.0)  IMPROVED**:	Plugin upgrade handling.
+* **(.0)  CHANGED**:	"Security Admin Key" has been renamed to "Security Admin PIN" throughout.
 * **(.0)  FIXED**:		Adding IPv6 address ranges didn't work in all cases.
 * **(.0)  FIXED**:		Errors while trying to access an uninitialised database.
 * **(.0)  FIXED**:		Upgrade Carbon PHP library to latest available (v1.39).

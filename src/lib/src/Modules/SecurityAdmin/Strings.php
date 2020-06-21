@@ -12,10 +12,10 @@ class Strings extends Base\Strings {
 	protected function getAuditMessages() {
 		return [
 			'key_success' => [
-				__( 'Successful authentication using security admin key.', 'wp-simple-firewall' ),
+				__( 'Successful authentication using Security Admin PIN.', 'wp-simple-firewall' ),
 			],
 			'key_fail'    => [
-				__( 'Failed authentication using security admin key.', 'wp-simple-firewall' ),
+				__( 'Failed authentication using Security Admin PIN.', 'wp-simple-firewall' ),
 			],
 		];
 	}
@@ -36,7 +36,7 @@ class Strings extends Base\Strings {
 				$aSummary = [
 					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Restricts access to this plugin preventing unauthorized changes to your security settings.', 'wp-simple-firewall' ) ),
 					sprintf( '%s - %s', __( 'Recommendation', 'wp-simple-firewall' ), sprintf( __( 'Keep the %s feature turned on.', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) ) ),
-					sprintf( __( 'You need to also enter a new Access Key to enable this feature.', 'wp-simple-firewall' ) ),
+					sprintf( __( 'You need to also enter a new Security PIN to enable this feature.', 'wp-simple-firewall' ) ),
 				];
 				break;
 
@@ -101,21 +101,23 @@ class Strings extends Base\Strings {
 			case 'enable_admin_access_restriction' :
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
 				$sSummary = __( 'Enforce Security Admin Access Restriction', 'wp-simple-firewall' );
-				$sDescription = __( 'Enable this with great care and consideration. Ensure that you set a key that you have set an access key that you will remember.', 'wp-simple-firewall' );
+				$sDescription = __( "Enable this with great care and consideration. Ensure that you set an Security PIN that you'll remember.", 'wp-simple-firewall' );
 				break;
 
 			case 'admin_access_key' :
-				$sName = __( 'Security Admin Access Key', 'wp-simple-firewall' );
-				$sSummary = __( 'Provide/Update Security Admin Access Key', 'wp-simple-firewall' );
-				$sDescription = sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'If you forget this, you could potentially lock yourself out from using this plugin.', 'wp-simple-firewall' ) )
-								.'<br/><strong>'.( $oOpts->hasAccessKey() ? __( 'Security Key Currently Set', 'wp-simple-firewall' ) : __( 'Security Key NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>'
-								.( $oOpts->hasAccessKey() ? '<br/>'.sprintf( __( 'To delete the current security key, type exactly "%s" and save.', 'wp-simple-firewall' ), '<strong>DELETE</strong>' ) : '' );
+				$sName = __( 'Security Admin PIN', 'wp-simple-firewall' );
+				$sSummary = __( 'Provide/Update Security Admin PIN', 'wp-simple-firewall' );
+				$sDescription = [
+					sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'If you forget this, you could potentially lock yourself out from using this plugin.', 'wp-simple-firewall' ) ),
+					'<strong>'.( $oOpts->hasSecurityPIN() ? __( 'Security PIN Currently Set', 'wp-simple-firewall' ) : __( 'Security Key NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>',
+					$oOpts->hasSecurityPIN() ? sprintf( __( 'To delete the current security PIN, type exactly "%s" and save.', 'wp-simple-firewall' ), '<strong>DELETE</strong>' ) : ''
+				];
 				break;
 
 			case 'sec_admin_users' :
 				$sName = __( 'Security Admins', 'wp-simple-firewall' );
 				$sSummary = __( 'Persistent Security Admins', 'wp-simple-firewall' );
-				$sDescription = __( "Users provided will be security admins automatically, without needing the security key.", 'wp-simple-firewall' )
+				$sDescription = __( "Users provided will be security admins automatically, without needing the security PIN.", 'wp-simple-firewall' )
 								.'<br/>'.__( 'Enter admin username, email or ID.', 'wp-simple-firewall' ).' '.__( '1 entry per-line.', 'wp-simple-firewall' )
 								.'<br/>'.sprintf( '%s: %s', __( 'Note', 'wp-simple-firewall' ), __( 'Verified users will be converted to usernames.', 'wp-simple-firewall' ) );
 				break;

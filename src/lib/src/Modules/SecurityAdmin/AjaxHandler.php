@@ -63,7 +63,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 			if ( $oMod->setSecurityAdminStatusOnOff( true ) ) {
 				$bSuccess = true;
-				$sMsg = __( 'Security Admin Access Key Accepted.', 'wp-simple-firewall' )
+				$sMsg = __( 'Security Admin PIN Accepted.', 'wp-simple-firewall' )
 						.' '.__( 'Please wait', 'wp-simple-firewall' ).' ...';
 			}
 			else {
@@ -75,7 +75,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				->setMod( $this->getCon()->getModule_IPs() )
 				->setIP( Services::IP()->getRequestIp() )
 				->run();
-			$sMsg = __( 'Security access key incorrect.', 'wp-simple-firewall' ).' ';
+			$sMsg = __( 'Security Admin PIN incorrect.', 'wp-simple-firewall' ).' ';
 			if ( $nRemaining > 0 ) {
 				$sMsg .= sprintf( __( 'Attempts remaining: %s.', 'wp-simple-firewall' ), $nRemaining );
 			}
@@ -129,7 +129,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				'sec_admin_login' => json_encode( $oMod->getSecAdminLoginAjaxData() )
 			],
 			'strings' => [
-				'access_message' => empty( $sMessage ) ? __( 'Enter your Security Admin Access Key', 'wp-simple-firewall' ) : $sMessage
+				'access_message' => empty( $sMessage ) ? __( 'Enter your Security Admin PIN', 'wp-simple-firewall' ) : $sMessage
 			]
 		];
 		return $oMod->renderTemplate( 'snippets/admin_access_login', $aData );

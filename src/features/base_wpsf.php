@@ -222,7 +222,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
 								 ],
 								 'strings' => [
-									 'force_remove_email' => __( "If you've forgotten your key, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
+									 'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
 									 'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
 									 'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
 										 Utilities\Obfuscate::Email( $this->getPluginReportEmail() ) ),
