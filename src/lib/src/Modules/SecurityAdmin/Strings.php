@@ -109,7 +109,7 @@ class Strings extends Base\Strings {
 				$sSummary = __( 'Provide/Update Security Admin PIN', 'wp-simple-firewall' );
 				$sDescription = [
 					sprintf( '%s: %s', __( 'Careful', 'wp-simple-firewall' ), __( 'If you forget this, you could potentially lock yourself out from using this plugin.', 'wp-simple-firewall' ) ),
-					'<strong>'.( $oOpts->hasSecurityPIN() ? __( 'Security PIN Currently Set', 'wp-simple-firewall' ) : __( 'Security Key NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>',
+					'<strong>'.( $oOpts->hasSecurityPIN() ? __( 'Security PIN Currently Set', 'wp-simple-firewall' ) : __( 'Security PIN NOT Currently Set', 'wp-simple-firewall' ) ).'</strong>',
 					$oOpts->hasSecurityPIN() ? sprintf( __( 'To delete the current security PIN, type exactly "%s" and save.', 'wp-simple-firewall' ), '<strong>DELETE</strong>' ) : ''
 				];
 				break;
