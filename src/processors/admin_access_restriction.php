@@ -238,10 +238,8 @@ class ICWP_WPSF_Processor_AdminAccessRestriction extends Modules\BaseShield\Shie
 					}
 				}
 			}
-			else {//creating a new admin user?
-				if ( $sRequestRole == 'administrator' ) {
-					$bBlockCapability = true;
-				}
+			elseif ( $sRequestRole == 'administrator' ) { //creating a new admin user?
+				$bBlockCapability = true;
 			}
 
 			if ( $bBlockCapability ) {
