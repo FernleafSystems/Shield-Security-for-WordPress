@@ -293,6 +293,24 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
+	 * @param string $sSection
+	 * @return array
+	 */
+	protected function getSectionWarnings( $sSection ) {
+		$aWarnings = [];
+
+		switch ( $sSection ) {
+			case 'section_whitelabel':
+				if ( !$this->isEnabledSecurityAdmin() ) {
+					$aWarnings[] = __( 'Please also supply a Security Admin PIN, as whitelabel settings are only applied when the Security Admin feature is active.', 'wp-simple-firewall' );
+				}
+				break;
+		}
+
+		return $aWarnings;
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isWlEnabled() {
