@@ -373,7 +373,7 @@ You will always be able to use Shield Security and its free features in-full.
 **Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
 #### 9.1 Series
-*Released: 22nd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
+*Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
 
 ##### [Please review the full Shield 9.1 Upgrade Guide here](https://shsec.io/shieldupgradeguide91).
 

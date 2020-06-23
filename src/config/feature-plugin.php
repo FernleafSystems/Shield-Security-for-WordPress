@@ -234,8 +234,8 @@
       "premium":     true,
       "default":     "Y",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/5v",
-      "link_blog":   "https://shsec.io/wpsf20",
+      "link_info":   "https://shsec.io/i1",
+      "link_blog":   "https://shsec.io/i2",
       "name":        "Allow WP-CLI",
       "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
       "description": "Turn off this option to disable this plugin's WP-CLI integration."

@@ -1,5 +1,5 @@
 #### 9.1 Series
-*Released: 22nd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
+*Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
 
 ##### [Please review the full Shield 9.1 Upgrade Guide here](https://shsec.io/shieldupgradeguide91).
 

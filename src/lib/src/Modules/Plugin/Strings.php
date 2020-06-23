@@ -198,9 +198,12 @@ class Strings extends Base\Strings {
 			case 'display_plugin_badge' :
 				$sName = __( 'Show Plugin Badge', 'wp-simple-firewall' );
 				$sSummary = __( 'Display Plugin Badge On Your Site', 'wp-simple-firewall' );
-				$sDescription = __( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
-								.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' )
-								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) );
+				$sDescription = [
+					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
+					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
+					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
+					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards	 for each referral.", 'wp-simple-firewall' ),
+				];
 				break;
 
 			case 'enable_wpcli' :
