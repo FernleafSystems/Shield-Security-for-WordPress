@@ -74,12 +74,12 @@ class Strings {
 				'description'                  => __( 'Description', 'wp-simple-firewall' ),
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'aar_title'                    => __( 'Plugin Access Restricted', 'wp-simple-firewall' ),
-				'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Access Key.', 'wp-simple-firewall' ),
-				'aar_must_supply_key_first'    => __( 'Please provide the Security Access Key to manage this plugin.', 'wp-simple-firewall' ),
-				'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the access key.', 'wp-simple-firewall' ),
-				'aar_enter_access_key'         => __( 'Enter Access Key', 'wp-simple-firewall' ),
-				'aar_submit_access_key'        => __( 'Submit Security Admin Key', 'wp-simple-firewall' ),
-				'aar_forget_key'               => __( "Forgotten Key", 'wp-simple-firewall' ),
+				'aar_what_should_you_enter'    => __( 'This security plugin is restricted to administrators with the Security Admin PIN.', 'wp-simple-firewall' ),
+				'aar_must_supply_key_first'    => __( 'Please provide the Security Admin PIN to manage this plugin.', 'wp-simple-firewall' ),
+				'aar_to_manage_must_enter_key' => __( 'To manage this plugin you must enter the Security Admin PIN.', 'wp-simple-firewall' ),
+				'aar_enter_access_key'         => __( 'Security Admin PIN', 'wp-simple-firewall' ),
+				'aar_submit_access_key'        => __( 'Submit Security Admin PIN', 'wp-simple-firewall' ),
+				'aar_forget_key'               => __( "Forgotten PIN", 'wp-simple-firewall' ),
 				'supply_password'              => __( 'Supply Password', 'wp-simple-firewall' ),
 				'confirm_password'             => __( 'Confirm Password', 'wp-simple-firewall' ),
 				'show_help_video_section'      => __( 'Show help video for this section', 'wp-simple-firewall' ),
@@ -102,6 +102,10 @@ class Strings {
 
 				'wphashes_token'      => 'WPHashes.com API Token',
 				'is_opt_importexport' => __( 'Is this option included with import/export?', 'wp-simple-firewall' ),
+
+				'search_select' => [
+					'title' => ucwords( __( 'Search for a plugin option', 'wp-simple-firewall' ) ),
+				]
 			],
 			$this->getAdditionalDisplayStrings()
 		);

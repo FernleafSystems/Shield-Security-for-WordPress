@@ -10,40 +10,28 @@ class Upgrade {
 	use \FernleafSystems\Utilities\Logic\OneTimeExecute;
 
 	protected function run() {
-		$version = $this->getOptions()->getOpt( 'cfg_version' );
-		if ( empty( $version ) ) {
-			$version = '9.0.2'; // TODO: delete after next release is propagated
-		}
-		$this->upgradeModule( $version );
+		$this->upgradeModule();
 		$this->runEveryUpgrade();
 		$this->upgradeCommon();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	protected function getUpgrades() {
-		return [
-			'9.0.0',
-			'9.0.3',
-		];
 	}
 
 	protected function runEveryUpgrade() {
 	}
 
 	protected function upgradeCommon() {
-		$this->getOptions()->setOpt( 'cfg_version', $this->getCon()->getVersion() );
 		$this->getMod()->saveModOptions( true );
 	}
 
 	/**
-	 * @param string $sCurrent
+	 * Runs through each version with upgrade code available and if the current config
+	 * version is less than the upgrade version, run the upgrade code.
 	 */
-	protected function upgradeModule( $sCurrent ) {
-		foreach ( $this->getUpgrades() as $sVersion ) {
+	protected function upgradeModule() {
+		$oCon = $this->getCon();
+		$sPreviousVersion = $oCon->getPreviousVersion();
+		foreach ( $oCon->getPluginSpec()[ 'version_upgrades' ] as $sVersion ) {
 			$sMethod = 'upgrade_'.str_replace( '.', '', $sVersion );
-			if ( version_compare( $sCurrent, $sVersion, '<' )
+			if ( version_compare( $sPreviousVersion, $sVersion, '<' )
 				 && method_exists( $this, $sMethod ) ) {
 				$this->{$sMethod}();
 			}

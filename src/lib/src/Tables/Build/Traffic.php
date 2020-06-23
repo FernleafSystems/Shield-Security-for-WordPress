@@ -79,7 +79,7 @@ class Traffic extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		$aEntries = [];
 
 		$oWpUsers = Services::WpUsers();
@@ -162,9 +162,9 @@ class Traffic extends BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\Traffic
+	 * @return Tables\Render\WpListTable\Traffic
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\Traffic();
+		return new Tables\Render\WpListTable\Traffic();
 	}
 }

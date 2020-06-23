@@ -228,15 +228,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 9.0
-	 */
-	public function getBotProtectionLocations() {
-		$aLocs = $this->getOpt( 'bot_protection_locations' );
-		return is_array( $aLocs ) ? $aLocs : (array)$this->getOptions()->getOptDefault( 'bot_protection_locations' );
-	}
-
-	/**
 	 * @return LoginGuard\Lib\TwoFactor\MfaController
 	 */
 	public function getLoginIntentController() {
@@ -309,14 +300,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isEnabledGaspCheck() {
-		return $this->isModOptEnabled() && $this->isOpt( 'enable_login_gasp_check', 'Y' );
-	}
-
-	/**
 	 * @param bool $bEnabled
 	 * @return $this
 	 */
@@ -366,25 +349,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 			}
 		}
 		return $sIntegration;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isEnabledBotJs() {
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return $oOpts->isEnabledGaspCheck() || $this->isEnabledCaptcha();
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.0
-	 */
-	public function getAntiBotFormSelectors() {
-		$aIds = $this->getOpt( 'antibot_form_ids', [] );
-		return is_array( $aIds ) ? $aIds : [];
 	}
 
 	public function insertCustomJsVars_Admin() {
@@ -477,37 +441,5 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 	 */
 	protected function getNamespaceBase() {
 		return 'LoginGuard';
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtectLogin() {
-		return false;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtectLostPassword() {
-		return false;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtectRegister() {
-		return false;
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isProtect() {
-		return false;
 	}
 }

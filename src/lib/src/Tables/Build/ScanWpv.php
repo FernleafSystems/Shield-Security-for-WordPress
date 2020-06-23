@@ -15,7 +15,7 @@ class ScanWpv extends ScanBase {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		$aEntries = [];
 
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
@@ -63,9 +63,9 @@ class ScanWpv extends ScanBase {
 	}
 
 	/**
-	 * @return Shield\Tables\Render\ScanWpv
+	 * @return Shield\Tables\Render\WpListTable\ScanWpv
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanWpv();
+		return new Shield\Tables\Render\WpListTable\ScanWpv();
 	}
 }

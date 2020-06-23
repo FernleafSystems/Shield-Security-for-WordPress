@@ -67,6 +67,15 @@ class PluginBadge {
 	public function render( $bFloating = false ) {
 		$oCon = $this->getCon();
 		$sName = $oCon->getHumanName();
+
+		$sBadgeUrl = 'https://shsec.io/wpsecurityfirewall';
+		$oLicense = $oCon->getModule_License()
+						 ->getLicenseHandler()
+						 ->getLicense();
+		if ( !empty( $oLicense->aff_ref ) ) {
+			$sBadgeUrl = add_query_arg( [ 'ref' => $oLicense->aff_ref ], $sBadgeUrl );
+		}
+
 		$aData = [
 			'ajax'    => [
 				'plugin_badge_close' => $this->getMod()->getAjaxActionData( 'plugin_badge_close', true ),
@@ -76,7 +85,7 @@ class PluginBadge {
 				'is_floating' => $bFloating
 			],
 			'hrefs'   => [
-				'badge' => 'https://shsec.io/wpsecurityfirewall',
+				'badge' => $sBadgeUrl,
 				'logo'  => $oCon->getPluginUrl_Image( 'shield/shield-security-logo-colour-32px.png' ),
 			],
 			'strings' => [
@@ -103,11 +112,11 @@ class PluginBadge {
 	 */
 	public function setBadgeStateClosed() {
 		return Services::Response()
-				->cookieSet(
-					$this->getCookieIdBadgeState(),
-					'closed',
-					DAY_IN_SECONDS
-				);
+					   ->cookieSet(
+						   $this->getCookieIdBadgeState(),
+						   'closed',
+						   DAY_IN_SECONDS
+					   );
 	}
 
 	/**

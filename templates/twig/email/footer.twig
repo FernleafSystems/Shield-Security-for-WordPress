@@ -1,0 +1,27 @@
+<p>--</p>
+{% if flags.is_pro %}
+	{% if not flags.is_whitelabelled %}
+		<p>Thank you for choosing Shield Security PRO.</p>
+	{% endif %}
+{% else %}
+	<div style="background-color: #f9f9f9; padding: 1px 14px 4px;display: inline-block;border: 1px solid #ddd;">
+		<p>Thank you for choosing Shield Security (Free).</p>
+		<h5>Upgrade To <strong>Shield</strong>PRO today and these are just some of the added benefits you'll get:</h5>
+		<ul>
+			{% for benefit in strings.benefits %}
+				<li>{{ benefit }}</li>
+			{% endfor %}
+		</ul>
+		<p>&hellip; <a href="{{ hrefs.much_more }}" target="_blank">{{ strings.much_more }}</a>&#33;</p>
+		<p><a href="{{ hrefs.upgrade }}"
+			  target="_blank"
+			  style="border: 1px solid #070;display: inline-block;padding: 10px 20px;border-radius: 10px;color: #070;text-decoration: none;margin-left: 20px;font-weight: bolder;"
+			>{{ strings.upgrade|raw }}</a></p>
+	</div>
+{% endif %}
+
+<p>
+	{{ strings.sent_from }}
+	<br/>{{ strings.delays }}
+	<br/>{{ strings.time_sent }}
+</p>

@@ -8,7 +8,23 @@ use FernleafSystems\Wordpress\Services\Services;
 abstract class BaseProvider {
 
 	use Modules\ModConsumer;
+
 	const SLUG = '';
+	/**
+	 * Set to true if this provider can be used in isolation. False if there
+	 * must be at least 1 other 2FA provider active.
+	 */
+	const STANDALONE = true;
+	/**
+	 * Always a screen, but maybe an json-encoded string, e.g. '[]', like U2F
+	 */
+	const DEFAULT_SECRET = '';
+
+	public function __construct() {
+	}
+
+	public function setupProfile() {
+	}
 
 	/**
 	 * Assumes this is only called on active profiles
@@ -31,7 +47,7 @@ abstract class BaseProvider {
 	 */
 	protected function getSecret( \WP_User $oUser ) {
 		$sSecret = $this->getCon()->getUserMeta( $oUser )->{static::SLUG.'_secret'};
-		return empty( $sSecret ) ? '' : $sSecret;
+		return empty( $sSecret ) ? static::DEFAULT_SECRET : $sSecret;
 	}
 
 	/**
@@ -131,7 +147,7 @@ abstract class BaseProvider {
 
 	/**
 	 * @param \WP_User $oUser
-	 * @return string
+	 * @return string|mixed
 	 */
 	protected function genNewSecret( \WP_User $oUser ) {
 		return '';
@@ -201,7 +217,9 @@ abstract class BaseProvider {
 	/**
 	 * @return array
 	 */
-	abstract public function getFormField();
+	public function getFormField() {
+		return [];
+	}
 
 	/**
 	 * @param \WP_User $oUser
@@ -230,7 +248,7 @@ abstract class BaseProvider {
 	 * @return string
 	 */
 	protected function fetchCodeFromRequest() {
-		return esc_attr( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
+		return trim( Services::Request()->request( $this->getLoginFormParameter(), false, '' ) );
 	}
 
 	/**

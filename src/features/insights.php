@@ -202,7 +202,7 @@ class ICWP_WPSF_FeatureHandler_Insights extends ICWP_WPSF_FeatureHandler_BaseWps
 						'is_enabled'  => $oTrafficOpts->isTrafficLoggerEnabled(),
 					],
 					'hrefs'   => [
-						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_traffic' ),
+						'please_enable' => $oTrafficMod->getUrl_DirectLinkToOption( 'enable_logger' ),
 					],
 					'strings' => [
 						'title_filter_form'       => __( 'Traffic Table Filters', 'wp-simple-firewall' ),

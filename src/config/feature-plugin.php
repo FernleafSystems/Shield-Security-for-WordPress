@@ -34,7 +34,7 @@
       "can_dismiss":      false,
       "type":             "error"
     },
-    "php7":          {
+    "php7":                       {
       "id":               "php7",
       "schedule":         "conditions",
       "valid_admin":      true,
@@ -227,6 +227,18 @@
       "name":        "Show Plugin Badge",
       "summary":     "Display Plugin Badge On Your Site",
       "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
+    },
+    {
+      "key":         "enable_wpcli",
+      "section":     "section_general_plugin_options",
+      "premium":     true,
+      "default":     "Y",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/i1",
+      "link_blog":   "https://shsec.io/i2",
+      "name":        "Allow WP-CLI",
+      "summary":     "Allow Access And Control Of This Plugin Via WP-CLI",
+      "description": "Turn off this option to disable this plugin's WP-CLI integration."
     },
     {
       "key":         "enable_xmlrpc_compatibility",

@@ -103,10 +103,10 @@ abstract class ICWP_WPSF_Wizard_BaseWpsf extends ICWP_WPSF_Wizard_Base {
 
 		$sMessage = '';
 		if ( empty( $sKey ) ) {
-			$sMessage = 'Security access key was empty.';
+			$sMessage = 'Security Admin PIN was empty.';
 		}
-		else if ( !$oModule->verifyAccessKey( $sKey ) ) {
-			$sMessage = __( 'Security Admin Key was not correct.', 'wp-simple-firewall' );
+		elseif ( !$oModule->verifyAccessKey( $sKey ) ) {
+			$sMessage = __( 'Security Admin PIN was not correct.', 'wp-simple-firewall' );
 		}
 		else {
 			$bSuccess = $oModule->setSecurityAdminStatusOnOff( true );

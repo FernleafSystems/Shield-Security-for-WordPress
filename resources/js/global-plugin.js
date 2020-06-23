@@ -54,7 +54,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 
 				if ( oResponse.data.page_reload ) {
 					setTimeout( function () {
-						location.reload( true );
+						location.reload();
 					}, 2000 );
 				}
 				else {

@@ -357,6 +357,10 @@ label input[type=checkbox] {
 .module-icon-support:before {
 	content: "\f525";
 }
+#NavItem-SearchOptionsLaunch > a {
+	width: 35px;
+	content: "\f179";
+}
 .dropdown-item .module-icon:before {
 	font-size: 1.6rem;
 }

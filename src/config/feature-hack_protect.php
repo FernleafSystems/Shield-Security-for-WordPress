@@ -16,6 +16,9 @@
     "run_if_verified_bot":   true,
     "run_if_wpcli":          false
   },
+  "wpcli":            {
+    "root": "hack_guard"
+  },
   "menu_items":       [
     {
       "title":    "Scans",
@@ -232,7 +235,7 @@
       "key":           "scan_frequency",
       "section":       "section_scan_options",
       "premium":       true,
-      "default":       1,
+      "default":       "1",
       "type":          "select",
       "value_options": [
         {

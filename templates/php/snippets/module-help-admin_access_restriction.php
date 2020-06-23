@@ -10,8 +10,8 @@
 <dl>
 	<dt>How do I activate the Security Admin?</dt>
 	<dd>
-		<p>Currently the security admin is authenticated with the 'Security Admin Key'.</p>
-		<p>You can't turn on the security admin feature without first supplying the key.</p>
+		<p>Currently the security admin is authenticated with the 'Security Admin PIN'.</p>
+		<p>You can't turn on the security admin feature without first supplying the PIN.</p>
 		<p>On the main 'Disable Module' section, you must check on the checkbox and supply a key. You must
 		   remember this key, because you'll be asked for it later.
 		</p>
@@ -33,7 +33,7 @@
 		</p>
 		<ol>
 			<li>Follow the guide <a href="https://shsec.io/am" target="_blank">set out here</a>. Once you've
-				turned off the Shield plugin you can go in and set the access key to whatever you like,
+				turned off the Shield plugin you can go in and set the access PIN to whatever you like,
 				and then remove the 'forceoff' file.
 			</li>
 			<li>Follow the guide <a href="https://shsec.io/al" target="_blank">set out here</a> to reset

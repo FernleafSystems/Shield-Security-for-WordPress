@@ -59,9 +59,9 @@
       ]
     },
     {
-      "slug":        "section_yubikey_authentication",
-      "title":       "Yubikey Two-Factor Authentication",
-      "title_short": "2FA -Yubikey",
+      "slug":        "section_hardware_authentication",
+      "title":       "Hardware 2-Factor Authentication",
+      "title_short": "2FA - Hardware",
       "summary":     [
         "Purpose - Verifies the identity of users who log in to your site using Yubikey one-time-passwords.",
         "Note: You may combine multiple authentication factors for increased security."
@@ -365,19 +365,31 @@
       "description": "For Use With AnitBot JS (above)."
     },
     {
+      "key":         "enable_u2f",
+      "section":     "section_hardware_authentication",
+      "premium":     true,
+      "default":     "N",
+      "type":        "checkbox",
+      "link_info":   "https://shsec.io/dx",
+      "link_blog":   "https://shsec.io/dy",
+      "name":        "Allow U2F",
+      "summary":     "Allow Registration Of U2F Devices",
+      "description": "Allow Registration Of U2F Devices."
+    },
+    {
       "key":         "enable_yubikey",
-      "section":     "section_yubikey_authentication",
+      "section":     "section_hardware_authentication",
       "default":     "N",
       "type":        "checkbox",
       "link_info":   "https://shsec.io/4f",
       "link_blog":   "https://shsec.io/9t",
-      "name":        "Enable Yubikey Authentication",
-      "summary":     "Turn On / Off Yubikey Authentication On This Site",
+      "name":        "Allow Yubikey OTP",
+      "summary":     "Allow Yubikey Registration For One Time Passwords",
       "description": "Combined with your Yubikey API Key (below) this will form the basis of your Yubikey Authentication."
     },
     {
       "key":         "yubikey_app_id",
-      "section":     "section_yubikey_authentication",
+      "section":     "section_hardware_authentication",
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -389,7 +401,7 @@
     },
     {
       "key":         "yubikey_api_key",
-      "section":     "section_yubikey_authentication",
+      "section":     "section_hardware_authentication",
       "sensitive":   true,
       "default":     "",
       "type":        "text",
@@ -459,7 +471,7 @@
       },
       "2fa_email_verified":      {
       },
-      "2fa_email_verify_fail":          {
+      "2fa_email_verify_fail":   {
         "offense": true
       },
       "2fa_googleauth_verified": {

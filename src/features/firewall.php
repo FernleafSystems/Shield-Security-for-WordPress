@@ -110,30 +110,4 @@ class ICWP_WPSF_FeatureHandler_Firewall extends ICWP_WPSF_FeatureHandler_BaseWps
 	protected function getNamespaceBase() {
 		return 'Firewall';
 	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.0
-	 */
-	public function getDefaultWhitelist() {
-		$aW = $this->getDef( 'default_whitelist' );
-		return is_array( $aW ) ? $aW : [];
-	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.0
-	 */
-	public function getCustomWhitelist() {
-		$aW = $this->getOpt( 'page_params_whitelist', [] );
-		return is_array( $aW ) ? $aW : [];
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isIgnoreAdmin() {
-		return $this->isOpt( 'whitelist_admins', 'Y' );
-	}
 }

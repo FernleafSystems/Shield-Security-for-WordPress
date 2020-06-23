@@ -179,7 +179,14 @@ class Strings extends Base\Strings {
 			case 'block_send_email_address' :
 				$sName = __( 'Report Email', 'wp-simple-firewall' );
 				$sSummary = __( 'Where to send email reports', 'wp-simple-firewall' );
-				$sDescription = sprintf( __( 'If this is empty, it will default to the blog admin email address: %s', 'wp-simple-firewall' ), '<br /><strong>'.get_bloginfo( 'admin_email' ).'</strong>' );
+				$sDescription = [
+					__( "This lets you customise the default email address for all emails sent by the plugin.", 'wp-simple-firewall' ),
+					sprintf( __( "The plugin defaults to the site administration email address, which is: %s", 'wp-simple-firewall' ),
+						sprintf( '<a href="%s" target="_blank" title="%s"><code>'.get_bloginfo( 'admin_email' ).'</code></a>',
+							Services::WpGeneral()->getAdminUrl( 'options-general.php' ),
+							__( 'Review site settings', 'wp-simple-firewall' ) )
+					)
+				];
 				break;
 
 			case 'enable_upgrade_admin_notice' :
@@ -191,9 +198,18 @@ class Strings extends Base\Strings {
 			case 'display_plugin_badge' :
 				$sName = __( 'Show Plugin Badge', 'wp-simple-firewall' );
 				$sSummary = __( 'Display Plugin Badge On Your Site', 'wp-simple-firewall' );
-				$sDescription = __( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
-								.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' )
-								.sprintf( '<br /><strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) );
+				$sDescription = [
+					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
+					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
+					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://shsec.io/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
+					__( "This also acts as an affiliate link if you're running ShieldPRO so you can earn rewards	 for each referral.", 'wp-simple-firewall' ),
+				];
+				break;
+
+			case 'enable_wpcli' :
+				$sName = __( 'Allow WP-CLI', 'wp-simple-firewall' );
+				$sSummary = __( 'Allow Access And Control Of This Plugin Via WP-CLI', 'wp-simple-firewall' );
+				$sDescription = __( "Turn off this option to disable this plugin's WP-CLI integration.", 'wp-simple-firewall' );
 				break;
 
 			case 'delete_on_deactivate' :

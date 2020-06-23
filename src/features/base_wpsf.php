@@ -165,11 +165,11 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			parent::getBaseDisplayData(),
 			[
 				'head'    => [
-					'html' => [
+					'html'    => [
 						'lang' => Services::WpGeneral()->getLocale( '-' ),
 						'dir'  => is_rtl() ? 'rtl' : 'ltr',
 					],
-					'meta' => [
+					'meta'    => [
 						[
 							'type'      => 'http-equiv',
 							'type_type' => 'Cache-Control',
@@ -180,7 +180,8 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 							'type_type' => 'Expires',
 							'content'   => '0',
 						],
-					]
+					],
+					'scripts' => []
 				],
 				'ajax'    => [
 					'sec_admin_login' => $this->getSecAdminLoginAjaxData(),
@@ -221,7 +222,7 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 									 'restricted_access' => $this->getAjaxActionData( 'restricted_access' ),
 								 ],
 								 'strings' => [
-									 'force_remove_email' => __( "If you've forgotten your key, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
+									 'force_remove_email' => __( "If you've forgotten your PIN, a link can be sent to the plugin administrator email address to remove this restriction.", 'wp-simple-firewall' ),
 									 'click_email'        => __( "Click here to send the verification email.", 'wp-simple-firewall' ),
 									 'send_to_email'      => sprintf( __( "Email will be sent to %s", 'wp-simple-firewall' ),
 										 Utilities\Obfuscate::Email( $this->getPluginReportEmail() ) ),
@@ -340,37 +341,5 @@ class ICWP_WPSF_FeatureHandler_BaseWpsf extends ICWP_WPSF_FeatureHandler_Base {
 			'weight'  => 2,
 			'href'    => $this->getUrl_DirectLinkToOption( $this->getEnableModOptKey() ),
 		];
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getPluginDefaultRecipientAddress() {
-		return $this->getPluginReportEmail();
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getGoogleRecaptchaSecretKey() {
-		return $this->getCaptchaCfg()->secret;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getGoogleRecaptchaSiteKey() {
-		return $this->getCaptchaCfg()->key;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getCaptchaStyle() {
-		return $this->getCaptchaCfg()->theme;
 	}
 }

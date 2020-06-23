@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,14 +29,6 @@ class LoginIntentPage {
 		$oCon = $oIC->getCon();
 		$oReq = Services::Request();
 		$oWP = Services::WpGeneral();
-
-		$aLoginIntentFields = array_map(
-			function ( $oProvider ) {
-				/** @var TwoFactor\Provider\BaseProvider $oProvider */
-				return $oProvider->getFormField();
-			},
-			$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
-		);
 
 		$oNotice = $oCon->getAdminNotices()->getFlashNotice();
 		if ( $oNotice instanceof NoticeVO ) {
@@ -90,7 +81,12 @@ class LoginIntentPage {
 				)
 			],
 			'data'    => [
-				'login_fields'      => $aLoginIntentFields,
+				'login_fields'      => array_filter( array_map(
+					function ( $oProvider ) {
+						return $oProvider->getFormField();
+					},
+					$oIC->getProvidersForUser( Services::WpUsers()->getCurrentWpUser(), true )
+				) ),
 				'time_remaining'    => $nTimeRemaining,
 				'message_type'      => 'info',
 				'login_intent_flag' => $oMod->getLoginIntentRequestFlag(),
@@ -143,11 +139,27 @@ class LoginIntentPage {
 			],
 			'flags'   => [
 				'show_branded_links' => !$oMod->isWlEnabled(), // white label mitigation
+				'has_u2f'            => isset( $oIC->getProvidersForUser(
+						Services::WpUsers()->getCurrentWpUser(), true )[ LoginGuard\Lib\TwoFactor\Provider\U2F::SLUG ] )
 			],
 			'content' => [
 				'form' => $this->renderForm(),
 			]
 		];
+
+		// Provide the U2F scripts if required.
+		if ( $aDisplayData[ 'flags' ][ 'has_u2f' ] ) {
+			$aDisplayData[ 'head' ] = [
+				'scripts' => [
+					[
+						'src' => $oCon->getPluginUrl_Js( 'u2f-bundle.js' ),
+					],
+					[
+						'src' => $oCon->getPluginUrl_Js( 'u2f-frontend.js' ),
+					]
+				]
+			];
+		}
 
 		return $oMod->renderTemplate( '/pages/login_intent/index.twig',
 			Services::DataManipulation()->mergeArraysRecursive( $oMod->getBaseDisplayData(), $aDisplayData ), true );

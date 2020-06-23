@@ -92,19 +92,26 @@ class Export {
 		die();
 	}
 
-	public function toFile() {
+	/**
+	 * @return string[]
+	 */
+	public function toStandardArray() {
 		$sExport = json_encode( $this->getExportData() );
-		$aData = [
+		return [
 			'# Site URL: '.Services::WpGeneral()->getHomeUrl(),
 			'# Export Date: '.Services::WpGeneral()->getTimeStringForDisplay(),
 			'# Hash: '.sha1( $sExport ),
 			$sExport
 		];
+	}
+
+	public function toFile() {
+		$aData = $this->toStandardArray();
 		Services::Response()->downloadStringAsFile(
 			implode( "\n", $aData ),
 			sprintf( 'shieldexport-%s-%s.json',
 				Services::Data()->urlStripSchema( Services::WpGeneral()->getHomeUrl() ),
-				$sFilename = date( 'Ymd_His' )
+				date( 'Ymd_His' )
 			)
 		);
 	}

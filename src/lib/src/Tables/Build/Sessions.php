@@ -58,7 +58,7 @@ class Sessions extends BaseBuild {
 	/**
 	 * @return array[]
 	 */
-	protected function getEntriesFormatted() {
+	public function getEntriesFormatted() {
 		$aEntries = [];
 
 		$sYou = Services::IP()->getRequestIp();
@@ -87,10 +87,10 @@ class Sessions extends BaseBuild {
 	}
 
 	/**
-	 * @return Tables\Render\Sessions
+	 * @return Tables\Render\WpListTable\Sessions
 	 */
 	protected function getTableRenderer() {
-		return new Tables\Render\Sessions();
+		return new Tables\Render\WpListTable\Sessions();
 	}
 
 	/**

@@ -1160,7 +1160,7 @@ class Controller {
 	 * @param string $sKey
 	 * @return mixed|null
 	 */
-	protected function getPluginSpec_Path( $sKey ) {
+	public function getPluginSpec_Path( $sKey ) {
 		$aData = $this->getPluginSpec()[ 'paths' ];
 		return isset( $aData[ $sKey ] ) ? $aData[ $sKey ] : null;
 	}
@@ -1607,6 +1607,18 @@ class Controller {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getPreviousVersion() {
+		$oOpts = $this->getPluginControllerOptions();
+		if ( empty( $oOpts->previous_version ) ) {
+			$oOpts->previous_version = '9.0.4'; //@deprecated 9.0.4
+//			$oOpts->previous_version = $this->getVersion();
+		}
+		return $oOpts->previous_version;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getVersionNumeric() {
@@ -1623,9 +1635,9 @@ class Controller {
 	}
 
 	/**
-	 * @return mixed|\stdClass
+	 * @return \stdClass
 	 */
-	protected function getPluginControllerOptions() {
+	public function getPluginControllerOptions() {
 		if ( !isset( self::$oControllerOptions ) ) {
 
 			self::$oControllerOptions = Services::WpGeneral()->getOption( $this->getPluginControllerOptionsKey() );
@@ -1691,14 +1703,15 @@ class Controller {
 	}
 
 	protected function saveCurrentPluginControllerOptions() {
+		$oWP = Services::WpGeneral();
 		add_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 		if ( $this->plugin_deleting ) {
-			Services::WpGeneral()->deleteOption( $this->getPluginControllerOptionsKey() );
+			$oWP->deleteOption( $this->getPluginControllerOptionsKey() );
 		}
 		else {
 			$oOptions = $this->getPluginControllerOptions();
 			if ( $this->sConfigOptionsHashWhenLoaded != md5( serialize( $oOptions ) ) ) {
-				Services::WpGeneral()->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
+				$oWP->updateOption( $this->getPluginControllerOptionsKey(), $oOptions );
 			}
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
@@ -1872,6 +1885,12 @@ class Controller {
 		}
 
 		$this->modules_loaded = true;
+
+		// Upgrade modules
+		( new Shield\Controller\Utilities\Upgrade() )
+			->setCon( $this )
+			->execute();
+
 		do_action( $this->prefix( 'modules_loaded' ) );
 		do_action( $this->prefix( 'run_processors' ) );
 		return $bSuccess;
@@ -2062,7 +2081,13 @@ class Controller {
 	 * @return \FernleafSystems\Wordpress\Services\Utilities\Render
 	 */
 	public function getRenderer() {
-		return Services::Render()->setTemplateRoot( $this->getPath_Templates() );
+		$oRndr = Services::Render();
+		$oLocator = ( new Shield\Render\LocateTemplateDirs() )->setCon( $this );
+		foreach ( $oLocator->run() as $sDir ) {
+			$oRndr->setTwigTemplateRoot( $sDir );
+		}
+		$oRndr->setTemplateRoot( $this->getPath_Templates() );
+		return $oRndr;
 	}
 
 	/**
@@ -2220,13 +2245,5 @@ class Controller {
 				->setOpts( $oModule->getOptions() )
 				->run();
 		}
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isPluginDeleting() {
-		return (bool)$this->plugin_deleting;
 	}
 }

@@ -1,5 +1,6 @@
 <?php
 
+use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -44,14 +45,21 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 			];
 			shuffle( $aBenefits );
 		}
+
 		$aFooter = [
-			'',
 			$this->getMod()
-				 ->renderTemplate( '/snippets/email/footer.twig', [
+				 ->renderTemplate( '/email/footer.twig', [
 					 'strings' => [
 						 'benefits'  => $aBenefits,
 						 'much_more' => 'And So Much More',
 						 'upgrade'   => $aGoProPhrases[ array_rand( $aGoProPhrases ) ],
+						 'sent_from' => sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
+							 $this->getCon()->getHumanName(),
+							 $this->getCon()->getVersion(),
+							 $oWp->getHomeUrl()
+						 ),
+						 'delays'    => __( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
+						 'time_sent' => sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() ),
 					 ],
 					 'hrefs'   => [
 						 'upgrade'   => 'https://shsec.io/buyshieldproemailfooter',
@@ -62,14 +70,6 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 						 'is_whitelabelled' => $oCon->getModule_SecAdmin()->isWlEnabled()
 					 ]
 				 ] ),
-			'',
-			sprintf( __( 'Email sent from the %s Plugin v%s, on %s.', 'wp-simple-firewall' ),
-				$this->getCon()->getHumanName(),
-				$this->getCon()->getVersion(),
-				$oWp->getHomeUrl()
-			),
-			__( 'Note: Email delays are caused by website hosting and email providers.', 'wp-simple-firewall' ),
-			sprintf( __( 'Time Sent: %s', 'wp-simple-firewall' ), $oWp->getTimeStampForDisplay() )
 		];
 
 		return apply_filters( 'icwp_shield_email_footer', $aFooter );
@@ -91,6 +91,31 @@ class ICWP_WPSF_Processor_Email extends Modules\BaseShield\ShieldProcessor {
 				$oWP->getLocale( '-' ),
 				implode( "<br />", array_merge( $this->getEmailHeader(), $aMessage, $this->getEmailFooter() ) )
 			)
+		);
+	}
+
+	/**
+	 * @param string $sTemplate
+	 * @param string $sAddress
+	 * @param string $sSubject
+	 * @param array  $aBody
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public function sendEmailWithTemplate( $sTemplate, $sAddress, $sSubject, array $aBody ) {
+		$aData = [
+			'header' => $this->getEmailHeader(),
+			'body'   => $aBody,
+			'footer' => $this->getEmailFooter(),
+			'vars'   => [
+				'lang' => Services::WpGeneral()->getLocale( '-' )
+			]
+		];
+
+		return $this->send(
+			$sAddress,
+			$sSubject,
+			$this->getMod()->renderTemplate( $sTemplate, $aData, true )
 		);
 	}
 

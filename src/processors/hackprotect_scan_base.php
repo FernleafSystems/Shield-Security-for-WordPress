@@ -52,19 +52,4 @@ abstract class ICWP_WPSF_Processor_ScanBase extends Shield\Modules\BaseShield\Sh
 		$oMod = $this->getMod();
 		return $oMod->getScanCon( static::SCAN_SLUG );
 	}
-
-	/**
-	 * @deprecated 9.0
-	 */
-	public function cronProcessScanResults() {
-	}
-
-	/**
-	 * @param Shield\Scans\Base\BaseResultsSet $oRes
-	 * @return bool - true if user notified
-	 * @deprecated 9.0
-	 */
-	protected function runCronUserNotify( $oRes ) {
-		return false;
-	}
 }

@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class Backup extends BaseProvider {
 
 	const SLUG = 'backupcode';
+	const STANDALONE = false;
 
 	/**
 	 * @inheritDoc

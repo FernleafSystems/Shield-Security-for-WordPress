@@ -76,28 +76,4 @@ class ICWP_WPSF_FeatureHandler_Traffic extends ICWP_WPSF_FeatureHandler_BaseWpsf
 	protected function getNamespaceBase() {
 		return 'Traffic';
 	}
-
-	/**
-	 * @return int
-	 * @deprecated 9.0
-	 */
-	public function getAutoDisableAt() {
-		return 0;
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.0
-	 */
-	public function getAutoDisableTimestamp() {
-		return '';
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isAutoDisable() {
-		return false;
-	}
 }

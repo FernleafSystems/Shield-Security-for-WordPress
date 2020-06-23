@@ -173,10 +173,18 @@
 					<a href="{{ aOption.link_info }}" target="_blank"
 					   title="{{ strings.opt_info_helpdesk }}">{{ strings.more_info }}</a>
 					{% if aOption.link_blog %}
-					<span class="m-1">&vert;</span>
-					<a href="{{ aOption.link_blog }}" target="_blank"
-					   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
+						<span class="m-1">&vert;</span>
+						<a href="{{ aOption.link_blog }}" target="_blank"
+						   title="{{ strings.opt_info_blog }}">{{ strings.blog }}</a>
+					{% endif %}
 				{% endif %}
+
+				{% if flags.is_wpcli %}
+					<span href="#" style="cursor:pointer;"
+						  class="float-right"
+						  title="WP-CLI Option Key: {{ aOption.key }}"
+						  data-toggle="tooltip"
+					>wp-cli:&gt;</span>
 				{% endif %}
 
 				{% if flags.show_transfer_switch %}

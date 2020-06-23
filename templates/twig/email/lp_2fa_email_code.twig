@@ -1,0 +1,22 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_body %}
+	<p>
+		{{ body.strings.someone }}
+		<br />{{ body.strings.requires }}
+	</p>
+
+	{# Note: When customizing this template, always output the variable below: body.vars.code #}
+	<p>{{ body.strings.verification }}: <strong>{{ body.vars.code }}</strong></p>
+
+	<p><strong>{{ body.strings.details_heading }}</strong></p>
+	<ul>
+		<li>{{ body.strings.details_url }}</li>
+		<li>{{ body.strings.details_username }}</li>
+		<li>{{ body.strings.details_ip }}</li>
+	</ul>
+
+	{% if body.flags.show_login_link %}
+		<a href="{{ body.hrefs.login_link }}" target="_blank">{{ body.strings.login_link }}</a>
+	{% endif %}
+{% endblock %}

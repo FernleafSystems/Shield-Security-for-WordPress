@@ -177,7 +177,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			'html'    => ( new Shield\Tables\Build\AdminNotes() )
 				->setMod( $oMod )
 				->setDbHandler( $oMod->getDbHandler_Notes() )
-				->buildTable()
+				->render()
 		];
 	}
 
@@ -240,12 +240,18 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			$bNetwork = $bEnabledNetwork ? true : ( $bDisableNetwork ? false : null );
 
 			/** @var Shield\Databases\AdminNotes\Insert $oInserter */
-			$nCode = ( new Plugin\Lib\ImportExport\Import() )
-				->setMod( $this->getMod() )
-				->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			try {
+				$nCode = ( new Plugin\Lib\ImportExport\Import() )
+					->setMod( $this->getMod() )
+					->fromSite( $sMasterSiteUrl, $sSecretKey, $bNetwork );
+			}
+			catch ( \Exception $oE ) {
+				$nCode = $oE->getCode();
+			}
 			$bSuccess = $nCode == 0;
 			$sMessage = $bSuccess ? __( 'Options imported successfully', 'wp-simple-firewall' ) : __( 'Options failed to import', 'wp-simple-firewall' );
 		}
+
 		return [
 			'success' => $bSuccess,
 			'message' => $sMessage

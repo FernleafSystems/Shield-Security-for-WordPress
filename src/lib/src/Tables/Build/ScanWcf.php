@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 
 /**
  * Class ScanWcf
@@ -12,9 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 class ScanWcf extends ScanBase {
 
 	/**
-	 * @return Shield\Tables\Render\ScanWcf
+	 * @return Shield\Tables\Render\WpListTable\ScanWcf
 	 */
 	protected function getTableRenderer() {
-		return new Shield\Tables\Render\ScanWcf();
+		return new Shield\Tables\Render\WpListTable\ScanWcf();
 	}
 }

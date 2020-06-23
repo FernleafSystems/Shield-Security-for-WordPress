@@ -3,6 +3,9 @@
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * Class ICWP_WPSF_FeatureHandler_Base
+ */
 abstract class ICWP_WPSF_FeatureHandler_Base {
 
 	use Shield\Modules\PluginControllerConsumer;
@@ -51,6 +54,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @var Shield\Modules\Base\Options
 	 */
 	private $oOpts;
+
+	/**
+	 * @var Shield\Modules\Base\WpCli
+	 */
+	private $oWpCli;
 
 	/**
 	 * @var Shield\Databases\Base\Handler[]
@@ -213,11 +221,11 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		return is_array( $aCls ) ? $aCls : [];
 	}
 
-	protected function updateHandler() {
-		$oH = $this->loadClass( 'Upgrade' );
-		if ( $oH instanceof Shield\Modules\Base\Upgrade ) {
-			$oH->setMod( $this )->execute();
-		}
+	/**
+	 * @return false|Shield\Modules\Base\Upgrade|mixed
+	 */
+	public function getUpgradeHandler() {
+		return $this->loadClass( 'Upgrade' );
 	}
 
 	/**
@@ -297,9 +305,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	public function onRunProcessors() {
-		if ( $this->isUpgrading() ) {
-			$this->updateHandler();
-		}
 		$oOpts = $this->getOptions();
 		if ( $oOpts->getFeatureProperty( 'auto_load_processor' ) ) {
 			$this->loadProcessor();
@@ -335,6 +340,16 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		$sShieldAction = $this->getCon()->getShieldAction();
 		if ( !empty( $sShieldAction ) ) {
 			do_action( $this->getCon()->prefix( 'shield_action' ), $sShieldAction );
+		}
+
+		if ( Services::Data()->getPhpVersionIsAtLeast( '7.0' ) ) {
+			add_action( 'cli_init', function () {
+				try {
+					$this->getWpCli()->execute();
+				}
+				catch ( \Exception $oE ) {
+				}
+			} );
 		}
 
 		if ( $this->isModuleRequest() ) {
@@ -605,7 +620,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @return bool
 	 */
-	protected function isModOptEnabled() {
+	public function isModOptEnabled() {
 		return $this->isOpt( $this->getEnableModOptKey(), 'Y' )
 			   || $this->isOpt( $this->getEnableModOptKey(), true, true );
 	}
@@ -1223,7 +1238,7 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function onPluginDelete() {
 		foreach ( $this->getDbHandlers( true ) as $oDbh ) {
 			if ( !empty( $oDbh ) ) {
-				$oDbh->deleteTable();
+				$oDbh->tableDelete();
 			}
 		}
 		$this->getOptions()->deleteStorage();
@@ -1462,6 +1477,10 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	public function getBaseDisplayData() {
 		$oCon = $this->getCon();
 
+		/** @var Shield\Modules\Plugin\Options $oPluginOptions */
+		$oPluginOptions = $oCon->getModule_Plugin()
+							   ->getOptions();
+
 		return [
 			'sPluginName'   => $oCon->getHumanName(),
 			'sTagline'      => $this->getOptions()->getFeatureTagline(),
@@ -1507,7 +1526,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 				'show_alt_content'      => false,
 				'has_wizard'            => $this->hasWizard(),
 				'is_premium'            => $this->isPremium(),
-				'show_transfer_switch'  => $this->isPremium()
+				'show_transfer_switch'  => $this->isPremium(),
+				'is_wpcli'              => $oPluginOptions->isEnabledWpcli()
 			],
 			'hrefs'         => [
 				'go_pro'         => 'https://shsec.io/shieldgoprofeature',
@@ -1935,6 +1955,24 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @return Shield\Modules\Base\WpCli
+	 * @throws \Exception
+	 */
+	public function getWpCli() {
+		if ( !isset( $this->oWpCli ) ) {
+			$this->oWpCli = $this->loadClass( 'WpCli' );
+			if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
+				$this->oWpCli = $this->loadClassFromBase( 'WpCli' );
+				if ( !$this->oWpCli instanceof Shield\Modules\Base\WpCli ) {
+					throw new Exception( 'WP-CLI not supported' );
+				}
+			}
+			$this->oWpCli->setMod( $this );
+		}
+		return $this->oWpCli;
+	}
+
+	/**
 	 * The primary DB for the
 	 * @return null|Shield\Databases\Base\Handler|mixed
 	 */
@@ -2013,6 +2051,22 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	}
 
 	/**
+	 * @param $sClass
+	 * @return \stdClass|mixed|false
+	 */
+	private function loadClassFromBase( $sClass ) {
+		$sC = $this->getBaseNamespace().$sClass;
+		return @class_exists( $sC ) ? new $sC() : false;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getBaseNamespace() {
+		return '\FernleafSystems\Wordpress\Plugin\Shield\Modules\Base\\';
+	}
+
+	/**
 	 * @return string
 	 */
 	private function getNamespace() {
@@ -2040,5 +2094,15 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	protected function doExtraSubmitProcessing() {
 		$this->preProcessOptions();
+	}
+
+	/**
+	 * @deprecated 9.0.5
+	 */
+	protected function updateHandler() {
+		$oH = $this->getUpgradeHandler();
+		if ( $oH instanceof Shield\Modules\Base\Upgrade ) {
+			$oH->setMod( $this )->execute();
+		}
 	}
 }

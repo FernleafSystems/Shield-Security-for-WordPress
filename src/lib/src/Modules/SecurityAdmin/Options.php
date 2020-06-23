@@ -15,13 +15,6 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getAccessKeyHash() {
-		return $this->getOpt( 'admin_access_key' );
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function getAdminAccessArea_Options() {
@@ -88,11 +81,25 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getSecurityAdminUsers() {
+		$aU = $this->getOpt( 'sec_admin_users', [] );
+		return ( is_array( $aU ) && $this->isPremium() ) ? $aU : [];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSecurityPIN() {
+		return (string)$this->getOpt( 'admin_access_key', '' );
+	}
+
+	/**
 	 * @return bool
 	 */
-	public function hasAccessKey() {
-		$sKey = $this->getAccessKeyHash();
-		return !empty( $sKey ) && strlen( $sKey ) == 32;
+	public function hasSecurityPIN() {
+		return strlen( $this->getSecurityPIN() ) == 32;
 	}
 
 	/**
@@ -121,5 +128,22 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isWlHideUpdates() {
 		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.1.0
+	 */
+	public function hasAccessKey() {
+		$sKey = $this->getAccessKeyHash();
+		return !empty( $sKey ) && strlen( $sKey ) == 32;
+	}
+
+	/**
+	 * @return string
+	 * @deprecated 9.1.0
+	 */
+	public function getAccessKeyHash() {
+		return $this->getOpt( 'admin_access_key' );
 	}
 }

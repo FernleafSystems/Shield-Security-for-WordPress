@@ -66,7 +66,7 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function getShieldNetApiData() {
 		$aD = $this->getOpt( 'snapi_data', [] );
-		return is_array( $aD ) ? $aD:[];
+		return is_array( $aD ) ? $aD : [];
 	}
 
 	/**
@@ -103,6 +103,13 @@ class Options extends Base\ShieldOptions {
 	 */
 	public function isTrackingEnabled() {
 		return $this->isOpt( 'enable_tracking', 'Y' );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledWpcli() {
+		return $this->isPremium() && $this->isOpt( 'enable_wpcli', 'Y' );
 	}
 
 	/**

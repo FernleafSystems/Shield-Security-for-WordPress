@@ -40,7 +40,13 @@
 							{% endif %}
 						{% endfor %}
 
+						<li class="nav-item" id="NavItem-SearchOptionsLaunch">
+							<a class="nav-link dashicons dashicons-search" href="#"
+							   data-toggle="modal" data-target="#OptionsSearch">&nbsp;</a>
+						</li>
+
 						<div class="nav-item announcekit-widget"></div>
+
 					</ul>
 				</div>
 				{#<form class="form-inline">#}
@@ -50,6 +56,9 @@
 			</nav>
 		</div>
 	</div>
+
+	{% include '/snippets/modal/search_options.twig' %}
+
 	<script>
 	  window.announcekit = (window.announcekit || {
 		  queue: [], on: function ( n, x ) {

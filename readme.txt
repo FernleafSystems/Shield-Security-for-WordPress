@@ -8,7 +8,7 @@ Requires at least: 3.5.2
 Requires PHP: 5.4.0
 Recommended PHP: 7.0
 Tested up to: 5.4
-Stable tag: 9.0.4
+Stable tag: 9.1.0
 
 Smarter security protection from hackers through automation. Powerful scanners, 2-Factor Auth, limit logins, auto IP blocks & more.
 
@@ -370,41 +370,24 @@ You will always be able to use Shield Security and its free features in-full.
 
 [Go Pro for just $1/month](https://shsec.io/aa).
 
-#### 9.0 Series
-*Released: 5th April 2020* - [Release Announcement](https://shsec.io/hq)
-
 **Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
-##### [Please review the full Shield 9.0 Upgrade Guide here](https://shsec.io/shieldupgradeguide90).
+#### 9.1 Series
+*Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
 
-* **(.4)  FIX**:		Timing error in some cases attempting to access database table when it hasn't been created.
-* **(.3)  IMPROVED**:	Scanning for SPAM email registrations is improved with more signals.
-* **(.3)  IMPROVED**:	Better recovery from errors during certain scans.
-* **(.3)  IMPROVED**:	WPHashes Token Retrieval.
-* **(.3)  FIX**:		Plugins were sometimes disabled when updates applied via Scan UI.
-* **(.3)  FIX**:		Audit Trail more correctly reflects "repair/delete" activity from the Unrecognised File Scanner.
-* **(.3)  FIX**:		Yubikeys weren't always registered correctly.
-* **(.3)  FIX**:		Support MemberPress Password Reset that has an Auto-Login.
-* **(.2)  IMPROVED**:	Plugin/Theme Guard only scans certain types of files based on their extension. I.e. ignoring readme.txt, for example.
-* **(.2)  IMPROVED**:	Some minor improvements to encoding special characters in the email subject/from name.
-* **(.2)  IMPROVED**:	[WPHashes.com](https://shsec.io/hs) API token update is more reliable.
-* **(.2)  FIXED**:		Applying a plugin update from within the Vulnerabilities scanner no longer disables that plugin.
-* **(.1)  FIXED**:		Javascript for Anti-Bot Login Protection not loading in all cases.
-* **(.1)  FIXED**:		MemberPress Registration protection PHP error.
-* **(.0)  NEW**:		[*PRO*] [Critical File Locker](https://shsec.io/h4) to protect `wp-config.php` files.
-* **(.0)  NEW**:		[*PRO*] [Selective Sync](https://shsec.io/hl) - Support for excluding individual options from import and export.
-* **(.0)  NEW**:		[Support for hCaptcha](https://shsec.io/h5) in-place of Google reCAPTCHA.
-* **(.0)  NEW**:		Reporting Module - streamline notifications and alerts and provide regular statistics updates.
-* **(.0)  NEW**:		Integrated Help desk widget for searching documentation.
-* **(.0)  NEW**:		Debug page to show summary and important information for debugging.
-* **(.0)  IMPROVED**:	Hourly and Daily crons set to specific run times.
-* **(.0)  IMPROVED**:	Automatic file repair for WordPress, plugins, and themes is much more reliable.
-* **(.0)  IMPROVED**:	Major refactoring and improvements to Bot protection on login, register and lost password forms.
-* **(.0)  IMPROVED**:	Simplification of many options and plugin configuration.
-* **(.0)  IMPROVED**:	Where an IP address gets repeatedly blocked - consolidates Audit Trail entries over a 24hr period.
-* **(.0)  IMPROVED**:	Tweaks and changes to UI.
-* **(.0)  FIXED**:		Minor issues with the MFA page.
-* **(.0)  FIXED**:		Older Twig Library compatibility with PHP 7.4.
-* **(.0)  REMOVED**:	Several unused/useless options, including "Mask WordPress Version".
+##### [Please review the full Shield 9.1 Upgrade Guide here](https://shsec.io/shieldupgradeguide91).
 
-##### [Full Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
+* **(.0)  NEW**:		[*PRO*] [WP-CLI](https://shsec.io/hw) Support for WP-CLI (beta).
+* **(.0)  NEW**:		[*PRO*] [U2F Login](https://shsec.io/hv) - Support for registration and use of U2F keys for 2-factor authentication.
+* **(.0)  NEW**:		[*PRO*] [Custom Email Templates](https://shsec.io/hy) - Support for custom email templates, starting with 2FA.
+* **(.0)  NEW**:		[*PRO*] [Affiliate Rewards](https://shsec.io/hz) - We now offer affiliate rewards with ShieldPRO.
+* **(.0)  IMPROVED**:	WP-Config File Locker protection now correctly display the file diff for empty lines.
+* **(.0)  IMPROVED**:	2-Factor Authentication "Remember Me" now uses the visitor IP address as a factor.
+* **(.0)  IMPROVED**:	Restored the option search but turned it into a modal dialog.
+* **(.0)  IMPROVED**:	Plugin upgrade handling.
+* **(.0)  CHANGED**:	To avoid confusion, "Security Admin Key" has been renamed to "Security Admin PIN" throughout.
+* **(.0)  FIXED**:		Adding IPv6 address ranges didn't work in all cases.
+* **(.0)  FIXED**:		Errors while trying to access an uninitialised database.
+* **(.0)  FIXED**:		Upgrade Carbon PHP library to latest available (v1.39).
+
+##### [Entire Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)

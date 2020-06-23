@@ -258,13 +258,4 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	protected function getNamespaceBase() {
 		return 'UserManagement';
 	}
-
-	/**
-	 * @return array
-	 * @deprecated 9.0
-	 */
-	public function getSuspendHardUserIds() {
-		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
-		return is_array( $aIds ) ? array_filter( $aIds, 'is_int' ) : [];
-	}
 }

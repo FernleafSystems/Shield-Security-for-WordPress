@@ -98,29 +98,4 @@ class Options extends Base\ShieldOptions {
 	public function setDelayTracking( $aTrackingInfo ) {
 		return $this->setOpt( 'delay_tracking', $aTrackingInfo );
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isAutoupdateIndividualPlugins() {
-		return false;
-	}
-
-	/**
-	 * @param string $sPluginFile
-	 * @return bool
-	 * @deprecated 9.0
-	 */
-	public function isPluginSetToAutoupdate( $sPluginFile ) {
-		return false;
-	}
-
-	/**
-	 * @return string[]
-	 * @deprecated 9.0
-	 */
-	public function getAutoupdatePlugins() {
-		return [];
-	}
 }

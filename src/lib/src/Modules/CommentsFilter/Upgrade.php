@@ -6,6 +6,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Base;
 
 class Upgrade extends Base\Upgrade {
 
+	protected function upgrade_905() {
+		/** @var Options $oOpts */
+		$oOpts = $this->getOptions();
+		$oOpts->setOpt(
+			'comments_default_action_human_spam',
+			(string)$oOpts->getOpt( 'comments_default_action_human_spam' )
+		);
+		$oOpts->setOpt(
+			'comments_default_action_spam_bot',
+			(string)$oOpts->getOpt( 'comments_default_action_spam_bot' )
+		);
+	}
+
 	protected function upgrade_900() {
 		$oOpts = $this->getOptions();
 
