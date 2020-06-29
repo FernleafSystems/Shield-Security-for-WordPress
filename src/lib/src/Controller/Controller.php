@@ -218,8 +218,6 @@ class Controller {
 		}
 	}
 
-	/**
-	 */
 	public function adminNoticeDoesNotMeetRequirements() {
 		$aMessages = $this->getRequirementsMessages();
 		if ( !empty( $aMessages ) && is_array( $aMessages ) ) {
@@ -241,8 +239,6 @@ class Controller {
 		}
 	}
 
-	/**
-	 */
 	public function adminNoticePluginFailedToLoad() {
 		$aDisplayData = [
 			'strings' => [
@@ -332,8 +328,6 @@ class Controller {
 		return $bSuccess;
 	}
 
-	/**
-	 */
 	protected function doRegisterHooks() {
 		register_deactivation_hook( $this->getRootFile(), [ $this, 'onWpDeactivatePlugin' ] );
 
@@ -397,8 +391,6 @@ class Controller {
 		);
 	}
 
-	/**
-	 */
 	public function onWpAdminInit() {
 		add_action( 'admin_bar_menu', [ $this, 'onWpAdminBarMenu' ], 100 );
 		add_action( 'wp_dashboard_setup', [ $this, 'onWpDashboardSetup' ] );
@@ -429,8 +421,6 @@ class Controller {
 		return $aHeaders;
 	}
 
-	/**
-	 */
 	public function onWpInit() {
 		$this->getMeetsBasePermissions();
 		add_action( 'wp_enqueue_scripts', [ $this, 'onWpEnqueueFrontendCss' ], 99 );
@@ -504,8 +494,6 @@ class Controller {
 			->run();
 	}
 
-	/**
-	 */
 	public function onWpAdminMenu() {
 		if ( $this->isValidAdminArea() ) {
 			$this->createPluginMenu();
@@ -1742,16 +1730,12 @@ class Controller {
 		return include( $this->getPath_LibFile( $sPathToLib ) );
 	}
 
-	/**
-	 */
 	public function deactivateSelf() {
 		if ( $this->isPluginAdmin() && function_exists( 'deactivate_plugins' ) ) {
 			deactivate_plugins( $this->getPluginBaseFile() );
 		}
 	}
 
-	/**
-	 */
 	public function clearSession() {
 		Services::Response()->cookieDelete( $this->getPluginPrefix() );
 		self::$sSessionId = null;
@@ -1833,8 +1817,6 @@ class Controller {
 		return !empty( $sSessionId );
 	}
 
-	/**
-	 */
 	protected function setSessionCookie() {
 		Services::Response()->cookieSet(
 			$this->getPluginPrefix(),
