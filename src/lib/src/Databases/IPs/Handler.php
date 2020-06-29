@@ -56,7 +56,7 @@ class Handler extends Base\Handler {
 		return [
 			'ip'             => "varchar(60) NOT NULL DEFAULT '' COMMENT 'Human readable IP address or range'",
 			'label'          => "varchar(255) NOT NULL DEFAULT ''",
-			'transgressions' => "smallint(1) UNSIGNED NOT NULL DEFAULT 0",
+			'transgressions' => "int(10) UNSIGNED NOT NULL DEFAULT 0",
 			'list'           => "varchar(4) NOT NULL DEFAULT ''",
 			'ip6'            => "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
 			'is_range'       => "tinyint(1) UNSIGNED NOT NULL DEFAULT 0",
