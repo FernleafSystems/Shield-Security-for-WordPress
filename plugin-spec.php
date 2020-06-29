@@ -111,7 +111,8 @@
   "version_upgrades": [
     "9.0.0",
     "9.0.3",
-    "9.0.5"
+    "9.0.5",
+    "9.1.1"
   ],
   "action_links":     {
     "remove": null,
