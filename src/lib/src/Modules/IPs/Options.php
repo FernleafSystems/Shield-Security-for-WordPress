@@ -75,8 +75,15 @@ class Options extends Base\ShieldOptions {
 	/**
 	 * @return bool
 	 */
-	public function isEnabledAutoUserRecover() {
-		return !$this->isOpt( 'user_auto_recover', 'disabled' );
+	public function isEnabledAutoVisitorRecover() {
+		return in_array( 'gasp', (array)$this->getOpt( 'user_auto_recover', [] ) );
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isEnabledMagicEmailLinkRecover() {
+		return in_array( 'email', (array)$this->getOpt( 'user_auto_recover', [] ) );
 	}
 
 	/**

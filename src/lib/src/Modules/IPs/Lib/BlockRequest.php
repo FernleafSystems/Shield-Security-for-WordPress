@@ -15,74 +15,20 @@ class BlockRequest {
 		$oMod = $this->getMod();
 
 		$bIpBlocked = ( new IPs\Components\QueryIpBlock() )
-			->setMod( $oMod )
-			->setIp( Services::IP()->getRequestIp() )
-			->run();
+						  ->setMod( $oMod )
+						  ->setIp( Services::IP()->getRequestIp() )
+						  ->run()
+					  &&
+					  !( new AutoUnblock() )
+						  ->setMod( $this->getMod() )
+						  ->run();
 
 		if ( $bIpBlocked ) {
 			// don't log killed requests
 			add_filter( $this->getCon()->prefix( 'is_log_traffic' ), '__return_false' );
-			try {
-				if ( $this->processAutoUnblockRequest() ) {
-					return;
-				}
-			}
-			catch ( \Exception $oE ) {
-			}
 			$this->getCon()->fireEvent( 'conn_kill' );
 			$this->renderKillPage();
 		}
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	private function processAutoUnblockRequest() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
-		$oReq = Services::Request();
-
-		if ( $oOpts->isEnabledAutoUserRecover() && $oReq->isPost()
-			 && $oReq->request( 'action' ) == $oMod->prefix() && $oReq->request( 'exec' ) == 'uau' ) {
-
-			if ( check_admin_referer( $oReq->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
-				throw new \Exception( 'Nonce failed' );
-			}
-			if ( strlen( $oReq->post( 'icwp_wpsf_login_email' ) ) > 0 ) {
-				throw new \Exception( 'Email should not be provided in honeypot' );
-			}
-
-			$sIp = Services::IP()->getRequestIp();
-			if ( $oReq->post( 'ip' ) != $sIp ) {
-				throw new \Exception( 'IP does not match' );
-			}
-
-			$oLoginMod = $this->getCon()->getModule_LoginGuard();
-			$sGasp = $oReq->post( $oLoginMod->getGaspKey() );
-			if ( empty( $sGasp ) ) {
-				throw new \Exception( 'GASP failed' );
-			}
-
-			if ( !$oOpts->getCanIpRequestAutoUnblock( $sIp ) ) {
-				throw new \Exception( 'IP already processed in the last 24hrs' );
-			}
-
-			{
-				$aExistingIps = $oOpts->getAutoUnblockIps();
-				$aExistingIps[ $sIp ] = Services::Request()->ts();
-				$oOpts->setOpt( 'autounblock_ips', $aExistingIps );
-			}
-
-			( new IPs\Lib\Ops\DeleteIp() )
-				->setDbHandler( $oMod->getDbHandler_IPs() )
-				->setIP( $sIp )
-				->fromBlacklist();
-			Services::Response()->redirectToHome();
-		}
-
-		return false;
 	}
 
 	private function renderKillPage() {
@@ -138,7 +84,7 @@ class BlockRequest {
 				),
 			],
 			'flags'   => [
-				'is_autorecover'   => $oOpts->isEnabledAutoUserRecover(),
+				'is_autorecover'   => $oOpts->isEnabledAutoVisitorRecover(),
 				'is_uau_permitted' => $oOpts->getCanIpRequestAutoUnblock( $sIp ),
 			],
 		];

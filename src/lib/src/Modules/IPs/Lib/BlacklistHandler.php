@@ -12,8 +12,8 @@ class BlacklistHandler {
 	use Modules\Base\OneTimeExecute;
 
 	protected function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 		/** @var IPs\Options $oOpts */
 		$oOpts = $this->getOptions();
 		if ( $oOpts->isEnabledAutoBlackList() ) {
@@ -24,20 +24,39 @@ class BlacklistHandler {
 			}
 
 			( new IPs\Components\UnblockIpByFlag() )
-				->setMod( $oMod )
+				->setMod( $mod )
 				->run();
 
 			add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
 
-			if ( !$oMod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() && !$oMod->isVerifiedBot() ) {
-				( new BlockRequest() )
-					->setMod( $oMod )
-					->run();
-				( new BlackmarkRequest() )
-					->setMod( $oMod )
-					->run();
+			if ( !$mod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() && !$mod->isVerifiedBot() ) {
+
+				if ( $this->isDeferBlocklistHandling() ) {
+					add_action( 'init', function () {
+						$this->runBlocklistHandling();
+					}, 20 );
+				}
+				else {
+					$this->runBlocklistHandling();
+				}
 			}
 		}
+	}
+
+	private function runBlocklistHandling() {
+		( new BlockRequest() )
+			->setMod( $this->getMod() )
+			->run();
+		( new BlackmarkRequest() )
+			->setMod( $this->getMod() )
+			->run();
+	}
+
+	/**
+	 * @return false
+	 */
+	private function isDeferBlocklistHandling() {
+		return false;
 	}
 
 	public function loadBotDetectors() {

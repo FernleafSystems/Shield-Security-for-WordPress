@@ -1600,8 +1600,7 @@ class Controller {
 	public function getPreviousVersion() {
 		$oOpts = $this->getPluginControllerOptions();
 		if ( empty( $oOpts->previous_version ) ) {
-			$oOpts->previous_version = '9.0.4'; //@deprecated 9.0.4
-//			$oOpts->previous_version = $this->getVersion();
+			$oOpts->previous_version = $this->getVersion();
 		}
 		return $oOpts->previous_version;
 	}

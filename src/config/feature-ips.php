@@ -167,16 +167,16 @@
       "key":           "user_auto_recover",
       "section":       "section_auto_black_list",
       "premium":       true,
-      "default":       "disabled",
-      "type":          "select",
+      "default":       [],
+      "type":          "multiple_select",
       "value_options": [
-        {
-          "value_key": "disabled",
-          "text":      "Disabled"
-        },
         {
           "value_key": "gasp",
           "text":      "With Shield Bot Protection"
+        },
+        {
+          "value_key": "email",
+          "text":      "Magic Email Links To Unblock Logged-In Users"
         }
       ],
       "link_info":     "https://shsec.io/f8",
