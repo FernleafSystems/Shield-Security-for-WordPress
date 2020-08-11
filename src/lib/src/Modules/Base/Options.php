@@ -146,8 +146,9 @@ class Options {
 		return array_filter(
 			$this->getOptionsKeys(),
 			function ( $sKey ) {
-				return $this->getRawData_SingleOption( $sKey )[ 'section' ]
-					   !== 'section_non_ui';
+				$opt = $this->getRawData_SingleOption( $sKey );
+				return !empty( $opt[ 'section' ] )
+					   && $opt[ 'section' ] === 'section_non_ui';
 			}
 		);
 	}
