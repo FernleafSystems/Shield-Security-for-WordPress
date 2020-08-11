@@ -49,10 +49,10 @@ class ProcessOffenses {
 
 		$aMessages[] = sprintf( '<p>%s</p>', sprintf(
 			$this->getMod()->getTextOpt( 'text_remainingtrans' ),
-			( new IPs\Components\QueryRemainingOffenses() )
+			max( 0, ( new IPs\Components\QueryRemainingOffenses() )
 				->setMod( $this->getMod() )
 				->setIP( Services::IP()->getRequestIp() )
-				->run()
+				->run() )
 		) );
 
 		return $aMessages;

@@ -875,17 +875,6 @@ class Options {
 	}
 
 	/**
-	 * @param $sOptKey
-	 * @param $mValue
-	 * @return array|int|mixed|string
-	 * @throws \Exception
-	 * @deprecated 9.1.0
-	 */
-	private function ensureOptValueState( $sOptKey, $mValue ) {
-		return $mValue;
-	}
-
-	/**
 	 * @param string $sOptKey
 	 * @param mixed  $mPotentialValue
 	 * @return bool

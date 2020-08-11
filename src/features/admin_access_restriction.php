@@ -38,14 +38,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 9.1.0
-	 */
-	public function hasSecAdminUsers() {
-		return count( $this->getSecurityAdminUsers() ) > 0;
-	}
-
-	/**
 	 * No checking of admin capabilities in-case of infinite loop with
 	 * admin access caps check
 	 * @return bool
