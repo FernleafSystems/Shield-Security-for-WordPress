@@ -370,8 +370,8 @@
       "premium":     true,
       "default":     "N",
       "type":        "checkbox",
-      "link_info":   "https://shsec.io/dx",
-      "link_blog":   "https://shsec.io/dy",
+      "link_info":   "https://shsec.io/i9",
+      "link_blog":   "",
       "name":        "Allow U2F",
       "summary":     "Allow Registration Of U2F Devices",
       "description": "Allow Registration Of U2F Devices."

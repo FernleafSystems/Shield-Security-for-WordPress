@@ -150,9 +150,9 @@
       ],
       "link_info":     "https://shsec.io/3x",
       "link_blog":     "",
-      "name":          "WordPress Core Updates",
-      "summary":       "Decide how the WordPress Core will automatically update, if at all",
-      "description":   "At least automatically upgrading minor versions is recommended (and is the WordPress default)."
+      "name":          "Auto Update Plugin",
+      "summary":       "Always Automatically Update This Plugin",
+      "description":   "Regardless of any other settings, automatically update the "Shield" plugin. The plugin will normally automatically update after approximately 2 days, if left to decide."
     },
     {
       "key":         "enable_upgrade_notification_email",

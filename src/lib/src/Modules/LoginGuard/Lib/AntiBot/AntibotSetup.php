@@ -3,10 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Captcha\CaptchaConfigVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TestCacheDirWrite;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AntibotSetup {
@@ -84,6 +83,9 @@ class AntibotSetup {
 				}
 				if ( @class_exists( 'WooCommerce' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
+				}
+				if ( defined( 'WPMEM_VERSION' ) && function_exists( 'wpmem_init' ) ) {
+					$aFormProviders[] = new AntiBot\FormProviders\WPMembers();
 				}
 				if ( false && @class_exists( 'UserRegistration' ) && @function_exists( 'UR' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\UserRegistration();
