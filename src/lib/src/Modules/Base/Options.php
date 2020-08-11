@@ -148,7 +148,7 @@ class Options {
 			function ( $sKey ) {
 				$opt = $this->getRawData_SingleOption( $sKey );
 				return !empty( $opt[ 'section' ] )
-					   && $opt[ 'section' ] === 'section_non_ui';
+					   && $opt[ 'section' ] !== 'section_non_ui';
 			}
 		);
 	}
