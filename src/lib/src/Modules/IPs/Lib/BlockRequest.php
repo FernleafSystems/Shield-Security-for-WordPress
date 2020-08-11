@@ -32,16 +32,16 @@ class BlockRequest {
 	}
 
 	private function renderKillPage() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
 		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		$oOpts = $mod->getOptions();
 		$oCon = $this->getCon();
 		$oLoginMod = $oCon->getModule_LoginGuard();
 
 		$sUniqId = 'uau'.uniqid();
 
-		$sIp = Services::IP()->getRequestIp();
+		$sIP = Services::IP()->getRequestIp();
 		$nTimeRemaining = max( floor( $oOpts->getAutoExpireTime()/60 ), 0 );
 		$aData = [
 			'strings' => [
@@ -66,9 +66,23 @@ class BlockRequest {
 				],
 			],
 			'vars'    => [
-				'nonce'        => $oMod->getNonceActionData( 'uau' ),
-				'ip'           => $sIp,
-				'gasp_element' => $oMod->renderTemplate(
+				'nonce'                 => $mod->getNonceActionData( 'uau' ),
+				'ip'                    => $sIP,
+				'gasp_element'          => $mod->renderTemplate(
+					'snippets/gasp_js.php',
+					[
+						'sCbName'   => $oLoginMod->getGaspKey(),
+						'sLabel'    => $oLoginMod->getTextImAHuman(),
+						'sAlert'    => $oLoginMod->getTextPleaseCheckBox(),
+						'sMustJs'   => __( 'You MUST enable Javascript to be able to login', 'wp-simple-firewall' ),
+						'sUniqId'   => $sUniqId,
+						'sUniqElem' => 'icwp_wpsf_login_p'.$sUniqId,
+						'strings'   => [
+							'loading' => __( 'Loading', 'wp-simple-firewall' )
+						]
+					]
+				),
+				'email_unblock_element' => $mod->renderTemplate(
 					'snippets/gasp_js.php',
 					[
 						'sCbName'   => $oLoginMod->getGaspKey(),
@@ -85,12 +99,12 @@ class BlockRequest {
 			],
 			'flags'   => [
 				'is_autorecover'   => $oOpts->isEnabledAutoVisitorRecover(),
-				'is_uau_permitted' => $oOpts->getCanIpRequestAutoUnblock( $sIp ),
+				'is_uau_permitted' => $oOpts->getCanIpRequestAutoUnblock( $sIP ),
 			],
 		];
 		Services::WpGeneral()
 				->wpDie(
-					$oMod->renderTemplate( '/snippets/blacklist_die.twig', $aData, true )
+					$mod->renderTemplate( '/pages/block/blocklist_die.twig', $aData, true )
 				);
 	}
 }

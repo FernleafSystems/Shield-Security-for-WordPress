@@ -125,53 +125,48 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 	 * @return string[]
 	 */
 	private function determineWizardSteps_Welcome() {
-		/** @var ICWP_WPSF_FeatureHandler_Plugin $oFO */
-		$oFO = $this->getMod();
-		$oConn = $this->getCon();
+		$con = $this->getCon();
 
 		$aStepsSlugs = [
 			'welcome',
 			'ip_detect'
 		];
-//		if ( !$oFO->isPremium() ) {
-//			$aStepsSlugs[] = 'license'; not showing it for now
-//		}
 
-		if ( $oFO->isPremium() ) {
+		if ( $con->isPremiumActive() ) {
 			$aStepsSlugs[] = 'import';
 		}
 
-		if ( !$oConn->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
+		if ( !$con->getModule( 'admin_access_restriction' )->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'admin_access_restriction';
 		}
 
-		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $oModule */
-		$oModule = $oConn->getModule( 'audit_trail' );
-		if ( !$oModule->isModuleEnabled() ) {
+		/** @var ICWP_WPSF_FeatureHandler_AuditTrail $mod */
+		$mod = $con->getModule( 'audit_trail' );
+		if ( !$mod->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'audit_trail';
 		}
 
-		if ( !$oConn->getModule_IPs()->isModuleEnabled() ) {
+		if ( !$con->getModule_IPs()->isModuleEnabled() ) {
 			$aStepsSlugs[] = 'ips';
 		}
 
-		$oModule = $oConn->getModule_LoginGuard();
+		$mod = $con->getModule_LoginGuard();
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Options $oOpts */
-		$oOpts = $oModule->getOptions();
-		if ( !( $oModule->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
+		$oOpts = $mod->getOptions();
+		if ( !( $mod->isModuleEnabled() && $oOpts->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
 		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$oModule = $oConn->getModule( 'comments_filter' );
-		if ( !( $oModule->isModuleEnabled() && $oModule->isEnabledGaspCheck() ) ) {
+		$mod = $con->getModule( 'comments_filter' );
+		if ( !( $mod->isModuleEnabled() && $mod->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'comments_filter';
 		}
 
 		$aStepsSlugs[] = 'how_shield_works';
 		$aStepsSlugs[] = 'optin';
 
-		if ( !$oFO->isPremium() ) {
+		if ( !$con->isPremiumActive() ) {
 			$aStepsSlugs[] = 'import';
 		}
 

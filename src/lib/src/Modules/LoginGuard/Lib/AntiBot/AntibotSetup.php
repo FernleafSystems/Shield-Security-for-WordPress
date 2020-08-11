@@ -23,31 +23,31 @@ class AntibotSetup {
 	}
 
 	private function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oMod */
-		$oMod = $this->getMod();
-		/** @var LoginGuard\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		/** @var LoginGuard\Options $opts */
+		$opts = $this->getOptions();
 
 		$aProtectionProviders = [];
-		if ( $oOpts->isEnabledCooldown() && $oMod->canCacheDirWrite() ) {
+		if ( $opts->isEnabledCooldown() && $mod->canCacheDirWrite() ) {
 			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\CoolDown() )
-				->setMod( $oMod );
+				->setMod( $mod );
 		}
 
-		if ( $oOpts->isEnabledGaspCheck() ) {
+		if ( $opts->isEnabledGaspCheck() ) {
 			$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GaspJs() )
-				->setMod( $oMod );
+				->setMod( $mod );
 		}
 
-		if ( $oMod->isEnabledCaptcha() ) {
-			$oCfg = $oMod->getCaptchaCfg();
+		if ( $mod->isEnabledCaptcha() ) {
+			$oCfg = $mod->getCaptchaCfg();
 			if ( $oCfg->provider === CaptchaConfigVO::PROV_GOOGLE_RECAP2 ) {
 				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\GoogleRecaptcha() )
-					->setMod( $oMod );
+					->setMod( $mod );
 			}
 			elseif ( $oCfg->provider === CaptchaConfigVO::PROV_HCAPTCHA ) {
 				$aProtectionProviders[] = ( new AntiBot\ProtectionProviders\HCaptcha() )
-					->setMod( $oMod );
+					->setMod( $mod );
 			}
 		}
 
@@ -93,7 +93,7 @@ class AntibotSetup {
 			}
 
 			foreach ( $aFormProviders as $oForm ) {
-				$oForm->setMod( $oMod )->run();
+				$oForm->setMod( $mod )->run();
 			}
 		}
 	}

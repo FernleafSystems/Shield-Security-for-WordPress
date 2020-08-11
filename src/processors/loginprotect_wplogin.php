@@ -138,9 +138,9 @@ class ICWP_WPSF_Processor_LoginProtect_WpLogin extends Modules\BaseShield\Shield
 	 * @return string
 	 */
 	protected function getLoginPath() {
-		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $oFO */
-		$oFO = $this->getMod();
-		return $oFO->getCustomLoginPath();
+		/** @var \ICWP_WPSF_FeatureHandler_LoginProtect $mod */
+		$mod = $this->getMod();
+		return $mod->getCustomLoginPath();
 	}
 
 	/**

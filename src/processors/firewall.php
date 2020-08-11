@@ -76,32 +76,32 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	 * @return bool - true if visitor is permitted, false if it should be blocked.
 	 */
 	private function isVisitorRequestPermitted() {
-		/** @var ICWP_WPSF_FeatureHandler_Firewall $oFO */
-		$oFO = $this->getMod();
+		/** @var ICWP_WPSF_FeatureHandler_Firewall $mod */
+		$mod = $this->getMod();
 
 		$bRequestIsPermitted = true;
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_dir_traversal', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_dir_traversal', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'dirtraversal' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_sql_queries', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_sql_queries', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'sqlqueries' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_wordpress_terms', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_wordpress_terms', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'wpterms' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_field_truncation', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_field_truncation', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'fieldtruncation' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_php_code', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_php_code', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'phpcode' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_leading_schema', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_leading_schema', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'schema' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_aggressive', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_aggressive', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheck( 'aggressive' );
 		}
-		if ( $bRequestIsPermitted && $oFO->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
+		if ( $bRequestIsPermitted && $mod->isOpt( 'block_exe_file_uploads', 'Y' ) ) {
 			$bRequestIsPermitted = $this->doPassCheckBlockExeFileUploads();
 		}
 		return $bRequestIsPermitted;

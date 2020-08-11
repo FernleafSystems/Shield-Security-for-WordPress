@@ -36,22 +36,21 @@ class TrackLinkCheese extends Base {
 	}
 
 	private function isCheese() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
-		$oReq = Services::Request();
+		$con = $this->getCon();
+		$req = Services::Request();
 
 		$bIsCheese = false;
 		if ( Services::WpGeneral()->isPermalinksEnabled() ) {
 			preg_match(
-				sprintf( '#^%s-(%s)-([a-z0-9]{7,9})$#i', $oFO->prefix(), implode( '|', $this->getPossibleWords() ) ),
-				trim( $oReq->getPath(), '/' ),
+				sprintf( '#^%s-(%s)-([a-z0-9]{7,9})$#i', $con->prefix(), implode( '|', $this->getPossibleWords() ) ),
+				trim( $req->getPath(), '/' ),
 				$aMatches
 			);
 			$bIsCheese = isset( $aMatches[ 2 ] );
 		}
 		else {
 			foreach ( $this->getPossibleWords() as $sWord ) {
-				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $oReq->query( $oFO->prefix( $sWord ) ) ) ) {
+				if ( preg_match( '#^[a-z0-9]{7,9}$#i', $req->query( $con->prefix( $sWord ) ) ) ) {
 					$bIsCheese = true;
 					break;
 				}
@@ -74,17 +73,16 @@ class TrackLinkCheese extends Base {
 	 * @return string
 	 */
 	private function buildTrapHref() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oFO */
-		$oFO = $this->getMod();
+		$con = $this->getCon();
 
-		$oWp = Services::WpGeneral();
+		$oWP = Services::WpGeneral();
 		$sKey = substr( md5( wp_generate_password() ), 5, rand( 7, 9 ) );
 		$sWord = $this->getPossibleWords()[ rand( 1, count( $this->getPossibleWords() ) ) - 1 ];
-		if ( $oWp->isPermalinksEnabled() ) {
-			$sLink = $oWp->getHomeUrl( sprintf( '/%s-%s/', $oFO->prefix( $sWord ), $sKey ) );
+		if ( $oWP->isPermalinksEnabled() ) {
+			$sLink = $oWP->getHomeUrl( sprintf( '/%s-%s/', $con->prefix( $sWord ), $sKey ) );
 		}
 		else {
-			$sLink = add_query_arg( [ $oFO->prefix( $sWord ) => $sKey ], $oWp->getHomeUrl() );
+			$sLink = add_query_arg( [ $con->prefix( $sWord ) => $sKey ], $oWP->getHomeUrl() );
 		}
 		return $sLink;
 	}
