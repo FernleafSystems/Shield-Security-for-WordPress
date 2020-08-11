@@ -29,16 +29,11 @@ class BlacklistHandler {
 
 			add_action( 'init', [ $this, 'loadBotDetectors' ] ); // hook in the bot detection
 
-			if ( !$mod->isVisitorWhitelisted() && !$this->isRequestWhitelisted() && !$mod->isVerifiedBot() ) {
-
-				if ( $this->isDeferBlocklistHandling() ) {
-					add_action( 'init', function () {
-						$this->runBlocklistHandling();
-					}, 20 );
-				}
-				else {
+			if ( !$mod->isVisitorWhitelisted()
+				 && !$this->isRequestWhitelisted() && !$mod->isVerifiedBot() ) {
+				add_action( 'init', function () {
 					$this->runBlocklistHandling();
-				}
+				}, PHP_INT_MIN );
 			}
 		}
 	}
@@ -52,53 +47,46 @@ class BlacklistHandler {
 			->run();
 	}
 
-	/**
-	 * @return false
-	 */
-	private function isDeferBlocklistHandling() {
-		return false;
-	}
-
 	public function loadBotDetectors() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		/** @var IPs\Options $opts */
+		$opts = $mod->getOptions();
 
 		if ( !Services::WpUsers()->isUserLoggedIn() ) {
 
-			if ( !$oMod->isVerifiedBot() ) {
-				if ( $oOpts->isEnabledTrackXmlRpc() ) {
+			if ( !$mod->isVerifiedBot() ) {
+				if ( $opts->isEnabledTrackXmlRpc() ) {
 					( new IPs\BotTrack\TrackXmlRpc() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrack404() ) {
+				if ( $opts->isEnabledTrack404() ) {
 					( new IPs\BotTrack\Track404() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrackLoginFailed() ) {
+				if ( $opts->isEnabledTrackLoginFailed() ) {
 					( new IPs\BotTrack\TrackLoginFailed() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrackLoginInvalid() ) {
+				if ( $opts->isEnabledTrackLoginInvalid() ) {
 					( new IPs\BotTrack\TrackLoginInvalid() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
-				if ( $oOpts->isEnabledTrackFakeWebCrawler() ) {
+				if ( $opts->isEnabledTrackFakeWebCrawler() ) {
 					( new IPs\BotTrack\TrackFakeWebCrawler() )
-						->setMod( $oMod )
+						->setMod( $mod )
 						->run();
 				}
 			}
 
 			/** Always run link cheese regardless of the verified bot or not */
-			if ( $oOpts->isEnabledTrackLinkCheese() ) {
+			if ( $opts->isEnabledTrackLinkCheese() ) {
 				( new IPs\BotTrack\TrackLinkCheese() )
-					->setMod( $oMod )
+					->setMod( $mod )
 					->run();
 			}
 		}
