@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders;
 
 /**
- * Class WPMember
+ * Class WPMembers
  * @package FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\AntiBot\FormProviders
  * https://wordpress.org/plugins/wp-members/
  */
-class WPMember extends BaseFormProvider {
+class WPMembers extends BaseFormProvider {
 
 	protected function register() {
 		add_action( 'wpmem_pre_register_data', [ $this, 'checkRegister' ], 5, 0 );

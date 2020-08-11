@@ -85,7 +85,7 @@ class AntibotSetup {
 					$aFormProviders[] = new AntiBot\FormProviders\WooCommerce();
 				}
 				if ( defined( 'WPMEM_VERSION' ) && function_exists( 'wpmem_init' ) ) {
-					$aFormProviders[] = new AntiBot\FormProviders\WPMember();
+					$aFormProviders[] = new AntiBot\FormProviders\WPMembers();
 				}
 				if ( false && @class_exists( 'UserRegistration' ) && @function_exists( 'UR' ) ) {
 					$aFormProviders[] = new AntiBot\FormProviders\UserRegistration();
