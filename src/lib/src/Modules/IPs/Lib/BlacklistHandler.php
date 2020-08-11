@@ -31,20 +31,19 @@ class BlacklistHandler {
 
 			if ( !$mod->isVisitorWhitelisted()
 				 && !$this->isRequestWhitelisted() && !$mod->isVerifiedBot() ) {
+
+				// We setup offenses processing immediately but run the blocks on 'init
+				( new ProcessOffenses() )
+					->setMod( $this->getMod() )
+					->run();
 				add_action( 'init', function () {
-					$this->runBlocklistHandling();
+					( new BlockRequest() )
+						->setMod( $this->getMod() )
+						->run();
 				}, PHP_INT_MIN );
+
 			}
 		}
-	}
-
-	private function runBlocklistHandling() {
-		( new BlockRequest() )
-			->setMod( $this->getMod() )
-			->run();
-		( new BlackmarkRequest() )
-			->setMod( $this->getMod() )
-			->run();
 	}
 
 	public function loadBotDetectors() {

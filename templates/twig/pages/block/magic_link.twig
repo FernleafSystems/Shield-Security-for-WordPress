@@ -1,0 +1,28 @@
+<h3 style="text-align: center;">{{ strings.title|raw }}</h3>
+<ul>
+	{% for line in strings.lines %}
+		<li>{{ line }}</li>
+	{% endfor %}
+</ul>
+<p style="text-align: center;">{{ strings.your_ip }}: <strong>{{ vars.ip }}</strong></p>
+{% if flags.is_autorecover and flags.is_uau_permitted %}
+	<style>
+		p {
+			margin: 10px 0 !important;
+		}
+	</style>
+	<h5 style="margin: 40px 0 10px">{{ strings.unblock.title }}</h5>
+	<p>{{ strings.unblock.you_can }}</p>
+	<div style="width: 50%; margin: 20px; border: 1px solid rgba(0,0,0,0.1); padding: 20px 30px 10px;
+background-color: rgba(0,0,0,0.05);">
+		<form method="post" action="#">
+			{{ vars.gasp_element|raw }}
+			<input type="hidden" name="email" value="" />
+			<input type="hidden" name="ip" value="{{ vars.ip }}" />
+			{% for key,val in vars.nonce %}
+				<input type="hidden" name="{{ key }}" value="{{ val }}" />
+			{% endfor %}
+			<p><button type="submit">{{ strings.unblock.button }}</button></p>
+		</form>
+	</div>
+{% endif %}

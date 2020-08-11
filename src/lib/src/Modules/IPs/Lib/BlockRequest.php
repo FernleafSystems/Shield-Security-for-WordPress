@@ -83,7 +83,7 @@ class BlockRequest {
 					]
 				),
 				'email_unblock_element' => $mod->renderTemplate(
-					'snippets/gasp_js.php',
+					'/pages/block/magic_link.twig',
 					[
 						'sCbName'   => $oLoginMod->getGaspKey(),
 						'sLabel'    => $oLoginMod->getTextImAHuman(),
