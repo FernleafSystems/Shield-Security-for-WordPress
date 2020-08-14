@@ -1,5 +1,11 @@
-{% if flags.is_logged_in %}
-	asefasdf
-{% else %}
-	asef
-{% endif %}
+<div>
+	<p>{{ strings.you_may }}</p>
+	<ul>
+		<li>{{ strings.this_will_send }}</li>
+		<li>{{ strings.assumes_email }}</li>
+		<li>{{ strings.dont_receive }}</li>
+		<li>{{ strings.repeatedly }}</li>
+	</ul>
+	<p><a href="{{ hrefs.unblock }}">{{ strings.click_to_send }}</a>:
+		<code>{{ vars.email }}</code></p>
+</div>
