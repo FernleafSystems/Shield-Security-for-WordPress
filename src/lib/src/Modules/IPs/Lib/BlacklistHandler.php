@@ -40,7 +40,7 @@ class BlacklistHandler {
 					( new BlockRequest() )
 						->setMod( $this->getMod() )
 						->run();
-				}, PHP_INT_MIN );
+				}, -100000 );
 
 			}
 		}
