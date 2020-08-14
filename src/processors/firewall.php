@@ -30,7 +30,7 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 	public function run() {
 		if ( $this->getIfPerformFirewallScan() && $this->getIfDoFirewallBlock() ) {
 			// Hooked here to ensure "plugins_loaded" has completely finished as some mailers aren't init'd.
-			add_action( 'setup_theme', function () {
+			add_action( 'init', function () {
 				$this->doPreFirewallBlock();
 				$this->doFirewallBlock();
 			}, 0 );

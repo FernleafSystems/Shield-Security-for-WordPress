@@ -41,6 +41,8 @@ class BlockRequest {
 
 		$sUniqId = 'uau'.uniqid();
 
+		$oUser = Services::WpUsers()->getCurrentWpUser();
+
 		$sIP = Services::IP()->getRequestIp();
 		$nTimeRemaining = max( floor( $oOpts->getAutoExpireTime()/60 ), 0 );
 		$aData = [
@@ -65,12 +67,13 @@ class BlockRequest {
 					'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
 				],
 			],
-			'vars'    => [
-				'nonce'                 => $mod->getNonceActionData( 'uau' ),
-				'ip'                    => $sIP,
-				'gasp_element'          => $mod->renderTemplate(
-					'snippets/gasp_js.php',
+			'content' => [
+				'email_unblock' => $mod->renderTemplate(
+					'/pages/block/magic_link.twig',
 					[
+						'flags'     => [
+							'is_logged_in' => $oUser instanceof \WP_User
+						],
 						'sCbName'   => $oLoginMod->getGaspKey(),
 						'sLabel'    => $oLoginMod->getTextImAHuman(),
 						'sAlert'    => $oLoginMod->getTextPleaseCheckBox(),
@@ -81,9 +84,13 @@ class BlockRequest {
 							'loading' => __( 'Loading', 'wp-simple-firewall' )
 						]
 					]
-				),
-				'email_unblock_element' => $mod->renderTemplate(
-					'/pages/block/magic_link.twig',
+				)
+			],
+			'vars'    => [
+				'nonce'        => $mod->getNonceActionData( 'uau' ),
+				'ip'           => $sIP,
+				'gasp_element' => $mod->renderTemplate(
+					'snippets/gasp_js.php',
 					[
 						'sCbName'   => $oLoginMod->getGaspKey(),
 						'sLabel'    => $oLoginMod->getTextImAHuman(),
