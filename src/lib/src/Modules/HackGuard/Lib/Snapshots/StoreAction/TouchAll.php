@@ -7,8 +7,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class TouchAll extends BaseBulk {
 
-	/**
-	 */
 	public function run() {
 		foreach ( ( new FindAssetsToSnap() )->setMod( $this->getMod() )->run() as $oAsset ) {
 			try {

@@ -41,8 +41,6 @@ class ICWP_WPSF_Processor_UserManagement_Sessions extends Modules\BaseShield\Shi
 		$this->enforceSessionLimits( Services::WpUsers()->getUserById( $nUserId ) );
 	}
 
-	/**
-	 */
 	public function onWpLoaded() {
 		if ( Services::WpUsers()->isUserLoggedIn() && !Services::Rest()->isRest() ) {
 			$this->checkCurrentSession();

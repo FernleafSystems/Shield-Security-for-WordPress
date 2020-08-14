@@ -181,8 +181,6 @@ class ICWP_WPSF_FeatureHandler_Ips extends ICWP_WPSF_FeatureHandler_BaseWpsf {
 		parent::onPluginShutdown();
 	}
 
-	/**
-	 */
 	protected function addFilterIpsToWhiteList() {
 		$aIps = [];
 		$oSp = Services::ServiceProviders();

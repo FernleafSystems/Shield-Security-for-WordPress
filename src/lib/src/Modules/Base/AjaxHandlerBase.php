@@ -13,8 +13,6 @@ class AjaxHandlerBase {
 		add_action( 'wp_loaded', [ $this, 'init' ] );
 	}
 
-	/**
-	 */
 	public function init() {
 		add_filter( $this->getCon()->prefix( 'ajaxAuthAction' ), [ $this, 'handleAjaxAuth' ], 10, 2 );
 		add_filter( $this->getCon()->prefix( 'ajaxNonAuthAction' ), [ $this, 'handleAjaxNonAuth' ], 10, 2 );

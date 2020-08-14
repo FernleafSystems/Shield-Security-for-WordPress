@@ -99,7 +99,9 @@ class AutoUnblock {
 			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
 				throw new \Exception( 'Nonce failed' );
 			}
-			$userLogin = explode( '-', $req->query( 'exec' ), 2 )[ 1 ];
+
+			$linkParts = explode( '-', $req->query( 'exec' ), 3 );
+			$userLogin = $linkParts[ 2 ];
 			if ( empty( $userLogin ) ) {
 				throw new \Exception( 'User not provided in request.' );
 			}
@@ -112,18 +114,29 @@ class AutoUnblock {
 				throw new \Exception( 'Users do not match.' );
 			}
 
-			$sIP = Services::IP()->getRequestIp();
-			if ( $req->query( 'ip' ) != $sIP ) {
+			if ( $req->query( 'ip' ) !== Services::IP()->getRequestIp() ) {
 				throw new \Exception( 'IP does not match' );
 			}
 
-			( new IPs\Lib\Ops\DeleteIp() )
-				->setDbHandler( $mod->getDbHandler_IPs() )
-				->setIP( $sIP )
-				->fromBlacklist();
-			$unblocked = true;
+			if ( $linkParts[ 1 ] === 'init' ) {
+				// send email
+			}
+			elseif ( $linkParts[ 1 ] === 'go' ) {
+				( new IPs\Lib\Ops\DeleteIp() )
+					->setDbHandler( $mod->getDbHandler_IPs() )
+					->setIP( Services::IP()->getRequestIp() )
+					->fromBlacklist();
+				$unblocked = true;
+			}
+			else {
+				throw new \Exception( 'Not a supported UAUM action.' );
+			}
 		}
 
 		return $unblocked;
+	}
+
+	private function sendMagicLinkEmail() {
+		
 	}
 }

@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_CommentsFilter extends Modules\BaseShield\ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 	}
 

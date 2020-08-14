@@ -13,8 +13,6 @@ class ICWP_WPSF_Processor_HackProtect_Wpv extends ICWP_WPSF_Processor_ScanBase {
 	 */
 	private $nColumnsCount;
 
-	/**
-	 */
 	public function run() {
 		parent::run();
 

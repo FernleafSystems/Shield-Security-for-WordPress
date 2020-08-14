@@ -247,8 +247,6 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		return '/'.$sTerm.'/i';
 	}
 
-	/**
-	 */
 	private function doPreFirewallBlock() {
 		/** @var ICWP_WPSF_FeatureHandler_Firewall $oMod */
 		$oMod = $this->getMod();
@@ -265,8 +263,6 @@ class ICWP_WPSF_Processor_Firewall extends Modules\BaseShield\ShieldProcessor {
 		$this->getCon()->fireEvent( 'firewall_block' );
 	}
 
-	/**
-	 */
 	private function doFirewallBlock() {
 		/** @var \ICWP_WPSF_FeatureHandler_Firewall $oMod */
 		$oMod = $this->getMod();

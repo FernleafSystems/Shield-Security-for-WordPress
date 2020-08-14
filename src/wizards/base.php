@@ -16,8 +16,6 @@ abstract class ICWP_WPSF_Wizard_Base {
 	 */
 	private $sCurrentWizard;
 
-	/**
-	 */
 	public function init() {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ], 0 );
 	}

@@ -56,8 +56,6 @@ class Options {
 	 */
 	protected $sPathToConfig;
 
-	/**
-	 */
 	public function __construct() {
 	}
 

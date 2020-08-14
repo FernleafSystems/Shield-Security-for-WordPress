@@ -128,8 +128,6 @@ class ICWP_WPSF_FeatureHandler_LoginProtect extends ICWP_WPSF_FeatureHandler_Bas
 					->sendEmailWithWrap( $sEmail, $sEmailSubject, $aMessage );
 	}
 
-	/**
-	 */
 	private function cleanLoginUrlPath() {
 		$sCustomLoginPath = $this->getCustomLoginPath();
 		if ( !empty( $sCustomLoginPath ) ) {

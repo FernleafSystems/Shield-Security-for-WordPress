@@ -11,8 +11,6 @@ class LoginIntentPage {
 
 	use MfaControllerConsumer;
 
-	/**
-	 */
 	public function loadPage() {
 		echo $this->renderPage();
 	}

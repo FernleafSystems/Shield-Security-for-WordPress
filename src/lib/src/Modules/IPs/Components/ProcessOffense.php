@@ -16,8 +16,6 @@ class ProcessOffense {
 	use Shield\Modules\ModConsumer;
 	use IpAddressConsumer;
 
-	/**
-	 */
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();

@@ -120,8 +120,6 @@ var iCWP_WPSF_OptionsFormSubmit = new function () {
 		aAjaxReqParams = aParams;
 	};
 
-	/**
-	 */
 	var submitOptionsForm = function ( event ) {
 		iCWP_WPSF_BodyOverlay.show();
 
@@ -229,8 +227,6 @@ if ( typeof icwp_wpsf_vars_secadmin !== 'undefined' && icwp_wpsf_vars_secadmin.t
 		var bWarningShown = false;
 		var nIntervalTimeout = 500 * icwp_wpsf_vars_secadmin.timeleft;
 
-		/**
-		 */
 		var checkSecAdmin = function () {
 
 			bCheckInPlace = false;

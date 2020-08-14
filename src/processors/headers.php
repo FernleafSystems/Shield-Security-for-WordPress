@@ -15,8 +15,6 @@ class ICWP_WPSF_Processor_Headers extends Modules\BaseShield\ShieldProcessor {
 	 */
 	private $aHeaders;
 
-	/**
-	 */
 	public function run() {
 		if ( $this->getPushHeadersEarly() ) {
 			$this->sendHeaders();

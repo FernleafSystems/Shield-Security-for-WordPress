@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProcessor {
 
-	/**
-	 */
 	public function run() {
 		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
 		$oMod = $this->getMod();
@@ -48,8 +46,6 @@ class ICWP_WPSF_Processor_UserManagement extends Modules\BaseShield\ShieldProces
 			->run();
 	}
 
-	/**
-	 */
 	public function onWpInit() {
 		parent::onWpInit();
 

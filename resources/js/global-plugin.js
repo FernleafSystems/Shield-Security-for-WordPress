@@ -305,8 +305,6 @@ var iCWP_WPSF_Growl = new function () {
 		}, 4000 );
 	};
 
-	/**
-	 */
 	var createDynDiv = function ( sClass ) {
 		var $oDiv = jQuery( '<div />' ).appendTo( 'body' );
 		$oDiv.attr( 'id', 'icwp-growl-notice' + Math.floor( (Math.random() * 100) + 1 ) );

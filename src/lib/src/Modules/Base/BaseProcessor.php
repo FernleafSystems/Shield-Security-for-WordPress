@@ -108,8 +108,6 @@ class BaseProcessor {
 	public function onModuleShutdown() {
 	}
 
-	/**
-	 */
 	public function init() {
 	}
 
@@ -175,8 +173,6 @@ class BaseProcessor {
 		return [];
 	}
 
-	/**
-	 */
 	public function deactivatePlugin() {
 	}
 

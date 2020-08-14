@@ -305,8 +305,6 @@ class BaseModCon {
 		return $bMeetsReqs;
 	}
 
-	/**
-	 */
 	public function onRunProcessors() {
 		if ( $this->isUpgrading() ) {
 			$this->updateHandler();
@@ -354,8 +352,6 @@ class BaseModCon {
 		add_action( 'load-'.$page_hook, [ $this, 'onLoadOptionsScreen' ] );
 	}
 
-	/**
-	 */
 	public function onLoadOptionsScreen() {
 		if ( $this->getCon()->isValidAdminArea() ) {
 			$this->buildContextualHelp();
@@ -1109,8 +1105,6 @@ class BaseModCon {
 	protected function doPrePluginOptionsSave() {
 	}
 
-	/**
-	 */
 	public function onPluginDeactivate() {
 	}
 
@@ -1135,8 +1129,6 @@ class BaseModCon {
 		return $aOpts;
 	}
 
-	/**
-	 */
 	public function handleModRequest() {
 	}
 
@@ -1256,8 +1248,6 @@ class BaseModCon {
 		}
 	}
 
-	/**
-	 */
 	protected function runWizards() {
 		if ( $this->isWizardPage() && $this->hasWizard() ) {
 			$oWiz = $this->getWizardHandler();

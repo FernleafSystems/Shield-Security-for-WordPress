@@ -10,8 +10,6 @@ class ApplyLabels {
 
 	use ModConsumer;
 
-	/**
-	 */
 	public function run() {
 		$oCon = $this->getCon();
 		add_action( 'init', [ $this, 'onWpInit' ] );
