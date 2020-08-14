@@ -372,6 +372,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 **Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
+#### 9.2 Series
+
+* **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
+* **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.
+
 #### 9.1 Series
 *Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
 
