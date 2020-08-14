@@ -124,7 +124,7 @@ class BlockRequest {
 						'hrefs'   => [
 							'unblock' => add_query_arg(
 								array_merge(
-									$mod->getNonceActionData( 'uaum-init-'.$user->user_login ),
+									$mod->getNonceActionData( 'uaum-init-'.substr( sha1( $user->user_login ), 0, 6 ) ),
 									[
 										'ip' => Services::IP()->getRequestIp()
 									]
