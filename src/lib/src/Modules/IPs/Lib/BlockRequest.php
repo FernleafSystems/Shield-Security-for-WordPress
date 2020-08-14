@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\ModConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 
 class BlockRequest {
 
@@ -122,12 +123,17 @@ class BlockRequest {
 						],
 						'hrefs'   => [
 							'unblock' => add_query_arg(
-								$mod->getNonceActionData( 'uaum-'.$user->user_login ),
+								array_merge(
+									$mod->getNonceActionData( 'uaum-init-'.$user->user_login ),
+									[
+										'ip' => Services::IP()->getRequestIp()
+									]
+								),
 								Services::WpGeneral()->getHomeUrl()
 							)
 						],
 						'vars'    => [
-							'email' => $user->user_email
+							'email' => Obfuscate::Email( $user->user_email )
 						],
 						'strings' => [
 							'you_may'        => __( 'You may automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
