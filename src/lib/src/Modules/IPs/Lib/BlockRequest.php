@@ -111,11 +111,11 @@ class BlockRequest {
 		$content = '';
 
 		$user = Services::WpUsers()->getCurrentWpUser();
-		if ( $user instanceof \WP_User ) {
-			$bCanMagicLink = $opts->isEnabledMagicEmailLinkRecover()
-							 && apply_filters( $con->prefix( 'can_user_magic_link' ), true );
+		if ( $user instanceof \WP_User &&
+			 $opts->isEnabledMagicEmailLinkRecover()
+			 && $opts->getCanRequestAutoUnblockEmailLink( $user ) ) {
 
-			if ( $bCanMagicLink ) {
+			if ( apply_filters( $con->prefix( 'can_user_magic_link' ), true ) ) {
 				$content = $mod->renderTemplate(
 					'/pages/block/magic_link.twig',
 					[

@@ -20,6 +20,7 @@ class AutoUnblock {
 						  || $this->processUserMagicLink();
 		}
 		catch ( \Exception $oE ) {
+			var_dump( $oE->getMessage() );
 			$bUnblocked = false;
 		}
 		return $bUnblocked;
@@ -66,7 +67,13 @@ class AutoUnblock {
 			{
 				$aExistingIps = $oOpts->getAutoUnblockIps();
 				$aExistingIps[ $sIP ] = Services::Request()->ts();
-				$oOpts->setOpt( 'autounblock_ips', $aExistingIps );
+				$oOpts->setOpt( 'autounblock_ips',
+					array_filter( $aExistingIps, function ( $nTS ) {
+						return Services::Request()
+									   ->carbon()
+									   ->subDays( 1 )->timestamp < $nTS;
+					} )
+				);
 			}
 
 			( new IPs\Lib\Ops\DeleteIp() )
@@ -86,13 +93,13 @@ class AutoUnblock {
 	private function processUserMagicLink() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
 		$mod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var IPs\Options $opts */
+		$opts = $this->getOptions();
 		$req = Services::Request();
 
 		$unblocked = false;
 
-		if ( $oOpts->isEnabledMagicEmailLinkRecover()
+		if ( $opts->isEnabledMagicEmailLinkRecover()
 			 && $req->query( 'action' ) == $mod->prefix()
 			 && strpos( $req->query( 'exec' ), 'uaum-' ) === 0 ) {
 
@@ -115,11 +122,27 @@ class AutoUnblock {
 			}
 
 			if ( $req->query( 'ip' ) !== Services::IP()->getRequestIp() ) {
-				throw new \Exception( 'IP does not match' );
+				throw new \Exception( 'IP does not match.' );
 			}
 
 			if ( $linkParts[ 1 ] === 'init' ) {
-				// send email
+				if ( !$opts->getCanRequestAutoUnblockEmailLink( $user ) ) {
+					throw new \Exception( 'User already processed recently.' );
+				}
+
+				$this->sendMagicLinkEmail();
+				{
+					$existing = $opts->getAutoUnblockEmailIDs();
+					$existing[ $user->ID ] = Services::Request()->ts();
+					$opts->setOpt( 'autounblock_emailids',
+						array_filter( $existing, function ( $nTS ) {
+							return Services::Request()
+										   ->carbon()
+										   ->subHours( 1 )->timestamp < $nTS;
+						} )
+					);
+				}
+				wp_die( 'Email sent.' );
 			}
 			elseif ( $linkParts[ 1 ] === 'go' ) {
 				( new IPs\Lib\Ops\DeleteIp() )
@@ -136,7 +159,40 @@ class AutoUnblock {
 		return $unblocked;
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	private function sendMagicLinkEmail() {
-		
+		/** @var \ICWP_WPSF_FeatureHandler_Ips $mod */
+		$mod = $this->getMod();
+		$user = Services::WpUsers()->getCurrentWpUser();
+
+		$mod->getEmailProcessor()
+			->sendEmailWithTemplate(
+				'/email/uaum_init',
+				$user->user_email,
+				__( 'Two-Factor Login Verification', 'wp-simple-firewall' ),
+				[
+					'flags'   => [
+						'show_login_link' => !$this->getCon()->isRelabelled()
+					],
+					'vars'    => [
+					],
+					'hrefs'   => [
+						'unblock' => add_query_arg(
+							array_merge(
+								$mod->getNonceActionData( 'uaum-go-'.$user->user_login ),
+								[
+									'ip' => Services::IP()->getRequestIp()
+								]
+							),
+							Services::WpGeneral()->getHomeUrl()
+						)
+					],
+					'strings' => [
+
+					]
+				]
+			);
 	}
 }

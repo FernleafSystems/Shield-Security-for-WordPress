@@ -467,6 +467,13 @@
       "transferable": false,
       "type":         "array",
       "default":      []
+    },
+    {
+      "key":          "autounblock_emailids",
+      "section":      "section_non_ui",
+      "transferable": false,
+      "type":         "array",
+      "default":      []
     }
   ],
   "definitions":   {

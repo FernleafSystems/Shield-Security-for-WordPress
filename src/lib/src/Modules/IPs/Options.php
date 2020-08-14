@@ -23,6 +23,14 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getAutoUnblockEmailIDs() {
+		$aIps = $this->getOpt( 'autounblock_emailids', [] );
+		return is_array( $aIps ) ? $aIps : [];
+	}
+
+	/**
 	 * @param string $sIp
 	 * @return bool
 	 */
@@ -30,6 +38,16 @@ class Options extends Base\ShieldOptions {
 		$aExistingIps = $this->getAutoUnblockIps();
 		return !array_key_exists( $sIp, $aExistingIps )
 			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $aExistingIps[ $sIp ] );
+	}
+
+	/**
+	 * @param \WP_User $user
+	 * @return bool
+	 */
+	public function getCanRequestAutoUnblockEmailLink( \WP_User $user ) {
+		$existing = $this->getAutoUnblockEmailIDs();
+		return !array_key_exists( $user->ID, $existing )
+			   || ( Services::Request()->carbon()->subHour( 1 )->timestamp > $existing[ $user->ID ] );
 	}
 
 	/**
