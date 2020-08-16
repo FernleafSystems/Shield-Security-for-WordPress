@@ -20,7 +20,6 @@ class AutoUnblock {
 						  || $this->processUserMagicLink();
 		}
 		catch ( \Exception $oE ) {
-			var_dump( $oE->getMessage() );
 			$bUnblocked = false;
 		}
 		return $bUnblocked;
