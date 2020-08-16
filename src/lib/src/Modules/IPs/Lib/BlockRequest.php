@@ -12,24 +12,37 @@ class BlockRequest {
 	use ModConsumer;
 
 	public function run() {
-		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
-		$oMod = $this->getMod();
+		if ( $this->isBlocked() ) {
 
-		$bIpBlocked = ( new IPs\Components\QueryIpBlock() )
-						  ->setMod( $oMod )
-						  ->setIp( Services::IP()->getRequestIp() )
-						  ->run()
-					  &&
-					  !( new AutoUnblock() )
-						  ->setMod( $this->getMod() )
-						  ->run();
+			if ( $this->isAutoUnBlocked() ) {
+				// TODO: flash message
+				Services::Response()->redirectToAdmin();
+			}
 
-		if ( $bIpBlocked ) {
 			// don't log killed requests
 			add_filter( $this->getCon()->prefix( 'is_log_traffic' ), '__return_false' );
 			$this->getCon()->fireEvent( 'conn_kill' );
 			$this->renderKillPage();
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isBlocked() {
+		return ( new IPs\Components\QueryIpBlock() )
+			->setMod( $this->getMod() )
+			->setIp( Services::IP()->getRequestIp() )
+			->run();
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isAutoUnBlocked() {
+		return ( new AutoUnblock() )
+			->setMod( $this->getMod() )
+			->run();
 	}
 
 	private function renderKillPage() {
