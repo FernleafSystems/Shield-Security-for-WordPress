@@ -505,7 +505,8 @@ class Controller {
 	 */
 	public function onWpAdminBarMenu( $oAdminBar ) {
 		$bShow = apply_filters( $this->prefix( 'show_admin_bar_menu' ),
-			$this->isValidAdminArea() && (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
+			$this->isValidAdminArea( true )
+			&& (bool)$this->getPluginSpec_Property( 'show_admin_bar_menu' )
 		);
 		if ( $bShow ) {
 			$aMenuItems = apply_filters( $this->prefix( 'admin_bar_menu_items' ), [] );
