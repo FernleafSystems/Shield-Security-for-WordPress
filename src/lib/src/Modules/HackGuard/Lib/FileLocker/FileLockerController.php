@@ -123,15 +123,15 @@ class FileLockerController {
 	}
 
 	public function deleteAllLocks() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->getDbHandler_FileLocker()->tableDelete( true );
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		$mod->getDbHandler_FileLocker()->tableDelete( true );
 	}
 
 	public function purge() {
-		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
-		$oMod = $this->getMod();
-		$oMod->getDbHandler_FileLocker()->tableDelete();
+		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $mod */
+		$mod = $this->getMod();
+		$mod->getDbHandler_FileLocker()->tableDelete();
 	}
 
 	/**

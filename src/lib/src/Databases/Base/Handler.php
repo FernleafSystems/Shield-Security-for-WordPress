@@ -32,12 +32,6 @@ class Handler {
 
 	/**
 	 * @var bool
-	 * @deprecated 9.0.4
-	 */
-	private $bTableExist;
-
-	/**
-	 * @var bool
 	 */
 	private $bIsReady;
 
@@ -180,7 +174,7 @@ class Handler {
 		}
 		$oDB = Services::WpDb();
 		$sSql = sprintf( $sSql, $this->getTable(), $oDB->getCharCollate() );
-		$this->isTable() ? $oDB->dbDelta( $sSql ) : $oDB->doSql( $sSql );
+		$this->tableExists() ? $oDB->dbDelta( $sSql ) : $oDB->doSql( $sSql );
 		return $this;
 	}
 
@@ -191,7 +185,7 @@ class Handler {
 	public function tableDelete( $bTruncate = false ) {
 		$table = $this->getTable();
 		$oDB = Services::WpDb();
-		$mResult = !$this->isTable() ||
+		$mResult = !$this->tableExists() ||
 				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
 		$this->reset();
 		return $mResult !== false;
@@ -214,7 +208,7 @@ class Handler {
 			$this->tableCreate();
 
 			if ( !$this->isReady( true ) ) {
-				$this->deleteTable();
+				$this->tableDelete();
 				$this->tableCreate();
 			}
 		}
@@ -246,7 +240,7 @@ class Handler {
 
 		if ( !isset( $this->bIsReady ) ) {
 			try {
-				$this->bIsReady = $this->isTable() && $this->verifyTableStructure();
+				$this->bIsReady = $this->tableExists() && $this->verifyTableStructure();
 			}
 			catch ( \Exception $e ) {
 				$this->bIsReady = false;
@@ -368,28 +362,6 @@ class Handler {
 	}
 
 	/**
-	 * @return bool
-	 * @deprecated 9.0.4
-	 */
-	public function isTable() {
-		return Services::WpDb()->getIfTableExists( $this->getTable() );
-	}
-
-	/**
-	 * @param bool $bTruncate
-	 * @return bool
-	 * @deprecated 9.0.4
-	 */
-	public function deleteTable( $bTruncate = false ) {
-		$table = $this->getTable();
-		$oDB = Services::WpDb();
-		$mResult = !$this->isTable() ||
-				   ( $bTruncate ? $oDB->doTruncateTable( $table ) : $oDB->doDropTable( $table ) );
-		$this->reset();
-		return $mResult !== false;
-	}
-
-	/**
 	 * @return string[]
 	 */
 	protected function getColumn_ID() {
@@ -413,5 +385,22 @@ class Handler {
 	 */
 	protected function getPrimaryKeySpec() {
 		return 'PRIMARY KEY  (id)';
+	}
+
+	/**
+	 * @param bool $bTruncate
+	 * @return bool
+	 * @deprecated 9.0.4
+	 */
+	public function deleteTable( $bTruncate = false ) {
+		return $this->tableDelete( $bTruncate );
+	}
+
+	/**
+	 * @return bool
+	 * @deprecated 9.0.4
+	 */
+	public function isTable() {
+		return $this->tableExists();
 	}
 }

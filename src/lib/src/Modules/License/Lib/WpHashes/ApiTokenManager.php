@@ -65,14 +65,6 @@ class ApiTokenManager {
 	}
 
 	/**
-	 * @return string
-	 * @deprecated 9.0.3
-	 */
-	private function getTheToken() {
-		return $this->loadToken()[ 'token' ];
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function hasToken() {

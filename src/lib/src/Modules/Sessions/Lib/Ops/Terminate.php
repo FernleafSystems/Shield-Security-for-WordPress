@@ -13,10 +13,9 @@ class Terminate {
 	 * @return bool
 	 */
 	public function all() {
-		/** @var \ICWP_WPSF_FeatureHandler_Sessions $oMod */
-		$oMod = $this->getMod();
-		return $oMod->getDbHandler_Sessions()
-					->deleteTable( true );
+		/** @var \ICWP_WPSF_FeatureHandler_Sessions $mod */
+		$mod = $this->getMod();
+		return $mod->getDbHandler_Sessions()->tableDelete( true );
 	}
 
 	/**

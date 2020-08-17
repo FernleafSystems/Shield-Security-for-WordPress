@@ -49,11 +49,6 @@ class Controller {
 	/**
 	 * @var string
 	 */
-	protected $sForceOffFile;
-
-	/**
-	 * @var string
-	 */
 	private $sPluginBaseFile;
 
 	/**
@@ -1645,14 +1640,6 @@ class Controller {
 		return self::$oControllerOptions;
 	}
 
-	/**
-	 * @deprecated 9.0.4
-	 */
-	protected function deletePluginControllerOptions() {
-		$this->setPluginControllerOptions( false );
-		$this->saveCurrentPluginControllerOptions();
-	}
-
 	protected function deleteCronJobs() {
 		$oWpCron = Services::WpCron();
 		$aCrons = $oWpCron->getCrons();
@@ -1747,7 +1734,6 @@ class Controller {
 	public function deleteForceOffFile() {
 		if ( $this->getIfForceOffActive() ) {
 			Services::WpFs()->deleteFile( $this->getForceOffFilePath() );
-			$this->sForceOffFile = null;
 			unset( $this->file_forceoff );
 			clearstatcache();
 		}
@@ -1765,13 +1751,12 @@ class Controller {
 	 * @return null|string
 	 */
 	protected function getForceOffFilePath() {
-		if ( !isset( $this->sForceOffFile ) ) {
-			$oFs = Services::WpFs();
-			$sFile = $oFs->findFileInDir( 'forceOff', $this->getRootDir(), false, false );
-			$this->sForceOffFile = ( !empty( $sFile ) && $oFs->isFile( $sFile ) ) ? $sFile : false;
-			$this->file_forceoff = $this->sForceOffFile;
+		if ( !isset( $this->file_forceoff ) ) {
+			$FS = Services::WpFs();
+			$sFile = $FS->findFileInDir( 'forceoff', $this->getRootDir(), false, false );
+			$this->file_forceoff = ( !empty( $sFile ) && $FS->isFile( $sFile ) ) ? $sFile : false;
 		}
-		return $this->sForceOffFile;
+		return $this->file_forceoff;
 	}
 
 	/**
@@ -1780,7 +1765,11 @@ class Controller {
 	 */
 	public function getSessionId( $bSetIfNeeded = true ) {
 		if ( empty( self::$sSessionId ) ) {
-			self::$sSessionId = Services::Request()->cookie( $this->getPluginPrefix(), '' );
+			$req = Services::Request();
+			self::$sSessionId = $req->cookie( 'wp-'.$this->getPluginPrefix(), '' );
+			if ( empty( self::$sSessionId ) ) { /* the old cookie name */
+				self::$sSessionId = $req->cookie( $this->getPluginPrefix(), '' );
+			}
 			if ( empty( self::$sSessionId ) && $bSetIfNeeded ) {
 				self::$sSessionId = md5( uniqid( $this->getPluginPrefix() ) );
 				$this->setSessionCookie();
@@ -1819,7 +1808,7 @@ class Controller {
 
 	protected function setSessionCookie() {
 		Services::Response()->cookieSet(
-			$this->getPluginPrefix(),
+			'wp-'.$this->getPluginPrefix(),
 			$this->getSessionId(),
 			Services::Request()->ts() + DAY_IN_SECONDS*30,
 			Services::WpGeneral()->getCookiePath(),

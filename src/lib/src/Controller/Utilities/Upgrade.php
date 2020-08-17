@@ -13,10 +13,10 @@ class Upgrade {
 		$oCon = $this->getCon();
 
 		if ( $oCon->getPreviousVersion() !== $oCon->getVersion() ) {
-			foreach ( $oCon->modules as $oMod ) {
-				$oH = $oMod->getUpgradeHandler();
-				if ( $oH instanceof Shield\Modules\Base\Upgrade ) {
-					$oH->setMod( $oMod )->execute();
+			foreach ( $oCon->modules as $mod ) {
+				$H = $mod->getUpgradeHandler();
+				if ( $H instanceof Shield\Modules\Base\Upgrade ) {
+					$H->setMod( $mod )->execute();
 				}
 			}
 		}
