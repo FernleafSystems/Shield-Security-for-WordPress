@@ -153,7 +153,8 @@ class BlockRequest {
 							'this_will_send' => __( 'Clicking the link will send you an email letting you unblock your IP address.', 'wp-simple-firewall' ),
 							'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - most are not.', 'wp-simple-firewall' ),
 							'dont_receive'   => __( "If you don't receive the email, check your spam and contact your site admin.", 'wp-simple-firewall' ),
-							'repeatedly'     => __( 'Repeatedly clicking the link wont make a difference.', 'wp-simple-firewall' ),
+							'limit_60'       => __( "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the audit trail to determine the cause.", 'wp-simple-firewall' ),
+							'same_browser'   => __( "When you click the link from your email, it must open up in this web browser.", 'wp-simple-firewall' ),
 							'click_to_send'  => __( 'Send Auto-Unblock Link To My Email', 'wp-simple-firewall' )
 						],
 					]

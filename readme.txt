@@ -374,9 +374,11 @@ You will always be able to use Shield Security and its free features in-full.
 
 #### 9.2 Series
 
+* **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
 * **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
 * **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.
 * **(.0)  IMPROVED**:	Use WP Fastest Cache method to prevent caching of block pages. Whether it makes a difference is another thing.
+* **(.0)  CHANGED**:	Session cookie renamed from `icwp-wpsf` to `wp-icwp-wpsf` because some plugins feel a cookie is only important if it begins with `wp-`.
 
 #### 9.1 Series
 *Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
