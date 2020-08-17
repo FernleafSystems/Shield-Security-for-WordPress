@@ -376,6 +376,7 @@ You will always be able to use Shield Security and its free features in-full.
 
 * **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
 * **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.
+* **(.0)  IMPROVED**:	Use WP Fastest Cache method to prevent caching of block pages. Whether it makes a difference is another thing.
 
 #### 9.1 Series
 *Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
