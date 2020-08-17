@@ -16,11 +16,17 @@ class AutoUnblock {
 	 */
 	public function run() {
 		try {
-			$bUnblocked = $this->processAutoUnblockRequest()
-						  || $this->processUserMagicLink();
+			$bUnblocked = $this->processAutoUnblockRequest();
 		}
 		catch ( \Exception $oE ) {
 			$bUnblocked = false;
+		}
+		if ( !$bUnblocked ) {
+			try {
+				$bUnblocked = $this->processUserMagicLink();
+			}
+			catch ( \Exception $oE ) {
+			}
 		}
 		return $bUnblocked;
 	}
