@@ -216,7 +216,7 @@ protection for your site and you should choose which you need based on your own 
 Why do we do this? It's simple: performance and optimization - there is no reason to automatically turn on features for people that don't
 need it as each site and set of requirements is different.
 
-This plugin should install as any other WordPress.org respository plugin.
+This plugin should install as any other WordPress.org repository plugin.
 
 1.	Browse to Plugins -> Add Plugin
 1.	Search: Shield
@@ -368,34 +368,17 @@ You'll also have access to our email technical support team.
 
 You will always be able to use Shield Security and its free features in-full.
 
-[Go Pro for just $1/month](https://shsec.io/aa).
-
-**Important**: The 9.0 Series is the last major version to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
+[Go Pro from just $1/month](https://shsec.io/aa).
 
 #### 9.2 Series
+*Released: 24th August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
+
+**Important**: 9.2 is the last major release to support PHP 5.x. Shield 10+ will require a minimum of PHP 7.0.
 
 * **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
 * **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
 * **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.
 * **(.0)  IMPROVED**:	Use WP Fastest Cache method to prevent caching of block pages. Whether it makes a difference is another thing.
-* **(.0)  CHANGED**:	Session cookie renamed from `icwp-wpsf` to `wp-icwp-wpsf` because some plugins feel a cookie is only important if it begins with `wp-`.
-
-#### 9.1 Series
-*Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
-
-##### [Please review the full Shield 9.1 Upgrade Guide here](https://shsec.io/shieldupgradeguide91).
-
-* **(.0)  NEW**:		[*PRO*] [WP-CLI](https://shsec.io/hw) Support for WP-CLI (beta).
-* **(.0)  NEW**:		[*PRO*] [U2F Login](https://shsec.io/hv) - Support for registration and use of U2F keys for 2-factor authentication.
-* **(.0)  NEW**:		[*PRO*] [Custom Email Templates](https://shsec.io/hy) - Support for custom email templates, starting with 2FA.
-* **(.0)  NEW**:		[*PRO*] [Affiliate Rewards](https://shsec.io/hz) - We now offer affiliate rewards with ShieldPRO.
-* **(.0)  IMPROVED**:	WP-Config File Locker protection now correctly display the file diff for empty lines.
-* **(.0)  IMPROVED**:	2-Factor Authentication "Remember Me" now uses the visitor IP address as a factor.
-* **(.0)  IMPROVED**:	Restored the option search but turned it into a modal dialog.
-* **(.0)  IMPROVED**:	Plugin upgrade handling.
-* **(.0)  CHANGED**:	To avoid confusion, "Security Admin Key" has been renamed to "Security Admin PIN" throughout.
-* **(.0)  FIXED**:		Adding IPv6 address ranges didn't work in all cases.
-* **(.0)  FIXED**:		Errors while trying to access an uninitialised database.
-* **(.0)  FIXED**:		Upgrade Carbon PHP library to latest available (v1.39).
+* **(.0)  CHANGED**:	Session cookie renamed from `icwp-wpsf` to `wp-icwp-wpsf` because some plugin devs feel a cookie is only important if it begins with `wp-`.
 
 ##### [Entire Shield Security Changelog](https://shsec.io/shieldwporgfullchangelog)
