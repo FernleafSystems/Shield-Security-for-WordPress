@@ -152,7 +152,7 @@
       "link_blog":     "",
       "name":          "Auto Update Plugin",
       "summary":       "Always Automatically Update This Plugin",
-      "description":   "Regardless of any other settings, automatically update the "Shield" plugin. The plugin will normally automatically update after approximately 2 days, if left to decide."
+      "description":   "Regardless of any other settings, automatically update the Shield plugin."
     },
     {
       "key":         "enable_upgrade_notification_email",

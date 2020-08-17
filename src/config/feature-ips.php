@@ -21,7 +21,7 @@
       "id":               "visitor-whitelisted",
       "schedule":         "conditions",
       "plugin_page_only": true,
-      "per_user": true,
+      "per_user":         true,
       "type":             "info"
     }
   },
@@ -186,16 +186,16 @@
       "description":   "Allow visitors blocked by the plugin to automatically unblock themselves."
     },
     {
-      "key":           "request_whitelist",
-      "section":       "section_auto_black_list",
-      "premium":       true,
-      "default":       [],
-      "type":          "array",
-      "link_info":     "https://shsec.io/gd",
-      "link_blog":     "",
-      "name":          "Request Path Whitelist",
-      "summary":       "Request Path Whitelist",
-      "description":   "Request Path Whitelist."
+      "key":         "request_whitelist",
+      "section":     "section_auto_black_list",
+      "premium":     true,
+      "default":     [],
+      "type":        "array",
+      "link_info":   "https://shsec.io/gd",
+      "link_blog":   "",
+      "name":        "Request Path Whitelist",
+      "summary":     "Request Path Whitelist",
+      "description": "Request Path Whitelist."
     },
     {
       "key":         "text_loginfailed",
@@ -317,7 +317,6 @@
       "section":       "section_logins",
       "default":       "transgression-single",
       "type":          "select",
-      "default":       "log",
       "value_options": [
         {
           "value_key": "disabled",
@@ -477,7 +476,7 @@
     }
   ],
   "definitions":   {
-    "db_classes":             {
+    "db_classes":            {
       "ips": "\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Databases\\IPs\\Handler"
     },
     "ip_lists_table_name":   "ip_lists",
