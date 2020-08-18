@@ -38,13 +38,13 @@ class AutoUnblock {
 	private function processAutoUnblockRequest() {
 		/** @var \ICWP_WPSF_FeatureHandler_Ips $oMod */
 		$oMod = $this->getMod();
-		/** @var IPs\Options $oOpts */
-		$oOpts = $oMod->getOptions();
+		/** @var IPs\Options $opts */
+		$opts = $oMod->getOptions();
 		$req = Services::Request();
 
 		$unblocked = false;
 
-		if ( $oOpts->isEnabledAutoVisitorRecover() && $req->isPost()
+		if ( $opts->isEnabledAutoVisitorRecover() && $req->isPost()
 			 && $req->request( 'action' ) == $oMod->prefix() && $req->request( 'exec' ) == 'uau' ) {
 
 			if ( check_admin_referer( $req->request( 'exec' ), 'exec_nonce' ) !== 1 ) {
@@ -65,14 +65,14 @@ class AutoUnblock {
 				throw new \Exception( 'GASP failed' );
 			}
 
-			if ( !$oOpts->getCanIpRequestAutoUnblock( $sIP ) ) {
+			if ( !$opts->getCanIpRequestAutoUnblock( $sIP ) ) {
 				throw new \Exception( 'IP already processed in the last 24hrs' );
 			}
 
 			{
-				$aExistingIps = $oOpts->getAutoUnblockIps();
+				$aExistingIps = $opts->getAutoUnblockIps();
 				$aExistingIps[ $sIP ] = Services::Request()->ts();
-				$oOpts->setOpt( 'autounblock_ips',
+				$opts->setOpt( 'autounblock_ips',
 					array_filter( $aExistingIps, function ( $nTS ) {
 						return Services::Request()
 									   ->carbon()

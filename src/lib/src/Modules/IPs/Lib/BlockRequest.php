@@ -57,6 +57,14 @@ class BlockRequest {
 
 		$sIP = Services::IP()->getRequestIp();
 		$nTimeRemaining = max( floor( $opts->getAutoExpireTime()/60 ), 0 );
+
+		$user = Services::WpUsers()->getCurrentWpUser();
+		$bCanUauGasp = $opts->isEnabledAutoVisitorRecover() && $opts->getCanIpRequestAutoUnblock( $sIP );
+		$bCanUauMagic = $opts->isEnabledMagicEmailLinkRecover() &&
+						$user instanceof \WP_User
+						&& $opts->getCanRequestAutoUnblockEmailLink( $user );
+		$bCanAutoRecover = $bCanUauGasp || $bCanUauMagic;
+
 		$aData = [
 			'strings' => [
 				'title'   => sprintf( __( "You've been blocked by the %s plugin", 'wp-simple-firewall' ),
@@ -101,8 +109,9 @@ class BlockRequest {
 				),
 			],
 			'flags'   => [
-				'is_autorecover'   => $opts->isEnabledAutoVisitorRecover(),
-				'is_uau_permitted' => $opts->getCanIpRequestAutoUnblock( $sIP ),
+				'is_autorecover'    => $bCanAutoRecover,
+				'is_uaug_permitted' => $bCanUauGasp,
+				'is_uaum_permitted' => $bCanUauMagic,
 			],
 		];
 		Services::WpGeneral()
@@ -149,9 +158,9 @@ class BlockRequest {
 							'email' => Obfuscate::Email( $user->user_email )
 						],
 						'strings' => [
-							'you_may'        => __( 'You may automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
+							'you_may'        => __( 'You can automatically unblock your IP address by clicking the link below.', 'wp-simple-firewall' ),
 							'this_will_send' => __( 'Clicking the link will send you an email letting you unblock your IP address.', 'wp-simple-firewall' ),
-							'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - most are not.', 'wp-simple-firewall' ),
+							'assumes_email'  => __( 'This assumes that your WordPress site has been properly configured to send email - many are not.', 'wp-simple-firewall' ),
 							'dont_receive'   => __( "If you don't receive the email, check your spam and contact your site admin.", 'wp-simple-firewall' ),
 							'limit_60'       => __( "You may only use this link once every 60 minutes. If you're repeatedly blocked, ask your site admin to review the audit trail to determine the cause.", 'wp-simple-firewall' ),
 							'same_browser'   => __( "When you click the link from your email, it must open up in this web browser.", 'wp-simple-firewall' ),
