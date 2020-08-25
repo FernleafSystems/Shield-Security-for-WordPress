@@ -54,14 +54,14 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
+	public function getOptionStrings( $key ) {
 		$oCon = $this->getCon();
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'frequency_alert' :
 				$sName = __( 'Alert Frequency', 'wp-simple-firewall' );
@@ -90,7 +90,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getOptionStrings( $sOptKey );
+				return parent::getOptionStrings( $key );
 		}
 
 		return [
@@ -101,13 +101,13 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( $section ) {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_timings' :
 				$sTitle = __( 'Report Frequencies', 'wp-simple-firewall' );
@@ -126,7 +126,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [

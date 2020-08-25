@@ -61,15 +61,15 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( $section ) {
 
 		$sModName = $this->getMod()->getMainFeatureName();
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_scan_options' :
 				$sTitle = __( 'Scan Options', 'wp-simple-firewall' );
@@ -159,7 +159,7 @@ class Strings extends Base\Strings {
 				break;
 
 			default:
-				return parent::getSectionStrings( $sSectionSlug );
+				return parent::getSectionStrings( $section );
 		}
 
 		return [
@@ -170,16 +170,16 @@ class Strings extends Base\Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
+	public function getOptionStrings( $key ) {
 		/** @var \ICWP_WPSF_FeatureHandler_HackProtect $oMod */
 		$oMod = $this->getMod();
 		$sModName = $oMod->getMainFeatureName();
 
-		switch ( $sOptKey ) {
+		switch ( $key ) {
 
 			case 'enable_hack_protect' :
 				$sName = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $sModName );
@@ -415,7 +415,7 @@ class Strings extends Base\Strings {
 								.'<br/>'.__( 'Remove all extensions to scan all file type (not recommended).', 'wp-simple-firewall' );
 				break;
 			default:
-				return parent::getOptionStrings( $sOptKey );
+				return parent::getOptionStrings( $key );
 		}
 
 		return [

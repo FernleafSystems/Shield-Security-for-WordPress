@@ -10,11 +10,11 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\FindSourceFromIp;
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return array
 	 */
-	protected function processAjaxAction( $sAction ) {
-		switch ( $sAction ) {
+	protected function processAjaxAction( $action ) {
+		switch ( $action ) {
 			case 'bulk_action':
 				$aResponse = $this->ajaxExec_BulkItemAction();
 				break;
@@ -64,7 +64,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;

@@ -78,10 +78,10 @@ class AjaxHandlerBase {
 	}
 
 	/**
-	 * @param string $sAjaxAction
+	 * @param string $action
 	 * @return array
 	 */
-	protected function processAjaxAction( $sAjaxAction ) {
+	protected function processAjaxAction( $action ) {
 		return [];
 	}
 

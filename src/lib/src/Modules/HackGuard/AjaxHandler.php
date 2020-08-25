@@ -11,13 +11,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return array
 	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( $action ) {
 
 		$oReq = Services::Request();
-		switch ( $sAction ) {
+		switch ( $action ) {
 
 			case 'scans_start':
 				$aResponse = $this->ajaxExec_StartScans();
@@ -40,7 +40,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 			case 'item_delete':
 			case 'item_ignore':
 			case 'item_repair':
-				$aResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $sAction ) );
+				$aResponse = $this->ajaxExec_ScanItemAction( str_replace( 'item_', '', $action ) );
 				break;
 
 			case 'render_table_scan':
@@ -60,7 +60,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;

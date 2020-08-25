@@ -10,8 +10,8 @@ class Options extends Base\ShieldOptions {
 	 * @return array
 	 */
 	public function getSuspendHardUserIds() {
-		$aIds = $this->getOpt( 'hard_suspended_userids', [] );
-		return is_array( $aIds ) ? array_filter( $aIds, function ( $nTime ) {
+		$ids = $this->getOpt( 'hard_suspended_userids', [] );
+		return is_array( $ids ) ? array_filter( $ids, function ( $nTime ) {
 			return is_int( $nTime ) && $nTime > 0;
 		} ) : [];
 	}
