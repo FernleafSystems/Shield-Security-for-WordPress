@@ -15,7 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property bool                                     $plugin_deactivating
  * @property bool                                     $plugin_deleting
  * @property bool                                     $plugin_reset
- * @property string                                   $file_forceoff
+ * @property false|string                             $file_forceoff
  * @property string                                   $base_file
  * @property string                                   $root_file
  * @property bool                                     $user_can_base_permissions
@@ -1709,14 +1709,6 @@ class Controller {
 		return strtolower( get_class() );
 	}
 
-	/**
-	 * @param string $sPathToLib
-	 * @return mixed
-	 */
-	public function loadLib( $sPathToLib ) {
-		return include( $this->getPath_LibFile( $sPathToLib ) );
-	}
-
 	public function deactivateSelf() {
 		if ( $this->isPluginAdmin() && function_exists( 'deactivate_plugins' ) ) {
 			deactivate_plugins( $this->getPluginBaseFile() );
@@ -1741,20 +1733,20 @@ class Controller {
 	}
 
 	/**
-	 * Returns true if you're overriding OFF.  We don't do override ON any more (as of 3.5.1)
+	 * @return bool
 	 */
 	public function getIfForceOffActive() {
-		return ( $this->getForceOffFilePath() !== false );
+		return $this->getForceOffFilePath() !== false;
 	}
 
 	/**
-	 * @return null|string
+	 * @return false|string
 	 */
 	protected function getForceOffFilePath() {
 		if ( !isset( $this->file_forceoff ) ) {
 			$FS = Services::WpFs();
-			$sFile = $FS->findFileInDir( 'forceoff', $this->getRootDir(), false, false );
-			$this->file_forceoff = ( !empty( $sFile ) && $FS->isFile( $sFile ) ) ? $sFile : false;
+			$file = $FS->findFileInDir( 'forceoff', $this->getRootDir(), false, false );
+			$this->file_forceoff = empty( $file ) ? false : $file;
 		}
 		return $this->file_forceoff;
 	}
