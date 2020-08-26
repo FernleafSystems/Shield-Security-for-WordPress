@@ -49,12 +49,29 @@ var iCWP_WPSF_OptionsPages = new function () {
 let iCWP_WPSF_OptsPageRender = new function () {
 	this.renderForm = function ( aAjaxReqData ) {
 		iCWP_WPSF_BodyOverlay.show();
-		jQuery.post( ajaxurl, aAjaxReqData,
-			function ( oResponse ) {
-				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html )
-														   .trigger( 'odp-optsrender' );
-			}
-		).fail(
+		jQuery.ajax( {
+			type: "POST",
+			url: ajaxurl,
+			data: aAjaxReqData,
+			success: function ( rawResponse ) {
+				let jsResponse;
+				try {
+					jsResponse = JSON.parse( rawResponse );
+				}
+				catch ( e ) {
+					jsResponse = JSON.parse(
+						rawResponse.substring(
+							rawResponse.indexOf( '{' ),
+							rawResponse.lastIndexOf( '}' ) + 1
+						)
+					);
+				}
+				jQuery( '#ColumnOptions .content-options' )
+				.html( jsResponse.data.html )
+				.trigger( 'odp-optsrender' );
+			},
+			dataType: "text"
+		} ).fail(
 			function () {
 			}
 		).always( function () {
