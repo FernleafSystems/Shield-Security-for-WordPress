@@ -31,13 +31,13 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @param string $sIp
+	 * @param string $ip
 	 * @return bool
 	 */
-	public function getCanIpRequestAutoUnblock( $sIp ) {
-		$aExistingIps = $this->getAutoUnblockIps();
-		return !array_key_exists( $sIp, $aExistingIps )
-			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $aExistingIps[ $sIp ] );
+	public function getCanIpRequestAutoUnblock( $ip ) {
+		$existing = $this->getAutoUnblockIps();
+		return !array_key_exists( $ip, $existing )
+			   || ( Services::Request()->carbon()->subDay( 1 )->timestamp > $existing[ $ip ] );
 	}
 
 	/**
@@ -147,34 +147,34 @@ class Options extends Base\ShieldOptions {
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptTransgression( $sOptionKey ) {
-		return strpos( $this->getOpt( $sOptionKey ), 'transgression' ) !== false;
+	public function isTrackOptTransgression( $key ) {
+		return strpos( $this->getOpt( $key ), 'transgression' ) !== false;
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptDoubleTransgression( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'transgression-double' );
+	public function isTrackOptDoubleTransgression( $key ) {
+		return $this->isOpt( $key, 'transgression-double' );
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	public function isTrackOptImmediateBlock( $sOptionKey ) {
-		return $this->isOpt( $sOptionKey, 'block' );
+	public function isTrackOptImmediateBlock( $key ) {
+		return $this->isOpt( $key, 'block' );
 	}
 
 	/**
-	 * @param string $sOptionKey
+	 * @param string $key
 	 * @return bool
 	 */
-	protected function isSelectOptionEnabled( $sOptionKey ) {
-		return !$this->isOpt( $sOptionKey, 'disabled' );
+	protected function isSelectOptionEnabled( $key ) {
+		return !$this->isOpt( $key, 'disabled' );
 	}
 }

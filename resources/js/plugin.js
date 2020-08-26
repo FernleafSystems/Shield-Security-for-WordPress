@@ -47,17 +47,23 @@ var iCWP_WPSF_OptionsPages = new function () {
 }();
 
 let iCWP_WPSF_OptsPageRender = new function () {
-	this.renderForm = function ( aAjaxReqData ) {
+	this.renderForm = function ( reqData ) {
 		iCWP_WPSF_BodyOverlay.show();
-		jQuery.post( ajaxurl, aAjaxReqData,
-			function ( oResponse ) {
-				jQuery( '#ColumnOptions .content-options' ).html( oResponse.data.html )
-														   .trigger( 'odp-optsrender' );
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				success: function ( rawResponse ) {
+					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
+					jQuery( '#ColumnOptions .content-options' )
+					.html( response.data.html )
+					.trigger( 'odp-optsrender' );
+				},
+				dataType: "text"
 			}
-		).fail(
+		).always(
 			function () {
-			}
-		).always( function () {
 				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);

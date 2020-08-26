@@ -10,12 +10,12 @@ use FernleafSystems\Wordpress\Services\Services;
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 
 	/**
-	 * @param string $sAction
+	 * @param string $action
 	 * @return array
 	 */
-	protected function processAjaxAction( $sAction ) {
+	protected function processAjaxAction( $action ) {
 
-		switch ( $sAction ) {
+		switch ( $action ) {
 			case 'render_table_sessions':
 				$aResponse = $this->ajaxExec_BuildTableTraffic();
 				break;
@@ -29,7 +29,7 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 				break;
 
 			default:
-				$aResponse = parent::processAjaxAction( $sAction );
+				$aResponse = parent::processAjaxAction( $action );
 		}
 
 		return $aResponse;

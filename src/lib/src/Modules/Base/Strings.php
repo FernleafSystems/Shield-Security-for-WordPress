@@ -135,12 +135,12 @@ class Strings {
 	}
 
 	/**
-	 * @param string $sOptKey
+	 * @param string $key
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getOptionStrings( $sOptKey ) {
-		$aOpt = $this->getOptions()->getOptDefinition( $sOptKey );
+	public function getOptionStrings( $key ) {
+		$aOpt = $this->getOptions()->getOptDefinition( $key );
 		if ( is_array( $aOpt ) && !empty( $aOpt[ 'name' ] ) && !empty( $aOpt[ 'summary' ] ) && !empty( $aOpt[ 'description' ] ) ) {
 			return [
 				'name'        => __( $aOpt[ 'name' ], 'wp-simple-firewall' ),
@@ -148,17 +148,17 @@ class Strings {
 				'description' => __( $aOpt[ 'description' ], 'wp-simple-firewall' ),
 			];
 		}
-		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $sOptKey ) );
+		throw new \Exception( sprintf( 'An option has been defined but without strings assigned to it. Option key: "%s".', $key ) );
 	}
 
 	/**
-	 * @param string $sSectionSlug
+	 * @param string $section
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function getSectionStrings( $sSectionSlug ) {
+	public function getSectionStrings( $section ) {
 
-		switch ( $sSectionSlug ) {
+		switch ( $section ) {
 
 			case 'section_user_messages' :
 				$sTitle = __( 'User Messages', 'wp-simple-firewall' );
@@ -171,14 +171,14 @@ class Strings {
 				break;
 
 			default:
-				$aSect = $this->getOptions()->getSection( $sSectionSlug );
+				$aSect = $this->getOptions()->getSection( $section );
 				if ( is_array( $aSect ) && !empty( $aSect[ 'title' ] ) && !empty( $aSect[ 'title_short' ] ) ) {
 					$sTitle = __( $aSect[ 'title' ], 'wp-simple-firewall' );
 					$sTitleShort = __( $aSect[ 'title_short' ], 'wp-simple-firewall' );
 					$aSummary = empty( $aSect[ 'summary' ] ) ? [] : $aSect[ 'summary' ];
 				}
 				else {
-					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $sSectionSlug ) );
+					throw new \Exception( sprintf( 'A section slug was defined but with no associated strings. Slug: "%s".', $section ) );
 				}
 		}
 
