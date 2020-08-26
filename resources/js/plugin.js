@@ -47,34 +47,23 @@ var iCWP_WPSF_OptionsPages = new function () {
 }();
 
 let iCWP_WPSF_OptsPageRender = new function () {
-	this.renderForm = function ( aAjaxReqData ) {
+	this.renderForm = function ( reqData ) {
 		iCWP_WPSF_BodyOverlay.show();
-		jQuery.ajax( {
-			type: "POST",
-			url: ajaxurl,
-			data: aAjaxReqData,
-			success: function ( rawResponse ) {
-				let jsResponse;
-				try {
-					jsResponse = JSON.parse( rawResponse );
-				}
-				catch ( e ) {
-					jsResponse = JSON.parse(
-						rawResponse.substring(
-							rawResponse.indexOf( '{' ),
-							rawResponse.lastIndexOf( '}' ) + 1
-						)
-					);
-				}
-				jQuery( '#ColumnOptions .content-options' )
-				.html( jsResponse.data.html )
-				.trigger( 'odp-optsrender' );
-			},
-			dataType: "text"
-		} ).fail(
-			function () {
+		jQuery.ajax(
+			{
+				type: "POST",
+				url: ajaxurl,
+				data: reqData,
+				success: function ( rawResponse ) {
+					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
+					jQuery( '#ColumnOptions .content-options' )
+					.html( response.data.html )
+					.trigger( 'odp-optsrender' );
+				},
+				dataType: "text"
 			}
-		).always( function () {
+		).always(
+			function () {
 				iCWP_WPSF_BodyOverlay.hide();
 			}
 		);
