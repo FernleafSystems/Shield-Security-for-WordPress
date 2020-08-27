@@ -181,8 +181,13 @@ class FileLockerController {
 		switch ( $sFileKey ) {
 			case 'wpconfig':
 				$sFileKey = 'wp-config.php';
-				$nLevels = $bIsSplitWp ? 3 : 2;
 				$nMaxPaths = 1;
+				$nLevels = $bIsSplitWp ? 3 : 2;
+
+				$openBaseDir = ini_get( 'open_basedir' );
+				if ( !empty( $openBaseDir ) ) {
+					$nLevels--;
+				}
 				// TODO: is split URL?
 				break;
 			case 'root_htaccess':
