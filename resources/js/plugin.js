@@ -54,13 +54,13 @@ let iCWP_WPSF_OptsPageRender = new function () {
 				type: "POST",
 				url: ajaxurl,
 				data: reqData,
+				dataType: "text",
 				success: function ( rawResponse ) {
 					let response = iCWP_WPSF_ParseAjaxResponse.parseIt( rawResponse );
 					jQuery( '#ColumnOptions .content-options' )
 					.html( response.data.html )
 					.trigger( 'odp-optsrender' );
-				},
-				dataType: "text"
+				}
 			}
 		).always(
 			function () {

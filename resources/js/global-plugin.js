@@ -61,6 +61,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 			type: "POST",
 			url: ajaxurl,
 			data: reqData,
+			dataType: "text",
 			success: function ( raw ) {
 				let resp = iCWP_WPSF_ParseAjaxResponse.parseIt( raw );
 
@@ -79,8 +80,7 @@ var iCWP_WPSF_StandardAjax = new function () {
 				else {
 					iCWP_WPSF_BodyOverlay.hide();
 				}
-			},
-			dataType: "text"
+			}
 		} )
 	};
 }();
