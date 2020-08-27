@@ -659,15 +659,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	/**
 	 * @param array $aItems
 	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function addAdminMenuBarItems( array $aItems ) {
-		return $aItems;
-	}
-
-	/**
-	 * @param array $aItems
-	 * @return array
 	 */
 	public function supplySubMenuItem( $aItems ) {
 
@@ -2086,12 +2077,5 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 */
 	public function savePluginOptions() {
 		$this->saveModOptions();
-	}
-
-	/**
-	 * @deprecated 9.0
-	 */
-	protected function doExtraSubmitProcessing() {
-		$this->preProcessOptions();
 	}
 }

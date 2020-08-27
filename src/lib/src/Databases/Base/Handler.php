@@ -386,21 +386,4 @@ class Handler {
 	protected function getPrimaryKeySpec() {
 		return 'PRIMARY KEY  (id)';
 	}
-
-	/**
-	 * @param bool $bTruncate
-	 * @return bool
-	 * @deprecated 9.0.4
-	 */
-	public function deleteTable( $bTruncate = false ) {
-		return $this->tableDelete( $bTruncate );
-	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.0.4
-	 */
-	public function isTable() {
-		return $this->tableExists();
-	}
 }
