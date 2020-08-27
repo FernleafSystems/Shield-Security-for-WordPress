@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 
 use FernleafSystems\Wordpress\Plugin\Shield;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Sessions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
@@ -39,21 +39,22 @@ class AjaxHandler extends Shield\Modules\Base\AjaxHandlerShield {
 	 * @return array
 	 */
 	private function ajaxExec_BuildTableTraffic() {
-		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $oMod */
-		$oMod = $this->getMod();
+		/** @var \ICWP_WPSF_FeatureHandler_UserManagement $mod */
+		$mod = $this->getMod();
 
 		( new UserManagement\Lib\CleanExpired() )
-			->setMod( $oMod )
+			->setMod( $mod )
 			->run();
 
+		/** @var Shield\Modules\SecurityAdmin\Options $optsSecAdmin */
+		$optsSecAdmin = $this->getCon()
+							 ->getModule_SecAdmin()
+							 ->getOptions();
+
 		$oTableBuilder = ( new Shield\Tables\Build\Sessions() )
-			->setMod( $oMod )
-			->setDbHandler( $oMod->getDbHandler_Sessions() )
-			->setSecAdminUsers(
-				$this->getCon()
-					 ->getModule_SecAdmin()
-					 ->getSecurityAdminUsers()
-			);
+			->setMod( $mod )
+			->setDbHandler( $mod->getDbHandler_Sessions() )
+			->setSecAdminUsers( $optsSecAdmin->getSecurityAdminUsers() );
 
 		return [
 			'success' => true,

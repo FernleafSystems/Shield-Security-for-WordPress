@@ -11,10 +11,10 @@ class RemoveSecAdmin {
 	use ModConsumer;
 
 	public function remove() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		if ( $oOpts->hasAccessKey() ) {
-			$oOpts->clearSecurityAdminKey();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		if ( $opts->hasSecurityPIN() ) {
+			$opts->clearSecurityAdminKey();
 			$this->getMod()->saveModOptions();
 			$this->sendNotificationEmail();
 		}
