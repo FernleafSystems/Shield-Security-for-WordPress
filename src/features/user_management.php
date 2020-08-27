@@ -35,31 +35,29 @@ class ICWP_WPSF_FeatureHandler_UserManagement extends \ICWP_WPSF_FeatureHandler_
 	}
 
 	protected function preProcessOptions() {
-		/** @var UserManagement\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var UserManagement\Options $opts */
+		$opts = $this->getOptions();
 
-		$oOpts->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
+		$opts->setOpt( 'enable_admin_login_email_notification', implode( ', ', $this->getAdminLoginNotificationEmails() ) );
 
-		if ( $oOpts->getIdleTimeoutInterval() > $oOpts->getMaxSessionTime() ) {
-			$oOpts->setOpt( 'session_idle_timeout_interval', $oOpts->getOpt( 'session_timeout_interval' )*24 );
+		if ( $opts->getIdleTimeoutInterval() > $opts->getMaxSessionTime() ) {
+			$opts->setOpt( 'session_idle_timeout_interval', $opts->getOpt( 'session_timeout_interval' )*24 );
 		}
 
-		$oOpts->setOpt( 'auto_idle_roles',
+		$opts->setOpt( 'auto_idle_roles',
 			array_unique( array_filter( array_map(
 				function ( $sRole ) {
 					return preg_replace( '#[^\sa-z0-9_-]#i', '', trim( strtolower( $sRole ) ) );
 				},
-				$oOpts->getSuspendAutoIdleUserRoles()
+				$opts->getSuspendAutoIdleUserRoles()
 			) ) )
 		);
 
-		{
-			$aChecks = $oOpts->getEmailValidationChecks();
-			if ( !empty( $aChecks ) ) {
-				$aChecks[] = 'syntax';
-			}
-			$oOpts->setOpt( 'email_checks', array_unique( $aChecks ) );
+		$aChecks = $opts->getEmailValidationChecks();
+		if ( !empty( $aChecks ) ) {
+			$aChecks[] = 'syntax';
 		}
+		$opts->setOpt( 'email_checks', array_unique( $aChecks ) );
 	}
 
 	/**
