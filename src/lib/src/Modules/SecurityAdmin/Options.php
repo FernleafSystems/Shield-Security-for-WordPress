@@ -129,20 +129,4 @@ class Options extends Base\ShieldOptions {
 	public function isWlHideUpdates() {
 		return $this->isEnabledWhitelabel() && $this->isOpt( 'wl_hide_updates', 'Y' );
 	}
-
-	/**
-	 * @return bool
-	 * @deprecated 9.2.0
-	 */
-	public function hasAccessKey() {
-		return $this->hasSecurityPIN();
-	}
-
-	/**
-	 * @return string
-	 * @deprecated 9.2.0
-	 */
-	public function getAccessKeyHash() {
-		return $this->getSecurityPIN();
-	}
 }

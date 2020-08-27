@@ -27,15 +27,6 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	}
 
 	/**
-	 * @return array
-	 * @deprecated 9.2.0
-	 */
-	public function getSecurityAdminUsers() {
-		$aU = $this->getOpt( 'sec_admin_users', [] );
-		return ( is_array( $aU ) && $this->isPremium() ) ? $aU : [];
-	}
-
-	/**
 	 * No checking of admin capabilities in-case of infinite loop with
 	 * admin access caps check
 	 * @return bool
