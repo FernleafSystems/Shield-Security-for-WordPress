@@ -28,7 +28,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 
 	/**
 	 * @return array
-	 * @deprecated 9.1.0
+	 * @deprecated 9.2.0
 	 */
 	public function getSecurityAdminUsers() {
 		$aU = $this->getOpt( 'sec_admin_users', [] );
@@ -41,11 +41,16 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isRegisteredSecAdminUser() {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 		$sUser = Services::WpUsers()->getCurrentWpUsername();
-		return !empty( $sUser ) && in_array( $sUser, $this->getSecurityAdminUsers() );
+		return !empty( $sUser ) && in_array( $sUser, $opts->getSecurityAdminUsers() );
 	}
 
 	protected function preProcessOptions() {
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+
 		if ( $this->isValidSecAdminRequest() ) {
 			$this->setSecurityAdminStatusOnOff( true );
 		}
@@ -65,7 +70,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			}
 		}
 
-		$this->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $this->getSecurityAdminUsers() ) );
+		$this->setOpt( 'sec_admin_users', $this->verifySecAdminUsers( $opts->getSecurityAdminUsers() ) );
 	}
 
 	/**
@@ -76,8 +81,8 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	private function verifySecAdminUsers( $aSecUsers ) {
 		$oDP = Services::Data();
 		$oWpUsers = Services::WpUsers();
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 
 		$aFiltered = [];
 		foreach ( $aSecUsers as $nCurrentKey => $sUsernameOrEmail ) {
@@ -99,7 +104,7 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		// We now run a bit of a sanity check to ensure that the current user is
 		// not adding users here that aren't themselves without a key to still gain access
 		$oCurrent = $oWpUsers->getCurrentWpUser();
-		if ( !empty( $aFiltered ) && !$oOpts->hasAccessKey() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
+		if ( !empty( $aFiltered ) && !$opts->hasSecurityPIN() && !in_array( $oCurrent->user_login, $aFiltered ) ) {
 			$aFiltered[] = $oCurrent->user_login;
 		}
 
@@ -159,11 +164,11 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function isEnabledSecurityAdmin() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 		return $this->isModOptEnabled() &&
-			   ( count( $oOpts->getSecurityAdminUsers() ) > 0 ||
-				 ( $oOpts->hasAccessKey() && $this->getSecAdminTimeout() > 0 )
+			   ( count( $opts->getSecurityAdminUsers() ) > 0 ||
+				 ( $opts->hasSecurityPIN() && $this->getSecAdminTimeout() > 0 )
 			   );
 	}
 
@@ -194,14 +199,14 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			$bValid = false;
 			$sReqKey = Services::Request()->post( 'sec_admin_key' );
 			if ( !empty( $sReqKey ) ) {
-				/** @var SecurityAdmin\Options $oOpts */
-				$oOpts = $this->getOptions();
-				$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sReqKey ) );
+				/** @var SecurityAdmin\Options $opts */
+				$opts = $this->getOptions();
+				$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sReqKey ) );
 				if ( !$bValid ) {
 					$sEscaped = isset( $_POST[ 'sec_admin_key' ] ) ? $_POST[ 'sec_admin_key' ] : '';
 					if ( !empty( $sEscaped ) ) {
 						// Workaround for escaping of passwords
-						$bValid = hash_equals( $oOpts->getAccessKeyHash(), md5( $sEscaped ) );
+						$bValid = hash_equals( $opts->getSecurityPIN(), md5( $sEscaped ) );
 						if ( $bValid ) {
 							$this->setOpt( 'admin_access_key', md5( $sReqKey ) );
 						}
@@ -228,9 +233,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * @return bool
 	 */
 	public function verifyAccessKey( $sKey ) {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
-		return !empty( $sKey ) && hash_equals( $oOpts->getAccessKeyHash(), md5( $sKey ) );
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
+		return !empty( $sKey ) && hash_equals( $opts->getSecurityPIN(), md5( $sKey ) );
 	}
 
 	/**
@@ -473,18 +478,18 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 	 * This is the point where you would want to do any options verification
 	 */
 	protected function doPrePluginOptionsSave() {
-		/** @var SecurityAdmin\Options $oOpts */
-		$oOpts = $this->getOptions();
+		/** @var SecurityAdmin\Options $opts */
+		$opts = $this->getOptions();
 
-		if ( hash_equals( $oOpts->getAccessKeyHash(), self::HASH_DELETE ) ) {
-			$oOpts->clearSecurityAdminKey();
+		if ( hash_equals( $opts->getSecurityPIN(), self::HASH_DELETE ) ) {
+			$opts->clearSecurityAdminKey();
 			$this->setSecurityAdminStatusOnOff( false );
 		}
 
 		// Restricting Activate Plugins also means restricting the rest.
-		$aPluginsRestrictions = $oOpts->getAdminAccessArea_Plugins();
+		$aPluginsRestrictions = $opts->getAdminAccessArea_Plugins();
 		if ( in_array( 'activate_plugins', $aPluginsRestrictions ) ) {
-			$oOpts->setOpt(
+			$opts->setOpt(
 				'admin_access_restrict_plugins',
 				array_unique( array_merge( $aPluginsRestrictions, [
 					'install_plugins',
@@ -495,9 +500,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 		}
 
 		// Restricting Switch (Activate) Themes also means restricting the rest.
-		$aThemesRestrictions = $oOpts->getAdminAccessArea_Themes();
+		$aThemesRestrictions = $opts->getAdminAccessArea_Themes();
 		if ( in_array( 'switch_themes', $aThemesRestrictions ) && in_array( 'edit_theme_options', $aThemesRestrictions ) ) {
-			$oOpts->setOpt(
+			$opts->setOpt(
 				'admin_access_restrict_themes',
 				array_unique( array_merge( $aThemesRestrictions, [
 					'install_themes',
@@ -507,9 +512,9 @@ class ICWP_WPSF_FeatureHandler_AdminAccessRestriction extends ICWP_WPSF_FeatureH
 			);
 		}
 
-		$aPostRestrictions = $oOpts->getAdminAccessArea_Posts();
+		$aPostRestrictions = $opts->getAdminAccessArea_Posts();
 		if ( in_array( 'edit', $aPostRestrictions ) ) {
-			$oOpts->setOpt(
+			$opts->setOpt(
 				'admin_access_restrict_posts',
 				array_unique( array_merge( $aPostRestrictions, [ 'create', 'publish', 'delete' ] ) )
 			);

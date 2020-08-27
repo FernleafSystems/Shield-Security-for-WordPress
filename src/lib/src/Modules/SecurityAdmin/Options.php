@@ -132,18 +132,17 @@ class Options extends Base\ShieldOptions {
 
 	/**
 	 * @return bool
-	 * @deprecated 9.1.0
+	 * @deprecated 9.2.0
 	 */
 	public function hasAccessKey() {
-		$sKey = $this->getAccessKeyHash();
-		return !empty( $sKey ) && strlen( $sKey ) == 32;
+		return $this->hasSecurityPIN();
 	}
 
 	/**
 	 * @return string
-	 * @deprecated 9.1.0
+	 * @deprecated 9.2.0
 	 */
 	public function getAccessKeyHash() {
-		return $this->getOpt( 'admin_access_key' );
+		return $this->getSecurityPIN();
 	}
 }
