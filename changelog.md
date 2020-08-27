@@ -1,3 +1,17 @@
+#### 9.2 Series
+*Released: 31st August 2020* - [Release Announcement](https://shsec.io/shieldrelease92)
+
+##### [Please review the full Shield 9.2 Upgrade Guide here](https://shsec.io/shieldupgradeguide92).
+
+* **(.0)  NEW**:		[*PRO*] Allow logged-in users to automatically unblock their IP address.
+* **(.0)  IMPROVED**:	Automatic updates notification email is now only sent if on WordPress < 5.5.
+* **(.0)  IMPROVED**:	Automatic updates notification email setting also applies to plugin/theme update emails.
+* **(.0)  IMPROVED**:	Use WP Fastest Cache method to prevent caching of block pages. Whether it makes a difference is another thing.
+* **(.0)  IMPROVED**:	Prevent spurious output from errors not relating to this plugin from affecting display of our admin pages.
+* **(.0)  IMPROVED**:	`forceoff` file detection improved.
+* **(.0)  CHANGED**:	Session cookie renamed from `icwp-wpsf` to `wp-icwp-wpsf` because some plugin devs feel a cookie is only important if it begins with `wp-`.
+* **(.0)  FIXED**:		Cleaned some WP-CLI PHP notices on certain commands.
+
 #### 9.1 Series
 *Released: 23rd April 2020* - [Release Announcement](https://shsec.io/shieldrelease91)
 
