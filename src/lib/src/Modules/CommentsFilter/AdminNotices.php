@@ -50,16 +50,18 @@ class AdminNotices extends Shield\Modules\Base\AdminNotices {
 	 * @return bool
 	 */
 	protected function isDisplayNeeded( $oNotice ) {
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-		$oMod = $this->getMod();
+		/** @var Options $opts */
+		$opts = $this->getOptions();
 
 		switch ( $oNotice->id ) {
 
 			case 'akismet-running':
 				$oWpPlugins = Services::WpPlugins();
 				$sPluginFile = $oWpPlugins->findPluginFileFromDirName( 'akismet' );
-				$bNeeded = $oMod->isEnabledHumanCheck()
-						   && !empty( $sPluginFile ) && $oWpPlugins->isActive( $sPluginFile );
+				$bNeeded = $this->getMod()->isModuleEnabled()
+						   && !empty( $sPluginFile )
+						   && $oWpPlugins->isActive( $sPluginFile )
+						   && $opts->isEnabledHumanCheck();
 				break;
 
 			default:
