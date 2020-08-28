@@ -592,7 +592,6 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 	 * @return bool
 	 */
 	public function isModuleEnabled() {
-		$oOpts = $this->getOptions();
 		/** @var Shield\Modules\Plugin\Options $oPluginOpts */
 		$oPluginOpts = $this->getCon()->getModule_Plugin()->getOptions();
 
@@ -606,7 +605,8 @@ abstract class ICWP_WPSF_FeatureHandler_Base {
 		elseif ( $this->getCon()->getIfForceOffActive() ) {
 			$bEnabled = false;
 		}
-		elseif ( $oOpts->getFeatureProperty( 'premium' ) === true && !$this->isPremium() ) {
+		elseif ( $this->getOptions()->getFeatureProperty( 'premium' ) === true
+				 && !$this->isPremium() ) {
 			$bEnabled = false;
 		}
 		else {

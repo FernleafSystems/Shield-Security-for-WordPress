@@ -157,9 +157,10 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 			$aStepsSlugs[] = 'login_protect';
 		}
 
-		/** @var \ICWP_WPSF_FeatureHandler_CommentsFilter $oModule */
-		$mod = $con->getModule( 'comments_filter' );
-		if ( !( $mod->isModuleEnabled() && $mod->isEnabledGaspCheck() ) ) {
+		$modComm = $con->getModule_Comments();
+		/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
+		$optsComm = $modComm->getOptions();
+		if ( !( $modComm->isModuleEnabled() && $optsComm->isEnabledGaspCheck() ) ) {
 			$aStepsSlugs[] = 'comments_filter';
 		}
 
@@ -689,15 +690,16 @@ class ICWP_WPSF_Wizard_Plugin extends ICWP_WPSF_Wizard_BaseWpsf {
 		if ( !empty( $sInput ) ) {
 			$bEnabled = $sInput === 'Y';
 
-			/** @var ICWP_WPSF_FeatureHandler_CommentsFilter $oMod */
-			$oMod = $this->getCon()->getModule( 'comments_filter' );
+			$modComm = $this->getCon()->getModule_Comments();
 			if ( $bEnabled ) { // we don't disable the whole module
-				$oMod->setIsMainFeatureEnabled( true );
+				$modComm->setIsMainFeatureEnabled( true );
 			}
-			$oMod->setEnabledGasp( $bEnabled );
-			$oMod->saveModOptions();
+			$modComm->setEnabledGasp( $bEnabled );
+			$modComm->saveModOptions();
 
-			$bSuccess = $oMod->isEnabledGaspCheck() === $bEnabled;
+			/** @var \FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Options $optsComm */
+			$optsComm = $modComm->getOptions();
+			$bSuccess = $optsComm->isEnabledGaspCheck() === $bEnabled;
 			if ( $bSuccess ) {
 				$sMessage = sprintf( '%s has been %s.', __( 'Comment SPAM Protection', 'wp-simple-firewall' ),
 					$bEnabled ? __( 'Enabled', 'wp-simple-firewall' ) : __( 'Disabled', 'wp-simple-firewall' )

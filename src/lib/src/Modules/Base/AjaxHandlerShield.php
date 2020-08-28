@@ -10,7 +10,7 @@ class AjaxHandlerShield extends AjaxHandlerBase {
 	 */
 	protected function processAjaxAction( $action ) {
 		$aResponse = [];
-		$oMod = $this->getMod();
+		$mod = $this->getMod();
 
 		switch ( $action ) {
 
@@ -23,15 +23,15 @@ class AjaxHandlerShield extends AjaxHandlerBase {
 				break;
 
 			case 'wiz_process_step':
-				if ( $oMod->hasWizard() ) {
-					$aResponse = $oMod->getWizardHandler()
+				if ( $mod->hasWizard() ) {
+					$aResponse = $mod->getWizardHandler()
 									  ->ajaxExec_WizProcessStep();
 				}
 				break;
 
 			case 'wiz_render_step':
-				if ( $oMod->hasWizard() ) {
-					$aResponse = $oMod->getWizardHandler()
+				if ( $mod->hasWizard() ) {
+					$aResponse = $mod->getWizardHandler()
 									  ->ajaxExec_WizRenderStep();
 				}
 				break;
