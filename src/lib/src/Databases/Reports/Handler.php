@@ -11,7 +11,7 @@ class Handler extends Base\Handler {
 	const TYPE_INFO = 'nfo';
 
 	public function autoCleanDb() {
-		$this->cleanDb( 30 );
+		$this->tableCleanExpired( 30 );
 	}
 
 	/**

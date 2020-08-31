@@ -8,9 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Options;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getOptions();
-		$this->cleanDb( $oOpts->getDef( 'db_autoexpire_geoip' ) );
+		$this->tableCleanExpired( $this->getOptions()->getDef( 'db_autoexpire_geoip' ) );
 	}
 
 	/**

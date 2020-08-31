@@ -8,10 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Options;
 class Handler extends Base\Handler {
 
 	public function autoCleanDb() {
-		/** @var Options $oOpts */
-		$oOpts = $this->getMod()->getOptions();
-		$this->cleanDb( $oOpts->getAutoCleanDays() );
-		$this->tableTrimExcess( $oOpts->getMaxEntries() );
+		/** @var Options $opts */
+		$opts = $this->getOptions();
+		$this->tableCleanExpired( $opts->getAutoCleanDays() );
+		$this->tableTrimExcess( $opts->getMaxEntries() );
 	}
 
 	/**
